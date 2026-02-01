@@ -1,0 +1,130 @@
+# The EBNF specifying the grammar of EnlightenedC.
+# Translated from BNF from the following sources:
+# [1] https://github.com/Ma11ock/holyc/blob/master/hc.bnf
+# [2] https://cs.wmich.edu/~gupta/teaching/cs4850/sumII06/The%20syntax%20of%20C%20in%20Backus-Naur%20form.htm
+
+# PROGRAM AND TOPLEVEL DECLARATIONS:
+
+# We use regex-style `+` to denote at least one repetition, so p = a+ is equivalent to p = a { a }.
+program = ( function-definition | compound-statement )+ ;
+
+function-definition = [declaration-specifier-list] declarator [declaration-list] compound-statement
+
+declaration-list = declaration+
+
+declaration = declaration-specifier-list [ init-declarator-list ] ";"
+
+declaration-specifier-list = declaration-specifier+
+
+declaration-specifier = storage-class-specifier | type-specifier | type-qualifier
+
+# reg, noreg, and _extern are not part of the enlightenedC spec.
+storage-class-specifier = "public" | "static" | "extern"
+
+type-specifier = "U0i" | "U8i" | "U16i" | "U32i" | "U64i" 
+               | "I0i" | "I8i" | "I16i" | "I32i" | "I64i"
+               | "F64" | struct-or-union-specifier | enum-specifier
+
+struct-or-union-specifier = struct-or-union [ identifier ] [ "{" struct-declaration+ "}" ]
+
+struct-or-union = "class" | "union"
+
+type-qualifier = "const" # the semantics of volatile might be difficult to implement.
+
+init-declarator-list = init-declarator { "," init-declarator }
+
+init-declarator = declarator [ "=" initializer ]
+
+struct-declaration = { ( type-specifier | type-qualifier ) } (struct-declarator ";")+
+
+# HolyC does not contain bitfields, however, since we are inheriting C's struct syntax and semantics,
+# we will include them, at least syntactically. They may or may not be implemented :')
+struct-declarator = declarator [ ":" constant-expression ]
+                  | ":" constant-expression ;
+
+enum-specifier = "enum" ( "{" enumerator-list "}" )
+
+declarator = [ pointer ] direct-declarator
+
+direct-declarator = ( identifier | "(" declarator ")" ) { "[" [ constant-expression ] "]" 
+                                                        | "(" [ constant-expression
+                                                              | parameter-type-list
+                                                              | identifier+ ] ")" }
+
+pointer = { "*" [ type-qualifier+ ] } "*" [ type-qualifier+ ] ;
+
+
+
+# EXPRESSIONS AND CONSTANTS:
+
+expression = assignment-expression { "," assignment-expression }
+
+assignment-expression = unary-expression assignment-operator assignment-expression
+                        | conditional-expression
+
+assignment-operator = "=" | "*=" | "/=" | "%=" | "+=" | "-="
+                    | "<<=" | ">>=" | "&=" | "^=" | "|="
+
+conditional-expression = { logical-or-expression "?" expression ":" } logical-or-expression
+
+constant-expression = conditional-expression
+
+logical-or-expression = logical-and-expression { "||" logical-and-expression }
+
+logical-and-expression = inclusive-or-expression { "&&" inclusive-or-expression }
+
+inclusive-or-expression = exclusive-or-expression { "|" exclusive-or-expression }
+
+exclusive-or-expression = and-expression { "^" and-expression }
+
+and-expression = equality-expression { "&" equality-expression }
+
+equality-expression = relational-expression { ( "==" | "!=" ) relational-expression }
+
+relational-expression = shift-expression { ( "<" | ">" | "<=" | ">=" ) shift-expression }
+
+shift-expression = additive-expression { ( "<<" | ">>" ) additive-expression }
+
+additive-expression = multiplicative-expression { ( "+" | "-" ) multiplicative-expression }
+
+multiplicative-expression = cast-expression { ( "*" | "/" | "%" ) cast-expression }
+
+# Casting expresions in HolyC are postfix.
+cast-expression = unary-expression { "(" type-name ")" }
+
+unary-expression = ( "++" | "--" ) unary-expression
+                 | unary-operator cast-expression
+                 | sizeof "(" ( unary-operator | postfix-expression ) ")"
+                 | postfix-expression
+
+unary-operator = "&" | "*" | "+" | "-" | "~" | "!"
+
+postfix-expression = primary-expression { "[" expression "]" 
+                                        | "(" { assignment-expression } ")" 
+                                        | "(" ")"
+                                        | "." identifier
+                                        | "->" identifier
+                                        | "++"
+                                        | "--" }
+
+primary-expression = identifier
+                     | constant
+                     | string-constant
+                     | "(" expression ")"
+
+constant = integer-constant
+           | character-constant
+           | floating-constant
+           | enumeration-constant
+
+# Regular expressions are used for the remaining rules.
+
+identifier = "[_a-zA-Z][_\\w]*"
+
+integer-constant = "[-0-9]+|0x[-0-9A-Fa-f]+|^0[-0-7]+"
+
+floating-constant = "[-.0-9]+"
+
+character-constant = "'.{1,8}'"
+
+string-constant = "\".*\""
