@@ -1,11 +1,13 @@
-# The EBNF specifying the grammar of EnlightenedC.
-# Translated from BNF from the following sources:
-# [1] https://github.com/Ma11ock/holyc/blob/master/hc.bnf
-# [2] https://cs.wmich.edu/~gupta/teaching/cs4850/sumII06/The%20syntax%20of%20C%20in%20Backus-Naur%20form.htm
+(* 
+The EBNF specifying the grammar of EnlightenedC.
+Translated from BNF from the following sources:
+[1] https://github.com/Ma11ock/holyc/blob/master/hc.bnf
+[2] https://cs.wmich.edu/~gupta/teaching/cs4850/sumII06/The%20syntax%20of%20C%20in%20Backus-Naur%20form.htm
+*)
 
-# PROGRAM AND TOPLEVEL DECLARATIONS:
+(* PROGRAM AND TOPLEVEL DECLARATIONS: *)
 
-# We use regex-style `+` to denote at least one repetition, so p = a+ is equivalent to p = a { a }.
+(* We use regex-style `+` to denote at least one repetition, so p = a+ is equivalent to p = a { a }. *)
 program = ( function-definition | compound-statement )+ ;
 
 function-definition = [declaration-specifier-list] declarator [declaration-list] compound-statement
@@ -18,7 +20,7 @@ declaration-specifier-list = declaration-specifier+
 
 declaration-specifier = storage-class-specifier | type-specifier | type-qualifier
 
-# reg, noreg, and _extern are not part of the enlightenedC spec.
+(* reg, noreg, and _extern are not part of the enlightenedC spec. *)
 storage-class-specifier = "public" | "static" | "extern"
 
 type-specifier = "U0i" | "U8i" | "U16i" | "U32i" | "U64i" 
@@ -29,7 +31,8 @@ struct-or-union-specifier = struct-or-union [ identifier ] [ "{" struct-declarat
 
 struct-or-union = "class" | "union"
 
-type-qualifier = "const" # the semantics of volatile might be difficult to implement.
+(* the semantics of volatile might be difficult to implement. *)
+type-qualifier = "const"
 
 init-declarator-list = init-declarator { "," init-declarator }
 
@@ -37,8 +40,10 @@ init-declarator = declarator [ "=" initializer ]
 
 struct-declaration = { ( type-specifier | type-qualifier ) } (struct-declarator ";")+
 
-# HolyC does not contain bitfields, however, since we are inheriting C's struct syntax and semantics,
-# we will include them, at least syntactically. They may or may not be implemented :')
+(* 
+HolyC does not contain bitfields, however, since we are inheriting C's struct syntax and semantics,
+we will include them, at least syntactically. They may or may not be implemented :')
+*)
 struct-declarator = declarator [ ":" constant-expression ]
                   | ":" constant-expression ;
 
@@ -55,7 +60,7 @@ pointer = { "*" [ type-qualifier+ ] } "*" [ type-qualifier+ ] ;
 
 
 
-# EXPRESSIONS AND CONSTANTS:
+(* EXPRESSIONS AND CONSTANTS: *)
 
 expression = assignment-expression { "," assignment-expression }
 
@@ -89,7 +94,7 @@ additive-expression = multiplicative-expression { ( "+" | "-" ) multiplicative-e
 
 multiplicative-expression = cast-expression { ( "*" | "/" | "%" ) cast-expression }
 
-# Casting expresions in HolyC are postfix.
+(* Casting expresions in HolyC are postfix. *)
 cast-expression = unary-expression { "(" type-name ")" }
 
 unary-expression = ( "++" | "--" ) unary-expression
@@ -117,7 +122,7 @@ constant = integer-constant
            | floating-constant
            | enumeration-constant
 
-# Regular expressions are used for the remaining rules.
+(* Regular expressions are used for the remaining rules. *)
 
 identifier = "[_a-zA-Z][_\\w]*"
 
