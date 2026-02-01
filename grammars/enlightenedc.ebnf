@@ -8,7 +8,7 @@ Translated from BNF from the following sources:
 (* PROGRAM AND TOPLEVEL DECLARATIONS: *)
 
 (* We use regex-style `+` to denote at least one repetition, so p = a+ is equivalent to p = a { a }. *)
-program = ( function-definition | compound-statement )+ ;
+program = ( function-definition | compound-statement )+ 
 
 function-definition = [declaration-specifier-list] declarator [declaration-list] compound-statement
 
@@ -29,7 +29,7 @@ type-specifier = "U0i" | "U8i" | "U16i" | "U32i" | "U64i"
 
 struct-or-union-specifier = struct-or-union [ identifier ] [ "{" struct-declaration+ "}" ]
 
-struct-or-union = "class" | "union"
+struct-or-union = "struct" | "union"
 
 (* the semantics of volatile might be difficult to implement. *)
 type-qualifier = "const"
@@ -58,7 +58,61 @@ direct-declarator = ( identifier | "(" declarator ")" ) { "[" [ constant-express
 
 pointer = { "*" [ type-qualifier+ ] } "*" [ type-qualifier+ ] ;
 
+(* prob removable if type-qualifier is only const?*)
+type-qualifier-list = type-qualifier+
 
+parameter-type-list = parameter-list [ "," "..." ]
+
+parameter-list = parameter-declaration { "," parameter-declaration }
+
+parameter-declaration = declaration-specifier-list [ declarator | abstract-declarator ]
+
+identifier-list = identifier { "," identifier }
+
+initializer = assignment-expression
+    | "{" initializer-list [ "," ] "}"
+
+initializer-list = initializer { "," initializer }
+
+type-name = specifier-qualifier-list [ abstract-declarator ]
+
+abstract-declarator = pointer [ direct-abstract-declarator ] 
+    | direct-abstract-declarator
+
+direct-abstract-declarator = "(" abstract-declarator ")"
+    | direct-abstract-declarator "[" [ constant-expression ] "]"
+    | direct-abstract-declarator "(" [ parameter-type-list ] ")"
+    | "[" [ constant-expression ] "]"
+    | "(" [ parameter-type-list ] ")"
+
+statement = labeled-statement
+    | expression-statement
+    | compound-statement
+    | selection-statement
+    | iteration-statement
+    | jump-statement
+
+labeled-statement = identifier ":" statement
+    | "case" constant-expression ":" statement
+    | "default" ":" statement
+
+expression-statement = [ expression ] ";"
+
+compound-statement = "{" [ declaration-list ] [ statement-list ] "}"
+
+statement-list = statement+
+
+selection-statement = "if" "(" expression ")" statement
+    | "if" "(" expression ")" statement "else" statement
+    | "switch" "(" expression ")" statement
+
+iteration-statement = "while" "(" expression ")" statement
+    | "do" statement "while" "(" expression ")" ";"
+    | "for" "(" [ expression ] ";" [ expression ] ";" [ expression ] ")" statement
+
+jump-statement = "goto" identifier ";"
+    | "break" ";"
+    | "return" [ expression ] ";"
 
 (* EXPRESSIONS AND CONSTANTS: *)
 
