@@ -45,9 +45,18 @@ HolyC does not contain bitfields, however, since we are inheriting C's struct sy
 we will include them, at least syntactically. They may or may not be implemented :')
 *)
 struct-declarator = declarator [ ":" constant-expression ]
-                  | ":" constant-expression ;
+                  | ":" constant-expression ";"
 
-enum-specifier = "enum" ( "{" enumerator-list "}" )
+enum-specifier = "enum" "{" enumerator-list "}"
+               | "enum" identifier "{" enumerator-list "}"
+               | "enum" identifier ";"
+
+enumerator-list = enumerator { enumerator }
+
+enumerator = identifier [ "=" constant-expression ]
+
+(* in the og bnf referenced in constant but not defined, so idk*)
+enumeration-constant = identifier
 
 declarator = [ pointer ] direct-declarator
 
