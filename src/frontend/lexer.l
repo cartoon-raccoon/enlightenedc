@@ -3,27 +3,18 @@
 #include <iostream>
 #include <string>
 
-#include "parser.hpp"
+#include "lexer.hpp"
     
 %}
 
 %option c++
 %option noyywrap
-// %option batch
-// %option debug
-
 %option yylineno
+%option yyclass="ecc::frontend::Lexer"
 
 %%
 
-// rules go here
+[ \r\n\t] { /* skip whitespace */ }
 
 %%
 
-namespace ecc::frontend {
-
-class Lexer : public yyFlexLexer {
-    
-}
-
-}

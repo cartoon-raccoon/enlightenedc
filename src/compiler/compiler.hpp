@@ -1,4 +1,5 @@
 #ifndef ECC_COMPILER_H
+#define ECC_COMPILER_H
 
 #include "ast/ast.hpp"
 
