@@ -14,12 +14,438 @@
 
 #include "frontend/frontend.hpp"
 #include "ast/ast.hpp"
-    
+
+using namespace ecc::ast;
+using namespace ecc::frontend;
 %}
 
-%% // RULES
+%union {
+    int ival;
+    double fval;
+    char cval;
+    std::string* sval;
+    ASTNode* node;
+}
 
+// Tokens
+%token <sval> IDENTIFIER STRING_LITERAL
+%token <ival> INT_CONST
+%token <fval> FLOAT_CONST
+%token <cval> CHAR_CONST
+
+// Keywords
+%token IF ELSE WHILE DO FOR SWITCH CASE DEFAULT BREAK RETURN GOTO
+%token STRUCT UNION ENUM CONST VOID BOOL SIZEOF
+%token TYPE_SPEC PUBLIC STATIC EXTERN
+%token DEFINE INCLUDE
+
+// Operators
+%token PLUS MINUS MUL DIV MOD ASSIGN EQ NE LE GE ANDAND OROR
+%token INC DEC PLUSEQ MINUSEQ MULEQ DIVEQ MODEQ LSHIFTEQ RSHIFTEQ ANDEQ OREQ XOREQ
+%token AND OR XOR TILDE NOT LT GT LSHIFT RSHIFT
+%token SEMI COMMA LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET DOT ARROW
+
+%type <node> program program_item preprocessor_directive function_definition declaration statement
+%type <node> expression assignment_expression conditional_expression logical_or_expression logical_and_expression
+%type <node> inclusive_or_expression exclusive_or_expression and_expression equality_expression relational_expression
+%type <node> shift_expression additive_expression multiplicative_expression unary_expression postfix_expression primary_expression
+%type <node> compound_statement statement_list
+
+%%
+
+// Program
 program:
-    %empty {  /* actions go here */   }
 
-%% // EPILOGUE
+    | program program_item
+    ;
+
+// Program item
+program_item:
+      preprocessor_directive
+    | function_definition
+    | declaration
+    | statement
+    ;
+
+// Preprocessor directives
+preprocessor_directive:
+      DEFINE IDENTIFIER
+    | DEFINE IDENTIFIER expression
+    | INCLUDE STRING_LITERAL
+    ;
+
+// Function definitions
+function_definition:
+      declaration_specifier_list declarator compound_statement
+    | declarator compound_statement
+    ;
+
+// Declarations
+declaration:
+      declaration_specifier_list SEMI
+    | declaration_specifier_list init_declarator_list SEMI
+    ;
+
+declaration_specifier_list:
+      declaration_specifier
+    | declaration_specifier_list declaration_specifier
+    ;
+
+declaration_specifier:
+      storage_class_specifier
+    | type_specifier
+    | type_qualifier
+    ;
+
+storage_class_specifier:
+      PUBLIC | STATIC | EXTERN
+    ;
+
+type_specifier:
+      TYPE_SPEC
+    | struct_or_union_specifier
+    | enum_specifier
+    ;
+
+type_qualifier:
+      CONST
+    ;
+
+// Structs / unions / enums
+struct_or_union_specifier:
+      struct_or_union IDENTIFIER LBRACE struct_declaration_list RBRACE
+    | struct_or_union LBRACE struct_declaration_list RBRACE
+    | struct_or_union IDENTIFIER
+    ;
+
+struct_or_union: STRUCT | UNION ;
+
+struct_declaration_list:
+      struct_declaration
+    | struct_declaration_list struct_declaration
+    ;
+
+struct_declaration:
+      specifier_qualifier_list struct_declarator_list SEMI
+    ;
+
+specifier_qualifier_list:
+      type_specifier
+    | type_qualifier
+    | specifier_qualifier_list type_specifier
+    | specifier_qualifier_list type_qualifier
+    ;
+
+struct_declarator_list:
+      struct_declarator
+    | struct_declarator_list struct_declarator
+    ;
+
+struct_declarator:
+      declarator
+    | declarator ':' constant_expression
+    | ':' constant_expression
+    ;
+
+enum_specifier:
+      ENUM LBRACE enumerator_list RBRACE
+    | ENUM IDENTIFIER LBRACE enumerator_list RBRACE
+    | ENUM IDENTIFIER SEMI
+    ;
+
+enumerator_list:
+      enumerator
+    | enumerator_list COMMA enumerator
+    ;
+
+enumerator:
+      IDENTIFIER
+    | IDENTIFIER ASSIGN constant_expression
+    ;
+
+// Init declarators
+init_declarator_list:
+      init_declarator
+    | init_declarator_list COMMA init_declarator
+    ;
+
+init_declarator:
+      declarator
+    | declarator ASSIGN initializer
+    ;
+
+// Declarators
+declarator:
+      pointer direct_declarator
+    | direct_declarator
+    ;
+
+pointer:
+      MUL
+    | MUL type_qualifier_list
+    | MUL pointer
+    | MUL type_qualifier_list pointer
+    ;
+
+type_qualifier_list:
+      type_qualifier
+    | type_qualifier_list type_qualifier
+    ;
+
+direct_declarator:
+      IDENTIFIER
+    | LPAREN declarator RPAREN
+    | direct_declarator LBRACKET RBRACKET
+    | direct_declarator LBRACKET constant_expression RBRACKET
+    | direct_declarator LPAREN RPAREN
+    | direct_declarator LPAREN parameter_type_list RPAREN
+    ;
+
+// Parameter types
+parameter_type_list:
+      parameter_list
+    | parameter_list COMMA "..."
+    ;
+
+parameter_list:
+      parameter_declaration
+    | parameter_list COMMA parameter_declaration
+    ;
+
+parameter_declaration:
+      declaration_specifier_list
+    | declaration_specifier_list declarator
+    | declaration_specifier_list declarator ASSIGN assignment_expression
+    | declaration_specifier_list abstract_declarator
+    ;
+
+initializer:
+      assignment_expression
+    | LBRACE initializer_list RBRACE
+    | LBRACE initializer_list COMMA RBRACE
+    ;
+
+initializer_list:
+      initializer
+    | initializer_list COMMA initializer
+    ;
+
+abstract_declarator:
+      pointer
+    | pointer direct_abstract_declarator
+    | direct_abstract_declarator
+    ;
+
+direct_abstract_declarator:
+      LPAREN abstract_declarator RPAREN
+    | direct_abstract_declarator LBRACKET RBRACKET
+    | direct_abstract_declarator LBRACKET constant_expression RBRACKET
+    | direct_abstract_declarator LPAREN RPAREN
+    | direct_abstract_declarator LPAREN parameter_type_list RPAREN
+    | LBRACKET RBRACKET
+    | LBRACKET constant_expression RBRACKET
+    | LPAREN RPAREN
+    | LPAREN parameter_type_list RPAREN
+    ;
+
+// Statements
+statement:
+      labeled_statement
+    | expression_statement
+    | standalone_print_statement
+    | compound_statement
+    | selection_statement
+    | iteration_statement
+    | jump_statement
+    ;
+
+standalone_print_statement:
+      STRING_LITERAL
+    | STRING_LITERAL COMMA expression_list
+    SEMI
+    ;
+
+labeled_statement:
+      IDENTIFIER ':' statement
+    | CASE constant_expression ':' statement
+    | CASE constant_expression "..." constant_expression ':' statement
+    | DEFAULT ':' statement
+    ;
+
+expression_statement:
+      SEMI
+    | expression SEMI
+    ;
+
+compound_statement:
+      LBRACE RBRACE
+    | LBRACE statement_list RBRACE
+    | LBRACE declaration_list RBRACE
+    | LBRACE declaration_list statement_list RBRACE
+    ;
+
+statement_list:
+      statement
+    | statement_list statement
+    ;
+
+// Selection
+selection_statement:
+      IF LPAREN expression RPAREN statement
+    | IF LPAREN expression RPAREN statement ELSE statement
+    | SWITCH LPAREN expression RPAREN statement
+    ;
+
+// Iteration
+iteration_statement:
+      WHILE LPAREN expression RPAREN statement
+    | DO statement WHILE LPAREN expression RPAREN SEMI
+    | FOR LPAREN expression_opt SEMI expression_opt SEMI expression_opt RPAREN statement
+    ;
+
+expression_opt:
+      expression
+    |
+    ;
+
+// Jump
+jump_statement:
+      GOTO IDENTIFIER SEMI
+    | BREAK SEMI
+    | RETURN SEMI
+    | RETURN expression SEMI
+    ;
+
+// Expressions
+expression:
+      assignment_expression
+    | expression COMMA assignment_expression
+    ;
+
+assignment_expression:
+      conditional_expression
+    | unary_expression assignment_operator assignment_expression
+    ;
+
+assignment_operator:
+      ASSIGN | MULEQ | DIVEQ | MODEQ
+    | PLUSEQ | MINUSEQ | LSHIFTEQ | RSHIFTEQ
+    | ANDEQ | XOREQ | OREQ
+    ;
+
+conditional_expression:
+      logical_or_expression
+    | logical_or_expression '?' expression ':' conditional_expression
+    ;
+
+logical_or_expression:
+      logical_and_expression
+    | logical_or_expression OROR logical_and_expression
+    ;
+
+logical_and_expression:
+      inclusive_or_expression
+    | logical_and_expression ANDAND inclusive_or_expression
+    ;
+
+inclusive_or_expression:
+      exclusive_or_expression
+    | inclusive_or_expression OR exclusive_or_expression
+    ;
+
+exclusive_or_expression:
+      and_expression
+    | exclusive_or_expression XOR and_expression
+    ;
+
+and_expression:
+      equality_expression
+    | and_expression AND equality_expression
+    ;
+
+equality_expression:
+      relational_expression
+    | equality_expression EQ relational_expression
+    | equality_expression NE relational_expression
+    ;
+
+relational_expression:
+      shift_expression
+    | relational_expression LT shift_expression
+    | relational_expression GT shift_expression
+    | relational_expression LE shift_expression
+    | relational_expression GE shift_expression
+    ;
+
+shift_expression:
+      additive_expression
+    | shift_expression LSHIFT additive_expression
+    | shift_expression RSHIFT additive_expression
+    ;
+
+additive_expression:
+      multiplicative_expression
+    | additive_expression PLUS multiplicative_expression
+    | additive_expression MINUS multiplicative_expression
+    ;
+
+multiplicative_expression:
+      unary_expression
+    | multiplicative_expression MUL unary_expression
+    | multiplicative_expression DIV unary_expression
+    | multiplicative_expression MOD unary_expression
+    ;
+
+unary_expression:
+      postfix_expression
+    | INC unary_expression
+    | DEC unary_expression
+    | unary_operator unary_expression
+    | SIZEOF unary_expression
+    | SIZEOF LPAREN type_name RPAREN
+    ;
+
+unary_operator:
+      AND | MUL | PLUS | MINUS | TILDE | NOT
+    ;
+
+postfix_expression:
+      primary_expression
+    | postfix_expression LBRACKET expression RBRACKET
+    | postfix_expression LPAREN RPAREN
+    | postfix_expression LPAREN argument_expression_list RPAREN
+    | postfix_expression DOT IDENTIFIER
+    | postfix_expression ARROW IDENTIFIER
+    | postfix_expression INC
+    | postfix_expression DEC
+    ;
+
+argument_expression_list:
+      assignment_expression
+    | argument_expression_list COMMA assignment_expression
+    ;
+
+primary_expression:
+      IDENTIFIER
+    | constant
+    | STRING_LITERAL
+    | LPAREN expression RPAREN
+    ;
+
+constant:
+      INT_CONST
+    | CHAR_CONST
+    | FLOAT_CONST
+    | IDENTIFIER // for enumeration-constant
+    ;
+
+type_name:
+      specifier_qualifier_list
+    | specifier_qualifier_list abstract_declarator
+    ;
+
+constant_expression:
+      conditional_expression
+    ;
+
+%%
