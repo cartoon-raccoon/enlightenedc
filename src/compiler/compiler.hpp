@@ -2,14 +2,18 @@
 #define ECC_COMPILER_H
 
 #include "ast/ast.hpp"
+#include "ast/visitor.hpp"
 
 namespace ecc::compiler {
 
-class ASTVisitor {
+class LLVMVisitor : public ast::ASTVisitor {
 public:
-    virtual ~ASTVisitor() = default;
+    ~LLVMVisitor() = default;
 
-    virtual void visit(ast::ASTNode *node);
+    void visit(ast::ASTNode *node);
+
+    // Generate the code after visiting the AST.
+    void codegen();
 };
 
 }
