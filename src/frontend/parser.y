@@ -8,7 +8,8 @@
 %define api.namespace {ecc::parser}
 %define api.parser.class {Parser}
 
-%{
+// Use `code requires to ensure it gets injected into the header file as well.
+%code requires {
 
 #include <iostream>
 
@@ -17,14 +18,15 @@
 
 using namespace ecc::ast;
 using namespace ecc::frontend;
-%}
+
+}
 
 %union {
     int ival;
     double fval;
     char cval;
     std::string* sval;
-    ASTNode* node;
+    ecc::ast::ASTNode* node;
 }
 
 // Tokens
@@ -35,8 +37,8 @@ using namespace ecc::frontend;
 
 // Keywords
 %token IF ELSE WHILE DO FOR SWITCH CASE DEFAULT BREAK RETURN GOTO
-%token STRUCT UNION ENUM CONST VOID BOOL SIZEOF
-%token TYPE_SPEC PUBLIC STATIC EXTERN
+%token STRUCT UNION ENUM CONST VOID U8 U16 U32 U64 I0 I8 I16 I32 I64 F64 BOOL SIZEOF
+%token PUBLIC STATIC EXTERN
 %token DEFINE INCLUDE
 
 // Operators
@@ -44,6 +46,7 @@ using namespace ecc::frontend;
 %token INC DEC PLUSEQ MINUSEQ MULEQ DIVEQ MODEQ LSHIFTEQ RSHIFTEQ ANDEQ OREQ XOREQ
 %token AND OR XOR TILDE NOT LT GT LSHIFT RSHIFT
 %token SEMI COMMA LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET DOT ARROW
+%token ELLIPSIS
 
 %type <node> program program_item preprocessor_directive function_definition declaration statement
 %type <node> expression assignment_expression conditional_expression logical_or_expression logical_and_expression
@@ -53,7 +56,7 @@ using namespace ecc::frontend;
 
 %%
 
-// Program
+/* Program */
 program:
 
     | program program_item
@@ -86,6 +89,11 @@ declaration:
     | declaration_specifier_list init_declarator_list SEMI
     ;
 
+declaration_list:
+      declaration
+    | declaration_list declaration
+    ;
+
 declaration_specifier_list:
       declaration_specifier
     | declaration_specifier_list declaration_specifier
@@ -102,7 +110,18 @@ storage_class_specifier:
     ;
 
 type_specifier:
-      TYPE_SPEC
+      VOID
+    | U8
+    | U16
+    | U32
+    | U64
+    | I0
+    | I8
+    | I16
+    | I32
+    | I64
+    | F64
+    | BOOL
     | struct_or_union_specifier
     | enum_specifier
     ;
@@ -204,7 +223,7 @@ direct_declarator:
 // Parameter types
 parameter_type_list:
       parameter_list
-    | parameter_list COMMA "..."
+    | parameter_list COMMA ELLIPSIS
     ;
 
 parameter_list:
@@ -268,7 +287,7 @@ standalone_print_statement:
 labeled_statement:
       IDENTIFIER ':' statement
     | CASE constant_expression ':' statement
-    | CASE constant_expression "..." constant_expression ':' statement
+    | CASE constant_expression ELLIPSIS constant_expression ':' statement
     | DEFAULT ':' statement
     ;
 
@@ -320,6 +339,11 @@ jump_statement:
 expression:
       assignment_expression
     | expression COMMA assignment_expression
+    ;
+
+expression_list:
+      expression
+    | expression_list expression
     ;
 
 assignment_expression:
