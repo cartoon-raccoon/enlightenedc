@@ -3,12 +3,24 @@ The EBNF specifying the grammar of EnlightenedC.
 Translated from BNF from the following sources:
 [1] https://github.com/Ma11ock/holyc/blob/master/hc.bnf
 [2] https://cs.wmich.edu/~gupta/teaching/cs4850/sumII06/The%20syntax%20of%20C%20in%20Backus-Naur%20form.htm
+and modified to EnlightenedC specifications.
 *)
+
+(* S0 version*)
 
 (* PROGRAM AND TOPLEVEL DECLARATIONS: *)
 
 (* We use regex-style `+` to denote at least one repetition, so p = a+ is equivalent to p = a { a }. *)
-program = ( function-definition | compound-statement )+ 
+program = ( preprocessor-directive | function-definition | compound-statement )+
+
+preprocessor-directive = "#define" identifier [ expression ]
+                       | "#include" string-constant
+                       | "#if" expression
+                       | "#ifdef" identifier
+                       | "#ifndef" identifier
+                       | "#elif" expression
+                       | "#else"
+                       | "#endif"
 
 function-definition = [declaration-specifier-list] declarator [declaration-list] compound-statement
 
@@ -40,18 +52,20 @@ init-declarator = declarator [ "=" initializer ]
 
 struct-declaration = { ( type-specifier | type-qualifier ) } (struct-declarator ";")+
 
+specifier-qualifier-list = specifier-qualifier-list = ( type-specifier | type-qualifier )+
+
 (* 
 HolyC does not contain bitfields, however, since we are inheriting C's struct syntax and semantics,
 we will include them, at least syntactically. They may or may not be implemented :')
 *)
 struct-declarator = declarator [ ":" constant-expression ]
-                  | ":" constant-expression ";"
+                  | ":" constant-expression
 
 enum-specifier = "enum" "{" enumerator-list "}"
                | "enum" identifier "{" enumerator-list "}"
                | "enum" identifier ";"
 
-enumerator-list = enumerator { enumerator }
+enumerator-list = enumerator { "," enumerator } 
 
 enumerator = identifier [ "=" constant-expression ]
 
@@ -67,14 +81,14 @@ direct-declarator = ( identifier | "(" declarator ")" ) { "[" [ constant-express
 
 pointer = { "*" [ type-qualifier+ ] } "*" [ type-qualifier+ ] ;
 
-(* prob removable if type-qualifier is only const?*)
+(* probably removable if type-qualifier is only const*)
 type-qualifier-list = type-qualifier+
 
 parameter-type-list = parameter-list [ "," "..." ]
 
 parameter-list = parameter-declaration { "," parameter-declaration }
 
-parameter-declaration = declaration-specifier-list [ declarator | abstract-declarator ]
+parameter-declaration = declaration-specifier-list [ declarator [ "=" assignment-expression ] | abstract-declarator [ "=" assignment-expression ] ]
 
 identifier-list = identifier { "," identifier }
 
@@ -102,8 +116,8 @@ statement = labeled-statement
     | jump-statement
 
 labeled-statement = identifier ":" statement
-    | "case" constant-expression ":" statement
-    | "default" ":" statement
+                  | "case" constant-expression [ "..." constant-expression ] ":" statement
+                  | "default" ":" statement
 
 expression-statement = [ expression ] ";"
 
@@ -149,7 +163,7 @@ and-expression = equality-expression { "&" equality-expression }
 
 equality-expression = relational-expression { ( "==" | "!=" ) relational-expression }
 
-relational-expression = shift-expression { ( "<" | ">" | "<=" | ">=" ) shift-expression }
+relational-expression = shift-expression { ("<" | ">" | "<=" | ">=") shift-expression+ }
 
 shift-expression = additive-expression { ( "<<" | ">>" ) additive-expression }
 
@@ -167,8 +181,12 @@ unary-expression = ( "++" | "--" ) unary-expression
 
 unary-operator = "&" | "*" | "+" | "-" | "~" | "!"
 
+argument-expression = [ assignment-expression ]
+
+argument-list = argument-expression { "," argument-expression }
+
 postfix-expression = primary-expression { "[" expression "]" 
-                                        | "(" { assignment-expression } ")" 
+                                        | "(" argument-list ")"
                                         | "(" ")"
                                         | "." identifier
                                         | "->" identifier
@@ -187,11 +205,11 @@ constant = integer-constant
 
 (* Regular expressions are used for the remaining rules. *)
 
-identifier = "[_a-zA-Z][_\\w]*"
+identifier = "[_a-zA-Z][\\w]*"
 
-integer-constant = "[-0-9]+|0x[-0-9A-Fa-f]+|^0[-0-7]+"
+integer-constant = "-"? ( "0x" [0-9A-Fa-f]+ | "0" [0-7]* | [1-9][0-9]* )
 
-floating-constant = "[-.0-9]+"
+floating-constant = "-"? [0-9]+ ("."[0-9]*)? ([eE][-+]?[0-9]+)?
 
 character-constant = "'.{1,8}'"
 
