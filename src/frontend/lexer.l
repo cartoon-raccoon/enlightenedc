@@ -2,10 +2,11 @@
 
 #include <iostream>
 #include <string>
-#include "lexer.hpp"
+#include "frontend/lexer.hpp"
 #include "parser.hpp"
 
-using namespace ecc::frontend;
+#undef YY_DECL
+#define YY_DECL int ecc::frontend::Lexer::yylex(ecc::parser::Parser::value_type *yylval, ecc::parser::Parser::location_type *yylloc)
 %}
 
 %option c++
@@ -17,10 +18,6 @@ using namespace ecc::frontend;
 
 
 [ \r\n\t] { /* skip whitespace */ }
-
-
-"#define" { return ecc::parser::Parser::token::DEFINE; } /* Preprocessor */
-"#include" { return ecc::parser::Parser::token::INCLUDE; }
 
 
 "if" { return ecc::parser::Parser::token::IF; } /* Keywords */

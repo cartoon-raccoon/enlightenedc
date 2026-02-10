@@ -17,8 +17,8 @@ find_package(LLVM REQUIRED CONFIG)
 
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
-include_directories(${LLVM_INCLUDE_DIRS})
-add_definitions(${LLVM_DEFINITIONS})
+separate_arguments(LLVM_DEFINITIONS_LIST NATIVE_COMMAND ${LLVM_DEFINITIONS})
+add_definitions(${LLVM_DEFINITIONS_LIST})
 
 # 3. Define Flex/Bison targets
 
@@ -28,7 +28,7 @@ file(MAKE_DIRECTORY ${BISON_OUTPUT_DIR})
 
 bison_target(
     parser
-    "${SRC_DIR}/frontend/parser.y"
+    "${SRC_DIR}/frontend/parser.yy"
     "${BISON_OUTPUT_DIR}/parser.cpp"
     DEFINES_FILE "${BISON_OUTPUT_DIR}/parser.hpp"
 )
@@ -66,4 +66,5 @@ llvm_map_components_to_libnames(llvm_libs
     native
     support
 )
+message(STATUS "LLVM libraries: ${llvm_libs}")
 target_link_libraries(ecc PRIVATE ${llvm_libs})

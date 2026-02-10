@@ -11,13 +11,25 @@
 // Use `code requires to ensure it gets injected into the header file as well.
 %code requires {
 
-#include <iostream>
+namespace ecc {
+    namespace frontend {
+        class Lexer;
+    }
+    namespace ast {
+        class ASTNode;
+    }
+}
 
-#include "frontend/frontend.hpp"
-#include "ast/ast.hpp"
+}
 
-using namespace ecc::ast;
-using namespace ecc::frontend;
+// Add new parameters to the parser function, which will be passed to the lexer and used to build the AST.
+%parse-param { ecc::frontend::Lexer &lexer }
+%parse-param { ecc::ast::ASTNode &ast_root }
+
+%code {
+#include "frontend/lexer.hpp"
+#undef yylex
+#define yylex lexer.yylex
 
 }
 
@@ -58,7 +70,6 @@ using namespace ecc::frontend;
 
 /* Program */
 program:
-
     | program program_item
     ;
 
@@ -106,7 +117,9 @@ declaration_specifier:
     ;
 
 storage_class_specifier:
-      PUBLIC | STATIC | EXTERN
+      PUBLIC 
+    | STATIC
+    | EXTERN
     ;
 
 type_specifier:

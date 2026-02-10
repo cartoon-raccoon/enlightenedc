@@ -29,6 +29,8 @@ public:
     Lexer(std::istream *in) : yyFlexLexer(in) {
         
     }
+
+    int yylex(Parser::value_type *yylval, Parser::location_type *yylloc);
 };
 
 }
