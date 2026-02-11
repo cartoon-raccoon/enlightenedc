@@ -16,17 +16,23 @@ public:
     virtual ~ASTNode() = default;
 
     // Accept an AST visitor.
-    virtual void accept(ASTVisitor& visitor);
+    virtual void accept(ASTVisitor& visitor) = 0;
 };
+
+// class Program : public ASTNode {
+//     ~Program() = default;
+
+//     void accept(ASTVisitor& visitor);
+// };
 
 class Expression: public ASTNode {
 public:
-    virtual ~Expression() {};
+    virtual ~Expression() = default;
 
-    virtual void accept(ASTVisitor& visitor);
+    virtual void accept(ASTVisitor& visitor) = 0;
 };
 
-class BinaryExpression: public Expression {
+class BinaryExpression : public Expression {
 public:
     ~BinaryExpression() {};
 

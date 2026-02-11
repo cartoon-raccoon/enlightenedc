@@ -66,5 +66,5 @@ llvm_map_components_to_libnames(llvm_libs
     native
     support
 )
-message(STATUS "LLVM libraries: ${llvm_libs}")
-target_link_libraries(ecc PRIVATE ${llvm_libs})
+message(STATUS "LLVM libraries: ${LLVM_LIBRARY_DIRS}")
+target_link_libraries(ecc PRIVATE LLVM)

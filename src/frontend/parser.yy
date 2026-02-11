@@ -51,7 +51,6 @@ namespace ecc {
 %token IF ELSE WHILE DO FOR SWITCH CASE DEFAULT BREAK RETURN GOTO
 %token STRUCT UNION ENUM CONST VOID U8 U16 U32 U64 I0 I8 I16 I32 I64 F64 BOOL SIZEOF
 %token PUBLIC STATIC EXTERN
-%token DEFINE INCLUDE
 
 // Operators
 %token PLUS MINUS MUL DIV MOD ASSIGN EQ NE LE GE ANDAND OROR
@@ -60,7 +59,7 @@ namespace ecc {
 %token SEMI COMMA LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET DOT ARROW
 %token ELLIPSIS
 
-%type <node> program program_item preprocessor_directive function_definition declaration statement
+%type <node> program program_item function_definition declaration statement
 %type <node> expression assignment_expression conditional_expression logical_or_expression logical_and_expression
 %type <node> inclusive_or_expression exclusive_or_expression and_expression equality_expression relational_expression
 %type <node> shift_expression additive_expression multiplicative_expression unary_expression postfix_expression primary_expression
@@ -75,17 +74,9 @@ program:
 
 // Program item
 program_item:
-      preprocessor_directive
     | function_definition
     | declaration
     | statement
-    ;
-
-// Preprocessor directives
-preprocessor_directive:
-      DEFINE IDENTIFIER
-    | DEFINE IDENTIFIER expression
-    | INCLUDE STRING_LITERAL
     ;
 
 // Function definitions
@@ -486,3 +477,10 @@ constant_expression:
     ;
 
 %%
+
+// FIXME: do better than this
+namespace ecc::parser {
+    void Parser::error(const location& loc, const std::string& msg) {
+        std::cerr << "Error at " << loc << ": " << msg << std::endl;
+    }
+}
