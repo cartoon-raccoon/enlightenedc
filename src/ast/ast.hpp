@@ -1,16 +1,17 @@
 #ifndef ECC_AST_H
 #define ECC_AST_H
 
+#include <optional>
 #include <vector>
 
-#include "parser.hpp"
-namespace ecc::ast {
-
-using ecc::parser::Parser;
-
-class ASTVisitor;
+#include "frontend/tokens.hpp"
 
 /* Class definitions of AST nodes and subclasses. */
+namespace ecc::ast {
+
+using namespace ecc::tokens;
+
+class ASTVisitor;
 
 // The abstract class representing an AST node.
 //
@@ -24,23 +25,126 @@ public:
     virtual void accept(ASTVisitor& visitor) = 0;
 };
 
-class Program : public ASTNode {
+//* PROGRAM ITEMS
+
+//
+class ProgramItem : public ASTNode {
 public:
-    ~Program() = default;
+    ~ProgramItem() = default;
 
-    // Program items.
-    std::vector<ASTNode *> items;
-
-    void accept(ASTVisitor& visitor);
+    virtual void accept(ASTVisitor& visitor) = 0;
 };
 
-class Function : public ASTNode {
+class Function : public ProgramItem {
 public:
     ~Function() = default;
 
     void accept(ASTVisitor& visitor);
 };
 
+
+//* DECLARATIONS
+
+// The Declaration abstract class that all declarations inherit from.
+class Declaration : public ProgramItem {
+public:
+    ~Declaration() = default;
+
+    void accept(ASTVisitor& visitor);
+};
+
+
+// Storage class specifiers.
+class StorageClassSpecifier : public ASTNode {
+public:
+    ~StorageClassSpecifier() = default;
+
+    enum SpecType {
+        PUBLIC,
+        STATIC,
+        EXTERN,
+    } spec;
+
+    void accept(ASTVisitor& visitor);
+};
+
+
+// The struct or union specifier.
+class StructOrUnionSpecifier : public ASTNode {
+public:
+    ~StructOrUnionSpecifier() = default;
+
+    enum SpecType {
+        STRUCT,
+        UNION,
+    } spec;
+
+    std::optional<std::string> name;
+
+    // struct declaration list
+
+    void accept(ASTVisitor& visitor);
+};
+
+
+class EnumSpecifier : public ASTNode {
+public:
+    ~EnumSpecifier() = default;
+
+    void accept(ASTVisitor& visitor);
+};
+
+
+class TypeSpecifier : public ASTNode {
+public:
+    ~TypeSpecifier() = default;
+
+    // The type of specifier: primitive type, struct/union, or enum.
+    enum SpecType {
+        PRIMITIVE,
+        STRUCT_OR_UNION,
+        ENUM,
+    } type;
+
+    enum PrimitiveSpecifier {
+        VOID,
+        U8,
+        U16,
+        U32,
+        U64,
+        I0,
+        I8,
+        I16,
+        I32,
+        I64,
+        F64,
+        BOOL,
+    };
+
+    union {
+        PrimitiveSpecifier primitive;
+        StructOrUnionSpecifier *struct_or_union;
+        EnumSpecifier *enum_;
+    } spec;
+
+    void accept(ASTVisitor& visitor);
+};
+
+
+//* STATEMENTS
+
+// The abstract Statement class that all statements inherit from.
+class Statement : public ProgramItem {
+public:
+    ~Statement() = default;
+
+    void accept(ASTVisitor& visitor);
+};
+
+
+//* EXPRESSIONS
+
+// The abstract Expression class that all expressions inherit from.
 class Expression: public ASTNode {
 public:
     virtual ~Expression() = default;
@@ -50,7 +154,7 @@ public:
 
 class BinaryExpression : public Expression {
 public:
-    BinaryExpression(ASTNode *left, ASTNode *right, Parser::token op)
+    BinaryExpression(ASTNode *left, ASTNode *right, TokenType op)
         : left(left), right(right), op(op) {}
     
     ~BinaryExpression() {};
@@ -60,7 +164,7 @@ public:
     // Right operand.
     ASTNode *right;
     // The operator.
-    Parser::token op;
+    TokenType op;
 
     void accept(ASTVisitor& visitor);
 };
@@ -70,11 +174,24 @@ public:
     ~UnaryExpression() {};
 
     ASTNode *operand;
-    Parser::token op;
+    TokenType op;
 
     void accept(ASTVisitor& visitor);
 
 };
+
+
+// The toplevel Program class.
+class Program : public ASTNode {
+public:
+    ~Program() = default;
+
+    // Program items.
+    std::vector<ProgramItem *> items;
+
+    void accept(ASTVisitor& visitor);
+};
+
 
 }
 

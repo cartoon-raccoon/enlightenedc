@@ -8,16 +8,15 @@
 %define api.namespace {ecc::parser}
 %define api.parser.class {Parser}
 
-// Use `code requires to ensure it gets injected into the header file as well.
+// Use `code requires` to ensure it gets injected into the header file as well.
 %code requires {
 
-namespace ecc {
-    namespace frontend {
-        class Lexer;
-    }
-    namespace ast {
-        class ASTNode;
-    }
+#include "ast/ast.hpp"
+
+// Quick forward declaration to satisfy function signatures, this is just for .hpp.
+// The full Lexer declaration is included in the .cpp (see %code below).
+namespace ecc::frontend {
+class Lexer;
 }
 
 }
@@ -26,10 +25,15 @@ namespace ecc {
 %parse-param { ecc::frontend::Lexer &lexer }
 %parse-param { ecc::ast::ASTNode &ast_root }
 
+// `code` sans requires to include in the .cpp file only,
 %code {
+
 #include "frontend/lexer.hpp"
+#include "frontend/frontend.hpp"
 #undef yylex
 #define yylex lexer.yylex
+
+using namespace ecc::ast;
 
 }
 
@@ -39,6 +43,14 @@ namespace ecc {
     char cval;
     std::string* sval;
     ecc::ast::ASTNode* node;
+    ecc::ast::Program *program;
+    ecc::ast::ProgramItem *progitem;
+    ecc::ast::Function *function;
+    ecc::ast::Declaration *decl;
+    std::vector<ecc::ast::Declaration *> *decllist;
+    ecc::ast::Expression *expr;
+    ecc::ast::Statement *stmt;
+    ecc::ast::BinaryExpression *binexpr;
 }
 
 // Tokens
@@ -59,10 +71,29 @@ namespace ecc {
 %token SEMI COMMA LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET DOT ARROW
 %token ELLIPSIS
 
-%type <node> program program_item function_definition declaration statement
-%type <node> expression assignment_expression conditional_expression logical_or_expression logical_and_expression
-%type <node> inclusive_or_expression exclusive_or_expression and_expression equality_expression relational_expression
-%type <node> shift_expression additive_expression multiplicative_expression unary_expression postfix_expression primary_expression
+// Operator precedence.
+%left OROR
+%left ANDAND
+%left OR
+%left XOR
+%left AND
+%left EQ NE
+%left LT GT LE GE
+%left LSHIFT RSHIFT
+%left PLUS MINUS
+%left MUL DIV MOD
+
+// Union member speccifications
+%type <program> program 
+%type <progitem> program_item 
+%type <function> function_definition
+%type <decl> declaration
+%type <decllist> declaration_list;
+%type <stmt> statement
+%type <expr> expression 
+%type <node> assignment_expression conditional_expression
+%type <binexpr> binary_expression 
+%type <node> unary_expression postfix_expression primary_expression
 %type <node> compound_statement statement_list
 
 %%
@@ -362,67 +393,30 @@ assignment_operator:
     ;
 
 conditional_expression:
-      logical_or_expression
-    | logical_or_expression '?' expression ':' conditional_expression
+      binary_expression
+    | binary_expression '?' expression ':' conditional_expression
     ;
 
-logical_or_expression:
-      logical_and_expression
-    | logical_or_expression OROR logical_and_expression
-    ;
-
-logical_and_expression:
-      inclusive_or_expression
-    | logical_and_expression ANDAND inclusive_or_expression
-    ;
-
-inclusive_or_expression:
-      exclusive_or_expression
-    | inclusive_or_expression OR exclusive_or_expression
-    ;
-
-exclusive_or_expression:
-      and_expression
-    | exclusive_or_expression XOR and_expression
-    ;
-
-and_expression:
-      equality_expression
-    | and_expression AND equality_expression
-    ;
-
-equality_expression:
-      relational_expression
-    | equality_expression EQ relational_expression
-    | equality_expression NE relational_expression
-    ;
-
-relational_expression:
-      shift_expression
-    | relational_expression LT shift_expression
-    | relational_expression GT shift_expression
-    | relational_expression LE shift_expression
-    | relational_expression GE shift_expression
-    ;
-
-shift_expression:
-      additive_expression
-    | shift_expression LSHIFT additive_expression
-    | shift_expression RSHIFT additive_expression
-    ;
-
-additive_expression:
-      multiplicative_expression
-    | additive_expression PLUS multiplicative_expression
-    | additive_expression MINUS multiplicative_expression
-    ;
-
-multiplicative_expression:
+binary_expression:
       unary_expression
-    | multiplicative_expression MUL unary_expression
-    | multiplicative_expression DIV unary_expression
-    | multiplicative_expression MOD unary_expression
-    ;
+    | binary_expression OROR binary_expression
+    | binary_expression ANDAND binary_expression
+    | binary_expression OR binary_expression
+    | binary_expression XOR binary_expression
+    | binary_expression AND binary_expression
+    | binary_expression EQ binary_expression
+    | binary_expression NE binary_expression
+    | binary_expression LT binary_expression
+    | binary_expression GT binary_expression
+    | binary_expression LE binary_expression
+    | binary_expression GE binary_expression
+    | binary_expression LSHIFT binary_expression
+    | binary_expression RSHIFT binary_expression
+    | binary_expression PLUS binary_expression
+    | binary_expression MINUS binary_expression
+    | binary_expression MUL binary_expression
+    | binary_expression DIV binary_expression
+    | binary_expression MOD binary_expression
 
 unary_expression:
       postfix_expression

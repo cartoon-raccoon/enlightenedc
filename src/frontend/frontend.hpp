@@ -4,6 +4,9 @@
 #include <string>
 #include <map>
 
+#include "frontend/tokens.hpp"
+#include "parser.hpp"
+
 namespace ecc::frontend {
 
 /* Frontend driver code.
@@ -37,6 +40,9 @@ public:
     bool trace_parsing;
     bool trace_lexing;
 };
+
+// Convert a Bison-defined token to a Tokentype.
+ecc::tokens::TokenType p_tok_to_toktype(ecc::parser::Parser::token *tok);
 
 }
 
