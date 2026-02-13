@@ -20,8 +20,10 @@ public:
     // Use the standard yyFlexLexer constructor.
     Lexer(std::istream *in) : yyFlexLexer(in) {}
 
+    location loc;
+
     // Override the yyFlexLexer constructor.
-    int yylex(Parser::value_type *yylval, Parser::location_type *yylloc);
+    Parser::symbol_type get_next_token();
 };
 
 }

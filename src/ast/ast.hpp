@@ -3,13 +3,16 @@
 
 #include <optional>
 #include <vector>
+#include <memory>
 
 #include "frontend/tokens.hpp"
+#include "util.hpp"
 
 /* Class definitions of AST nodes and subclasses. */
 namespace ecc::ast {
 
 using namespace ecc::tokens;
+using namespace util;
 
 class ASTVisitor;
 
@@ -35,13 +38,6 @@ public:
     virtual void accept(ASTVisitor& visitor) = 0;
 };
 
-class Function : public ProgramItem {
-public:
-    ~Function() = default;
-
-    void accept(ASTVisitor& visitor);
-};
-
 
 //* DECLARATIONS
 
@@ -49,6 +45,22 @@ public:
 class Declaration : public ProgramItem {
 public:
     ~Declaration() = default;
+
+    void accept(ASTVisitor& visitor);
+};
+
+
+class DeclarationSpecifier : public ASTNode {
+public:
+    ~DeclarationSpecifier() = default;
+
+    void accept(ASTVisitor& visitor);
+};
+
+
+class Declarator : public ASTNode {
+public:
+    ~Declarator() = default;
 
     void accept(ASTVisitor& visitor);
 };
@@ -142,6 +154,14 @@ public:
 };
 
 
+class CompoundStatement : public Statement {
+public:
+    ~CompoundStatement() = default;
+
+    void accept(ASTVisitor& visitor);
+};
+
+
 //* EXPRESSIONS
 
 // The abstract Expression class that all expressions inherit from.
@@ -181,15 +201,48 @@ public:
 };
 
 
+class Function : public ProgramItem {
+public:
+    Function(
+        Vec<Box<DeclarationSpecifier>> decl_spec_list,
+        Box<Declarator> declarator,
+        Box<CompoundStatement> statements
+    ) : 
+    decl_spec_list(decl_spec_list),
+    declarator(std::move(declarator)),
+    statements(std::move(statements))
+    {}
+
+    Function(
+        Box<Declarator> declarator,
+        Box<CompoundStatement> statements
+    ) : 
+    declarator(std::move(declarator)),
+    statements(std::move(statements))
+    {}
+
+    ~Function() = default;
+
+    Vec<Box<DeclarationSpecifier>> decl_spec_list = {};
+    Box<Declarator> declarator;
+    Box<CompoundStatement> statements;
+
+    void accept(ASTVisitor& visitor);
+};
+
+
 // The toplevel Program class.
 class Program : public ASTNode {
 public:
     ~Program() = default;
 
     // Program items.
-    std::vector<ProgramItem *> items;
+    std::vector<std::unique_ptr<ProgramItem>> items;
 
     void accept(ASTVisitor& visitor);
+
+    // Add a new program item.
+    void add_item(std::unique_ptr<ProgramItem> item);
 };
 
 

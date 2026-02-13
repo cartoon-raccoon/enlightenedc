@@ -6,7 +6,10 @@
 #include "parser.hpp"
 
 #undef YY_DECL
-#define YY_DECL int ecc::frontend::Lexer::yylex(ecc::parser::Parser::value_type *yylval, ecc::parser::Parser::location_type *yylloc)
+#define YY_DECL ecc::parser::Parser::symbol_type \
+    ecc::frontend::Lexer::get_next_token()
+
+#define yyterminate() return ecc::parser::Parser::make_YYEOF(loc)
 %}
 
 %option c++
@@ -20,126 +23,120 @@
 [ \r\n\t] { /* skip whitespace */ }
 
 
-"if" { return ecc::parser::Parser::token::IF; } /* Keywords */
-"else" { return ecc::parser::Parser::token::ELSE; }
-"while" { return ecc::parser::Parser::token::WHILE; }
-"do" { return ecc::parser::Parser::token::DO; }
-"for" { return ecc::parser::Parser::token::FOR; }
-"switch" { return ecc::parser::Parser::token::SWITCH; }
-"case" { return ecc::parser::Parser::token::CASE; }
-"default" { return ecc::parser::Parser::token::DEFAULT; }
-"break" { return ecc::parser::Parser::token::BREAK; }
-"return" { return ecc::parser::Parser::token::RETURN; }
-"goto" { return ecc::parser::Parser::token::GOTO; }
-"struct" { return ecc::parser::Parser::token::STRUCT; }
-"union" { return ecc::parser::Parser::token::UNION; }
-"enum" { return ecc::parser::Parser::token::ENUM; }
-"const" { return ecc::parser::Parser::token::CONST; }
-"Bool" { return ecc::parser::Parser::token::BOOL; }
-"sizeof" { return ecc::parser::Parser::token::SIZEOF; }
-"..." { return ecc::parser::Parser::token::ELLIPSIS; }
+"if" { return ecc::parser::Parser::make_IF(loc); } /* Keywords */
+"else" { return ecc::parser::Parser::make_ELSE(loc); }
+"while" { return ecc::parser::Parser::make_WHILE(loc); }
+"do" { return ecc::parser::Parser::make_DO(loc); }
+"for" { return ecc::parser::Parser::make_FOR(loc); }
+"switch" { return ecc::parser::Parser::make_SWITCH(loc); }
+"case" { return ecc::parser::Parser::make_CASE(loc); }
+"default" { return ecc::parser::Parser::make_DEFAULT(loc); }
+"break" { return ecc::parser::Parser::make_BREAK(loc); }
+"return" { return ecc::parser::Parser::make_RETURN(loc); }
+"goto" { return ecc::parser::Parser::make_GOTO(loc); }
+"struct" { return ecc::parser::Parser::make_STRUCT(loc); }
+"union" { return ecc::parser::Parser::make_UNION(loc); }
+"enum" { return ecc::parser::Parser::make_ENUM(loc); }
+"const" { return ecc::parser::Parser::make_CONST(loc); }
+"Bool" { return ecc::parser::Parser::make_BOOL(loc); }
+"sizeof" { return ecc::parser::Parser::make_SIZEOF(loc); }
+"..." { return ecc::parser::Parser::make_ELLIPSIS(loc); }
 
 
-"U0i" { return ecc::parser::Parser::token::VOID; } /* Type specifiers */
-"U8i" { return ecc::parser::Parser::token::U8; }
-"U16i" { return ecc::parser::Parser::token::U16; }
-"U32i" { return ecc::parser::Parser::token::U32; }
-"U64i" { return ecc::parser::Parser::token::U64; }
-"I0i" { return ecc::parser::Parser::token::I0; }
-"I8i" { return ecc::parser::Parser::token::I8; }
-"I16i" { return ecc::parser::Parser::token::I16; }
-"I32i" { return ecc::parser::Parser::token::I32; }
-"I64i" { return ecc::parser::Parser::token::I64; }
-"F64i" { return ecc::parser::Parser::token::F64; }
+"U0i" { return ecc::parser::Parser::make_VOID(loc); } /* Type specifiers */
+"U8i" { return ecc::parser::Parser::make_U8(loc); }
+"U16i" { return ecc::parser::Parser::make_U16(loc); }
+"U32i" { return ecc::parser::Parser::make_U32(loc); }
+"U64i" { return ecc::parser::Parser::make_U64(loc); }
+"I0i" { return ecc::parser::Parser::make_I0(loc); }
+"I8i" { return ecc::parser::Parser::make_I8(loc); }
+"I16i" { return ecc::parser::Parser::make_I16(loc); }
+"I32i" { return ecc::parser::Parser::make_I32(loc); }
+"I64i" { return ecc::parser::Parser::make_I64(loc); }
+"F64i" { return ecc::parser::Parser::make_F64(loc); }
 
 
-"public" { return ecc::parser::Parser::token::PUBLIC; } /* Storage class specifiers */
-"static" { return ecc::parser::Parser::token::STATIC; }
-"extern" { return ecc::parser::Parser::token::EXTERN; }
+"public" { return ecc::parser::Parser::make_PUBLIC(loc); } /* Storage class specifiers */
+"static" { return ecc::parser::Parser::make_STATIC(loc); }
+"extern" { return ecc::parser::Parser::make_EXTERN(loc); }
 
 
-"==" { return ecc::parser::Parser::token::EQ; } /* Operators */
-"!=" { return ecc::parser::Parser::token::NE; }
-"<=" { return ecc::parser::Parser::token::LE; }
-">=" { return ecc::parser::Parser::token::GE; }
-"&&" { return ecc::parser::Parser::token::ANDAND; }
-"||" { return ecc::parser::Parser::token::OROR; }
-"++" { return ecc::parser::Parser::token::INC; }
-"--" { return ecc::parser::Parser::token::DEC; }
-"+=" { return ecc::parser::Parser::token::PLUSEQ; }
-"-=" { return ecc::parser::Parser::token::MINUSEQ; }
-"*=" { return ecc::parser::Parser::token::MULEQ; }
-"/=" { return ecc::parser::Parser::token::DIVEQ; }
-"%=" { return ecc::parser::Parser::token::MODEQ; }
-"<<=" { return ecc::parser::Parser::token::LSHIFTEQ; }
-">>=" { return ecc::parser::Parser::token::RSHIFTEQ; }
-"&=" { return ecc::parser::Parser::token::ANDEQ; }
-"|=" { return ecc::parser::Parser::token::OREQ; }
-"^=" { return ecc::parser::Parser::token::XOREQ; }
+"==" { return ecc::parser::Parser::make_EQ(loc); } /* Operators */
+"!=" { return ecc::parser::Parser::make_NE(loc); }
+"<=" { return ecc::parser::Parser::make_LE(loc); }
+">=" { return ecc::parser::Parser::make_GE(loc); }
+"&&" { return ecc::parser::Parser::make_ANDAND(loc); }
+"||" { return ecc::parser::Parser::make_OROR(loc); }
+"++" { return ecc::parser::Parser::make_INC(loc); }
+"--" { return ecc::parser::Parser::make_DEC(loc); }
+"+=" { return ecc::parser::Parser::make_PLUSEQ(loc); }
+"-=" { return ecc::parser::Parser::make_MINUSEQ(loc); }
+"*=" { return ecc::parser::Parser::make_MULEQ(loc); }
+"/=" { return ecc::parser::Parser::make_DIVEQ(loc); }
+"%=" { return ecc::parser::Parser::make_MODEQ(loc); }
+"<<=" { return ecc::parser::Parser::make_LSHIFTEQ(loc); }
+">>=" { return ecc::parser::Parser::make_RSHIFTEQ(loc); }
+"&=" { return ecc::parser::Parser::make_ANDEQ(loc); }
+"|=" { return ecc::parser::Parser::make_OREQ(loc); }
+"^=" { return ecc::parser::Parser::make_XOREQ(loc); }
 
-"&" { return ecc::parser::Parser::token::AND; }
-"|" { return ecc::parser::Parser::token::OR; }
-"^" { return ecc::parser::Parser::token::XOR; }
-"~" { return ecc::parser::Parser::token::TILDE; }
-"!" { return ecc::parser::Parser::token::NOT; }
-"+" { return ecc::parser::Parser::token::PLUS; }
-"-" { return ecc::parser::Parser::token::MINUS; }
-"*" { return ecc::parser::Parser::token::MUL; }
-"/" { return ecc::parser::Parser::token::DIV; }
-"%" { return ecc::parser::Parser::token::MOD; }
-"=" { return ecc::parser::Parser::token::ASSIGN; }
-"<" { return ecc::parser::Parser::token::LT; }
-">" { return ecc::parser::Parser::token::GT; }
-"<<" { return ecc::parser::Parser::token::LSHIFT; }
-">>" { return ecc::parser::Parser::token::RSHIFT; }
+"&" { return ecc::parser::Parser::make_AND(loc); }
+"|" { return ecc::parser::Parser::make_OR(loc); }
+"^" { return ecc::parser::Parser::make_XOR(loc); }
+"~" { return ecc::parser::Parser::make_TILDE(loc); }
+"!" { return ecc::parser::Parser::make_NOT(loc); }
+"+" { return ecc::parser::Parser::make_PLUS(loc); }
+"-" { return ecc::parser::Parser::make_MINUS(loc); }
+"*" { return ecc::parser::Parser::make_MUL(loc); }
+"/" { return ecc::parser::Parser::make_DIV(loc); }
+"%" { return ecc::parser::Parser::make_MOD(loc); }
+"=" { return ecc::parser::Parser::make_ASSIGN(loc); }
+"<" { return ecc::parser::Parser::make_LT(loc); }
+">" { return ecc::parser::Parser::make_GT(loc); }
+"<<" { return ecc::parser::Parser::make_LSHIFT(loc); }
+">>" { return ecc::parser::Parser::make_RSHIFT(loc); }
 
 
-";" { return ecc::parser::Parser::token::SEMI; } /* Identifiers */
-"," { return ecc::parser::Parser::token::COMMA; }
-"(" { return ecc::parser::Parser::token::LPAREN; }
-")" { return ecc::parser::Parser::token::RPAREN; }
-"{" { return ecc::parser::Parser::token::LBRACE; }
-"}" { return ecc::parser::Parser::token::RBRACE; }
-"[" { return ecc::parser::Parser::token::LBRACKET; }
-"]" { return ecc::parser::Parser::token::RBRACKET; }
-"." { return ecc::parser::Parser::token::DOT; }
-"->" { return ecc::parser::Parser::token::ARROW; }
+";" { return ecc::parser::Parser::make_SEMI(loc); } /* Identifiers */
+"," { return ecc::parser::Parser::make_COMMA(loc); }
+"(" { return ecc::parser::Parser::make_LPAREN(loc); }
+")" { return ecc::parser::Parser::make_RPAREN(loc); }
+"{" { return ecc::parser::Parser::make_LBRACE(loc); }
+"}" { return ecc::parser::Parser::make_RBRACE(loc); }
+"[" { return ecc::parser::Parser::make_LBRACKET(loc); }
+"]" { return ecc::parser::Parser::make_RBRACKET(loc); }
+"." { return ecc::parser::Parser::make_DOT(loc); }
+"->" { return ecc::parser::Parser::make_ARROW(loc); }
 
 
 [_a-zA-Z][_a-zA-Z0-9]* { /* Identifiers */
-    yylval->sval = new std::string(yytext);
-    return ecc::parser::Parser::token::IDENTIFIER;
+    return ecc::parser::Parser::make_IDENTIFIER(yytext, loc);
 }
 
 
 0[xX][0-9a-fA-F]+ { /* Integer constants */
-    yylval->ival = strtoll(yytext, nullptr, 16);
-    return ecc::parser::Parser::token::INT_CONST;
+    return ecc::parser::Parser::make_INT_CONST(std::strtoll(yytext, nullptr, 16), loc);
 }
 [0-9]+ {
-    yylval->ival = std::stoll(yytext);
-    return ecc::parser::Parser::token::INT_CONST;
+    return ecc::parser::Parser::make_INT_CONST(std::stoll(yytext), loc);
 }
 
 
 [0-9]+(\.[0-9]*)?([eE][-+]?[0-9]+)? { /* Floating constants */
-    yylval->fval = std::stod(yytext);
-    return ecc::parser::Parser::token::FLOAT_CONST;
+    return ecc::parser::Parser::make_FLOAT_CONST(std::stod(yytext), loc);
 }
 
 
 '.' { /* Character constants */
-    yylval->cval = yytext[1];
-    return ecc::parser::Parser::token::CHAR_CONST;
+    return ecc::parser::Parser::make_CHAR_CONST(yytext[1], loc);
 }
 
 
 \"([^\\\"]|\\.)*\" { /* String constants */
-    yylval->sval = new std::string(yytext);
-    return ecc::parser::Parser::token::STRING_LITERAL;
+    return ecc::parser::Parser::make_STRING_LITERAL(yytext, loc);
 }
 
 
-. { return yytext[0]; }
+. { return ecc::parser::Parser::make_YYerror(loc); } 
 
 %%
