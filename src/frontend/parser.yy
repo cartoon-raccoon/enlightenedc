@@ -69,7 +69,7 @@ namespace ecc {
 
 /* Program */
 program:
-    | program program_item
+    | program program_item  {  }
     ;
 
 // Program item

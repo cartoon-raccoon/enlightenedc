@@ -1,7 +1,12 @@
 #ifndef ECC_AST_H
 #define ECC_AST_H
 
+#include <vector>
+
+#include "parser.hpp"
 namespace ecc::ast {
+
+using ecc::parser::Parser;
 
 class ASTVisitor;
 
@@ -19,11 +24,22 @@ public:
     virtual void accept(ASTVisitor& visitor) = 0;
 };
 
-// class Program : public ASTNode {
-//     ~Program() = default;
+class Program : public ASTNode {
+public:
+    ~Program() = default;
 
-//     void accept(ASTVisitor& visitor);
-// };
+    // Program items.
+    std::vector<ASTNode *> items;
+
+    void accept(ASTVisitor& visitor);
+};
+
+class Function : public ASTNode {
+public:
+    ~Function() = default;
+
+    void accept(ASTVisitor& visitor);
+};
 
 class Expression: public ASTNode {
 public:
@@ -34,15 +50,32 @@ public:
 
 class BinaryExpression : public Expression {
 public:
+    BinaryExpression(ASTNode *left, ASTNode *right, Parser::token op)
+        : left(left), right(right), op(op) {}
+    
     ~BinaryExpression() {};
 
+    // Left operand.
     ASTNode *left;
+    // Right operand.
     ASTNode *right;
-    // token
+    // The operator.
+    Parser::token op;
 
     void accept(ASTVisitor& visitor);
 };
 
+class UnaryExpression : public Expression {
+public:
+    ~UnaryExpression() {};
+
+    ASTNode *operand;
+    Parser::token op;
+
+    void accept(ASTVisitor& visitor);
+
+};
+
 }
 
-#endif
+#endif // ECC_AST_H
