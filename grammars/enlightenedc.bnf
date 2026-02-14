@@ -1,4 +1,4 @@
-program ::= program-item
+program ::=
         | program program-item
 
 program-item ::= preprocessor-directive
@@ -30,9 +30,9 @@ storage-class-specifier ::= "public"
                         | "static"
                         | "extern"
 
-type-specifier ::= "U0" | "U8" | "U16" | "U32" | "U64"
-                | "I0" | "I8" | "I16" | "I32" | "I64"
-                | "F64"
+type-specifier ::= "U0i" | "U8i" | "U16i" | "U32i" | "U64i"
+                | "I0i" | "I8i" | "I16i" | "I32i" | "I64i"
+                | "F64i"
                 | "Bool" | "void"
                 | struct-or-union-specifier
                 | enum-specifier
@@ -252,7 +252,7 @@ primary-expression ::= identifier
 constant ::= integer-constant
         | character-constant
         | floating-constant
-        | enumeration-constant
+        | identifier
 
 type-name ::= specifier-qualifier-list
             | specifier-qualifier-list abstract-declarator
