@@ -89,12 +89,17 @@ static ecc::parser::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 %type <Vec<Box<Declaration>>> declaration_list
 %type <Vec<Box<DeclarationSpecifier>>> declaration_specifier_list
 %type <Box<DeclarationSpecifier>> declaration_specifier
+%type <Box<Declarator>> init_declarator
+%type <ecc::tokens::TokenType> assignment_operator
+%type <Vec<Box<Declarator>>> init_declarator_list
+
 
 %type <Box<Expression>> expression 
-%type <Box<ASTNode>> assignment_expression conditional_expression
-%type <Box<BinaryExpression>> binary_expression 
-%type <Box<ASTNode>> unary_expression postfix_expression primary_expression
-%type <Box<ASTNode>> compound_statement statement_list
+%type <Box<Expression>> assignment_expression conditional_expression
+%type <Box<Expression>> binary_expression
+%type <Box<Expression>> unary_expression postfix_expression primary_expression
+%type <Vec<Box<Expression>>> expression_list argument_expression_list
+%type <std::optional<Box<Expression>>> expression_opt
 
 %%
 
@@ -123,18 +128,36 @@ function_definition:
 
 // Declarations
 declaration:
-    declaration_specifier_list SEMI
-    | declaration_specifier_list init_declarator_list SEMI
+    declaration_specifier_list SEMI {
+        $$ = std::make_unique<VariableDeclaration>std::(move($1), Vec<Box<Declarator>>{});
+    }
+    | declaration_specifier_list init_declarator_list SEMI {
+        $$ = std::make_unique<VariableDeclaration>(std::move($1), std::move($2));
+    }
     ;
 
 declaration_list:
-    declaration
-    | declaration_list declaration
+      declaration {
+          Vec<Box<Declaration>> list;
+          list.push_back(std::move($1));
+          $$ = std::move(list);
+      }
+    | declaration_list declaration {
+          $1.push_back(std::move($2));
+          $$ = std::move($1);
+      }
     ;
 
 declaration_specifier_list:
-    declaration_specifier
-    | declaration_specifier_list declaration_specifier
+      declaration_specifier {
+          Vec<Box<DeclarationSpecifier>> list;
+          list.push_back(std::move($1));
+          $$ = std::move(list);
+      }
+    | declaration_specifier_list declaration_specifier {
+          $1.push_back(std::move($2));
+          $$ = std::move($1);
+      }
     ;
 
 declaration_specifier:
@@ -227,13 +250,24 @@ enumerator:
 
 // Init declarators
 init_declarator_list:
-    init_declarator
-    | init_declarator_list COMMA init_declarator
+    init_declarator {
+        Vec<Box<Declarator>> list;
+        list.push_back(std::move($1));
+        $$ = std::move(list);
+    }
+    | init_declarator_list COMMA init_declarator {
+        $1.push_back(std::move($3));
+        $$ = std::move($1);
+    }
     ;
 
 init_declarator:
-    declarator
-    | declarator ASSIGN initializer
+    declarator {
+        $$ = std::move($1);
+    }
+    | declarator ASSIGN assignment_expression {
+        $$ = std::make_unique<AssignmentExpression>(std::move($1), std::move($3), ecc::tokens::ASSIGN);
+}
     ;
 
 // Declarators
@@ -322,91 +356,171 @@ statement:
     ;
 
 standalone_print_statement:
-      STRING_LITERAL
-    | STRING_LITERAL COMMA expression_list
-    SEMI
+      STRING_LITERAL SEMI {
+          $$ = std::make_unique<PrintStatement>(std::move($1), Vec<Box<Expression>>{});
+      }
+    | STRING_LITERAL COMMA expression_list SEMI {
+          $$ = std::make_unique<PrintStatement>(std::move($1), std::move($3));
+      }
     ;
 
 labeled_statement:
-      IDENTIFIER ':' statement
-    | CASE constant_expression ':' statement
-    | CASE constant_expression ELLIPSIS constant_expression ':' statement
-    | DEFAULT ':' statement
+      IDENTIFIER ':' statement {
+          $$ = std::make_unique<LabeledStatement>(LabeledStatement::IDENTIFIER, std::move($1), std::nullopt, std::nullopt, std::move($3));
+      }
+    | CASE constant_expression ':' statement {
+          $$ = std::make_unique<LabeledStatement>(LabeledStatement::CASE, "", std::move($2), std::nullopt, std::move($4));
+      }
+    | DEFAULT ':' statement {
+          $$ = std::make_unique<LabeledStatement>(LabeledStatement::DEFAULT, "", std::nullopt, std::nullopt, std::move($3));
+      }
     ;
 
 expression_statement:
-      SEMI
-    | expression SEMI
+      SEMI {
+          $$ = std::make_unique<ExpressionStatement>(std::nullopt);
+      }
+    | expression SEMI {
+          $$ = std::make_unique<ExpressionStatement>(std::move($1));
+      }
     ;
 
 compound_statement:
-      LBRACE RBRACE
-    | LBRACE statement_list RBRACE
-    | LBRACE declaration_list RBRACE
-    | LBRACE declaration_list statement_list RBRACE
+      LBRACE RBRACE {
+          $$ = std::make_unique<CompoundStatement>(Vec<Box<Declaration>>{}, Vec<Box<Statement>>{});
+      }
+    | LBRACE statement_list RBRACE {
+          $$ = std::make_unique<CompoundStatement>(Vec<Box<Declaration>>{}, std::move($2));
+      }
+    | LBRACE declaration_list RBRACE {
+          $$ = std::make_unique<CompoundStatement>(std::move($2), Vec<Box<Statement>>{});
+      }
+    | LBRACE declaration_list statement_list RBRACE {
+          $$ = std::make_unique<CompoundStatement>(std::move($2), std::move($3));
+      }
     ;
 
 statement_list:
-      statement
-    | statement_list statement
+      statement {
+          Vec<Box<Statement>> list;
+          list.push_back(std::move($1));
+          $$ = std::move(list);
+      }
+    | statement_list statement {
+          $1.push_back(std::move($2));
+          $$ = std::move($1);
+      }
     ;
 
 // Selection
 selection_statement:
-      IF LPAREN expression RPAREN statement
-    | IF LPAREN expression RPAREN statement ELSE statement
-    | SWITCH LPAREN expression RPAREN statement
+      IF LPAREN expression RPAREN statement {
+          $$ = std::make_unique<IfStatement>(std::move($3), std::move($5), std::nullopt);
+      }
+    | IF LPAREN expression RPAREN statement ELSE statement {
+          $$ = std::make_unique<IfStatement>(std::move($3), std::move($5), std::move($7));
+      }
+    | SWITCH LPAREN expression RPAREN statement {
+          $$ = std::make_unique<SwitchStatement>(std::move($3), std::move($5));
+      }
     ;
+
 
 // Iteration
 iteration_statement:
-      WHILE LPAREN expression RPAREN statement
-    | DO statement WHILE LPAREN expression RPAREN SEMI
-    | FOR LPAREN expression_opt SEMI expression_opt SEMI expression_opt RPAREN statement
+      WHILE LPAREN expression RPAREN statement {
+          $$ = std::make_unique<WhileStatement>(std::move($3), std::move($5));
+      }
+    | DO statement WHILE LPAREN expression RPAREN SEMI {
+          $$ = std::make_unique<DoWhileStatement>(std::move($2), std::move($5));
+      }
+    | FOR LPAREN expression_opt SEMI expression_opt SEMI expression_opt RPAREN statement {
+          $$ = std::make_unique<ForStatement>(std::move($3), std::move($5), std::move($7), std::move($9));
+      }
     ;
 
 expression_opt:
-      expression
-    |
+      expression { $$ = std::move($1); }
+    |           { $$ = std::nullopt; }
     ;
 
 // Jump
 jump_statement:
-      GOTO IDENTIFIER SEMI
-    | BREAK SEMI
-    | RETURN SEMI
-    | RETURN expression SEMI
+      GOTO IDENTIFIER SEMI {
+          $$ = std::make_unique<JumpStatement>(JumpStatement::GOTO, std::move($2), std::nullopt);
+      }
+    | BREAK SEMI {
+          $$ = std::make_unique<JumpStatement>(JumpStatement::BREAK, "", std::nullopt);
+      }
+    | RETURN SEMI {
+          $$ = std::make_unique<JumpStatement>(JumpStatement::RETURN, "", std::nullopt);
+      }
+    | RETURN expression SEMI {
+          $$ = std::make_unique<JumpStatement>(JumpStatement::RETURN, "", std::move($2));
+      }
     ;
+
 
 // Expressions
 expression:
-      assignment_expression
-    | expression COMMA assignment_expression
+      assignment_expression {
+          $$ = std::move($1);
+      }
+    | expression COMMA assignment_expression {
+    $$ = std::make_unique<BinaryExpression>(std::move($1), std::move($3), ecc::tokens::COMMA);
+    }
     ;
 
+
 expression_list:
-      expression
-    | expression_list expression
+      expression {
+          Vec<Box<Expression>> list;
+          list.push_back(std::move($1));
+          $$ = std::move(list);
+      }
+    | expression_list COMMA expression {
+          $1.push_back(std::move($3));
+          $$ = std::move($1);
+      }
     ;
 
 assignment_expression:
-      conditional_expression
-    | unary_expression assignment_operator assignment_expression
+      conditional_expression {
+          $$ = std::move($1);
+      }
+    | unary_expression assignment_operator assignment_expression {
+          $$ = std::make_unique<AssignmentExpression>(std::move($1), std::move($3), $2);
+      }
     ;
 
+
 assignment_operator:
-      ASSIGN | MULEQ | DIVEQ | MODEQ
-    | PLUSEQ | MINUSEQ | LSHIFTEQ | RSHIFTEQ
-    | ANDEQ | XOREQ | OREQ
+      ASSIGN   { $$ = ecc::tokens::ASSIGN; }
+    | MULEQ    { $$ = ecc::tokens::MULEQ; }
+    | DIVEQ    { $$ = ecc::tokens::DIVEQ; }
+    | MODEQ    { $$ = ecc::tokens::MODEQ; }
+    | PLUSEQ   { $$ = ecc::tokens::PLUSEQ; }
+    | MINUSEQ  { $$ = ecc::tokens::MINUSEQ; }
+    | LSHIFTEQ { $$ = ecc::tokens::LSHIFTEQ; }
+    | RSHIFTEQ { $$ = ecc::tokens::RSHIFTEQ; }
+    | ANDEQ    { $$ = ecc::tokens::ANDEQ; }
+    | XOREQ    { $$ = ecc::tokens::XOREQ; }
+    | OREQ     { $$ = ecc::tokens::OREQ; }
     ;
 
 conditional_expression:
-      binary_expression
-    | binary_expression '?' expression ':' conditional_expression
+      binary_expression {
+          $$ = std::move($1);
+      }
+    | binary_expression '?' expression ':' conditional_expression {
+          $$ = std::make_unique<ConditionalExpression>(std::move($1), std::move($3), std::move($5));
+      }
     ;
 
 binary_expression:
-      unary_expression
+      unary_expression {
+          $$ = std::move($1);
+      }
     | binary_expression OROR binary_expression
     | binary_expression ANDAND binary_expression
     | binary_expression OR binary_expression
@@ -424,35 +538,61 @@ binary_expression:
     | binary_expression MINUS binary_expression
     | binary_expression MUL binary_expression
     | binary_expression DIV binary_expression
-    | binary_expression MOD binary_expression
+    | binary_expression MOD binary_expression {
+        $$ = std::make_unique<BinaryExpression>(std::move($1), std::move($3), p_tok_to_toktype(&@$2));
+    }
+    ;
 
 unary_expression:
-      postfix_expression
+      postfix_expression {
+          $$ = std::move($1);
+      }
     | INC unary_expression
     | DEC unary_expression
-    | unary_operator unary_expression
-    | SIZEOF unary_expression
+| unary_operator unary_expression {
+      $$ = std::make_unique<UnaryExpression>(std::move($2), p_tok_to_toktype(&@$1));
+    }
+    | SIZEOF unary_expression {
+      $$ = std::make_unique<SizeofExpression>(std::move($2), std::nullopt);
+    }
     | SIZEOF LPAREN type_name RPAREN
     ;
 
 unary_operator:
       AND | MUL | PLUS | MINUS | TILDE | NOT
-    ;
-
-postfix_expression:
-      primary_expression
-    | postfix_expression LBRACKET expression RBRACKET
-    | postfix_expression LPAREN RPAREN
-    | postfix_expression LPAREN argument_expression_list RPAREN
-    | postfix_expression DOT IDENTIFIER
-    | postfix_expression ARROW IDENTIFIER
-    | postfix_expression INC
-    | postfix_expression DEC
-    ;
+    | postfix_expression LBRACKET expression RBRACKET {
+        $$ = std::make_unique<ArraySubscriptExpression>(std::move($1), std::move($3));
+    }
+    | postfix_expression LPAREN RPAREN {
+        $$ = std::make_unique<CallExpression>(std::move($1), Vec<Box<Expression>>{});
+    }
+    | postfix_expression LPAREN argument_expression_list RPAREN {
+        $$ = std::make_unique<CallExpression>(std::move($1), std::move($3));
+    }
+    | postfix_expression DOT IDENTIFIER {
+        $$ = std::make_unique<MemberAccessExpression>(std::move($1), std::move($3), false);
+    }
+    | postfix_expression ARROW IDENTIFIER {
+        $$ = std::make_unique<MemberAccessExpression>(std::move($1), std::move($3), true);
+    }
+    | postfix_expression INC {
+        $$ = std::make_unique<PostfixExpression>(std::move($1), ecc::tokens::INC);
+    }
+    | postfix_expression DEC {
+        $$ = std::make_unique<PostfixExpression>(std::move($1), ecc::tokens::DEC);
+    }
+;
 
 argument_expression_list:
-      assignment_expression
-    | argument_expression_list COMMA assignment_expression
+      assignment_expression {
+          Vec<Box<Expression>> list;
+          list.push_back(std::move($1));
+          $$ = std::move(list);
+      }
+    | argument_expression_list COMMA assignment_expression {
+          $1.push_back(std::move($3));
+          $$ = std::move($1);
+      }
     ;
 
 primary_expression:
