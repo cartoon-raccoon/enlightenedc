@@ -54,32 +54,55 @@ public:
 
 class DeclarationSpecifier : public ASTNode {
 public:
-    DeclarationSpecifier() = default;
-    ~DeclarationSpecifier() = default;
+    virtual ~DeclarationSpecifier() = default;
+    virtual void accept(ASTVisitor& visitor) = 0;
+};
+
+class ParameterDeclaration : public ASTNode {
+public:
+    ParameterDeclaration(
+        Vec<Box<DeclarationSpecifier>> specifiers,
+        std::optional<Box<Declarator>> declarator,
+        std::optional<Box<Expression>> default_value
+    )
+        : specifiers(std::move(specifiers)),
+          declarator(std::move(declarator)),
+          default_value(std::move(default_value)) {}
+
+    Vec<Box<DeclarationSpecifier>> specifiers;
+    std::optional<Box<Declarator>> declarator;
+    std::optional<Box<Expression>> default_value;
 
     void accept(ASTVisitor& visitor);
 };
 
 
+
 class Declarator : public ASTNode {
 public:
-    Declarator() = default;
-    ~Declarator() = default;
-    void accept(ASTVisitor& visitor);
+    Declarator(
+        std::optional<Box<Pointer>> pointer,
+        std::optional<Box<DirectDeclarator>> direct
+    )
+        : pointer(std::move(pointer)),
+          direct(std::move(direct)) {}
+
+    std::optional<Box<Pointer>> pointer;
+    std::optional<Box<DirectDeclarator>> direct;
 };
 
 class VariableDeclaration : public Declaration {
 public:
     VariableDeclaration(
         Vec<Box<DeclarationSpecifier>> specifiers,
-        Vec<Box<Declarator>> declarators
+        Vec<Box<InitDeclarator>> declarators
     )
         : specifiers(std::move(specifiers)),
           declarators(std::move(declarators))
     {}
 
     Vec<Box<DeclarationSpecifier>> specifiers;
-    Vec<Box<Declarator>> declarators;
+    Vec<Box<InitDeclarator>> declarators;
 
     void accept(ASTVisitor& visitor);
 };
@@ -88,14 +111,14 @@ class InitDeclarator : public ASTNode {
 public:
     InitDeclarator(
         Box<Declarator> declarator,
-        std::optional<Box<Expression>> initializer
+        std::optional<Box<Initializer>> initializer
     )
         : declarator(std::move(declarator)),
           initializer(std::move(initializer))
     {}
 
     Box<Declarator> declarator;
-    std::optional<Box<Expression>> initializer;
+    std::optional<Box<Initializer>> initializer;
 
     void accept(ASTVisitor& visitor);
 };
@@ -103,47 +126,59 @@ public:
 class Pointer : public ASTNode {
 public:
     Pointer(
-        Vec<Box<DeclarationSpecifier>> qualifiers,
-        Box<Pointer> nested
+        Vec<Box<TypeQualifier>> qualifiers,
+        std::optional<Box<Pointer>> nested
     )
         : qualifiers(std::move(qualifiers)),
-          nested(std::move(nested))
-    {}
+          nested(std::move(nested)) {}
 
-    Vec<Box<DeclarationSpecifier>> qualifiers;
-    Box<Pointer> nested;
+    Vec<Box<TypeQualifier>> qualifiers;
+    std::optional<Box<Pointer>> nested;
 
     void accept(ASTVisitor& visitor);
 };
 
-class DirectDeclarator : public ASTNode {
-public:
-    enum Kind {
-        IDENTIFIER,
-        PAREN_DECLARATOR,
-        ARRAY,
-        FUNCTION
-    };
+class DirectDeclarator : public ASTNode {};
 
-    DirectDeclarator(
-        Kind kind,
-        std::string identifier,
-        Box<Declarator> inner,
-        std::optional<Box<Expression>> array_size,
-        Vec<Box<Declaration>> parameters
-    )
-        : kind(kind),
-          identifier(std::move(identifier)),
-          inner(std::move(inner)),
-          array_size(std::move(array_size)),
-          parameters(std::move(parameters))
-    {}
+class IdentifierDeclarator : public DirectDeclarator {
+    std::string name;
 
-    Kind kind;
-    std::string identifier;
+    void accept(ASTVisitor& visitor) override;
+};
+
+class ParenDeclarator : public DirectDeclarator {
     Box<Declarator> inner;
-    std::optional<Box<Expression>> array_size;
-    Vec<Box<Declaration>> parameters;
+
+    void accept(ASTVisitor& visitor) override;
+};
+
+class ArrayDeclarator : public DirectDeclarator {
+    Box<DirectDeclarator> base;
+    std::optional<Box<Expression>> size;
+
+    void accept(ASTVisitor& visitor) override;
+};
+
+class FunctionDeclarator : public DirectDeclarator {
+    Box<DirectDeclarator> base;
+    Vec<Box<ParameterDeclaration>> parameters;
+    bool is_variadic;
+
+    void accept(ASTVisitor& visitor) override;
+};
+
+
+class StructDeclarator : public ASTNode {
+public:
+    StructDeclarator(
+        std::optional<Box<Declarator>> declarator,
+        std::optional<Box<Expression>> bit_width
+    )
+        : declarator(std::move(declarator)),
+          bit_width(std::move(bit_width)) {}
+
+    std::optional<Box<Declarator>> declarator;
+    std::optional<Box<Expression>> bit_width;
 
     void accept(ASTVisitor& visitor);
 };
@@ -152,14 +187,14 @@ class StructDeclaration : public ASTNode {
 public:
     StructDeclaration(
         Vec<Box<DeclarationSpecifier>> specifiers,
-        Vec<Box<Declarator>> declarators
+        Vec<Box<StructDeclarator>> declarators
     )
         : specifiers(std::move(specifiers)),
           declarators(std::move(declarators))
     {}
 
     Vec<Box<DeclarationSpecifier>> specifiers;
-    Vec<Box<Declarator>> declarators;
+    Vec<Box<StructDeclarator>> declarators;
 
     void accept(ASTVisitor& visitor);
 };
@@ -181,19 +216,18 @@ public:
 };
 
 // Storage class specifiers.
-class StorageClassSpecifier : public ASTNode {
+class StorageClassSpecifier : public DeclarationSpecifier {
 public:
     enum SpecType {
         PUBLIC,
         STATIC,
-        EXTERN,
+        EXTERN
     };
 
-    explicit StorageClassSpecifier(SpecType spec)
-        : spec(spec)
-    {}
+    explicit StorageClassSpecifier(SpecType type)
+        : type(type) {}
 
-    SpecType spec;
+    SpecType type;
 
     void accept(ASTVisitor& visitor);
 };
@@ -202,87 +236,81 @@ public:
 // The struct or union specifier.
 class StructOrUnionSpecifier : public ASTNode {
 public:
-    enum SpecType {
-        STRUCT,
-        UNION,
-    };
+    enum Kind { STRUCT, UNION };
 
-    StructOrUnionSpecifier(
-        SpecType spec,
-        std::optional<std::string> name
-    )
-        : spec(spec),
-          name(std::move(name))
-    {}
-
-    SpecType spec;
-
+    Kind kind;
     std::optional<std::string> name;
 
-    // struct declaration list
+    std::optional<Vec<Box<StructDeclaration>>> declarations;
 
-    void accept(ASTVisitor& visitor);
+    StructOrUnionSpecifier(
+        Kind kind,
+        std::optional<std::string> name,
+        std::optional<Vec<Box<StructDeclaration>>> declarations
+    )
+        : kind(kind),
+          name(std::move(name)),
+          declarations(std::move(declarations)) {}
 };
 
 
 class EnumSpecifier : public ASTNode {
 public:
-    EnumSpecifier() = default;
+    EnumSpecifier(
+        std::optional<std::string> name,
+        std::optional<Vec<Box<Enumerator>>> enumerators
+    )
+        : name(std::move(name)),
+          enumerators(std::move(enumerators)) {}
+
+    std::optional<std::string> name;
+
+    std::optional<Vec<Box<Enumerator>>> enumerators;
 
     void accept(ASTVisitor& visitor);
 };
 
 
-class TypeSpecifier : public ASTNode {
+
+
+class TypeSpecifier : public DeclarationSpecifier {
 public:
-
-    // The type of specifier: primitive type, struct/union, or enum.
-    enum SpecType {
-        PRIMITIVE,
-        STRUCT_OR_UNION,
-        ENUM,
-    };
-
-    enum PrimitiveSpecifier {
+    enum Primitive {
         VOID,
-        U8,
-        U16,
-        U32,
-        U64,
-        I0,
-        I8,
-        I16,
-        I32,
-        I64,
+        U0, U8, U16, U32, U64,
+        I0, I8, I16, I32, I64,
         F64,
-        BOOL,
+        BOOL
     };
 
-    explicit TypeSpecifier(PrimitiveSpecifier primitive)
-        : type(PRIMITIVE)
-    {
-        spec.primitive = primitive;
-    }
+    std::variant<
+        Primitive,
+        Box<StructOrUnionSpecifier>,
+        Box<EnumSpecifier>
+    > type;
 
-    explicit TypeSpecifier(StructOrUnionSpecifier* s)
-        : type(STRUCT_OR_UNION)
-    {
-        spec.struct_or_union = s;
-    }
+    explicit TypeSpecifier(Primitive prim)
+        : type(prim) {}
 
-    explicit TypeSpecifier(EnumSpecifier* e)
-        : type(ENUM)
-    {
-        spec.enum_ = e;
-    }
+    explicit TypeSpecifier(Box<StructOrUnionSpecifier> s)
+        : type(std::move(s)) {}
 
-    SpecType type;
+    explicit TypeSpecifier(Box<EnumSpecifier> e)
+        : type(std::move(e)) {}
 
-    union {
-        PrimitiveSpecifier primitive;
-        StructOrUnionSpecifier* struct_or_union;
-        EnumSpecifier* enum_;
-    } spec;
+    void accept(ASTVisitor& visitor);
+};
+
+class TypeQualifier : public DeclarationSpecifier {
+public:
+    enum QualType {
+        CONST
+    };
+
+    explicit TypeQualifier(QualType qual)
+        : qual(qual) {}
+
+    QualType qual;
 
     void accept(ASTVisitor& visitor);
 };
@@ -681,18 +709,13 @@ public:
 
 class SizeofExpression : public Expression {
 public:
-    SizeofExpression(
-        std::optional<Box<Expression>> expression,
-        std::optional<Box<ASTNode>> type_name
-    )
-        : expression(std::move(expression)),
-          type_name(std::move(type_name))
-    {}
+    std::variant<Box<Expression>, Box<TypeName>> operand;
 
-    std::optional<Box<Expression>> expression;
-    std::optional<Box<ASTNode>> type_name;
+    explicit SizeofExpression(Box<Expression> expr)
+        : operand(std::move(expr)) {}
 
-    void accept(ASTVisitor& visitor);
+    explicit SizeofExpression(Box<TypeName> type)
+        : operand(std::move(type)) {}
 };
 
 
@@ -741,6 +764,35 @@ public:
     void add_item(std::unique_ptr<ProgramItem> item);
 };
 
+// Initializers
+class Initializer : public ASTNode {
+public:
+    Initializer(Box<Expression> expr)
+        : expression(std::move(expr)) {}
+
+    Initializer(Vec<Box<Initializer>> list)
+        : initializer_list(std::move(list)) {}
+
+    std::optional<Box<Expression>> expression;
+    Vec<Box<Initializer>> initializer_list;
+
+    void accept(ASTVisitor& visitor);
+};
+
+class TypeName : public ASTNode {
+public:
+    TypeName(
+        Vec<Box<DeclarationSpecifier>> specifiers,
+        std::optional<Box<Declarator>> declarator
+    )
+        : specifiers(std::move(specifiers)),
+          declarator(std::move(declarator)) {}
+
+    Vec<Box<DeclarationSpecifier>> specifiers;
+    std::optional<Box<Declarator>> declarator;
+
+    void accept(ASTVisitor& visitor);
+};
 
 }
 
