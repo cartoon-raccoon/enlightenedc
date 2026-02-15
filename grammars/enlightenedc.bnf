@@ -1,3 +1,11 @@
+(* 
+The BNF specifying the grammar of EnlightenedC. (S1 submission)
+Modified from the sprint0 EBNF based on the following sources:
+[1] https://github.com/Ma11ock/holyc/blob/master/hc.bnf
+[2] https://cs.wmich.edu/~gupta/teaching/cs4850/sumII06/The%20syntax%20of%20C%20in%20Backus-Naur%20form.htm
+and modified to EnlightenedC specifications.
+*)
+
 program ::=
         | program program-item
 
@@ -137,7 +145,10 @@ statement ::= labeled-statement
             | iteration-statement
             | jump-statement
 
-standalone-print-statement ::= string-constant ("," expression)* ";"
+standalone-print-statement ::= string-constant print-tail ";"
+
+print-tail ::= "," expression print-tail
+             | 
 
 labeled-statement ::= identifier ":" statement
                     | "case" constant-expression ":" statement
@@ -252,19 +263,116 @@ primary-expression ::= identifier
 constant ::= integer-constant
         | character-constant
         | floating-constant
-        | identifier
 
 type-name ::= specifier-qualifier-list
             | specifier-qualifier-list abstract-declarator
 
 constant-expression ::= conditional-expression
 
-identifier ::= "[_a-zA-Z][_\\w]*"
+identifier ::= id-start id-rest
 
-integer-constant ::= "-"?("0x"[0-9A-Fa-f]+|"0"[0-7]*|[1-9][0-9]*)
+id-rest ::= id-char id-rest
+          | 
 
-floating-constant ::= "-"?[0-9]+("."[0-9]*)?([eE][-+]?[0-9]+)?
+id-start ::= letter
+           | "_"
 
-character-constant ::= "'.{1,8}'"
+id-char ::= letter
+          | digit
+          | "_"
 
-string-constant ::= "\".*\""
+letter ::= "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n"
+         | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z"
+         | "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M" | "N"
+         | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z"
+
+digit ::= "0" | nonzero-digit
+
+integer-constant ::= sign-opt integer-body
+
+sign-opt ::= "-"
+           | 
+
+integer-body ::= decimal-constant
+               | octal-constant
+               | hexadecimal-constant
+
+decimal-constant ::= nonzero-digit digit-seq
+                   | nonzero-digit
+
+digit-seq ::= digit digit-seq
+            | 
+
+nonzero-digit ::= "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+
+octal-constant ::= "0" octal-seq
+
+octal-seq ::= octal-digit octal-seq
+            | 
+
+octal-digit ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7"
+
+hexadecimal-constant ::= "0" hex-prefix hex-digit hex-seq
+
+hex-prefix ::= "x"
+             | "X"
+
+hex-seq ::= hex-digit hex-seq
+          | 
+
+hex-digit ::= digit
+            | "a" | "b" | "c" | "d" | "e" | "f"
+            | "A" | "B" | "C" | "D" | "E" | "F"
+
+floating-constant ::= sign-opt float-body
+
+float-body ::= digits "." digits-opt exponent-opt
+             | digits exponent
+
+digits ::= digit digits
+         | digit
+
+digits-opt ::= digits
+             | 
+
+exponent-opt ::= exponent
+               | 
+
+exponent ::= exponent-marker sign-opt digits
+
+exponent-marker ::= "e"
+                  | "E"
+
+character-constant ::= "'" char-content "'"
+
+char-content ::= single-char
+               | single-char char-content
+
+single-char ::= letter
+              | digit
+              | symbol
+              | space
+              | escape-sequence
+
+string-constant ::= "\"" string-characters "\""
+
+string-characters ::= string-character string-characters
+                    | 
+
+string-character ::= letter
+                   | digit
+                   | symbol
+                   | space
+                   | escape-sequence
+
+symbol ::= "!" | "@" | "#" | "$" | "%" | "^" | "&" | "*" | "(" | ")"
+         | "-" | "_" | "=" | "+" | ";" | ":" | "," | "."
+         | "[" | "]" | "{" | "}" | "<" | ">" | "/" | "?"
+
+space ::= " "
+
+escape-sequence ::= "\\" "n"
+                  | "\\" "t"
+                  | "\\" "\\"
+                  | "\\" "\""
+                  | "\\" "'"
