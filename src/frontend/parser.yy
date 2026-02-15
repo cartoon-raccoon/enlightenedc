@@ -63,6 +63,7 @@ static ecc::parser::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 %token AND OR XOR TILDE NOT LT GT LSHIFT RSHIFT
 %token SEMI COMMA LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET DOT ARROW
 %token ELLIPSIS
+%token U0
 
 // Operator precedence.
 %left OROR
@@ -80,24 +81,50 @@ static ecc::parser::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 //* Note: the default Bison action will NOT work on these, as std_unique ptr has move semantics.
 //* All actions must be filled with { $$ = std::move($1); }.
 %type <Box<Program>> program 
-%type <Box<ProgramItem>> program_item 
+%type <Box<ProgramItem>> program_item
 %type <Box<Function>> function_definition
 %type <Box<Declaration>> declaration
 %type <Box<Statement>> statement
-%type <Box<Declarator>> declarator
+%type <Box<Declarator>> declarator abstract_declarator direct_abstract_declarator
 
 %type <Vec<Box<Declaration>>> declaration_list
-%type <Vec<Box<DeclarationSpecifier>>> declaration_specifier_list
-%type <Box<DeclarationSpecifier>> declaration_specifier
-%type <Box<Declarator>> init_declarator
-%type <ecc::tokens::TokenType> assignment_operator
-%type <Vec<Box<Declarator>>> init_declarator_list
+%type <Vec<Box<DeclarationSpecifier>>> declaration_specifier_list specifier_qualifier_list
+%type <Box<DeclarationSpecifier>> declaration_specifier storage_class_specifier type_specifier
+%type <Box<TypeQualifier>> type_qualifier
+%type <Vec<Box<TypeQualifier>>> type_qualifier_list
 
+%type <Box<InitDeclarator>> init_declarator
+%type <Vec<Box<InitDeclarator>>> init_declarator_list
+%type <ecc::tokens::TokenType> assignment_operator unary_operator
 
-%type <Box<Expression>> expression 
-%type <Box<Expression>> assignment_expression conditional_expression
-%type <Box<Expression>> binary_expression
-%type <Box<Expression>> unary_expression postfix_expression primary_expression
+%type <Box<Pointer>> pointer
+%type <Box<DirectDeclarator>> direct_declarator
+%type <Vec<Box<ParameterDeclaration>>> parameter_list
+%type <Box<ParameterDeclaration>> parameter_declaration
+%type <std::pair<Vec<Box<ParameterDeclaration>>, bool>> parameter_type_list
+
+%type <StructOrUnionSpecifier::Kind> struct_or_union
+%type <Box<StructOrUnionSpecifier>> struct_or_union_specifier
+%type <Box<EnumSpecifier>> enum_specifier
+%type <Vec<Box<StructDeclaration>>> struct_declaration_list
+%type <Box<StructDeclaration>> struct_declaration
+%type <Vec<Box<StructDeclarator>>> struct_declarator_list
+%type <Box<StructDeclarator>> struct_declarator
+%type <Vec<Box<Enumerator>>> enumerator_list
+%type <Box<Enumerator>> enumerator
+
+%type <Box<TypeName>> type_name
+%type <Box<Initializer>> initializer
+%type <Vec<Box<Initializer>>> initializer_list
+
+%type <Box<CompoundStatement>> compound_statement
+%type <Vec<Box<Statement>>> statement_list
+%type <Box<Statement>> labeled_statement expression_statement standalone_print_statement
+%type <Box<Statement>> selection_statement iteration_statement jump_statement
+
+%type <Box<Expression>> expression assignment_expression conditional_expression
+%type <Box<Expression>> binary_expression unary_expression postfix_expression primary_expression
+%type <Box<Expression>> constant constant_expression
 %type <Vec<Box<Expression>>> expression_list argument_expression_list
 %type <std::optional<Box<Expression>>> expression_opt
 
@@ -129,7 +156,7 @@ function_definition:
 // Declarations
 declaration:
     declaration_specifier_list SEMI {
-        $$ = std::make_unique<VariableDeclaration>std::(move($1), Vec<Box<Declarator>>{});
+        $$ = std::make_unique<VariableDeclaration>(std::move($1), Vec<Box<InitDeclarator>>{});
     }
     | declaration_specifier_list init_declarator_list SEMI {
         $$ = std::make_unique<VariableDeclaration>(std::move($1), std::move($2));
@@ -167,91 +194,151 @@ declaration_specifier:
     ;
 
 storage_class_specifier:
-    PUBLIC 
-    | STATIC
-    | EXTERN
+      PUBLIC  { $$ = std::make_unique<StorageClassSpecifier>(StorageClassSpecifier::PUBLIC); }
+    | STATIC  { $$ = std::make_unique<StorageClassSpecifier>(StorageClassSpecifier::STATIC); }
+    | EXTERN  { $$ = std::make_unique<StorageClassSpecifier>(StorageClassSpecifier::EXTERN); }
     ;
 
 type_specifier:
-    VOID
-    | U8
-    | U16
-    | U32
-    | U64
-    | I0
-    | I8
-    | I16
-    | I32
-    | I64
-    | F64
-    | BOOL
-    | struct_or_union_specifier
-    | enum_specifier
+      VOID  { $$ = std::make_unique<TypeSpecifier>(TypeSpecifier::VOID); }
+    | U0    { $$ = std::make_unique<TypeSpecifier>(TypeSpecifier::U0); }
+    | U8    { $$ = std::make_unique<TypeSpecifier>(TypeSpecifier::U8); }
+    | U16   { $$ = std::make_unique<TypeSpecifier>(TypeSpecifier::U16); }
+    | U32   { $$ = std::make_unique<TypeSpecifier>(TypeSpecifier::U32); }
+    | U64   { $$ = std::make_unique<TypeSpecifier>(TypeSpecifier::U64); }
+    | I0    { $$ = std::make_unique<TypeSpecifier>(TypeSpecifier::I0); }
+    | I8    { $$ = std::make_unique<TypeSpecifier>(TypeSpecifier::I8); }
+    | I16   { $$ = std::make_unique<TypeSpecifier>(TypeSpecifier::I16); }
+    | I32   { $$ = std::make_unique<TypeSpecifier>(TypeSpecifier::I32); }
+    | I64   { $$ = std::make_unique<TypeSpecifier>(TypeSpecifier::I64); }
+    | F64   { $$ = std::make_unique<TypeSpecifier>(TypeSpecifier::F64); }
+    | BOOL  { $$ = std::make_unique<TypeSpecifier>(TypeSpecifier::BOOL); }
+    | struct_or_union_specifier { $$ = std::make_unique<TypeSpecifier>(std::move($1)); }
+    | enum_specifier { $$ = std::make_unique<TypeSpecifier>(std::move($1)); }
     ;
 
 type_qualifier:
-    CONST
+    CONST { $$ = std::make_unique<TypeQualifier>(TypeQualifier::CONST); }
     ;
 
 // Structs / unions / enums
 struct_or_union_specifier:
-    struct_or_union IDENTIFIER LBRACE struct_declaration_list RBRACE
-    | struct_or_union LBRACE struct_declaration_list RBRACE
-    | struct_or_union IDENTIFIER
+      struct_or_union IDENTIFIER LBRACE struct_declaration_list RBRACE {
+          $$ = std::make_unique<StructOrUnionSpecifier>($1, $2, std::move($4));
+      }
+    | struct_or_union LBRACE struct_declaration_list RBRACE {
+          $$ = std::make_unique<StructOrUnionSpecifier>($1, std::nullopt, std::move($3));
+      }
+    | struct_or_union IDENTIFIER {
+          $$ = std::make_unique<StructOrUnionSpecifier>($1, $2, std::nullopt);
+      }
     ;
 
-struct_or_union: 
-    STRUCT
-    | UNION
+struct_or_union:
+      STRUCT { $$ = StructOrUnionSpecifier::STRUCT; }
+    | UNION  { $$ = StructOrUnionSpecifier::UNION; }
     ;
 
 struct_declaration_list:
-    struct_declaration
-    | struct_declaration_list struct_declaration
+      struct_declaration {
+          Vec<Box<StructDeclaration>> list;
+          list.push_back(std::move($1));
+          $$ = std::move(list);
+      }
+    | struct_declaration_list struct_declaration {
+          $1.push_back(std::move($2));
+          $$ = std::move($1);
+      }
     ;
 
 struct_declaration:
-    specifier_qualifier_list struct_declarator_list SEMI
+    specifier_qualifier_list struct_declarator_list SEMI {
+        $$ = std::make_unique<StructDeclaration>(std::move($1), std::move($2));
+    }
     ;
 
 specifier_qualifier_list:
-    type_specifier
-    | type_qualifier
-    | specifier_qualifier_list type_specifier
-    | specifier_qualifier_list type_qualifier
+      type_specifier {
+          Vec<Box<DeclarationSpecifier>> list;
+          list.push_back(std::move($1));
+          $$ = std::move(list);
+      }
+    | type_qualifier {
+          Vec<Box<DeclarationSpecifier>> list;
+          list.push_back(std::move($1));
+          $$ = std::move(list);
+      }
+    | specifier_qualifier_list type_specifier {
+          $1.push_back(std::move($2));
+          $$ = std::move($1);
+      }
+    | specifier_qualifier_list type_qualifier {
+          $1.push_back(std::move($2));
+          $$ = std::move($1);
+      }
     ;
 
 struct_declarator_list:
-    struct_declarator
-    | struct_declarator_list struct_declarator
+      struct_declarator {
+          Vec<Box<StructDeclarator>> list;
+          list.push_back(std::move($1));
+          $$ = std::move(list);
+      }
+    | struct_declarator_list COMMA struct_declarator {
+          $1.push_back(std::move($3));
+          $$ = std::move($1);
+      }
     ;
 
 struct_declarator:
-    declarator
-    | declarator ':' constant_expression
-    | ':' constant_expression
+      declarator {
+          $$ = std::make_unique<StructDeclarator>(std::move($1), std::nullopt);
+      }
+    | declarator ':' constant_expression {
+          $$ = std::make_unique<StructDeclarator>(std::move($1), std::move($3));
+      }
+    | ':' constant_expression {
+          $$ = std::make_unique<StructDeclarator>(std::nullopt, std::move($2));
+      }
     ;
 
 enum_specifier:
-    ENUM LBRACE enumerator_list RBRACE
-    | ENUM IDENTIFIER LBRACE enumerator_list RBRACE
-    | ENUM IDENTIFIER SEMI
+      ENUM LBRACE enumerator_list RBRACE {
+          $$ = std::make_unique<EnumSpecifier>(std::nullopt, std::move($3));
+      }
+    | ENUM IDENTIFIER LBRACE enumerator_list RBRACE {
+          $$ = std::make_unique<EnumSpecifier>($2, std::move($4));
+      }
+    | ENUM IDENTIFIER SEMI {
+          $$ = std::make_unique<EnumSpecifier>($2, std::nullopt);
+      }
     ;
 
 enumerator_list:
-    enumerator
-    | enumerator_list COMMA enumerator
+      enumerator {
+          Vec<Box<Enumerator>> list;
+          list.push_back(std::move($1));
+          $$ = std::move(list);
+      }
+    | enumerator_list COMMA enumerator {
+          $1.push_back(std::move($3));
+          $$ = std::move($1);
+      }
     ;
 
 enumerator:
-    IDENTIFIER
-    | IDENTIFIER ASSIGN constant_expression
+      IDENTIFIER {
+          $$ = std::make_unique<Enumerator>($1, std::nullopt);
+      }
+    | IDENTIFIER ASSIGN constant_expression {
+          $$ = std::make_unique<Enumerator>($1, std::move($3));
+      }
     ;
 
 // Init declarators
 init_declarator_list:
     init_declarator {
-        Vec<Box<Declarator>> list;
+        Vec<Box<InitDeclarator>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
@@ -263,85 +350,173 @@ init_declarator_list:
 
 init_declarator:
     declarator {
-        $$ = std::move($1);
+        $$ = std::make_unique<InitDeclarator>(std::move($1), std::nullopt);
     }
-    | declarator ASSIGN assignment_expression {
-        $$ = std::make_unique<AssignmentExpression>(std::move($1), std::move($3), ecc::tokens::ASSIGN);
-}
+    | declarator ASSIGN initializer {
+        $$ = std::make_unique<InitDeclarator>(std::move($1), std::move($3));
+    }
     ;
 
 // Declarators
 declarator:
-    pointer direct_declarator
-    | direct_declarator
+      pointer direct_declarator {
+          $$ = std::make_unique<Declarator>(std::move($1), std::move($2));
+      }
+    | direct_declarator {
+          $$ = std::make_unique<Declarator>(std::nullopt, std::move($1));
+      }
     ;
 
 pointer:
-    MUL
-    | MUL type_qualifier_list
-    | MUL pointer
-    | MUL type_qualifier_list pointer
+      MUL {
+          $$ = std::make_unique<Pointer>(Vec<Box<TypeQualifier>>{}, std::nullopt);
+      }
+    | MUL type_qualifier_list {
+          $$ = std::make_unique<Pointer>(std::move($2), std::nullopt);
+      }
+    | MUL pointer {
+          $$ = std::make_unique<Pointer>(Vec<Box<TypeQualifier>>{}, std::move($2));
+      }
+    | MUL type_qualifier_list pointer {
+          $$ = std::make_unique<Pointer>(std::move($2), std::move($3));
+      }
     ;
 
 type_qualifier_list:
-    type_qualifier
-    | type_qualifier_list type_qualifier
+      type_qualifier {
+          Vec<Box<TypeQualifier>> list;
+          list.push_back(std::move($1));
+          $$ = std::move(list);
+      }
+    | type_qualifier_list type_qualifier {
+          $1.push_back(std::move($2));
+          $$ = std::move($1);
+      }
     ;
 
 direct_declarator:
-    IDENTIFIER
-    | LPAREN declarator RPAREN
-    | direct_declarator LBRACKET RBRACKET
-    | direct_declarator LBRACKET constant_expression RBRACKET
-    | direct_declarator LPAREN RPAREN
-    | direct_declarator LPAREN parameter_type_list RPAREN
+      IDENTIFIER {
+          $$ = std::make_unique<IdentifierDeclarator>(std::move($1));
+      }
+    | LPAREN declarator RPAREN {
+          $$ = std::make_unique<ParenDeclarator>(std::move($2));
+      }
+    | direct_declarator LBRACKET RBRACKET {
+          $$ = std::make_unique<ArrayDeclarator>(std::move($1), std::nullopt);
+      }
+    | direct_declarator LBRACKET constant_expression RBRACKET {
+          $$ = std::make_unique<ArrayDeclarator>(std::move($1), std::move($3));
+      }
+    | direct_declarator LPAREN RPAREN {
+      $$ = std::make_unique<FunctionDeclarator>(std::move($1), Vec<Box<ParameterDeclaration>>{}, false);
+        }
+        | direct_declarator LPAREN parameter_type_list RPAREN {
+            $$ = std::make_unique<FunctionDeclarator>(std::move($1), std::move($3.first), $3.second);
+  }
+
     ;
 
 // Parameter types
 parameter_type_list:
-    parameter_list
-    | parameter_list COMMA ELLIPSIS
+      parameter_list {
+          $$ = { std::move($1), false };
+      }
+    | parameter_list COMMA ELLIPSIS {
+          $$ = { std::move($1), true };
+      }
     ;
 
 parameter_list:
-    parameter_declaration
-    | parameter_list COMMA parameter_declaration
+      parameter_declaration {
+          Vec<Box<ParameterDeclaration>> list;
+          list.push_back(std::move($1));
+          $$ = std::move(list);
+      }
+    | parameter_list COMMA parameter_declaration {
+          $1.push_back(std::move($3));
+          $$ = std::move($1);
+      }
     ;
 
 parameter_declaration:
-    declaration_specifier_list
-    | declaration_specifier_list declarator
-    | declaration_specifier_list declarator ASSIGN assignment_expression
-    | declaration_specifier_list abstract_declarator
+      declaration_specifier_list {
+          $$ = std::make_unique<ParameterDeclaration>(std::move($1), std::nullopt, std::nullopt);
+      }
+    | declaration_specifier_list declarator {
+          $$ = std::make_unique<ParameterDeclaration>(std::move($1), std::move($2), std::nullopt);
+      }
+    | declaration_specifier_list declarator ASSIGN assignment_expression {
+          $$ = std::make_unique<ParameterDeclaration>(std::move($1), std::move($2), std::move($4));
+      }
+    | declaration_specifier_list abstract_declarator {
+          $$ = std::make_unique<ParameterDeclaration>(std::move($1), std::move($2), std::nullopt);
+      }
     ;
 
 initializer:
-    assignment_expression
-    | LBRACE initializer_list RBRACE
-    | LBRACE initializer_list COMMA RBRACE
+      assignment_expression {
+          $$ = std::make_unique<Initializer>(std::move($1));
+      }
+    | LBRACE initializer_list RBRACE {
+          $$ = std::make_unique<Initializer>(std::move($2));
+      }
+    | LBRACE initializer_list COMMA RBRACE {
+          $$ = std::make_unique<Initializer>(std::move($2));
+      }
     ;
 
 initializer_list:
-    initializer
-    | initializer_list COMMA initializer
+      initializer {
+          Vec<Box<Initializer>> list;
+          list.push_back(std::move($1));
+          $$ = std::move(list);
+      }
+    | initializer_list COMMA initializer {
+          $1.push_back(std::move($3));
+          $$ = std::move($1);
+      }
     ;
 
 abstract_declarator:
-    pointer
-    | pointer direct_abstract_declarator
-    | direct_abstract_declarator
+      pointer {
+          $$ = std::make_unique<Declarator>(std::move($1), std::nullopt);
+      }
+    | pointer direct_abstract_declarator {
+          $$ = std::make_unique<Declarator>(std::move($1), std::move($2));
+      }
+    | direct_abstract_declarator {
+          $$ = std::make_unique<Declarator>(std::nullopt, std::move($1));
+      }
     ;
 
 direct_abstract_declarator:
-    LPAREN abstract_declarator RPAREN
-    | direct_abstract_declarator LBRACKET RBRACKET
-    | direct_abstract_declarator LBRACKET constant_expression RBRACKET
-    | direct_abstract_declarator LPAREN RPAREN
-    | direct_abstract_declarator LPAREN parameter_type_list RPAREN
-    | LBRACKET RBRACKET
-    | LBRACKET constant_expression RBRACKET
-    | LPAREN RPAREN
-    | LPAREN parameter_type_list RPAREN
+      LPAREN abstract_declarator RPAREN {
+          $$ = std::make_unique<ParenDeclarator>(std::move($2));
+      }
+    | direct_abstract_declarator LBRACKET RBRACKET {
+          $$ = std::make_unique<ArrayDeclarator>(std::move($1), std::nullopt);
+      }
+    | direct_abstract_declarator LBRACKET constant_expression RBRACKET {
+          $$ = std::make_unique<ArrayDeclarator>(std::move($1), std::move($3));
+      }
+    | direct_abstract_declarator LPAREN RPAREN {
+          $$ = std::make_unique<FunctionDeclarator>(std::move($1), Vec<Box<ParameterDeclaration>>{}, false);
+      }
+    | direct_abstract_declarator LPAREN parameter_type_list RPAREN {
+          $$ = std::make_unique<FunctionDeclarator>(std::move($1), std::move($3.first), $3.second);
+      }
+    | LBRACKET RBRACKET {
+          $$ = std::make_unique<ArrayDeclarator>(std::nullopt, std::nullopt);
+      }
+    | LBRACKET constant_expression RBRACKET {
+          $$ = std::make_unique<ArrayDeclarator>(std::nullopt, std::move($2));
+      }
+    | LPAREN RPAREN {
+          $$ = std::make_unique<FunctionDeclarator>(std::nullopt, Vec<Box<ParameterDeclaration>>{}, false);
+      }
+    | LPAREN parameter_type_list RPAREN {
+          $$ = std::make_unique<FunctionDeclarator>(std::nullopt, std::move($2.first), $2.second);
+      }
     ;
 
 // Statements
@@ -370,6 +545,9 @@ labeled_statement:
       }
     | CASE constant_expression ':' statement {
           $$ = std::make_unique<LabeledStatement>(LabeledStatement::CASE, "", std::move($2), std::nullopt, std::move($4));
+      }
+    | CASE constant_expression ELLIPSIS constant_expression ':' statement {
+          $$ = std::make_unique<LabeledStatement>(LabeledStatement::CASE_RANGE, "", std::move($2), std::move($4), std::move($6));
       }
     | DEFAULT ':' statement {
           $$ = std::make_unique<LabeledStatement>(LabeledStatement::DEFAULT, "", std::nullopt, std::nullopt, std::move($3));
@@ -521,67 +699,91 @@ binary_expression:
       unary_expression {
           $$ = std::move($1);
       }
-    | binary_expression OROR binary_expression
-    | binary_expression ANDAND binary_expression
-    | binary_expression OR binary_expression
-    | binary_expression XOR binary_expression
-    | binary_expression AND binary_expression
-    | binary_expression EQ binary_expression
-    | binary_expression NE binary_expression
-    | binary_expression LT binary_expression
-    | binary_expression GT binary_expression
-    | binary_expression LE binary_expression
-    | binary_expression GE binary_expression
-    | binary_expression LSHIFT binary_expression
-    | binary_expression RSHIFT binary_expression
-    | binary_expression PLUS binary_expression
-    | binary_expression MINUS binary_expression
-    | binary_expression MUL binary_expression
-    | binary_expression DIV binary_expression
+    | binary_expression OROR binary_expression {
+          $$ = std::make_unique<BinaryExpression>(std::move($1), std::move($3), ecc::tokens::OROR);
+      }
+    | binary_expression ANDAND binary_expression {
+          $$ = std::make_unique<BinaryExpression>(std::move($1), std::move($3), ecc::tokens::ANDAND);
+      }
+    | binary_expression OR binary_expression {
+          $$ = std::make_unique<BinaryExpression>(std::move($1), std::move($3), ecc::tokens::OR);
+      }
+    | binary_expression XOR binary_expression {
+          $$ = std::make_unique<BinaryExpression>(std::move($1), std::move($3), ecc::tokens::XOR);
+      }
+    | binary_expression AND binary_expression {
+          $$ = std::make_unique<BinaryExpression>(std::move($1), std::move($3), ecc::tokens::AND);
+      }
+    | binary_expression EQ binary_expression {
+          $$ = std::make_unique<BinaryExpression>(std::move($1), std::move($3), ecc::tokens::EQ);
+      }
+    | binary_expression NE binary_expression {
+          $$ = std::make_unique<BinaryExpression>(std::move($1), std::move($3), ecc::tokens::NE);
+      }
+    | binary_expression LT binary_expression {
+          $$ = std::make_unique<BinaryExpression>(std::move($1), std::move($3), ecc::tokens::LT);
+      }
+    | binary_expression GT binary_expression {
+          $$ = std::make_unique<BinaryExpression>(std::move($1), std::move($3), ecc::tokens::GT);
+      }
+    | binary_expression LE binary_expression {
+          $$ = std::make_unique<BinaryExpression>(std::move($1), std::move($3), ecc::tokens::LE);
+      }
+    | binary_expression GE binary_expression {
+          $$ = std::make_unique<BinaryExpression>(std::move($1), std::move($3), ecc::tokens::GE);
+      }
+    | binary_expression LSHIFT binary_expression {
+          $$ = std::make_unique<BinaryExpression>(std::move($1), std::move($3), ecc::tokens::LSHIFT);
+      }
+    | binary_expression RSHIFT binary_expression {
+          $$ = std::make_unique<BinaryExpression>(std::move($1), std::move($3), ecc::tokens::RSHIFT);
+      }
+    | binary_expression PLUS binary_expression {
+          $$ = std::make_unique<BinaryExpression>(std::move($1), std::move($3), ecc::tokens::PLUS);
+      }
+    | binary_expression MINUS binary_expression {
+          $$ = std::make_unique<BinaryExpression>(std::move($1), std::move($3), ecc::tokens::MINUS);
+      }
+    | binary_expression MUL binary_expression {
+          $$ = std::make_unique<BinaryExpression>(std::move($1), std::move($3), ecc::tokens::MUL);
+      }
+    | binary_expression DIV binary_expression {
+          $$ = std::make_unique<BinaryExpression>(std::move($1), std::move($3), ecc::tokens::DIV);
+      }
     | binary_expression MOD binary_expression {
-        $$ = std::make_unique<BinaryExpression>(std::move($1), std::move($3), p_tok_to_toktype(&@$2));
-    }
-    ;
+          $$ = std::make_unique<BinaryExpression>(std::move($1), std::move($3), ecc::tokens::MOD);
+      }
+;
 
 unary_expression:
       postfix_expression {
           $$ = std::move($1);
       }
-    | INC unary_expression
-    | DEC unary_expression
-| unary_operator unary_expression {
-      $$ = std::make_unique<UnaryExpression>(std::move($2), p_tok_to_toktype(&@$1));
-    }
+    | INC unary_expression {
+          $$ = std::make_unique<UnaryExpression>(std::move($2), ecc::tokens::INC);
+      }
+    | DEC unary_expression {
+          $$ = std::make_unique<UnaryExpression>(std::move($2), ecc::tokens::DEC);
+      }
+    | unary_operator unary_expression {
+          $$ = std::make_unique<UnaryExpression>(std::move($2), $1);
+      }
     | SIZEOF unary_expression {
-      $$ = std::make_unique<SizeofExpression>(std::move($2), std::nullopt);
-    }
-    | SIZEOF LPAREN type_name RPAREN
+          $$ = std::make_unique<SizeofExpression>(std::move($2));
+      }
+    | SIZEOF LPAREN type_name RPAREN {
+          $$ = std::make_unique<SizeofExpression>(std::move($3));
+      }
     ;
 
 unary_operator:
-      AND | MUL | PLUS | MINUS | TILDE | NOT
-    | postfix_expression LBRACKET expression RBRACKET {
-        $$ = std::make_unique<ArraySubscriptExpression>(std::move($1), std::move($3));
-    }
-    | postfix_expression LPAREN RPAREN {
-        $$ = std::make_unique<CallExpression>(std::move($1), Vec<Box<Expression>>{});
-    }
-    | postfix_expression LPAREN argument_expression_list RPAREN {
-        $$ = std::make_unique<CallExpression>(std::move($1), std::move($3));
-    }
-    | postfix_expression DOT IDENTIFIER {
-        $$ = std::make_unique<MemberAccessExpression>(std::move($1), std::move($3), false);
-    }
-    | postfix_expression ARROW IDENTIFIER {
-        $$ = std::make_unique<MemberAccessExpression>(std::move($1), std::move($3), true);
-    }
-    | postfix_expression INC {
-        $$ = std::make_unique<PostfixExpression>(std::move($1), ecc::tokens::INC);
-    }
-    | postfix_expression DEC {
-        $$ = std::make_unique<PostfixExpression>(std::move($1), ecc::tokens::DEC);
-    }
-;
+      AND   { $$ = ecc::tokens::AND; }
+    | MUL   { $$ = ecc::tokens::MUL; }
+    | PLUS  { $$ = ecc::tokens::PLUS; }
+    | MINUS { $$ = ecc::tokens::MINUS; }
+    | TILDE { $$ = ecc::tokens::TILDE; }
+    | NOT   { $$ = ecc::tokens::NOT; }
+    ;
 
 argument_expression_list:
       assignment_expression {
@@ -596,26 +798,72 @@ argument_expression_list:
     ;
 
 primary_expression:
-      IDENTIFIER
-    | constant
-    | STRING_LITERAL
-    | LPAREN expression RPAREN
+      IDENTIFIER {
+          $$ = std::make_unique<IdentifierExpression>(std::move($1));
+      }
+    | constant {
+          $$ = std::move($1);
+      }
+    | STRING_LITERAL {
+          $$ = std::make_unique<LiteralExpression>(LiteralExpression::STRING, std::move($1));
+      }
+    | LPAREN expression RPAREN {
+          $$ = std::move($2);
+      }
     ;
 
 constant:
-      INT_CONST
-    | CHAR_CONST
-    | FLOAT_CONST
-    | IDENTIFIER // for enumeration-constant
+      INT_CONST {
+          $$ = std::make_unique<LiteralExpression>(LiteralExpression::INT, std::to_string($1));
+      }
+    | CHAR_CONST {
+          $$ = std::make_unique<LiteralExpression>(LiteralExpression::CHAR, std::string(1, $1));
+      }
+    | FLOAT_CONST {
+          $$ = std::make_unique<LiteralExpression>(LiteralExpression::FLOAT, std::to_string($1));
+      }
+    ;
+
+postfix_expression:
+      primary_expression {
+          $$ = std::move($1);
+      }
+    | postfix_expression LBRACKET expression RBRACKET {
+          $$ = std::make_unique<ArraySubscriptExpression>(std::move($1), std::move($3));
+      }
+    | postfix_expression LPAREN RPAREN {
+          $$ = std::make_unique<CallExpression>(std::move($1), Vec<Box<Expression>>{});
+      }
+    | postfix_expression LPAREN argument_expression_list RPAREN {
+          $$ = std::make_unique<CallExpression>(std::move($1), std::move($3));
+      }
+    | postfix_expression DOT IDENTIFIER {
+          $$ = std::make_unique<MemberAccessExpression>(std::move($1), std::move($3), false);
+      }
+    | postfix_expression ARROW IDENTIFIER {
+          $$ = std::make_unique<MemberAccessExpression>(std::move($1), std::move($3), true);
+      }
+    | postfix_expression INC {
+          $$ = std::make_unique<PostfixExpression>(std::move($1), ecc::tokens::INC);
+      }
+    | postfix_expression DEC {
+          $$ = std::make_unique<PostfixExpression>(std::move($1), ecc::tokens::DEC);
+      }
     ;
 
 type_name:
-      specifier_qualifier_list
-    | specifier_qualifier_list abstract_declarator
+      specifier_qualifier_list {
+          $$ = std::make_unique<TypeName>(std::move($1), std::nullopt);
+      }
+    | specifier_qualifier_list abstract_declarator {
+          $$ = std::make_unique<TypeName>(std::move($1), std::move($2));
+      }
     ;
 
 constant_expression:
-      conditional_expression
+      conditional_expression {
+          $$ = std::move($1);
+      }
     ;
 
 %%
