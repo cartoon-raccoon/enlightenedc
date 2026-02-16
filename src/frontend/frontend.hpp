@@ -29,7 +29,7 @@ class Frontend {
     int result;
 
     // Run the frontend on file `f`. Returns 0 on success.
-    int parse(const std::string &filename);
+    int parse(const std::string& filename);
 
     std::string file;
 
@@ -42,7 +42,7 @@ class Frontend {
 };
 
 // Convert a Bison-defined token to a Tokentype.
-ecc::tokens::TokenType p_tok_to_toktype(ecc::parser::Parser::token *tok);
+ecc::tokens::TokenType p_tok_to_toktype(ecc::parser::Parser::token* tok);
 
 } // namespace ecc::frontend
 

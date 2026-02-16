@@ -7,15 +7,15 @@
 namespace ecc::compiler {
 
 class LLVMVisitor : public ast::ASTVisitor {
-public:
+  public:
     ~LLVMVisitor() = default;
 
-    void visit(ast::ASTNode *node);
+    void visit(ast::ASTNode* node);
 
     // Generate the code after visiting the AST.
     void codegen();
 };
 
-}
+} // namespace ecc::compiler
 
 #endif

@@ -38,7 +38,7 @@ class ASTNode {
     virtual ~ASTNode() = default;
 
     // Accept an AST visitor.
-    virtual void accept(ASTVisitor &visitor) = 0;
+    virtual void accept(ASTVisitor& visitor) = 0;
 };
 
 //* PROGRAM ITEMS
@@ -48,7 +48,7 @@ class ProgramItem : public ASTNode {
   public:
     ~ProgramItem() = default;
 
-    virtual void accept(ASTVisitor &visitor) = 0;
+    virtual void accept(ASTVisitor& visitor) = 0;
 };
 
 //* DECLARATIONS
@@ -59,13 +59,13 @@ class Declaration : public ProgramItem {
     Declaration() = default;
     ~Declaration() = default;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class DeclarationSpecifier : public ASTNode {
   public:
     virtual ~DeclarationSpecifier() = default;
-    virtual void accept(ASTVisitor &visitor) = 0;
+    virtual void accept(ASTVisitor& visitor) = 0;
 };
 
 class ParameterDeclaration : public ASTNode {
@@ -80,7 +80,7 @@ class ParameterDeclaration : public ASTNode {
     std::optional<Box<Declarator>> declarator;
     std::optional<Box<Expression>> default_value;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class Declarator : public ASTNode {
@@ -92,7 +92,7 @@ class Declarator : public ASTNode {
     std::optional<Box<Pointer>> pointer;
     std::optional<Box<DirectDeclarator>> direct;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class VariableDeclaration : public Declaration {
@@ -105,7 +105,7 @@ class VariableDeclaration : public Declaration {
     Vec<Box<DeclarationSpecifier>> specifiers;
     Vec<Box<InitDeclarator>> declarators;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class InitDeclarator : public ASTNode {
@@ -118,7 +118,7 @@ class InitDeclarator : public ASTNode {
     Box<Declarator> declarator;
     std::optional<Box<Initializer>> initializer;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class Pointer : public ASTNode {
@@ -130,7 +130,7 @@ class Pointer : public ASTNode {
     Vec<Box<TypeQualifier>> qualifiers;
     std::optional<Box<Pointer>> nested;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class DirectDeclarator : public ASTNode {};
@@ -141,7 +141,7 @@ class IdentifierDeclarator : public DirectDeclarator {
 
     explicit IdentifierDeclarator(std::string n) : name(std::move(n)) {}
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class ParenDeclarator : public DirectDeclarator {
@@ -151,7 +151,7 @@ class ParenDeclarator : public DirectDeclarator {
     explicit ParenDeclarator(std::unique_ptr<Declarator> d)
         : inner(std::move(d)) {}
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class ArrayDeclarator : public DirectDeclarator {
@@ -163,7 +163,7 @@ class ArrayDeclarator : public DirectDeclarator {
                     std::optional<std::unique_ptr<Expression>> s)
         : base(std::move(b)), size(std::move(s)) {}
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class FunctionDeclarator : public DirectDeclarator {
@@ -177,7 +177,7 @@ class FunctionDeclarator : public DirectDeclarator {
                        bool v)
         : base(std::move(b)), parameters(std::move(p)), is_variadic(v) {}
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class StructDeclarator : public ASTNode {
@@ -189,7 +189,7 @@ class StructDeclarator : public ASTNode {
     std::optional<Box<Declarator>> declarator;
     std::optional<Box<Expression>> bit_width;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class StructDeclaration : public ASTNode {
@@ -202,7 +202,7 @@ class StructDeclaration : public ASTNode {
     Vec<Box<DeclarationSpecifier>> specifiers;
     Vec<Box<StructDeclarator>> declarators;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class Enumerator : public ASTNode {
@@ -213,7 +213,7 @@ class Enumerator : public ASTNode {
     std::string name;
     std::optional<Box<Expression>> value;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 // Storage class specifiers.
@@ -225,7 +225,7 @@ class StorageClassSpecifier : public DeclarationSpecifier {
 
     SpecType type;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 // The struct or union specifier.
@@ -244,7 +244,7 @@ class StructOrUnionSpecifier : public ASTNode {
         : kind(kind), name(std::move(name)),
           declarations(std::move(declarations)) {}
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class EnumSpecifier : public ASTNode {
@@ -257,7 +257,7 @@ class EnumSpecifier : public ASTNode {
 
     std::optional<Vec<Box<Enumerator>>> enumerators;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class TypeSpecifier : public DeclarationSpecifier {
@@ -288,7 +288,7 @@ class TypeSpecifier : public DeclarationSpecifier {
 
     explicit TypeSpecifier(Box<EnumSpecifier> e) : type(std::move(e)) {}
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class TypeQualifier : public DeclarationSpecifier {
@@ -299,7 +299,7 @@ class TypeQualifier : public DeclarationSpecifier {
 
     QualType qual;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 //* STATEMENTS
@@ -310,7 +310,7 @@ class Statement : public ProgramItem {
     Statement() = default;
     ~Statement() = default;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class CompoundStatement : public Statement {
@@ -323,7 +323,7 @@ class CompoundStatement : public Statement {
     Vec<Box<Declaration>> declarations;
     Vec<Box<Statement>> statements;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class ExpressionStatement : public Statement {
@@ -333,7 +333,7 @@ class ExpressionStatement : public Statement {
 
     std::optional<Box<Expression>> expression;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class LabeledStatement : public Statement {
@@ -354,7 +354,7 @@ class LabeledStatement : public Statement {
     std::optional<Box<Expression>> case_range_end;
     Box<Statement> statement;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class PrintStatement : public Statement {
@@ -366,7 +366,7 @@ class PrintStatement : public Statement {
     std::string format_string;
     Vec<Box<Expression>> arguments;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class IfStatement : public Statement {
@@ -380,7 +380,7 @@ class IfStatement : public Statement {
     Box<Statement> then_branch;
     std::optional<Box<Statement>> else_branch;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class SwitchStatement : public Statement {
@@ -391,7 +391,7 @@ class SwitchStatement : public Statement {
     Box<Expression> condition;
     Box<Statement> body;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class WhileStatement : public Statement {
@@ -402,7 +402,7 @@ class WhileStatement : public Statement {
     Box<Expression> condition;
     Box<Statement> body;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class DoWhileStatement : public Statement {
@@ -413,7 +413,7 @@ class DoWhileStatement : public Statement {
     Box<Statement> body;
     Box<Expression> condition;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class ForStatement : public Statement {
@@ -429,7 +429,7 @@ class ForStatement : public Statement {
     std::optional<Box<Expression>> increment;
     Box<Statement> body;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class JumpStatement : public Statement {
@@ -445,7 +445,7 @@ class JumpStatement : public Statement {
     std::string target_label;
     std::optional<Box<Expression>> return_value;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 //* EXPRESSIONS
@@ -455,7 +455,7 @@ class Expression : public ASTNode {
   public:
     virtual ~Expression() = default;
 
-    virtual void accept(ASTVisitor &visitor) = 0;
+    virtual void accept(ASTVisitor& visitor) = 0;
 };
 
 class BinaryExpression : public Expression {
@@ -473,7 +473,7 @@ class BinaryExpression : public Expression {
     Box<Expression> right;
     TokenType op;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class UnaryExpression : public Expression {
@@ -484,7 +484,7 @@ class UnaryExpression : public Expression {
     Box<Expression> operand;
     TokenType op;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class AssignmentExpression : public Expression {
@@ -497,7 +497,7 @@ class AssignmentExpression : public Expression {
     Box<Expression> right;
     TokenType op;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class ConditionalExpression : public Expression {
@@ -511,7 +511,7 @@ class ConditionalExpression : public Expression {
     Box<Expression> true_expr;
     Box<Expression> false_expr;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class IdentifierExpression : public Expression {
@@ -520,7 +520,7 @@ class IdentifierExpression : public Expression {
 
     std::string name;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class LiteralExpression : public Expression {
@@ -533,7 +533,7 @@ class LiteralExpression : public Expression {
     Kind kind;
     std::string value;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class CallExpression : public Expression {
@@ -544,7 +544,7 @@ class CallExpression : public Expression {
     Box<Expression> callee;
     Vec<Box<Expression>> arguments;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class MemberAccessExpression : public Expression {
@@ -558,7 +558,7 @@ class MemberAccessExpression : public Expression {
     std::string member;
     bool is_arrow;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class ArraySubscriptExpression : public Expression {
@@ -569,7 +569,7 @@ class ArraySubscriptExpression : public Expression {
     Box<Expression> array;
     Box<Expression> index;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class PostfixExpression : public Expression {
@@ -580,7 +580,7 @@ class PostfixExpression : public Expression {
     Box<Expression> operand;
     TokenType op;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class SizeofExpression : public Expression {
@@ -592,7 +592,7 @@ class SizeofExpression : public Expression {
 
     explicit SizeofExpression(Box<TypeName> type) : operand(std::move(type)) {}
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class Function : public ProgramItem {
@@ -613,7 +613,7 @@ class Function : public ProgramItem {
     Box<Declarator> declarator;
     Box<CompoundStatement> statements;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 // The toplevel Program class.
@@ -625,7 +625,7 @@ class Program : public ASTNode {
     // Program items.
     std::vector<std::unique_ptr<ProgramItem>> items;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 
     // Add a new program item.
     void add_item(std::unique_ptr<ProgramItem> item);
@@ -642,7 +642,7 @@ class Initializer : public ASTNode {
     std::optional<Box<Expression>> expression;
     Vec<Box<Initializer>> initializer_list;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 class TypeName : public ASTNode {
@@ -655,7 +655,7 @@ class TypeName : public ASTNode {
     Vec<Box<DeclarationSpecifier>> specifiers;
     std::optional<Box<Declarator>> declarator;
 
-    void accept(ASTVisitor &visitor) override;
+    void accept(ASTVisitor& visitor) override;
 };
 
 } // namespace ecc::ast
