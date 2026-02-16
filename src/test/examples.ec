@@ -27,7 +27,7 @@ I64i  i64v = -4;
 
 F64i  f64v = 1.23e-4;
 Bool bv   = TRUE;
-void *vp;
+U0i *vp;
 
 
 // Structs (forward, named, anonymous, bitfield)
@@ -79,7 +79,7 @@ I64i arr3[];
 I64i *ptr;
 I64i * const const_ptr = &i64v;
 
-I64i (*func_ptr)(I64);
+I64i (*func_ptr)(I64i);
 
 
 // Functions
@@ -96,10 +96,10 @@ I64i Variadic(I64i x, ...) {
     return x;
 }
 
-void VoidFunc() {
+U0i VoidFunc() {
 }
 
-I64i (*ReturnFuncPtr())(I64) {
+I64i (*ReturnFuncPtr())(I64i) {
     return Add;
 }
 
@@ -214,7 +214,7 @@ pp->y = 20;
 // sizeof
 
 I64i sz1 = sizeof a;
-I64i sz2 = sizeof(I64);
+I64i sz2 = sizeof(I64i);
 I64i sz3 = sizeof(struct Point);
 
 
@@ -224,8 +224,7 @@ I64i hexv = 0xABCD;
 I64i octv = 0777;
 I64i negv = -123;
 
-U8 charv = 'A';
-U8 charv2 = 'AB';
+U8i charv = 'A';
 
 
 // Standalone print statement
