@@ -107,6 +107,8 @@
 "]" { return ecc::parser::Parser::make_RBRACKET(loc); }
 "." { return ecc::parser::Parser::make_DOT(loc); }
 "->" { return ecc::parser::Parser::make_ARROW(loc); }
+":" { return ecc::parser::Parser::make_COLON(loc); }
+"?" { return ecc::parser::Parser::make_QUESTION(loc); }
 
 
 [_a-zA-Z][_a-zA-Z0-9]* { /* Identifiers */
