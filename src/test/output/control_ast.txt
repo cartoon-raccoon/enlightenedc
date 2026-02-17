@@ -1,0 +1,55 @@
+Program
+| LabeledStatement: identifier start
+| | IfStatement
+| | | BinaryExpression: <
+| | | | Identifier: n
+| | | | Literal: 10
+| | | CompoundStatement
+| | | | ExpressionStatement
+| | | | | PostfixExpression: ++
+| | | | | | Identifier: n
+| | | CompoundStatement
+| | | | ExpressionStatement
+| | | | | PostfixExpression: --
+| | | | | | Identifier: n
+| SwitchStatement
+| | Identifier: n
+| | CompoundStatement
+| | | LabeledStatement: case
+| | | | Literal: 1
+| | | | JumpStatement: break
+| | | LabeledStatement: case_range
+| | | | Literal: 2
+| | | | Literal: 5
+| | | | ExpressionStatement
+| | | | | AssignmentExpression: +=
+| | | | | | Identifier: n
+| | | | | | Literal: 2
+| | | JumpStatement: break
+| | | LabeledStatement: default
+| | | | JumpStatement: goto start
+| WhileStatement
+| | BinaryExpression: >
+| | | Identifier: n
+| | | Literal: 0
+| | ExpressionStatement
+| | | PostfixExpression: --
+| | | | Identifier: n
+| DoWhileStatement
+| | CompoundStatement
+| | | ExpressionStatement
+| | | | PostfixExpression: ++
+| | | | | Identifier: n
+| | BinaryExpression: <
+| | | Identifier: n
+| | | Literal: 3
+| ForStatement
+| | AssignmentExpression: =
+| | | Identifier: n
+| | | Literal: 0
+| | BinaryExpression: <
+| | | Identifier: n
+| | | Literal: 5
+| | PostfixExpression: ++
+| | | Identifier: n
+| | PrintStatement: ""hello""

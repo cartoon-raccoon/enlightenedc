@@ -1,0 +1,91 @@
+Program
+| VariableDeclaration
+| | TypeSpecifier
+| | | StructOrUnionSpecifier: struct Node
+| | | | StructDeclaration
+| | | | | TypeSpecifier: i32
+| | | | | StructDeclarator
+| | | | | | Declarator
+| | | | | | | IdentifierDeclarator: value
+| | | | StructDeclaration
+| | | | | TypeSpecifier
+| | | | | | StructOrUnionSpecifier: struct Node
+| | | | | StructDeclarator
+| | | | | | Declarator
+| | | | | | | Pointer
+| | | | | | | IdentifierDeclarator: next
+| Function
+| | TypeSpecifier: i32
+| | Declarator
+| | | FunctionDeclarator
+| | | | IdentifierDeclarator: apply
+| | | | ParameterDeclaration
+| | | | | TypeSpecifier: i32
+| | | | | Declarator
+| | | | | | FunctionDeclarator
+| | | | | | | ParenDeclarator
+| | | | | | | | Declarator
+| | | | | | | | | Pointer
+| | | | | | | | | IdentifierDeclarator: fn
+| | | | | | | ParameterDeclaration
+| | | | | | | | TypeSpecifier: i32
+| | | | ParameterDeclaration
+| | | | | TypeSpecifier: i32
+| | | | | Declarator
+| | | | | | IdentifierDeclarator: v
+| | CompoundStatement
+| | | JumpStatement: return
+| | | | CallExpression
+| | | | | Identifier: fn
+| | | | | Identifier: v
+| Function
+| | TypeSpecifier: i32
+| | Declarator
+| | | FunctionDeclarator
+| | | | IdentifierDeclarator: square
+| | | | ParameterDeclaration
+| | | | | TypeSpecifier: i32
+| | | | | Declarator
+| | | | | | IdentifierDeclarator: x
+| | CompoundStatement
+| | | JumpStatement: return
+| | | | BinaryExpression: *
+| | | | | Identifier: x
+| | | | | Identifier: x
+| Function
+| | TypeSpecifier: i32
+| | Declarator
+| | | FunctionDeclarator
+| | | | IdentifierDeclarator: run
+| | CompoundStatement
+| | | VariableDeclaration
+| | | | TypeSpecifier
+| | | | | StructOrUnionSpecifier: struct Node
+| | | | InitDeclarator
+| | | | | Declarator
+| | | | | | IdentifierDeclarator: n
+| | | VariableDeclaration
+| | | | TypeSpecifier
+| | | | | StructOrUnionSpecifier: struct Node
+| | | | InitDeclarator
+| | | | | Declarator
+| | | | | | Pointer
+| | | | | | IdentifierDeclarator: p
+| | | | | Initializer
+| | | | | | UnaryExpression: &
+| | | | | | | Identifier: n
+| | | ExpressionStatement
+| | | | AssignmentExpression: =
+| | | | | MemberAccess: .value
+| | | | | | Identifier: n
+| | | | | Literal: 5
+| | | ExpressionStatement
+| | | | PostfixExpression: ++
+| | | | | MemberAccess: ->value
+| | | | | | Identifier: p
+| | | JumpStatement: return
+| | | | CallExpression
+| | | | | Identifier: apply
+| | | | | Identifier: square
+| | | | | MemberAccess: .value
+| | | | | | Identifier: n

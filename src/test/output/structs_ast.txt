@@ -1,0 +1,56 @@
+Program
+| VariableDeclaration
+| | TypeSpecifier
+| | | StructOrUnionSpecifier: struct Point
+| | | | StructDeclaration
+| | | | | TypeSpecifier: i32
+| | | | | StructDeclarator
+| | | | | | Declarator
+| | | | | | | IdentifierDeclarator: x
+| | | | StructDeclaration
+| | | | | TypeSpecifier: i32
+| | | | | StructDeclarator
+| | | | | | Declarator
+| | | | | | | IdentifierDeclarator: y
+| VariableDeclaration
+| | TypeSpecifier
+| | | StructOrUnionSpecifier: union Data
+| | | | StructDeclaration
+| | | | | TypeSpecifier: u32
+| | | | | StructDeclarator
+| | | | | | Declarator
+| | | | | | | IdentifierDeclarator: i
+| | | | StructDeclaration
+| | | | | TypeSpecifier: f64
+| | | | | StructDeclarator
+| | | | | | Declarator
+| | | | | | | IdentifierDeclarator: f
+| VariableDeclaration
+| | TypeSpecifier
+| | | EnumSpecifier: Color
+| | | | Enumerator: RED
+| | | | Enumerator: GREEN
+| | | | | Literal: 5
+| | | | Enumerator: BLUE
+| VariableDeclaration
+| | TypeSpecifier
+| | | EnumSpecifier: Forward
+| VariableDeclaration
+| | TypeSpecifier
+| | | StructOrUnionSpecifier: struct Flags
+| | | | StructDeclaration
+| | | | | TypeSpecifier: u8
+| | | | | StructDeclarator
+| | | | | | Declarator
+| | | | | | | IdentifierDeclarator: a
+| | | | | | Literal: 1
+| | | | StructDeclaration
+| | | | | TypeSpecifier: u8
+| | | | | StructDeclarator
+| | | | | | Declarator
+| | | | | | | IdentifierDeclarator: b
+| | | | | | Literal: 2
+| | | | StructDeclaration
+| | | | | TypeSpecifier: u8
+| | | | | StructDeclarator
+| | | | | | Literal: 5

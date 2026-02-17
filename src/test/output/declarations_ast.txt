@@ -1,0 +1,61 @@
+Program
+| VariableDeclaration
+| | StorageClassSpecifier: public
+| | TypeQualifier: const
+| | TypeSpecifier: u32
+| | InitDeclarator
+| | | Declarator
+| | | | Pointer
+| | | | | TypeQualifier: const
+| | | | | Pointer
+| | | | IdentifierDeclarator: ptrA
+| VariableDeclaration
+| | StorageClassSpecifier: static
+| | TypeSpecifier: i16
+| | InitDeclarator
+| | | Declarator
+| | | | IdentifierDeclarator: a
+| | InitDeclarator
+| | | Declarator
+| | | | IdentifierDeclarator: b
+| | | Initializer
+| | | | UnaryExpression: -
+| | | | | Literal: 10
+| | InitDeclarator
+| | | Declarator
+| | | | ArrayDeclarator
+| | | | | IdentifierDeclarator: c
+| | | | | Literal: 4
+| VariableDeclaration
+| | StorageClassSpecifier: extern
+| | TypeSpecifier: f64
+| | InitDeclarator
+| | | Declarator
+| | | | ArrayDeclarator
+| | | | | IdentifierDeclarator: table
+| VariableDeclaration
+| | TypeSpecifier: u8
+| | InitDeclarator
+| | | Declarator
+| | | | ArrayDeclarator
+| | | | | IdentifierDeclarator: bytes
+| | | | | Literal: 3
+| | | Initializer
+| | | | Initializer
+| | | | | Literal: 1
+| | | | Initializer
+| | | | | Literal: 2
+| | | | Initializer
+| | | | | Literal: 3
+| VariableDeclaration
+| | TypeSpecifier: i32
+| | InitDeclarator
+| | | Declarator
+| | | | ArrayDeclarator
+| | | | | IdentifierDeclarator: matrix
+| | | | | Literal: 2
+| | | Initializer
+| | | | Initializer
+| | | | | Literal: 0
+| | | | Initializer
+| | | | | Literal: 1

@@ -1,0 +1,47 @@
+Program
+| Function
+| | TypeSpecifier: u32
+| | Declarator
+| | | FunctionDeclarator
+| | | | IdentifierDeclarator: add
+| | | | ParameterDeclaration
+| | | | | TypeSpecifier: u32
+| | | | | Declarator
+| | | | | | IdentifierDeclarator: a
+| | | | ParameterDeclaration
+| | | | | TypeSpecifier: u32
+| | | | | Declarator
+| | | | | | IdentifierDeclarator: b
+| | CompoundStatement
+| | | JumpStatement: return
+| | | | BinaryExpression: +
+| | | | | Identifier: a
+| | | | | Identifier: b
+| Function
+| | StorageClassSpecifier: public
+| | TypeSpecifier: i32
+| | Declarator
+| | | FunctionDeclarator (variadic)
+| | | | IdentifierDeclarator: compute
+| | | | ParameterDeclaration
+| | | | | TypeSpecifier: i32
+| | | | | Declarator
+| | | | | | IdentifierDeclarator: x
+| | | | | Literal: 10
+| | | | ParameterDeclaration
+| | | | | TypeSpecifier: i32
+| | | | | Declarator
+| | | | | | IdentifierDeclarator: y
+| | | | | Literal: 20
+| | CompoundStatement
+| | | JumpStatement: return
+| | | | BinaryExpression: *
+| | | | | Identifier: x
+| | | | | Identifier: y
+| Function
+| | TypeSpecifier: void
+| | Declarator
+| | | FunctionDeclarator
+| | | | IdentifierDeclarator: noop
+| | CompoundStatement
+| | | JumpStatement: return

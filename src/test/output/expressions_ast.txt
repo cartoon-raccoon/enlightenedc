@@ -1,0 +1,90 @@
+Program
+| VariableDeclaration
+| | TypeSpecifier: u32
+| | InitDeclarator
+| | | Declarator
+| | | | IdentifierDeclarator: x
+| | | Initializer
+| | | | Literal: 0
+| VariableDeclaration
+| | TypeSpecifier: u32
+| | InitDeclarator
+| | | Declarator
+| | | | IdentifierDeclarator: a
+| | | Initializer
+| | | | Literal: 1
+| VariableDeclaration
+| | TypeSpecifier: u32
+| | InitDeclarator
+| | | Declarator
+| | | | IdentifierDeclarator: b
+| | | Initializer
+| | | | Literal: 2
+| ExpressionStatement
+| | AssignmentExpression: =
+| | | Identifier: x
+| | | BinaryExpression: -
+| | | | BinaryExpression: +
+| | | | | Identifier: a
+| | | | | BinaryExpression: *
+| | | | | | Identifier: b
+| | | | | | Literal: 3
+| | | | BinaryExpression: %
+| | | | | BinaryExpression: /
+| | | | | | Literal: 4
+| | | | | | Literal: 2
+| | | | | Literal: 5
+| ExpressionStatement
+| | AssignmentExpression: <<=
+| | | Identifier: x
+| | | Literal: 2
+| ExpressionStatement
+| | AssignmentExpression: |=
+| | | Identifier: x
+| | | BinaryExpression: ^
+| | | | Literal: 1
+| | | | BinaryExpression: &
+| | | | | Literal: 3
+| | | | | Literal: 7
+| ExpressionStatement
+| | AssignmentExpression: =
+| | | Identifier: x
+| | | ConditionalExpression
+| | | | BinaryExpression: >
+| | | | | Identifier: a
+| | | | | Identifier: b
+| | | | Identifier: a
+| | | | Identifier: b
+| ExpressionStatement
+| | AssignmentExpression: =
+| | | Identifier: x
+| | | BinaryExpression: ||
+| | | | BinaryExpression: &&
+| | | | | Identifier: a
+| | | | | Identifier: b
+| | | | Identifier: a
+| ExpressionStatement
+| | UnaryExpression: ++
+| | | Identifier: x
+| ExpressionStatement
+| | PostfixExpression: --
+| | | Identifier: x
+| ExpressionStatement
+| | AssignmentExpression: +=
+| | | Identifier: x
+| | | SizeofExpression
+| | | | TypeName
+| | | | | TypeSpecifier: u32
+| ExpressionStatement
+| | AssignmentExpression: +=
+| | | Identifier: x
+| | | SizeofExpression
+| | | | Identifier: x
+| ExpressionStatement
+| | AssignmentExpression: =
+| | | Identifier: x
+| | | BinaryExpression: ,
+| | | | BinaryExpression: ,
+| | | | | Identifier: a
+| | | | | Identifier: b
+| | | | Identifier: x
