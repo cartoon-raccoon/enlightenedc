@@ -305,6 +305,9 @@ struct_declarator_list:
         $1.push_back(std::move($3));
         $$ = std::move($1);
     }
+    | struct_declarator_list COMMA {
+        $$ = std::move($1);
+    }
 ;
 
 struct_declarator:
@@ -339,6 +342,9 @@ enumerator_list:
     }
     | enumerator_list COMMA enumerator {
         $1.push_back(std::move($3));
+        $$ = std::move($1);
+    }
+    | enumerator_list COMMA {
         $$ = std::move($1);
     }
 ;
@@ -485,6 +491,9 @@ initializer_list:
     }
     | initializer_list COMMA initializer {
         $1.push_back(std::move($3));
+        $$ = std::move($1);
+    }
+    | initializer_list COMMA {
         $$ = std::move($1);
     }
 ;
