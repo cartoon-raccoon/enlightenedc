@@ -4,7 +4,7 @@ project(enlightenedc)
 # 1. Setting various requirements and variables
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS True)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")

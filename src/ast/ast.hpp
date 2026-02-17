@@ -18,17 +18,6 @@ using namespace util;
 
 class ASTVisitor;
 
-class Expression;
-class Declarator;
-class DirectDeclarator;
-class Pointer;
-class Initializer;
-class TypeQualifier;
-class InitDeclarator;
-class StructDeclaration;
-class Enumerator;
-class TypeName;
-
 // The abstract class representing an AST node.
 //
 // Each AST node (binary, unary expr, statement, etc.) defines its own subclass
@@ -49,6 +38,14 @@ Abstract class denoting a program item: declaration, statement, or function defi
 class ProgramItem : public ASTNode {
   public:
     ~ProgramItem() = default;
+
+    virtual void accept(ASTVisitor& visitor) = 0;
+};
+
+// The abstract Expression class that all expressions inherit from.
+class Expression : public ASTNode {
+  public:
+    virtual ~Expression() = default;
 
     virtual void accept(ASTVisitor& visitor) = 0;
 };
@@ -75,17 +72,41 @@ class DeclarationSpecifier : public ASTNode {
     virtual void accept(ASTVisitor& visitor) = 0;
 };
 
-class ParameterDeclaration : public ASTNode {
+class TypeQualifier : public DeclarationSpecifier {
   public:
-    ParameterDeclaration(Vec<Box<DeclarationSpecifier>> specifiers,
-                         std::optional<Box<Declarator>> declarator,
-                         std::optional<Box<Expression>> default_value)
-        : specifiers(std::move(specifiers)), declarator(std::move(declarator)),
-          default_value(std::move(default_value)) {}
+    enum QualType { CONST };
 
-    Vec<Box<DeclarationSpecifier>> specifiers;
-    std::optional<Box<Declarator>> declarator;
-    std::optional<Box<Expression>> default_value;
+    explicit TypeQualifier(QualType qual) : qual(qual) {}
+
+    QualType qual;
+
+    void accept(ASTVisitor& visitor) override;
+};
+
+class Pointer : public ASTNode {
+  public:
+    Pointer(Vec<Box<TypeQualifier>> qualifiers,
+            std::optional<Box<Pointer>> nested)
+        : qualifiers(std::move(qualifiers)), nested(std::move(nested)) {}
+
+    Vec<Box<TypeQualifier>> qualifiers;
+    std::optional<Box<Pointer>> nested;
+
+    void accept(ASTVisitor& visitor) override;
+};
+
+class DirectDeclarator : public ASTNode {};
+
+// Initializers
+class Initializer : public ASTNode {
+  public:
+    Initializer(Box<Expression> expr) : expression(std::move(expr)) {}
+
+    Initializer(Vec<Box<Initializer>> list)
+        : initializer_list(std::move(list)) {}
+
+    std::optional<Box<Expression>> expression;
+    Vec<Box<Initializer>> initializer_list;
 
     void accept(ASTVisitor& visitor) override;
 };
@@ -101,6 +122,37 @@ class Declarator : public ASTNode {
 
     std::optional<Box<Pointer>> pointer;
     std::optional<Box<DirectDeclarator>> direct;
+
+    void accept(ASTVisitor& visitor) override;
+};
+
+/*
+A declarator initializing a variable.
+*/
+class InitDeclarator : public ASTNode {
+  public:
+    InitDeclarator(Box<Declarator> declarator,
+                   std::optional<Box<Initializer>> initializer)
+        : declarator(std::move(declarator)),
+          initializer(std::move(initializer)) {}
+
+    Box<Declarator> declarator;
+    std::optional<Box<Initializer>> initializer;
+
+    void accept(ASTVisitor& visitor) override;
+};
+
+class ParameterDeclaration : public ASTNode {
+  public:
+    ParameterDeclaration(Vec<Box<DeclarationSpecifier>> specifiers,
+                         std::optional<Box<Declarator>> declarator,
+                         std::optional<Box<Expression>> default_value)
+        : specifiers(std::move(specifiers)), declarator(std::move(declarator)),
+          default_value(std::move(default_value)) {}
+
+    Vec<Box<DeclarationSpecifier>> specifiers;
+    std::optional<Box<Declarator>> declarator;
+    std::optional<Box<Expression>> default_value;
 
     void accept(ASTVisitor& visitor) override;
 };
@@ -122,36 +174,6 @@ class VariableDeclaration : public Declaration {
 
     void accept(ASTVisitor& visitor) override;
 };
-
-/*
-A declarator initializing a variable.
-*/
-class InitDeclarator : public ASTNode {
-  public:
-    InitDeclarator(Box<Declarator> declarator,
-                   std::optional<Box<Initializer>> initializer)
-        : declarator(std::move(declarator)),
-          initializer(std::move(initializer)) {}
-
-    Box<Declarator> declarator;
-    std::optional<Box<Initializer>> initializer;
-
-    void accept(ASTVisitor& visitor) override;
-};
-
-class Pointer : public ASTNode {
-  public:
-    Pointer(Vec<Box<TypeQualifier>> qualifiers,
-            std::optional<Box<Pointer>> nested)
-        : qualifiers(std::move(qualifiers)), nested(std::move(nested)) {}
-
-    Vec<Box<TypeQualifier>> qualifiers;
-    std::optional<Box<Pointer>> nested;
-
-    void accept(ASTVisitor& visitor) override;
-};
-
-class DirectDeclarator : public ASTNode {};
 
 class IdentifierDeclarator : public DirectDeclarator {
   public:
@@ -317,17 +339,6 @@ class TypeSpecifier : public DeclarationSpecifier {
     void accept(ASTVisitor& visitor) override;
 };
 
-class TypeQualifier : public DeclarationSpecifier {
-  public:
-    enum QualType { CONST };
-
-    explicit TypeQualifier(QualType qual) : qual(qual) {}
-
-    QualType qual;
-
-    void accept(ASTVisitor& visitor) override;
-};
-
 //* STATEMENTS
 
 // The abstract Statement class that all statements inherit from.
@@ -474,15 +485,20 @@ class JumpStatement : public Statement {
     void accept(ASTVisitor& visitor) override;
 };
 
-//* EXPRESSIONS
-
-// The abstract Expression class that all expressions inherit from.
-class Expression : public ASTNode {
+class TypeName : public ASTNode {
   public:
-    virtual ~Expression() = default;
+    TypeName(Vec<Box<DeclarationSpecifier>> specifiers,
+             std::optional<Box<Declarator>> declarator)
+        : specifiers(std::move(specifiers)), declarator(std::move(declarator)) {
+    }
 
-    virtual void accept(ASTVisitor& visitor) = 0;
+    Vec<Box<DeclarationSpecifier>> specifiers;
+    std::optional<Box<Declarator>> declarator;
+
+    void accept(ASTVisitor& visitor) override;
 };
+
+//* EXPRESSIONS
 
 class BinaryExpression : public Expression {
   public:
@@ -666,32 +682,6 @@ class Program : public ASTNode {
     void add_item(std::unique_ptr<ProgramItem> item);
 };
 
-// Initializers
-class Initializer : public ASTNode {
-  public:
-    Initializer(Box<Expression> expr) : expression(std::move(expr)) {}
-
-    Initializer(Vec<Box<Initializer>> list)
-        : initializer_list(std::move(list)) {}
-
-    std::optional<Box<Expression>> expression;
-    Vec<Box<Initializer>> initializer_list;
-
-    void accept(ASTVisitor& visitor) override;
-};
-
-class TypeName : public ASTNode {
-  public:
-    TypeName(Vec<Box<DeclarationSpecifier>> specifiers,
-             std::optional<Box<Declarator>> declarator)
-        : specifiers(std::move(specifiers)), declarator(std::move(declarator)) {
-    }
-
-    Vec<Box<DeclarationSpecifier>> specifiers;
-    std::optional<Box<Declarator>> declarator;
-
-    void accept(ASTVisitor& visitor) override;
-};
 
 } // namespace ecc::ast
 
