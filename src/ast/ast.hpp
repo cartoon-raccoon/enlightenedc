@@ -572,9 +572,10 @@ class IdentifierExpression : public Expression {
     void accept(ASTVisitor& visitor) override;
 };
 
+// FIXME: Split off string into separate expression, unify remaining into union
 class LiteralExpression : public Expression {
   public:
-    enum Kind { INT, FLOAT, CHAR, STRING };
+    enum Kind { INT, FLOAT, CHAR, BOOL, STRING };
 
     LiteralExpression(Kind kind, std::string value)
         : kind(kind), value(std::move(value)) {}

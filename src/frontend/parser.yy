@@ -56,7 +56,7 @@ static ecc::parser::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 %token <char> CHAR_CONST
 
 // Keywords
-%token IF ELSE WHILE DO FOR SWITCH CASE DEFAULT BREAK RETURN GOTO
+%token IF ELSE WHILE DO FOR SWITCH CASE DEFAULT BREAK RETURN GOTO TRUE FALSE
 %token STRUCT UNION ENUM CONST VOID U8 U16 U32 U64 I0 I8 I16 I32 I64 F64 BOOL SIZEOF
 %token PUBLIC STATIC EXTERN
 
@@ -842,6 +842,12 @@ constant:
     }
     | FLOAT_CONST {
         $$ = std::make_unique<LiteralExpression>(LiteralExpression::FLOAT, std::to_string($1));
+    }
+    | TRUE {
+        $$ = std::make_unique<LiteralExpression>(LiteralExpression::BOOL, "true");
+    }
+    | FALSE {
+        $$ = std::make_unique<LiteralExpression>(LiteralExpression::BOOL, "false");
     }
 ;
 

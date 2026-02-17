@@ -59,6 +59,9 @@
 "I64i" { return ecc::parser::Parser::make_I64(loc); }
 "F64i" { return ecc::parser::Parser::make_F64(loc); }
 
+"true" { return ecc::parser::Parser::make_TRUE(loc); }
+"false" { return ecc::parser::Parser::make_FALSE(loc); }
+
 
 "public" { return ecc::parser::Parser::make_PUBLIC(loc); } /* Storage class specifiers */
 "static" { return ecc::parser::Parser::make_STATIC(loc); }
