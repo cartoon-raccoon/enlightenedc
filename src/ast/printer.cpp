@@ -10,16 +10,6 @@ void ASTPrinter::print_indent() {
         std::cout << "| ";
 }
 
-template <typename NodeType, typename... Children>
-void ASTPrinter::print_node(const std::string& name, NodeType& node,
-                Children&&... children) {
-    print_indent();
-    std::cout << name << "\n";
-    indent++;
-    (children(), ...);
-    indent--;
-}
-
 std::string ASTPrinter::token_type_to_string(TokenType t) {
     switch (t) {
     case PLUS:
@@ -111,7 +101,7 @@ std::string ASTPrinter::token_type_to_string(TokenType t) {
     }
 }
 
-std::string primitive_to_string(TypeSpecifier::Primitive p) {
+std::string ASTPrinter::primitive_to_string(TypeSpecifier::Primitive p) {
     using P = TypeSpecifier::Primitive;
     switch (p) {
     case P::VOID:
@@ -144,7 +134,7 @@ std::string primitive_to_string(TypeSpecifier::Primitive p) {
     return "";
 }
 
-std::string storage_to_string(StorageClassSpecifier::SpecType t) {
+std::string ASTPrinter::storage_to_string(StorageClassSpecifier::SpecType t) {
     using S = StorageClassSpecifier::SpecType;
     switch (t) {
     case S::PUBLIC:
@@ -157,7 +147,7 @@ std::string storage_to_string(StorageClassSpecifier::SpecType t) {
     return "";
 }
 
-std::string qualifier_to_string(TypeQualifier::QualType q) {
+std::string ASTPrinter::qualifier_to_string(TypeQualifier::QualType q) {
     using Q = TypeQualifier::QualType;
     switch (q) {
     case Q::CONST:
@@ -166,7 +156,7 @@ std::string qualifier_to_string(TypeQualifier::QualType q) {
     return "";
 }
 
-std::string jump_to_string(JumpStatement::Kind k) {
+std::string ASTPrinter::jump_to_string(JumpStatement::Kind k) {
     using J = JumpStatement::Kind;
     switch (k) {
     case J::GOTO:
@@ -179,7 +169,7 @@ std::string jump_to_string(JumpStatement::Kind k) {
     return "";
 }
 
-std::string label_kind_to_string(LabeledStatement::Kind k) {
+std::string ASTPrinter::label_kind_to_string(LabeledStatement::Kind k) {
     using L = LabeledStatement::Kind;
     switch (k) {
     case L::IDENTIFIER:
@@ -561,5 +551,10 @@ void ASTPrinter::visit(SizeofExpression& node) {
     });
 }
 
-void ASTPrinter::visit(Declaration&) {}
-void ASTPrinter::visit(Statement&) {}
+void ASTPrinter::visit(Declaration& node) {
+    return;
+}
+
+void ASTPrinter::visit(Statement& node) {
+    return;
+}
