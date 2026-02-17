@@ -5,6 +5,9 @@
 
 namespace ecc::ast {
 
+// An abstract class defining the interface for an AST visitor.
+// An ASTVisitor object visits each node on the AST, operating on
+// it as it goes.
 class ASTVisitor {
   public:
     virtual ~ASTVisitor() = default;
