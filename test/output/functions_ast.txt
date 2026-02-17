@@ -45,3 +45,62 @@ Program
 | | | | IdentifierDeclarator: noop
 | | CompoundStatement
 | | | JumpStatement: return
+| Function
+| | TypeSpecifier: i64
+| | Declarator
+| | | FunctionDeclarator
+| | | | IdentifierDeclarator: CallbackFunction
+| | | | ParameterDeclaration
+| | | | | TypeSpecifier: i64
+| | | | | Declarator
+| | | | | | IdentifierDeclarator: x
+| | CompoundStatement
+| | | JumpStatement: return
+| | | | BinaryExpression: *
+| | | | | Identifier: x
+| | | | | Identifier: x
+| Function
+| | TypeSpecifier: void
+| | Declarator
+| | | FunctionDeclarator
+| | | | IdentifierDeclarator: MathFunc
+| | | | ParameterDeclaration
+| | | | | TypeSpecifier: i64
+| | | | | Declarator
+| | | | | | IdentifierDeclarator: y
+| | | | ParameterDeclaration
+| | | | | TypeSpecifier: i64
+| | | | | Declarator
+| | | | | | FunctionDeclarator
+| | | | | | | ParenDeclarator
+| | | | | | | | Declarator
+| | | | | | | | | Pointer
+| | | | | | | | | IdentifierDeclarator: proc
+| | | | | | | ParameterDeclaration
+| | | | | | | | TypeSpecifier: i64
+| | | | | | | | Declarator
+| | | | | | | | | IdentifierDeclarator: _val
+| | CompoundStatement
+| | | JumpStatement: return
+| | | | CallExpression
+| | | | | Identifier: proc
+| | | | | Identifier: y
+| Function
+| | TypeSpecifier: void
+| | Declarator
+| | | FunctionDeclarator
+| | | | IdentifierDeclarator: Main
+| | CompoundStatement
+| | | VariableDeclaration
+| | | | TypeSpecifier: i64
+| | | | InitDeclarator
+| | | | | Declarator
+| | | | | | IdentifierDeclarator: x
+| | | | | Initializer
+| | | | | | CallExpression
+| | | | | | | Identifier: MathFunc
+| | | | | | | Literal: 10
+| | | | | | | UnaryExpression: &
+| | | | | | | | Identifier: CallbackFunction
+| | | PrintStatement: ""%d\n""
+| | | | Identifier: x
