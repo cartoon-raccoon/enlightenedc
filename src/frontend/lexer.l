@@ -115,22 +115,39 @@
     return ecc::parser::Parser::make_IDENTIFIER(yytext, loc);
 }
 
+[0-9]+\.[0-9]*([eE][-+]?[0-9]+)?|[0-9]+[eE][-+]?[0-9]+ { /* Floating constants */
+    return ecc::parser::Parser::make_FLOAT_CONST(std::stod(yytext), loc);
+}
 
 0[xX][0-9a-fA-F]+ { /* Integer constants */
     return ecc::parser::Parser::make_INT_CONST(std::strtoll(yytext, nullptr, 16), loc);
+}
+0[0-7]+ {
+    return ecc::parser::Parser::make_INT_CONST(std::strtoll(yytext, nullptr, 8), loc);
 }
 [0-9]+ {
     return ecc::parser::Parser::make_INT_CONST(std::stoll(yytext), loc);
 }
 
 
-[0-9]+(\.[0-9]*)?([eE][-+]?[0-9]+)? { /* Floating constants */
-    return ecc::parser::Parser::make_FLOAT_CONST(std::stod(yytext), loc);
-}
+\'([^\\\']|\\.)\' { /* Character constants*/
+    std::string s(yytext);
+    char value;
 
+    if (s[1] == '\\') {
+        switch (s[2]) {
+            case 'n': value = '\n'; break;
+            case 't': value = '\t'; break;
+            case '\\': value = '\\'; break;
+            case '\'': value = '\''; break;
+            case '"': value = '"'; break;
+            default: value = s[2]; break;
+        }
+    } else {
+        value = s[1];
+    }
 
-'.' { /* Character constants */
-    return ecc::parser::Parser::make_CHAR_CONST(yytext[1], loc);
+    return ecc::parser::Parser::make_CHAR_CONST(value, loc);
 }
 
 
