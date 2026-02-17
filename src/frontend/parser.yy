@@ -155,33 +155,19 @@ program_item:
 
 // Function definitions
 function_definition:
-    type_specifier declarator compound_statement {
-        Vec<Box<DeclarationSpecifier>> specs;
-        specs.push_back(std::move($1));
-        $$ = std::make_unique<Function>(std::move(specs), std::move($2), std::move($3));
-    }
-    | storage_class_specifier type_specifier declarator compound_statement {
-        Vec<Box<DeclarationSpecifier>> specs;
-        specs.push_back(std::move($1));
-        specs.push_back(std::move($2));
-        $$ = std::make_unique<Function>(std::move(specs), std::move($3), std::move($4));
+    declaration_specifier_list declarator compound_statement {
+        $$ = std::make_unique<Function>(std::move($1), std::move($2), std::move($3));
     }
 ;
 
+
 // Declarations
 declaration:
-    type_specifier declaration_after_type {
-        Vec<Box<DeclarationSpecifier>> specs;
-        specs.push_back(std::move($1));
-        $$ = std::make_unique<VariableDeclaration>(std::move(specs), std::move($2));
-    }
-    | storage_class_specifier type_specifier declaration_after_type {
-        Vec<Box<DeclarationSpecifier>> specs;
-        specs.push_back(std::move($1));
-        specs.push_back(std::move($2));
-        $$ = std::make_unique<VariableDeclaration>(std::move(specs), std::move($3));
+    declaration_specifier_list declaration_after_type {
+        $$ = std::make_unique<VariableDeclaration>(std::move($1), std::move($2));
     }
 ;
+
 
 declaration_after_type:
     SEMI {
