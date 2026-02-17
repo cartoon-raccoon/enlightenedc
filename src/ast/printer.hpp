@@ -44,6 +44,7 @@ public:
     void visit(Statement& node) override;
     void visit(CompoundStatement& node) override;
     void visit(ExpressionStatement& node) override;
+    void visit(CaseDefaultStatement& node) override;
     void visit(LabeledStatement& node) override;
     void visit(PrintStatement& node) override;
     void visit(IfStatement& node) override;
@@ -89,7 +90,7 @@ private:
 
     std::string jump_to_string(JumpStatement::Kind k);
 
-    std::string label_kind_to_string(LabeledStatement::Kind k);
+    std::string case_kind_to_string(CaseDefaultStatement::Kind k);
 };
 
 } // namespace ecc::ast

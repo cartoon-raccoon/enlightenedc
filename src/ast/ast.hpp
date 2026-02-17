@@ -378,27 +378,37 @@ class ExpressionStatement : public Statement {
     void accept(ASTVisitor& visitor) override;
 };
 
-// FIXME: separate into identifier and case/default statements
-class LabeledStatement : public Statement {
+class CaseDefaultStatement : public Statement {
   public:
-    enum Kind { IDENTIFIER, CASE, CASE_RANGE, DEFAULT };
+    enum Kind { CASE, CASE_RANGE, DEFAULT };
 
-    LabeledStatement(Kind kind, std::string label,
+    CaseDefaultStatement(Kind kind,
                      std::optional<Box<Expression>> case_expr,
                      std::optional<Box<Expression>> case_range_end,
                      Box<Statement> statement)
-        : kind(kind), label(std::move(label)), case_expr(std::move(case_expr)),
+        : kind(kind), case_expr(std::move(case_expr)),
           case_range_end(std::move(case_range_end)),
           statement(std::move(statement)) {}
 
     Kind kind;
-    std::string label;
     std::optional<Box<Expression>> case_expr;
     std::optional<Box<Expression>> case_range_end;
     Box<Statement> statement;
 
     void accept(ASTVisitor& visitor) override;
 };
+
+class LabeledStatement : public Statement {
+  public:
+    LabeledStatement(std::string label, Box<Statement> statement)
+    : label(label), statement(std::move(statement)) {}
+
+    std::string label;
+    Box<Statement> statement;
+
+    void accept(ASTVisitor& visitor) override;
+};
+
 
 class PrintStatement : public Statement {
   public:

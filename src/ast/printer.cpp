@@ -1,4 +1,5 @@
 #include "ast/printer.hpp"
+#include "ast/ast.hpp"
 
 #include <iostream>
 #include <string>
@@ -169,11 +170,9 @@ std::string ASTPrinter::jump_to_string(JumpStatement::Kind k) {
     return "";
 }
 
-std::string ASTPrinter::label_kind_to_string(LabeledStatement::Kind k) {
-    using L = LabeledStatement::Kind;
+std::string ASTPrinter::case_kind_to_string(CaseDefaultStatement::Kind k) {
+    using L = CaseDefaultStatement::Kind;
     switch (k) {
-    case L::IDENTIFIER:
-        return "identifier";
     case L::CASE:
         return "case";
     case L::CASE_RANGE:
@@ -219,10 +218,9 @@ void ASTPrinter::visit(ExpressionStatement& node) {
     });
 }
 
-void ASTPrinter::visit(LabeledStatement& node) {
+void ASTPrinter::visit(CaseDefaultStatement& node) {
     print_node(
-        "LabeledStatement: " + label_kind_to_string(node.kind) +
-            (node.label.empty() ? "" : " " + node.label),
+        "CaseDefaultStatement: " + case_kind_to_string(node.kind),
         node,
         [&] {
             if (node.case_expr)
@@ -233,6 +231,17 @@ void ASTPrinter::visit(LabeledStatement& node) {
                 node.case_range_end.value()->accept(*this);
         },
         [&] { node.statement->accept(*this); });
+}
+
+void ASTPrinter::visit(LabeledStatement& node) {
+    print_node(
+        "LabeledStatement: " + node.label,
+        node,
+        [&] {
+            if (node.statement)
+                node.statement->accept(*this);
+        }
+    );
 }
 
 void ASTPrinter::visit(PrintStatement& node) {

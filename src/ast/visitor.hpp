@@ -39,6 +39,7 @@ class ASTVisitor {
     virtual void visit(Statement& node) = 0;
     virtual void visit(CompoundStatement& node) = 0;
     virtual void visit(ExpressionStatement& node) = 0;
+    virtual void visit(CaseDefaultStatement& node) = 0;
     virtual void visit(LabeledStatement& node) = 0;
     virtual void visit(PrintStatement& node) = 0;
     virtual void visit(IfStatement& node) = 0;

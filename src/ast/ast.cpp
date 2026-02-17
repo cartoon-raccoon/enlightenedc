@@ -43,6 +43,8 @@ void CompoundStatement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void ExpressionStatement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
+void CaseDefaultStatement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
+
 void LabeledStatement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void PrintStatement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
