@@ -54,3 +54,27 @@ Program
 | | | | | TypeSpecifier: u8
 | | | | | StructDeclarator
 | | | | | | Literal: 5
+| VariableDeclaration
+| | TypeSpecifier
+| | | StructOrUnionSpecifier: struct Value
+| | | | StructDeclaration
+| | | | | TypeSpecifier: i32
+| | | | | StructDeclarator
+| | | | | | Declarator
+| | | | | | | IdentifierDeclarator: type
+| | | | StructDeclaration
+| | | | | TypeSpecifier
+| | | | | | StructOrUnionSpecifier: union
+| | | | | | | StructDeclaration
+| | | | | | | | TypeSpecifier: f64
+| | | | | | | | StructDeclarator
+| | | | | | | | | Declarator
+| | | | | | | | | | IdentifierDeclarator: f
+| | | | | | | StructDeclaration
+| | | | | | | | TypeSpecifier: u8
+| | | | | | | | StructDeclarator
+| | | | | | | | | Declarator
+| | | | | | | | | | IdentifierDeclarator: ch
+| | | | | StructDeclarator
+| | | | | | Declarator
+| | | | | | | IdentifierDeclarator: u

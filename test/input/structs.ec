@@ -21,3 +21,11 @@ struct Flags {
     U8i b : 2;
     U8i : 5;
 };
+
+struct Value {
+  I32i type;
+  union {
+    F64i f;
+    U8i ch;
+  } u;
+};
