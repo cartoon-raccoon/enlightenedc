@@ -431,10 +431,10 @@ direct_declarator:
         $$ = std::make_unique<ArrayDeclarator>(std::move($1), std::move($3));
     }
     | direct_declarator LPAREN RPAREN {
-    $$ = std::make_unique<FunctionDeclarator>(std::move($1), Vec<Box<ParameterDeclaration>>{}, false);
-        }
-        | direct_declarator LPAREN parameter_type_list RPAREN {
-            $$ = std::make_unique<FunctionDeclarator>(std::move($1), std::move($3.first), $3.second);
+        $$ = std::make_unique<FunctionDeclarator>(std::move($1), Vec<Box<ParameterDeclaration>>{}, false);
+    }
+    | direct_declarator LPAREN parameter_type_list RPAREN {
+        $$ = std::make_unique<FunctionDeclarator>(std::move($1), std::move($3.first), $3.second);
   }
 
 ;
