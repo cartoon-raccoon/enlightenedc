@@ -9,6 +9,8 @@
 #define YY_DECL ecc::parser::Parser::symbol_type \
     ecc::frontend::Lexer::get_next_token()
 
+#define YY_USER_ACTION loc.columns(yyleng);
+
 #define yyterminate() return ecc::parser::Parser::make_YYEOF(loc)
 %}
 
@@ -20,7 +22,9 @@
 %%
 
 
-[ \r\n\t] { /* skip whitespace */ }
+[ \r\t] { loc.step(); }
+
+\n+ { loc.lines(yyleng); loc.step(); }
 
 
 "if" { return ecc::parser::Parser::make_IF(loc); } /* Keywords */
