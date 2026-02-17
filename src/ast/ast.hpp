@@ -43,7 +43,9 @@ class ASTNode {
 
 //* PROGRAM ITEMS
 
-//
+/*
+Abstract class denoting a program item: declaration, statement, or function definition.
+*/
 class ProgramItem : public ASTNode {
   public:
     ~ProgramItem() = default;
@@ -53,7 +55,9 @@ class ProgramItem : public ASTNode {
 
 //* DECLARATIONS
 
-// The Declaration abstract class that all declarations inherit from.
+/*
+The Declaration abstract class that all declarations inherit from.
+*/
 class Declaration : public ProgramItem {
   public:
     Declaration() = default;
@@ -62,6 +66,9 @@ class Declaration : public ProgramItem {
     void accept(ASTVisitor& visitor) override;
 };
 
+/*
+Abstract class denoting a storage class or type specifier, or a type qualifier.
+*/
 class DeclarationSpecifier : public ASTNode {
   public:
     virtual ~DeclarationSpecifier() = default;
@@ -83,6 +90,9 @@ class ParameterDeclaration : public ASTNode {
     void accept(ASTVisitor& visitor) override;
 };
 
+/*
+A variable declarator (e.g. `x` in `U8 x`).
+*/
 class Declarator : public ASTNode {
   public:
     Declarator(std::optional<Box<Pointer>> pointer,
@@ -95,6 +105,11 @@ class Declarator : public ASTNode {
     void accept(ASTVisitor& visitor) override;
 };
 
+/*
+A variable declaration (e.g. `U32 x = 5;`, `struct Flags {U16 x; bool y} = {3, true}`).
+
+A variable declaration with no init declarators is treated as a type declaration.
+*/
 class VariableDeclaration : public Declaration {
   public:
     VariableDeclaration(Vec<Box<DeclarationSpecifier>> specifiers,
@@ -108,6 +123,9 @@ class VariableDeclaration : public Declaration {
     void accept(ASTVisitor& visitor) override;
 };
 
+/*
+A declarator initializing a variable.
+*/
 class InitDeclarator : public ASTNode {
   public:
     InitDeclarator(Box<Declarator> declarator,
@@ -192,6 +210,9 @@ class StructDeclarator : public ASTNode {
     void accept(ASTVisitor& visitor) override;
 };
 
+/*
+Declaration of one or more struct members.
+*/
 class StructDeclaration : public ASTNode {
   public:
     StructDeclaration(Vec<Box<DeclarationSpecifier>> specifiers,
@@ -228,7 +249,9 @@ class StorageClassSpecifier : public DeclarationSpecifier {
     void accept(ASTVisitor& visitor) override;
 };
 
-// The struct or union specifier.
+/*
+A node denoting a struct or union and what members it contains.
+*/
 class StructOrUnionSpecifier : public ASTNode {
   public:
     enum Kind { STRUCT, UNION };
@@ -247,6 +270,9 @@ class StructOrUnionSpecifier : public ASTNode {
     void accept(ASTVisitor& visitor) override;
 };
 
+/*
+A node denoting an enum and its contained variants.
+*/
 class EnumSpecifier : public ASTNode {
   public:
     EnumSpecifier(std::optional<std::string> name,
@@ -609,14 +635,23 @@ class Function : public ProgramItem {
 
     ~Function() = default;
 
+    /*
+    Any possible specifiers (e.g. public, int, etc.)
+    */
     Vec<Box<DeclarationSpecifier>> decl_spec_list = {};
+    /*
+    The function name and its parameters.
+    Note: If the declarator contains a pointer, the pointer applies to its return type.
+    */
     Box<Declarator> declarator;
     Box<CompoundStatement> statements;
 
     void accept(ASTVisitor& visitor) override;
 };
 
-// The toplevel Program class.
+/*
+The toplevel Program class.
+*/
 class Program : public ASTNode {
   public:
     Program() = default;
