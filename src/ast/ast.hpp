@@ -8,12 +8,14 @@
 #include <vector>
 
 #include "frontend/tokens.hpp"
+#include "compiler/types.hpp"
 #include "util.hpp"
 
 /* Class definitions of AST nodes and subclasses. */
 namespace ecc::ast {
 
 using namespace ecc::tokens;
+using namespace ecc::compiler;
 using namespace util;
 
 class ASTVisitor;
@@ -46,6 +48,9 @@ class ProgramItem : public ASTNode {
 class Expression : public ASTNode {
   public:
     virtual ~Expression() = default;
+
+    // The type of the expression, populated during semantic elaboration.
+    types::Type *type = nullptr;
 
     virtual void accept(ASTVisitor& visitor) = 0;
 };
@@ -373,6 +378,7 @@ class ExpressionStatement : public Statement {
     void accept(ASTVisitor& visitor) override;
 };
 
+// FIXME: separate into identifier and case/default statements
 class LabeledStatement : public Statement {
   public:
     enum Kind { IDENTIFIER, CASE, CASE_RANGE, DEFAULT };
@@ -469,6 +475,7 @@ class ForStatement : public Statement {
     void accept(ASTVisitor& visitor) override;
 };
 
+// FIXME: separate into separate goto, break, return statement classes
 class JumpStatement : public Statement {
   public:
     enum Kind { GOTO, BREAK, RETURN };
