@@ -31,6 +31,180 @@ class ASTPrinter : public ASTVisitor {
         indent--;
     }
 
+    std::string token_type_to_string(TokenType t) {
+        switch (t) {
+        case PLUS:
+            return "+";
+        case MINUS:
+            return "-";
+        case MUL:
+            return "*";
+        case DIV:
+            return "/";
+        case MOD:
+            return "%";
+
+        case ASSIGN:
+            return "=";
+        case EQ:
+            return "==";
+        case NE:
+            return "!=";
+        case LE:
+            return "<=";
+        case GE:
+            return ">=";
+
+        case ANDAND:
+            return "&&";
+        case OROR:
+            return "||";
+
+        case INC:
+            return "++";
+        case DEC:
+            return "--";
+
+        case PLUSEQ:
+            return "+=";
+        case MINUSEQ:
+            return "-=";
+        case MULEQ:
+            return "*=";
+        case DIVEQ:
+            return "/=";
+        case MODEQ:
+            return "%=";
+        case LSHIFTEQ:
+            return "<<=";
+        case RSHIFTEQ:
+            return ">>=";
+        case ANDEQ:
+            return "&=";
+        case OREQ:
+            return "|=";
+        case XOREQ:
+            return "^=";
+
+        case AND:
+            return "&";
+        case OR:
+            return "|";
+        case XOR:
+            return "^";
+        case TILDE:
+            return "~";
+        case NOT:
+            return "!";
+
+        case LT:
+            return "<";
+        case GT:
+            return ">";
+
+        case LSHIFT:
+            return "<<";
+        case RSHIFT:
+            return ">>";
+
+        case DOT:
+            return ".";
+        case ARROW:
+            return "->";
+
+        case COMMA:
+            return ",";
+        case SEMI:
+            return ";";
+
+        default:
+            return "<unknown>";
+        }
+    }
+
+    std::string primitive_to_string(TypeSpecifier::Primitive p) {
+        using P = TypeSpecifier::Primitive;
+        switch (p) {
+        case P::VOID:
+            return "void";
+        case P::U0:
+            return "u0";
+        case P::U8:
+            return "u8";
+        case P::U16:
+            return "u16";
+        case P::U32:
+            return "u32";
+        case P::U64:
+            return "u64";
+        case P::I0:
+            return "i0";
+        case P::I8:
+            return "i8";
+        case P::I16:
+            return "i16";
+        case P::I32:
+            return "i32";
+        case P::I64:
+            return "i64";
+        case P::F64:
+            return "f64";
+        case P::BOOL:
+            return "bool";
+        }
+        return "";
+    }
+
+    std::string storage_to_string(StorageClassSpecifier::SpecType t) {
+        using S = StorageClassSpecifier::SpecType;
+        switch (t) {
+        case S::PUBLIC:
+            return "public";
+        case S::STATIC:
+            return "static";
+        case S::EXTERN:
+            return "extern";
+        }
+        return "";
+    }
+
+    std::string qualifier_to_string(TypeQualifier::QualType q) {
+        using Q = TypeQualifier::QualType;
+        switch (q) {
+        case Q::CONST:
+            return "const";
+        }
+        return "";
+    }
+
+    std::string jump_to_string(JumpStatement::Kind k) {
+        using J = JumpStatement::Kind;
+        switch (k) {
+        case J::GOTO:
+            return "goto";
+        case J::BREAK:
+            return "break";
+        case J::RETURN:
+            return "return";
+        }
+        return "";
+    }
+
+    std::string label_kind_to_string(LabeledStatement::Kind k) {
+        using L = LabeledStatement::Kind;
+        switch (k) {
+        case L::IDENTIFIER:
+            return "identifier";
+        case L::CASE:
+            return "case";
+        case L::CASE_RANGE:
+            return "case_range";
+        case L::DEFAULT:
+            return "default";
+        }
+        return "";
+    }
+
     void visit(Program& node) override {
         print_node("Program", node, [&] {
             for (auto& item : node.items)
@@ -40,12 +214,20 @@ class ASTPrinter : public ASTVisitor {
 
     void visit(Function& node) override {
         print_node(
-            "Function", node, [&] { node.declarator->accept(*this); },
+            "Function", node,
+            [&] {
+                for (auto& spec : node.decl_spec_list)
+                    spec->accept(*this);
+            },
+            [&] { node.declarator->accept(*this); },
             [&] { node.statements->accept(*this); });
     }
 
     void visit(CompoundStatement& node) override {
         print_node("CompoundStatement", node, [&] {
+            for (auto& decl : node.declarations)
+                decl->accept(*this);
+
             for (auto& stmt : node.statements)
                 stmt->accept(*this);
         });
@@ -59,17 +241,23 @@ class ASTPrinter : public ASTVisitor {
     }
 
     void visit(LabeledStatement& node) override {
-        print_node("LabeledStatement", node, [&] {
-            if (node.case_expr)
-                node.case_expr.value()->accept(*this);
-            if (node.case_range_end)
-                node.case_range_end.value()->accept(*this);
-            node.statement->accept(*this);
-        });
+        print_node(
+            "LabeledStatement: " + label_kind_to_string(node.kind) +
+                (node.label.empty() ? "" : " " + node.label),
+            node,
+            [&] {
+                if (node.case_expr)
+                    node.case_expr.value()->accept(*this);
+            },
+            [&] {
+                if (node.case_range_end)
+                    node.case_range_end.value()->accept(*this);
+            },
+            [&] { node.statement->accept(*this); });
     }
 
     void visit(PrintStatement& node) override {
-        print_node("PrintStatement", node, [&] {
+        print_node("PrintStatement: \"" + node.format_string + "\"", node, [&] {
             for (auto& arg : node.arguments)
                 arg->accept(*this);
         });
@@ -122,14 +310,19 @@ class ASTPrinter : public ASTVisitor {
     }
 
     void visit(JumpStatement& node) override {
-        print_node("JumpStatement", node, [&] {
-            if (node.return_value)
-                node.return_value.value()->accept(*this);
-        });
+        print_node(
+            "JumpStatement: " + jump_to_string(node.kind) +
+                (node.target_label.empty() ? "" : " " + node.target_label),
+            node, [&] {
+                if (node.return_value)
+                    node.return_value.value()->accept(*this);
+            });
     }
 
     void visit(VariableDeclaration& node) override {
         print_node("VariableDeclaration", node, [&] {
+            for (auto& spec : node.specifiers)
+                spec->accept(*this);
             for (auto& decl : node.declarators)
                 decl->accept(*this);
         });
@@ -140,7 +333,7 @@ class ASTPrinter : public ASTVisitor {
             "InitDeclarator", node, [&] { node.declarator->accept(*this); },
             [&] {
                 if (node.initializer)
-                    node.initializer.value()->expression.value()->accept(*this);
+                    node.initializer.value()->accept(*this);
             });
     }
 
@@ -187,7 +380,9 @@ class ASTPrinter : public ASTVisitor {
 
     void visit(FunctionDeclarator& node) override {
         print_node(
-            "FunctionDeclarator", node, [&] { node.base->accept(*this); },
+            std::string("FunctionDeclarator") +
+                (node.is_variadic ? " (variadic)" : ""),
+            node, [&] { node.base->accept(*this); },
             [&] {
                 for (auto& param : node.parameters)
                     param->accept(*this);
@@ -237,36 +432,51 @@ class ASTPrinter : public ASTVisitor {
     }
 
     void visit(StorageClassSpecifier& node) override {
-        print_node("StorageClassSpecifier", node);
+        print_node("StorageClassSpecifier: " + storage_to_string(node.type),
+                   node);
     }
 
     void visit(TypeSpecifier& node) override {
-        print_node("TypeSpecifier", node, [&] {
-            if (std::holds_alternative<Box<StructOrUnionSpecifier>>(node.type))
+        if (std::holds_alternative<TypeSpecifier::Primitive>(node.type)) {
+            auto prim = std::get<TypeSpecifier::Primitive>(node.type);
+            print_node("TypeSpecifier: " + primitive_to_string(prim), node);
+        } else if (std::holds_alternative<Box<StructOrUnionSpecifier>>(
+                       node.type)) {
+            print_node("TypeSpecifier", node, [&] {
                 std::get<Box<StructOrUnionSpecifier>>(node.type)->accept(*this);
-            else if (std::holds_alternative<Box<EnumSpecifier>>(node.type))
+            });
+        } else if (std::holds_alternative<Box<EnumSpecifier>>(node.type)) {
+            print_node("TypeSpecifier", node, [&] {
                 std::get<Box<EnumSpecifier>>(node.type)->accept(*this);
-        });
+            });
+        }
     }
 
     void visit(TypeQualifier& node) override {
-        print_node("TypeQualifier", node);
+        print_node("TypeQualifier: " + qualifier_to_string(node.qual), node);
     }
 
     void visit(EnumSpecifier& node) override {
-        print_node("EnumSpecifier", node, [&] {
-            if (node.enumerators)
-                for (auto& e : node.enumerators.value())
-                    e->accept(*this);
-        });
+        print_node(std::string("EnumSpecifier") +
+                       (node.name ? ": " + node.name.value() : ""),
+                   node, [&] {
+                       if (node.enumerators)
+                           for (auto& e : node.enumerators.value())
+                               e->accept(*this);
+                   });
     }
 
     void visit(StructOrUnionSpecifier& node) override {
-        print_node("StructOrUnionSpecifier", node, [&] {
-            if (node.declarations)
-                for (auto& decl : node.declarations.value())
-                    decl->accept(*this);
-        });
+        std::string kind =
+            node.kind == StructOrUnionSpecifier::STRUCT ? "struct" : "union";
+
+        print_node("StructOrUnionSpecifier: " + kind +
+                       (node.name ? " " + node.name.value() : ""),
+                   node, [&] {
+                       if (node.declarations)
+                           for (auto& decl : node.declarations.value())
+                               decl->accept(*this);
+                   });
     }
 
     void visit(Initializer& node) override {
@@ -301,18 +511,20 @@ class ASTPrinter : public ASTVisitor {
 
     void visit(BinaryExpression& node) override {
         print_node(
-            "BinaryExpression", node, [&] { node.left->accept(*this); },
+            "BinaryExpression: " + token_type_to_string(node.op), node,
+            [&] { node.left->accept(*this); },
             [&] { node.right->accept(*this); });
     }
 
     void visit(UnaryExpression& node) override {
-        print_node("UnaryExpression", node,
+        print_node("UnaryExpression: " + token_type_to_string(node.op), node,
                    [&] { node.operand->accept(*this); });
     }
 
     void visit(AssignmentExpression& node) override {
         print_node(
-            "AssignmentExpression", node, [&] { node.left->accept(*this); },
+            "AssignmentExpression: " + token_type_to_string(node.op), node,
+            [&] { node.left->accept(*this); },
             [&] { node.right->accept(*this); });
     }
 
@@ -334,8 +546,9 @@ class ASTPrinter : public ASTVisitor {
     }
 
     void visit(MemberAccessExpression& node) override {
-        print_node("MemberAccess: " + node.member, node,
-                   [&] { node.object->accept(*this); });
+        print_node(std::string("MemberAccess: ") +
+                       (node.is_arrow ? "->" : ".") + node.member,
+                   node, [&] { node.object->accept(*this); });
     }
 
     void visit(ArraySubscriptExpression& node) override {
@@ -346,7 +559,7 @@ class ASTPrinter : public ASTVisitor {
     }
 
     void visit(PostfixExpression& node) override {
-        print_node("PostfixExpression", node,
+        print_node("PostfixExpression: " + token_type_to_string(node.op), node,
                    [&] { node.operand->accept(*this); });
     }
 
