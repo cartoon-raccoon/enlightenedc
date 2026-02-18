@@ -10,6 +10,10 @@ U0i noop() {
     return;
 }
 
+noop();
+
+noop;
+
 I64i CallbackFunction(I64i x)
 {
   return x * x;

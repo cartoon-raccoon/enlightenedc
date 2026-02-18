@@ -45,6 +45,11 @@ Program
 | | | | IdentifierDeclarator: noop
 | | CompoundStatement
 | | | JumpStatement: return
+| ExpressionStatement
+| | CallExpression
+| | | Identifier: noop
+| ExpressionStatement
+| | Identifier: noop
 | Function
 | | TypeSpecifier: i64
 | | Declarator
