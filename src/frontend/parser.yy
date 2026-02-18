@@ -579,7 +579,7 @@ expression_statement:
     SEMI {
         $$ = std::make_unique<ExpressionStatement>(std::nullopt);
     }
-    | expression SEMI {
+    | expression SEMI { // IDENTIFIER SEMI is a special case of this rule that should resolve to a call expression.
         $$ = std::make_unique<ExpressionStatement>(std::move($1));
     }
 ;
