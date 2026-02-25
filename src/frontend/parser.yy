@@ -127,13 +127,13 @@ static ecc::parser::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 
 %type <Box<CompoundStatement>> compound_statement
 %type <Vec<Box<Statement>>> statement_list
-%type <Box<Statement>> labeled_statement expression_statement standalone_print_statement
+%type <Box<Statement>> labeled_statement expression_statement print_statement
 %type <Box<Statement>> selection_statement iteration_statement jump_statement
 
 %type <Box<Expression>> expression assignment_expression conditional_expression
 %type <Box<Expression>> binary_expression unary_expression postfix_expression primary_expression
 %type <Box<Expression>> constant constant_expression
-%type <Vec<Box<Expression>>> expression_list argument_expression_list
+%type <Vec<Box<Expression>>> argument_expression_list
 %type <std::optional<Box<Expression>>> expression_opt
 
 %%
@@ -544,18 +544,18 @@ direct_abstract_declarator:
 statement:
     labeled_statement { $$ = std::move($1); }
     | expression_statement { $$ = std::move($1); }
-    | standalone_print_statement{ $$ = std::move($1); }
+    | print_statement{ $$ = std::move($1); }
     | compound_statement { $$ = std::move($1); }
     | selection_statement { $$ = std::move($1); }
     | iteration_statement { $$ = std::move($1); }
     | jump_statement { $$ = std::move($1); }
 ;
 
-standalone_print_statement:
+print_statement:
     STRING_LITERAL SEMI {
         $$ = std::make_unique<PrintStatement>(std::move($1), Vec<Box<Expression>>{});
     }
-    | STRING_LITERAL COMMA expression_list SEMI {
+    | STRING_LITERAL COMMA argument_expression_list SEMI {
         $$ = std::make_unique<PrintStatement>(std::move($1), std::move($3));
     }
 ;
@@ -665,23 +665,11 @@ expression:
     assignment_expression {
         $$ = std::move($1);
     }
-    | expression COMMA assignment_expression {
-    $$ = std::make_unique<BinaryExpression>(std::move($1), std::move($3), ecc::tokens::COMMA);
+    | expression COMMA assignment_expression { // FIXME: what does this do and why is it here?
+        $$ = std::make_unique<BinaryExpression>(std::move($1), std::move($3), ecc::tokens::COMMA);
     }
 ;
 
-
-expression_list:
-    expression {
-        Vec<Box<Expression>> list;
-        list.push_back(std::move($1));
-        $$ = std::move(list);
-    }
-    | expression_list COMMA expression {
-        $1.push_back(std::move($3));
-        $$ = std::move($1);
-    }
-;
 
 assignment_expression:
     conditional_expression {
@@ -826,7 +814,7 @@ primary_expression:
         $$ = std::move($1);
     }
     | STRING_LITERAL {
-        $$ = std::make_unique<LiteralExpression>(LiteralExpression::STRING, std::move($1));
+        $$ = std::make_unique<StringExpression>($1);
     }
     | LPAREN expression RPAREN {
         $$ = std::move($2);
@@ -835,19 +823,19 @@ primary_expression:
 
 constant:
     INT_CONST {
-        $$ = std::make_unique<LiteralExpression>(LiteralExpression::INT, std::to_string($1));
+        $$ = std::make_unique<LiteralExpression>(LiteralExpression::INT, LiteralExpression::Value($1));
     }
     | CHAR_CONST {
-        $$ = std::make_unique<LiteralExpression>(LiteralExpression::CHAR, std::string(1, $1));
+        $$ = std::make_unique<LiteralExpression>(LiteralExpression::CHAR, LiteralExpression::Value($1));
     }
     | FLOAT_CONST {
-        $$ = std::make_unique<LiteralExpression>(LiteralExpression::FLOAT, std::to_string($1));
+        $$ = std::make_unique<LiteralExpression>(LiteralExpression::FLOAT, LiteralExpression::Value($1));
     }
     | TRUE {
-        $$ = std::make_unique<LiteralExpression>(LiteralExpression::BOOL, "true");
+        $$ = std::make_unique<LiteralExpression>(LiteralExpression::BOOL, LiteralExpression::Value(true));
     }
     | FALSE {
-        $$ = std::make_unique<LiteralExpression>(LiteralExpression::BOOL, "false");
+        $$ = std::make_unique<LiteralExpression>(LiteralExpression::BOOL, LiteralExpression::Value(false));
     }
 ;
 

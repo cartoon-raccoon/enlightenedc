@@ -58,6 +58,7 @@ public:
     virtual void visit(ConditionalExpression& node) = 0;
     virtual void visit(IdentifierExpression& node) = 0;
     virtual void visit(LiteralExpression& node) = 0;
+    virtual void visit(StringExpression& node) = 0;
     virtual void visit(CallExpression& node) = 0;
     virtual void visit(MemberAccessExpression& node) = 0;
     virtual void visit(ArraySubscriptExpression& node) = 0;

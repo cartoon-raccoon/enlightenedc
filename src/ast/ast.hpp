@@ -596,15 +596,30 @@ public:
     void accept(ASTVisitor& visitor) override;
 };
 
-// FIXME: Split off string into separate expression, unify remaining into union
 class LiteralExpression : public Expression {
 public:
-    enum Kind { INT, FLOAT, CHAR, BOOL, STRING };
+    enum Kind { INT, FLOAT, CHAR, BOOL };
 
-    LiteralExpression(Kind kind, std::string value)
-        : kind(kind), value(std::move(value)) {}
+    union Value {
+        int i_val;
+        double f_val;
+        char c_val;
+        bool b_val;
+    };
+
+    LiteralExpression(Kind kind, Value value)
+        : kind(kind), value(value) {}
 
     Kind kind;
+    Value value;
+
+    void accept(ASTVisitor& visitor) override;
+};
+
+class StringExpression : public Expression {
+public:
+    StringExpression(std::string value) : value(value) {}
+
     std::string value;
 
     void accept(ASTVisitor& visitor) override;

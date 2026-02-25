@@ -64,6 +64,10 @@ Program
 | | | | | Identifier: b
 | | | | Identifier: a
 | ExpressionStatement
+| | AssignmentExpression: =
+| | | Identifier: s
+| | | String: "hello!"
+| ExpressionStatement
 | | UnaryExpression: ++
 | | | Identifier: x
 | ExpressionStatement

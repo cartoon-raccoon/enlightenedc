@@ -498,7 +498,24 @@ void ASTPrinter::visit(TypeName& node) {
 }
 
 void ASTPrinter::visit(LiteralExpression& node) {
-    print_node("Literal: " + node.value, node);
+    switch (node.kind) {
+        case LiteralExpression::Kind::INT:
+        print_node("Literal: " + std::to_string(node.value.i_val), node);
+        break;
+        case LiteralExpression::Kind::FLOAT:
+        print_node("Literal: " + std::to_string(node.value.f_val), node);
+        break;
+        case LiteralExpression::Kind::CHAR:
+        print_node("Literal: " + std::to_string(node.value.c_val), node);
+        break;
+        case LiteralExpression::Kind::BOOL:
+        print_node("Literal: " + std::to_string(node.value.b_val), node);
+        break;
+    }
+}
+
+void ASTPrinter::visit(StringExpression& node) {
+    print_node("String: " + node.value, node);
 }
 
 void ASTPrinter::visit(IdentifierExpression& node) {

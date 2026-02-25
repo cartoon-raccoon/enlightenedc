@@ -81,6 +81,8 @@ void IdentifierExpression::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void LiteralExpression::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
+void StringExpression::accept(ASTVisitor& visitor) { visitor.visit(*this); }
+
 void CallExpression::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void MemberAccessExpression::accept(ASTVisitor& visitor) {

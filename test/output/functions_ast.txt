@@ -38,6 +38,13 @@ Program
 | | | | BinaryExpression: *
 | | | | | Identifier: x
 | | | | | Identifier: y
+| ExpressionStatement
+| | CallExpression
+| | | Identifier: compute
+| | | Literal: 10
+| | | Literal: 4
+| | | String: "this"
+| | | Literal: 1
 | Function
 | | TypeSpecifier: void
 | | Declarator

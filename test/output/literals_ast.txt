@@ -34,7 +34,7 @@ Program
 | | | Declarator
 | | | | IdentifierDeclarator: f1
 | | | Initializer
-| | | | Literal: 1.230000
+| | | | Literal: 0.000000
 | VariableDeclaration
 | | TypeSpecifier: f64
 | | InitDeclarator
@@ -42,38 +42,32 @@ Program
 | | | | IdentifierDeclarator: f2
 | | | Initializer
 | | | | UnaryExpression: -
-| | | | | Literal: 31400000000.000000
+| | | | | Literal: 0.000000
 | VariableDeclaration
 | | TypeSpecifier: u8
 | | InitDeclarator
 | | | Declarator
 | | | | IdentifierDeclarator: ch
 | | | Initializer
-| | | | Literal: A
+| | | | Literal: 65
 | VariableDeclaration
 | | TypeSpecifier: u8
 | | InitDeclarator
 | | | Declarator
 | | | | IdentifierDeclarator: nl
 | | | Initializer
-| | | | Literal: 
-
+| | | | Literal: 10
 | VariableDeclaration
 | | TypeSpecifier: u8
 | | InitDeclarator
 | | | Declarator
 | | | | IdentifierDeclarator: qt
 | | | Initializer
-| | | | Literal: "
+| | | | Literal: 34
 | PrintStatement: ""Values:\n""
-| | BinaryExpression: ,
-| | | BinaryExpression: ,
-| | | | BinaryExpression: ,
-| | | | | BinaryExpression: ,
-| | | | | | BinaryExpression: ,
-| | | | | | | Identifier: a
-| | | | | | | Identifier: b
-| | | | | | Identifier: c
-| | | | | Identifier: d
-| | | | Identifier: f1
-| | | Identifier: f2
+| | Identifier: a
+| | Identifier: b
+| | Identifier: c
+| | Identifier: d
+| | Identifier: f1
+| | Identifier: f2

@@ -8,6 +8,8 @@ x |= 1 ^ 3 & 7;
 x = (a > b) ? a : b;
 x = a && b || a;
 
+s = "hello!";
+
 ++x;
 x--;
 x += sizeof(U32i);

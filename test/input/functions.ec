@@ -6,6 +6,8 @@ public I32i compute(I32i x = 10, I32i y = 20, ...) {
     return x * y;
 }
 
+compute(10, 4, "this", true);
+
 U0i noop() {
     return;
 }
