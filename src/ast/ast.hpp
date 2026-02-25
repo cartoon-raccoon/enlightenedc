@@ -25,8 +25,10 @@ class ASTVisitor;
 // Each AST node (binary, unary expr, statement, etc.) defines its own subclass
 // that inherits from this main superclass.
 class ASTNode {
-  public:
+public:
     virtual ~ASTNode() = default;
+
+    // todo: add location tracking for nodes
 
     // Accept an AST visitor.
     virtual void accept(ASTVisitor& visitor) = 0;
@@ -38,7 +40,7 @@ class ASTNode {
 Abstract class denoting a program item: declaration, statement, or function definition.
 */
 class ProgramItem : public ASTNode {
-  public:
+public:
     ~ProgramItem() = default;
 
     virtual void accept(ASTVisitor& visitor) = 0;
@@ -46,7 +48,7 @@ class ProgramItem : public ASTNode {
 
 // The abstract Expression class that all expressions inherit from.
 class Expression : public ASTNode {
-  public:
+public:
     virtual ~Expression() = default;
 
     // The type of the expression, populated during semantic elaboration.
@@ -61,7 +63,7 @@ class Expression : public ASTNode {
 The Declaration abstract class that all declarations inherit from.
 */
 class Declaration : public ProgramItem {
-  public:
+public:
     Declaration() = default;
     ~Declaration() = default;
 
@@ -72,13 +74,13 @@ class Declaration : public ProgramItem {
 Abstract class denoting a storage class or type specifier, or a type qualifier.
 */
 class DeclarationSpecifier : public ASTNode {
-  public:
+public:
     virtual ~DeclarationSpecifier() = default;
     virtual void accept(ASTVisitor& visitor) = 0;
 };
 
 class TypeQualifier : public DeclarationSpecifier {
-  public:
+public:
     enum QualType { CONST };
 
     explicit TypeQualifier(QualType qual) : qual(qual) {}
@@ -89,7 +91,7 @@ class TypeQualifier : public DeclarationSpecifier {
 };
 
 class Pointer : public ASTNode {
-  public:
+public:
     Pointer(Vec<Box<TypeQualifier>> qualifiers,
             std::optional<Box<Pointer>> nested)
         : qualifiers(std::move(qualifiers)), nested(std::move(nested)) {}
@@ -104,7 +106,7 @@ class DirectDeclarator : public ASTNode {};
 
 // Initializers
 class Initializer : public ASTNode {
-  public:
+public:
     Initializer(Box<Expression> expr) : expression(std::move(expr)) {}
 
     Initializer(Vec<Box<Initializer>> list)
@@ -120,7 +122,7 @@ class Initializer : public ASTNode {
 A variable declarator (e.g. `x` in `U8 x`).
 */
 class Declarator : public ASTNode {
-  public:
+public:
     Declarator(std::optional<Box<Pointer>> pointer,
                std::optional<Box<DirectDeclarator>> direct)
         : pointer(std::move(pointer)), direct(std::move(direct)) {}
@@ -135,7 +137,7 @@ class Declarator : public ASTNode {
 A declarator initializing a variable.
 */
 class InitDeclarator : public ASTNode {
-  public:
+public:
     InitDeclarator(Box<Declarator> declarator,
                    std::optional<Box<Initializer>> initializer)
         : declarator(std::move(declarator)),
@@ -148,7 +150,7 @@ class InitDeclarator : public ASTNode {
 };
 
 class ParameterDeclaration : public ASTNode {
-  public:
+public:
     ParameterDeclaration(Vec<Box<DeclarationSpecifier>> specifiers,
                          std::optional<Box<Declarator>> declarator,
                          std::optional<Box<Expression>> default_value)
@@ -168,7 +170,7 @@ A variable declaration (e.g. `U32 x = 5;`, `struct Flags {U16 x; bool y} = {3, t
 A variable declaration with no init declarators is treated as a type declaration.
 */
 class VariableDeclaration : public Declaration {
-  public:
+public:
     VariableDeclaration(Vec<Box<DeclarationSpecifier>> specifiers,
                         Vec<Box<InitDeclarator>> declarators)
         : specifiers(std::move(specifiers)),
@@ -181,7 +183,7 @@ class VariableDeclaration : public Declaration {
 };
 
 class IdentifierDeclarator : public DirectDeclarator {
-  public:
+public:
     std::string name;
 
     explicit IdentifierDeclarator(std::string n) : name(std::move(n)) {}
@@ -190,7 +192,7 @@ class IdentifierDeclarator : public DirectDeclarator {
 };
 
 class ParenDeclarator : public DirectDeclarator {
-  public:
+public:
     Box<Declarator> inner;
 
     explicit ParenDeclarator(std::unique_ptr<Declarator> d)
@@ -200,7 +202,7 @@ class ParenDeclarator : public DirectDeclarator {
 };
 
 class ArrayDeclarator : public DirectDeclarator {
-  public:
+public:
     Box<DirectDeclarator> base;
     std::optional<Box<Expression>> size;
 
@@ -212,7 +214,7 @@ class ArrayDeclarator : public DirectDeclarator {
 };
 
 class FunctionDeclarator : public DirectDeclarator {
-  public:
+public:
     Box<DirectDeclarator> base;
     Vec<Box<ParameterDeclaration>> parameters;
     bool is_variadic;
@@ -226,7 +228,7 @@ class FunctionDeclarator : public DirectDeclarator {
 };
 
 class StructDeclarator : public ASTNode {
-  public:
+public:
     StructDeclarator(std::optional<Box<Declarator>> declarator,
                      std::optional<Box<Expression>> bit_width)
         : declarator(std::move(declarator)), bit_width(std::move(bit_width)) {}
@@ -241,7 +243,7 @@ class StructDeclarator : public ASTNode {
 Declaration of one or more struct members.
 */
 class StructDeclaration : public ASTNode {
-  public:
+public:
     StructDeclaration(Vec<Box<DeclarationSpecifier>> specifiers,
                       Vec<Box<StructDeclarator>> declarators)
         : specifiers(std::move(specifiers)),
@@ -254,7 +256,7 @@ class StructDeclaration : public ASTNode {
 };
 
 class Enumerator : public ASTNode {
-  public:
+public:
     Enumerator(std::string name, std::optional<Box<Expression>> value)
         : name(std::move(name)), value(std::move(value)) {}
 
@@ -266,7 +268,7 @@ class Enumerator : public ASTNode {
 
 // Storage class specifiers.
 class StorageClassSpecifier : public DeclarationSpecifier {
-  public:
+public:
     enum SpecType { PUBLIC, STATIC, EXTERN };
 
     explicit StorageClassSpecifier(SpecType type) : type(type) {}
@@ -280,7 +282,7 @@ class StorageClassSpecifier : public DeclarationSpecifier {
 A node denoting a struct or union and what members it contains.
 */
 class StructOrUnionSpecifier : public ASTNode {
-  public:
+public:
     enum Kind { STRUCT, UNION };
 
     Kind kind;
@@ -301,7 +303,7 @@ class StructOrUnionSpecifier : public ASTNode {
 A node denoting an enum and its contained variants.
 */
 class EnumSpecifier : public ASTNode {
-  public:
+public:
     EnumSpecifier(std::optional<std::string> name,
                   std::optional<Vec<Box<Enumerator>>> enumerators)
         : name(std::move(name)), enumerators(std::move(enumerators)) {}
@@ -314,7 +316,7 @@ class EnumSpecifier : public ASTNode {
 };
 
 class TypeSpecifier : public DeclarationSpecifier {
-  public:
+public:
     enum Primitive {
         VOID,
         U0,
@@ -348,7 +350,7 @@ class TypeSpecifier : public DeclarationSpecifier {
 
 // The abstract Statement class that all statements inherit from.
 class Statement : public ProgramItem {
-  public:
+public:
     Statement() = default;
     ~Statement() = default;
 
@@ -356,7 +358,7 @@ class Statement : public ProgramItem {
 };
 
 class CompoundStatement : public Statement {
-  public:
+public:
     CompoundStatement(Vec<Box<Declaration>> declarations,
                       Vec<Box<Statement>> statements)
         : declarations(std::move(declarations)),
@@ -369,7 +371,7 @@ class CompoundStatement : public Statement {
 };
 
 class ExpressionStatement : public Statement {
-  public:
+public:
     explicit ExpressionStatement(std::optional<Box<Expression>> expression)
         : expression(std::move(expression)) {}
 
@@ -379,7 +381,7 @@ class ExpressionStatement : public Statement {
 };
 
 class CaseDefaultStatement : public Statement {
-  public:
+public:
     enum Kind { CASE, CASE_RANGE, DEFAULT };
 
     CaseDefaultStatement(Kind kind,
@@ -399,7 +401,7 @@ class CaseDefaultStatement : public Statement {
 };
 
 class LabeledStatement : public Statement {
-  public:
+public:
     LabeledStatement(std::string label, Box<Statement> statement)
     : label(label), statement(std::move(statement)) {}
 
@@ -411,7 +413,7 @@ class LabeledStatement : public Statement {
 
 
 class PrintStatement : public Statement {
-  public:
+public:
     PrintStatement(std::string format_string, Vec<Box<Expression>> arguments)
         : format_string(std::move(format_string)),
           arguments(std::move(arguments)) {}
@@ -423,7 +425,7 @@ class PrintStatement : public Statement {
 };
 
 class IfStatement : public Statement {
-  public:
+public:
     IfStatement(Box<Expression> condition, Box<Statement> then_branch,
                 std::optional<Box<Statement>> else_branch)
         : condition(std::move(condition)), then_branch(std::move(then_branch)),
@@ -437,7 +439,7 @@ class IfStatement : public Statement {
 };
 
 class SwitchStatement : public Statement {
-  public:
+public:
     SwitchStatement(Box<Expression> condition, Box<Statement> body)
         : condition(std::move(condition)), body(std::move(body)) {}
 
@@ -448,7 +450,7 @@ class SwitchStatement : public Statement {
 };
 
 class WhileStatement : public Statement {
-  public:
+public:
     WhileStatement(Box<Expression> condition, Box<Statement> body)
         : condition(std::move(condition)), body(std::move(body)) {}
 
@@ -459,7 +461,7 @@ class WhileStatement : public Statement {
 };
 
 class DoWhileStatement : public Statement {
-  public:
+public:
     DoWhileStatement(Box<Statement> body, Box<Expression> condition)
         : body(std::move(body)), condition(std::move(condition)) {}
 
@@ -470,7 +472,7 @@ class DoWhileStatement : public Statement {
 };
 
 class ForStatement : public Statement {
-  public:
+public:
     ForStatement(std::optional<Box<Expression>> init,
                  std::optional<Box<Expression>> condition,
                  std::optional<Box<Expression>> increment, Box<Statement> body)
@@ -487,7 +489,7 @@ class ForStatement : public Statement {
 
 // FIXME: separate into separate goto, break, return statement classes
 class JumpStatement : public Statement {
-  public:
+public:
     enum Kind { GOTO, BREAK, RETURN };
 
     JumpStatement(Kind kind, std::string target_label,
@@ -503,7 +505,7 @@ class JumpStatement : public Statement {
 };
 
 class TypeName : public ASTNode {
-  public:
+public:
     TypeName(Vec<Box<DeclarationSpecifier>> specifiers,
              std::optional<Box<Declarator>> declarator)
         : specifiers(std::move(specifiers)), declarator(std::move(declarator)) {
@@ -518,7 +520,7 @@ class TypeName : public ASTNode {
 //* EXPRESSIONS
 
 class BinaryExpression : public Expression {
-  public:
+public:
     BinaryExpression(
         // Left operand.
         Box<Expression> left,
@@ -536,7 +538,7 @@ class BinaryExpression : public Expression {
 };
 
 class UnaryExpression : public Expression {
-  public:
+public:
     UnaryExpression(Box<Expression> operand, TokenType op)
         : operand(std::move(operand)), op(op) {}
 
@@ -547,7 +549,7 @@ class UnaryExpression : public Expression {
 };
 
 class AssignmentExpression : public Expression {
-  public:
+public:
     AssignmentExpression(Box<Expression> left, Box<Expression> right,
                          TokenType op)
         : left(std::move(left)), right(std::move(right)), op(op) {}
@@ -560,7 +562,7 @@ class AssignmentExpression : public Expression {
 };
 
 class ConditionalExpression : public Expression {
-  public:
+public:
     ConditionalExpression(Box<Expression> condition, Box<Expression> true_expr,
                           Box<Expression> false_expr)
         : condition(std::move(condition)), true_expr(std::move(true_expr)),
@@ -574,7 +576,7 @@ class ConditionalExpression : public Expression {
 };
 
 class IdentifierExpression : public Expression {
-  public:
+public:
     explicit IdentifierExpression(std::string name) : name(std::move(name)) {}
 
     std::string name;
@@ -584,7 +586,7 @@ class IdentifierExpression : public Expression {
 
 // FIXME: Split off string into separate expression, unify remaining into union
 class LiteralExpression : public Expression {
-  public:
+public:
     enum Kind { INT, FLOAT, CHAR, BOOL, STRING };
 
     LiteralExpression(Kind kind, std::string value)
@@ -597,7 +599,7 @@ class LiteralExpression : public Expression {
 };
 
 class CallExpression : public Expression {
-  public:
+public:
     CallExpression(Box<Expression> callee, Vec<Box<Expression>> arguments)
         : callee(std::move(callee)), arguments(std::move(arguments)) {}
 
@@ -608,7 +610,7 @@ class CallExpression : public Expression {
 };
 
 class MemberAccessExpression : public Expression {
-  public:
+public:
     MemberAccessExpression(Box<Expression> object, std::string member,
                            bool is_arrow)
         : object(std::move(object)), member(std::move(member)),
@@ -622,7 +624,7 @@ class MemberAccessExpression : public Expression {
 };
 
 class ArraySubscriptExpression : public Expression {
-  public:
+public:
     ArraySubscriptExpression(Box<Expression> array, Box<Expression> index)
         : array(std::move(array)), index(std::move(index)) {}
 
@@ -633,7 +635,7 @@ class ArraySubscriptExpression : public Expression {
 };
 
 class PostfixExpression : public Expression {
-  public:
+public:
     PostfixExpression(Box<Expression> operand, TokenType op)
         : operand(std::move(operand)), op(op) {}
 
@@ -644,7 +646,7 @@ class PostfixExpression : public Expression {
 };
 
 class SizeofExpression : public Expression {
-  public:
+public:
     std::variant<Box<Expression>, Box<TypeName>> operand;
 
     explicit SizeofExpression(Box<Expression> expr)
@@ -656,7 +658,7 @@ class SizeofExpression : public Expression {
 };
 
 class Function : public ProgramItem {
-  public:
+public:
     Function(Vec<Box<DeclarationSpecifier>> decl_spec_list,
              Box<Declarator> declarator, Box<CompoundStatement> statements)
         : decl_spec_list(std::move(decl_spec_list)),
@@ -687,7 +689,7 @@ class Function : public ProgramItem {
 The toplevel Program class.
 */
 class Program : public ASTNode {
-  public:
+public:
     Program() = default;
     ~Program() = default;
 

@@ -9,7 +9,7 @@ namespace ecc::ast {
 // An ASTVisitor object visits each node on the AST, operating on
 // it as it goes.
 class ASTVisitor {
-  public:
+public:
     virtual ~ASTVisitor() = default;
 
     virtual void visit(Program& node) = 0;
