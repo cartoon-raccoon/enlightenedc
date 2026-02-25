@@ -17,7 +17,7 @@ Program
 | | CompoundStatement
 | | | CaseDefaultStatement: case
 | | | | Literal: 1
-| | | | JumpStatement: break
+| | | | BreakStatement
 | | | CaseDefaultStatement: case_range
 | | | | Literal: 2
 | | | | Literal: 5
@@ -25,9 +25,9 @@ Program
 | | | | | AssignmentExpression: +=
 | | | | | | Identifier: n
 | | | | | | Literal: 2
-| | | JumpStatement: break
+| | | BreakStatement
 | | | CaseDefaultStatement: default
-| | | | JumpStatement: goto start
+| | | | GotoStatement: start
 | WhileStatement
 | | BinaryExpression: >
 | | | Identifier: n

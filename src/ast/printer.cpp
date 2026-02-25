@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <utility>
 
 using namespace ecc::ast;
 
@@ -157,19 +158,6 @@ std::string ASTPrinter::qualifier_to_string(TypeQualifier::QualType q) {
     return "";
 }
 
-std::string ASTPrinter::jump_to_string(JumpStatement::Kind k) {
-    using J = JumpStatement::Kind;
-    switch (k) {
-    case J::GOTO:
-        return "goto";
-    case J::BREAK:
-        return "break";
-    case J::RETURN:
-        return "return";
-    }
-    return "";
-}
-
 std::string ASTPrinter::case_kind_to_string(CaseDefaultStatement::Kind k) {
     using L = CaseDefaultStatement::Kind;
     switch (k) {
@@ -298,13 +286,33 @@ void ASTPrinter::visit(ForStatement& node) {
 }
 
 void ASTPrinter::visit(JumpStatement& node) {
+    std::unreachable();
+}
+
+void ASTPrinter::visit(GotoStatement& node) {
     print_node(
-        "JumpStatement: " + jump_to_string(node.kind) +
-            (node.target_label.empty() ? "" : " " + node.target_label),
-        node, [&] {
-            if (node.return_value)
+        "GotoStatement: " + node.target_label,
+        node
+    );
+}
+
+void ASTPrinter::visit(BreakStatement& node) {
+    print_node(
+        "BreakStatement",
+        node
+    );
+}
+
+void ASTPrinter::visit(ReturnStatement& node) {
+    print_node(
+        "ReturnStatement",
+        node,
+        [&] {
+            if (node.return_value) {
                 node.return_value.value()->accept(*this);
-        });
+            }
+        }
+    );
 }
 
 void ASTPrinter::visit(VariableDeclaration& node) {
@@ -561,9 +569,9 @@ void ASTPrinter::visit(SizeofExpression& node) {
 }
 
 void ASTPrinter::visit(Declaration& node) {
-    return;
+    std::unreachable();
 }
 
 void ASTPrinter::visit(Statement& node) {
-    return;
+    std::unreachable();
 }

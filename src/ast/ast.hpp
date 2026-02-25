@@ -487,18 +487,30 @@ public:
     void accept(ASTVisitor& visitor) override;
 };
 
-// FIXME: separate into separate goto, break, return statement classes
 class JumpStatement : public Statement {
 public:
-    enum Kind { GOTO, BREAK, RETURN };
+    void accept(ASTVisitor& visitor) override;
+};
 
-    JumpStatement(Kind kind, std::string target_label,
-                  std::optional<Box<Expression>> return_value)
-        : kind(kind), target_label(std::move(target_label)),
-          return_value(std::move(return_value)) {}
+class GotoStatement : public JumpStatement {
+public:
+    GotoStatement(std::string target_label) : target_label(target_label) {}
 
-    Kind kind;
     std::string target_label;
+
+    void accept(ASTVisitor& visitor) override;
+};
+
+class BreakStatement : public JumpStatement {
+public:
+    void accept(ASTVisitor& visitor) override;
+};
+
+class ReturnStatement : public JumpStatement {
+public:
+    ReturnStatement(std::optional<Box<Expression>> return_value)
+    : return_value(std::move(return_value)) {}
+
     std::optional<Box<Expression>> return_value;
 
     void accept(ASTVisitor& visitor) override;

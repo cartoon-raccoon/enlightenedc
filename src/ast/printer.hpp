@@ -53,6 +53,9 @@ public:
     void visit(DoWhileStatement& node) override;
     void visit(ForStatement& node) override;
     void visit(JumpStatement& node) override;
+    void visit(GotoStatement& node) override;
+    void visit(BreakStatement& node) override;
+    void visit(ReturnStatement& node) override;
 
     void visit(BinaryExpression& node) override;
     void visit(UnaryExpression& node) override;
@@ -87,8 +90,6 @@ private:
     std::string storage_to_string(StorageClassSpecifier::SpecType t);
 
     std::string qualifier_to_string(TypeQualifier::QualType q);
-
-    std::string jump_to_string(JumpStatement::Kind k);
 
     std::string case_kind_to_string(CaseDefaultStatement::Kind k);
 };

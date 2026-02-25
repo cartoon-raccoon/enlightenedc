@@ -61,6 +61,12 @@ void ForStatement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void JumpStatement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
+void GotoStatement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
+
+void BreakStatement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
+
+void ReturnStatement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
+
 void BinaryExpression::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void UnaryExpression::accept(ASTVisitor& visitor) { visitor.visit(*this); }

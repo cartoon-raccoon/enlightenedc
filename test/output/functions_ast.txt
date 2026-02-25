@@ -13,7 +13,7 @@ Program
 | | | | | Declarator
 | | | | | | IdentifierDeclarator: b
 | | CompoundStatement
-| | | JumpStatement: return
+| | | ReturnStatement
 | | | | BinaryExpression: +
 | | | | | Identifier: a
 | | | | | Identifier: b
@@ -34,7 +34,7 @@ Program
 | | | | | | IdentifierDeclarator: y
 | | | | | Literal: 20
 | | CompoundStatement
-| | | JumpStatement: return
+| | | ReturnStatement
 | | | | BinaryExpression: *
 | | | | | Identifier: x
 | | | | | Identifier: y
@@ -44,7 +44,7 @@ Program
 | | | FunctionDeclarator
 | | | | IdentifierDeclarator: noop
 | | CompoundStatement
-| | | JumpStatement: return
+| | | ReturnStatement
 | ExpressionStatement
 | | CallExpression
 | | | Identifier: noop
@@ -60,7 +60,7 @@ Program
 | | | | | Declarator
 | | | | | | IdentifierDeclarator: x
 | | CompoundStatement
-| | | JumpStatement: return
+| | | ReturnStatement
 | | | | BinaryExpression: *
 | | | | | Identifier: x
 | | | | | Identifier: x
@@ -86,7 +86,7 @@ Program
 | | | | | | | | Declarator
 | | | | | | | | | IdentifierDeclarator: _val
 | | CompoundStatement
-| | | JumpStatement: return
+| | | ReturnStatement
 | | | | CallExpression
 | | | | | Identifier: proc
 | | | | | Identifier: y

@@ -48,6 +48,9 @@ public:
     virtual void visit(DoWhileStatement& node) = 0;
     virtual void visit(ForStatement& node) = 0;
     virtual void visit(JumpStatement& node) = 0;
+    virtual void visit(GotoStatement& node) = 0;
+    virtual void visit(BreakStatement& node) = 0;
+    virtual void visit(ReturnStatement& node) = 0;
 
     virtual void visit(BinaryExpression& node) = 0;
     virtual void visit(UnaryExpression& node) = 0;

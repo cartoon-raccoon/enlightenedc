@@ -646,16 +646,16 @@ expression_opt:
 // Jump
 jump_statement:
     GOTO IDENTIFIER SEMI {
-        $$ = std::make_unique<JumpStatement>(JumpStatement::GOTO, std::move($2), std::nullopt);
+        $$ = std::make_unique<GotoStatement>($2);
     }
     | BREAK SEMI {
-        $$ = std::make_unique<JumpStatement>(JumpStatement::BREAK, "", std::nullopt);
+        $$ = std::make_unique<BreakStatement>();
     }
     | RETURN SEMI {
-        $$ = std::make_unique<JumpStatement>(JumpStatement::RETURN, "", std::nullopt);
+        $$ = std::make_unique<ReturnStatement>(std::nullopt);
     }
     | RETURN expression SEMI {
-        $$ = std::make_unique<JumpStatement>(JumpStatement::RETURN, "", std::move($2));
+        $$ = std::make_unique<ReturnStatement>(std::move($2));
     }
 ;
 

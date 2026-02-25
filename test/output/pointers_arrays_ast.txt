@@ -34,7 +34,7 @@ Program
 | | | | | Declarator
 | | | | | | IdentifierDeclarator: v
 | | CompoundStatement
-| | | JumpStatement: return
+| | | ReturnStatement
 | | | | CallExpression
 | | | | | Identifier: fn
 | | | | | Identifier: v
@@ -48,7 +48,7 @@ Program
 | | | | | Declarator
 | | | | | | IdentifierDeclarator: x
 | | CompoundStatement
-| | | JumpStatement: return
+| | | ReturnStatement
 | | | | BinaryExpression: *
 | | | | | Identifier: x
 | | | | | Identifier: x
@@ -83,7 +83,7 @@ Program
 | | | | PostfixExpression: ++
 | | | | | MemberAccess: ->value
 | | | | | | Identifier: p
-| | | JumpStatement: return
+| | | ReturnStatement
 | | | | CallExpression
 | | | | | Identifier: apply
 | | | | | Identifier: square
