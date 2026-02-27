@@ -78,3 +78,24 @@ Program
 | | | | | StructDeclarator
 | | | | | | Declarator
 | | | | | | | IdentifierDeclarator: u
+| VariableDeclaration
+| | TypeSpecifier
+| | | StructOrUnionSpecifier: struct VTable
+| | | | StructDeclaration
+| | | | | TypeSpecifier: void
+| | | | | StructDeclarator
+| | | | | | Declarator
+| | | | | | | FunctionDeclarator
+| | | | | | | | ParenDeclarator
+| | | | | | | | | Declarator
+| | | | | | | | | | Pointer
+| | | | | | | | | | IdentifierDeclarator: dispatcher
+| | | | | | | | ParameterDeclaration
+| | | | | | | | | TypeSpecifier: u64
+| | | | | | | | | Declarator
+| | | | | | | | | | IdentifierDeclarator: count
+| ExpressionStatement
+| | CallExpression
+| | | MemberAccess: ->dispatcher
+| | | | Identifier: vtable
+| | | Literal: 69

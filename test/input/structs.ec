@@ -29,3 +29,9 @@ struct Value {
     U8i ch;
   } u;
 };
+
+struct VTable {
+    U0i (*dispatcher) (U64i count);
+};
+
+vtable->dispatcher(69);
