@@ -4,7 +4,9 @@
 #include "util.hpp"
 #include <cstddef>
 #include <string>
+#include <concepts>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace ecc::compiler::types {
 /*
@@ -20,6 +22,7 @@ class UnionType;
 class EnumType;
 class PointerType;
 class FunctionType;
+class TypeContext;
 
 /*
 The base Type class.
@@ -27,6 +30,8 @@ The base Type class.
 EnlightenedC uses an interning type system that stores singletons of each type encountered
 in compilation of the translation unit. Derived types hold pointers to their base types,
 making checking type equality as easy as a pointer comparison.
+
+Type size and member alignment is calculated at compile time, using LLVM's `DataLayout` class.
 */
 class Type {
 public:
@@ -41,13 +46,17 @@ public:
 
     // The kind of the type.
     Kind kind;
-    // The size of the type in bytes.
-    int size;
-
-    Type(Kind kind) : kind(kind) {}
 
     bool is_primitive();
     bool is_pointer();
+
+    /*
+    Check if a type can be implicitly coerced into `other`.
+    */
+    virtual bool is_compatible_with(Type * other) {
+        // at the minimum, enforce strict equality (no subtyping).
+        return other == this;
+    }
 
     /*
     Cast this type to a PrimitiveType *.
@@ -66,10 +75,11 @@ public:
     virtual EnumType *as_enum() { return nullptr; }
     virtual PointerType *as_pointer() { return nullptr; }
     virtual FunctionType *as_function() { return nullptr; }
+
+protected:
+    Type(Kind kind) : kind(kind) {}
     
-    // virtual bool operator==(const Type& rhs) {
-    //     return false; // FIXME
-    // }
+    friend class TypeContext;
 };
 
 /*
@@ -77,6 +87,11 @@ A class representing a primitive type (e.g. U8, U16, F64, etc.)
 
 Primitive types do not hold pointers to other Types, i.e. all
 derived types should resolve to a primitive type.
+
+## Compatibility
+
+Any non-zero-sized PrimitiveType a can implicitly resolve to another
+PrimitiveType b if `b.size() >= a.size()`.
 */
 class PrimitiveType : public Type {
 public:
@@ -92,13 +107,26 @@ public:
         I32,
         I64,
         F64,
+        BOOL,
     };
-
-    PrimitiveType(Kind kind) : Type(Type::Kind::Primitive), primkind(kind) {}
 
     Kind primkind;
 
-    virtual PrimitiveType *as_primitive() override { return this; }
+    int size();
+
+    /*
+    Checks if 
+    */
+    bool is_compatible_with(Type *other) override;
+
+    PrimitiveType *as_primitive() override { return this; }
+
+protected:
+    friend class TypeContext;
+
+    friend constexpr Box<PrimitiveType> std::make_unique<PrimitiveType>(Kind&&);
+
+    PrimitiveType(Kind kind) : Type(Type::Kind::Primitive), primkind(kind) {}
 };
 
 class StructType : public Type {
@@ -106,18 +134,16 @@ public:
     struct StructTypeMember {
         std::string name;
         Type *ty;
-        int offset;
         
-        StructTypeMember(std::string name, Type *ty) : name(name), ty(ty) {
-            // ignore offset, have it populated when added to a StructType.
-        }
+        StructTypeMember(std::string name, Type *ty) : name(name), ty(ty) {}
     };
-
-    // Construct an empty struct.
-    StructType() : Type(Type::Kind::Struct), members() {}
 
     /*
     Whether the struct definition is complete.
+
+    This is used in forward declarations of structs that may not have been fully defined.
+    Once a struct has been defined (i.e. members have been set), this is marked true,
+    preventing the double-definition problem.
     */
     bool complete = false;
 
@@ -125,10 +151,15 @@ public:
 
     void add_member(Box<StructTypeMember> member);
 
-    // Marks a struct as fully defined, and calculates offsets.
-    void finalize();
+    StructType *as_struct() override { return this; }
 
-    virtual StructType *as_struct() override { return this; }
+protected:
+    friend class TypeContext;
+
+    friend constexpr Box<StructType> std::make_unique<StructType>();
+
+    // Construct an empty struct.
+    StructType() : Type(Type::Kind::Struct), members() {}
 };
 
 
@@ -139,8 +170,6 @@ public:
         Type *ty;
     };
 
-    UnionType() : Type(Type::Kind::Union) {}
-
     bool complete = false;
 
     Vec<Box<UnionTypeMember>> members;
@@ -150,33 +179,65 @@ public:
     // Marks a union as fully defined, and calculates offsets.
     void finalize();
 
-    virtual UnionType *as_union() override { return this; }
+    UnionType *as_union() override { return this; }
+
+protected:
+    friend class TypeContext;
+
+    friend constexpr Box<UnionType> std::make_unique<UnionType>();
+
+    UnionType() : Type(Type::Kind::Union) {}
 };
 
 class EnumType : public Type {
 public:
-    EnumType() : Type(Type::Kind::Enum), enumerators() {}
+    struct EnumTypeMember {
+        // the name of the enum variant as declared in the source.
+        std::string name;
+        // the assigned value of the enum variant.
+        int value;
+    };
 
     bool complete = false;
 
-    Vec<std::string> enumerators;
+    Vec<Box<EnumTypeMember>> enumerators;
 
+    // Create an enumerator with an automatically chosen value.
     void add_enumerator(std::string enumerator);
+
+    // Create an enumerator with a provided value.
+    void add_enumerator(std::string enumerator, int value);
 
     // Marks an enum as fully defined.
     void finalize();
 
-    virtual EnumType *as_enum() override { return this; }
+    EnumType *as_enum() override { return this; }
+
+protected:
+    friend class TypeContext;
+
+    friend constexpr Box<EnumType> std::make_unique<EnumType>();
+
+    EnumType() : Type(Type::Kind::Enum), enumerators() {}
+
+private:
+    // existing values that have already been declared.
+    std::unordered_set<int> values;
 };
 
 
 class PointerType : public Type {
 public:
-    PointerType() : Type(Type::Kind::Pointer) {}
-
     Type *base;
 
-    virtual PointerType *as_pointer() override { return this; }
+    PointerType *as_pointer() override { return this; }
+
+protected:
+    friend class TypeContext;
+
+    friend constexpr Box<PointerType> std::make_unique<PointerType>(Type *&);
+    
+    PointerType(Type *base) : Type(Type::Kind::Pointer), base(base) {}
 };
 
 
@@ -185,14 +246,20 @@ public:
     struct FunctionSignature {
         Type *returntype;
         Vec<Type *> params;
+        bool variadic;
     } signature;
-
-    FunctionType() : Type(Type::Kind::Function) {}
 
     // Generate a hash based on the function signature.
     std::size_t hash_sig();
 
-    virtual FunctionType *as_function() override { return this; }
+    FunctionType *as_function() override { return this; }
+
+protected:
+    friend class TypeContext;
+
+    friend constexpr Box<FunctionType> std::make_unique<FunctionType>();
+
+    FunctionType() : Type(Type::Kind::Function) {}
 };
 
 /*
@@ -216,30 +283,61 @@ public:
     // Return a pointer to the PrimitiveType object with `kind`.
     PrimitiveType *get_primitive(PrimitiveType::Kind kind);
 
-    // Create or retrieve a struct with the name `name`.
+    /*
+    Create or retrieve a struct with the name `name`.
+
+    Returns `nullptr` if a type with `name` is already declared, but is not a struct.
+    */
     StructType *get_struct(std::string name);
 
     // Create an anonymous struct.
     StructType *get_struct();
 
-    // Create or retrieve a union with the name `name`.
+    /*
+    Create or retrieve a union with the name `name`.
+
+    Returns `nullptr` if a type with `name` is already declared, but is not a union.
+    */
     UnionType *get_union(std::string name);
 
     // Create an anonymous union.
     UnionType *get_union();
 
+    /*
+    Create or retrieve an enum with the name `name`.
+
+    Returns `nullptr` if a type with `name` is already declared, but is not an enum.
+    */
+    EnumType *get_enum(std::string name);
+
+    // Create an anonymous enum.
+    EnumType *get_enum();
+
     // Create a pointer with the given `base` type.
-    // Returns null if no type corresponding to `base` exists.
     PointerType *get_pointer(Type *base);
 
     // Create a function type based on its signature.
-    FunctionType *get_function(Type *ret, Vec<Type *> params);
+    FunctionType *get_function(Type *ret, Vec<Type *> params, bool variadic);
 
-    // Retrieve the name of a given type.
-    std::string find_name(Type *type);
 private:
     int anonymous_ctr = 0;
-    std::unordered_map<std::string, Box<Type>> types;
+
+    // The map of base types (i.e. non-pointers).
+    std::unordered_map<std::string, Box<Type>> base_types;
+
+    // The map of pointer types, mapped by their base type.
+    std::unordered_map<Type *, Box<PointerType>> pointers;
+
+    template <typename T>
+    requires std::derived_from<T, Type>
+    T *make_insert_type(std::string name) {
+        Box<T> s = std::make_unique<T>();
+
+        auto ret = s.get();
+        base_types.insert({name, std::move(s)});
+
+        return ret;
+    }
 };
 
 }
