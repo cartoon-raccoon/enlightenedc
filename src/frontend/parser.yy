@@ -444,7 +444,7 @@ parameter_type_list:
     parameter_list {
         $$ = { std::move($1), false };
     }
-    | parameter_list COMMA ELLIPSIS {
+    | parameter_list COMMA ELLIPSIS { // variadic function.
         $$ = { std::move($1), true };
     }
 ;
@@ -482,6 +482,7 @@ initializer:
     }
     | LBRACE initializer_list RBRACE { $$ = std::make_unique<Initializer>(std::move($2)); }
     | LBRACE initializer_list COMMA RBRACE { $$ = std::make_unique<Initializer>(std::move($2)); }
+;
 
 initializer_list:
     initializer {
