@@ -11,6 +11,8 @@
 %define api.token.constructor
 // temp to debug
 %define parse.trace
+// todo: create custom error messages
+%define parse.error verbose
 
 
 // Use `code requires` to ensure it gets injected into the header file as well.
@@ -217,7 +219,15 @@ type_qualifier:
     CONST { $$ = std::make_unique<TypeQualifier>(TypeQualifier::CONST); }
 ;
 
-// Classes / unions / enums
+/*
+Classes and unions
+
+Note: this rule does not allow function signatures like
+SomeClass function(params), only class SomeClass function(params).
+
+To solve this, we can add another variant with just IDENTIFIER,
+but this might cause headaches with semantic validation down the line.
+*/
 class_or_union_specifier:
     class_or_union IDENTIFIER LBRACE class_declaration_list RBRACE {
         $$ = std::make_unique<ClassOrUnionSpecifier>($1, std::move($2), std::move($4));

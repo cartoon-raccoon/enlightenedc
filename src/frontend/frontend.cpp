@@ -7,7 +7,6 @@
 using namespace ecc::frontend;
 
 int Frontend::parse(const std::string &filename) {
-    file = filename;
 
     std::ifstream input(filename);
     if (!input.is_open()) {

@@ -1,7 +1,6 @@
 #ifndef ECC_FRONTEND_H
 #define ECC_FRONTEND_H
 
-#include <map>
 #include <string>
 
 #include "frontend/tokens.hpp"
@@ -19,26 +18,15 @@ returning the completed ASTNode when done.
 
 // The object driving the Frontend's functionality.
 class Frontend {
-  public:
+public:
     // Frontend();
 
     ~Frontend() = default;
-
-    std::map<std::string, int> variables;
 
     int result;
 
     // Run the frontend on file `f`. Returns 0 on success.
     int parse(const std::string& filename);
-
-    std::string file;
-
-    void lex_begin();
-
-    void lex_end();
-
-    bool trace_parsing;
-    bool trace_lexing;
 };
 
 // Convert a Bison-defined token to a Tokentype.
