@@ -20,7 +20,6 @@ public:
     void visit(Program& node) override;
     void visit(Function& node) override;
 
-    void visit(Declaration& node) override;
     void visit(TypeDeclaration& node) override;
     void visit(VariableDeclaration& node) override;
     void visit(ParameterDeclaration& node) override;
@@ -42,7 +41,6 @@ public:
     void visit(TypeName& node) override;
     void visit(IdentifierDeclarator& node) override;
 
-    void visit(Statement& node) override;
     void visit(CompoundStatement& node) override;
     void visit(ExpressionStatement& node) override;
     void visit(CaseDefaultStatement& node) override;

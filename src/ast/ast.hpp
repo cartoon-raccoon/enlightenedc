@@ -67,7 +67,7 @@ public:
     Declaration() = default;
     ~Declaration() = default;
 
-    void accept(ASTVisitor& visitor) override;
+    virtual void accept(ASTVisitor& visitor) = 0;
 };
 
 /*
@@ -375,7 +375,7 @@ public:
     Statement() = default;
     ~Statement() = default;
 
-    void accept(ASTVisitor& visitor) override;
+    void accept(ASTVisitor& visitor) = 0;
 };
 
 class CompoundStatement : public Statement {

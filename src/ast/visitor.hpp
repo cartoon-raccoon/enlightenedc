@@ -15,7 +15,6 @@ public:
     virtual void visit(Program& node) = 0;
     virtual void visit(Function& node) = 0;
 
-    virtual void visit(Declaration& node) = 0;
     virtual void visit(TypeDeclaration& node) = 0;
     virtual void visit(VariableDeclaration& node) = 0;
     virtual void visit(ParameterDeclaration& node) = 0;
@@ -37,7 +36,6 @@ public:
     virtual void visit(TypeName& node) = 0;
     virtual void visit(IdentifierDeclarator& node) = 0;
 
-    virtual void visit(Statement& node) = 0;
     virtual void visit(CompoundStatement& node) = 0;
     virtual void visit(ExpressionStatement& node) = 0;
     virtual void visit(CaseDefaultStatement& node) = 0;

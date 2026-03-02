@@ -7,8 +7,6 @@ void Program::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void Function::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
-void Declaration::accept(ASTVisitor& visitor) { visitor.visit(*this); }
-
 void TypeDeclaration::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void VariableDeclaration::accept(ASTVisitor& visitor) { visitor.visit(*this); }
@@ -38,8 +36,6 @@ void EnumSpecifier::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 void Initializer::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void TypeName::accept(ASTVisitor& visitor) { visitor.visit(*this); }
-
-void Statement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void CompoundStatement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 

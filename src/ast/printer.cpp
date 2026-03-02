@@ -591,11 +591,3 @@ void ASTPrinter::visit(SizeofExpression& node) {
             std::get<Box<TypeName>>(node.operand)->accept(*this);
     });
 }
-
-void ASTPrinter::visit(Declaration& node) {
-    std::unreachable();
-}
-
-void ASTPrinter::visit(Statement& node) {
-    std::unreachable();
-}
