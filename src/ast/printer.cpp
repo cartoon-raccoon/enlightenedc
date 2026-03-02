@@ -315,6 +315,13 @@ void ASTPrinter::visit(ReturnStatement& node) {
     );
 }
 
+void ASTPrinter::visit(TypeDeclaration& node) {
+    print_node("TypeDeclaration", node, [&] {
+        for (auto& spec : node.specifiers)
+            spec->accept(*this);
+    });
+}
+
 void ASTPrinter::visit(VariableDeclaration& node) {
     print_node("VariableDeclaration", node, [&] {
         for (auto& spec : node.specifiers)

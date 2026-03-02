@@ -9,6 +9,8 @@ void Function::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void Declaration::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
+void TypeDeclaration::accept(ASTVisitor& visitor) { visitor.visit(*this); }
+
 void VariableDeclaration::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void ParameterDeclaration::accept(ASTVisitor& visitor) { visitor.visit(*this); }

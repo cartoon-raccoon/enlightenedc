@@ -90,6 +90,18 @@ public:
     void accept(ASTVisitor& visitor) override;
 };
 
+// Storage class specifiers (public, static, extern).
+class StorageClassSpecifier : public DeclarationSpecifier {
+public:
+    enum SpecType { PUBLIC, STATIC, EXTERN };
+
+    explicit StorageClassSpecifier(SpecType type) : type(type) {}
+
+    SpecType type;
+
+    void accept(ASTVisitor& visitor) override;
+};
+
 class Pointer : public ASTNode {
 public:
     Pointer(Vec<Box<TypeQualifier>> qualifiers,
@@ -102,7 +114,12 @@ public:
     void accept(ASTVisitor& visitor) override;
 };
 
-class DirectDeclarator : public ASTNode {};
+/*
+A non-pointer declarator abstract class.
+*/
+class DirectDeclarator : public ASTNode {
+
+};
 
 // Initializers
 class Initializer : public ASTNode {
@@ -134,7 +151,7 @@ public:
 };
 
 /*
-A declarator initializing a variable.
+A declarator initializing a variable, e.g. 
 */
 class InitDeclarator : public ASTNode {
 public:
@@ -165,9 +182,20 @@ public:
 };
 
 /*
-A variable declaration (e.g. `U32 x = 5;`, `struct Flags {U16 x; bool y} = {3, true}`).
+A Declaration of a type (i.e. a declaration of only specifiers, no InitDeclarators).
+*/
+class TypeDeclaration : public Declaration {
+public:
+    TypeDeclaration(Vec<Box<DeclarationSpecifier>> specifiers)
+    : specifiers(std::move(specifiers)) {}
 
-A variable declaration with no init declarators is treated as a type declaration.
+    Vec<Box<DeclarationSpecifier>> specifiers;
+
+    void accept(ASTVisitor& visitor) override;
+};
+
+/*
+A variable declaration (e.g. `U32 x = 5;`, `struct Flags {U16 x; bool y} = {3, true}`).
 */
 class VariableDeclaration : public Declaration {
 public:
@@ -191,6 +219,11 @@ public:
     void accept(ASTVisitor& visitor) override;
 };
 
+/*
+A declarator surrounded by parentheses (e.g. `(decl)`).
+
+Used mainly in function pointers, e.g. `void (*fptr) (params)`.
+*/
 class ParenDeclarator : public DirectDeclarator {
 public:
     Box<Declarator> inner;
@@ -262,18 +295,6 @@ public:
 
     std::string name;
     std::optional<Box<Expression>> value;
-
-    void accept(ASTVisitor& visitor) override;
-};
-
-// Storage class specifiers.
-class StorageClassSpecifier : public DeclarationSpecifier {
-public:
-    enum SpecType { PUBLIC, STATIC, EXTERN };
-
-    explicit StorageClassSpecifier(SpecType type) : type(type) {}
-
-    SpecType type;
 
     void accept(ASTVisitor& visitor) override;
 };

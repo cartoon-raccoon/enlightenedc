@@ -21,6 +21,7 @@ public:
     void visit(Function& node) override;
 
     void visit(Declaration& node) override;
+    void visit(TypeDeclaration& node) override;
     void visit(VariableDeclaration& node) override;
     void visit(ParameterDeclaration& node) override;
     void visit(Declarator& node) override;

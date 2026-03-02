@@ -1,5 +1,6 @@
 Program
-| VariableDeclaration
+| TypeDeclaration
+| | StorageClassSpecifier: public
 | | TypeSpecifier
 | | | StructOrUnionSpecifier: struct Point
 | | | | StructDeclaration
@@ -12,7 +13,8 @@ Program
 | | | | | StructDeclarator
 | | | | | | Declarator
 | | | | | | | IdentifierDeclarator: y
-| VariableDeclaration
+| | StorageClassSpecifier: extern
+| TypeDeclaration
 | | TypeSpecifier
 | | | StructOrUnionSpecifier: union Data
 | | | | StructDeclaration
@@ -25,17 +27,17 @@ Program
 | | | | | StructDeclarator
 | | | | | | Declarator
 | | | | | | | IdentifierDeclarator: f
-| VariableDeclaration
+| TypeDeclaration
 | | TypeSpecifier
 | | | EnumSpecifier: Color
 | | | | Enumerator: RED
 | | | | Enumerator: GREEN
 | | | | | Literal: 5
 | | | | Enumerator: BLUE
-| VariableDeclaration
+| TypeDeclaration
 | | TypeSpecifier
 | | | EnumSpecifier: Forward
-| VariableDeclaration
+| TypeDeclaration
 | | TypeSpecifier
 | | | StructOrUnionSpecifier: struct Flags
 | | | | StructDeclaration
@@ -54,7 +56,7 @@ Program
 | | | | | TypeSpecifier: u8
 | | | | | StructDeclarator
 | | | | | | Literal: 5
-| VariableDeclaration
+| TypeDeclaration
 | | TypeSpecifier
 | | | StructOrUnionSpecifier: struct Value
 | | | | StructDeclaration
@@ -78,7 +80,7 @@ Program
 | | | | | StructDeclarator
 | | | | | | Declarator
 | | | | | | | IdentifierDeclarator: u
-| VariableDeclaration
+| TypeDeclaration
 | | TypeSpecifier
 | | | StructOrUnionSpecifier: struct VTable
 | | | | StructDeclaration

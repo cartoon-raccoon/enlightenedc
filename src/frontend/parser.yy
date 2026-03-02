@@ -96,7 +96,6 @@ static ecc::parser::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 
 %type <Vec<Box<Declaration>>> declaration_list
 %type <Vec<Box<DeclarationSpecifier>>> declaration_specifier_list specifier_qualifier_list
-%type <Vec<Box<InitDeclarator>>> declaration_after_type
 %type <Box<DeclarationSpecifier>> declaration_specifier storage_class_specifier type_specifier
 %type <Box<TypeQualifier>> type_qualifier
 %type <Vec<Box<TypeQualifier>>> type_qualifier_list
@@ -163,18 +162,11 @@ function_definition:
 
 // Declarations
 declaration:
-    declaration_specifier_list declaration_after_type {
+    declaration_specifier_list SEMI {
+        $$ = std::make_unique<TypeDeclaration>(std::move($1));
+    }
+    | declaration_specifier_list init_declarator_list SEMI {
         $$ = std::make_unique<VariableDeclaration>(std::move($1), std::move($2));
-    }
-;
-
-
-declaration_after_type:
-    SEMI {
-        $$ = Vec<Box<InitDeclarator>>{};
-    }
-| init_declarator_list SEMI {
-        $$ = std::move($1);
     }
 ;
 

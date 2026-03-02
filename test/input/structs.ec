@@ -1,7 +1,7 @@
-struct Point {
+public struct Point {
     I32i x;
     I32i y;
-};
+} extern;
 
 union Data {
     U32i i;
