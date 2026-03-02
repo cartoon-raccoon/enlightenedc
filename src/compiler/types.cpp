@@ -11,7 +11,7 @@ bool Type::is_primitive() { return kind == Kind::Primitive; }
 
 bool Type::is_pointer() { return kind == Kind::Pointer; }
 
-void StructType::add_member(Box<StructType::StructTypeMember> member) {
+void ClassType::add_member(Box<ClassType::ClassTypeMember> member) {
     members.push_back(std::move(member));
 }
 
@@ -131,28 +131,63 @@ int PrimitiveType::size() {
     std::unreachable();
 }
 
+bool PrimitiveType::is_integer() {
+    switch (primkind) {
+        case U0:
+        case U8:
+        case U16:
+        case U32:
+        case U64:
+        case I0:
+        case I8:
+        case I16:
+        case I32:
+        case I64:
+        case BOOL:
+        return true;
+        case F64:
+        return false;
+    }
+    
+    return false;
+}
+
 bool PrimitiveType::is_compatible_with(Type *other) {
+    // Only primitive types allowed
     if (other->kind != Type::Kind::Primitive) {
         return false;
     }
 
     PrimitiveType *new_other = static_cast<PrimitiveType *>(other);
 
+    // If either is not an integer, return false
+    if (!this->is_integer() || !new_other->is_integer()) {
+        return false;
+    }
+
     int my_size = this->size();
 
     return true ? 0 < my_size && my_size <= new_other->size() : false;
 }
 
-StructType *TypeContext::get_struct(std::string name) {
+bool PointerType::is_compatible_with(Type *other) {
+    return false; // todo
+}
+
+bool EnumType::is_compatible_with(Type *other) {
+    return false; // todo
+}
+
+ClassType *TypeContext::get_class(std::string name) {
     if (base_types.contains(name)) {
-        return base_types.find(name)->second.get()->as_struct();
+        return base_types.find(name)->second.get()->as_class();
     }
 
     // If no struct matching the name, make a new struct
-    return make_insert_type<StructType>(name);
+    return make_insert_type<ClassType>(name);
 }
 
-StructType *TypeContext::get_struct() {
+ClassType *TypeContext::get_class() {
     /*
     In EnlightenedC (and most C-family languages), two structs are considered
     equal iff they have the same name. (If two structs are named the same but
@@ -165,7 +200,7 @@ StructType *TypeContext::get_struct() {
     auto name = "anon_struct_" + std::to_string(anonymous_ctr);
     anonymous_ctr++;
 
-    return make_insert_type<StructType>(name);
+    return make_insert_type<ClassType>(name);
 }
 
 UnionType *TypeContext::get_union(std::string name) {

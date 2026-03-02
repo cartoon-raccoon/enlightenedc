@@ -17,7 +17,7 @@ using namespace util;
 using namespace ecc;
 
 class PrimitiveType;
-class StructType;
+class ClassType;
 class UnionType;
 class EnumType;
 class PointerType;
@@ -31,13 +31,16 @@ EnlightenedC uses an interning type system that stores singletons of each type e
 in compilation of the translation unit. Derived types hold pointers to their base types,
 making checking type equality as easy as a pointer comparison.
 
+In order to enforce the type equality = pointer equality property, Types cannot be created externally.
+They are instead created and managed by a `TypeContext`, and are retrieved using its `get_*` methods.
+
 Type size and member alignment is calculated at compile time, using LLVM's `DataLayout` class.
 */
 class Type {
 public:
     enum Kind {
         Primitive,
-        Struct,
+        Class,
         Union,
         Enum,
         Pointer,
@@ -51,7 +54,11 @@ public:
     bool is_pointer();
 
     /*
-    Check if a type can be implicitly coerced into `other`.
+    Check if a type can be implicitly coerced into `other` without a cast,
+    i.e. the compiler will insert a cast expression to handle it.
+
+    Note that this relationship is not symmetric; if `this` is compatible
+    with `other`, this does not mean `other` is compatible with `this`.
     */
     virtual bool is_compatible_with(Type * other) {
         // at the minimum, enforce strict equality (no subtyping).
@@ -66,11 +73,11 @@ public:
     virtual PrimitiveType *as_primitive() { return nullptr; }
 
     /*
-    Cast this type to a StructType *.
+    Cast this type to a ClassType *.
 
-    Returns null if the underlying type is not a StructType.
+    Returns null if the underlying type is not a ClassType.
     */
-    virtual StructType *as_struct() { return nullptr; }
+    virtual ClassType *as_class() { return nullptr; }
     virtual UnionType *as_union() { return nullptr; }
     virtual EnumType *as_enum() { return nullptr; }
     virtual PointerType *as_pointer() { return nullptr; }
@@ -83,7 +90,7 @@ protected:
 };
 
 /*
-A class representing a primitive type (e.g. U8, U16, F64, etc.)
+A primitive type (e.g. U8, U16, F64, etc.)
 
 Primitive types do not hold pointers to other Types, i.e. all
 derived types should resolve to a primitive type.
@@ -91,7 +98,11 @@ derived types should resolve to a primitive type.
 ## Compatibility
 
 Any non-zero-sized PrimitiveType a can implicitly resolve to another
-PrimitiveType b if `b.size() >= a.size()`.
+PrimitiveType b if `b.size() >= a.size()`, regardless of signedness.
+
+Floats are not compatible with any other primitive type.
+
+Zero-sized types (U0, I0) cannot be implicitly converted to other types.
 */
 class PrimitiveType : public Type {
 public:
@@ -114,10 +125,11 @@ public:
 
     int size();
 
-    /*
-    Checks if 
-    */
     bool is_compatible_with(Type *other) override;
+
+    // Whether this Primitive type can be implicitly represented as an integer.
+    // Returns true for all primitive types except F64.
+    bool is_integer();
 
     PrimitiveType *as_primitive() override { return this; }
 
@@ -129,37 +141,37 @@ protected:
     PrimitiveType(Kind kind) : Type(Type::Kind::Primitive), primkind(kind) {}
 };
 
-class StructType : public Type {
+class ClassType : public Type {
 public:
-    struct StructTypeMember {
+    struct ClassTypeMember {
         std::string name;
         Type *ty;
         
-        StructTypeMember(std::string name, Type *ty) : name(name), ty(ty) {}
+        ClassTypeMember(std::string name, Type *ty) : name(name), ty(ty) {}
     };
 
     /*
-    Whether the struct definition is complete.
+    Whether the class definition is complete.
 
-    This is used in forward declarations of structs that may not have been fully defined.
-    Once a struct has been defined (i.e. members have been set), this is marked true,
+    This is used in forward declarations of classes that may not have been fully defined.
+    Once a class has been defined (i.e. members have been set), this is marked true,
     preventing the double-definition problem.
     */
     bool complete = false;
 
-    Vec<Box<StructTypeMember>> members;
+    Vec<Box<ClassTypeMember>> members;
 
-    void add_member(Box<StructTypeMember> member);
+    void add_member(Box<ClassTypeMember> member);
 
-    StructType *as_struct() override { return this; }
+    ClassType *as_class() override { return this; }
 
 protected:
     friend class TypeContext;
 
-    friend constexpr Box<StructType> std::make_unique<StructType>();
+    friend constexpr Box<ClassType> std::make_unique<ClassType>();
 
-    // Construct an empty struct.
-    StructType() : Type(Type::Kind::Struct), members() {}
+    // Construct an empty class.
+    ClassType() : Type(Type::Kind::Class), members() {}
 };
 
 
@@ -189,6 +201,14 @@ protected:
     UnionType() : Type(Type::Kind::Union) {}
 };
 
+
+/*
+An enumerated type (e.g. `enum State { DONE, PENDING }`).
+
+## Compatibility
+
+An enum type is compatible with any integer primitive type, but not vice versa.
+*/
 class EnumType : public Type {
 public:
     struct EnumTypeMember {
@@ -208,6 +228,8 @@ public:
     // Create an enumerator with a provided value.
     void add_enumerator(std::string enumerator, int value);
 
+    bool is_compatible_with(Type *other) override;
+
     // Marks an enum as fully defined.
     void finalize();
 
@@ -226,11 +248,23 @@ private:
 };
 
 
+/*
+A pointer type (U8 *, I32 **, etc.)
+
+## Compatibility
+
+A pointer `ptr` is only compatible with another pointer `other` if:
+
+the base type of `other` is a void type (U0 or U0), and
+the level of nesting is the same (i.e. U8 ** is compatible with U0 **, but not U0 ***).
+*/
 class PointerType : public Type {
 public:
     Type *base;
 
     PointerType *as_pointer() override { return this; }
+
+    bool is_compatible_with(Type *other) override;
 
 protected:
     friend class TypeContext;
@@ -284,14 +318,14 @@ public:
     PrimitiveType *get_primitive(PrimitiveType::Kind kind);
 
     /*
-    Create or retrieve a struct with the name `name`.
+    Create or retrieve a class with the name `name`.
 
-    Returns `nullptr` if a type with `name` is already declared, but is not a struct.
+    Returns `nullptr` if a type with `name` is already declared, but is not a class.
     */
-    StructType *get_struct(std::string name);
+    ClassType *get_class(std::string name);
 
-    // Create an anonymous struct.
-    StructType *get_struct();
+    // Create an anonymous class.
+    ClassType *get_class();
 
     /*
     Create or retrieve a union with the name `name`.
