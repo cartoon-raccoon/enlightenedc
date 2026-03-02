@@ -403,9 +403,9 @@ void ASTPrinter::visit(Pointer& node) {
         });
 }
 
-void ASTPrinter::visit(StructDeclarator& node) {
+void ASTPrinter::visit(ClassDeclarator& node) {
     print_node(
-        "StructDeclarator", node,
+        "ClassDeclarator", node,
         [&] {
             if (node.declarator)
                 node.declarator.value()->accept(*this);
@@ -416,8 +416,8 @@ void ASTPrinter::visit(StructDeclarator& node) {
         });
 }
 
-void ASTPrinter::visit(StructDeclaration& node) {
-    print_node("StructDeclaration", node, [&] {
+void ASTPrinter::visit(ClassDeclaration& node) {
+    print_node("ClassDeclaration", node, [&] {
         for (auto& spec : node.specifiers)
             spec->accept(*this);
         for (auto& decl : node.declarators)
@@ -441,10 +441,10 @@ void ASTPrinter::visit(TypeSpecifier& node) {
     if (std::holds_alternative<TypeSpecifier::Primitive>(node.type)) {
         auto prim = std::get<TypeSpecifier::Primitive>(node.type);
         print_node("TypeSpecifier: " + primitive_to_string(prim), node);
-    } else if (std::holds_alternative<Box<StructOrUnionSpecifier>>(
+    } else if (std::holds_alternative<Box<ClassOrUnionSpecifier>>(
                     node.type)) {
         print_node("TypeSpecifier", node, [&] {
-            std::get<Box<StructOrUnionSpecifier>>(node.type)->accept(*this);
+            std::get<Box<ClassOrUnionSpecifier>>(node.type)->accept(*this);
         });
     } else if (std::holds_alternative<Box<EnumSpecifier>>(node.type)) {
         print_node("TypeSpecifier", node, [&] {
@@ -467,11 +467,11 @@ void ASTPrinter::visit(EnumSpecifier& node) {
                 });
 }
 
-void ASTPrinter::visit(StructOrUnionSpecifier& node) {
+void ASTPrinter::visit(ClassOrUnionSpecifier& node) {
     std::string kind =
-        node.kind == StructOrUnionSpecifier::STRUCT ? "struct" : "union";
+        node.kind == ClassOrUnionSpecifier::CLASS ? "class" : "union";
 
-    print_node("StructOrUnionSpecifier: " + kind +
+    print_node("ClassOrUnionSpecifier: " + kind +
                     (node.name ? " " + node.name.value() : ""),
                 node, [&] {
                     if (node.declarations)

@@ -204,7 +204,7 @@ public:
 };
 
 /*
-A variable declaration (e.g. `U32 x = 5;`, `struct Flags {U16 x; bool y} = {3, true}`).
+A variable declaration (e.g. `U32 x = 5;`, `class Flags {U16 x; bool y} = {3, true}`).
 */
 class VariableDeclaration : public Declaration {
 public:
@@ -269,9 +269,9 @@ public:
     void accept(ASTVisitor& visitor) override;
 };
 
-class StructDeclarator : public ASTNode {
+class ClassDeclarator : public ASTNode {
 public:
-    StructDeclarator(std::optional<Box<Declarator>> declarator,
+    ClassDeclarator(std::optional<Box<Declarator>> declarator,
                      std::optional<Box<Expression>> bit_width)
         : declarator(std::move(declarator)), bit_width(std::move(bit_width)) {}
 
@@ -282,17 +282,17 @@ public:
 };
 
 /*
-Declaration of one or more struct members.
+Declaration of one or more class members.
 */
-class StructDeclaration : public ASTNode {
+class ClassDeclaration : public ASTNode {
 public:
-    StructDeclaration(Vec<Box<DeclarationSpecifier>> specifiers,
-                      Vec<Box<StructDeclarator>> declarators)
+    ClassDeclaration(Vec<Box<DeclarationSpecifier>> specifiers,
+                      Vec<Box<ClassDeclarator>> declarators)
         : specifiers(std::move(specifiers)),
           declarators(std::move(declarators)) {}
 
     Vec<Box<DeclarationSpecifier>> specifiers;
-    Vec<Box<StructDeclarator>> declarators;
+    Vec<Box<ClassDeclarator>> declarators;
 
     void accept(ASTVisitor& visitor) override;
 };
@@ -309,20 +309,20 @@ public:
 };
 
 /*
-A node denoting a struct or union and what members it contains.
+A node denoting a class or union and what members it contains.
 */
-class StructOrUnionSpecifier : public ASTNode {
+class ClassOrUnionSpecifier : public ASTNode {
 public:
-    enum Kind { STRUCT, UNION };
+    enum Kind { CLASS, UNION };
 
     Kind kind;
     std::optional<std::string> name;
 
-    std::optional<Vec<Box<StructDeclaration>>> declarations;
+    std::optional<Vec<Box<ClassDeclaration>>> declarations;
 
-    StructOrUnionSpecifier(
+    ClassOrUnionSpecifier(
         Kind kind, std::optional<std::string> name,
-        std::optional<Vec<Box<StructDeclaration>>> declarations)
+        std::optional<Vec<Box<ClassDeclaration>>> declarations)
         : kind(kind), name(std::move(name)),
           declarations(std::move(declarations)) {}
 
@@ -366,16 +366,16 @@ public:
         BOOL
     };
     
-    // The type of the specifier: Primitive, Struct/Union, Enum.
+    // The type of the specifier: Primitive, Class/Union, Enum.
     std::variant<
         Primitive, 
-        Box<StructOrUnionSpecifier>, 
+        Box<ClassOrUnionSpecifier>, 
         Box<EnumSpecifier>
     > type;
 
     explicit TypeSpecifier(Primitive prim) : type(prim) {}
 
-    explicit TypeSpecifier(Box<StructOrUnionSpecifier> s)
+    explicit TypeSpecifier(Box<ClassOrUnionSpecifier> s)
         : type(std::move(s)) {}
 
     explicit TypeSpecifier(Box<EnumSpecifier> e) : type(std::move(e)) {}

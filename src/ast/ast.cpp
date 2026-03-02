@@ -17,9 +17,9 @@ void InitDeclarator::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void Pointer::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
-void StructDeclarator::accept(ASTVisitor& visitor) { visitor.visit(*this); }
+void ClassDeclarator::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
-void StructDeclaration::accept(ASTVisitor& visitor) { visitor.visit(*this); }
+void ClassDeclaration::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void Enumerator::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
@@ -105,7 +105,7 @@ void ArrayDeclarator::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void FunctionDeclarator::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
-void StructOrUnionSpecifier::accept(ASTVisitor& visitor) {
+void ClassOrUnionSpecifier::accept(ASTVisitor& visitor) {
     visitor.visit(*this);
 }
 

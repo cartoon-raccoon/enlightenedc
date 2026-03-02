@@ -4,21 +4,21 @@ Program
 | | InitDeclarator
 | | | Declarator
 | | | | IdentifierDeclarator: x
-| | | Initializer
+| | | Initializer: 
 | | | | Literal: 0
 | VariableDeclaration
 | | TypeSpecifier: u32
 | | InitDeclarator
 | | | Declarator
 | | | | IdentifierDeclarator: a
-| | | Initializer
+| | | Initializer: 
 | | | | Literal: 1
 | VariableDeclaration
 | | TypeSpecifier: u32
 | | InitDeclarator
 | | | Declarator
 | | | | IdentifierDeclarator: b
-| | | Initializer
+| | | Initializer: 
 | | | | Literal: 2
 | ExpressionStatement
 | | AssignmentExpression: =

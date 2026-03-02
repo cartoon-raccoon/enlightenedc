@@ -38,7 +38,7 @@
 "break" { return ecc::parser::Parser::make_BREAK(loc); }
 "return" { return ecc::parser::Parser::make_RETURN(loc); }
 "goto" { return ecc::parser::Parser::make_GOTO(loc); }
-"struct" { return ecc::parser::Parser::make_STRUCT(loc); }
+"class" { return ecc::parser::Parser::make_CLASS(loc); }
 "union" { return ecc::parser::Parser::make_UNION(loc); }
 "enum" { return ecc::parser::Parser::make_ENUM(loc); }
 "const" { return ecc::parser::Parser::make_CONST(loc); }

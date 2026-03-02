@@ -29,14 +29,14 @@ public:
     void visit(FunctionDeclarator& node) override;
     void visit(InitDeclarator& node) override;
     void visit(Pointer& node) override;
-    void visit(StructDeclarator& node) override;
-    void visit(StructDeclaration& node) override;
+    void visit(ClassDeclarator& node) override;
+    void visit(ClassDeclaration& node) override;
     void visit(Enumerator& node) override;
     void visit(StorageClassSpecifier& node) override;
     void visit(TypeSpecifier& node) override;
     void visit(TypeQualifier& node) override;
     void visit(EnumSpecifier& node) override;
-    void visit(StructOrUnionSpecifier& node) override;
+    void visit(ClassOrUnionSpecifier& node) override;
     void visit(Initializer& node) override;
     void visit(TypeName& node) override;
     void visit(IdentifierDeclarator& node) override;

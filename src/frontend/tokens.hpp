@@ -21,7 +21,7 @@ enum TokenType {
     BREAK,
     RETURN,
     GOTO,
-    STRUCT,
+    CLASS,
     UNION,
     ENUM,
     CONST,

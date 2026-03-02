@@ -2,29 +2,29 @@ Program
 | TypeDeclaration
 | | StorageClassSpecifier: public
 | | TypeSpecifier
-| | | StructOrUnionSpecifier: struct Point
-| | | | StructDeclaration
+| | | ClassOrUnionSpecifier: class Point
+| | | | ClassDeclaration
 | | | | | TypeSpecifier: i32
-| | | | | StructDeclarator
+| | | | | ClassDeclarator
 | | | | | | Declarator
 | | | | | | | IdentifierDeclarator: x
-| | | | StructDeclaration
+| | | | ClassDeclaration
 | | | | | TypeSpecifier: i32
-| | | | | StructDeclarator
+| | | | | ClassDeclarator
 | | | | | | Declarator
 | | | | | | | IdentifierDeclarator: y
 | | StorageClassSpecifier: extern
 | TypeDeclaration
 | | TypeSpecifier
-| | | StructOrUnionSpecifier: union Data
-| | | | StructDeclaration
+| | | ClassOrUnionSpecifier: union Data
+| | | | ClassDeclaration
 | | | | | TypeSpecifier: u32
-| | | | | StructDeclarator
+| | | | | ClassDeclarator
 | | | | | | Declarator
 | | | | | | | IdentifierDeclarator: i
-| | | | StructDeclaration
+| | | | ClassDeclaration
 | | | | | TypeSpecifier: f64
-| | | | | StructDeclarator
+| | | | | ClassDeclarator
 | | | | | | Declarator
 | | | | | | | IdentifierDeclarator: f
 | TypeDeclaration
@@ -39,53 +39,53 @@ Program
 | | | EnumSpecifier: Forward
 | TypeDeclaration
 | | TypeSpecifier
-| | | StructOrUnionSpecifier: struct Flags
-| | | | StructDeclaration
+| | | ClassOrUnionSpecifier: class Flags
+| | | | ClassDeclaration
 | | | | | TypeSpecifier: u8
-| | | | | StructDeclarator
+| | | | | ClassDeclarator
 | | | | | | Declarator
 | | | | | | | IdentifierDeclarator: a
 | | | | | | Literal: 1
-| | | | StructDeclaration
+| | | | ClassDeclaration
 | | | | | TypeSpecifier: u8
-| | | | | StructDeclarator
+| | | | | ClassDeclarator
 | | | | | | Declarator
 | | | | | | | IdentifierDeclarator: b
 | | | | | | Literal: 2
-| | | | StructDeclaration
+| | | | ClassDeclaration
 | | | | | TypeSpecifier: u8
-| | | | | StructDeclarator
+| | | | | ClassDeclarator
 | | | | | | Literal: 5
 | TypeDeclaration
 | | TypeSpecifier
-| | | StructOrUnionSpecifier: struct Value
-| | | | StructDeclaration
+| | | ClassOrUnionSpecifier: class Value
+| | | | ClassDeclaration
 | | | | | TypeSpecifier: i32
-| | | | | StructDeclarator
+| | | | | ClassDeclarator
 | | | | | | Declarator
 | | | | | | | IdentifierDeclarator: type
-| | | | StructDeclaration
+| | | | ClassDeclaration
 | | | | | TypeSpecifier
-| | | | | | StructOrUnionSpecifier: union
-| | | | | | | StructDeclaration
+| | | | | | ClassOrUnionSpecifier: union
+| | | | | | | ClassDeclaration
 | | | | | | | | TypeSpecifier: f64
-| | | | | | | | StructDeclarator
+| | | | | | | | ClassDeclarator
 | | | | | | | | | Declarator
 | | | | | | | | | | IdentifierDeclarator: f
-| | | | | | | StructDeclaration
+| | | | | | | ClassDeclaration
 | | | | | | | | TypeSpecifier: u8
-| | | | | | | | StructDeclarator
+| | | | | | | | ClassDeclarator
 | | | | | | | | | Declarator
 | | | | | | | | | | IdentifierDeclarator: ch
-| | | | | StructDeclarator
+| | | | | ClassDeclarator
 | | | | | | Declarator
 | | | | | | | IdentifierDeclarator: u
 | TypeDeclaration
 | | TypeSpecifier
-| | | StructOrUnionSpecifier: struct VTable
-| | | | StructDeclaration
+| | | ClassOrUnionSpecifier: class VTable
+| | | | ClassDeclaration
 | | | | | TypeSpecifier: void
-| | | | | StructDeclarator
+| | | | | ClassDeclarator
 | | | | | | Declarator
 | | | | | | | FunctionDeclarator
 | | | | | | | | ParenDeclarator

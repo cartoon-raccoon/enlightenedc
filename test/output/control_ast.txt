@@ -8,10 +8,19 @@ Program
 | | | | ExpressionStatement
 | | | | | PostfixExpression: ++
 | | | | | | Identifier: n
-| | | CompoundStatement
-| | | | ExpressionStatement
-| | | | | PostfixExpression: --
-| | | | | | Identifier: n
+| | | IfStatement
+| | | | BinaryExpression: >
+| | | | | Identifier: n
+| | | | | Literal: 11
+| | | | CompoundStatement
+| | | | | ExpressionStatement
+| | | | | | PostfixExpression: --
+| | | | | | | Identifier: n
+| | | | CompoundStatement
+| | | | | ExpressionStatement
+| | | | | | AssignmentExpression: +=
+| | | | | | | Identifier: n
+| | | | | | | Literal: 2
 | SwitchStatement
 | | Identifier: n
 | | CompoundStatement

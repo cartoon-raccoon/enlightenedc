@@ -8,10 +8,10 @@ public I32i compute(I32i x = 10, I32i y = 20, ...) {
 
     U64i new2 = new + 1;
 
-    struct {
+    class {
         U32i hello;
     };
-    
+
     return x * y;
 }
 

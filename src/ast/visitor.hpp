@@ -24,14 +24,14 @@ public:
     virtual void visit(FunctionDeclarator& node) = 0;
     virtual void visit(InitDeclarator& node) = 0;
     virtual void visit(Pointer& node) = 0;
-    virtual void visit(StructDeclarator& node) = 0;
-    virtual void visit(StructDeclaration& node) = 0;
+    virtual void visit(ClassDeclarator& node) = 0;
+    virtual void visit(ClassDeclaration& node) = 0;
     virtual void visit(Enumerator& node) = 0;
     virtual void visit(StorageClassSpecifier& node) = 0;
     virtual void visit(TypeSpecifier& node) = 0;
     virtual void visit(TypeQualifier& node) = 0;
     virtual void visit(EnumSpecifier& node) = 0;
-    virtual void visit(StructOrUnionSpecifier& node) = 0;
+    virtual void visit(ClassOrUnionSpecifier& node) = 0;
     virtual void visit(Initializer& node) = 0;
     virtual void visit(TypeName& node) = 0;
     virtual void visit(IdentifierDeclarator& node) = 0;

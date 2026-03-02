@@ -57,7 +57,7 @@ static ecc::parser::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 
 // Keywords
 %token IF ELSE WHILE DO FOR SWITCH CASE DEFAULT BREAK RETURN GOTO TRUE FALSE
-%token STRUCT UNION ENUM CONST VOID U8 U16 U32 U64 I0 I8 I16 I32 I64 F64 BOOL SIZEOF
+%token CLASS UNION ENUM CONST VOID U8 U16 U32 U64 I0 I8 I16 I32 I64 F64 BOOL SIZEOF
 %token PUBLIC STATIC EXTERN
 
 // Operators
@@ -110,13 +110,13 @@ static ecc::parser::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 %type <Box<ParameterDeclaration>> parameter_declaration
 %type <std::pair<Vec<Box<ParameterDeclaration>>, bool>> parameter_type_list
 
-%type <StructOrUnionSpecifier::Kind> struct_or_union
-%type <Box<StructOrUnionSpecifier>> struct_or_union_specifier
+%type <ClassOrUnionSpecifier::Kind> class_or_union
+%type <Box<ClassOrUnionSpecifier>> class_or_union_specifier
 %type <Box<EnumSpecifier>> enum_specifier
-%type <Vec<Box<StructDeclaration>>> struct_declaration_list
-%type <Box<StructDeclaration>> struct_declaration
-%type <Vec<Box<StructDeclarator>>> struct_declarator_list
-%type <Box<StructDeclarator>> struct_declarator
+%type <Vec<Box<ClassDeclaration>>> class_declaration_list
+%type <Box<ClassDeclaration>> class_declaration
+%type <Vec<Box<ClassDeclarator>>> class_declarator_list
+%type <Box<ClassDeclarator>> class_declarator
 %type <Vec<Box<Enumerator>>> enumerator_list
 %type <Box<Enumerator>> enumerator
 
@@ -209,7 +209,7 @@ type_specifier:
     | I64 { $$ = std::make_unique<TypeSpecifier>(TypeSpecifier::I64); }
     | F64 { $$ = std::make_unique<TypeSpecifier>(TypeSpecifier::F64); }
     | BOOL { $$ = std::make_unique<TypeSpecifier>(TypeSpecifier::BOOL); }
-    | struct_or_union_specifier { $$ = std::make_unique<TypeSpecifier>(std::move($1)); }
+    | class_or_union_specifier { $$ = std::make_unique<TypeSpecifier>(std::move($1)); }
     | enum_specifier { $$ = std::make_unique<TypeSpecifier>(std::move($1)); }
 ;
 
@@ -217,39 +217,39 @@ type_qualifier:
     CONST { $$ = std::make_unique<TypeQualifier>(TypeQualifier::CONST); }
 ;
 
-// Structs / unions / enums
-struct_or_union_specifier:
-    struct_or_union IDENTIFIER LBRACE struct_declaration_list RBRACE {
-        $$ = std::make_unique<StructOrUnionSpecifier>($1, std::move($2), std::move($4));
+// Classes / unions / enums
+class_or_union_specifier:
+    class_or_union IDENTIFIER LBRACE class_declaration_list RBRACE {
+        $$ = std::make_unique<ClassOrUnionSpecifier>($1, std::move($2), std::move($4));
     }
-    | struct_or_union LBRACE struct_declaration_list RBRACE {
-        $$ = std::make_unique<StructOrUnionSpecifier>($1, std::nullopt, std::move($3));
+    | class_or_union LBRACE class_declaration_list RBRACE {
+        $$ = std::make_unique<ClassOrUnionSpecifier>($1, std::nullopt, std::move($3));
     }
-    | struct_or_union IDENTIFIER {
-        $$ = std::make_unique<StructOrUnionSpecifier>($1, std::move($2), std::nullopt);
+    | class_or_union IDENTIFIER {
+        $$ = std::make_unique<ClassOrUnionSpecifier>($1, std::move($2), std::nullopt);
     }
 ;
 
-struct_or_union:
-    STRUCT { $$ = StructOrUnionSpecifier::STRUCT; }
-    | UNION { $$ = StructOrUnionSpecifier::UNION; }
+class_or_union:
+    CLASS { $$ = ClassOrUnionSpecifier::CLASS; }
+    | UNION { $$ = ClassOrUnionSpecifier::UNION; }
 ;
 
-struct_declaration_list:
-    struct_declaration {
-        Vec<Box<StructDeclaration>> list;
+class_declaration_list:
+    class_declaration {
+        Vec<Box<ClassDeclaration>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
-    | struct_declaration_list struct_declaration {
+    | class_declaration_list class_declaration {
         $1.push_back(std::move($2));
         $$ = std::move($1);
     }
 ;
 
-struct_declaration:
-    specifier_qualifier_list struct_declarator_list SEMI {
-        $$ = std::make_unique<StructDeclaration>(std::move($1), std::move($2));
+class_declaration:
+    specifier_qualifier_list class_declarator_list SEMI {
+        $$ = std::make_unique<ClassDeclaration>(std::move($1), std::move($2));
     }
 ;
 
@@ -274,30 +274,30 @@ specifier_qualifier_list:
     }
 ;
 
-struct_declarator_list:
-    struct_declarator {
-        Vec<Box<StructDeclarator>> list;
+class_declarator_list:
+    class_declarator {
+        Vec<Box<ClassDeclarator>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
-    | struct_declarator_list COMMA struct_declarator {
+    | class_declarator_list COMMA class_declarator {
         $1.push_back(std::move($3));
         $$ = std::move($1);
     }
-    | struct_declarator_list COMMA {
+    | class_declarator_list COMMA {
         $$ = std::move($1);
     }
 ;
 
-struct_declarator:
+class_declarator:
     declarator {
-        $$ = std::make_unique<StructDeclarator>(std::move($1), std::nullopt);
+        $$ = std::make_unique<ClassDeclarator>(std::move($1), std::nullopt);
     }
     | declarator COLON constant_expression {
-        $$ = std::make_unique<StructDeclarator>(std::move($1), std::move($3));
+        $$ = std::make_unique<ClassDeclarator>(std::move($1), std::move($3));
     }
     | COLON constant_expression {
-        $$ = std::make_unique<StructDeclarator>(std::nullopt, std::move($2));
+        $$ = std::make_unique<ClassDeclarator>(std::nullopt, std::move($2));
     }
 ;
 

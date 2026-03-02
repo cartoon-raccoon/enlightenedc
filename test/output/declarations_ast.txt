@@ -18,7 +18,7 @@ Program
 | | InitDeclarator
 | | | Declarator
 | | | | IdentifierDeclarator: b
-| | | Initializer
+| | | Initializer: 
 | | | | UnaryExpression: -
 | | | | | Literal: 10
 | | InitDeclarator
@@ -40,12 +40,12 @@ Program
 | | | | ArrayDeclarator
 | | | | | IdentifierDeclarator: bytes
 | | | | | Literal: 3
-| | | Initializer
-| | | | Initializer
+| | | Initializer: 
+| | | | Initializer: 
 | | | | | Literal: 1
-| | | | Initializer
+| | | | Initializer: 
 | | | | | Literal: 2
-| | | | Initializer
+| | | | Initializer: 
 | | | | | Literal: 3
 | VariableDeclaration
 | | TypeSpecifier: i32
@@ -54,8 +54,8 @@ Program
 | | | | ArrayDeclarator
 | | | | | IdentifierDeclarator: matrix
 | | | | | Literal: 2
-| | | Initializer
-| | | | Initializer
+| | | Initializer: 
+| | | | Initializer: 
 | | | | | Literal: 0
-| | | | Initializer
+| | | | Initializer: 
 | | | | | Literal: 1

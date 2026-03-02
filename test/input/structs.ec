@@ -1,4 +1,4 @@
-public struct Point {
+public class Point {
     I32i x;
     I32i y;
 } extern;
@@ -16,13 +16,13 @@ enum Color {
 
 enum Forward;
 
-struct Flags {
+class Flags {
     U8i a : 1;
     U8i b : 2;
     U8i : 5;
 };
 
-struct Value {
+class Value {
   I32i type;
   union {
     F64i f;
@@ -30,7 +30,7 @@ struct Value {
   } u;
 };
 
-struct VTable {
+class VTable {
     U0i (*dispatcher) (U64i count);
 };
 

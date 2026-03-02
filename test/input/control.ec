@@ -1,8 +1,10 @@
 start:
 if (n < 10) {
     n++;
-} else {
+} else if (n > 11) {
     n--;
+} else {
+    n += 2;
 }
 
 switch (n) {

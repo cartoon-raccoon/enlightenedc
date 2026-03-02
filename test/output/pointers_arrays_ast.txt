@@ -1,16 +1,16 @@
 Program
 | TypeDeclaration
 | | TypeSpecifier
-| | | StructOrUnionSpecifier: struct Node
-| | | | StructDeclaration
+| | | ClassOrUnionSpecifier: class Node
+| | | | ClassDeclaration
 | | | | | TypeSpecifier: i32
-| | | | | StructDeclarator
+| | | | | ClassDeclarator
 | | | | | | Declarator
 | | | | | | | IdentifierDeclarator: value
-| | | | StructDeclaration
+| | | | ClassDeclaration
 | | | | | TypeSpecifier
-| | | | | | StructOrUnionSpecifier: struct Node
-| | | | | StructDeclarator
+| | | | | | ClassOrUnionSpecifier: class Node
+| | | | | ClassDeclarator
 | | | | | | Declarator
 | | | | | | | Pointer
 | | | | | | | IdentifierDeclarator: next
@@ -60,18 +60,18 @@ Program
 | | CompoundStatement
 | | | VariableDeclaration
 | | | | TypeSpecifier
-| | | | | StructOrUnionSpecifier: struct Node
+| | | | | ClassOrUnionSpecifier: class Node
 | | | | InitDeclarator
 | | | | | Declarator
 | | | | | | IdentifierDeclarator: n
 | | | VariableDeclaration
 | | | | TypeSpecifier
-| | | | | StructOrUnionSpecifier: struct Node
+| | | | | ClassOrUnionSpecifier: class Node
 | | | | InitDeclarator
 | | | | | Declarator
 | | | | | | Pointer
 | | | | | | IdentifierDeclarator: p
-| | | | | Initializer
+| | | | | Initializer: 
 | | | | | | UnaryExpression: &
 | | | | | | | Identifier: n
 | | | ExpressionStatement

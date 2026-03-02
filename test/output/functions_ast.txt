@@ -52,16 +52,16 @@ Program
 | | | | InitDeclarator
 | | | | | Declarator
 | | | | | | IdentifierDeclarator: new2
-| | | | | Initializer
+| | | | | Initializer: 
 | | | | | | BinaryExpression: +
 | | | | | | | Identifier: new
 | | | | | | | Literal: 1
 | | | TypeDeclaration
 | | | | TypeSpecifier
-| | | | | StructOrUnionSpecifier: struct
-| | | | | | StructDeclaration
+| | | | | ClassOrUnionSpecifier: class
+| | | | | | ClassDeclaration
 | | | | | | | TypeSpecifier: u32
-| | | | | | | StructDeclarator
+| | | | | | | ClassDeclarator
 | | | | | | | | Declarator
 | | | | | | | | | IdentifierDeclarator: hello
 | | | ReturnStatement
@@ -138,7 +138,7 @@ Program
 | | | | InitDeclarator
 | | | | | Declarator
 | | | | | | IdentifierDeclarator: x
-| | | | | Initializer
+| | | | | Initializer: 
 | | | | | | CallExpression
 | | | | | | | Identifier: MathFunc
 | | | | | | | Literal: 10

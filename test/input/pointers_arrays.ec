@@ -1,6 +1,6 @@
-struct Node {
+class Node {
     I32i value;
-    struct Node *next;
+    class Node *next;
 };
 
 I32i apply(I32i (*fn)(I32i), I32i v) {
@@ -12,8 +12,8 @@ I32i square(I32i x) {
 }
 
 I32i run() {
-    struct Node n;
-    struct Node *p = &n;
+    class Node n;
+    class Node *p = &n;
 
     n.value = 5;
     p->value++;

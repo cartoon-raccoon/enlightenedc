@@ -4,14 +4,14 @@ Program
 | | InitDeclarator
 | | | Declarator
 | | | | IdentifierDeclarator: a
-| | | Initializer
+| | | Initializer: 
 | | | | Literal: 123
 | VariableDeclaration
 | | TypeSpecifier: u32
 | | InitDeclarator
 | | | Declarator
 | | | | IdentifierDeclarator: b
-| | | Initializer
+| | | Initializer: 
 | | | | UnaryExpression: -
 | | | | | Literal: 45
 | VariableDeclaration
@@ -19,28 +19,28 @@ Program
 | | InitDeclarator
 | | | Declarator
 | | | | IdentifierDeclarator: c
-| | | Initializer
+| | | Initializer: 
 | | | | Literal: 63
 | VariableDeclaration
 | | TypeSpecifier: u32
 | | InitDeclarator
 | | | Declarator
 | | | | IdentifierDeclarator: d
-| | | Initializer
+| | | Initializer: 
 | | | | Literal: 255
 | VariableDeclaration
 | | TypeSpecifier: f64
 | | InitDeclarator
 | | | Declarator
 | | | | IdentifierDeclarator: f1
-| | | Initializer
+| | | Initializer: 
 | | | | Literal: 0.000000
 | VariableDeclaration
 | | TypeSpecifier: f64
 | | InitDeclarator
 | | | Declarator
 | | | | IdentifierDeclarator: f2
-| | | Initializer
+| | | Initializer: 
 | | | | UnaryExpression: -
 | | | | | Literal: 0.000000
 | VariableDeclaration
@@ -48,21 +48,21 @@ Program
 | | InitDeclarator
 | | | Declarator
 | | | | IdentifierDeclarator: ch
-| | | Initializer
+| | | Initializer: 
 | | | | Literal: 65
 | VariableDeclaration
 | | TypeSpecifier: u8
 | | InitDeclarator
 | | | Declarator
 | | | | IdentifierDeclarator: nl
-| | | Initializer
+| | | Initializer: 
 | | | | Literal: 10
 | VariableDeclaration
 | | TypeSpecifier: u8
 | | InitDeclarator
 | | | Declarator
 | | | | IdentifierDeclarator: qt
-| | | Initializer
+| | | Initializer: 
 | | | | Literal: 34
 | PrintStatement: ""Values:\n""
 | | Identifier: a
