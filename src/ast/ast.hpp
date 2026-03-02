@@ -41,6 +41,7 @@ Abstract class denoting a program item: declaration, statement, or function defi
 */
 class ProgramItem : public ASTNode {
 public:
+    ProgramItem() = default;
     ~ProgramItem() = default;
 
     virtual void accept(ASTVisitor& visitor) = 0;
@@ -378,15 +379,13 @@ public:
     void accept(ASTVisitor& visitor) = 0;
 };
 
+// A block of mixed declarations and statements, surrounded by braces.
 class CompoundStatement : public Statement {
 public:
-    CompoundStatement(Vec<Box<Declaration>> declarations,
-                      Vec<Box<Statement>> statements)
-        : declarations(std::move(declarations)),
-          statements(std::move(statements)) {}
+    CompoundStatement(Vec<Box<ProgramItem>> items)
+        : items(std::move(items)) {}
 
-    Vec<Box<Declaration>> declarations;
-    Vec<Box<Statement>> statements;
+    Vec<Box<ProgramItem>> items;
 
     void accept(ASTVisitor& visitor) override;
 };
@@ -710,11 +709,11 @@ public:
     Function(Vec<Box<DeclarationSpecifier>> decl_spec_list,
              Box<Declarator> declarator, Box<CompoundStatement> statements)
         : decl_spec_list(std::move(decl_spec_list)),
-          declarator(std::move(declarator)), statements(std::move(statements)) {
+          declarator(std::move(declarator)), body(std::move(statements)) {
     }
 
     Function(Box<Declarator> declarator, Box<CompoundStatement> statements)
-        : declarator(std::move(declarator)), statements(std::move(statements)) {
+        : declarator(std::move(declarator)), body(std::move(statements)) {
     }
 
     ~Function() = default;
@@ -728,7 +727,7 @@ public:
     Note: If the declarator contains a pointer, the pointer applies to its return type.
     */
     Box<Declarator> declarator;
-    Box<CompoundStatement> statements;
+    Box<CompoundStatement> body;
 
     void accept(ASTVisitor& visitor) override;
 };

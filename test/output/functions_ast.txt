@@ -34,6 +34,36 @@ Program
 | | | | | | IdentifierDeclarator: y
 | | | | | Literal: 20
 | | CompoundStatement
+| | | VariableDeclaration
+| | | | TypeSpecifier: i32
+| | | | InitDeclarator
+| | | | | Declarator
+| | | | | | IdentifierDeclarator: new
+| | | ExpressionStatement
+| | | | AssignmentExpression: =
+| | | | | Identifier: new
+| | | | | CallExpression
+| | | | | | Identifier: add
+| | | | | | Identifier: x
+| | | | | | Identifier: y
+| | | | | | Identifier: new
+| | | VariableDeclaration
+| | | | TypeSpecifier: u64
+| | | | InitDeclarator
+| | | | | Declarator
+| | | | | | IdentifierDeclarator: new2
+| | | | | Initializer
+| | | | | | BinaryExpression: +
+| | | | | | | Identifier: new
+| | | | | | | Literal: 1
+| | | TypeDeclaration
+| | | | TypeSpecifier
+| | | | | StructOrUnionSpecifier: struct
+| | | | | | StructDeclaration
+| | | | | | | TypeSpecifier: u32
+| | | | | | | StructDeclarator
+| | | | | | | | Declarator
+| | | | | | | | | IdentifierDeclarator: hello
 | | | ReturnStatement
 | | | | BinaryExpression: *
 | | | | | Identifier: x

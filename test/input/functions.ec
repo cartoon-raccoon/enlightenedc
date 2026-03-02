@@ -3,6 +3,15 @@ U32i add(U32i a, U32i b) {
 }
 
 public I32i compute(I32i x = 10, I32i y = 20, ...) {
+    I32i new;
+    new = add(x, y, new);
+
+    U64i new2 = new + 1;
+
+    struct {
+        U32i hello;
+    };
+    
     return x * y;
 }
 

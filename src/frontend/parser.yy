@@ -93,8 +93,8 @@ static ecc::parser::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 %type <Box<Statement>> statement
 %type <Box<Declarator>> declarator abstract_declarator
 %type <Box<DirectDeclarator>> direct_abstract_declarator
+%type <Vec<Box<ProgramItem>>> stmt_or_decl_list
 
-%type <Vec<Box<Declaration>>> declaration_list
 %type <Vec<Box<DeclarationSpecifier>>> declaration_specifier_list specifier_qualifier_list
 %type <Box<DeclarationSpecifier>> declaration_specifier storage_class_specifier type_specifier
 %type <Box<TypeQualifier>> type_qualifier
@@ -125,7 +125,6 @@ static ecc::parser::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 %type <Vec<Box<Initializer>>> initializer_list
 
 %type <Box<CompoundStatement>> compound_statement
-%type <Vec<Box<Statement>>> statement_list
 %type <Box<Statement>> labeled_statement expression_statement print_statement
 %type <Box<Statement>> selection_statement iteration_statement jump_statement
 
@@ -170,18 +169,6 @@ declaration:
     }
 ;
 
-
-declaration_list:
-    declaration {
-        Vec<Box<Declaration>> list;
-        list.push_back(std::move($1));
-        $$ = std::move(list);
-    }
-    | declaration_list declaration {
-        $1.push_back(std::move($2));
-        $$ = std::move($1);
-    }
-;
 
 declaration_specifier_list:
     declaration_specifier {
@@ -579,27 +566,34 @@ expression_statement:
 
 compound_statement:
     LBRACE RBRACE {
-        $$ = std::make_unique<CompoundStatement>(Vec<Box<Declaration>>{}, Vec<Box<Statement>>{});
+        $$ = std::make_unique<CompoundStatement>(Vec<Box<ProgramItem>>{});
     }
-    | LBRACE statement_list RBRACE {
-        $$ = std::make_unique<CompoundStatement>(Vec<Box<Declaration>>{}, std::move($2));
-    }
-    | LBRACE declaration_list RBRACE {
-        $$ = std::make_unique<CompoundStatement>(std::move($2), Vec<Box<Statement>>{});
-    }
-    | LBRACE declaration_list statement_list RBRACE {
-        $$ = std::make_unique<CompoundStatement>(std::move($2), std::move($3));
+    | LBRACE stmt_or_decl_list RBRACE {
+        $$ = std::make_unique<CompoundStatement>(std::move($2));
     }
 ;
 
-statement_list:
-    statement {
-        Vec<Box<Statement>> list;
-        list.push_back(std::move($1));
+stmt_or_decl_list: // A mixed list of declarations and statements.
+    declaration {
+        Vec<Box<ProgramItem>> list;
+        Box<ProgramItem> item = std::move($1);
+        list.push_back(std::move(item));
         $$ = std::move(list);
     }
-    | statement_list statement {
-        $1.push_back(std::move($2));
+    | statement {
+        Vec<Box<ProgramItem>> list;
+        Box<ProgramItem> item = std::move($1);
+        list.push_back(std::move(item));
+        $$ = std::move(list);
+    }
+    | stmt_or_decl_list declaration {
+        Box<ProgramItem> item = std::move($2);
+        $1.push_back(std::move(item));
+        $$ = std::move($1);
+    }
+    | stmt_or_decl_list statement {
+        Box<ProgramItem> item = std::move($2);
+        $1.push_back(std::move(item));
         $$ = std::move($1);
     }
 ;
