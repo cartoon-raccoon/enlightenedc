@@ -119,19 +119,27 @@ public:
 A non-pointer declarator abstract class.
 */
 class DirectDeclarator : public ASTNode {
+public:
+    DirectDeclarator() = default;
+    ~DirectDeclarator() = default;
 
+    virtual void accept(ASTVisitor& visitor) = 0;
 };
 
-// Initializers
+/*
+An initializer for a variable.
+
+Compound-type variables use the Vec<Box<Initializer>> variant of `initializer`,
+whereas primitive type variables use the Box<Expression> variant.
+*/
 class Initializer : public ASTNode {
 public:
-    Initializer(Box<Expression> expr) : expression(std::move(expr)) {}
+    Initializer(Box<Expression> expr) : initializer(std::move(expr)) {}
 
     Initializer(Vec<Box<Initializer>> list)
-        : initializer_list(std::move(list)) {}
+        : initializer(std::move(list)) {}
 
-    std::optional<Box<Expression>> expression;
-    Vec<Box<Initializer>> initializer_list;
+    std::variant<Box<Expression>, Vec<Box<Initializer>>> initializer;
 
     void accept(ASTVisitor& visitor) override;
 };
@@ -337,6 +345,9 @@ public:
     void accept(ASTVisitor& visitor) override;
 };
 
+/*
+A type specifier, for a primitive type, or some user-defined compound type.
+*/
 class TypeSpecifier : public DeclarationSpecifier {
 public:
     enum Primitive {
@@ -354,9 +365,13 @@ public:
         F64,
         BOOL
     };
-
-    std::variant<Primitive, Box<StructOrUnionSpecifier>, Box<EnumSpecifier>>
-        type;
+    
+    // The type of the specifier: Primitive, Struct/Union, Enum.
+    std::variant<
+        Primitive, 
+        Box<StructOrUnionSpecifier>, 
+        Box<EnumSpecifier>
+    > type;
 
     explicit TypeSpecifier(Primitive prim) : type(prim) {}
 

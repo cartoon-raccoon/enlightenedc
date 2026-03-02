@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <utility>
+#include <variant>
 
 using namespace ecc::ast;
 
@@ -481,14 +482,15 @@ void ASTPrinter::visit(StructOrUnionSpecifier& node) {
 
 void ASTPrinter::visit(Initializer& node) {
     print_node(
-        "Initializer", node,
+        "Initializer: ", node,
         [&] {
-            if (node.expression)
-                node.expression.value()->accept(*this);
-        },
-        [&] {
-            for (auto& init : node.initializer_list)
-                init->accept(*this);
+            if (auto* s = std::get_if<Box<Expression>>(&node.initializer)) {
+                (*s)->accept(*this);
+            } else if (auto* s = std::get_if<Vec<Box<Initializer>>>(&node.initializer)) {
+                for (auto& init : *s) {
+                    init->accept(*this);
+                }
+            }
         });
 }
 
