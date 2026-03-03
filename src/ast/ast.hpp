@@ -160,7 +160,7 @@ public:
 };
 
 /*
-A declarator initializing a variable, e.g. 
+A declarator creating one or more new variables, with optional initializers. 
 */
 class InitDeclarator : public ASTNode {
 public:
@@ -175,6 +175,9 @@ public:
     void accept(ASTVisitor& visitor) override;
 };
 
+/*
+A declaration of a single function parameter.
+*/
 class ParameterDeclaration : public ASTNode {
 public:
     ParameterDeclaration(Vec<Box<DeclarationSpecifier>> specifiers,
@@ -315,16 +318,17 @@ class ClassOrUnionSpecifier : public ASTNode {
 public:
     enum Kind { CLASS, UNION };
 
+    ClassOrUnionSpecifier(
+        Kind kind, std::optional<std::string> name,
+        std::optional<Vec<Box<ClassDeclaration>>> declarations
+    ) : 
+    kind(kind), name(std::move(name)),
+    declarations(std::move(declarations)) {}
+
     Kind kind;
     std::optional<std::string> name;
 
     std::optional<Vec<Box<ClassDeclaration>>> declarations;
-
-    ClassOrUnionSpecifier(
-        Kind kind, std::optional<std::string> name,
-        std::optional<Vec<Box<ClassDeclaration>>> declarations)
-        : kind(kind), name(std::move(name)),
-          declarations(std::move(declarations)) {}
 
     void accept(ASTVisitor& visitor) override;
 };
