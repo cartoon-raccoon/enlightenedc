@@ -6,6 +6,9 @@ project(enlightenedc)
 set(CMAKE_EXPORT_COMPILE_COMMANDS True)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+# Use Clang as our default compiler, we are an LLVM project after all. :)
+set(CMAKE_C_COMPILER clang)
+set(CMAKE_CXX_COMPILER clang++)
 
 set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
 
