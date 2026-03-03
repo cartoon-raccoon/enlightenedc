@@ -1,23 +1,23 @@
 #ifndef ECC_PREPROC_H
 #define ECC_PREPROC_H
 
+#include <string>
+
 namespace ecc::preproc {
 
 /*
 
 The EnlightenedC Preprocessor.
 
-The preprocessor is a simple state machine that strips out comments and does a simple find-and-replace
-on any #define directives. It can also process #if{n}def, #elif, #else, and other control flow macros.
-
+Currently this wraps the system `cpp` command and returns the fully preprocessed
+source as a string.
 */
-
-// The EnlightenedC Preprocessor.
 class PreProcessor {
-
+  public:
+    // Throws std::runtime_error on failure
+    std::string run(const std::string& filename);
 };
 
-
-}
+} // namespace ecc::preproc
 
 #endif
