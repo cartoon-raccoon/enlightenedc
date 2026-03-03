@@ -1,44 +1,57 @@
-#ifndef ECC_COMPILER_H
-#define ECC_COMPILER_H
+#ifndef ECC_ELAB_H
+#define ECC_ELAB_H
 
-#include <llvm/IR/IRBuilder.h>
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/Module.h>
-#include <llvm/IR/Type.h>
+#include <variant>
 
+//#include "ast/ast.hpp"
 #include "ast/ast.hpp"
-#include "ast/visitor.hpp"
-#include "util.hpp"
 #include "compiler/types.hpp"
+#include "compiler/semantics.hpp"
 
 namespace ecc::compiler {
 
-using namespace ecc::util;
-using namespace ecc::ast;
-using namespace ecc::compiler::types;
-
-using LLVMType = llvm::Type;
+using namespace util;
+using namespace types;
 
 /*
-Converts a Type to its corresponding LLVM type.
+The result of visiting an AST node.
+
+Each variant is the result returned by visiting a specific AST node.
 */
-LLVMType *map_to_llvm_type(Type * ty);
+using ElabResult = std::variant<
+    // The base variant, when visit() does not return anything.
+    std::monostate,
+    // A simple string, for string literals, identifiers, etc.
+    std::string,
+    // The result of visiting a type specifier node.
+    Type *,
+    // The result of visiting a class or union specifier node.
+    ClassType *,
+    UnionType *
+>;
 
-// todo: use LLVM DataLayout to handle alignment
-
-class LLVMVisitor : public ast::ASTVisitor {
+/*
+The class that performs the elaboration pass.
+*/
+class Elaborator : public BaseSemanticVisitor {
 public:
-    ~LLVMVisitor() = default;
+    Elaborator(SymbolTable& syms, TypeContext& types)
+    : BaseSemanticVisitor(syms, types) {}
 
-    Box<llvm::Module> module;
-    Box<llvm::LLVMContext> ctxt;
-    Box<llvm::IRBuilder<>> builder;
+    /*
+    The result of the last visit() call. This is essentially the `return` value,
+    placed here since visit calls cannot directly return values.
+    */
+    ElabResult last_result = std::monostate {};
 
-    // Visitor method overrides
+    /*
+    Takes the result of the last visit call, replacing it with `std::monostate`.
+    */
+    ElabResult take_last_result();
 
-    void visit(Program& node) override;
     void visit(Function& node) override;
 
+    void visit(TypeDeclaration& node) override;
     void visit(VariableDeclaration& node) override;
     void visit(ParameterDeclaration& node) override;
     void visit(Declarator& node) override;
@@ -59,13 +72,10 @@ public:
     void visit(TypeName& node) override;
     void visit(IdentifierDeclarator& node) override;
 
-    void visit(CompoundStatement& node) override;
     void visit(ExpressionStatement& node) override;
     void visit(CaseDefaultStatement& node) override;
     void visit(LabeledStatement& node) override;
     void visit(PrintStatement& node) override;
-    void visit(IfStatement& node) override;
-    void visit(SwitchStatement& node) override;
     void visit(WhileStatement& node) override;
     void visit(DoWhileStatement& node) override;
     void visit(ForStatement& node) override;
@@ -86,8 +96,15 @@ public:
     void visit(ArraySubscriptExpression& node) override;
     void visit(PostfixExpression& node) override;
     void visit(SizeofExpression& node) override;
+
+protected:
+    //void do_visit(LabeledStatement& node) override;
+
+    void do_visit(ClassOrUnionSpecifier& node, ClassType *cls);
+
+    void do_visit(ClassOrUnionSpecifier& node, UnionType *unn);
 };
 
-} // namespace ecc::compiler
+}
 
 #endif
