@@ -2,6 +2,7 @@ Program
 | Function
 | | TypeSpecifier: u32
 | | Declarator
+| | | Pointer
 | | | FunctionDeclarator
 | | | | IdentifierDeclarator: add
 | | | | ParameterDeclaration
@@ -68,6 +69,40 @@ Program
 | | | | BinaryExpression: *
 | | | | | Identifier: x
 | | | | | Identifier: y
+| Function
+| | TypeSpecifier
+| | | ClassOrUnionSpecifier: class Point
+| | Declarator
+| | | Pointer
+| | | FunctionDeclarator
+| | | | IdentifierDeclarator: compute_point
+| | | | ParameterDeclaration
+| | | | | TypeSpecifier
+| | | | | | ClassOrUnionSpecifier: class Point
+| | | | | Declarator
+| | | | | | Pointer
+| | | | | | IdentifierDeclarator: p
+| | | | ParameterDeclaration
+| | | | | TypeSpecifier: i32
+| | | | | Declarator
+| | | | | | IdentifierDeclarator: dx
+| | | | ParameterDeclaration
+| | | | | TypeSpecifier: i32
+| | | | | Declarator
+| | | | | | IdentifierDeclarator: dy
+| | CompoundStatement
+| | | ExpressionStatement
+| | | | AssignmentExpression: +=
+| | | | | MemberAccess: ->x
+| | | | | | Identifier: p
+| | | | | Identifier: dx
+| | | ExpressionStatement
+| | | | AssignmentExpression: +=
+| | | | | MemberAccess: ->y
+| | | | | | Identifier: p
+| | | | | Identifier: dy
+| | | ReturnStatement
+| | | | Identifier: p
 | ExpressionStatement
 | | CallExpression
 | | | Identifier: compute

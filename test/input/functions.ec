@@ -1,4 +1,4 @@
-U32i add(U32i a, U32i b) {
+U32i *add(U32i a, U32i b) {
     return a + b;
 }
 
@@ -13,6 +13,13 @@ public I32i compute(I32i x = 10, I32i y = 20, ...) {
     };
 
     return x * y;
+}
+
+class Point *compute_point(class Point *p, I32i dx, I32i dy) {
+  p->x += dx;
+  p->y += dy;
+
+  return p;
 }
 
 compute(10, 4, "this", true);
