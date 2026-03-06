@@ -109,6 +109,9 @@ public:
     // The type of the expression, populated during semantic elaboration.
     types::Type *type = nullptr;
 
+    // Whether or not the expression can be computed at compile time.
+    //virtual bool is_compiletime_computable() = 0;
+
     virtual void accept(ASTVisitor& visitor) = 0;
 };
 

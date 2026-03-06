@@ -508,7 +508,13 @@ void ASTPrinter::visit(StringExpression& node) {
 }
 
 void ASTPrinter::visit(IdentifierExpression& node) {
-    print_node("Identifier: " + node.name, node);
+    print_node("IdentifierExpression: " + node.name, node);
+}
+
+void ASTPrinter::visit(ConstExpression& node) {
+    print_node("ConstExpression: ", node,
+        [&] { node.accept(*this); }
+    );
 }
 
 void ASTPrinter::visit(BinaryExpression& node) {

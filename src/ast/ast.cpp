@@ -75,6 +75,8 @@ void ConditionalExpression::accept(ASTVisitor& visitor) {
 
 void IdentifierExpression::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
+void ConstExpression::accept(ASTVisitor& visitor) { visitor.visit(*this); }
+
 void LiteralExpression::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void StringExpression::accept(ASTVisitor& visitor) { visitor.visit(*this); }

@@ -55,6 +55,7 @@ public:
     virtual void visit(AssignmentExpression& node) = 0;
     virtual void visit(ConditionalExpression& node) = 0;
     virtual void visit(IdentifierExpression& node) = 0;
+    virtual void visit(ConstExpression& node) = 0;
     virtual void visit(LiteralExpression& node) = 0;
     virtual void visit(StringExpression& node) = 0;
     virtual void visit(CallExpression& node) = 0;

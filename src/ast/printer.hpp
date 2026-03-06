@@ -63,6 +63,7 @@ public:
     void visit(AssignmentExpression& node) override;
     void visit(ConditionalExpression& node) override;
     void visit(IdentifierExpression& node) override;
+    void visit(ConstExpression& node) override;
     void visit(LiteralExpression& node) override;
     void visit(StringExpression& node) override;
     void visit(CallExpression& node) override;

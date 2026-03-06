@@ -3,6 +3,7 @@
 #include <stdexcept>
 
 #include "compiler/semantics.hpp"
+#include "ast/ast.hpp"
 #include "compiler/elaborator.hpp"
 
 using namespace ecc::compiler;
@@ -296,6 +297,11 @@ void BaseSemanticVisitor::visit(ConditionalExpression& node) {
 }
 
 void BaseSemanticVisitor::visit(IdentifierExpression& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(ConstExpression& node) {
     auto guard = enter_node(&node);
     do_visit(node);
 }
@@ -602,6 +608,10 @@ void BaseSemanticVisitor::do_visit(ConditionalExpression& node) {
 
 void BaseSemanticVisitor::do_visit(IdentifierExpression& node) {
     /* terminal node */
+}
+
+void BaseSemanticVisitor::do_visit(ConstExpression& node) {
+    node.inner->accept(*this);
 }
 
 void BaseSemanticVisitor::do_visit(LiteralExpression& node) {

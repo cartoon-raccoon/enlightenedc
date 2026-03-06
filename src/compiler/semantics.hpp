@@ -305,6 +305,7 @@ public:
     void visit(AssignmentExpression& node) override;
     void visit(ConditionalExpression& node) override;
     void visit(IdentifierExpression& node) override;
+    void visit(ConstExpression& node) override;
     void visit(LiteralExpression& node) override;
     void visit(StringExpression& node) override;
     void visit(CallExpression& node) override;
@@ -357,6 +358,7 @@ protected:
     virtual void do_visit(AssignmentExpression& node);
     virtual void do_visit(ConditionalExpression& node);
     virtual void do_visit(IdentifierExpression& node);
+    virtual void do_visit(ConstExpression& node);
     virtual void do_visit(LiteralExpression& node);
     virtual void do_visit(StringExpression& node);
     virtual void do_visit(CallExpression& node);

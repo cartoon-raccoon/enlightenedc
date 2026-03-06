@@ -133,7 +133,8 @@ static ecc::parser::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 
 %type <Box<Expression>> expression assignment_expression conditional_expression
 %type <Box<Expression>> binary_expression unary_expression postfix_expression primary_expression
-%type <Box<Expression>> constant constant_expression
+%type <Box<LiteralExpression>> constant
+%type <Box<ConstExpression>> constant_expression
 %type <Vec<Box<Expression>>> argument_expression_list
 %type <std::optional<Box<Expression>>> expression_opt
 
@@ -877,7 +878,7 @@ type_name:
 
 constant_expression:
     conditional_expression {
-        $$ = std::move($1);
+        $$ = std::make_unique<ConstExpression>(std::move($1));
     }
 ;
 
