@@ -27,6 +27,7 @@ class Value {
 class VTable {
     U0i (*dispatcher) (U64i count);
 };
+val->u.ch = 23;
 vtable->dispatcher(69);
 
 
@@ -121,8 +122,14 @@ Program @ <input/structs.ec:1.1>
 | | | | | | | | PrimitiveSpecifier: void @ <28.23-27> 
 | | | | | | | | Declarator @ <28.29-33> 
 | | | | | | | | | IdentifierDeclarator: count @ <28.29-33> 
-| ExpressionStatement @ <30.1-23> 
-| | CallExpression @ <30.1-22> 
-| | | MemberAccess: ->dispatcher @ <30.1-18> 
-| | | | Identifier: vtable @ <30.1-6> 
-| | | Literal: 69 @ <30.1-21> 
+| ExpressionStatement @ <30.1-15> 
+| | AssignmentExpression: = @ <30.1-14> 
+| | | MemberAccess: .ch @ <30.1-9> 
+| | | | MemberAccess: ->u @ <30.1-6> 
+| | | | | Identifier: val @ <30.1-3> 
+| | | Literal: 23 @ <30.13-14> 
+| ExpressionStatement @ <31.1-23> 
+| | CallExpression @ <31.1-22> 
+| | | MemberAccess: ->dispatcher @ <31.1-18> 
+| | | | Identifier: vtable @ <31.1-6> 
+| | | Literal: 69 @ <31.1-21> 
