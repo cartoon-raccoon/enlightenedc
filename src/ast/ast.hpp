@@ -63,6 +63,7 @@ public:
         BREAK_STMT,
         RET_STMT,
         TYPE_NAME,
+        CONST_EXPR,
         BIN_EXPR,
         UN_EXPR,
         ASSGN_EXPR,
@@ -109,6 +110,20 @@ public:
     types::Type *type = nullptr;
 
     virtual void accept(ASTVisitor& visitor) = 0;
+};
+
+/*
+A wrapper to indicate that the contained expression must be computable at compile time.
+*/
+class ConstExpression : public Expression {
+public:
+    ConstExpression(Box<Expression> expr)
+        : Expression(CONST_EXPR, expr->loc),
+        inner(std::move(expr)) {}
+
+    Box<Expression> inner;
+
+    void accept(ASTVisitor& visitor) override;
 };
 
 //* DECLARATIONS
