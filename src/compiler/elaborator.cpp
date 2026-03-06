@@ -178,8 +178,6 @@ void Elaborator::visit(DoWhileStatement& node) {}
 
 void Elaborator::visit(ForStatement& node) {}
 
-void Elaborator::visit(JumpStatement& node) {}
-
 void Elaborator::visit(GotoStatement& node) {
 
 }

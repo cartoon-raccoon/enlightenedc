@@ -78,7 +78,6 @@ public:
     void visit(WhileStatement& node) override;
     void visit(DoWhileStatement& node) override;
     void visit(ForStatement& node) override;
-    void visit(JumpStatement& node) override;
     void visit(GotoStatement& node) override;
     void visit(BreakStatement& node) override;
     void visit(ReturnStatement& node) override;

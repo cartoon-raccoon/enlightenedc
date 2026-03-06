@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <string>
-#include <utility>
 #include <variant>
 
 using namespace ecc::ast;
@@ -281,10 +280,6 @@ void ASTPrinter::visit(ForStatement& node) {
                 node.increment.value()->accept(*this);
         },
         [&] { node.body->accept(*this); });
-}
-
-void ASTPrinter::visit(JumpStatement& node) {
-    std::unreachable();
 }
 
 void ASTPrinter::visit(GotoStatement& node) {

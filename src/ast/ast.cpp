@@ -57,8 +57,6 @@ void DoWhileStatement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void ForStatement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
-void JumpStatement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
-
 void GotoStatement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void BreakStatement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
