@@ -6,6 +6,7 @@
 #include "compiler/types.hpp"
 #include "util.hpp"
 
+#include <optional>
 #include <unordered_map>
 #include <memory>
 
@@ -164,6 +165,7 @@ overriding the `visit()` member functions that concern them.
 */
 class BaseSemanticVisitor : public ast::ASTVisitor {
 public:
+    class NodeGuard;
     /*
     An RAII wrapper for automatically pushing and popping scopes on a symbol table.
 
@@ -175,29 +177,85 @@ public:
     */
     class ScopeGuard {
     public:
+        friend class BaseSemanticVisitor;
+        friend class BaseSemanticVisitor::NodeGuard;
+
         ScopeGuard(SymbolTable& st, Symbol *assoc) : st(st) {
             st.push_scope(assoc);
         }
+
+        // Allow the ScopeGuard to be moved.
+        ScopeGuard(ScopeGuard&& other) : st(other.st) {}
     
         ~ScopeGuard() {
             st.pop_scope();
         }
-    
+
+        // Prevent deep copies of the ScopeGuard.
         ScopeGuard(const ScopeGuard&) = delete;
         ScopeGuard& operator=(const ScopeGuard&) = delete;
+        
     private:
         SymbolTable& st;
     }; // class ScopeGuard
 
+    /*
+    An RAII wrapper for automatically managing node contexts.
+
+    When a NodeGuard is created, it pushes an associated ASTNode onto the
+    context. When it is destroyed, it pops the top node from the context.
+    */
+    class NodeGuard {
+    public:
+        friend class BaseSemanticVisitor;
+        friend class BaseSemanticVisitor::ScopeGuard;
+
+        NodeGuard(const NodeGuard&) = delete;
+        NodeGuard& operator=(const NodeGuard&) = delete;
+        /*
+        Create a NodeGuard.
+
+        If `true` is passed, a new scopeguard will be created as well, that will be
+        destroyed in the NodeGuard's destructor.
+        */
+        NodeGuard(BaseSemanticVisitor& bsv, ASTNode *node, bool new_scope = false) : context(bsv.ctxt_stack) {
+            if (new_scope) {
+                scope_guard.emplace(std::move(bsv.enter_scope()));
+            }
+            context.push_back(node);
+        }
+
+        ~NodeGuard() {
+            context.pop_back();
+        }
+
+    private:
+        Vec<ASTNode *>& context;
+        std::optional<ScopeGuard> scope_guard;
+    }; // class NodeGuard
+
     BaseSemanticVisitor(SymbolTable& syms, TypeContext& types)
     : syms(syms), types(types) {}
 
-    // A reference to a symbol table.
+    // The Symbol Table.
     SymbolTable& syms;
+    // The Type Context.
     TypeContext& types;
+    // Tracks the outer nodes that the current node rests in.
+    Vec<ASTNode *> ctxt_stack;
 
     // Create and enter a new scope, supplying an associated symbol if needed.
     ScopeGuard enter_scope(Symbol *sym = nullptr);
+
+    // Enter an AST node. If new_scope is true, additionally creates a new scope.
+    NodeGuard enter_node(ASTNode *node, bool new_scope = false);
+
+    // Get the AST node immediately outside this node.
+    ASTNode *imm_ctxt();
+
+    /// \brief Checks if there is `kind` in the context, and if so, how many layers up.
+    /// Returns -1 if there is no `kind` in the context.
+    int in_node(ASTNode::NodeKind kind);
 
     // Visitor method overrides
 
@@ -238,7 +296,6 @@ public:
     void visit(WhileStatement& node) override;
     void visit(DoWhileStatement& node) override;
     void visit(ForStatement& node) override;
-    void visit(JumpStatement& node) override;
     void visit(GotoStatement& node) override;
     void visit(BreakStatement& node) override;
     void visit(ReturnStatement& node) override;
@@ -257,10 +314,56 @@ public:
     void visit(SizeofExpression& node) override;
 
 protected:
-    virtual void do_visit(ClassOrUnionSpecifier& node) {}
+    virtual void do_visit(Program& node);
+    virtual void do_visit(Function& node);
 
-    virtual void do_visit(GotoStatement& node) {}
-    virtual void do_visit(LabeledStatement& node) {}
+    virtual void do_visit(TypeDeclaration& node);
+    virtual void do_visit(VariableDeclaration& node);
+    virtual void do_visit(ParameterDeclaration& node);
+    virtual void do_visit(Declarator& node);
+    virtual void do_visit(ParenDeclarator& node);
+    virtual void do_visit(ArrayDeclarator& node);
+    virtual void do_visit(FunctionDeclarator& node);
+    virtual void do_visit(InitDeclarator& node);
+    virtual void do_visit(Pointer& node);
+    virtual void do_visit(ClassDeclarator& node);
+    virtual void do_visit(ClassDeclaration& node);
+    virtual void do_visit(Enumerator& node);
+    virtual void do_visit(StorageClassSpecifier& node);
+    virtual void do_visit(TypeQualifier& node);
+    virtual void do_visit(EnumSpecifier& node);
+    virtual void do_visit(ClassOrUnionSpecifier& node);
+    virtual void do_visit(PrimitiveSpecifier& node);
+    virtual void do_visit(Initializer& node);
+    virtual void do_visit(TypeName& node);
+    virtual void do_visit(IdentifierDeclarator& node);
+
+    virtual void do_visit(CompoundStatement& node);
+    virtual void do_visit(ExpressionStatement& node);
+    virtual void do_visit(CaseDefaultStatement& node);
+    virtual void do_visit(LabeledStatement& node);
+    virtual void do_visit(PrintStatement& node);
+    virtual void do_visit(IfStatement& node);
+    virtual void do_visit(SwitchStatement& node);
+    virtual void do_visit(WhileStatement& node);
+    virtual void do_visit(DoWhileStatement& node);
+    virtual void do_visit(ForStatement& node);
+    virtual void do_visit(GotoStatement& node);
+    virtual void do_visit(BreakStatement& node);
+    virtual void do_visit(ReturnStatement& node);
+
+    virtual void do_visit(BinaryExpression& node);
+    virtual void do_visit(UnaryExpression& node);
+    virtual void do_visit(AssignmentExpression& node);
+    virtual void do_visit(ConditionalExpression& node);
+    virtual void do_visit(IdentifierExpression& node);
+    virtual void do_visit(LiteralExpression& node);
+    virtual void do_visit(StringExpression& node);
+    virtual void do_visit(CallExpression& node);
+    virtual void do_visit(MemberAccessExpression& node);
+    virtual void do_visit(ArraySubscriptExpression& node);
+    virtual void do_visit(PostfixExpression& node);
+    virtual void do_visit(SizeofExpression& node);
 };
 
 /*

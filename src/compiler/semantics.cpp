@@ -72,17 +72,280 @@ BaseSemanticVisitor::ScopeGuard BaseSemanticVisitor::enter_scope(Symbol *assoc) 
     return ScopeGuard(syms, assoc);
 }
 
+BaseSemanticVisitor::NodeGuard BaseSemanticVisitor::enter_node(ASTNode *node, bool new_scope) {
+    return NodeGuard(*this, node, new_scope);
+}
+
+ASTNode *BaseSemanticVisitor::imm_ctxt() {
+    return ctxt_stack.back();
+}
+
+int BaseSemanticVisitor::in_node(ASTNode::NodeKind kind) {
+    int ret = 0;
+    for (auto i = ctxt_stack.rbegin(); i != ctxt_stack.rend(); i++) {
+        if ((*i)->kind == kind) {
+            return ret;
+        }
+        ret++;
+    }
+    return -1;
+}
+
 /*
 * VISIT METHODS
 */
 
 void BaseSemanticVisitor::visit(Program& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(Function& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(TypeDeclaration& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(VariableDeclaration& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(ParameterDeclaration& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(Declarator& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(ParenDeclarator& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(ArrayDeclarator& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(FunctionDeclarator& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(InitDeclarator& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(Pointer& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(ClassDeclarator& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(ClassDeclaration& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(Enumerator& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(StorageClassSpecifier& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(PrimitiveSpecifier& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+
+}
+
+void BaseSemanticVisitor::visit(TypeQualifier& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(EnumSpecifier& node) {
+    // no enter scope here, enumerators are scoped to the scope in which
+    // their corresponding enum is declared.
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(ClassOrUnionSpecifier& node) {
+    // any nested derived types have to be scoped within this specifier.
+    auto guard = enter_node(&node, true);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(Initializer& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(TypeName& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(IdentifierDeclarator& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(CompoundStatement& node) {
+    // compound statements should introduce a new scope.
+    auto guard = enter_node(&node, true);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(ExpressionStatement& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(CaseDefaultStatement& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(LabeledStatement& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(PrintStatement& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(IfStatement& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(SwitchStatement& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(WhileStatement& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(DoWhileStatement& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(ForStatement& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(GotoStatement& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(BreakStatement& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(ReturnStatement& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(BinaryExpression& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(UnaryExpression& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(AssignmentExpression& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(ConditionalExpression& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(IdentifierExpression& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(LiteralExpression& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(StringExpression& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(CallExpression& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(MemberAccessExpression& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(ArraySubscriptExpression& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(PostfixExpression& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(SizeofExpression& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+/*
+* DO_VISIT methods
+*/
+
+void BaseSemanticVisitor::do_visit(Program& node) {
     for (auto& item : node.items) {
         item->accept(*this);
     }
 }
 
-void BaseSemanticVisitor::visit(Function& node) {
+void BaseSemanticVisitor::do_visit(Function& node) {
     for (auto& decl_spec : node.decl_spec_list) {
         decl_spec->accept(*this);
     }
@@ -91,7 +354,7 @@ void BaseSemanticVisitor::visit(Function& node) {
     node.body->accept(*this);
 }
 
-void BaseSemanticVisitor::visit(TypeDeclaration& node) {
+void BaseSemanticVisitor::do_visit(TypeDeclaration& node) {
     // The last element of the specifiers should be the type specifier,
     // and there should only be ony type specifier.
     for (auto& specifier : node.specifiers) {
@@ -99,7 +362,7 @@ void BaseSemanticVisitor::visit(TypeDeclaration& node) {
     }
 }
 
-void BaseSemanticVisitor::visit(VariableDeclaration& node) {
+void BaseSemanticVisitor::do_visit(VariableDeclaration& node) {
     for (auto& specifier : node.specifiers) {
         specifier->accept(*this);
     }
@@ -109,75 +372,161 @@ void BaseSemanticVisitor::visit(VariableDeclaration& node) {
     }
 }
 
-void BaseSemanticVisitor::visit(ParameterDeclaration& node) {}
+void BaseSemanticVisitor::do_visit(ParameterDeclaration& node) {
+    for (auto& spec : node.specifiers) {
+        spec->accept(*this);
+    }
 
-void BaseSemanticVisitor::visit(Declarator& node) {}
+    if (node.declarator.has_value()) {
+        node.declarator.value()->accept(*this);
+    }
 
-void BaseSemanticVisitor::visit(ParenDeclarator& node) {}
-
-void BaseSemanticVisitor::visit(ArrayDeclarator& node) {}
-
-void BaseSemanticVisitor::visit(FunctionDeclarator& node) {}
-
-void BaseSemanticVisitor::visit(InitDeclarator& node) {}
-
-void BaseSemanticVisitor::visit(Pointer& node) {}
-
-void BaseSemanticVisitor::visit(ClassDeclarator& node) {}
-
-void BaseSemanticVisitor::visit(ClassDeclaration& node) {}
-
-void BaseSemanticVisitor::visit(Enumerator& node) {}
-
-void BaseSemanticVisitor::visit(StorageClassSpecifier& node) {}
-
-/*
-Visit a primitive specifier.
-*/
-void BaseSemanticVisitor::visit(PrimitiveSpecifier& node) {
-    // the new type gets added here.
+    if (node.default_value.has_value()) {
+        node.default_value.value()->accept(*this);
+    }
 }
 
-void BaseSemanticVisitor::visit(TypeQualifier& node) {}
+void BaseSemanticVisitor::do_visit(Declarator& node) {
+    if (node.pointer.has_value()) {
+        node.pointer.value()->accept(*this);
+    }
 
-void BaseSemanticVisitor::visit(EnumSpecifier& node) {
-    // no enter scope here, enumerators are scoped to the scope in which
-    // their corresponding enum is declared.
+    if (node.direct.has_value()) {
+        node.direct.value()->accept(*this);
+    }
 }
 
-void BaseSemanticVisitor::visit(ClassOrUnionSpecifier& node) {
-    // any nested derived types have to be scoped within this specifier.
-    auto guard = enter_scope();
-
-
+void BaseSemanticVisitor::do_visit(ParenDeclarator& node) {
+    node.inner->accept(*this);
 }
 
-void BaseSemanticVisitor::visit(Initializer& node) {}
+void BaseSemanticVisitor::do_visit(ArrayDeclarator& node) {
+    node.base->accept(*this);
 
-void BaseSemanticVisitor::visit(TypeName& node) {}
+    if (node.size.has_value()) {
+        node.size.value()->accept(*this);
+    }
+}
 
-void BaseSemanticVisitor::visit(IdentifierDeclarator& node) {}
+void BaseSemanticVisitor::do_visit(FunctionDeclarator& node) {
+    node.base->accept(*this);
 
-void BaseSemanticVisitor::visit(CompoundStatement& node) {
-    // compound statements should introduce a new scope.
-    auto guard = enter_scope();
+    for (auto& param : node.parameters) {
+        param->accept(*this);
+    }
+}
 
+void BaseSemanticVisitor::do_visit(InitDeclarator& node) {
+    node.declarator->accept(*this);
+
+    if (node.initializer.has_value()) {
+        node.initializer.value()->accept(*this);
+    }
+}
+
+void BaseSemanticVisitor::do_visit(Pointer& node) {
+    for (auto& qual : node.qualifiers) {
+        qual->accept(*this);
+    }
+
+    if (node.nested.has_value()) {
+        node.nested.value()->accept(*this);
+    }
+}
+
+void BaseSemanticVisitor::do_visit(ClassDeclarator& node) {
+    if (node.declarator.has_value()) {
+        node.declarator.value()->accept(*this);
+    }
+
+    if (node.bit_width.has_value()) {
+        node.declarator.value()->accept(*this);
+    }
+}
+
+void BaseSemanticVisitor::do_visit(ClassDeclaration& node) {
+    for (auto& spec : node.specifiers) {
+        spec->accept(*this);
+    }
+
+    for (auto& decl: node.declarators) {
+        decl->accept(*this);
+    }
+}
+
+void BaseSemanticVisitor::do_visit(Enumerator& node) {
+    if (node.value.has_value()) {
+        node.value.value()->accept(*this);
+    }
+}
+
+void BaseSemanticVisitor::do_visit(StorageClassSpecifier& node) {
+    /* terminal node */
+}
+
+void BaseSemanticVisitor::do_visit(TypeQualifier& node) {
+    /* terminal node */
+}
+
+void BaseSemanticVisitor::do_visit(EnumSpecifier& node) {
+    if (node.enumerators.has_value()) {
+        for (auto& enumerator : node.enumerators.value()) {
+            enumerator->accept(*this);
+        }
+    }
+}
+
+void BaseSemanticVisitor::do_visit(ClassOrUnionSpecifier& node) {
+    if (node.declarations.has_value()) {
+        for (auto& decl : node.declarations.value()) {
+            decl->accept(*this);
+        }
+    }
+}
+
+void BaseSemanticVisitor::do_visit(PrimitiveSpecifier& node) {
+    /* terminal node */
+}
+
+void BaseSemanticVisitor::do_visit(Initializer& node) {
+    // todo
+}
+
+void BaseSemanticVisitor::do_visit(TypeName& node) {
+    // todo
+}
+
+void BaseSemanticVisitor::do_visit(IdentifierDeclarator& node) {
+    /* terminal node */
+}
+
+void BaseSemanticVisitor::do_visit(CompoundStatement& node) {
     for (auto& item : node.items) {
         item->accept(*this);
     }
 }
 
-void BaseSemanticVisitor::visit(ExpressionStatement& node) {}
+void BaseSemanticVisitor::do_visit(ExpressionStatement& node) {
+    if (node.expression.has_value()) {
+        node.expression.value()->accept(*this);
+    }
+}
 
-void BaseSemanticVisitor::visit(CaseDefaultStatement& node) {}
+void BaseSemanticVisitor::do_visit(CaseDefaultStatement& node) {
+    // todo
+}
 
-void BaseSemanticVisitor::visit(LabeledStatement& node) {
+void BaseSemanticVisitor::do_visit(LabeledStatement& node) {
     node.statement->accept(*this);
 }
 
-void BaseSemanticVisitor::visit(PrintStatement& node) {}
+void BaseSemanticVisitor::do_visit(PrintStatement& node) {
+    for (auto& arg : node.arguments) {
+        arg->accept(*this);
+    }
+}
 
-void BaseSemanticVisitor::visit(IfStatement& node) {
+void BaseSemanticVisitor::do_visit(IfStatement& node) {
     node.condition->accept(*this);
 
     node.then_branch->accept(*this);
@@ -186,54 +535,107 @@ void BaseSemanticVisitor::visit(IfStatement& node) {
     }
 }
 
-void BaseSemanticVisitor::visit(SwitchStatement& node) {
+void BaseSemanticVisitor::do_visit(SwitchStatement& node) {
     node.condition->accept(*this);
     node.body->accept(*this);
 }
 
-void BaseSemanticVisitor::visit(WhileStatement& node) {}
-
-void BaseSemanticVisitor::visit(DoWhileStatement& node) {}
-
-void BaseSemanticVisitor::visit(ForStatement& node) {}
-
-void BaseSemanticVisitor::visit(JumpStatement& node) {}
-
-void BaseSemanticVisitor::visit(GotoStatement& node) {
-
+void BaseSemanticVisitor::do_visit(WhileStatement& node) {
+    node.condition->accept(*this);
+    node.body->accept(*this);
 }
 
-void BaseSemanticVisitor::visit(BreakStatement& node) {
-
+void BaseSemanticVisitor::do_visit(DoWhileStatement& node) {
+    node.body->accept(*this);
+    node.condition->accept(*this);
 }
 
-void BaseSemanticVisitor::visit(ReturnStatement& node) {
-    
+void BaseSemanticVisitor::do_visit(ForStatement& node) {
+    if (node.init.has_value()) {
+        node.init.value()->accept(*this);
+    }
+
+    if (node.condition.has_value()) {
+        node.condition.value()->accept(*this);
+    }
+
+    if (node.increment.has_value()) {
+        node.condition.value()->accept(*this);
+    }
+
+    node.body->accept(*this);
 }
 
-void BaseSemanticVisitor::visit(BinaryExpression& node) {}
+void BaseSemanticVisitor::do_visit(GotoStatement& node) {
+    /* terminal node */
+}
 
-void BaseSemanticVisitor::visit(UnaryExpression& node) {}
+void BaseSemanticVisitor::do_visit(BreakStatement& node) {
+    /* terminal node */
+}
 
-void BaseSemanticVisitor::visit(AssignmentExpression& node) {}
+void BaseSemanticVisitor::do_visit(ReturnStatement& node) {
+    if (node.return_value.has_value()) {
+        node.return_value.value()->accept(*this);
+    }
+}
 
-void BaseSemanticVisitor::visit(ConditionalExpression& node) {}
+void BaseSemanticVisitor::do_visit(BinaryExpression& node) {
+    node.left->accept(*this);
+    node.right->accept(*this);
+}
 
-void BaseSemanticVisitor::visit(IdentifierExpression& node) {}
+void BaseSemanticVisitor::do_visit(UnaryExpression& node) {
+    node.operand->accept(*this);
+}
 
-void BaseSemanticVisitor::visit(LiteralExpression& node) {}
+void BaseSemanticVisitor::do_visit(AssignmentExpression& node) {
+    node.left->accept(*this);
+    node.right->accept(*this);
+}
 
-void BaseSemanticVisitor::visit(StringExpression& node) {}
+void BaseSemanticVisitor::do_visit(ConditionalExpression& node) {
+    node.condition->accept(*this);
+    node.true_expr->accept(*this);
+    node.false_expr->accept(*this);
+}
 
-void BaseSemanticVisitor::visit(CallExpression& node) {}
+void BaseSemanticVisitor::do_visit(IdentifierExpression& node) {
+    /* terminal node */
+}
 
-void BaseSemanticVisitor::visit(MemberAccessExpression& node) {}
+void BaseSemanticVisitor::do_visit(LiteralExpression& node) {
+    /* terminal node */
+}
 
-void BaseSemanticVisitor::visit(ArraySubscriptExpression& node) {}
+void BaseSemanticVisitor::do_visit(StringExpression& node) {
+    /* terminal node */
+}
 
-void BaseSemanticVisitor::visit(PostfixExpression& node) {}
+void BaseSemanticVisitor::do_visit(CallExpression& node) {
+    node.callee->accept(*this);
 
-void BaseSemanticVisitor::visit(SizeofExpression& node) {}
+    for (auto& arg : node.arguments) {
+        arg->accept(*this);
+    }
+}
+
+void BaseSemanticVisitor::do_visit(MemberAccessExpression& node) {
+    node.object->accept(*this);
+}
+
+void BaseSemanticVisitor::do_visit(ArraySubscriptExpression& node) {
+    node.array->accept(*this);
+    node.index->accept(*this);
+}
+
+void BaseSemanticVisitor::do_visit(PostfixExpression& node) {
+    node.operand->accept(*this);
+}
+
+void BaseSemanticVisitor::do_visit(SizeofExpression& node) {
+    // todo
+}
 
 
 void SemanticChecker::check_semantics(ASTNode& prog) {
