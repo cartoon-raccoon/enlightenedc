@@ -104,8 +104,8 @@ std::string ASTPrinter::token_type_to_string(TokenType t) {
     }
 }
 
-std::string ASTPrinter::primitive_to_string(TypeSpecifier::Primitive p) {
-    using P = TypeSpecifier::Primitive;
+std::string ASTPrinter::primitive_to_string(PrimitiveSpecifier::PrimKind p) {
+    using P = PrimitiveSpecifier::PrimKind;
     switch (p) {
     case P::VOID:
         return "void";
@@ -437,20 +437,8 @@ void ASTPrinter::visit(StorageClassSpecifier& node) {
                 node);
 }
 
-void ASTPrinter::visit(TypeSpecifier& node) {
-    if (std::holds_alternative<TypeSpecifier::Primitive>(node.type)) {
-        auto prim = std::get<TypeSpecifier::Primitive>(node.type);
-        print_node("TypeSpecifier: " + primitive_to_string(prim), node);
-    } else if (std::holds_alternative<Box<ClassOrUnionSpecifier>>(
-                    node.type)) {
-        print_node("TypeSpecifier", node, [&] {
-            std::get<Box<ClassOrUnionSpecifier>>(node.type)->accept(*this);
-        });
-    } else if (std::holds_alternative<Box<EnumSpecifier>>(node.type)) {
-        print_node("TypeSpecifier", node, [&] {
-            std::get<Box<EnumSpecifier>>(node.type)->accept(*this);
-        });
-    }
+void ASTPrinter::visit(PrimitiveSpecifier& node) {
+    print_node("PrimitiveSpecifier: " + primitive_to_string(node.pkind), node);
 }
 
 void ASTPrinter::visit(TypeQualifier& node) {
@@ -505,16 +493,16 @@ void ASTPrinter::visit(TypeName& node) {
 
 void ASTPrinter::visit(LiteralExpression& node) {
     switch (node.kind) {
-        case LiteralExpression::Kind::INT:
+        case LiteralExpression::LiteralKind::INT:
         print_node("Literal: " + std::to_string(node.value.i_val), node);
         break;
-        case LiteralExpression::Kind::FLOAT:
+        case LiteralExpression::LiteralKind::FLOAT:
         print_node("Literal: " + std::to_string(node.value.f_val), node);
         break;
-        case LiteralExpression::Kind::CHAR:
+        case LiteralExpression::LiteralKind::CHAR:
         print_node("Literal: " + std::to_string(node.value.c_val), node);
         break;
-        case LiteralExpression::Kind::BOOL:
+        case LiteralExpression::LiteralKind::BOOL:
         print_node("Literal: " + std::to_string(node.value.b_val), node);
         break;
     }

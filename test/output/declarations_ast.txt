@@ -1,61 +1,69 @@
-Program
-| VariableDeclaration
-| | StorageClassSpecifier: public
-| | TypeQualifier: const
-| | TypeSpecifier: u32
-| | InitDeclarator
-| | | Declarator
-| | | | Pointer
-| | | | | TypeQualifier: const
-| | | | | Pointer
-| | | | IdentifierDeclarator: ptrA
-| VariableDeclaration
-| | StorageClassSpecifier: static
-| | TypeSpecifier: i16
-| | InitDeclarator
-| | | Declarator
-| | | | IdentifierDeclarator: a
-| | InitDeclarator
-| | | Declarator
-| | | | IdentifierDeclarator: b
-| | | Initializer: 
-| | | | UnaryExpression: -
-| | | | | Literal: 10
-| | InitDeclarator
-| | | Declarator
-| | | | ArrayDeclarator
-| | | | | IdentifierDeclarator: c
-| | | | | Literal: 4
-| VariableDeclaration
-| | StorageClassSpecifier: extern
-| | TypeSpecifier: f64
-| | InitDeclarator
-| | | Declarator
-| | | | ArrayDeclarator
-| | | | | IdentifierDeclarator: table
-| VariableDeclaration
-| | TypeSpecifier: u8
-| | InitDeclarator
-| | | Declarator
-| | | | ArrayDeclarator
-| | | | | IdentifierDeclarator: bytes
-| | | | | Literal: 3
-| | | Initializer: 
-| | | | Initializer: 
-| | | | | Literal: 1
-| | | | Initializer: 
-| | | | | Literal: 2
-| | | | Initializer: 
-| | | | | Literal: 3
-| VariableDeclaration
-| | TypeSpecifier: i32
-| | InitDeclarator
-| | | Declarator
-| | | | ArrayDeclarator
-| | | | | IdentifierDeclarator: matrix
-| | | | | Literal: 2
-| | | Initializer: 
-| | | | Initializer: 
-| | | | | Literal: 0
-| | | | Initializer: 
-| | | | | Literal: 1
+public const U32i * const *ptrA;
+static I16i a, b = -10, c[4];
+extern F64i table[];
+U8i bytes[3] = {1, 2, 3};
+I32i matrix[2] = {0, 1};
+
+
+
+Program @ <input/declarations.ec:1.1> 
+| VariableDeclaration @ <1.1-32> 
+| | StorageClassSpecifier: public @ <1.1-6> 
+| | TypeQualifier: const @ <1.8-12> 
+| | PrimitiveSpecifier: void @ <1.14-17> 
+| | InitDeclarator @ <1.19-31> 
+| | | Declarator @ <1.19-31> 
+| | | | Pointer @ <1.19-27> 
+| | | | | TypeQualifier: const @ <1.21-25> 
+| | | | | Pointer @ <1.27> 
+| | | | IdentifierDeclarator: ptrA @ <1.27-31> 
+| VariableDeclaration @ <2.1-29> 
+| | StorageClassSpecifier: static @ <2.1-6> 
+| | PrimitiveSpecifier: void @ <2.8-11> 
+| | InitDeclarator @ <2.13> 
+| | | Declarator @ <2.13> 
+| | | | IdentifierDeclarator: a @ <2.13> 
+| | InitDeclarator @ <2.16-22> 
+| | | Declarator @ <2.16> 
+| | | | IdentifierDeclarator: b @ <2.16> 
+| | | Initializer:  @ <2.20-22> 
+| | | | UnaryExpression: - @ <2.20-22> 
+| | | | | Literal: 10 @ <2.20-22> 
+| | InitDeclarator @ <2.25-28> 
+| | | Declarator @ <2.25-28> 
+| | | | ArrayDeclarator @ <2.25-28> 
+| | | | | IdentifierDeclarator: c @ <2.25> 
+| | | | | Literal: 4 @ <2.25-27> 
+| VariableDeclaration @ <3.1-20> 
+| | StorageClassSpecifier: extern @ <3.1-6> 
+| | PrimitiveSpecifier: void @ <3.8-11> 
+| | InitDeclarator @ <3.13-19> 
+| | | Declarator @ <3.13-19> 
+| | | | ArrayDeclarator @ <3.13-19> 
+| | | | | IdentifierDeclarator: table @ <3.13-17> 
+| VariableDeclaration @ <4.1-25> 
+| | PrimitiveSpecifier: void @ <4.1-3> 
+| | InitDeclarator @ <4.5-24> 
+| | | Declarator @ <4.5-12> 
+| | | | ArrayDeclarator @ <4.5-12> 
+| | | | | IdentifierDeclarator: bytes @ <4.5-9> 
+| | | | | Literal: 3 @ <4.5-11> 
+| | | Initializer:  @ <4.16-24> 
+| | | | Initializer:  @ <4.16-17> 
+| | | | | Literal: 1 @ <4.16-17> 
+| | | | Initializer:  @ <4.20> 
+| | | | | Literal: 2 @ <4.20> 
+| | | | Initializer:  @ <4.23> 
+| | | | | Literal: 3 @ <4.23> 
+| VariableDeclaration @ <5.1-24> 
+| | PrimitiveSpecifier: void @ <5.1-4> 
+| | InitDeclarator @ <5.6-23> 
+| | | Declarator @ <5.6-14> 
+| | | | ArrayDeclarator @ <5.6-14> 
+| | | | | IdentifierDeclarator: matrix @ <5.6-11> 
+| | | | | Literal: 2 @ <5.6-13> 
+| | | Initializer:  @ <5.18-23> 
+| | | | Initializer:  @ <5.18-19> 
+| | | | | Literal: 0 @ <5.18-19> 
+| | | | Initializer:  @ <5.22> 
+| | | | | Literal: 1 @ <5.22> 

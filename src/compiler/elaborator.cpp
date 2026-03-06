@@ -68,7 +68,7 @@ void Elaborator::visit(StorageClassSpecifier& node) {}
 /*
 Visit a type specifier, adding 
 */
-void Elaborator::visit(TypeSpecifier& node) {
+void Elaborator::visit(PrimitiveSpecifier& node) {
     // the new type gets added here.
 }
 

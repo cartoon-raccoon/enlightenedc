@@ -64,10 +64,10 @@ public:
     void visit(ClassDeclaration& node) override;
     void visit(Enumerator& node) override;
     void visit(StorageClassSpecifier& node) override;
-    void visit(TypeSpecifier& node) override;
     void visit(TypeQualifier& node) override;
     void visit(EnumSpecifier& node) override;
     void visit(ClassOrUnionSpecifier& node) override;
+    void visit(PrimitiveSpecifier& node) override;
     void visit(Initializer& node) override;
     void visit(TypeName& node) override;
     void visit(IdentifierDeclarator& node) override;
@@ -75,7 +75,6 @@ public:
     void visit(ExpressionStatement& node) override;
     void visit(CaseDefaultStatement& node) override;
     void visit(LabeledStatement& node) override;
-    void visit(PrintStatement& node) override;
     void visit(WhileStatement& node) override;
     void visit(DoWhileStatement& node) override;
     void visit(ForStatement& node) override;
@@ -83,19 +82,6 @@ public:
     void visit(GotoStatement& node) override;
     void visit(BreakStatement& node) override;
     void visit(ReturnStatement& node) override;
-
-    void visit(BinaryExpression& node) override;
-    void visit(UnaryExpression& node) override;
-    void visit(AssignmentExpression& node) override;
-    void visit(ConditionalExpression& node) override;
-    void visit(IdentifierExpression& node) override;
-    void visit(LiteralExpression& node) override;
-    void visit(StringExpression& node) override;
-    void visit(CallExpression& node) override;
-    void visit(MemberAccessExpression& node) override;
-    void visit(ArraySubscriptExpression& node) override;
-    void visit(PostfixExpression& node) override;
-    void visit(SizeofExpression& node) override;
 
 protected:
     //void do_visit(LabeledStatement& node) override;

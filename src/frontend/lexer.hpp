@@ -6,13 +6,15 @@
 #include <FlexLexer.h>
 #endif
 
-// note: clangd will complain these two headers are missing if the build directory is clean.
+// note: clangd will complain this header is missing if the build directory is clean.
 #include "parser.hpp"
+#include "util.hpp"
 
 
 namespace ecc::frontend {
 
 using namespace ecc::parser;
+using namespace ecc::util;
 
 class Lexer : public yyFlexLexer {
 public:
@@ -20,7 +22,7 @@ public:
     // Use the standard yyFlexLexer constructor.
     Lexer(std::istream *in) : yyFlexLexer(in) {}
 
-    location loc;
+    Location loc;
 
     // Override the yyFlexLexer constructor.
     Parser::symbol_type get_next_token();

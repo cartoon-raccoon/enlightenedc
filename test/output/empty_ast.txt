@@ -1,1 +1,4 @@
-Program
+
+
+
+Program @ <input/empty.ec:1.1> 

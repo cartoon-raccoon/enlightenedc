@@ -8,8 +8,6 @@
 using namespace ecc::frontend;
 
 int Frontend::parse(const std::string& filename) {
-    file = filename;
-
     try {
         ecc::preproc::PreProcessor preproc;
         std::string preprocessed = preproc.run(filename);
@@ -18,7 +16,7 @@ int Frontend::parse(const std::string& filename) {
         std::istringstream input(preprocessed);
 
 
-        ecc::ast::Program ast_root;
+        ecc::ast::Program ast_root(filename);
 
         ecc::frontend::Lexer lexer(&input);
         ecc::parser::Parser parser(lexer, ast_root);

@@ -1,91 +1,107 @@
-Program
-| TypeDeclaration
-| | TypeSpecifier
-| | | ClassOrUnionSpecifier: class Node
-| | | | ClassDeclaration
-| | | | | TypeSpecifier: i32
-| | | | | ClassDeclarator
-| | | | | | Declarator
-| | | | | | | IdentifierDeclarator: value
-| | | | ClassDeclaration
-| | | | | TypeSpecifier
-| | | | | | ClassOrUnionSpecifier: class Node
-| | | | | ClassDeclarator
-| | | | | | Declarator
-| | | | | | | Pointer
-| | | | | | | IdentifierDeclarator: next
-| Function
-| | TypeSpecifier: i32
-| | Declarator
-| | | FunctionDeclarator
-| | | | IdentifierDeclarator: apply
-| | | | ParameterDeclaration
-| | | | | TypeSpecifier: i32
-| | | | | Declarator
-| | | | | | FunctionDeclarator
-| | | | | | | ParenDeclarator
-| | | | | | | | Declarator
-| | | | | | | | | Pointer
-| | | | | | | | | IdentifierDeclarator: fn
-| | | | | | | ParameterDeclaration
-| | | | | | | | TypeSpecifier: i32
-| | | | ParameterDeclaration
-| | | | | TypeSpecifier: i32
-| | | | | Declarator
-| | | | | | IdentifierDeclarator: v
-| | CompoundStatement
-| | | ReturnStatement
-| | | | CallExpression
-| | | | | Identifier: fn
-| | | | | Identifier: v
-| Function
-| | TypeSpecifier: i32
-| | Declarator
-| | | FunctionDeclarator
-| | | | IdentifierDeclarator: square
-| | | | ParameterDeclaration
-| | | | | TypeSpecifier: i32
-| | | | | Declarator
-| | | | | | IdentifierDeclarator: x
-| | CompoundStatement
-| | | ReturnStatement
-| | | | BinaryExpression: *
-| | | | | Identifier: x
-| | | | | Identifier: x
-| Function
-| | TypeSpecifier: i32
-| | Declarator
-| | | FunctionDeclarator
-| | | | IdentifierDeclarator: run
-| | CompoundStatement
-| | | VariableDeclaration
-| | | | TypeSpecifier
-| | | | | ClassOrUnionSpecifier: class Node
-| | | | InitDeclarator
-| | | | | Declarator
-| | | | | | IdentifierDeclarator: n
-| | | VariableDeclaration
-| | | | TypeSpecifier
-| | | | | ClassOrUnionSpecifier: class Node
-| | | | InitDeclarator
-| | | | | Declarator
-| | | | | | Pointer
-| | | | | | IdentifierDeclarator: p
-| | | | | Initializer: 
-| | | | | | UnaryExpression: &
-| | | | | | | Identifier: n
-| | | ExpressionStatement
-| | | | AssignmentExpression: =
-| | | | | MemberAccess: .value
-| | | | | | Identifier: n
-| | | | | Literal: 5
-| | | ExpressionStatement
-| | | | PostfixExpression: ++
-| | | | | MemberAccess: ->value
-| | | | | | Identifier: p
-| | | ReturnStatement
-| | | | CallExpression
-| | | | | Identifier: apply
-| | | | | Identifier: square
-| | | | | MemberAccess: .value
-| | | | | | Identifier: n
+class Node {
+    I32i value;
+    class Node *next;
+};
+I32i apply(I32i (*fn)(I32i), I32i v) {
+    return fn(v);
+}
+I32i square(I32i x) {
+    return x * x;
+}
+I32i run() {
+    class Node n;
+    class Node *p = &n;
+    n.value = 5;
+    p->value++;
+    return apply(square, n.value);
+}
+
+
+
+Program @ <input/pointers_arrays.ec:1.1> 
+| TypeDeclaration @ <1.1-4.2> 
+| | ClassOrUnionSpecifier: class Node @ <1.1-4.1> 
+| | | ClassDeclaration @ <2.5-15> 
+| | | | PrimitiveSpecifier: void @ <2.5-8> 
+| | | | ClassDeclarator @ <2.10-14> 
+| | | | | Declarator @ <2.10-14> 
+| | | | | | IdentifierDeclarator: value @ <2.10-14> 
+| | | ClassDeclaration @ <3.5-21> 
+| | | | ClassOrUnionSpecifier: class Node @ <3.5-14> 
+| | | | ClassDeclarator @ <3.16-20> 
+| | | | | Declarator @ <3.16-20> 
+| | | | | | Pointer @ <3.16> 
+| | | | | | IdentifierDeclarator: next @ <3.16-20> 
+| Function @ <5.1-7.1> 
+| | PrimitiveSpecifier: void @ <5.1-4> 
+| | Declarator @ <5.6-36> 
+| | | FunctionDeclarator @ <5.6-36> 
+| | | | IdentifierDeclarator: apply @ <5.6-10> 
+| | | | ParameterDeclaration @ <5.6-27> 
+| | | | | PrimitiveSpecifier: void @ <5.6-15> 
+| | | | | Declarator @ <5.17-27> 
+| | | | | | FunctionDeclarator @ <5.17-27> 
+| | | | | | | ParenDeclarator @ <5.17-21> 
+| | | | | | | | Declarator @ <5.17-20> 
+| | | | | | | | | Pointer @ <5.17-18> 
+| | | | | | | | | IdentifierDeclarator: fn @ <5.17-20> 
+| | | | | | | ParameterDeclaration @ <5.17-26> 
+| | | | | | | | PrimitiveSpecifier: void @ <5.17-26> 
+| | | | ParameterDeclaration @ <5.30-35> 
+| | | | | PrimitiveSpecifier: void @ <5.30-33> 
+| | | | | Declarator @ <5.35> 
+| | | | | | IdentifierDeclarator: v @ <5.35> 
+| | CompoundStatement @ <5.38-7.1> 
+| | | ReturnStatement @ <6.5-17> 
+| | | | CallExpression @ <6.12-16> 
+| | | | | Identifier: fn @ <6.12-13> 
+| | | | | Identifier: v @ <6.12-15> 
+| Function @ <8.1-10.1> 
+| | PrimitiveSpecifier: void @ <8.1-4> 
+| | Declarator @ <8.6-19> 
+| | | FunctionDeclarator @ <8.6-19> 
+| | | | IdentifierDeclarator: square @ <8.6-11> 
+| | | | ParameterDeclaration @ <8.6-18> 
+| | | | | PrimitiveSpecifier: void @ <8.6-16> 
+| | | | | Declarator @ <8.18> 
+| | | | | | IdentifierDeclarator: x @ <8.18> 
+| | CompoundStatement @ <8.21-10.1> 
+| | | ReturnStatement @ <9.5-17> 
+| | | | BinaryExpression: * @ <9.12-16> 
+| | | | | Identifier: x @ <9.12> 
+| | | | | Identifier: x @ <9.16> 
+| Function @ <11.1-17.1> 
+| | PrimitiveSpecifier: void @ <11.1-4> 
+| | Declarator @ <11.6-10> 
+| | | FunctionDeclarator @ <11.6-10> 
+| | | | IdentifierDeclarator: run @ <11.6-8> 
+| | CompoundStatement @ <11.12-17.1> 
+| | | VariableDeclaration @ <12.5-17> 
+| | | | ClassOrUnionSpecifier: class Node @ <12.5-14> 
+| | | | InitDeclarator @ <12.16> 
+| | | | | Declarator @ <12.16> 
+| | | | | | IdentifierDeclarator: n @ <12.16> 
+| | | VariableDeclaration @ <13.5-23> 
+| | | | ClassOrUnionSpecifier: class Node @ <13.5-14> 
+| | | | InitDeclarator @ <13.16-22> 
+| | | | | Declarator @ <13.16-17> 
+| | | | | | Pointer @ <13.16> 
+| | | | | | IdentifierDeclarator: p @ <13.16-17> 
+| | | | | Initializer:  @ <13.21-22> 
+| | | | | | UnaryExpression: & @ <13.21-22> 
+| | | | | | | Identifier: n @ <13.21-22> 
+| | | ExpressionStatement @ <14.5-16> 
+| | | | AssignmentExpression: = @ <14.5-15> 
+| | | | | MemberAccess: .value @ <14.5-11> 
+| | | | | | Identifier: n @ <14.5> 
+| | | | | Literal: 5 @ <14.15> 
+| | | ExpressionStatement @ <15.5-15> 
+| | | | PostfixExpression: ++ @ <15.5-14> 
+| | | | | MemberAccess: ->value @ <15.5-12> 
+| | | | | | Identifier: p @ <15.5> 
+| | | ReturnStatement @ <16.5-34> 
+| | | | CallExpression @ <16.12-33> 
+| | | | | Identifier: apply @ <16.12-16> 
+| | | | | Identifier: square @ <16.12-23> 
+| | | | | MemberAccess: .value @ <16.26-32> 
+| | | | | | Identifier: n @ <16.26> 

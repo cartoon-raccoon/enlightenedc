@@ -1,11 +1,6 @@
 #ifndef ECC_TOKENS_H
 #define ECC_TOKENS_H
 
-#include <string>
-#include "location.hh"
-
-using namespace ecc::parser;
-
 namespace ecc::tokens {
 
 // All semantically relevant tokens in EnlightenedC.
@@ -81,13 +76,6 @@ enum TokenType {
     ELLIPSIS,
 };
 
-// A token, as returned by the Lexer.
-struct Token {
-    TokenType tok;
-    location loc;
-    std::string text;
-};
-
-};
+}; // namespace ecc::tokens
 
 #endif // ECC_TOKENS_H

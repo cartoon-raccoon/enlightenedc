@@ -1,103 +1,128 @@
-Program
-| TypeDeclaration
-| | StorageClassSpecifier: public
-| | TypeSpecifier
-| | | ClassOrUnionSpecifier: class Point
-| | | | ClassDeclaration
-| | | | | TypeSpecifier: i32
-| | | | | ClassDeclarator
-| | | | | | Declarator
-| | | | | | | IdentifierDeclarator: x
-| | | | ClassDeclaration
-| | | | | TypeSpecifier: i32
-| | | | | ClassDeclarator
-| | | | | | Declarator
-| | | | | | | IdentifierDeclarator: y
-| | StorageClassSpecifier: extern
-| TypeDeclaration
-| | TypeSpecifier
-| | | ClassOrUnionSpecifier: union Data
-| | | | ClassDeclaration
-| | | | | TypeSpecifier: u32
-| | | | | ClassDeclarator
-| | | | | | Declarator
-| | | | | | | IdentifierDeclarator: i
-| | | | ClassDeclaration
-| | | | | TypeSpecifier: f64
-| | | | | ClassDeclarator
-| | | | | | Declarator
-| | | | | | | IdentifierDeclarator: f
-| TypeDeclaration
-| | TypeSpecifier
-| | | EnumSpecifier: Color
-| | | | Enumerator: RED
-| | | | Enumerator: GREEN
-| | | | | Literal: 5
-| | | | Enumerator: BLUE
-| TypeDeclaration
-| | TypeSpecifier
-| | | EnumSpecifier: Forward
-| TypeDeclaration
-| | TypeSpecifier
-| | | ClassOrUnionSpecifier: class Flags
-| | | | ClassDeclaration
-| | | | | TypeSpecifier: u8
-| | | | | ClassDeclarator
-| | | | | | Declarator
-| | | | | | | IdentifierDeclarator: a
-| | | | | | Literal: 1
-| | | | ClassDeclaration
-| | | | | TypeSpecifier: u8
-| | | | | ClassDeclarator
-| | | | | | Declarator
-| | | | | | | IdentifierDeclarator: b
-| | | | | | Literal: 2
-| | | | ClassDeclaration
-| | | | | TypeSpecifier: u8
-| | | | | ClassDeclarator
-| | | | | | Literal: 5
-| TypeDeclaration
-| | TypeSpecifier
-| | | ClassOrUnionSpecifier: class Value
-| | | | ClassDeclaration
-| | | | | TypeSpecifier: i32
-| | | | | ClassDeclarator
-| | | | | | Declarator
-| | | | | | | IdentifierDeclarator: type
-| | | | ClassDeclaration
-| | | | | TypeSpecifier
-| | | | | | ClassOrUnionSpecifier: union
-| | | | | | | ClassDeclaration
-| | | | | | | | TypeSpecifier: f64
-| | | | | | | | ClassDeclarator
-| | | | | | | | | Declarator
-| | | | | | | | | | IdentifierDeclarator: f
-| | | | | | | ClassDeclaration
-| | | | | | | | TypeSpecifier: u8
-| | | | | | | | ClassDeclarator
-| | | | | | | | | Declarator
-| | | | | | | | | | IdentifierDeclarator: ch
-| | | | | ClassDeclarator
-| | | | | | Declarator
-| | | | | | | IdentifierDeclarator: u
-| TypeDeclaration
-| | TypeSpecifier
-| | | ClassOrUnionSpecifier: class VTable
-| | | | ClassDeclaration
-| | | | | TypeSpecifier: void
-| | | | | ClassDeclarator
-| | | | | | Declarator
-| | | | | | | FunctionDeclarator
-| | | | | | | | ParenDeclarator
-| | | | | | | | | Declarator
-| | | | | | | | | | Pointer
-| | | | | | | | | | IdentifierDeclarator: dispatcher
-| | | | | | | | ParameterDeclaration
-| | | | | | | | | TypeSpecifier: u64
-| | | | | | | | | Declarator
-| | | | | | | | | | IdentifierDeclarator: count
-| ExpressionStatement
-| | CallExpression
-| | | MemberAccess: ->dispatcher
-| | | | Identifier: vtable
-| | | Literal: 69
+public class Point {
+    I32i x;
+    I32i y;
+} extern;
+union Data {
+    U32i i;
+    F64i f;
+};
+enum Color {
+    RED,
+    GREEN = 5,
+    BLUE
+};
+enum Forward;
+class Flags {
+    U8i a : 1;
+    U8i b : 2;
+    U8i : 5;
+};
+class Value {
+  I32i type;
+  union {
+    F64i f;
+    U8i ch;
+  } u;
+};
+class VTable {
+    U0i (*dispatcher) (U64i count);
+};
+vtable->dispatcher(69);
+
+
+
+Program @ <input/structs.ec:1.1> 
+| TypeDeclaration @ <1.1-4.9> 
+| | StorageClassSpecifier: public @ <1.1-6> 
+| | ClassOrUnionSpecifier: class Point @ <1.8-4.1> 
+| | | ClassDeclaration @ <2.5-11> 
+| | | | PrimitiveSpecifier: void @ <2.5-8> 
+| | | | ClassDeclarator @ <2.10> 
+| | | | | Declarator @ <2.10> 
+| | | | | | IdentifierDeclarator: x @ <2.10> 
+| | | ClassDeclaration @ <3.5-11> 
+| | | | PrimitiveSpecifier: void @ <3.5-8> 
+| | | | ClassDeclarator @ <3.10> 
+| | | | | Declarator @ <3.10> 
+| | | | | | IdentifierDeclarator: y @ <3.10> 
+| | StorageClassSpecifier: extern @ <4.3-8> 
+| TypeDeclaration @ <5.1-8.2> 
+| | ClassOrUnionSpecifier: union Data @ <5.1-8.1> 
+| | | ClassDeclaration @ <6.5-11> 
+| | | | PrimitiveSpecifier: void @ <6.5-8> 
+| | | | ClassDeclarator @ <6.10> 
+| | | | | Declarator @ <6.10> 
+| | | | | | IdentifierDeclarator: i @ <6.10> 
+| | | ClassDeclaration @ <7.5-11> 
+| | | | PrimitiveSpecifier: void @ <7.5-8> 
+| | | | ClassDeclarator @ <7.10> 
+| | | | | Declarator @ <7.10> 
+| | | | | | IdentifierDeclarator: f @ <7.10> 
+| TypeDeclaration @ <9.1-13.2> 
+| | EnumSpecifier: Color @ <9.1-13.1> 
+| | | Enumerator: RED @ <10.5-7> 
+| | | Enumerator: GREEN @ <11.5-13> 
+| | | | Literal: 5 @ <11.13> 
+| | | Enumerator: BLUE @ <12.5-8> 
+| TypeDeclaration @ <14.1-13> 
+| | EnumSpecifier: Forward @ <14.1-12> 
+| TypeDeclaration @ <15.1-19.2> 
+| | ClassOrUnionSpecifier: class Flags @ <15.1-19.1> 
+| | | ClassDeclaration @ <16.5-14> 
+| | | | PrimitiveSpecifier: void @ <16.5-7> 
+| | | | ClassDeclarator @ <16.9-13> 
+| | | | | Declarator @ <16.9> 
+| | | | | | IdentifierDeclarator: a @ <16.9> 
+| | | | | Literal: 1 @ <16.13> 
+| | | ClassDeclaration @ <17.5-14> 
+| | | | PrimitiveSpecifier: void @ <17.5-7> 
+| | | | ClassDeclarator @ <17.9-13> 
+| | | | | Declarator @ <17.9> 
+| | | | | | IdentifierDeclarator: b @ <17.9> 
+| | | | | Literal: 2 @ <17.13> 
+| | | ClassDeclaration @ <18.5-12> 
+| | | | PrimitiveSpecifier: void @ <18.5-7> 
+| | | | ClassDeclarator @ <18.9-11> 
+| | | | | Literal: 5 @ <18.11> 
+| TypeDeclaration @ <20.1-26.2> 
+| | ClassOrUnionSpecifier: class Value @ <20.1-26.1> 
+| | | ClassDeclaration @ <21.3-12> 
+| | | | PrimitiveSpecifier: void @ <21.3-6> 
+| | | | ClassDeclarator @ <21.8-11> 
+| | | | | Declarator @ <21.8-11> 
+| | | | | | IdentifierDeclarator: type @ <21.8-11> 
+| | | ClassDeclaration @ <22.3-25.6> 
+| | | | ClassOrUnionSpecifier: union @ <22.3-25.3> 
+| | | | | ClassDeclaration @ <23.5-11> 
+| | | | | | PrimitiveSpecifier: void @ <23.5-8> 
+| | | | | | ClassDeclarator @ <23.10> 
+| | | | | | | Declarator @ <23.10> 
+| | | | | | | | IdentifierDeclarator: f @ <23.10> 
+| | | | | ClassDeclaration @ <24.5-11> 
+| | | | | | PrimitiveSpecifier: void @ <24.5-7> 
+| | | | | | ClassDeclarator @ <24.9-10> 
+| | | | | | | Declarator @ <24.9-10> 
+| | | | | | | | IdentifierDeclarator: ch @ <24.9-10> 
+| | | | ClassDeclarator @ <25.5> 
+| | | | | Declarator @ <25.5> 
+| | | | | | IdentifierDeclarator: u @ <25.5> 
+| TypeDeclaration @ <27.1-29.2> 
+| | ClassOrUnionSpecifier: class VTable @ <27.1-29.1> 
+| | | ClassDeclaration @ <28.5-35> 
+| | | | PrimitiveSpecifier: void @ <28.5-7> 
+| | | | ClassDeclarator @ <28.9-34> 
+| | | | | Declarator @ <28.9-34> 
+| | | | | | FunctionDeclarator @ <28.9-34> 
+| | | | | | | ParenDeclarator @ <28.9-21> 
+| | | | | | | | Declarator @ <28.9-20> 
+| | | | | | | | | Pointer @ <28.9-10> 
+| | | | | | | | | IdentifierDeclarator: dispatcher @ <28.9-20> 
+| | | | | | | ParameterDeclaration @ <28.23-33> 
+| | | | | | | | PrimitiveSpecifier: void @ <28.23-27> 
+| | | | | | | | Declarator @ <28.29-33> 
+| | | | | | | | | IdentifierDeclarator: count @ <28.29-33> 
+| ExpressionStatement @ <30.1-23> 
+| | CallExpression @ <30.1-22> 
+| | | MemberAccess: ->dispatcher @ <30.1-18> 
+| | | | Identifier: vtable @ <30.1-6> 
+| | | Literal: 69 @ <30.1-21> 

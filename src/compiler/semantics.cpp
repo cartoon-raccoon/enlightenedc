@@ -132,9 +132,9 @@ void BaseSemanticVisitor::visit(Enumerator& node) {}
 void BaseSemanticVisitor::visit(StorageClassSpecifier& node) {}
 
 /*
-Visit a type specifier, adding 
+Visit a primitive specifier.
 */
-void BaseSemanticVisitor::visit(TypeSpecifier& node) {
+void BaseSemanticVisitor::visit(PrimitiveSpecifier& node) {
     // the new type gets added here.
 }
 

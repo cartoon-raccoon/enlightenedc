@@ -51,9 +51,9 @@ public:
     void visit(ClassDeclaration& node) override;
     void visit(Enumerator& node) override;
     void visit(StorageClassSpecifier& node) override;
-    void visit(TypeSpecifier& node) override;
     void visit(TypeQualifier& node) override;
     void visit(EnumSpecifier& node) override;
+    void visit(PrimitiveSpecifier& node) override;
     void visit(ClassOrUnionSpecifier& node) override;
     void visit(Initializer& node) override;
     void visit(TypeName& node) override;

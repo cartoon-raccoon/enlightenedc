@@ -5,6 +5,9 @@
 #ifndef ECC_AST_PRINTER_H
 #define ECC_AST_PRINTER_H
 
+#include <concepts>
+#include <iostream>
+
 #include "ast/ast.hpp"
 #include "ast/visitor.hpp"
 
@@ -33,9 +36,9 @@ public:
     void visit(ClassDeclaration& node) override;
     void visit(Enumerator& node) override;
     void visit(StorageClassSpecifier& node) override;
-    void visit(TypeSpecifier& node) override;
     void visit(TypeQualifier& node) override;
     void visit(EnumSpecifier& node) override;
+    void visit(PrimitiveSpecifier& node) override;
     void visit(ClassOrUnionSpecifier& node) override;
     void visit(Initializer& node) override;
     void visit(TypeName& node) override;
@@ -72,10 +75,11 @@ public:
     void print_indent();
 
     template <typename NodeType, typename... Children>
+    requires std::derived_from<NodeType, ASTNode>
     void print_node(const std::string& name, NodeType& node,
                     Children&&... children) {
         print_indent();
-        std::cout << name << "\n";
+        std::cout << name << " @ <" << node.loc << "> " << "\n";
         indent++;
         (children(), ...);
         indent--;
@@ -85,7 +89,7 @@ private:
 
     std::string token_type_to_string(TokenType t);
 
-    std::string primitive_to_string(TypeSpecifier::Primitive p);
+    std::string primitive_to_string(PrimitiveSpecifier::PrimKind p);
 
     std::string storage_to_string(StorageClassSpecifier::SpecType t);
 

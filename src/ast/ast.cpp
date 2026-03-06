@@ -27,11 +27,11 @@ void StorageClassSpecifier::accept(ASTVisitor& visitor) {
     visitor.visit(*this);
 }
 
-void TypeSpecifier::accept(ASTVisitor& visitor) { visitor.visit(*this); }
-
 void TypeQualifier::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void EnumSpecifier::accept(ASTVisitor& visitor) { visitor.visit(*this); }
+
+void PrimitiveSpecifier::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void Initializer::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 

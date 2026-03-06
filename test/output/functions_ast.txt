@@ -1,183 +1,219 @@
-Program
-| Function
-| | TypeSpecifier: u32
-| | Declarator
-| | | Pointer
-| | | FunctionDeclarator
-| | | | IdentifierDeclarator: add
-| | | | ParameterDeclaration
-| | | | | TypeSpecifier: u32
-| | | | | Declarator
-| | | | | | IdentifierDeclarator: a
-| | | | ParameterDeclaration
-| | | | | TypeSpecifier: u32
-| | | | | Declarator
-| | | | | | IdentifierDeclarator: b
-| | CompoundStatement
-| | | ReturnStatement
-| | | | BinaryExpression: +
-| | | | | Identifier: a
-| | | | | Identifier: b
-| Function
-| | StorageClassSpecifier: public
-| | TypeSpecifier: i32
-| | Declarator
-| | | FunctionDeclarator (variadic)
-| | | | IdentifierDeclarator: compute
-| | | | ParameterDeclaration
-| | | | | TypeSpecifier: i32
-| | | | | Declarator
-| | | | | | IdentifierDeclarator: x
-| | | | | Literal: 10
-| | | | ParameterDeclaration
-| | | | | TypeSpecifier: i32
-| | | | | Declarator
-| | | | | | IdentifierDeclarator: y
-| | | | | Literal: 20
-| | CompoundStatement
-| | | VariableDeclaration
-| | | | TypeSpecifier: i32
-| | | | InitDeclarator
-| | | | | Declarator
-| | | | | | IdentifierDeclarator: new
-| | | ExpressionStatement
-| | | | AssignmentExpression: =
-| | | | | Identifier: new
-| | | | | CallExpression
-| | | | | | Identifier: add
-| | | | | | Identifier: x
-| | | | | | Identifier: y
-| | | | | | Identifier: new
-| | | VariableDeclaration
-| | | | TypeSpecifier: u64
-| | | | InitDeclarator
-| | | | | Declarator
-| | | | | | IdentifierDeclarator: new2
-| | | | | Initializer: 
-| | | | | | BinaryExpression: +
-| | | | | | | Identifier: new
-| | | | | | | Literal: 1
-| | | TypeDeclaration
-| | | | TypeSpecifier
-| | | | | ClassOrUnionSpecifier: class
-| | | | | | ClassDeclaration
-| | | | | | | TypeSpecifier: u32
-| | | | | | | ClassDeclarator
-| | | | | | | | Declarator
-| | | | | | | | | IdentifierDeclarator: hello
-| | | ReturnStatement
-| | | | BinaryExpression: *
-| | | | | Identifier: x
-| | | | | Identifier: y
-| Function
-| | TypeSpecifier
-| | | ClassOrUnionSpecifier: class Point
-| | Declarator
-| | | Pointer
-| | | FunctionDeclarator
-| | | | IdentifierDeclarator: compute_point
-| | | | ParameterDeclaration
-| | | | | TypeSpecifier
-| | | | | | ClassOrUnionSpecifier: class Point
-| | | | | Declarator
-| | | | | | Pointer
-| | | | | | IdentifierDeclarator: p
-| | | | ParameterDeclaration
-| | | | | TypeSpecifier: i32
-| | | | | Declarator
-| | | | | | IdentifierDeclarator: dx
-| | | | ParameterDeclaration
-| | | | | TypeSpecifier: i32
-| | | | | Declarator
-| | | | | | IdentifierDeclarator: dy
-| | CompoundStatement
-| | | ExpressionStatement
-| | | | AssignmentExpression: +=
-| | | | | MemberAccess: ->x
-| | | | | | Identifier: p
-| | | | | Identifier: dx
-| | | ExpressionStatement
-| | | | AssignmentExpression: +=
-| | | | | MemberAccess: ->y
-| | | | | | Identifier: p
-| | | | | Identifier: dy
-| | | ReturnStatement
-| | | | Identifier: p
-| ExpressionStatement
-| | CallExpression
-| | | Identifier: compute
-| | | Literal: 10
-| | | Literal: 4
-| | | String: "this"
-| | | Literal: 1
-| Function
-| | TypeSpecifier: void
-| | Declarator
-| | | FunctionDeclarator
-| | | | IdentifierDeclarator: noop
-| | CompoundStatement
-| | | ReturnStatement
-| ExpressionStatement
-| | CallExpression
-| | | Identifier: noop
-| ExpressionStatement
-| | Identifier: noop
-| Function
-| | TypeSpecifier: i64
-| | Declarator
-| | | FunctionDeclarator
-| | | | IdentifierDeclarator: CallbackFunction
-| | | | ParameterDeclaration
-| | | | | TypeSpecifier: i64
-| | | | | Declarator
-| | | | | | IdentifierDeclarator: x
-| | CompoundStatement
-| | | ReturnStatement
-| | | | BinaryExpression: *
-| | | | | Identifier: x
-| | | | | Identifier: x
-| Function
-| | TypeSpecifier: void
-| | Declarator
-| | | FunctionDeclarator
-| | | | IdentifierDeclarator: MathFunc
-| | | | ParameterDeclaration
-| | | | | TypeSpecifier: i64
-| | | | | Declarator
-| | | | | | IdentifierDeclarator: y
-| | | | ParameterDeclaration
-| | | | | TypeSpecifier: i64
-| | | | | Declarator
-| | | | | | FunctionDeclarator
-| | | | | | | ParenDeclarator
-| | | | | | | | Declarator
-| | | | | | | | | Pointer
-| | | | | | | | | IdentifierDeclarator: proc
-| | | | | | | ParameterDeclaration
-| | | | | | | | TypeSpecifier: i64
-| | | | | | | | Declarator
-| | | | | | | | | IdentifierDeclarator: _val
-| | CompoundStatement
-| | | ReturnStatement
-| | | | CallExpression
-| | | | | Identifier: proc
-| | | | | Identifier: y
-| Function
-| | TypeSpecifier: void
-| | Declarator
-| | | FunctionDeclarator
-| | | | IdentifierDeclarator: Main
-| | CompoundStatement
-| | | VariableDeclaration
-| | | | TypeSpecifier: i64
-| | | | InitDeclarator
-| | | | | Declarator
-| | | | | | IdentifierDeclarator: x
-| | | | | Initializer: 
-| | | | | | CallExpression
-| | | | | | | Identifier: MathFunc
-| | | | | | | Literal: 10
-| | | | | | | UnaryExpression: &
-| | | | | | | | Identifier: CallbackFunction
-| | | PrintStatement: ""%d\n""
-| | | | Identifier: x
+U32i *add(U32i a, U32i b) {
+    return a + b;
+}
+public I32i compute(I32i x = 10, I32i y = 20, ...) {
+    I32i new;
+    new = add(x, y, new);
+    U64i new2 = new + 1;
+    class {
+        U32i hello;
+    };
+    return x * y;
+}
+class Point *compute_point(class Point *p, I32i dx, I32i dy) {
+  p->x += dx;
+  p->y += dy;
+  return p;
+}
+compute(10, 4, "this", true);
+U0i noop() {
+    return;
+}
+noop();
+noop;
+I64i CallbackFunction(I64i x)
+{
+  return x * x;
+}
+U0i MathFunc(I64i y, I64i (*proc)(I64i _val))
+{
+  return proc(y);
+}
+U0i Main()
+{
+  I64i x = MathFunc(10, &CallbackFunction);
+  "%d\n",x;
+}
+
+
+
+Program @ <input/functions.ec:1.1> 
+| Function @ <1.1-3.1> 
+| | PrimitiveSpecifier: void @ <1.1-4> 
+| | Declarator @ <1.6-25> 
+| | | Pointer @ <1.6> 
+| | | FunctionDeclarator @ <1.6-25> 
+| | | | IdentifierDeclarator: add @ <1.6-9> 
+| | | | ParameterDeclaration @ <1.6-16> 
+| | | | | PrimitiveSpecifier: void @ <1.6-14> 
+| | | | | Declarator @ <1.16> 
+| | | | | | IdentifierDeclarator: a @ <1.16> 
+| | | | ParameterDeclaration @ <1.19-24> 
+| | | | | PrimitiveSpecifier: void @ <1.19-22> 
+| | | | | Declarator @ <1.24> 
+| | | | | | IdentifierDeclarator: b @ <1.24> 
+| | CompoundStatement @ <1.27-3.1> 
+| | | ReturnStatement @ <2.5-17> 
+| | | | BinaryExpression: + @ <2.12-16> 
+| | | | | Identifier: a @ <2.12> 
+| | | | | Identifier: b @ <2.16> 
+| Function @ <4.1-12.1> 
+| | StorageClassSpecifier: public @ <4.1-6> 
+| | PrimitiveSpecifier: void @ <4.8-11> 
+| | Declarator @ <4.13-50> 
+| | | FunctionDeclarator (variadic) @ <4.13-50> 
+| | | | IdentifierDeclarator: compute @ <4.13-19> 
+| | | | ParameterDeclaration @ <4.13-31> 
+| | | | | PrimitiveSpecifier: void @ <4.13-24> 
+| | | | | Declarator @ <4.26> 
+| | | | | | IdentifierDeclarator: x @ <4.26> 
+| | | | | Literal: 10 @ <4.30-31> 
+| | | | ParameterDeclaration @ <4.34-44> 
+| | | | | PrimitiveSpecifier: void @ <4.34-37> 
+| | | | | Declarator @ <4.39> 
+| | | | | | IdentifierDeclarator: y @ <4.39> 
+| | | | | Literal: 20 @ <4.43-44> 
+| | CompoundStatement @ <4.52-12.1> 
+| | | VariableDeclaration @ <5.5-13> 
+| | | | PrimitiveSpecifier: void @ <5.5-8> 
+| | | | InitDeclarator @ <5.10-12> 
+| | | | | Declarator @ <5.10-12> 
+| | | | | | IdentifierDeclarator: new @ <5.10-12> 
+| | | ExpressionStatement @ <6.5-25> 
+| | | | AssignmentExpression: = @ <6.5-24> 
+| | | | | Identifier: new @ <6.5-7> 
+| | | | | CallExpression @ <6.11-24> 
+| | | | | | Identifier: add @ <6.11-13> 
+| | | | | | Identifier: x @ <6.11-15> 
+| | | | | | Identifier: y @ <6.18> 
+| | | | | | Identifier: new @ <6.21-23> 
+| | | VariableDeclaration @ <7.5-24> 
+| | | | PrimitiveSpecifier: void @ <7.5-8> 
+| | | | InitDeclarator @ <7.10-23> 
+| | | | | Declarator @ <7.10-13> 
+| | | | | | IdentifierDeclarator: new2 @ <7.10-13> 
+| | | | | Initializer:  @ <7.17-23> 
+| | | | | | BinaryExpression: + @ <7.17-23> 
+| | | | | | | Identifier: new @ <7.17-19> 
+| | | | | | | Literal: 1 @ <7.23> 
+| | | TypeDeclaration @ <8.5-10.6> 
+| | | | ClassOrUnionSpecifier: class @ <8.5-10.5> 
+| | | | | ClassDeclaration @ <9.9-19> 
+| | | | | | PrimitiveSpecifier: void @ <9.9-12> 
+| | | | | | ClassDeclarator @ <9.14-18> 
+| | | | | | | Declarator @ <9.14-18> 
+| | | | | | | | IdentifierDeclarator: hello @ <9.14-18> 
+| | | ReturnStatement @ <11.5-17> 
+| | | | BinaryExpression: * @ <11.12-16> 
+| | | | | Identifier: x @ <11.12> 
+| | | | | Identifier: y @ <11.16> 
+| Function @ <13.1-17.1> 
+| | ClassOrUnionSpecifier: class Point @ <13.1-11> 
+| | Declarator @ <13.13-60> 
+| | | Pointer @ <13.13> 
+| | | FunctionDeclarator @ <13.13-60> 
+| | | | IdentifierDeclarator: compute_point @ <13.13-26> 
+| | | | ParameterDeclaration @ <13.13-41> 
+| | | | | ClassOrUnionSpecifier: class Point @ <13.13-38> 
+| | | | | Declarator @ <13.40-41> 
+| | | | | | Pointer @ <13.40> 
+| | | | | | IdentifierDeclarator: p @ <13.40-41> 
+| | | | ParameterDeclaration @ <13.44-50> 
+| | | | | PrimitiveSpecifier: void @ <13.44-47> 
+| | | | | Declarator @ <13.49-50> 
+| | | | | | IdentifierDeclarator: dx @ <13.49-50> 
+| | | | ParameterDeclaration @ <13.53-59> 
+| | | | | PrimitiveSpecifier: void @ <13.53-56> 
+| | | | | Declarator @ <13.58-59> 
+| | | | | | IdentifierDeclarator: dy @ <13.58-59> 
+| | CompoundStatement @ <13.62-17.1> 
+| | | ExpressionStatement @ <14.3-13> 
+| | | | AssignmentExpression: += @ <14.3-12> 
+| | | | | MemberAccess: ->x @ <14.3-6> 
+| | | | | | Identifier: p @ <14.3> 
+| | | | | Identifier: dx @ <14.11-12> 
+| | | ExpressionStatement @ <15.3-13> 
+| | | | AssignmentExpression: += @ <15.3-12> 
+| | | | | MemberAccess: ->y @ <15.3-6> 
+| | | | | | Identifier: p @ <15.3> 
+| | | | | Identifier: dy @ <15.11-12> 
+| | | ReturnStatement @ <16.3-11> 
+| | | | Identifier: p @ <16.10> 
+| ExpressionStatement @ <18.1-29> 
+| | CallExpression @ <18.1-28> 
+| | | Identifier: compute @ <18.1-7> 
+| | | Literal: 10 @ <18.1-10> 
+| | | Literal: 4 @ <18.13> 
+| | | String: "this" @ <18.16-21> 
+| | | Literal: 1 @ <18.24-27> 
+| Function @ <19.1-21.1> 
+| | PrimitiveSpecifier: void @ <19.1-3> 
+| | Declarator @ <19.5-10> 
+| | | FunctionDeclarator @ <19.5-10> 
+| | | | IdentifierDeclarator: noop @ <19.5-8> 
+| | CompoundStatement @ <19.12-21.1> 
+| | | ReturnStatement @ <20.5-11> 
+| ExpressionStatement @ <22.1-7> 
+| | CallExpression @ <22.1-6> 
+| | | Identifier: noop @ <22.1-4> 
+| ExpressionStatement @ <23.1-5> 
+| | Identifier: noop @ <23.1-4> 
+| Function @ <24.1-27.1> 
+| | PrimitiveSpecifier: void @ <24.1-4> 
+| | Declarator @ <24.6-29> 
+| | | FunctionDeclarator @ <24.6-29> 
+| | | | IdentifierDeclarator: CallbackFunction @ <24.6-21> 
+| | | | ParameterDeclaration @ <24.6-28> 
+| | | | | PrimitiveSpecifier: void @ <24.6-26> 
+| | | | | Declarator @ <24.28> 
+| | | | | | IdentifierDeclarator: x @ <24.28> 
+| | CompoundStatement @ <25.1-27.1> 
+| | | ReturnStatement @ <26.3-15> 
+| | | | BinaryExpression: * @ <26.10-14> 
+| | | | | Identifier: x @ <26.10> 
+| | | | | Identifier: x @ <26.14> 
+| Function @ <28.1-31.1> 
+| | PrimitiveSpecifier: void @ <28.1-3> 
+| | Declarator @ <28.5-45> 
+| | | FunctionDeclarator @ <28.5-45> 
+| | | | IdentifierDeclarator: MathFunc @ <28.5-12> 
+| | | | ParameterDeclaration @ <28.5-19> 
+| | | | | PrimitiveSpecifier: void @ <28.5-17> 
+| | | | | Declarator @ <28.19> 
+| | | | | | IdentifierDeclarator: y @ <28.19> 
+| | | | ParameterDeclaration @ <28.22-44> 
+| | | | | PrimitiveSpecifier: void @ <28.22-25> 
+| | | | | Declarator @ <28.27-44> 
+| | | | | | FunctionDeclarator @ <28.27-44> 
+| | | | | | | ParenDeclarator @ <28.27-33> 
+| | | | | | | | Declarator @ <28.27-32> 
+| | | | | | | | | Pointer @ <28.27-28> 
+| | | | | | | | | IdentifierDeclarator: proc @ <28.27-32> 
+| | | | | | | ParameterDeclaration @ <28.27-43> 
+| | | | | | | | PrimitiveSpecifier: void @ <28.27-38> 
+| | | | | | | | Declarator @ <28.40-43> 
+| | | | | | | | | IdentifierDeclarator: _val @ <28.40-43> 
+| | CompoundStatement @ <29.1-31.1> 
+| | | ReturnStatement @ <30.3-17> 
+| | | | CallExpression @ <30.10-16> 
+| | | | | Identifier: proc @ <30.10-13> 
+| | | | | Identifier: y @ <30.10-15> 
+| Function @ <32.1-36.1> 
+| | PrimitiveSpecifier: void @ <32.1-3> 
+| | Declarator @ <32.5-10> 
+| | | FunctionDeclarator @ <32.5-10> 
+| | | | IdentifierDeclarator: Main @ <32.5-8> 
+| | CompoundStatement @ <33.1-36.1> 
+| | | VariableDeclaration @ <34.3-43> 
+| | | | PrimitiveSpecifier: void @ <34.3-6> 
+| | | | InitDeclarator @ <34.8-42> 
+| | | | | Declarator @ <34.8> 
+| | | | | | IdentifierDeclarator: x @ <34.8> 
+| | | | | Initializer:  @ <34.12-42> 
+| | | | | | CallExpression @ <34.12-42> 
+| | | | | | | Identifier: MathFunc @ <34.12-19> 
+| | | | | | | Literal: 10 @ <34.12-22> 
+| | | | | | | UnaryExpression: & @ <34.25-41> 
+| | | | | | | | Identifier: CallbackFunction @ <34.25-41> 
+| | | PrintStatement: ""%d\n"" @ <35.3-11> 
+| | | | Identifier: x @ <35.3-10> 
