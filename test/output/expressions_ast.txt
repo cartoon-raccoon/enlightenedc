@@ -6,6 +6,8 @@ x <<= 2;
 x |= 1 ^ 3 & 7;
 x = (a > b) ? a : b;
 x = a && b || a;
+x = (U32i) a + 2;
+x = (I32i) a;
 s = "hello!";
 ++x;
 x--;
@@ -17,21 +19,21 @@ x = (a, b, x);
 
 Program @ <input/expressions.ec:1.1> 
 | VariableDeclaration @ <1.1-11> 
-| | PrimitiveSpecifier: void @ <1.1-4> 
+| | PrimitiveSpecifier: u32 @ <1.1-4> 
 | | InitDeclarator @ <1.6-10> 
 | | | Declarator @ <1.6> 
 | | | | IdentifierDeclarator: x @ <1.6> 
 | | | Initializer:  @ <1.10> 
 | | | | Literal: 0 @ <1.10> 
 | VariableDeclaration @ <2.1-11> 
-| | PrimitiveSpecifier: void @ <2.1-4> 
+| | PrimitiveSpecifier: u32 @ <2.1-4> 
 | | InitDeclarator @ <2.6-10> 
 | | | Declarator @ <2.6> 
 | | | | IdentifierDeclarator: a @ <2.6> 
 | | | Initializer:  @ <2.10> 
 | | | | Literal: 1 @ <2.10> 
 | VariableDeclaration @ <3.1-11> 
-| | PrimitiveSpecifier: void @ <3.1-4> 
+| | PrimitiveSpecifier: u32 @ <3.1-4> 
 | | InitDeclarator @ <3.6-10> 
 | | | Declarator @ <3.6> 
 | | | | IdentifierDeclarator: b @ <3.6> 
@@ -39,12 +41,12 @@ Program @ <input/expressions.ec:1.1>
 | | | | Literal: 2 @ <3.10> 
 | ExpressionStatement @ <4.1-26> 
 | | AssignmentExpression: = @ <4.1-25> 
-| | | Identifier: x @ <4.1> 
+| | | IdentifierExpression: x @ <4.1> 
 | | | BinaryExpression: - @ <4.5-25> 
 | | | | BinaryExpression: + @ <4.5-13> 
-| | | | | Identifier: a @ <4.5> 
+| | | | | IdentifierExpression: a @ <4.5> 
 | | | | | BinaryExpression: * @ <4.9-13> 
-| | | | | | Identifier: b @ <4.9> 
+| | | | | | IdentifierExpression: b @ <4.9> 
 | | | | | | Literal: 3 @ <4.13> 
 | | | | BinaryExpression: % @ <4.17-25> 
 | | | | | BinaryExpression: / @ <4.17-21> 
@@ -53,11 +55,11 @@ Program @ <input/expressions.ec:1.1>
 | | | | | Literal: 5 @ <4.25> 
 | ExpressionStatement @ <5.1-8> 
 | | AssignmentExpression: <<= @ <5.1-7> 
-| | | Identifier: x @ <5.1> 
+| | | IdentifierExpression: x @ <5.1> 
 | | | Literal: 2 @ <5.7> 
 | ExpressionStatement @ <6.1-15> 
 | | AssignmentExpression: |= @ <6.1-14> 
-| | | Identifier: x @ <6.1> 
+| | | IdentifierExpression: x @ <6.1> 
 | | | BinaryExpression: ^ @ <6.6-14> 
 | | | | Literal: 1 @ <6.6> 
 | | | | BinaryExpression: & @ <6.10-14> 
@@ -65,47 +67,63 @@ Program @ <input/expressions.ec:1.1>
 | | | | | Literal: 7 @ <6.14> 
 | ExpressionStatement @ <7.1-20> 
 | | AssignmentExpression: = @ <7.1-19> 
-| | | Identifier: x @ <7.1> 
+| | | IdentifierExpression: x @ <7.1> 
 | | | ConditionalExpression @ <7.5-19> 
 | | | | BinaryExpression: > @ <7.5-11> 
-| | | | | Identifier: a @ <7.5-6> 
-| | | | | Identifier: b @ <7.10> 
-| | | | Identifier: a @ <7.15> 
-| | | | Identifier: b @ <7.19> 
+| | | | | IdentifierExpression: a @ <7.5-6> 
+| | | | | IdentifierExpression: b @ <7.10> 
+| | | | IdentifierExpression: a @ <7.15> 
+| | | | IdentifierExpression: b @ <7.19> 
 | ExpressionStatement @ <8.1-16> 
 | | AssignmentExpression: = @ <8.1-15> 
-| | | Identifier: x @ <8.1> 
+| | | IdentifierExpression: x @ <8.1> 
 | | | BinaryExpression: || @ <8.5-15> 
 | | | | BinaryExpression: && @ <8.5-10> 
-| | | | | Identifier: a @ <8.5> 
-| | | | | Identifier: b @ <8.10> 
-| | | | Identifier: a @ <8.15> 
-| ExpressionStatement @ <9.1-13> 
-| | AssignmentExpression: = @ <9.1-12> 
-| | | Identifier: s @ <9.1> 
-| | | String: "hello!" @ <9.5-12> 
-| ExpressionStatement @ <10.1-4> 
-| | UnaryExpression: ++ @ <10.1-3> 
-| | | Identifier: x @ <10.1-3> 
-| ExpressionStatement @ <11.1-4> 
-| | PostfixExpression: -- @ <11.1-3> 
-| | | Identifier: x @ <11.1> 
-| ExpressionStatement @ <12.1-18> 
-| | AssignmentExpression: += @ <12.1-17> 
-| | | Identifier: x @ <12.1> 
-| | | SizeofExpression @ <12.6-17> 
-| | | | TypeName @ <12.6-16> 
-| | | | | PrimitiveSpecifier: void @ <12.6-16> 
-| ExpressionStatement @ <13.1-14> 
-| | AssignmentExpression: += @ <13.1-13> 
-| | | Identifier: x @ <13.1> 
-| | | SizeofExpression @ <13.6-13> 
-| | | | Identifier: x @ <13.13> 
-| ExpressionStatement @ <14.1-14> 
-| | AssignmentExpression: = @ <14.1-13> 
-| | | Identifier: x @ <14.1> 
-| | | BinaryExpression: , @ <14.5-13> 
-| | | | BinaryExpression: , @ <14.5-9> 
-| | | | | Identifier: a @ <14.5-6> 
-| | | | | Identifier: b @ <14.9> 
-| | | | Identifier: x @ <14.12> 
+| | | | | IdentifierExpression: a @ <8.5> 
+| | | | | IdentifierExpression: b @ <8.10> 
+| | | | IdentifierExpression: a @ <8.15> 
+| ExpressionStatement @ <9.1-17> 
+| | AssignmentExpression: = @ <9.1-16> 
+| | | IdentifierExpression: x @ <9.1> 
+| | | BinaryExpression: + @ <9.5-16> 
+| | | | CastExpression:  @ <9.5-12> 
+| | | | | IdentifierExpression: a @ <9.12> 
+| | | | | TypeName @ <9.5-9> 
+| | | | | | PrimitiveSpecifier: u32 @ <9.5-9> 
+| | | | Literal: 2 @ <9.16> 
+| ExpressionStatement @ <10.1-13> 
+| | AssignmentExpression: = @ <10.1-12> 
+| | | IdentifierExpression: x @ <10.1> 
+| | | CastExpression:  @ <10.5-12> 
+| | | | IdentifierExpression: a @ <10.12> 
+| | | | TypeName @ <10.5-9> 
+| | | | | PrimitiveSpecifier: i32 @ <10.5-9> 
+| ExpressionStatement @ <11.1-13> 
+| | AssignmentExpression: = @ <11.1-12> 
+| | | IdentifierExpression: s @ <11.1> 
+| | | String: "hello!" @ <11.5-12> 
+| ExpressionStatement @ <12.1-4> 
+| | UnaryExpression: ++ @ <12.1-3> 
+| | | IdentifierExpression: x @ <12.1-3> 
+| ExpressionStatement @ <13.1-4> 
+| | PostfixExpression: -- @ <13.1-3> 
+| | | IdentifierExpression: x @ <13.1> 
+| ExpressionStatement @ <14.1-18> 
+| | AssignmentExpression: += @ <14.1-17> 
+| | | IdentifierExpression: x @ <14.1> 
+| | | SizeofExpression @ <14.6-17> 
+| | | | TypeName @ <14.6-16> 
+| | | | | PrimitiveSpecifier: u32 @ <14.6-16> 
+| ExpressionStatement @ <15.1-14> 
+| | AssignmentExpression: += @ <15.1-13> 
+| | | IdentifierExpression: x @ <15.1> 
+| | | SizeofExpression @ <15.6-13> 
+| | | | IdentifierExpression: x @ <15.13> 
+| ExpressionStatement @ <16.1-14> 
+| | AssignmentExpression: = @ <16.1-13> 
+| | | IdentifierExpression: x @ <16.1> 
+| | | BinaryExpression: , @ <16.5-13> 
+| | | | BinaryExpression: , @ <16.5-9> 
+| | | | | IdentifierExpression: a @ <16.5-6> 
+| | | | | IdentifierExpression: b @ <16.9> 
+| | | | IdentifierExpression: x @ <16.12> 

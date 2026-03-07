@@ -22,7 +22,7 @@ Program @ <input/pointers_arrays.ec:1.1>
 | TypeDeclaration @ <1.1-4.2> 
 | | ClassOrUnionSpecifier: class Node @ <1.1-4.1> 
 | | | ClassDeclaration @ <2.5-15> 
-| | | | PrimitiveSpecifier: void @ <2.5-8> 
+| | | | PrimitiveSpecifier: i32 @ <2.5-8> 
 | | | | ClassDeclarator @ <2.10-14> 
 | | | | | Declarator @ <2.10-14> 
 | | | | | | IdentifierDeclarator: value @ <2.10-14> 
@@ -33,12 +33,12 @@ Program @ <input/pointers_arrays.ec:1.1>
 | | | | | | Pointer @ <3.16> 
 | | | | | | IdentifierDeclarator: next @ <3.16-20> 
 | Function @ <5.1-7.1> 
-| | PrimitiveSpecifier: void @ <5.1-4> 
+| | PrimitiveSpecifier: i32 @ <5.1-4> 
 | | Declarator @ <5.6-36> 
 | | | FunctionDeclarator @ <5.6-36> 
 | | | | IdentifierDeclarator: apply @ <5.6-10> 
 | | | | ParameterDeclaration @ <5.6-27> 
-| | | | | PrimitiveSpecifier: void @ <5.6-15> 
+| | | | | PrimitiveSpecifier: i32 @ <5.6-15> 
 | | | | | Declarator @ <5.17-27> 
 | | | | | | FunctionDeclarator @ <5.17-27> 
 | | | | | | | ParenDeclarator @ <5.17-21> 
@@ -46,32 +46,32 @@ Program @ <input/pointers_arrays.ec:1.1>
 | | | | | | | | | Pointer @ <5.17-18> 
 | | | | | | | | | IdentifierDeclarator: fn @ <5.17-20> 
 | | | | | | | ParameterDeclaration @ <5.17-26> 
-| | | | | | | | PrimitiveSpecifier: void @ <5.17-26> 
+| | | | | | | | PrimitiveSpecifier: i32 @ <5.17-26> 
 | | | | ParameterDeclaration @ <5.30-35> 
-| | | | | PrimitiveSpecifier: void @ <5.30-33> 
+| | | | | PrimitiveSpecifier: i32 @ <5.30-33> 
 | | | | | Declarator @ <5.35> 
 | | | | | | IdentifierDeclarator: v @ <5.35> 
 | | CompoundStatement @ <5.38-7.1> 
 | | | ReturnStatement @ <6.5-17> 
 | | | | CallExpression @ <6.12-16> 
-| | | | | Identifier: fn @ <6.12-13> 
-| | | | | Identifier: v @ <6.12-15> 
+| | | | | IdentifierExpression: fn @ <6.12-13> 
+| | | | | IdentifierExpression: v @ <6.12-15> 
 | Function @ <8.1-10.1> 
-| | PrimitiveSpecifier: void @ <8.1-4> 
+| | PrimitiveSpecifier: i32 @ <8.1-4> 
 | | Declarator @ <8.6-19> 
 | | | FunctionDeclarator @ <8.6-19> 
 | | | | IdentifierDeclarator: square @ <8.6-11> 
 | | | | ParameterDeclaration @ <8.6-18> 
-| | | | | PrimitiveSpecifier: void @ <8.6-16> 
+| | | | | PrimitiveSpecifier: i32 @ <8.6-16> 
 | | | | | Declarator @ <8.18> 
 | | | | | | IdentifierDeclarator: x @ <8.18> 
 | | CompoundStatement @ <8.21-10.1> 
 | | | ReturnStatement @ <9.5-17> 
 | | | | BinaryExpression: * @ <9.12-16> 
-| | | | | Identifier: x @ <9.12> 
-| | | | | Identifier: x @ <9.16> 
+| | | | | IdentifierExpression: x @ <9.12> 
+| | | | | IdentifierExpression: x @ <9.16> 
 | Function @ <11.1-17.1> 
-| | PrimitiveSpecifier: void @ <11.1-4> 
+| | PrimitiveSpecifier: i32 @ <11.1-4> 
 | | Declarator @ <11.6-10> 
 | | | FunctionDeclarator @ <11.6-10> 
 | | | | IdentifierDeclarator: run @ <11.6-8> 
@@ -89,19 +89,19 @@ Program @ <input/pointers_arrays.ec:1.1>
 | | | | | | IdentifierDeclarator: p @ <13.16-17> 
 | | | | | Initializer:  @ <13.21-22> 
 | | | | | | UnaryExpression: & @ <13.21-22> 
-| | | | | | | Identifier: n @ <13.21-22> 
+| | | | | | | IdentifierExpression: n @ <13.21-22> 
 | | | ExpressionStatement @ <14.5-16> 
 | | | | AssignmentExpression: = @ <14.5-15> 
 | | | | | MemberAccess: .value @ <14.5-11> 
-| | | | | | Identifier: n @ <14.5> 
+| | | | | | IdentifierExpression: n @ <14.5> 
 | | | | | Literal: 5 @ <14.15> 
 | | | ExpressionStatement @ <15.5-15> 
 | | | | PostfixExpression: ++ @ <15.5-14> 
 | | | | | MemberAccess: ->value @ <15.5-12> 
-| | | | | | Identifier: p @ <15.5> 
+| | | | | | IdentifierExpression: p @ <15.5> 
 | | | ReturnStatement @ <16.5-34> 
 | | | | CallExpression @ <16.12-33> 
-| | | | | Identifier: apply @ <16.12-16> 
-| | | | | Identifier: square @ <16.12-23> 
+| | | | | IdentifierExpression: apply @ <16.12-16> 
+| | | | | IdentifierExpression: square @ <16.12-23> 
 | | | | | MemberAccess: .value @ <16.26-32> 
-| | | | | | Identifier: n @ <16.26> 
+| | | | | | IdentifierExpression: n @ <16.26> 

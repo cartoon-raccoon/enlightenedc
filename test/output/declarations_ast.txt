@@ -10,7 +10,7 @@ Program @ <input/declarations.ec:1.1>
 | VariableDeclaration @ <1.1-32> 
 | | StorageClassSpecifier: public @ <1.1-6> 
 | | TypeQualifier: const @ <1.8-12> 
-| | PrimitiveSpecifier: void @ <1.14-17> 
+| | PrimitiveSpecifier: u32 @ <1.14-17> 
 | | InitDeclarator @ <1.19-31> 
 | | | Declarator @ <1.19-31> 
 | | | | Pointer @ <1.19-27> 
@@ -19,7 +19,7 @@ Program @ <input/declarations.ec:1.1>
 | | | | IdentifierDeclarator: ptrA @ <1.27-31> 
 | VariableDeclaration @ <2.1-29> 
 | | StorageClassSpecifier: static @ <2.1-6> 
-| | PrimitiveSpecifier: void @ <2.8-11> 
+| | PrimitiveSpecifier: i16 @ <2.8-11> 
 | | InitDeclarator @ <2.13> 
 | | | Declarator @ <2.13> 
 | | | | IdentifierDeclarator: a @ <2.13> 
@@ -33,21 +33,23 @@ Program @ <input/declarations.ec:1.1>
 | | | Declarator @ <2.25-28> 
 | | | | ArrayDeclarator @ <2.25-28> 
 | | | | | IdentifierDeclarator: c @ <2.25> 
-| | | | | Literal: 4 @ <2.25-27> 
+| | | | | ConstExpression:  @ <2.25-27> 
+| | | | | | Literal: 4 @ <2.25-27> 
 | VariableDeclaration @ <3.1-20> 
 | | StorageClassSpecifier: extern @ <3.1-6> 
-| | PrimitiveSpecifier: void @ <3.8-11> 
+| | PrimitiveSpecifier: f64 @ <3.8-11> 
 | | InitDeclarator @ <3.13-19> 
 | | | Declarator @ <3.13-19> 
 | | | | ArrayDeclarator @ <3.13-19> 
 | | | | | IdentifierDeclarator: table @ <3.13-17> 
 | VariableDeclaration @ <4.1-25> 
-| | PrimitiveSpecifier: void @ <4.1-3> 
+| | PrimitiveSpecifier: u8 @ <4.1-3> 
 | | InitDeclarator @ <4.5-24> 
 | | | Declarator @ <4.5-12> 
 | | | | ArrayDeclarator @ <4.5-12> 
 | | | | | IdentifierDeclarator: bytes @ <4.5-9> 
-| | | | | Literal: 3 @ <4.5-11> 
+| | | | | ConstExpression:  @ <4.5-11> 
+| | | | | | Literal: 3 @ <4.5-11> 
 | | | Initializer:  @ <4.16-24> 
 | | | | Initializer:  @ <4.16-17> 
 | | | | | Literal: 1 @ <4.16-17> 
@@ -56,12 +58,13 @@ Program @ <input/declarations.ec:1.1>
 | | | | Initializer:  @ <4.23> 
 | | | | | Literal: 3 @ <4.23> 
 | VariableDeclaration @ <5.1-24> 
-| | PrimitiveSpecifier: void @ <5.1-4> 
+| | PrimitiveSpecifier: i32 @ <5.1-4> 
 | | InitDeclarator @ <5.6-23> 
 | | | Declarator @ <5.6-14> 
 | | | | ArrayDeclarator @ <5.6-14> 
 | | | | | IdentifierDeclarator: matrix @ <5.6-11> 
-| | | | | Literal: 2 @ <5.6-13> 
+| | | | | ConstExpression:  @ <5.6-13> 
+| | | | | | Literal: 2 @ <5.6-13> 
 | | | Initializer:  @ <5.18-23> 
 | | | | Initializer:  @ <5.18-19> 
 | | | | | Literal: 0 @ <5.18-19> 

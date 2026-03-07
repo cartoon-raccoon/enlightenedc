@@ -7,6 +7,8 @@ x |= 1 ^ 3 & 7;
 
 x = (a > b) ? a : b;
 x = a && b || a;
+x = (U32i) a + 2;
+x = (I32i) a;
 
 s = "hello!";
 
