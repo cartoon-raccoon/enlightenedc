@@ -22,7 +22,7 @@ int Frontend::parse(const std::string& filename) {
         ecc::parser::Parser parser(lexer, ast_root);
 
         // temp for testing
-        parser.set_debug_level(1);
+        //parser.set_debug_level(1);
 
         int result = parser.parse();
 

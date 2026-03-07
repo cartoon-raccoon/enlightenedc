@@ -301,6 +301,7 @@ public:
     void visit(ReturnStatement& node) override;
 
     void visit(BinaryExpression& node) override;
+    void visit(CastExpression& node) override;
     void visit(UnaryExpression& node) override;
     void visit(AssignmentExpression& node) override;
     void visit(ConditionalExpression& node) override;
@@ -354,6 +355,7 @@ protected:
     virtual void do_visit(ReturnStatement& node);
 
     virtual void do_visit(BinaryExpression& node);
+    virtual void do_visit(CastExpression& node);
     virtual void do_visit(UnaryExpression& node);
     virtual void do_visit(AssignmentExpression& node);
     virtual void do_visit(ConditionalExpression& node);

@@ -65,6 +65,8 @@ void ReturnStatement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void BinaryExpression::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
+void CastExpression::accept(ASTVisitor& visitor) { visitor.visit(*this); }
+
 void UnaryExpression::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void AssignmentExpression::accept(ASTVisitor& visitor) { visitor.visit(*this); }

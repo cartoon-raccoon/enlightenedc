@@ -74,6 +74,7 @@ public:
     void visit(ReturnStatement& node) override;
 
     void visit(BinaryExpression& node) override;
+    void visit(CastExpression& node) override;
     void visit(UnaryExpression& node) override;
     void visit(AssignmentExpression& node) override;
     void visit(ConditionalExpression& node) override;

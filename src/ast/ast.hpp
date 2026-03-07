@@ -65,6 +65,7 @@ public:
         TYPE_NAME,
         CONST_EXPR,
         BIN_EXPR,
+        CAST_EXPR,
         UN_EXPR,
         ASSGN_EXPR,
         COND_EXPR,
@@ -495,7 +496,7 @@ public:
     };
 
     PrimitiveSpecifier(Location loc, PrimKind pkind)
-    : TypeSpecifier(PRIM_SPEC, loc) {}
+    : TypeSpecifier(PRIM_SPEC, loc), pkind(pkind) {}
 
     PrimKind pkind;
 
@@ -747,6 +748,21 @@ public:
     Box<Expression> left;
     Box<Expression> right;
     TokenType op;
+
+    void accept(ASTVisitor& visitor) override;
+};
+
+class CastExpression : public Expression {
+public:
+    CastExpression(Location loc,
+                   Box<Expression> inner,
+                   Box<TypeName> type_name)
+        : Expression(CAST_EXPR, loc),
+        inner(std::move(inner)),
+        type_name(std::move(type_name)) {}
+
+    Box<Expression> inner;
+    Box<TypeName> type_name;
 
     void accept(ASTVisitor& visitor) override;
 };

@@ -132,7 +132,12 @@ static ecc::parser::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 %type <Box<Statement>> selection_statement iteration_statement jump_statement
 
 %type <Box<Expression>> expression assignment_expression conditional_expression
-%type <Box<Expression>> binary_expression unary_expression postfix_expression primary_expression
+%type <Box<Expression>> unary_expression postfix_expression
+%type <Box<Expression>> primary_expression cast_expression logical_and_expression
+%type <Box<Expression>> logical_or_expression inclusive_or_expression
+%type <Box<Expression>> exclusive_or_expression and_expression equality_expression
+%type <Box<Expression>> relational_expression shift_expression additive_expression
+%type <Box<Expression>> multiplicative_expression
 %type <Box<LiteralExpression>> constant
 %type <Box<ConstExpression>> constant_expression
 %type <Vec<Box<Expression>>> argument_expression_list
@@ -696,71 +701,134 @@ assignment_operator:
 ;
 
 conditional_expression:
-    binary_expression {
+    logical_or_expression {
         $$ = std::move($1);
     }
-    | binary_expression QUESTION expression COLON conditional_expression %prec QUESTION {
+    | logical_or_expression QUESTION expression COLON conditional_expression %prec QUESTION {
         $$ = std::make_unique<ConditionalExpression>(@$, std::move($1), std::move($3), std::move($5));
     }
 ;
 
-binary_expression:
+logical_or_expression:
+    logical_and_expression {
+        $$ = std::move($1);
+    }
+    | logical_or_expression OROR logical_and_expression {
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::OROR);
+    }
+    ;
+
+logical_and_expression:
+    inclusive_or_expression {
+        $$ = std::move($1);
+    }
+    | logical_and_expression ANDAND inclusive_or_expression {
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::ANDAND);
+    }
+    ;
+
+inclusive_or_expression:
+    exclusive_or_expression {
+        $$ = std::move($1);
+    }
+    | inclusive_or_expression OR exclusive_or_expression {
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::OR);
+    }
+    ;
+
+exclusive_or_expression:
+    and_expression {
+        $$ = std::move($1);
+    }
+    | exclusive_or_expression XOR and_expression {
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::XOR);
+    }
+    ;
+
+and_expression:
+    equality_expression {
+        $$ = std::move($1);
+    }
+    | and_expression AND equality_expression {
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::AND);
+    }
+    ;
+
+equality_expression:
+    relational_expression {
+        $$ = std::move($1);
+    }
+    | equality_expression EQ relational_expression {
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::EQ);
+    }
+    | equality_expression NE relational_expression {
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::NE);
+    }
+    ;
+
+relational_expression:
+    shift_expression {
+        $$ = std::move($1);
+    }
+    | relational_expression LT shift_expression {
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::LT);
+    }
+    | relational_expression GT shift_expression {
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::GT);
+    }
+    | relational_expression LE shift_expression {
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::LE);
+    }
+    | relational_expression GE shift_expression {
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::GE);
+    }
+    ;
+
+shift_expression:
+    additive_expression {
+        $$ = std::move($1);
+    }
+    | shift_expression LSHIFT additive_expression {
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::LSHIFT);
+    }
+    | shift_expression RSHIFT additive_expression {
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::RSHIFT);
+    }
+    ;
+
+additive_expression:
+    multiplicative_expression {
+        $$ = std::move($1);
+    }
+    | additive_expression PLUS multiplicative_expression {
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::PLUS);
+    }
+    | additive_expression MINUS multiplicative_expression {
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::MINUS);
+    }
+    ;
+
+multiplicative_expression:
+    cast_expression {
+        $$ = std::move($1);
+    }
+    | multiplicative_expression MUL cast_expression {
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::MUL);
+    }
+    | multiplicative_expression DIV cast_expression {
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::DIV);
+    }
+    | multiplicative_expression MOD cast_expression {
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::MOD);
+    }
+;
+
+cast_expression:
     unary_expression {
         $$ = std::move($1);
     }
-    | binary_expression OROR binary_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::OROR);
-    }
-    | binary_expression ANDAND binary_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::ANDAND);
-    }
-    | binary_expression OR binary_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::OR);
-    }
-    | binary_expression XOR binary_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::XOR);
-    }
-    | binary_expression AND binary_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::AND);
-    }
-    | binary_expression EQ binary_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::EQ);
-    }
-    | binary_expression NE binary_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::NE);
-    }
-    | binary_expression LT binary_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::LT);
-    }
-    | binary_expression GT binary_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::GT);
-    }
-    | binary_expression LE binary_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::LE);
-    }
-    | binary_expression GE binary_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::GE);
-    }
-    | binary_expression LSHIFT binary_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::LSHIFT);
-    }
-    | binary_expression RSHIFT binary_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::RSHIFT);
-    }
-    | binary_expression PLUS binary_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::PLUS);
-    }
-    | binary_expression MINUS binary_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::MINUS);
-    }
-    | binary_expression MUL binary_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::MUL);
-    }
-    | binary_expression DIV binary_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::DIV);
-    }
-    | binary_expression MOD binary_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::MOD);
+    | LPAREN type_name RPAREN unary_expression { // casting in enlightenedc is prefix because postfix is too hard.
+        $$ = std::make_unique<CastExpression>(@$, std::move($4), std::move($2));
     }
 ;
 

@@ -281,6 +281,11 @@ void BaseSemanticVisitor::visit(BinaryExpression& node) {
     do_visit(node);
 }
 
+void BaseSemanticVisitor::visit(CastExpression& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
 void BaseSemanticVisitor::visit(UnaryExpression& node) {
     auto guard = enter_node(&node);
     do_visit(node);
@@ -589,6 +594,11 @@ void BaseSemanticVisitor::do_visit(ReturnStatement& node) {
 void BaseSemanticVisitor::do_visit(BinaryExpression& node) {
     node.left->accept(*this);
     node.right->accept(*this);
+}
+
+void BaseSemanticVisitor::do_visit(CastExpression& node) {
+    node.inner->accept(*this);
+    node.type_name->accept(*this);
 }
 
 void BaseSemanticVisitor::do_visit(UnaryExpression& node) {

@@ -51,6 +51,7 @@ public:
     virtual void visit(ReturnStatement& node) = 0;
 
     virtual void visit(BinaryExpression& node) = 0;
+    virtual void visit(CastExpression& node) = 0;
     virtual void visit(UnaryExpression& node) = 0;
     virtual void visit(AssignmentExpression& node) = 0;
     virtual void visit(ConditionalExpression& node) = 0;

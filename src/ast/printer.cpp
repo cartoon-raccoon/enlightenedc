@@ -513,7 +513,7 @@ void ASTPrinter::visit(IdentifierExpression& node) {
 
 void ASTPrinter::visit(ConstExpression& node) {
     print_node("ConstExpression: ", node,
-        [&] { node.accept(*this); }
+        [&] { node.inner->accept(*this); }
     );
 }
 
@@ -522,6 +522,14 @@ void ASTPrinter::visit(BinaryExpression& node) {
         "BinaryExpression: " + token_type_to_string(node.op), node,
         [&] { node.left->accept(*this); },
         [&] { node.right->accept(*this); });
+}
+
+void ASTPrinter::visit(CastExpression& node) {
+    print_node(
+        "CastExpression: ", node,
+        [&] { node.inner->accept(*this); },
+        [&] { node.type_name->accept(*this); }
+    );
 }
 
 void ASTPrinter::visit(UnaryExpression& node) {
