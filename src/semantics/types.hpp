@@ -34,6 +34,7 @@ class ClassType;
 class UnionType;
 class EnumType;
 class PointerType;
+class ArrayType;
 class FunctionType;
 class TypeContext;
 
@@ -52,12 +53,13 @@ Type size and member alignment is calculated at compile time, using LLVM's `Data
 class Type {
 public:
     enum Kind {
-        Primitive,
-        Class,
-        Union,
-        Enum,
-        Pointer,
-        Function,
+        PRIMITIVE,
+        CLASS,
+        UNION,
+        ENUM,
+        POINTER,
+        ARRAY,
+        FUNCTION,
     };
 
     // The kind of the type.
@@ -97,6 +99,7 @@ public:
     virtual UnionType *as_union() { return nullptr; }
     virtual EnumType *as_enum() { return nullptr; }
     virtual PointerType *as_pointer() { return nullptr; }
+    virtual ArrayType *as_array() { return nullptr; }
     virtual FunctionType *as_function() { return nullptr; }
 
 protected:
@@ -154,7 +157,7 @@ protected:
 
     friend constexpr Box<PrimitiveType> std::make_unique<PrimitiveType>(Kind&&);
 
-    PrimitiveType(Kind kind) : Type(Type::Kind::Primitive), primkind(kind) {}
+    PrimitiveType(Kind kind) : Type(Type::Kind::PRIMITIVE), primkind(kind) {}
 };
 
 class ClassType : public Type {
@@ -187,7 +190,7 @@ protected:
     friend constexpr Box<ClassType> std::make_unique<ClassType>();
 
     // Construct an empty class.
-    ClassType() : Type(Type::Kind::Class), members() {}
+    ClassType() : Type(Type::Kind::CLASS), members() {}
 };
 
 
@@ -214,7 +217,7 @@ protected:
 
     friend constexpr Box<UnionType> std::make_unique<UnionType>();
 
-    UnionType() : Type(Type::Kind::Union) {}
+    UnionType() : Type(Type::Kind::UNION) {}
 };
 
 
@@ -224,6 +227,8 @@ An enumerated type (e.g. `enum State { DONE, PENDING }`).
 ## Compatibility
 
 An enum type is compatible with any integer primitive type, but not vice versa.
+The compiler will throw an error if the number of enum variants exceed the maximum
+value of the integer primitive to be cast to.
 */
 class EnumType : public Type {
 public:
@@ -256,7 +261,7 @@ protected:
 
     friend constexpr Box<EnumType> std::make_unique<EnumType>();
 
-    EnumType() : Type(Type::Kind::Enum), enumerators() {}
+    EnumType() : Type(Type::Kind::ENUM), enumerators() {}
 
 private:
     // existing values that have already been declared.
@@ -273,6 +278,9 @@ A pointer `ptr` is only compatible with another pointer `other` if:
 
 the base type of `other` is a void type (U0 or U0), and
 the level of nesting is the same (i.e. U8 ** is compatible with U0 **, but not U0 ***).
+
+Pointers can be subscripted like arrays, the compiler will treat the subscript as pointer
+arithmetic. However, pointers cannot be converted to sized arrays.
 */
 class PointerType : public Type {
 public:
@@ -287,7 +295,48 @@ protected:
 
     friend constexpr Box<PointerType> std::make_unique<PointerType>(Type *&);
     
-    PointerType(Type *base) : Type(Type::Kind::Pointer), base(base) {}
+    PointerType(Type *base) : Type(Type::Kind::POINTER), base(base) {}
+};
+
+
+/*
+A sized array type (U8 [4], U32 [6], etc.).
+
+## Compatibility
+
+An array is compatible with a pointer of the same base through pointer decay.
+Similarly, pointers can be subscripted like an array, the compiler treats
+it as pointer arithmetic.
+
+A sized array is strictly only compatible with another array of the exact same base
+and size.
+
+## Semantics
+
+EnlightenedC follows C's array semantics: Declared arrays must be sized,
+and the compiler will infer the size of an array if an initializer is provided.
+If an array is declared with no size and no initializer is provided, the compiler
+will throw an error.
+
+An unsized array declarator can be used as a function argument, where it will be
+decayed to a pointer.
+*/
+class ArrayType : public Type {
+public:
+    Type *base;
+
+    int size = -1;
+
+    ArrayType *as_array() override { return this; }
+
+    bool is_compatible_with(Type *other) override;
+    
+protected:
+    friend class TypeContext;
+
+    friend constexpr Box<ArrayType> std::make_unique<ArrayType>(Type *&, int&);
+
+    ArrayType(Type *base, int size) : Type(Type::Kind::ARRAY), base(base), size(size) {}
 };
 
 
@@ -309,7 +358,7 @@ protected:
 
     friend constexpr Box<FunctionType> std::make_unique<FunctionType>();
 
-    FunctionType() : Type(Type::Kind::Function) {}
+    FunctionType() : Type(Type::Kind::FUNCTION) {}
 };
 
 /*
@@ -369,17 +418,35 @@ public:
     // Create a pointer with the given `base` type.
     PointerType *get_pointer(Type *base);
 
+    // Create or get an array with the given `base` type and specified size.
+    ArrayType *get_array(Type *base, int size);
+
     // Create a function type based on its signature.
     FunctionType *get_function(Type *ret, Vec<Type *> params, bool variadic);
 
 private:
     int anonymous_ctr = 0;
 
+    struct pair_hash {
+        template<typename T1, typename T2>
+        std::size_t operator() (const std::pair<T1, T2> p) {
+            auto h1 = std::hash<T1>(p.first);
+            auto h2 = std::hash<T2>(p.second);
+
+            return h1 ^ h2 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2);
+        }
+    };
+
+    using ArrayKey = std::pair<Type *, int>;
+
     // The map of base types (i.e. non-pointers).
     std::unordered_map<std::string, Box<Type>> base_types;
 
     // The map of pointer types, mapped by their base type.
     std::unordered_map<Type *, Box<PointerType>> pointers;
+
+    // The map of array types, mapped by their base type (todo: add size)
+    std::unordered_map<ArrayKey, Box<ArrayType>, pair_hash> arrays;
 
     // Generate a mangled, unique name for a type incorporating its associated scope.
     template <typename T>

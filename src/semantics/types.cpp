@@ -7,9 +7,9 @@
 
 using namespace ecc::sema::types;
 
-bool Type::is_primitive() { return kind == Kind::Primitive; }
+bool Type::is_primitive() { return kind == Kind::PRIMITIVE; }
 
-bool Type::is_pointer() { return kind == Kind::Pointer; }
+bool Type::is_pointer() { return kind == Kind::POINTER; }
 
 void ClassType::add_member(Box<ClassType::ClassTypeMember> member) {
     members.push_back(std::move(member));
@@ -154,7 +154,7 @@ bool PrimitiveType::is_integer() {
 
 bool PrimitiveType::is_compatible_with(Type *other) {
     // Only primitive types allowed
-    if (other->kind != Type::Kind::Primitive) {
+    if (other->kind != Type::Kind::PRIMITIVE) {
         return false;
     }
 
@@ -170,11 +170,15 @@ bool PrimitiveType::is_compatible_with(Type *other) {
     return true ? 0 < my_size && my_size <= new_other->size() : false;
 }
 
+bool EnumType::is_compatible_with(Type *other) {
+    return false; // todo
+}
+
 bool PointerType::is_compatible_with(Type *other) {
     return false; // todo
 }
 
-bool EnumType::is_compatible_with(Type *other) {
+bool ArrayType::is_compatible_with(Type *other) {
     return false; // todo
 }
 
@@ -258,6 +262,20 @@ PointerType *TypeContext::get_pointer(Type *base) {
     Box<PointerType> ptr = std::make_unique<PointerType>(base);
     auto ret = ptr.get();
     pointers[base] = std::move(ptr);
+
+    return ret;
+}
+
+ArrayType *TypeContext::get_array(Type *base, int size) {
+    ArrayKey key(base, size);
+    auto it = arrays.find(key);
+    if (it != arrays.end()) {
+        return it->second.get();
+    }
+
+    Box<ArrayType> arr = std::make_unique<ArrayType>(base, size);
+    auto ret = arr.get();
+    arrays[key] = std::move(arr);
 
     return ret;
 }
