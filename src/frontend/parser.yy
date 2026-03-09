@@ -113,8 +113,8 @@ static ecc::parser::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 %type <Box<ParameterDeclaration>> parameter_declaration
 %type <std::pair<Vec<Box<ParameterDeclaration>>, bool>> parameter_type_list
 
-%type <ClassOrUnionSpecifier::Kind> class_or_union
-%type <Box<ClassOrUnionSpecifier>> class_or_union_specifier
+%type <ClassOrUnion> class_or_union
+%type <Box<TypeSpecifier>> class_or_union_specifier
 %type <Box<EnumSpecifier>> enum_specifier
 %type <Vec<Box<ClassDeclaration>>> class_declaration_list
 %type <Box<ClassDeclaration>> class_declaration
@@ -122,6 +122,8 @@ static ecc::parser::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 %type <Box<ClassDeclarator>> class_declarator
 %type <Vec<Box<Enumerator>>> enumerator_list
 %type <Box<Enumerator>> enumerator
+%type <Vec<std::string>> class_parent_list
+%type <std::string> class_parent
 
 %type <Box<TypeName>> type_name
 %type <Box<Initializer>> initializer
@@ -236,21 +238,83 @@ To solve this, we can add another variant with just IDENTIFIER,
 but this might cause headaches with semantic validation down the line.
 */
 class_or_union_specifier:
-    class_or_union IDENTIFIER LBRACE class_declaration_list RBRACE {
-        $$ = std::make_unique<ClassOrUnionSpecifier>(@$, $1, std::move($2), std::move($4));
+    // Class declaration and definition with parent classes.
+    class_or_union IDENTIFIER COLON class_parent_list LBRACE class_declaration_list RBRACE {
+        if ($1 == ClassOrUnion::UNION) {
+            error(@1, "unions cannot inherit from parent types");
+            return 1;
+        }
+        $$ = std::make_unique<ClassSpecifier>(@$, std::move($2), std::move($4), std::move($6));
     }
+    // Class declaration (no definition) with parent classes.
+    | class_or_union IDENTIFIER COLON class_parent_list {
+        if ($1 == ClassOrUnion::UNION) {
+            error(@1, "unions cannot inherit from parent types");
+            return 1;
+        }
+        $$ = std::make_unique<ClassSpecifier>(@$, std::move($2), std::move($4), std::nullopt);
+    }
+    // Class or union declaration and definition.
+    | class_or_union IDENTIFIER LBRACE class_declaration_list RBRACE {
+        switch ($1) {
+            case ClassOrUnion::CLASS:
+            $$ = std::make_unique<ClassSpecifier>(@$, std::move($2), std::nullopt, std::move($4));
+            break;
+
+            case ClassOrUnion::UNION:
+            $$ = std::make_unique<UnionSpecifier>(@$, std::move($2), std::move($4));
+            break;
+        }
+    }
+    // Anonymous class or union declaration and definition.
     | class_or_union LBRACE class_declaration_list RBRACE {
-        $$ = std::make_unique<ClassOrUnionSpecifier>(@$, $1, std::nullopt, std::move($3));
+        switch ($1) {
+            case ClassOrUnion::CLASS:
+            $$ = std::make_unique<ClassSpecifier>(@$, std::nullopt, std::nullopt, std::move($3));
+            break;
+
+            case ClassOrUnion::UNION:
+            $$ = std::make_unique<UnionSpecifier>(@$, std::nullopt, std::move($3));
+            break;
+        }
     }
+    // Named class or union declaration (no definition).
     | class_or_union IDENTIFIER {
-        $$ = std::make_unique<ClassOrUnionSpecifier>(@$, $1, std::move($2), std::nullopt);
+        switch ($1) {
+            case ClassOrUnion::CLASS:
+            $$ = std::make_unique<ClassSpecifier>(@$, std::move($2), std::nullopt, std::nullopt);
+            break;
+
+            case ClassOrUnion::UNION:
+            $$ = std::make_unique<UnionSpecifier>(@$, std::move($2), std::nullopt);
+            break;
+        }
     }
 ;
 
 class_or_union:
-    CLASS { $$ = ClassOrUnionSpecifier::CLASS; }
-    | UNION { $$ = ClassOrUnionSpecifier::UNION; }
+    CLASS { $$ = ClassOrUnion::CLASS; }
+    | UNION { $$ = ClassOrUnion::UNION; }
 ;
+
+class_parent_list:
+    class_parent {
+        Vec<std::string> list;
+        list.push_back(std::move($1));
+        $$ = std::move(list);
+    }
+    | class_parent_list COMMA class_parent {
+        $1.push_back(std::move($3));
+        $$ = std::move($1);
+    }
+
+class_parent:
+    IDENTIFIER {
+        $$ = std::move($1);
+    }
+    | CLASS IDENTIFIER {
+        $$ = std::move($2);
+    }
 
 class_declaration_list:
     class_declaration {
@@ -957,8 +1021,4 @@ namespace ecc::parser {
     void Parser::error(const Location& loc, const std::string& msg) {
         std::cerr << "Error at " << loc << ": " << msg << std::endl;
     }
-
-    /* util::Location loc_to_location() {
-
-    } */
 }

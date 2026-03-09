@@ -61,7 +61,8 @@ public:
     void visit(ast::TypeQualifier& node) override;
     void visit(ast::EnumSpecifier& node) override;
     void visit(ast::PrimitiveSpecifier& node) override;
-    void visit(ast::ClassOrUnionSpecifier& node) override;
+    void visit(ast::ClassSpecifier& node) override;
+    void visit(ast::UnionSpecifier& node) override;
     void visit(ast::Initializer& node) override;
     void visit(ast::TypeName& node) override;
     void visit(ast::IdentifierDeclarator& node) override;

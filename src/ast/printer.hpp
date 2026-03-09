@@ -39,7 +39,8 @@ public:
     void visit(TypeQualifier& node) override;
     void visit(EnumSpecifier& node) override;
     void visit(PrimitiveSpecifier& node) override;
-    void visit(ClassOrUnionSpecifier& node) override;
+    void visit(ClassSpecifier& node) override;
+    void visit(UnionSpecifier& node) override;
     void visit(Initializer& node) override;
     void visit(TypeName& node) override;
     void visit(IdentifierDeclarator& node) override;

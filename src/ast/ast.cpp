@@ -107,9 +107,9 @@ void ArrayDeclarator::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void FunctionDeclarator::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
-void ClassOrUnionSpecifier::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
+void ClassSpecifier::accept(ASTVisitor& visitor) { visitor.visit(*this); }
+
+void UnionSpecifier::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void Program::add_item(std::unique_ptr<ProgramItem> item) {
     items.push_back(std::move(item));

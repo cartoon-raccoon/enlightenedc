@@ -128,7 +128,13 @@ void BaseSemanticVisitor::visit(EnumSpecifier& node) {
     do_visit(node);
 }
 
-void BaseSemanticVisitor::visit(ClassOrUnionSpecifier& node) {
+void BaseSemanticVisitor::visit(ClassSpecifier& node) {
+    // any nested derived types have to be scoped within this specifier.
+    auto guard = enter_node(&node, true);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(UnionSpecifier& node) {
     // any nested derived types have to be scoped within this specifier.
     auto guard = enter_node(&node, true);
     do_visit(node);
@@ -426,7 +432,15 @@ void BaseSemanticVisitor::do_visit(EnumSpecifier& node) {
     }
 }
 
-void BaseSemanticVisitor::do_visit(ClassOrUnionSpecifier& node) {
+void BaseSemanticVisitor::do_visit(ClassSpecifier& node) {
+    if (node.declarations.has_value()) {
+        for (auto& decl : node.declarations.value()) {
+            decl->accept(*this);
+        }
+    }
+}
+
+void BaseSemanticVisitor::do_visit(UnionSpecifier& node) {
     if (node.declarations.has_value()) {
         for (auto& decl : node.declarations.value()) {
             decl->accept(*this);

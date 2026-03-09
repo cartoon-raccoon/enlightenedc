@@ -184,7 +184,8 @@ public:
     void visit(ast::StorageClassSpecifier& node) override;
     void visit(ast::TypeQualifier& node) override;
     void visit(ast::EnumSpecifier& node) override;
-    void visit(ast::ClassOrUnionSpecifier& node) override;
+    void visit(ast::ClassSpecifier& node) override;
+    void visit(ast::UnionSpecifier& node) override;
     void visit(ast::PrimitiveSpecifier& node) override;
     void visit(ast::Initializer& node) override;
     void visit(ast::TypeName& node) override;
@@ -238,7 +239,8 @@ protected:
     virtual void do_visit(ast::StorageClassSpecifier& node);
     virtual void do_visit(ast::TypeQualifier& node);
     virtual void do_visit(ast::EnumSpecifier& node);
-    virtual void do_visit(ast::ClassOrUnionSpecifier& node);
+    virtual void do_visit(ast::ClassSpecifier& node);
+    virtual void do_visit(ast::UnionSpecifier& node);
     virtual void do_visit(ast::PrimitiveSpecifier& node);
     virtual void do_visit(ast::Initializer& node);
     virtual void do_visit(ast::TypeName& node);

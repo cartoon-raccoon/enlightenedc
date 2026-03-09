@@ -66,7 +66,8 @@ public:
     void visit(ast::StorageClassSpecifier& node) override;
     void visit(ast::TypeQualifier& node) override;
     void visit(ast::EnumSpecifier& node) override;
-    void visit(ast::ClassOrUnionSpecifier& node) override;
+    void visit(ast::ClassSpecifier& node) override;
+    void visit(ast::UnionSpecifier& node) override;
     void visit(ast::PrimitiveSpecifier& node) override;
     void visit(ast::Initializer& node) override;
     void visit(ast::TypeName& node) override;
@@ -85,9 +86,9 @@ public:
 protected:
     //void do_visit(ast::LabeledStatement& node) override;
 
-    void do_visit(ast::ClassOrUnionSpecifier& node, types::ClassType *cls);
+    void do_visit(ast::ClassSpecifier& node) override;
 
-    void do_visit(ast::ClassOrUnionSpecifier& node, types::UnionType *unn);
+    void do_visit(ast::UnionSpecifier& node) override;
 };
 
 }

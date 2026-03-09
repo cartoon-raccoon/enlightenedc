@@ -46,6 +46,8 @@ public:
         CLASS_DECL,
         ENUMERATOR,
         CL_UNION_SPEC,
+        CLASS_SPEC,
+        UNION_SPEC,
         ENUM_SPEC,
         PRIM_SPEC,
         COMP_STMT,
@@ -418,6 +420,47 @@ public:
     virtual void accept(ASTVisitor& visitor) = 0;
 };
 
+enum ClassOrUnion {
+    CLASS,
+    UNION,
+};
+
+class ClassSpecifier : public TypeSpecifier {
+public:
+    ClassSpecifier(Location loc,
+                   std::optional<std::string> name,
+                   std::optional<Vec<std::string>> parents,
+                   std::optional<Vec<Box<ClassDeclaration>>> declarations)
+        : TypeSpecifier(CLASS_SPEC, loc),
+        name(std::move(name)),
+        parents(std::move(parents)),
+        declarations(std::move(declarations)) {}
+
+    std::optional<std::string> name;
+    // Identifiers of parent classes.
+    std::optional<Vec<std::string>> parents;
+    // Declarations of members.
+    std::optional<Vec<Box<ClassDeclaration>>> declarations;
+
+    void accept(ASTVisitor& visitor) override;
+};
+
+class UnionSpecifier : public TypeSpecifier {
+public:
+    UnionSpecifier(Location loc,
+                   std::optional<std::string> name,
+                   std::optional<Vec<Box<ClassDeclaration>>> declarations)
+        : TypeSpecifier(UNION_SPEC, loc),
+        name(std::move(name)),
+        declarations(std::move(declarations)) {}
+
+    std::optional<std::string> name;
+
+    std::optional<Vec<Box<ClassDeclaration>>> declarations;
+
+    void accept(ASTVisitor& visitor) override;
+};
+
 /*
 A declaration of an enumerator within an enum.
 */
@@ -435,28 +478,6 @@ public:
     void accept(ASTVisitor& visitor) override;
 };
 
-/*
-A node denoting a class or union and what members it contains.
-*/
-class ClassOrUnionSpecifier : public TypeSpecifier {
-public:
-    enum Kind { CLASS, UNION };
-
-    ClassOrUnionSpecifier(Location loc,
-                          Kind kind,
-                          std::optional<std::string> name,
-                          std::optional<Vec<Box<ClassDeclaration>>> declarations)
-        : TypeSpecifier(CL_UNION_SPEC, loc),
-        kind(kind), name(std::move(name)),
-        declarations(std::move(declarations)) {}
-
-    Kind kind;
-    std::optional<std::string> name;
-
-    std::optional<Vec<Box<ClassDeclaration>>> declarations;
-
-    void accept(ASTVisitor& visitor) override;
-};
 
 /*
 A node denoting an enum and its contained variants.

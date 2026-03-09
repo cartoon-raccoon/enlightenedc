@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <variant>
+#include <ranges>
 
 using namespace ecc::ast;
 
@@ -450,11 +451,29 @@ void ASTPrinter::visit(EnumSpecifier& node) {
                 });
 }
 
-void ASTPrinter::visit(ClassOrUnionSpecifier& node) {
-    std::string kind =
-        node.kind == ClassOrUnionSpecifier::CLASS ? "class" : "union";
+void ASTPrinter::visit(ClassSpecifier& node) {
+    std::string parents;
+    if (node.parents.has_value()) {
+        parents = node.parents.value() | std::views::join_with(' ') | std::ranges::to<std::string>();
+    } else {
+        parents = "";
+    }
 
-    print_node("ClassOrUnionSpecifier: " + kind +
+    print_node("ClassSpecifier: " +
+                    (node.name ? " " + node.name.value() : "")
+                    + ":"
+                    + parents
+                    ,
+                node, [&] {
+                    if (node.declarations)
+                        for (auto& decl : node.declarations.value())
+                            decl->accept(*this);
+                });
+}
+
+void ASTPrinter::visit(UnionSpecifier& node) {
+
+    print_node("UnionSpecifier: " +
                     (node.name ? " " + node.name.value() : ""),
                 node, [&] {
                     if (node.declarations)

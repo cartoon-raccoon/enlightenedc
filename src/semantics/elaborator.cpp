@@ -80,82 +80,80 @@ void Elaborator::visit(EnumSpecifier& node) {
     // their corresponding enum is declared.
 }
 
-void Elaborator::visit(ClassOrUnionSpecifier& node) {
+void Elaborator::visit(ClassSpecifier& node) {
     // any nested derived types have to be scoped within this specifier.
     auto guard = enter_scope();
 
-    Type *ty;
-    switch (node.kind) {
-        case ClassOrUnionSpecifier::CLASS: {
-            ClassType *cls = nullptr;
-            if (node.name.has_value()) {
-                cls = types.get_class(*(node.name), syms.current);
-            } else {
-                cls = types.get_class(syms.current);
-            }
-
-            if (!cls) {
-                // error: type with name already exists but is not class
-                throw ecc::EccError("class already declared as another type");
-            }
-
-            if (node.declarations.has_value()) {
-                if (cls->complete) {
-                    // error: class was previously defined
-                    throw ecc::EccError("class was previously declared");
-                }
-
-                // class is defined here, populate its members and mark it complete
-                // todo: populate class
-                for (auto& decl : *node.declarations) {
-
-                }
-
-                cls->complete = true;
-            }
-
-            last_result = cls;
-            ty = cls;
-            break;
-        }
-        case ClassOrUnionSpecifier::UNION: {
-            UnionType *unn = nullptr;
-            if (node.name.has_value()) {
-                unn = types.get_union(*(node.name), syms.current);
-            } else {
-                unn = types.get_union(syms.current);
-            }
-
-            if (!unn) {
-                // error: type with name already exists but is not union
-                // todo: throw error
-            }
-
-            if (node.declarations.has_value()) {
-                if (unn->complete) {
-                    // error: union was previously defined
-                    // todo: throw error
-                }
-                // class is defined here, populate its members and mark it complete
-                // todo: populate union
-                for (auto& decl : *node.declarations) {
-
-                }
-
-                unn->complete = true;
-            }
-
-            last_result = unn;
-            ty = unn;
-            break;
-        }
+    ClassType *cls = nullptr;
+    if (node.name.has_value()) {
+        cls = types.get_class(*(node.name), syms.current);
+    } else {
+        cls = types.get_class(syms.current);
     }
+
+    if (!cls) {
+        // error: type with name already exists but is not class
+        throw ecc::EccError("class already declared as another type");
+    }
+
+    if (node.declarations.has_value()) {
+        if (cls->complete) {
+            // error: class was previously defined
+            throw ecc::EccError("class was previously declared");
+        }
+
+        // class is defined here, populate its members and mark it complete
+        // todo: populate class
+        for (auto& decl : *node.declarations) {
+
+        }
+
+        cls->complete = true;
+    }
+
+    last_result = cls;
+    
 
     // todo: create symbol and associate current scope with it
     if (node.name.has_value()) {
-        syms.insert(*node.name, std::make_unique<sym::TypeSymbol>(ty));
+        syms.insert(*node.name, std::make_unique<sym::TypeSymbol>(cls));
     }
 
+}
+
+void Elaborator::visit(UnionSpecifier& node) {
+    UnionType *unn = nullptr;
+    if (node.name.has_value()) {
+        unn = types.get_union(*(node.name), syms.current);
+    } else {
+        unn = types.get_union(syms.current);
+    }
+
+    if (!unn) {
+        // error: type with name already exists but is not union
+        // todo: throw error
+    }
+
+    if (node.declarations.has_value()) {
+        if (unn->complete) {
+            // error: union was previously defined
+            // todo: throw error
+        }
+        // class is defined here, populate its members and mark it complete
+        // todo: populate union
+        for (auto& decl : *node.declarations) {
+
+        }
+
+        unn->complete = true;
+    }
+
+    last_result = unn;
+
+    // todo: create symbol and associate current scope with it
+    if (node.name.has_value()) {
+        syms.insert(*node.name, std::make_unique<sym::TypeSymbol>(unn));
+    }
 }
 
 void Elaborator::visit(Initializer& node) {}
@@ -189,4 +187,12 @@ void Elaborator::visit(BreakStatement& node) {
 
 void Elaborator::visit(ReturnStatement& node) {
     
+}
+
+void Elaborator::do_visit(ClassSpecifier& node) {
+
+}
+
+void Elaborator::do_visit(UnionSpecifier& node) {
+
 }

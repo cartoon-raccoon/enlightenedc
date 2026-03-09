@@ -30,7 +30,8 @@ public:
     virtual void visit(StorageClassSpecifier& node) = 0;
     virtual void visit(TypeQualifier& node) = 0;
     virtual void visit(EnumSpecifier& node) = 0;
-    virtual void visit(ClassOrUnionSpecifier& node) = 0;
+    virtual void visit(ClassSpecifier& node) = 0;
+    virtual void visit(UnionSpecifier& node) = 0;
     virtual void visit(PrimitiveSpecifier& node) = 0;
     virtual void visit(Initializer& node) = 0;
     virtual void visit(TypeName& node) = 0;
