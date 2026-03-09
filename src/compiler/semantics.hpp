@@ -108,24 +108,29 @@ public:
 };
 
 /*
+A scope within which symbols are defined.
+
+A scope stores symbols inside a translation unit.
+*/
+class Scope {
+public:
+    Scope(Symbol *assoc, Scope *outer) : outer(outer), assoc(assoc), symbols(), inners() {}
+    // the outer scope enclosing the inner scope.
+    Scope *outer;
+    // a symbol associated with this scope, usually a function.
+    // if null, this is an anonymous scope.
+    Symbol *assoc;
+    // the symbol table.
+    std::unordered_map<std::string, Box<Symbol>> symbols = {};
+    // inner scopes contained within this scope.
+    Vec<Box<Scope>> inners;
+};
+
+/*
 The symbol table, storing all symbols in a given translation unit.
 */
 class SymbolTable {
 public:
-    class Scope {
-    public:
-        Scope(Symbol *assoc, Scope *outer) : outer(outer), assoc(assoc), symbols(), inners() {}
-        // the outer scope enclosing the inner scope.
-        Scope *outer;
-        // a symbol associated with this scope, usually a function.
-        // if null, this is an anonymous scope.
-        Symbol *assoc;
-        // the symbol table.
-        std::unordered_map<std::string, Box<Symbol>> symbols = {};
-        // inner scopes contained within this scope.
-        Vec<Box<Scope>> inners;
-    }; // class Scope
-
     SymbolTable() : global(std::make_unique<Scope>(nullptr, nullptr)), current(global.get()) {}
 
     // The global scope.
@@ -135,8 +140,17 @@ public:
     // Create and enter a new scope.
     void push_scope(Symbol *assoc = nullptr);
 
+    // Enter the next scope.
+    void enter_scope();
+
     // Exit the current scope to the outer one.
     void pop_scope();
+
+    // Reset to the current global scope and first index.
+    void reset();
+
+    // Clear the entire SymbolTable.
+    void clear();
 
     // Lookup a symbol by name. Returns null if no symbol exists.
     Symbol *lookup(std::string sym);
@@ -180,8 +194,12 @@ public:
         friend class BaseSemanticVisitor;
         friend class BaseSemanticVisitor::NodeGuard;
 
-        ScopeGuard(SymbolTable& st, Symbol *assoc) : st(st) {
-            st.push_scope(assoc);
+        ScopeGuard(BaseSemanticVisitor& bsv, Symbol *assoc) : st(bsv.syms) {
+            if (bsv.state == BaseSemanticVisitor::State::READ) {
+                st.enter_scope();
+            } else {
+                st.push_scope(assoc);
+            }
         }
 
         // Allow the ScopeGuard to be moved.
@@ -234,9 +252,22 @@ public:
         std::optional<ScopeGuard> scope_guard;
     }; // class NodeGuard
 
-    BaseSemanticVisitor(SymbolTable& syms, TypeContext& types)
-    : syms(syms), types(types) {}
+    /*
+    The state of the BaseSemanticVisitor.
+    */
+    enum State {
+        // The visitor should populate the symbol table and type context.
+        READ,
+        // The symbol table and type context have already been populated,
+        // and should be read from instead.
+        WRITE,
+    };
 
+    BaseSemanticVisitor(State state, SymbolTable& syms, TypeContext& types)
+    : state(state), syms(syms), types(types) {}
+
+    // The current state of the BaseSemanticVisitor.
+    State state;
     // The Symbol Table.
     SymbolTable& syms;
     // The Type Context.
@@ -244,7 +275,11 @@ public:
     // Tracks the outer nodes that the current node rests in.
     Vec<ASTNode *> ctxt_stack;
 
-    // Create and enter a new scope, supplying an associated symbol if needed.
+    /*
+    If in write mode, creates and enters a new scope.
+
+    If in read mode, enters the next scope.
+    */
     ScopeGuard enter_scope(Symbol *sym = nullptr);
 
     // Enter an AST node. If new_scope is true, additionally creates a new scope.
@@ -252,6 +287,9 @@ public:
 
     // Get the AST node immediately outside this node.
     ASTNode *imm_ctxt();
+
+    // Switch from READ to WRITE or vice versa.
+    void switch_state();
 
     /// \brief Checks if there is `kind` in the context, and if so, how many layers up.
     /// Returns -1 if there is no `kind` in the context.
@@ -376,7 +414,7 @@ The class that performs the validation pass.
 class Validator : public BaseSemanticVisitor {
 public:
     Validator(SymbolTable& syms, TypeContext& types)
-    : BaseSemanticVisitor(syms, types) {}
+    : BaseSemanticVisitor(BaseSemanticVisitor::State::READ, syms, types) {}
 };
 
 /*

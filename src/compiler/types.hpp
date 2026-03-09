@@ -358,6 +358,7 @@ private:
 
     // The map of base types (i.e. non-pointers).
     std::unordered_map<std::string, Box<Type>> base_types;
+    // todo: make std::pair<std::string, Scope> the key to allow type shadowing
 
     // The map of pointer types, mapped by their base type.
     std::unordered_map<Type *, Box<PointerType>> pointers;

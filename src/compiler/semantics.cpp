@@ -23,6 +23,15 @@ void SymbolTable::push_scope(Symbol *assoc) {
     current = new_current;
 }
 
+void SymbolTable::enter_scope() {
+    /*
+    Enter the currently indexed scope in current scope.
+
+    Throw error if no scopes exist to enter.
+    */
+    // todo
+}
+
 void SymbolTable::pop_scope() {
     if (current != global.get()) {
         if (current->outer) {
@@ -70,7 +79,7 @@ Symbol *SymbolTable::insert(std::string name, Box<Symbol> sym) {
 }
 
 BaseSemanticVisitor::ScopeGuard BaseSemanticVisitor::enter_scope(Symbol *assoc) {
-    return ScopeGuard(syms, assoc);
+    return ScopeGuard(*this, assoc);
 }
 
 BaseSemanticVisitor::NodeGuard BaseSemanticVisitor::enter_node(ASTNode *node, bool new_scope) {

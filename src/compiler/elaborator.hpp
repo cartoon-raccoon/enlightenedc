@@ -36,7 +36,7 @@ The class that performs the elaboration pass.
 class Elaborator : public BaseSemanticVisitor {
 public:
     Elaborator(SymbolTable& syms, TypeContext& types)
-    : BaseSemanticVisitor(syms, types) {}
+    : BaseSemanticVisitor(BaseSemanticVisitor::State::WRITE, syms, types) {}
 
     /*
     The result of the last visit() call. This is essentially the `return` value,
