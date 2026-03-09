@@ -34,8 +34,13 @@ AST walking operations, overriding all `visit(ast::)` member functions in the ab
 `ast::ASTVisitor` base class. As such, a BaseSemanticVisitor simply walks the AST
 without doing anything on the nodes, pushing and popping scopes as necessary.
 
-Each class implementing a semantic validation pass should inherit from this class.
-overriding the `visit(ast::)` member functions that concern them.
+# do_visit methods
+
+Since the BaseSemanticVisitor has some core functionality that all subclasses will need,
+any derived classes should not be override the visit() members. Instead, BaseSemanticVisitor
+defines a do_visit() virtual member function for each ASTNode, for derived classes to override
+with their specific functionality. This do_visit member is called by the visit() implementation
+of BaseSemanticVisitor, after all scope management has been handled.
 */
 class BaseSemanticVisitor : public ast::ASTVisitor {
 public:
@@ -156,6 +161,7 @@ public:
     int in_node(ast::ASTNode::NodeKind kind);
 
     // Visitor method overrides
+    //? Should these be marked final?
 
     // BaseSemanticVisitor provides a basic override of all Visitor methods,
     // so that Elaborator and Validator only need to override needed ones.
