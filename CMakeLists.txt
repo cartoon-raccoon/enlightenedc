@@ -46,13 +46,19 @@ add_flex_bison_dependency(scanner parser)
 
 # 4. Collect source files
 file(GLOB_RECURSE AST_SRC "${SRC_DIR}/ast/*.cpp")
-file(GLOB_RECURSE PARSER_SRC "${SRC_DIR}/parser/*.cpp")
-file(GLOB_RECURSE COMPILER_SRC "${SRC_DIR}/*.cpp")
+file(GLOB_RECURSE PREPROC_SRC "${SRC_DIR}/preproc/*.cpp")
+file(GLOB_RECURSE FRONTEND_SRC "${SRC_DIR}/frontend/*.cpp")
+file(GLOB_RECURSE SEMANTICS_SRC "${SRC_DIR}/semantics/*.cpp")
+file(GLOB_RECURSE CODEGEN_SRC "${SRC_DIR}/codegen/*.cpp")
+file(GLOB_RECURSE ECC_SRC "${SRC_DIR}/*.cpp")
 
 # 5. Create our target executable
 add_executable(ecc 
-    ${PARSER_SRC}
-    ${COMPILER_SRC} 
+    ${AST_SRC}
+    ${PREPROC_SRC}
+    ${FRONTEND_SRC}
+    ${SEMANTICS_SRC}
+    ${CODEGEN_SRC} 
     ${BISON_parser_OUTPUTS} 
     ${FLEX_scanner_OUTPUTS} 
     "${SRC_DIR}/ecc.cpp"

@@ -3,9 +3,9 @@
 #include <memory>
 #include <utility>
 
-#include "compiler/types.hpp"
+#include "semantics/types.hpp"
 
-using namespace ecc::compiler::types;
+using namespace ecc::sema::types;
 
 bool Type::is_primitive() { return kind == Kind::Primitive; }
 

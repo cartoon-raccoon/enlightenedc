@@ -1,5 +1,5 @@
-#include "frontend/frontend.hpp"
 #include "ast/printer.hpp"
+#include "frontend/frontend.hpp"
 #include "frontend/lexer.hpp"
 #include "parser.hpp"
 #include "preproc/preproc.hpp"

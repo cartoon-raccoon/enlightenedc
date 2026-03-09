@@ -1,4 +1,4 @@
 #include "compiler.hpp"
 
 using namespace ecc::compiler;
-using namespace ecc::compiler::types;
+using namespace ecc::sema::types;

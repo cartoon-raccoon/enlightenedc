@@ -4,10 +4,10 @@
 #include <variant>
 
 #include "ast/ast.hpp"
-#include "compiler/types.hpp"
-#include "compiler/semantics.hpp"
+#include "semantics/types.hpp"
+#include "semantics/semantics.hpp"
 
-namespace ecc::compiler {
+namespace ecc::sema {
 
 using namespace ecc;
 using namespace util;

@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-namespace ecc::compiler::types {
+namespace ecc::sema::types {
 /*
 The type system implementation for EnlightenedC.
 */

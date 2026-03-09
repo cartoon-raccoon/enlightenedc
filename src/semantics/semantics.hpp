@@ -3,14 +3,14 @@
 
 #include "ast/visitor.hpp"
 #include "ast/ast.hpp"
-#include "compiler/types.hpp"
+#include "semantics/types.hpp"
 #include "util.hpp"
 
 #include <optional>
 #include <unordered_map>
 #include <memory>
 
-namespace ecc::compiler {
+namespace ecc::sema {
 /*
 Semantic validation functionality.
 

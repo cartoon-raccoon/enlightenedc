@@ -12,90 +12,90 @@ void ASTPrinter::print_indent() {
         std::cout << "| ";
 }
 
-std::string ASTPrinter::token_type_to_string(TokenType t) {
+std::string ASTPrinter::token_type_to_string(tokens::TokenType t) {
     switch (t) {
-    case PLUS:
+    case tokens::PLUS:
         return "+";
-    case MINUS:
+    case tokens::MINUS:
         return "-";
-    case MUL:
+    case tokens::MUL:
         return "*";
-    case DIV:
+    case tokens::DIV:
         return "/";
-    case MOD:
+    case tokens::MOD:
         return "%";
 
-    case ASSIGN:
+    case tokens::ASSIGN:
         return "=";
-    case EQ:
+    case tokens::EQ:
         return "==";
-    case NE:
+    case tokens::NE:
         return "!=";
-    case LE:
+    case tokens::LE:
         return "<=";
-    case GE:
+    case tokens::GE:
         return ">=";
 
-    case ANDAND:
+    case tokens::ANDAND:
         return "&&";
-    case OROR:
+    case tokens::OROR:
         return "||";
 
-    case INC:
+    case tokens::INC:
         return "++";
-    case DEC:
+    case tokens::DEC:
         return "--";
 
-    case PLUSEQ:
+    case tokens::PLUSEQ:
         return "+=";
-    case MINUSEQ:
+    case tokens::MINUSEQ:
         return "-=";
-    case MULEQ:
+    case tokens::MULEQ:
         return "*=";
-    case DIVEQ:
+    case tokens::DIVEQ:
         return "/=";
-    case MODEQ:
+    case tokens::MODEQ:
         return "%=";
-    case LSHIFTEQ:
+    case tokens::LSHIFTEQ:
         return "<<=";
-    case RSHIFTEQ:
+    case tokens::RSHIFTEQ:
         return ">>=";
-    case ANDEQ:
+    case tokens::ANDEQ:
         return "&=";
-    case OREQ:
+    case tokens::OREQ:
         return "|=";
-    case XOREQ:
+    case tokens::XOREQ:
         return "^=";
 
-    case AND:
+    case tokens::AND:
         return "&";
-    case OR:
+    case tokens::OR:
         return "|";
-    case XOR:
+    case tokens::XOR:
         return "^";
-    case TILDE:
+    case tokens::TILDE:
         return "~";
-    case NOT:
+    case tokens::NOT:
         return "!";
 
-    case LT:
+    case tokens::LT:
         return "<";
-    case GT:
+    case tokens::GT:
         return ">";
 
-    case LSHIFT:
+    case tokens::LSHIFT:
         return "<<";
-    case RSHIFT:
+    case tokens::RSHIFT:
         return ">>";
 
-    case DOT:
+    case tokens::DOT:
         return ".";
-    case ARROW:
+    case tokens::ARROW:
         return "->";
 
-    case COMMA:
+    case tokens::COMMA:
         return ",";
-    case SEMI:
+    case tokens::SEMI:
         return ";";
 
     default:

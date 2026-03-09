@@ -9,8 +9,8 @@
 #include "ast/ast.hpp"
 #include "ast/visitor.hpp"
 #include "util.hpp"
-#include "compiler/types.hpp"
-#include "compiler/semantics.hpp"
+#include "semantics/types.hpp"
+#include "semantics/semantics.hpp"
 
 using namespace ecc;
 
@@ -22,7 +22,7 @@ using LLVMType = llvm::Type;
 
 class LLVMVisitor : public ast::ASTVisitor {
 public:
-    LLVMVisitor(compiler::SymbolTable& syms, compiler::types::TypeContext& tys)
+    LLVMVisitor(sema::SymbolTable& syms, sema::types::TypeContext& tys)
     : syms(syms), tys(tys) {}
     ~LLVMVisitor() = default;
 
@@ -30,13 +30,13 @@ public:
     Box<llvm::LLVMContext> ctxt;
     Box<llvm::IRBuilder<>> builder;
 
-    compiler::SymbolTable& syms;
-    compiler::types::TypeContext& tys;
+    sema::SymbolTable& syms;
+    sema::types::TypeContext& tys;
 
     /*
-    Converts the 
+    Converts the provided type to its corresponding LLVM type.
     */
-    LLVMType *map_to_llvm_type(types::Type *ty);
+    LLVMType *map_to_llvm_type(sema::types::Type *ty);
 
     // Visitor method overrides
 

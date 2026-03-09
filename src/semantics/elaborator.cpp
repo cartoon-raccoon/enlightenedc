@@ -1,11 +1,11 @@
 #include "elaborator.hpp"
 #include "ast/ast.hpp"
-#include "compiler/semantics.hpp"
+#include "semantics/semantics.hpp"
 #include "error.hpp"
 
-using namespace ecc::compiler;
+using namespace ecc::sema;
 using namespace ecc::ast;
-using namespace ecc::compiler::types;
+using namespace ecc::sema::types;
 
 ElabResult Elaborator::take_last_result() {
     ElabResult ret = std::move(last_result);

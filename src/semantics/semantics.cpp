@@ -2,11 +2,11 @@
 #include <memory>
 #include <stdexcept>
 
-#include "compiler/semantics.hpp"
 #include "ast/ast.hpp"
-#include "compiler/elaborator.hpp"
+#include "semantics/semantics.hpp"
+#include "semantics/elaborator.hpp"
 
-using namespace ecc::compiler;
+using namespace ecc::sema;
 using namespace ecc::ast;
 
 void SymbolTable::push_scope(Symbol *assoc) {

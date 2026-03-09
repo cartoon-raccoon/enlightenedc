@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "frontend/tokens.hpp"
-#include "compiler/types.hpp"
+#include "semantics/types.hpp"
 #include "util.hpp"
 
 using namespace ecc;
@@ -107,7 +107,7 @@ public:
     virtual ~Expression() = default;
 
     // The type of the expression, populated during semantic elaboration.
-    compiler::types::Type *type = nullptr;
+    sema::types::Type *type = nullptr;
 
     // Whether or not the expression can be computed at compile time.
     //virtual bool is_compiletime_computable() = 0;
