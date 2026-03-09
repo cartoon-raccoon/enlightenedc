@@ -97,7 +97,7 @@ Program @ <input/functions.ec:1.1>
 | | | | | | | IdentifierExpression: new @ <7.17-19> 
 | | | | | | | Literal: 1 @ <7.23> 
 | | | TypeDeclaration @ <8.5-10.6> 
-| | | | ClassOrUnionSpecifier: class @ <8.5-10.5> 
+| | | | ClassSpecifier: : @ <8.5-10.5> 
 | | | | | ClassDeclaration @ <9.9-19> 
 | | | | | | PrimitiveSpecifier: u32 @ <9.9-12> 
 | | | | | | ClassDeclarator @ <9.14-18> 
@@ -108,13 +108,13 @@ Program @ <input/functions.ec:1.1>
 | | | | | IdentifierExpression: x @ <11.12> 
 | | | | | IdentifierExpression: y @ <11.16> 
 | Function @ <13.1-17.1> 
-| | ClassOrUnionSpecifier: class Point @ <13.1-11> 
+| | ClassSpecifier:  Point: @ <13.1-11> 
 | | Declarator @ <13.13-60> 
 | | | Pointer @ <13.13> 
 | | | FunctionDeclarator @ <13.13-60> 
 | | | | IdentifierDeclarator: compute_point @ <13.13-26> 
 | | | | ParameterDeclaration @ <13.13-41> 
-| | | | | ClassOrUnionSpecifier: class Point @ <13.13-38> 
+| | | | | ClassSpecifier:  Point: @ <13.13-38> 
 | | | | | Declarator @ <13.40-41> 
 | | | | | | Pointer @ <13.40> 
 | | | | | | IdentifierDeclarator: p @ <13.40-41> 

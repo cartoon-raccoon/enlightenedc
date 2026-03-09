@@ -14,6 +14,14 @@ enum Color {
     BLUE
 };
 
+class Animal {
+    I32i age;
+}
+
+class Dog : Animal {
+    enum Color coat;
+}
+
 enum Forward;
 
 class Flags {
