@@ -1,10 +1,10 @@
 #include "elaborator.hpp"
 #include "ast/ast.hpp"
-#include "semantics/semantics.hpp"
+#include "semantics/symbols.hpp"
 #include "error.hpp"
 
-using namespace ecc::sema;
 using namespace ecc::ast;
+using namespace ecc::sema;
 using namespace ecc::sema::types;
 
 ElabResult Elaborator::take_last_result() {
@@ -153,7 +153,7 @@ void Elaborator::visit(ClassOrUnionSpecifier& node) {
 
     // todo: create symbol and associate current scope with it
     if (node.name.has_value()) {
-        syms.insert(*node.name, std::make_unique<TypeSymbol>(ty));
+        syms.insert(*node.name, std::make_unique<sym::TypeSymbol>(ty));
     }
 
 }
@@ -169,7 +169,7 @@ void Elaborator::visit(ExpressionStatement& node) {}
 void Elaborator::visit(CaseDefaultStatement& node) {}
 
 void Elaborator::visit(LabeledStatement& node) {
-    syms.insert(node.label, std::make_unique<LabelSymbol>());
+    syms.insert(node.label, std::make_unique<sym::LabelSymbol>());
     node.statement->accept(*this);
 }
 

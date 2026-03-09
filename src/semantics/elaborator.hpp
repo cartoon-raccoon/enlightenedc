@@ -5,6 +5,7 @@
 
 #include "ast/ast.hpp"
 #include "semantics/types.hpp"
+#include "semantics/symbols.hpp"
 #include "semantics/semantics.hpp"
 
 namespace ecc::sema {
@@ -34,7 +35,7 @@ The class that performs the elaboration pass.
 */
 class Elaborator : public BaseSemanticVisitor {
 public:
-    Elaborator(SymbolTable& syms, types::TypeContext& types)
+    Elaborator(sym::SymbolTable& syms, types::TypeContext& types)
     : BaseSemanticVisitor(BaseSemanticVisitor::State::WRITE, syms, types) {}
 
     /*

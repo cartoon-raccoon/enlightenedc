@@ -10,11 +10,14 @@
 #include "ast/visitor.hpp"
 #include "util.hpp"
 #include "semantics/types.hpp"
-#include "semantics/semantics.hpp"
+#include "semantics/symbols.hpp"
 
 using namespace ecc;
 
 namespace ecc::compiler {
+/*
+LLVM IR generation functionality.
+*/
 
 using LLVMType = llvm::Type;
 
@@ -22,7 +25,7 @@ using LLVMType = llvm::Type;
 
 class LLVMVisitor : public ast::ASTVisitor {
 public:
-    LLVMVisitor(sema::SymbolTable& syms, sema::types::TypeContext& tys)
+    LLVMVisitor(sema::sym::SymbolTable& syms, sema::types::TypeContext& tys)
     : syms(syms), tys(tys) {}
     ~LLVMVisitor() = default;
 
@@ -30,7 +33,7 @@ public:
     Box<llvm::LLVMContext> ctxt;
     Box<llvm::IRBuilder<>> builder;
 
-    sema::SymbolTable& syms;
+    sema::sym::SymbolTable& syms;
     sema::types::TypeContext& tys;
 
     /*

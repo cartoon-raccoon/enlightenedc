@@ -11,6 +11,10 @@
 namespace ecc::sema::types {
 /*
 The type system implementation for EnlightenedC.
+
+Ecc uses an interning type system, where a TypeContext manages internal type
+objects, and hands out pointers to them. This makes checking for type equality
+equivalent to a single pointer comparison.
 */
 
 using namespace util;

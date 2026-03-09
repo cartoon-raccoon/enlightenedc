@@ -3,11 +3,11 @@
 
 #include "ast/visitor.hpp"
 #include "ast/ast.hpp"
+#include "semantics/symbols.hpp"
 #include "semantics/types.hpp"
 #include "util.hpp"
 
 #include <optional>
-#include <unordered_map>
 #include <memory>
 
 namespace ecc::sema {
@@ -24,143 +24,6 @@ validation (e.g. no invalid struct member accesses).
 
 using namespace ecc;
 using namespace util;
-
-/*
-The abstract symbol class.
-*/
-class Symbol {
-public:
-    // The kind of symbol.
-    enum Kind {
-        Var, // This symbol references a variable.
-        Func, // This symbol references a function definition.
-        Ty, // This symbol references a declared type.
-        Lab, // This symbol references a label.
-    } kind;
-
-    Symbol(Kind kind) : kind(kind) {}
-
-    /// If the symbol is public.
-    bool is_public = false;
-    /// If the symbol is static.
-    bool is_static = false;
-
-    virtual ~Symbol() = default;
-};
-
-/*
-A symbol representing a variable declaration.
-*/
-class VarSymbol : public Symbol {
-public:
-    VarSymbol() : Symbol(Symbol::Kind::Var), type(nullptr) {}
-
-    VarSymbol(types::Type *type) : Symbol(Symbol::Kind::Var), type(type) {}
-
-    /// The type of the symbol.
-    types::Type *type;
-
-    /// If the symbol is const.
-    bool is_const = false;
-
-    // Storage class information.
-
-    /// If the symbol is external.
-    bool is_extern = false;
-};
-
-/*
-A symbol representing a function declaration (function pointers are handled by VarSymbol).
-*/
-class FuncSymbol : public Symbol {
-public:
-    FuncSymbol() : Symbol(Symbol::Kind::Func), signature(nullptr) {}
-
-    FuncSymbol(types::FunctionType *signature) : Symbol(Symbol::Kind::Func), signature(signature) {}
-
-    // The function signature.
-    types::FunctionType *signature;
-
-    bool is_extern = false;
-};
-
-/*
-A symbol representing a type declaration (class, union, enum).
-*/
-class TypeSymbol : public Symbol {
-public:
-    TypeSymbol() : Symbol(Symbol::Kind::Ty), type(nullptr) {}
-
-    TypeSymbol(types::Type* type) : Symbol(Symbol::Kind::Ty), type(type) {}
-
-    types::Type *type;
-};
-
-/*
-A symbol representing a label (for use by goto).
-*/
-class LabelSymbol : public Symbol {
-public:
-    LabelSymbol() : Symbol(Symbol::Kind::Lab) {}
-};
-
-/*
-A scope within which symbols are defined.
-
-A scope stores symbols inside a translation unit.
-*/
-class Scope {
-public:
-    Scope(Symbol *assoc, Scope *outer) : outer(outer), assoc(assoc), symbols(), inners() {}
-    // the outer scope enclosing the inner scope.
-    Scope *outer;
-    // a symbol associated with this scope, usually a function.
-    // if null, this is an anonymous scope.
-    Symbol *assoc;
-    // the symbol table.
-    std::unordered_map<std::string, Box<Symbol>> symbols = {};
-    // inner scopes contained within this scope.
-    Vec<Box<Scope>> inners;
-};
-
-/*
-The symbol table, storing all symbols in a given translation unit.
-*/
-class SymbolTable {
-public:
-    SymbolTable() : global(std::make_unique<Scope>(nullptr, nullptr)), current(global.get()) {}
-
-    // The global scope.
-    Box<Scope> global;
-    // The current scope.
-    Scope *current;
-    // Create and enter a new scope.
-    void push_scope(Symbol *assoc = nullptr);
-
-    // Enter the next scope.
-    void enter_scope();
-
-    // Exit the current scope to the outer one.
-    void pop_scope();
-
-    // Reset to the current global scope and first index.
-    void reset();
-
-    // Clear the entire SymbolTable.
-    void clear();
-
-    // Lookup a symbol by name. Returns null if no symbol exists.
-    Symbol *lookup(std::string sym);
-
-    // Associate the current scope with the given Symbol `sym`.
-    // If current scope is already tied to a symbol, replaces it
-    // with the new one depending on value of `override`.
-    void tie_current_to(Symbol *sym, bool override = false);
-
-    // Add a new symbol to the current scope.
-    Symbol *insert(std::string name, Box<Symbol> sym);
-
-};
 
 
 /*
@@ -191,7 +54,7 @@ public:
         friend class BaseSemanticVisitor;
         friend class BaseSemanticVisitor::NodeGuard;
 
-        ScopeGuard(BaseSemanticVisitor& bsv, Symbol *assoc) : st(bsv.syms) {
+        ScopeGuard(BaseSemanticVisitor& bsv, sym::Symbol *assoc) : st(bsv.syms) {
             if (bsv.state == BaseSemanticVisitor::State::READ) {
                 st.enter_scope();
             } else {
@@ -211,7 +74,7 @@ public:
         ScopeGuard& operator=(const ScopeGuard&) = delete;
         
     private:
-        SymbolTable& st;
+        sym::SymbolTable& st;
     }; // class ScopeGuard
 
     /*
@@ -260,13 +123,13 @@ public:
         WRITE,
     };
 
-    BaseSemanticVisitor(State state, SymbolTable& syms, types::TypeContext& types)
+    BaseSemanticVisitor(State state, sym::SymbolTable& syms, types::TypeContext& types)
     : state(state), syms(syms), types(types) {}
 
     // The current state of the BaseSemanticVisitor.
     State state;
     // The Symbol Table.
-    SymbolTable& syms;
+    sym::SymbolTable& syms;
     // The Type Context.
     types::TypeContext& types;
     // Tracks the outer nodes that the current node rests in.
@@ -277,7 +140,7 @@ public:
 
     If in read mode, enters the next scope.
     */
-    ScopeGuard enter_scope(Symbol *sym = nullptr);
+    ScopeGuard enter_scope(sym::Symbol *sym = nullptr);
 
     // Enter an AST node. If new_scope is true, additionally creates a new scope.
     NodeGuard enter_node(ast::ASTNode *node, bool new_scope = false);
@@ -410,7 +273,7 @@ The class that performs the validation pass.
 */
 class Validator : public BaseSemanticVisitor {
 public:
-    Validator(SymbolTable& syms, types::TypeContext& types)
+    Validator(sym::SymbolTable& syms, types::TypeContext& types)
     : BaseSemanticVisitor(BaseSemanticVisitor::State::READ, syms, types) {}
 };
 
@@ -420,10 +283,10 @@ The parent class that owns the symbol table and type context.
 class SemanticChecker {
 public:
     SemanticChecker() :
-    symbols(std::make_unique<SymbolTable>()),
+    symbols(std::make_unique<sym::SymbolTable>()),
     types(std::make_unique<types::TypeContext>()) {}
 
-    Box<SymbolTable> symbols;
+    Box<sym::SymbolTable> symbols;
     Box<types::TypeContext> types;
 
     void check_semantics(ast::ASTNode& prog);
