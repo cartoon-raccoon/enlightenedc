@@ -89,9 +89,9 @@ void Elaborator::visit(ClassOrUnionSpecifier& node) {
         case ClassOrUnionSpecifier::CLASS: {
             ClassType *cls = nullptr;
             if (node.name.has_value()) {
-                cls = types.get_class(*(node.name));
+                cls = types.get_class(*(node.name), syms.current);
             } else {
-                cls = types.get_class();
+                cls = types.get_class(syms.current);
             }
 
             if (!cls) {
@@ -121,9 +121,9 @@ void Elaborator::visit(ClassOrUnionSpecifier& node) {
         case ClassOrUnionSpecifier::UNION: {
             UnionType *unn = nullptr;
             if (node.name.has_value()) {
-                unn = types.get_union(*(node.name));
+                unn = types.get_union(*(node.name), syms.current);
             } else {
-                unn = types.get_union();
+                unn = types.get_union(syms.current);
             }
 
             if (!unn) {

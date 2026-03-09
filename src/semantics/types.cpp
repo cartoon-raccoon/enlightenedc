@@ -178,16 +178,18 @@ bool EnumType::is_compatible_with(Type *other) {
     return false; // todo
 }
 
-ClassType *TypeContext::get_class(std::string name) {
-    if (base_types.contains(name)) {
-        return base_types.find(name)->second.get()->as_class();
+ClassType *TypeContext::get_class(std::string name, sym::Scope *scope) {
+    std::string mangled = mangle<ClassType>(name, scope);
+
+    if (base_types.contains(mangled)) {
+        return base_types.find(mangled)->second.get()->as_class();
     }
 
     // If no struct matching the name, make a new struct
-    return make_insert_type<ClassType>(name);
+    return make_insert_type<ClassType>(mangled);
 }
 
-ClassType *TypeContext::get_class() {
+ClassType *TypeContext::get_class(sym::Scope *scope) {
     /*
     In EnlightenedC (and most C-family languages), two structs are considered
     equal iff they have the same name. (If two structs are named the same but
@@ -199,40 +201,47 @@ ClassType *TypeContext::get_class() {
     
     auto name = "anon_struct_" + std::to_string(anonymous_ctr);
     anonymous_ctr++;
+    auto mangled = mangle<ClassType>(name, scope);
 
-    return make_insert_type<ClassType>(name);
+    return make_insert_type<ClassType>(mangled);
 }
 
-UnionType *TypeContext::get_union(std::string name) {
-    if (base_types.contains(name)) {
-        return base_types.find(name)->second.get()->as_union();
+UnionType *TypeContext::get_union(std::string name, sym::Scope *scope) {
+    std::string mangled = mangle<UnionType>(name, scope);
+
+    if (base_types.contains(mangled)) {
+        return base_types.find(mangled)->second.get()->as_union();
     }
 
     // If no struct matching the name, make a new struct
     return make_insert_type<UnionType>(name);
 }
 
-UnionType *TypeContext::get_union() {
+UnionType *TypeContext::get_union(sym::Scope *scope) {
     auto name = "anon_union_" + std::to_string(anonymous_ctr);
     anonymous_ctr++;
+    auto mangled = mangle<UnionType>(name, scope);
 
-    return make_insert_type<UnionType>(name);
+    return make_insert_type<UnionType>(mangled);
 }
 
-EnumType *TypeContext::get_enum(std::string name) {
-    if (base_types.contains(name)) {
-        return base_types.find(name)->second.get()->as_enum();
+EnumType *TypeContext::get_enum(std::string name, sym::Scope *scope) {
+    std::string mangled = mangle<EnumType>(name, scope);
+
+    if (base_types.contains(mangled)) {
+        return base_types.find(mangled)->second.get()->as_enum();
     }
 
     // If no struct matching the name, make a new struct
-    return make_insert_type<EnumType>(name);
+    return make_insert_type<EnumType>(mangled);
 }
 
-EnumType *TypeContext::get_enum() {
+EnumType *TypeContext::get_enum(sym::Scope *scope) {
     auto name = "anon_enum_" + std::to_string(anonymous_ctr);
     anonymous_ctr++;
+    auto mangled = mangle<EnumType>(name, scope);
 
-    return make_insert_type<EnumType>(name);
+    return make_insert_type<EnumType>(mangled);
 }
 
 PointerType *TypeContext::get_pointer(Type *base) {
@@ -254,6 +263,14 @@ PointerType *TypeContext::get_pointer(Type *base) {
 }
 
 FunctionType *TypeContext::get_function(Type *returntype, Vec<Type *> params, bool variadic) {
+    /*
+    Function types do not need to be scope-aware, since their names are purely symbolic, and
+    have no bearing on type equality. If a pointer to a function that was declared in a non-global scope
+    is used where it is not declared, the SymbolTable resolves that automatically. We have to account for
+    scope with named types like class, union, and enum because their name is the main key to type equality,
+    and named types in a nested scope shadow any type with the same name in an outer scope.
+    */
+
     Box<FunctionType> func = std::make_unique<FunctionType>();
     FunctionType *ret = func.get();
 
@@ -269,7 +286,7 @@ FunctionType *TypeContext::get_function(Type *returntype, Vec<Type *> params, bo
     size_t hash = func->hash_sig();
     std::string name;
     if (variadic)
-        name = "function_v_" + std::to_string(hash);
+        name = "function_v" + std::to_string(hash);
     else
         name = "function_" + std::to_string(hash);
 

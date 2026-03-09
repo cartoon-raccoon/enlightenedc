@@ -1,12 +1,21 @@
 #ifndef ECC_TYPES_H
 #define ECC_TYPES_H
 
-#include "util.hpp"
 #include <cstddef>
 #include <string>
+#include <sstream>
 #include <concepts>
 #include <unordered_map>
 #include <unordered_set>
+
+#include "util.hpp"
+
+/*
+Forward declaration of Scope from symbols
+*/
+namespace ecc::sema::sym {
+    class Scope;
+}
 
 namespace ecc::sema::types {
 /*
@@ -53,6 +62,9 @@ public:
 
     // The kind of the type.
     Kind kind;
+
+    // The location where the type was defined.
+    Location loc;
 
     bool is_primitive();
     bool is_pointer();
@@ -313,6 +325,9 @@ pointers are equal, then they are the same type.
 
 Inherently anonymous types (i.e. types that are not differentiated by name (e.g. functions))
 are assigned generated names.
+
+The TypeContext stores keys to types as mangled names, incorporating the kind of type
+(class, union, enum), name of the type (if any), and the scope it is declared in.
 */
 class TypeContext {
 public:
@@ -326,30 +341,30 @@ public:
 
     Returns `nullptr` if a type with `name` is already declared, but is not a class.
     */
-    ClassType *get_class(std::string name);
+    ClassType *get_class(std::string name, sema::sym::Scope *scope);
 
     // Create an anonymous class.
-    ClassType *get_class();
+    ClassType *get_class(sema::sym::Scope *scope);
 
     /*
     Create or retrieve a union with the name `name`.
 
     Returns `nullptr` if a type with `name` is already declared, but is not a union.
     */
-    UnionType *get_union(std::string name);
+    UnionType *get_union(std::string name, sema::sym::Scope *scope);
 
     // Create an anonymous union.
-    UnionType *get_union();
+    UnionType *get_union(sema::sym::Scope *scope);
 
     /*
     Create or retrieve an enum with the name `name`.
 
     Returns `nullptr` if a type with `name` is already declared, but is not an enum.
     */
-    EnumType *get_enum(std::string name);
+    EnumType *get_enum(std::string name, sema::sym::Scope *scope);
 
     // Create an anonymous enum.
-    EnumType *get_enum();
+    EnumType *get_enum(sema::sym::Scope *scope);
 
     // Create a pointer with the given `base` type.
     PointerType *get_pointer(Type *base);
@@ -362,10 +377,20 @@ private:
 
     // The map of base types (i.e. non-pointers).
     std::unordered_map<std::string, Box<Type>> base_types;
-    // todo: make std::pair<std::string, Scope> the key to allow type shadowing
 
     // The map of pointer types, mapped by their base type.
     std::unordered_map<Type *, Box<PointerType>> pointers;
+
+    // Generate a mangled, unique name for a type incorporating its associated scope.
+    template <typename T>
+    requires std::derived_from<T, Type>
+    std::string mangle(std::string name, sema::sym::Scope *sc) {
+        std::stringstream ss;
+
+        ss << typeid(T).name() << "_" << name << static_cast<const void *>(sc);
+
+        return ss.str();
+    }
 
     template <typename T>
     requires std::derived_from<T, Type>
