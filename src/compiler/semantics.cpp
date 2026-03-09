@@ -7,6 +7,7 @@
 #include "compiler/elaborator.hpp"
 
 using namespace ecc::compiler;
+using namespace ecc::ast;
 
 void SymbolTable::push_scope(Symbol *assoc) {
     /*

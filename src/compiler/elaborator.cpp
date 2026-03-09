@@ -5,6 +5,7 @@
 
 using namespace ecc::compiler;
 using namespace ecc::ast;
+using namespace ecc::compiler::types;
 
 ElabResult Elaborator::take_last_result() {
     ElabResult ret = std::move(last_result);

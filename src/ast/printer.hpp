@@ -88,7 +88,7 @@ public:
 
 private:
 
-    std::string token_type_to_string(TokenType t);
+    std::string token_type_to_string(tokens::TokenType t);
 
     std::string primitive_to_string(PrimitiveSpecifier::PrimKind p);
 

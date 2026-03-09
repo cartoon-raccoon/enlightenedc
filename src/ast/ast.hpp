@@ -10,12 +10,11 @@
 #include "compiler/types.hpp"
 #include "util.hpp"
 
+using namespace ecc;
+using namespace ecc::util;
+
 /* Class definitions of AST nodes and subclasses. */
 namespace ecc::ast {
-
-using namespace ecc::tokens;
-using namespace ecc::compiler;
-using namespace util;
 
 class ASTVisitor;
 
@@ -26,7 +25,7 @@ class ASTVisitor;
 class ASTNode {
 public:
 
-    Location loc;
+    util::Location loc;
 
     enum NodeKind {
         TYPE_QUAL,
@@ -108,7 +107,7 @@ public:
     virtual ~Expression() = default;
 
     // The type of the expression, populated during semantic elaboration.
-    types::Type *type = nullptr;
+    compiler::types::Type *type = nullptr;
 
     // Whether or not the expression can be computed at compile time.
     //virtual bool is_compiletime_computable() = 0;
@@ -738,7 +737,7 @@ public:
         Location loc,
         Box<Expression> left,
         Box<Expression> right,
-        TokenType op
+        tokens::TokenType op
     )
         : Expression(BIN_EXPR, loc),
         left(std::move(left)), 
@@ -747,7 +746,7 @@ public:
 
     Box<Expression> left;
     Box<Expression> right;
-    TokenType op;
+    tokens::TokenType op;
 
     void accept(ASTVisitor& visitor) override;
 };
@@ -771,13 +770,13 @@ class UnaryExpression : public Expression {
 public:
     UnaryExpression(Location loc,
                     Box<Expression> operand, 
-                    TokenType op)
+                    tokens::TokenType op)
         : Expression(UN_EXPR, loc),
         operand(std::move(operand)),
         op(op) {}
 
     Box<Expression> operand;
-    TokenType op;
+    tokens::TokenType op;
 
     void accept(ASTVisitor& visitor) override;
 };
@@ -787,7 +786,7 @@ public:
     AssignmentExpression(Location loc,
                          Box<Expression> left, 
                          Box<Expression> right,
-                         TokenType op)
+                         tokens::TokenType op)
         : Expression(ASSGN_EXPR, loc),
         left(std::move(left)), 
         right(std::move(right)),
@@ -795,7 +794,7 @@ public:
 
     Box<Expression> left;
     Box<Expression> right;
-    TokenType op;
+    tokens::TokenType op;
 
     void accept(ASTVisitor& visitor) override;
 };
@@ -917,13 +916,13 @@ class PostfixExpression : public Expression {
 public:
     PostfixExpression(Location loc,
                       Box<Expression> operand,
-                      TokenType op)
+                      tokens::TokenType op)
         : Expression(POSTF_EXPR, loc),
         operand(std::move(operand)),
         op(op) {}
 
     Box<Expression> operand;
-    TokenType op;
+    tokens::TokenType op;
 
     void accept(ASTVisitor& visitor) override;
 };

@@ -11,9 +11,6 @@
 #include <memory>
 
 namespace ecc::compiler {
-
-using namespace util;
-using namespace types;
 /*
 Semantic validation functionality.
 
@@ -26,7 +23,7 @@ validation (e.g. no invalid struct member accesses).
 */
 
 using namespace ecc;
-using namespace ecc::ast;
+using namespace util;
 
 /*
 The abstract symbol class.
@@ -58,10 +55,10 @@ class VarSymbol : public Symbol {
 public:
     VarSymbol() : Symbol(Symbol::Kind::Var), type(nullptr) {}
 
-    VarSymbol(Type *type) : Symbol(Symbol::Kind::Var), type(type) {}
+    VarSymbol(types::Type *type) : Symbol(Symbol::Kind::Var), type(type) {}
 
     /// The type of the symbol.
-    Type *type;
+    types::Type *type;
 
     /// If the symbol is const.
     bool is_const = false;
@@ -79,10 +76,10 @@ class FuncSymbol : public Symbol {
 public:
     FuncSymbol() : Symbol(Symbol::Kind::Func), signature(nullptr) {}
 
-    FuncSymbol(FunctionType *signature) : Symbol(Symbol::Kind::Func), signature(signature) {}
+    FuncSymbol(types::FunctionType *signature) : Symbol(Symbol::Kind::Func), signature(signature) {}
 
     // The function signature.
-    FunctionType *signature;
+    types::FunctionType *signature;
 
     bool is_extern = false;
 };
@@ -94,9 +91,9 @@ class TypeSymbol : public Symbol {
 public:
     TypeSymbol() : Symbol(Symbol::Kind::Ty), type(nullptr) {}
 
-    TypeSymbol(Type* type) : Symbol(Symbol::Kind::Ty), type(type) {}
+    TypeSymbol(types::Type* type) : Symbol(Symbol::Kind::Ty), type(type) {}
 
-    Type *type;
+    types::Type *type;
 };
 
 /*
@@ -170,12 +167,12 @@ public:
 The base semantic walker class that handles scoping and AST walking.
 
 The BaseSemanticVisitor class handles scoping within a SymbolTable and the basic
-AST walking operations, overriding all `visit()` member functions in the abstract
+AST walking operations, overriding all `visit(ast::)` member functions in the abstract
 `ast::ASTVisitor` base class. As such, a BaseSemanticVisitor simply walks the AST
 without doing anything on the nodes, pushing and popping scopes as necessary.
 
 Each class implementing a semantic validation pass should inherit from this class.
-overriding the `visit()` member functions that concern them.
+overriding the `visit(ast::)` member functions that concern them.
 */
 class BaseSemanticVisitor : public ast::ASTVisitor {
 public:
@@ -236,7 +233,7 @@ public:
         If `true` is passed, a new scopeguard will be created as well, that will be
         destroyed in the NodeGuard's destructor.
         */
-        NodeGuard(BaseSemanticVisitor& bsv, ASTNode *node, bool new_scope = false) : context(bsv.ctxt_stack) {
+        NodeGuard(BaseSemanticVisitor& bsv, ast::ASTNode *node, bool new_scope = false) : context(bsv.ctxt_stack) {
             if (new_scope) {
                 scope_guard.emplace(std::move(bsv.enter_scope()));
             }
@@ -248,7 +245,7 @@ public:
         }
 
     private:
-        Vec<ASTNode *>& context;
+        Vec<ast::ASTNode *>& context;
         std::optional<ScopeGuard> scope_guard;
     }; // class NodeGuard
 
@@ -263,7 +260,7 @@ public:
         WRITE,
     };
 
-    BaseSemanticVisitor(State state, SymbolTable& syms, TypeContext& types)
+    BaseSemanticVisitor(State state, SymbolTable& syms, types::TypeContext& types)
     : state(state), syms(syms), types(types) {}
 
     // The current state of the BaseSemanticVisitor.
@@ -271,9 +268,9 @@ public:
     // The Symbol Table.
     SymbolTable& syms;
     // The Type Context.
-    TypeContext& types;
+    types::TypeContext& types;
     // Tracks the outer nodes that the current node rests in.
-    Vec<ASTNode *> ctxt_stack;
+    Vec<ast::ASTNode *> ctxt_stack;
 
     /*
     If in write mode, creates and enters a new scope.
@@ -283,129 +280,129 @@ public:
     ScopeGuard enter_scope(Symbol *sym = nullptr);
 
     // Enter an AST node. If new_scope is true, additionally creates a new scope.
-    NodeGuard enter_node(ASTNode *node, bool new_scope = false);
+    NodeGuard enter_node(ast::ASTNode *node, bool new_scope = false);
 
     // Get the AST node immediately outside this node.
-    ASTNode *imm_ctxt();
+    ast::ASTNode *imm_ctxt();
 
     // Switch from READ to WRITE or vice versa.
     void switch_state();
 
     /// \brief Checks if there is `kind` in the context, and if so, how many layers up.
     /// Returns -1 if there is no `kind` in the context.
-    int in_node(ASTNode::NodeKind kind);
+    int in_node(ast::ASTNode::NodeKind kind);
 
     // Visitor method overrides
 
     // BaseSemanticVisitor provides a basic override of all Visitor methods,
     // so that Elaborator and Validator only need to override needed ones.
 
-    void visit(Program& node) override;
-    void visit(Function& node) override;
+    void visit(ast::Program& node) override;
+    void visit(ast::Function& node) override;
 
-    void visit(TypeDeclaration& node) override;
-    void visit(VariableDeclaration& node) override;
-    void visit(ParameterDeclaration& node) override;
-    void visit(Declarator& node) override;
-    void visit(ParenDeclarator& node) override;
-    void visit(ArrayDeclarator& node) override;
-    void visit(FunctionDeclarator& node) override;
-    void visit(InitDeclarator& node) override;
-    void visit(Pointer& node) override;
-    void visit(ClassDeclarator& node) override;
-    void visit(ClassDeclaration& node) override;
-    void visit(Enumerator& node) override;
-    void visit(StorageClassSpecifier& node) override;
-    void visit(TypeQualifier& node) override;
-    void visit(EnumSpecifier& node) override;
-    void visit(ClassOrUnionSpecifier& node) override;
-    void visit(PrimitiveSpecifier& node) override;
-    void visit(Initializer& node) override;
-    void visit(TypeName& node) override;
-    void visit(IdentifierDeclarator& node) override;
+    void visit(ast::TypeDeclaration& node) override;
+    void visit(ast::VariableDeclaration& node) override;
+    void visit(ast::ParameterDeclaration& node) override;
+    void visit(ast::Declarator& node) override;
+    void visit(ast::ParenDeclarator& node) override;
+    void visit(ast::ArrayDeclarator& node) override;
+    void visit(ast::FunctionDeclarator& node) override;
+    void visit(ast::InitDeclarator& node) override;
+    void visit(ast::Pointer& node) override;
+    void visit(ast::ClassDeclarator& node) override;
+    void visit(ast::ClassDeclaration& node) override;
+    void visit(ast::Enumerator& node) override;
+    void visit(ast::StorageClassSpecifier& node) override;
+    void visit(ast::TypeQualifier& node) override;
+    void visit(ast::EnumSpecifier& node) override;
+    void visit(ast::ClassOrUnionSpecifier& node) override;
+    void visit(ast::PrimitiveSpecifier& node) override;
+    void visit(ast::Initializer& node) override;
+    void visit(ast::TypeName& node) override;
+    void visit(ast::IdentifierDeclarator& node) override;
 
-    void visit(CompoundStatement& node) override;
-    void visit(ExpressionStatement& node) override;
-    void visit(CaseDefaultStatement& node) override;
-    void visit(LabeledStatement& node) override;
-    void visit(PrintStatement& node) override;
-    void visit(IfStatement& node) override;
-    void visit(SwitchStatement& node) override;
-    void visit(WhileStatement& node) override;
-    void visit(DoWhileStatement& node) override;
-    void visit(ForStatement& node) override;
-    void visit(GotoStatement& node) override;
-    void visit(BreakStatement& node) override;
-    void visit(ReturnStatement& node) override;
+    void visit(ast::CompoundStatement& node) override;
+    void visit(ast::ExpressionStatement& node) override;
+    void visit(ast::CaseDefaultStatement& node) override;
+    void visit(ast::LabeledStatement& node) override;
+    void visit(ast::PrintStatement& node) override;
+    void visit(ast::IfStatement& node) override;
+    void visit(ast::SwitchStatement& node) override;
+    void visit(ast::WhileStatement& node) override;
+    void visit(ast::DoWhileStatement& node) override;
+    void visit(ast::ForStatement& node) override;
+    void visit(ast::GotoStatement& node) override;
+    void visit(ast::BreakStatement& node) override;
+    void visit(ast::ReturnStatement& node) override;
 
-    void visit(BinaryExpression& node) override;
-    void visit(CastExpression& node) override;
-    void visit(UnaryExpression& node) override;
-    void visit(AssignmentExpression& node) override;
-    void visit(ConditionalExpression& node) override;
-    void visit(IdentifierExpression& node) override;
-    void visit(ConstExpression& node) override;
-    void visit(LiteralExpression& node) override;
-    void visit(StringExpression& node) override;
-    void visit(CallExpression& node) override;
-    void visit(MemberAccessExpression& node) override;
-    void visit(ArraySubscriptExpression& node) override;
-    void visit(PostfixExpression& node) override;
-    void visit(SizeofExpression& node) override;
+    void visit(ast::BinaryExpression& node) override;
+    void visit(ast::CastExpression& node) override;
+    void visit(ast::UnaryExpression& node) override;
+    void visit(ast::AssignmentExpression& node) override;
+    void visit(ast::ConditionalExpression& node) override;
+    void visit(ast::IdentifierExpression& node) override;
+    void visit(ast::ConstExpression& node) override;
+    void visit(ast::LiteralExpression& node) override;
+    void visit(ast::StringExpression& node) override;
+    void visit(ast::CallExpression& node) override;
+    void visit(ast::MemberAccessExpression& node) override;
+    void visit(ast::ArraySubscriptExpression& node) override;
+    void visit(ast::PostfixExpression& node) override;
+    void visit(ast::SizeofExpression& node) override;
 
 protected:
-    virtual void do_visit(Program& node);
-    virtual void do_visit(Function& node);
+    virtual void do_visit(ast::Program& node);
+    virtual void do_visit(ast::Function& node);
 
-    virtual void do_visit(TypeDeclaration& node);
-    virtual void do_visit(VariableDeclaration& node);
-    virtual void do_visit(ParameterDeclaration& node);
-    virtual void do_visit(Declarator& node);
-    virtual void do_visit(ParenDeclarator& node);
-    virtual void do_visit(ArrayDeclarator& node);
-    virtual void do_visit(FunctionDeclarator& node);
-    virtual void do_visit(InitDeclarator& node);
-    virtual void do_visit(Pointer& node);
-    virtual void do_visit(ClassDeclarator& node);
-    virtual void do_visit(ClassDeclaration& node);
-    virtual void do_visit(Enumerator& node);
-    virtual void do_visit(StorageClassSpecifier& node);
-    virtual void do_visit(TypeQualifier& node);
-    virtual void do_visit(EnumSpecifier& node);
-    virtual void do_visit(ClassOrUnionSpecifier& node);
-    virtual void do_visit(PrimitiveSpecifier& node);
-    virtual void do_visit(Initializer& node);
-    virtual void do_visit(TypeName& node);
-    virtual void do_visit(IdentifierDeclarator& node);
+    virtual void do_visit(ast::TypeDeclaration& node);
+    virtual void do_visit(ast::VariableDeclaration& node);
+    virtual void do_visit(ast::ParameterDeclaration& node);
+    virtual void do_visit(ast::Declarator& node);
+    virtual void do_visit(ast::ParenDeclarator& node);
+    virtual void do_visit(ast::ArrayDeclarator& node);
+    virtual void do_visit(ast::FunctionDeclarator& node);
+    virtual void do_visit(ast::InitDeclarator& node);
+    virtual void do_visit(ast::Pointer& node);
+    virtual void do_visit(ast::ClassDeclarator& node);
+    virtual void do_visit(ast::ClassDeclaration& node);
+    virtual void do_visit(ast::Enumerator& node);
+    virtual void do_visit(ast::StorageClassSpecifier& node);
+    virtual void do_visit(ast::TypeQualifier& node);
+    virtual void do_visit(ast::EnumSpecifier& node);
+    virtual void do_visit(ast::ClassOrUnionSpecifier& node);
+    virtual void do_visit(ast::PrimitiveSpecifier& node);
+    virtual void do_visit(ast::Initializer& node);
+    virtual void do_visit(ast::TypeName& node);
+    virtual void do_visit(ast::IdentifierDeclarator& node);
 
-    virtual void do_visit(CompoundStatement& node);
-    virtual void do_visit(ExpressionStatement& node);
-    virtual void do_visit(CaseDefaultStatement& node);
-    virtual void do_visit(LabeledStatement& node);
-    virtual void do_visit(PrintStatement& node);
-    virtual void do_visit(IfStatement& node);
-    virtual void do_visit(SwitchStatement& node);
-    virtual void do_visit(WhileStatement& node);
-    virtual void do_visit(DoWhileStatement& node);
-    virtual void do_visit(ForStatement& node);
-    virtual void do_visit(GotoStatement& node);
-    virtual void do_visit(BreakStatement& node);
-    virtual void do_visit(ReturnStatement& node);
+    virtual void do_visit(ast::CompoundStatement& node);
+    virtual void do_visit(ast::ExpressionStatement& node);
+    virtual void do_visit(ast::CaseDefaultStatement& node);
+    virtual void do_visit(ast::LabeledStatement& node);
+    virtual void do_visit(ast::PrintStatement& node);
+    virtual void do_visit(ast::IfStatement& node);
+    virtual void do_visit(ast::SwitchStatement& node);
+    virtual void do_visit(ast::WhileStatement& node);
+    virtual void do_visit(ast::DoWhileStatement& node);
+    virtual void do_visit(ast::ForStatement& node);
+    virtual void do_visit(ast::GotoStatement& node);
+    virtual void do_visit(ast::BreakStatement& node);
+    virtual void do_visit(ast::ReturnStatement& node);
 
-    virtual void do_visit(BinaryExpression& node);
-    virtual void do_visit(CastExpression& node);
-    virtual void do_visit(UnaryExpression& node);
-    virtual void do_visit(AssignmentExpression& node);
-    virtual void do_visit(ConditionalExpression& node);
-    virtual void do_visit(IdentifierExpression& node);
-    virtual void do_visit(ConstExpression& node);
-    virtual void do_visit(LiteralExpression& node);
-    virtual void do_visit(StringExpression& node);
-    virtual void do_visit(CallExpression& node);
-    virtual void do_visit(MemberAccessExpression& node);
-    virtual void do_visit(ArraySubscriptExpression& node);
-    virtual void do_visit(PostfixExpression& node);
-    virtual void do_visit(SizeofExpression& node);
+    virtual void do_visit(ast::BinaryExpression& node);
+    virtual void do_visit(ast::CastExpression& node);
+    virtual void do_visit(ast::UnaryExpression& node);
+    virtual void do_visit(ast::AssignmentExpression& node);
+    virtual void do_visit(ast::ConditionalExpression& node);
+    virtual void do_visit(ast::IdentifierExpression& node);
+    virtual void do_visit(ast::ConstExpression& node);
+    virtual void do_visit(ast::LiteralExpression& node);
+    virtual void do_visit(ast::StringExpression& node);
+    virtual void do_visit(ast::CallExpression& node);
+    virtual void do_visit(ast::MemberAccessExpression& node);
+    virtual void do_visit(ast::ArraySubscriptExpression& node);
+    virtual void do_visit(ast::PostfixExpression& node);
+    virtual void do_visit(ast::SizeofExpression& node);
 };
 
 /*
@@ -413,7 +410,7 @@ The class that performs the validation pass.
 */
 class Validator : public BaseSemanticVisitor {
 public:
-    Validator(SymbolTable& syms, TypeContext& types)
+    Validator(SymbolTable& syms, types::TypeContext& types)
     : BaseSemanticVisitor(BaseSemanticVisitor::State::READ, syms, types) {}
 };
 
@@ -424,12 +421,12 @@ class SemanticChecker {
 public:
     SemanticChecker() :
     symbols(std::make_unique<SymbolTable>()),
-    types(std::make_unique<TypeContext>()) {}
+    types(std::make_unique<types::TypeContext>()) {}
 
     Box<SymbolTable> symbols;
     Box<types::TypeContext> types;
 
-    void check_semantics(ASTNode& prog);
+    void check_semantics(ast::ASTNode& prog);
 };
 
 }
