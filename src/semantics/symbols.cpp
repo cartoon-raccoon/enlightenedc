@@ -1,4 +1,5 @@
 #include <cassert>
+#include <stdexcept>
 
 #include "symbols.hpp"
 
@@ -11,36 +12,55 @@ void SymbolTable::push_scope(Symbol *assoc) {
     */
 
     Box<Scope> newscope = std::make_unique<Scope>(assoc, current);
-
-    Scope *new_current = newscope.get();
-
     current->nested.push_back(std::move(newscope));
 
-    current = new_current;
+    enter_scope();
 }
 
 void SymbolTable::enter_scope() {
-    /*
-    Enter the currently indexed scope in current scope.
+    // If there are no scopes left to enter
+    if (current->nested.empty()) {
+        throw std::runtime_error("tried to enter nonexistent nested scope");
+    }
 
-    Throw error if no scopes exist to enter.
-    */
-    // todo
+    if (current->nested_idx >= current->nested.size()) {
+        throw std::runtime_error("no more nested scopes left to enter in current scope");
+    }
+
+    Scope *new_current = current->nested[current->nested_idx].get();
+
+    current = new_current;
 }
 
 void SymbolTable::pop_scope() {
     if (current != global.get()) {
         if (current->outer) {
             current = current->outer;
+            current->nested_idx++;
         } else {
-            throw std::runtime_error("tried to exit global scope (this is a bug)");
+            throw std::runtime_error("tried to exit global scope");
         }
     }
 }
 
+void SymbolTable::reset() {
+    // todo
+}
+
+
+void SymbolTable::reset_current() {
+    current->nested_idx = 0;
+}
+
+
+void SymbolTable::clear() {
+    // todo
+}
+
+
 Symbol *SymbolTable::lookup(std::string sym) {
 
-    Scope *my_current = current;
+    Scope *my_current = this->current;
 
     // look for symbol in current scope
     while (!(my_current->symbols.contains(sym))) {

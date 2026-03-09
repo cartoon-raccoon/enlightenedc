@@ -32,9 +32,16 @@ public:
         Func, // This symbol references a function definition.
         Ty, // This symbol references a declared type.
         Lab, // This symbol references a label.
-    } kind;
+    };
 
     Symbol(Kind kind) : kind(kind) {}
+
+    Symbol(Kind kind, Location loc) : kind(kind), loc(loc) {}
+
+    Kind kind;
+
+    // The location of the symbol.
+    Location loc;
 
     /// If the symbol is public.
     bool is_public = false;
@@ -120,7 +127,12 @@ public:
     // inner scopes contained within this scope.
     Vec<Box<Scope>> nested;
 
-    
+private:
+
+    friend class SymbolTable;
+
+    // The index of the next nested scope to enter.
+    int nested_idx = 0;
 };
 
 /*
@@ -134,17 +146,25 @@ public:
     Box<Scope> global;
     // The current scope.
     Scope *current;
+
     // Create and enter a new scope.
     void push_scope(Symbol *assoc = nullptr);
 
-    // Enter the next scope.
+    /*
+    Enter the currently indexed scope in current scope.
+
+    Throw error if no scopes exist, or there are no more scopes left to enter.
+    */
     void enter_scope();
 
     // Exit the current scope to the outer one.
     void pop_scope();
 
-    // Reset to the current global scope and first index.
+    // Reset the current scope to the global scope and first index.
     void reset();
+
+    // Reset the current scope to the first index.
+    void reset_current();
 
     // Clear the entire SymbolTable.
     void clear();
