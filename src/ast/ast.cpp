@@ -138,6 +138,8 @@ exec::Value CallExpression::accept(exec::Evaluator& eval) { return eval.eval(thi
 
 exec::Value MemberAccessExpression::accept(exec::Evaluator& eval) { return eval.eval(this); }
 
+exec::Value ArraySubscriptExpression::accept(exec::Evaluator& eval) { return eval.eval(this); }
+
 exec::Value PostfixExpression::accept(exec::Evaluator& eval) { return eval.eval(this); }
 
 exec::Value SizeofExpression::accept(exec::Evaluator& eval) { return eval.eval(this); }
