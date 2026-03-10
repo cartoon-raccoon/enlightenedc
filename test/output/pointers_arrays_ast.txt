@@ -8,6 +8,10 @@ I32i apply(I32i (*fn)(I32i), I32i v) {
 I32i square(I32i x) {
     return x * x;
 }
+U32i arr[5];
+U32i *ptr_array[5];
+U32i (* ptr_to_arr) [5];
+U32i *(*ptr_to_ptr_arr) [5];
 I32i run() {
     class Node n;
     class Node *p = &n;
@@ -70,38 +74,78 @@ Program @ <input/pointers_arrays.ec:1.1>
 | | | | BinaryExpression: * @ <9.12-16> 
 | | | | | IdentifierExpression: x @ <9.12> 
 | | | | | IdentifierExpression: x @ <9.16> 
-| Function @ <11.1-17.1> 
-| | PrimitiveSpecifier: i32 @ <11.1-4> 
-| | Declarator @ <11.6-10> 
-| | | FunctionDeclarator @ <11.6-10> 
-| | | | IdentifierDeclarator: run @ <11.6-8> 
-| | CompoundStatement @ <11.12-17.1> 
-| | | VariableDeclaration @ <12.5-17> 
-| | | | ClassSpecifier:  Node: @ <12.5-14> 
-| | | | InitDeclarator @ <12.16> 
-| | | | | Declarator @ <12.16> 
-| | | | | | IdentifierDeclarator: n @ <12.16> 
-| | | VariableDeclaration @ <13.5-23> 
-| | | | ClassSpecifier:  Node: @ <13.5-14> 
-| | | | InitDeclarator @ <13.16-22> 
-| | | | | Declarator @ <13.16-17> 
-| | | | | | Pointer @ <13.16> 
-| | | | | | IdentifierDeclarator: p @ <13.16-17> 
-| | | | | Initializer:  @ <13.21-22> 
-| | | | | | UnaryExpression: & @ <13.21-22> 
-| | | | | | | IdentifierExpression: n @ <13.21-22> 
-| | | ExpressionStatement @ <14.5-16> 
-| | | | AssignmentExpression: = @ <14.5-15> 
-| | | | | MemberAccess: .value @ <14.5-11> 
-| | | | | | IdentifierExpression: n @ <14.5> 
-| | | | | Literal: 5 @ <14.15> 
-| | | ExpressionStatement @ <15.5-15> 
-| | | | PostfixExpression: ++ @ <15.5-14> 
-| | | | | MemberAccess: ->value @ <15.5-12> 
-| | | | | | IdentifierExpression: p @ <15.5> 
-| | | ReturnStatement @ <16.5-34> 
-| | | | CallExpression @ <16.12-33> 
-| | | | | IdentifierExpression: apply @ <16.12-16> 
-| | | | | IdentifierExpression: square @ <16.12-23> 
-| | | | | MemberAccess: .value @ <16.26-32> 
-| | | | | | IdentifierExpression: n @ <16.26> 
+| VariableDeclaration @ <11.1-12> 
+| | PrimitiveSpecifier: u32 @ <11.1-4> 
+| | InitDeclarator @ <11.6-11> 
+| | | Declarator @ <11.6-11> 
+| | | | ArrayDeclarator @ <11.6-11> 
+| | | | | IdentifierDeclarator: arr @ <11.6-8> 
+| | | | | ConstExpression:  @ <11.6-10> 
+| | | | | | Literal: 5 @ <11.6-10> 
+| VariableDeclaration @ <12.1-19> 
+| | PrimitiveSpecifier: u32 @ <12.1-4> 
+| | InitDeclarator @ <12.6-18> 
+| | | Declarator @ <12.6-18> 
+| | | | Pointer @ <12.6> 
+| | | | ArrayDeclarator @ <12.6-18> 
+| | | | | IdentifierDeclarator: ptr_array @ <12.6-15> 
+| | | | | ConstExpression:  @ <12.6-17> 
+| | | | | | Literal: 5 @ <12.6-17> 
+| VariableDeclaration @ <13.1-24> 
+| | PrimitiveSpecifier: u32 @ <13.1-4> 
+| | InitDeclarator @ <13.6-23> 
+| | | Declarator @ <13.6-23> 
+| | | | ArrayDeclarator @ <13.6-23> 
+| | | | | ParenDeclarator @ <13.6-19> 
+| | | | | | Declarator @ <13.6-18> 
+| | | | | | | Pointer @ <13.6-7> 
+| | | | | | | IdentifierDeclarator: ptr_to_arr @ <13.9-18> 
+| | | | | ConstExpression:  @ <13.21-22> 
+| | | | | | Literal: 5 @ <13.21-22> 
+| VariableDeclaration @ <14.1-28> 
+| | PrimitiveSpecifier: u32 @ <14.1-4> 
+| | InitDeclarator @ <14.6-27> 
+| | | Declarator @ <14.6-27> 
+| | | | Pointer @ <14.6> 
+| | | | ArrayDeclarator @ <14.6-27> 
+| | | | | ParenDeclarator @ <14.6-23> 
+| | | | | | Declarator @ <14.6-22> 
+| | | | | | | Pointer @ <14.6-8> 
+| | | | | | | IdentifierDeclarator: ptr_to_ptr_arr @ <14.6-22> 
+| | | | | ConstExpression:  @ <14.25-26> 
+| | | | | | Literal: 5 @ <14.25-26> 
+| Function @ <15.1-21.1> 
+| | PrimitiveSpecifier: i32 @ <15.1-4> 
+| | Declarator @ <15.6-10> 
+| | | FunctionDeclarator @ <15.6-10> 
+| | | | IdentifierDeclarator: run @ <15.6-8> 
+| | CompoundStatement @ <15.12-21.1> 
+| | | VariableDeclaration @ <16.5-17> 
+| | | | ClassSpecifier:  Node: @ <16.5-14> 
+| | | | InitDeclarator @ <16.16> 
+| | | | | Declarator @ <16.16> 
+| | | | | | IdentifierDeclarator: n @ <16.16> 
+| | | VariableDeclaration @ <17.5-23> 
+| | | | ClassSpecifier:  Node: @ <17.5-14> 
+| | | | InitDeclarator @ <17.16-22> 
+| | | | | Declarator @ <17.16-17> 
+| | | | | | Pointer @ <17.16> 
+| | | | | | IdentifierDeclarator: p @ <17.16-17> 
+| | | | | Initializer:  @ <17.21-22> 
+| | | | | | UnaryExpression: & @ <17.21-22> 
+| | | | | | | IdentifierExpression: n @ <17.21-22> 
+| | | ExpressionStatement @ <18.5-16> 
+| | | | AssignmentExpression: = @ <18.5-15> 
+| | | | | MemberAccess: .value @ <18.5-11> 
+| | | | | | IdentifierExpression: n @ <18.5> 
+| | | | | Literal: 5 @ <18.15> 
+| | | ExpressionStatement @ <19.5-15> 
+| | | | PostfixExpression: ++ @ <19.5-14> 
+| | | | | MemberAccess: ->value @ <19.5-12> 
+| | | | | | IdentifierExpression: p @ <19.5> 
+| | | ReturnStatement @ <20.5-34> 
+| | | | CallExpression @ <20.12-33> 
+| | | | | IdentifierExpression: apply @ <20.12-16> 
+| | | | | IdentifierExpression: square @ <20.12-23> 
+| | | | | MemberAccess: .value @ <20.26-32> 
+| | | | | | IdentifierExpression: n @ <20.26> 

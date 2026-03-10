@@ -11,6 +11,14 @@ I32i square(I32i x) {
     return x * x;
 }
 
+U32i arr[5];
+
+U32i *ptr_array[5];
+
+U32i (* ptr_to_arr) [5];
+
+U32i *(*ptr_to_ptr_arr) [5];
+
 I32i run() {
     class Node n;
     class Node *p = &n;
