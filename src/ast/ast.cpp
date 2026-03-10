@@ -1,5 +1,6 @@
 #include "ast/ast.hpp"
 #include "ast/visitor.hpp"
+#include "codegen/exec.hpp"
 
 using namespace ecc::ast;
 
@@ -41,7 +42,11 @@ void CompoundStatement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void ExpressionStatement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
-void CaseDefaultStatement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
+void CaseStatement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
+
+void CaseRangeStatement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
+
+void DefaultStatement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void LabeledStatement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
@@ -110,6 +115,32 @@ void FunctionDeclarator::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 void ClassSpecifier::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void UnionSpecifier::accept(ASTVisitor& visitor) { visitor.visit(*this); }
+
+exec::Value ConstExpression::accept(exec::Evaluator& eval) { return eval.eval(this); }
+
+exec::Value BinaryExpression::accept(exec::Evaluator& eval) { return eval.eval(this); }
+
+exec::Value CastExpression::accept(exec::Evaluator& eval) { return eval.eval(this); }
+
+exec::Value UnaryExpression::accept(exec::Evaluator& eval) { return eval.eval(this); }
+
+exec::Value AssignmentExpression::accept(exec::Evaluator& eval) { return eval.eval(this); }
+
+exec::Value ConditionalExpression::accept(exec::Evaluator& eval) { return eval.eval(this); }
+
+exec::Value IdentifierExpression::accept(exec::Evaluator& eval) { return eval.eval(this); }
+
+exec::Value LiteralExpression::accept(exec::Evaluator& eval) { return eval.eval(this); }
+
+exec::Value StringExpression::accept(exec::Evaluator& eval) { return eval.eval(this); }
+
+exec::Value CallExpression::accept(exec::Evaluator& eval) { return eval.eval(this); }
+
+exec::Value MemberAccessExpression::accept(exec::Evaluator& eval) { return eval.eval(this); }
+
+exec::Value PostfixExpression::accept(exec::Evaluator& eval) { return eval.eval(this); }
+
+exec::Value SizeofExpression::accept(exec::Evaluator& eval) { return eval.eval(this); }
 
 void Program::add_item(std::unique_ptr<ProgramItem> item) {
     items.push_back(std::move(item));

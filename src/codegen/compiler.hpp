@@ -69,7 +69,9 @@ public:
 
     void visit(ast::CompoundStatement& node) override;
     void visit(ast::ExpressionStatement& node) override;
-    void visit(ast::CaseDefaultStatement& node) override;
+    void visit(ast::CaseStatement& node) override;
+    void visit(ast::CaseRangeStatement& node) override;
+    void visit(ast::DefaultStatement& node) override;
     void visit(ast::LabeledStatement& node) override;
     void visit(ast::PrintStatement& node) override;
     void visit(ast::IfStatement& node) override;

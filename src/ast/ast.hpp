@@ -7,11 +7,19 @@
 #include <vector>
 
 #include "frontend/tokens.hpp"
-#include "semantics/types.hpp"
+#include "codegen/value.hpp"
 #include "util.hpp"
 
 using namespace ecc;
 using namespace ecc::util;
+
+namespace ecc::sema::types {
+    class Type;
+}
+
+namespace ecc::exec {
+    class Evaluator;
+}
 
 /* Class definitions of AST nodes and subclasses. */
 namespace ecc::ast {
@@ -45,7 +53,6 @@ public:
         CLASS_DECLTR,
         CLASS_DECL,
         ENUMERATOR,
-        CL_UNION_SPEC,
         CLASS_SPEC,
         UNION_SPEC,
         ENUM_SPEC,
@@ -53,6 +60,9 @@ public:
         COMP_STMT,
         EXPR_STMT,
         CASE_DEF_STMT,
+        CASE_STMT,
+        CASE_RG_STMT,
+        DEF_STMT,
         LABEL_STMT,
         PRINT_STMT,
         IF_STMT,
@@ -115,10 +125,15 @@ public:
     //virtual bool is_compiletime_computable() = 0;
 
     virtual void accept(ASTVisitor& visitor) = 0;
+
+    virtual exec::Value accept(ecc::exec::Evaluator& eval) = 0;
 };
 
 /*
 A wrapper to indicate that the contained expression must be computable at compile time.
+
+Any Expression wrapped in a ConstExpression can be treated as if it is computable at
+compile time, and any expression that is not cannot be.
 */
 class ConstExpression : public Expression {
 public:
@@ -129,6 +144,8 @@ public:
     Box<Expression> inner;
 
     void accept(ASTVisitor& visitor) override;
+
+    exec::Value accept(exec::Evaluator& eval) override;
 };
 
 //* DECLARATIONS
@@ -323,9 +340,23 @@ public:
 };
 
 /*
-A declarator surrounded by parentheses (e.g. `(decl)`).
+A declarator surrounded by parentheses (e.g. `(* decl)`).
 
-Used mainly in function pointers, e.g. `void (*fptr) (params)`.
+The parentheses force any pointers to bind to the name before any
+other operator (e.g. FunctionDeclarator, ArrayDeclarator).
+
+So, for example, `U32 *somefunction()` defines the symbol `somefunction`
+as a function that returns a pointer to a U32, while `U32 (*somefunction) ()`
+defines the symbol `somefunction` as a pointer to a function that returns an
+integer. Similarly, `U32 *arr[5]` defines `arr` as an array of 5 U32 pointers,
+whereas U32 (* arr) [5] defines `arr` as a pointer to an array of 5 U32s.
+
+The case of arrays has implications on pointer arithmetic. In the first case,
+`arr + 1` is equivalent to arr[1], so `arr` will increase by 4 bytes, the size
+of a U32. However, on the second case, `arr + 1` is equivalent to `arr + 5`,
+since the base type of `arr` in this case is `U32 [5]`, whereas the base type
+of `arr` in the former is `U32`.
+
 */
 class ParenDeclarator : public DirectDeclarator {
 public:
@@ -342,13 +373,13 @@ class ArrayDeclarator : public DirectDeclarator {
 public:
     ArrayDeclarator(Location loc,
                     Box<DirectDeclarator> b,
-                    std::optional<Box<Expression>> s)
+                    std::optional<Box<ConstExpression>> s)
         : DirectDeclarator(ARR_DECLTR, loc),
         base(std::move(b)), 
         size(std::move(s)) {}
 
     Box<DirectDeclarator> base;
-    std::optional<Box<Expression>> size;
+    std::optional<Box<ConstExpression>> size;
 
     void accept(ASTVisitor& visitor) override;
 };
@@ -464,11 +495,11 @@ public:
 /*
 A declaration of an enumerator within an enum.
 */
-class Enumerator : public TypeSpecifier {
+class Enumerator : public ASTNode {
 public:
     Enumerator(Location loc,
                std::string name, std::optional<Box<Expression>> value)
-        : TypeSpecifier(ENUMERATOR, loc),
+        : ASTNode(ENUMERATOR, loc),
         name(std::move(name)),
         value(std::move(value)) {}
 
@@ -559,24 +590,46 @@ public:
     void accept(ASTVisitor& visitor) override;
 };
 
-class CaseDefaultStatement : public Statement {
+class CaseStatement : public Statement {
 public:
-    enum Kind { CASE, CASE_RANGE, DEFAULT };
-
-    CaseDefaultStatement(Location loc,
-                         Kind kind,
-                         std::optional<Box<Expression>> case_expr,
-                         std::optional<Box<Expression>> case_range_end,
-                         Box<Statement> statement)
-        : Statement(CASE_DEF_STMT, loc),
-        kind(kind), 
+    CaseStatement(Location loc,
+                  Box<ConstExpression> case_expr,
+                  Box<Statement> statement)
+        : Statement(CASE_STMT, loc),
         case_expr(std::move(case_expr)),
-        case_range_end(std::move(case_range_end)),
         statement(std::move(statement)) {}
 
-    Kind kind;
-    std::optional<Box<Expression>> case_expr;
-    std::optional<Box<Expression>> case_range_end;
+    Box<Expression> case_expr;
+    Box<Statement> statement;
+
+    void accept(ASTVisitor& visitor) override;
+};
+
+class CaseRangeStatement : public Statement {
+public:
+    CaseRangeStatement(Location loc,
+                       Box<ConstExpression> range_start,
+                       Box<ConstExpression> range_end,
+                       Box<Statement> statement)
+        : Statement(CASE_RG_STMT, loc),
+        range_start(std::move(range_start)),
+        range_end(std::move(range_end)),
+        statement(std::move(statement)) {}
+
+    Box<ConstExpression> range_start;
+    Box<ConstExpression> range_end;
+    Box<Statement> statement;
+
+    void accept(ASTVisitor& visitor) override;
+};
+
+class DefaultStatement : public Statement {
+public:
+    DefaultStatement(Location loc,
+                     Box<Statement> statement)
+        : Statement(DEF_STMT, loc),
+        statement(std::move(statement)) {}
+
     Box<Statement> statement;
 
     void accept(ASTVisitor& visitor) override;
@@ -770,6 +823,8 @@ public:
     tokens::TokenType op;
 
     void accept(ASTVisitor& visitor) override;
+
+    exec::Value accept(exec::Evaluator& ev) override;
 };
 
 class CastExpression : public Expression {
@@ -785,6 +840,8 @@ public:
     Box<TypeName> type_name;
 
     void accept(ASTVisitor& visitor) override;
+
+    exec::Value accept(exec::Evaluator& ev) override;
 };
 
 class UnaryExpression : public Expression {
@@ -800,6 +857,8 @@ public:
     tokens::TokenType op;
 
     void accept(ASTVisitor& visitor) override;
+
+    exec::Value accept(exec::Evaluator& ev) override;
 };
 
 class AssignmentExpression : public Expression {
@@ -818,6 +877,8 @@ public:
     tokens::TokenType op;
 
     void accept(ASTVisitor& visitor) override;
+
+    exec::Value accept(exec::Evaluator& ev) override;
 };
 
 class ConditionalExpression : public Expression {
@@ -836,6 +897,8 @@ public:
     Box<Expression> false_expr;
 
     void accept(ASTVisitor& visitor) override;
+
+    exec::Value accept(exec::Evaluator& ev) override;
 };
 
 class IdentifierExpression : public Expression {
@@ -847,6 +910,8 @@ public:
     std::string name;
 
     void accept(ASTVisitor& visitor) override;
+
+    exec::Value accept(exec::Evaluator& ev) override;
 };
 
 class LiteralExpression : public Expression {
@@ -871,6 +936,8 @@ public:
     Value value;
 
     void accept(ASTVisitor& visitor) override;
+
+    exec::Value accept(exec::Evaluator& ev) override;
 };
 
 class StringExpression : public Expression {
@@ -883,6 +950,8 @@ public:
     std::string value;
 
     void accept(ASTVisitor& visitor) override;
+
+    exec::Value accept(exec::Evaluator& ev) override;
 };
 
 class CallExpression : public Expression {
@@ -898,6 +967,8 @@ public:
     Vec<Box<Expression>> arguments;
 
     void accept(ASTVisitor& visitor) override;
+
+    exec::Value accept(exec::Evaluator& ev) override;
 };
 
 class MemberAccessExpression : public Expression {
@@ -916,6 +987,9 @@ public:
     bool is_arrow;
 
     void accept(ASTVisitor& visitor) override;
+
+    exec::Value accept(exec::Evaluator& ev) override;
+
 };
 
 class ArraySubscriptExpression : public Expression {
@@ -931,6 +1005,9 @@ public:
     Box<Expression> index;
 
     void accept(ASTVisitor& visitor) override;
+
+    exec::Value accept(exec::Evaluator& ev) override;
+
 };
 
 class PostfixExpression : public Expression {
@@ -946,6 +1023,9 @@ public:
     tokens::TokenType op;
 
     void accept(ASTVisitor& visitor) override;
+
+    exec::Value accept(exec::Evaluator& ev) override;
+
 };
 
 class SizeofExpression : public Expression {
@@ -960,6 +1040,9 @@ public:
     std::variant<Box<Expression>, Box<TypeName>> operand;
 
     void accept(ASTVisitor& visitor) override;
+
+    exec::Value accept(exec::Evaluator& ev) override;
+
 };
 
 class Function : public ProgramItem {

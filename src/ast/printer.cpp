@@ -159,19 +159,6 @@ std::string ASTPrinter::qualifier_to_string(TypeQualifier::QualType q) {
     return "";
 }
 
-std::string ASTPrinter::case_kind_to_string(CaseDefaultStatement::Kind k) {
-    using L = CaseDefaultStatement::Kind;
-    switch (k) {
-    case L::CASE:
-        return "case";
-    case L::CASE_RANGE:
-        return "case_range";
-    case L::DEFAULT:
-        return "default";
-    }
-    return "";
-}
-
 void ASTPrinter::visit(Program& node) {
     print_node("Program", node, [&] {
         for (auto& item : node.items)
@@ -204,18 +191,33 @@ void ASTPrinter::visit(ExpressionStatement& node) {
     });
 }
 
-void ASTPrinter::visit(CaseDefaultStatement& node) {
+void ASTPrinter::visit(CaseStatement& node) {
     print_node(
-        "CaseDefaultStatement: " + case_kind_to_string(node.kind),
+        "CaseStatement: " ,
         node,
         [&] {
-            if (node.case_expr)
-                node.case_expr.value()->accept(*this);
+            node.case_expr->accept(*this);
+        },
+        [&] { node.statement->accept(*this); });
+}
+
+void ASTPrinter::visit(CaseRangeStatement& node) {
+    print_node(
+        "CaseRangeStatement: ",
+        node,
+        [&] {
+            node.range_start->accept(*this);
         },
         [&] {
-            if (node.case_range_end)
-                node.case_range_end.value()->accept(*this);
+            node.range_end->accept(*this);
         },
+        [&] { node.statement->accept(*this); });
+}
+
+void ASTPrinter::visit(DefaultStatement& node) {
+    print_node(
+        "DefaultStatement: ",
+        node,
         [&] { node.statement->accept(*this); });
 }
 

@@ -47,7 +47,9 @@ public:
 
     void visit(CompoundStatement& node) override;
     void visit(ExpressionStatement& node) override;
-    void visit(CaseDefaultStatement& node) override;
+    void visit(CaseStatement& node) override;
+    void visit(CaseRangeStatement& node) override;
+    void visit(DefaultStatement& node) override;
     void visit(LabeledStatement& node) override;
     void visit(PrintStatement& node) override;
     void visit(IfStatement& node) override;
@@ -96,8 +98,6 @@ private:
     std::string storage_to_string(StorageClassSpecifier::SpecType t);
 
     std::string qualifier_to_string(TypeQualifier::QualType q);
-
-    std::string case_kind_to_string(CaseDefaultStatement::Kind k);
 };
 
 } // namespace ecc::ast

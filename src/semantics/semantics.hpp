@@ -193,7 +193,9 @@ public:
 
     void visit(ast::CompoundStatement& node) override;
     void visit(ast::ExpressionStatement& node) override;
-    void visit(ast::CaseDefaultStatement& node) override;
+    void visit(ast::CaseStatement& node) override;
+    void visit(ast::CaseRangeStatement& node) override;
+    void visit(ast::DefaultStatement& node) override;
     void visit(ast::LabeledStatement& node) override;
     void visit(ast::PrintStatement& node) override;
     void visit(ast::IfStatement& node) override;
@@ -248,7 +250,9 @@ protected:
 
     virtual void do_visit(ast::CompoundStatement& node);
     virtual void do_visit(ast::ExpressionStatement& node);
-    virtual void do_visit(ast::CaseDefaultStatement& node);
+    virtual void do_visit(ast::CaseStatement& node);
+    virtual void do_visit(ast::CaseRangeStatement& node);
+    virtual void do_visit(ast::DefaultStatement& node);
     virtual void do_visit(ast::LabeledStatement& node);
     virtual void do_visit(ast::PrintStatement& node);
     virtual void do_visit(ast::IfStatement& node);

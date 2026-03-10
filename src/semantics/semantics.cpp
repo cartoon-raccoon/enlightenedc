@@ -166,7 +166,17 @@ void BaseSemanticVisitor::visit(ExpressionStatement& node) {
     do_visit(node);
 }
 
-void BaseSemanticVisitor::visit(CaseDefaultStatement& node) {
+void BaseSemanticVisitor::visit(CaseStatement& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(CaseRangeStatement& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseSemanticVisitor::visit(DefaultStatement& node) {
     auto guard = enter_node(&node);
     do_visit(node);
 }
@@ -347,9 +357,7 @@ void BaseSemanticVisitor::do_visit(Declarator& node) {
         node.pointer.value()->accept(*this);
     }
 
-    if (node.direct.has_value()) {
-        node.direct.value()->accept(*this);
-    }
+    node.direct.value()->accept(*this);
 }
 
 void BaseSemanticVisitor::do_visit(ParenDeclarator& node) {
@@ -476,7 +484,15 @@ void BaseSemanticVisitor::do_visit(ExpressionStatement& node) {
     }
 }
 
-void BaseSemanticVisitor::do_visit(CaseDefaultStatement& node) {
+void BaseSemanticVisitor::do_visit(CaseStatement& node) {
+    // todo
+}
+
+void BaseSemanticVisitor::do_visit(CaseRangeStatement& node) {
+    // todo
+}
+
+void BaseSemanticVisitor::do_visit(DefaultStatement& node) {
     // todo
 }
 

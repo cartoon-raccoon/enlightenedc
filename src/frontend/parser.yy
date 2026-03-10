@@ -627,13 +627,13 @@ labeled_statement:
         $$ = std::make_unique<LabeledStatement>(@$, std::move($1), std::move($3));
     }
     | CASE constant_expression COLON statement {
-        $$ = std::make_unique<CaseDefaultStatement>(@$, CaseDefaultStatement::CASE, std::move($2), std::nullopt, std::move($4));
+        $$ = std::make_unique<CaseStatement>(@$, std::move($2), std::move($4));
     }
     | CASE constant_expression ELLIPSIS constant_expression COLON statement {
-        $$ = std::make_unique<CaseDefaultStatement>(@$, CaseDefaultStatement::CASE_RANGE, std::move($2), std::move($4), std::move($6));
+        $$ = std::make_unique<CaseRangeStatement>(@$, std::move($2), std::move($4), std::move($6));
     }
     | DEFAULT COLON statement {
-        $$ = std::make_unique<CaseDefaultStatement>(@$, CaseDefaultStatement::DEFAULT, std::nullopt, std::nullopt, std::move($3));
+        $$ = std::make_unique<DefaultStatement>(@$, std::move($3));
     }
 ;
 

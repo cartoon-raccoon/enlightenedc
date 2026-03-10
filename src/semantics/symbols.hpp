@@ -40,6 +40,8 @@ public:
 
     Kind kind;
 
+    // std::optional<ecc::exec::Value> val;
+
     // The location of the symbol.
     Location loc;
 

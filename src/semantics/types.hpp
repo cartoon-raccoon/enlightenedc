@@ -2,12 +2,16 @@
 #define ECC_TYPES_H
 
 #include <cstddef>
+#include <stack>
 #include <string>
 #include <sstream>
 #include <concepts>
 #include <unordered_map>
 #include <unordered_set>
+#include <variant>
 
+#include "ast/ast.hpp"
+#include "codegen/value.hpp"
 #include "util.hpp"
 
 /*
@@ -23,7 +27,7 @@ The type system implementation for EnlightenedC.
 
 Ecc uses an interning type system, where a TypeContext manages internal type
 objects, and hands out pointers to them. This makes checking for type equality
-equivalent to a single pointer comparison.
+equivalent to a single pointer comparison (with the exception of arrays; see below).
 */
 
 using namespace util;
@@ -109,6 +113,16 @@ protected:
 };
 
 /*
+An abstract class representing a type that does not depend on a base type
+(i.e. it is not a type constructor). These include the primitive types,
+classes, unions, and enums.
+*/
+class BaseType : public Type {
+protected:
+    BaseType(Kind kind) : Type(kind) {}
+};
+
+/*
 A primitive type (e.g. U8, U16, F64, etc.)
 
 Primitive types do not hold pointers to other Types, i.e. all
@@ -123,7 +137,7 @@ Floats are not compatible with any other primitive type.
 
 Zero-sized types (U0, I0) cannot be implicitly converted to other types.
 */
-class PrimitiveType : public Type {
+class PrimitiveType : public BaseType {
 public:
     enum Kind {
         U0,
@@ -157,10 +171,10 @@ protected:
 
     friend constexpr Box<PrimitiveType> std::make_unique<PrimitiveType>(Kind&&);
 
-    PrimitiveType(Kind kind) : Type(Type::Kind::PRIMITIVE), primkind(kind) {}
+    PrimitiveType(Kind kind) : BaseType(Type::Kind::PRIMITIVE), primkind(kind) {}
 };
 
-class ClassType : public Type {
+class ClassType : public BaseType {
 public:
     struct ClassTypeMember {
         std::string name;
@@ -190,11 +204,11 @@ protected:
     friend constexpr Box<ClassType> std::make_unique<ClassType>();
 
     // Construct an empty class.
-    ClassType() : Type(Type::Kind::CLASS), members() {}
+    ClassType() : BaseType(Kind::CLASS), members() {}
 };
 
 
-class UnionType : public Type {
+class UnionType : public BaseType {
 public:
     struct UnionTypeMember {
         std::string name;
@@ -217,7 +231,7 @@ protected:
 
     friend constexpr Box<UnionType> std::make_unique<UnionType>();
 
-    UnionType() : Type(Type::Kind::UNION) {}
+    UnionType() : BaseType(Kind::UNION) {}
 };
 
 
@@ -230,7 +244,7 @@ An enum type is compatible with any integer primitive type, but not vice versa.
 The compiler will throw an error if the number of enum variants exceed the maximum
 value of the integer primitive to be cast to.
 */
-class EnumType : public Type {
+class EnumType : public BaseType {
 public:
     struct EnumTypeMember {
         // the name of the enum variant as declared in the source.
@@ -261,7 +275,7 @@ protected:
 
     friend constexpr Box<EnumType> std::make_unique<EnumType>();
 
-    EnumType() : Type(Type::Kind::ENUM), enumerators() {}
+    EnumType() : BaseType(Kind::ENUM), enumerators() {}
 
 private:
     // existing values that have already been declared.
@@ -286,16 +300,20 @@ class PointerType : public Type {
 public:
     Type *base;
 
+    bool is_const;
+
     PointerType *as_pointer() override { return this; }
 
     bool is_compatible_with(Type *other) override;
 
 protected:
     friend class TypeContext;
+    friend class TypeBuilder;
 
     friend constexpr Box<PointerType> std::make_unique<PointerType>(Type *&);
     
-    PointerType(Type *base) : Type(Type::Kind::POINTER), base(base) {}
+    PointerType(Type *base) : Type(Kind::POINTER), base(base) {}
+    PointerType() : Type(Kind::POINTER) {}
 };
 
 
@@ -311,6 +329,12 @@ it as pointer arithmetic.
 A sized array is strictly only compatible with another array of the exact same base
 and size.
 
+Note that because of how array sizes are stored (lazily), every array declaration
+will have its own array type, so checking equality by pointer comparison will not
+work for ArrayTypes. Howwever, ArrayTypes can be checked for compatibility with
+the overloaded is_compatible_with() function, which will lazily compute the size
+and compare the two.
+
 ## Semantics
 
 EnlightenedC follows C's array semantics: Declared arrays must be sized,
@@ -325,7 +349,8 @@ class ArrayType : public Type {
 public:
     Type *base;
 
-    int size = -1;
+    // The laily-evaluated size of the array, populated after elaboration.
+    exec::Value size = std::monostate();
 
     ArrayType *as_array() override { return this; }
 
@@ -334,9 +359,11 @@ public:
 protected:
     friend class TypeContext;
 
-    friend constexpr Box<ArrayType> std::make_unique<ArrayType>(Type *&, int&);
+    friend constexpr Box<ArrayType> std::make_unique<ArrayType>(Type *&, exec::Value&);
 
-    ArrayType(Type *base, int size) : Type(Type::Kind::ARRAY), base(base), size(size) {}
+    ArrayType(Type *base, exec::Value size) : Type(Kind::ARRAY), base(base), size(size) {}
+
+    ArrayType(exec::Value size) : Type(Kind::ARRAY), base(nullptr), size(size) {}
 };
 
 
@@ -355,10 +382,61 @@ public:
 
 protected:
     friend class TypeContext;
+    friend class TypeBuilder;
 
     friend constexpr Box<FunctionType> std::make_unique<FunctionType>();
 
     FunctionType() : Type(Type::Kind::FUNCTION) {}
+};
+
+/*
+A constructor type used for building up a type whose base type is not yet resolved.
+
+The standard order of type construction is to derive the base type first,
+then add constructors onto it such as arrays and pointers. However, this does not
+always work, as we might have the constructors before we know the base type.
+
+The TypeBuilder allows us to reverse the order of type construction; it applies
+constructors to an opaque type first, then once the base type is set, it finalizes
+the type and returns a pointer to the created concrete type.
+*/
+class TypeBuilder {
+public:
+    // Add an array to the type.
+    void add_array(ast::ConstExpression *size_expr);
+
+    void add_pointer(bool is_const);
+
+    void add_function(Vec<Type *> params, bool variadic);
+
+    void set_base(BaseType *type);
+
+    Type *finalize();
+
+protected:
+
+    friend class TypeContext;
+    friend constexpr Box<TypeBuilder> std::make_unique<TypeBuilder>(TypeContext&&);
+
+    TypeContext& ctxt;
+
+    TypeBuilder(TypeContext& ctxt) : ctxt(ctxt) {}
+
+private:
+    struct Ptr {
+        bool is_const;
+    };
+    struct Arr {
+        exec::Value size;
+    };
+    struct FnParams {
+        Vec<Type *> params;
+        bool variadic;
+    };
+
+    BaseType *base;
+
+    std::stack<std::variant<Ptr, Arr, FnParams>> type_stack;
 };
 
 /*
@@ -381,6 +459,8 @@ The TypeContext stores keys to types as mangled names, incorporating the kind of
 class TypeContext {
 public:
     TypeContext();
+
+    TypeBuilder builder();
 
     // Return a pointer to the PrimitiveType object with `kind`.
     PrimitiveType *get_primitive(PrimitiveType::Kind kind);
@@ -419,7 +499,9 @@ public:
     PointerType *get_pointer(Type *base);
 
     // Create or get an array with the given `base` type and specified size.
-    ArrayType *get_array(Type *base, int size);
+    ArrayType *get_array(Type *base, ast::ConstExpression *size_expr);
+
+    ArrayType *get_array(Type *base, exec::Value size);
 
     // Create a function type based on its signature.
     FunctionType *get_function(Type *ret, Vec<Type *> params, bool variadic);
@@ -428,16 +510,15 @@ private:
     int anonymous_ctr = 0;
 
     struct pair_hash {
-        template<typename T1, typename T2>
-        std::size_t operator() (const std::pair<T1, T2> p) {
-            auto h1 = std::hash<T1>(p.first);
-            auto h2 = std::hash<T2>(p.second);
+        std::size_t operator() (const std::pair<Type *, exec::Value> p) const {
+            auto h1 = std::hash<Type *>{}(p.first);
+            auto h2 = std::hash<exec::Value>{}(p.second);
 
             return h1 ^ h2 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2);
         }
     };
 
-    using ArrayKey = std::pair<Type *, int>;
+    using ArrayKey = std::pair<Type *, exec::Value>;
 
     // The map of base types (i.e. non-pointers).
     std::unordered_map<std::string, Box<Type>> base_types;

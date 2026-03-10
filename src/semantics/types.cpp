@@ -2,10 +2,13 @@
 #include <cstddef>
 #include <memory>
 #include <utility>
+#include <variant>
 
 #include "semantics/types.hpp"
+#include "codegen/exec.hpp"
 
 using namespace ecc::sema::types;
+using namespace ecc::exec;
 
 bool Type::is_primitive() { return kind == Kind::PRIMITIVE; }
 
@@ -182,6 +185,54 @@ bool ArrayType::is_compatible_with(Type *other) {
     return false; // todo
 }
 
+void TypeBuilder::add_array(ast::ConstExpression *size_expr) {
+    exec::Evaluator evalr;
+    Value size = evalr.eval(size_expr);
+    type_stack.push(Arr {size});
+}
+
+void TypeBuilder::add_pointer(bool is_const) {
+    type_stack.push(Ptr {is_const});
+}
+
+void TypeBuilder::add_function(Vec<Type *> params, bool variadic) {
+    type_stack.push(FnParams {std::move(params), variadic});
+}
+
+void TypeBuilder::set_base(BaseType *base) {
+    this->base = base;
+}
+
+Type *TypeBuilder::finalize() {
+    Type *curr = base;
+    while (!type_stack.empty()) {
+        auto next_cstrctr = type_stack.top();
+        std::visit(overloaded{
+            [this, curr] (Arr& a) mutable {
+                // Wrap the base in an array.
+                curr = this->ctxt.get_array(curr, a.size);
+            },
+            [this, curr] (Ptr& p) mutable {
+                // Wrap the base in a pointer.
+                curr = this->ctxt.get_pointer(curr);
+            },
+            [this, curr] (FnParams& fn) mutable {
+                // Wrap the base as the return type in a function type.
+                curr = this->ctxt.get_function(curr, std::move(fn.params), fn.variadic);
+            }
+        }, next_cstrctr);
+
+        // Pop the stack to the next constructor
+        type_stack.pop();
+    }
+
+    return curr;
+}
+
+TypeBuilder TypeContext::builder() {
+    return TypeBuilder(*this);
+}
+
 ClassType *TypeContext::get_class(std::string name, sym::Scope *scope) {
     std::string mangled = mangle<ClassType>(name, scope);
 
@@ -266,7 +317,14 @@ PointerType *TypeContext::get_pointer(Type *base) {
     return ret;
 }
 
-ArrayType *TypeContext::get_array(Type *base, int size) {
+ArrayType *TypeContext::get_array(Type *base, ast::ConstExpression *size_expr) {
+    exec::Evaluator evalr;
+    Value size = evalr.eval(size_expr);
+    
+    return get_array(base, size);
+}
+
+ArrayType *TypeContext::get_array(Type *base, Value size) {
     ArrayKey key(base, size);
     auto it = arrays.find(key);
     if (it != arrays.end()) {
