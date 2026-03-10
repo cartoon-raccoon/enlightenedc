@@ -329,12 +329,6 @@ it as pointer arithmetic.
 A sized array is strictly only compatible with another array of the exact same base
 and size.
 
-Note that because of how array sizes are stored (lazily), every array declaration
-will have its own array type, so checking equality by pointer comparison will not
-work for ArrayTypes. Howwever, ArrayTypes can be checked for compatibility with
-the overloaded is_compatible_with() function, which will lazily compute the size
-and compare the two.
-
 ## Semantics
 
 EnlightenedC follows C's array semantics: Declared arrays must be sized,
@@ -403,7 +397,7 @@ the type and returns a pointer to the created concrete type.
 class TypeBuilder {
 public:
     // Add an array to the type.
-    void add_array(ast::ConstExpression *size_expr);
+    void add_array(exec::Value size);
 
     void add_pointer(bool is_const);
 
@@ -420,7 +414,7 @@ protected:
 
     TypeContext& ctxt;
 
-    TypeBuilder(TypeContext& ctxt) : ctxt(ctxt) {}
+    TypeBuilder(TypeContext& ctxt) : ctxt(ctxt), base(nullptr) {}
 
 private:
     struct Ptr {
@@ -499,8 +493,6 @@ public:
     PointerType *get_pointer(Type *base);
 
     // Create or get an array with the given `base` type and specified size.
-    ArrayType *get_array(Type *base, ast::ConstExpression *size_expr);
-
     ArrayType *get_array(Type *base, exec::Value size);
 
     // Create a function type based on its signature.

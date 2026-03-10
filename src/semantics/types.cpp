@@ -1,11 +1,11 @@
 #include <algorithm>
 #include <cstddef>
 #include <memory>
+#include <stdexcept>
 #include <utility>
 #include <variant>
 
 #include "semantics/types.hpp"
-#include "codegen/exec.hpp"
 
 using namespace ecc::sema::types;
 using namespace ecc::exec;
@@ -185,9 +185,7 @@ bool ArrayType::is_compatible_with(Type *other) {
     return false; // todo
 }
 
-void TypeBuilder::add_array(ast::ConstExpression *size_expr) {
-    exec::Evaluator evalr;
-    Value size = evalr.eval(size_expr);
+void TypeBuilder::add_array(exec::Value size) {
     type_stack.push(Arr {size});
 }
 
@@ -204,6 +202,10 @@ void TypeBuilder::set_base(BaseType *base) {
 }
 
 Type *TypeBuilder::finalize() {
+    if (!base) {
+        throw std::runtime_error("TypeBuilder::finalize: cannot construct type from null base");
+    }
+    
     Type *curr = base;
     while (!type_stack.empty()) {
         auto next_cstrctr = type_stack.top();
@@ -315,13 +317,6 @@ PointerType *TypeContext::get_pointer(Type *base) {
     pointers[base] = std::move(ptr);
 
     return ret;
-}
-
-ArrayType *TypeContext::get_array(Type *base, ast::ConstExpression *size_expr) {
-    exec::Evaluator evalr;
-    Value size = evalr.eval(size_expr);
-    
-    return get_array(base, size);
 }
 
 ArrayType *TypeContext::get_array(Type *base, Value size) {
