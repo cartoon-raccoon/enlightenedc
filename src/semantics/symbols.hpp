@@ -124,6 +124,8 @@ public:
     // a symbol associated with this scope, usually a function.
     // if null, this is an anonymous scope.
     Symbol *assoc;
+    // an ASTNode associated with this scope, if any.
+    ast::ASTNode *node;
     // the symbol table.
     std::unordered_map<std::string, Box<Symbol>> symbols = {};
     // inner scopes contained within this scope.

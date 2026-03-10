@@ -122,7 +122,8 @@ public:
 
 private:
     struct SpecifierInfo {
-
+        types::BaseType *type;
+        // todo: other specifiers
     };
 
     Box<SpecifierInfo> parse_and_verify_speclist(Vec<Box<ast::DeclarationSpecifier>>&);

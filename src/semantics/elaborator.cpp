@@ -3,9 +3,12 @@
 #include "semantics/symbols.hpp"
 #include "error.hpp"
 #include "semantics/types.hpp"
+#include "codegen/exec.hpp"
+#include "util.hpp"
 
 #include <stdexcept>
 #include <cassert>
+#include <variant>
 
 #define dv_return(val) do { last_result = std::move(val); return; } while (0)
 
@@ -17,6 +20,43 @@ using namespace ecc::sema::types;
 using namespace ecc::sema::sym;
 
 Box<Elaborator::SpecifierInfo> Elaborator::parse_and_verify_speclist(Vec<Box<ast::DeclarationSpecifier>>& speclist) {
+    using NK = ASTNode::NodeKind;
+
+    BaseType * basetype = nullptr;
+
+    for (auto& decl_spec : speclist) {
+        decl_spec->accept(*this);
+        switch (decl_spec->kind) {
+            case NK::TYPE_QUAL: // const
+
+            break;
+
+            case NK::STORAGE_SPEC: // 
+
+            break;
+
+            case NK::CLASS_SPEC:
+            basetype = take_dovisit_param<ClassType *>();
+            break;
+
+            case NK::UNION_SPEC:
+            basetype = take_dovisit_param<UnionType *>();
+            break;
+
+            case NK::ENUM_SPEC:
+            basetype = take_dovisit_param<EnumType *>();
+            break;
+
+            case NK::PRIM_SPEC:
+            basetype = take_dovisit_param<PrimitiveType *>();
+            break;
+
+            default:
+            throw std::runtime_error("encountered a non-declaration specifier while visiting function node");
+        }
+    }
+    assert(basetype);
+
     return nullptr; // todo
 }
 
@@ -35,45 +75,12 @@ void Elaborator::do_visit(Function& node) {
     5. Call accept on node.body
 
     */
-    using NK = ASTNode::NodeKind;
 
-    BaseType * return_base = nullptr;
+    // Parse and construct specifier info
+    Box<SpecifierInfo> specinfo = parse_and_verify_speclist(node.decl_spec_list);
+    BaseType *return_base = specinfo->type;
 
-    for (auto& decl_spec : node.decl_spec_list) {
-
-        decl_spec->accept(*this);
-        switch (node.kind) {
-            case NK::TYPE_QUAL: // const
-
-            break;
-
-            case NK::STORAGE_SPEC: // 
-
-            break;
-
-            case NK::CLASS_SPEC:
-            return_base = take_dovisit_param<ClassType *>();
-            break;
-
-            case NK::UNION_SPEC:
-            return_base = take_dovisit_param<UnionType *>();
-            break;
-
-            case NK::ENUM_SPEC:
-            return_base = take_dovisit_param<EnumType *>();
-            break;
-
-            case NK::PRIM_SPEC:
-            return_base = take_dovisit_param<PrimitiveType *>();
-            break;
-
-            default:
-            throw std::runtime_error("encountered a non-declaration specifier while visiting function node");
-        }
-    }
-
-    assert(return_base);
-
+    // Visit the Declarator to construct the type builder.
     dv_call(std::monostate {}, node.declarator);
     auto builder = take_last_result<Box<DeclaratorBuilder>>();
     builder->ty_bldr.set_base(return_base);
@@ -84,6 +91,8 @@ void Elaborator::do_visit(Function& node) {
         // todo: throw error
     }
 
+    // todo: create function symbol and construct parameters for call to function body
+
     // Then make call
     node.body->accept(*this);
 }
@@ -91,17 +100,13 @@ void Elaborator::do_visit(Function& node) {
 void Elaborator::do_visit(TypeDeclaration& node) {
     // The last element of the specifiers should be the type specifier,
     // and there should only be ony type specifier.
-    for (auto& specifier : node.specifiers) {
-        specifier->accept(*this);
-    }
+    auto specinfo = parse_and_verify_speclist(node.specifiers);
 
     // todo: create symbol, associate current scope with symbol
 }
 
 void Elaborator::do_visit(VariableDeclaration& node) {
-    for (auto& specifier : node.specifiers) {
-        specifier->accept(*this);
-    }
+    auto specinfo = parse_and_verify_speclist(node.specifiers);
 
     for (auto& declarator : node.declarators) {
         declarator->accept(*this);
@@ -143,19 +148,21 @@ void Elaborator::do_visit(ArrayDeclarator& node) {
 
     auto builder = take_last_result<Box<DeclaratorBuilder>>();
 
-    ConstExpression *size_expr;
+    exec::Value size;
+    exec::Evaluator evalr(syms, types);
     if (node.size) {
-        size_expr = node.size.value().get();
+        size = node.size.value().get()->accept(evalr);
     } else {
-        size_expr = nullptr;
+        size = std::monostate();
     }
 
-    builder->ty_bldr.add_array(size_expr);
+    builder->ty_bldr.add_array(size);
+
+    dv_return(builder);
 }
 
 void Elaborator::do_visit(FunctionDeclarator& node) {
     dv_call(std::monostate {}, node.base);
-
     auto builder = take_last_result<Box<DeclaratorBuilder>>();
 
     // todo: construct parameters
@@ -270,11 +277,8 @@ void Elaborator::do_visit(Enumerator& node) {
 }
 
 void Elaborator::do_visit(ClassSpecifier& node) {
-    // any nested derived types have to be scoped within this specifier.
-    auto guard = enter_scope();
-
     ClassType *cls = nullptr;
-    if (node.name.has_value()) {
+    if (node.name) {
         cls = types.get_class(*(node.name), syms.current);
     } else {
         cls = types.get_class(syms.current);
@@ -285,7 +289,7 @@ void Elaborator::do_visit(ClassSpecifier& node) {
         throw ecc::EccError("class already declared as another type");
     }
 
-    if (node.declarations.has_value()) {
+    if (node.declarations) {
         if (cls->complete) {
             // error: class was previously defined
             throw ecc::EccError("class was previously declared");
@@ -294,35 +298,34 @@ void Elaborator::do_visit(ClassSpecifier& node) {
         // class is defined here, populate its members and mark it complete
         // todo: populate class
         for (auto& decl : *node.declarations) {
-            dovisit_param = cls;
-            decl->accept(*this);
+            dv_call(cls, decl);
         }
 
         cls->complete = true;
     }
-
-    last_result = cls;
     
-    if (node.name.has_value()) {
+    if (node.name) {
         Symbol *sym = syms.insert(*node.name, std::make_unique<sym::TypeSymbol>(cls));
         syms.tie_current_to(sym);
     }
+
+    dv_return(cls);
 }
 
 void Elaborator::do_visit(UnionSpecifier& node) {
     UnionType *unn = nullptr;
-    if (node.name.has_value()) {
+    if (node.name) {
         unn = types.get_union(*(node.name), syms.current);
     } else {
         unn = types.get_union(syms.current);
     }
 
-    if (!unn) {
+    if (!unn) { // todo: make this throw an error instead of just returning nullptr
         // error: type with name already exists but is not union
         throw ecc::EccError("union already declared as another type");
     }
 
-    if (node.declarations.has_value()) {
+    if (node.declarations) {
         if (unn->complete) {
             // error: union was previously defined
             throw ecc::EccError("union was previously declared");
@@ -330,33 +333,39 @@ void Elaborator::do_visit(UnionSpecifier& node) {
         // class is defined here, populate its members and mark it complete
         // todo: populate union
         for (auto& decl : *node.declarations) {
-            dovisit_param = unn;
-            decl->accept(*this);
+            dv_call(unn, decl);
         }
 
         unn->complete = true;
     }
 
-    last_result = unn;
-
-    if (node.name.has_value()) {
+    if (node.name) {
         Symbol* sym = syms.insert(*node.name, std::make_unique<sym::TypeSymbol>(unn));
         syms.tie_current_to(sym);
     }
+
+    dv_return(unn);
 }
 
 void Elaborator::do_visit(ClassDeclaration& node) {
-    for (auto& spec : node.specifiers) {
-
-    }
+    Box<SpecifierInfo> specinfo = parse_and_verify_speclist(node.specifiers);
 
     for (auto& decltr : node.declarators) {
+        dv_call(std::monostate {}, decltr);
 
+         // todo
     }
 }
 
 void Elaborator::do_visit(ClassDeclarator& node) {
+    if (node.declarator) {
+        dv_call(std::monostate {}, node.declarator.value());
+        dv_return(take_last_result<Box<DeclaratorBuilder>>());
+    } else {
+        dv_return(std::monostate{});
+    }
 
+    // ignore bit width for now
 }
 
 void Elaborator::do_visit(Initializer& node) {}
@@ -368,14 +377,23 @@ void Elaborator::do_visit(ExpressionStatement& node) {}
 void Elaborator::do_visit(CompoundStatement& node) {
     CmpdStmtDoVisitParam add_symbols;
 
-    // We can fail silently if the parameter isn't correct.
-    try {
-        add_symbols = take_dovisit_param<CmpdStmtDoVisitParam>();
-    } catch (...) { // fixme: catch specific exception
-        add_symbols = {};
-    }
+    // There are three possible states for the params for CmpdStmt:
+    // the param is CmpdStmtDoVisitParam and has a value
+    // the param is CmpdStmtDoVisitParam and has no value
+    // the param is some other type
+    // Since do_visit on this node can be called outside of functions,
+    // having the param not be of the expected type is valid,
+    // we just don't use it.
+    std::visit(overloaded {
+        [&add_symbols] (CmpdStmtDoVisitParam& param) mutable {
+            add_symbols = std::move(param);
+        },
+        [&add_symbols] (auto _) mutable {
+            add_symbols = {};
+        }
+    }, dovisit_param);
 
-    if (add_symbols.has_value()) {
+    if (add_symbols) {
         // check the immediate outer node is a function
         if (in_node(ASTNode::NodeKind::FUNC) != 1) {
             throw std::runtime_error("received symbols to add when not in function");
@@ -391,13 +409,13 @@ void Elaborator::do_visit(CompoundStatement& node) {
     }
 
     for (auto& item : node.items) {
-        item->accept(*this);
+        dv_call(std::monostate {}, item);
     }
 }
 
 void Elaborator::do_visit(LabeledStatement& node) {
     syms.insert(node.label, std::make_unique<sym::LabelSymbol>());
-    node.statement->accept(*this);
+    dv_call(std::monostate {}, node.statement);
 }
 
 void Elaborator::do_visit(WhileStatement& node) {}
