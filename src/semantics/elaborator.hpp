@@ -18,7 +18,7 @@ using namespace util;
 
 // Helper struct for building declarators.
 struct DeclaratorBuilder {
-    std::string name;
+    std::optional<std::string> name;
     types::TypeBuilder ty_bldr;
 };
 
@@ -123,7 +123,10 @@ public:
 private:
     struct SpecifierInfo {
         types::BaseType *type;
-        // todo: other specifiers
+        bool is_public;
+        bool is_static;
+        bool is_extern;
+        bool is_const;
     };
 
     Box<SpecifierInfo> parse_and_verify_speclist(Vec<Box<ast::DeclarationSpecifier>>&);
@@ -157,10 +160,6 @@ protected:
     void do_visit(ast::ExpressionStatement& node) override;
     void do_visit(ast::CompoundStatement& node) override;
     void do_visit(ast::LabeledStatement& node) override;
-    void do_visit(ast::WhileStatement& node) override;
-    void do_visit(ast::DoWhileStatement& node) override;
-    void do_visit(ast::ForStatement& node) override;
-    void do_visit(ast::GotoStatement& node) override;
 };
 
 }

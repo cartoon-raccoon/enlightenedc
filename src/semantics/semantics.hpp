@@ -8,7 +8,6 @@
 #include "util.hpp"
 
 #include <optional>
-#include <memory>
 
 namespace ecc::sema {
 /*
@@ -95,13 +94,26 @@ public:
 
         NodeGuard(const NodeGuard&) = delete;
         NodeGuard& operator=(const NodeGuard&) = delete;
+
+#ifndef NDEBUG
+        BaseSemanticVisitor& bsv;
+#endif
         /*
         Create a NodeGuard.
 
         If `true` is passed, a new scopeguard will be created as well, that will be
         destroyed in the NodeGuard's destructor.
         */
-        NodeGuard(BaseSemanticVisitor& bsv, ast::ASTNode *node, bool new_scope = false) : context(bsv.ctxt_stack) {
+        NodeGuard(BaseSemanticVisitor& bsv, ast::ASTNode *node, bool new_scope = false) 
+        : 
+#ifndef NDEBUG
+        bsv(bsv), 
+#endif
+        context(bsv.ctxt_stack) {
+#ifndef NDEBUG
+            bsv.bsv_dbprint("entering node with type ", node->kind);
+            bsv.inc_indent();
+#endif
             if (new_scope) {
                 scope_guard.emplace(std::move(bsv.enter_scope()));
             }
@@ -110,6 +122,10 @@ public:
 
         ~NodeGuard() {
             context.pop_back();
+#ifndef NDEBUG
+            dbprint("exiting node");
+            bsv.dec_indent();
+#endif
         }
 
     private:
@@ -139,6 +155,30 @@ public:
     types::TypeContext& types;
     // Tracks the outer nodes that the current node rests in.
     Vec<ast::ASTNode *> ctxt_stack;
+
+#ifndef NDEBUG
+#include <sstream>
+
+    int indent = 0;
+
+    void inc_indent() { indent += 2; }
+
+    void dec_indent() { indent -= 2; }
+
+    template <typename ...Args>
+    void bsv_dbprint(Args ...args) {
+        std::stringstream ss;
+
+        for (int i = 0; i < indent; i++) {
+            ss << "  ";
+        }
+
+        dbprint(ss.str(), args ...);
+    }
+#else
+    template <typename ...Args>
+    void bsv_dbprint(Args ...args) {}
+#endif
 
     /*
     If in write mode, creates and enters a new scope.
@@ -294,12 +334,12 @@ The parent class that owns the symbol table and type context.
 */
 class SemanticChecker {
 public:
-    SemanticChecker() :
-    symbols(std::make_unique<sym::SymbolTable>()),
-    types(std::make_unique<types::TypeContext>()) {}
+    SemanticChecker(sym::SymbolTable& symbols, types::TypeContext& types) :
+    symbols(symbols),
+    types(types) {}
 
-    Box<sym::SymbolTable> symbols;
-    Box<types::TypeContext> types;
+    sym::SymbolTable& symbols;
+    types::TypeContext& types;
 
     void check_semantics(ast::ASTNode& prog);
 };

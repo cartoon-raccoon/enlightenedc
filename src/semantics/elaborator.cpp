@@ -8,6 +8,7 @@
 
 #include <stdexcept>
 #include <cassert>
+#include <unistd.h>
 #include <variant>
 
 #define dv_return(val) do { last_result = std::move(val); return; } while (0)
@@ -22,42 +23,62 @@ using namespace ecc::sema::sym;
 Box<Elaborator::SpecifierInfo> Elaborator::parse_and_verify_speclist(Vec<Box<ast::DeclarationSpecifier>>& speclist) {
     using NK = ASTNode::NodeKind;
 
-    BaseType * basetype = nullptr;
+    bsv_dbprint("parsing declaration specifier list");
+    Box<SpecifierInfo> specinfo = std::make_unique<SpecifierInfo>();
 
     for (auto& decl_spec : speclist) {
         decl_spec->accept(*this);
         switch (decl_spec->kind) {
-            case NK::TYPE_QUAL: // const
-
+            case NK::TYPE_QUAL: {
+                auto qualtype = take_last_result<TypeQualifier::QualType>();
+                switch (qualtype) {
+                    case TypeQualifier::QualType::CONST:
+                    specinfo->is_const = true;
+                }
+            }
             break;
 
-            case NK::STORAGE_SPEC: // 
+            case NK::STORAGE_SPEC: {
+                auto spectype = take_last_result<StorageClassSpecifier::SpecType>();
+                switch (spectype) {
+                    case StorageClassSpecifier::EXTERN:
+                    specinfo->is_extern = true;
+                    break;
 
+                    case StorageClassSpecifier::PUBLIC:
+                    specinfo->is_public = true;
+                    break;
+
+                    case StorageClassSpecifier::STATIC:
+                    specinfo->is_static = true;
+                    break;
+                }
+            }
             break;
 
             case NK::CLASS_SPEC:
-            basetype = take_dovisit_param<ClassType *>();
+            specinfo->type = take_last_result<ClassType *>();
             break;
 
             case NK::UNION_SPEC:
-            basetype = take_dovisit_param<UnionType *>();
+            specinfo->type = take_last_result<UnionType *>();
             break;
 
             case NK::ENUM_SPEC:
-            basetype = take_dovisit_param<EnumType *>();
+            specinfo->type = take_last_result<EnumType *>();
             break;
 
             case NK::PRIM_SPEC:
-            basetype = take_dovisit_param<PrimitiveType *>();
+            specinfo->type = take_last_result<PrimitiveType *>();
             break;
 
             default:
-            throw std::runtime_error("encountered a non-declaration specifier while visiting function node");
+            throw std::runtime_error("encountered a non-declaration specifier while parsing specifiers");
         }
     }
-    assert(basetype);
+    assert(specinfo->type);
 
-    return nullptr; // todo
+    return std::move(specinfo);
 }
 
 void Elaborator::do_visit(Function& node) {
@@ -76,6 +97,8 @@ void Elaborator::do_visit(Function& node) {
 
     */
 
+    bsv_dbprint("visiting Function node");
+
     // Parse and construct specifier info
     Box<SpecifierInfo> specinfo = parse_and_verify_speclist(node.decl_spec_list);
     BaseType *return_base = specinfo->type;
@@ -85,19 +108,50 @@ void Elaborator::do_visit(Function& node) {
     auto builder = take_last_result<Box<DeclaratorBuilder>>();
     builder->ty_bldr.set_base(return_base);
 
-    // finalize the function declarator to derive the final function type.
-    FunctionType *complete_type = builder->ty_bldr.finalize()->as_function();
-    if (!complete_type /* || complete_type->kind != Type::FUNCTION */) {
-        // todo: throw error
+    // Extract the TypeBuiilder
+    TypeBuilder& ty_bldr = builder->ty_bldr;
+
+    // The latest function parameters.
+    Vec<TypeBuilder::TypedIdent> last_func_params;
+
+    // Extract the base type from our builder.
+    Type *curr = ty_bldr.base;
+
+    while (!ty_bldr.type_stack.empty()) {
+        auto next_cstrctr = ty_bldr.type_stack.top();
+        std::visit(overloaded{
+            [ty_bldr, curr] (TypeBuilder::Arr& a) mutable {
+                // Wrap the base in an array.
+                curr = ty_bldr.ctxt.get_array(curr, a.size);
+            },
+            [ty_bldr, curr] (TypeBuilder::Ptr& p) mutable {
+                // Wrap the base in a pointer.
+                curr = ty_bldr.ctxt.get_pointer(curr, p.is_const);
+            },
+            [ty_bldr, curr, &last_func_params] (TypeBuilder::FnParams& fn) mutable {
+                // map out the identifiers.
+                Vec<Type *> params;
+                params.reserve(fn.params.size());
+                for (auto& param : fn.params) {
+                    params.push_back(param.first);
+                }
+
+                last_func_params = std::move(fn.params);
+                // Wrap the base as the return type in a function type.
+                curr = ty_bldr.ctxt.get_function(curr, std::move(params), fn.variadic);
+            }
+        }, next_cstrctr);
+
+        // Pop the stack to the next constructor
+        ty_bldr.type_stack.pop();
     }
 
-    // todo: create function symbol and construct parameters for call to function body
-
     // Then make call
-    node.body->accept(*this);
+    dv_call(CmpdStmtDoVisitParam(), node.body);
 }
 
 void Elaborator::do_visit(TypeDeclaration& node) {
+    bsv_dbprint("visiting TypeDeclaration node");
     // The last element of the specifiers should be the type specifier,
     // and there should only be ony type specifier.
     auto specinfo = parse_and_verify_speclist(node.specifiers);
@@ -106,19 +160,21 @@ void Elaborator::do_visit(TypeDeclaration& node) {
 }
 
 void Elaborator::do_visit(VariableDeclaration& node) {
+    bsv_dbprint("visiting VariableDeclaration node");
     auto specinfo = parse_and_verify_speclist(node.specifiers);
 
     for (auto& declarator : node.declarators) {
-        declarator->accept(*this);
+        dv_call(std::monostate{}, declarator);
+        auto builder = take_last_result<Box<DeclaratorBuilder>>();
+        builder->ty_bldr.set_base(specinfo->type);
+        Type *complete = builder->ty_bldr.finalize();
+        // todo: account for storage class specs
+
     }
 }
 
 void Elaborator::do_visit(InitDeclarator& node) {
-
-}
-
-void Elaborator::do_visit(ParameterDeclaration& node) {
-
+    bsv_dbprint("visiting InitDeclarator node");
 }
 
 void Elaborator::do_visit(Declarator& node) {
@@ -128,7 +184,7 @@ void Elaborator::do_visit(Declarator& node) {
         builder = take_last_result<Box<DeclaratorBuilder>>();
     } else {
         // no direct declarator, assume abstract
-        builder = std::make_unique<DeclaratorBuilder>("", types.builder());
+        builder = std::make_unique<DeclaratorBuilder>(std::nullopt, types.builder());
     }
     if (node.pointer.has_value()) {
         dv_call(builder.get(), node.pointer.value());
@@ -138,12 +194,14 @@ void Elaborator::do_visit(Declarator& node) {
 }
 
 void Elaborator::do_visit(ParenDeclarator& node) {
+    bsv_dbprint("visiting ParenDeclarator node");
     dv_call(std::monostate {}, node.inner);
 
     dv_return(take_last_result<Box<DeclaratorBuilder>>());
 }
 
 void Elaborator::do_visit(ArrayDeclarator& node) {
+    bsv_dbprint("visiting ArrayDeclarator node");
     dv_call(std::monostate {}, node.base);
 
     auto builder = take_last_result<Box<DeclaratorBuilder>>();
@@ -162,12 +220,23 @@ void Elaborator::do_visit(ArrayDeclarator& node) {
 }
 
 void Elaborator::do_visit(FunctionDeclarator& node) {
+    bsv_dbprint("visiting FunctionDeclarator node");
     dv_call(std::monostate {}, node.base);
     auto builder = take_last_result<Box<DeclaratorBuilder>>();
 
     // todo: construct parameters
+    for (auto& param : node.parameters) {
+        dv_call(std::monostate {}, param);
+
+
+    }
 
     dv_return(builder);
+}
+
+void Elaborator::do_visit(ParameterDeclaration& node) {
+    bsv_dbprint("visiting ParameterDeclarator node");
+    Box<SpecifierInfo> specinfo = parse_and_verify_speclist(node.specifiers);
 }
 
 void Elaborator::do_visit(IdentifierDeclarator& node) {
@@ -184,25 +253,31 @@ void Elaborator::do_visit(Pointer& node) {
     // dovisit_param: DeclaratorBuilder *
     // last_result: monostate
 
+    bsv_dbprint("visiting Pointer node");
+
     auto builder = take_dovisit_param<DeclaratorBuilder *>();
+
+    bool is_const; // todo: populate with node qualifiers
 
     // todo: account for type qualifiers
     if (node.nested) {
         dv_call(builder, node.nested.value()); 
-        builder->ty_bldr.add_pointer(false /* fixme */);
+        builder->ty_bldr.add_pointer(is_const);
         dv_return(std::monostate {});
     } else {
-        builder->ty_bldr.add_pointer(false);
+        builder->ty_bldr.add_pointer(is_const);
         dv_return(std::monostate {});
     }
 }
 
 void Elaborator::do_visit(StorageClassSpecifier& node) {
+    bsv_dbprint("visiting StorageClassSpecifier node");
     /* terminal node */
     last_result = node.type;
 }
 
 void Elaborator::do_visit(PrimitiveSpecifier& node) {
+    bsv_dbprint("visiting PrimitiveSpecifier node");
     /* terminal node */
 
     using PK = PrimitiveSpecifier::PrimKind;
@@ -264,16 +339,17 @@ void Elaborator::do_visit(PrimitiveSpecifier& node) {
 }
 
 void Elaborator::do_visit(TypeQualifier& node) {
+    bsv_dbprint("visiting TypeQualifier node");
     /* terminal node */
     last_result = node.qual;
 }
 
 void Elaborator::do_visit(EnumSpecifier& node) {
-    
+    bsv_dbprint("visiting EnumSpecifier node");
 }
 
 void Elaborator::do_visit(Enumerator& node) {
-
+    bsv_dbprint("visiting Enumerator node");
 }
 
 void Elaborator::do_visit(ClassSpecifier& node) {
@@ -416,14 +492,4 @@ void Elaborator::do_visit(CompoundStatement& node) {
 void Elaborator::do_visit(LabeledStatement& node) {
     syms.insert(node.label, std::make_unique<sym::LabelSymbol>());
     dv_call(std::monostate {}, node.statement);
-}
-
-void Elaborator::do_visit(WhileStatement& node) {}
-
-void Elaborator::do_visit(DoWhileStatement& node) {}
-
-void Elaborator::do_visit(ForStatement& node) {}
-
-void Elaborator::do_visit(GotoStatement& node) {
-
 }

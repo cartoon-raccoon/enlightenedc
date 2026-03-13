@@ -8,6 +8,7 @@
 #include <concepts>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <variant>
 
 #include "ast/ast.hpp"
@@ -396,27 +397,19 @@ the type and returns a pointer to the created concrete type.
 */
 class TypeBuilder {
 public:
+    // Associates a type with an optional identifier.
+    using TypedIdent = std::pair<Type *, std::optional<std::string>>;
+
     // Add an array to the type.
     void add_array(exec::Value size);
 
     void add_pointer(bool is_const);
 
-    void add_function(Vec<Type *> params, bool variadic);
+    void add_function(Vec<TypedIdent> params, bool variadic);
 
     void set_base(BaseType *type);
 
     Type *finalize();
-
-protected:
-
-    friend class TypeContext;
-    friend constexpr Box<TypeBuilder> std::make_unique<TypeBuilder>(TypeContext&&);
-
-    TypeContext& ctxt;
-
-    TypeBuilder(TypeContext& ctxt) : ctxt(ctxt), base(nullptr) {}
-
-private:
     struct Ptr {
         bool is_const;
     };
@@ -424,13 +417,22 @@ private:
         exec::Value size;
     };
     struct FnParams {
-        Vec<Type *> params;
+        Vec<TypedIdent> params;
         bool variadic;
     };
 
     BaseType *base;
 
+    TypeContext& ctxt;
+
     std::stack<std::variant<Ptr, Arr, FnParams>> type_stack;
+
+protected:
+
+    friend class TypeContext;
+    friend constexpr Box<TypeBuilder> std::make_unique<TypeBuilder>(TypeContext&&);
+
+    TypeBuilder(TypeContext& ctxt) : ctxt(ctxt), base(nullptr) {}
 };
 
 /*
@@ -490,7 +492,7 @@ public:
     EnumType *get_enum(sema::sym::Scope *scope);
 
     // Create a pointer with the given `base` type.
-    PointerType *get_pointer(Type *base);
+    PointerType *get_pointer(Type *base, bool is_const);
 
     // Create or get an array with the given `base` type and specified size.
     ArrayType *get_array(Type *base, exec::Value size);
@@ -501,25 +503,27 @@ public:
 private:
     int anonymous_ctr = 0;
 
+    template<typename T>
     struct pair_hash {
-        std::size_t operator() (const std::pair<Type *, exec::Value> p) const {
+        std::size_t operator() (const std::pair<Type *, T> p) const {
             auto h1 = std::hash<Type *>{}(p.first);
-            auto h2 = std::hash<exec::Value>{}(p.second);
+            auto h2 = std::hash<T>{}(p.second);
 
             return h1 ^ h2 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2);
         }
     };
 
     using ArrayKey = std::pair<Type *, exec::Value>;
+    using PointerKey = std::pair<Type *, bool>;
 
     // The map of base types (i.e. non-pointers).
     std::unordered_map<std::string, Box<Type>> base_types;
 
     // The map of pointer types, mapped by their base type.
-    std::unordered_map<Type *, Box<PointerType>> pointers;
+    std::unordered_map<PointerKey, Box<PointerType>, pair_hash<bool>> pointers;
 
     // The map of array types, mapped by their base type (todo: add size)
-    std::unordered_map<ArrayKey, Box<ArrayType>, pair_hash> arrays;
+    std::unordered_map<ArrayKey, Box<ArrayType>, pair_hash<exec::Value>> arrays;
 
     // Generate a mangled, unique name for a type incorporating its associated scope.
     template <typename T>

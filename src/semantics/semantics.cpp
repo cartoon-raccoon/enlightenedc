@@ -628,9 +628,9 @@ void BaseSemanticVisitor::do_visit(SizeofExpression& node) {
 
 
 void SemanticChecker::check_semantics(ASTNode& prog) {
-    Elaborator elaborator(*symbols, *types);
+    Elaborator elaborator(symbols, types);
     prog.accept(elaborator);
 
-    Validator validator(*symbols, *types);
+    Validator validator(symbols, types);
     prog.accept(validator);
 }
