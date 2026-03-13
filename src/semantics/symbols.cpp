@@ -44,9 +44,18 @@ void SymbolTable::pop_scope() {
 }
 
 void SymbolTable::reset() {
-    // todo
+    reset_from(global.get());
+
+    current = global.get();
 }
 
+void SymbolTable::reset_from(Scope *scope) {
+    dbprint("resetting scopes");
+    scope->nested_idx = 0;
+    for (auto& scope : scope->nested) {
+        reset_from(scope.get());
+    }
+}
 
 void SymbolTable::reset_current() {
     current->nested_idx = 0;

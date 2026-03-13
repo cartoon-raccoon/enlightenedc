@@ -1084,7 +1084,7 @@ The toplevel Program class.
 */
 class Program : public ASTNode {
 public:
-    Program(std::string filename) : ASTNode(PROG, Location(filename))  {}
+    Program(std::string *filename) : ASTNode(PROG, Location(filename))  {}
     ~Program() = default;
 
     // Program items.

@@ -1,12 +1,9 @@
 #ifndef ECC_FRONTEND_H
 #define ECC_FRONTEND_H
 
-#include <string>
-
-#include "frontend/tokens.hpp"
-#include "parser.hpp"
-
 namespace ecc::frontend {
+
+struct TranslationUnit;
 
 /* Frontend driver code.
 
@@ -26,11 +23,9 @@ public:
     int result;
 
     // Run the frontend on file `f`. Returns 0 on success.
-    int parse(const std::string& filename);
+    void parse(TranslationUnit& unit);
 };
 
-// Convert a Bison-defined token to a Tokentype.
-ecc::tokens::TokenType p_tok_to_toktype(ecc::parser::Parser::token* tok);
 
 } // namespace ecc::frontend
 

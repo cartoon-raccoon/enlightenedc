@@ -123,7 +123,7 @@ public:
         ~NodeGuard() {
             context.pop_back();
 #ifndef NDEBUG
-            dbprint("exiting node");
+            bsv.bsv_dbprint("exiting node");
             bsv.dec_indent();
 #endif
         }

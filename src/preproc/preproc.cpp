@@ -5,8 +5,8 @@
 
 using namespace ecc::preproc;
 
-std::string PreProcessor::run(const std::string& filename) {
-    std::string command = "gcc -E -P -x c " + filename;
+std::string PreProcessor::run(const std::string *filename) {
+    std::string command = "gcc -E -P -x c " + *filename;
 
     std::array<char, 4096> buffer;
     std::string result;

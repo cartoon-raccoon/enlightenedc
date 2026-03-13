@@ -1,12 +1,28 @@
 #include <iostream>
 
 #include "ecc.hpp"
-#include "frontend/frontend.hpp"
+#include "driver/driver.hpp"
+#include "util.hpp"
 
 using namespace ecc;
 
-void Ecc::run_pipeline(std::string *filename) {
+EccConfig::EccConfig(int argc, char *argv[]) {
+    for (int i = 1; i < argc; i++) {
+        input_files.emplace_back(argv[i]);
+    }
+}
 
+void Ecc::run() {
+    for (auto& file : config->input_files) {
+        run_pipeline(&file);
+    }
+}
+
+void Ecc::run_pipeline(std::string *filename) {
+    dbprint("running pipeline on file ", *filename);
+    frontend::Driver driver(filename);
+
+    driver.run();
 }
 
 int main(int argc, char** argv) {
@@ -15,8 +31,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    //ecc::Ecc ecc(argc, argv);
+    ecc::Ecc ecc(argc, argv);
 
-    ecc::frontend::Frontend frontend;
-    return frontend.parse(argv[1]);
+    ecc.run();
 }

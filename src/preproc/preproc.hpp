@@ -13,9 +13,9 @@ Currently this wraps the system `cpp` command and returns the fully preprocessed
 source as a string.
 */
 class PreProcessor {
-  public:
+public:
     // Throws std::runtime_error on failure
-    std::string run(const std::string& filename);
+    std::string run(const std::string *filename);
 };
 
 } // namespace ecc::preproc

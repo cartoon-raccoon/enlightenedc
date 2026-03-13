@@ -1,25 +1,27 @@
 #include "ast/printer.hpp"
+#include "driver/driver.hpp"
 #include "frontend/frontend.hpp"
 #include "frontend/lexer.hpp"
 #include "parser.hpp"
 #include "preproc/preproc.hpp"
+#include "error.hpp"
+#include "util.hpp"
+
 #include <sstream>
 
 using namespace ecc::frontend;
 
-int Frontend::parse(const std::string& filename) {
+void Frontend::parse(TranslationUnit& unit) {
+    dbprint("parsing file ", *unit.filename);
     try {
         ecc::preproc::PreProcessor preproc;
-        std::string preprocessed = preproc.run(filename);
+        std::string preprocessed = preproc.run(unit.filename);
 
         std::cout << preprocessed << "\n\n\n";
         std::istringstream input(preprocessed);
 
-
-        ecc::ast::Program ast_root(filename);
-
         ecc::frontend::Lexer lexer(&input);
-        ecc::parser::Parser parser(lexer, ast_root);
+        ecc::parser::Parser parser(lexer, *unit.ast_root);
 
         // temp for testing
         //parser.set_debug_level(1);
@@ -27,14 +29,17 @@ int Frontend::parse(const std::string& filename) {
         int result = parser.parse();
 
         if (result == 0) {
-            ecc::ast::ASTPrinter printer;
-            ast_root.accept(printer);
+            dbprint("printing AST for file ", *unit.filename);
+            ast::ASTPrinter printer;
+            unit.ast_root->accept(printer);
         }
 
-        return result;
+        if (result != 0) {
+            throw EccError("Parsing exited with error");
+        }
 
     } catch (const std::exception& e) {
         std::cerr << "Preprocessor error: " << e.what() << "\n";
-        return 1;
+        throw EccError("preprocessor exited with error");
     }
 }

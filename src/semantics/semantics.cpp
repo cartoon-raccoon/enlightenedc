@@ -4,6 +4,7 @@
 #include "ast/ast.hpp"
 #include "semantics/semantics.hpp"
 #include "semantics/elaborator.hpp"
+#include "util.hpp"
 
 using namespace ecc::ast;
 using namespace ecc::sema;
@@ -628,9 +629,15 @@ void BaseSemanticVisitor::do_visit(SizeofExpression& node) {
 
 
 void SemanticChecker::check_semantics(ASTNode& prog) {
+    dbprint("checking semantics for ", prog.loc);
+
+    dbprint("running elaborator for ", prog.loc);
     Elaborator elaborator(symbols, types);
     prog.accept(elaborator);
 
+    symbols.reset();
+
+    dbprint("validating ", prog.loc);
     Validator validator(symbols, types);
     prog.accept(validator);
 }

@@ -35,13 +35,13 @@ class Point {
 public:
     int column;
     int line;
-    std::string filename;
+    std::string *filename;
 
-    Point(std::string filename, int col, int line)
+    Point(std::string *filename, int col, int line)
     : filename(filename), column(col), line(line) {}
 
     /// Construct an empty Point (no filename, starts at 1:1).
-    Point() : column(1), line(1), filename("") {}
+    Point() : column(1), line(1), filename(nullptr) {}
 
     /// Add `rhs` columns.
     inline Point&
@@ -77,8 +77,8 @@ template <typename T>
 std::basic_ostream<T>&
 operator<< (std::basic_ostream<T>& ostr, const Point& pos)
 {
-    if (pos.filename.length() != 0)
-        ostr << pos.filename << ':';
+    if (pos.filename && pos.filename->length() != 0)
+        ostr << *pos.filename << ':';
     return ostr << pos.line << '.' << pos.column;
 }
 
@@ -94,7 +94,7 @@ public:
     Location(Point pt) : begin(pt), end(pt) {}
 
     /// Construct an empty location with a filename.
-    Location(std::string filename) : begin(filename, 1, 1), end(filename, 1, 1) {}
+    Location(std::string *filename) : begin(filename, 1, 1), end(filename, 1, 1) {}
 
     /// Construct an empty location.
     Location() {}
@@ -123,8 +123,8 @@ std::basic_ostream<T>&
 operator<< (std::basic_ostream<T>& ostr, const Location& loc) {
     int end_col = 0 < loc.end.column ? loc.end.column - 1 : 0;
     ostr << loc.begin;
-    if (loc.begin.filename != loc.end.filename)
-        ostr << '-' << loc.end.filename << ':' << loc.end.line << '.' << end_col;
+    if ((loc.begin.filename || loc.begin.filename) && loc.begin.filename != loc.end.filename)
+        ostr << '-' << *loc.end.filename << ':' << loc.end.line << '.' << end_col;
     else if (loc.begin.line < loc.end.line)
         ostr << '-' << loc.end.line << '.' << end_col;
     else if (loc.begin.column < end_col)

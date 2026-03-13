@@ -46,6 +46,7 @@ public:
     void visit(ast::Program& node) override;
     void visit(ast::Function& node) override;
 
+    void visit(ast::TypeDeclaration& node) override;
     void visit(ast::VariableDeclaration& node) override;
     void visit(ast::ParameterDeclaration& node) override;
     void visit(ast::Declarator& node) override;
@@ -89,6 +90,7 @@ public:
     void visit(ast::AssignmentExpression& node) override;
     void visit(ast::ConditionalExpression& node) override;
     void visit(ast::IdentifierExpression& node) override;
+    void visit(ast::ConstExpression& node) override;
     void visit(ast::LiteralExpression& node) override;
     void visit(ast::StringExpression& node) override;
     void visit(ast::CallExpression& node) override;

@@ -47,6 +47,7 @@ add_flex_bison_dependency(scanner parser)
 # 4. Collect source files
 file(GLOB_RECURSE AST_SRC "${SRC_DIR}/ast/*.cpp")
 file(GLOB_RECURSE PREPROC_SRC "${SRC_DIR}/preproc/*.cpp")
+file(GLOB_RECURSE DRIVER_SRC "${SRC_DIR}/driver/*.cpp")
 file(GLOB_RECURSE FRONTEND_SRC "${SRC_DIR}/frontend/*.cpp")
 file(GLOB_RECURSE SEMANTICS_SRC "${SRC_DIR}/semantics/*.cpp")
 file(GLOB_RECURSE CODEGEN_SRC "${SRC_DIR}/codegen/*.cpp")
@@ -56,6 +57,7 @@ file(GLOB_RECURSE ECC_SRC "${SRC_DIR}/*.cpp")
 add_executable(ecc 
     ${AST_SRC}
     ${PREPROC_SRC}
+    ${DRIVER_SRC}
     ${FRONTEND_SRC}
     ${SEMANTICS_SRC}
     ${CODEGEN_SRC} 

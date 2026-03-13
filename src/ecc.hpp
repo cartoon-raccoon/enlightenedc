@@ -1,8 +1,11 @@
 #include <memory>
 #ifndef ECC_H
 
-#include <vector>
 #include <string>
+
+#include "util.hpp"
+
+using namespace ecc::util;
 
 namespace ecc {
 
@@ -11,7 +14,7 @@ public:
     EccConfig(int argc, char *argv[]);
     
     // The list of input files.
-    std::vector<std::string> input_files;
+    Vec<std::string> input_files;
 
     std::string output_file;
 
@@ -45,7 +48,7 @@ class Ecc {
 public:
     Ecc(int argc, char *argv[]) : config(std::make_unique<EccConfig>(argc, argv)) {}
 
-    std::unique_ptr<EccConfig> config;
+    Box<EccConfig> config;
 
     /*
     Run the compilation pipeline on a single input file.

@@ -175,6 +175,8 @@ void Elaborator::do_visit(VariableDeclaration& node) {
 
 void Elaborator::do_visit(InitDeclarator& node) {
     bsv_dbprint("visiting InitDeclarator node");
+
+    
 }
 
 void Elaborator::do_visit(Declarator& node) {

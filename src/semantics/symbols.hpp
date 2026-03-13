@@ -167,6 +167,9 @@ public:
     // Reset the current scope to the global scope and first index.
     void reset();
 
+    // Reset the given scope and all nested scopes.
+    void reset_from(Scope *scope);
+
     // Reset the current scope to the first index.
     void reset_current();
 
