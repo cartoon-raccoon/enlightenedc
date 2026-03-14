@@ -26,6 +26,10 @@
 
 \n+ { loc.lines(yyleng); loc.step(); }
 
+#[ ]*[0-9]+[ ]+\"[^\"]*\"([ ]+[0-9]+)*.*\n {
+    std::cout << "Matched linemarker: " << yytext;
+}
+
 
 "if" { return ecc::parser::Parser::make_IF(loc); } /* Keywords */
 "else" { return ecc::parser::Parser::make_ELSE(loc); }
