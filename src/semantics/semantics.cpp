@@ -405,7 +405,7 @@ void BaseSemanticVisitor::do_visit(ClassDeclarator& node) {
     }
 
     if (node.bit_width.has_value()) {
-        node.declarator.value()->accept(*this);
+        node.bit_width.value()->accept(*this);
     }
 }
 

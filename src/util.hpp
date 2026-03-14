@@ -3,6 +3,8 @@
 
 #include <memory>
 #include <vector>
+#include <variant>
+#include <type_traits>
 
 #ifndef NDEBUG
 #include <iostream>
@@ -131,6 +133,18 @@ operator<< (std::basic_ostream<T>& ostr, const Location& loc) {
         ostr << '-' << end_col;
     return ostr;
 }
+
+// Helper to check if T is in the list of Types...
+template <typename T, typename Variant>
+struct is_variant_member;
+
+template <typename T, typename... Types>
+struct is_variant_member<T, std::variant<Types...>> 
+    : std::bool_constant<(std::is_same_v<T, Types> || ...)> {};
+
+// Concept to check if a type T is a member of a std::variant,
+template <typename T, typename Variant>
+concept VariantMember = is_variant_member<T, Variant>::value;
 
 }
 

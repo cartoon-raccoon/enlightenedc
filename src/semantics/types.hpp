@@ -107,6 +107,8 @@ public:
     virtual ArrayType *as_array() { return nullptr; }
     virtual FunctionType *as_function() { return nullptr; }
 
+    virtual std::string to_string() const { return "base type"; }
+
 protected:
     Type(Kind kind) : kind(kind) {}
     
@@ -167,6 +169,8 @@ public:
 
     PrimitiveType *as_primitive() override { return this; }
 
+    std::string to_string() const override;
+
 protected:
     friend class TypeContext;
 
@@ -199,6 +203,8 @@ public:
 
     ClassType *as_class() override { return this; }
 
+    std::string to_string() const override;
+
 protected:
     friend class TypeContext;
 
@@ -227,6 +233,8 @@ public:
 
     UnionType *as_union() override { return this; }
 
+    std::string to_string() const override;
+
 protected:
     friend class TypeContext;
 
@@ -251,7 +259,9 @@ public:
         // the name of the enum variant as declared in the source.
         std::string name;
         // the assigned value of the enum variant.
-        int value;
+        uint64_t value;
+        // the location of the declared enumerator.
+        Location loc;
     };
 
     bool complete = false;
@@ -259,10 +269,13 @@ public:
     Vec<Box<EnumTypeMember>> enumerators;
 
     // Create an enumerator with an automatically chosen value.
-    void add_enumerator(std::string enumerator);
+    void add_enumerator(std::string enumerator, Location loc);
 
     // Create an enumerator with a provided value.
-    void add_enumerator(std::string enumerator, int value);
+    void add_enumerator(std::string enumerator, uint64_t value, Location loc);
+
+    // Check if an enum already contains an enumerator. 
+    EnumTypeMember *contains(std::string& name);
 
     bool is_compatible_with(Type *other) override;
 
@@ -270,6 +283,8 @@ public:
     void finalize();
 
     EnumType *as_enum() override { return this; }
+
+    std::string to_string() const override;
 
 protected:
     friend class TypeContext;
@@ -280,7 +295,7 @@ protected:
 
 private:
     // existing values that have already been declared.
-    std::unordered_set<int> values;
+    std::unordered_set<uint64_t> values;
 };
 
 
@@ -306,6 +321,8 @@ public:
     PointerType *as_pointer() override { return this; }
 
     bool is_compatible_with(Type *other) override;
+
+    std::string to_string() const override;
 
 protected:
     friend class TypeContext;
@@ -350,6 +367,8 @@ public:
     ArrayType *as_array() override { return this; }
 
     bool is_compatible_with(Type *other) override;
+
+    std::string to_string() const override;
     
 protected:
     friend class TypeContext;
@@ -374,6 +393,8 @@ public:
     std::size_t hash_sig();
 
     FunctionType *as_function() override { return this; }
+
+    std::string to_string() const override;
 
 protected:
     friend class TypeContext;
@@ -499,6 +520,8 @@ public:
 
     // Create a function type based on its signature.
     FunctionType *get_function(Type *ret, Vec<Type *> params, bool variadic);
+
+    std::string to_string() const;
 
 private:
     int anonymous_ctr = 0;

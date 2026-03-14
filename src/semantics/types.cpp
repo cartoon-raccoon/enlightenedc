@@ -23,7 +23,7 @@ void UnionType::add_member(Box<UnionType::UnionTypeMember> member) {
     members.push_back(std::move(member));
 }
 
-void EnumType::add_enumerator(std::string enumerator) {
+void EnumType::add_enumerator(std::string enumerator, Location loc) {
 
     /*
     Determine the value to use: If no values exist, start at 1.
@@ -37,15 +37,24 @@ void EnumType::add_enumerator(std::string enumerator) {
         value = 1;
     }
     
-    add_enumerator(enumerator, value);
+    add_enumerator(enumerator, value, loc);
 }
 
-void EnumType::add_enumerator(std::string enumerator, int value) {
-    Box<EnumTypeMember> member = std::make_unique<EnumTypeMember>(enumerator, value);
+void EnumType::add_enumerator(std::string enumerator, uint64_t value, Location loc) {
+    Box<EnumTypeMember> member = std::make_unique<EnumTypeMember>(enumerator, value, loc);
 
     values.insert(value);
 
     enumerators.push_back(std::move(member));
+}
+
+EnumType::EnumTypeMember *EnumType::contains(std::string& name) {
+    for (auto& member : enumerators) {
+        if (name == member->name)
+            return member.get();
+    }
+
+    return nullptr;
 }
 
 std::size_t FunctionType::hash_sig() {
@@ -244,7 +253,7 @@ PrimitiveType *TypeContext::get_primitive(PrimitiveType::Kind pkind) {
 }
 
 ClassType *TypeContext::get_class(std::string name, sym::Scope *scope) {
-    dbprint("TypeContext: getting class type with name ", name, " on scope ", std::format("{:p}", (void *) scope));
+    dbprint("TypeContext: class type '", name, "' on scope ", scope);
     std::string mangled = mangle<ClassType>(name, scope);
 
     if (base_types.contains(mangled)) {
@@ -265,7 +274,7 @@ ClassType *TypeContext::get_class(sym::Scope *scope) {
     An anonymous struct that has the exact same members as a named struct
     is not the same type as the named struct.
     */
-    dbprint("TypeContext: getting anonymous class type on scope ", std::format("{:p}", (void *) scope));
+    dbprint("TypeContext: anonymous class type on scope ", scope);
     auto name = "anon_struct_" + std::to_string(anonymous_ctr);
     anonymous_ctr++;
     auto mangled = mangle<ClassType>(name, scope);
@@ -274,7 +283,7 @@ ClassType *TypeContext::get_class(sym::Scope *scope) {
 }
 
 UnionType *TypeContext::get_union(std::string name, sym::Scope *scope) {
-    dbprint("TypeContext: getting union type with name ", name, " on scope ", std::format("{:p}", (void *) scope));
+    dbprint("TypeContext: union type '", name, "' on scope ", scope);
     std::string mangled = mangle<UnionType>(name, scope);
 
     if (base_types.contains(mangled)) {
@@ -287,7 +296,7 @@ UnionType *TypeContext::get_union(std::string name, sym::Scope *scope) {
 }
 
 UnionType *TypeContext::get_union(sym::Scope *scope) {
-    dbprint("TypeContext: getting anonymous union type on scope ", std::format("{:p}", (void *) scope));
+    dbprint("TypeContext: anonymous union type on scope ", scope);
     auto name = "anon_union_" + std::to_string(anonymous_ctr);
     anonymous_ctr++;
     auto mangled = mangle<UnionType>(name, scope);
@@ -296,7 +305,7 @@ UnionType *TypeContext::get_union(sym::Scope *scope) {
 }
 
 EnumType *TypeContext::get_enum(std::string name, sym::Scope *scope) {
-    dbprint("TypeContext: getting enum type with name ", name, " on scope ", std::format("{:p}", (void *) scope));
+    dbprint("TypeContext: enum type '", name, "' on scope ", scope);
     std::string mangled = mangle<EnumType>(name, scope);
 
     if (base_types.contains(mangled)) {
@@ -309,7 +318,7 @@ EnumType *TypeContext::get_enum(std::string name, sym::Scope *scope) {
 }
 
 EnumType *TypeContext::get_enum(sym::Scope *scope) {
-    dbprint("TypeContext: getting anonymous enum type on scope ", std::format("{:p}", (void *) scope));
+    dbprint("TypeContext: anonymous enum type on scope ", scope);
     auto name = "anon_enum_" + std::to_string(anonymous_ctr);
     anonymous_ctr++;
     auto mangled = mangle<EnumType>(name, scope);
@@ -318,7 +327,7 @@ EnumType *TypeContext::get_enum(sym::Scope *scope) {
 }
 
 PointerType *TypeContext::get_pointer(Type *base, bool is_const) {
-    dbprint("TypeContext: getting pointer on type", std::format("{:p}", (void *) base));
+    dbprint("TypeContext: pointer with base ", base);
     // Check for base in our pointer store, if exists, return immediately
     auto it = pointers.find({base, is_const});
     if (it != pointers.end()) {
@@ -338,7 +347,7 @@ PointerType *TypeContext::get_pointer(Type *base, bool is_const) {
 }
 
 ArrayType *TypeContext::get_array(Type *base, Value size) {
-    dbprint("TypeContext: getting array type");
+    dbprint("TypeContext: array type with base ", base);
     ArrayKey key(base, size);
     auto it = arrays.find(key);
     if (it != arrays.end()) {

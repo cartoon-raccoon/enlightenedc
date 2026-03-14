@@ -1,7 +1,8 @@
 #include "elaborator.hpp"
 #include "ast/ast.hpp"
+#include "codegen/value.hpp"
 #include "semantics/symbols.hpp"
-#include "error.hpp"
+#include "semerr.hpp"
 #include "semantics/types.hpp"
 #include "codegen/exec.hpp"
 #include "util.hpp"
@@ -176,7 +177,8 @@ void Elaborator::do_visit(VariableDeclaration& node) {
 void Elaborator::do_visit(InitDeclarator& node) {
     bsv_dbprint("visiting InitDeclarator node");
 
-    
+    dv_call(std::monostate {}, node.declarator);
+    dv_return(take_last_result<Box<DeclaratorBuilder>>());
 }
 
 void Elaborator::do_visit(Declarator& node) {
@@ -261,7 +263,6 @@ void Elaborator::do_visit(Pointer& node) {
 
     bool is_const; // todo: populate with node qualifiers
 
-    // todo: account for type qualifiers
     if (node.nested) {
         dv_call(builder, node.nested.value()); 
         builder->ty_bldr.add_pointer(is_const);
@@ -348,13 +349,65 @@ void Elaborator::do_visit(TypeQualifier& node) {
 
 void Elaborator::do_visit(EnumSpecifier& node) {
     bsv_dbprint("visiting EnumSpecifier node");
+    EnumType *enm = nullptr;
+    if (node.name) {
+        enm = types.get_enum(*(node.name), syms.current);
+    } else {
+        enm = types.get_enum(syms.current);
+    }
+
+    if (!enm) {
+        // error: type with name already exists but is not class
+        throw ecc::EccError("enum already declared as another type", node.loc);
+    }
+
+    if (node.enumerators) {
+        if (enm->complete) {
+            throw EccTypeAlreadyDefinedError("enum was previously defined", node.loc, enm->loc);
+        }
+
+        for (auto& enumtr : *node.enumerators) {
+            dv_call(enm, enumtr);
+        }
+    }
+
+    if (node.name) {
+        Symbol *sym = syms.insert(*node.name, std::make_unique<sym::TypeSymbol>(enm));
+        syms.tie_current_to(sym);
+    }
+
+    dv_return(enm);
 }
 
 void Elaborator::do_visit(Enumerator& node) {
-    bsv_dbprint("visiting Enumerator node");
+    bsv_dbprint("visiting Enumerator node with name ", node.name);
+    EnumType *enm = take_dovisit_param<EnumType *>();
+
+    if (auto mem = enm->contains(node.name)) {
+        // todo: throw error: name already taken
+    }
+
+    if (node.value) {
+        exec::Evaluator evalr(syms, types);
+        exec::Value value = node.value.value()->accept(evalr);
+        std::optional<uint64_t> val = exec::value_as_int<uint64_t>(value);
+        if (val) {
+            enm->add_enumerator(node.name, *val, node.loc);
+        } else {
+            // todo: throw error: could not convert value to int
+        }
+    } else {
+        enm->add_enumerator(node.name, node.loc);
+    }
+
+
+    syms.insert(node.name, std::make_unique<TypeSymbol>(enm));
+
+    dv_return(std::monostate {});
 }
 
 void Elaborator::do_visit(ClassSpecifier& node) {
+    bsv_dbprint("visiting ClassSpecifier node");
     ClassType *cls = nullptr;
     if (node.name) {
         cls = types.get_class(*(node.name), syms.current);
@@ -364,13 +417,13 @@ void Elaborator::do_visit(ClassSpecifier& node) {
 
     if (!cls) {
         // error: type with name already exists but is not class
-        throw ecc::EccError("class already declared as another type");
+        throw ecc::EccError("class already declared as another type", node.loc);
     }
 
     if (node.declarations) {
         if (cls->complete) {
             // error: class was previously defined
-            throw ecc::EccError("class was previously declared");
+            throw EccTypeAlreadyDefinedError("class was previously defined", node.loc, cls->loc);
         }
 
         // class is defined here, populate its members and mark it complete
@@ -391,6 +444,7 @@ void Elaborator::do_visit(ClassSpecifier& node) {
 }
 
 void Elaborator::do_visit(UnionSpecifier& node) {
+    bsv_dbprint("visiting UnionSpecifier node");
     UnionType *unn = nullptr;
     if (node.name) {
         unn = types.get_union(*(node.name), syms.current);
@@ -400,13 +454,13 @@ void Elaborator::do_visit(UnionSpecifier& node) {
 
     if (!unn) { // todo: make this throw an error instead of just returning nullptr
         // error: type with name already exists but is not union
-        throw ecc::EccError("union already declared as another type");
+        throw ecc::EccError("union already declared as another type", node.loc);
     }
 
     if (node.declarations) {
         if (unn->complete) {
             // error: union was previously defined
-            throw ecc::EccError("union was previously declared");
+            throw EccTypeAlreadyDefinedError("union was previously defined", node.loc, unn->loc);
         }
         // class is defined here, populate its members and mark it complete
         // todo: populate union
@@ -426,16 +480,18 @@ void Elaborator::do_visit(UnionSpecifier& node) {
 }
 
 void Elaborator::do_visit(ClassDeclaration& node) {
+    bsv_dbprint("visiting ClassDeclaration node");
     Box<SpecifierInfo> specinfo = parse_and_verify_speclist(node.specifiers);
 
     for (auto& decltr : node.declarators) {
         dv_call(std::monostate {}, decltr);
 
-         // todo
+        // todo
     }
 }
 
 void Elaborator::do_visit(ClassDeclarator& node) {
+    bsv_dbprint("visiting ClassDeclarator node");
     if (node.declarator) {
         dv_call(std::monostate {}, node.declarator.value());
         dv_return(take_last_result<Box<DeclaratorBuilder>>());
@@ -453,6 +509,7 @@ void Elaborator::do_visit(TypeName& node) {}
 void Elaborator::do_visit(ExpressionStatement& node) {}
 
 void Elaborator::do_visit(CompoundStatement& node) {
+    bsv_dbprint("visiting CompoundStatement node");
     CmpdStmtDoVisitParam add_symbols;
 
     // There are three possible states for the params for CmpdStmt:
@@ -464,14 +521,17 @@ void Elaborator::do_visit(CompoundStatement& node) {
     // we just don't use it.
     std::visit(overloaded {
         [&add_symbols] (CmpdStmtDoVisitParam& param) mutable {
+            //dbprint("CmpdStmtDoVisitParams found");
             add_symbols = std::move(param);
         },
         [&add_symbols] (auto _) mutable {
+            //dbprint("No params found");
             add_symbols = {};
         }
     }, dovisit_param);
 
     if (add_symbols) {
+        bsv_dbprint("CmpdStmtDoVisitParams found to have value, checking for function");
         // check the immediate outer node is a function
         if (in_node(ASTNode::NodeKind::FUNC) != 1) {
             throw std::runtime_error("received symbols to add when not in function");
@@ -492,6 +552,7 @@ void Elaborator::do_visit(CompoundStatement& node) {
 }
 
 void Elaborator::do_visit(LabeledStatement& node) {
+    bsv_dbprint("visiting LabeledStatement node");
     syms.insert(node.label, std::make_unique<sym::LabelSymbol>());
     dv_call(std::monostate {}, node.statement);
 }

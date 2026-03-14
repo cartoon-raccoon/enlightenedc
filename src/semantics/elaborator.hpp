@@ -10,6 +10,7 @@
 #include "semantics/types.hpp"
 #include "semantics/symbols.hpp"
 #include "semantics/semantics.hpp"
+#include "util.hpp"
 
 namespace ecc::sema {
 
@@ -93,6 +94,7 @@ public:
     Takes the result of the last visit call, replacing it with `std::monostate`.
     */
     template <typename T>
+    requires VariantMember<T, ElabResult>
     T take_last_result() {
         T ret;
         try {
@@ -107,6 +109,7 @@ public:
     }
 
     template<typename T>
+    requires VariantMember<T, ElabVisitParam>
     T take_dovisit_param() {
         T ret;
         try {

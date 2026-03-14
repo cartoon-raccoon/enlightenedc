@@ -111,7 +111,7 @@ public:
 #endif
         context(bsv.ctxt_stack) {
 #ifndef NDEBUG
-            bsv.bsv_dbprint("entering node with type ", node->kind);
+            bsv.bsv_dbprint("Node: type ", node->kind, " {");
             bsv.inc_indent();
 #endif
             if (new_scope) {
@@ -123,7 +123,7 @@ public:
         ~NodeGuard() {
             context.pop_back();
 #ifndef NDEBUG
-            bsv.bsv_dbprint("exiting node");
+            bsv.bsv_dbprint("}");
             bsv.dec_indent();
 #endif
         }

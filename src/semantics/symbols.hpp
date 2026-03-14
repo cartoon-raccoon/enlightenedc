@@ -51,6 +51,8 @@ public:
     bool is_static = false;
 
     virtual ~Symbol() = default;
+
+    virtual std::string to_string() const { return "base symbol"; }
 };
 
 /*
@@ -72,6 +74,8 @@ public:
 
     /// If the symbol is external.
     bool is_extern = false;
+
+    virtual std::string to_string() const override;
 };
 
 /*
@@ -87,6 +91,8 @@ public:
     types::FunctionType *signature;
 
     bool is_extern = false;
+
+    virtual std::string to_string() const override;
 };
 
 /*
@@ -99,6 +105,8 @@ public:
     TypeSymbol(types::Type* type) : Symbol(Symbol::Kind::Ty), type(type) {}
 
     types::Type *type;
+
+    virtual std::string to_string() const override;
 };
 
 /*
@@ -107,6 +115,8 @@ A symbol representing a label (for use by goto).
 class LabelSymbol : public Symbol {
 public:
     LabelSymbol() : Symbol(Symbol::Kind::Lab) {}
+
+    virtual std::string to_string() const override;
 };
 
 /*

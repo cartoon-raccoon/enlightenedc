@@ -498,13 +498,13 @@ A declaration of an enumerator within an enum.
 class Enumerator : public ASTNode {
 public:
     Enumerator(Location loc,
-               std::string name, std::optional<Box<Expression>> value)
+               std::string name, std::optional<Box<ConstExpression>> value)
         : ASTNode(ENUMERATOR, loc),
         name(std::move(name)),
         value(std::move(value)) {}
 
     std::string name;
-    std::optional<Box<Expression>> value;
+    std::optional<Box<ConstExpression>> value;
 
     void accept(ASTVisitor& visitor) override;
 };
