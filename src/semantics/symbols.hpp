@@ -2,6 +2,7 @@
 #define ECC_SYMBOLS_H
 
 #include "semantics/types.hpp"
+#include "ast/ast.hpp"
 #include "util.hpp"
 
 #include <unordered_map>

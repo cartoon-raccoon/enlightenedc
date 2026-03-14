@@ -9,7 +9,6 @@
 #include "semantics/types.hpp"
 
 using namespace ecc::sema::types;
-using namespace ecc::exec;
 
 bool Type::is_primitive() { return kind == Kind::PRIMITIVE; }
 
@@ -162,8 +161,12 @@ bool ArrayType::is_compatible_with(Type *other) {
     return false; // todo
 }
 
-void TypeBuilder::add_array(exec::Value size) {
+void TypeBuilder::add_array(uint64_t size) {
     type_stack.push(Arr {size});
+}
+
+void TypeBuilder::add_array() {
+    type_stack.push(Arr {{}});
 }
 
 void TypeBuilder::add_pointer(bool is_const) {
@@ -189,7 +192,11 @@ Type *TypeBuilder::finalize() {
         std::visit(overloaded{
             [this, curr] (Arr& a) mutable {
                 // Wrap the base in an array.
-                curr = this->ctxt.get_array(curr, a.size);
+                if (a.size) {
+                    curr = this->ctxt.get_array(curr, *a.size);
+                } else {
+                    curr = this->ctxt.get_array(curr);
+                }
             },
             [this, curr] (Ptr& p) mutable {
                 // Wrap the base in a pointer.
@@ -346,7 +353,7 @@ PointerType *TypeContext::get_pointer(Type *base, bool is_const) {
     return ret;
 }
 
-ArrayType *TypeContext::get_array(Type *base, Value size) {
+ArrayType *TypeContext::get_array(Type *base, uint64_t size) {
     dbprint("TypeContext: array type with base ", base);
     ArrayKey key(base, size);
     auto it = arrays.find(key);
@@ -355,6 +362,21 @@ ArrayType *TypeContext::get_array(Type *base, Value size) {
     }
 
     Box<ArrayType> arr = std::make_unique<ArrayType>(base, size);
+    auto ret = arr.get();
+    arrays[key] = std::move(arr);
+
+    return ret;
+}
+
+ArrayType *TypeContext::get_array(Type *base) {
+    dbprint("TypeContext: array type with base ", base);
+    ArrayKey key(base, {});
+    auto it = arrays.find(key);
+    if (it != arrays.end()) {
+        return it->second.get();
+    }
+
+    Box<ArrayType> arr = std::make_unique<ArrayType>(base);
     auto ret = arr.get();
     arrays[key] = std::move(arr);
 

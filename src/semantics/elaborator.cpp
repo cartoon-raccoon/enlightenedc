@@ -1,6 +1,7 @@
 #include "elaborator.hpp"
 #include "ast/ast.hpp"
 #include "codegen/value.hpp"
+#include "error.hpp"
 #include "semantics/symbols.hpp"
 #include "semerr.hpp"
 #include "semantics/types.hpp"
@@ -123,7 +124,11 @@ void Elaborator::do_visit(Function& node) {
         std::visit(overloaded{
             [ty_bldr, curr] (TypeBuilder::Arr& a) mutable {
                 // Wrap the base in an array.
-                curr = ty_bldr.ctxt.get_array(curr, a.size);
+                if (a.size) {
+                    curr = ty_bldr.ctxt.get_array(curr, *a.size);
+                } else {
+                    curr = ty_bldr.ctxt.get_array(curr);
+                }
             },
             [ty_bldr, curr] (TypeBuilder::Ptr& p) mutable {
                 // Wrap the base in a pointer.
@@ -209,16 +214,30 @@ void Elaborator::do_visit(ArrayDeclarator& node) {
     dv_call(std::monostate {}, node.base);
 
     auto builder = take_last_result<Box<DeclaratorBuilder>>();
-
-    exec::Value size;
-    exec::Evaluator evalr(syms, types);
+    
+    std::optional<uint64_t> size {};
     if (node.size) {
-        size = node.size.value().get()->accept(evalr);
-    } else {
-        size = std::monostate();
+        bsv_dbprint("array declarator has size, checking for compile time computability");
+        // if we have a size for the array, evaluate it
+        exec::Value val;
+        exec::Evaluator evalr(syms, types);
+        val = node.size.value().get()->accept(evalr);
+
+        // if we were able to parse it as a u64, great
+        if (auto s = exec::value_as_int<uint64_t>(val)) {
+            size = *s;
+        } else {
+            // otherwise, the expression could not resolve, throw error
+            // (do NOT coerce to unsized)
+            throw EccError("could not evaluate size expression to U64", node.loc);
+        }
     }
 
-    builder->ty_bldr.add_array(size);
+    if (size) {
+        builder->ty_bldr.add_array(*size);
+    } else {
+        builder->ty_bldr.add_array();
+    }
 
     dv_return(builder);
 }

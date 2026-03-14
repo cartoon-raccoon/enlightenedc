@@ -11,8 +11,6 @@
 #include <utility>
 #include <variant>
 
-#include "ast/ast.hpp"
-#include "codegen/value.hpp"
 #include "util.hpp"
 
 /*
@@ -362,7 +360,7 @@ public:
     Type *base;
 
     // The laily-evaluated size of the array, populated after elaboration.
-    exec::Value size = std::monostate();
+    std::optional<uint64_t> size;
 
     ArrayType *as_array() override { return this; }
 
@@ -373,11 +371,13 @@ public:
 protected:
     friend class TypeContext;
 
-    friend constexpr Box<ArrayType> std::make_unique<ArrayType>(Type *&, exec::Value&);
+    friend constexpr Box<ArrayType> std::make_unique<ArrayType>(Type *&, uint64_t&);
 
-    ArrayType(Type *base, exec::Value size) : Type(Kind::ARRAY), base(base), size(size) {}
+    friend constexpr Box<ArrayType> std::make_unique<ArrayType>(Type *&);
 
-    ArrayType(exec::Value size) : Type(Kind::ARRAY), base(nullptr), size(size) {}
+    ArrayType(Type *base, uint64_t size) : Type(Kind::ARRAY), base(base), size(size) {}
+
+    ArrayType(Type *base) : Type(Kind::ARRAY), base(base) {}
 };
 
 
@@ -422,7 +422,10 @@ public:
     using TypedIdent = std::pair<Type *, std::optional<std::string>>;
 
     // Add an array to the type.
-    void add_array(exec::Value size);
+    void add_array(uint64_t size);
+
+    // Add an unsized array to the type.
+    void add_array();
 
     void add_pointer(bool is_const);
 
@@ -435,7 +438,7 @@ public:
         bool is_const;
     };
     struct Arr {
-        exec::Value size;
+        std::optional<uint64_t> size;
     };
     struct FnParams {
         Vec<TypedIdent> params;
@@ -516,7 +519,10 @@ public:
     PointerType *get_pointer(Type *base, bool is_const);
 
     // Create or get an array with the given `base` type and specified size.
-    ArrayType *get_array(Type *base, exec::Value size);
+    ArrayType *get_array(Type *base, uint64_t size);
+
+    // Create or get an array with the given `base` type and no specified size.
+    ArrayType *get_array(Type *base);
 
     // Create a function type based on its signature.
     FunctionType *get_function(Type *ret, Vec<Type *> params, bool variadic);
@@ -536,7 +542,7 @@ private:
         }
     };
 
-    using ArrayKey = std::pair<Type *, exec::Value>;
+    using ArrayKey = std::pair<Type *, std::optional<uint64_t>>;
     using PointerKey = std::pair<Type *, bool>;
 
     // The map of base types (i.e. non-pointers).
@@ -546,7 +552,7 @@ private:
     std::unordered_map<PointerKey, Box<PointerType>, pair_hash<bool>> pointers;
 
     // The map of array types, mapped by their base type (todo: add size)
-    std::unordered_map<ArrayKey, Box<ArrayType>, pair_hash<exec::Value>> arrays;
+    std::unordered_map<ArrayKey, Box<ArrayType>, pair_hash<uint64_t>> arrays;
 
     // Generate a mangled, unique name for a type incorporating its associated scope.
     template <typename T>

@@ -637,7 +637,8 @@ void SemanticChecker::check_semantics(ASTNode& prog) {
 
     symbols.reset();
 
-    dbprint("validating ", prog.loc);
-    Validator validator(symbols, types);
-    prog.accept(validator);
+    // todo: replace with mir
+    // dbprint("validating ", prog.loc);
+    // Validator validator(symbols, types);
+    // prog.accept(validator);
 }
