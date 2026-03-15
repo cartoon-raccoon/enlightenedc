@@ -28,7 +28,7 @@ struct DeclaratorBuilder {
 template <typename Ty>
 requires std::derived_from<Ty, typename types::Type>
 struct TypeSpecRet {
-    std::optional<std::string> name;
+    std::optional<Box<sym::TypeSymbol>> symbol;
     Ty *type;
 };
 
@@ -137,14 +137,14 @@ public:
 private:
     struct SpecifierInfo {
         types::BaseType *type;
-        std::optional<std::string> tyname;
+        std::optional<Box<sym::TypeSymbol>> symbol;
         bool is_public;
         bool is_static;
         bool is_extern;
         bool is_const;
     };
 
-    Box<SpecifierInfo> parse_and_verify_speclist(Vec<Box<ast::DeclarationSpecifier>>&);
+    Box<SpecifierInfo> parse_speclist(Vec<Box<ast::DeclarationSpecifier>>&);
 
 protected:
 
