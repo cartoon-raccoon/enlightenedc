@@ -4,6 +4,7 @@
 #include "ast/ast.hpp"
 #include "semantics/semantics.hpp"
 #include "semantics/elaborator.hpp"
+#include "semantics/printer.hpp"
 #include "util.hpp"
 
 using namespace ecc::ast;
@@ -634,6 +635,9 @@ void SemanticChecker::check_semantics(ASTNode& prog) {
     dbprint("running elaborator for ", prog.loc);
     Elaborator elaborator(symbols, types);
     prog.accept(elaborator);
+
+    std::cout << types << std::endl;
+    std::cout << symbols << std::endl;
 
     symbols.reset();
 
