@@ -1,93 +1,175 @@
-start:
-if (n < 10) {
-    n++;
-} else if (n > 11) {
-    n--;
-} else {
-    n += 2;
-}
-switch (n) {
-    case 1:
-        break;
-    case 2 ... 5:
-        n += 2;
-        break;
-    default:
-        goto start;
-}
-while (n > 0)
-    n--;
-do {
-    n++;
-} while (n < 3);
-for (n = 0; n < 5; n++) "hello";
-
-
-
+running pipeline on file input/control.ec
+parsing file input/control.ec
+printing AST for file input/control.ec
 Program @ <input/control.ec:1.1> 
-| LabeledStatement: start @ <1.1-8.1> 
-| | IfStatement @ <2.1-8.1> 
-| | | BinaryExpression: < @ <2.4-10> 
-| | | | IdentifierExpression: n @ <2.4-5> 
-| | | | Literal: 10 @ <2.9-10> 
-| | | CompoundStatement @ <2.13-4.1> 
-| | | | ExpressionStatement @ <3.5-8> 
-| | | | | PostfixExpression: ++ @ <3.5-7> 
-| | | | | | IdentifierExpression: n @ <3.5> 
-| | | IfStatement @ <4.8-8.1> 
-| | | | BinaryExpression: > @ <4.11-17> 
-| | | | | IdentifierExpression: n @ <4.11-12> 
-| | | | | Literal: 11 @ <4.16-17> 
-| | | | CompoundStatement @ <4.20-6.1> 
-| | | | | ExpressionStatement @ <5.5-8> 
-| | | | | | PostfixExpression: -- @ <5.5-7> 
-| | | | | | | IdentifierExpression: n @ <5.5> 
-| | | | CompoundStatement @ <6.8-8.1> 
-| | | | | ExpressionStatement @ <7.5-11> 
-| | | | | | AssignmentExpression: += @ <7.5-10> 
-| | | | | | | IdentifierExpression: n @ <7.5> 
-| | | | | | | Literal: 2 @ <7.10> 
-| SwitchStatement @ <9.1-17.1> 
-| | IdentifierExpression: n @ <9.8-9> 
-| | CompoundStatement @ <9.12-17.1> 
-| | | CaseDefaultStatement: case @ <10.5-11.14> 
-| | | | ConstExpression:  @ <10.10> 
-| | | | | Literal: 1 @ <10.10> 
-| | | | BreakStatement @ <11.9-14> 
-| | | CaseDefaultStatement: case_range @ <12.5-13.15> 
-| | | | ConstExpression:  @ <12.10> 
-| | | | | Literal: 2 @ <12.10> 
-| | | | ConstExpression:  @ <12.16> 
-| | | | | Literal: 5 @ <12.16> 
-| | | | ExpressionStatement @ <13.9-15> 
-| | | | | AssignmentExpression: += @ <13.9-14> 
-| | | | | | IdentifierExpression: n @ <13.9> 
-| | | | | | Literal: 2 @ <13.14> 
-| | | BreakStatement @ <14.9-14> 
-| | | CaseDefaultStatement: default @ <15.5-16.19> 
-| | | | GotoStatement: start @ <16.9-19> 
-| WhileStatement @ <18.1-19.8> 
-| | BinaryExpression: > @ <18.7-12> 
-| | | IdentifierExpression: n @ <18.7-8> 
-| | | Literal: 0 @ <18.12> 
-| | ExpressionStatement @ <19.5-8> 
-| | | PostfixExpression: -- @ <19.5-7> 
-| | | | IdentifierExpression: n @ <19.5> 
-| DoWhileStatement @ <20.1-22.16> 
-| | CompoundStatement @ <20.4-22.1> 
-| | | ExpressionStatement @ <21.5-8> 
-| | | | PostfixExpression: ++ @ <21.5-7> 
-| | | | | IdentifierExpression: n @ <21.5> 
-| | BinaryExpression: < @ <22.9-14> 
-| | | IdentifierExpression: n @ <22.9-10> 
-| | | Literal: 3 @ <22.14> 
-| ForStatement @ <23.1-32> 
-| | AssignmentExpression: = @ <23.5-10> 
-| | | IdentifierExpression: n @ <23.5-6> 
-| | | Literal: 0 @ <23.10> 
-| | BinaryExpression: < @ <23.13-17> 
-| | | IdentifierExpression: n @ <23.13> 
-| | | Literal: 5 @ <23.17> 
-| | PostfixExpression: ++ @ <23.20-22> 
-| | | IdentifierExpression: n @ <23.20> 
-| | PrintStatement: ""hello"" @ <23.25-32> 
+| LabeledStatement: start @ <input/control.ec:1.1-8.1> 
+| | IfStatement @ <input/control.ec:2.1-8.1> 
+| | | BinaryExpression: < @ <input/control.ec:2.4-10> 
+| | | | IdentifierExpression: n @ <input/control.ec:2.4-5> 
+| | | | Literal: 10 @ <input/control.ec:2.9-10> 
+| | | CompoundStatement @ <input/control.ec:2.13-4.1> 
+| | | | ExpressionStatement @ <input/control.ec:3.5-8> 
+| | | | | PostfixExpression: ++ @ <input/control.ec:3.5-7> 
+| | | | | | IdentifierExpression: n @ <input/control.ec:3.5> 
+| | | IfStatement @ <input/control.ec:4.8-8.1> 
+| | | | BinaryExpression: > @ <input/control.ec:4.11-17> 
+| | | | | IdentifierExpression: n @ <input/control.ec:4.11-12> 
+| | | | | Literal: 11 @ <input/control.ec:4.16-17> 
+| | | | CompoundStatement @ <input/control.ec:4.20-6.1> 
+| | | | | ExpressionStatement @ <input/control.ec:5.5-8> 
+| | | | | | PostfixExpression: -- @ <input/control.ec:5.5-7> 
+| | | | | | | IdentifierExpression: n @ <input/control.ec:5.5> 
+| | | | CompoundStatement @ <input/control.ec:6.8-8.1> 
+| | | | | ExpressionStatement @ <input/control.ec:7.5-11> 
+| | | | | | AssignmentExpression: += @ <input/control.ec:7.5-10> 
+| | | | | | | IdentifierExpression: n @ <input/control.ec:7.5> 
+| | | | | | | Literal: 2 @ <input/control.ec:7.10> 
+| SwitchStatement @ <input/control.ec:10.1-18.1> 
+| | IdentifierExpression: n @ <input/control.ec:10.8-9> 
+| | CompoundStatement @ <input/control.ec:10.12-18.1> 
+| | | CaseStatement:  @ <input/control.ec:11.5-12.14> 
+| | | | ConstExpression:  @ <input/control.ec:11.10> 
+| | | | | Literal: 1 @ <input/control.ec:11.10> 
+| | | | BreakStatement @ <input/control.ec:12.9-14> 
+| | | CaseRangeStatement:  @ <input/control.ec:13.5-14.15> 
+| | | | ConstExpression:  @ <input/control.ec:13.10> 
+| | | | | Literal: 2 @ <input/control.ec:13.10> 
+| | | | ConstExpression:  @ <input/control.ec:13.16> 
+| | | | | Literal: 5 @ <input/control.ec:13.16> 
+| | | | ExpressionStatement @ <input/control.ec:14.9-15> 
+| | | | | AssignmentExpression: += @ <input/control.ec:14.9-14> 
+| | | | | | IdentifierExpression: n @ <input/control.ec:14.9> 
+| | | | | | Literal: 2 @ <input/control.ec:14.14> 
+| | | BreakStatement @ <input/control.ec:15.9-14> 
+| | | DefaultStatement:  @ <input/control.ec:16.5-17.19> 
+| | | | GotoStatement: start @ <input/control.ec:17.9-19> 
+| WhileStatement @ <input/control.ec:20.1-21.8> 
+| | BinaryExpression: > @ <input/control.ec:20.7-12> 
+| | | IdentifierExpression: n @ <input/control.ec:20.7-8> 
+| | | Literal: 0 @ <input/control.ec:20.12> 
+| | ExpressionStatement @ <input/control.ec:21.5-8> 
+| | | PostfixExpression: -- @ <input/control.ec:21.5-7> 
+| | | | IdentifierExpression: n @ <input/control.ec:21.5> 
+| DoWhileStatement @ <input/control.ec:23.1-25.16> 
+| | CompoundStatement @ <input/control.ec:23.4-25.1> 
+| | | ExpressionStatement @ <input/control.ec:24.5-8> 
+| | | | PostfixExpression: ++ @ <input/control.ec:24.5-7> 
+| | | | | IdentifierExpression: n @ <input/control.ec:24.5> 
+| | BinaryExpression: < @ <input/control.ec:25.9-14> 
+| | | IdentifierExpression: n @ <input/control.ec:25.9-10> 
+| | | Literal: 3 @ <input/control.ec:25.14> 
+| ForStatement @ <input/control.ec:27.1-32> 
+| | AssignmentExpression: = @ <input/control.ec:27.5-10> 
+| | | IdentifierExpression: n @ <input/control.ec:27.5-6> 
+| | | Literal: 0 @ <input/control.ec:27.10> 
+| | BinaryExpression: < @ <input/control.ec:27.13-17> 
+| | | IdentifierExpression: n @ <input/control.ec:27.13> 
+| | | Literal: 5 @ <input/control.ec:27.17> 
+| | PostfixExpression: ++ @ <input/control.ec:27.20-22> 
+| | | IdentifierExpression: n @ <input/control.ec:27.20> 
+| | PrintStatement: ""hello"" @ <input/control.ec:27.25-32> 
+running backend for file input/control.ec
+checking semantics for input/control.ec:1.1
+running elaborator for input/control.ec:1.1
+Node: type 52 {
+    Node: type 26 {
+        visiting LabeledStatement node
+        Node: type 28 {
+            Node: type 38 {
+                Node: type 43 {
+                    }
+                Node: type 44 {
+                    }
+                }
+            Node: type 21 {
+                visiting CompoundStatement node
+                Node: type 22 {
+                    }
+                }
+            Node: type 28 {
+                Node: type 38 {
+                    Node: type 43 {
+                        }
+                    Node: type 44 {
+                        }
+                    }
+                Node: type 21 {
+                    visiting CompoundStatement node
+                    Node: type 22 {
+                        }
+                    }
+                Node: type 21 {
+                    visiting CompoundStatement node
+                    Node: type 22 {
+                        }
+                    }
+                }
+            }
+        }
+    Node: type 29 {
+        Node: type 43 {
+            }
+        Node: type 21 {
+            visiting CompoundStatement node
+            Node: type 23 {
+                }
+            Node: type 24 {
+                }
+            Node: type 34 {
+                }
+            Node: type 25 {
+                }
+            }
+        }
+    Node: type 30 {
+        Node: type 38 {
+            Node: type 43 {
+                }
+            Node: type 44 {
+                }
+            }
+        Node: type 22 {
+            }
+        }
+    Node: type 31 {
+        Node: type 21 {
+            visiting CompoundStatement node
+            Node: type 22 {
+                }
+            }
+        Node: type 38 {
+            Node: type 43 {
+                }
+            Node: type 44 {
+                }
+            }
+        }
+    Node: type 32 {
+        Node: type 41 {
+            Node: type 43 {
+                }
+            Node: type 44 {
+                }
+            }
+        Node: type 38 {
+            Node: type 43 {
+                }
+            Node: type 44 {
+                }
+            }
+        Node: type 38 {
+            Node: type 43 {
+                }
+            Node: type 44 {
+                }
+            }
+        Node: type 27 {
+            }
+        }
+    }
+resetting scopes
+resetting scopes
+resetting scopes
+resetting scopes
+resetting scopes
+resetting scopes

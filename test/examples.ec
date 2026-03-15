@@ -13,7 +13,7 @@ public  I64i g_public = 1;
 static  I32i g_static = 2;
 extern  I64i g_extern;
 
-const U32 g_const = 42;
+const U32i g_const = 42;
 
 U8i   u8v  = 255;
 U16i  u16v = 65535;
@@ -32,22 +32,22 @@ U0i *vp;
 
 // Structs (forward, named, anonymous, bitfield)
 
-struct Node;
+class Node;
 
-struct Point {
+class Point {
     I64i x;
     I64i y;
 };
 
-struct Bits {
+class Bits {
     I64i a : 3;
     I64i : 2;
     I64i b : 4;
 };
 
-struct {
-    I32 anon_field;
-} anon_struct;
+class {
+    I32i anon_field;
+} anon_class;
 
 
 // Union
@@ -200,14 +200,14 @@ I64i comma = (a = 1, b = 2, a + b);
 
 // Pointer and member access
 
-struct Point p;
+class Point p;
 p.x = 1;
 p.y = 2;
 
 ptr = &p.x;
 *ptr = 10;
 
-struct Point *pp = &p;
+class Point *pp = &p;
 pp->y = 20;
 
 
@@ -215,7 +215,7 @@ pp->y = 20;
 
 I64i sz1 = sizeof a;
 I64i sz2 = sizeof(I64i);
-I64i sz3 = sizeof(struct Point);
+I64i sz3 = sizeof(class Point);
 
 
 // Constants

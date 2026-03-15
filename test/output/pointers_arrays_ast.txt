@@ -1,151 +1,437 @@
-class Node {
-    I32i value;
-    class Node *next;
-};
-I32i apply(I32i (*fn)(I32i), I32i v) {
-    return fn(v);
-}
-I32i square(I32i x) {
-    return x * x;
-}
-U32i arr[5];
-U32i *ptr_array[5];
-U32i (* ptr_to_arr) [5];
-U32i *(*ptr_to_ptr_arr) [5];
-I32i run() {
-    class Node n;
-    class Node *p = &n;
-    n.value = 5;
-    p->value++;
-    return apply(square, n.value);
-}
-
-
-
+running pipeline on file input/pointers_arrays.ec
+parsing file input/pointers_arrays.ec
+printing AST for file input/pointers_arrays.ec
 Program @ <input/pointers_arrays.ec:1.1> 
-| TypeDeclaration @ <1.1-4.2> 
-| | ClassSpecifier:  Node: @ <1.1-4.1> 
-| | | ClassDeclaration @ <2.5-15> 
-| | | | PrimitiveSpecifier: i32 @ <2.5-8> 
-| | | | ClassDeclarator @ <2.10-14> 
-| | | | | Declarator @ <2.10-14> 
-| | | | | | IdentifierDeclarator: value @ <2.10-14> 
-| | | ClassDeclaration @ <3.5-21> 
-| | | | ClassSpecifier:  Node: @ <3.5-14> 
-| | | | ClassDeclarator @ <3.16-20> 
-| | | | | Declarator @ <3.16-20> 
-| | | | | | Pointer @ <3.16> 
-| | | | | | IdentifierDeclarator: next @ <3.16-20> 
-| Function @ <5.1-7.1> 
-| | PrimitiveSpecifier: i32 @ <5.1-4> 
-| | Declarator @ <5.6-36> 
-| | | FunctionDeclarator @ <5.6-36> 
-| | | | IdentifierDeclarator: apply @ <5.6-10> 
-| | | | ParameterDeclaration @ <5.6-27> 
-| | | | | PrimitiveSpecifier: i32 @ <5.6-15> 
-| | | | | Declarator @ <5.17-27> 
-| | | | | | FunctionDeclarator @ <5.17-27> 
-| | | | | | | ParenDeclarator @ <5.17-21> 
-| | | | | | | | Declarator @ <5.17-20> 
-| | | | | | | | | Pointer @ <5.17-18> 
-| | | | | | | | | IdentifierDeclarator: fn @ <5.17-20> 
-| | | | | | | ParameterDeclaration @ <5.17-26> 
-| | | | | | | | PrimitiveSpecifier: i32 @ <5.17-26> 
-| | | | ParameterDeclaration @ <5.30-35> 
-| | | | | PrimitiveSpecifier: i32 @ <5.30-33> 
-| | | | | Declarator @ <5.35> 
-| | | | | | IdentifierDeclarator: v @ <5.35> 
-| | CompoundStatement @ <5.38-7.1> 
-| | | ReturnStatement @ <6.5-17> 
-| | | | CallExpression @ <6.12-16> 
-| | | | | IdentifierExpression: fn @ <6.12-13> 
-| | | | | IdentifierExpression: v @ <6.12-15> 
-| Function @ <8.1-10.1> 
-| | PrimitiveSpecifier: i32 @ <8.1-4> 
-| | Declarator @ <8.6-19> 
-| | | FunctionDeclarator @ <8.6-19> 
-| | | | IdentifierDeclarator: square @ <8.6-11> 
-| | | | ParameterDeclaration @ <8.6-18> 
-| | | | | PrimitiveSpecifier: i32 @ <8.6-16> 
-| | | | | Declarator @ <8.18> 
-| | | | | | IdentifierDeclarator: x @ <8.18> 
-| | CompoundStatement @ <8.21-10.1> 
-| | | ReturnStatement @ <9.5-17> 
-| | | | BinaryExpression: * @ <9.12-16> 
-| | | | | IdentifierExpression: x @ <9.12> 
-| | | | | IdentifierExpression: x @ <9.16> 
-| VariableDeclaration @ <11.1-12> 
-| | PrimitiveSpecifier: u32 @ <11.1-4> 
-| | InitDeclarator @ <11.6-11> 
-| | | Declarator @ <11.6-11> 
-| | | | ArrayDeclarator @ <11.6-11> 
-| | | | | IdentifierDeclarator: arr @ <11.6-8> 
-| | | | | ConstExpression:  @ <11.6-10> 
-| | | | | | Literal: 5 @ <11.6-10> 
-| VariableDeclaration @ <12.1-19> 
-| | PrimitiveSpecifier: u32 @ <12.1-4> 
-| | InitDeclarator @ <12.6-18> 
-| | | Declarator @ <12.6-18> 
-| | | | Pointer @ <12.6> 
-| | | | ArrayDeclarator @ <12.6-18> 
-| | | | | IdentifierDeclarator: ptr_array @ <12.6-15> 
-| | | | | ConstExpression:  @ <12.6-17> 
-| | | | | | Literal: 5 @ <12.6-17> 
-| VariableDeclaration @ <13.1-24> 
-| | PrimitiveSpecifier: u32 @ <13.1-4> 
-| | InitDeclarator @ <13.6-23> 
-| | | Declarator @ <13.6-23> 
-| | | | ArrayDeclarator @ <13.6-23> 
-| | | | | ParenDeclarator @ <13.6-19> 
-| | | | | | Declarator @ <13.6-18> 
-| | | | | | | Pointer @ <13.6-7> 
-| | | | | | | IdentifierDeclarator: ptr_to_arr @ <13.9-18> 
-| | | | | ConstExpression:  @ <13.21-22> 
-| | | | | | Literal: 5 @ <13.21-22> 
-| VariableDeclaration @ <14.1-28> 
-| | PrimitiveSpecifier: u32 @ <14.1-4> 
-| | InitDeclarator @ <14.6-27> 
-| | | Declarator @ <14.6-27> 
-| | | | Pointer @ <14.6> 
-| | | | ArrayDeclarator @ <14.6-27> 
-| | | | | ParenDeclarator @ <14.6-23> 
-| | | | | | Declarator @ <14.6-22> 
-| | | | | | | Pointer @ <14.6-8> 
-| | | | | | | IdentifierDeclarator: ptr_to_ptr_arr @ <14.6-22> 
-| | | | | ConstExpression:  @ <14.25-26> 
-| | | | | | Literal: 5 @ <14.25-26> 
-| Function @ <15.1-21.1> 
-| | PrimitiveSpecifier: i32 @ <15.1-4> 
-| | Declarator @ <15.6-10> 
-| | | FunctionDeclarator @ <15.6-10> 
-| | | | IdentifierDeclarator: run @ <15.6-8> 
-| | CompoundStatement @ <15.12-21.1> 
-| | | VariableDeclaration @ <16.5-17> 
-| | | | ClassSpecifier:  Node: @ <16.5-14> 
-| | | | InitDeclarator @ <16.16> 
-| | | | | Declarator @ <16.16> 
-| | | | | | IdentifierDeclarator: n @ <16.16> 
-| | | VariableDeclaration @ <17.5-23> 
-| | | | ClassSpecifier:  Node: @ <17.5-14> 
-| | | | InitDeclarator @ <17.16-22> 
-| | | | | Declarator @ <17.16-17> 
-| | | | | | Pointer @ <17.16> 
-| | | | | | IdentifierDeclarator: p @ <17.16-17> 
-| | | | | Initializer:  @ <17.21-22> 
-| | | | | | UnaryExpression: & @ <17.21-22> 
-| | | | | | | IdentifierExpression: n @ <17.21-22> 
-| | | ExpressionStatement @ <18.5-16> 
-| | | | AssignmentExpression: = @ <18.5-15> 
-| | | | | MemberAccess: .value @ <18.5-11> 
-| | | | | | IdentifierExpression: n @ <18.5> 
-| | | | | Literal: 5 @ <18.15> 
-| | | ExpressionStatement @ <19.5-15> 
-| | | | PostfixExpression: ++ @ <19.5-14> 
-| | | | | MemberAccess: ->value @ <19.5-12> 
-| | | | | | IdentifierExpression: p @ <19.5> 
-| | | ReturnStatement @ <20.5-34> 
-| | | | CallExpression @ <20.12-33> 
-| | | | | IdentifierExpression: apply @ <20.12-16> 
-| | | | | IdentifierExpression: square @ <20.12-23> 
-| | | | | MemberAccess: .value @ <20.26-32> 
-| | | | | | IdentifierExpression: n @ <20.26> 
+| TypeDeclaration @ <input/pointers_arrays.ec:1.1-4.2> 
+| | ClassSpecifier:  Node: @ <input/pointers_arrays.ec:1.1-4.1> 
+| | | ClassDeclaration @ <input/pointers_arrays.ec:2.5-15> 
+| | | | PrimitiveSpecifier: i32 @ <input/pointers_arrays.ec:2.5-8> 
+| | | | ClassDeclarator @ <input/pointers_arrays.ec:2.10-14> 
+| | | | | Declarator @ <input/pointers_arrays.ec:2.10-14> 
+| | | | | | IdentifierDeclarator: value @ <input/pointers_arrays.ec:2.10-14> 
+| | | ClassDeclaration @ <input/pointers_arrays.ec:3.5-21> 
+| | | | ClassSpecifier:  Node: @ <input/pointers_arrays.ec:3.5-14> 
+| | | | ClassDeclarator @ <input/pointers_arrays.ec:3.16-20> 
+| | | | | Declarator @ <input/pointers_arrays.ec:3.16-20> 
+| | | | | | Pointer @ <input/pointers_arrays.ec:3.16> 
+| | | | | | IdentifierDeclarator: next @ <input/pointers_arrays.ec:3.16-20> 
+| Function @ <input/pointers_arrays.ec:6.1-8.1> 
+| | PrimitiveSpecifier: i32 @ <input/pointers_arrays.ec:6.1-4> 
+| | Declarator @ <input/pointers_arrays.ec:6.6-36> 
+| | | FunctionDeclarator @ <input/pointers_arrays.ec:6.6-36> 
+| | | | IdentifierDeclarator: apply @ <input/pointers_arrays.ec:6.6-10> 
+| | | | ParameterDeclaration @ <input/pointers_arrays.ec:6.6-27> 
+| | | | | PrimitiveSpecifier: i32 @ <input/pointers_arrays.ec:6.6-15> 
+| | | | | Declarator @ <input/pointers_arrays.ec:6.17-27> 
+| | | | | | FunctionDeclarator @ <input/pointers_arrays.ec:6.17-27> 
+| | | | | | | ParenDeclarator @ <input/pointers_arrays.ec:6.17-21> 
+| | | | | | | | Declarator @ <input/pointers_arrays.ec:6.17-20> 
+| | | | | | | | | Pointer @ <input/pointers_arrays.ec:6.17-18> 
+| | | | | | | | | IdentifierDeclarator: fn @ <input/pointers_arrays.ec:6.17-20> 
+| | | | | | | ParameterDeclaration @ <input/pointers_arrays.ec:6.17-26> 
+| | | | | | | | PrimitiveSpecifier: i32 @ <input/pointers_arrays.ec:6.17-26> 
+| | | | ParameterDeclaration @ <input/pointers_arrays.ec:6.30-35> 
+| | | | | PrimitiveSpecifier: i32 @ <input/pointers_arrays.ec:6.30-33> 
+| | | | | Declarator @ <input/pointers_arrays.ec:6.35> 
+| | | | | | IdentifierDeclarator: v @ <input/pointers_arrays.ec:6.35> 
+| | CompoundStatement @ <input/pointers_arrays.ec:6.38-8.1> 
+| | | ReturnStatement @ <input/pointers_arrays.ec:7.5-17> 
+| | | | CallExpression @ <input/pointers_arrays.ec:7.12-16> 
+| | | | | IdentifierExpression: fn @ <input/pointers_arrays.ec:7.12-13> 
+| | | | | IdentifierExpression: v @ <input/pointers_arrays.ec:7.12-15> 
+| Function @ <input/pointers_arrays.ec:10.1-12.1> 
+| | PrimitiveSpecifier: i32 @ <input/pointers_arrays.ec:10.1-4> 
+| | Declarator @ <input/pointers_arrays.ec:10.6-19> 
+| | | FunctionDeclarator @ <input/pointers_arrays.ec:10.6-19> 
+| | | | IdentifierDeclarator: square @ <input/pointers_arrays.ec:10.6-11> 
+| | | | ParameterDeclaration @ <input/pointers_arrays.ec:10.6-18> 
+| | | | | PrimitiveSpecifier: i32 @ <input/pointers_arrays.ec:10.6-16> 
+| | | | | Declarator @ <input/pointers_arrays.ec:10.18> 
+| | | | | | IdentifierDeclarator: x @ <input/pointers_arrays.ec:10.18> 
+| | CompoundStatement @ <input/pointers_arrays.ec:10.21-12.1> 
+| | | ReturnStatement @ <input/pointers_arrays.ec:11.5-17> 
+| | | | BinaryExpression: * @ <input/pointers_arrays.ec:11.12-16> 
+| | | | | IdentifierExpression: x @ <input/pointers_arrays.ec:11.12> 
+| | | | | IdentifierExpression: x @ <input/pointers_arrays.ec:11.16> 
+| VariableDeclaration @ <input/pointers_arrays.ec:14.1-12> 
+| | PrimitiveSpecifier: u32 @ <input/pointers_arrays.ec:14.1-4> 
+| | InitDeclarator @ <input/pointers_arrays.ec:14.6-11> 
+| | | Declarator @ <input/pointers_arrays.ec:14.6-11> 
+| | | | ArrayDeclarator @ <input/pointers_arrays.ec:14.6-11> 
+| | | | | IdentifierDeclarator: arr @ <input/pointers_arrays.ec:14.6-8> 
+| | | | | ConstExpression:  @ <input/pointers_arrays.ec:14.6-10> 
+| | | | | | Literal: 5 @ <input/pointers_arrays.ec:14.6-10> 
+| VariableDeclaration @ <input/pointers_arrays.ec:16.1-19> 
+| | PrimitiveSpecifier: u32 @ <input/pointers_arrays.ec:16.1-4> 
+| | InitDeclarator @ <input/pointers_arrays.ec:16.6-18> 
+| | | Declarator @ <input/pointers_arrays.ec:16.6-18> 
+| | | | Pointer @ <input/pointers_arrays.ec:16.6> 
+| | | | ArrayDeclarator @ <input/pointers_arrays.ec:16.6-18> 
+| | | | | IdentifierDeclarator: ptr_array @ <input/pointers_arrays.ec:16.6-15> 
+| | | | | ConstExpression:  @ <input/pointers_arrays.ec:16.6-17> 
+| | | | | | Literal: 5 @ <input/pointers_arrays.ec:16.6-17> 
+| VariableDeclaration @ <input/pointers_arrays.ec:18.1-24> 
+| | PrimitiveSpecifier: u32 @ <input/pointers_arrays.ec:18.1-4> 
+| | InitDeclarator @ <input/pointers_arrays.ec:18.6-23> 
+| | | Declarator @ <input/pointers_arrays.ec:18.6-23> 
+| | | | ArrayDeclarator @ <input/pointers_arrays.ec:18.6-23> 
+| | | | | ParenDeclarator @ <input/pointers_arrays.ec:18.6-19> 
+| | | | | | Declarator @ <input/pointers_arrays.ec:18.6-18> 
+| | | | | | | Pointer @ <input/pointers_arrays.ec:18.6-7> 
+| | | | | | | IdentifierDeclarator: ptr_to_arr @ <input/pointers_arrays.ec:18.9-18> 
+| | | | | ConstExpression:  @ <input/pointers_arrays.ec:18.21-22> 
+| | | | | | Literal: 5 @ <input/pointers_arrays.ec:18.21-22> 
+| VariableDeclaration @ <input/pointers_arrays.ec:20.1-28> 
+| | PrimitiveSpecifier: u32 @ <input/pointers_arrays.ec:20.1-4> 
+| | InitDeclarator @ <input/pointers_arrays.ec:20.6-27> 
+| | | Declarator @ <input/pointers_arrays.ec:20.6-27> 
+| | | | Pointer @ <input/pointers_arrays.ec:20.6> 
+| | | | ArrayDeclarator @ <input/pointers_arrays.ec:20.6-27> 
+| | | | | ParenDeclarator @ <input/pointers_arrays.ec:20.6-23> 
+| | | | | | Declarator @ <input/pointers_arrays.ec:20.6-22> 
+| | | | | | | Pointer @ <input/pointers_arrays.ec:20.6-8> 
+| | | | | | | IdentifierDeclarator: ptr_to_ptr_arr @ <input/pointers_arrays.ec:20.6-22> 
+| | | | | ConstExpression:  @ <input/pointers_arrays.ec:20.25-26> 
+| | | | | | Literal: 5 @ <input/pointers_arrays.ec:20.25-26> 
+| Function @ <input/pointers_arrays.ec:22.1-30.1> 
+| | PrimitiveSpecifier: i32 @ <input/pointers_arrays.ec:22.1-4> 
+| | Declarator @ <input/pointers_arrays.ec:22.6-10> 
+| | | FunctionDeclarator @ <input/pointers_arrays.ec:22.6-10> 
+| | | | IdentifierDeclarator: run @ <input/pointers_arrays.ec:22.6-8> 
+| | CompoundStatement @ <input/pointers_arrays.ec:22.12-30.1> 
+| | | VariableDeclaration @ <input/pointers_arrays.ec:23.5-17> 
+| | | | ClassSpecifier:  Node: @ <input/pointers_arrays.ec:23.5-14> 
+| | | | InitDeclarator @ <input/pointers_arrays.ec:23.16> 
+| | | | | Declarator @ <input/pointers_arrays.ec:23.16> 
+| | | | | | IdentifierDeclarator: n @ <input/pointers_arrays.ec:23.16> 
+| | | VariableDeclaration @ <input/pointers_arrays.ec:24.5-23> 
+| | | | ClassSpecifier:  Node: @ <input/pointers_arrays.ec:24.5-14> 
+| | | | InitDeclarator @ <input/pointers_arrays.ec:24.16-22> 
+| | | | | Declarator @ <input/pointers_arrays.ec:24.16-17> 
+| | | | | | Pointer @ <input/pointers_arrays.ec:24.16> 
+| | | | | | IdentifierDeclarator: p @ <input/pointers_arrays.ec:24.16-17> 
+| | | | | Initializer:  @ <input/pointers_arrays.ec:24.21-22> 
+| | | | | | UnaryExpression: & @ <input/pointers_arrays.ec:24.21-22> 
+| | | | | | | IdentifierExpression: n @ <input/pointers_arrays.ec:24.21-22> 
+| | | ExpressionStatement @ <input/pointers_arrays.ec:26.5-16> 
+| | | | AssignmentExpression: = @ <input/pointers_arrays.ec:26.5-15> 
+| | | | | MemberAccess: .value @ <input/pointers_arrays.ec:26.5-11> 
+| | | | | | IdentifierExpression: n @ <input/pointers_arrays.ec:26.5> 
+| | | | | Literal: 5 @ <input/pointers_arrays.ec:26.15> 
+| | | ExpressionStatement @ <input/pointers_arrays.ec:27.5-15> 
+| | | | PostfixExpression: ++ @ <input/pointers_arrays.ec:27.5-14> 
+| | | | | MemberAccess: ->value @ <input/pointers_arrays.ec:27.5-12> 
+| | | | | | IdentifierExpression: p @ <input/pointers_arrays.ec:27.5> 
+| | | ReturnStatement @ <input/pointers_arrays.ec:29.5-34> 
+| | | | CallExpression @ <input/pointers_arrays.ec:29.12-33> 
+| | | | | IdentifierExpression: apply @ <input/pointers_arrays.ec:29.12-16> 
+| | | | | IdentifierExpression: square @ <input/pointers_arrays.ec:29.12-23> 
+| | | | | MemberAccess: .value @ <input/pointers_arrays.ec:29.26-32> 
+| | | | | | IdentifierExpression: n @ <input/pointers_arrays.ec:29.26> 
+running backend for file input/pointers_arrays.ec
+checking semantics for input/pointers_arrays.ec:1.1
+running elaborator for input/pointers_arrays.ec:1.1
+Node: type 52 {
+    Node: type 8 {
+        visiting TypeDeclaration node
+        parsing declaration specifier list
+        Node: type 17 {
+            visiting ClassSpecifier node
+TypeContext: class type 'Node' on scope 0x55a8da96ef20
+            Node: type 15 {
+                visiting ClassDeclaration node
+                parsing declaration specifier list
+                Node: type 20 {
+                    visiting PrimitiveSpecifier node
+TypeContext: getting primitive type with value 8
+                    }
+                Node: type 14 {
+                    visiting ClassDeclarator node
+                    Node: type 5 {
+                        Node: type 10 {
+                            }
+                        }
+                    }
+                }
+            Node: type 15 {
+                visiting ClassDeclaration node
+                parsing declaration specifier list
+                Node: type 17 {
+                    visiting ClassSpecifier node
+TypeContext: class type 'Node' on scope 0x55a8da96ef20
+TypeContext: existing class found
+                    }
+                Node: type 14 {
+                    visiting ClassDeclarator node
+                    Node: type 5 {
+                        Node: type 10 {
+                            }
+                        Node: type 2 {
+                            visiting Pointer node
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    Node: type 51 {
+        visiting Function node
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node
+TypeContext: getting primitive type with value 8
+            }
+        Node: type 5 {
+            Node: type 13 {
+                visiting FunctionDeclarator node
+                Node: type 10 {
+                    }
+                Node: type 7 {
+                    visiting ParameterDeclarator node
+                    parsing declaration specifier list
+                    Node: type 20 {
+                        visiting PrimitiveSpecifier node
+TypeContext: getting primitive type with value 8
+                        }
+                    }
+                Node: type 7 {
+                    visiting ParameterDeclarator node
+                    parsing declaration specifier list
+                    Node: type 20 {
+                        visiting PrimitiveSpecifier node
+TypeContext: getting primitive type with value 8
+                        }
+                    }
+                }
+            }
+        Node: type 21 {
+            visiting CompoundStatement node
+            Node: type 35 {
+                Node: type 46 {
+                    Node: type 43 {
+                        }
+                    Node: type 43 {
+                        }
+                    }
+                }
+            }
+        }
+    Node: type 51 {
+        visiting Function node
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node
+TypeContext: getting primitive type with value 8
+            }
+        Node: type 5 {
+            Node: type 13 {
+                visiting FunctionDeclarator node
+                Node: type 10 {
+                    }
+                Node: type 7 {
+                    visiting ParameterDeclarator node
+                    parsing declaration specifier list
+                    Node: type 20 {
+                        visiting PrimitiveSpecifier node
+TypeContext: getting primitive type with value 8
+                        }
+                    }
+                }
+            }
+        Node: type 21 {
+            visiting CompoundStatement node
+            Node: type 35 {
+                Node: type 38 {
+                    Node: type 43 {
+                        }
+                    Node: type 43 {
+                        }
+                    }
+                }
+            }
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node
+TypeContext: getting primitive type with value 3
+            }
+        Node: type 6 {
+            visiting InitDeclarator node
+            Node: type 5 {
+                Node: type 12 {
+                    visiting ArrayDeclarator node
+                    Node: type 10 {
+                        }
+                    array declarator has size, checking for compile time computability
+                    }
+                }
+            }
+TypeContext: array type with base 0x55a8da96f250
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node
+TypeContext: getting primitive type with value 3
+            }
+        Node: type 6 {
+            visiting InitDeclarator node
+            Node: type 5 {
+                Node: type 12 {
+                    visiting ArrayDeclarator node
+                    Node: type 10 {
+                        }
+                    array declarator has size, checking for compile time computability
+                    }
+                Node: type 2 {
+                    visiting Pointer node
+                    }
+                }
+            }
+TypeContext: pointer with base 0x55a8da96f250
+TypeContext: array type with base 0x55a8da96f250
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node
+TypeContext: getting primitive type with value 3
+            }
+        Node: type 6 {
+            visiting InitDeclarator node
+            Node: type 5 {
+                Node: type 12 {
+                    visiting ArrayDeclarator node
+                    Node: type 11 {
+                        visiting ParenDeclarator node
+                        Node: type 5 {
+                            Node: type 10 {
+                                }
+                            Node: type 2 {
+                                visiting Pointer node
+                                }
+                            }
+                        }
+                    array declarator has size, checking for compile time computability
+                    }
+                }
+            }
+TypeContext: array type with base 0x55a8da96f250
+TypeContext: pointer with base 0x55a8da96f250
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node
+TypeContext: getting primitive type with value 3
+            }
+        Node: type 6 {
+            visiting InitDeclarator node
+            Node: type 5 {
+                Node: type 12 {
+                    visiting ArrayDeclarator node
+                    Node: type 11 {
+                        visiting ParenDeclarator node
+                        Node: type 5 {
+                            Node: type 10 {
+                                }
+                            Node: type 2 {
+                                visiting Pointer node
+                                }
+                            }
+                        }
+                    array declarator has size, checking for compile time computability
+                    }
+                Node: type 2 {
+                    visiting Pointer node
+                    }
+                }
+            }
+TypeContext: pointer with base 0x55a8da96f250
+TypeContext: array type with base 0x55a8da96f250
+TypeContext: pointer with base 0x55a8da96f250
+        }
+    Node: type 51 {
+        visiting Function node
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node
+TypeContext: getting primitive type with value 8
+            }
+        Node: type 5 {
+            Node: type 13 {
+                visiting FunctionDeclarator node
+                Node: type 10 {
+                    }
+                }
+            }
+        Node: type 21 {
+            visiting CompoundStatement node
+            Node: type 9 {
+                visiting VariableDeclaration node
+                parsing declaration specifier list
+                Node: type 17 {
+                    visiting ClassSpecifier node
+TypeContext: class type 'Node' on scope 0x55a8da96ef20
+TypeContext: existing class found
+                    }
+                Node: type 6 {
+                    visiting InitDeclarator node
+                    Node: type 5 {
+                        Node: type 10 {
+                            }
+                        }
+                    }
+                }
+            Node: type 9 {
+                visiting VariableDeclaration node
+                parsing declaration specifier list
+                Node: type 17 {
+                    visiting ClassSpecifier node
+TypeContext: class type 'Node' on scope 0x55a8da96ef20
+TypeContext: existing class found
+                    }
+                Node: type 6 {
+                    visiting InitDeclarator node
+                    Node: type 5 {
+                        Node: type 10 {
+                            }
+                        Node: type 2 {
+                            visiting Pointer node
+                            }
+                        }
+                    }
+TypeContext: pointer with base 0x55a8da96f890
+                }
+            Node: type 22 {
+                }
+            Node: type 22 {
+                }
+            Node: type 35 {
+                Node: type 46 {
+                    Node: type 43 {
+                        }
+                    Node: type 43 {
+                        }
+                    Node: type 47 {
+                        Node: type 43 {
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+resetting scopes
+resetting scopes
+resetting scopes
+resetting scopes
+resetting scopes
+resetting scopes
+resetting scopes
+resetting scopes

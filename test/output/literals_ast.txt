@@ -1,86 +1,231 @@
-U32i a = 123;
-U32i b = -45;
-U32i c = 077;
-U32i d = 0xFF;
-F64i f1 = 1.23;
-F64i f2 = -3.14e10;
-U8i ch = 'A';
-U8i nl = '\n';
-U8i qt = '\"';
-"Values:\n", a, b, c, d, f1, f2;
-
-
-
+running pipeline on file input/literals.ec
+parsing file input/literals.ec
+printing AST for file input/literals.ec
 Program @ <input/literals.ec:1.1> 
-| VariableDeclaration @ <1.1-13> 
-| | PrimitiveSpecifier: u32 @ <1.1-4> 
-| | InitDeclarator @ <1.6-12> 
-| | | Declarator @ <1.6> 
-| | | | IdentifierDeclarator: a @ <1.6> 
-| | | Initializer:  @ <1.10-12> 
-| | | | Literal: 123 @ <1.10-12> 
-| VariableDeclaration @ <2.1-13> 
-| | PrimitiveSpecifier: u32 @ <2.1-4> 
-| | InitDeclarator @ <2.6-12> 
-| | | Declarator @ <2.6> 
-| | | | IdentifierDeclarator: b @ <2.6> 
-| | | Initializer:  @ <2.10-12> 
-| | | | UnaryExpression: - @ <2.10-12> 
-| | | | | Literal: 45 @ <2.10-12> 
-| VariableDeclaration @ <3.1-13> 
-| | PrimitiveSpecifier: u32 @ <3.1-4> 
-| | InitDeclarator @ <3.6-12> 
-| | | Declarator @ <3.6> 
-| | | | IdentifierDeclarator: c @ <3.6> 
-| | | Initializer:  @ <3.10-12> 
-| | | | Literal: 63 @ <3.10-12> 
-| VariableDeclaration @ <4.1-14> 
-| | PrimitiveSpecifier: u32 @ <4.1-4> 
-| | InitDeclarator @ <4.6-13> 
-| | | Declarator @ <4.6> 
-| | | | IdentifierDeclarator: d @ <4.6> 
-| | | Initializer:  @ <4.10-13> 
-| | | | Literal: 255 @ <4.10-13> 
-| VariableDeclaration @ <5.1-15> 
-| | PrimitiveSpecifier: f64 @ <5.1-4> 
-| | InitDeclarator @ <5.6-14> 
-| | | Declarator @ <5.6-7> 
-| | | | IdentifierDeclarator: f1 @ <5.6-7> 
-| | | Initializer:  @ <5.11-14> 
-| | | | Literal: 0.000000 @ <5.11-14> 
-| VariableDeclaration @ <6.1-19> 
-| | PrimitiveSpecifier: f64 @ <6.1-4> 
-| | InitDeclarator @ <6.6-18> 
-| | | Declarator @ <6.6-7> 
-| | | | IdentifierDeclarator: f2 @ <6.6-7> 
-| | | Initializer:  @ <6.11-18> 
-| | | | UnaryExpression: - @ <6.11-18> 
-| | | | | Literal: 0.000000 @ <6.11-18> 
-| VariableDeclaration @ <7.1-13> 
-| | PrimitiveSpecifier: u8 @ <7.1-3> 
-| | InitDeclarator @ <7.5-12> 
-| | | Declarator @ <7.5-6> 
-| | | | IdentifierDeclarator: ch @ <7.5-6> 
-| | | Initializer:  @ <7.10-12> 
-| | | | Literal: 65 @ <7.10-12> 
-| VariableDeclaration @ <8.1-14> 
-| | PrimitiveSpecifier: u8 @ <8.1-3> 
-| | InitDeclarator @ <8.5-13> 
-| | | Declarator @ <8.5-6> 
-| | | | IdentifierDeclarator: nl @ <8.5-6> 
-| | | Initializer:  @ <8.10-13> 
-| | | | Literal: 10 @ <8.10-13> 
-| VariableDeclaration @ <9.1-14> 
-| | PrimitiveSpecifier: u8 @ <9.1-3> 
-| | InitDeclarator @ <9.5-13> 
-| | | Declarator @ <9.5-6> 
-| | | | IdentifierDeclarator: qt @ <9.5-6> 
-| | | Initializer:  @ <9.10-13> 
-| | | | Literal: 34 @ <9.10-13> 
-| PrintStatement: ""Values:\n"" @ <10.1-32> 
-| | IdentifierExpression: a @ <10.14> 
-| | IdentifierExpression: b @ <10.17> 
-| | IdentifierExpression: c @ <10.20> 
-| | IdentifierExpression: d @ <10.23> 
-| | IdentifierExpression: f1 @ <10.26-27> 
-| | IdentifierExpression: f2 @ <10.30-31> 
+| VariableDeclaration @ <input/literals.ec:1.1-161> 
+| | PrimitiveSpecifier: u32 @ <input/literals.ec:1.1-152> 
+| | InitDeclarator @ <input/literals.ec:1.154-160> 
+| | | Declarator @ <input/literals.ec:1.154> 
+| | | | IdentifierDeclarator: a @ <input/literals.ec:1.154> 
+| | | Initializer:  @ <input/literals.ec:1.158-160> 
+| | | | Literal: 123 @ <input/literals.ec:1.158-160> 
+| VariableDeclaration @ <input/literals.ec:2.1-13> 
+| | PrimitiveSpecifier: u32 @ <input/literals.ec:2.1-4> 
+| | InitDeclarator @ <input/literals.ec:2.6-12> 
+| | | Declarator @ <input/literals.ec:2.6> 
+| | | | IdentifierDeclarator: b @ <input/literals.ec:2.6> 
+| | | Initializer:  @ <input/literals.ec:2.10-12> 
+| | | | UnaryExpression: - @ <input/literals.ec:2.10-12> 
+| | | | | Literal: 45 @ <input/literals.ec:2.10-12> 
+| VariableDeclaration @ <input/literals.ec:3.1-13> 
+| | PrimitiveSpecifier: u32 @ <input/literals.ec:3.1-4> 
+| | InitDeclarator @ <input/literals.ec:3.6-12> 
+| | | Declarator @ <input/literals.ec:3.6> 
+| | | | IdentifierDeclarator: c @ <input/literals.ec:3.6> 
+| | | Initializer:  @ <input/literals.ec:3.10-12> 
+| | | | Literal: 63 @ <input/literals.ec:3.10-12> 
+| VariableDeclaration @ <input/literals.ec:4.1-14> 
+| | PrimitiveSpecifier: u32 @ <input/literals.ec:4.1-4> 
+| | InitDeclarator @ <input/literals.ec:4.6-13> 
+| | | Declarator @ <input/literals.ec:4.6> 
+| | | | IdentifierDeclarator: d @ <input/literals.ec:4.6> 
+| | | Initializer:  @ <input/literals.ec:4.10-13> 
+| | | | Literal: 255 @ <input/literals.ec:4.10-13> 
+| VariableDeclaration @ <input/literals.ec:6.1-15> 
+| | PrimitiveSpecifier: f64 @ <input/literals.ec:6.1-4> 
+| | InitDeclarator @ <input/literals.ec:6.6-14> 
+| | | Declarator @ <input/literals.ec:6.6-7> 
+| | | | IdentifierDeclarator: f1 @ <input/literals.ec:6.6-7> 
+| | | Initializer:  @ <input/literals.ec:6.11-14> 
+| | | | Literal: 0.000000 @ <input/literals.ec:6.11-14> 
+| VariableDeclaration @ <input/literals.ec:7.1-19> 
+| | PrimitiveSpecifier: f64 @ <input/literals.ec:7.1-4> 
+| | InitDeclarator @ <input/literals.ec:7.6-18> 
+| | | Declarator @ <input/literals.ec:7.6-7> 
+| | | | IdentifierDeclarator: f2 @ <input/literals.ec:7.6-7> 
+| | | Initializer:  @ <input/literals.ec:7.11-18> 
+| | | | UnaryExpression: - @ <input/literals.ec:7.11-18> 
+| | | | | Literal: 0.000000 @ <input/literals.ec:7.11-18> 
+| VariableDeclaration @ <input/literals.ec:9.1-13> 
+| | PrimitiveSpecifier: u8 @ <input/literals.ec:9.1-3> 
+| | InitDeclarator @ <input/literals.ec:9.5-12> 
+| | | Declarator @ <input/literals.ec:9.5-6> 
+| | | | IdentifierDeclarator: ch @ <input/literals.ec:9.5-6> 
+| | | Initializer:  @ <input/literals.ec:9.10-12> 
+| | | | Literal: 65 @ <input/literals.ec:9.10-12> 
+| VariableDeclaration @ <input/literals.ec:10.1-14> 
+| | PrimitiveSpecifier: u8 @ <input/literals.ec:10.1-3> 
+| | InitDeclarator @ <input/literals.ec:10.5-13> 
+| | | Declarator @ <input/literals.ec:10.5-6> 
+| | | | IdentifierDeclarator: nl @ <input/literals.ec:10.5-6> 
+| | | Initializer:  @ <input/literals.ec:10.10-13> 
+| | | | Literal: 10 @ <input/literals.ec:10.10-13> 
+| VariableDeclaration @ <input/literals.ec:11.1-14> 
+| | PrimitiveSpecifier: u8 @ <input/literals.ec:11.1-3> 
+| | InitDeclarator @ <input/literals.ec:11.5-13> 
+| | | Declarator @ <input/literals.ec:11.5-6> 
+| | | | IdentifierDeclarator: qt @ <input/literals.ec:11.5-6> 
+| | | Initializer:  @ <input/literals.ec:11.10-13> 
+| | | | Literal: 34 @ <input/literals.ec:11.10-13> 
+| PrintStatement: ""Values:\n"" @ <input/literals.ec:13.1-32> 
+| | IdentifierExpression: a @ <input/literals.ec:13.14> 
+| | IdentifierExpression: b @ <input/literals.ec:13.17> 
+| | IdentifierExpression: c @ <input/literals.ec:13.20> 
+| | IdentifierExpression: d @ <input/literals.ec:13.23> 
+| | IdentifierExpression: f1 @ <input/literals.ec:13.26-27> 
+| | IdentifierExpression: f2 @ <input/literals.ec:13.30-31> 
+running backend for file input/literals.ec
+checking semantics for input/literals.ec:1.1
+running elaborator for input/literals.ec:1.1
+Node: type 52 {
+    Node: type 9 {
+        visiting VariableDeclaration node
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node
+TypeContext: getting primitive type with value 3
+            }
+        Node: type 6 {
+            visiting InitDeclarator node
+            Node: type 5 {
+                Node: type 10 {
+                    }
+                }
+            }
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node
+TypeContext: getting primitive type with value 3
+            }
+        Node: type 6 {
+            visiting InitDeclarator node
+            Node: type 5 {
+                Node: type 10 {
+                    }
+                }
+            }
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node
+TypeContext: getting primitive type with value 3
+            }
+        Node: type 6 {
+            visiting InitDeclarator node
+            Node: type 5 {
+                Node: type 10 {
+                    }
+                }
+            }
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node
+TypeContext: getting primitive type with value 3
+            }
+        Node: type 6 {
+            visiting InitDeclarator node
+            Node: type 5 {
+                Node: type 10 {
+                    }
+                }
+            }
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node
+TypeContext: getting primitive type with value 10
+            }
+        Node: type 6 {
+            visiting InitDeclarator node
+            Node: type 5 {
+                Node: type 10 {
+                    }
+                }
+            }
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node
+TypeContext: getting primitive type with value 10
+            }
+        Node: type 6 {
+            visiting InitDeclarator node
+            Node: type 5 {
+                Node: type 10 {
+                    }
+                }
+            }
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node
+TypeContext: getting primitive type with value 1
+            }
+        Node: type 6 {
+            visiting InitDeclarator node
+            Node: type 5 {
+                Node: type 10 {
+                    }
+                }
+            }
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node
+TypeContext: getting primitive type with value 1
+            }
+        Node: type 6 {
+            visiting InitDeclarator node
+            Node: type 5 {
+                Node: type 10 {
+                    }
+                }
+            }
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node
+TypeContext: getting primitive type with value 1
+            }
+        Node: type 6 {
+            visiting InitDeclarator node
+            Node: type 5 {
+                Node: type 10 {
+                    }
+                }
+            }
+        }
+    Node: type 27 {
+        Node: type 43 {
+            }
+        Node: type 43 {
+            }
+        Node: type 43 {
+            }
+        Node: type 43 {
+            }
+        Node: type 43 {
+            }
+        Node: type 43 {
+            }
+        }
+    }
+resetting scopes

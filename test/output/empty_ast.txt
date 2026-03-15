@@ -1,4 +1,10 @@
-
-
-
+running pipeline on file input/empty.ec
+parsing file input/empty.ec
+printing AST for file input/empty.ec
 Program @ <input/empty.ec:1.1> 
+running backend for file input/empty.ec
+checking semantics for input/empty.ec:1.1
+running elaborator for input/empty.ec:1.1
+Node: type 52 {
+    }
+resetting scopes
