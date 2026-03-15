@@ -294,12 +294,12 @@ static void print_scope(std::stringstream& ss, Scope* scope, int depth) {
     }
 }
 
-std::string symbol_table_to_string(SymbolTable const& table) {
+std::string SymbolTable::to_string() const {
     std::stringstream ss;
 
     ss << "--------- SYMBOL TABLE ---------\n\n";
 
-    print_scope(ss, table.global.get(), 0);
+    print_scope(ss, global.get(), 0);
 
     return ss.str();
 }

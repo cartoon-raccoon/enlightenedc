@@ -69,6 +69,7 @@ Box<Elaborator::SpecifierInfo> Elaborator::parse_speclist(Vec<Box<ast::Declarati
                 auto typespecret = take_last_result<TypeSpecRet<UnionType>>();
                 specinfo->type = typespecret.type;
                 specinfo->symbol = std::move(typespecret.symbol);
+                break;
             }
 
             case NK::ENUM_SPEC: {
@@ -112,8 +113,6 @@ void Elaborator::do_visit(Function& node) {
     // Parse and construct specifier info
     Box<SpecifierInfo> specinfo = parse_speclist(node.decl_spec_list);
     BaseType *return_base = specinfo->type;
-
-    bsv_dbprint("direct declarator kind ", node.declarator->direct.value()->kind);
 
     if (!node.declarator->direct) {
         throw EccError("function declaration but missing direct declarator", node.declarator->loc);

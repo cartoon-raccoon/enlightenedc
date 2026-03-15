@@ -4,6 +4,7 @@
 #include <ostream>
 
 #include "types.hpp"
+#include "symbols.hpp"
 
 namespace ecc::sema {
 
@@ -58,10 +59,8 @@ operator<< (std::basic_ostream<T>& ostr, const types::TypeContext& tctxt) {
 template <typename T>
 std::basic_ostream<T>&
 operator<< (std::basic_ostream<T>& ostr, const sym::SymbolTable& st) {
-    return ostr << symbol_table_to_string(st);
+    return ostr << st.to_string();
 }
-
-std::string symbol_table_to_string(const sym::SymbolTable& table);
 
 }
 

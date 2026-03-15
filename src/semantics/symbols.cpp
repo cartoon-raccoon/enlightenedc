@@ -12,6 +12,7 @@ void SymbolTable::push_scope(Symbol *assoc) {
     */
 
     Box<Scope> newscope = std::make_unique<Scope>(assoc, current);
+    dbprint("SymbolTable: pushing scope ", newscope.get());
     current->nested.push_back(std::move(newscope));
 
     enter_scope();
@@ -28,11 +29,13 @@ void SymbolTable::enter_scope() {
     }
 
     Scope *new_current = current->nested[current->nested_idx].get();
+    dbprint("SymbolTable: entering scope ", new_current);
 
     current = new_current;
 }
 
 void SymbolTable::pop_scope() {
+    dbprint("SymbolTable: exiting scope");
     if (current != global.get()) {
         if (current->outer) {
             current = current->outer;

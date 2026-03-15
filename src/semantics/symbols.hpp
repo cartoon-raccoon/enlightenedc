@@ -151,6 +151,8 @@ public:
     // inner scopes contained within this scope.
     Vec<Box<Scope>> nested;
 
+    std::string to_string() const;
+
 private:
 
     friend class SymbolTable;
@@ -206,6 +208,8 @@ public:
 
     // Add a new symbol to the current scope.
     Symbol *insert(std::string name, Box<Symbol> sym);
+
+    std::string to_string() const;
 
 };
 
