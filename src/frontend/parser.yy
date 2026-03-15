@@ -99,7 +99,7 @@ static ecc::parser::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 %type <Vec<Box<ProgramItem>>> stmt_or_decl_list
 
 %type <Vec<Box<DeclarationSpecifier>>> declaration_specifier_list specifier_qualifier_list
-%type <Box<DeclarationSpecifier>> declaration_specifier storage_class_specifier type_specifier
+%type <Box<DeclarationSpecifier>> storage_class_specifier type_specifier
 %type <Box<TypeQualifier>> type_qualifier
 %type <Vec<Box<TypeQualifier>>> type_qualifier_list
 
@@ -182,21 +182,19 @@ declaration:
 
 
 declaration_specifier_list:
-    declaration_specifier {
+    type_specifier { // ensure that the type specifier is the last node in the list
         Vec<Box<DeclarationSpecifier>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
-    | declaration_specifier_list declaration_specifier {
-        $1.push_back(std::move($2));
-        $$ = std::move($1);
+    | storage_class_specifier declaration_specifier_list {
+        $2.push_back(std::move($1));
+        $$ = std::move($2);
     }
-;
-
-declaration_specifier:
-    storage_class_specifier { $$ = std::move($1); }
-    | type_specifier { $$ = std::move($1); }
-    | type_qualifier { $$ = std::move($1); }
+    | type_qualifier declaration_specifier_list {
+        $2.push_back(std::move($1));
+        $$ = std::move($2);
+    }
 ;
 
 
@@ -340,18 +338,9 @@ specifier_qualifier_list:
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
-    | type_qualifier {
-        Vec<Box<DeclarationSpecifier>> list;
-        list.push_back(std::move($1));
-        $$ = std::move(list);
-    }
-    | specifier_qualifier_list type_specifier {
-        $1.push_back(std::move($2));
-        $$ = std::move($1);
-    }
-    | specifier_qualifier_list type_qualifier {
-        $1.push_back(std::move($2));
-        $$ = std::move($1);
+    | type_qualifier specifier_qualifier_list {
+        $2.push_back(std::move($1));
+        $$ = std::move($2);
     }
 ;
 
