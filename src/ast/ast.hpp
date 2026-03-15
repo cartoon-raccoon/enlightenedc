@@ -179,7 +179,7 @@ public:
 // Storage class specifiers (public, static, extern).
 class StorageClassSpecifier : public DeclarationSpecifier {
 public:
-    enum SpecType { PUBLIC, STATIC, EXTERN };
+    enum SpecType { PUBLIC, STATIC, EXTERN, EXTERNC };
 
     StorageClassSpecifier(Location loc, SpecType type)
         : DeclarationSpecifier(STORAGE_SPEC, loc), type(type) {}

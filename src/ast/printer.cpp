@@ -146,6 +146,8 @@ std::string ASTPrinter::storage_to_string(StorageClassSpecifier::SpecType t) {
         return "static";
     case S::EXTERN:
         return "extern";
+    case S::EXTERNC:
+        return "extern \"C\"";
     }
     return "";
 }

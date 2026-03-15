@@ -90,18 +90,18 @@ SymbolTable: inserting symbol with name start
 --------- TYPE CONTEXT ---------
 
 Base Types:
-  F64 -> 0x55ae2d2d4610 : F64
-  I64 -> 0x55ae2d2d4590 : I64
-  U64 -> 0x55ae2d2d4310 : U64
-  I8 -> 0x55ae2d2d4410 : I8
-  U32 -> 0x55ae2d2d4290 : U32
-  U16 -> 0x55ae2d2d4210 : U16
-  bool -> 0x55ae2d2d4690 : bool
-  U8 -> 0x55ae2d2d4190 : U8
-  I32 -> 0x55ae2d2d4510 : I32
-  I16 -> 0x55ae2d2d4490 : I16
-  I0 -> 0x55ae2d2d4390 : I0
-  U0 -> 0x55ae2d2d40a0 : U0
+  F64 -> 0x55bf7c10a610 : F64
+  I64 -> 0x55bf7c10a590 : I64
+  U64 -> 0x55bf7c10a310 : U64
+  I8 -> 0x55bf7c10a410 : I8
+  U32 -> 0x55bf7c10a290 : U32
+  U16 -> 0x55bf7c10a210 : U16
+  bool -> 0x55bf7c10a690 : bool
+  U8 -> 0x55bf7c10a190 : U8
+  I32 -> 0x55bf7c10a510 : I32
+  I16 -> 0x55bf7c10a490 : I16
+  I0 -> 0x55bf7c10a390 : I0
+  U0 -> 0x55bf7c10a0a0 : U0
 
 Pointer Types:
 
@@ -110,8 +110,8 @@ Array Types:
 
 --------- SYMBOL TABLE ---------
 
-Scope 0x55ae2d2d3f60
-  start -> 0x55ae2d2d4960 : LabelSymbol
+Scope 0x55bf7c109f60
+  start -> 0x55bf7c10a960 : LabelSymbol
 
-0x55ae2d2b2cf0
-0x55ae2d2d3fe0
+0x55bf7c0e8cf0
+0x55bf7c109fe0

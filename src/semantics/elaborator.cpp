@@ -54,6 +54,10 @@ Box<Elaborator::SpecifierInfo> Elaborator::parse_speclist(Vec<Box<ast::Declarati
                     case StorageClassSpecifier::STATIC:
                     specinfo->is_static = true;
                     break;
+
+                    case StorageClassSpecifier::EXTERNC:
+                    specinfo->is_externc = true;
+                    break;
                 }
             }
             break;

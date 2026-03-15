@@ -2,415 +2,408 @@ running pipeline on file input/functions.ec
 parsing file input/functions.ec
 printing AST for file input/functions.ec
 Program @ <input/functions.ec:1.1> 
-| Function @ <input/functions.ec:1.1-3.1> 
-| | PrimitiveSpecifier: u32 @ <input/functions.ec:1.1-154> 
-| | Declarator @ <input/functions.ec:1.156-175> 
-| | | Pointer @ <input/functions.ec:1.156> 
-| | | FunctionDeclarator @ <input/functions.ec:1.156-175> 
-| | | | IdentifierDeclarator: add @ <input/functions.ec:1.156-159> 
-| | | | ParameterDeclaration @ <input/functions.ec:1.156-166> 
-| | | | | PrimitiveSpecifier: u32 @ <input/functions.ec:1.156-164> 
-| | | | | Declarator @ <input/functions.ec:1.166> 
-| | | | | | IdentifierDeclarator: a @ <input/functions.ec:1.166> 
-| | | | ParameterDeclaration @ <input/functions.ec:1.169-174> 
-| | | | | PrimitiveSpecifier: u32 @ <input/functions.ec:1.169-172> 
-| | | | | Declarator @ <input/functions.ec:1.174> 
-| | | | | | IdentifierDeclarator: b @ <input/functions.ec:1.174> 
-| | CompoundStatement @ <input/functions.ec:1.177-3.1> 
-| | | ReturnStatement @ <input/functions.ec:2.5-17> 
-| | | | BinaryExpression: + @ <input/functions.ec:2.12-16> 
-| | | | | IdentifierExpression: a @ <input/functions.ec:2.12> 
-| | | | | IdentifierExpression: b @ <input/functions.ec:2.16> 
-| Function @ <input/functions.ec:5.1-16.1> 
-| | PrimitiveSpecifier: i32 @ <input/functions.ec:5.8-11> 
-| | StorageClassSpecifier: public @ <input/functions.ec:5.1-6> 
-| | Declarator @ <input/functions.ec:5.13-50> 
-| | | FunctionDeclarator (variadic) @ <input/functions.ec:5.13-50> 
-| | | | IdentifierDeclarator: compute @ <input/functions.ec:5.13-19> 
-| | | | ParameterDeclaration @ <input/functions.ec:5.13-31> 
-| | | | | PrimitiveSpecifier: i32 @ <input/functions.ec:5.13-24> 
-| | | | | Declarator @ <input/functions.ec:5.26> 
-| | | | | | IdentifierDeclarator: x @ <input/functions.ec:5.26> 
-| | | | | Literal: 10 @ <input/functions.ec:5.30-31> 
-| | | | ParameterDeclaration @ <input/functions.ec:5.34-44> 
-| | | | | PrimitiveSpecifier: i32 @ <input/functions.ec:5.34-37> 
-| | | | | Declarator @ <input/functions.ec:5.39> 
-| | | | | | IdentifierDeclarator: y @ <input/functions.ec:5.39> 
-| | | | | Literal: 20 @ <input/functions.ec:5.43-44> 
-| | CompoundStatement @ <input/functions.ec:5.52-16.1> 
-| | | VariableDeclaration @ <input/functions.ec:6.5-13> 
-| | | | PrimitiveSpecifier: i32 @ <input/functions.ec:6.5-8> 
-| | | | InitDeclarator @ <input/functions.ec:6.10-12> 
-| | | | | Declarator @ <input/functions.ec:6.10-12> 
-| | | | | | IdentifierDeclarator: new @ <input/functions.ec:6.10-12> 
-| | | ExpressionStatement @ <input/functions.ec:7.5-25> 
-| | | | AssignmentExpression: = @ <input/functions.ec:7.5-24> 
-| | | | | IdentifierExpression: new @ <input/functions.ec:7.5-7> 
-| | | | | CallExpression @ <input/functions.ec:7.11-24> 
-| | | | | | IdentifierExpression: add @ <input/functions.ec:7.11-13> 
-| | | | | | IdentifierExpression: x @ <input/functions.ec:7.11-15> 
-| | | | | | IdentifierExpression: y @ <input/functions.ec:7.18> 
-| | | | | | IdentifierExpression: new @ <input/functions.ec:7.21-23> 
-| | | VariableDeclaration @ <input/functions.ec:9.5-24> 
-| | | | PrimitiveSpecifier: u64 @ <input/functions.ec:9.5-8> 
-| | | | InitDeclarator @ <input/functions.ec:9.10-23> 
-| | | | | Declarator @ <input/functions.ec:9.10-13> 
-| | | | | | IdentifierDeclarator: new2 @ <input/functions.ec:9.10-13> 
-| | | | | Initializer:  @ <input/functions.ec:9.17-23> 
-| | | | | | BinaryExpression: + @ <input/functions.ec:9.17-23> 
-| | | | | | | IdentifierExpression: new @ <input/functions.ec:9.17-19> 
-| | | | | | | Literal: 1 @ <input/functions.ec:9.23> 
-| | | TypeDeclaration @ <input/functions.ec:11.5-13.6> 
-| | | | ClassSpecifier: : @ <input/functions.ec:11.5-13.5> 
-| | | | | ClassDeclaration @ <input/functions.ec:12.9-19> 
-| | | | | | PrimitiveSpecifier: u32 @ <input/functions.ec:12.9-12> 
-| | | | | | ClassDeclarator @ <input/functions.ec:12.14-18> 
-| | | | | | | Declarator @ <input/functions.ec:12.14-18> 
-| | | | | | | | IdentifierDeclarator: hello @ <input/functions.ec:12.14-18> 
-| | | ReturnStatement @ <input/functions.ec:15.5-17> 
-| | | | BinaryExpression: * @ <input/functions.ec:15.12-16> 
-| | | | | IdentifierExpression: x @ <input/functions.ec:15.12> 
-| | | | | IdentifierExpression: y @ <input/functions.ec:15.16> 
-| TypeDeclaration @ <input/functions.ec:18.1-21.2> 
-| | ClassSpecifier:  Point: @ <input/functions.ec:18.1-21.1> 
-| | | ClassDeclaration @ <input/functions.ec:19.3-9> 
-| | | | PrimitiveSpecifier: i32 @ <input/functions.ec:19.3-6> 
-| | | | ClassDeclarator @ <input/functions.ec:19.8> 
-| | | | | Declarator @ <input/functions.ec:19.8> 
-| | | | | | IdentifierDeclarator: x @ <input/functions.ec:19.8> 
-| | | ClassDeclaration @ <input/functions.ec:20.3-9> 
-| | | | PrimitiveSpecifier: i32 @ <input/functions.ec:20.3-6> 
-| | | | ClassDeclarator @ <input/functions.ec:20.8> 
-| | | | | Declarator @ <input/functions.ec:20.8> 
-| | | | | | IdentifierDeclarator: y @ <input/functions.ec:20.8> 
-| Function @ <input/functions.ec:23.1-28.1> 
-| | ClassSpecifier:  Point: @ <input/functions.ec:23.1-11> 
-| | Declarator @ <input/functions.ec:23.13-60> 
-| | | Pointer @ <input/functions.ec:23.13> 
-| | | FunctionDeclarator @ <input/functions.ec:23.13-60> 
-| | | | IdentifierDeclarator: compute_point @ <input/functions.ec:23.13-26> 
-| | | | ParameterDeclaration @ <input/functions.ec:23.13-41> 
-| | | | | ClassSpecifier:  Point: @ <input/functions.ec:23.13-38> 
-| | | | | Declarator @ <input/functions.ec:23.40-41> 
-| | | | | | Pointer @ <input/functions.ec:23.40> 
-| | | | | | IdentifierDeclarator: p @ <input/functions.ec:23.40-41> 
-| | | | ParameterDeclaration @ <input/functions.ec:23.44-50> 
-| | | | | PrimitiveSpecifier: i32 @ <input/functions.ec:23.44-47> 
-| | | | | Declarator @ <input/functions.ec:23.49-50> 
-| | | | | | IdentifierDeclarator: dx @ <input/functions.ec:23.49-50> 
-| | | | ParameterDeclaration @ <input/functions.ec:23.53-59> 
-| | | | | PrimitiveSpecifier: i32 @ <input/functions.ec:23.53-56> 
-| | | | | Declarator @ <input/functions.ec:23.58-59> 
-| | | | | | IdentifierDeclarator: dy @ <input/functions.ec:23.58-59> 
-| | CompoundStatement @ <input/functions.ec:23.62-28.1> 
-| | | ExpressionStatement @ <input/functions.ec:24.3-13> 
-| | | | AssignmentExpression: += @ <input/functions.ec:24.3-12> 
-| | | | | MemberAccess: ->x @ <input/functions.ec:24.3-6> 
-| | | | | | IdentifierExpression: p @ <input/functions.ec:24.3> 
-| | | | | IdentifierExpression: dx @ <input/functions.ec:24.11-12> 
-| | | ExpressionStatement @ <input/functions.ec:25.3-13> 
-| | | | AssignmentExpression: += @ <input/functions.ec:25.3-12> 
-| | | | | MemberAccess: ->y @ <input/functions.ec:25.3-6> 
-| | | | | | IdentifierExpression: p @ <input/functions.ec:25.3> 
-| | | | | IdentifierExpression: dy @ <input/functions.ec:25.11-12> 
-| | | ReturnStatement @ <input/functions.ec:27.3-11> 
-| | | | IdentifierExpression: p @ <input/functions.ec:27.10> 
-| ExpressionStatement @ <input/functions.ec:30.1-29> 
-| | CallExpression @ <input/functions.ec:30.1-28> 
-| | | IdentifierExpression: compute @ <input/functions.ec:30.1-7> 
-| | | Literal: 10 @ <input/functions.ec:30.1-10> 
-| | | Literal: 4 @ <input/functions.ec:30.13> 
-| | | String: "this" @ <input/functions.ec:30.16-21> 
-| | | Literal: 1 @ <input/functions.ec:30.24-27> 
-| Function @ <input/functions.ec:32.1-34.1> 
-| | PrimitiveSpecifier: void @ <input/functions.ec:32.1-3> 
-| | Declarator @ <input/functions.ec:32.5-10> 
-| | | FunctionDeclarator @ <input/functions.ec:32.5-10> 
-| | | | IdentifierDeclarator: noop @ <input/functions.ec:32.5-8> 
-| | CompoundStatement @ <input/functions.ec:32.12-34.1> 
-| | | ReturnStatement @ <input/functions.ec:33.5-11> 
-| ExpressionStatement @ <input/functions.ec:36.1-7> 
-| | CallExpression @ <input/functions.ec:36.1-6> 
-| | | IdentifierExpression: noop @ <input/functions.ec:36.1-4> 
-| ExpressionStatement @ <input/functions.ec:38.1-5> 
-| | IdentifierExpression: noop @ <input/functions.ec:38.1-4> 
-| Function @ <input/functions.ec:40.1-43.1> 
-| | PrimitiveSpecifier: i64 @ <input/functions.ec:40.1-4> 
-| | Declarator @ <input/functions.ec:40.6-29> 
-| | | FunctionDeclarator @ <input/functions.ec:40.6-29> 
-| | | | IdentifierDeclarator: CallbackFunction @ <input/functions.ec:40.6-21> 
-| | | | ParameterDeclaration @ <input/functions.ec:40.6-28> 
-| | | | | PrimitiveSpecifier: i64 @ <input/functions.ec:40.6-26> 
-| | | | | Declarator @ <input/functions.ec:40.28> 
-| | | | | | IdentifierDeclarator: x @ <input/functions.ec:40.28> 
-| | CompoundStatement @ <input/functions.ec:41.1-43.1> 
-| | | ReturnStatement @ <input/functions.ec:42.3-15> 
-| | | | BinaryExpression: * @ <input/functions.ec:42.10-14> 
-| | | | | IdentifierExpression: x @ <input/functions.ec:42.10> 
-| | | | | IdentifierExpression: x @ <input/functions.ec:42.14> 
-| Function @ <input/functions.ec:45.1-48.1> 
-| | PrimitiveSpecifier: void @ <input/functions.ec:45.1-3> 
-| | Declarator @ <input/functions.ec:45.5-45> 
-| | | FunctionDeclarator @ <input/functions.ec:45.5-45> 
-| | | | IdentifierDeclarator: MathFunc @ <input/functions.ec:45.5-12> 
-| | | | ParameterDeclaration @ <input/functions.ec:45.5-19> 
-| | | | | PrimitiveSpecifier: i64 @ <input/functions.ec:45.5-17> 
-| | | | | Declarator @ <input/functions.ec:45.19> 
-| | | | | | IdentifierDeclarator: y @ <input/functions.ec:45.19> 
-| | | | ParameterDeclaration @ <input/functions.ec:45.22-44> 
-| | | | | PrimitiveSpecifier: i64 @ <input/functions.ec:45.22-25> 
-| | | | | Declarator @ <input/functions.ec:45.27-44> 
-| | | | | | FunctionDeclarator @ <input/functions.ec:45.27-44> 
-| | | | | | | ParenDeclarator @ <input/functions.ec:45.27-33> 
-| | | | | | | | Declarator @ <input/functions.ec:45.27-32> 
-| | | | | | | | | Pointer @ <input/functions.ec:45.27-28> 
-| | | | | | | | | IdentifierDeclarator: proc @ <input/functions.ec:45.27-32> 
-| | | | | | | ParameterDeclaration @ <input/functions.ec:45.27-43> 
-| | | | | | | | PrimitiveSpecifier: i64 @ <input/functions.ec:45.27-38> 
-| | | | | | | | Declarator @ <input/functions.ec:45.40-43> 
-| | | | | | | | | IdentifierDeclarator: _val @ <input/functions.ec:45.40-43> 
-| | CompoundStatement @ <input/functions.ec:46.1-48.1> 
-| | | ReturnStatement @ <input/functions.ec:47.3-17> 
-| | | | CallExpression @ <input/functions.ec:47.10-16> 
-| | | | | IdentifierExpression: proc @ <input/functions.ec:47.10-13> 
-| | | | | IdentifierExpression: y @ <input/functions.ec:47.10-15> 
-| Function @ <input/functions.ec:50.1-54.1> 
-| | PrimitiveSpecifier: void @ <input/functions.ec:50.1-3> 
-| | Declarator @ <input/functions.ec:50.5-10> 
-| | | FunctionDeclarator @ <input/functions.ec:50.5-10> 
-| | | | IdentifierDeclarator: Main @ <input/functions.ec:50.5-8> 
-| | CompoundStatement @ <input/functions.ec:51.1-54.1> 
-| | | VariableDeclaration @ <input/functions.ec:52.3-43> 
-| | | | PrimitiveSpecifier: i64 @ <input/functions.ec:52.3-6> 
-| | | | InitDeclarator @ <input/functions.ec:52.8-42> 
-| | | | | Declarator @ <input/functions.ec:52.8> 
-| | | | | | IdentifierDeclarator: x @ <input/functions.ec:52.8> 
-| | | | | Initializer:  @ <input/functions.ec:52.12-42> 
-| | | | | | CallExpression @ <input/functions.ec:52.12-42> 
-| | | | | | | IdentifierExpression: MathFunc @ <input/functions.ec:52.12-19> 
-| | | | | | | Literal: 10 @ <input/functions.ec:52.12-22> 
-| | | | | | | UnaryExpression: & @ <input/functions.ec:52.25-41> 
-| | | | | | | | IdentifierExpression: CallbackFunction @ <input/functions.ec:52.25-41> 
-| | | PrintStatement: ""%d\n"" @ <input/functions.ec:53.3-11> 
-| | | | IdentifierExpression: x @ <input/functions.ec:53.3-10> 
+| VariableDeclaration @ <input/functions.ec:1.1-177> 
+| | PrimitiveSpecifier: i32 @ <input/functions.ec:1.162-165> 
+| | StorageClassSpecifier: extern "C" @ <input/functions.ec:1.1-156> 
+| | InitDeclarator @ <input/functions.ec:1.167-176> 
+| | | Declarator @ <input/functions.ec:1.167-176> 
+| | | | FunctionDeclarator @ <input/functions.ec:1.167-176> 
+| | | | | IdentifierDeclarator: somefunc @ <input/functions.ec:1.167-174> 
+| Function @ <input/functions.ec:3.1-5.1> 
+| | PrimitiveSpecifier: u32 @ <input/functions.ec:3.1-4> 
+| | Declarator @ <input/functions.ec:3.6-25> 
+| | | Pointer @ <input/functions.ec:3.6> 
+| | | FunctionDeclarator @ <input/functions.ec:3.6-25> 
+| | | | IdentifierDeclarator: add @ <input/functions.ec:3.6-9> 
+| | | | ParameterDeclaration @ <input/functions.ec:3.6-16> 
+| | | | | PrimitiveSpecifier: u32 @ <input/functions.ec:3.6-14> 
+| | | | | Declarator @ <input/functions.ec:3.16> 
+| | | | | | IdentifierDeclarator: a @ <input/functions.ec:3.16> 
+| | | | ParameterDeclaration @ <input/functions.ec:3.19-24> 
+| | | | | PrimitiveSpecifier: u32 @ <input/functions.ec:3.19-22> 
+| | | | | Declarator @ <input/functions.ec:3.24> 
+| | | | | | IdentifierDeclarator: b @ <input/functions.ec:3.24> 
+| | CompoundStatement @ <input/functions.ec:3.27-5.1> 
+| | | ReturnStatement @ <input/functions.ec:4.5-17> 
+| | | | BinaryExpression: + @ <input/functions.ec:4.12-16> 
+| | | | | IdentifierExpression: a @ <input/functions.ec:4.12> 
+| | | | | IdentifierExpression: b @ <input/functions.ec:4.16> 
+| Function @ <input/functions.ec:7.1-18.1> 
+| | PrimitiveSpecifier: i32 @ <input/functions.ec:7.8-11> 
+| | StorageClassSpecifier: public @ <input/functions.ec:7.1-6> 
+| | Declarator @ <input/functions.ec:7.13-50> 
+| | | FunctionDeclarator (variadic) @ <input/functions.ec:7.13-50> 
+| | | | IdentifierDeclarator: compute @ <input/functions.ec:7.13-19> 
+| | | | ParameterDeclaration @ <input/functions.ec:7.13-31> 
+| | | | | PrimitiveSpecifier: i32 @ <input/functions.ec:7.13-24> 
+| | | | | Declarator @ <input/functions.ec:7.26> 
+| | | | | | IdentifierDeclarator: x @ <input/functions.ec:7.26> 
+| | | | | Literal: 10 @ <input/functions.ec:7.30-31> 
+| | | | ParameterDeclaration @ <input/functions.ec:7.34-44> 
+| | | | | PrimitiveSpecifier: i32 @ <input/functions.ec:7.34-37> 
+| | | | | Declarator @ <input/functions.ec:7.39> 
+| | | | | | IdentifierDeclarator: y @ <input/functions.ec:7.39> 
+| | | | | Literal: 20 @ <input/functions.ec:7.43-44> 
+| | CompoundStatement @ <input/functions.ec:7.52-18.1> 
+| | | VariableDeclaration @ <input/functions.ec:8.5-13> 
+| | | | PrimitiveSpecifier: i32 @ <input/functions.ec:8.5-8> 
+| | | | InitDeclarator @ <input/functions.ec:8.10-12> 
+| | | | | Declarator @ <input/functions.ec:8.10-12> 
+| | | | | | IdentifierDeclarator: new @ <input/functions.ec:8.10-12> 
+| | | ExpressionStatement @ <input/functions.ec:9.5-25> 
+| | | | AssignmentExpression: = @ <input/functions.ec:9.5-24> 
+| | | | | IdentifierExpression: new @ <input/functions.ec:9.5-7> 
+| | | | | CallExpression @ <input/functions.ec:9.11-24> 
+| | | | | | IdentifierExpression: add @ <input/functions.ec:9.11-13> 
+| | | | | | IdentifierExpression: x @ <input/functions.ec:9.11-15> 
+| | | | | | IdentifierExpression: y @ <input/functions.ec:9.18> 
+| | | | | | IdentifierExpression: new @ <input/functions.ec:9.21-23> 
+| | | VariableDeclaration @ <input/functions.ec:11.5-24> 
+| | | | PrimitiveSpecifier: u64 @ <input/functions.ec:11.5-8> 
+| | | | InitDeclarator @ <input/functions.ec:11.10-23> 
+| | | | | Declarator @ <input/functions.ec:11.10-13> 
+| | | | | | IdentifierDeclarator: new2 @ <input/functions.ec:11.10-13> 
+| | | | | Initializer:  @ <input/functions.ec:11.17-23> 
+| | | | | | BinaryExpression: + @ <input/functions.ec:11.17-23> 
+| | | | | | | IdentifierExpression: new @ <input/functions.ec:11.17-19> 
+| | | | | | | Literal: 1 @ <input/functions.ec:11.23> 
+| | | TypeDeclaration @ <input/functions.ec:13.5-15.6> 
+| | | | ClassSpecifier: : @ <input/functions.ec:13.5-15.5> 
+| | | | | ClassDeclaration @ <input/functions.ec:14.9-19> 
+| | | | | | PrimitiveSpecifier: u32 @ <input/functions.ec:14.9-12> 
+| | | | | | ClassDeclarator @ <input/functions.ec:14.14-18> 
+| | | | | | | Declarator @ <input/functions.ec:14.14-18> 
+| | | | | | | | IdentifierDeclarator: hello @ <input/functions.ec:14.14-18> 
+| | | ReturnStatement @ <input/functions.ec:17.5-17> 
+| | | | BinaryExpression: * @ <input/functions.ec:17.12-16> 
+| | | | | IdentifierExpression: x @ <input/functions.ec:17.12> 
+| | | | | IdentifierExpression: y @ <input/functions.ec:17.16> 
+| TypeDeclaration @ <input/functions.ec:20.1-23.2> 
+| | ClassSpecifier:  Point: @ <input/functions.ec:20.1-23.1> 
+| | | ClassDeclaration @ <input/functions.ec:21.3-9> 
+| | | | PrimitiveSpecifier: i32 @ <input/functions.ec:21.3-6> 
+| | | | ClassDeclarator @ <input/functions.ec:21.8> 
+| | | | | Declarator @ <input/functions.ec:21.8> 
+| | | | | | IdentifierDeclarator: x @ <input/functions.ec:21.8> 
+| | | ClassDeclaration @ <input/functions.ec:22.3-9> 
+| | | | PrimitiveSpecifier: i32 @ <input/functions.ec:22.3-6> 
+| | | | ClassDeclarator @ <input/functions.ec:22.8> 
+| | | | | Declarator @ <input/functions.ec:22.8> 
+| | | | | | IdentifierDeclarator: y @ <input/functions.ec:22.8> 
+| Function @ <input/functions.ec:25.1-30.1> 
+| | ClassSpecifier:  Point: @ <input/functions.ec:25.1-11> 
+| | Declarator @ <input/functions.ec:25.13-60> 
+| | | Pointer @ <input/functions.ec:25.13> 
+| | | FunctionDeclarator @ <input/functions.ec:25.13-60> 
+| | | | IdentifierDeclarator: compute_point @ <input/functions.ec:25.13-26> 
+| | | | ParameterDeclaration @ <input/functions.ec:25.13-41> 
+| | | | | ClassSpecifier:  Point: @ <input/functions.ec:25.13-38> 
+| | | | | Declarator @ <input/functions.ec:25.40-41> 
+| | | | | | Pointer @ <input/functions.ec:25.40> 
+| | | | | | IdentifierDeclarator: p @ <input/functions.ec:25.40-41> 
+| | | | ParameterDeclaration @ <input/functions.ec:25.44-50> 
+| | | | | PrimitiveSpecifier: i32 @ <input/functions.ec:25.44-47> 
+| | | | | Declarator @ <input/functions.ec:25.49-50> 
+| | | | | | IdentifierDeclarator: dx @ <input/functions.ec:25.49-50> 
+| | | | ParameterDeclaration @ <input/functions.ec:25.53-59> 
+| | | | | PrimitiveSpecifier: i32 @ <input/functions.ec:25.53-56> 
+| | | | | Declarator @ <input/functions.ec:25.58-59> 
+| | | | | | IdentifierDeclarator: dy @ <input/functions.ec:25.58-59> 
+| | CompoundStatement @ <input/functions.ec:25.62-30.1> 
+| | | ExpressionStatement @ <input/functions.ec:26.3-13> 
+| | | | AssignmentExpression: += @ <input/functions.ec:26.3-12> 
+| | | | | MemberAccess: ->x @ <input/functions.ec:26.3-6> 
+| | | | | | IdentifierExpression: p @ <input/functions.ec:26.3> 
+| | | | | IdentifierExpression: dx @ <input/functions.ec:26.11-12> 
+| | | ExpressionStatement @ <input/functions.ec:27.3-13> 
+| | | | AssignmentExpression: += @ <input/functions.ec:27.3-12> 
+| | | | | MemberAccess: ->y @ <input/functions.ec:27.3-6> 
+| | | | | | IdentifierExpression: p @ <input/functions.ec:27.3> 
+| | | | | IdentifierExpression: dy @ <input/functions.ec:27.11-12> 
+| | | ReturnStatement @ <input/functions.ec:29.3-11> 
+| | | | IdentifierExpression: p @ <input/functions.ec:29.10> 
+| ExpressionStatement @ <input/functions.ec:32.1-29> 
+| | CallExpression @ <input/functions.ec:32.1-28> 
+| | | IdentifierExpression: compute @ <input/functions.ec:32.1-7> 
+| | | Literal: 10 @ <input/functions.ec:32.1-10> 
+| | | Literal: 4 @ <input/functions.ec:32.13> 
+| | | String: "this" @ <input/functions.ec:32.16-21> 
+| | | Literal: 1 @ <input/functions.ec:32.24-27> 
+| Function @ <input/functions.ec:34.1-36.1> 
+| | PrimitiveSpecifier: void @ <input/functions.ec:34.1-3> 
+| | Declarator @ <input/functions.ec:34.5-10> 
+| | | FunctionDeclarator @ <input/functions.ec:34.5-10> 
+| | | | IdentifierDeclarator: noop @ <input/functions.ec:34.5-8> 
+| | CompoundStatement @ <input/functions.ec:34.12-36.1> 
+| | | ReturnStatement @ <input/functions.ec:35.5-11> 
+| ExpressionStatement @ <input/functions.ec:38.1-7> 
+| | CallExpression @ <input/functions.ec:38.1-6> 
+| | | IdentifierExpression: noop @ <input/functions.ec:38.1-4> 
+| ExpressionStatement @ <input/functions.ec:40.1-5> 
+| | IdentifierExpression: noop @ <input/functions.ec:40.1-4> 
+| Function @ <input/functions.ec:42.1-45.1> 
+| | PrimitiveSpecifier: i64 @ <input/functions.ec:42.1-4> 
+| | Declarator @ <input/functions.ec:42.6-29> 
+| | | FunctionDeclarator @ <input/functions.ec:42.6-29> 
+| | | | IdentifierDeclarator: CallbackFunction @ <input/functions.ec:42.6-21> 
+| | | | ParameterDeclaration @ <input/functions.ec:42.6-28> 
+| | | | | PrimitiveSpecifier: i64 @ <input/functions.ec:42.6-26> 
+| | | | | Declarator @ <input/functions.ec:42.28> 
+| | | | | | IdentifierDeclarator: x @ <input/functions.ec:42.28> 
+| | CompoundStatement @ <input/functions.ec:43.1-45.1> 
+| | | ReturnStatement @ <input/functions.ec:44.3-15> 
+| | | | BinaryExpression: * @ <input/functions.ec:44.10-14> 
+| | | | | IdentifierExpression: x @ <input/functions.ec:44.10> 
+| | | | | IdentifierExpression: x @ <input/functions.ec:44.14> 
+| Function @ <input/functions.ec:47.1-50.1> 
+| | PrimitiveSpecifier: void @ <input/functions.ec:47.1-3> 
+| | Declarator @ <input/functions.ec:47.5-45> 
+| | | FunctionDeclarator @ <input/functions.ec:47.5-45> 
+| | | | IdentifierDeclarator: MathFunc @ <input/functions.ec:47.5-12> 
+| | | | ParameterDeclaration @ <input/functions.ec:47.5-19> 
+| | | | | PrimitiveSpecifier: i64 @ <input/functions.ec:47.5-17> 
+| | | | | Declarator @ <input/functions.ec:47.19> 
+| | | | | | IdentifierDeclarator: y @ <input/functions.ec:47.19> 
+| | | | ParameterDeclaration @ <input/functions.ec:47.22-44> 
+| | | | | PrimitiveSpecifier: i64 @ <input/functions.ec:47.22-25> 
+| | | | | Declarator @ <input/functions.ec:47.27-44> 
+| | | | | | FunctionDeclarator @ <input/functions.ec:47.27-44> 
+| | | | | | | ParenDeclarator @ <input/functions.ec:47.27-33> 
+| | | | | | | | Declarator @ <input/functions.ec:47.27-32> 
+| | | | | | | | | Pointer @ <input/functions.ec:47.27-28> 
+| | | | | | | | | IdentifierDeclarator: proc @ <input/functions.ec:47.27-32> 
+| | | | | | | ParameterDeclaration @ <input/functions.ec:47.27-43> 
+| | | | | | | | PrimitiveSpecifier: i64 @ <input/functions.ec:47.27-38> 
+| | | | | | | | Declarator @ <input/functions.ec:47.40-43> 
+| | | | | | | | | IdentifierDeclarator: _val @ <input/functions.ec:47.40-43> 
+| | CompoundStatement @ <input/functions.ec:48.1-50.1> 
+| | | ReturnStatement @ <input/functions.ec:49.3-17> 
+| | | | CallExpression @ <input/functions.ec:49.10-16> 
+| | | | | IdentifierExpression: proc @ <input/functions.ec:49.10-13> 
+| | | | | IdentifierExpression: y @ <input/functions.ec:49.10-15> 
+| Function @ <input/functions.ec:52.1-56.1> 
+| | PrimitiveSpecifier: void @ <input/functions.ec:52.1-3> 
+| | Declarator @ <input/functions.ec:52.5-10> 
+| | | FunctionDeclarator @ <input/functions.ec:52.5-10> 
+| | | | IdentifierDeclarator: Main @ <input/functions.ec:52.5-8> 
+| | CompoundStatement @ <input/functions.ec:53.1-56.1> 
+| | | VariableDeclaration @ <input/functions.ec:54.3-43> 
+| | | | PrimitiveSpecifier: i64 @ <input/functions.ec:54.3-6> 
+| | | | InitDeclarator @ <input/functions.ec:54.8-42> 
+| | | | | Declarator @ <input/functions.ec:54.8> 
+| | | | | | IdentifierDeclarator: x @ <input/functions.ec:54.8> 
+| | | | | Initializer:  @ <input/functions.ec:54.12-42> 
+| | | | | | CallExpression @ <input/functions.ec:54.12-42> 
+| | | | | | | IdentifierExpression: MathFunc @ <input/functions.ec:54.12-19> 
+| | | | | | | Literal: 10 @ <input/functions.ec:54.12-22> 
+| | | | | | | UnaryExpression: & @ <input/functions.ec:54.25-41> 
+| | | | | | | | IdentifierExpression: CallbackFunction @ <input/functions.ec:54.25-41> 
+| | | PrintStatement: ""%d\n"" @ <input/functions.ec:55.3-11> 
+| | | | IdentifierExpression: x @ <input/functions.ec:55.3-10> 
 running backend for file input/functions.ec
 checking semantics for input/functions.ec:1.1
 running elaborator for input/functions.ec:1.1
 Node: type 52 {
-    Node: type 51 {
-        visiting Function node: input/functions.ec:1.1-3.1
+    Node: type 9 {
+        visiting VariableDeclaration node: input/functions.ec:1.1-177
         parsing declaration specifier list
         Node: type 20 {
-            visiting PrimitiveSpecifier node: input/functions.ec:1.1-154
+            visiting PrimitiveSpecifier node: input/functions.ec:1.162-165
+TypeContext: getting primitive type with value 8
+            }
+        Node: type 1 {
+            visiting StorageClassSpecifier node: input/functions.ec:1.1-156
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: input/functions.ec:1.167-176
+            Node: type 5 {
+                Node: type 13 {
+                    visiting FunctionDeclarator node: input/functions.ec:1.167-176
+                    Node: type 10 {
+                        visiting IdentifierDeclarator node: input/functions.ec:1.167-174
+                        }
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+TypeContext: getting function type
+SymbolTable: inserting symbol with name somefunc
+        }
+    Node: type 51 {
+        visiting Function node: input/functions.ec:3.1-5.1
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: input/functions.ec:3.1-4
 TypeContext: getting primitive type with value 3
             }
-        taking last result at input/functions.ec:1.1-154
-        direct declarator kind 13
         Node: type 5 {
             Node: type 13 {
-                visiting FunctionDeclarator node: input/functions.ec:1.156-175
+                visiting FunctionDeclarator node: input/functions.ec:3.6-25
                 Node: type 10 {
-                    visiting IdentifierDeclarator node: input/functions.ec:1.156-159
+                    visiting IdentifierDeclarator node: input/functions.ec:3.6-9
                     }
-                taking last result at input/functions.ec:1.156-175
                 Node: type 7 {
-                    visiting ParameterDeclarator node: input/functions.ec:1.156-166
+                    visiting ParameterDeclarator node: input/functions.ec:3.6-16
                     parsing declaration specifier list
                     Node: type 20 {
-                        visiting PrimitiveSpecifier node: input/functions.ec:1.156-164
+                        visiting PrimitiveSpecifier node: input/functions.ec:3.6-14
 TypeContext: getting primitive type with value 3
                         }
-                    taking last result at input/functions.ec:1.156-164
                     Node: type 5 {
                         Node: type 10 {
-                            visiting IdentifierDeclarator node: input/functions.ec:1.166
+                            visiting IdentifierDeclarator node: input/functions.ec:3.16
                             }
-                        taking last result at input/functions.ec:1.166
                         }
-                    taking last result at input/functions.ec:1.156-166
 TypeBuilder: finalizing type
                     }
-                taking last result at input/functions.ec:1.156-175
                 Node: type 7 {
-                    visiting ParameterDeclarator node: input/functions.ec:1.169-174
+                    visiting ParameterDeclarator node: input/functions.ec:3.19-24
                     parsing declaration specifier list
                     Node: type 20 {
-                        visiting PrimitiveSpecifier node: input/functions.ec:1.169-172
+                        visiting PrimitiveSpecifier node: input/functions.ec:3.19-22
 TypeContext: getting primitive type with value 3
                         }
-                    taking last result at input/functions.ec:1.169-172
                     Node: type 5 {
                         Node: type 10 {
-                            visiting IdentifierDeclarator node: input/functions.ec:1.174
+                            visiting IdentifierDeclarator node: input/functions.ec:3.24
                             }
-                        taking last result at input/functions.ec:1.174
                         }
-                    taking last result at input/functions.ec:1.169-174
 TypeBuilder: finalizing type
                     }
-                taking last result at input/functions.ec:1.156-175
                 }
-            taking last result at input/functions.ec:1.156-175
             Node: type 2 {
                 visiting Pointer node
                 }
             }
-        taking last result at input/functions.ec:1.1-3.1
-TypeContext: pointer with base 0x55dcdf129290
+TypeContext: pointer with base 0x557f3099d290
 TypeContext: getting function type
         Node: type 21 {
-SymbolTable: pushing scope 0x55dcdf12ace0
-SymbolTable: entering scope 0x55dcdf12ace0
+SymbolTable: pushing scope 0x557f3099ef90
+SymbolTable: entering scope 0x557f3099ef90
 SymbolTable: exiting scope
-            visiting CompoundStatement node: input/functions.ec:1.177-3.1
+            visiting CompoundStatement node: input/functions.ec:3.27-5.1
             Node: type 35 {
                 }
             }
 SymbolTable: exiting scope
         }
     Node: type 51 {
-        visiting Function node: input/functions.ec:5.1-16.1
+        visiting Function node: input/functions.ec:7.1-18.1
         parsing declaration specifier list
         Node: type 20 {
-            visiting PrimitiveSpecifier node: input/functions.ec:5.8-11
+            visiting PrimitiveSpecifier node: input/functions.ec:7.8-11
 TypeContext: getting primitive type with value 8
             }
-        taking last result at input/functions.ec:5.8-11
         Node: type 1 {
-            visiting StorageClassSpecifier node: input/functions.ec:5.1-6
+            visiting StorageClassSpecifier node: input/functions.ec:7.1-6
             }
-        taking last result at input/functions.ec:5.1-6
-        direct declarator kind 13
         Node: type 5 {
             Node: type 13 {
-                visiting FunctionDeclarator node: input/functions.ec:5.13-50
+                visiting FunctionDeclarator node: input/functions.ec:7.13-50
                 Node: type 10 {
-                    visiting IdentifierDeclarator node: input/functions.ec:5.13-19
+                    visiting IdentifierDeclarator node: input/functions.ec:7.13-19
                     }
-                taking last result at input/functions.ec:5.13-50
                 Node: type 7 {
-                    visiting ParameterDeclarator node: input/functions.ec:5.13-31
+                    visiting ParameterDeclarator node: input/functions.ec:7.13-31
                     parsing declaration specifier list
                     Node: type 20 {
-                        visiting PrimitiveSpecifier node: input/functions.ec:5.13-24
+                        visiting PrimitiveSpecifier node: input/functions.ec:7.13-24
 TypeContext: getting primitive type with value 8
                         }
-                    taking last result at input/functions.ec:5.13-24
                     Node: type 5 {
                         Node: type 10 {
-                            visiting IdentifierDeclarator node: input/functions.ec:5.26
+                            visiting IdentifierDeclarator node: input/functions.ec:7.26
                             }
-                        taking last result at input/functions.ec:5.26
                         }
-                    taking last result at input/functions.ec:5.13-31
 TypeBuilder: finalizing type
                     }
-                taking last result at input/functions.ec:5.13-50
                 Node: type 7 {
-                    visiting ParameterDeclarator node: input/functions.ec:5.34-44
+                    visiting ParameterDeclarator node: input/functions.ec:7.34-44
                     parsing declaration specifier list
                     Node: type 20 {
-                        visiting PrimitiveSpecifier node: input/functions.ec:5.34-37
+                        visiting PrimitiveSpecifier node: input/functions.ec:7.34-37
 TypeContext: getting primitive type with value 8
                         }
-                    taking last result at input/functions.ec:5.34-37
                     Node: type 5 {
                         Node: type 10 {
-                            visiting IdentifierDeclarator node: input/functions.ec:5.39
+                            visiting IdentifierDeclarator node: input/functions.ec:7.39
                             }
-                        taking last result at input/functions.ec:5.39
                         }
-                    taking last result at input/functions.ec:5.34-44
 TypeBuilder: finalizing type
                     }
-                taking last result at input/functions.ec:5.13-50
                 }
-            taking last result at input/functions.ec:5.13-50
             }
-        taking last result at input/functions.ec:5.1-16.1
 TypeContext: getting function type
         Node: type 21 {
-SymbolTable: pushing scope 0x55dcdf12af20
-SymbolTable: entering scope 0x55dcdf12af20
+SymbolTable: pushing scope 0x557f3099f0e0
+SymbolTable: entering scope 0x557f3099f0e0
 SymbolTable: exiting scope
-            visiting CompoundStatement node: input/functions.ec:5.52-16.1
+            visiting CompoundStatement node: input/functions.ec:7.52-18.1
             Node: type 9 {
-                visiting VariableDeclaration node: input/functions.ec:6.5-13
+                visiting VariableDeclaration node: input/functions.ec:8.5-13
                 parsing declaration specifier list
                 Node: type 20 {
-                    visiting PrimitiveSpecifier node: input/functions.ec:6.5-8
+                    visiting PrimitiveSpecifier node: input/functions.ec:8.5-8
 TypeContext: getting primitive type with value 8
                     }
-                taking last result at input/functions.ec:6.5-8
                 Node: type 6 {
-                    visiting InitDeclarator node: input/functions.ec:6.10-12
+                    visiting InitDeclarator node: input/functions.ec:8.10-12
                     Node: type 5 {
                         Node: type 10 {
-                            visiting IdentifierDeclarator node: input/functions.ec:6.10-12
+                            visiting IdentifierDeclarator node: input/functions.ec:8.10-12
                             }
-                        taking last result at input/functions.ec:6.10-12
                         }
-                    taking last result at input/functions.ec:6.10-12
                     }
-                taking last result at input/functions.ec:6.5-13
 TypeBuilder: finalizing type
 SymbolTable: inserting symbol with name new
                 }
             Node: type 22 {
                 }
             Node: type 9 {
-                visiting VariableDeclaration node: input/functions.ec:9.5-24
+                visiting VariableDeclaration node: input/functions.ec:11.5-24
                 parsing declaration specifier list
                 Node: type 20 {
-                    visiting PrimitiveSpecifier node: input/functions.ec:9.5-8
+                    visiting PrimitiveSpecifier node: input/functions.ec:11.5-8
 TypeContext: getting primitive type with value 4
                     }
-                taking last result at input/functions.ec:9.5-8
                 Node: type 6 {
-                    visiting InitDeclarator node: input/functions.ec:9.10-23
+                    visiting InitDeclarator node: input/functions.ec:11.10-23
                     Node: type 5 {
                         Node: type 10 {
-                            visiting IdentifierDeclarator node: input/functions.ec:9.10-13
+                            visiting IdentifierDeclarator node: input/functions.ec:11.10-13
                             }
-                        taking last result at input/functions.ec:9.10-13
                         }
-                    taking last result at input/functions.ec:9.10-23
                     }
-                taking last result at input/functions.ec:9.5-24
 TypeBuilder: finalizing type
 SymbolTable: inserting symbol with name new2
                 }
             Node: type 8 {
-                visiting TypeDeclaration node: input/functions.ec:11.5-13.6
+                visiting TypeDeclaration node: input/functions.ec:13.5-15.6
                 parsing declaration specifier list
                 Node: type 17 {
-SymbolTable: pushing scope 0x55dcdf12b050
-SymbolTable: entering scope 0x55dcdf12b050
+SymbolTable: pushing scope 0x557f3099f210
+SymbolTable: entering scope 0x557f3099f210
 SymbolTable: exiting scope
-                    visiting ClassSpecifier node: input/functions.ec:11.5-13.5
-TypeContext: anonymous class type on scope 0x55dcdf128f60
+                    visiting ClassSpecifier node: input/functions.ec:13.5-15.5
+TypeContext: anonymous class type on scope 0x557f3099cf60
                     Node: type 15 {
-                        visiting ClassDeclaration node: input/functions.ec:12.9-19
+                        visiting ClassDeclaration node: input/functions.ec:14.9-19
                         parsing declaration specifier list
                         Node: type 20 {
-                            visiting PrimitiveSpecifier node: input/functions.ec:12.9-12
+                            visiting PrimitiveSpecifier node: input/functions.ec:14.9-12
 TypeContext: getting primitive type with value 3
                             }
-                        taking last result at input/functions.ec:12.9-12
                         Node: type 14 {
-                            visiting ClassDeclarator node: input/functions.ec:12.14-18
+                            visiting ClassDeclarator node: input/functions.ec:14.14-18
                             Node: type 5 {
                                 Node: type 10 {
-                                    visiting IdentifierDeclarator node: input/functions.ec:12.14-18
+                                    visiting IdentifierDeclarator node: input/functions.ec:14.14-18
                                     }
-                                taking last result at input/functions.ec:12.14-18
                                 }
-                            taking last result at input/functions.ec:12.14-18
                             }
                         }
                     }
 SymbolTable: exiting scope
-                taking last result at input/functions.ec:11.5-13.5
                 }
             Node: type 35 {
                 }
@@ -418,156 +411,132 @@ SymbolTable: exiting scope
 SymbolTable: exiting scope
         }
     Node: type 8 {
-        visiting TypeDeclaration node: input/functions.ec:18.1-21.2
+        visiting TypeDeclaration node: input/functions.ec:20.1-23.2
         parsing declaration specifier list
         Node: type 17 {
-SymbolTable: pushing scope 0x55dcdf12b2d0
-SymbolTable: entering scope 0x55dcdf12b2d0
+SymbolTable: pushing scope 0x557f3099f490
+SymbolTable: entering scope 0x557f3099f490
 SymbolTable: exiting scope
-            visiting ClassSpecifier node: input/functions.ec:18.1-21.1
-TypeContext: class type 'Point' on scope 0x55dcdf128f60
+            visiting ClassSpecifier node: input/functions.ec:20.1-23.1
+TypeContext: class type 'Point' on scope 0x557f3099cf60
             Node: type 15 {
-                visiting ClassDeclaration node: input/functions.ec:19.3-9
+                visiting ClassDeclaration node: input/functions.ec:21.3-9
                 parsing declaration specifier list
                 Node: type 20 {
-                    visiting PrimitiveSpecifier node: input/functions.ec:19.3-6
+                    visiting PrimitiveSpecifier node: input/functions.ec:21.3-6
 TypeContext: getting primitive type with value 8
                     }
-                taking last result at input/functions.ec:19.3-6
                 Node: type 14 {
-                    visiting ClassDeclarator node: input/functions.ec:19.8
+                    visiting ClassDeclarator node: input/functions.ec:21.8
                     Node: type 5 {
                         Node: type 10 {
-                            visiting IdentifierDeclarator node: input/functions.ec:19.8
+                            visiting IdentifierDeclarator node: input/functions.ec:21.8
                             }
-                        taking last result at input/functions.ec:19.8
                         }
-                    taking last result at input/functions.ec:19.8
                     }
                 }
             Node: type 15 {
-                visiting ClassDeclaration node: input/functions.ec:20.3-9
+                visiting ClassDeclaration node: input/functions.ec:22.3-9
                 parsing declaration specifier list
                 Node: type 20 {
-                    visiting PrimitiveSpecifier node: input/functions.ec:20.3-6
+                    visiting PrimitiveSpecifier node: input/functions.ec:22.3-6
 TypeContext: getting primitive type with value 8
                     }
-                taking last result at input/functions.ec:20.3-6
                 Node: type 14 {
-                    visiting ClassDeclarator node: input/functions.ec:20.8
+                    visiting ClassDeclarator node: input/functions.ec:22.8
                     Node: type 5 {
                         Node: type 10 {
-                            visiting IdentifierDeclarator node: input/functions.ec:20.8
+                            visiting IdentifierDeclarator node: input/functions.ec:22.8
                             }
-                        taking last result at input/functions.ec:20.8
                         }
-                    taking last result at input/functions.ec:20.8
                     }
                 }
-SymbolTable: associating current scope 0x55dcdf128f60 with symbol 0x55dcdf12a060 name 
+SymbolTable: associating current scope 0x557f3099cf60 with symbol 0x557f3099e220 name 
             }
 SymbolTable: exiting scope
-        taking last result at input/functions.ec:18.1-21.1
 SymbolTable: inserting symbol with name 
         }
     Node: type 51 {
-        visiting Function node: input/functions.ec:23.1-28.1
+        visiting Function node: input/functions.ec:25.1-30.1
         parsing declaration specifier list
         Node: type 17 {
-SymbolTable: pushing scope 0x55dcdf12b430
-SymbolTable: entering scope 0x55dcdf12b430
+SymbolTable: pushing scope 0x557f3099f5f0
+SymbolTable: entering scope 0x557f3099f5f0
 SymbolTable: exiting scope
-            visiting ClassSpecifier node: input/functions.ec:23.1-11
-TypeContext: class type 'Point' on scope 0x55dcdf128f60
+            visiting ClassSpecifier node: input/functions.ec:25.1-11
+TypeContext: class type 'Point' on scope 0x557f3099cf60
 TypeContext: existing class found
             }
 SymbolTable: exiting scope
-        taking last result at input/functions.ec:23.1-11
-        direct declarator kind 13
         Node: type 5 {
             Node: type 13 {
-                visiting FunctionDeclarator node: input/functions.ec:23.13-60
+                visiting FunctionDeclarator node: input/functions.ec:25.13-60
                 Node: type 10 {
-                    visiting IdentifierDeclarator node: input/functions.ec:23.13-26
+                    visiting IdentifierDeclarator node: input/functions.ec:25.13-26
                     }
-                taking last result at input/functions.ec:23.13-60
                 Node: type 7 {
-                    visiting ParameterDeclarator node: input/functions.ec:23.13-41
+                    visiting ParameterDeclarator node: input/functions.ec:25.13-41
                     parsing declaration specifier list
                     Node: type 17 {
-SymbolTable: pushing scope 0x55dcdf12b4b0
-SymbolTable: entering scope 0x55dcdf12b4b0
+SymbolTable: pushing scope 0x557f3099f670
+SymbolTable: entering scope 0x557f3099f670
 SymbolTable: exiting scope
-                        visiting ClassSpecifier node: input/functions.ec:23.13-38
-TypeContext: class type 'Point' on scope 0x55dcdf128f60
+                        visiting ClassSpecifier node: input/functions.ec:25.13-38
+TypeContext: class type 'Point' on scope 0x557f3099cf60
 TypeContext: existing class found
                         }
 SymbolTable: exiting scope
-                    taking last result at input/functions.ec:23.13-38
                     Node: type 5 {
                         Node: type 10 {
-                            visiting IdentifierDeclarator node: input/functions.ec:23.40-41
+                            visiting IdentifierDeclarator node: input/functions.ec:25.40-41
                             }
-                        taking last result at input/functions.ec:23.40-41
                         Node: type 2 {
                             visiting Pointer node
                             }
                         }
-                    taking last result at input/functions.ec:23.13-41
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x55dcdf12b350
+TypeContext: pointer with base 0x557f3099f510
                     }
-                taking last result at input/functions.ec:23.13-60
                 Node: type 7 {
-                    visiting ParameterDeclarator node: input/functions.ec:23.44-50
+                    visiting ParameterDeclarator node: input/functions.ec:25.44-50
                     parsing declaration specifier list
                     Node: type 20 {
-                        visiting PrimitiveSpecifier node: input/functions.ec:23.44-47
+                        visiting PrimitiveSpecifier node: input/functions.ec:25.44-47
 TypeContext: getting primitive type with value 8
                         }
-                    taking last result at input/functions.ec:23.44-47
                     Node: type 5 {
                         Node: type 10 {
-                            visiting IdentifierDeclarator node: input/functions.ec:23.49-50
+                            visiting IdentifierDeclarator node: input/functions.ec:25.49-50
                             }
-                        taking last result at input/functions.ec:23.49-50
                         }
-                    taking last result at input/functions.ec:23.44-50
 TypeBuilder: finalizing type
                     }
-                taking last result at input/functions.ec:23.13-60
                 Node: type 7 {
-                    visiting ParameterDeclarator node: input/functions.ec:23.53-59
+                    visiting ParameterDeclarator node: input/functions.ec:25.53-59
                     parsing declaration specifier list
                     Node: type 20 {
-                        visiting PrimitiveSpecifier node: input/functions.ec:23.53-56
+                        visiting PrimitiveSpecifier node: input/functions.ec:25.53-56
 TypeContext: getting primitive type with value 8
                         }
-                    taking last result at input/functions.ec:23.53-56
                     Node: type 5 {
                         Node: type 10 {
-                            visiting IdentifierDeclarator node: input/functions.ec:23.58-59
+                            visiting IdentifierDeclarator node: input/functions.ec:25.58-59
                             }
-                        taking last result at input/functions.ec:23.58-59
                         }
-                    taking last result at input/functions.ec:23.53-59
 TypeBuilder: finalizing type
                     }
-                taking last result at input/functions.ec:23.13-60
                 }
-            taking last result at input/functions.ec:23.13-60
             Node: type 2 {
                 visiting Pointer node
                 }
             }
-        taking last result at input/functions.ec:23.1-28.1
-TypeContext: pointer with base 0x55dcdf12b350
+TypeContext: pointer with base 0x557f3099f510
 TypeContext: getting function type
         Node: type 21 {
-SymbolTable: pushing scope 0x55dcdf12ba80
-SymbolTable: entering scope 0x55dcdf12ba80
+SymbolTable: pushing scope 0x557f3099fcb0
+SymbolTable: entering scope 0x557f3099fcb0
 SymbolTable: exiting scope
-            visiting CompoundStatement node: input/functions.ec:23.62-28.1
+            visiting CompoundStatement node: input/functions.ec:25.62-30.1
             Node: type 22 {
                 }
             Node: type 22 {
@@ -580,31 +549,26 @@ SymbolTable: exiting scope
     Node: type 22 {
         }
     Node: type 51 {
-        visiting Function node: input/functions.ec:32.1-34.1
+        visiting Function node: input/functions.ec:34.1-36.1
         parsing declaration specifier list
         Node: type 20 {
-            visiting PrimitiveSpecifier node: input/functions.ec:32.1-3
+            visiting PrimitiveSpecifier node: input/functions.ec:34.1-3
 TypeContext: getting primitive type with value 0
             }
-        taking last result at input/functions.ec:32.1-3
-        direct declarator kind 13
         Node: type 5 {
             Node: type 13 {
-                visiting FunctionDeclarator node: input/functions.ec:32.5-10
+                visiting FunctionDeclarator node: input/functions.ec:34.5-10
                 Node: type 10 {
-                    visiting IdentifierDeclarator node: input/functions.ec:32.5-8
+                    visiting IdentifierDeclarator node: input/functions.ec:34.5-8
                     }
-                taking last result at input/functions.ec:32.5-10
                 }
-            taking last result at input/functions.ec:32.5-10
             }
-        taking last result at input/functions.ec:32.1-34.1
 TypeContext: getting function type
         Node: type 21 {
-SymbolTable: pushing scope 0x55dcdf12bb60
-SymbolTable: entering scope 0x55dcdf12bb60
+SymbolTable: pushing scope 0x557f3099fd90
+SymbolTable: entering scope 0x557f3099fd90
 SymbolTable: exiting scope
-            visiting CompoundStatement node: input/functions.ec:32.12-34.1
+            visiting CompoundStatement node: input/functions.ec:34.12-36.1
             Node: type 35 {
                 }
             }
@@ -615,200 +579,162 @@ SymbolTable: exiting scope
     Node: type 22 {
         }
     Node: type 51 {
-        visiting Function node: input/functions.ec:40.1-43.1
+        visiting Function node: input/functions.ec:42.1-45.1
         parsing declaration specifier list
         Node: type 20 {
-            visiting PrimitiveSpecifier node: input/functions.ec:40.1-4
+            visiting PrimitiveSpecifier node: input/functions.ec:42.1-4
 TypeContext: getting primitive type with value 9
             }
-        taking last result at input/functions.ec:40.1-4
-        direct declarator kind 13
         Node: type 5 {
             Node: type 13 {
-                visiting FunctionDeclarator node: input/functions.ec:40.6-29
+                visiting FunctionDeclarator node: input/functions.ec:42.6-29
                 Node: type 10 {
-                    visiting IdentifierDeclarator node: input/functions.ec:40.6-21
+                    visiting IdentifierDeclarator node: input/functions.ec:42.6-21
                     }
-                taking last result at input/functions.ec:40.6-29
                 Node: type 7 {
-                    visiting ParameterDeclarator node: input/functions.ec:40.6-28
+                    visiting ParameterDeclarator node: input/functions.ec:42.6-28
                     parsing declaration specifier list
                     Node: type 20 {
-                        visiting PrimitiveSpecifier node: input/functions.ec:40.6-26
+                        visiting PrimitiveSpecifier node: input/functions.ec:42.6-26
 TypeContext: getting primitive type with value 9
                         }
-                    taking last result at input/functions.ec:40.6-26
                     Node: type 5 {
                         Node: type 10 {
-                            visiting IdentifierDeclarator node: input/functions.ec:40.28
+                            visiting IdentifierDeclarator node: input/functions.ec:42.28
                             }
-                        taking last result at input/functions.ec:40.28
                         }
-                    taking last result at input/functions.ec:40.6-28
 TypeBuilder: finalizing type
                     }
-                taking last result at input/functions.ec:40.6-29
                 }
-            taking last result at input/functions.ec:40.6-29
             }
-        taking last result at input/functions.ec:40.1-43.1
 TypeContext: getting function type
         Node: type 21 {
-SymbolTable: pushing scope 0x55dcdf12bde0
-SymbolTable: entering scope 0x55dcdf12bde0
+SymbolTable: pushing scope 0x557f309a0030
+SymbolTable: entering scope 0x557f309a0030
 SymbolTable: exiting scope
-            visiting CompoundStatement node: input/functions.ec:41.1-43.1
+            visiting CompoundStatement node: input/functions.ec:43.1-45.1
             Node: type 35 {
                 }
             }
 SymbolTable: exiting scope
         }
     Node: type 51 {
-        visiting Function node: input/functions.ec:45.1-48.1
+        visiting Function node: input/functions.ec:47.1-50.1
         parsing declaration specifier list
         Node: type 20 {
-            visiting PrimitiveSpecifier node: input/functions.ec:45.1-3
+            visiting PrimitiveSpecifier node: input/functions.ec:47.1-3
 TypeContext: getting primitive type with value 0
             }
-        taking last result at input/functions.ec:45.1-3
-        direct declarator kind 13
         Node: type 5 {
             Node: type 13 {
-                visiting FunctionDeclarator node: input/functions.ec:45.5-45
+                visiting FunctionDeclarator node: input/functions.ec:47.5-45
                 Node: type 10 {
-                    visiting IdentifierDeclarator node: input/functions.ec:45.5-12
+                    visiting IdentifierDeclarator node: input/functions.ec:47.5-12
                     }
-                taking last result at input/functions.ec:45.5-45
                 Node: type 7 {
-                    visiting ParameterDeclarator node: input/functions.ec:45.5-19
+                    visiting ParameterDeclarator node: input/functions.ec:47.5-19
                     parsing declaration specifier list
                     Node: type 20 {
-                        visiting PrimitiveSpecifier node: input/functions.ec:45.5-17
+                        visiting PrimitiveSpecifier node: input/functions.ec:47.5-17
 TypeContext: getting primitive type with value 9
                         }
-                    taking last result at input/functions.ec:45.5-17
                     Node: type 5 {
                         Node: type 10 {
-                            visiting IdentifierDeclarator node: input/functions.ec:45.19
+                            visiting IdentifierDeclarator node: input/functions.ec:47.19
                             }
-                        taking last result at input/functions.ec:45.19
                         }
-                    taking last result at input/functions.ec:45.5-19
 TypeBuilder: finalizing type
                     }
-                taking last result at input/functions.ec:45.5-45
                 Node: type 7 {
-                    visiting ParameterDeclarator node: input/functions.ec:45.22-44
+                    visiting ParameterDeclarator node: input/functions.ec:47.22-44
                     parsing declaration specifier list
                     Node: type 20 {
-                        visiting PrimitiveSpecifier node: input/functions.ec:45.22-25
+                        visiting PrimitiveSpecifier node: input/functions.ec:47.22-25
 TypeContext: getting primitive type with value 9
                         }
-                    taking last result at input/functions.ec:45.22-25
                     Node: type 5 {
                         Node: type 13 {
-                            visiting FunctionDeclarator node: input/functions.ec:45.27-44
+                            visiting FunctionDeclarator node: input/functions.ec:47.27-44
                             Node: type 11 {
-                                visiting ParenDeclarator node: input/functions.ec:45.27-33
+                                visiting ParenDeclarator node: input/functions.ec:47.27-33
                                 Node: type 5 {
                                     Node: type 10 {
-                                        visiting IdentifierDeclarator node: input/functions.ec:45.27-32
+                                        visiting IdentifierDeclarator node: input/functions.ec:47.27-32
                                         }
-                                    taking last result at input/functions.ec:45.27-32
                                     Node: type 2 {
                                         visiting Pointer node
                                         }
                                     }
-                                taking last result at input/functions.ec:45.27-33
                                 }
-                            taking last result at input/functions.ec:45.27-44
                             Node: type 7 {
-                                visiting ParameterDeclarator node: input/functions.ec:45.27-43
+                                visiting ParameterDeclarator node: input/functions.ec:47.27-43
                                 parsing declaration specifier list
                                 Node: type 20 {
-                                    visiting PrimitiveSpecifier node: input/functions.ec:45.27-38
+                                    visiting PrimitiveSpecifier node: input/functions.ec:47.27-38
 TypeContext: getting primitive type with value 9
                                     }
-                                taking last result at input/functions.ec:45.27-38
                                 Node: type 5 {
                                     Node: type 10 {
-                                        visiting IdentifierDeclarator node: input/functions.ec:45.40-43
+                                        visiting IdentifierDeclarator node: input/functions.ec:47.40-43
                                         }
-                                    taking last result at input/functions.ec:45.40-43
                                     }
-                                taking last result at input/functions.ec:45.27-43
 TypeBuilder: finalizing type
                                 }
-                            taking last result at input/functions.ec:45.27-44
                             }
-                        taking last result at input/functions.ec:45.27-44
                         }
-                    taking last result at input/functions.ec:45.22-44
 TypeBuilder: finalizing type
 TypeContext: getting function type
-TypeContext: pointer with base 0x55dcdf129590
+TypeContext: pointer with base 0x557f3099d590
                     }
-                taking last result at input/functions.ec:45.5-45
                 }
-            taking last result at input/functions.ec:45.5-45
             }
-        taking last result at input/functions.ec:45.1-48.1
 TypeContext: getting function type
         Node: type 21 {
-SymbolTable: pushing scope 0x55dcdf12c090
-SymbolTable: entering scope 0x55dcdf12c090
+SymbolTable: pushing scope 0x557f309a0200
+SymbolTable: entering scope 0x557f309a0200
 SymbolTable: exiting scope
-            visiting CompoundStatement node: input/functions.ec:46.1-48.1
+            visiting CompoundStatement node: input/functions.ec:48.1-50.1
             Node: type 35 {
                 }
             }
 SymbolTable: exiting scope
         }
     Node: type 51 {
-        visiting Function node: input/functions.ec:50.1-54.1
+        visiting Function node: input/functions.ec:52.1-56.1
         parsing declaration specifier list
         Node: type 20 {
-            visiting PrimitiveSpecifier node: input/functions.ec:50.1-3
+            visiting PrimitiveSpecifier node: input/functions.ec:52.1-3
 TypeContext: getting primitive type with value 0
             }
-        taking last result at input/functions.ec:50.1-3
-        direct declarator kind 13
         Node: type 5 {
             Node: type 13 {
-                visiting FunctionDeclarator node: input/functions.ec:50.5-10
+                visiting FunctionDeclarator node: input/functions.ec:52.5-10
                 Node: type 10 {
-                    visiting IdentifierDeclarator node: input/functions.ec:50.5-8
+                    visiting IdentifierDeclarator node: input/functions.ec:52.5-8
                     }
-                taking last result at input/functions.ec:50.5-10
                 }
-            taking last result at input/functions.ec:50.5-10
             }
-        taking last result at input/functions.ec:50.1-54.1
 TypeContext: getting function type
         Node: type 21 {
-SymbolTable: pushing scope 0x55dcdf12c170
-SymbolTable: entering scope 0x55dcdf12c170
+SymbolTable: pushing scope 0x557f309a02e0
+SymbolTable: entering scope 0x557f309a02e0
 SymbolTable: exiting scope
-            visiting CompoundStatement node: input/functions.ec:51.1-54.1
+            visiting CompoundStatement node: input/functions.ec:53.1-56.1
             Node: type 9 {
-                visiting VariableDeclaration node: input/functions.ec:52.3-43
+                visiting VariableDeclaration node: input/functions.ec:54.3-43
                 parsing declaration specifier list
                 Node: type 20 {
-                    visiting PrimitiveSpecifier node: input/functions.ec:52.3-6
+                    visiting PrimitiveSpecifier node: input/functions.ec:54.3-6
 TypeContext: getting primitive type with value 9
                     }
-                taking last result at input/functions.ec:52.3-6
                 Node: type 6 {
-                    visiting InitDeclarator node: input/functions.ec:52.8-42
+                    visiting InitDeclarator node: input/functions.ec:54.8-42
                     Node: type 5 {
                         Node: type 10 {
-                            visiting IdentifierDeclarator node: input/functions.ec:52.8
+                            visiting IdentifierDeclarator node: input/functions.ec:54.8
                             }
-                        taking last result at input/functions.ec:52.8
                         }
-                    taking last result at input/functions.ec:52.8-42
                     }
-                taking last result at input/functions.ec:52.3-43
 TypeBuilder: finalizing type
 SymbolTable: inserting symbol with name x
                 }
@@ -821,53 +747,55 @@ SymbolTable: exiting scope
 --------- TYPE CONTEXT ---------
 
 Base Types:
-  function_6112531532123453 -> 0x55dcdf12bec0 : I64 (I64)
-  function_94407123701920 -> 0x55dcdf12c110 : U0 ()
-  N3ecc4sema5types9ClassTypeE_Point0x55dcdf128f60 -> 0x55dcdf12b350 : class { }
-  N3ecc4sema5types9ClassTypeE_anon_struct_00x55dcdf128f60 -> 0x55dcdf12b180 : class { }
-  function_6882661820238821360 -> 0x55dcdf12ba20 : class { } (class { }, I32, I32)
-  I0 -> 0x55dcdf129390 : I0
-  U0 -> 0x55dcdf1290a0 : U0
-  I32 -> 0x55dcdf129510 : I32
-  U8 -> 0x55dcdf129190 : U8
-  I16 -> 0x55dcdf129490 : I16
-  U16 -> 0x55dcdf129210 : U16
-  function_389034203108727637 -> 0x55dcdf12ac50 : U32 (U32, U32)
-  bool -> 0x55dcdf129690 : bool
-  U32 -> 0x55dcdf129290 : U32
-  function_389034203106598316 -> 0x55dcdf12bd40 : U0 (I64, I64)
-  function_v389034203111283789 -> 0x55dcdf12add0 : I32 (I32, I32, ...)
-  I8 -> 0x55dcdf129410 : I8
-  U64 -> 0x55dcdf129310 : U64
-  I64 -> 0x55dcdf129590 : I64
-  F64 -> 0x55dcdf129610 : F64
+  function_394114881192651180 -> 0x557f3099ff90 : U0 (I64, I64)
+  function_94004764594336 -> 0x557f309a0280 : U0 ()
+  function_6490134918195519697 -> 0x557f3099fc50 : class { } (class { }, I32, I32)
+  N3ecc4sema5types9ClassTypeE_anon_struct_00x557f3099cf60 -> 0x557f3099f340 : class { }
+  function_v394114881247318093 -> 0x557f3099f080 : I32 (I32, I32, ...)
+  function_394114881244753749 -> 0x557f3099ee10 : U32 (U32, U32)
+  N3ecc4sema5types9ClassTypeE_Point0x557f3099cf60 -> 0x557f3099f510 : class { }
+  I0 -> 0x557f3099d390 : I0
+  function_6086711452171581 -> 0x557f309a0110 : I64 (I64)
+  U0 -> 0x557f3099d0a0 : U0
+  I32 -> 0x557f3099d510 : I32
+  U8 -> 0x557f3099d190 : U8
+  I16 -> 0x557f3099d490 : I16
+  U16 -> 0x557f3099d210 : U16
+  bool -> 0x557f3099d690 : bool
+  U32 -> 0x557f3099d290 : U32
+  I8 -> 0x557f3099d410 : I8
+  U64 -> 0x557f3099d310 : U64
+  I64 -> 0x557f3099d590 : I64
+  F64 -> 0x557f3099d610 : F64
+  function_94004764595472 -> 0x557f3099dde0 : I32 ()
 
 Pointer Types:
-  0x55dcdf12a140 : I64 *
-  0x55dcdf129de0 : class { } *
-  0x55dcdf12ab20 : U32 *
+  0x557f3099e300 : I64 *
+  0x557f3099dfa0 : class { } *
+  0x557f3099ece0 : U32 *
 
 Array Types:
 
 
 --------- SYMBOL TABLE ---------
 
-Scope 0x55dcdf128f60
-  x -> 0x55dcdf12abe0 : VarSymbol I64
-   -> 0x55dcdf12a060 : TypeSymbol class { }
-  new2 -> 0x55dcdf12a870 : VarSymbol U64
-  new -> 0x55dcdf12a0d0 : VarSymbol I32
-  Scope 0x55dcdf12ace0
-  Scope 0x55dcdf12af20
-  Scope 0x55dcdf12b050
-  Scope 0x55dcdf12b2d0
-  Scope 0x55dcdf12b430
-  Scope 0x55dcdf12b4b0
-  Scope 0x55dcdf12ba80
-  Scope 0x55dcdf12bb60
-  Scope 0x55dcdf12bde0
-  Scope 0x55dcdf12c090
-  Scope 0x55dcdf12c170
+Scope 0x557f3099cf60
+  x -> 0x557f3099ea30 : VarSymbol I64
+  new2 -> 0x557f3099e540 : VarSymbol U64
+  new -> 0x557f3099e290 : VarSymbol I32
+   -> 0x557f3099e220 : TypeSymbol class { }
+  somefunc -> 0x557f3099de80 : VarSymbol I32
+  Scope 0x557f3099ef90
+  Scope 0x557f3099f0e0
+  Scope 0x557f3099f210
+  Scope 0x557f3099f490
+  Scope 0x557f3099f5f0
+  Scope 0x557f3099f670
+  Scope 0x557f3099fcb0
+  Scope 0x557f3099fd90
+  Scope 0x557f309a0030
+  Scope 0x557f309a0200
+  Scope 0x557f309a02e0
 
-0x55dcdf107cf0
-0x55dcdf128fe0
+0x557f3097bcf0
+0x557f3099cfe0

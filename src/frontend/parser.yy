@@ -202,6 +202,13 @@ storage_class_specifier:
     PUBLIC { $$ = std::make_unique<StorageClassSpecifier>(@1, StorageClassSpecifier::PUBLIC); }
     | STATIC { $$ = std::make_unique<StorageClassSpecifier>(@1, StorageClassSpecifier::STATIC); }
     | EXTERN { $$ = std::make_unique<StorageClassSpecifier>(@1, StorageClassSpecifier::EXTERN); }
+    | EXTERN STRING_LITERAL {
+        if ($2 != "\"C\"") { // fixme: this is a bodge
+            error(@$, "only \"C\" linkage is supported");
+            return 1;
+        }
+        $$ = std::make_unique<StorageClassSpecifier>(@1, StorageClassSpecifier::EXTERNC);
+    }
 ;
 
 type_specifier:

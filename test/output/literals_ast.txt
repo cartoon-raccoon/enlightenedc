@@ -85,18 +85,14 @@ Node: type 52 {
             visiting PrimitiveSpecifier node: input/literals.ec:1.1-152
 TypeContext: getting primitive type with value 3
             }
-        taking last result at input/literals.ec:1.1-152
         Node: type 6 {
             visiting InitDeclarator node: input/literals.ec:1.154-160
             Node: type 5 {
                 Node: type 10 {
                     visiting IdentifierDeclarator node: input/literals.ec:1.154
                     }
-                taking last result at input/literals.ec:1.154
                 }
-            taking last result at input/literals.ec:1.154-160
             }
-        taking last result at input/literals.ec:1.1-161
 TypeBuilder: finalizing type
 SymbolTable: inserting symbol with name a
         }
@@ -107,18 +103,14 @@ SymbolTable: inserting symbol with name a
             visiting PrimitiveSpecifier node: input/literals.ec:2.1-4
 TypeContext: getting primitive type with value 3
             }
-        taking last result at input/literals.ec:2.1-4
         Node: type 6 {
             visiting InitDeclarator node: input/literals.ec:2.6-12
             Node: type 5 {
                 Node: type 10 {
                     visiting IdentifierDeclarator node: input/literals.ec:2.6
                     }
-                taking last result at input/literals.ec:2.6
                 }
-            taking last result at input/literals.ec:2.6-12
             }
-        taking last result at input/literals.ec:2.1-13
 TypeBuilder: finalizing type
 SymbolTable: inserting symbol with name b
         }
@@ -129,18 +121,14 @@ SymbolTable: inserting symbol with name b
             visiting PrimitiveSpecifier node: input/literals.ec:3.1-4
 TypeContext: getting primitive type with value 3
             }
-        taking last result at input/literals.ec:3.1-4
         Node: type 6 {
             visiting InitDeclarator node: input/literals.ec:3.6-12
             Node: type 5 {
                 Node: type 10 {
                     visiting IdentifierDeclarator node: input/literals.ec:3.6
                     }
-                taking last result at input/literals.ec:3.6
                 }
-            taking last result at input/literals.ec:3.6-12
             }
-        taking last result at input/literals.ec:3.1-13
 TypeBuilder: finalizing type
 SymbolTable: inserting symbol with name c
         }
@@ -151,18 +139,14 @@ SymbolTable: inserting symbol with name c
             visiting PrimitiveSpecifier node: input/literals.ec:4.1-4
 TypeContext: getting primitive type with value 3
             }
-        taking last result at input/literals.ec:4.1-4
         Node: type 6 {
             visiting InitDeclarator node: input/literals.ec:4.6-13
             Node: type 5 {
                 Node: type 10 {
                     visiting IdentifierDeclarator node: input/literals.ec:4.6
                     }
-                taking last result at input/literals.ec:4.6
                 }
-            taking last result at input/literals.ec:4.6-13
             }
-        taking last result at input/literals.ec:4.1-14
 TypeBuilder: finalizing type
 SymbolTable: inserting symbol with name d
         }
@@ -173,18 +157,14 @@ SymbolTable: inserting symbol with name d
             visiting PrimitiveSpecifier node: input/literals.ec:6.1-4
 TypeContext: getting primitive type with value 10
             }
-        taking last result at input/literals.ec:6.1-4
         Node: type 6 {
             visiting InitDeclarator node: input/literals.ec:6.6-14
             Node: type 5 {
                 Node: type 10 {
                     visiting IdentifierDeclarator node: input/literals.ec:6.6-7
                     }
-                taking last result at input/literals.ec:6.6-7
                 }
-            taking last result at input/literals.ec:6.6-14
             }
-        taking last result at input/literals.ec:6.1-15
 TypeBuilder: finalizing type
 SymbolTable: inserting symbol with name f1
         }
@@ -195,18 +175,14 @@ SymbolTable: inserting symbol with name f1
             visiting PrimitiveSpecifier node: input/literals.ec:7.1-4
 TypeContext: getting primitive type with value 10
             }
-        taking last result at input/literals.ec:7.1-4
         Node: type 6 {
             visiting InitDeclarator node: input/literals.ec:7.6-18
             Node: type 5 {
                 Node: type 10 {
                     visiting IdentifierDeclarator node: input/literals.ec:7.6-7
                     }
-                taking last result at input/literals.ec:7.6-7
                 }
-            taking last result at input/literals.ec:7.6-18
             }
-        taking last result at input/literals.ec:7.1-19
 TypeBuilder: finalizing type
 SymbolTable: inserting symbol with name f2
         }
@@ -217,18 +193,14 @@ SymbolTable: inserting symbol with name f2
             visiting PrimitiveSpecifier node: input/literals.ec:9.1-3
 TypeContext: getting primitive type with value 1
             }
-        taking last result at input/literals.ec:9.1-3
         Node: type 6 {
             visiting InitDeclarator node: input/literals.ec:9.5-12
             Node: type 5 {
                 Node: type 10 {
                     visiting IdentifierDeclarator node: input/literals.ec:9.5-6
                     }
-                taking last result at input/literals.ec:9.5-6
                 }
-            taking last result at input/literals.ec:9.5-12
             }
-        taking last result at input/literals.ec:9.1-13
 TypeBuilder: finalizing type
 SymbolTable: inserting symbol with name ch
         }
@@ -239,18 +211,14 @@ SymbolTable: inserting symbol with name ch
             visiting PrimitiveSpecifier node: input/literals.ec:10.1-3
 TypeContext: getting primitive type with value 1
             }
-        taking last result at input/literals.ec:10.1-3
         Node: type 6 {
             visiting InitDeclarator node: input/literals.ec:10.5-13
             Node: type 5 {
                 Node: type 10 {
                     visiting IdentifierDeclarator node: input/literals.ec:10.5-6
                     }
-                taking last result at input/literals.ec:10.5-6
                 }
-            taking last result at input/literals.ec:10.5-13
             }
-        taking last result at input/literals.ec:10.1-14
 TypeBuilder: finalizing type
 SymbolTable: inserting symbol with name nl
         }
@@ -261,18 +229,14 @@ SymbolTable: inserting symbol with name nl
             visiting PrimitiveSpecifier node: input/literals.ec:11.1-3
 TypeContext: getting primitive type with value 1
             }
-        taking last result at input/literals.ec:11.1-3
         Node: type 6 {
             visiting InitDeclarator node: input/literals.ec:11.5-13
             Node: type 5 {
                 Node: type 10 {
                     visiting IdentifierDeclarator node: input/literals.ec:11.5-6
                     }
-                taking last result at input/literals.ec:11.5-6
                 }
-            taking last result at input/literals.ec:11.5-13
             }
-        taking last result at input/literals.ec:11.1-14
 TypeBuilder: finalizing type
 SymbolTable: inserting symbol with name qt
         }
@@ -282,18 +246,18 @@ SymbolTable: inserting symbol with name qt
 --------- TYPE CONTEXT ---------
 
 Base Types:
-  F64 -> 0x557e55e55610 : F64
-  I64 -> 0x557e55e55590 : I64
-  U64 -> 0x557e55e55310 : U64
-  I8 -> 0x557e55e55410 : I8
-  U32 -> 0x557e55e55290 : U32
-  U16 -> 0x557e55e55210 : U16
-  bool -> 0x557e55e55690 : bool
-  U8 -> 0x557e55e55190 : U8
-  I32 -> 0x557e55e55510 : I32
-  I16 -> 0x557e55e55490 : I16
-  I0 -> 0x557e55e55390 : I0
-  U0 -> 0x557e55e550a0 : U0
+  F64 -> 0x561f2d8f6610 : F64
+  I64 -> 0x561f2d8f6590 : I64
+  U64 -> 0x561f2d8f6310 : U64
+  I8 -> 0x561f2d8f6410 : I8
+  U32 -> 0x561f2d8f6290 : U32
+  U16 -> 0x561f2d8f6210 : U16
+  bool -> 0x561f2d8f6690 : bool
+  U8 -> 0x561f2d8f6190 : U8
+  I32 -> 0x561f2d8f6510 : I32
+  I16 -> 0x561f2d8f6490 : I16
+  I0 -> 0x561f2d8f6390 : I0
+  U0 -> 0x561f2d8f60a0 : U0
 
 Pointer Types:
 
@@ -302,16 +266,16 @@ Array Types:
 
 --------- SYMBOL TABLE ---------
 
-Scope 0x557e55e54f60
-  nl -> 0x557e55e56350 : VarSymbol U8
-  ch -> 0x557e55e562a0 : VarSymbol U8
-  f2 -> 0x557e55e561f0 : VarSymbol F64
-  qt -> 0x557e55e56400 : VarSymbol U8
-  f1 -> 0x557e55e56140 : VarSymbol F64
-  c -> 0x557e55e55fe0 : VarSymbol U32
-  b -> 0x557e55e55f30 : VarSymbol U32
-  d -> 0x557e55e56090 : VarSymbol U32
-  a -> 0x557e55e55e10 : VarSymbol U32
+Scope 0x561f2d8f5f60
+  nl -> 0x561f2d8f7350 : VarSymbol U8
+  ch -> 0x561f2d8f72a0 : VarSymbol U8
+  f2 -> 0x561f2d8f71f0 : VarSymbol F64
+  qt -> 0x561f2d8f7400 : VarSymbol U8
+  f1 -> 0x561f2d8f7140 : VarSymbol F64
+  c -> 0x561f2d8f6fe0 : VarSymbol U32
+  b -> 0x561f2d8f6f30 : VarSymbol U32
+  d -> 0x561f2d8f7090 : VarSymbol U32
+  a -> 0x561f2d8f6e10 : VarSymbol U32
 
-0x557e55e33cf0
-0x557e55e54fe0
+0x561f2d8d4cf0
+0x561f2d8f5fe0

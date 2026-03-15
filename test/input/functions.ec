@@ -1,3 +1,5 @@
+extern "C" I32i somefunc();
+
 U32i *add(U32i a, U32i b) {
     return a + b;
 }

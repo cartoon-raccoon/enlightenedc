@@ -141,6 +141,7 @@ private:
         bool is_public;
         bool is_static;
         bool is_extern;
+        bool is_externc;
         bool is_const;
     };
 
