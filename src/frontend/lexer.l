@@ -27,7 +27,7 @@
 \n+ { loc.lines(yyleng); loc.step(); }
 
 #[ ]*[0-9]+[ ]+\"[^\"]*\"([ ]+[0-9]+)*.*\n {
-    std::cout << "Matched linemarker: " << yytext;
+    handle_linemarker(yytext);
 }
 
 

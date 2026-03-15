@@ -37,9 +37,9 @@ class Point {
 public:
     int column;
     int line;
-    std::string *filename;
+    const std::string *filename;
 
-    Point(std::string *filename, int col, int line)
+    Point(const std::string *filename, int col, int line)
     : filename(filename), column(col), line(line) {}
 
     /// Construct an empty Point (no filename, starts at 1:1).

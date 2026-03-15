@@ -7,25 +7,18 @@
 #include "error.hpp"
 #include "util.hpp"
 
-#include <sstream>
-
 using namespace ecc::frontend;
 
 void Frontend::parse(TranslationUnit& unit) {
     dbprint("parsing file ", *unit.filename);
     try {
-        ecc::preproc::PreProcessor preproc;
-        std::string preprocessed = preproc.run(unit.filename);
+        ecc::preproc::PreProcessor preproc(unit.filename);
 
-        std::cout << preprocessed << "\n\n\n";
-        std::istringstream input(preprocessed);
-
-        ecc::frontend::Lexer lexer(&input);
+        ecc::frontend::Lexer lexer(&preproc, unit.filename);
         ecc::parser::Parser parser(lexer, *unit.ast_root);
 
         // temp for testing
         //parser.set_debug_level(1);
-
         int result = parser.parse();
 
         if (result == 0) {

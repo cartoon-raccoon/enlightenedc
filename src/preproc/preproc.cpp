@@ -1,29 +1,24 @@
-#include "preproc/preproc.hpp"
-#include <array>
-#include <cstdio>
+#include <istream>
 #include <stdexcept>
+#include "preproc/preproc.hpp"
 
 using namespace ecc::preproc;
 
-std::string PreProcessor::run(const std::string *filename) {
+PreProcessor::PreProcessor(const std::string *filename) : std::istream(nullptr) {
     std::string command = "cpp " + *filename;
 
-    std::array<char, 4096> buffer;
-    std::string result;
-
-    FILE* pipe = popen(command.c_str(), "r");
-    if (!pipe) {
-        throw std::runtime_error("Failed to run cpp.");
+    this->pipe = popen(command.c_str(), "r");
+    if (this->pipe) {
+        this->buffer = __gnu_cxx::stdio_filebuf<char>(pipe, std::ios::in);
+    } else {
+        throw std::runtime_error("unable to start cpp");
     }
 
-    while (fgets(buffer.data(), buffer.size(), pipe) != nullptr) {
-        result += buffer.data();
-    }
+    this->init(&buffer);
+}
 
-    int status = pclose(pipe);
-    if (status != 0) {
-        throw std::runtime_error("cpp failed with non-zero exit code.");
+PreProcessor::~PreProcessor() {
+    if (pipe) {
+        pclose(pipe);
     }
-
-    return result;
 }
