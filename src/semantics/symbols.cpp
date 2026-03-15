@@ -50,7 +50,6 @@ void SymbolTable::reset() {
 }
 
 void SymbolTable::reset_from(Scope *scope) {
-    dbprint("resetting scopes");
     scope->nested_idx = 0;
     for (auto& scope : scope->nested) {
         reset_from(scope.get());
@@ -68,6 +67,7 @@ void SymbolTable::clear() {
 
 
 Symbol *SymbolTable::lookup(std::string sym) {
+    dbprint("SymbolTable: looking up symbol ", sym);
 
     Scope *my_current = this->current;
 
@@ -87,6 +87,7 @@ Symbol *SymbolTable::lookup(std::string sym) {
 }
 
 void SymbolTable::tie_current_to(Symbol *sym, bool override) {
+    dbprint("SymbolTable: associating current scope ", current, " with symbol ", sym, " name ", sym->name);
     if (current->assoc != nullptr) {
         if (override) {
             current->assoc = sym;
@@ -97,6 +98,7 @@ void SymbolTable::tie_current_to(Symbol *sym, bool override) {
 }
 
 Symbol *SymbolTable::insert(std::string name, Box<Symbol> sym) {
+    dbprint("SymbolTable: inserting symbol with name ", name);
     Symbol *ret = sym.get();
     current->symbols.insert({name, std::move(sym)});
 

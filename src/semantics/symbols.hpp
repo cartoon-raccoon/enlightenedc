@@ -35,11 +35,13 @@ public:
         Lab, // This symbol references a label.
     };
 
-    Symbol(Kind kind) : kind(kind) {}
+    Symbol(Kind kind, std::string name) : kind(kind) {}
 
-    Symbol(Kind kind, Location loc) : kind(kind), loc(loc) {}
+    Symbol(Kind kind, Location loc, std::string name) : kind(kind), loc(loc) {}
 
     Kind kind;
+
+    std::string name;
 
     // std::optional<ecc::exec::Value> val;
 
@@ -61,9 +63,11 @@ A symbol representing a variable declaration.
 */
 class VarSymbol : public Symbol {
 public:
-    VarSymbol() : Symbol(Symbol::Kind::Var), type(nullptr) {}
+    VarSymbol(Location loc, std::string name) 
+        : Symbol(Symbol::Kind::Var, loc, name), type(nullptr) {}
 
-    VarSymbol(types::Type *type) : Symbol(Symbol::Kind::Var), type(type) {}
+    VarSymbol(Location loc, std::string name, types::Type *type) 
+        : Symbol(Symbol::Kind::Var, loc, name), type(type) {}
 
     /// The type of the symbol.
     types::Type *type;
@@ -84,9 +88,11 @@ A symbol representing a function declaration (function pointers are handled by V
 */
 class FuncSymbol : public Symbol {
 public:
-    FuncSymbol() : Symbol(Symbol::Kind::Func), signature(nullptr) {}
+    FuncSymbol(Location loc, std::string name) 
+        : Symbol(Symbol::Kind::Func, loc, name), signature(nullptr) {}
 
-    FuncSymbol(types::FunctionType *signature) : Symbol(Symbol::Kind::Func), signature(signature) {}
+    FuncSymbol(Location loc, std::string name, types::FunctionType *signature)
+        : Symbol(Symbol::Kind::Func, loc, name), signature(signature) {}
 
     // The function signature.
     types::FunctionType *signature;
@@ -101,9 +107,11 @@ A symbol representing a type declaration (class, union, enum).
 */
 class TypeSymbol : public Symbol {
 public:
-    TypeSymbol() : Symbol(Symbol::Kind::Ty), type(nullptr) {}
+    TypeSymbol(Location loc, std::string name)
+        : Symbol(Symbol::Kind::Ty, loc, name), type(nullptr) {}
 
-    TypeSymbol(types::Type* type) : Symbol(Symbol::Kind::Ty), type(type) {}
+    TypeSymbol(Location loc, std::string name, types::Type* type)
+        : Symbol(Symbol::Kind::Ty, loc, name), type(type) {}
 
     types::Type *type;
 
@@ -115,7 +123,8 @@ A symbol representing a label (for use by goto).
 */
 class LabelSymbol : public Symbol {
 public:
-    LabelSymbol() : Symbol(Symbol::Kind::Lab) {}
+    LabelSymbol(Location loc, std::string name)
+        : Symbol(Symbol::Kind::Lab, loc, name) {}
 
     virtual std::string to_string() const override;
 };

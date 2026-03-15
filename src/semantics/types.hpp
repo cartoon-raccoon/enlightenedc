@@ -405,6 +405,12 @@ protected:
     FunctionType() : Type(Type::Kind::FUNCTION) {}
 };
 
+// A function parameter containing an optional name.
+struct FuncParam {
+    Type *type;
+    std::optional<std::string> name;
+};
+
 /*
 A constructor type used for building up a type whose base type is not yet resolved.
 
@@ -418,8 +424,6 @@ the type and returns a pointer to the created concrete type.
 */
 class TypeBuilder {
 public:
-    // Associates a type with an optional identifier.
-    using TypedIdent = std::pair<Type *, std::optional<std::string>>;
 
     // Add an array to the type.
     void add_array(uint64_t size);
@@ -429,7 +433,7 @@ public:
 
     void add_pointer(bool is_const);
 
-    void add_function(Vec<TypedIdent> params, bool variadic);
+    void add_function(Vec<FuncParam> params, bool variadic);
 
     void set_base(BaseType *type);
 
@@ -441,7 +445,7 @@ public:
         std::optional<uint64_t> size;
     };
     struct FnParams {
-        Vec<TypedIdent> params;
+        Vec<FuncParam> params;
         bool variadic;
     };
 

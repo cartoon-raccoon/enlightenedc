@@ -1,6 +1,7 @@
 #ifndef ECC_ELAB_H
 #define ECC_ELAB_H
 
+#include <concepts>
 #include <optional>
 #include <stdexcept>
 #include <utility>
@@ -23,6 +24,14 @@ struct DeclaratorBuilder {
     types::TypeBuilder ty_bldr;
 };
 
+// A struct for returning types and their associated names from a TypeSpecifier.
+template <typename Ty>
+requires std::derived_from<Ty, typename types::Type>
+struct TypeSpecRet {
+    std::optional<std::string> name;
+    Ty *type;
+};
+
 /*
 The result of visiting an AST node.
 
@@ -36,11 +45,13 @@ using ElabResult = std::variant<
     // For building up declarators.
     Box<DeclaratorBuilder>,
     // The result of visiting a type specifier node.
-    types::ClassType *,
-    types::UnionType *,
-    types::EnumType *,
+    TypeSpecRet<types::ClassType>,
+    TypeSpecRet<types::UnionType>,
+    TypeSpecRet<types::EnumType>,
     types::PrimitiveType *,
     types::PointerType *,
+    // The result of visiting a ParameterDeclaration node.
+    types::FuncParam,
     // The result of visiting a TypeQualifier node.
     ast::TypeQualifier::QualType,
     // The result of visiting a StorageClassSpecifier node.
@@ -126,6 +137,7 @@ public:
 private:
     struct SpecifierInfo {
         types::BaseType *type;
+        std::optional<std::string> tyname;
         bool is_public;
         bool is_static;
         bool is_extern;
@@ -160,9 +172,36 @@ protected:
     void do_visit(ast::TypeName& node) override;
     void do_visit(ast::IdentifierDeclarator& node) override;
 
-    void do_visit(ast::ExpressionStatement& node) override;
     void do_visit(ast::CompoundStatement& node) override;
+    void do_visit(ast::ExpressionStatement& node) override;
+    void do_visit(ast::CaseStatement& node) override;
+    void do_visit(ast::CaseRangeStatement& node) override;
+    void do_visit(ast::DefaultStatement& node) override;
     void do_visit(ast::LabeledStatement& node) override;
+    void do_visit(ast::PrintStatement& node) override;
+    void do_visit(ast::IfStatement& node) override;
+    void do_visit(ast::SwitchStatement& node) override;
+    void do_visit(ast::WhileStatement& node) override;
+    void do_visit(ast::DoWhileStatement& node) override;
+    void do_visit(ast::ForStatement& node) override;
+    void do_visit(ast::GotoStatement& node) override;
+    void do_visit(ast::BreakStatement& node) override;
+    void do_visit(ast::ReturnStatement& node) override;
+
+    void do_visit(ast::BinaryExpression& node) override;
+    void do_visit(ast::CastExpression& node) override;
+    void do_visit(ast::UnaryExpression& node) override;
+    void do_visit(ast::AssignmentExpression& node) override;
+    void do_visit(ast::ConditionalExpression& node) override;
+    void do_visit(ast::IdentifierExpression& node) override;
+    void do_visit(ast::ConstExpression& node) override;
+    void do_visit(ast::LiteralExpression& node) override;
+    void do_visit(ast::StringExpression& node) override;
+    void do_visit(ast::CallExpression& node) override;
+    void do_visit(ast::MemberAccessExpression& node) override;
+    void do_visit(ast::ArraySubscriptExpression& node) override;
+    void do_visit(ast::PostfixExpression& node) override;
+    void do_visit(ast::SizeofExpression& node) override;
 };
 
 }

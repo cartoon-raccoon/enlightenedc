@@ -3,6 +3,10 @@
 namespace ecc::sema {
 using namespace ecc;
 
+class EccEnumeratorAlreadyDeclaredError : public EccError {
+
+};
+
 class EccTypeDeclaredAsOtherError : public EccError {
 
 };

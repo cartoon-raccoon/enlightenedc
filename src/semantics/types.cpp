@@ -7,6 +7,7 @@
 #include <variant>
 
 #include "semantics/types.hpp"
+#include "util.hpp"
 
 using namespace ecc::sema::types;
 
@@ -173,7 +174,7 @@ void TypeBuilder::add_pointer(bool is_const) {
     type_stack.push(Ptr {is_const});
 }
 
-void TypeBuilder::add_function(Vec<TypedIdent> params, bool variadic) {
+void TypeBuilder::add_function(Vec<FuncParam> params, bool variadic) {
     type_stack.push(FnParams {std::move(params), variadic});
 }
 
@@ -185,6 +186,8 @@ Type *TypeBuilder::finalize() {
     if (!base) {
         throw std::runtime_error("TypeBuilder::finalize: cannot construct type from null base");
     }
+
+    dbprint("TypeBuilder: finalizing type");
     
     Type *curr = base;
     while (!type_stack.empty()) {
@@ -207,7 +210,7 @@ Type *TypeBuilder::finalize() {
                 // map out the identifiers.
                 params.reserve(fn.params.size());
                 for (auto& param : fn.params) {
-                    params.push_back(param.first);
+                    params.push_back(param.type);
                 }
                 // Wrap the base as the return type in a function type.
                 curr = this->ctxt.get_function(curr, std::move(params), fn.variadic);
@@ -354,7 +357,7 @@ PointerType *TypeContext::get_pointer(Type *base, bool is_const) {
 }
 
 ArrayType *TypeContext::get_array(Type *base, uint64_t size) {
-    dbprint("TypeContext: array type with base ", base);
+    dbprint("TypeContext: array type with base ", base, ", size ", size);
     ArrayKey key(base, size);
     auto it = arrays.find(key);
     if (it != arrays.end()) {
@@ -369,7 +372,7 @@ ArrayType *TypeContext::get_array(Type *base, uint64_t size) {
 }
 
 ArrayType *TypeContext::get_array(Type *base) {
-    dbprint("TypeContext: array type with base ", base);
+    dbprint("TypeContext: array type with base ", base, ", no size");
     ArrayKey key(base, {});
     auto it = arrays.find(key);
     if (it != arrays.end()) {
