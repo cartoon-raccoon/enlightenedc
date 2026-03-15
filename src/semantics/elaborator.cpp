@@ -224,7 +224,10 @@ void Elaborator::do_visit(ArrayDeclarator& node) {
         val = node.size.value().get()->accept(evalr);
 
         // if we were able to parse it as a u64, great
-        if (auto s = exec::value_as_int<uint64_t>(val)) {
+        if (auto s = val.value_as<long>()) {
+            if (*s < 0) {
+                throw EccError("array size cannot be a negative number");
+            }
             size = *s;
         } else {
             // otherwise, the expression could not resolve, throw error
@@ -409,7 +412,7 @@ void Elaborator::do_visit(Enumerator& node) {
     if (node.value) {
         exec::Evaluator evalr(syms, types);
         exec::Value value = node.value.value()->accept(evalr);
-        std::optional<uint64_t> val = exec::value_as_int<uint64_t>(value);
+        std::optional<long> val = value.value_as<long>();
         if (val) {
             enm->add_enumerator(node.name, *val, node.loc);
         } else {
