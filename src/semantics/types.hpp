@@ -552,7 +552,7 @@ private:
     std::unordered_map<PointerKey, Box<PointerType>, pair_hash<bool>> pointers;
 
     // The map of array types, mapped by their base type (todo: add size)
-    std::unordered_map<ArrayKey, Box<ArrayType>, pair_hash<uint64_t>> arrays;
+    std::unordered_map<ArrayKey, Box<ArrayType>, pair_hash<std::optional<uint64_t>>> arrays;
 
     // Generate a mangled, unique name for a type incorporating its associated scope.
     template <typename T>
