@@ -13,10 +13,6 @@
 using namespace ecc;
 using namespace ecc::util;
 
-namespace ecc::sema::types {
-    class Type;
-}
-
 namespace ecc::exec {
     class Evaluator;
 }
@@ -59,7 +55,6 @@ public:
         PRIM_SPEC,
         COMP_STMT,
         EXPR_STMT,
-        CASE_DEF_STMT,
         CASE_STMT,
         CASE_RG_STMT,
         DEF_STMT,
@@ -117,9 +112,6 @@ class Expression : public ASTNode {
 public:
     Expression(NodeKind kind, Location loc) : ASTNode(kind, loc)  {}
     virtual ~Expression() = default;
-
-    // The type of the expression, populated during semantic elaboration.
-    sema::types::Type *type = nullptr;
 
     // Whether or not the expression can be computed at compile time.
     //virtual bool is_compiletime_computable() = 0;
