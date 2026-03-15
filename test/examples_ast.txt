@@ -1,0 +1,2115 @@
+running pipeline on file test/examples.ec
+parsing file test/examples.ec
+printing AST for file test/examples.ec
+Program @ <test/examples.ec:1.1> 
+| VariableDeclaration @ <test/examples.ec:12.1-195> 
+| | StorageClassSpecifier: public @ <test/examples.ec:12.1-176> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:12.178-181> 
+| | InitDeclarator @ <test/examples.ec:12.183-194> 
+| | | Declarator @ <test/examples.ec:12.183-190> 
+| | | | IdentifierDeclarator: g_public @ <test/examples.ec:12.183-190> 
+| | | Initializer:  @ <test/examples.ec:12.194> 
+| | | | Literal: 1 @ <test/examples.ec:12.194> 
+| VariableDeclaration @ <test/examples.ec:13.1-25> 
+| | StorageClassSpecifier: static @ <test/examples.ec:13.1-6> 
+| | PrimitiveSpecifier: i32 @ <test/examples.ec:13.8-11> 
+| | InitDeclarator @ <test/examples.ec:13.13-24> 
+| | | Declarator @ <test/examples.ec:13.13-20> 
+| | | | IdentifierDeclarator: g_static @ <test/examples.ec:13.13-20> 
+| | | Initializer:  @ <test/examples.ec:13.24> 
+| | | | Literal: 2 @ <test/examples.ec:13.24> 
+| VariableDeclaration @ <test/examples.ec:14.1-21> 
+| | StorageClassSpecifier: extern @ <test/examples.ec:14.1-6> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:14.8-11> 
+| | InitDeclarator @ <test/examples.ec:14.13-20> 
+| | | Declarator @ <test/examples.ec:14.13-20> 
+| | | | IdentifierDeclarator: g_extern @ <test/examples.ec:14.13-20> 
+| VariableDeclaration @ <test/examples.ec:16.1-24> 
+| | TypeQualifier: const @ <test/examples.ec:16.1-5> 
+| | PrimitiveSpecifier: u32 @ <test/examples.ec:16.7-10> 
+| | InitDeclarator @ <test/examples.ec:16.12-23> 
+| | | Declarator @ <test/examples.ec:16.12-18> 
+| | | | IdentifierDeclarator: g_const @ <test/examples.ec:16.12-18> 
+| | | Initializer:  @ <test/examples.ec:16.22-23> 
+| | | | Literal: 42 @ <test/examples.ec:16.22-23> 
+| VariableDeclaration @ <test/examples.ec:18.1-14> 
+| | PrimitiveSpecifier: u8 @ <test/examples.ec:18.1-3> 
+| | InitDeclarator @ <test/examples.ec:18.5-13> 
+| | | Declarator @ <test/examples.ec:18.5-7> 
+| | | | IdentifierDeclarator: u8v @ <test/examples.ec:18.5-7> 
+| | | Initializer:  @ <test/examples.ec:18.11-13> 
+| | | | Literal: 255 @ <test/examples.ec:18.11-13> 
+| VariableDeclaration @ <test/examples.ec:19.1-18> 
+| | PrimitiveSpecifier: u16 @ <test/examples.ec:19.1-4> 
+| | InitDeclarator @ <test/examples.ec:19.6-17> 
+| | | Declarator @ <test/examples.ec:19.6-9> 
+| | | | IdentifierDeclarator: u16v @ <test/examples.ec:19.6-9> 
+| | | Initializer:  @ <test/examples.ec:19.13-17> 
+| | | | Literal: 65535 @ <test/examples.ec:19.13-17> 
+| VariableDeclaration @ <test/examples.ec:20.1-17> 
+| | PrimitiveSpecifier: u32 @ <test/examples.ec:20.1-4> 
+| | InitDeclarator @ <test/examples.ec:20.6-16> 
+| | | Declarator @ <test/examples.ec:20.6-9> 
+| | | | IdentifierDeclarator: u32v @ <test/examples.ec:20.6-9> 
+| | | Initializer:  @ <test/examples.ec:20.13-16> 
+| | | | Literal: 1000 @ <test/examples.ec:20.13-16> 
+| VariableDeclaration @ <test/examples.ec:21.1-19> 
+| | PrimitiveSpecifier: u64 @ <test/examples.ec:21.1-4> 
+| | InitDeclarator @ <test/examples.ec:21.6-18> 
+| | | Declarator @ <test/examples.ec:21.6-9> 
+| | | | IdentifierDeclarator: u64v @ <test/examples.ec:21.6-9> 
+| | | Initializer:  @ <test/examples.ec:21.13-18> 
+| | | | Literal: 100000 @ <test/examples.ec:21.13-18> 
+| VariableDeclaration @ <test/examples.ec:23.1-13> 
+| | PrimitiveSpecifier: i8 @ <test/examples.ec:23.1-3> 
+| | InitDeclarator @ <test/examples.ec:23.5-12> 
+| | | Declarator @ <test/examples.ec:23.5-7> 
+| | | | IdentifierDeclarator: i8v @ <test/examples.ec:23.5-7> 
+| | | Initializer:  @ <test/examples.ec:23.11-12> 
+| | | | UnaryExpression: - @ <test/examples.ec:23.11-12> 
+| | | | | Literal: 1 @ <test/examples.ec:23.11-12> 
+| VariableDeclaration @ <test/examples.ec:24.1-15> 
+| | PrimitiveSpecifier: i16 @ <test/examples.ec:24.1-4> 
+| | InitDeclarator @ <test/examples.ec:24.6-14> 
+| | | Declarator @ <test/examples.ec:24.6-9> 
+| | | | IdentifierDeclarator: i16v @ <test/examples.ec:24.6-9> 
+| | | Initializer:  @ <test/examples.ec:24.13-14> 
+| | | | UnaryExpression: - @ <test/examples.ec:24.13-14> 
+| | | | | Literal: 2 @ <test/examples.ec:24.13-14> 
+| VariableDeclaration @ <test/examples.ec:25.1-15> 
+| | PrimitiveSpecifier: i32 @ <test/examples.ec:25.1-4> 
+| | InitDeclarator @ <test/examples.ec:25.6-14> 
+| | | Declarator @ <test/examples.ec:25.6-9> 
+| | | | IdentifierDeclarator: i32v @ <test/examples.ec:25.6-9> 
+| | | Initializer:  @ <test/examples.ec:25.13-14> 
+| | | | UnaryExpression: - @ <test/examples.ec:25.13-14> 
+| | | | | Literal: 3 @ <test/examples.ec:25.13-14> 
+| VariableDeclaration @ <test/examples.ec:26.1-15> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:26.1-4> 
+| | InitDeclarator @ <test/examples.ec:26.6-14> 
+| | | Declarator @ <test/examples.ec:26.6-9> 
+| | | | IdentifierDeclarator: i64v @ <test/examples.ec:26.6-9> 
+| | | Initializer:  @ <test/examples.ec:26.13-14> 
+| | | | UnaryExpression: - @ <test/examples.ec:26.13-14> 
+| | | | | Literal: 4 @ <test/examples.ec:26.13-14> 
+| VariableDeclaration @ <test/examples.ec:28.1-20> 
+| | PrimitiveSpecifier: f64 @ <test/examples.ec:28.1-4> 
+| | InitDeclarator @ <test/examples.ec:28.6-19> 
+| | | Declarator @ <test/examples.ec:28.6-9> 
+| | | | IdentifierDeclarator: f64v @ <test/examples.ec:28.6-9> 
+| | | Initializer:  @ <test/examples.ec:28.13-19> 
+| | | | Literal: 0.000000 @ <test/examples.ec:28.13-19> 
+| VariableDeclaration @ <test/examples.ec:29.1-15> 
+| | PrimitiveSpecifier: bool @ <test/examples.ec:29.1-4> 
+| | InitDeclarator @ <test/examples.ec:29.6-14> 
+| | | Declarator @ <test/examples.ec:29.6-7> 
+| | | | IdentifierDeclarator: bv @ <test/examples.ec:29.6-7> 
+| | | Initializer:  @ <test/examples.ec:29.11-14> 
+| | | | IdentifierExpression: TRUE @ <test/examples.ec:29.11-14> 
+| VariableDeclaration @ <test/examples.ec:30.1-8> 
+| | PrimitiveSpecifier: void @ <test/examples.ec:30.1-3> 
+| | InitDeclarator @ <test/examples.ec:30.5-7> 
+| | | Declarator @ <test/examples.ec:30.5-7> 
+| | | | Pointer @ <test/examples.ec:30.5> 
+| | | | IdentifierDeclarator: vp @ <test/examples.ec:30.5-7> 
+| TypeDeclaration @ <test/examples.ec:35.1-11> 
+| | ClassSpecifier:  Node: @ <test/examples.ec:35.1-10> 
+| TypeDeclaration @ <test/examples.ec:37.1-40.2> 
+| | ClassSpecifier:  Point: @ <test/examples.ec:37.1-40.1> 
+| | | ClassDeclaration @ <test/examples.ec:38.5-11> 
+| | | | PrimitiveSpecifier: i64 @ <test/examples.ec:38.5-8> 
+| | | | ClassDeclarator @ <test/examples.ec:38.10> 
+| | | | | Declarator @ <test/examples.ec:38.10> 
+| | | | | | IdentifierDeclarator: x @ <test/examples.ec:38.10> 
+| | | ClassDeclaration @ <test/examples.ec:39.5-11> 
+| | | | PrimitiveSpecifier: i64 @ <test/examples.ec:39.5-8> 
+| | | | ClassDeclarator @ <test/examples.ec:39.10> 
+| | | | | Declarator @ <test/examples.ec:39.10> 
+| | | | | | IdentifierDeclarator: y @ <test/examples.ec:39.10> 
+| TypeDeclaration @ <test/examples.ec:42.1-46.2> 
+| | ClassSpecifier:  Bits: @ <test/examples.ec:42.1-46.1> 
+| | | ClassDeclaration @ <test/examples.ec:43.5-15> 
+| | | | PrimitiveSpecifier: i64 @ <test/examples.ec:43.5-8> 
+| | | | ClassDeclarator @ <test/examples.ec:43.10-14> 
+| | | | | Declarator @ <test/examples.ec:43.10> 
+| | | | | | IdentifierDeclarator: a @ <test/examples.ec:43.10> 
+| | | | | ConstExpression:  @ <test/examples.ec:43.14> 
+| | | | | | Literal: 3 @ <test/examples.ec:43.14> 
+| | | ClassDeclaration @ <test/examples.ec:44.5-13> 
+| | | | PrimitiveSpecifier: i64 @ <test/examples.ec:44.5-8> 
+| | | | ClassDeclarator @ <test/examples.ec:44.10-12> 
+| | | | | ConstExpression:  @ <test/examples.ec:44.12> 
+| | | | | | Literal: 2 @ <test/examples.ec:44.12> 
+| | | ClassDeclaration @ <test/examples.ec:45.5-15> 
+| | | | PrimitiveSpecifier: i64 @ <test/examples.ec:45.5-8> 
+| | | | ClassDeclarator @ <test/examples.ec:45.10-14> 
+| | | | | Declarator @ <test/examples.ec:45.10> 
+| | | | | | IdentifierDeclarator: b @ <test/examples.ec:45.10> 
+| | | | | ConstExpression:  @ <test/examples.ec:45.14> 
+| | | | | | Literal: 4 @ <test/examples.ec:45.14> 
+| VariableDeclaration @ <test/examples.ec:48.1-50.13> 
+| | ClassSpecifier: : @ <test/examples.ec:48.1-50.1> 
+| | | ClassDeclaration @ <test/examples.ec:49.5-20> 
+| | | | PrimitiveSpecifier: i32 @ <test/examples.ec:49.5-8> 
+| | | | ClassDeclarator @ <test/examples.ec:49.10-19> 
+| | | | | Declarator @ <test/examples.ec:49.10-19> 
+| | | | | | IdentifierDeclarator: anon_field @ <test/examples.ec:49.10-19> 
+| | InitDeclarator @ <test/examples.ec:50.3-12> 
+| | | Declarator @ <test/examples.ec:50.3-12> 
+| | | | IdentifierDeclarator: anon_class @ <test/examples.ec:50.3-12> 
+| TypeDeclaration @ <test/examples.ec:55.1-58.2> 
+| | UnionSpecifier:  Value @ <test/examples.ec:55.1-58.1> 
+| | | ClassDeclaration @ <test/examples.ec:56.5-11> 
+| | | | PrimitiveSpecifier: i64 @ <test/examples.ec:56.5-8> 
+| | | | ClassDeclarator @ <test/examples.ec:56.10> 
+| | | | | Declarator @ <test/examples.ec:56.10> 
+| | | | | | IdentifierDeclarator: i @ <test/examples.ec:56.10> 
+| | | ClassDeclaration @ <test/examples.ec:57.5-11> 
+| | | | PrimitiveSpecifier: f64 @ <test/examples.ec:57.5-8> 
+| | | | ClassDeclarator @ <test/examples.ec:57.10> 
+| | | | | Declarator @ <test/examples.ec:57.10> 
+| | | | | | IdentifierDeclarator: f @ <test/examples.ec:57.10> 
+| TypeDeclaration @ <test/examples.ec:63.1-36> 
+| | EnumSpecifier: Color @ <test/examples.ec:63.1-35> 
+| | | Enumerator: RED @ <test/examples.ec:63.14-16> 
+| | | Enumerator: GREEN @ <test/examples.ec:63.19-27> 
+| | | | ConstExpression:  @ <test/examples.ec:63.27> 
+| | | | | Literal: 5 @ <test/examples.ec:63.27> 
+| | | Enumerator: BLUE @ <test/examples.ec:63.30-33> 
+| TypeDeclaration @ <test/examples.ec:65.1-17> 
+| | EnumSpecifier @ <test/examples.ec:65.1-16> 
+| | | Enumerator: A @ <test/examples.ec:65.8> 
+| | | Enumerator: B @ <test/examples.ec:65.11> 
+| | | Enumerator: C @ <test/examples.ec:65.14> 
+| TypeDeclaration @ <test/examples.ec:67.1-13> 
+| | EnumSpecifier: Forward @ <test/examples.ec:67.1-12> 
+| VariableDeclaration @ <test/examples.ec:72.1-23> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:72.1-4> 
+| | InitDeclarator @ <test/examples.ec:72.6-22> 
+| | | Declarator @ <test/examples.ec:72.6-12> 
+| | | | ArrayDeclarator @ <test/examples.ec:72.6-12> 
+| | | | | IdentifierDeclarator: arr1 @ <test/examples.ec:72.6-9> 
+| | | | | ConstExpression:  @ <test/examples.ec:72.6-11> 
+| | | | | | Literal: 3 @ <test/examples.ec:72.6-11> 
+| | | Initializer:  @ <test/examples.ec:72.16-22> 
+| | | | Initializer:  @ <test/examples.ec:72.16-17> 
+| | | | | Literal: 1 @ <test/examples.ec:72.16-17> 
+| | | | Initializer:  @ <test/examples.ec:72.16-19> 
+| | | | | Literal: 2 @ <test/examples.ec:72.16-19> 
+| | | | Initializer:  @ <test/examples.ec:72.16-21> 
+| | | | | Literal: 3 @ <test/examples.ec:72.16-21> 
+| VariableDeclaration @ <test/examples.ec:73.1-24> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:73.1-4> 
+| | InitDeclarator @ <test/examples.ec:73.6-23> 
+| | | Declarator @ <test/examples.ec:73.6-12> 
+| | | | ArrayDeclarator @ <test/examples.ec:73.6-12> 
+| | | | | IdentifierDeclarator: arr2 @ <test/examples.ec:73.6-9> 
+| | | | | ConstExpression:  @ <test/examples.ec:73.6-11> 
+| | | | | | Literal: 3 @ <test/examples.ec:73.6-11> 
+| | | Initializer:  @ <test/examples.ec:73.16-23> 
+| | | | Initializer:  @ <test/examples.ec:73.16-17> 
+| | | | | Literal: 4 @ <test/examples.ec:73.16-17> 
+| | | | Initializer:  @ <test/examples.ec:73.16-19> 
+| | | | | Literal: 5 @ <test/examples.ec:73.16-19> 
+| | | | Initializer:  @ <test/examples.ec:73.16-21> 
+| | | | | Literal: 6 @ <test/examples.ec:73.16-21> 
+| VariableDeclaration @ <test/examples.ec:74.1-12> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:74.1-4> 
+| | InitDeclarator @ <test/examples.ec:74.6-11> 
+| | | Declarator @ <test/examples.ec:74.6-11> 
+| | | | ArrayDeclarator @ <test/examples.ec:74.6-11> 
+| | | | | IdentifierDeclarator: arr3 @ <test/examples.ec:74.6-9> 
+| VariableDeclaration @ <test/examples.ec:79.1-10> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:79.1-4> 
+| | InitDeclarator @ <test/examples.ec:79.6-9> 
+| | | Declarator @ <test/examples.ec:79.6-9> 
+| | | | Pointer @ <test/examples.ec:79.6> 
+| | | | IdentifierDeclarator: ptr @ <test/examples.ec:79.6-9> 
+| VariableDeclaration @ <test/examples.ec:80.1-31> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:80.1-4> 
+| | InitDeclarator @ <test/examples.ec:80.6-30> 
+| | | Declarator @ <test/examples.ec:80.6-22> 
+| | | | Pointer @ <test/examples.ec:80.6-12> 
+| | | | | TypeQualifier: const @ <test/examples.ec:80.8-12> 
+| | | | IdentifierDeclarator: const_ptr @ <test/examples.ec:80.14-22> 
+| | | Initializer:  @ <test/examples.ec:80.26-30> 
+| | | | UnaryExpression: & @ <test/examples.ec:80.26-30> 
+| | | | | IdentifierExpression: i64v @ <test/examples.ec:80.26-30> 
+| VariableDeclaration @ <test/examples.ec:82.1-23> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:82.1-4> 
+| | InitDeclarator @ <test/examples.ec:82.6-22> 
+| | | Declarator @ <test/examples.ec:82.6-22> 
+| | | | FunctionDeclarator @ <test/examples.ec:82.6-22> 
+| | | | | ParenDeclarator @ <test/examples.ec:82.6-16> 
+| | | | | | Declarator @ <test/examples.ec:82.6-15> 
+| | | | | | | Pointer @ <test/examples.ec:82.6-7> 
+| | | | | | | IdentifierDeclarator: func_ptr @ <test/examples.ec:82.6-15> 
+| | | | | ParameterDeclaration @ <test/examples.ec:82.6-21> 
+| | | | | | PrimitiveSpecifier: i64 @ <test/examples.ec:82.6-21> 
+| Function @ <test/examples.ec:87.1-89.1> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:87.1-4> 
+| | Declarator @ <test/examples.ec:87.6-24> 
+| | | FunctionDeclarator @ <test/examples.ec:87.6-24> 
+| | | | IdentifierDeclarator: Add @ <test/examples.ec:87.6-8> 
+| | | | ParameterDeclaration @ <test/examples.ec:87.6-15> 
+| | | | | PrimitiveSpecifier: i64 @ <test/examples.ec:87.6-13> 
+| | | | | Declarator @ <test/examples.ec:87.15> 
+| | | | | | IdentifierDeclarator: a @ <test/examples.ec:87.15> 
+| | | | ParameterDeclaration @ <test/examples.ec:87.18-23> 
+| | | | | PrimitiveSpecifier: i64 @ <test/examples.ec:87.18-21> 
+| | | | | Declarator @ <test/examples.ec:87.23> 
+| | | | | | IdentifierDeclarator: b @ <test/examples.ec:87.23> 
+| | CompoundStatement @ <test/examples.ec:87.26-89.1> 
+| | | ReturnStatement @ <test/examples.ec:88.5-17> 
+| | | | BinaryExpression: + @ <test/examples.ec:88.12-16> 
+| | | | | IdentifierExpression: a @ <test/examples.ec:88.12> 
+| | | | | IdentifierExpression: b @ <test/examples.ec:88.16> 
+| Function @ <test/examples.ec:91.1-93.1> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:91.1-4> 
+| | Declarator @ <test/examples.ec:91.6-29> 
+| | | FunctionDeclarator @ <test/examples.ec:91.6-29> 
+| | | | IdentifierDeclarator: DefaultParam @ <test/examples.ec:91.6-17> 
+| | | | ParameterDeclaration @ <test/examples.ec:91.6-28> 
+| | | | | PrimitiveSpecifier: i64 @ <test/examples.ec:91.6-22> 
+| | | | | Declarator @ <test/examples.ec:91.24> 
+| | | | | | IdentifierDeclarator: x @ <test/examples.ec:91.24> 
+| | | | | Literal: 5 @ <test/examples.ec:91.28> 
+| | CompoundStatement @ <test/examples.ec:91.31-93.1> 
+| | | ReturnStatement @ <test/examples.ec:92.5-13> 
+| | | | IdentifierExpression: x @ <test/examples.ec:92.12> 
+| Function @ <test/examples.ec:95.1-97.1> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:95.1-4> 
+| | Declarator @ <test/examples.ec:95.6-26> 
+| | | FunctionDeclarator (variadic) @ <test/examples.ec:95.6-26> 
+| | | | IdentifierDeclarator: Variadic @ <test/examples.ec:95.6-13> 
+| | | | ParameterDeclaration @ <test/examples.ec:95.6-20> 
+| | | | | PrimitiveSpecifier: i64 @ <test/examples.ec:95.6-18> 
+| | | | | Declarator @ <test/examples.ec:95.20> 
+| | | | | | IdentifierDeclarator: x @ <test/examples.ec:95.20> 
+| | CompoundStatement @ <test/examples.ec:95.28-97.1> 
+| | | ReturnStatement @ <test/examples.ec:96.5-13> 
+| | | | IdentifierExpression: x @ <test/examples.ec:96.12> 
+| Function @ <test/examples.ec:99.1-100.1> 
+| | PrimitiveSpecifier: void @ <test/examples.ec:99.1-3> 
+| | Declarator @ <test/examples.ec:99.5-14> 
+| | | FunctionDeclarator @ <test/examples.ec:99.5-14> 
+| | | | IdentifierDeclarator: VoidFunc @ <test/examples.ec:99.5-12> 
+| | CompoundStatement @ <test/examples.ec:99.16-100.1> 
+| Function @ <test/examples.ec:102.1-104.1> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:102.1-4> 
+| | Declarator @ <test/examples.ec:102.6-29> 
+| | | FunctionDeclarator @ <test/examples.ec:102.6-29> 
+| | | | ParenDeclarator @ <test/examples.ec:102.6-23> 
+| | | | | Declarator @ <test/examples.ec:102.6-22> 
+| | | | | | Pointer @ <test/examples.ec:102.6-7> 
+| | | | | | FunctionDeclarator @ <test/examples.ec:102.6-22> 
+| | | | | | | IdentifierDeclarator: ReturnFuncPtr @ <test/examples.ec:102.6-20> 
+| | | | ParameterDeclaration @ <test/examples.ec:102.6-28> 
+| | | | | PrimitiveSpecifier: i64 @ <test/examples.ec:102.6-28> 
+| | CompoundStatement @ <test/examples.ec:102.31-104.1> 
+| | | ReturnStatement @ <test/examples.ec:103.5-15> 
+| | | | IdentifierExpression: Add @ <test/examples.ec:103.12-14> 
+| CompoundStatement @ <test/examples.ec:109.1-117.1> 
+| | VariableDeclaration @ <test/examples.ec:110.5-19> 
+| | | PrimitiveSpecifier: i64 @ <test/examples.ec:110.5-8> 
+| | | InitDeclarator @ <test/examples.ec:110.10-18> 
+| | | | Declarator @ <test/examples.ec:110.10-14> 
+| | | | | IdentifierDeclarator: local @ <test/examples.ec:110.10-14> 
+| | | | Initializer:  @ <test/examples.ec:110.18> 
+| | | | | Literal: 5 @ <test/examples.ec:110.18> 
+| | VariableDeclaration @ <test/examples.ec:111.5-22> 
+| | | PrimitiveSpecifier: f64 @ <test/examples.ec:111.5-8> 
+| | | InitDeclarator @ <test/examples.ec:111.10-21> 
+| | | | Declarator @ <test/examples.ec:111.10-15> 
+| | | | | IdentifierDeclarator: localf @ <test/examples.ec:111.10-15> 
+| | | | Initializer:  @ <test/examples.ec:111.19-21> 
+| | | | | Literal: 0.000000 @ <test/examples.ec:111.19-21> 
+| | ExpressionStatement @ <test/examples.ec:113.5-15> 
+| | | AssignmentExpression: += @ <test/examples.ec:113.5-14> 
+| | | | IdentifierExpression: local @ <test/examples.ec:113.5-9> 
+| | | | Literal: 2 @ <test/examples.ec:113.14> 
+| | ExpressionStatement @ <test/examples.ec:114.5-15> 
+| | | AssignmentExpression: *= @ <test/examples.ec:114.5-14> 
+| | | | IdentifierExpression: local @ <test/examples.ec:114.5-9> 
+| | | | Literal: 3 @ <test/examples.ec:114.14> 
+| | ExpressionStatement @ <test/examples.ec:115.5-16> 
+| | | AssignmentExpression: <<= @ <test/examples.ec:115.5-15> 
+| | | | IdentifierExpression: local @ <test/examples.ec:115.5-9> 
+| | | | Literal: 1 @ <test/examples.ec:115.15> 
+| | ExpressionStatement @ <test/examples.ec:116.5-15> 
+| | | AssignmentExpression: &= @ <test/examples.ec:116.5-14> 
+| | | | IdentifierExpression: local @ <test/examples.ec:116.5-9> 
+| | | | Literal: 7 @ <test/examples.ec:116.14> 
+| VariableDeclaration @ <test/examples.ec:122.1-17> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:122.1-4> 
+| | InitDeclarator @ <test/examples.ec:122.6-16> 
+| | | Declarator @ <test/examples.ec:122.6-12> 
+| | | | IdentifierDeclarator: control @ <test/examples.ec:122.6-12> 
+| | | Initializer:  @ <test/examples.ec:122.16> 
+| | | | Literal: 2 @ <test/examples.ec:122.16> 
+| IfStatement @ <test/examples.ec:124.1-127.16> 
+| | BinaryExpression: || @ <test/examples.ec:124.4-40> 
+| | | BinaryExpression: && @ <test/examples.ec:124.4-31> 
+| | | | BinaryExpression: > @ <test/examples.ec:124.4-15> 
+| | | | | IdentifierExpression: control @ <test/examples.ec:124.4-11> 
+| | | | | Literal: 1 @ <test/examples.ec:124.15> 
+| | | | BinaryExpression: < @ <test/examples.ec:124.20-31> 
+| | | | | IdentifierExpression: control @ <test/examples.ec:124.20-26> 
+| | | | | Literal: 10 @ <test/examples.ec:124.30-31> 
+| | | IdentifierExpression: FALSE @ <test/examples.ec:124.36-40> 
+| | ExpressionStatement @ <test/examples.ec:125.5-16> 
+| | | AssignmentExpression: = @ <test/examples.ec:125.5-15> 
+| | | | IdentifierExpression: control @ <test/examples.ec:125.5-11> 
+| | | | Literal: 1 @ <test/examples.ec:125.15> 
+| | ExpressionStatement @ <test/examples.ec:127.5-16> 
+| | | AssignmentExpression: = @ <test/examples.ec:127.5-15> 
+| | | | IdentifierExpression: control @ <test/examples.ec:127.5-11> 
+| | | | Literal: 0 @ <test/examples.ec:127.15> 
+| SwitchStatement @ <test/examples.ec:129.1-137.1> 
+| | IdentifierExpression: control @ <test/examples.ec:129.8-15> 
+| | CompoundStatement @ <test/examples.ec:129.18-137.1> 
+| | | CaseStatement:  @ <test/examples.ec:130.5-131.14> 
+| | | | ConstExpression:  @ <test/examples.ec:130.10> 
+| | | | | Literal: 0 @ <test/examples.ec:130.10> 
+| | | | BreakStatement @ <test/examples.ec:131.9-14> 
+| | | CaseRangeStatement:  @ <test/examples.ec:132.5-133.18> 
+| | | | ConstExpression:  @ <test/examples.ec:132.10> 
+| | | | | Literal: 1 @ <test/examples.ec:132.10> 
+| | | | ConstExpression:  @ <test/examples.ec:132.16> 
+| | | | | Literal: 5 @ <test/examples.ec:132.16> 
+| | | | ExpressionStatement @ <test/examples.ec:133.9-18> 
+| | | | | PostfixExpression: ++ @ <test/examples.ec:133.9-17> 
+| | | | | | IdentifierExpression: control @ <test/examples.ec:133.9-15> 
+| | | BreakStatement @ <test/examples.ec:134.9-14> 
+| | | DefaultStatement:  @ <test/examples.ec:135.5-136.21> 
+| | | | ExpressionStatement @ <test/examples.ec:136.9-21> 
+| | | | | AssignmentExpression: = @ <test/examples.ec:136.9-20> 
+| | | | | | IdentifierExpression: control @ <test/examples.ec:136.9-15> 
+| | | | | | UnaryExpression: - @ <test/examples.ec:136.19-20> 
+| | | | | | | Literal: 1 @ <test/examples.ec:136.19-20> 
+| VariableDeclaration @ <test/examples.ec:142.1-11> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:142.1-4> 
+| | InitDeclarator @ <test/examples.ec:142.6-10> 
+| | | Declarator @ <test/examples.ec:142.6> 
+| | | | IdentifierDeclarator: i @ <test/examples.ec:142.6> 
+| | | Initializer:  @ <test/examples.ec:142.10> 
+| | | | Literal: 0 @ <test/examples.ec:142.10> 
+| WhileStatement @ <test/examples.ec:144.1-146.1> 
+| | BinaryExpression: < @ <test/examples.ec:144.7-12> 
+| | | IdentifierExpression: i @ <test/examples.ec:144.7-8> 
+| | | Literal: 3 @ <test/examples.ec:144.12> 
+| | CompoundStatement @ <test/examples.ec:144.15-146.1> 
+| | | ExpressionStatement @ <test/examples.ec:145.5-8> 
+| | | | PostfixExpression: ++ @ <test/examples.ec:145.5-7> 
+| | | | | IdentifierExpression: i @ <test/examples.ec:145.5> 
+| DoWhileStatement @ <test/examples.ec:148.1-150.16> 
+| | CompoundStatement @ <test/examples.ec:148.4-150.1> 
+| | | ExpressionStatement @ <test/examples.ec:149.5-8> 
+| | | | PostfixExpression: -- @ <test/examples.ec:149.5-7> 
+| | | | | IdentifierExpression: i @ <test/examples.ec:149.5> 
+| | BinaryExpression: > @ <test/examples.ec:150.9-14> 
+| | | IdentifierExpression: i @ <test/examples.ec:150.9-10> 
+| | | Literal: 0 @ <test/examples.ec:150.14> 
+| ForStatement @ <test/examples.ec:152.1-155.1> 
+| | AssignmentExpression: = @ <test/examples.ec:152.5-10> 
+| | | IdentifierExpression: i @ <test/examples.ec:152.5-6> 
+| | | Literal: 0 @ <test/examples.ec:152.10> 
+| | BinaryExpression: < @ <test/examples.ec:152.13-17> 
+| | | IdentifierExpression: i @ <test/examples.ec:152.13> 
+| | | Literal: 5 @ <test/examples.ec:152.17> 
+| | PostfixExpression: ++ @ <test/examples.ec:152.20-22> 
+| | | IdentifierExpression: i @ <test/examples.ec:152.20> 
+| | CompoundStatement @ <test/examples.ec:152.25-155.1> 
+| | | IfStatement @ <test/examples.ec:153.5-154.14> 
+| | | | BinaryExpression: == @ <test/examples.ec:153.8-14> 
+| | | | | IdentifierExpression: i @ <test/examples.ec:153.8-9> 
+| | | | | Literal: 2 @ <test/examples.ec:153.14> 
+| | | | BreakStatement @ <test/examples.ec:154.9-14> 
+| GotoStatement: after_label @ <test/examples.ec:160.1-17> 
+| LabeledStatement: label_here @ <test/examples.ec:162.1-163.8> 
+| | ExpressionStatement @ <test/examples.ec:163.1-8> 
+| | | AssignmentExpression: = @ <test/examples.ec:163.1-7> 
+| | | | IdentifierExpression: i @ <test/examples.ec:163.1> 
+| | | | Literal: 100 @ <test/examples.ec:163.5-7> 
+| LabeledStatement: after_label @ <test/examples.ec:165.1-166.8> 
+| | ExpressionStatement @ <test/examples.ec:166.1-8> 
+| | | AssignmentExpression: = @ <test/examples.ec:166.1-7> 
+| | | | IdentifierExpression: i @ <test/examples.ec:166.1> 
+| | | | Literal: 200 @ <test/examples.ec:166.5-7> 
+| VariableDeclaration @ <test/examples.ec:171.1-11> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:171.1-4> 
+| | InitDeclarator @ <test/examples.ec:171.6-10> 
+| | | Declarator @ <test/examples.ec:171.6> 
+| | | | IdentifierDeclarator: a @ <test/examples.ec:171.6> 
+| | | Initializer:  @ <test/examples.ec:171.10> 
+| | | | Literal: 5 @ <test/examples.ec:171.10> 
+| VariableDeclaration @ <test/examples.ec:172.1-11> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:172.1-4> 
+| | InitDeclarator @ <test/examples.ec:172.6-10> 
+| | | Declarator @ <test/examples.ec:172.6> 
+| | | | IdentifierDeclarator: b @ <test/examples.ec:172.6> 
+| | | Initializer:  @ <test/examples.ec:172.10> 
+| | | | Literal: 2 @ <test/examples.ec:172.10> 
+| VariableDeclaration @ <test/examples.ec:174.1-35> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:174.1-4> 
+| | InitDeclarator @ <test/examples.ec:174.6-34> 
+| | | Declarator @ <test/examples.ec:174.6-10> 
+| | | | IdentifierDeclarator: arith @ <test/examples.ec:174.6-10> 
+| | | Initializer:  @ <test/examples.ec:174.14-34> 
+| | | | BinaryExpression: - @ <test/examples.ec:174.14-34> 
+| | | | | BinaryExpression: + @ <test/examples.ec:174.14-22> 
+| | | | | | IdentifierExpression: a @ <test/examples.ec:174.14> 
+| | | | | | BinaryExpression: * @ <test/examples.ec:174.18-22> 
+| | | | | | | IdentifierExpression: b @ <test/examples.ec:174.18> 
+| | | | | | | Literal: 3 @ <test/examples.ec:174.22> 
+| | | | | BinaryExpression: % @ <test/examples.ec:174.26-34> 
+| | | | | | BinaryExpression: / @ <test/examples.ec:174.26-30> 
+| | | | | | | Literal: 1 @ <test/examples.ec:174.26> 
+| | | | | | | Literal: 1 @ <test/examples.ec:174.30> 
+| | | | | | Literal: 2 @ <test/examples.ec:174.34> 
+| VariableDeclaration @ <test/examples.ec:175.1-25> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:175.1-4> 
+| | InitDeclarator @ <test/examples.ec:175.6-24> 
+| | | Declarator @ <test/examples.ec:175.6-10> 
+| | | | IdentifierDeclarator: shift @ <test/examples.ec:175.6-10> 
+| | | Initializer:  @ <test/examples.ec:175.14-24> 
+| | | | BinaryExpression: >> @ <test/examples.ec:175.14-24> 
+| | | | | BinaryExpression: << @ <test/examples.ec:175.14-19> 
+| | | | | | IdentifierExpression: a @ <test/examples.ec:175.14> 
+| | | | | | Literal: 1 @ <test/examples.ec:175.19> 
+| | | | | Literal: 1 @ <test/examples.ec:175.24> 
+| VariableDeclaration @ <test/examples.ec:176.1-32> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:176.1-4> 
+| | InitDeclarator @ <test/examples.ec:176.6-31> 
+| | | Declarator @ <test/examples.ec:176.6-11> 
+| | | | IdentifierDeclarator: bitops @ <test/examples.ec:176.6-11> 
+| | | Initializer:  @ <test/examples.ec:176.15-31> 
+| | | | BinaryExpression: ^ @ <test/examples.ec:176.15-31> 
+| | | | | BinaryExpression: | @ <test/examples.ec:176.15-21> 
+| | | | | | IdentifierExpression: a @ <test/examples.ec:176.15-16> 
+| | | | | | IdentifierExpression: b @ <test/examples.ec:176.20> 
+| | | | | BinaryExpression: & @ <test/examples.ec:176.25-31> 
+| | | | | | IdentifierExpression: a @ <test/examples.ec:176.25-26> 
+| | | | | | IdentifierExpression: b @ <test/examples.ec:176.30> 
+| VariableDeclaration @ <test/examples.ec:177.1-18> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:177.1-4> 
+| | InitDeclarator @ <test/examples.ec:177.6-17> 
+| | | Declarator @ <test/examples.ec:177.6-8> 
+| | | | IdentifierDeclarator: rel @ <test/examples.ec:177.6-8> 
+| | | Initializer:  @ <test/examples.ec:177.12-17> 
+| | | | BinaryExpression: >= @ <test/examples.ec:177.12-17> 
+| | | | | IdentifierExpression: a @ <test/examples.ec:177.12> 
+| | | | | IdentifierExpression: b @ <test/examples.ec:177.17> 
+| VariableDeclaration @ <test/examples.ec:178.1-17> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:178.1-4> 
+| | InitDeclarator @ <test/examples.ec:178.6-16> 
+| | | Declarator @ <test/examples.ec:178.6-7> 
+| | | | IdentifierDeclarator: eq @ <test/examples.ec:178.6-7> 
+| | | Initializer:  @ <test/examples.ec:178.11-16> 
+| | | | BinaryExpression: == @ <test/examples.ec:178.11-16> 
+| | | | | IdentifierExpression: a @ <test/examples.ec:178.11> 
+| | | | | IdentifierExpression: b @ <test/examples.ec:178.16> 
+| VariableDeclaration @ <test/examples.ec:179.1-18> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:179.1-4> 
+| | InitDeclarator @ <test/examples.ec:179.6-17> 
+| | | Declarator @ <test/examples.ec:179.6-8> 
+| | | | IdentifierDeclarator: neq @ <test/examples.ec:179.6-8> 
+| | | Initializer:  @ <test/examples.ec:179.12-17> 
+| | | | BinaryExpression: != @ <test/examples.ec:179.12-17> 
+| | | | | IdentifierExpression: a @ <test/examples.ec:179.12> 
+| | | | | IdentifierExpression: b @ <test/examples.ec:179.17> 
+| VariableDeclaration @ <test/examples.ec:180.1-26> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:180.1-4> 
+| | InitDeclarator @ <test/examples.ec:180.6-25> 
+| | | Declarator @ <test/examples.ec:180.6-9> 
+| | | | IdentifierDeclarator: tern @ <test/examples.ec:180.6-9> 
+| | | Initializer:  @ <test/examples.ec:180.13-25> 
+| | | | ConditionalExpression @ <test/examples.ec:180.13-25> 
+| | | | | BinaryExpression: > @ <test/examples.ec:180.13-17> 
+| | | | | | IdentifierExpression: a @ <test/examples.ec:180.13> 
+| | | | | | IdentifierExpression: b @ <test/examples.ec:180.17> 
+| | | | | IdentifierExpression: a @ <test/examples.ec:180.21> 
+| | | | | IdentifierExpression: b @ <test/examples.ec:180.25> 
+| ExpressionStatement @ <test/examples.ec:182.1-7> 
+| | AssignmentExpression: += @ <test/examples.ec:182.1-6> 
+| | | IdentifierExpression: a @ <test/examples.ec:182.1> 
+| | | Literal: 1 @ <test/examples.ec:182.6> 
+| ExpressionStatement @ <test/examples.ec:183.1-7> 
+| | AssignmentExpression: -= @ <test/examples.ec:183.1-6> 
+| | | IdentifierExpression: a @ <test/examples.ec:183.1> 
+| | | Literal: 1 @ <test/examples.ec:183.6> 
+| ExpressionStatement @ <test/examples.ec:184.1-7> 
+| | AssignmentExpression: *= @ <test/examples.ec:184.1-6> 
+| | | IdentifierExpression: a @ <test/examples.ec:184.1> 
+| | | Literal: 2 @ <test/examples.ec:184.6> 
+| ExpressionStatement @ <test/examples.ec:185.1-7> 
+| | AssignmentExpression: /= @ <test/examples.ec:185.1-6> 
+| | | IdentifierExpression: a @ <test/examples.ec:185.1> 
+| | | Literal: 2 @ <test/examples.ec:185.6> 
+| ExpressionStatement @ <test/examples.ec:186.1-7> 
+| | AssignmentExpression: %= @ <test/examples.ec:186.1-6> 
+| | | IdentifierExpression: a @ <test/examples.ec:186.1> 
+| | | Literal: 2 @ <test/examples.ec:186.6> 
+| ExpressionStatement @ <test/examples.ec:187.1-7> 
+| | AssignmentExpression: |= @ <test/examples.ec:187.1-6> 
+| | | IdentifierExpression: a @ <test/examples.ec:187.1> 
+| | | Literal: 1 @ <test/examples.ec:187.6> 
+| ExpressionStatement @ <test/examples.ec:188.1-7> 
+| | AssignmentExpression: ^= @ <test/examples.ec:188.1-6> 
+| | | IdentifierExpression: a @ <test/examples.ec:188.1> 
+| | | Literal: 1 @ <test/examples.ec:188.6> 
+| ExpressionStatement @ <test/examples.ec:189.1-7> 
+| | AssignmentExpression: &= @ <test/examples.ec:189.1-6> 
+| | | IdentifierExpression: a @ <test/examples.ec:189.1> 
+| | | Literal: 1 @ <test/examples.ec:189.6> 
+| ExpressionStatement @ <test/examples.ec:190.1-8> 
+| | AssignmentExpression: <<= @ <test/examples.ec:190.1-7> 
+| | | IdentifierExpression: a @ <test/examples.ec:190.1> 
+| | | Literal: 1 @ <test/examples.ec:190.7> 
+| ExpressionStatement @ <test/examples.ec:191.1-8> 
+| | AssignmentExpression: >>= @ <test/examples.ec:191.1-7> 
+| | | IdentifierExpression: a @ <test/examples.ec:191.1> 
+| | | Literal: 1 @ <test/examples.ec:191.7> 
+| ExpressionStatement @ <test/examples.ec:193.1-4> 
+| | UnaryExpression: ++ @ <test/examples.ec:193.1-3> 
+| | | IdentifierExpression: a @ <test/examples.ec:193.1-3> 
+| ExpressionStatement @ <test/examples.ec:194.1-4> 
+| | UnaryExpression: -- @ <test/examples.ec:194.1-3> 
+| | | IdentifierExpression: a @ <test/examples.ec:194.1-3> 
+| ExpressionStatement @ <test/examples.ec:195.1-4> 
+| | PostfixExpression: ++ @ <test/examples.ec:195.1-3> 
+| | | IdentifierExpression: a @ <test/examples.ec:195.1> 
+| ExpressionStatement @ <test/examples.ec:196.1-4> 
+| | PostfixExpression: -- @ <test/examples.ec:196.1-3> 
+| | | IdentifierExpression: a @ <test/examples.ec:196.1> 
+| VariableDeclaration @ <test/examples.ec:198.1-35> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:198.1-4> 
+| | InitDeclarator @ <test/examples.ec:198.6-34> 
+| | | Declarator @ <test/examples.ec:198.6-10> 
+| | | | IdentifierDeclarator: comma @ <test/examples.ec:198.6-10> 
+| | | Initializer:  @ <test/examples.ec:198.14-34> 
+| | | | BinaryExpression: , @ <test/examples.ec:198.14-34> 
+| | | | | BinaryExpression: , @ <test/examples.ec:198.14-26> 
+| | | | | | AssignmentExpression: = @ <test/examples.ec:198.14-19> 
+| | | | | | | IdentifierExpression: a @ <test/examples.ec:198.14-15> 
+| | | | | | | Literal: 1 @ <test/examples.ec:198.19> 
+| | | | | | AssignmentExpression: = @ <test/examples.ec:198.22-26> 
+| | | | | | | IdentifierExpression: b @ <test/examples.ec:198.22> 
+| | | | | | | Literal: 2 @ <test/examples.ec:198.26> 
+| | | | | BinaryExpression: + @ <test/examples.ec:198.29-33> 
+| | | | | | IdentifierExpression: a @ <test/examples.ec:198.29> 
+| | | | | | IdentifierExpression: b @ <test/examples.ec:198.33> 
+| VariableDeclaration @ <test/examples.ec:203.1-14> 
+| | ClassSpecifier:  Point: @ <test/examples.ec:203.1-11> 
+| | InitDeclarator @ <test/examples.ec:203.13> 
+| | | Declarator @ <test/examples.ec:203.13> 
+| | | | IdentifierDeclarator: p @ <test/examples.ec:203.13> 
+| ExpressionStatement @ <test/examples.ec:204.1-8> 
+| | AssignmentExpression: = @ <test/examples.ec:204.1-7> 
+| | | MemberAccess: .x @ <test/examples.ec:204.1-3> 
+| | | | IdentifierExpression: p @ <test/examples.ec:204.1> 
+| | | Literal: 1 @ <test/examples.ec:204.7> 
+| ExpressionStatement @ <test/examples.ec:205.1-8> 
+| | AssignmentExpression: = @ <test/examples.ec:205.1-7> 
+| | | MemberAccess: .y @ <test/examples.ec:205.1-3> 
+| | | | IdentifierExpression: p @ <test/examples.ec:205.1> 
+| | | Literal: 2 @ <test/examples.ec:205.7> 
+| ExpressionStatement @ <test/examples.ec:207.1-11> 
+| | AssignmentExpression: = @ <test/examples.ec:207.1-10> 
+| | | IdentifierExpression: ptr @ <test/examples.ec:207.1-3> 
+| | | UnaryExpression: & @ <test/examples.ec:207.7-10> 
+| | | | MemberAccess: .x @ <test/examples.ec:207.7-10> 
+| | | | | IdentifierExpression: p @ <test/examples.ec:207.7-8> 
+| ExpressionStatement @ <test/examples.ec:208.1-10> 
+| | AssignmentExpression: = @ <test/examples.ec:208.1-9> 
+| | | UnaryExpression: * @ <test/examples.ec:208.1-4> 
+| | | | IdentifierExpression: ptr @ <test/examples.ec:208.1-4> 
+| | | Literal: 10 @ <test/examples.ec:208.8-9> 
+| VariableDeclaration @ <test/examples.ec:210.1-21> 
+| | ClassSpecifier:  Point: @ <test/examples.ec:210.1-11> 
+| | InitDeclarator @ <test/examples.ec:210.13-20> 
+| | | Declarator @ <test/examples.ec:210.13-15> 
+| | | | Pointer @ <test/examples.ec:210.13> 
+| | | | IdentifierDeclarator: pp @ <test/examples.ec:210.13-15> 
+| | | Initializer:  @ <test/examples.ec:210.19-20> 
+| | | | UnaryExpression: & @ <test/examples.ec:210.19-20> 
+| | | | | IdentifierExpression: p @ <test/examples.ec:210.19-20> 
+| ExpressionStatement @ <test/examples.ec:211.1-11> 
+| | AssignmentExpression: = @ <test/examples.ec:211.1-10> 
+| | | MemberAccess: ->y @ <test/examples.ec:211.1-5> 
+| | | | IdentifierExpression: pp @ <test/examples.ec:211.1-2> 
+| | | Literal: 20 @ <test/examples.ec:211.9-10> 
+| VariableDeclaration @ <test/examples.ec:216.1-20> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:216.1-4> 
+| | InitDeclarator @ <test/examples.ec:216.6-19> 
+| | | Declarator @ <test/examples.ec:216.6-8> 
+| | | | IdentifierDeclarator: sz1 @ <test/examples.ec:216.6-8> 
+| | | Initializer:  @ <test/examples.ec:216.12-19> 
+| | | | SizeofExpression @ <test/examples.ec:216.12-19> 
+| | | | | IdentifierExpression: a @ <test/examples.ec:216.19> 
+| VariableDeclaration @ <test/examples.ec:217.1-24> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:217.1-4> 
+| | InitDeclarator @ <test/examples.ec:217.6-23> 
+| | | Declarator @ <test/examples.ec:217.6-8> 
+| | | | IdentifierDeclarator: sz2 @ <test/examples.ec:217.6-8> 
+| | | Initializer:  @ <test/examples.ec:217.12-23> 
+| | | | SizeofExpression @ <test/examples.ec:217.12-23> 
+| | | | | TypeName @ <test/examples.ec:217.12-22> 
+| | | | | | PrimitiveSpecifier: i64 @ <test/examples.ec:217.12-22> 
+| VariableDeclaration @ <test/examples.ec:218.1-31> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:218.1-4> 
+| | InitDeclarator @ <test/examples.ec:218.6-30> 
+| | | Declarator @ <test/examples.ec:218.6-8> 
+| | | | IdentifierDeclarator: sz3 @ <test/examples.ec:218.6-8> 
+| | | Initializer:  @ <test/examples.ec:218.12-30> 
+| | | | SizeofExpression @ <test/examples.ec:218.12-30> 
+| | | | | TypeName @ <test/examples.ec:218.12-29> 
+| | | | | | ClassSpecifier:  Point: @ <test/examples.ec:218.12-29> 
+| VariableDeclaration @ <test/examples.ec:223.1-19> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:223.1-4> 
+| | InitDeclarator @ <test/examples.ec:223.6-18> 
+| | | Declarator @ <test/examples.ec:223.6-9> 
+| | | | IdentifierDeclarator: hexv @ <test/examples.ec:223.6-9> 
+| | | Initializer:  @ <test/examples.ec:223.13-18> 
+| | | | Literal: 43981 @ <test/examples.ec:223.13-18> 
+| VariableDeclaration @ <test/examples.ec:224.1-17> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:224.1-4> 
+| | InitDeclarator @ <test/examples.ec:224.6-16> 
+| | | Declarator @ <test/examples.ec:224.6-9> 
+| | | | IdentifierDeclarator: octv @ <test/examples.ec:224.6-9> 
+| | | Initializer:  @ <test/examples.ec:224.13-16> 
+| | | | Literal: 511 @ <test/examples.ec:224.13-16> 
+| VariableDeclaration @ <test/examples.ec:225.1-17> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:225.1-4> 
+| | InitDeclarator @ <test/examples.ec:225.6-16> 
+| | | Declarator @ <test/examples.ec:225.6-9> 
+| | | | IdentifierDeclarator: negv @ <test/examples.ec:225.6-9> 
+| | | Initializer:  @ <test/examples.ec:225.13-16> 
+| | | | UnaryExpression: - @ <test/examples.ec:225.13-16> 
+| | | | | Literal: 123 @ <test/examples.ec:225.13-16> 
+| VariableDeclaration @ <test/examples.ec:227.1-16> 
+| | PrimitiveSpecifier: u8 @ <test/examples.ec:227.1-3> 
+| | InitDeclarator @ <test/examples.ec:227.5-15> 
+| | | Declarator @ <test/examples.ec:227.5-9> 
+| | | | IdentifierDeclarator: charv @ <test/examples.ec:227.5-9> 
+| | | Initializer:  @ <test/examples.ec:227.13-15> 
+| | | | Literal: 65 @ <test/examples.ec:227.13-15> 
+| PrintStatement: ""value:"" @ <test/examples.ec:232.1-21> 
+| | IdentifierExpression: a @ <test/examples.ec:232.11> 
+| | IdentifierExpression: b @ <test/examples.ec:232.14> 
+| | String: "\n" @ <test/examples.ec:232.17-20> 
+| VariableDeclaration @ <test/examples.ec:237.1-23> 
+| | PrimitiveSpecifier: i64 @ <test/examples.ec:237.1-4> 
+| | InitDeclarator @ <test/examples.ec:237.6-22> 
+| | | Declarator @ <test/examples.ec:237.6-11> 
+| | | | IdentifierDeclarator: result @ <test/examples.ec:237.6-11> 
+| | | Initializer:  @ <test/examples.ec:237.15-22> 
+| | | | CallExpression @ <test/examples.ec:237.15-22> 
+| | | | | IdentifierExpression: Add @ <test/examples.ec:237.15-17> 
+| | | | | Literal: 3 @ <test/examples.ec:237.15-19> 
+| | | | | Literal: 4 @ <test/examples.ec:237.15-21> 
+| ExpressionStatement @ <test/examples.ec:238.1-15> 
+| | AssignmentExpression: = @ <test/examples.ec:238.1-14> 
+| | | IdentifierExpression: func_ptr @ <test/examples.ec:238.1-8> 
+| | | IdentifierExpression: Add @ <test/examples.ec:238.12-14> 
+| ExpressionStatement @ <test/examples.ec:239.1-21> 
+| | AssignmentExpression: = @ <test/examples.ec:239.1-20> 
+| | | IdentifierExpression: result @ <test/examples.ec:239.1-6> 
+| | | CallExpression @ <test/examples.ec:239.10-20> 
+| | | | IdentifierExpression: func_ptr @ <test/examples.ec:239.10-17> 
+| | | | Literal: 5 @ <test/examples.ec:239.10-19> 
+| ExpressionStatement @ <test/examples.ec:244.1> 
+running backend for file test/examples.ec
+checking semantics for test/examples.ec:1.1
+running elaborator for test/examples.ec:1.1
+Node: type 52 {
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:12.1-195
+        parsing declaration specifier list
+        Node: type 1 {
+            visiting StorageClassSpecifier node: test/examples.ec:12.1-176
+            }
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:12.178-181
+TypeContext: getting primitive type with value 9
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:12.183-194
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:12.183-190
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name g_public
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:13.1-25
+        parsing declaration specifier list
+        Node: type 1 {
+            visiting StorageClassSpecifier node: test/examples.ec:13.1-6
+            }
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:13.8-11
+TypeContext: getting primitive type with value 8
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:13.13-24
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:13.13-20
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name g_static
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:14.1-21
+        parsing declaration specifier list
+        Node: type 1 {
+            visiting StorageClassSpecifier node: test/examples.ec:14.1-6
+            }
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:14.8-11
+TypeContext: getting primitive type with value 9
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:14.13-20
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:14.13-20
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name g_extern
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:16.1-24
+        parsing declaration specifier list
+        Node: type 0 {
+            visiting TypeQualifier node: test/examples.ec:16.1-5
+            }
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:16.7-10
+TypeContext: getting primitive type with value 3
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:16.12-23
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:16.12-18
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name g_const
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:18.1-14
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:18.1-3
+TypeContext: getting primitive type with value 1
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:18.5-13
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:18.5-7
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name u8v
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:19.1-18
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:19.1-4
+TypeContext: getting primitive type with value 2
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:19.6-17
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:19.6-9
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name u16v
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:20.1-17
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:20.1-4
+TypeContext: getting primitive type with value 3
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:20.6-16
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:20.6-9
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name u32v
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:21.1-19
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:21.1-4
+TypeContext: getting primitive type with value 4
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:21.6-18
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:21.6-9
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name u64v
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:23.1-13
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:23.1-3
+TypeContext: getting primitive type with value 6
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:23.5-12
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:23.5-7
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name i8v
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:24.1-15
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:24.1-4
+TypeContext: getting primitive type with value 7
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:24.6-14
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:24.6-9
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name i16v
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:25.1-15
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:25.1-4
+TypeContext: getting primitive type with value 8
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:25.6-14
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:25.6-9
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name i32v
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:26.1-15
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:26.1-4
+TypeContext: getting primitive type with value 9
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:26.6-14
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:26.6-9
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name i64v
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:28.1-20
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:28.1-4
+TypeContext: getting primitive type with value 10
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:28.6-19
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:28.6-9
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name f64v
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:29.1-15
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:29.1-4
+TypeContext: getting primitive type with value 11
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:29.6-14
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:29.6-7
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name bv
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:30.1-8
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:30.1-3
+TypeContext: getting primitive type with value 0
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:30.5-7
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:30.5-7
+                    }
+                Node: type 2 {
+                    visiting Pointer node
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+TypeContext: pointer with base 0x55ddf30bc0a0
+inserting symbol with name vp
+        }
+    Node: type 8 {
+        visiting TypeDeclaration node: test/examples.ec:35.1-11
+        parsing declaration specifier list
+        Node: type 17 {
+            visiting ClassSpecifier node
+TypeContext: class type 'Node' on scope 0x55ddf30bbf60
+inserting symbol with name Node
+associating current scope 0x55ddf30bbf60 with symbol 0x55ddf30bdbf0 name 
+            }
+inserting symbol with name Node
+        }
+    Node: type 8 {
+        visiting TypeDeclaration node: test/examples.ec:37.1-40.2
+        parsing declaration specifier list
+        Node: type 17 {
+            visiting ClassSpecifier node
+TypeContext: class type 'Point' on scope 0x55ddf30bbf60
+            Node: type 15 {
+                visiting ClassDeclaration node
+                parsing declaration specifier list
+                Node: type 20 {
+                    visiting PrimitiveSpecifier node: test/examples.ec:38.5-8
+TypeContext: getting primitive type with value 9
+                    }
+                Node: type 14 {
+                    visiting ClassDeclarator node
+                    Node: type 5 {
+                        Node: type 10 {
+                            visiting IdentifierDeclarator node: test/examples.ec:38.10
+                            }
+                        }
+                    }
+                }
+            Node: type 15 {
+                visiting ClassDeclaration node
+                parsing declaration specifier list
+                Node: type 20 {
+                    visiting PrimitiveSpecifier node: test/examples.ec:39.5-8
+TypeContext: getting primitive type with value 9
+                    }
+                Node: type 14 {
+                    visiting ClassDeclarator node
+                    Node: type 5 {
+                        Node: type 10 {
+                            visiting IdentifierDeclarator node: test/examples.ec:39.10
+                            }
+                        }
+                    }
+                }
+inserting symbol with name Point
+associating current scope 0x55ddf30bbf60 with symbol 0x55ddf30bc120 name 
+            }
+inserting symbol with name Point
+        }
+    Node: type 8 {
+        visiting TypeDeclaration node: test/examples.ec:42.1-46.2
+        parsing declaration specifier list
+        Node: type 17 {
+            visiting ClassSpecifier node
+TypeContext: class type 'Bits' on scope 0x55ddf30bbf60
+            Node: type 15 {
+                visiting ClassDeclaration node
+                parsing declaration specifier list
+                Node: type 20 {
+                    visiting PrimitiveSpecifier node: test/examples.ec:43.5-8
+TypeContext: getting primitive type with value 9
+                    }
+                Node: type 14 {
+                    visiting ClassDeclarator node
+                    Node: type 5 {
+                        Node: type 10 {
+                            visiting IdentifierDeclarator node: test/examples.ec:43.10
+                            }
+                        }
+                    }
+                }
+            Node: type 15 {
+                visiting ClassDeclaration node
+                parsing declaration specifier list
+                Node: type 20 {
+                    visiting PrimitiveSpecifier node: test/examples.ec:44.5-8
+TypeContext: getting primitive type with value 9
+                    }
+                Node: type 14 {
+                    visiting ClassDeclarator node
+                    }
+                }
+            Node: type 15 {
+                visiting ClassDeclaration node
+                parsing declaration specifier list
+                Node: type 20 {
+                    visiting PrimitiveSpecifier node: test/examples.ec:45.5-8
+TypeContext: getting primitive type with value 9
+                    }
+                Node: type 14 {
+                    visiting ClassDeclarator node
+                    Node: type 5 {
+                        Node: type 10 {
+                            visiting IdentifierDeclarator node: test/examples.ec:45.10
+                            }
+                        }
+                    }
+                }
+inserting symbol with name Bits
+associating current scope 0x55ddf30bbf60 with symbol 0x55ddf30bdc60 name 
+            }
+inserting symbol with name Bits
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:48.1-50.13
+        parsing declaration specifier list
+        Node: type 17 {
+            visiting ClassSpecifier node
+TypeContext: anonymous class type on scope 0x55ddf30bbf60
+            Node: type 15 {
+                visiting ClassDeclaration node
+                parsing declaration specifier list
+                Node: type 20 {
+                    visiting PrimitiveSpecifier node: test/examples.ec:49.5-8
+TypeContext: getting primitive type with value 8
+                    }
+                Node: type 14 {
+                    visiting ClassDeclarator node
+                    Node: type 5 {
+                        Node: type 10 {
+                            visiting IdentifierDeclarator node: test/examples.ec:49.10-19
+                            }
+                        }
+                    }
+                }
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:50.3-12
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:50.3-12
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name anon_class
+        }
+    Node: type 8 {
+        visiting TypeDeclaration node: test/examples.ec:55.1-58.2
+        parsing declaration specifier list
+        Node: type 18 {
+            visiting UnionSpecifier node
+TypeContext: union type 'Value' on scope 0x55ddf30bbf60
+            Node: type 15 {
+                visiting ClassDeclaration node
+                parsing declaration specifier list
+                Node: type 20 {
+                    visiting PrimitiveSpecifier node: test/examples.ec:56.5-8
+TypeContext: getting primitive type with value 9
+                    }
+                Node: type 14 {
+                    visiting ClassDeclarator node
+                    Node: type 5 {
+                        Node: type 10 {
+                            visiting IdentifierDeclarator node: test/examples.ec:56.10
+                            }
+                        }
+                    }
+                }
+            Node: type 15 {
+                visiting ClassDeclaration node
+                parsing declaration specifier list
+                Node: type 20 {
+                    visiting PrimitiveSpecifier node: test/examples.ec:57.5-8
+TypeContext: getting primitive type with value 10
+                    }
+                Node: type 14 {
+                    visiting ClassDeclarator node
+                    Node: type 5 {
+                        Node: type 10 {
+                            visiting IdentifierDeclarator node: test/examples.ec:57.10
+                            }
+                        }
+                    }
+                }
+inserting symbol with name Value
+associating current scope 0x55ddf30bbf60 with symbol 0x55ddf30be490 name 
+            }
+inserting symbol with name Value
+        }
+    Node: type 8 {
+        visiting TypeDeclaration node: test/examples.ec:63.1-36
+        parsing declaration specifier list
+        Node: type 19 {
+            visiting EnumSpecifier node: test/examples.ec:63.1-35
+TypeContext: enum type 'Color' on scope 0x55ddf30bbf60
+            Node: type 16 {
+                visiting Enumerator node with name RED
+inserting symbol with name RED
+                }
+            Node: type 16 {
+                visiting Enumerator node with name GREEN
+inserting symbol with name GREEN
+                }
+            Node: type 16 {
+                visiting Enumerator node with name BLUE
+inserting symbol with name BLUE
+                }
+inserting symbol with name Color
+associating current scope 0x55ddf30bbf60 with symbol 0x55ddf30be850 name 
+            }
+inserting symbol with name Color
+        }
+    Node: type 8 {
+        visiting TypeDeclaration node: test/examples.ec:65.1-17
+        parsing declaration specifier list
+        Node: type 19 {
+            visiting EnumSpecifier node: test/examples.ec:65.1-16
+TypeContext: anonymous enum type on scope 0x55ddf30bbf60
+            Node: type 16 {
+                visiting Enumerator node with name A
+inserting symbol with name A
+                }
+            Node: type 16 {
+                visiting Enumerator node with name B
+inserting symbol with name B
+                }
+            Node: type 16 {
+                visiting Enumerator node with name C
+inserting symbol with name C
+                }
+            }
+        }
+    Node: type 8 {
+        visiting TypeDeclaration node: test/examples.ec:67.1-13
+        parsing declaration specifier list
+        Node: type 19 {
+            visiting EnumSpecifier node: test/examples.ec:67.1-12
+TypeContext: enum type 'Forward' on scope 0x55ddf30bbf60
+inserting symbol with name Forward
+associating current scope 0x55ddf30bbf60 with symbol 0x55ddf30bef40 name 
+            }
+inserting symbol with name Forward
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:72.1-23
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:72.1-4
+TypeContext: getting primitive type with value 9
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:72.6-22
+            Node: type 5 {
+                Node: type 12 {
+                    visiting ArrayDeclarator node: test/examples.ec:72.6-12
+                    Node: type 10 {
+                        visiting IdentifierDeclarator node: test/examples.ec:72.6-9
+                        }
+                    array declarator has size, checking for compile time computability
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+TypeContext: array type with base 0x55ddf30bc590, size 3
+inserting symbol with name arr1
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:73.1-24
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:73.1-4
+TypeContext: getting primitive type with value 9
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:73.6-23
+            Node: type 5 {
+                Node: type 12 {
+                    visiting ArrayDeclarator node: test/examples.ec:73.6-12
+                    Node: type 10 {
+                        visiting IdentifierDeclarator node: test/examples.ec:73.6-9
+                        }
+                    array declarator has size, checking for compile time computability
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+TypeContext: array type with base 0x55ddf30bc590, size 3
+inserting symbol with name arr2
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:74.1-12
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:74.1-4
+TypeContext: getting primitive type with value 9
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:74.6-11
+            Node: type 5 {
+                Node: type 12 {
+                    visiting ArrayDeclarator node: test/examples.ec:74.6-11
+                    Node: type 10 {
+                        visiting IdentifierDeclarator node: test/examples.ec:74.6-9
+                        }
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+TypeContext: array type with base 0x55ddf30bc590, no size
+inserting symbol with name arr3
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:79.1-10
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:79.1-4
+TypeContext: getting primitive type with value 9
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:79.6-9
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:79.6-9
+                    }
+                Node: type 2 {
+                    visiting Pointer node
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+TypeContext: pointer with base 0x55ddf30bc590
+inserting symbol with name ptr
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:80.1-31
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:80.1-4
+TypeContext: getting primitive type with value 9
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:80.6-30
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:80.14-22
+                    }
+                Node: type 2 {
+                    visiting Pointer node
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+TypeContext: pointer with base 0x55ddf30bc590
+inserting symbol with name const_ptr
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:82.1-23
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:82.1-4
+TypeContext: getting primitive type with value 9
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:82.6-22
+            Node: type 5 {
+                Node: type 13 {
+                    visiting FunctionDeclarator node: test/examples.ec:82.6-22
+                    Node: type 11 {
+                        visiting ParenDeclarator node: test/examples.ec:82.6-16
+                        Node: type 5 {
+                            Node: type 10 {
+                                visiting IdentifierDeclarator node: test/examples.ec:82.6-15
+                                }
+                            Node: type 2 {
+                                visiting Pointer node
+                                }
+                            }
+                        }
+                    Node: type 7 {
+                        visiting ParameterDeclarator node: test/examples.ec:82.6-21
+                        parsing declaration specifier list
+                        Node: type 20 {
+                            visiting PrimitiveSpecifier node: test/examples.ec:82.6-21
+TypeContext: getting primitive type with value 9
+                            }
+                        }
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+TypeContext: getting function type
+TypeContext: pointer with base 0x55ddf30bc590
+inserting symbol with name func_ptr
+        }
+    Node: type 51 {
+        visiting Function node: test/examples.ec:87.1-89.1
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:87.1-4
+TypeContext: getting primitive type with value 9
+            }
+        direct declarator kind 13
+        Node: type 5 {
+            Node: type 13 {
+                visiting FunctionDeclarator node: test/examples.ec:87.6-24
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:87.6-8
+                    }
+                Node: type 7 {
+                    visiting ParameterDeclarator node: test/examples.ec:87.6-15
+                    parsing declaration specifier list
+                    Node: type 20 {
+                        visiting PrimitiveSpecifier node: test/examples.ec:87.6-13
+TypeContext: getting primitive type with value 9
+                        }
+                    Node: type 5 {
+                        Node: type 10 {
+                            visiting IdentifierDeclarator node: test/examples.ec:87.15
+                            }
+                        }
+TypeBuilder: finalizing type
+                    }
+                Node: type 7 {
+                    visiting ParameterDeclarator node: test/examples.ec:87.18-23
+                    parsing declaration specifier list
+                    Node: type 20 {
+                        visiting PrimitiveSpecifier node: test/examples.ec:87.18-21
+TypeContext: getting primitive type with value 9
+                        }
+                    Node: type 5 {
+                        Node: type 10 {
+                            visiting IdentifierDeclarator node: test/examples.ec:87.23
+                            }
+                        }
+TypeBuilder: finalizing type
+                    }
+                }
+            }
+TypeContext: getting function type
+        Node: type 21 {
+            visiting CompoundStatement node
+            Node: type 35 {
+                }
+            }
+        }
+    Node: type 51 {
+        visiting Function node: test/examples.ec:91.1-93.1
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:91.1-4
+TypeContext: getting primitive type with value 9
+            }
+        direct declarator kind 13
+        Node: type 5 {
+            Node: type 13 {
+                visiting FunctionDeclarator node: test/examples.ec:91.6-29
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:91.6-17
+                    }
+                Node: type 7 {
+                    visiting ParameterDeclarator node: test/examples.ec:91.6-28
+                    parsing declaration specifier list
+                    Node: type 20 {
+                        visiting PrimitiveSpecifier node: test/examples.ec:91.6-22
+TypeContext: getting primitive type with value 9
+                        }
+                    Node: type 5 {
+                        Node: type 10 {
+                            visiting IdentifierDeclarator node: test/examples.ec:91.24
+                            }
+                        }
+TypeBuilder: finalizing type
+                    }
+                }
+            }
+TypeContext: getting function type
+        Node: type 21 {
+            visiting CompoundStatement node
+            Node: type 35 {
+                }
+            }
+        }
+    Node: type 51 {
+        visiting Function node: test/examples.ec:95.1-97.1
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:95.1-4
+TypeContext: getting primitive type with value 9
+            }
+        direct declarator kind 13
+        Node: type 5 {
+            Node: type 13 {
+                visiting FunctionDeclarator node: test/examples.ec:95.6-26
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:95.6-13
+                    }
+                Node: type 7 {
+                    visiting ParameterDeclarator node: test/examples.ec:95.6-20
+                    parsing declaration specifier list
+                    Node: type 20 {
+                        visiting PrimitiveSpecifier node: test/examples.ec:95.6-18
+TypeContext: getting primitive type with value 9
+                        }
+                    Node: type 5 {
+                        Node: type 10 {
+                            visiting IdentifierDeclarator node: test/examples.ec:95.20
+                            }
+                        }
+TypeBuilder: finalizing type
+                    }
+                }
+            }
+TypeContext: getting function type
+        Node: type 21 {
+            visiting CompoundStatement node
+            Node: type 35 {
+                }
+            }
+        }
+    Node: type 51 {
+        visiting Function node: test/examples.ec:99.1-100.1
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:99.1-3
+TypeContext: getting primitive type with value 0
+            }
+        direct declarator kind 13
+        Node: type 5 {
+            Node: type 13 {
+                visiting FunctionDeclarator node: test/examples.ec:99.5-14
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:99.5-12
+                    }
+                }
+            }
+TypeContext: getting function type
+        Node: type 21 {
+            visiting CompoundStatement node
+            }
+        }
+    Node: type 51 {
+        visiting Function node: test/examples.ec:102.1-104.1
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:102.1-4
+TypeContext: getting primitive type with value 9
+            }
+        direct declarator kind 13
+        Node: type 5 {
+            Node: type 13 {
+                visiting FunctionDeclarator node: test/examples.ec:102.6-29
+                Node: type 11 {
+                    visiting ParenDeclarator node: test/examples.ec:102.6-23
+                    Node: type 5 {
+                        Node: type 13 {
+                            visiting FunctionDeclarator node: test/examples.ec:102.6-22
+                            Node: type 10 {
+                                visiting IdentifierDeclarator node: test/examples.ec:102.6-20
+                                }
+                            }
+                        Node: type 2 {
+                            visiting Pointer node
+                            }
+                        }
+                    }
+                Node: type 7 {
+                    visiting ParameterDeclarator node: test/examples.ec:102.6-28
+                    parsing declaration specifier list
+                    Node: type 20 {
+                        visiting PrimitiveSpecifier node: test/examples.ec:102.6-28
+TypeContext: getting primitive type with value 9
+                        }
+                    }
+                }
+            }
+TypeContext: getting function type
+TypeContext: pointer with base 0x55ddf30bc590
+TypeContext: getting function type
+        Node: type 21 {
+            visiting CompoundStatement node
+            Node: type 35 {
+                }
+            }
+        }
+    Node: type 21 {
+        visiting CompoundStatement node
+        Node: type 9 {
+            visiting VariableDeclaration node: test/examples.ec:110.5-19
+            parsing declaration specifier list
+            Node: type 20 {
+                visiting PrimitiveSpecifier node: test/examples.ec:110.5-8
+TypeContext: getting primitive type with value 9
+                }
+            Node: type 6 {
+                visiting InitDeclarator node: test/examples.ec:110.10-18
+                Node: type 5 {
+                    Node: type 10 {
+                        visiting IdentifierDeclarator node: test/examples.ec:110.10-14
+                        }
+                    }
+                }
+TypeBuilder: finalizing type
+inserting symbol with name local
+            }
+        Node: type 9 {
+            visiting VariableDeclaration node: test/examples.ec:111.5-22
+            parsing declaration specifier list
+            Node: type 20 {
+                visiting PrimitiveSpecifier node: test/examples.ec:111.5-8
+TypeContext: getting primitive type with value 10
+                }
+            Node: type 6 {
+                visiting InitDeclarator node: test/examples.ec:111.10-21
+                Node: type 5 {
+                    Node: type 10 {
+                        visiting IdentifierDeclarator node: test/examples.ec:111.10-15
+                        }
+                    }
+                }
+TypeBuilder: finalizing type
+inserting symbol with name localf
+            }
+        Node: type 22 {
+            }
+        Node: type 22 {
+            }
+        Node: type 22 {
+            }
+        Node: type 22 {
+            }
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:122.1-17
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:122.1-4
+TypeContext: getting primitive type with value 9
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:122.6-16
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:122.6-12
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name control
+        }
+    Node: type 28 {
+        }
+    Node: type 29 {
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:142.1-11
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:142.1-4
+TypeContext: getting primitive type with value 9
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:142.6-10
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:142.6
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name i
+        }
+    Node: type 30 {
+        }
+    Node: type 31 {
+        }
+    Node: type 32 {
+        }
+    Node: type 33 {
+        }
+    Node: type 26 {
+        visiting LabeledStatement node
+inserting symbol with name label_here
+        Node: type 22 {
+            }
+        }
+    Node: type 26 {
+        visiting LabeledStatement node
+inserting symbol with name after_label
+        Node: type 22 {
+            }
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:171.1-11
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:171.1-4
+TypeContext: getting primitive type with value 9
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:171.6-10
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:171.6
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name a
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:172.1-11
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:172.1-4
+TypeContext: getting primitive type with value 9
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:172.6-10
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:172.6
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name b
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:174.1-35
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:174.1-4
+TypeContext: getting primitive type with value 9
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:174.6-34
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:174.6-10
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name arith
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:175.1-25
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:175.1-4
+TypeContext: getting primitive type with value 9
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:175.6-24
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:175.6-10
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name shift
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:176.1-32
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:176.1-4
+TypeContext: getting primitive type with value 9
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:176.6-31
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:176.6-11
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name bitops
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:177.1-18
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:177.1-4
+TypeContext: getting primitive type with value 9
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:177.6-17
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:177.6-8
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name rel
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:178.1-17
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:178.1-4
+TypeContext: getting primitive type with value 9
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:178.6-16
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:178.6-7
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name eq
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:179.1-18
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:179.1-4
+TypeContext: getting primitive type with value 9
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:179.6-17
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:179.6-8
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name neq
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:180.1-26
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:180.1-4
+TypeContext: getting primitive type with value 9
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:180.6-25
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:180.6-9
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name tern
+        }
+    Node: type 22 {
+        }
+    Node: type 22 {
+        }
+    Node: type 22 {
+        }
+    Node: type 22 {
+        }
+    Node: type 22 {
+        }
+    Node: type 22 {
+        }
+    Node: type 22 {
+        }
+    Node: type 22 {
+        }
+    Node: type 22 {
+        }
+    Node: type 22 {
+        }
+    Node: type 22 {
+        }
+    Node: type 22 {
+        }
+    Node: type 22 {
+        }
+    Node: type 22 {
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:198.1-35
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:198.1-4
+TypeContext: getting primitive type with value 9
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:198.6-34
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:198.6-10
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name comma
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:203.1-14
+        parsing declaration specifier list
+        Node: type 17 {
+            visiting ClassSpecifier node
+TypeContext: class type 'Point' on scope 0x55ddf30bbf60
+TypeContext: existing class found
+inserting symbol with name Point
+associating current scope 0x55ddf30bbf60 with symbol 0x55ddf30c1630 name 
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:203.13
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:203.13
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name p
+        }
+    Node: type 22 {
+        }
+    Node: type 22 {
+        }
+    Node: type 22 {
+        }
+    Node: type 22 {
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:210.1-21
+        parsing declaration specifier list
+        Node: type 17 {
+            visiting ClassSpecifier node
+TypeContext: class type 'Point' on scope 0x55ddf30bbf60
+TypeContext: existing class found
+inserting symbol with name Point
+associating current scope 0x55ddf30bbf60 with symbol 0x55ddf30c1760 name 
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:210.13-20
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:210.13-15
+                    }
+                Node: type 2 {
+                    visiting Pointer node
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+TypeContext: pointer with base 0x55ddf30bdd50
+inserting symbol with name pp
+        }
+    Node: type 22 {
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:216.1-20
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:216.1-4
+TypeContext: getting primitive type with value 9
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:216.6-19
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:216.6-8
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name sz1
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:217.1-24
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:217.1-4
+TypeContext: getting primitive type with value 9
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:217.6-23
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:217.6-8
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name sz2
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:218.1-31
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:218.1-4
+TypeContext: getting primitive type with value 9
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:218.6-30
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:218.6-8
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name sz3
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:223.1-19
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:223.1-4
+TypeContext: getting primitive type with value 9
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:223.6-18
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:223.6-9
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name hexv
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:224.1-17
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:224.1-4
+TypeContext: getting primitive type with value 9
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:224.6-16
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:224.6-9
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name octv
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:225.1-17
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:225.1-4
+TypeContext: getting primitive type with value 9
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:225.6-16
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:225.6-9
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name negv
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:227.1-16
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:227.1-3
+TypeContext: getting primitive type with value 1
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:227.5-15
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:227.5-9
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name charv
+        }
+    Node: type 27 {
+        }
+    Node: type 9 {
+        visiting VariableDeclaration node: test/examples.ec:237.1-23
+        parsing declaration specifier list
+        Node: type 20 {
+            visiting PrimitiveSpecifier node: test/examples.ec:237.1-4
+TypeContext: getting primitive type with value 9
+            }
+        Node: type 6 {
+            visiting InitDeclarator node: test/examples.ec:237.6-22
+            Node: type 5 {
+                Node: type 10 {
+                    visiting IdentifierDeclarator node: test/examples.ec:237.6-11
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+inserting symbol with name result
+        }
+    Node: type 22 {
+        }
+    Node: type 22 {
+        }
+    Node: type 22 {
+        }
+    }

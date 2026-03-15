@@ -1,7 +1,7 @@
 public class Point {
     I32i x;
     I32i y;
-} extern;
+};
 
 union Data {
     U32i i;
@@ -16,11 +16,11 @@ enum Color {
 
 class Animal {
     I32i age;
-}
+};
 
 class Dog : Animal {
     enum Color coat;
-}
+};
 
 enum Forward;
 

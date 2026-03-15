@@ -15,6 +15,11 @@ public I32i compute(I32i x = 10, I32i y = 20, ...) {
     return x * y;
 }
 
+class Point {
+  I32i x;
+  I32i y;
+};
+
 class Point *compute_point(class Point *p, I32i dx, I32i dy) {
   p->x += dx;
   p->y += dy;

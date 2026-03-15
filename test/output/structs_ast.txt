@@ -2,8 +2,7 @@ running pipeline on file input/structs.ec
 parsing file input/structs.ec
 printing AST for file input/structs.ec
 Program @ <input/structs.ec:1.1> 
-| TypeDeclaration @ <input/structs.ec:1.1-4.9> 
-| | StorageClassSpecifier: public @ <input/structs.ec:1.1-152> 
+| TypeDeclaration @ <input/structs.ec:1.1-4.2> 
 | | ClassSpecifier:  Point: @ <input/structs.ec:1.154-4.1> 
 | | | ClassDeclaration @ <input/structs.ec:2.5-11> 
 | | | | PrimitiveSpecifier: i32 @ <input/structs.ec:2.5-8> 
@@ -15,7 +14,7 @@ Program @ <input/structs.ec:1.1>
 | | | | ClassDeclarator @ <input/structs.ec:3.10> 
 | | | | | Declarator @ <input/structs.ec:3.10> 
 | | | | | | IdentifierDeclarator: y @ <input/structs.ec:3.10> 
-| | StorageClassSpecifier: extern @ <input/structs.ec:4.3-8> 
+| | StorageClassSpecifier: public @ <input/structs.ec:1.1-152> 
 | TypeDeclaration @ <input/structs.ec:6.1-9.2> 
 | | UnionSpecifier:  Data @ <input/structs.ec:6.1-9.1> 
 | | | ClassDeclaration @ <input/structs.ec:7.5-11> 
@@ -35,19 +34,21 @@ Program @ <input/structs.ec:1.1>
 | | | | ConstExpression:  @ <input/structs.ec:13.13> 
 | | | | | Literal: 5 @ <input/structs.ec:13.13> 
 | | | Enumerator: BLUE @ <input/structs.ec:14.5-8> 
-| TypeDeclaration @ <input/structs.ec:17.1-25.13> 
+| TypeDeclaration @ <input/structs.ec:17.1-19.2> 
 | | ClassSpecifier:  Animal: @ <input/structs.ec:17.1-19.1> 
 | | | ClassDeclaration @ <input/structs.ec:18.5-13> 
 | | | | PrimitiveSpecifier: i32 @ <input/structs.ec:18.5-8> 
 | | | | ClassDeclarator @ <input/structs.ec:18.10-12> 
 | | | | | Declarator @ <input/structs.ec:18.10-12> 
 | | | | | | IdentifierDeclarator: age @ <input/structs.ec:18.10-12> 
+| TypeDeclaration @ <input/structs.ec:21.1-23.2> 
 | | ClassSpecifier:  Dog:Animal @ <input/structs.ec:21.1-23.1> 
 | | | ClassDeclaration @ <input/structs.ec:22.5-20> 
 | | | | EnumSpecifier: Color @ <input/structs.ec:22.5-14> 
 | | | | ClassDeclarator @ <input/structs.ec:22.16-19> 
 | | | | | Declarator @ <input/structs.ec:22.16-19> 
 | | | | | | IdentifierDeclarator: coat @ <input/structs.ec:22.16-19> 
+| TypeDeclaration @ <input/structs.ec:25.1-13> 
 | | EnumSpecifier: Forward @ <input/structs.ec:25.1-12> 
 | TypeDeclaration @ <input/structs.ec:27.1-31.2> 
 | | ClassSpecifier:  Flags: @ <input/structs.ec:27.1-31.1> 
@@ -123,321 +124,493 @@ checking semantics for input/structs.ec:1.1
 running elaborator for input/structs.ec:1.1
 Node: type 52 {
     Node: type 8 {
-        visiting TypeDeclaration node
+        visiting TypeDeclaration node: input/structs.ec:1.1-4.2
         parsing declaration specifier list
-        Node: type 1 {
-            visiting StorageClassSpecifier node
-            }
         Node: type 17 {
-            visiting ClassSpecifier node
-TypeContext: class type 'Point' on scope 0x557366bceef0
+SymbolTable: pushing scope 0x565457d74960
+SymbolTable: entering scope 0x565457d74960
+SymbolTable: exiting scope
+            visiting ClassSpecifier node: input/structs.ec:1.154-4.1
+TypeContext: class type 'Point' on scope 0x565457d73f60
             Node: type 15 {
-                visiting ClassDeclaration node
+                visiting ClassDeclaration node: input/structs.ec:2.5-11
                 parsing declaration specifier list
                 Node: type 20 {
-                    visiting PrimitiveSpecifier node
+                    visiting PrimitiveSpecifier node: input/structs.ec:2.5-8
 TypeContext: getting primitive type with value 8
                     }
+                taking last result at input/structs.ec:2.5-8
                 Node: type 14 {
-                    visiting ClassDeclarator node
+                    visiting ClassDeclarator node: input/structs.ec:2.10
                     Node: type 5 {
                         Node: type 10 {
+                            visiting IdentifierDeclarator node: input/structs.ec:2.10
                             }
+                        taking last result at input/structs.ec:2.10
                         }
+                    taking last result at input/structs.ec:2.10
                     }
                 }
             Node: type 15 {
-                visiting ClassDeclaration node
+                visiting ClassDeclaration node: input/structs.ec:3.5-11
                 parsing declaration specifier list
                 Node: type 20 {
-                    visiting PrimitiveSpecifier node
+                    visiting PrimitiveSpecifier node: input/structs.ec:3.5-8
 TypeContext: getting primitive type with value 8
                     }
+                taking last result at input/structs.ec:3.5-8
                 Node: type 14 {
-                    visiting ClassDeclarator node
+                    visiting ClassDeclarator node: input/structs.ec:3.10
                     Node: type 5 {
                         Node: type 10 {
+                            visiting IdentifierDeclarator node: input/structs.ec:3.10
                             }
+                        taking last result at input/structs.ec:3.10
                         }
+                    taking last result at input/structs.ec:3.10
                     }
                 }
+SymbolTable: associating current scope 0x565457d73f60 with symbol 0x565457d75000 name 
             }
+SymbolTable: exiting scope
+        taking last result at input/structs.ec:1.154-4.1
         Node: type 1 {
-            visiting StorageClassSpecifier node
+            visiting StorageClassSpecifier node: input/structs.ec:1.1-152
             }
+        taking last result at input/structs.ec:1.1-152
+SymbolTable: inserting symbol with name 
         }
     Node: type 8 {
-        visiting TypeDeclaration node
+        visiting TypeDeclaration node: input/structs.ec:6.1-9.2
         parsing declaration specifier list
         Node: type 18 {
-            visiting UnionSpecifier node
-TypeContext: union type 'Data' on scope 0x557366bceef0
+SymbolTable: pushing scope 0x565457d750e0
+SymbolTable: entering scope 0x565457d750e0
+SymbolTable: exiting scope
+            visiting UnionSpecifier node input/structs.ec:6.1-9.1
+TypeContext: union type 'Data' on scope 0x565457d73f60
             Node: type 15 {
-                visiting ClassDeclaration node
+                visiting ClassDeclaration node: input/structs.ec:7.5-11
                 parsing declaration specifier list
                 Node: type 20 {
-                    visiting PrimitiveSpecifier node
+                    visiting PrimitiveSpecifier node: input/structs.ec:7.5-8
 TypeContext: getting primitive type with value 3
                     }
+                taking last result at input/structs.ec:7.5-8
                 Node: type 14 {
-                    visiting ClassDeclarator node
+                    visiting ClassDeclarator node: input/structs.ec:7.10
                     Node: type 5 {
                         Node: type 10 {
+                            visiting IdentifierDeclarator node: input/structs.ec:7.10
                             }
+                        taking last result at input/structs.ec:7.10
                         }
+                    taking last result at input/structs.ec:7.10
                     }
                 }
             Node: type 15 {
-                visiting ClassDeclaration node
+                visiting ClassDeclaration node: input/structs.ec:8.5-11
                 parsing declaration specifier list
                 Node: type 20 {
-                    visiting PrimitiveSpecifier node
+                    visiting PrimitiveSpecifier node: input/structs.ec:8.5-8
 TypeContext: getting primitive type with value 10
                     }
+                taking last result at input/structs.ec:8.5-8
                 Node: type 14 {
-                    visiting ClassDeclarator node
+                    visiting ClassDeclarator node: input/structs.ec:8.10
                     Node: type 5 {
                         Node: type 10 {
+                            visiting IdentifierDeclarator node: input/structs.ec:8.10
                             }
+                        taking last result at input/structs.ec:8.10
                         }
+                    taking last result at input/structs.ec:8.10
                     }
                 }
+SymbolTable: associating current scope 0x565457d73f60 with symbol 0x565457d74120 name 
             }
+SymbolTable: exiting scope
+        taking last result at input/structs.ec:6.1-9.1
+SymbolTable: inserting symbol with name 
         }
     Node: type 8 {
-        visiting TypeDeclaration node
+        visiting TypeDeclaration node: input/structs.ec:11.1-15.2
         parsing declaration specifier list
         Node: type 19 {
-            visiting EnumSpecifier node
-TypeContext: enum type 'Color' on scope 0x557366bceef0
+            visiting EnumSpecifier node: input/structs.ec:11.1-15.1
+TypeContext: enum type 'Color' on scope 0x565457d73f60
             Node: type 16 {
                 visiting Enumerator node with name RED
+SymbolTable: inserting symbol with name RED
                 }
             Node: type 16 {
                 visiting Enumerator node with name GREEN
+SymbolTable: inserting symbol with name GREEN
                 }
             Node: type 16 {
                 visiting Enumerator node with name BLUE
+SymbolTable: inserting symbol with name BLUE
                 }
+SymbolTable: associating current scope 0x565457d73f60 with symbol 0x565457d75570 name 
             }
+        taking last result at input/structs.ec:11.1-15.1
+SymbolTable: inserting symbol with name 
         }
     Node: type 8 {
-        visiting TypeDeclaration node
+        visiting TypeDeclaration node: input/structs.ec:17.1-19.2
         parsing declaration specifier list
         Node: type 17 {
-            visiting ClassSpecifier node
-TypeContext: class type 'Animal' on scope 0x557366bceef0
+SymbolTable: pushing scope 0x565457d755e0
+SymbolTable: entering scope 0x565457d755e0
+SymbolTable: exiting scope
+            visiting ClassSpecifier node: input/structs.ec:17.1-19.1
+TypeContext: class type 'Animal' on scope 0x565457d73f60
             Node: type 15 {
-                visiting ClassDeclaration node
+                visiting ClassDeclaration node: input/structs.ec:18.5-13
                 parsing declaration specifier list
                 Node: type 20 {
-                    visiting PrimitiveSpecifier node
+                    visiting PrimitiveSpecifier node: input/structs.ec:18.5-8
 TypeContext: getting primitive type with value 8
                     }
+                taking last result at input/structs.ec:18.5-8
                 Node: type 14 {
-                    visiting ClassDeclarator node
+                    visiting ClassDeclarator node: input/structs.ec:18.10-12
                     Node: type 5 {
                         Node: type 10 {
+                            visiting IdentifierDeclarator node: input/structs.ec:18.10-12
                             }
+                        taking last result at input/structs.ec:18.10-12
                         }
+                    taking last result at input/structs.ec:18.10-12
                     }
                 }
+SymbolTable: associating current scope 0x565457d73f60 with symbol 0x565457d75570 name 
             }
+SymbolTable: exiting scope
+        taking last result at input/structs.ec:17.1-19.1
+SymbolTable: inserting symbol with name 
+        }
+    Node: type 8 {
+        visiting TypeDeclaration node: input/structs.ec:21.1-23.2
+        parsing declaration specifier list
         Node: type 17 {
-            visiting ClassSpecifier node
-TypeContext: class type 'Dog' on scope 0x557366bceef0
+SymbolTable: pushing scope 0x565457d758d0
+SymbolTable: entering scope 0x565457d758d0
+SymbolTable: exiting scope
+            visiting ClassSpecifier node: input/structs.ec:21.1-23.1
+TypeContext: class type 'Dog' on scope 0x565457d73f60
             Node: type 15 {
-                visiting ClassDeclaration node
+                visiting ClassDeclaration node: input/structs.ec:22.5-20
                 parsing declaration specifier list
                 Node: type 19 {
-                    visiting EnumSpecifier node
-TypeContext: enum type 'Color' on scope 0x557366bceef0
+                    visiting EnumSpecifier node: input/structs.ec:22.5-14
+TypeContext: enum type 'Color' on scope 0x565457d73f60
 TypeContext: existing enum found
                     }
+                taking last result at input/structs.ec:22.5-14
                 Node: type 14 {
-                    visiting ClassDeclarator node
+                    visiting ClassDeclarator node: input/structs.ec:22.16-19
                     Node: type 5 {
                         Node: type 10 {
+                            visiting IdentifierDeclarator node: input/structs.ec:22.16-19
                             }
+                        taking last result at input/structs.ec:22.16-19
                         }
+                    taking last result at input/structs.ec:22.16-19
                     }
                 }
+SymbolTable: associating current scope 0x565457d73f60 with symbol 0x565457d75570 name 
             }
+SymbolTable: exiting scope
+        taking last result at input/structs.ec:21.1-23.1
+SymbolTable: inserting symbol with name 
+        }
+    Node: type 8 {
+        visiting TypeDeclaration node: input/structs.ec:25.1-13
+        parsing declaration specifier list
         Node: type 19 {
-            visiting EnumSpecifier node
-TypeContext: enum type 'Forward' on scope 0x557366bceef0
+            visiting EnumSpecifier node: input/structs.ec:25.1-12
+TypeContext: enum type 'Forward' on scope 0x565457d73f60
             }
+        taking last result at input/structs.ec:25.1-12
         }
     Node: type 8 {
-        visiting TypeDeclaration node
+        visiting TypeDeclaration node: input/structs.ec:27.1-31.2
         parsing declaration specifier list
         Node: type 17 {
-            visiting ClassSpecifier node
-TypeContext: class type 'Flags' on scope 0x557366bceef0
+SymbolTable: pushing scope 0x565457d75ab0
+SymbolTable: entering scope 0x565457d75ab0
+SymbolTable: exiting scope
+            visiting ClassSpecifier node: input/structs.ec:27.1-31.1
+TypeContext: class type 'Flags' on scope 0x565457d73f60
             Node: type 15 {
-                visiting ClassDeclaration node
+                visiting ClassDeclaration node: input/structs.ec:28.5-14
                 parsing declaration specifier list
                 Node: type 20 {
-                    visiting PrimitiveSpecifier node
+                    visiting PrimitiveSpecifier node: input/structs.ec:28.5-7
 TypeContext: getting primitive type with value 1
                     }
+                taking last result at input/structs.ec:28.5-7
                 Node: type 14 {
-                    visiting ClassDeclarator node
+                    visiting ClassDeclarator node: input/structs.ec:28.9-13
                     Node: type 5 {
                         Node: type 10 {
+                            visiting IdentifierDeclarator node: input/structs.ec:28.9
                             }
+                        taking last result at input/structs.ec:28.9
                         }
+                    taking last result at input/structs.ec:28.9-13
                     }
                 }
             Node: type 15 {
-                visiting ClassDeclaration node
+                visiting ClassDeclaration node: input/structs.ec:29.5-14
                 parsing declaration specifier list
                 Node: type 20 {
-                    visiting PrimitiveSpecifier node
+                    visiting PrimitiveSpecifier node: input/structs.ec:29.5-7
 TypeContext: getting primitive type with value 1
                     }
+                taking last result at input/structs.ec:29.5-7
                 Node: type 14 {
-                    visiting ClassDeclarator node
+                    visiting ClassDeclarator node: input/structs.ec:29.9-13
                     Node: type 5 {
                         Node: type 10 {
+                            visiting IdentifierDeclarator node: input/structs.ec:29.9
                             }
+                        taking last result at input/structs.ec:29.9
                         }
+                    taking last result at input/structs.ec:29.9-13
                     }
                 }
             Node: type 15 {
-                visiting ClassDeclaration node
+                visiting ClassDeclaration node: input/structs.ec:30.5-12
                 parsing declaration specifier list
                 Node: type 20 {
-                    visiting PrimitiveSpecifier node
+                    visiting PrimitiveSpecifier node: input/structs.ec:30.5-7
 TypeContext: getting primitive type with value 1
                     }
+                taking last result at input/structs.ec:30.5-7
                 Node: type 14 {
-                    visiting ClassDeclarator node
+                    visiting ClassDeclarator node: input/structs.ec:30.9-11
                     }
                 }
+SymbolTable: associating current scope 0x565457d73f60 with symbol 0x565457d75570 name 
             }
+SymbolTable: exiting scope
+        taking last result at input/structs.ec:27.1-31.1
+SymbolTable: inserting symbol with name 
         }
     Node: type 8 {
-        visiting TypeDeclaration node
+        visiting TypeDeclaration node: input/structs.ec:33.1-39.2
         parsing declaration specifier list
         Node: type 17 {
-            visiting ClassSpecifier node
-TypeContext: class type 'Value' on scope 0x557366bceef0
+SymbolTable: pushing scope 0x565457d75c60
+SymbolTable: entering scope 0x565457d75c60
+SymbolTable: exiting scope
+            visiting ClassSpecifier node: input/structs.ec:33.1-39.1
+TypeContext: class type 'Value' on scope 0x565457d73f60
             Node: type 15 {
-                visiting ClassDeclaration node
+                visiting ClassDeclaration node: input/structs.ec:34.3-12
                 parsing declaration specifier list
                 Node: type 20 {
-                    visiting PrimitiveSpecifier node
+                    visiting PrimitiveSpecifier node: input/structs.ec:34.3-6
 TypeContext: getting primitive type with value 8
                     }
+                taking last result at input/structs.ec:34.3-6
                 Node: type 14 {
-                    visiting ClassDeclarator node
+                    visiting ClassDeclarator node: input/structs.ec:34.8-11
                     Node: type 5 {
                         Node: type 10 {
+                            visiting IdentifierDeclarator node: input/structs.ec:34.8-11
                             }
+                        taking last result at input/structs.ec:34.8-11
                         }
+                    taking last result at input/structs.ec:34.8-11
                     }
                 }
             Node: type 15 {
-                visiting ClassDeclaration node
+                visiting ClassDeclaration node: input/structs.ec:35.3-38.6
                 parsing declaration specifier list
                 Node: type 18 {
-                    visiting UnionSpecifier node
-TypeContext: anonymous union type on scope 0x557366bceef0
+SymbolTable: pushing scope 0x565457d75dc0
+SymbolTable: entering scope 0x565457d75dc0
+SymbolTable: exiting scope
+                    visiting UnionSpecifier node input/structs.ec:35.3-38.3
+TypeContext: anonymous union type on scope 0x565457d73f60
                     Node: type 15 {
-                        visiting ClassDeclaration node
+                        visiting ClassDeclaration node: input/structs.ec:36.5-11
                         parsing declaration specifier list
                         Node: type 20 {
-                            visiting PrimitiveSpecifier node
+                            visiting PrimitiveSpecifier node: input/structs.ec:36.5-8
 TypeContext: getting primitive type with value 10
                             }
+                        taking last result at input/structs.ec:36.5-8
                         Node: type 14 {
-                            visiting ClassDeclarator node
+                            visiting ClassDeclarator node: input/structs.ec:36.10
                             Node: type 5 {
                                 Node: type 10 {
+                                    visiting IdentifierDeclarator node: input/structs.ec:36.10
                                     }
+                                taking last result at input/structs.ec:36.10
                                 }
+                            taking last result at input/structs.ec:36.10
                             }
                         }
                     Node: type 15 {
-                        visiting ClassDeclaration node
+                        visiting ClassDeclaration node: input/structs.ec:37.5-11
                         parsing declaration specifier list
                         Node: type 20 {
-                            visiting PrimitiveSpecifier node
+                            visiting PrimitiveSpecifier node: input/structs.ec:37.5-7
 TypeContext: getting primitive type with value 1
                             }
+                        taking last result at input/structs.ec:37.5-7
                         Node: type 14 {
-                            visiting ClassDeclarator node
+                            visiting ClassDeclarator node: input/structs.ec:37.9-10
                             Node: type 5 {
                                 Node: type 10 {
+                                    visiting IdentifierDeclarator node: input/structs.ec:37.9-10
                                     }
+                                taking last result at input/structs.ec:37.9-10
                                 }
+                            taking last result at input/structs.ec:37.9-10
                             }
                         }
                     }
+SymbolTable: exiting scope
+                taking last result at input/structs.ec:35.3-38.3
                 Node: type 14 {
-                    visiting ClassDeclarator node
+                    visiting ClassDeclarator node: input/structs.ec:38.5
                     Node: type 5 {
                         Node: type 10 {
+                            visiting IdentifierDeclarator node: input/structs.ec:38.5
                             }
+                        taking last result at input/structs.ec:38.5
                         }
+                    taking last result at input/structs.ec:38.5
                     }
                 }
+SymbolTable: associating current scope 0x565457d73f60 with symbol 0x565457d75570 name 
             }
+SymbolTable: exiting scope
+        taking last result at input/structs.ec:33.1-39.1
+SymbolTable: inserting symbol with name 
         }
     Node: type 8 {
-        visiting TypeDeclaration node
+        visiting TypeDeclaration node: input/structs.ec:41.1-43.2
         parsing declaration specifier list
         Node: type 17 {
-            visiting ClassSpecifier node
-TypeContext: class type 'VTable' on scope 0x557366bceef0
+SymbolTable: pushing scope 0x565457d75f20
+SymbolTable: entering scope 0x565457d75f20
+SymbolTable: exiting scope
+            visiting ClassSpecifier node: input/structs.ec:41.1-43.1
+TypeContext: class type 'VTable' on scope 0x565457d73f60
             Node: type 15 {
-                visiting ClassDeclaration node
+                visiting ClassDeclaration node: input/structs.ec:42.5-35
                 parsing declaration specifier list
                 Node: type 20 {
-                    visiting PrimitiveSpecifier node
+                    visiting PrimitiveSpecifier node: input/structs.ec:42.5-7
 TypeContext: getting primitive type with value 0
                     }
+                taking last result at input/structs.ec:42.5-7
                 Node: type 14 {
-                    visiting ClassDeclarator node
+                    visiting ClassDeclarator node: input/structs.ec:42.9-34
                     Node: type 5 {
                         Node: type 13 {
-                            visiting FunctionDeclarator node
+                            visiting FunctionDeclarator node: input/structs.ec:42.9-34
                             Node: type 11 {
-                                visiting ParenDeclarator node
+                                visiting ParenDeclarator node: input/structs.ec:42.9-21
                                 Node: type 5 {
                                     Node: type 10 {
+                                        visiting IdentifierDeclarator node: input/structs.ec:42.9-20
                                         }
+                                    taking last result at input/structs.ec:42.9-20
                                     Node: type 2 {
                                         visiting Pointer node
                                         }
                                     }
+                                taking last result at input/structs.ec:42.9-21
                                 }
+                            taking last result at input/structs.ec:42.9-34
                             Node: type 7 {
-                                visiting ParameterDeclarator node
+                                visiting ParameterDeclarator node: input/structs.ec:42.23-33
                                 parsing declaration specifier list
                                 Node: type 20 {
-                                    visiting PrimitiveSpecifier node
+                                    visiting PrimitiveSpecifier node: input/structs.ec:42.23-27
 TypeContext: getting primitive type with value 4
                                     }
+                                taking last result at input/structs.ec:42.23-27
+                                Node: type 5 {
+                                    Node: type 10 {
+                                        visiting IdentifierDeclarator node: input/structs.ec:42.29-33
+                                        }
+                                    taking last result at input/structs.ec:42.29-33
+                                    }
+                                taking last result at input/structs.ec:42.23-33
+TypeBuilder: finalizing type
                                 }
+                            taking last result at input/structs.ec:42.9-34
                             }
+                        taking last result at input/structs.ec:42.9-34
                         }
+                    taking last result at input/structs.ec:42.9-34
                     }
                 }
+SymbolTable: associating current scope 0x565457d73f60 with symbol 0x565457d75570 name 
             }
+SymbolTable: exiting scope
+        taking last result at input/structs.ec:41.1-43.1
+SymbolTable: inserting symbol with name 
         }
     Node: type 22 {
         }
     Node: type 22 {
         }
     }
-resetting scopes
-resetting scopes
-resetting scopes
-resetting scopes
-resetting scopes
-resetting scopes
-resetting scopes
-resetting scopes
-resetting scopes
+--------- TYPE CONTEXT ---------
+
+Base Types:
+  N3ecc4sema5types9UnionTypeE_anon_union_00x565457d73f60 -> 0x565457d75e40 : union { }
+  N3ecc4sema5types9ClassTypeE_Flags0x565457d73f60 -> 0x565457d75b30 : class { }
+  N3ecc4sema5types8EnumTypeE_Forward0x565457d73f60 -> 0x565457d52ad0 : enum
+  N3ecc4sema5types9ClassTypeE_Value0x565457d73f60 -> 0x565457d75ce0 : class { }
+  N3ecc4sema5types9ClassTypeE_Animal0x565457d73f60 -> 0x565457d756e0 : class { }
+  N3ecc4sema5types8EnumTypeE_Color0x565457d73f60 -> 0x565457d53580 : enum
+  Data -> 0x565457d75160 : union { }
+  I0 -> 0x565457d74390 : I0
+  U0 -> 0x565457d740a0 : U0
+  I32 -> 0x565457d74510 : I32
+  U8 -> 0x565457d74190 : U8
+  N3ecc4sema5types9ClassTypeE_Dog0x565457d73f60 -> 0x565457d75950 : class { }
+  I16 -> 0x565457d74490 : I16
+  U16 -> 0x565457d74210 : U16
+  bool -> 0x565457d74690 : bool
+  U32 -> 0x565457d74290 : U32
+  I8 -> 0x565457d74410 : I8
+  U64 -> 0x565457d74310 : U64
+  N3ecc4sema5types9ClassTypeE_Point0x565457d73f60 -> 0x565457d74a60 : class { }
+  I64 -> 0x565457d74590 : I64
+  N3ecc4sema5types9ClassTypeE_VTable0x565457d73f60 -> 0x565457d75fa0 : class { }
+  F64 -> 0x565457d74610 : F64
+
+Pointer Types:
+
+Array Types:
+
+
+--------- SYMBOL TABLE ---------
+
+Scope 0x565457d73f60
+  GREEN -> 0x565457d75440 : VarSymbol enum
+  RED -> 0x565457d753b0 : VarSymbol enum
+  BLUE -> 0x565457d75500 : VarSymbol enum
+   -> 0x565457d75000 : TypeSymbol class { }
+  Scope 0x565457d74960
+  Scope 0x565457d750e0
+  Scope 0x565457d755e0
+  Scope 0x565457d758d0
+  Scope 0x565457d75ab0
+  Scope 0x565457d75c60
+  Scope 0x565457d75dc0
+  Scope 0x565457d75f20
+
+0x565457d52cf0
+0x565457d73fe0

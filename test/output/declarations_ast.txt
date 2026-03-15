@@ -3,9 +3,9 @@ parsing file input/declarations.ec
 printing AST for file input/declarations.ec
 Program @ <input/declarations.ec:1.1> 
 | VariableDeclaration @ <input/declarations.ec:1.1-188> 
-| | StorageClassSpecifier: public @ <input/declarations.ec:1.1-162> 
-| | TypeQualifier: const @ <input/declarations.ec:1.164-168> 
 | | PrimitiveSpecifier: u32 @ <input/declarations.ec:1.170-173> 
+| | TypeQualifier: const @ <input/declarations.ec:1.164-168> 
+| | StorageClassSpecifier: public @ <input/declarations.ec:1.1-162> 
 | | InitDeclarator @ <input/declarations.ec:1.175-187> 
 | | | Declarator @ <input/declarations.ec:1.175-187> 
 | | | | Pointer @ <input/declarations.ec:1.175-183> 
@@ -13,8 +13,8 @@ Program @ <input/declarations.ec:1.1>
 | | | | | Pointer @ <input/declarations.ec:1.183> 
 | | | | IdentifierDeclarator: ptrA @ <input/declarations.ec:1.183-187> 
 | VariableDeclaration @ <input/declarations.ec:2.1-29> 
-| | StorageClassSpecifier: static @ <input/declarations.ec:2.1-6> 
 | | PrimitiveSpecifier: i16 @ <input/declarations.ec:2.8-11> 
+| | StorageClassSpecifier: static @ <input/declarations.ec:2.1-6> 
 | | InitDeclarator @ <input/declarations.ec:2.13> 
 | | | Declarator @ <input/declarations.ec:2.13> 
 | | | | IdentifierDeclarator: a @ <input/declarations.ec:2.13> 
@@ -31,8 +31,8 @@ Program @ <input/declarations.ec:1.1>
 | | | | | ConstExpression:  @ <input/declarations.ec:2.25-27> 
 | | | | | | Literal: 4 @ <input/declarations.ec:2.25-27> 
 | VariableDeclaration @ <input/declarations.ec:3.1-20> 
-| | StorageClassSpecifier: extern @ <input/declarations.ec:3.1-6> 
 | | PrimitiveSpecifier: f64 @ <input/declarations.ec:3.8-11> 
+| | StorageClassSpecifier: extern @ <input/declarations.ec:3.1-6> 
 | | InitDeclarator @ <input/declarations.ec:3.13-19> 
 | | | Declarator @ <input/declarations.ec:3.13-19> 
 | | | | ArrayDeclarator @ <input/declarations.ec:3.13-19> 
@@ -70,23 +70,28 @@ checking semantics for input/declarations.ec:1.1
 running elaborator for input/declarations.ec:1.1
 Node: type 52 {
     Node: type 9 {
-        visiting VariableDeclaration node
+        visiting VariableDeclaration node: input/declarations.ec:1.1-188
         parsing declaration specifier list
-        Node: type 1 {
-            visiting StorageClassSpecifier node
-            }
-        Node: type 0 {
-            visiting TypeQualifier node
-            }
         Node: type 20 {
-            visiting PrimitiveSpecifier node
+            visiting PrimitiveSpecifier node: input/declarations.ec:1.170-173
 TypeContext: getting primitive type with value 3
             }
+        taking last result at input/declarations.ec:1.170-173
+        Node: type 0 {
+            visiting TypeQualifier node: input/declarations.ec:1.164-168
+            }
+        taking last result at input/declarations.ec:1.164-168
+        Node: type 1 {
+            visiting StorageClassSpecifier node: input/declarations.ec:1.1-162
+            }
+        taking last result at input/declarations.ec:1.1-162
         Node: type 6 {
-            visiting InitDeclarator node
+            visiting InitDeclarator node: input/declarations.ec:1.175-187
             Node: type 5 {
                 Node: type 10 {
+                    visiting IdentifierDeclarator node: input/declarations.ec:1.183-187
                     }
+                taking last result at input/declarations.ec:1.175-187
                 Node: type 2 {
                     visiting Pointer node
                     Node: type 2 {
@@ -94,108 +99,196 @@ TypeContext: getting primitive type with value 3
                         }
                     }
                 }
+            taking last result at input/declarations.ec:1.175-187
             }
-TypeContext: pointer with base 0x560eab2ea220
-TypeContext: pointer with base 0x560eab2ea220
+        taking last result at input/declarations.ec:1.1-188
+TypeBuilder: finalizing type
+TypeContext: pointer with base 0x55ebb1f48290
+TypeContext: pointer with base 0x55ebb1f48290
+SymbolTable: inserting symbol with name ptrA
         }
     Node: type 9 {
-        visiting VariableDeclaration node
+        visiting VariableDeclaration node: input/declarations.ec:2.1-29
         parsing declaration specifier list
-        Node: type 1 {
-            visiting StorageClassSpecifier node
-            }
         Node: type 20 {
-            visiting PrimitiveSpecifier node
+            visiting PrimitiveSpecifier node: input/declarations.ec:2.8-11
 TypeContext: getting primitive type with value 7
             }
+        taking last result at input/declarations.ec:2.8-11
+        Node: type 1 {
+            visiting StorageClassSpecifier node: input/declarations.ec:2.1-6
+            }
+        taking last result at input/declarations.ec:2.1-6
         Node: type 6 {
-            visiting InitDeclarator node
+            visiting InitDeclarator node: input/declarations.ec:2.13
             Node: type 5 {
                 Node: type 10 {
+                    visiting IdentifierDeclarator node: input/declarations.ec:2.13
                     }
+                taking last result at input/declarations.ec:2.13
                 }
+            taking last result at input/declarations.ec:2.13
             }
+        taking last result at input/declarations.ec:2.1-29
+TypeBuilder: finalizing type
+SymbolTable: inserting symbol with name a
         Node: type 6 {
-            visiting InitDeclarator node
+            visiting InitDeclarator node: input/declarations.ec:2.16-22
             Node: type 5 {
                 Node: type 10 {
+                    visiting IdentifierDeclarator node: input/declarations.ec:2.16
                     }
+                taking last result at input/declarations.ec:2.16
                 }
+            taking last result at input/declarations.ec:2.16-22
             }
+        taking last result at input/declarations.ec:2.1-29
+TypeBuilder: finalizing type
+SymbolTable: inserting symbol with name b
         Node: type 6 {
-            visiting InitDeclarator node
+            visiting InitDeclarator node: input/declarations.ec:2.25-28
             Node: type 5 {
                 Node: type 12 {
-                    visiting ArrayDeclarator node
+                    visiting ArrayDeclarator node: input/declarations.ec:2.25-28
                     Node: type 10 {
+                        visiting IdentifierDeclarator node: input/declarations.ec:2.25
                         }
+                    taking last result at input/declarations.ec:2.25-28
                     array declarator has size, checking for compile time computability
                     }
+                taking last result at input/declarations.ec:2.25-28
                 }
+            taking last result at input/declarations.ec:2.25-28
             }
-TypeContext: array type with base 0x560eab2ea420
+        taking last result at input/declarations.ec:2.1-29
+TypeBuilder: finalizing type
+TypeContext: array type with base 0x55ebb1f48490, size 4
+SymbolTable: inserting symbol with name c
         }
     Node: type 9 {
-        visiting VariableDeclaration node
+        visiting VariableDeclaration node: input/declarations.ec:3.1-20
         parsing declaration specifier list
-        Node: type 1 {
-            visiting StorageClassSpecifier node
-            }
         Node: type 20 {
-            visiting PrimitiveSpecifier node
+            visiting PrimitiveSpecifier node: input/declarations.ec:3.8-11
 TypeContext: getting primitive type with value 10
             }
+        taking last result at input/declarations.ec:3.8-11
+        Node: type 1 {
+            visiting StorageClassSpecifier node: input/declarations.ec:3.1-6
+            }
+        taking last result at input/declarations.ec:3.1-6
         Node: type 6 {
-            visiting InitDeclarator node
+            visiting InitDeclarator node: input/declarations.ec:3.13-19
             Node: type 5 {
                 Node: type 12 {
-                    visiting ArrayDeclarator node
+                    visiting ArrayDeclarator node: input/declarations.ec:3.13-19
                     Node: type 10 {
+                        visiting IdentifierDeclarator node: input/declarations.ec:3.13-17
                         }
+                    taking last result at input/declarations.ec:3.13-19
                     }
+                taking last result at input/declarations.ec:3.13-19
                 }
+            taking last result at input/declarations.ec:3.13-19
             }
-TypeContext: array type with base 0x560eab2ea5a0
+        taking last result at input/declarations.ec:3.1-20
+TypeBuilder: finalizing type
+TypeContext: array type with base 0x55ebb1f48610, no size
+SymbolTable: inserting symbol with name table
         }
     Node: type 9 {
-        visiting VariableDeclaration node
+        visiting VariableDeclaration node: input/declarations.ec:5.1-25
         parsing declaration specifier list
         Node: type 20 {
-            visiting PrimitiveSpecifier node
+            visiting PrimitiveSpecifier node: input/declarations.ec:5.1-3
 TypeContext: getting primitive type with value 1
             }
+        taking last result at input/declarations.ec:5.1-3
         Node: type 6 {
-            visiting InitDeclarator node
+            visiting InitDeclarator node: input/declarations.ec:5.5-24
             Node: type 5 {
                 Node: type 12 {
-                    visiting ArrayDeclarator node
+                    visiting ArrayDeclarator node: input/declarations.ec:5.5-12
                     Node: type 10 {
+                        visiting IdentifierDeclarator node: input/declarations.ec:5.5-9
                         }
+                    taking last result at input/declarations.ec:5.5-12
                     array declarator has size, checking for compile time computability
                     }
+                taking last result at input/declarations.ec:5.5-12
                 }
+            taking last result at input/declarations.ec:5.5-24
             }
-TypeContext: array type with base 0x560eab2ea120
+        taking last result at input/declarations.ec:5.1-25
+TypeBuilder: finalizing type
+TypeContext: array type with base 0x55ebb1f48190, size 3
+SymbolTable: inserting symbol with name bytes
         }
     Node: type 9 {
-        visiting VariableDeclaration node
+        visiting VariableDeclaration node: input/declarations.ec:6.1-24
         parsing declaration specifier list
         Node: type 20 {
-            visiting PrimitiveSpecifier node
+            visiting PrimitiveSpecifier node: input/declarations.ec:6.1-4
 TypeContext: getting primitive type with value 8
             }
+        taking last result at input/declarations.ec:6.1-4
         Node: type 6 {
-            visiting InitDeclarator node
+            visiting InitDeclarator node: input/declarations.ec:6.6-23
             Node: type 5 {
                 Node: type 12 {
-                    visiting ArrayDeclarator node
+                    visiting ArrayDeclarator node: input/declarations.ec:6.6-14
                     Node: type 10 {
+                        visiting IdentifierDeclarator node: input/declarations.ec:6.6-11
                         }
+                    taking last result at input/declarations.ec:6.6-14
                     array declarator has size, checking for compile time computability
                     }
+                taking last result at input/declarations.ec:6.6-14
                 }
+            taking last result at input/declarations.ec:6.6-23
             }
-TypeContext: array type with base 0x560eab2ea4a0
+        taking last result at input/declarations.ec:6.1-24
+TypeBuilder: finalizing type
+TypeContext: array type with base 0x55ebb1f48510, size 2
+SymbolTable: inserting symbol with name matrix
         }
     }
-resetting scopes
+--------- TYPE CONTEXT ---------
+
+Base Types:
+  F64 -> 0x55ebb1f48610 : F64
+  I64 -> 0x55ebb1f48590 : I64
+  U64 -> 0x55ebb1f48310 : U64
+  I8 -> 0x55ebb1f48410 : I8
+  U32 -> 0x55ebb1f48290 : U32
+  U16 -> 0x55ebb1f48210 : U16
+  bool -> 0x55ebb1f48690 : bool
+  U8 -> 0x55ebb1f48190 : U8
+  I32 -> 0x55ebb1f48510 : I32
+  I16 -> 0x55ebb1f48490 : I16
+  I0 -> 0x55ebb1f48390 : I0
+  U0 -> 0x55ebb1f480a0 : U0
+
+Pointer Types:
+  0x55ebb1f48c00 : U32 *
+
+Array Types:
+  0x55ebb1f49560 : I32[2]
+  0x55ebb1f49420 : U8[3]
+  0x55ebb1f492e0 : F64[]
+  0x55ebb1f48fd0 : I16[4]
+
+
+--------- SYMBOL TABLE ---------
+
+Scope 0x55ebb1f47f60
+  bytes -> 0x55ebb1f494b0 : VarSymbol U8
+  table -> 0x55ebb1f49370 : VarSymbol F64 extern
+  c -> 0x55ebb1f49230 : VarSymbol I16 static
+  b -> 0x55ebb1f490d0 : VarSymbol I16 static
+  matrix -> 0x55ebb1f495f0 : VarSymbol I32
+  a -> 0x55ebb1f49020 : VarSymbol I16 static
+  ptrA -> 0x55ebb1f48eb0 : VarSymbol const U32 public
+
+0x55ebb1f26cf0
+0x55ebb1f47fe0

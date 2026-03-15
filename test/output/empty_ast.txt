@@ -7,4 +7,30 @@ checking semantics for input/empty.ec:1.1
 running elaborator for input/empty.ec:1.1
 Node: type 52 {
     }
-resetting scopes
+--------- TYPE CONTEXT ---------
+
+Base Types:
+  F64 -> 0x55fb4e8f6610 : F64
+  I64 -> 0x55fb4e8f6590 : I64
+  U64 -> 0x55fb4e8f6310 : U64
+  I8 -> 0x55fb4e8f6410 : I8
+  U32 -> 0x55fb4e8f6290 : U32
+  U16 -> 0x55fb4e8f6210 : U16
+  bool -> 0x55fb4e8f6690 : bool
+  U8 -> 0x55fb4e8f6190 : U8
+  I32 -> 0x55fb4e8f6510 : I32
+  I16 -> 0x55fb4e8f6490 : I16
+  I0 -> 0x55fb4e8f6390 : I0
+  U0 -> 0x55fb4e8f60a0 : U0
+
+Pointer Types:
+
+Array Types:
+
+
+--------- SYMBOL TABLE ---------
+
+Scope 0x55fb4e8f5f60
+
+0x55fb4e8d4ab0
+0x55fb4e8f5fe0

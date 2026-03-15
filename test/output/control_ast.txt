@@ -73,103 +73,45 @@ checking semantics for input/control.ec:1.1
 running elaborator for input/control.ec:1.1
 Node: type 52 {
     Node: type 26 {
-        visiting LabeledStatement node
+        visiting LabeledStatement node: input/control.ec:1.1-8.1
+SymbolTable: inserting symbol with name start
         Node: type 28 {
-            Node: type 38 {
-                Node: type 43 {
-                    }
-                Node: type 44 {
-                    }
-                }
-            Node: type 21 {
-                visiting CompoundStatement node
-                Node: type 22 {
-                    }
-                }
-            Node: type 28 {
-                Node: type 38 {
-                    Node: type 43 {
-                        }
-                    Node: type 44 {
-                        }
-                    }
-                Node: type 21 {
-                    visiting CompoundStatement node
-                    Node: type 22 {
-                        }
-                    }
-                Node: type 21 {
-                    visiting CompoundStatement node
-                    Node: type 22 {
-                        }
-                    }
-                }
             }
         }
     Node: type 29 {
-        Node: type 43 {
-            }
-        Node: type 21 {
-            visiting CompoundStatement node
-            Node: type 23 {
-                }
-            Node: type 24 {
-                }
-            Node: type 34 {
-                }
-            Node: type 25 {
-                }
-            }
         }
     Node: type 30 {
-        Node: type 38 {
-            Node: type 43 {
-                }
-            Node: type 44 {
-                }
-            }
-        Node: type 22 {
-            }
         }
     Node: type 31 {
-        Node: type 21 {
-            visiting CompoundStatement node
-            Node: type 22 {
-                }
-            }
-        Node: type 38 {
-            Node: type 43 {
-                }
-            Node: type 44 {
-                }
-            }
         }
     Node: type 32 {
-        Node: type 41 {
-            Node: type 43 {
-                }
-            Node: type 44 {
-                }
-            }
-        Node: type 38 {
-            Node: type 43 {
-                }
-            Node: type 44 {
-                }
-            }
-        Node: type 38 {
-            Node: type 43 {
-                }
-            Node: type 44 {
-                }
-            }
-        Node: type 27 {
-            }
         }
     }
-resetting scopes
-resetting scopes
-resetting scopes
-resetting scopes
-resetting scopes
-resetting scopes
+--------- TYPE CONTEXT ---------
+
+Base Types:
+  F64 -> 0x55ae2d2d4610 : F64
+  I64 -> 0x55ae2d2d4590 : I64
+  U64 -> 0x55ae2d2d4310 : U64
+  I8 -> 0x55ae2d2d4410 : I8
+  U32 -> 0x55ae2d2d4290 : U32
+  U16 -> 0x55ae2d2d4210 : U16
+  bool -> 0x55ae2d2d4690 : bool
+  U8 -> 0x55ae2d2d4190 : U8
+  I32 -> 0x55ae2d2d4510 : I32
+  I16 -> 0x55ae2d2d4490 : I16
+  I0 -> 0x55ae2d2d4390 : I0
+  U0 -> 0x55ae2d2d40a0 : U0
+
+Pointer Types:
+
+Array Types:
+
+
+--------- SYMBOL TABLE ---------
+
+Scope 0x55ae2d2d3f60
+  start -> 0x55ae2d2d4960 : LabelSymbol
+
+0x55ae2d2b2cf0
+0x55ae2d2d3fe0
