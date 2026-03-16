@@ -4,76 +4,64 @@
 namespace ecc::tokens {
 
 // All semantically relevant tokens in EnlightenedC.
-enum TokenType {
-    IF,
-    ELSE,
-    WHILE,
-    DO,
-    FOR,
-    SWITCH,
-    CASE,
-    DEFAULT,
-    BREAK,
-    RETURN,
-    GOTO,
-    CLASS,
-    UNION,
-    ENUM,
-    CONST,
-    VOID,
-    U8, U16, U32, U64,
-    I0, I8, I16, I32, I64,
-    F64,
-    BOOL,
-    SIZEOF,
-    PUBLIC,
-    STATIC,
-    EXTERN,
 
-    PLUS,
-    MINUS,
-    MUL,
-    DIV,
-    MOD,
-    ASSIGN,
-    EQ,
-    NE,
-    LE,
-    GE,
-    ANDAND,
-    OROR,
-    INC,
-    DEC,
-    PLUSEQ,
-    MINUSEQ,
-    MULEQ,
-    DIVEQ,
-    MODEQ,
-    LSHIFTEQ,
-    RSHIFTEQ,
-    ANDEQ,
-    OREQ,
-    XOREQ,
-    AND,
-    OR,
-    XOR,
-    TILDE,
-    NOT,
-    LT,
-    GT,
-    LSHIFT,
-    RSHIFT,
-    SEMI,
-    COMMA,
-    LPAREN,
-    RPAREN,
-    LBRACE,
-    RBRACE,
-    LBRACKET,
-    RBRACKET,
+enum BinaryOp {
+    OROR,     // ||
+    ANDAND,   // &&
+    OR,       // |
+    XOR,      // ^
+    AND,      // &
+    EQ,       // ==
+    NE,       // !=
+    LT,       // <
+    GT,       // >
+    LE,       // <=
+    GE,       // >=
+    LSHIFT,   // <<
+    RSHIFT,   // >>
+    PLUS,     // +
+    MINUS,    // -
+    MUL,      // *
+    DIV,      // /
+    MOD,      // %
+    BINCOMMA  // ,
+};
+
+enum UnaryOp {
+    INC,      // ++<symbol>
+    DEC,      // --<symbol>
+    REF,      // &
+    DEREF,    // *
+    POS,      // +
+    NEG,      // -
+    TILDE,    // ~
+    NOT,      // !
+};
+
+enum AssignOp {
+    ASSIGN,   // =
+    MULEQ,    // *=
+    DIVEQ,    // /=
+    MODEQ,    // %=
+    PLUSEQ,   // +=
+    MINUSEQ,  // -=
+    LSHIFTEQ, // <<=
+    RSHIFTEQ, // >>=
+    ANDEQ,    // &=
+    XOREQ,    // ^=
+    OREQ,     // |=
+};
+
+enum PostfixOp {
+    POSTINC,  // <symbol>++
+    POSTDEC,  // <symbol>--
+};
+
+enum InfixOp {
     DOT,
     ARROW,
-    ELLIPSIS,
+    COMMA,
+    SEMI,
 };
 
 }; // namespace ecc::tokens

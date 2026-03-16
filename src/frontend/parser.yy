@@ -105,7 +105,8 @@ static ecc::parser::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 
 %type <Box<InitDeclarator>> init_declarator
 %type <Vec<Box<InitDeclarator>>> init_declarator_list
-%type <ecc::tokens::TokenType> assignment_operator unary_operator
+%type <ecc::tokens::AssignOp> assignment_operator
+%type <ecc::tokens::UnaryOp> unary_operator
 
 %type <Box<Pointer>> pointer
 %type <Box<DirectDeclarator>> direct_declarator
@@ -730,8 +731,8 @@ expression:
     assignment_expression {
         $$ = std::move($1);
     }
-    | expression COMMA assignment_expression { // FIXME: what does this do and why is it here?
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::COMMA);
+    | expression COMMA assignment_expression { // See examples.ec line 198 for an example.
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BINCOMMA);
     }
 ;
 
@@ -914,10 +915,10 @@ unary_expression:
 ;
 
 unary_operator:
-    AND { $$ = ecc::tokens::AND; }
-    | MUL { $$ = ecc::tokens::MUL; }
-    | PLUS { $$ = ecc::tokens::PLUS; }
-    | MINUS { $$ = ecc::tokens::MINUS; }
+    AND { $$ = ecc::tokens::REF; }
+    | MUL { $$ = ecc::tokens::DEREF; }
+    | PLUS { $$ = ecc::tokens::POS; }
+    | MINUS { $$ = ecc::tokens::NEG; }
     | TILDE { $$ = ecc::tokens::TILDE; }
     | NOT { $$ = ecc::tokens::NOT; }
 ;
@@ -988,10 +989,10 @@ postfix_expression:
         $$ = std::make_unique<MemberAccessExpression>(@$, std::move($1), std::move($3), true);
     }
     | postfix_expression INC {
-        $$ = std::make_unique<PostfixExpression>(@$, std::move($1), ecc::tokens::INC);
+        $$ = std::make_unique<PostfixExpression>(@$, std::move($1), ecc::tokens::POSTINC);
     }
     | postfix_expression DEC {
-        $$ = std::make_unique<PostfixExpression>(@$, std::move($1), ecc::tokens::DEC);
+        $$ = std::make_unique<PostfixExpression>(@$, std::move($1), ecc::tokens::POSTDEC);
     }
 ;
 

@@ -591,7 +591,7 @@ public:
         case_expr(std::move(case_expr)),
         statement(std::move(statement)) {}
 
-    Box<Expression> case_expr;
+    Box<ConstExpression> case_expr;
     Box<Statement> statement;
 
     void accept(ASTVisitor& visitor) override;
@@ -803,7 +803,7 @@ public:
         Location loc,
         Box<Expression> left,
         Box<Expression> right,
-        tokens::TokenType op
+        tokens::BinaryOp op
     )
         : Expression(BIN_EXPR, loc),
         left(std::move(left)), 
@@ -812,7 +812,7 @@ public:
 
     Box<Expression> left;
     Box<Expression> right;
-    tokens::TokenType op;
+    tokens::BinaryOp op;
 
     void accept(ASTVisitor& visitor) override;
 
@@ -840,13 +840,13 @@ class UnaryExpression : public Expression {
 public:
     UnaryExpression(Location loc,
                     Box<Expression> operand, 
-                    tokens::TokenType op)
+                    tokens::UnaryOp op)
         : Expression(UN_EXPR, loc),
         operand(std::move(operand)),
         op(op) {}
 
     Box<Expression> operand;
-    tokens::TokenType op;
+    tokens::UnaryOp op;
 
     void accept(ASTVisitor& visitor) override;
 
@@ -858,7 +858,7 @@ public:
     AssignmentExpression(Location loc,
                          Box<Expression> left, 
                          Box<Expression> right,
-                         tokens::TokenType op)
+                         tokens::AssignOp op)
         : Expression(ASSGN_EXPR, loc),
         left(std::move(left)), 
         right(std::move(right)),
@@ -866,7 +866,7 @@ public:
 
     Box<Expression> left;
     Box<Expression> right;
-    tokens::TokenType op;
+    tokens::AssignOp op;
 
     void accept(ASTVisitor& visitor) override;
 
@@ -1006,13 +1006,13 @@ class PostfixExpression : public Expression {
 public:
     PostfixExpression(Location loc,
                       Box<Expression> operand,
-                      tokens::TokenType op)
+                      tokens::PostfixOp op)
         : Expression(POSTF_EXPR, loc),
         operand(std::move(operand)),
         op(op) {}
 
     Box<Expression> operand;
-    tokens::TokenType op;
+    tokens::PostfixOp op;
 
     void accept(ASTVisitor& visitor) override;
 

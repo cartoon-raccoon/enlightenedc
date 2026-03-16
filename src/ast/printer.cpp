@@ -1,5 +1,6 @@
 #include "ast/printer.hpp"
 #include "ast/ast.hpp"
+#include "frontend/tokens.hpp"
 
 #include <iostream>
 #include <string>
@@ -13,8 +14,8 @@ void ASTPrinter::print_indent() {
         std::cout << "| ";
 }
 
-std::string ASTPrinter::token_type_to_string(tokens::TokenType t) {
-    switch (t) {
+std::string ASTPrinter::binop_to_string(tokens::BinaryOp op) {
+    switch (op) {
     case tokens::PLUS:
         return "+";
     case tokens::MINUS:
@@ -25,9 +26,6 @@ std::string ASTPrinter::token_type_to_string(tokens::TokenType t) {
         return "/";
     case tokens::MOD:
         return "%";
-
-    case tokens::ASSIGN:
-        return "=";
     case tokens::EQ:
         return "==";
     case tokens::NE:
@@ -41,12 +39,53 @@ std::string ASTPrinter::token_type_to_string(tokens::TokenType t) {
         return "&&";
     case tokens::OROR:
         return "||";
+    case tokens::AND:
+        return "&";
+    case tokens::OR:
+        return "|";
+    case tokens::XOR:
+        return "^";
 
+    case tokens::LT:
+        return "<";
+    case tokens::GT:
+        return ">";
+
+    case tokens::LSHIFT:
+        return "<<";
+    case tokens::RSHIFT:
+        return ">>";
+    case tokens::BINCOMMA:
+        return ",";
+    }
+}
+
+std::string ASTPrinter::unop_to_string(tokens::UnaryOp op) {
+    switch (op) {
     case tokens::INC:
         return "++";
     case tokens::DEC:
         return "--";
+    case tokens::REF:
+        return "&";
+    case tokens::DEREF:
+        return "*";
+    case tokens::POS:
+        return "+";
+    case tokens::NEG:
+        return "-";
+    case tokens::TILDE:
+        return "~";
+    case tokens::NOT:
+        return "!";
+    }
+}
 
+
+std::string ASTPrinter::assignop_to_string(tokens::AssignOp op) {
+    switch (op) {
+    case tokens::ASSIGN:
+        return "=";
     case tokens::PLUSEQ:
         return "+=";
     case tokens::MINUSEQ:
@@ -67,40 +106,28 @@ std::string ASTPrinter::token_type_to_string(tokens::TokenType t) {
         return "|=";
     case tokens::XOREQ:
         return "^=";
+    }
+}
 
-    case tokens::AND:
-        return "&";
-    case tokens::OR:
-        return "|";
-    case tokens::XOR:
-        return "^";
-    case tokens::TILDE:
-        return "~";
-    case tokens::NOT:
-        return "!";
+std::string ASTPrinter::postfixop_to_string(tokens::PostfixOp op) {
+    switch (op) {
+    case tokens::POSTINC:
+        return "++";
+    case tokens::POSTDEC:
+        return "--";
+    }
+}
 
-    case tokens::LT:
-        return "<";
-    case tokens::GT:
-        return ">";
-
-    case tokens::LSHIFT:
-        return "<<";
-    case tokens::RSHIFT:
-        return ">>";
-
+std::string ASTPrinter::infixop_to_string(tokens::InfixOp op) {
+    switch (op) {
     case tokens::DOT:
         return ".";
     case tokens::ARROW:
         return "->";
-
     case tokens::COMMA:
         return ",";
     case tokens::SEMI:
         return ";";
-
-    default:
-        return "<unknown>";
     }
 }
 
@@ -542,7 +569,7 @@ void ASTPrinter::visit(ConstExpression& node) {
 
 void ASTPrinter::visit(BinaryExpression& node) {
     print_node(
-        "BinaryExpression: " + token_type_to_string(node.op), node,
+        "BinaryExpression: " + binop_to_string(node.op), node,
         [&] { node.left->accept(*this); },
         [&] { node.right->accept(*this); });
 }
@@ -556,13 +583,13 @@ void ASTPrinter::visit(CastExpression& node) {
 }
 
 void ASTPrinter::visit(UnaryExpression& node) {
-    print_node("UnaryExpression: " + token_type_to_string(node.op), node,
+    print_node("UnaryExpression: " + unop_to_string(node.op), node,
                 [&] { node.operand->accept(*this); });
 }
 
 void ASTPrinter::visit(AssignmentExpression& node) {
     print_node(
-        "AssignmentExpression: " + token_type_to_string(node.op), node,
+        "AssignmentExpression: " + assignop_to_string(node.op), node,
         [&] { node.left->accept(*this); },
         [&] { node.right->accept(*this); });
 }
@@ -598,7 +625,7 @@ void ASTPrinter::visit(ArraySubscriptExpression& node) {
 }
 
 void ASTPrinter::visit(PostfixExpression& node) {
-    print_node("PostfixExpression: " + token_type_to_string(node.op), node,
+    print_node("PostfixExpression: " + postfixop_to_string(node.op), node,
                 [&] { node.operand->accept(*this); });
 }
 
