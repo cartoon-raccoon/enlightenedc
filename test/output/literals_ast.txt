@@ -67,7 +67,8 @@ Program @ <input/literals.ec:1.1>
 | | | | IdentifierDeclarator: qt @ <input/literals.ec:11.5-6> 
 | | | Initializer:  @ <input/literals.ec:11.10-13> 
 | | | | Literal: 34 @ <input/literals.ec:11.10-13> 
-| PrintStatement: ""Values:\n"" @ <input/literals.ec:13.1-32> 
+| PrintStatement: "Values:
+" @ <input/literals.ec:13.1-32> 
 | | IdentifierExpression: a @ <input/literals.ec:13.14> 
 | | IdentifierExpression: b @ <input/literals.ec:13.17> 
 | | IdentifierExpression: c @ <input/literals.ec:13.20> 
@@ -274,18 +275,18 @@ SymbolTable: inserting symbol with name "qt"
 --------- TYPE CONTEXT ---------
 
 Base Types:
-  F64 -> 0x5648d4e9d610 : F64
-  I64 -> 0x5648d4e9d590 : I64
-  U64 -> 0x5648d4e9d310 : U64
-  I8 -> 0x5648d4e9d410 : I8
-  U32 -> 0x5648d4e9d290 : U32
-  U16 -> 0x5648d4e9d210 : U16
-  bool -> 0x5648d4e9d690 : bool
-  U8 -> 0x5648d4e9d190 : U8
-  I32 -> 0x5648d4e9d510 : I32
-  I16 -> 0x5648d4e9d490 : I16
-  I0 -> 0x5648d4e9d390 : I0
-  U0 -> 0x5648d4e9d0a0 : U0
+  F64 -> 0x5654029ab610 : F64
+  I64 -> 0x5654029ab590 : I64
+  U64 -> 0x5654029ab310 : U64
+  I8 -> 0x5654029ab410 : I8
+  U32 -> 0x5654029ab290 : U32
+  U16 -> 0x5654029ab210 : U16
+  bool -> 0x5654029ab690 : bool
+  U8 -> 0x5654029ab190 : U8
+  I32 -> 0x5654029ab510 : I32
+  I16 -> 0x5654029ab490 : I16
+  I0 -> 0x5654029ab390 : I0
+  U0 -> 0x5654029ab0a0 : U0
 
 Pointer Types:
 
@@ -294,15 +295,15 @@ Array Types:
 
 --------- SYMBOL TABLE ---------
 
-Scope 0x5648d4e9cf60
-  nl -> 0x5648d4e9e350 : VarSymbol U8
-  ch -> 0x5648d4e9e2a0 : VarSymbol U8
-  f2 -> 0x5648d4e9e1f0 : VarSymbol F64
-  qt -> 0x5648d4e9e400 : VarSymbol U8
-  f1 -> 0x5648d4e9e140 : VarSymbol F64
-  c -> 0x5648d4e9dfe0 : VarSymbol U32
-  b -> 0x5648d4e9df30 : VarSymbol U32
-  d -> 0x5648d4e9e090 : VarSymbol U32
-  a -> 0x5648d4e9de10 : VarSymbol U32
+Scope 0x5654029aaf60
+  nl -> 0x5654029ac350 : VarSymbol U8
+  ch -> 0x5654029ac2a0 : VarSymbol U8
+  f2 -> 0x5654029ac1f0 : VarSymbol F64
+  qt -> 0x5654029ac400 : VarSymbol U8
+  f1 -> 0x5654029ac140 : VarSymbol F64
+  c -> 0x5654029abfe0 : VarSymbol U32
+  b -> 0x5654029abf30 : VarSymbol U32
+  d -> 0x5654029ac090 : VarSymbol U32
+  a -> 0x5654029abe10 : VarSymbol U32
 
 backend complete

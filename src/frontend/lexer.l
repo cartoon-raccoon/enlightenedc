@@ -24,12 +24,14 @@ static inline int hex_value(char c) {
     return -1;
 }
 
-static std::string decode_string_literal(const char* text, size_t len) {
+static std::string decode_string_literal(char* text, size_t len) {
     if (!memchr(text, '\\', len))
         return std::string(text + 1, len - 2);
 
     const char* p = text + 1;
     const char* end = text + len - 1;
+    // null-terminate end of string
+    text[len] = '\0';
 
     std::string out;
     out.reserve(len - 2);

@@ -101,8 +101,8 @@ TypeContext: getting primitive type with value 3
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x56062428e290
-TypeContext: pointer with base 0x56062428ec00
+TypeContext: pointer with base 0x564f8dceb290
+TypeContext: pointer with base 0x564f8dcebc00
 SymbolTable: inserting symbol with name "ptrA"
         }
     Node: type 9 {
@@ -149,7 +149,7 @@ SymbolTable: inserting symbol with name "b"
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x56062428e490, size 4
+TypeContext: array type with base 0x564f8dceb490, size 4
 SymbolTable: inserting symbol with name "c"
         }
     Node: type 9 {
@@ -175,7 +175,7 @@ TypeContext: getting primitive type with value 10
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x56062428e610, no size
+TypeContext: array type with base 0x564f8dceb610, no size
 SymbolTable: inserting symbol with name "table"
         }
     Node: type 9 {
@@ -199,7 +199,7 @@ TypeContext: getting primitive type with value 1
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x56062428e190, size 3
+TypeContext: array type with base 0x564f8dceb190, size 3
 SymbolTable: inserting symbol with name "bytes"
         }
     Node: type 9 {
@@ -223,46 +223,46 @@ TypeContext: getting primitive type with value 8
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x56062428e510, size 2
+TypeContext: array type with base 0x564f8dceb510, size 2
 SymbolTable: inserting symbol with name "matrix"
         }
     }
 --------- TYPE CONTEXT ---------
 
 Base Types:
-  F64 -> 0x56062428e610 : F64
-  I64 -> 0x56062428e590 : I64
-  U64 -> 0x56062428e310 : U64
-  I8 -> 0x56062428e410 : I8
-  U32 -> 0x56062428e290 : U32
-  U16 -> 0x56062428e210 : U16
-  bool -> 0x56062428e690 : bool
-  U8 -> 0x56062428e190 : U8
-  I32 -> 0x56062428e510 : I32
-  I16 -> 0x56062428e490 : I16
-  I0 -> 0x56062428e390 : I0
-  U0 -> 0x56062428e0a0 : U0
+  F64 -> 0x564f8dceb610 : F64
+  I64 -> 0x564f8dceb590 : I64
+  U64 -> 0x564f8dceb310 : U64
+  I8 -> 0x564f8dceb410 : I8
+  U32 -> 0x564f8dceb290 : U32
+  U16 -> 0x564f8dceb210 : U16
+  bool -> 0x564f8dceb690 : bool
+  U8 -> 0x564f8dceb190 : U8
+  I32 -> 0x564f8dceb510 : I32
+  I16 -> 0x564f8dceb490 : I16
+  I0 -> 0x564f8dceb390 : I0
+  U0 -> 0x564f8dceb0a0 : U0
 
 Pointer Types:
-  0x56062428eeb0 : U32 * const *
-  0x56062428ec00 : U32 * const
+  0x564f8dcebeb0 : U32 * const *
+  0x564f8dcebc00 : U32 * const
 
 Array Types:
-  0x56062428f5e0 : I32[2]
-  0x56062428f4a0 : U8[3]
-  0x56062428f360 : F64[]
-  0x56062428f050 : I16[4]
+  0x564f8dcec4a0 : U8[3]
+  0x564f8dcec5e0 : I32[2]
+  0x564f8dcec360 : F64[]
+  0x564f8dcec050 : I16[4]
 
 
 --------- SYMBOL TABLE ---------
 
-Scope 0x56062428df60
-  bytes -> 0x56062428f530 : VarSymbol U8[3]
-  table -> 0x56062428f3f0 : VarSymbol F64[] extern
-  c -> 0x56062428f2b0 : VarSymbol I16[4] static
-  b -> 0x56062428f150 : VarSymbol I16 static
-  matrix -> 0x56062428f670 : VarSymbol I32[2]
-  a -> 0x56062428f0a0 : VarSymbol I16 static
-  ptrA -> 0x56062428ef00 : VarSymbol const U32 * const * public
+Scope 0x564f8dceaf60
+  bytes -> 0x564f8dcec530 : VarSymbol U8[3]
+  table -> 0x564f8dcec3f0 : VarSymbol F64[] extern
+  c -> 0x564f8dcec2b0 : VarSymbol I16[4] static
+  b -> 0x564f8dcec150 : VarSymbol I16 static
+  matrix -> 0x564f8dcec670 : VarSymbol I32[2]
+  a -> 0x564f8dcec0a0 : VarSymbol I16 static
+  ptrA -> 0x564f8dcebf00 : VarSymbol const U32 * const * public
 
 backend complete

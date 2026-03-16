@@ -85,7 +85,7 @@ Program @ <input/expressions.ec:1.1>
 | ExpressionStatement @ <input/expressions.ec:13.1-13> 
 | | AssignmentExpression: = @ <input/expressions.ec:13.1-12> 
 | | | IdentifierExpression: s @ <input/expressions.ec:13.1> 
-| | | String: "hello!" @ <input/expressions.ec:13.5-12> 
+| | | String: hello! @ <input/expressions.ec:13.5-12> 
 | ExpressionStatement @ <input/expressions.ec:15.1-4> 
 | | UnaryExpression: ++ @ <input/expressions.ec:15.1-3> 
 | | | IdentifierExpression: x @ <input/expressions.ec:15.1-3> 
@@ -446,18 +446,18 @@ TypeContext: getting primitive type with value 3
 --------- TYPE CONTEXT ---------
 
 Base Types:
-  F64 -> 0x5615e7aa8610 : F64
-  I64 -> 0x5615e7aa8590 : I64
-  U64 -> 0x5615e7aa8310 : U64
-  I8 -> 0x5615e7aa8410 : I8
-  U32 -> 0x5615e7aa8290 : U32
-  U16 -> 0x5615e7aa8210 : U16
-  bool -> 0x5615e7aa8690 : bool
-  U8 -> 0x5615e7aa8190 : U8
-  I32 -> 0x5615e7aa8510 : I32
-  I16 -> 0x5615e7aa8490 : I16
-  I0 -> 0x5615e7aa8390 : I0
-  U0 -> 0x5615e7aa80a0 : U0
+  F64 -> 0x5637fc973610 : F64
+  I64 -> 0x5637fc973590 : I64
+  U64 -> 0x5637fc973310 : U64
+  I8 -> 0x5637fc973410 : I8
+  U32 -> 0x5637fc973290 : U32
+  U16 -> 0x5637fc973210 : U16
+  bool -> 0x5637fc973690 : bool
+  U8 -> 0x5637fc973190 : U8
+  I32 -> 0x5637fc973510 : I32
+  I16 -> 0x5637fc973490 : I16
+  I0 -> 0x5637fc973390 : I0
+  U0 -> 0x5637fc9730a0 : U0
 
 Pointer Types:
 
@@ -466,9 +466,9 @@ Array Types:
 
 --------- SYMBOL TABLE ---------
 
-Scope 0x5615e7aa7f60
-  b -> 0x5615e7aa8fb0 : VarSymbol U32
-  a -> 0x5615e7aa8f00 : VarSymbol U32
-  x -> 0x5615e7aa8de0 : VarSymbol U32
+Scope 0x5637fc972f60
+  b -> 0x5637fc973fb0 : VarSymbol U32
+  a -> 0x5637fc973f00 : VarSymbol U32
+  x -> 0x5637fc973de0 : VarSymbol U32
 
 backend complete

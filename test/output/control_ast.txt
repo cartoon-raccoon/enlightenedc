@@ -67,7 +67,7 @@ Program @ <input/control.ec:1.1>
 | | | Literal: 5 @ <input/control.ec:27.17> 
 | | PostfixExpression: ++ @ <input/control.ec:27.20-22> 
 | | | IdentifierExpression: n @ <input/control.ec:27.20> 
-| | PrintStatement: ""hello"" @ <input/control.ec:27.25-32> 
+| | PrintStatement: "hello" @ <input/control.ec:27.25-32> 
 running backend for file input/control.ec
 checking semantics for input/control.ec:1.1
 running elaborator for input/control.ec:1.1
@@ -87,9 +87,9 @@ SymbolTable: inserting symbol with name "start"
                     }
                 }
             Node: type 21 {
-SymbolTable: pushing scope 0x556191599a70
-SymbolTable: entering scope 0x556191599a70
-SymbolTable: current scope 0x556191599a70
+SymbolTable: pushing scope 0x55d763472a70
+SymbolTable: entering scope 0x55d763472a70
+SymbolTable: current scope 0x55d763472a70
                 visiting CompoundStatement node: input/control.ec:2.13-4.1
                 Node: type 22 {
                     visiting ExpressionStatement node: input/control.ec:3.5-8
@@ -100,8 +100,8 @@ SymbolTable: current scope 0x556191599a70
                             }
                         }
                     }
-SymbolTable: exiting scope to 0x556191598f60
-SymbolTable: current scope 0x556191598f60
+SymbolTable: exiting scope to 0x55d763471f60
+SymbolTable: current scope 0x55d763471f60
                 }
             Node: type 28 {
                 visiting IfStatement node: input/control.ec:4.8-8.1
@@ -115,9 +115,9 @@ SymbolTable: current scope 0x556191598f60
                         }
                     }
                 Node: type 21 {
-SymbolTable: pushing scope 0x556191599af0
-SymbolTable: entering scope 0x556191599af0
-SymbolTable: current scope 0x556191599af0
+SymbolTable: pushing scope 0x55d763472af0
+SymbolTable: entering scope 0x55d763472af0
+SymbolTable: current scope 0x55d763472af0
                     visiting CompoundStatement node: input/control.ec:4.20-6.1
                     Node: type 22 {
                         visiting ExpressionStatement node: input/control.ec:5.5-8
@@ -128,13 +128,13 @@ SymbolTable: current scope 0x556191599af0
                                 }
                             }
                         }
-SymbolTable: exiting scope to 0x556191598f60
-SymbolTable: current scope 0x556191598f60
+SymbolTable: exiting scope to 0x55d763471f60
+SymbolTable: current scope 0x55d763471f60
                     }
                 Node: type 21 {
-SymbolTable: pushing scope 0x556191599b70
-SymbolTable: entering scope 0x556191599b70
-SymbolTable: current scope 0x556191599b70
+SymbolTable: pushing scope 0x55d763472b70
+SymbolTable: entering scope 0x55d763472b70
+SymbolTable: current scope 0x55d763472b70
                     visiting CompoundStatement node: input/control.ec:6.8-8.1
                     Node: type 22 {
                         visiting ExpressionStatement node: input/control.ec:7.5-11
@@ -148,8 +148,8 @@ SymbolTable: current scope 0x556191599b70
                                 }
                             }
                         }
-SymbolTable: exiting scope to 0x556191598f60
-SymbolTable: current scope 0x556191598f60
+SymbolTable: exiting scope to 0x55d763471f60
+SymbolTable: current scope 0x55d763471f60
                     }
                 }
             }
@@ -160,9 +160,9 @@ SymbolTable: current scope 0x556191598f60
             visiting IdentifierExpression node: input/control.ec:10.8-9
             }
         Node: type 21 {
-SymbolTable: pushing scope 0x556191599bf0
-SymbolTable: entering scope 0x556191599bf0
-SymbolTable: current scope 0x556191599bf0
+SymbolTable: pushing scope 0x55d763472bf0
+SymbolTable: entering scope 0x55d763472bf0
+SymbolTable: current scope 0x55d763472bf0
             visiting CompoundStatement node: input/control.ec:10.12-18.1
             Node: type 23 {
                 visiting CaseStatement node: input/control.ec:11.5-12.14
@@ -212,8 +212,8 @@ SymbolTable: current scope 0x556191599bf0
                     visiting GotoStatement node: input/control.ec:17.9-19
                     }
                 }
-SymbolTable: exiting scope to 0x556191598f60
-SymbolTable: current scope 0x556191598f60
+SymbolTable: exiting scope to 0x55d763471f60
+SymbolTable: current scope 0x55d763471f60
             }
         }
     Node: type 30 {
@@ -240,9 +240,9 @@ SymbolTable: current scope 0x556191598f60
     Node: type 31 {
         visiting DoWhileStatement node: input/control.ec:23.1-25.16
         Node: type 21 {
-SymbolTable: pushing scope 0x556191599c70
-SymbolTable: entering scope 0x556191599c70
-SymbolTable: current scope 0x556191599c70
+SymbolTable: pushing scope 0x55d763472c70
+SymbolTable: entering scope 0x55d763472c70
+SymbolTable: current scope 0x55d763472c70
             visiting CompoundStatement node: input/control.ec:23.4-25.1
             Node: type 22 {
                 visiting ExpressionStatement node: input/control.ec:24.5-8
@@ -253,8 +253,8 @@ SymbolTable: current scope 0x556191599c70
                         }
                     }
                 }
-SymbolTable: exiting scope to 0x556191598f60
-SymbolTable: current scope 0x556191598f60
+SymbolTable: exiting scope to 0x55d763471f60
+SymbolTable: current scope 0x55d763471f60
             }
         Node: type 38 {
             visiting BinaryStatement node: input/control.ec:25.9-14
@@ -303,18 +303,18 @@ SymbolTable: current scope 0x556191598f60
 --------- TYPE CONTEXT ---------
 
 Base Types:
-  F64 -> 0x556191599610 : F64
-  I64 -> 0x556191599590 : I64
-  U64 -> 0x556191599310 : U64
-  I8 -> 0x556191599410 : I8
-  U32 -> 0x556191599290 : U32
-  U16 -> 0x556191599210 : U16
-  bool -> 0x556191599690 : bool
-  U8 -> 0x556191599190 : U8
-  I32 -> 0x556191599510 : I32
-  I16 -> 0x556191599490 : I16
-  I0 -> 0x556191599390 : I0
-  U0 -> 0x5561915990a0 : U0
+  F64 -> 0x55d763472610 : F64
+  I64 -> 0x55d763472590 : I64
+  U64 -> 0x55d763472310 : U64
+  I8 -> 0x55d763472410 : I8
+  U32 -> 0x55d763472290 : U32
+  U16 -> 0x55d763472210 : U16
+  bool -> 0x55d763472690 : bool
+  U8 -> 0x55d763472190 : U8
+  I32 -> 0x55d763472510 : I32
+  I16 -> 0x55d763472490 : I16
+  I0 -> 0x55d763472390 : I0
+  U0 -> 0x55d7634720a0 : U0
 
 Pointer Types:
 
@@ -323,12 +323,12 @@ Array Types:
 
 --------- SYMBOL TABLE ---------
 
-Scope 0x556191598f60
-  start -> 0x556191599960 : LabelSymbol
-  Scope 0x556191599a70
-  Scope 0x556191599af0
-  Scope 0x556191599b70
-  Scope 0x556191599bf0
-  Scope 0x556191599c70
+Scope 0x55d763471f60
+  start -> 0x55d763472960 : LabelSymbol
+  Scope 0x55d763472a70
+  Scope 0x55d763472af0
+  Scope 0x55d763472b70
+  Scope 0x55d763472bf0
+  Scope 0x55d763472c70
 
 backend complete
