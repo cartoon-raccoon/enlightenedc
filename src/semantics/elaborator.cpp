@@ -121,7 +121,7 @@ void Elaborator::do_visit(Function& node) {
     ElabVisitParam param = std::move(dovisit_param);
     Box<SpecifierInfo> specinfo = parse_speclist(node.decl_spec_list, node.loc);
     dovisit_param = std::move(param);
-    
+
     BaseType *return_base = specinfo->type;
 
     if (!node.declarator->direct) {
@@ -185,7 +185,13 @@ void Elaborator::do_visit(Function& node) {
 
     Box<FuncSymbol> symbol = std::make_unique<FuncSymbol>(node.loc, *builder->name, functype);
     FuncSymbol *sym_ptr = symbol.get();
-    syms.insert(*builder->name, std::move(symbol));
+    try {
+        syms.insert(*builder->name, std::move(symbol));
+    } catch ( Location prev_def ) {
+        throw SymbolAlrDecldError(
+            std::format("function \"{}\" was previously declared", symbol->name), 
+            symbol->loc, prev_def);
+    }
 
     Vec<Box<VarSymbol>> params;
     for (FuncParam& param : last_func_params) {
@@ -480,7 +486,7 @@ void Elaborator::do_visit(EnumSpecifier& node) {
 
     if (node.enumerators) {
         if (enm->complete) {
-            throw EccTypeAlreadyDefinedError("enum was previously defined", node.loc, enm->loc);
+            throw TypeAlrDefinedError("enum was previously defined", node.loc, enm->loc);
         }
 
         for (auto& enumtr : *node.enumerators) {
@@ -501,8 +507,10 @@ void Elaborator::do_visit(Enumerator& node) {
     bsv_dbprint("visiting Enumerator node with name ", node.name);
     EnumType *enm = take_dovisit_param<EnumType *>();
 
-    if (auto mem = enm->contains(node.name)) {
-        // todo: throw error: name already taken
+    if (auto mem = enm->find(node.name)) {
+        throw EnumeratorAlrDecldError(
+            std::format("symbol \"{}\" previously declared", node.name), 
+                        node.loc, mem->loc);
     }
 
     if (node.value) {
@@ -542,11 +550,10 @@ void Elaborator::do_visit(ClassSpecifier& node) {
     if (node.declarations) {
         if (cls->complete) {
             // error: class was previously defined
-            throw EccTypeAlreadyDefinedError("class was previously defined", node.loc, cls->loc);
+            throw TypeAlrDefinedError("class was previously defined", node.loc, cls->loc);
         }
 
         // class is defined here, populate its members and mark it complete
-        // todo: populate class
         for (auto& decl : *node.declarations) {
             dv_call(cls, decl);
         }
@@ -582,7 +589,7 @@ void Elaborator::do_visit(UnionSpecifier& node) {
     if (node.declarations) {
         if (unn->complete) {
             // error: union was previously defined
-            throw EccTypeAlreadyDefinedError("union was previously defined", node.loc, unn->loc);
+            throw TypeAlrDefinedError("union was previously defined", node.loc, unn->loc);
         }
         // class is defined here, populate its members and mark it complete
         // todo: populate union

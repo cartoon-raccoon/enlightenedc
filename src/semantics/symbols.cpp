@@ -1,5 +1,6 @@
 #include <cassert>
 #include <stdexcept>
+#include <utility>
 
 #include "symbols.hpp"
 
@@ -113,6 +114,11 @@ void SymbolTable::tie_current_to(Symbol *sym, bool override) {
 
 Symbol *SymbolTable::insert(std::string name, Box<Symbol> sym) {
     dbprint("SymbolTable: inserting symbol with name \"", name, "\"");
+    if (current->symbols.contains(name)) {
+        dbprint("SymbolTable: symbol with name ", name, " already exists");
+        Symbol *existing = current->symbols.find(name)->second.get();
+        throw existing->loc;
+    }
     Symbol *ret = sym.get();
     current->symbols.insert({name, std::move(sym)});
 

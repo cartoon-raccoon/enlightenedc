@@ -221,6 +221,9 @@ public:
     void tie_current_to(Symbol *sym, bool override = false);
 
     // Add a new symbol to the current scope.
+    // Returns a pointer to the inserted symbol for further use.
+    // If a symbol with the same name already exists in the current scope,
+    // It throws a Location where the symbol was previously defined.
     Symbol *insert(std::string name, Box<Symbol> sym);
 
     std::string to_string() const;
