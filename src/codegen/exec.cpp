@@ -138,12 +138,12 @@ Value Evaluator::eval(ast::ArraySubscriptExpression* expr) {
 Value Evaluator::eval(ast::PostfixExpression* expr) {
     Value value = expr->operand.get()->accept(*this);
 
-    if (expr->op == ecc::tokens::INC) {
+    if (expr->op == ecc::tokens::POSTINC) {
         if (value.is<long>()) {
             return value++;
         }
         throwCompileTimeEvalError("Postfix increment requires an integer", expr);
-    } else if (expr->op == ecc::tokens::DEC) {
+    } else if (expr->op == ecc::tokens::POSTDEC) {
         if (value.is<long>()) {
             return value--;
         }
