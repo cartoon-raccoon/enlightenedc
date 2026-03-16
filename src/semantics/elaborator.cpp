@@ -756,109 +756,177 @@ void Elaborator::do_visit(LabeledStatement& node) {
 }
 
 void Elaborator::do_visit(ExpressionStatement& node) {
-
+    bsv_dbprint("visiting ExpressionStatement node: ", node.loc);
+    if (node.expression.has_value()) {
+        node.expression.value()->accept(*this);
+    }
 }
 
 void Elaborator::do_visit(CaseStatement& node) {
-    
+    bsv_dbprint("visiting CaseStatement node: ", node.loc);
+    node.case_expr->accept(*this);
+    node.statement->accept(*this);
 }
 
 void Elaborator::do_visit(CaseRangeStatement& node) {
-
+    bsv_dbprint("visiting CaseRangeStatement node: ", node.loc);
+    node.range_start->accept(*this);
+    node.range_end->accept(*this);
+    node.statement->accept(*this);
 }
 
 void Elaborator::do_visit(DefaultStatement& node) {
-
+    bsv_dbprint("visiting DefaultStatement node: ", node.loc);
+    node.statement->accept(*this);
 }
 
 void Elaborator::do_visit(PrintStatement& node) {
-
+    bsv_dbprint("visiting PrintStatement node: ", node.loc);
+    for (auto& arg : node.arguments) {
+        arg->accept(*this);
+    }
 }
 
 void Elaborator::do_visit(IfStatement& node) {
+    bsv_dbprint("visiting IfStatement node: ", node.loc);
+    node.condition->accept(*this);
 
+    node.then_branch->accept(*this);
+    if (node.else_branch.has_value()) {
+        node.else_branch.value()->accept(*this);
+    }
 }
 
 void Elaborator::do_visit(SwitchStatement& node) {
-
+    bsv_dbprint("visiting SwitchStatement node: ", node.loc);
+    node.condition->accept(*this);
+    node.body->accept(*this);
 }
 
 void Elaborator::do_visit(WhileStatement& node) {
-
+    bsv_dbprint("visiting WhileStatement node: ", node.loc);
+    node.condition->accept(*this);
+    node.body->accept(*this);
 }
 
 void Elaborator::do_visit(DoWhileStatement& node) {
-
+    bsv_dbprint("visiting DoWhileStatement node: ", node.loc);
+    node.body->accept(*this);
+    node.condition->accept(*this);
 }
 
 void Elaborator::do_visit(ForStatement& node) {
+    bsv_dbprint("visiting ForStatement node: ", node.loc);
+    if (node.init.has_value()) {
+        node.init.value()->accept(*this);
+    }
 
+    if (node.condition.has_value()) {
+        node.condition.value()->accept(*this);
+    }
+
+    if (node.increment.has_value()) {
+        node.condition.value()->accept(*this);
+    }
+
+    node.body->accept(*this);
 }
 
 void Elaborator::do_visit(GotoStatement& node) {
-
+    bsv_dbprint("visiting GotoStatement node: ", node.loc);
 }
 
 void Elaborator::do_visit(BreakStatement& node) {
-
+    bsv_dbprint("visiting BreakStatement node: ", node.loc);
 }
 
 void Elaborator::do_visit(ReturnStatement& node) {
-
+    bsv_dbprint("visiting ReturnStatement node: ", node.loc);
+    if (node.return_value) {
+        node.return_value.value()->accept(*this);
+    }
 }
 
 void Elaborator::do_visit(BinaryExpression& node) {
-
+    bsv_dbprint("visiting BinaryStatement node: ", node.loc);
+    node.left->accept(*this);
+    node.right->accept(*this);
 }
 
 void Elaborator::do_visit(CastExpression& node) {
-
+    bsv_dbprint("visiting CastStatement node: ", node.loc);
+    node.inner->accept(*this);
+    node.type_name->accept(*this);
 }
 
 void Elaborator::do_visit(UnaryExpression& node) {
-
+    bsv_dbprint("visiting UnaryExpression node: ", node.loc);
+    node.operand->accept(*this);
 }
 
 void Elaborator::do_visit(AssignmentExpression& node) {
-
+    bsv_dbprint("visiting AssignmentExpression node: ", node.loc);
+    node.left->accept(*this);
+    node.right->accept(*this);
 }
 
 void Elaborator::do_visit(ConditionalExpression& node) {
-
+    bsv_dbprint("visiting ConditionalExpression node: ", node.loc);
+    node.condition->accept(*this);
+    node.true_expr->accept(*this);
+    node.false_expr->accept(*this);
 }
 
 void Elaborator::do_visit(IdentifierExpression& node) {
-
+    bsv_dbprint("visiting IdentifierExpression node: ", node.loc);
 }
 
 void Elaborator::do_visit(ConstExpression& node) {
-
+    bsv_dbprint("visiting ConstExpression node: ", node.loc);
+    node.inner->accept(*this);
 }
 
 void Elaborator::do_visit(LiteralExpression& node) {
-
+    bsv_dbprint("visiting LiteralExpression node: ", node.loc);
 }
 
 void Elaborator::do_visit(StringExpression& node) {
-    
+    bsv_dbprint("visiting StringExpression node: ", node.loc);
 }
 
 void Elaborator::do_visit(CallExpression& node) {
+    bsv_dbprint("visiting CallExpression node: ", node.loc);
+    node.callee->accept(*this);
 
+    for (auto& arg : node.arguments) {
+        arg->accept(*this);
+    }
 }
 
 void Elaborator::do_visit(MemberAccessExpression& node) {
-
+    bsv_dbprint("visiting MemberAccessExpression node: ", node.loc);
+    node.object->accept(*this);
 }
 
 void Elaborator::do_visit(ArraySubscriptExpression& node) {
-
+    bsv_dbprint("visiting ArraySubscriptExpression node: ", node.loc);
+    node.array->accept(*this);
+    node.index->accept(*this);
 }
 
 void Elaborator::do_visit(PostfixExpression& node) {
-
+    bsv_dbprint("visiting PostfixExpression node: ", node.loc);
+    node.operand->accept(*this);
 }
 
 void Elaborator::do_visit(SizeofExpression& node) {
-
+    bsv_dbprint("visiting SizeofExpression node: ", node.loc);
+    std::visit(overloaded {
+        [this] (Box<Expression>& expr) {
+            expr->accept(*this);
+        },
+        [this] (Box<TypeName>& typen) {
+            typen->accept(*this);
+        }
+    }, node.operand);
 }

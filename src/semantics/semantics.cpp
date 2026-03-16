@@ -577,7 +577,7 @@ void BaseSemanticVisitor::do_visit(BreakStatement& node) {
 }
 
 void BaseSemanticVisitor::do_visit(ReturnStatement& node) {
-    if (node.return_value.has_value()) {
+    if (node.return_value) {
         node.return_value.value()->accept(*this);
     }
 }
