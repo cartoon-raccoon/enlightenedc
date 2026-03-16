@@ -88,21 +88,44 @@ public:
 
     /*
     Cast this type to a PrimitiveType *.
-
     Returns null if the underlying type is not a PrimitiveType.
     */
     virtual PrimitiveType *as_primitive() { return nullptr; }
 
     /*
     Cast this type to a ClassType *.
-
     Returns null if the underlying type is not a ClassType.
     */
     virtual ClassType *as_class() { return nullptr; }
+
+    /*
+    Cast this type to a UnionType *.
+    Returns null if the underlying type is not a ClassType.
+    */
     virtual UnionType *as_union() { return nullptr; }
+
+    /*
+    Cast this type to an EnumType *.
+    Returns null if the underlying type is not a ClassType.
+    */
     virtual EnumType *as_enum() { return nullptr; }
+
+    /*
+    Cast this type to a PointerType *.
+    Returns null if the underlying type is not a ClassType.
+    */
     virtual PointerType *as_pointer() { return nullptr; }
+
+    /*
+    Cast this type to an ArrayType *.
+    Returns null if the underlying type is not a ClassType.
+    */
     virtual ArrayType *as_array() { return nullptr; }
+
+    /*
+    Cast this type to a FunctionType *.
+    Returns null if the underlying type is not a ClassType.
+    */
     virtual FunctionType *as_function() { return nullptr; }
 
     virtual std::string to_string() const { return "base type"; }

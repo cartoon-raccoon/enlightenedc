@@ -16,10 +16,20 @@ bool Type::is_primitive() { return kind == Kind::PRIMITIVE; }
 bool Type::is_pointer() { return kind == Kind::POINTER; }
 
 void ClassType::add_member(Box<ClassType::ClassTypeMember> member) {
+    if (member->name)
+        dbprint("ClassType: adding member with name ", *member->name, " type ", member->ty);
+    else {
+        dbprint("ClassType: adding anonymous member with type ", member->ty);
+    }
     members.push_back(std::move(member));
 }
 
 void UnionType::add_member(Box<UnionType::UnionTypeMember> member) {
+    if (member->name)
+        dbprint("UnionType: adding member with name ", *member->name, " type ", member->ty);
+    else {
+        dbprint("UnionType: adding anonymous member with type ", member->ty);
+    }
     members.push_back(std::move(member));
 }
 

@@ -22,10 +22,12 @@ using namespace ecc::sema;
 using namespace ecc::sema::types;
 using namespace ecc::sema::sym;
 
-Box<Elaborator::SpecifierInfo> Elaborator::parse_speclist(Vec<Box<ast::DeclarationSpecifier>>& speclist) {
+Box<Elaborator::SpecifierInfo> Elaborator::parse_speclist(
+    Vec<Box<ast::DeclarationSpecifier>>& speclist, Location loc
+) {
     using NK = ASTNode::NodeKind;
 
-    bsv_dbprint("parsing declaration specifier list");
+    bsv_dbprint("parsing declaration specifier list for node at ", loc);
     Box<SpecifierInfo> specinfo = std::make_unique<SpecifierInfo>();
 
     for (auto& decl_spec : speclist) {
@@ -92,6 +94,7 @@ Box<Elaborator::SpecifierInfo> Elaborator::parse_speclist(Vec<Box<ast::Declarati
         }
     }
     assert(specinfo->type);
+    bsv_dbprint("finished parsing specifiers for node ", loc);
 
     return std::move(specinfo);
 }
@@ -115,7 +118,10 @@ void Elaborator::do_visit(Function& node) {
     bsv_dbprint("visiting Function node: ", node.loc);
 
     // Parse and construct specifier info
-    Box<SpecifierInfo> specinfo = parse_speclist(node.decl_spec_list);
+    ElabVisitParam param = std::move(dovisit_param);
+    Box<SpecifierInfo> specinfo = parse_speclist(node.decl_spec_list, node.loc);
+    dovisit_param = std::move(param);
+    
     BaseType *return_base = specinfo->type;
 
     if (!node.declarator->direct) {
@@ -198,7 +204,7 @@ void Elaborator::do_visit(Function& node) {
 void Elaborator::do_visit(TypeDeclaration& node) {
     bsv_dbprint("visiting TypeDeclaration node: ", node.loc);
 
-    auto specinfo = parse_speclist(node.specifiers);
+    auto specinfo = parse_speclist(node.specifiers, node.loc);
 
     if (specinfo->symbol) {
         syms.insert(specinfo->symbol.value()->name, std::move(*specinfo->symbol));
@@ -208,7 +214,7 @@ void Elaborator::do_visit(TypeDeclaration& node) {
 
 void Elaborator::do_visit(VariableDeclaration& node) {
     bsv_dbprint("visiting VariableDeclaration node: ", node.loc);
-    auto specinfo = parse_speclist(node.specifiers);
+    auto specinfo = parse_speclist(node.specifiers, node.loc);
 
     for (auto& declarator : node.declarators) {
         dv_call(std::monostate{}, declarator);
@@ -317,7 +323,7 @@ void Elaborator::do_visit(ParameterDeclaration& node) {
     last_result: FuncParam
     */
     bsv_dbprint("visiting ParameterDeclarator node: ", node.loc);
-    Box<SpecifierInfo> specinfo = parse_speclist(node.specifiers);
+    Box<SpecifierInfo> specinfo = parse_speclist(node.specifiers, node.loc);
 
     FuncParam ret;
     if (node.declarator) {
@@ -598,12 +604,19 @@ void Elaborator::do_visit(UnionSpecifier& node) {
 
 void Elaborator::do_visit(ClassDeclaration& node) {
     bsv_dbprint("visiting ClassDeclaration node: ", node.loc);
-    Box<SpecifierInfo> specinfo = parse_speclist(node.specifiers);
+
+    // save our current param, as it may get clobbered while parsing specifiers
+    ElabVisitParam param = std::move(dovisit_param);
+    Box<SpecifierInfo> specinfo = parse_speclist(node.specifiers, node.loc);
+
+    // restore our current param
+    dovisit_param = std::move(param);
+    
 
     std::visit(overloaded {
         // ClassType case
         [&specinfo, &node, this] (ClassType *cls) {
-
+            bsv_dbprint("parsing ClassDeclaration for ClassType ", cls);
             for (auto& decltr : node.declarators) {
                 dv_call(std::monostate {}, decltr);
                 std::visit(overloaded {
@@ -634,6 +647,7 @@ void Elaborator::do_visit(ClassDeclaration& node) {
 
         // UnionType case
         [&specinfo, &node, this] (UnionType *unn) {
+            bsv_dbprint("parsing ClassDeclaration for UnionType ", unn);
             for (auto& decltr : node.declarators) {
                 dv_call(std::monostate {}, decltr);
                 std::visit(overloaded {
@@ -661,10 +675,12 @@ void Elaborator::do_visit(ClassDeclaration& node) {
                 last_result = std::monostate {};
             }
         },
-        [] (auto& _) {
+
+        [&node, this] (auto& e) {
+            bsv_dbprint(typeid(e).name(), " ", node.loc);
             throw std::runtime_error("unexpected dovisit param when parsing ClassDeclaration");
         }
-    }, dovisit_param);
+    }, param);
 
     dv_return(std::monostate {});
 }
@@ -688,7 +704,7 @@ void Elaborator::do_visit(Initializer& node) {
 void Elaborator::do_visit(TypeName& node) {
     // dovisit_param: monostate
     // last_result: Type *
-    Box<SpecifierInfo> specinfo = parse_speclist(node.specifiers);
+    Box<SpecifierInfo> specinfo = parse_speclist(node.specifiers, node.loc);
 
     if (node.declarator) {
         dv_call(std::monostate {}, *node.declarator);

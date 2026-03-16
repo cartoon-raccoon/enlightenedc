@@ -146,7 +146,7 @@ private:
         bool is_const;
     };
 
-    Box<SpecifierInfo> parse_speclist(Vec<Box<ast::DeclarationSpecifier>>&);
+    Box<SpecifierInfo> parse_speclist(Vec<Box<ast::DeclarationSpecifier>>&, Location);
 
 protected:
 
