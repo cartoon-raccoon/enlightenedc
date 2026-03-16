@@ -4,6 +4,13 @@
 #include "symbols.hpp"
 
 using namespace ecc::sema::sym;
+using namespace ecc::sema::types;
+
+Box<VarSymbol> FuncSymbol::as_funcptr(TypeContext& tctxt, bool is_const) {
+    Type *ptrtype = tctxt.get_pointer(signature, is_const);
+
+    return std::make_unique<VarSymbol>(loc, name, ptrtype);
+}
 
 void SymbolTable::push_scope(Symbol *assoc) {
     /*
@@ -32,18 +39,22 @@ void SymbolTable::enter_scope() {
     dbprint("SymbolTable: entering scope ", new_current);
 
     current = new_current;
+
+    dbprint("SymbolTable: current scope ", current);
 }
 
 void SymbolTable::pop_scope() {
-    dbprint("SymbolTable: exiting scope");
     if (current != global.get()) {
         if (current->outer) {
+            dbprint("SymbolTable: exiting scope to ", current->outer);
             current = current->outer;
             current->nested_idx++;
         } else {
             throw std::runtime_error("tried to exit global scope");
         }
     }
+
+    dbprint("SymbolTable: current scope ", current);
 }
 
 void SymbolTable::reset() {
@@ -90,7 +101,7 @@ Symbol *SymbolTable::lookup(std::string sym) {
 }
 
 void SymbolTable::tie_current_to(Symbol *sym, bool override) {
-    dbprint("SymbolTable: associating current scope ", current, " with symbol ", sym, " name ", sym->name);
+    dbprint("SymbolTable: associating current scope ", current, " with symbol ", sym, " name \"", sym->name, "\"");
     if (current->assoc != nullptr) {
         if (override) {
             current->assoc = sym;
@@ -101,7 +112,7 @@ void SymbolTable::tie_current_to(Symbol *sym, bool override) {
 }
 
 Symbol *SymbolTable::insert(std::string name, Box<Symbol> sym) {
-    dbprint("SymbolTable: inserting symbol with name ", name);
+    dbprint("SymbolTable: inserting symbol with name \"", name, "\"");
     Symbol *ret = sym.get();
     current->symbols.insert({name, std::move(sym)});
 

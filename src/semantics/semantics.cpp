@@ -4,7 +4,6 @@
 #include "ast/ast.hpp"
 #include "semantics/semantics.hpp"
 #include "semantics/elaborator.hpp"
-#include "semantics/printer.hpp"
 #include "util.hpp"
 
 using namespace ecc::ast;
@@ -14,8 +13,8 @@ BaseSemanticVisitor::ScopeGuard BaseSemanticVisitor::enter_scope(sym::Symbol *as
     return ScopeGuard(*this, assoc);
 }
 
-BaseSemanticVisitor::NodeGuard BaseSemanticVisitor::enter_node(ASTNode *node, bool new_scope) {
-    return NodeGuard(*this, node, new_scope);
+BaseSemanticVisitor::NodeGuard BaseSemanticVisitor::enter_node(ASTNode *node) {
+    return NodeGuard(*this, node);
 }
 
 ASTNode *BaseSemanticVisitor::imm_ctxt() {
@@ -132,13 +131,15 @@ void BaseSemanticVisitor::visit(EnumSpecifier& node) {
 
 void BaseSemanticVisitor::visit(ClassSpecifier& node) {
     // any nested derived types have to be scoped within this specifier.
-    auto guard = enter_node(&node, true);
+    auto nguard = enter_node(&node);
+    auto sguard = enter_scope();
     do_visit(node);
 }
 
 void BaseSemanticVisitor::visit(UnionSpecifier& node) {
     // any nested derived types have to be scoped within this specifier.
-    auto guard = enter_node(&node, true);
+    auto nguard = enter_node(&node);
+    auto sguard = enter_scope();
     do_visit(node);
 }
 
@@ -159,7 +160,8 @@ void BaseSemanticVisitor::visit(IdentifierDeclarator& node) {
 
 void BaseSemanticVisitor::visit(CompoundStatement& node) {
     // compound statements should introduce a new scope.
-    auto guard = enter_node(&node, true);
+    auto nguard = enter_node(&node);
+    auto sguard = enter_scope();
     do_visit(node);
 }
 
@@ -463,11 +465,26 @@ void BaseSemanticVisitor::do_visit(PrimitiveSpecifier& node) {
 }
 
 void BaseSemanticVisitor::do_visit(Initializer& node) {
-    // todo
+    std::visit(overloaded {
+        [this] (Box<Expression>& expr) {
+            expr->accept(*this);
+        },
+        [this] (Vec<Box<Initializer>>& inits) {
+            for (auto& init : inits) {
+                init->accept(*this);
+            }
+        }
+    }, node.initializer);
 }
 
 void BaseSemanticVisitor::do_visit(TypeName& node) {
-    // todo
+    for (auto& spec : node.specifiers) {
+        spec->accept(*this);
+    }
+
+    if (node.declarator) {
+        node.declarator.value()->accept(*this);
+    }
 }
 
 void BaseSemanticVisitor::do_visit(IdentifierDeclarator& node) {
@@ -487,15 +504,18 @@ void BaseSemanticVisitor::do_visit(ExpressionStatement& node) {
 }
 
 void BaseSemanticVisitor::do_visit(CaseStatement& node) {
-    // todo
+    node.case_expr->accept(*this);
+    node.statement->accept(*this);
 }
 
 void BaseSemanticVisitor::do_visit(CaseRangeStatement& node) {
-    // todo
+    node.range_start->accept(*this);
+    node.range_end->accept(*this);
+    node.statement->accept(*this);
 }
 
 void BaseSemanticVisitor::do_visit(DefaultStatement& node) {
-    // todo
+    node.statement->accept(*this);
 }
 
 void BaseSemanticVisitor::do_visit(LabeledStatement& node) {
@@ -625,7 +645,14 @@ void BaseSemanticVisitor::do_visit(PostfixExpression& node) {
 }
 
 void BaseSemanticVisitor::do_visit(SizeofExpression& node) {
-    // todo
+    std::visit(overloaded {
+        [this] (Box<Expression>& expr) {
+            expr->accept(*this);
+        },
+        [this] (Box<TypeName>& typen) {
+            typen->accept(*this);
+        }
+    }, node.operand);
 }
 
 
@@ -635,9 +662,6 @@ void SemanticChecker::check_semantics(ASTNode& prog) {
     dbprint("running elaborator for ", prog.loc);
     Elaborator elaborator(symbols, types);
     prog.accept(elaborator);
-
-    std::cout << types << std::endl;
-    std::cout << symbols << std::endl;
 
     symbols.reset();
 

@@ -193,7 +193,7 @@ Type *TypeBuilder::finalize() {
     while (!type_stack.empty()) {
         auto next_cstrctr = type_stack.top();
         std::visit(overloaded{
-            [this, curr] (Arr& a) mutable {
+            [this, &curr] (Arr& a) mutable {
                 // Wrap the base in an array.
                 if (a.size) {
                     curr = this->ctxt.get_array(curr, *a.size);
@@ -201,11 +201,11 @@ Type *TypeBuilder::finalize() {
                     curr = this->ctxt.get_array(curr);
                 }
             },
-            [this, curr] (Ptr& p) mutable {
+            [this, &curr] (Ptr& p) mutable {
                 // Wrap the base in a pointer.
                 curr = this->ctxt.get_pointer(curr, p.is_const);
             },
-            [this, curr] (FnParams& fn) mutable {
+            [this, &curr] (FnParams& fn) mutable {
                 Vec<Type *> params;
                 // map out the identifiers.
                 params.reserve(fn.params.size());
@@ -414,6 +414,11 @@ FunctionType *TypeContext::get_function(Type *returntype, Vec<Type *> params, bo
         name = "function_v" + std::to_string(hash);
     else
         name = "function_" + std::to_string(hash);
+
+    if (base_types.contains(name)) {
+        dbprint("TypeConstext: existing function type found");
+        return base_types.find(name)->second.get()->as_function();
+    }
 
     base_types[name] = std::move(func);
 

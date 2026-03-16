@@ -1,8 +1,8 @@
 #ifndef ECC_SYMBOLS_H
 #define ECC_SYMBOLS_H
 
-#include "semantics/types.hpp"
 #include "ast/ast.hpp"
+#include "semantics/types.hpp"
 #include "util.hpp"
 
 #include <unordered_map>
@@ -22,6 +22,11 @@ corresponding Symbol objects, within Scope objects.
 using namespace ecc;
 using namespace util;
 
+class VarSymbol;
+class FuncSymbol;
+class TypeSymbol;
+class LabelSymbol;
+
 /*
 The abstract symbol class.
 */
@@ -29,15 +34,15 @@ class Symbol {
 public:
     // The kind of symbol.
     enum Kind {
-        Var, // This symbol references a variable.
-        Func, // This symbol references a function definition.
-        Ty, // This symbol references a declared type.
-        Lab, // This symbol references a label.
+        VAR, // This symbol references a variable.
+        FUNC, // This symbol references a function definition.
+        TYPE, // This symbol references a declared type.
+        LABEL, // This symbol references a label.
     };
 
-    Symbol(Kind kind, std::string name) : kind(kind) {}
+    Symbol(Kind kind, std::string name) : kind(kind), name(name) {}
 
-    Symbol(Kind kind, Location loc, std::string name) : kind(kind), loc(loc) {}
+    Symbol(Kind kind, Location loc, std::string name) : kind(kind), name(name), loc(loc) {}
 
     Kind kind;
 
@@ -56,6 +61,11 @@ public:
     virtual ~Symbol() = default;
 
     virtual std::string to_string() const { return "base symbol"; }
+
+    virtual VarSymbol *as_varsym() { return nullptr; }
+    virtual FuncSymbol *as_funcsym() { return nullptr; }
+    virtual TypeSymbol *as_typesym() { return nullptr; }
+    virtual LabelSymbol *as_labsym() { return nullptr; }
 };
 
 /*
@@ -63,11 +73,8 @@ A symbol representing a variable declaration.
 */
 class VarSymbol : public Symbol {
 public:
-    VarSymbol(Location loc, std::string name) 
-        : Symbol(Symbol::Kind::Var, loc, name), type(nullptr) {}
-
     VarSymbol(Location loc, std::string name, types::Type *type) 
-        : Symbol(Symbol::Kind::Var, loc, name), type(type) {}
+        : Symbol(Symbol::Kind::VAR, loc, name), type(type) {}
 
     /// The type of the symbol.
     types::Type *type;
@@ -80,7 +87,11 @@ public:
     /// If the symbol is external.
     bool is_extern = false;
 
+    bool is_funcparam = false;
+
     virtual std::string to_string() const override;
+
+    VarSymbol *as_varsym() override { return this; }
 };
 
 /*
@@ -88,11 +99,8 @@ A symbol representing a function declaration (function pointers are handled by V
 */
 class FuncSymbol : public Symbol {
 public:
-    FuncSymbol(Location loc, std::string name) 
-        : Symbol(Symbol::Kind::Func, loc, name), signature(nullptr) {}
-
     FuncSymbol(Location loc, std::string name, types::FunctionType *signature)
-        : Symbol(Symbol::Kind::Func, loc, name), signature(signature) {}
+        : Symbol(Symbol::Kind::FUNC, loc, name), signature(signature) {}
 
     // The function signature.
     types::FunctionType *signature;
@@ -100,6 +108,11 @@ public:
     bool is_extern = false;
 
     virtual std::string to_string() const override;
+
+    /// Create a function pointer VarSymbol from this FuncSymbol.
+    Box<VarSymbol> as_funcptr(sema::types::TypeContext& tctxt, bool is_const = false);
+
+    FuncSymbol *as_funcsym() override { return this; }
 };
 
 /*
@@ -107,15 +120,14 @@ A symbol representing a type declaration (class, union, enum).
 */
 class TypeSymbol : public Symbol {
 public:
-    TypeSymbol(Location loc, std::string name)
-        : Symbol(Symbol::Kind::Ty, loc, name), type(nullptr) {}
-
     TypeSymbol(Location loc, std::string name, types::Type* type)
-        : Symbol(Symbol::Kind::Ty, loc, name), type(type) {}
+        : Symbol(Symbol::Kind::TYPE, loc, name), type(type) {}
 
     types::Type *type;
 
     virtual std::string to_string() const override;
+
+    TypeSymbol *as_typesym() override { return this; }
 };
 
 /*
@@ -124,9 +136,11 @@ A symbol representing a label (for use by goto).
 class LabelSymbol : public Symbol {
 public:
     LabelSymbol(Location loc, std::string name)
-        : Symbol(Symbol::Kind::Lab, loc, name) {}
+        : Symbol(Symbol::Kind::LABEL, loc, name) {}
 
     virtual std::string to_string() const override;
+
+    LabelSymbol *as_labsym() override { return this; }
 };
 
 /*

@@ -180,10 +180,16 @@ protected:
 class ClassType : public BaseType {
 public:
     struct ClassTypeMember {
-        std::string name;
+        std::optional<std::string> name;
         Type *ty;
+        Location loc;
         
-        ClassTypeMember(std::string name, Type *ty) : name(name), ty(ty) {}
+        ClassTypeMember(Type *ty, Location loc)
+            : ty(ty), loc(loc) {}
+        ClassTypeMember(std::string name, Type *ty, Location loc)
+            : name(name), ty(ty), loc(loc) {}
+        ClassTypeMember(std::optional<std::string> name, Type *ty, Location loc)
+            : name(name), ty(ty), loc(loc) {}
     };
 
     /*
@@ -216,8 +222,16 @@ protected:
 class UnionType : public BaseType {
 public:
     struct UnionTypeMember {
-        std::string name;
+        std::optional<std::string> name;
         Type *ty;
+        Location loc;
+
+        UnionTypeMember(Type *ty, Location loc)
+            : ty(ty), loc(loc) {}
+        UnionTypeMember(std::string name, Type *ty, Location loc)
+            : name(name), ty(ty), loc(loc) {}
+        UnionTypeMember(std::optional<std::string> name, Type *ty, Location loc)
+            : name(name), ty(ty), loc(loc) {}
     };
 
     bool complete = false;
@@ -409,6 +423,8 @@ protected:
 struct FuncParam {
     Type *type;
     std::optional<std::string> name;
+    Location loc;
+    bool is_const;
 };
 
 /*

@@ -3,6 +3,7 @@
 
 #include "semantics/symbols.hpp"
 #include "semantics/types.hpp"
+#include "util.hpp"
 
 using namespace ecc::sema;
 using namespace ecc::sema::sym;
@@ -121,7 +122,7 @@ std::string ClassType::to_string() const {
                 ss << "; ";
             first = false;
 
-            ss << m->ty->to_string() << " " << m->name;
+            ss << m->ty->to_string() << " " << (m->name ? *m->name : "");
         }
 
         if (!members.empty())
@@ -147,7 +148,7 @@ std::string UnionType::to_string() const {
                 ss << "; ";
             first = false;
 
-            ss << m->ty->to_string() << " " << m->name;
+            ss << m->ty->to_string() << " " << (m->name ? *m->name : "");
         }
 
         if (!members.empty())
@@ -282,7 +283,11 @@ std::string TypeContext::to_string() const {
 static void print_scope(std::stringstream& ss, Scope* scope, int depth) {
     std::string indent(depth * 2, ' ');
 
-    ss << indent << "Scope " << scope << "\n";
+    ss << indent << "Scope " << scope;
+    if (scope->assoc) {
+        ss << ": " << scope->assoc->to_string();
+    }
+    ss << "\n";
 
     for (auto const& [name, sym] : scope->symbols) {
         ss << indent << "  " << name << " -> " << sym.get() << " : "

@@ -128,33 +128,30 @@ void Elaborator::do_visit(Function& node) {
     // Visit the Declarator to construct the type builder.
     dv_call(std::monostate {}, node.declarator);
     auto builder = take_last_result<Box<DeclaratorBuilder>>();
-    builder->ty_bldr.set_base(return_base);
-
-    // Extract the TypeBuiilder
-    TypeBuilder& ty_bldr = builder->ty_bldr;
+    builder->ty_bldr.set_base(return_base);;
 
     // The latest function parameters.
     Vec<FuncParam> last_func_params;
 
     // Extract the base type from our builder.
-    Type *curr = ty_bldr.base;
+    Type *curr = builder->ty_bldr.base;
 
-    while (!ty_bldr.type_stack.empty()) {
-        auto next_cstrctr = ty_bldr.type_stack.top();
+    while (!builder->ty_bldr.type_stack.empty()) {
+        auto next_cstrctr = builder->ty_bldr.type_stack.top();
         std::visit(overloaded{
-            [ty_bldr, curr] (TypeBuilder::Arr& a) mutable {
+            [&builder, &curr] (TypeBuilder::Arr& a) mutable {
                 // Wrap the base in an array.
                 if (a.size) {
-                    curr = ty_bldr.ctxt.get_array(curr, *a.size);
+                    curr = builder->ty_bldr.ctxt.get_array(curr, *a.size);
                 } else {
-                    curr = ty_bldr.ctxt.get_array(curr);
+                    curr = builder->ty_bldr.ctxt.get_array(curr);
                 }
             },
-            [ty_bldr, curr] (TypeBuilder::Ptr& p) mutable {
+            [&builder, &curr] (TypeBuilder::Ptr& p) mutable {
                 // Wrap the base in a pointer.
-                curr = ty_bldr.ctxt.get_pointer(curr, p.is_const);
+                curr = builder->ty_bldr.ctxt.get_pointer(curr, p.is_const);
             },
-            [ty_bldr, curr, &last_func_params] (TypeBuilder::FnParams& fn) mutable {
+            [&builder, &curr, &last_func_params] (TypeBuilder::FnParams& fn) mutable {
                 // map out the identifiers.
                 Vec<Type *> params;
                 params.reserve(fn.params.size());
@@ -164,18 +161,38 @@ void Elaborator::do_visit(Function& node) {
 
                 last_func_params = std::move(fn.params);
                 // Wrap the base as the return type in a function type.
-                curr = ty_bldr.ctxt.get_function(curr, std::move(params), fn.variadic);
+                curr = builder->ty_bldr.ctxt.get_function(curr, std::move(params), fn.variadic);
             }
         }, next_cstrctr);
 
         // Pop the stack to the next constructor
-        ty_bldr.type_stack.pop();
+        builder->ty_bldr.type_stack.pop();
     }
 
-    // todo: construct params for compound statement dv call
+    FunctionType *functype = curr->as_function();
+    if (!functype) {
+        throw EccError("unable to resolve declarator to function declarator", node.loc);
+    }
+    if (!builder->name) {
+        throw EccError("unable to parse name from declarator", node.declarator->loc);
+    }
+
+    Box<FuncSymbol> symbol = std::make_unique<FuncSymbol>(node.loc, *builder->name, functype);
+    FuncSymbol *sym_ptr = symbol.get();
+    syms.insert(*builder->name, std::move(symbol));
+
+    Vec<Box<VarSymbol>> params;
+    for (FuncParam& param : last_func_params) {
+        if (!param.name) {
+            throw EccError("parameter in function declaration has no name", param.loc);
+        }
+        params.emplace_back(std::make_unique<VarSymbol>(param.loc, *param.name, param.type));
+    }
+
+    CmpdStmtDoVisitParam cmpdstmtp({sym_ptr, std::move(params)});
 
     // Then make call
-    dv_call(CmpdStmtDoVisitParam(), node.body);
+    dv_call(cmpdstmtp, node.body);
 }
 
 void Elaborator::do_visit(TypeDeclaration& node) {
@@ -310,9 +327,9 @@ void Elaborator::do_visit(ParameterDeclaration& node) {
 
         Type *final_type = builder->ty_bldr.finalize();
         if (builder->name) {
-            ret = {final_type, *builder->name};
+            ret = {final_type, *builder->name, node.loc, specinfo->is_const};
         } else {
-            ret = {final_type, {}};
+            ret = {final_type, {}, node.loc, specinfo->is_const};
         }
     } else {
         ret = {specinfo->type, {}};
@@ -340,11 +357,20 @@ void Elaborator::do_visit(Pointer& node) {
     // dovisit_param: DeclaratorBuilder *
     // last_result: monostate
 
-    bsv_dbprint("visiting Pointer node");
+    bsv_dbprint("visiting Pointer node: ", node.loc);
 
     auto builder = take_dovisit_param<DeclaratorBuilder *>();
 
-    bool is_const; // todo: populate with node qualifiers
+    bool is_const = false;
+    for (auto& qual : node.qualifiers) {
+        dv_call(std::monostate {}, qual);
+        auto qualtype = take_last_result<TypeQualifier::QualType>();
+        switch (qualtype) {
+            case TypeQualifier::QualType::CONST:
+            is_const = true;
+            break;
+        }
+    }
 
     if (node.nested) {
         dv_call(builder, node.nested.value()); 
@@ -567,7 +593,6 @@ void Elaborator::do_visit(UnionSpecifier& node) {
         }
     }
 
-
     dv_return(ret);
 }
 
@@ -575,11 +600,73 @@ void Elaborator::do_visit(ClassDeclaration& node) {
     bsv_dbprint("visiting ClassDeclaration node: ", node.loc);
     Box<SpecifierInfo> specinfo = parse_speclist(node.specifiers);
 
-    for (auto& decltr : node.declarators) {
-        dv_call(std::monostate {}, decltr);
+    std::visit(overloaded {
+        // ClassType case
+        [&specinfo, &node, this] (ClassType *cls) {
 
-        // todo
-    }
+            for (auto& decltr : node.declarators) {
+                dv_call(std::monostate {}, decltr);
+                std::visit(overloaded {
+                    [&cls, &specinfo, &decltr] (Box<DeclaratorBuilder>& builder) {
+                        builder->ty_bldr.set_base(specinfo->type);
+                        Type *finaltype = builder->ty_bldr.finalize();
+                        auto member = std::make_unique<ClassType::ClassTypeMember>(
+                            ClassType::ClassTypeMember(builder->name, finaltype, decltr->loc));
+
+                        cls->add_member(std::move(member));
+                    },
+                    [&cls, &specinfo, &decltr] (std::monostate& _) {
+                        // no declarator, use the base type
+                        auto member = std::make_unique<ClassType::ClassTypeMember>(
+                            ClassType::ClassTypeMember(specinfo->type, decltr->loc));
+
+                        cls->add_member(std::move(member));
+                    },
+                    [] (auto& _) {
+                        throw std::runtime_error("unexpected last_result when parsing ClassDeclaration");
+                    }
+                }, last_result);
+
+                last_result = std::monostate {};
+            }
+
+        },
+
+        // UnionType case
+        [&specinfo, &node, this] (UnionType *unn) {
+            for (auto& decltr : node.declarators) {
+                dv_call(std::monostate {}, decltr);
+                std::visit(overloaded {
+                    [&unn, &specinfo, &decltr] (Box<DeclaratorBuilder>& builder) {
+                        builder->ty_bldr.set_base(specinfo->type);
+                        Type *finaltype = builder->ty_bldr.finalize();
+
+                        auto member = std::make_unique<UnionType::UnionTypeMember>(
+                            UnionType::UnionTypeMember(builder->name, finaltype, decltr->loc));
+
+                        unn->add_member(std::move(member));
+                    },
+                    [&unn, &specinfo, &decltr] (std::monostate& _) {
+                        // no declarator, use the base type
+                        auto member = std::make_unique<UnionType::UnionTypeMember>(
+                            UnionType::UnionTypeMember(specinfo->type, decltr->loc));
+
+                        unn->add_member(std::move(member));
+                    },
+                    [] (auto& _) {
+                        throw std::runtime_error("unexpected last_result when parsing UnionDeclaration");
+                    }
+                }, last_result);
+
+                last_result = std::monostate {};
+            }
+        },
+        [] (auto& _) {
+            throw std::runtime_error("unexpected dovisit param when parsing ClassDeclaration");
+        }
+    }, dovisit_param);
+
+    dv_return(std::monostate {});
 }
 
 void Elaborator::do_visit(ClassDeclarator& node) {
@@ -598,9 +685,23 @@ void Elaborator::do_visit(Initializer& node) {
     bsv_dbprint("visiting Initializer node: ", node.loc);
 }
 
-void Elaborator::do_visit(TypeName& node) {}
+void Elaborator::do_visit(TypeName& node) {
+    // dovisit_param: monostate
+    // last_result: Type *
+    Box<SpecifierInfo> specinfo = parse_speclist(node.specifiers);
 
-void Elaborator::do_visit(ExpressionStatement& node) {}
+    if (node.declarator) {
+        dv_call(std::monostate {}, *node.declarator);
+        auto builder = take_last_result<Box<DeclaratorBuilder>>();
+        builder->ty_bldr.set_base(specinfo->type);
+
+        Type *finaltype = builder->ty_bldr.finalize();
+
+        dv_return(finaltype);
+    } else {
+        dv_return(specinfo->type);
+    }
+}
 
 void Elaborator::do_visit(CompoundStatement& node) {
     bsv_dbprint("visiting CompoundStatement node: ", node.loc);
@@ -624,6 +725,9 @@ void Elaborator::do_visit(CompoundStatement& node) {
         }
     }, dovisit_param);
 
+    // Reset dovisit_param to monostate
+    dovisit_param = std::monostate{};
+
     if (add_symbols) {
         bsv_dbprint("CmpdStmtDoVisitParams found to have value, checking for function");
         // check the immediate outer node is a function
@@ -632,11 +736,11 @@ void Elaborator::do_visit(CompoundStatement& node) {
         }
 
         // Tie the function symbol to our current scope
-        syms.tie_current_to(add_symbols->first);
+        syms.tie_current_to(add_symbols.value().first);
 
         // Add function argument symbols to our current scope
-        for (auto& sym : add_symbols->second) {
-            syms.insert(sym.first, std::move(sym.second));
+        for (auto& sym : add_symbols.value().second) {
+            syms.insert(sym->name, std::move(sym));
         }
     }
 
@@ -651,54 +755,110 @@ void Elaborator::do_visit(LabeledStatement& node) {
     dv_call(std::monostate {}, node.statement);
 }
 
-void Elaborator::do_visit(ast::CaseStatement& node) {}
+void Elaborator::do_visit(ExpressionStatement& node) {
 
-void Elaborator::do_visit(ast::CaseRangeStatement& node) {}
+}
 
-void Elaborator::do_visit(ast::DefaultStatement& node) {}
+void Elaborator::do_visit(CaseStatement& node) {
+    
+}
 
-void Elaborator::do_visit(ast::PrintStatement& node) {}
+void Elaborator::do_visit(CaseRangeStatement& node) {
 
-void Elaborator::do_visit(ast::IfStatement& node) {}
+}
 
-void Elaborator::do_visit(ast::SwitchStatement& node) {}
+void Elaborator::do_visit(DefaultStatement& node) {
 
-void Elaborator::do_visit(ast::WhileStatement& node) {}
+}
 
-void Elaborator::do_visit(ast::DoWhileStatement& node) {}
+void Elaborator::do_visit(PrintStatement& node) {
 
-void Elaborator::do_visit(ast::ForStatement& node) {}
+}
 
-void Elaborator::do_visit(ast::GotoStatement& node) {}
+void Elaborator::do_visit(IfStatement& node) {
 
-void Elaborator::do_visit(ast::BreakStatement& node) {}
+}
 
-void Elaborator::do_visit(ast::ReturnStatement& node) {}
+void Elaborator::do_visit(SwitchStatement& node) {
 
-void Elaborator::do_visit(ast::BinaryExpression& node) {}
+}
 
-void Elaborator::do_visit(ast::CastExpression& node) {}
+void Elaborator::do_visit(WhileStatement& node) {
 
-void Elaborator::do_visit(ast::UnaryExpression& node) {}
+}
 
-void Elaborator::do_visit(ast::AssignmentExpression& node) {}
+void Elaborator::do_visit(DoWhileStatement& node) {
 
-void Elaborator::do_visit(ast::ConditionalExpression& node) {}
+}
 
-void Elaborator::do_visit(ast::IdentifierExpression& node) {}
+void Elaborator::do_visit(ForStatement& node) {
 
-void Elaborator::do_visit(ast::ConstExpression& node) {}
+}
 
-void Elaborator::do_visit(ast::LiteralExpression& node) {}
+void Elaborator::do_visit(GotoStatement& node) {
 
-void Elaborator::do_visit(ast::StringExpression& node) {}
+}
 
-void Elaborator::do_visit(ast::CallExpression& node) {}
+void Elaborator::do_visit(BreakStatement& node) {
 
-void Elaborator::do_visit(ast::MemberAccessExpression& node) {}
+}
 
-void Elaborator::do_visit(ast::ArraySubscriptExpression& node) {}
+void Elaborator::do_visit(ReturnStatement& node) {
 
-void Elaborator::do_visit(ast::PostfixExpression& node) {}
+}
 
-void Elaborator::do_visit(ast::SizeofExpression& node) {}
+void Elaborator::do_visit(BinaryExpression& node) {
+
+}
+
+void Elaborator::do_visit(CastExpression& node) {
+
+}
+
+void Elaborator::do_visit(UnaryExpression& node) {
+
+}
+
+void Elaborator::do_visit(AssignmentExpression& node) {
+
+}
+
+void Elaborator::do_visit(ConditionalExpression& node) {
+
+}
+
+void Elaborator::do_visit(IdentifierExpression& node) {
+
+}
+
+void Elaborator::do_visit(ConstExpression& node) {
+
+}
+
+void Elaborator::do_visit(LiteralExpression& node) {
+
+}
+
+void Elaborator::do_visit(StringExpression& node) {
+    
+}
+
+void Elaborator::do_visit(CallExpression& node) {
+
+}
+
+void Elaborator::do_visit(MemberAccessExpression& node) {
+
+}
+
+void Elaborator::do_visit(ArraySubscriptExpression& node) {
+
+}
+
+void Elaborator::do_visit(PostfixExpression& node) {
+
+}
+
+void Elaborator::do_visit(SizeofExpression& node) {
+
+}

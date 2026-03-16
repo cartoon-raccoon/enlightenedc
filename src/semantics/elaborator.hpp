@@ -50,6 +50,7 @@ using ElabResult = std::variant<
     TypeSpecRet<types::EnumType>,
     types::PrimitiveType *,
     types::PointerType *,
+    types::Type *,
     // The result of visiting a ParameterDeclaration node.
     types::FuncParam,
     // The result of visiting a TypeQualifier node.
@@ -61,8 +62,8 @@ using ElabResult = std::variant<
 
 using CmpdStmtDoVisitParam = std::optional<
     std::pair<
-        sym::Symbol *, // The function symbol to tie this compound statement to.
-        Vec<std::pair<std::string, Box<sym::Symbol>>> // The new symbols to add to the new scope.
+        sym::FuncSymbol *, // The function symbol to tie this compound statement to.
+        Vec<Box<sym::VarSymbol>> // The new symbols to add to the new scope.
     >
 >;
 

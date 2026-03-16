@@ -1,6 +1,7 @@
 #include "driver/backend.hpp"
 #include "driver/driver.hpp"
 #include "semantics/semantics.hpp"
+#include "semantics/printer.hpp"
 #include "util.hpp"
 
 using namespace ecc::driver;
@@ -13,6 +14,7 @@ void Backend::run(TranslationUnit& unit) {
 
     semantic_checker.check_semantics(*unit.ast_root);
 
-    dbprint(symbols);
-    dbprint(types);
+    dbprint(*types);
+    dbprint(*symbols);
+    dbprint("backend complete");
 }
