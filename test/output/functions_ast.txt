@@ -206,7 +206,7 @@ running elaborator for input/functions.ec:1.1
 Node: type 52 {
     Node: type 9 {
         visiting VariableDeclaration node: input/functions.ec:1.1-177
-        parsing declaration specifier list
+        parsing declaration specifier list for node at input/functions.ec:1.1-177
         Node: type 20 {
             visiting PrimitiveSpecifier node: input/functions.ec:1.162-165
 TypeContext: getting primitive type with value 8
@@ -214,6 +214,7 @@ TypeContext: getting primitive type with value 8
         Node: type 1 {
             visiting StorageClassSpecifier node: input/functions.ec:1.1-156
             }
+        finished parsing specifiers for node input/functions.ec:1.1-177
         Node: type 6 {
             visiting InitDeclarator node: input/functions.ec:1.167-176
             Node: type 5 {
@@ -227,15 +228,16 @@ TypeContext: getting primitive type with value 8
             }
 TypeBuilder: finalizing type
 TypeContext: getting function type
-SymbolTable: inserting symbol with name somefunc
+SymbolTable: inserting symbol with name "somefunc"
         }
     Node: type 51 {
         visiting Function node: input/functions.ec:3.1-5.1
-        parsing declaration specifier list
+        parsing declaration specifier list for node at input/functions.ec:3.1-5.1
         Node: type 20 {
             visiting PrimitiveSpecifier node: input/functions.ec:3.1-4
 TypeContext: getting primitive type with value 3
             }
+        finished parsing specifiers for node input/functions.ec:3.1-5.1
         Node: type 5 {
             Node: type 13 {
                 visiting FunctionDeclarator node: input/functions.ec:3.6-25
@@ -244,11 +246,12 @@ TypeContext: getting primitive type with value 3
                     }
                 Node: type 7 {
                     visiting ParameterDeclarator node: input/functions.ec:3.6-16
-                    parsing declaration specifier list
+                    parsing declaration specifier list for node at input/functions.ec:3.6-16
                     Node: type 20 {
                         visiting PrimitiveSpecifier node: input/functions.ec:3.6-14
 TypeContext: getting primitive type with value 3
                         }
+                    finished parsing specifiers for node input/functions.ec:3.6-16
                     Node: type 5 {
                         Node: type 10 {
                             visiting IdentifierDeclarator node: input/functions.ec:3.16
@@ -258,11 +261,12 @@ TypeBuilder: finalizing type
                     }
                 Node: type 7 {
                     visiting ParameterDeclarator node: input/functions.ec:3.19-24
-                    parsing declaration specifier list
+                    parsing declaration specifier list for node at input/functions.ec:3.19-24
                     Node: type 20 {
                         visiting PrimitiveSpecifier node: input/functions.ec:3.19-22
 TypeContext: getting primitive type with value 3
                         }
+                    finished parsing specifiers for node input/functions.ec:3.19-24
                     Node: type 5 {
                         Node: type 10 {
                             visiting IdentifierDeclarator node: input/functions.ec:3.24
@@ -272,24 +276,40 @@ TypeBuilder: finalizing type
                     }
                 }
             Node: type 2 {
-                visiting Pointer node
+                visiting Pointer node: input/functions.ec:3.6
                 }
             }
-TypeContext: pointer with base 0x557f3099d290
+TypeContext: pointer with base 0x555d5517d290
 TypeContext: getting function type
+SymbolTable: inserting symbol with name "add"
         Node: type 21 {
-SymbolTable: pushing scope 0x557f3099ef90
-SymbolTable: entering scope 0x557f3099ef90
-SymbolTable: exiting scope
+SymbolTable: pushing scope 0x555d5517e6b0
+SymbolTable: entering scope 0x555d5517e6b0
+SymbolTable: current scope 0x555d5517e6b0
             visiting CompoundStatement node: input/functions.ec:3.27-5.1
+            CmpdStmtDoVisitParams found to have value, checking for function
+SymbolTable: associating current scope 0x555d5517e6b0 with symbol 0x555d5517d120 name "add"
+SymbolTable: inserting symbol with name "a"
+SymbolTable: inserting symbol with name "b"
             Node: type 35 {
+                visiting ReturnStatement node: input/functions.ec:4.5-17
+                Node: type 38 {
+                    visiting BinaryStatement node: input/functions.ec:4.12-16
+                    Node: type 43 {
+                        visiting IdentifierExpression node: input/functions.ec:4.12
+                        }
+                    Node: type 43 {
+                        visiting IdentifierExpression node: input/functions.ec:4.16
+                        }
+                    }
                 }
+SymbolTable: exiting scope to 0x555d5517cf60
+SymbolTable: current scope 0x555d5517cf60
             }
-SymbolTable: exiting scope
         }
     Node: type 51 {
         visiting Function node: input/functions.ec:7.1-18.1
-        parsing declaration specifier list
+        parsing declaration specifier list for node at input/functions.ec:7.1-18.1
         Node: type 20 {
             visiting PrimitiveSpecifier node: input/functions.ec:7.8-11
 TypeContext: getting primitive type with value 8
@@ -297,6 +317,7 @@ TypeContext: getting primitive type with value 8
         Node: type 1 {
             visiting StorageClassSpecifier node: input/functions.ec:7.1-6
             }
+        finished parsing specifiers for node input/functions.ec:7.1-18.1
         Node: type 5 {
             Node: type 13 {
                 visiting FunctionDeclarator node: input/functions.ec:7.13-50
@@ -305,11 +326,12 @@ TypeContext: getting primitive type with value 8
                     }
                 Node: type 7 {
                     visiting ParameterDeclarator node: input/functions.ec:7.13-31
-                    parsing declaration specifier list
+                    parsing declaration specifier list for node at input/functions.ec:7.13-31
                     Node: type 20 {
                         visiting PrimitiveSpecifier node: input/functions.ec:7.13-24
 TypeContext: getting primitive type with value 8
                         }
+                    finished parsing specifiers for node input/functions.ec:7.13-31
                     Node: type 5 {
                         Node: type 10 {
                             visiting IdentifierDeclarator node: input/functions.ec:7.26
@@ -319,11 +341,12 @@ TypeBuilder: finalizing type
                     }
                 Node: type 7 {
                     visiting ParameterDeclarator node: input/functions.ec:7.34-44
-                    parsing declaration specifier list
+                    parsing declaration specifier list for node at input/functions.ec:7.34-44
                     Node: type 20 {
                         visiting PrimitiveSpecifier node: input/functions.ec:7.34-37
 TypeContext: getting primitive type with value 8
                         }
+                    finished parsing specifiers for node input/functions.ec:7.34-44
                     Node: type 5 {
                         Node: type 10 {
                             visiting IdentifierDeclarator node: input/functions.ec:7.39
@@ -334,18 +357,24 @@ TypeBuilder: finalizing type
                 }
             }
 TypeContext: getting function type
+SymbolTable: inserting symbol with name "compute"
         Node: type 21 {
-SymbolTable: pushing scope 0x557f3099f0e0
-SymbolTable: entering scope 0x557f3099f0e0
-SymbolTable: exiting scope
+SymbolTable: pushing scope 0x555d5517eaf0
+SymbolTable: entering scope 0x555d5517eaf0
+SymbolTable: current scope 0x555d5517eaf0
             visiting CompoundStatement node: input/functions.ec:7.52-18.1
+            CmpdStmtDoVisitParams found to have value, checking for function
+SymbolTable: associating current scope 0x555d5517eaf0 with symbol 0x555d5517e940 name "compute"
+SymbolTable: inserting symbol with name "x"
+SymbolTable: inserting symbol with name "y"
             Node: type 9 {
                 visiting VariableDeclaration node: input/functions.ec:8.5-13
-                parsing declaration specifier list
+                parsing declaration specifier list for node at input/functions.ec:8.5-13
                 Node: type 20 {
                     visiting PrimitiveSpecifier node: input/functions.ec:8.5-8
 TypeContext: getting primitive type with value 8
                     }
+                finished parsing specifiers for node input/functions.ec:8.5-13
                 Node: type 6 {
                     visiting InitDeclarator node: input/functions.ec:8.10-12
                     Node: type 5 {
@@ -355,17 +384,40 @@ TypeContext: getting primitive type with value 8
                         }
                     }
 TypeBuilder: finalizing type
-SymbolTable: inserting symbol with name new
+SymbolTable: inserting symbol with name "new"
                 }
             Node: type 22 {
+                visiting ExpressionStatement node: input/functions.ec:9.5-25
+                Node: type 41 {
+                    visiting AssignmentExpression node: input/functions.ec:9.5-24
+                    Node: type 43 {
+                        visiting IdentifierExpression node: input/functions.ec:9.5-7
+                        }
+                    Node: type 46 {
+                        visiting CallExpression node: input/functions.ec:9.11-24
+                        Node: type 43 {
+                            visiting IdentifierExpression node: input/functions.ec:9.11-13
+                            }
+                        Node: type 43 {
+                            visiting IdentifierExpression node: input/functions.ec:9.11-15
+                            }
+                        Node: type 43 {
+                            visiting IdentifierExpression node: input/functions.ec:9.18
+                            }
+                        Node: type 43 {
+                            visiting IdentifierExpression node: input/functions.ec:9.21-23
+                            }
+                        }
+                    }
                 }
             Node: type 9 {
                 visiting VariableDeclaration node: input/functions.ec:11.5-24
-                parsing declaration specifier list
+                parsing declaration specifier list for node at input/functions.ec:11.5-24
                 Node: type 20 {
                     visiting PrimitiveSpecifier node: input/functions.ec:11.5-8
 TypeContext: getting primitive type with value 4
                     }
+                finished parsing specifiers for node input/functions.ec:11.5-24
                 Node: type 6 {
                     visiting InitDeclarator node: input/functions.ec:11.10-23
                     Node: type 5 {
@@ -375,24 +427,26 @@ TypeContext: getting primitive type with value 4
                         }
                     }
 TypeBuilder: finalizing type
-SymbolTable: inserting symbol with name new2
+SymbolTable: inserting symbol with name "new2"
                 }
             Node: type 8 {
                 visiting TypeDeclaration node: input/functions.ec:13.5-15.6
-                parsing declaration specifier list
+                parsing declaration specifier list for node at input/functions.ec:13.5-15.6
                 Node: type 17 {
-SymbolTable: pushing scope 0x557f3099f210
-SymbolTable: entering scope 0x557f3099f210
-SymbolTable: exiting scope
+SymbolTable: pushing scope 0x555d5517edf0
+SymbolTable: entering scope 0x555d5517edf0
+SymbolTable: current scope 0x555d5517edf0
                     visiting ClassSpecifier node: input/functions.ec:13.5-15.5
-TypeContext: anonymous class type on scope 0x557f3099cf60
+TypeContext: anonymous class type on scope 0x555d5517edf0
                     Node: type 15 {
                         visiting ClassDeclaration node: input/functions.ec:14.9-19
-                        parsing declaration specifier list
+                        parsing declaration specifier list for node at input/functions.ec:14.9-19
                         Node: type 20 {
                             visiting PrimitiveSpecifier node: input/functions.ec:14.9-12
 TypeContext: getting primitive type with value 3
                             }
+                        finished parsing specifiers for node input/functions.ec:14.9-19
+                        parsing ClassDeclaration for ClassType 0x555d5517eef0
                         Node: type 14 {
                             visiting ClassDeclarator node: input/functions.ec:14.14-18
                             Node: type 5 {
@@ -401,31 +455,48 @@ TypeContext: getting primitive type with value 3
                                     }
                                 }
                             }
+TypeBuilder: finalizing type
+ClassType: adding member with name hello type 0x555d5517d290
                         }
+SymbolTable: exiting scope to 0x555d5517eaf0
+SymbolTable: current scope 0x555d5517eaf0
                     }
-SymbolTable: exiting scope
+                finished parsing specifiers for node input/functions.ec:13.5-15.6
                 }
             Node: type 35 {
+                visiting ReturnStatement node: input/functions.ec:17.5-17
+                Node: type 38 {
+                    visiting BinaryStatement node: input/functions.ec:17.12-16
+                    Node: type 43 {
+                        visiting IdentifierExpression node: input/functions.ec:17.12
+                        }
+                    Node: type 43 {
+                        visiting IdentifierExpression node: input/functions.ec:17.16
+                        }
+                    }
                 }
+SymbolTable: exiting scope to 0x555d5517cf60
+SymbolTable: current scope 0x555d5517cf60
             }
-SymbolTable: exiting scope
         }
     Node: type 8 {
         visiting TypeDeclaration node: input/functions.ec:20.1-23.2
-        parsing declaration specifier list
+        parsing declaration specifier list for node at input/functions.ec:20.1-23.2
         Node: type 17 {
-SymbolTable: pushing scope 0x557f3099f490
-SymbolTable: entering scope 0x557f3099f490
-SymbolTable: exiting scope
+SymbolTable: pushing scope 0x555d5517f0c0
+SymbolTable: entering scope 0x555d5517f0c0
+SymbolTable: current scope 0x555d5517f0c0
             visiting ClassSpecifier node: input/functions.ec:20.1-23.1
-TypeContext: class type 'Point' on scope 0x557f3099cf60
+TypeContext: class type 'Point' on scope 0x555d5517f0c0
             Node: type 15 {
                 visiting ClassDeclaration node: input/functions.ec:21.3-9
-                parsing declaration specifier list
+                parsing declaration specifier list for node at input/functions.ec:21.3-9
                 Node: type 20 {
                     visiting PrimitiveSpecifier node: input/functions.ec:21.3-6
 TypeContext: getting primitive type with value 8
                     }
+                finished parsing specifiers for node input/functions.ec:21.3-9
+                parsing ClassDeclaration for ClassType 0x555d5517f140
                 Node: type 14 {
                     visiting ClassDeclarator node: input/functions.ec:21.8
                     Node: type 5 {
@@ -434,14 +505,18 @@ TypeContext: getting primitive type with value 8
                             }
                         }
                     }
+TypeBuilder: finalizing type
+ClassType: adding member with name x type 0x555d5517d510
                 }
             Node: type 15 {
                 visiting ClassDeclaration node: input/functions.ec:22.3-9
-                parsing declaration specifier list
+                parsing declaration specifier list for node at input/functions.ec:22.3-9
                 Node: type 20 {
                     visiting PrimitiveSpecifier node: input/functions.ec:22.3-6
 TypeContext: getting primitive type with value 8
                     }
+                finished parsing specifiers for node input/functions.ec:22.3-9
+                parsing ClassDeclaration for ClassType 0x555d5517f140
                 Node: type 14 {
                     visiting ClassDeclarator node: input/functions.ec:22.8
                     Node: type 5 {
@@ -450,24 +525,29 @@ TypeContext: getting primitive type with value 8
                             }
                         }
                     }
+TypeBuilder: finalizing type
+ClassType: adding member with name y type 0x555d5517d510
                 }
-SymbolTable: associating current scope 0x557f3099cf60 with symbol 0x557f3099e220 name 
+SymbolTable: associating current scope 0x555d5517f0c0 with symbol 0x555d5517f2e0 name "Point"
+SymbolTable: exiting scope to 0x555d5517cf60
+SymbolTable: current scope 0x555d5517cf60
             }
-SymbolTable: exiting scope
-SymbolTable: inserting symbol with name 
+        finished parsing specifiers for node input/functions.ec:20.1-23.2
+SymbolTable: inserting symbol with name "Point"
         }
     Node: type 51 {
         visiting Function node: input/functions.ec:25.1-30.1
-        parsing declaration specifier list
+        parsing declaration specifier list for node at input/functions.ec:25.1-30.1
         Node: type 17 {
-SymbolTable: pushing scope 0x557f3099f5f0
-SymbolTable: entering scope 0x557f3099f5f0
-SymbolTable: exiting scope
+SymbolTable: pushing scope 0x555d5517f350
+SymbolTable: entering scope 0x555d5517f350
+SymbolTable: current scope 0x555d5517f350
             visiting ClassSpecifier node: input/functions.ec:25.1-11
-TypeContext: class type 'Point' on scope 0x557f3099cf60
-TypeContext: existing class found
+TypeContext: class type 'Point' on scope 0x555d5517f350
+SymbolTable: exiting scope to 0x555d5517cf60
+SymbolTable: current scope 0x555d5517cf60
             }
-SymbolTable: exiting scope
+        finished parsing specifiers for node input/functions.ec:25.1-30.1
         Node: type 5 {
             Node: type 13 {
                 visiting FunctionDeclarator node: input/functions.ec:25.13-60
@@ -476,34 +556,36 @@ SymbolTable: exiting scope
                     }
                 Node: type 7 {
                     visiting ParameterDeclarator node: input/functions.ec:25.13-41
-                    parsing declaration specifier list
+                    parsing declaration specifier list for node at input/functions.ec:25.13-41
                     Node: type 17 {
-SymbolTable: pushing scope 0x557f3099f670
-SymbolTable: entering scope 0x557f3099f670
-SymbolTable: exiting scope
+SymbolTable: pushing scope 0x555d5517f4f0
+SymbolTable: entering scope 0x555d5517f4f0
+SymbolTable: current scope 0x555d5517f4f0
                         visiting ClassSpecifier node: input/functions.ec:25.13-38
-TypeContext: class type 'Point' on scope 0x557f3099cf60
-TypeContext: existing class found
+TypeContext: class type 'Point' on scope 0x555d5517f4f0
+SymbolTable: exiting scope to 0x555d5517cf60
+SymbolTable: current scope 0x555d5517cf60
                         }
-SymbolTable: exiting scope
+                    finished parsing specifiers for node input/functions.ec:25.13-41
                     Node: type 5 {
                         Node: type 10 {
                             visiting IdentifierDeclarator node: input/functions.ec:25.40-41
                             }
                         Node: type 2 {
-                            visiting Pointer node
+                            visiting Pointer node: input/functions.ec:25.40
                             }
                         }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x557f3099f510
+TypeContext: pointer with base 0x555d5517f570
                     }
                 Node: type 7 {
                     visiting ParameterDeclarator node: input/functions.ec:25.44-50
-                    parsing declaration specifier list
+                    parsing declaration specifier list for node at input/functions.ec:25.44-50
                     Node: type 20 {
                         visiting PrimitiveSpecifier node: input/functions.ec:25.44-47
 TypeContext: getting primitive type with value 8
                         }
+                    finished parsing specifiers for node input/functions.ec:25.44-50
                     Node: type 5 {
                         Node: type 10 {
                             visiting IdentifierDeclarator node: input/functions.ec:25.49-50
@@ -513,11 +595,12 @@ TypeBuilder: finalizing type
                     }
                 Node: type 7 {
                     visiting ParameterDeclarator node: input/functions.ec:25.53-59
-                    parsing declaration specifier list
+                    parsing declaration specifier list for node at input/functions.ec:25.53-59
                     Node: type 20 {
                         visiting PrimitiveSpecifier node: input/functions.ec:25.53-56
 TypeContext: getting primitive type with value 8
                         }
+                    finished parsing specifiers for node input/functions.ec:25.53-59
                     Node: type 5 {
                         Node: type 10 {
                             visiting IdentifierDeclarator node: input/functions.ec:25.58-59
@@ -527,34 +610,91 @@ TypeBuilder: finalizing type
                     }
                 }
             Node: type 2 {
-                visiting Pointer node
+                visiting Pointer node: input/functions.ec:25.13
                 }
             }
-TypeContext: pointer with base 0x557f3099f510
+TypeContext: pointer with base 0x555d5517f3d0
 TypeContext: getting function type
+SymbolTable: inserting symbol with name "compute_point"
         Node: type 21 {
-SymbolTable: pushing scope 0x557f3099fcb0
-SymbolTable: entering scope 0x557f3099fcb0
-SymbolTable: exiting scope
+SymbolTable: pushing scope 0x555d5517fa20
+SymbolTable: entering scope 0x555d5517fa20
+SymbolTable: current scope 0x555d5517fa20
             visiting CompoundStatement node: input/functions.ec:25.62-30.1
+            CmpdStmtDoVisitParams found to have value, checking for function
+SymbolTable: associating current scope 0x555d5517fa20 with symbol 0x555d5517f730 name "compute_point"
+SymbolTable: inserting symbol with name "p"
+SymbolTable: inserting symbol with name "dx"
+SymbolTable: inserting symbol with name "dy"
             Node: type 22 {
+                visiting ExpressionStatement node: input/functions.ec:26.3-13
+                Node: type 41 {
+                    visiting AssignmentExpression node: input/functions.ec:26.3-12
+                    Node: type 47 {
+                        visiting MemberAccessExpression node: input/functions.ec:26.3-6
+                        Node: type 43 {
+                            visiting IdentifierExpression node: input/functions.ec:26.3
+                            }
+                        }
+                    Node: type 43 {
+                        visiting IdentifierExpression node: input/functions.ec:26.11-12
+                        }
+                    }
                 }
             Node: type 22 {
+                visiting ExpressionStatement node: input/functions.ec:27.3-13
+                Node: type 41 {
+                    visiting AssignmentExpression node: input/functions.ec:27.3-12
+                    Node: type 47 {
+                        visiting MemberAccessExpression node: input/functions.ec:27.3-6
+                        Node: type 43 {
+                            visiting IdentifierExpression node: input/functions.ec:27.3
+                            }
+                        }
+                    Node: type 43 {
+                        visiting IdentifierExpression node: input/functions.ec:27.11-12
+                        }
+                    }
                 }
             Node: type 35 {
+                visiting ReturnStatement node: input/functions.ec:29.3-11
+                Node: type 43 {
+                    visiting IdentifierExpression node: input/functions.ec:29.10
+                    }
                 }
+SymbolTable: exiting scope to 0x555d5517cf60
+SymbolTable: current scope 0x555d5517cf60
             }
-SymbolTable: exiting scope
         }
     Node: type 22 {
+        visiting ExpressionStatement node: input/functions.ec:32.1-29
+        Node: type 46 {
+            visiting CallExpression node: input/functions.ec:32.1-28
+            Node: type 43 {
+                visiting IdentifierExpression node: input/functions.ec:32.1-7
+                }
+            Node: type 44 {
+                visiting LiteralExpression node: input/functions.ec:32.1-10
+                }
+            Node: type 44 {
+                visiting LiteralExpression node: input/functions.ec:32.13
+                }
+            Node: type 45 {
+                visiting StringExpression node: input/functions.ec:32.16-21
+                }
+            Node: type 44 {
+                visiting LiteralExpression node: input/functions.ec:32.24-27
+                }
+            }
         }
     Node: type 51 {
         visiting Function node: input/functions.ec:34.1-36.1
-        parsing declaration specifier list
+        parsing declaration specifier list for node at input/functions.ec:34.1-36.1
         Node: type 20 {
             visiting PrimitiveSpecifier node: input/functions.ec:34.1-3
 TypeContext: getting primitive type with value 0
             }
+        finished parsing specifiers for node input/functions.ec:34.1-36.1
         Node: type 5 {
             Node: type 13 {
                 visiting FunctionDeclarator node: input/functions.ec:34.5-10
@@ -564,27 +704,44 @@ TypeContext: getting primitive type with value 0
                 }
             }
 TypeContext: getting function type
+SymbolTable: inserting symbol with name "noop"
         Node: type 21 {
-SymbolTable: pushing scope 0x557f3099fd90
-SymbolTable: entering scope 0x557f3099fd90
-SymbolTable: exiting scope
+SymbolTable: pushing scope 0x555d5517fcd0
+SymbolTable: entering scope 0x555d5517fcd0
+SymbolTable: current scope 0x555d5517fcd0
             visiting CompoundStatement node: input/functions.ec:34.12-36.1
+            CmpdStmtDoVisitParams found to have value, checking for function
+SymbolTable: associating current scope 0x555d5517fcd0 with symbol 0x555d5517fc20 name "noop"
             Node: type 35 {
+                visiting ReturnStatement node: input/functions.ec:35.5-11
+                }
+SymbolTable: exiting scope to 0x555d5517cf60
+SymbolTable: current scope 0x555d5517cf60
+            }
+        }
+    Node: type 22 {
+        visiting ExpressionStatement node: input/functions.ec:38.1-7
+        Node: type 46 {
+            visiting CallExpression node: input/functions.ec:38.1-6
+            Node: type 43 {
+                visiting IdentifierExpression node: input/functions.ec:38.1-4
                 }
             }
-SymbolTable: exiting scope
         }
     Node: type 22 {
-        }
-    Node: type 22 {
+        visiting ExpressionStatement node: input/functions.ec:40.1-5
+        Node: type 43 {
+            visiting IdentifierExpression node: input/functions.ec:40.1-4
+            }
         }
     Node: type 51 {
         visiting Function node: input/functions.ec:42.1-45.1
-        parsing declaration specifier list
+        parsing declaration specifier list for node at input/functions.ec:42.1-45.1
         Node: type 20 {
             visiting PrimitiveSpecifier node: input/functions.ec:42.1-4
 TypeContext: getting primitive type with value 9
             }
+        finished parsing specifiers for node input/functions.ec:42.1-45.1
         Node: type 5 {
             Node: type 13 {
                 visiting FunctionDeclarator node: input/functions.ec:42.6-29
@@ -593,11 +750,12 @@ TypeContext: getting primitive type with value 9
                     }
                 Node: type 7 {
                     visiting ParameterDeclarator node: input/functions.ec:42.6-28
-                    parsing declaration specifier list
+                    parsing declaration specifier list for node at input/functions.ec:42.6-28
                     Node: type 20 {
                         visiting PrimitiveSpecifier node: input/functions.ec:42.6-26
 TypeContext: getting primitive type with value 9
                         }
+                    finished parsing specifiers for node input/functions.ec:42.6-28
                     Node: type 5 {
                         Node: type 10 {
                             visiting IdentifierDeclarator node: input/functions.ec:42.28
@@ -608,23 +766,39 @@ TypeBuilder: finalizing type
                 }
             }
 TypeContext: getting function type
+SymbolTable: inserting symbol with name "CallbackFunction"
         Node: type 21 {
-SymbolTable: pushing scope 0x557f309a0030
-SymbolTable: entering scope 0x557f309a0030
-SymbolTable: exiting scope
+SymbolTable: pushing scope 0x555d551800c0
+SymbolTable: entering scope 0x555d551800c0
+SymbolTable: current scope 0x555d551800c0
             visiting CompoundStatement node: input/functions.ec:43.1-45.1
+            CmpdStmtDoVisitParams found to have value, checking for function
+SymbolTable: associating current scope 0x555d551800c0 with symbol 0x555d5517ff20 name "CallbackFunction"
+SymbolTable: inserting symbol with name "x"
             Node: type 35 {
+                visiting ReturnStatement node: input/functions.ec:44.3-15
+                Node: type 38 {
+                    visiting BinaryStatement node: input/functions.ec:44.10-14
+                    Node: type 43 {
+                        visiting IdentifierExpression node: input/functions.ec:44.10
+                        }
+                    Node: type 43 {
+                        visiting IdentifierExpression node: input/functions.ec:44.14
+                        }
+                    }
                 }
+SymbolTable: exiting scope to 0x555d5517cf60
+SymbolTable: current scope 0x555d5517cf60
             }
-SymbolTable: exiting scope
         }
     Node: type 51 {
         visiting Function node: input/functions.ec:47.1-50.1
-        parsing declaration specifier list
+        parsing declaration specifier list for node at input/functions.ec:47.1-50.1
         Node: type 20 {
             visiting PrimitiveSpecifier node: input/functions.ec:47.1-3
 TypeContext: getting primitive type with value 0
             }
+        finished parsing specifiers for node input/functions.ec:47.1-50.1
         Node: type 5 {
             Node: type 13 {
                 visiting FunctionDeclarator node: input/functions.ec:47.5-45
@@ -633,11 +807,12 @@ TypeContext: getting primitive type with value 0
                     }
                 Node: type 7 {
                     visiting ParameterDeclarator node: input/functions.ec:47.5-19
-                    parsing declaration specifier list
+                    parsing declaration specifier list for node at input/functions.ec:47.5-19
                     Node: type 20 {
                         visiting PrimitiveSpecifier node: input/functions.ec:47.5-17
 TypeContext: getting primitive type with value 9
                         }
+                    finished parsing specifiers for node input/functions.ec:47.5-19
                     Node: type 5 {
                         Node: type 10 {
                             visiting IdentifierDeclarator node: input/functions.ec:47.19
@@ -647,11 +822,12 @@ TypeBuilder: finalizing type
                     }
                 Node: type 7 {
                     visiting ParameterDeclarator node: input/functions.ec:47.22-44
-                    parsing declaration specifier list
+                    parsing declaration specifier list for node at input/functions.ec:47.22-44
                     Node: type 20 {
                         visiting PrimitiveSpecifier node: input/functions.ec:47.22-25
 TypeContext: getting primitive type with value 9
                         }
+                    finished parsing specifiers for node input/functions.ec:47.22-44
                     Node: type 5 {
                         Node: type 13 {
                             visiting FunctionDeclarator node: input/functions.ec:47.27-44
@@ -662,17 +838,18 @@ TypeContext: getting primitive type with value 9
                                         visiting IdentifierDeclarator node: input/functions.ec:47.27-32
                                         }
                                     Node: type 2 {
-                                        visiting Pointer node
+                                        visiting Pointer node: input/functions.ec:47.27-28
                                         }
                                     }
                                 }
                             Node: type 7 {
                                 visiting ParameterDeclarator node: input/functions.ec:47.27-43
-                                parsing declaration specifier list
+                                parsing declaration specifier list for node at input/functions.ec:47.27-43
                                 Node: type 20 {
                                     visiting PrimitiveSpecifier node: input/functions.ec:47.27-38
 TypeContext: getting primitive type with value 9
                                     }
+                                finished parsing specifiers for node input/functions.ec:47.27-43
                                 Node: type 5 {
                                     Node: type 10 {
                                         visiting IdentifierDeclarator node: input/functions.ec:47.40-43
@@ -684,28 +861,46 @@ TypeBuilder: finalizing type
                         }
 TypeBuilder: finalizing type
 TypeContext: getting function type
-TypeContext: pointer with base 0x557f3099d590
+TypeConstext: existing function type found
+TypeContext: pointer with base 0x555d5517fe80
                     }
                 }
             }
 TypeContext: getting function type
+SymbolTable: inserting symbol with name "MathFunc"
         Node: type 21 {
-SymbolTable: pushing scope 0x557f309a0200
-SymbolTable: entering scope 0x557f309a0200
-SymbolTable: exiting scope
+SymbolTable: pushing scope 0x555d55180720
+SymbolTable: entering scope 0x555d55180720
+SymbolTable: current scope 0x555d55180720
             visiting CompoundStatement node: input/functions.ec:48.1-50.1
+            CmpdStmtDoVisitParams found to have value, checking for function
+SymbolTable: associating current scope 0x555d55180720 with symbol 0x555d55180590 name "MathFunc"
+SymbolTable: inserting symbol with name "y"
+SymbolTable: inserting symbol with name "proc"
             Node: type 35 {
+                visiting ReturnStatement node: input/functions.ec:49.3-17
+                Node: type 46 {
+                    visiting CallExpression node: input/functions.ec:49.10-16
+                    Node: type 43 {
+                        visiting IdentifierExpression node: input/functions.ec:49.10-13
+                        }
+                    Node: type 43 {
+                        visiting IdentifierExpression node: input/functions.ec:49.10-15
+                        }
+                    }
                 }
+SymbolTable: exiting scope to 0x555d5517cf60
+SymbolTable: current scope 0x555d5517cf60
             }
-SymbolTable: exiting scope
         }
     Node: type 51 {
         visiting Function node: input/functions.ec:52.1-56.1
-        parsing declaration specifier list
+        parsing declaration specifier list for node at input/functions.ec:52.1-56.1
         Node: type 20 {
             visiting PrimitiveSpecifier node: input/functions.ec:52.1-3
 TypeContext: getting primitive type with value 0
             }
+        finished parsing specifiers for node input/functions.ec:52.1-56.1
         Node: type 5 {
             Node: type 13 {
                 visiting FunctionDeclarator node: input/functions.ec:52.5-10
@@ -715,18 +910,23 @@ TypeContext: getting primitive type with value 0
                 }
             }
 TypeContext: getting function type
+TypeConstext: existing function type found
+SymbolTable: inserting symbol with name "Main"
         Node: type 21 {
-SymbolTable: pushing scope 0x557f309a02e0
-SymbolTable: entering scope 0x557f309a02e0
-SymbolTable: exiting scope
+SymbolTable: pushing scope 0x555d55180940
+SymbolTable: entering scope 0x555d55180940
+SymbolTable: current scope 0x555d55180940
             visiting CompoundStatement node: input/functions.ec:53.1-56.1
+            CmpdStmtDoVisitParams found to have value, checking for function
+SymbolTable: associating current scope 0x555d55180940 with symbol 0x555d55180890 name "Main"
             Node: type 9 {
                 visiting VariableDeclaration node: input/functions.ec:54.3-43
-                parsing declaration specifier list
+                parsing declaration specifier list for node at input/functions.ec:54.3-43
                 Node: type 20 {
                     visiting PrimitiveSpecifier node: input/functions.ec:54.3-6
 TypeContext: getting primitive type with value 9
                     }
+                finished parsing specifiers for node input/functions.ec:54.3-43
                 Node: type 6 {
                     visiting InitDeclarator node: input/functions.ec:54.8-42
                     Node: type 5 {
@@ -736,66 +936,90 @@ TypeContext: getting primitive type with value 9
                         }
                     }
 TypeBuilder: finalizing type
-SymbolTable: inserting symbol with name x
+SymbolTable: inserting symbol with name "x"
                 }
             Node: type 27 {
+                visiting PrintStatement node: input/functions.ec:55.3-11
+                Node: type 43 {
+                    visiting IdentifierExpression node: input/functions.ec:55.3-10
+                    }
                 }
+SymbolTable: exiting scope to 0x555d5517cf60
+SymbolTable: current scope 0x555d5517cf60
             }
-SymbolTable: exiting scope
         }
     }
 --------- TYPE CONTEXT ---------
 
 Base Types:
-  function_394114881192651180 -> 0x557f3099ff90 : U0 (I64, I64)
-  function_94004764594336 -> 0x557f309a0280 : U0 ()
-  function_6490134918195519697 -> 0x557f3099fc50 : class { } (class { }, I32, I32)
-  N3ecc4sema5types9ClassTypeE_anon_struct_00x557f3099cf60 -> 0x557f3099f340 : class { }
-  function_v394114881247318093 -> 0x557f3099f080 : I32 (I32, I32, ...)
-  function_394114881244753749 -> 0x557f3099ee10 : U32 (U32, U32)
-  N3ecc4sema5types9ClassTypeE_Point0x557f3099cf60 -> 0x557f3099f510 : class { }
-  I0 -> 0x557f3099d390 : I0
-  function_6086711452171581 -> 0x557f309a0110 : I64 (I64)
-  U0 -> 0x557f3099d0a0 : U0
-  I32 -> 0x557f3099d510 : I32
-  U8 -> 0x557f3099d190 : U8
-  I16 -> 0x557f3099d490 : I16
-  U16 -> 0x557f3099d210 : U16
-  bool -> 0x557f3099d690 : bool
-  U32 -> 0x557f3099d290 : U32
-  I8 -> 0x557f3099d410 : I8
-  U64 -> 0x557f3099d310 : U64
-  I64 -> 0x557f3099d590 : I64
-  F64 -> 0x557f3099d610 : F64
-  function_94004764595472 -> 0x557f3099dde0 : I32 ()
+  N3ecc4sema5types9ClassTypeE_Point0x555d5517f350 -> 0x555d5517f3d0 : class
+  N3ecc4sema5types9ClassTypeE_Point0x555d5517f0c0 -> 0x555d5517f140 : class { I32 x; I32 y; }
+  function_7322694926634930736 -> 0x555d5517f650 : class * (class *, I32, I32)
+  function_395760951374748732 -> 0x555d5517e1e0 : U32 * (U32, U32)
+  I0 -> 0x555d5517d390 : I0
+  U0 -> 0x555d5517d0a0 : U0
+  I32 -> 0x555d5517d510 : I32
+  U8 -> 0x555d5517d190 : U8
+  function_395760951371538924 -> 0x555d5517fda0 : U0 (I64, I64 (I64) *)
+  N3ecc4sema5types9ClassTypeE_Point0x555d5517f4f0 -> 0x555d5517f570 : class
+  function_93859347944720 -> 0x555d5517dde0 : I32 ()
+  function_v395760951364726861 -> 0x555d5517e8a0 : I32 (I32, I32, ...)
+  I16 -> 0x555d5517d490 : I16
+  U16 -> 0x555d5517d210 : U16
+  function_6077378113404221 -> 0x555d5517fe80 : I64 (I64)
+  bool -> 0x555d5517d690 : bool
+  U32 -> 0x555d5517d290 : U32
+  I8 -> 0x555d5517d410 : I8
+  N3ecc4sema5types9ClassTypeE_anon_struct_00x555d5517edf0 -> 0x555d5517eef0 : class { U32 hello; }
+  U64 -> 0x555d5517d310 : U64
+  function_93859347943584 -> 0x555d5517fb80 : U0 ()
+  I64 -> 0x555d5517d590 : I64
+  F64 -> 0x555d5517d610 : F64
 
 Pointer Types:
-  0x557f3099e300 : I64 *
-  0x557f3099dfa0 : class { } *
-  0x557f3099ece0 : U32 *
+  0x555d5517fd50 : I64 (I64) *
+  0x555d5517dfa0 : class *
+  0x555d5517e850 : class *
+  0x555d5517dba0 : U32 *
 
 Array Types:
 
 
 --------- SYMBOL TABLE ---------
 
-Scope 0x557f3099cf60
-  x -> 0x557f3099ea30 : VarSymbol I64
-  new2 -> 0x557f3099e540 : VarSymbol U64
-  new -> 0x557f3099e290 : VarSymbol I32
-   -> 0x557f3099e220 : TypeSymbol class { }
-  somefunc -> 0x557f3099de80 : VarSymbol I32
-  Scope 0x557f3099ef90
-  Scope 0x557f3099f0e0
-  Scope 0x557f3099f210
-  Scope 0x557f3099f490
-  Scope 0x557f3099f5f0
-  Scope 0x557f3099f670
-  Scope 0x557f3099fcb0
-  Scope 0x557f3099fd90
-  Scope 0x557f309a0030
-  Scope 0x557f309a0200
-  Scope 0x557f309a02e0
+Scope 0x555d5517cf60
+  Main -> 0x555d55180890 : FuncSymbol U0 ()
+  MathFunc -> 0x555d55180590 : FuncSymbol U0 (I64, I64 (I64) *)
+  CallbackFunction -> 0x555d5517ff20 : FuncSymbol I64 (I64)
+  noop -> 0x555d5517fc20 : FuncSymbol U0 ()
+  Point -> 0x555d5517f2e0 : TypeSymbol class { I32 x; I32 y; }
+  compute -> 0x555d5517e940 : FuncSymbol I32 (I32, I32, ...)
+  add -> 0x555d5517d120 : FuncSymbol U32 * (U32, U32)
+  compute_point -> 0x555d5517f730 : FuncSymbol class * (class *, I32, I32)
+  somefunc -> 0x555d5517de80 : VarSymbol I32 ()
+  Scope 0x555d5517e6b0: FuncSymbol U32 * (U32, U32)
+    b -> 0x555d5517e640 : VarSymbol U32
+    a -> 0x555d5517e5d0 : VarSymbol U32
+  Scope 0x555d5517eaf0: FuncSymbol I32 (I32, I32, ...)
+    new2 -> 0x555d5517ed40 : VarSymbol U64
+    new -> 0x555d5517ec90 : VarSymbol I32
+    y -> 0x555d5517ea60 : VarSymbol I32
+    x -> 0x555d5517e9f0 : VarSymbol I32
+    Scope 0x555d5517edf0
+  Scope 0x555d5517f0c0: TypeSymbol class { I32 x; I32 y; }
+  Scope 0x555d5517f350
+  Scope 0x555d5517f4f0
+  Scope 0x555d5517fa20: FuncSymbol class * (class *, I32, I32)
+    dy -> 0x555d5517f8c0 : VarSymbol I32
+    dx -> 0x555d5517f830 : VarSymbol I32
+    p -> 0x555d5517f7a0 : VarSymbol class *
+  Scope 0x555d5517fcd0: FuncSymbol U0 ()
+  Scope 0x555d551800c0: FuncSymbol I64 (I64)
+    x -> 0x555d55180050 : VarSymbol I64
+  Scope 0x555d55180720: FuncSymbol U0 (I64, I64 (I64) *)
+    proc -> 0x555d551806b0 : VarSymbol I64 (I64) *
+    y -> 0x555d55180640 : VarSymbol I64
+  Scope 0x555d55180940: FuncSymbol U0 ()
+    x -> 0x555d551809f0 : VarSymbol I64
 
-0x557f3097bcf0
-0x557f3099cfe0
+backend complete

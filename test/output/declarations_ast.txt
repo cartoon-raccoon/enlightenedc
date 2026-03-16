@@ -71,7 +71,7 @@ running elaborator for input/declarations.ec:1.1
 Node: type 52 {
     Node: type 9 {
         visiting VariableDeclaration node: input/declarations.ec:1.1-188
-        parsing declaration specifier list
+        parsing declaration specifier list for node at input/declarations.ec:1.1-188
         Node: type 20 {
             visiting PrimitiveSpecifier node: input/declarations.ec:1.170-173
 TypeContext: getting primitive type with value 3
@@ -82,6 +82,7 @@ TypeContext: getting primitive type with value 3
         Node: type 1 {
             visiting StorageClassSpecifier node: input/declarations.ec:1.1-162
             }
+        finished parsing specifiers for node input/declarations.ec:1.1-188
         Node: type 6 {
             visiting InitDeclarator node: input/declarations.ec:1.175-187
             Node: type 5 {
@@ -89,21 +90,24 @@ TypeContext: getting primitive type with value 3
                     visiting IdentifierDeclarator node: input/declarations.ec:1.183-187
                     }
                 Node: type 2 {
-                    visiting Pointer node
+                    visiting Pointer node: input/declarations.ec:1.175-183
+                    Node: type 0 {
+                        visiting TypeQualifier node: input/declarations.ec:1.177-181
+                        }
                     Node: type 2 {
-                        visiting Pointer node
+                        visiting Pointer node: input/declarations.ec:1.183
                         }
                     }
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x563df16a1290
-TypeContext: pointer with base 0x563df16a1290
-SymbolTable: inserting symbol with name ptrA
+TypeContext: pointer with base 0x56062428e290
+TypeContext: pointer with base 0x56062428ec00
+SymbolTable: inserting symbol with name "ptrA"
         }
     Node: type 9 {
         visiting VariableDeclaration node: input/declarations.ec:2.1-29
-        parsing declaration specifier list
+        parsing declaration specifier list for node at input/declarations.ec:2.1-29
         Node: type 20 {
             visiting PrimitiveSpecifier node: input/declarations.ec:2.8-11
 TypeContext: getting primitive type with value 7
@@ -111,6 +115,7 @@ TypeContext: getting primitive type with value 7
         Node: type 1 {
             visiting StorageClassSpecifier node: input/declarations.ec:2.1-6
             }
+        finished parsing specifiers for node input/declarations.ec:2.1-29
         Node: type 6 {
             visiting InitDeclarator node: input/declarations.ec:2.13
             Node: type 5 {
@@ -120,7 +125,7 @@ TypeContext: getting primitive type with value 7
                 }
             }
 TypeBuilder: finalizing type
-SymbolTable: inserting symbol with name a
+SymbolTable: inserting symbol with name "a"
         Node: type 6 {
             visiting InitDeclarator node: input/declarations.ec:2.16-22
             Node: type 5 {
@@ -130,7 +135,7 @@ SymbolTable: inserting symbol with name a
                 }
             }
 TypeBuilder: finalizing type
-SymbolTable: inserting symbol with name b
+SymbolTable: inserting symbol with name "b"
         Node: type 6 {
             visiting InitDeclarator node: input/declarations.ec:2.25-28
             Node: type 5 {
@@ -144,12 +149,12 @@ SymbolTable: inserting symbol with name b
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x563df16a1490, size 4
-SymbolTable: inserting symbol with name c
+TypeContext: array type with base 0x56062428e490, size 4
+SymbolTable: inserting symbol with name "c"
         }
     Node: type 9 {
         visiting VariableDeclaration node: input/declarations.ec:3.1-20
-        parsing declaration specifier list
+        parsing declaration specifier list for node at input/declarations.ec:3.1-20
         Node: type 20 {
             visiting PrimitiveSpecifier node: input/declarations.ec:3.8-11
 TypeContext: getting primitive type with value 10
@@ -157,6 +162,7 @@ TypeContext: getting primitive type with value 10
         Node: type 1 {
             visiting StorageClassSpecifier node: input/declarations.ec:3.1-6
             }
+        finished parsing specifiers for node input/declarations.ec:3.1-20
         Node: type 6 {
             visiting InitDeclarator node: input/declarations.ec:3.13-19
             Node: type 5 {
@@ -169,16 +175,17 @@ TypeContext: getting primitive type with value 10
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x563df16a1610, no size
-SymbolTable: inserting symbol with name table
+TypeContext: array type with base 0x56062428e610, no size
+SymbolTable: inserting symbol with name "table"
         }
     Node: type 9 {
         visiting VariableDeclaration node: input/declarations.ec:5.1-25
-        parsing declaration specifier list
+        parsing declaration specifier list for node at input/declarations.ec:5.1-25
         Node: type 20 {
             visiting PrimitiveSpecifier node: input/declarations.ec:5.1-3
 TypeContext: getting primitive type with value 1
             }
+        finished parsing specifiers for node input/declarations.ec:5.1-25
         Node: type 6 {
             visiting InitDeclarator node: input/declarations.ec:5.5-24
             Node: type 5 {
@@ -192,16 +199,17 @@ TypeContext: getting primitive type with value 1
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x563df16a1190, size 3
-SymbolTable: inserting symbol with name bytes
+TypeContext: array type with base 0x56062428e190, size 3
+SymbolTable: inserting symbol with name "bytes"
         }
     Node: type 9 {
         visiting VariableDeclaration node: input/declarations.ec:6.1-24
-        parsing declaration specifier list
+        parsing declaration specifier list for node at input/declarations.ec:6.1-24
         Node: type 20 {
             visiting PrimitiveSpecifier node: input/declarations.ec:6.1-4
 TypeContext: getting primitive type with value 8
             }
+        finished parsing specifiers for node input/declarations.ec:6.1-24
         Node: type 6 {
             visiting InitDeclarator node: input/declarations.ec:6.6-23
             Node: type 5 {
@@ -215,46 +223,46 @@ TypeContext: getting primitive type with value 8
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x563df16a1510, size 2
-SymbolTable: inserting symbol with name matrix
+TypeContext: array type with base 0x56062428e510, size 2
+SymbolTable: inserting symbol with name "matrix"
         }
     }
 --------- TYPE CONTEXT ---------
 
 Base Types:
-  F64 -> 0x563df16a1610 : F64
-  I64 -> 0x563df16a1590 : I64
-  U64 -> 0x563df16a1310 : U64
-  I8 -> 0x563df16a1410 : I8
-  U32 -> 0x563df16a1290 : U32
-  U16 -> 0x563df16a1210 : U16
-  bool -> 0x563df16a1690 : bool
-  U8 -> 0x563df16a1190 : U8
-  I32 -> 0x563df16a1510 : I32
-  I16 -> 0x563df16a1490 : I16
-  I0 -> 0x563df16a1390 : I0
-  U0 -> 0x563df16a10a0 : U0
+  F64 -> 0x56062428e610 : F64
+  I64 -> 0x56062428e590 : I64
+  U64 -> 0x56062428e310 : U64
+  I8 -> 0x56062428e410 : I8
+  U32 -> 0x56062428e290 : U32
+  U16 -> 0x56062428e210 : U16
+  bool -> 0x56062428e690 : bool
+  U8 -> 0x56062428e190 : U8
+  I32 -> 0x56062428e510 : I32
+  I16 -> 0x56062428e490 : I16
+  I0 -> 0x56062428e390 : I0
+  U0 -> 0x56062428e0a0 : U0
 
 Pointer Types:
-  0x563df16a1c00 : U32 *
+  0x56062428eeb0 : U32 * const *
+  0x56062428ec00 : U32 * const
 
 Array Types:
-  0x563df16a2560 : I32[2]
-  0x563df16a2420 : U8[3]
-  0x563df16a22e0 : F64[]
-  0x563df16a1fd0 : I16[4]
+  0x56062428f5e0 : I32[2]
+  0x56062428f4a0 : U8[3]
+  0x56062428f360 : F64[]
+  0x56062428f050 : I16[4]
 
 
 --------- SYMBOL TABLE ---------
 
-Scope 0x563df16a0f60
-  bytes -> 0x563df16a24b0 : VarSymbol U8
-  table -> 0x563df16a2370 : VarSymbol F64 extern
-  c -> 0x563df16a2230 : VarSymbol I16 static
-  b -> 0x563df16a20d0 : VarSymbol I16 static
-  matrix -> 0x563df16a25f0 : VarSymbol I32
-  a -> 0x563df16a2020 : VarSymbol I16 static
-  ptrA -> 0x563df16a1eb0 : VarSymbol const U32 public
+Scope 0x56062428df60
+  bytes -> 0x56062428f530 : VarSymbol U8[3]
+  table -> 0x56062428f3f0 : VarSymbol F64[] extern
+  c -> 0x56062428f2b0 : VarSymbol I16[4] static
+  b -> 0x56062428f150 : VarSymbol I16 static
+  matrix -> 0x56062428f670 : VarSymbol I32[2]
+  a -> 0x56062428f0a0 : VarSymbol I16 static
+  ptrA -> 0x56062428ef00 : VarSymbol const U32 * const * public
 
-0x563df167fcf0
-0x563df16a0fe0
+backend complete
