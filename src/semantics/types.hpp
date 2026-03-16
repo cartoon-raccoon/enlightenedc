@@ -74,61 +74,64 @@ public:
     bool is_primitive();
     bool is_pointer();
 
+    virtual int size() { return 0; };
+
     /*
-    Check if a type can be implicitly coerced into `other` without a cast,
+    Check if a type can be implicitly coerced into `dst` without a cast,
     i.e. the compiler will insert a cast expression to handle it.
 
     Note that this relationship is not symmetric; if `this` is compatible
     with `other`, this does not mean `other` is compatible with `this`.
     */
-    virtual bool is_compatible_with(Type * other) {
+    virtual bool is_compatible_with(Type * dst) {
         // at the minimum, enforce strict equality (no subtyping).
-        return other == this;
+        return dst == this;
     }
 
-    /*
-    Cast this type to a PrimitiveType *.
-    Returns null if the underlying type is not a PrimitiveType.
-    */
+    // Cast this type to a PrimitiveType *.
+    // Returns null if the underlying type is not a PrimitiveType.
     virtual PrimitiveType *as_primitive() { return nullptr; }
 
-    /*
-    Cast this type to a ClassType *.
-    Returns null if the underlying type is not a ClassType.
-    */
+    // Cast this type to a ClassType *.
+    // Returns null if the underlying type is not a ClassType.
     virtual ClassType *as_class() { return nullptr; }
 
-    /*
-    Cast this type to a UnionType *.
-    Returns null if the underlying type is not a ClassType.
-    */
+    // Cast this type to a UnionType *.
+    // Returns null if the underlying type is not a ClassType.
     virtual UnionType *as_union() { return nullptr; }
 
-    /*
-    Cast this type to an EnumType *.
-    Returns null if the underlying type is not a ClassType.
-    */
+    // Cast this type to an EnumType *.
+    // Returns null if the underlying type is not a ClassType.
     virtual EnumType *as_enum() { return nullptr; }
 
-    /*
-    Cast this type to a PointerType *.
-    Returns null if the underlying type is not a ClassType.
-    */
+    // Cast this type to a PointerType *.
+    // Returns null if the underlying type is not a ClassType.
     virtual PointerType *as_pointer() { return nullptr; }
 
-    /*
-    Cast this type to an ArrayType *.
-    Returns null if the underlying type is not a ClassType.
-    */
+    // Cast this type to an ArrayType *.
+    // Returns null if the underlying type is not a ClassType.
     virtual ArrayType *as_array() { return nullptr; }
 
-    /*
-    Cast this type to a FunctionType *.
-    Returns null if the underlying type is not a ClassType.
-    */
+    // Cast this type to a FunctionType *.
+    // Returns null if the underlying type is not a ClassType.
     virtual FunctionType *as_function() { return nullptr; }
 
-    virtual std::string to_string() const { return "base type"; }
+    // Whether the type is callable.
+    // Only functions should be callable.
+    virtual bool is_callable() { return false; };
+
+    // Whether the type is subscriptable/indexable.
+    // Only arrays and pointers should be subscriptable.
+    virtual bool is_subscriptable() { return false; };
+
+    virtual bool has_members() { return false; }
+
+    virtual std::string to_string() const { return "()"; }
+
+    virtual std::optional<std::string> get_name() { return {}; };
+
+    // Returns the formal name of the type.
+    virtual std::string formal() { return "()"; }
 
 protected:
     Type(Kind kind) : kind(kind) {}
@@ -144,6 +147,26 @@ classes, unions, and enums.
 class BaseType : public Type {
 protected:
     BaseType(Kind kind) : Type(kind) {}
+};
+
+/*
+An abstract class representing a type that is constructed from BaseTypes,
+or is user-defined. These are the unions, structs, and enums.
+*/
+class RecordType : public BaseType {
+public:
+    // Returns the kind of type: class, union, enum.
+    static std::string base();
+protected:
+    RecordType(Kind kind) : BaseType(kind) {}
+};
+
+class DerivedType : public Type {
+public:
+    Type *base;
+
+protected:
+    DerivedType(Kind kind, Type *base) : Type(kind), base(base) {} 
 };
 
 /*
@@ -180,9 +203,9 @@ public:
 
     Kind primkind;
 
-    int size();
+    int size() override;
 
-    bool is_compatible_with(Type *other) override;
+    bool is_compatible_with(Type *dst) override;
 
     // Whether this Primitive type can be implicitly represented as an integer.
     // Returns true for all primitive types except F64.
@@ -192,6 +215,8 @@ public:
 
     std::string to_string() const override;
 
+    std::string formal() override;
+
 protected:
     friend class TypeContext;
 
@@ -200,7 +225,7 @@ protected:
     PrimitiveType(Kind kind) : BaseType(Type::Kind::PRIMITIVE), primkind(kind) {}
 };
 
-class ClassType : public BaseType {
+class ClassType : public RecordType {
 public:
     struct ClassTypeMember {
         std::optional<std::string> name;
@@ -224,25 +249,41 @@ public:
     */
     bool complete = false;
 
+    int size() override;
+
+    std::optional<std::string> name;
+
     Vec<Box<ClassTypeMember>> members;
 
     void add_member(Box<ClassTypeMember> member);
 
+    ClassTypeMember *find(std::string& name);
+
     ClassType *as_class() override { return this; }
 
+    bool has_members() override { return true; }
+
     std::string to_string() const override;
+
+    std::optional<std::string> get_name() override { return name; }
+
+    std::string formal() override;
+
+    static std::string base() { return "class_"; }
 
 protected:
     friend class TypeContext;
 
     friend constexpr Box<ClassType> std::make_unique<ClassType>();
+    friend constexpr Box<ClassType> std::make_unique<ClassType>(std::string& name);
 
     // Construct an empty class.
-    ClassType() : BaseType(Kind::CLASS), members() {}
+    ClassType() : RecordType(Kind::CLASS), members() {}
+    ClassType(std::string name) : RecordType(Kind::CLASS), members(), name(name) {}
 };
 
 
-class UnionType : public BaseType {
+class UnionType : public RecordType {
 public:
     struct UnionTypeMember {
         std::optional<std::string> name;
@@ -261,21 +302,32 @@ public:
 
     Vec<Box<UnionTypeMember>> members;
 
+    std::optional<std::string> name;
+
     void add_member(Box<UnionTypeMember> member);
 
-    // Marks a union as fully defined, and calculates offsets.
-    void finalize();
+    UnionTypeMember *find(std::string& name);
 
     UnionType *as_union() override { return this; }
 
+    bool has_members() override { return true; }
+
     std::string to_string() const override;
+
+    std::optional<std::string> get_name() override { return name; }
+
+    std::string formal() override;
+
+    static std::string base() { return "union_"; }
 
 protected:
     friend class TypeContext;
 
     friend constexpr Box<UnionType> std::make_unique<UnionType>();
+    friend constexpr Box<UnionType> std::make_unique<UnionType>(std::string& name);
 
-    UnionType() : BaseType(Kind::UNION) {}
+    UnionType() : RecordType(Kind::UNION), members() {}
+    UnionType(std::string name) : RecordType(Kind::UNION), members(), name(name) {}
 };
 
 
@@ -288,7 +340,7 @@ An enum type is compatible with any integer primitive type, but not vice versa.
 The compiler will throw an error if the number of enum variants exceed the maximum
 value of the integer primitive to be cast to.
 */
-class EnumType : public BaseType {
+class EnumType : public RecordType {
 public:
     struct EnumTypeMember {
         // the name of the enum variant as declared in the source.
@@ -303,6 +355,8 @@ public:
 
     Vec<Box<EnumTypeMember>> enumerators;
 
+    std::optional<std::string> name;
+
     // Create an enumerator with an automatically chosen value.
     void add_enumerator(std::string enumerator, Location loc);
 
@@ -310,23 +364,28 @@ public:
     void add_enumerator(std::string enumerator, uint64_t value, Location loc);
 
     // Check if an enum already contains an enumerator. 
-    EnumTypeMember *contains(std::string& name);
+    EnumTypeMember *find(std::string& name);
 
-    bool is_compatible_with(Type *other) override;
-
-    // Marks an enum as fully defined.
-    void finalize();
+    bool is_compatible_with(Type *dst) override;
 
     EnumType *as_enum() override { return this; }
 
     std::string to_string() const override;
 
+    std::optional<std::string> get_name() override { return name; }
+
+    std::string formal() override;
+
+    static std::string base() { return "enum_"; }
+
 protected:
     friend class TypeContext;
 
     friend constexpr Box<EnumType> std::make_unique<EnumType>();
+    friend constexpr Box<EnumType> std::make_unique<EnumType>(std::string& name);
 
-    EnumType() : BaseType(Kind::ENUM), enumerators() {}
+    EnumType() : RecordType(Kind::ENUM), enumerators() {}
+    EnumType(std::string name) : RecordType(Kind::ENUM), enumerators(), name(name) {}
 
 private:
     // existing values that have already been declared.
@@ -347,11 +406,12 @@ the level of nesting is the same (i.e. U8 ** is compatible with U0 **, but not U
 Pointers can be subscripted like arrays, the compiler will treat the subscript as pointer
 arithmetic. However, pointers cannot be converted to sized arrays.
 */
-class PointerType : public Type {
+class PointerType : public DerivedType {
 public:
-    Type *base;
-
     bool is_const;
+
+    // Returns the level of nesting the pointer has (i.e. how many *'s there are).
+    int nesting_lvl();
 
     PointerType *as_pointer() override { return this; }
 
@@ -365,8 +425,7 @@ protected:
 
     friend constexpr Box<PointerType> std::make_unique<PointerType>(Type *&);
     
-    PointerType(Type *base) : Type(Kind::POINTER), base(base) {}
-    PointerType() : Type(Kind::POINTER) {}
+    PointerType(Type *base) : DerivedType(Kind::POINTER, base) {}
 };
 
 
@@ -392,11 +451,9 @@ will throw an error.
 An unsized array declarator can be used as a function argument, where it will be
 decayed to a pointer.
 */
-class ArrayType : public Type {
+class ArrayType : public DerivedType {
 public:
-    Type *base;
-
-    // The laily-evaluated size of the array, populated after elaboration.
+    // The size of the array, populated after elaboration.
     std::optional<uint64_t> size;
 
     ArrayType *as_array() override { return this; }
@@ -412,11 +469,18 @@ protected:
 
     friend constexpr Box<ArrayType> std::make_unique<ArrayType>(Type *&);
 
-    ArrayType(Type *base, uint64_t size) : Type(Kind::ARRAY), base(base), size(size) {}
+    ArrayType(Type *base, uint64_t size) : DerivedType(Kind::ARRAY, base), size(size) {}
 
-    ArrayType(Type *base) : Type(Kind::ARRAY), base(base) {}
+    ArrayType(Type *base) : DerivedType(Kind::ARRAY, base) {}
 };
 
+// A function parameter containing an optional name.
+struct FuncParam {
+    Type *type;
+    std::optional<std::string> name;
+    Location loc;
+    bool is_const;
+};
 
 class FunctionType : public Type {
 public:
@@ -440,14 +504,6 @@ protected:
     friend constexpr Box<FunctionType> std::make_unique<FunctionType>();
 
     FunctionType() : Type(Type::Kind::FUNCTION) {}
-};
-
-// A function parameter containing an optional name.
-struct FuncParam {
-    Type *type;
-    std::optional<std::string> name;
-    Location loc;
-    bool is_const;
 };
 
 /*
@@ -603,18 +659,38 @@ private:
     std::string mangle(std::string name, sema::sym::Scope *sc) {
         std::stringstream ss;
 
-        ss << typeid(T).name() << "_" << name << static_cast<const void *>(sc);
+        ss << T::base() << name << "_" << static_cast<const void *>(sc);
 
         return ss.str();
     }
 
+
     template <typename T>
     requires std::derived_from<T, Type>
-    T *make_insert_type(std::string name) {
+    // Create and insert a named type.
+    T *make_insert_type(std::string mangled, std::string name) {
+        Box<T> s = std::make_unique<T>(name);
+
+        auto ret = s.get();
+        for (auto const& [key, type] : base_types) {
+            // we find a type with the same name
+            if (name == type->get_name()) {
+                throw type.get();
+            }
+        }
+        base_types.insert({mangled, std::move(s)});
+
+        return ret;
+    }
+
+    template <typename T>
+    requires std::derived_from<T, Type>
+    T *make_insert_type(std::string mangled) {
         Box<T> s = std::make_unique<T>();
 
         auto ret = s.get();
-        base_types.insert({name, std::move(s)});
+        // no collision check required for anonymous types.
+        base_types.insert({mangled, std::move(s)});
 
         return ret;
     }
