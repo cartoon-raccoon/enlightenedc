@@ -31,7 +31,7 @@ class Point *compute_point(class Point *p, I32i dx, I32i dy) {
 
 compute(10, 4, "this", true);
 
-U0i noop() {
+Void noop() {
     return;
 }
 
@@ -44,12 +44,12 @@ I64i CallbackFunction(I64i x)
   return x * x;
 }
 
-U0i MathFunc(I64i y, I64i (*proc)(I64i _val))
+Void MathFunc(I64i y, I64i (*proc)(I64i _val))
 {
   return proc(y);
 }
 
-U0i Main()
+Void Main()
 {
   I64i x = MathFunc(10, &CallbackFunction);
   "%d\n",x;

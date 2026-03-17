@@ -27,7 +27,7 @@ I64i  i64v = -4;
 
 F64i  f64v = 1.23e-4;
 Bool bv   = TRUE;
-U0i *vp;
+Void *vp;
 
 
 // Structs (forward, named, anonymous, bitfield)
@@ -96,7 +96,7 @@ I64i Variadic(I64i x, ...) {
     return x;
 }
 
-U0i VoidFunc() {
+Void VoidFunc() {
 }
 
 I64i (*ReturnFuncPtr())(I64i) {

@@ -39,7 +39,7 @@ class Value {
 };
 
 class VTable {
-    U0i (*dispatcher) (U64i count);
+    Void (*dispatcher) (U64i count);
 };
 
 val->u.ch = 23;

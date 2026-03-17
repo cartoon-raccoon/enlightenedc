@@ -114,350 +114,338 @@ Program @ <input/expressions.ec:1.1>
 running backend for file input/expressions.ec
 checking semantics for input/expressions.ec:1.1
 running elaborator for input/expressions.ec:1.1
-Node: type 52 {
+Node: type 53 {
     Node: type 9 {
         visiting VariableDeclaration node: input/expressions.ec:1.1-165
         parsing declaration specifier list for node at input/expressions.ec:1.1-165
-        Node: type 20 {
+        Node: type 21 {
             visiting PrimitiveSpecifier node: input/expressions.ec:1.1-158
-TypeContext: getting primitive type with value 3
-            }
+TypeContext: getting primitive type with value 2
+        }
         finished parsing specifiers for node input/expressions.ec:1.1-165
         Node: type 6 {
             visiting InitDeclarator node: input/expressions.ec:1.160-164
             Node: type 5 {
                 Node: type 10 {
                     visiting IdentifierDeclarator node: input/expressions.ec:1.160
-                    }
                 }
             }
+        }
 TypeBuilder: finalizing type
 SymbolTable: inserting symbol with name "x"
-        }
+    }
     Node: type 9 {
         visiting VariableDeclaration node: input/expressions.ec:2.1-11
         parsing declaration specifier list for node at input/expressions.ec:2.1-11
-        Node: type 20 {
+        Node: type 21 {
             visiting PrimitiveSpecifier node: input/expressions.ec:2.1-4
-TypeContext: getting primitive type with value 3
-            }
+TypeContext: getting primitive type with value 2
+        }
         finished parsing specifiers for node input/expressions.ec:2.1-11
         Node: type 6 {
             visiting InitDeclarator node: input/expressions.ec:2.6-10
             Node: type 5 {
                 Node: type 10 {
                     visiting IdentifierDeclarator node: input/expressions.ec:2.6
-                    }
                 }
             }
+        }
 TypeBuilder: finalizing type
 SymbolTable: inserting symbol with name "a"
-        }
+    }
     Node: type 9 {
         visiting VariableDeclaration node: input/expressions.ec:3.1-11
         parsing declaration specifier list for node at input/expressions.ec:3.1-11
-        Node: type 20 {
+        Node: type 21 {
             visiting PrimitiveSpecifier node: input/expressions.ec:3.1-4
-TypeContext: getting primitive type with value 3
-            }
+TypeContext: getting primitive type with value 2
+        }
         finished parsing specifiers for node input/expressions.ec:3.1-11
         Node: type 6 {
             visiting InitDeclarator node: input/expressions.ec:3.6-10
             Node: type 5 {
                 Node: type 10 {
                     visiting IdentifierDeclarator node: input/expressions.ec:3.6
-                    }
                 }
             }
+        }
 TypeBuilder: finalizing type
 SymbolTable: inserting symbol with name "b"
-        }
-    Node: type 22 {
+    }
+    Node: type 23 {
         visiting ExpressionStatement node: input/expressions.ec:4.1-26
-        Node: type 41 {
+        Node: type 42 {
             visiting AssignmentExpression node: input/expressions.ec:4.1-25
-            Node: type 43 {
-                visiting IdentifierExpression node: input/expressions.ec:4.1
-                }
-            Node: type 38 {
-                visiting BinaryStatement node: input/expressions.ec:4.5-25
-                Node: type 38 {
-                    visiting BinaryStatement node: input/expressions.ec:4.5-13
-                    Node: type 43 {
-                        visiting IdentifierExpression node: input/expressions.ec:4.5
-                        }
-                    Node: type 38 {
-                        visiting BinaryStatement node: input/expressions.ec:4.9-13
-                        Node: type 43 {
-                            visiting IdentifierExpression node: input/expressions.ec:4.9
-                            }
-                        Node: type 44 {
-                            visiting LiteralExpression node: input/expressions.ec:4.13
-                            }
-                        }
-                    }
-                Node: type 38 {
-                    visiting BinaryStatement node: input/expressions.ec:4.17-25
-                    Node: type 38 {
-                        visiting BinaryStatement node: input/expressions.ec:4.17-21
-                        Node: type 44 {
-                            visiting LiteralExpression node: input/expressions.ec:4.17
-                            }
-                        Node: type 44 {
-                            visiting LiteralExpression node: input/expressions.ec:4.21
-                            }
-                        }
-                    Node: type 44 {
-                        visiting LiteralExpression node: input/expressions.ec:4.25
-                        }
-                    }
-                }
-            }
-        }
-    Node: type 22 {
-        visiting ExpressionStatement node: input/expressions.ec:5.1-8
-        Node: type 41 {
-            visiting AssignmentExpression node: input/expressions.ec:5.1-7
-            Node: type 43 {
-                visiting IdentifierExpression node: input/expressions.ec:5.1
-                }
             Node: type 44 {
-                visiting LiteralExpression node: input/expressions.ec:5.7
-                }
+                visiting IdentifierExpression node: input/expressions.ec:4.1
             }
-        }
-    Node: type 22 {
-        visiting ExpressionStatement node: input/expressions.ec:6.1-15
-        Node: type 41 {
-            visiting AssignmentExpression node: input/expressions.ec:6.1-14
-            Node: type 43 {
-                visiting IdentifierExpression node: input/expressions.ec:6.1
-                }
-            Node: type 38 {
-                visiting BinaryStatement node: input/expressions.ec:6.6-14
-                Node: type 44 {
-                    visiting LiteralExpression node: input/expressions.ec:6.6
-                    }
-                Node: type 38 {
-                    visiting BinaryStatement node: input/expressions.ec:6.10-14
-                    Node: type 44 {
-                        visiting LiteralExpression node: input/expressions.ec:6.10
-                        }
-                    Node: type 44 {
-                        visiting LiteralExpression node: input/expressions.ec:6.14
-                        }
-                    }
-                }
-            }
-        }
-    Node: type 22 {
-        visiting ExpressionStatement node: input/expressions.ec:8.1-20
-        Node: type 41 {
-            visiting AssignmentExpression node: input/expressions.ec:8.1-19
-            Node: type 43 {
-                visiting IdentifierExpression node: input/expressions.ec:8.1
-                }
-            Node: type 42 {
-                visiting ConditionalExpression node: input/expressions.ec:8.5-19
-                Node: type 38 {
-                    visiting BinaryStatement node: input/expressions.ec:8.5-11
-                    Node: type 43 {
-                        visiting IdentifierExpression node: input/expressions.ec:8.5-6
-                        }
-                    Node: type 43 {
-                        visiting IdentifierExpression node: input/expressions.ec:8.10
-                        }
-                    }
-                Node: type 43 {
-                    visiting IdentifierExpression node: input/expressions.ec:8.15
-                    }
-                Node: type 43 {
-                    visiting IdentifierExpression node: input/expressions.ec:8.19
-                    }
-                }
-            }
-        }
-    Node: type 22 {
-        visiting ExpressionStatement node: input/expressions.ec:9.1-16
-        Node: type 41 {
-            visiting AssignmentExpression node: input/expressions.ec:9.1-15
-            Node: type 43 {
-                visiting IdentifierExpression node: input/expressions.ec:9.1
-                }
-            Node: type 38 {
-                visiting BinaryStatement node: input/expressions.ec:9.5-15
-                Node: type 38 {
-                    visiting BinaryStatement node: input/expressions.ec:9.5-10
-                    Node: type 43 {
-                        visiting IdentifierExpression node: input/expressions.ec:9.5
-                        }
-                    Node: type 43 {
-                        visiting IdentifierExpression node: input/expressions.ec:9.10
-                        }
-                    }
-                Node: type 43 {
-                    visiting IdentifierExpression node: input/expressions.ec:9.15
-                    }
-                }
-            }
-        }
-    Node: type 22 {
-        visiting ExpressionStatement node: input/expressions.ec:10.1-17
-        Node: type 41 {
-            visiting AssignmentExpression node: input/expressions.ec:10.1-16
-            Node: type 43 {
-                visiting IdentifierExpression node: input/expressions.ec:10.1
-                }
-            Node: type 38 {
-                visiting BinaryStatement node: input/expressions.ec:10.5-16
-                Node: type 39 {
-                    visiting CastStatement node: input/expressions.ec:10.5-12
-                    Node: type 43 {
-                        visiting IdentifierExpression node: input/expressions.ec:10.12
-                        }
-                    Node: type 36 {
-                        parsing declaration specifier list for node at input/expressions.ec:10.5-9
-                        Node: type 20 {
-                            visiting PrimitiveSpecifier node: input/expressions.ec:10.5-9
-TypeContext: getting primitive type with value 3
-                            }
-                        finished parsing specifiers for node input/expressions.ec:10.5-9
-                        }
-                    }
-                Node: type 44 {
-                    visiting LiteralExpression node: input/expressions.ec:10.16
-                    }
-                }
-            }
-        }
-    Node: type 22 {
-        visiting ExpressionStatement node: input/expressions.ec:11.1-13
-        Node: type 41 {
-            visiting AssignmentExpression node: input/expressions.ec:11.1-12
-            Node: type 43 {
-                visiting IdentifierExpression node: input/expressions.ec:11.1
-                }
             Node: type 39 {
-                visiting CastStatement node: input/expressions.ec:11.5-12
-                Node: type 43 {
-                    visiting IdentifierExpression node: input/expressions.ec:11.12
+                visiting BinaryStatement node: input/expressions.ec:4.5-25
+                Node: type 39 {
+                    visiting BinaryStatement node: input/expressions.ec:4.5-13
+                    Node: type 44 {
+                        visiting IdentifierExpression node: input/expressions.ec:4.5
                     }
-                Node: type 36 {
-                    parsing declaration specifier list for node at input/expressions.ec:11.5-9
-                    Node: type 20 {
-                        visiting PrimitiveSpecifier node: input/expressions.ec:11.5-9
-TypeContext: getting primitive type with value 8
+                    Node: type 39 {
+                        visiting BinaryStatement node: input/expressions.ec:4.9-13
+                        Node: type 44 {
+                            visiting IdentifierExpression node: input/expressions.ec:4.9
                         }
-                    finished parsing specifiers for node input/expressions.ec:11.5-9
-                    }
-                }
-            }
-        }
-    Node: type 22 {
-        visiting ExpressionStatement node: input/expressions.ec:13.1-13
-        Node: type 41 {
-            visiting AssignmentExpression node: input/expressions.ec:13.1-12
-            Node: type 43 {
-                visiting IdentifierExpression node: input/expressions.ec:13.1
-                }
-            Node: type 45 {
-                visiting StringExpression node: input/expressions.ec:13.5-12
-                }
-            }
-        }
-    Node: type 22 {
-        visiting ExpressionStatement node: input/expressions.ec:15.1-4
-        Node: type 40 {
-            visiting UnaryExpression node: input/expressions.ec:15.1-3
-            Node: type 43 {
-                visiting IdentifierExpression node: input/expressions.ec:15.1-3
-                }
-            }
-        }
-    Node: type 22 {
-        visiting ExpressionStatement node: input/expressions.ec:16.1-4
-        Node: type 49 {
-            visiting PostfixExpression node: input/expressions.ec:16.1-3
-            Node: type 43 {
-                visiting IdentifierExpression node: input/expressions.ec:16.1
-                }
-            }
-        }
-    Node: type 22 {
-        visiting ExpressionStatement node: input/expressions.ec:17.1-18
-        Node: type 41 {
-            visiting AssignmentExpression node: input/expressions.ec:17.1-17
-            Node: type 43 {
-                visiting IdentifierExpression node: input/expressions.ec:17.1
-                }
-            Node: type 50 {
-                visiting SizeofExpression node: input/expressions.ec:17.6-17
-                Node: type 36 {
-                    parsing declaration specifier list for node at input/expressions.ec:17.6-16
-                    Node: type 20 {
-                        visiting PrimitiveSpecifier node: input/expressions.ec:17.6-16
-TypeContext: getting primitive type with value 3
-                        }
-                    finished parsing specifiers for node input/expressions.ec:17.6-16
-                    }
-                }
-            }
-        }
-    Node: type 22 {
-        visiting ExpressionStatement node: input/expressions.ec:18.1-14
-        Node: type 41 {
-            visiting AssignmentExpression node: input/expressions.ec:18.1-13
-            Node: type 43 {
-                visiting IdentifierExpression node: input/expressions.ec:18.1
-                }
-            Node: type 50 {
-                visiting SizeofExpression node: input/expressions.ec:18.6-13
-                Node: type 43 {
-                    visiting IdentifierExpression node: input/expressions.ec:18.13
-                    }
-                }
-            }
-        }
-    Node: type 22 {
-        visiting ExpressionStatement node: input/expressions.ec:20.1-14
-        Node: type 41 {
-            visiting AssignmentExpression node: input/expressions.ec:20.1-13
-            Node: type 43 {
-                visiting IdentifierExpression node: input/expressions.ec:20.1
-                }
-            Node: type 38 {
-                visiting BinaryStatement node: input/expressions.ec:20.5-13
-                Node: type 38 {
-                    visiting BinaryStatement node: input/expressions.ec:20.5-9
-                    Node: type 43 {
-                        visiting IdentifierExpression node: input/expressions.ec:20.5-6
-                        }
-                    Node: type 43 {
-                        visiting IdentifierExpression node: input/expressions.ec:20.9
+                        Node: type 45 {
+                            visiting LiteralExpression node: input/expressions.ec:4.13
                         }
                     }
-                Node: type 43 {
-                    visiting IdentifierExpression node: input/expressions.ec:20.12
+                }
+                Node: type 39 {
+                    visiting BinaryStatement node: input/expressions.ec:4.17-25
+                    Node: type 39 {
+                        visiting BinaryStatement node: input/expressions.ec:4.17-21
+                        Node: type 45 {
+                            visiting LiteralExpression node: input/expressions.ec:4.17
+                        }
+                        Node: type 45 {
+                            visiting LiteralExpression node: input/expressions.ec:4.21
+                        }
+                    }
+                    Node: type 45 {
+                        visiting LiteralExpression node: input/expressions.ec:4.25
                     }
                 }
             }
         }
     }
+    Node: type 23 {
+        visiting ExpressionStatement node: input/expressions.ec:5.1-8
+        Node: type 42 {
+            visiting AssignmentExpression node: input/expressions.ec:5.1-7
+            Node: type 44 {
+                visiting IdentifierExpression node: input/expressions.ec:5.1
+            }
+            Node: type 45 {
+                visiting LiteralExpression node: input/expressions.ec:5.7
+            }
+        }
+    }
+    Node: type 23 {
+        visiting ExpressionStatement node: input/expressions.ec:6.1-15
+        Node: type 42 {
+            visiting AssignmentExpression node: input/expressions.ec:6.1-14
+            Node: type 44 {
+                visiting IdentifierExpression node: input/expressions.ec:6.1
+            }
+            Node: type 39 {
+                visiting BinaryStatement node: input/expressions.ec:6.6-14
+                Node: type 45 {
+                    visiting LiteralExpression node: input/expressions.ec:6.6
+                }
+                Node: type 39 {
+                    visiting BinaryStatement node: input/expressions.ec:6.10-14
+                    Node: type 45 {
+                        visiting LiteralExpression node: input/expressions.ec:6.10
+                    }
+                    Node: type 45 {
+                        visiting LiteralExpression node: input/expressions.ec:6.14
+                    }
+                }
+            }
+        }
+    }
+    Node: type 23 {
+        visiting ExpressionStatement node: input/expressions.ec:8.1-20
+        Node: type 42 {
+            visiting AssignmentExpression node: input/expressions.ec:8.1-19
+            Node: type 44 {
+                visiting IdentifierExpression node: input/expressions.ec:8.1
+            }
+            Node: type 43 {
+                visiting ConditionalExpression node: input/expressions.ec:8.5-19
+                Node: type 39 {
+                    visiting BinaryStatement node: input/expressions.ec:8.5-11
+                    Node: type 44 {
+                        visiting IdentifierExpression node: input/expressions.ec:8.5-6
+                    }
+                    Node: type 44 {
+                        visiting IdentifierExpression node: input/expressions.ec:8.10
+                    }
+                }
+                Node: type 44 {
+                    visiting IdentifierExpression node: input/expressions.ec:8.15
+                }
+                Node: type 44 {
+                    visiting IdentifierExpression node: input/expressions.ec:8.19
+                }
+            }
+        }
+    }
+    Node: type 23 {
+        visiting ExpressionStatement node: input/expressions.ec:9.1-16
+        Node: type 42 {
+            visiting AssignmentExpression node: input/expressions.ec:9.1-15
+            Node: type 44 {
+                visiting IdentifierExpression node: input/expressions.ec:9.1
+            }
+            Node: type 39 {
+                visiting BinaryStatement node: input/expressions.ec:9.5-15
+                Node: type 39 {
+                    visiting BinaryStatement node: input/expressions.ec:9.5-10
+                    Node: type 44 {
+                        visiting IdentifierExpression node: input/expressions.ec:9.5
+                    }
+                    Node: type 44 {
+                        visiting IdentifierExpression node: input/expressions.ec:9.10
+                    }
+                }
+                Node: type 44 {
+                    visiting IdentifierExpression node: input/expressions.ec:9.15
+                }
+            }
+        }
+    }
+    Node: type 23 {
+        visiting ExpressionStatement node: input/expressions.ec:10.1-17
+        Node: type 42 {
+            visiting AssignmentExpression node: input/expressions.ec:10.1-16
+            Node: type 44 {
+                visiting IdentifierExpression node: input/expressions.ec:10.1
+            }
+            Node: type 39 {
+                visiting BinaryStatement node: input/expressions.ec:10.5-16
+                Node: type 40 {
+                    visiting CastStatement node: input/expressions.ec:10.5-12
+                    Node: type 44 {
+                        visiting IdentifierExpression node: input/expressions.ec:10.12
+                    }
+                    Node: type 37 {
+                        parsing declaration specifier list for node at input/expressions.ec:10.5-9
+                        Node: type 21 {
+                            visiting PrimitiveSpecifier node: input/expressions.ec:10.5-9
+TypeContext: getting primitive type with value 2
+                        }
+                        finished parsing specifiers for node input/expressions.ec:10.5-9
+                    }
+                }
+                Node: type 45 {
+                    visiting LiteralExpression node: input/expressions.ec:10.16
+                }
+            }
+        }
+    }
+    Node: type 23 {
+        visiting ExpressionStatement node: input/expressions.ec:11.1-13
+        Node: type 42 {
+            visiting AssignmentExpression node: input/expressions.ec:11.1-12
+            Node: type 44 {
+                visiting IdentifierExpression node: input/expressions.ec:11.1
+            }
+            Node: type 40 {
+                visiting CastStatement node: input/expressions.ec:11.5-12
+                Node: type 44 {
+                    visiting IdentifierExpression node: input/expressions.ec:11.12
+                }
+                Node: type 37 {
+                    parsing declaration specifier list for node at input/expressions.ec:11.5-9
+                    Node: type 21 {
+                        visiting PrimitiveSpecifier node: input/expressions.ec:11.5-9
+TypeContext: getting primitive type with value 6
+                    }
+                    finished parsing specifiers for node input/expressions.ec:11.5-9
+                }
+            }
+        }
+    }
+    Node: type 23 {
+        visiting ExpressionStatement node: input/expressions.ec:13.1-13
+        Node: type 42 {
+            visiting AssignmentExpression node: input/expressions.ec:13.1-12
+            Node: type 44 {
+                visiting IdentifierExpression node: input/expressions.ec:13.1
+            }
+            Node: type 46 {
+                visiting StringExpression node: input/expressions.ec:13.5-12
+            }
+        }
+    }
+    Node: type 23 {
+        visiting ExpressionStatement node: input/expressions.ec:15.1-4
+        Node: type 41 {
+            visiting UnaryExpression node: input/expressions.ec:15.1-3
+            Node: type 44 {
+                visiting IdentifierExpression node: input/expressions.ec:15.1-3
+            }
+        }
+    }
+    Node: type 23 {
+        visiting ExpressionStatement node: input/expressions.ec:16.1-4
+        Node: type 50 {
+            visiting PostfixExpression node: input/expressions.ec:16.1-3
+            Node: type 44 {
+                visiting IdentifierExpression node: input/expressions.ec:16.1
+            }
+        }
+    }
+    Node: type 23 {
+        visiting ExpressionStatement node: input/expressions.ec:17.1-18
+        Node: type 42 {
+            visiting AssignmentExpression node: input/expressions.ec:17.1-17
+            Node: type 44 {
+                visiting IdentifierExpression node: input/expressions.ec:17.1
+            }
+            Node: type 51 {
+                visiting SizeofExpression node: input/expressions.ec:17.6-17
+                Node: type 37 {
+                    parsing declaration specifier list for node at input/expressions.ec:17.6-16
+                    Node: type 21 {
+                        visiting PrimitiveSpecifier node: input/expressions.ec:17.6-16
+TypeContext: getting primitive type with value 2
+                    }
+                    finished parsing specifiers for node input/expressions.ec:17.6-16
+                }
+            }
+        }
+    }
+    Node: type 23 {
+        visiting ExpressionStatement node: input/expressions.ec:18.1-14
+        Node: type 42 {
+            visiting AssignmentExpression node: input/expressions.ec:18.1-13
+            Node: type 44 {
+                visiting IdentifierExpression node: input/expressions.ec:18.1
+            }
+            Node: type 51 {
+                visiting SizeofExpression node: input/expressions.ec:18.6-13
+                Node: type 44 {
+                    visiting IdentifierExpression node: input/expressions.ec:18.13
+                }
+            }
+        }
+    }
+    Node: type 23 {
+        visiting ExpressionStatement node: input/expressions.ec:20.1-14
+        Node: type 42 {
+            visiting AssignmentExpression node: input/expressions.ec:20.1-13
+            Node: type 44 {
+                visiting IdentifierExpression node: input/expressions.ec:20.1
+            }
+            Node: type 39 {
+                visiting BinaryStatement node: input/expressions.ec:20.5-13
+                Node: type 39 {
+                    visiting BinaryStatement node: input/expressions.ec:20.5-9
+                    Node: type 44 {
+                        visiting IdentifierExpression node: input/expressions.ec:20.5-6
+                    }
+                    Node: type 44 {
+                        visiting IdentifierExpression node: input/expressions.ec:20.9
+                    }
+                }
+                Node: type 44 {
+                    visiting IdentifierExpression node: input/expressions.ec:20.12
+                }
+            }
+        }
+    }
+}
 --------- TYPE CONTEXT ---------
 
 Base Types:
-  F64 -> 0x5637fc973610 : F64
-  I64 -> 0x5637fc973590 : I64
-  U64 -> 0x5637fc973310 : U64
-  I8 -> 0x5637fc973410 : I8
-  U32 -> 0x5637fc973290 : U32
-  U16 -> 0x5637fc973210 : U16
-  bool -> 0x5637fc973690 : bool
-  U8 -> 0x5637fc973190 : U8
-  I32 -> 0x5637fc973510 : I32
-  I16 -> 0x5637fc973490 : I16
-  I0 -> 0x5637fc973390 : I0
-  U0 -> 0x5637fc9730a0 : U0
 
 Pointer Types:
 
@@ -466,9 +454,9 @@ Array Types:
 
 --------- SYMBOL TABLE ---------
 
-Scope 0x5637fc972f60
-  b -> 0x5637fc973fb0 : VarSymbol U32
-  a -> 0x5637fc973f00 : VarSymbol U32
-  x -> 0x5637fc973de0 : VarSymbol U32
+Scope 0x558581a3af60
+  b -> 0x558581a3bc50 : VarSymbol U32
+  a -> 0x558581a3bba0 : VarSymbol U32
+  x -> 0x558581a3ba80 : VarSymbol U32
 
 backend complete

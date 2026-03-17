@@ -78,215 +78,203 @@ Program @ <input/literals.ec:1.1>
 running backend for file input/literals.ec
 checking semantics for input/literals.ec:1.1
 running elaborator for input/literals.ec:1.1
-Node: type 52 {
+Node: type 53 {
     Node: type 9 {
         visiting VariableDeclaration node: input/literals.ec:1.1-161
         parsing declaration specifier list for node at input/literals.ec:1.1-161
-        Node: type 20 {
+        Node: type 21 {
             visiting PrimitiveSpecifier node: input/literals.ec:1.1-152
-TypeContext: getting primitive type with value 3
-            }
+TypeContext: getting primitive type with value 2
+        }
         finished parsing specifiers for node input/literals.ec:1.1-161
         Node: type 6 {
             visiting InitDeclarator node: input/literals.ec:1.154-160
             Node: type 5 {
                 Node: type 10 {
                     visiting IdentifierDeclarator node: input/literals.ec:1.154
-                    }
                 }
             }
+        }
 TypeBuilder: finalizing type
 SymbolTable: inserting symbol with name "a"
-        }
+    }
     Node: type 9 {
         visiting VariableDeclaration node: input/literals.ec:2.1-13
         parsing declaration specifier list for node at input/literals.ec:2.1-13
-        Node: type 20 {
+        Node: type 21 {
             visiting PrimitiveSpecifier node: input/literals.ec:2.1-4
-TypeContext: getting primitive type with value 3
-            }
+TypeContext: getting primitive type with value 2
+        }
         finished parsing specifiers for node input/literals.ec:2.1-13
         Node: type 6 {
             visiting InitDeclarator node: input/literals.ec:2.6-12
             Node: type 5 {
                 Node: type 10 {
                     visiting IdentifierDeclarator node: input/literals.ec:2.6
-                    }
                 }
             }
+        }
 TypeBuilder: finalizing type
 SymbolTable: inserting symbol with name "b"
-        }
+    }
     Node: type 9 {
         visiting VariableDeclaration node: input/literals.ec:3.1-13
         parsing declaration specifier list for node at input/literals.ec:3.1-13
-        Node: type 20 {
+        Node: type 21 {
             visiting PrimitiveSpecifier node: input/literals.ec:3.1-4
-TypeContext: getting primitive type with value 3
-            }
+TypeContext: getting primitive type with value 2
+        }
         finished parsing specifiers for node input/literals.ec:3.1-13
         Node: type 6 {
             visiting InitDeclarator node: input/literals.ec:3.6-12
             Node: type 5 {
                 Node: type 10 {
                     visiting IdentifierDeclarator node: input/literals.ec:3.6
-                    }
                 }
             }
+        }
 TypeBuilder: finalizing type
 SymbolTable: inserting symbol with name "c"
-        }
+    }
     Node: type 9 {
         visiting VariableDeclaration node: input/literals.ec:4.1-14
         parsing declaration specifier list for node at input/literals.ec:4.1-14
-        Node: type 20 {
+        Node: type 21 {
             visiting PrimitiveSpecifier node: input/literals.ec:4.1-4
-TypeContext: getting primitive type with value 3
-            }
+TypeContext: getting primitive type with value 2
+        }
         finished parsing specifiers for node input/literals.ec:4.1-14
         Node: type 6 {
             visiting InitDeclarator node: input/literals.ec:4.6-13
             Node: type 5 {
                 Node: type 10 {
                     visiting IdentifierDeclarator node: input/literals.ec:4.6
-                    }
                 }
             }
+        }
 TypeBuilder: finalizing type
 SymbolTable: inserting symbol with name "d"
-        }
+    }
     Node: type 9 {
         visiting VariableDeclaration node: input/literals.ec:6.1-15
         parsing declaration specifier list for node at input/literals.ec:6.1-15
-        Node: type 20 {
+        Node: type 21 {
             visiting PrimitiveSpecifier node: input/literals.ec:6.1-4
-TypeContext: getting primitive type with value 10
-            }
+TypeContext: getting primitive type with value 8
+        }
         finished parsing specifiers for node input/literals.ec:6.1-15
         Node: type 6 {
             visiting InitDeclarator node: input/literals.ec:6.6-14
             Node: type 5 {
                 Node: type 10 {
                     visiting IdentifierDeclarator node: input/literals.ec:6.6-7
-                    }
                 }
             }
+        }
 TypeBuilder: finalizing type
 SymbolTable: inserting symbol with name "f1"
-        }
+    }
     Node: type 9 {
         visiting VariableDeclaration node: input/literals.ec:7.1-19
         parsing declaration specifier list for node at input/literals.ec:7.1-19
-        Node: type 20 {
+        Node: type 21 {
             visiting PrimitiveSpecifier node: input/literals.ec:7.1-4
-TypeContext: getting primitive type with value 10
-            }
+TypeContext: getting primitive type with value 8
+        }
         finished parsing specifiers for node input/literals.ec:7.1-19
         Node: type 6 {
             visiting InitDeclarator node: input/literals.ec:7.6-18
             Node: type 5 {
                 Node: type 10 {
                     visiting IdentifierDeclarator node: input/literals.ec:7.6-7
-                    }
                 }
             }
+        }
 TypeBuilder: finalizing type
 SymbolTable: inserting symbol with name "f2"
-        }
+    }
     Node: type 9 {
         visiting VariableDeclaration node: input/literals.ec:9.1-13
         parsing declaration specifier list for node at input/literals.ec:9.1-13
-        Node: type 20 {
+        Node: type 21 {
             visiting PrimitiveSpecifier node: input/literals.ec:9.1-3
-TypeContext: getting primitive type with value 1
-            }
+TypeContext: getting primitive type with value 0
+        }
         finished parsing specifiers for node input/literals.ec:9.1-13
         Node: type 6 {
             visiting InitDeclarator node: input/literals.ec:9.5-12
             Node: type 5 {
                 Node: type 10 {
                     visiting IdentifierDeclarator node: input/literals.ec:9.5-6
-                    }
                 }
             }
+        }
 TypeBuilder: finalizing type
 SymbolTable: inserting symbol with name "ch"
-        }
+    }
     Node: type 9 {
         visiting VariableDeclaration node: input/literals.ec:10.1-14
         parsing declaration specifier list for node at input/literals.ec:10.1-14
-        Node: type 20 {
+        Node: type 21 {
             visiting PrimitiveSpecifier node: input/literals.ec:10.1-3
-TypeContext: getting primitive type with value 1
-            }
+TypeContext: getting primitive type with value 0
+        }
         finished parsing specifiers for node input/literals.ec:10.1-14
         Node: type 6 {
             visiting InitDeclarator node: input/literals.ec:10.5-13
             Node: type 5 {
                 Node: type 10 {
                     visiting IdentifierDeclarator node: input/literals.ec:10.5-6
-                    }
                 }
             }
+        }
 TypeBuilder: finalizing type
 SymbolTable: inserting symbol with name "nl"
-        }
+    }
     Node: type 9 {
         visiting VariableDeclaration node: input/literals.ec:11.1-14
         parsing declaration specifier list for node at input/literals.ec:11.1-14
-        Node: type 20 {
+        Node: type 21 {
             visiting PrimitiveSpecifier node: input/literals.ec:11.1-3
-TypeContext: getting primitive type with value 1
-            }
+TypeContext: getting primitive type with value 0
+        }
         finished parsing specifiers for node input/literals.ec:11.1-14
         Node: type 6 {
             visiting InitDeclarator node: input/literals.ec:11.5-13
             Node: type 5 {
                 Node: type 10 {
                     visiting IdentifierDeclarator node: input/literals.ec:11.5-6
-                    }
                 }
             }
+        }
 TypeBuilder: finalizing type
 SymbolTable: inserting symbol with name "qt"
-        }
-    Node: type 27 {
+    }
+    Node: type 28 {
         visiting PrintStatement node: input/literals.ec:13.1-32
-        Node: type 43 {
+        Node: type 44 {
             visiting IdentifierExpression node: input/literals.ec:13.14
-            }
-        Node: type 43 {
+        }
+        Node: type 44 {
             visiting IdentifierExpression node: input/literals.ec:13.17
-            }
-        Node: type 43 {
+        }
+        Node: type 44 {
             visiting IdentifierExpression node: input/literals.ec:13.20
-            }
-        Node: type 43 {
+        }
+        Node: type 44 {
             visiting IdentifierExpression node: input/literals.ec:13.23
-            }
-        Node: type 43 {
+        }
+        Node: type 44 {
             visiting IdentifierExpression node: input/literals.ec:13.26-27
-            }
-        Node: type 43 {
+        }
+        Node: type 44 {
             visiting IdentifierExpression node: input/literals.ec:13.30-31
-            }
         }
     }
+}
 --------- TYPE CONTEXT ---------
 
 Base Types:
-  F64 -> 0x5654029ab610 : F64
-  I64 -> 0x5654029ab590 : I64
-  U64 -> 0x5654029ab310 : U64
-  I8 -> 0x5654029ab410 : I8
-  U32 -> 0x5654029ab290 : U32
-  U16 -> 0x5654029ab210 : U16
-  bool -> 0x5654029ab690 : bool
-  U8 -> 0x5654029ab190 : U8
-  I32 -> 0x5654029ab510 : I32
-  I16 -> 0x5654029ab490 : I16
-  I0 -> 0x5654029ab390 : I0
-  U0 -> 0x5654029ab0a0 : U0
 
 Pointer Types:
 
@@ -295,15 +283,15 @@ Array Types:
 
 --------- SYMBOL TABLE ---------
 
-Scope 0x5654029aaf60
-  nl -> 0x5654029ac350 : VarSymbol U8
-  ch -> 0x5654029ac2a0 : VarSymbol U8
-  f2 -> 0x5654029ac1f0 : VarSymbol F64
-  qt -> 0x5654029ac400 : VarSymbol U8
-  f1 -> 0x5654029ac140 : VarSymbol F64
-  c -> 0x5654029abfe0 : VarSymbol U32
-  b -> 0x5654029abf30 : VarSymbol U32
-  d -> 0x5654029ac090 : VarSymbol U32
-  a -> 0x5654029abe10 : VarSymbol U32
+Scope 0x55abe7e6df60
+  nl -> 0x55abe7e6eff0 : VarSymbol U8
+  ch -> 0x55abe7e6ef40 : VarSymbol U8
+  f2 -> 0x55abe7e6ee90 : VarSymbol I64
+  qt -> 0x55abe7e6f0a0 : VarSymbol U8
+  f1 -> 0x55abe7e6ede0 : VarSymbol I64
+  c -> 0x55abe7e6ec80 : VarSymbol U32
+  b -> 0x55abe7e6ebd0 : VarSymbol U32
+  d -> 0x55abe7e6ed30 : VarSymbol U32
+  a -> 0x55abe7e6eab0 : VarSymbol U32
 
 backend complete

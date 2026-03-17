@@ -5,23 +5,11 @@ Program @ <input/empty.ec:1.1>
 running backend for file input/empty.ec
 checking semantics for input/empty.ec:1.1
 running elaborator for input/empty.ec:1.1
-Node: type 52 {
-    }
+Node: type 53 {
+}
 --------- TYPE CONTEXT ---------
 
 Base Types:
-  F64 -> 0x561ed5228610 : F64
-  I64 -> 0x561ed5228590 : I64
-  U64 -> 0x561ed5228310 : U64
-  I8 -> 0x561ed5228410 : I8
-  U32 -> 0x561ed5228290 : U32
-  U16 -> 0x561ed5228210 : U16
-  bool -> 0x561ed5228690 : bool
-  U8 -> 0x561ed5228190 : U8
-  I32 -> 0x561ed5228510 : I32
-  I16 -> 0x561ed5228490 : I16
-  I0 -> 0x561ed5228390 : I0
-  U0 -> 0x561ed52280a0 : U0
 
 Pointer Types:
 
@@ -30,6 +18,6 @@ Array Types:
 
 --------- SYMBOL TABLE ---------
 
-Scope 0x561ed5227f60
+Scope 0x55c5f187ff60
 
 backend complete
