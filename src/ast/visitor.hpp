@@ -32,6 +32,7 @@ public:
     virtual void visit(EnumSpecifier& node) = 0;
     virtual void visit(ClassSpecifier& node) = 0;
     virtual void visit(UnionSpecifier& node) = 0;
+    virtual void visit(VoidSpecifier& node) = 0;
     virtual void visit(PrimitiveSpecifier& node) = 0;
     virtual void visit(Initializer& node) = 0;
     virtual void visit(TypeName& node) = 0;

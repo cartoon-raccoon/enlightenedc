@@ -135,12 +135,11 @@ static std::string decode_string_literal(char* text, size_t len) {
 "..." { return ecc::parser::Parser::make_ELLIPSIS(loc); }
 
 
-"U0i" { return ecc::parser::Parser::make_VOID(loc); } /* Type specifiers */
+"Void" { return ecc::parser::Parser::make_VOID(loc); } /* Type specifiers */
 "U8i" { return ecc::parser::Parser::make_U8(loc); }
 "U16i" { return ecc::parser::Parser::make_U16(loc); }
 "U32i" { return ecc::parser::Parser::make_U32(loc); }
 "U64i" { return ecc::parser::Parser::make_U64(loc); }
-"I0i" { return ecc::parser::Parser::make_I0(loc); }
 "I8i" { return ecc::parser::Parser::make_I8(loc); }
 "I16i" { return ecc::parser::Parser::make_I16(loc); }
 "I32i" { return ecc::parser::Parser::make_I32(loc); }

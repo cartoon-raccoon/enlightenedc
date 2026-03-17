@@ -85,6 +85,10 @@ Box<Elaborator::SpecifierInfo> Elaborator::parse_speclist(
                 break;
             }
 
+            case NK::VOID_SPEC:
+            specinfo->type = take_last_result<VoidType *>();
+            break;
+
             case NK::PRIM_SPEC:
             specinfo->type = take_last_result<PrimitiveType *>();
             break;
@@ -157,7 +161,7 @@ void Elaborator::do_visit(Function& node) {
                 // Wrap the base in a pointer.
                 curr = builder->ty_bldr.ctxt.get_pointer(curr, p.is_const);
             },
-            [&builder, &curr, &last_func_params] (TypeBuilder::FnParams& fn) mutable {
+            [&builder, &curr, &last_func_params, this] (TypeBuilder::FnParams& fn) mutable {
                 // map out the identifiers.
                 Vec<Type *> params;
                 params.reserve(fn.params.size());
@@ -167,7 +171,8 @@ void Elaborator::do_visit(Function& node) {
 
                 last_func_params = std::move(fn.params);
                 // Wrap the base as the return type in a function type.
-                curr = builder->ty_bldr.ctxt.get_function(curr, std::move(params), fn.variadic);
+                curr = builder->ty_bldr.ctxt.get_function(
+                    curr, std::move(params), fn.variadic, syms.current);
             }
         }, next_cstrctr);
 
@@ -318,7 +323,7 @@ void Elaborator::do_visit(FunctionDeclarator& node) {
         parameters.push_back(parsed);
     }
 
-    builder->ty_bldr.add_function(parameters, node.is_variadic);
+    builder->ty_bldr.add_function(parameters, node.is_variadic, syms.current);
 
     dv_return(builder);
 }
@@ -400,6 +405,11 @@ void Elaborator::do_visit(StorageClassSpecifier& node) {
     last_result = node.type;
 }
 
+void Elaborator::do_visit(VoidSpecifier& node) {
+    bsv_dbprint("visiting VoidSpecifier node: ", node.loc);
+    dv_return(types.get_void());
+}
+
 void Elaborator::do_visit(PrimitiveSpecifier& node) {
     bsv_dbprint("visiting PrimitiveSpecifier node: ", node.loc);
     /* terminal node */
@@ -408,56 +418,44 @@ void Elaborator::do_visit(PrimitiveSpecifier& node) {
     using PTK = PrimitiveType::Kind;
 
     switch (node.pkind) {
-        case PK::VOID:
-        last_result = types.get_primitive(PTK::U0);
-        break;
-
-        case PK::U0:
-        last_result = types.get_primitive(PTK::U0);
-        break;
-
         case PK::U8:
-        last_result = types.get_primitive(PTK::U8);
+        dv_return(types.get_primitive(PTK::U8));
         break;
 
         case PK::U16:
-        last_result = types.get_primitive(PTK::U16);
+        dv_return(types.get_primitive(PTK::U16));
         break;
 
         case PK::U32:
-        last_result = types.get_primitive(PTK::U32);
+        dv_return(types.get_primitive(PTK::U32));
         break;
 
         case PK::U64:
-        last_result = types.get_primitive(PTK::U64);
-        break;
-
-        case PK::I0:
-        last_result = types.get_primitive(PTK::I0);
+        dv_return(types.get_primitive(PTK::U64));
         break;
 
         case PK::I8:
-        last_result = types.get_primitive(PTK::I8);
+        dv_return(types.get_primitive(PTK::I8));
         break;
 
         case PK::I16:
-        last_result = types.get_primitive(PTK::I16);
+        dv_return(types.get_primitive(PTK::I16));
         break;
 
         case PK::I32:
-        last_result = types.get_primitive(PTK::I32);
+        dv_return(types.get_primitive(PTK::I32));
         break;
 
         case PK::I64:
-        last_result = types.get_primitive(PTK::I64);
+        dv_return(types.get_primitive(PTK::I64));
         break;
 
         case PK::F64:
-        last_result = types.get_primitive(PTK::F64);
+        dv_return(types.get_primitive(PTK::F64));
         break;
 
         case PK::BOOL:
-        last_result = types.get_primitive(PTK::BOOL);
+        dv_return(types.get_primitive(PTK::BOOL));
         break;
     }
 }
@@ -465,7 +463,7 @@ void Elaborator::do_visit(PrimitiveSpecifier& node) {
 void Elaborator::do_visit(TypeQualifier& node) {
     bsv_dbprint("visiting TypeQualifier node: ", node.loc);
     /* terminal node */
-    last_result = node.qual;
+    dv_return(node.qual);
 }
 
 void Elaborator::do_visit(EnumSpecifier& node) {

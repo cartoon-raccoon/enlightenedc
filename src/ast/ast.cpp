@@ -32,6 +32,8 @@ void TypeQualifier::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void EnumSpecifier::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
+void VoidSpecifier::accept(ASTVisitor& visitor) { visitor.visit(*this); }
+
 void PrimitiveSpecifier::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void Initializer::accept(ASTVisitor& visitor) { visitor.visit(*this); }

@@ -11,6 +11,8 @@
 
 using namespace ecc::sema::types;
 
+bool Type::is_void() { return kind == Kind::VOID; }
+
 bool Type::is_primitive() { return kind == Kind::PRIMITIVE; }
 
 bool Type::is_pointer() { return kind == Kind::POINTER; }
@@ -29,8 +31,6 @@ bool PrimitiveType::is_integer() {
         case I64:
         return true;
         
-        case U0:
-        case I0:
         case BOOL:
         case F64:
         return false;
@@ -59,10 +59,6 @@ bool PrimitiveType::is_compatible_with(Type *dst) {
 
 int PrimitiveType::size() {
     switch (primkind) {
-        case U0:
-        case I0:
-        return 0;
-
         case U8:
         case I8:
         case BOOL:
@@ -87,8 +83,6 @@ int PrimitiveType::size() {
 
 std::string PrimitiveType::formal() {
     switch (primkind) {
-        case U0:
-        return "U0";
         case U8:
         return "U8";
         case U16:
@@ -97,8 +91,6 @@ std::string PrimitiveType::formal() {
         return "U32";
         case U64:
         return "U64";
-        case I0:
-        return "I0";
         case I8:
         return "I8";
         case I16:
@@ -112,6 +104,10 @@ std::string PrimitiveType::formal() {
         case F64:
         return "F64";
     }
+}
+
+int ClassType::size() {
+    return 0; // todo
 }
 
 void ClassType::add_member(Box<ClassType::ClassTypeMember> member) {
@@ -141,6 +137,10 @@ std::string ClassType::formal() {
     } else {
         return "class_anon";
     }
+}
+
+int UnionType::size() {
+    return 0; // todo
 }
 
 void UnionType::add_member(Box<UnionType::UnionTypeMember> member) {
@@ -265,8 +265,8 @@ void TypeBuilder::add_pointer(bool is_const) {
     type_stack.push(Ptr {is_const});
 }
 
-void TypeBuilder::add_function(Vec<FuncParam> params, bool variadic) {
-    type_stack.push(FnParams {std::move(params), variadic});
+void TypeBuilder::add_function(Vec<FuncParam> params, bool variadic, sym::Scope *scope) {
+    type_stack.push(FnParams {std::move(params), variadic, scope});
 }
 
 void TypeBuilder::set_base(BaseType *base) {
@@ -304,7 +304,7 @@ Type *TypeBuilder::finalize() {
                     params.push_back(param.type);
                 }
                 // Wrap the base as the return type in a function type.
-                curr = this->ctxt.get_function(curr, std::move(params), fn.variadic);
+                curr = this->ctxt.get_function(curr, std::move(params), fn.variadic, fn.scope);
             }
         }, next_cstrctr);
 
@@ -315,53 +315,52 @@ Type *TypeBuilder::finalize() {
     return curr;
 }
 
-TypeContext::TypeContext() {
-    // Initialize the TypeContext with primitive types.
-    base_types.insert({"U0", std::make_unique<PrimitiveType>(PrimitiveType::Kind::U0)});
-    base_types.insert({"U8", std::make_unique<PrimitiveType>(PrimitiveType::Kind::U8)});
-    base_types.insert({"U16", std::make_unique<PrimitiveType>(PrimitiveType::Kind::U16)});
-    base_types.insert({"U32", std::make_unique<PrimitiveType>(PrimitiveType::Kind::U32)});
-    base_types.insert({"U64", std::make_unique<PrimitiveType>(PrimitiveType::Kind::U64)});
-    base_types.insert({"I0", std::make_unique<PrimitiveType>(PrimitiveType::Kind::I0)});
-    base_types.insert({"I8", std::make_unique<PrimitiveType>(PrimitiveType::Kind::I8)});
-    base_types.insert({"I16", std::make_unique<PrimitiveType>(PrimitiveType::Kind::I16)});
-    base_types.insert({"I32", std::make_unique<PrimitiveType>(PrimitiveType::Kind::I32)});
-    base_types.insert({"I64", std::make_unique<PrimitiveType>(PrimitiveType::Kind::I64)});
-    base_types.insert({"F64", std::make_unique<PrimitiveType>(PrimitiveType::Kind::F64)});
-    base_types.insert({"bool", std::make_unique<PrimitiveType>(PrimitiveType::Kind::BOOL)});
-}
+TypeContext::TypeContext()
+    : anonymous_ctr(0), user_types(), pointers(), arrays(),
+    voidt(std::make_unique<VoidType>()),
+    u8(std::make_unique<PrimitiveType>(PrimitiveType::Kind::U8)),
+    u16(std::make_unique<PrimitiveType>(PrimitiveType::Kind::U16)),
+    u32(std::make_unique<PrimitiveType>(PrimitiveType::Kind::U32)),
+    u64(std::make_unique<PrimitiveType>(PrimitiveType::Kind::U64)),
+    i8(std::make_unique<PrimitiveType>(PrimitiveType::Kind::I8)),
+    i16(std::make_unique<PrimitiveType>(PrimitiveType::Kind::I16)),
+    i32(std::make_unique<PrimitiveType>(PrimitiveType::Kind::I32)),
+    i64(std::make_unique<PrimitiveType>(PrimitiveType::Kind::I64)),
+    f64(std::make_unique<PrimitiveType>(PrimitiveType::Kind::F64)),
+    boolt(std::make_unique<PrimitiveType>(PrimitiveType::Kind::BOOL))
+{}
 
 TypeBuilder TypeContext::builder() {
     return TypeBuilder(*this);
 }
 
+VoidType *TypeContext::get_void() {
+    return voidt.get();
+}
+
 PrimitiveType *TypeContext::get_primitive(PrimitiveType::Kind pkind) {
     dbprint("TypeContext: getting primitive type with value ", pkind);
     switch (pkind) {
-    case PrimitiveType::Kind::U0:
-        return base_types.find("U0")->second.get()->as_primitive();
     case PrimitiveType::Kind::U8:
-        return base_types.find("U8")->second.get()->as_primitive();
+        return u8.get();
     case PrimitiveType::Kind::U16:
-        return base_types.find("U16")->second.get()->as_primitive();
+        return u16.get();
     case PrimitiveType::Kind::U32:
-        return base_types.find("U32")->second.get()->as_primitive();
+        return u32.get();
     case PrimitiveType::Kind::U64:
-        return base_types.find("U64")->second.get()->as_primitive();
-    case PrimitiveType::Kind::I0:
-        return base_types.find("I0")->second.get()->as_primitive();
+        return u64.get();
     case PrimitiveType::Kind::I8:
-        return base_types.find("I8")->second.get()->as_primitive();
+        return i8.get();
     case PrimitiveType::Kind::I16:
-        return base_types.find("I16")->second.get()->as_primitive();
+        return i16.get();
     case PrimitiveType::Kind::I32:
-        return base_types.find("I32")->second.get()->as_primitive();
+        return i16.get();
     case PrimitiveType::Kind::I64:
-        return base_types.find("I64")->second.get()->as_primitive();
+        return i32.get();
     case PrimitiveType::Kind::F64:
-        return base_types.find("F64")->second.get()->as_primitive();
+        return i64.get();
     case PrimitiveType::Kind::BOOL:
-        return base_types.find("bool")->second.get()->as_primitive();
+        return boolt.get();
     default:
         return nullptr;
     }
@@ -373,13 +372,13 @@ ClassType *TypeContext::get_class(std::string name, sym::Scope *scope) {
     dbprint("TypeContext: class type '", name, "' on scope ", scope);
     std::string mangled = mangle<ClassType>(name, scope);
 
-    if (base_types.contains(mangled)) {
+    if (user_types.contains(mangled)) {
         dbprint("TypeContext: existing class found");
-        return base_types.find(mangled)->second.get()->as_class();
+        return user_types.find(mangled)->second.get()->as_class();
     }
 
     // If no struct matching the name, make a new struct
-    return make_insert_type<ClassType>(mangled, name);
+    return make_insert_type<ClassType>(mangled, scope, name);
 }
 
 ClassType *TypeContext::get_class(sym::Scope *scope) {
@@ -396,20 +395,20 @@ ClassType *TypeContext::get_class(sym::Scope *scope) {
     anonymous_ctr++;
     auto mangled = mangle<ClassType>(name, scope);
 
-    return make_insert_type<ClassType>(mangled);
+    return make_insert_type<ClassType>(mangled, scope);
 }
 
 UnionType *TypeContext::get_union(std::string name, sym::Scope *scope) {
     dbprint("TypeContext: union type '", name, "' on scope ", scope);
     std::string mangled = mangle<UnionType>(name, scope);
 
-    if (base_types.contains(mangled)) {
+    if (user_types.contains(mangled)) {
         dbprint("TypeContext: existing union found");
-        return base_types.find(mangled)->second.get()->as_union();
+        return user_types.find(mangled)->second.get()->as_union();
     }
 
     // If no struct matching the name, make a new struct
-    return make_insert_type<UnionType>(mangled, name);
+    return make_insert_type<UnionType>(mangled, scope, name);
 }
 
 UnionType *TypeContext::get_union(sym::Scope *scope) {
@@ -418,20 +417,20 @@ UnionType *TypeContext::get_union(sym::Scope *scope) {
     anonymous_ctr++;
     auto mangled = mangle<UnionType>(name, scope);
 
-    return make_insert_type<UnionType>(mangled);
+    return make_insert_type<UnionType>(mangled, scope);
 }
 
 EnumType *TypeContext::get_enum(std::string name, sym::Scope *scope) {
     dbprint("TypeContext: enum type '", name, "' on scope ", scope);
     std::string mangled = mangle<EnumType>(name, scope);
 
-    if (base_types.contains(mangled)) {
+    if (user_types.contains(mangled)) {
         dbprint("TypeContext: existing enum found");
-        return base_types.find(mangled)->second.get()->as_enum();
+        return user_types.find(mangled)->second.get()->as_enum();
     }
 
     // If no struct matching the name, make a new struct
-    return make_insert_type<EnumType>(mangled, name);
+    return make_insert_type<EnumType>(mangled, scope, name);
 }
 
 EnumType *TypeContext::get_enum(sym::Scope *scope) {
@@ -440,7 +439,7 @@ EnumType *TypeContext::get_enum(sym::Scope *scope) {
     anonymous_ctr++;
     auto mangled = mangle<EnumType>(name, scope);
 
-    return make_insert_type<EnumType>(mangled);
+    return make_insert_type<EnumType>(mangled, scope);
 }
 
 PointerType *TypeContext::get_pointer(Type *base, bool is_const) {
@@ -493,7 +492,7 @@ ArrayType *TypeContext::get_array(Type *base) {
     return ret;
 }
 
-FunctionType *TypeContext::get_function(Type *returntype, Vec<Type *> params, bool variadic) {
+FunctionType *TypeContext::get_function(Type *returntype, Vec<Type *> params, bool variadic, sym::Scope *scope) {
     /*
     Function types do not need to be scope-aware, since their names are purely symbolic, and
     have no bearing on type equality. If a pointer to a function that was declared in a non-global scope
@@ -503,7 +502,7 @@ FunctionType *TypeContext::get_function(Type *returntype, Vec<Type *> params, bo
     */
 
     dbprint("TypeContext: getting function type");
-    Box<FunctionType> func = std::make_unique<FunctionType>();
+    Box<FunctionType> func = std::make_unique<FunctionType>(scope);
     FunctionType *ret = func.get();
 
     FunctionType::FunctionSignature sig = {returntype, std::move(params), variadic};
@@ -522,12 +521,12 @@ FunctionType *TypeContext::get_function(Type *returntype, Vec<Type *> params, bo
     else
         name = "function_" + std::to_string(hash);
 
-    if (base_types.contains(name)) {
+    if (user_types.contains(name)) {
         dbprint("TypeConstext: existing function type found");
-        return base_types.find(name)->second.get()->as_function();
+        return user_types.find(name)->second.get()->as_function();
     }
 
-    base_types[name] = std::move(func);
+    user_types[name] = std::move(func);
 
     return ret;
 }

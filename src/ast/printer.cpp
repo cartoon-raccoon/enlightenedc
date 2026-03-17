@@ -134,9 +134,6 @@ std::string ASTPrinter::infixop_to_string(tokens::InfixOp op) {
 std::string ASTPrinter::primitive_to_string(PrimitiveSpecifier::PrimKind p) {
     using P = PrimitiveSpecifier::PrimKind;
     switch (p) {
-    case P::VOID:
-        return "void";
-    case P::U0:
         return "u0";
     case P::U8:
         return "u8";
@@ -146,8 +143,6 @@ std::string ASTPrinter::primitive_to_string(PrimitiveSpecifier::PrimKind p) {
         return "u32";
     case P::U64:
         return "u64";
-    case P::I0:
-        return "i0";
     case P::I8:
         return "i8";
     case P::I16:
@@ -462,6 +457,10 @@ void ASTPrinter::visit(Enumerator& node) {
 void ASTPrinter::visit(StorageClassSpecifier& node) {
     print_node("StorageClassSpecifier: " + storage_to_string(node.type),
                 node);
+}
+
+void ASTPrinter::visit(VoidSpecifier& node) {
+    print_node("VoidSpecifier", node);
 }
 
 void ASTPrinter::visit(PrimitiveSpecifier& node) {

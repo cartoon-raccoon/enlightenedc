@@ -111,10 +111,14 @@ void BaseSemanticVisitor::visit(StorageClassSpecifier& node) {
     do_visit(node);
 }
 
+void BaseSemanticVisitor::visit(VoidSpecifier& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
 void BaseSemanticVisitor::visit(PrimitiveSpecifier& node) {
     auto guard = enter_node(&node);
     do_visit(node);
-
 }
 
 void BaseSemanticVisitor::visit(TypeQualifier& node) {
@@ -458,6 +462,10 @@ void BaseSemanticVisitor::do_visit(UnionSpecifier& node) {
             decl->accept(*this);
         }
     }
+}
+
+void BaseSemanticVisitor::do_visit(VoidSpecifier& node) {
+    /* terminal node */
 }
 
 void BaseSemanticVisitor::do_visit(PrimitiveSpecifier& node) {

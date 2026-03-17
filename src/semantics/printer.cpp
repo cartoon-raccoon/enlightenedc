@@ -79,8 +79,6 @@ std::string LabelSymbol::to_string() const {
 
 std::string PrimitiveType::to_string() const {
     switch (primkind) {
-    case U0:
-        return "U0";
     case U8:
         return "U8";
     case U16:
@@ -89,8 +87,6 @@ std::string PrimitiveType::to_string() const {
         return "U32";
     case U64:
         return "U64";
-    case I0:
-        return "I0";
     case I8:
         return "I8";
     case I16:
@@ -258,7 +254,7 @@ std::string TypeContext::to_string() const {
 
     ss << "Base Types:\n";
 
-    for (auto const& [name, type] : base_types) {
+    for (auto const& [name, type] : user_types) {
         ss << "  " << name << " -> " << type.get() << " : " << type->to_string()
            << "\n";
     }

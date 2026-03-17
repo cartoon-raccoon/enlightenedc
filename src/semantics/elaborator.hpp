@@ -48,6 +48,7 @@ using ElabResult = std::variant<
     TypeSpecRet<types::ClassType>,
     TypeSpecRet<types::UnionType>,
     TypeSpecRet<types::EnumType>,
+    types::VoidType *,
     types::PrimitiveType *,
     types::PointerType *,
     types::Type *,
@@ -169,6 +170,7 @@ protected:
     void do_visit(ast::EnumSpecifier& node) override;
     void do_visit(ast::ClassSpecifier& node) override;
     void do_visit(ast::UnionSpecifier& node) override;
+    void do_visit(ast::VoidSpecifier& node) override;
     void do_visit(ast::PrimitiveSpecifier& node) override;
     void do_visit(ast::Initializer& node) override;
     void do_visit(ast::TypeName& node) override;

@@ -52,6 +52,7 @@ public:
         CLASS_SPEC,
         UNION_SPEC,
         ENUM_SPEC,
+        VOID_SPEC,
         PRIM_SPEC,
         COMP_STMT,
         EXPR_STMT,
@@ -520,16 +521,20 @@ public:
     void accept(ASTVisitor& visitor) override;
 };
 
+class VoidSpecifier : public TypeSpecifier {
+public:
+    VoidSpecifier(Location loc) : TypeSpecifier(VOID_SPEC, loc) {}
+
+    void accept(ASTVisitor& visitor) override;
+};
+
 class PrimitiveSpecifier : public TypeSpecifier {
 public:
     enum PrimKind {
-        VOID,
-        U0,
         U8,
         U16,
         U32,
         U64,
-        I0,
         I8,
         I16,
         I32,

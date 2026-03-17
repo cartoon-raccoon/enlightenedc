@@ -60,7 +60,7 @@ static ecc::parser::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 
 // Keywords
 %token IF ELSE WHILE DO FOR SWITCH CASE DEFAULT BREAK RETURN GOTO TRUE FALSE
-%token CLASS UNION ENUM CONST VOID U8 U16 U32 U64 I0 I8 I16 I32 I64 F64 BOOL SIZEOF
+%token CLASS UNION ENUM CONST VOID U8 U16 U32 U64 I8 I16 I32 I64 F64 BOOL SIZEOF
 %token PUBLIC STATIC EXTERN
 
 // Operators
@@ -69,7 +69,6 @@ static ecc::parser::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 %token AND OR XOR TILDE NOT LT GT LSHIFT RSHIFT
 %token SEMI COMMA LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET DOT ARROW COLON QUESTION
 %token ELLIPSIS
-%token U0
 
 // Operator precedence.
 %left OROR
@@ -213,13 +212,11 @@ storage_class_specifier:
 ;
 
 type_specifier:
-    VOID { $$ = std::make_unique<PrimitiveSpecifier>(@1, PrimitiveSpecifier::VOID); }
-    | U0 { $$ = std::make_unique<PrimitiveSpecifier>(@1, PrimitiveSpecifier::U0); }
+    VOID { $$ = std::make_unique<VoidSpecifier>(@1); }
     | U8 { $$ = std::make_unique<PrimitiveSpecifier>(@1, PrimitiveSpecifier::U8); }
     | U16 { $$ = std::make_unique<PrimitiveSpecifier>(@1, PrimitiveSpecifier::U16); }
     | U32 { $$ = std::make_unique<PrimitiveSpecifier>(@1, PrimitiveSpecifier::U32); }
     | U64 { $$ = std::make_unique<PrimitiveSpecifier>(@1, PrimitiveSpecifier::U64); }
-    | I0 { $$ = std::make_unique<PrimitiveSpecifier>(@1, PrimitiveSpecifier::I0); }
     | I8 { $$ = std::make_unique<PrimitiveSpecifier>(@1, PrimitiveSpecifier::I8); }
     | I16 { $$ = std::make_unique<PrimitiveSpecifier>(@1, PrimitiveSpecifier::I16); }
     | I32 { $$ = std::make_unique<PrimitiveSpecifier>(@1, PrimitiveSpecifier::I32); }

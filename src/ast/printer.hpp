@@ -39,6 +39,7 @@ public:
     void visit(StorageClassSpecifier& node) override;
     void visit(TypeQualifier& node) override;
     void visit(EnumSpecifier& node) override;
+    void visit(VoidSpecifier& node) override;
     void visit(PrimitiveSpecifier& node) override;
     void visit(ClassSpecifier& node) override;
     void visit(UnionSpecifier& node) override;

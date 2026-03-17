@@ -120,8 +120,8 @@ public:
         ~NodeGuard() {
             context.pop_back();
 #ifndef NDEBUG
-            bsv.bsv_dbprint("}");
             bsv.dec_indent();
+            bsv.bsv_dbprint("}");
 #endif
         }
 
@@ -223,6 +223,7 @@ public:
     void visit(ast::EnumSpecifier& node) override;
     void visit(ast::ClassSpecifier& node) override;
     void visit(ast::UnionSpecifier& node) override;
+    void visit(ast::VoidSpecifier& node) override;
     void visit(ast::PrimitiveSpecifier& node) override;
     void visit(ast::Initializer& node) override;
     void visit(ast::TypeName& node) override;
@@ -280,6 +281,7 @@ protected:
     virtual void do_visit(ast::EnumSpecifier& node);
     virtual void do_visit(ast::ClassSpecifier& node);
     virtual void do_visit(ast::UnionSpecifier& node);
+    virtual void do_visit(ast::VoidSpecifier& node);
     virtual void do_visit(ast::PrimitiveSpecifier& node);
     virtual void do_visit(ast::Initializer& node);
     virtual void do_visit(ast::TypeName& node);

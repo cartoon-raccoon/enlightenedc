@@ -2,6 +2,7 @@
 #define ECC_TYPES_H
 
 #include <cstddef>
+#include <memory>
 #include <stack>
 #include <string>
 #include <sstream>
@@ -56,6 +57,7 @@ Type size and member alignment is calculated at compile time, using LLVM's `Data
 class Type {
 public:
     enum Kind {
+        VOID,
         PRIMITIVE,
         CLASS,
         UNION,
@@ -71,6 +73,7 @@ public:
     // The location where the type was defined.
     Location loc;
 
+    bool is_void();
     bool is_primitive();
     bool is_pointer();
 
@@ -151,14 +154,18 @@ protected:
 
 /*
 An abstract class representing a type that is constructed from BaseTypes,
-or is user-defined. These are the unions, structs, and enums.
+or is user-defined. These are the unions, structs, enums, and functions.
 */
-class RecordType : public BaseType {
+class UserType : public BaseType {
 public:
     // Returns the kind of type: class, union, enum.
     static std::string base();
+
+    // The scope where the type was declared.
+    sema::sym::Scope *scope;
 protected:
-    RecordType(Kind kind) : BaseType(kind) {}
+    UserType(Kind kind, sema::sym::Scope *scope) 
+        : BaseType(kind), scope(scope) {}
 };
 
 class DerivedType : public Type {
@@ -167,6 +174,16 @@ public:
 
 protected:
     DerivedType(Kind kind, Type *base) : Type(kind), base(base) {} 
+};
+
+class VoidType : public BaseType {
+public:
+protected:
+    friend class TypeContext;
+
+    friend constexpr Box<VoidType> std::make_unique<VoidType>();
+
+    VoidType() : BaseType(Type::Kind::VOID) {}
 };
 
 /*
@@ -187,12 +204,10 @@ Zero-sized types (U0, I0) cannot be implicitly converted to other types.
 class PrimitiveType : public BaseType {
 public:
     enum Kind {
-        U0,
         U8,
         U16,
         U32,
         U64,
-        I0,
         I8,
         I16,
         I32,
@@ -225,7 +240,7 @@ protected:
     PrimitiveType(Kind kind) : BaseType(Type::Kind::PRIMITIVE), primkind(kind) {}
 };
 
-class ClassType : public RecordType {
+class ClassType : public UserType {
 public:
     struct ClassTypeMember {
         std::optional<std::string> name;
@@ -249,11 +264,12 @@ public:
     */
     bool complete = false;
 
-    int size() override;
-
+    
     std::optional<std::string> name;
-
+    
     Vec<Box<ClassTypeMember>> members;
+
+    int size() override;
 
     void add_member(Box<ClassTypeMember> member);
 
@@ -274,16 +290,18 @@ public:
 protected:
     friend class TypeContext;
 
-    friend constexpr Box<ClassType> std::make_unique<ClassType>();
-    friend constexpr Box<ClassType> std::make_unique<ClassType>(std::string& name);
+    friend constexpr Box<ClassType> std::make_unique<ClassType>(sema::sym::Scope *&);
+    friend constexpr Box<ClassType> std::make_unique<ClassType>(std::string&, sema::sym::Scope *&);
 
     // Construct an empty class.
-    ClassType() : RecordType(Kind::CLASS), members() {}
-    ClassType(std::string name) : RecordType(Kind::CLASS), members(), name(name) {}
+    ClassType(sema::sym::Scope *scope) 
+        : UserType(Kind::CLASS, scope), members() {}
+    ClassType(std::string name, sema::sym::Scope *scope) 
+        : UserType(Kind::CLASS, scope), members(), name(name) {}
 };
 
 
-class UnionType : public RecordType {
+class UnionType : public UserType {
 public:
     struct UnionTypeMember {
         std::optional<std::string> name;
@@ -304,6 +322,8 @@ public:
 
     std::optional<std::string> name;
 
+    int size() override;
+
     void add_member(Box<UnionTypeMember> member);
 
     UnionTypeMember *find(std::string& name);
@@ -323,11 +343,13 @@ public:
 protected:
     friend class TypeContext;
 
-    friend constexpr Box<UnionType> std::make_unique<UnionType>();
-    friend constexpr Box<UnionType> std::make_unique<UnionType>(std::string& name);
+    friend constexpr Box<UnionType> std::make_unique<UnionType>(sema::sym::Scope *&);
+    friend constexpr Box<UnionType> std::make_unique<UnionType>(std::string&, sema::sym::Scope *&);
 
-    UnionType() : RecordType(Kind::UNION), members() {}
-    UnionType(std::string name) : RecordType(Kind::UNION), members(), name(name) {}
+    UnionType(sema::sym::Scope *scope)
+        : UserType(Kind::UNION, scope), members() {}
+    UnionType(std::string name, sema::sym::Scope *scope)
+        : UserType(Kind::UNION, scope), members(), name(name) {}
 };
 
 
@@ -340,7 +362,7 @@ An enum type is compatible with any integer primitive type, but not vice versa.
 The compiler will throw an error if the number of enum variants exceed the maximum
 value of the integer primitive to be cast to.
 */
-class EnumType : public RecordType {
+class EnumType : public UserType {
 public:
     struct EnumTypeMember {
         // the name of the enum variant as declared in the source.
@@ -381,11 +403,13 @@ public:
 protected:
     friend class TypeContext;
 
-    friend constexpr Box<EnumType> std::make_unique<EnumType>();
-    friend constexpr Box<EnumType> std::make_unique<EnumType>(std::string& name);
+    friend constexpr Box<EnumType> std::make_unique<EnumType>(sema::sym::Scope *&);
+    friend constexpr Box<EnumType> std::make_unique<EnumType>(std::string& name, sema::sym::Scope *&);
 
-    EnumType() : RecordType(Kind::ENUM), enumerators() {}
-    EnumType(std::string name) : RecordType(Kind::ENUM), enumerators(), name(name) {}
+    EnumType(sema::sym::Scope *scope)
+        : UserType(Kind::ENUM, scope), enumerators() {}
+    EnumType(std::string name, sema::sym::Scope *scope)
+        : UserType(Kind::ENUM, scope), enumerators(), name(name) {}
 
 private:
     // existing values that have already been declared.
@@ -482,7 +506,7 @@ struct FuncParam {
     bool is_const;
 };
 
-class FunctionType : public Type {
+class FunctionType : public UserType {
 public:
     struct FunctionSignature {
         Type *returntype;
@@ -497,13 +521,15 @@ public:
 
     std::string to_string() const override;
 
+    static std::string base() { return "function_"; }
+
 protected:
     friend class TypeContext;
     friend class TypeBuilder;
 
-    friend constexpr Box<FunctionType> std::make_unique<FunctionType>();
+    friend constexpr Box<FunctionType> std::make_unique<FunctionType>(sema::sym::Scope *&);
 
-    FunctionType() : Type(Type::Kind::FUNCTION) {}
+    FunctionType(sema::sym::Scope *scope) : UserType(Type::Kind::FUNCTION, scope) {}
 };
 
 /*
@@ -528,7 +554,7 @@ public:
 
     void add_pointer(bool is_const);
 
-    void add_function(Vec<FuncParam> params, bool variadic);
+    void add_function(Vec<FuncParam> params, bool variadic, sema::sym::Scope *scope);
 
     void set_base(BaseType *type);
 
@@ -542,6 +568,7 @@ public:
     struct FnParams {
         Vec<FuncParam> params;
         bool variadic;
+        sema::sym::Scope *scope;
     };
 
     BaseType *base;
@@ -579,7 +606,12 @@ class TypeContext {
 public:
     TypeContext();
 
+    TypeContext(const TypeContext&) = delete;
+    TypeContext& operator=(const TypeContext&) = delete;
+
     TypeBuilder builder();
+
+    VoidType *get_void();
 
     // Return a pointer to the PrimitiveType object with `kind`.
     PrimitiveType *get_primitive(PrimitiveType::Kind kind);
@@ -624,12 +656,25 @@ public:
     ArrayType *get_array(Type *base);
 
     // Create a function type based on its signature.
-    FunctionType *get_function(Type *ret, Vec<Type *> params, bool variadic);
+    FunctionType *get_function(Type *ret, Vec<Type *> params, bool variadic, sema::sym::Scope *scope);
 
     std::string to_string() const;
 
 private:
     int anonymous_ctr = 0;
+
+    // intern the primitive language-defined types directly in the context.
+    Box<VoidType> voidt;
+    Box<PrimitiveType> u8;
+    Box<PrimitiveType> u16;
+    Box<PrimitiveType> u32;
+    Box<PrimitiveType> u64;
+    Box<PrimitiveType> i8;
+    Box<PrimitiveType> i16;
+    Box<PrimitiveType> i32;
+    Box<PrimitiveType> i64;
+    Box<PrimitiveType> f64;
+    Box<PrimitiveType> boolt;
 
     template<typename T>
     struct pair_hash {
@@ -644,8 +689,8 @@ private:
     using ArrayKey = std::pair<Type *, std::optional<uint64_t>>;
     using PointerKey = std::pair<Type *, bool>;
 
-    // The map of base types (i.e. non-pointers).
-    std::unordered_map<std::string, Box<Type>> base_types;
+    // The map of record types (i.e. structs, unions, enums).
+    std::unordered_map<std::string, Box<UserType>> user_types;
 
     // The map of pointer types, mapped by their base type.
     std::unordered_map<PointerKey, Box<PointerType>, pair_hash<bool>> pointers;
@@ -668,29 +713,32 @@ private:
     template <typename T>
     requires std::derived_from<T, Type>
     // Create and insert a named type.
-    T *make_insert_type(std::string mangled, std::string name) {
-        Box<T> s = std::make_unique<T>(name);
+    T *make_insert_type(std::string mangled, sema::sym::Scope *scope, std::string name) {
+        Box<T> s = std::make_unique<T>(name, scope);
 
         auto ret = s.get();
-        for (auto const& [key, type] : base_types) {
+        for (auto const& [key, type] : user_types) {
             // we find a type with the same name
             if (name == type->get_name()) {
-                throw type.get();
+                // if the scopes match
+                if (scope == type->scope) {
+                    throw type.get();
+                }
             }
         }
-        base_types.insert({mangled, std::move(s)});
+        user_types.insert({mangled, std::move(s)});
 
         return ret;
     }
 
     template <typename T>
     requires std::derived_from<T, Type>
-    T *make_insert_type(std::string mangled) {
-        Box<T> s = std::make_unique<T>();
+    T *make_insert_type(std::string mangled, sema::sym::Scope *scope) {
+        Box<T> s = std::make_unique<T>(scope);
 
         auto ret = s.get();
         // no collision check required for anonymous types.
-        base_types.insert({mangled, std::move(s)});
+        user_types.insert({mangled, std::move(s)});
 
         return ret;
     }
