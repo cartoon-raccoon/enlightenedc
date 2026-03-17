@@ -16,6 +16,12 @@ operator<< (std::basic_ostream<T>& ostr, const types::Type& type) {
 
 template <typename T>
 std::basic_ostream<T>&
+operator<< (std::basic_ostream<T>& ostr, const types::VoidType& type) {
+    return ostr << type.to_string();
+}
+
+template <typename T>
+std::basic_ostream<T>&
 operator<< (std::basic_ostream<T>& ostr, const types::PrimitiveType& type) {
     return ostr << type.to_string();
 }

@@ -178,6 +178,7 @@ protected:
 
 class VoidType : public BaseType {
 public:
+    virtual std::string to_string() const { return "Void"; }
 protected:
     friend class TypeContext;
 
