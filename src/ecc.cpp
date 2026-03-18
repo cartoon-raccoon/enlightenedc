@@ -1,6 +1,8 @@
 #include <iostream>
+#include <filesystem>
 
 #include "ecc.hpp"
+#include "error.hpp"
 #include "driver/driver.hpp"
 #include "util.hpp"
 
@@ -14,6 +16,9 @@ EccConfig::EccConfig(int argc, char *argv[]) {
 
 void Ecc::run() {
     for (auto& file : config->input_files) {
+        if (!std::filesystem::exists(file)) {
+            throw EccError("File not found: no such file or directory");
+        }
         run_pipeline(&file);
     }
 }
