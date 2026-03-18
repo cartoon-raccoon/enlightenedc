@@ -70,6 +70,14 @@ add_executable(ecc
 
 # 6. Setup include paths
 target_include_directories(ecc PRIVATE ${SRC_DIR} ${BISON_OUTPUT_DIR})
+target_precompile_headers(ecc PRIVATE 
+    <vector> 
+    <string>
+    <memory>
+    <unordered_map>
+    <variant>
+    "src/ast/ast.hpp"
+)
 
 # 7. Link LLVM libraries
 llvm_map_components_to_libnames(llvm_libs
