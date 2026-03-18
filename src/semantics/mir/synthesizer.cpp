@@ -1275,9 +1275,11 @@ void MIRSynthesizer::do_visit(LiteralExpression& node) {
 
         case LiteralExpression::CHAR:
         val = node.value.c_val;
+        break;
 
         case LiteralExpression::BOOL:
         val = node.value.b_val;
+        break;
     }
 
     Box<ExprMIR> expr = std::make_unique<LiteralExprMIR>(node.loc, val);
