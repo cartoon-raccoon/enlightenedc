@@ -1,15 +1,20 @@
+#include <variant>
+
 #include "exec.hpp"
-#include "codegen/value.hpp"
+#include "eval/value.hpp"
 #include "frontend/tokens.hpp"
 #include "util.hpp"
+
+using namespace ecc::sema::sym;
+using namespace ecc::sema::types;
 
 namespace ecc::exec {
 
 /* Helper function to throw an error if an expression can't be evaluated.
  */
-inline void throwCompileTimeEvalError(const std::string& msg,
+inline void throw_eval_error(const std::string& msg,
                                const ast::Expression* expr) {
-    throw EccInvalidCompileTimeEval(msg, expr->loc);
+    throw InvalidCompileTimeEval(msg, expr->loc);
 }
 
 /* The Evaluator class evaluates AST expressions at compile time.
@@ -40,11 +45,11 @@ Value Evaluator::eval(ast::BinaryExpression* expr) {
         break;
 
     default:
-        throwCompileTimeEvalError("Unsupported binary operator", expr);
+        throw_eval_error("Unsupported binary operator", expr);
         break;
     }
 
-    throwCompileTimeEvalError("Unsupported binary operation", expr);
+    throw_eval_error("Unsupported binary operation", expr);
 }
 
 Value Evaluator::eval(ast::CastExpression* expr) {
@@ -74,15 +79,15 @@ Value Evaluator::eval(ast::UnaryExpression* expr) {
         return ~operand;
 
     default:
-        throwCompileTimeEvalError("unsupported unary operator", expr);
+        throw_eval_error("unsupported unary operator", expr);
         break;
     }
 
-    throwCompileTimeEvalError("unsupported unary expression", expr);
+    throw_eval_error("unsupported unary expression", expr);
 }
 
 Value Evaluator::eval(ast::AssignmentExpression* expr) {
-    throwCompileTimeEvalError("assignment expressions cannot be evaluated at compile time", expr);
+    throw_eval_error("assignment expressions cannot be evaluated at compile time", expr);
 }
 
 Value Evaluator::eval(ast::ConditionalExpression* expr) {
@@ -93,12 +98,23 @@ Value Evaluator::eval(ast::ConditionalExpression* expr) {
 }
 
 Value Evaluator::eval(ast::IdentifierExpression* expr) {
-
+    // lookup symbol
     auto sym = symtable.lookup(expr->name);
     if (!sym) {
-        throwCompileTimeEvalError("Undefined variable", expr);
+        throw_eval_error("undefined variable", expr);
     }
-    return std::monostate {}; // todo: add a Symbol * -> Value map for consts
+    // attempt to resolve symbol to VarSymbol
+    VarSymbol *varsym = sym->as_varsym();
+    if (!varsym) {
+        throw_eval_error("provided identifier is not a valid symbol", expr);
+    }
+    if (varsym->value) {
+        return *varsym->value;
+    } else {
+        throw_eval_error("unable to resolve value of identifier", expr);
+    }
+
+    return std::monostate {};
 }
 
 Value Evaluator::eval(ast::LiteralExpression* expr) {
@@ -113,7 +129,7 @@ Value Evaluator::eval(ast::LiteralExpression* expr) {
         case ast::LiteralExpression::BOOL:
             return Value(expr->value.b_val);
     }
-    throwCompileTimeEvalError("Unsupported literal kind", expr);
+    throw_eval_error("Unsupported literal kind", expr);
 }
 
 Value Evaluator::eval(ast::StringExpression* expr) {
@@ -121,17 +137,17 @@ Value Evaluator::eval(ast::StringExpression* expr) {
 }
 
 Value Evaluator::eval(ast::CallExpression* expr) {
-    throwCompileTimeEvalError(
+    throw_eval_error(
         "function calls cannot be evaluated at compile time", expr);
 }
 
 Value Evaluator::eval(ast::MemberAccessExpression* expr) {
-    throwCompileTimeEvalError(
+    throw_eval_error(
         "compile-time member access evaluation is not currently supported", expr);
 }
 
 Value Evaluator::eval(ast::ArraySubscriptExpression* expr) {
-    throwCompileTimeEvalError(
+    throw_eval_error(
         "compile-time array subscript evaluation is not currently supported", expr);
 }
 
@@ -142,19 +158,19 @@ Value Evaluator::eval(ast::PostfixExpression* expr) {
         if (value.is<long>()) {
             return value++;
         }
-        throwCompileTimeEvalError("Postfix increment requires an integer", expr);
+        throw_eval_error("Postfix increment requires an integer", expr);
     } else if (expr->op == ecc::tokens::POSTDEC) {
         if (value.is<long>()) {
             return value--;
         }
-        throwCompileTimeEvalError("Postfix decrement requires an integer", expr);
+        throw_eval_error("Postfix decrement requires an integer", expr);
     }
 
-    throwCompileTimeEvalError("Invalid postfix expression", expr);
+    throw_eval_error("Invalid postfix expression", expr);
 }
 
 Value Evaluator::eval(ast::SizeofExpression* expr) {
-    throwCompileTimeEvalError("invalid sizeof operand", expr);
+    throw_eval_error("invalid sizeof operand", expr);
 }
 
 }

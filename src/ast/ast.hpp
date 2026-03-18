@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "frontend/tokens.hpp"
-#include "codegen/value.hpp"
+#include "eval/value.hpp"
 #include "util.hpp"
 
 using namespace ecc;

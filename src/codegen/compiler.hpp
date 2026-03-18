@@ -8,11 +8,12 @@
 
 #include "semantics/mir/mir.hpp"
 #include "semantics/mir/visitor.hpp"
-#include "util.hpp"
 #include "semantics/types.hpp"
 #include "semantics/symbols.hpp"
+#include "util.hpp"
 
 using namespace ecc;
+using namespace util;
 
 namespace ecc::compiler {
 /*
@@ -42,40 +43,6 @@ public:
     LLVMType *map_to_llvm_type(sema::types::Type *ty);
 
     // Visitor method overrides
-
-    void visit(sema::mir::ProgramMIR& node) override;
-    void visit(sema::mir::FunctionMIR& node) override;
-    
-    void visit(sema::mir::InitializerMIR& node) override;
-    void visit(sema::mir::TypeDeclMIR& node) override;
-    void visit(sema::mir::VarDeclMIR& node) override;
-
-    void visit(sema::mir::CompoundStmtMIR& node) override;
-    void visit(sema::mir::ExprStmtMIR& node) override;
-    void visit(sema::mir::SwitchStmtMIR& node) override;
-    void visit(sema::mir::CaseRangeStmtMIR& node) override;
-    void visit(sema::mir::DefaultStmtMIR& node) override;
-    void visit(sema::mir::LabeledStmtMIR& node) override;
-    void visit(sema::mir::PrintStmtMIR& node) override;
-    void visit(sema::mir::IfStmtMIR& node) override;
-    void visit(sema::mir::LoopStmtMIR& node) override;
-    void visit(sema::mir::GotoStmtMIR& node) override;
-    void visit(sema::mir::BreakStmtMIR& node) override;
-    void visit(sema::mir::ReturnStmtMIR& node) override;
-
-    void visit(sema::mir::BinaryExprMIR& node) override;
-    void visit(sema::mir::UnaryExprMIR& node) override;
-    void visit(sema::mir::CastExprMIR& node) override;
-    void visit(sema::mir::AssignExprMIR& node) override;
-    void visit(sema::mir::CondExprMIR& node) override;
-    void visit(sema::mir::IdentExprMIR& node) override;
-    void visit(sema::mir::LiteralExprMIR& node) override;
-    void visit(sema::mir::StringExprMIR& node) override;
-    void visit(sema::mir::CallExprMIR& node) override;
-    void visit(sema::mir::MemberAccExprMIR& node) override;
-    void visit(sema::mir::SubscrExprMIR& node) override;
-    void visit(sema::mir::PostfixExprMIR& node) override;
-    void visit(sema::mir::SizeofExprMIR& node) override;
 };
 
 } // namespace ecc::compiler
