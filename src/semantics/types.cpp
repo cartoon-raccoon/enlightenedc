@@ -431,11 +431,11 @@ PrimitiveType *TypeContext::get_primitive(PrimitiveType::Kind pkind) {
     case PrimitiveType::Kind::I16:
         return i16.get();
     case PrimitiveType::Kind::I32:
-        return i16.get();
-    case PrimitiveType::Kind::I64:
         return i32.get();
-    case PrimitiveType::Kind::F64:
+    case PrimitiveType::Kind::I64:
         return i64.get();
+    case PrimitiveType::Kind::F64:
+        return f64.get();
     case PrimitiveType::Kind::BOOL:
         return boolt.get();
     default:

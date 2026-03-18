@@ -285,10 +285,28 @@ static void print_scope(std::stringstream& ss, Scope* scope, int depth) {
     }
     ss << "\n";
 
-    for (auto const& [name, sym] : scope->symbols) {
+    ss << indent << "Variable Symbols:\n";
+    for (auto const& [name, sym] : scope->var_symbols) {
         ss << indent << "  " << name << " -> " << sym.get() << " : "
            << sym->to_string() << "\n";
     }
+    ss << "\n" << indent << "Function Symbols:\n";
+    for (auto const& [name, sym] : scope->func_symbols) {
+        ss << indent << "  " << name << " -> " << sym.get() << " : "
+           << sym->to_string() << "\n";
+    }
+    ss << "\n" << indent << "Type Symbols:\n";
+    for (auto const& [name, sym] : scope->type_symbols) {
+        ss << indent << "  " << name << " -> " << sym.get() << " : "
+           << sym->to_string() << "\n";
+    }
+    ss << "\n" << indent << "Label Symbols:\n";
+    for (auto const& [name, sym] : scope->label_symbols) {
+        ss << indent << "  " << name << " -> " << sym.get() << " : "
+           << sym->to_string() << "\n";
+    }
+
+    ss << "-----------------------------------------------------------\n";
 
     for (auto const& child : scope->nested) {
         print_scope(ss, child.get(), depth + 1);

@@ -192,7 +192,10 @@ A scope stores symbols inside a translation unit.
 class Scope {
 public:
     Scope(Symbol *assoc, Scope *outer)
-    : outer(outer), assoc(assoc), symbols(), nested() {}
+    : outer(outer), 
+    assoc(assoc), 
+    var_symbols(), func_symbols(), type_symbols(), label_symbols(),
+    nested() {}
 
     // the outer scope enclosing the inner scope.
     Scope *outer;
@@ -201,8 +204,11 @@ public:
     Symbol *assoc;
     // an ASTNode associated with this scope, if any.
     ast::ASTNode *node;
-    // the symbol table.
-    std::unordered_map<std::string, Box<Symbol>> symbols = {};
+    // the symbol tables.
+    std::unordered_map<std::string, Box<VarSymbol>> var_symbols = {};
+    std::unordered_map<std::string, Box<FuncSymbol>> func_symbols = {};
+    std::unordered_map<std::string, Box<TypeSymbol>> type_symbols = {};
+    std::unordered_map<std::string, Box<LabelSymbol>> label_symbols = {};
     // inner scopes contained within this scope.
     Vec<Box<Scope>> nested;
 
@@ -254,7 +260,15 @@ public:
     void clear();
 
     // Lookup a symbol by name. Returns null if no symbol exists.
-    Symbol *lookup(std::string sym);
+    Symbol *lookup(std::string& sym);
+
+    VarSymbol *lookup_var(std::string& sym);
+
+    FuncSymbol *lookup_func(std::string& sym);
+
+    TypeSymbol *lookup_type(std::string& sym);
+    
+    LabelSymbol *lookup_label(std::string& sym);
 
     // Associate the current scope with the given Symbol `sym`.
     // If current scope is already tied to a symbol, replaces it
@@ -265,7 +279,14 @@ public:
     // Returns a pointer to the inserted symbol for further use.
     // If a symbol with the same name already exists in the current scope,
     // It throws a Location where the symbol was previously defined.
-    Symbol *insert(std::string name, Box<Symbol> sym);
+    VarSymbol *insert(std::string name, Box<VarSymbol> sym);
+
+    FuncSymbol *insert(std::string name, Box<FuncSymbol> sym);
+
+    TypeSymbol *insert(std::string name, Box<TypeSymbol> sym);
+
+    LabelSymbol *insert(std::string name, Box<LabelSymbol> sym);
+
 
     std::string to_string() const;
 

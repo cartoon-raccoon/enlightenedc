@@ -251,7 +251,7 @@ void MIRPrinter::visit(LoopStmtMIR& node) {
 }
 
 void MIRPrinter::visit(GotoStmtMIR& node) {
-    print_node("Goto: " + node.target->name, node);
+    print_node("Goto: " + node.target, node);
 }
 
 void MIRPrinter::visit(BreakStmtMIR& node) { print_node("Break", node); }

@@ -223,11 +223,13 @@ void MIRSynthesizer::do_visit(Function& node) {
     FuncSymbol *sym_ptr = symbol.get();
     try {
         syms.insert(*builder->name, std::move(symbol));
-    } catch ( Location prev_def ) {
+    } catch ( Symbol *previous ) {
         throw SymbolAlrDecldError(
-            std::format("function \"{}\" was previously declared", symbol->name), 
-            symbol->loc, prev_def);
+            std::format("function \"{}\" was previously declared", sym_ptr->name), 
+            sym_ptr->loc, previous->loc);
     }
+
+    dbprint("parsing params");
 
     Vec<Box<VarSymbol>> params;
     for (FuncParam& param : last_func_params) {
@@ -1143,14 +1145,7 @@ void MIRSynthesizer::do_visit(ForStatement& node) {
 void MIRSynthesizer::do_visit(GotoStatement& node) {
     bsv_dbprint("visiting GotoStatement node: ", node.loc);
 
-    Symbol *target = syms.lookup(node.target_label);
-    if (!target) {
-        throw EccError("could not find specified target label", node.loc);
-    }
-
-    LabelSymbol *label = target->as_labsym();
-
-    Box<StmtMIR> stmt = std::make_unique<GotoStmtMIR>(node.loc, label);
+    Box<StmtMIR> stmt = std::make_unique<GotoStmtMIR>(node.loc, node.target_label);
     dv_return(stmt);
 }
 

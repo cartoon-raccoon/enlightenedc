@@ -352,10 +352,14 @@ public:
 
 class GotoStmtMIR : public StmtMIR {
 public:
-    GotoStmtMIR(Location loc, sema::sym::LabelSymbol *target)
+    GotoStmtMIR(Location loc, std::string target)
         : StmtMIR(loc, MIRNodeKind::GOTOSTMT_MIR), target(target) {}
     
-    sema::sym::LabelSymbol *target;
+    /*
+    Since goto's can occur before their label is declared, do not resolve the
+    label now, resolve it at LIR, after the entire symbol table is complete.
+    */
+    std::string target;
 
     void accept(MIRVisitor& visitor) override;
 };
