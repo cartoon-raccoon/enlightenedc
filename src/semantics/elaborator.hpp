@@ -70,6 +70,8 @@ using ElabResult = std::variant<
     Box<compiler::mir::FunctionMIR>,
     // The return type of visiting VariableDeclaration node.
     Vec<Box<compiler::mir::DeclMIR>>,
+    // The return type of visiting a CompoundStatement node from a Function node.
+    std::pair<Box<compiler::mir::CompoundStmtMIR>, sema::sym::Scope *>,
     Box<compiler::mir::DeclMIR>,
     Box<compiler::mir::StmtMIR>,
     Box<compiler::mir::ExprMIR>,

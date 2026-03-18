@@ -245,7 +245,10 @@ void Elaborator::do_visit(Function& node) {
     // Then make call
     dv_call(cmpdstmtp, node.body);
 
-    // todo
+    auto res = take_last_result<std::pair<Box<compiler::mir::CompoundStmtMIR>, sema::sym::Scope *>>();
+
+    Box<FunctionMIR> func = std::make_unique<FunctionMIR>(node.loc, sym_ptr, res.second, std::move(res.first));
+    dv_return(func);
 }
 
 void Elaborator::do_visit(TypeDeclaration& node) {
@@ -877,11 +880,45 @@ void Elaborator::do_visit(CompoundStatement& node) {
         }
     }
 
+    Vec<Box<ProgramItemMIR>> progitems {};
     for (auto& item : node.items) {
-        dv_call(std::monostate {}, item);
+        std::visit(overloaded {
+            [&progitems] (Box<DeclMIR>& decl) mutable {
+                progitems.push_back(std::move(decl));
+            },
+            [&progitems] (Box<StmtMIR>& stmt) mutable {
+                progitems.push_back(std::move(stmt));
+            },
+            [&progitems] (Box<FunctionMIR>& func) mutable {
+                progitems.push_back(std::move(func));
+            },
+            // 
+            [&progitems] (Vec<Box<DeclMIR>>& decls) mutable {
+                for (auto& decl : decls) {
+                    progitems.push_back(std::move(decl));
+                }
+            },
+            [] (auto& _) {
+                // todo: throw exception
+            }
+        }, last_result);
     }
 
-    // todo
+    // resolve our return value
+    if (add_symbols) {
+        // we had add_symbols, so we were called from function
+        Box<CompoundStmtMIR> cmpdmir = std::make_unique<CompoundStmtMIR>(
+            node.loc, std::move(progitems));
+        ElabResult ret = std::pair(std::move(cmpdmir), syms.current);
+
+        dv_return(ret);
+    } else {
+
+        Box<StmtMIR> cmpdmir = std::make_unique<CompoundStmtMIR>(
+            node.loc, std::move(progitems));
+
+        dv_return(cmpdmir);
+    }
 }
 
 void Elaborator::do_visit(LabeledStatement& node) { //* DONE
