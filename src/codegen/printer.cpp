@@ -1,4 +1,4 @@
-#include "codegen/mirPrinter.hpp"
+#include "codegen/printer.hpp"
 
 using namespace ecc::compiler::mir;
 
@@ -174,7 +174,11 @@ void MIRPrinter::visit(CompoundStmtMIR& node) {
 }
 
 void MIRPrinter::visit(ExprStmtMIR& node) {
-    print_node("ExprStmt", node, [&] { node.expr->accept(*this); });
+    print_node("ExprStmt", node, [&] {
+        if (node.expr) {
+            node.expr.value()->accept(*this); 
+        }
+    });
 }
 
 void MIRPrinter::visit(SwitchStmtMIR& node) {
