@@ -728,8 +728,10 @@ public:
 
 class ForStatement : public Statement {
 public:
+    using ForInit = std::variant<Box<Expression>, Box<VariableDeclaration>>;
+
     ForStatement(Location loc,
-                 std::optional<Box<Expression>> init,
+                 std::optional<ForInit> init,
                  std::optional<Box<Expression>> condition,
                  std::optional<Box<Expression>> increment, 
                  Box<Statement> body)
@@ -739,7 +741,7 @@ public:
         increment(std::move(increment)), 
         body(std::move(body)) {}
 
-    std::optional<Box<Expression>> init;
+    std::optional<ForInit> init;
     std::optional<Box<Expression>> condition;
     std::optional<Box<Expression>> increment;
     Box<Statement> body;

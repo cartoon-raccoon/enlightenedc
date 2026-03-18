@@ -143,13 +143,14 @@ static ecc::parser::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 %type <Box<LiteralExpression>> constant
 %type <Box<ConstExpression>> constant_expression
 %type <Vec<Box<Expression>>> argument_expression_list
+%type <std::optional<ForStatement::ForInit>> for_init_opt
 %type <std::optional<Box<Expression>>> expression_opt
 
 %%
 
 /* Program */
 program:
-    %empty
+    %empty { }
     | program program_item {
         ast_root.add_item(std::move($2));
     }
@@ -707,10 +708,22 @@ iteration_statement:
     | DO statement WHILE LPAREN expression RPAREN SEMI {
         $$ = std::make_unique<DoWhileStatement>(@$, std::move($2), std::move($5));
     }
-    | FOR LPAREN expression_opt SEMI expression_opt SEMI expression_opt RPAREN statement {
+    | FOR LPAREN for_init_opt SEMI expression_opt SEMI expression_opt RPAREN statement {
         $$ = std::make_unique<ForStatement>(@$, std::move($3), std::move($5), std::move($7), std::move($9));
     }
 ;
+
+// Rules for the initialization part of the for loop, to allow for variable declarations.
+for_init_opt:
+    declaration_specifier_list init_declarator_list {
+        $$ = std::make_unique<VariableDeclaration>(@$, std::move($1), std::move($2));
+    }
+    | expression {
+        $$ = std::move($1);
+    }
+    | %empty {
+        $$ = std::nullopt;
+    }
 
 expression_opt: // an optional expression specifically for `for` loops where one or more loop variables are empty.
     expression { $$ = std::move($1); }

@@ -220,7 +220,10 @@ void BaseSemanticVisitor::visit(DoWhileStatement& node) {
 }
 
 void BaseSemanticVisitor::visit(ForStatement& node) {
-    auto guard = enter_node(&node);
+    // for loops introduce a new scope since the init portion
+    // of the loop might declare a new variable.
+    auto nguard = enter_node(&node);
+    auto sguard = enter_scope();
     do_visit(node);
 }
 
@@ -562,7 +565,14 @@ void BaseSemanticVisitor::do_visit(DoWhileStatement& node) {
 
 void BaseSemanticVisitor::do_visit(ForStatement& node) {
     if (node.init.has_value()) {
-        node.init.value()->accept(*this);
+        std::visit(overloaded {
+            [this] (Box<Expression>& expr) {
+                expr->accept(*this);
+            },
+            [this] (Box<VariableDeclaration>& decl) {
+                decl->accept(*this);
+            }
+        }, *node.init);
     }
 
     if (node.condition.has_value()) {

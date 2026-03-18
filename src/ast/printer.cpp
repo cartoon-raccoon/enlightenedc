@@ -295,8 +295,16 @@ void ASTPrinter::visit(ForStatement& node) {
     print_node(
         "ForStatement", node,
         [&] {
-            if (node.init)
-                node.init.value()->accept(*this);
+            if (node.init) {
+                std::visit(overloaded {
+                    [this] (Box<Expression>& expr) {
+                        expr->accept(*this);
+                    },
+                    [this] (Box<VariableDeclaration>& decl) {
+                        decl->accept(*this);
+                    }
+                }, *node.init);
+            }
         },
         [&] {
             if (node.condition)
