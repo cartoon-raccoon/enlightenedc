@@ -1,3 +1,5 @@
+I64i n = 0;
+
 start:
 if (n < 10) {
     n++;
@@ -23,5 +25,9 @@ while (n > 0)
 do {
     n++;
 } while (n < 3);
+
+for (U32i n = 0; n < 5; n++) "hello";
+
+for (;;) "looping forever";
 
 for (n = 0; n < 5; n++) "hello";

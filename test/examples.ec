@@ -5,6 +5,8 @@
 
 #define CONST_A 10
 #define CONST_B 0xFF
+#define TRUE true
+#define FALSE false
 
 
 // Storage classes + primitive types + const

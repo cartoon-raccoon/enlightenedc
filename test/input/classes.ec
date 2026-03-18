@@ -42,6 +42,10 @@ class VTable {
     Void (*dispatcher) (U64i count);
 };
 
+class Value val;
+
 val->u.ch = 23;
+
+class VTable vtable;
 
 vtable->dispatcher(69);

@@ -6,6 +6,7 @@ running backend for file input/empty.ec
 checking semantics for input/empty.ec:1.1
 running elaborator for input/empty.ec:1.1
 Node: type 53 {
+    visiting Program node: input/empty.ec:1.1
 }
 --------- TYPE CONTEXT ---------
 
@@ -18,6 +19,8 @@ Array Types:
 
 --------- SYMBOL TABLE ---------
 
-Scope 0x55c5f187ff60
+Scope 0x562757998fb0
 
-backend complete
+--------- MIR ---------
+
+ProgramMIR @ <1.1>

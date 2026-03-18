@@ -132,15 +132,16 @@ running backend for file input/pointers_arrays.ec
 checking semantics for input/pointers_arrays.ec:1.1
 running elaborator for input/pointers_arrays.ec:1.1
 Node: type 53 {
+    visiting Program node: input/pointers_arrays.ec:1.1
     Node: type 8 {
         visiting TypeDeclaration node: input/pointers_arrays.ec:1.1-4.2
         parsing declaration specifier list for node at input/pointers_arrays.ec:1.1-4.2
         Node: type 17 {
-SymbolTable: pushing scope 0x55d3a6116630
-SymbolTable: entering scope 0x55d3a6116630
-SymbolTable: current scope 0x55d3a6116630
+SymbolTable: pushing scope 0x55f09e9054e0
+SymbolTable: entering scope 0x55f09e9054e0
+SymbolTable: current scope 0x55f09e9054e0
             visiting ClassSpecifier node: input/pointers_arrays.ec:1.1-4.1
-TypeContext: class type 'Node' on scope 0x55d3a6116630
+TypeContext: class type 'Node' on scope 0x55f09e9054e0
             Node: type 15 {
                 visiting ClassDeclaration node: input/pointers_arrays.ec:2.5-15
                 parsing declaration specifier list for node at input/pointers_arrays.ec:2.5-15
@@ -149,7 +150,7 @@ TypeContext: class type 'Node' on scope 0x55d3a6116630
 TypeContext: getting primitive type with value 6
                 }
                 finished parsing specifiers for node input/pointers_arrays.ec:2.5-15
-                parsing ClassDeclaration for ClassType 0x55d3a60f5340
+                parsing ClassDeclaration for ClassType 0x55f09e8e4340
                 Node: type 14 {
                     visiting ClassDeclarator node: input/pointers_arrays.ec:2.10-14
                     Node: type 5 {
@@ -159,22 +160,22 @@ TypeContext: getting primitive type with value 6
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name value type 0x55d3a61162a0
+ClassType: adding member with name value type 0x55f09e9051f0
             }
             Node: type 15 {
                 visiting ClassDeclaration node: input/pointers_arrays.ec:3.5-21
                 parsing declaration specifier list for node at input/pointers_arrays.ec:3.5-21
                 Node: type 17 {
-SymbolTable: pushing scope 0x55d3a6116cd0
-SymbolTable: entering scope 0x55d3a6116cd0
-SymbolTable: current scope 0x55d3a6116cd0
+SymbolTable: pushing scope 0x55f09e905b80
+SymbolTable: entering scope 0x55f09e905b80
+SymbolTable: current scope 0x55f09e905b80
                     visiting ClassSpecifier node: input/pointers_arrays.ec:3.5-14
-TypeContext: class type 'Node' on scope 0x55d3a6116cd0
-SymbolTable: exiting scope to 0x55d3a6116630
-SymbolTable: current scope 0x55d3a6116630
+TypeContext: class type 'Node' on scope 0x55f09e905b80
+SymbolTable: exiting scope to 0x55f09e9054e0
+SymbolTable: current scope 0x55f09e9054e0
                 }
                 finished parsing specifiers for node input/pointers_arrays.ec:3.5-21
-                parsing ClassDeclaration for ClassType 0x55d3a60f5340
+                parsing ClassDeclaration for ClassType 0x55f09e8e4340
                 Node: type 14 {
                     visiting ClassDeclarator node: input/pointers_arrays.ec:3.16-20
                     Node: type 5 {
@@ -187,12 +188,12 @@ SymbolTable: current scope 0x55d3a6116630
                     }
                 }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x55d3a60f5580
-ClassType: adding member with name next type 0x55d3a6116a30
+TypeContext: pointer with base 0x55f09e8e4580
+ClassType: adding member with name next type 0x55f09e912750
             }
-SymbolTable: associating current scope 0x55d3a6116630 with symbol 0x55d3a6116e90 name "Node"
-SymbolTable: exiting scope to 0x55d3a6115f90
-SymbolTable: current scope 0x55d3a6115f90
+SymbolTable: associating current scope 0x55f09e9054e0 with symbol 0x55f09e905d40 name "Node"
+SymbolTable: exiting scope to 0x55f09e904fe0
+SymbolTable: current scope 0x55f09e904fe0
         }
         finished parsing specifiers for node input/pointers_arrays.ec:1.1-4.2
 SymbolTable: inserting symbol with name "Node"
@@ -246,7 +247,7 @@ TypeContext: getting primitive type with value 6
                     }
 TypeBuilder: finalizing type
 TypeContext: getting function type
-TypeContext: pointer with base 0x55d3a61172f0
+TypeContext: pointer with base 0x55f09e906180
                 }
                 Node: type 7 {
                     visiting ParameterDeclarator node: input/pointers_arrays.ec:6.30-35
@@ -268,28 +269,16 @@ TypeBuilder: finalizing type
 TypeContext: getting function type
 SymbolTable: inserting symbol with name "apply"
         Node: type 22 {
-SymbolTable: pushing scope 0x55d3a61177e0
-SymbolTable: entering scope 0x55d3a61177e0
-SymbolTable: current scope 0x55d3a61177e0
+SymbolTable: pushing scope 0x55f09e9066b0
+SymbolTable: entering scope 0x55f09e9066b0
+SymbolTable: current scope 0x55f09e9066b0
             visiting CompoundStatement node: input/pointers_arrays.ec:6.38-8.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 0x55d3a61177e0 with symbol 0x55d3a6117610 name "apply"
+SymbolTable: associating current scope 0x55f09e9066b0 with symbol 0x55f09e906480 name "apply"
 SymbolTable: inserting symbol with name "fn"
 SymbolTable: inserting symbol with name "v"
-            Node: type 36 {
-                visiting ReturnStatement node: input/pointers_arrays.ec:7.5-17
-                Node: type 47 {
-                    visiting CallExpression node: input/pointers_arrays.ec:7.12-16
-                    Node: type 44 {
-                        visiting IdentifierExpression node: input/pointers_arrays.ec:7.12-13
-                    }
-                    Node: type 44 {
-                        visiting IdentifierExpression node: input/pointers_arrays.ec:7.12-15
-                    }
-                }
-            }
-SymbolTable: exiting scope to 0x55d3a6115f90
-SymbolTable: current scope 0x55d3a6115f90
+SymbolTable: exiting scope to 0x55f09e904fe0
+SymbolTable: current scope 0x55f09e904fe0
         }
     }
     Node: type 52 {
@@ -327,27 +316,15 @@ TypeContext: getting function type
 TypeConstext: existing function type found
 SymbolTable: inserting symbol with name "square"
         Node: type 22 {
-SymbolTable: pushing scope 0x55d3a6117aa0
-SymbolTable: entering scope 0x55d3a6117aa0
-SymbolTable: current scope 0x55d3a6117aa0
+SymbolTable: pushing scope 0x55f09e906a40
+SymbolTable: entering scope 0x55f09e906a40
+SymbolTable: current scope 0x55f09e906a40
             visiting CompoundStatement node: input/pointers_arrays.ec:10.21-12.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 0x55d3a6117aa0 with symbol 0x55d3a6117980 name "square"
+SymbolTable: associating current scope 0x55f09e906a40 with symbol 0x55f09e9068f0 name "square"
 SymbolTable: inserting symbol with name "x"
-            Node: type 36 {
-                visiting ReturnStatement node: input/pointers_arrays.ec:11.5-17
-                Node: type 39 {
-                    visiting BinaryStatement node: input/pointers_arrays.ec:11.12-16
-                    Node: type 44 {
-                        visiting IdentifierExpression node: input/pointers_arrays.ec:11.12
-                    }
-                    Node: type 44 {
-                        visiting IdentifierExpression node: input/pointers_arrays.ec:11.16
-                    }
-                }
-            }
-SymbolTable: exiting scope to 0x55d3a6115f90
-SymbolTable: current scope 0x55d3a6115f90
+SymbolTable: exiting scope to 0x55f09e904fe0
+SymbolTable: current scope 0x55f09e904fe0
         }
     }
     Node: type 9 {
@@ -371,7 +348,7 @@ TypeContext: getting primitive type with value 2
             }
         }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55d3a61161e0, size 5
+TypeContext: array type with base 0x55f09e905190, size 5
 SymbolTable: inserting symbol with name "arr"
     }
     Node: type 9 {
@@ -398,8 +375,8 @@ TypeContext: getting primitive type with value 2
             }
         }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x55d3a61161e0
-TypeContext: array type with base 0x55d3a6117390, size 5
+TypeContext: pointer with base 0x55f09e905190
+TypeContext: array type with base 0x55f09e906dd0, size 5
 SymbolTable: inserting symbol with name "ptr_array"
     }
     Node: type 9 {
@@ -431,8 +408,8 @@ TypeContext: getting primitive type with value 2
             }
         }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55d3a61161e0, size 5
-TypeContext: pointer with base 0x55d3a611c580
+TypeContext: array type with base 0x55f09e905190, size 5
+TypeContext: pointer with base 0x55f09e906870
 SymbolTable: inserting symbol with name "ptr_to_arr"
     }
     Node: type 9 {
@@ -467,9 +444,9 @@ TypeContext: getting primitive type with value 2
             }
         }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x55d3a61161e0
-TypeContext: array type with base 0x55d3a6117390, size 5
-TypeContext: pointer with base 0x55d3a6117d30
+TypeContext: pointer with base 0x55f09e905190
+TypeContext: array type with base 0x55f09e906dd0, size 5
+TypeContext: pointer with base 0x55f09e906e80
 SymbolTable: inserting symbol with name "ptr_to_ptr_arr"
     }
     Node: type 52 {
@@ -491,160 +468,75 @@ TypeContext: getting primitive type with value 6
 TypeContext: getting function type
 SymbolTable: inserting symbol with name "run"
         Node: type 22 {
-SymbolTable: pushing scope 0x55d3a61182b0
-SymbolTable: entering scope 0x55d3a61182b0
-SymbolTable: current scope 0x55d3a61182b0
+SymbolTable: pushing scope 0x55f09e9075a0
+SymbolTable: entering scope 0x55f09e9075a0
+SymbolTable: current scope 0x55f09e9075a0
             visiting CompoundStatement node: input/pointers_arrays.ec:22.12-30.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 0x55d3a61182b0 with symbol 0x55d3a6118200 name "run"
-            Node: type 9 {
-                visiting VariableDeclaration node: input/pointers_arrays.ec:23.5-17
-                parsing declaration specifier list for node at input/pointers_arrays.ec:23.5-17
-                Node: type 17 {
-SymbolTable: pushing scope 0x55d3a6118360
-SymbolTable: entering scope 0x55d3a6118360
-SymbolTable: current scope 0x55d3a6118360
-                    visiting ClassSpecifier node: input/pointers_arrays.ec:23.5-14
-TypeContext: class type 'Node' on scope 0x55d3a6118360
-SymbolTable: exiting scope to 0x55d3a61182b0
-SymbolTable: current scope 0x55d3a61182b0
-                }
-                finished parsing specifiers for node input/pointers_arrays.ec:23.5-17
-                Node: type 6 {
-                    visiting InitDeclarator node: input/pointers_arrays.ec:23.16
-                    Node: type 5 {
-                        Node: type 10 {
-                            visiting IdentifierDeclarator node: input/pointers_arrays.ec:23.16
-                        }
-                    }
-                }
-TypeBuilder: finalizing type
-SymbolTable: inserting symbol with name "n"
-            }
-            Node: type 9 {
-                visiting VariableDeclaration node: input/pointers_arrays.ec:24.5-23
-                parsing declaration specifier list for node at input/pointers_arrays.ec:24.5-23
-                Node: type 17 {
-SymbolTable: pushing scope 0x55d3a61186f0
-SymbolTable: entering scope 0x55d3a61186f0
-SymbolTable: current scope 0x55d3a61186f0
-                    visiting ClassSpecifier node: input/pointers_arrays.ec:24.5-14
-TypeContext: class type 'Node' on scope 0x55d3a61186f0
-SymbolTable: exiting scope to 0x55d3a61182b0
-SymbolTable: current scope 0x55d3a61182b0
-                }
-                finished parsing specifiers for node input/pointers_arrays.ec:24.5-23
-                Node: type 6 {
-                    visiting InitDeclarator node: input/pointers_arrays.ec:24.16-22
-                    Node: type 5 {
-                        Node: type 10 {
-                            visiting IdentifierDeclarator node: input/pointers_arrays.ec:24.16-17
-                        }
-                        Node: type 2 {
-                            visiting Pointer node: input/pointers_arrays.ec:24.16
-                        }
-                    }
-                }
-TypeBuilder: finalizing type
-TypeContext: pointer with base 0x55d3a60f5190
-SymbolTable: inserting symbol with name "p"
-            }
-            Node: type 23 {
-                visiting ExpressionStatement node: input/pointers_arrays.ec:26.5-16
-                Node: type 42 {
-                    visiting AssignmentExpression node: input/pointers_arrays.ec:26.5-15
-                    Node: type 48 {
-                        visiting MemberAccessExpression node: input/pointers_arrays.ec:26.5-11
-                        Node: type 44 {
-                            visiting IdentifierExpression node: input/pointers_arrays.ec:26.5
-                        }
-                    }
-                    Node: type 45 {
-                        visiting LiteralExpression node: input/pointers_arrays.ec:26.15
-                    }
-                }
-            }
-            Node: type 23 {
-                visiting ExpressionStatement node: input/pointers_arrays.ec:27.5-15
-                Node: type 50 {
-                    visiting PostfixExpression node: input/pointers_arrays.ec:27.5-14
-                    Node: type 48 {
-                        visiting MemberAccessExpression node: input/pointers_arrays.ec:27.5-12
-                        Node: type 44 {
-                            visiting IdentifierExpression node: input/pointers_arrays.ec:27.5
-                        }
-                    }
-                }
-            }
-            Node: type 36 {
-                visiting ReturnStatement node: input/pointers_arrays.ec:29.5-34
-                Node: type 47 {
-                    visiting CallExpression node: input/pointers_arrays.ec:29.12-33
-                    Node: type 44 {
-                        visiting IdentifierExpression node: input/pointers_arrays.ec:29.12-16
-                    }
-                    Node: type 44 {
-                        visiting IdentifierExpression node: input/pointers_arrays.ec:29.12-23
-                    }
-                    Node: type 48 {
-                        visiting MemberAccessExpression node: input/pointers_arrays.ec:29.26-32
-                        Node: type 44 {
-                            visiting IdentifierExpression node: input/pointers_arrays.ec:29.26
-                        }
-                    }
-                }
-            }
-SymbolTable: exiting scope to 0x55d3a6115f90
-SymbolTable: current scope 0x55d3a6115f90
+SymbolTable: associating current scope 0x55f09e9075a0 with symbol 0x55f09e907430 name "run"
+SymbolTable: exiting scope to 0x55f09e904fe0
+SymbolTable: current scope 0x55f09e904fe0
         }
     }
 }
 --------- TYPE CONTEXT ---------
 
 Base Types:
-  class_Node_0x55d3a6118360 -> 0x55d3a60f4f50 : class
-  class_Node_0x55d3a61186f0 -> 0x55d3a60f5190 : class
-  function_389155031687668340 -> 0x55d3a6117560 : I16 (I16 (I16) *, I16)
-  function_94367512617632 -> 0x55d3a6118150 : I16 ()
-  function_6110952822194081 -> 0x55d3a61172f0 : I16 (I16)
-  class_Node_0x55d3a6116cd0 -> 0x55d3a60f5580 : class
-  class_Node_0x55d3a6116630 -> 0x55d3a60f5340 : class { I16 value; class * next; }
+  function_94491940770288 -> 0x55f09e907360 : I16 ()
+  function_389536721909273155 -> 0x55f09e9063d0 : I16 (I16 (I16) *, I16)
+  function_6107123889999317 -> 0x55f09e906180 : I16 (I16)
+  class_Node_0x55f09e905b80 -> 0x55f09e8e4580 : class
+  class_Node_0x55f09e9054e0 -> 0x55f09e8e4340 : class { I16 value; class * next; }
 
 Pointer Types:
-  0x55d3a6117fd0 : U32 *[5] *
-  0x55d3a6117ea0 : U32[5] *
-  0x55d3a6117390 : U32 *
-  0x55d3a6116fb0 : I16 (I16) *
-  0x55d3a61184b0 : class *
-  0x55d3a6116a30 : class *
+  0x55f09e906da0 : U32 *[5] *
+  0x55f09e906dd0 : U32 *
+  0x55f09e905590 : I16 (I16) *
+  0x55f09e906fd0 : U32[5] *
+  0x55f09e912750 : class *
 
 Array Types:
-  0x55d3a6117d30 : U32 *[5]
-  0x55d3a611c580 : U32[5]
+  0x55f09e906e80 : U32 *[5]
+  0x55f09e906870 : U32[5]
 
 
 --------- SYMBOL TABLE ---------
 
-Scope 0x55d3a6115f90
-  run -> 0x55d3a6118200 : FuncSymbol I16 ()
-  ptr_to_ptr_arr -> 0x55d3a6118020 : VarSymbol U32 *[5] *
-  ptr_array -> 0x55d3a6117dc0 : VarSymbol U32 *[5]
-  arr -> 0x55d3a6117c80 : VarSymbol U32[5]
-  square -> 0x55d3a6117980 : FuncSymbol I16 (I16)
-  apply -> 0x55d3a6117610 : FuncSymbol I16 (I16 (I16) *, I16)
-  ptr_to_arr -> 0x55d3a6117ef0 : VarSymbol U32[5] *
-  Node -> 0x55d3a6116e90 : TypeSymbol class { I16 value; class * next; }
-  Scope 0x55d3a6116630: TypeSymbol class { I16 value; class * next; }
-    Scope 0x55d3a6116cd0
-  Scope 0x55d3a61177e0: FuncSymbol I16 (I16 (I16) *, I16)
-    v -> 0x55d3a6117750 : VarSymbol I16
-    fn -> 0x55d3a61176c0 : VarSymbol I16 (I16) *
-  Scope 0x55d3a6117aa0: FuncSymbol I16 (I16)
-    x -> 0x55d3a6117a30 : VarSymbol I16
-  Scope 0x55d3a61182b0: FuncSymbol I16 ()
-    p -> 0x55d3a61187e0 : VarSymbol class *
-    n -> 0x55d3a6118500 : VarSymbol class
-    Scope 0x55d3a6118360
-    Scope 0x55d3a61186f0
+Scope 0x55f09e904fe0
+  run -> 0x55f09e907430 : FuncSymbol I16 ()
+  ptr_to_ptr_arr -> 0x55f09e907230 : VarSymbol U32 *[5] *
+  ptr_array -> 0x55f09e906ef0 : VarSymbol U32 *[5]
+  arr -> 0x55f09e906cc0 : VarSymbol U32[5]
+  square -> 0x55f09e9068f0 : FuncSymbol I16 (I16)
+  apply -> 0x55f09e906480 : FuncSymbol I16 (I16 (I16) *, I16)
+  ptr_to_arr -> 0x55f09e907080 : VarSymbol U32[5] *
+  Node -> 0x55f09e905d40 : TypeSymbol class { I16 value; class * next; }
+  Scope 0x55f09e9054e0: TypeSymbol class { I16 value; class * next; }
+    Scope 0x55f09e905b80
+  Scope 0x55f09e9066b0: FuncSymbol I16 (I16 (I16) *, I16)
+    v -> 0x55f09e9065f0 : VarSymbol I16
+    fn -> 0x55f09e906530 : VarSymbol I16 (I16) *
+  Scope 0x55f09e906a40: FuncSymbol I16 (I16)
+    x -> 0x55f09e9069a0 : VarSymbol I16
+  Scope 0x55f09e9075a0: FuncSymbol I16 ()
 
-backend complete
+--------- MIR ---------
+
+ProgramMIR @ <1.1>
+| FunctionMIR: apply @ <input/pointers_arrays.ec:6.1-8.1>
+    type: I16 (I16 (I16) *, I16)
+| | CompoundStmtMIR @ <input/pointers_arrays.ec:6.38-8.1>
+| FunctionMIR: square @ <input/pointers_arrays.ec:10.1-12.1>
+    type: I16 (I16)
+| | CompoundStmtMIR @ <input/pointers_arrays.ec:10.21-12.1>
+| VarDecl:  @ <input/pointers_arrays.ec:14.1-12>
+VarSymbol U32[5]
+| VarDecl:  @ <input/pointers_arrays.ec:16.1-19>
+VarSymbol U32 *[5]
+| VarDecl:  @ <input/pointers_arrays.ec:18.1-24>
+VarSymbol U32[5] *
+| VarDecl:  @ <input/pointers_arrays.ec:20.1-28>
+VarSymbol U32 *[5] *
+| FunctionMIR: run @ <input/pointers_arrays.ec:22.1-30.1>
+    type: I16 ()
+| | CompoundStmtMIR @ <input/pointers_arrays.ec:22.12-30.1>
