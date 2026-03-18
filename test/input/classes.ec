@@ -1,7 +1,7 @@
 public class Point {
     I32i x;
     I32i y;
-} extern;
+};
 
 union Data {
     U32i i;
@@ -16,11 +16,11 @@ enum Color {
 
 class Animal {
     I32i age;
-}
+};
 
 class Dog : Animal {
     enum Color coat;
-}
+};
 
 enum Forward;
 
@@ -39,9 +39,13 @@ class Value {
 };
 
 class VTable {
-    U0i (*dispatcher) (U64i count);
+    Void (*dispatcher) (U64i count);
 };
 
+class Value val;
+
 val->u.ch = 23;
+
+class VTable vtable;
 
 vtable->dispatcher(69);

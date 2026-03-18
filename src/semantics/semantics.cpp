@@ -3,18 +3,20 @@
 
 #include "ast/ast.hpp"
 #include "semantics/semantics.hpp"
-#include "semantics/elaborator.hpp"
+#include "semantics/mir/mir.hpp"
+#include "semantics/mir/synthesizer.hpp"
 #include "util.hpp"
 
 using namespace ecc::ast;
 using namespace ecc::sema;
+using namespace mir;
 
 BaseSemanticVisitor::ScopeGuard BaseSemanticVisitor::enter_scope(sym::Symbol *assoc) {
     return ScopeGuard(*this, assoc);
 }
 
-BaseSemanticVisitor::NodeGuard BaseSemanticVisitor::enter_node(ASTNode *node, bool new_scope) {
-    return NodeGuard(*this, node, new_scope);
+BaseSemanticVisitor::NodeGuard BaseSemanticVisitor::enter_node(ASTNode *node) {
+    return NodeGuard(*this, node);
 }
 
 ASTNode *BaseSemanticVisitor::imm_ctxt() {
@@ -111,10 +113,14 @@ void BaseSemanticVisitor::visit(StorageClassSpecifier& node) {
     do_visit(node);
 }
 
+void BaseSemanticVisitor::visit(VoidSpecifier& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
 void BaseSemanticVisitor::visit(PrimitiveSpecifier& node) {
     auto guard = enter_node(&node);
     do_visit(node);
-
 }
 
 void BaseSemanticVisitor::visit(TypeQualifier& node) {
@@ -131,13 +137,15 @@ void BaseSemanticVisitor::visit(EnumSpecifier& node) {
 
 void BaseSemanticVisitor::visit(ClassSpecifier& node) {
     // any nested derived types have to be scoped within this specifier.
-    auto guard = enter_node(&node, true);
+    auto nguard = enter_node(&node);
+    auto sguard = enter_scope();
     do_visit(node);
 }
 
 void BaseSemanticVisitor::visit(UnionSpecifier& node) {
     // any nested derived types have to be scoped within this specifier.
-    auto guard = enter_node(&node, true);
+    auto nguard = enter_node(&node);
+    auto sguard = enter_scope();
     do_visit(node);
 }
 
@@ -158,7 +166,8 @@ void BaseSemanticVisitor::visit(IdentifierDeclarator& node) {
 
 void BaseSemanticVisitor::visit(CompoundStatement& node) {
     // compound statements should introduce a new scope.
-    auto guard = enter_node(&node, true);
+    auto nguard = enter_node(&node);
+    auto sguard = enter_scope();
     do_visit(node);
 }
 
@@ -213,7 +222,10 @@ void BaseSemanticVisitor::visit(DoWhileStatement& node) {
 }
 
 void BaseSemanticVisitor::visit(ForStatement& node) {
-    auto guard = enter_node(&node);
+    // for loops introduce a new scope since the init portion
+    // of the loop might declare a new variable.
+    auto nguard = enter_node(&node);
+    auto sguard = enter_scope();
     do_visit(node);
 }
 
@@ -457,16 +469,35 @@ void BaseSemanticVisitor::do_visit(UnionSpecifier& node) {
     }
 }
 
+void BaseSemanticVisitor::do_visit(VoidSpecifier& node) {
+    /* terminal node */
+}
+
 void BaseSemanticVisitor::do_visit(PrimitiveSpecifier& node) {
     /* terminal node */
 }
 
 void BaseSemanticVisitor::do_visit(Initializer& node) {
-    // todo
+    std::visit(overloaded {
+        [this] (Box<Expression>& expr) {
+            expr->accept(*this);
+        },
+        [this] (Vec<Box<Initializer>>& inits) {
+            for (auto& init : inits) {
+                init->accept(*this);
+            }
+        }
+    }, node.initializer);
 }
 
 void BaseSemanticVisitor::do_visit(TypeName& node) {
-    // todo
+    for (auto& spec : node.specifiers) {
+        spec->accept(*this);
+    }
+
+    if (node.declarator) {
+        node.declarator.value()->accept(*this);
+    }
 }
 
 void BaseSemanticVisitor::do_visit(IdentifierDeclarator& node) {
@@ -486,15 +517,18 @@ void BaseSemanticVisitor::do_visit(ExpressionStatement& node) {
 }
 
 void BaseSemanticVisitor::do_visit(CaseStatement& node) {
-    // todo
+    node.case_expr->accept(*this);
+    node.statement->accept(*this);
 }
 
 void BaseSemanticVisitor::do_visit(CaseRangeStatement& node) {
-    // todo
+    node.range_start->accept(*this);
+    node.range_end->accept(*this);
+    node.statement->accept(*this);
 }
 
 void BaseSemanticVisitor::do_visit(DefaultStatement& node) {
-    // todo
+    node.statement->accept(*this);
 }
 
 void BaseSemanticVisitor::do_visit(LabeledStatement& node) {
@@ -533,7 +567,14 @@ void BaseSemanticVisitor::do_visit(DoWhileStatement& node) {
 
 void BaseSemanticVisitor::do_visit(ForStatement& node) {
     if (node.init.has_value()) {
-        node.init.value()->accept(*this);
+        std::visit(overloaded {
+            [this] (Box<Expression>& expr) {
+                expr->accept(*this);
+            },
+            [this] (Box<VariableDeclaration>& decl) {
+                decl->accept(*this);
+            }
+        }, *node.init);
     }
 
     if (node.condition.has_value()) {
@@ -556,7 +597,7 @@ void BaseSemanticVisitor::do_visit(BreakStatement& node) {
 }
 
 void BaseSemanticVisitor::do_visit(ReturnStatement& node) {
-    if (node.return_value.has_value()) {
+    if (node.return_value) {
         node.return_value.value()->accept(*this);
     }
 }
@@ -624,15 +665,22 @@ void BaseSemanticVisitor::do_visit(PostfixExpression& node) {
 }
 
 void BaseSemanticVisitor::do_visit(SizeofExpression& node) {
-    // todo
+    std::visit(overloaded {
+        [this] (Box<Expression>& expr) {
+            expr->accept(*this);
+        },
+        [this] (Box<TypeName>& typen) {
+            typen->accept(*this);
+        }
+    }, node.operand);
 }
 
 
-void SemanticChecker::check_semantics(ASTNode& prog) {
+void SemanticChecker::check_semantics(Program& prog, ProgramMIR& mir) {
     dbprint("checking semantics for ", prog.loc);
 
     dbprint("running elaborator for ", prog.loc);
-    Elaborator elaborator(symbols, types);
+    MIRSynthesizer elaborator(symbols, types, mir);
     prog.accept(elaborator);
 
     symbols.reset();

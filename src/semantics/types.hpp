@@ -2,12 +2,12 @@
 #define ECC_TYPES_H
 
 #include <cstddef>
+#include <memory>
 #include <stack>
 #include <string>
 #include <sstream>
 #include <concepts>
 #include <unordered_map>
-#include <unordered_set>
 #include <utility>
 #include <variant>
 
@@ -56,6 +56,7 @@ Type size and member alignment is calculated at compile time, using LLVM's `Data
 class Type {
 public:
     enum Kind {
+        VOID,
         PRIMITIVE,
         CLASS,
         UNION,
@@ -68,44 +69,76 @@ public:
     // The kind of the type.
     Kind kind;
 
-    // The location where the type was defined.
-    Location loc;
-
+    bool is_void();
     bool is_primitive();
     bool is_pointer();
+    bool is_array();
+    bool is_function();
+
+    virtual bool is_base() { return false; }
+
+    virtual bool is_user() { return false; } 
+
+    virtual bool is_derived() { return false; }
+
+    virtual std::size_t size() { return 0; }
 
     /*
-    Check if a type can be implicitly coerced into `other` without a cast,
+    Check if a type can be implicitly coerced into `dst` without a cast,
     i.e. the compiler will insert a cast expression to handle it.
 
     Note that this relationship is not symmetric; if `this` is compatible
     with `other`, this does not mean `other` is compatible with `this`.
     */
-    virtual bool is_compatible_with(Type * other) {
+    virtual bool is_compatible_with(Type * dst) {
         // at the minimum, enforce strict equality (no subtyping).
-        return other == this;
+        return dst == this;
     }
 
-    /*
-    Cast this type to a PrimitiveType *.
-
-    Returns null if the underlying type is not a PrimitiveType.
-    */
+    // Cast this type to a PrimitiveType *.
+    // Returns null if the underlying type is not a PrimitiveType.
     virtual PrimitiveType *as_primitive() { return nullptr; }
 
-    /*
-    Cast this type to a ClassType *.
-
-    Returns null if the underlying type is not a ClassType.
-    */
+    // Cast this type to a ClassType *.
+    // Returns null if the underlying type is not a ClassType.
     virtual ClassType *as_class() { return nullptr; }
+
+    // Cast this type to a UnionType *.
+    // Returns null if the underlying type is not a ClassType.
     virtual UnionType *as_union() { return nullptr; }
+
+    // Cast this type to an EnumType *.
+    // Returns null if the underlying type is not a ClassType.
     virtual EnumType *as_enum() { return nullptr; }
+
+    // Cast this type to a PointerType *.
+    // Returns null if the underlying type is not a ClassType.
     virtual PointerType *as_pointer() { return nullptr; }
+
+    // Cast this type to an ArrayType *.
+    // Returns null if the underlying type is not a ClassType.
     virtual ArrayType *as_array() { return nullptr; }
+
+    // Cast this type to a FunctionType *.
+    // Returns null if the underlying type is not a ClassType.
     virtual FunctionType *as_function() { return nullptr; }
 
-    virtual std::string to_string() const { return "base type"; }
+    // Whether the type is callable.
+    // Only functions should be callable.
+    virtual bool is_callable() { return false; };
+
+    // Whether the type is subscriptable/indexable.
+    // Only arrays and pointers should be subscriptable.
+    virtual bool is_subscriptable() { return false; };
+
+    virtual bool has_members() { return false; }
+
+    virtual std::string to_string() const { return "()"; }
+
+    virtual std::optional<std::string> get_name() { return {}; };
+
+    // Returns the formal name of the type.
+    virtual std::string formal() { return "()"; }
 
 protected:
     Type(Kind kind) : kind(kind) {}
@@ -119,8 +152,53 @@ An abstract class representing a type that does not depend on a base type
 classes, unions, and enums.
 */
 class BaseType : public Type {
+public:
+    bool is_base() override { return true; }
+
 protected:
     BaseType(Kind kind) : Type(kind) {}
+};
+
+/*
+An abstract class representing a type that is constructed from BaseTypes,
+or is user-defined. These are the unions, structs, enums, and functions.
+*/
+class UserType : public BaseType {
+public:
+
+    bool is_user() override { return true; }
+
+    // Returns the kind of type: class, union, enum.
+    static std::string base();
+
+    // The scope where the type was declared.
+    sema::sym::Scope *scope;
+
+    Location loc;
+protected:
+    UserType(Kind kind, sema::sym::Scope *scope) 
+        : BaseType(kind), scope(scope) {}
+};
+
+class DerivedType : public Type {
+public:
+    bool is_derived() { return true; }
+
+    Type *base;
+
+protected:
+    DerivedType(Kind kind, Type *base) : Type(kind), base(base) {} 
+};
+
+class VoidType : public BaseType {
+public:
+    virtual std::string to_string() const { return "Void"; }
+protected:
+    friend class TypeContext;
+
+    friend constexpr Box<VoidType> std::make_unique<VoidType>();
+
+    VoidType() : BaseType(Type::Kind::VOID) {}
 };
 
 /*
@@ -141,12 +219,10 @@ Zero-sized types (U0, I0) cannot be implicitly converted to other types.
 class PrimitiveType : public BaseType {
 public:
     enum Kind {
-        U0,
         U8,
         U16,
         U32,
         U64,
-        I0,
         I8,
         I16,
         I32,
@@ -157,9 +233,9 @@ public:
 
     Kind primkind;
 
-    int size();
+    std::size_t size() override;
 
-    bool is_compatible_with(Type *other) override;
+    bool is_compatible_with(Type *dst) override;
 
     // Whether this Primitive type can be implicitly represented as an integer.
     // Returns true for all primitive types except F64.
@@ -169,6 +245,8 @@ public:
 
     std::string to_string() const override;
 
+    std::string formal() override;
+
 protected:
     friend class TypeContext;
 
@@ -177,13 +255,19 @@ protected:
     PrimitiveType(Kind kind) : BaseType(Type::Kind::PRIMITIVE), primkind(kind) {}
 };
 
-class ClassType : public BaseType {
+class ClassType : public UserType {
 public:
     struct ClassTypeMember {
-        std::string name;
+        std::optional<std::string> name;
         Type *ty;
+        Location loc;
         
-        ClassTypeMember(std::string name, Type *ty) : name(name), ty(ty) {}
+        ClassTypeMember(Type *ty, Location loc)
+            : ty(ty), loc(loc) {}
+        ClassTypeMember(std::string name, Type *ty, Location loc)
+            : name(name), ty(ty), loc(loc) {}
+        ClassTypeMember(std::optional<std::string> name, Type *ty, Location loc)
+            : name(name), ty(ty), loc(loc) {}
     };
 
     /*
@@ -195,50 +279,92 @@ public:
     */
     bool complete = false;
 
+    
+    std::optional<std::string> name;
+    
     Vec<Box<ClassTypeMember>> members;
+
+    std::size_t size() override;
 
     void add_member(Box<ClassTypeMember> member);
 
+    ClassTypeMember *find(std::string& name);
+
     ClassType *as_class() override { return this; }
 
+    bool has_members() override { return true; }
+
     std::string to_string() const override;
+
+    std::optional<std::string> get_name() override { return name; }
+
+    std::string formal() override;
+
+    static std::string base() { return "class_"; }
 
 protected:
     friend class TypeContext;
 
-    friend constexpr Box<ClassType> std::make_unique<ClassType>();
+    friend constexpr Box<ClassType> std::make_unique<ClassType>(sema::sym::Scope *&);
+    friend constexpr Box<ClassType> std::make_unique<ClassType>(std::string&, sema::sym::Scope *&);
 
     // Construct an empty class.
-    ClassType() : BaseType(Kind::CLASS), members() {}
+    ClassType(sema::sym::Scope *scope) 
+        : UserType(Kind::CLASS, scope), members() {}
+    ClassType(std::string name, sema::sym::Scope *scope) 
+        : UserType(Kind::CLASS, scope), members(), name(name) {}
 };
 
 
-class UnionType : public BaseType {
+class UnionType : public UserType {
 public:
     struct UnionTypeMember {
-        std::string name;
+        std::optional<std::string> name;
         Type *ty;
+        Location loc;
+
+        UnionTypeMember(Type *ty, Location loc)
+            : ty(ty), loc(loc) {}
+        UnionTypeMember(std::string name, Type *ty, Location loc)
+            : name(name), ty(ty), loc(loc) {}
+        UnionTypeMember(std::optional<std::string> name, Type *ty, Location loc)
+            : name(name), ty(ty), loc(loc) {}
     };
 
     bool complete = false;
 
     Vec<Box<UnionTypeMember>> members;
 
+    std::optional<std::string> name;
+
+    std::size_t size() override;
+
     void add_member(Box<UnionTypeMember> member);
 
-    // Marks a union as fully defined, and calculates offsets.
-    void finalize();
+    UnionTypeMember *find(std::string& name);
 
     UnionType *as_union() override { return this; }
 
+    bool has_members() override { return true; }
+
     std::string to_string() const override;
+
+    std::optional<std::string> get_name() override { return name; }
+
+    std::string formal() override;
+
+    static std::string base() { return "union_"; }
 
 protected:
     friend class TypeContext;
 
-    friend constexpr Box<UnionType> std::make_unique<UnionType>();
+    friend constexpr Box<UnionType> std::make_unique<UnionType>(sema::sym::Scope *&);
+    friend constexpr Box<UnionType> std::make_unique<UnionType>(std::string&, sema::sym::Scope *&);
 
-    UnionType() : BaseType(Kind::UNION) {}
+    UnionType(sema::sym::Scope *scope)
+        : UserType(Kind::UNION, scope), members() {}
+    UnionType(std::string name, sema::sym::Scope *scope)
+        : UserType(Kind::UNION, scope), members(), name(name) {}
 };
 
 
@@ -251,13 +377,13 @@ An enum type is compatible with any integer primitive type, but not vice versa.
 The compiler will throw an error if the number of enum variants exceed the maximum
 value of the integer primitive to be cast to.
 */
-class EnumType : public BaseType {
+class EnumType : public UserType {
 public:
     struct EnumTypeMember {
         // the name of the enum variant as declared in the source.
         std::string name;
         // the assigned value of the enum variant.
-        uint64_t value;
+        int64_t value;
         // the location of the declared enumerator.
         Location loc;
     };
@@ -266,34 +392,41 @@ public:
 
     Vec<Box<EnumTypeMember>> enumerators;
 
+    std::optional<std::string> name;
+
+    std::size_t size() override;
+
     // Create an enumerator with an automatically chosen value.
-    void add_enumerator(std::string enumerator, Location loc);
+    int64_t add_enumerator(std::string enumerator, Location loc);
 
     // Create an enumerator with a provided value.
-    void add_enumerator(std::string enumerator, uint64_t value, Location loc);
+    int64_t add_enumerator(std::string enumerator, int64_t value, Location loc);
 
     // Check if an enum already contains an enumerator. 
-    EnumTypeMember *contains(std::string& name);
+    EnumTypeMember *find(std::string& name);
 
-    bool is_compatible_with(Type *other) override;
-
-    // Marks an enum as fully defined.
-    void finalize();
+    bool is_compatible_with(Type *dst) override;
 
     EnumType *as_enum() override { return this; }
 
     std::string to_string() const override;
 
+    std::optional<std::string> get_name() override { return name; }
+
+    std::string formal() override;
+
+    static std::string base() { return "enum_"; }
+
 protected:
     friend class TypeContext;
 
-    friend constexpr Box<EnumType> std::make_unique<EnumType>();
+    friend constexpr Box<EnumType> std::make_unique<EnumType>(sema::sym::Scope *&);
+    friend constexpr Box<EnumType> std::make_unique<EnumType>(std::string& name, sema::sym::Scope *&);
 
-    EnumType() : BaseType(Kind::ENUM), enumerators() {}
-
-private:
-    // existing values that have already been declared.
-    std::unordered_set<uint64_t> values;
+    EnumType(sema::sym::Scope *scope)
+        : UserType(Kind::ENUM, scope), enumerators() {}
+    EnumType(std::string name, sema::sym::Scope *scope)
+        : UserType(Kind::ENUM, scope), enumerators(), name(name) {}
 };
 
 
@@ -310,13 +443,24 @@ the level of nesting is the same (i.e. U8 ** is compatible with U0 **, but not U
 Pointers can be subscripted like arrays, the compiler will treat the subscript as pointer
 arithmetic. However, pointers cannot be converted to sized arrays.
 */
-class PointerType : public Type {
+class PointerType : public DerivedType {
 public:
-    Type *base;
-
     bool is_const;
 
+    std::size_t size() override;
+
+    // Returns the level of nesting the pointer has (i.e. how many *'s there are).
+    int nesting_lvl();
+
+    // Get the true base type of the pointer.
+    // A base type can also be an array, hence the Type * return type.
+    Type *true_base();
+
     PointerType *as_pointer() override { return this; }
+
+    bool is_subscriptable() override { return true; }
+
+    bool is_callable() override;
 
     bool is_compatible_with(Type *other) override;
 
@@ -328,8 +472,7 @@ protected:
 
     friend constexpr Box<PointerType> std::make_unique<PointerType>(Type *&);
     
-    PointerType(Type *base) : Type(Kind::POINTER), base(base) {}
-    PointerType() : Type(Kind::POINTER) {}
+    PointerType(Type *base) : DerivedType(Kind::POINTER, base) {}
 };
 
 
@@ -355,14 +498,14 @@ will throw an error.
 An unsized array declarator can be used as a function argument, where it will be
 decayed to a pointer.
 */
-class ArrayType : public Type {
+class ArrayType : public DerivedType {
 public:
-    Type *base;
-
-    // The laily-evaluated size of the array, populated after elaboration.
+    // The size of the array, populated after elaboration.
     std::optional<uint64_t> size;
 
     ArrayType *as_array() override { return this; }
+
+    bool is_subscriptable() override { return true; }
 
     bool is_compatible_with(Type *other) override;
 
@@ -375,13 +518,20 @@ protected:
 
     friend constexpr Box<ArrayType> std::make_unique<ArrayType>(Type *&);
 
-    ArrayType(Type *base, uint64_t size) : Type(Kind::ARRAY), base(base), size(size) {}
+    ArrayType(Type *base, uint64_t size) : DerivedType(Kind::ARRAY, base), size(size) {}
 
-    ArrayType(Type *base) : Type(Kind::ARRAY), base(base) {}
+    ArrayType(Type *base) : DerivedType(Kind::ARRAY, base) {}
 };
 
+// A function parameter containing an optional name.
+struct FuncParam {
+    Type *type;
+    std::optional<std::string> name;
+    Location loc;
+    bool is_const;
+};
 
-class FunctionType : public Type {
+class FunctionType : public UserType {
 public:
     struct FunctionSignature {
         Type *returntype;
@@ -392,17 +542,21 @@ public:
     // Generate a hash based on the function signature.
     std::size_t hash_sig();
 
+    bool is_callable() override { return true; }
+
     FunctionType *as_function() override { return this; }
 
     std::string to_string() const override;
+
+    static std::string base() { return "function_"; }
 
 protected:
     friend class TypeContext;
     friend class TypeBuilder;
 
-    friend constexpr Box<FunctionType> std::make_unique<FunctionType>();
+    friend constexpr Box<FunctionType> std::make_unique<FunctionType>(sema::sym::Scope *&);
 
-    FunctionType() : Type(Type::Kind::FUNCTION) {}
+    FunctionType(sema::sym::Scope *scope) : UserType(Type::Kind::FUNCTION, scope) {}
 };
 
 /*
@@ -418,8 +572,6 @@ the type and returns a pointer to the created concrete type.
 */
 class TypeBuilder {
 public:
-    // Associates a type with an optional identifier.
-    using TypedIdent = std::pair<Type *, std::optional<std::string>>;
 
     // Add an array to the type.
     void add_array(uint64_t size);
@@ -429,7 +581,7 @@ public:
 
     void add_pointer(bool is_const);
 
-    void add_function(Vec<TypedIdent> params, bool variadic);
+    void add_function(Vec<FuncParam> params, bool variadic, sema::sym::Scope *scope);
 
     void set_base(BaseType *type);
 
@@ -441,8 +593,9 @@ public:
         std::optional<uint64_t> size;
     };
     struct FnParams {
-        Vec<TypedIdent> params;
+        Vec<FuncParam> params;
         bool variadic;
+        sema::sym::Scope *scope;
     };
 
     BaseType *base;
@@ -480,7 +633,12 @@ class TypeContext {
 public:
     TypeContext();
 
+    TypeContext(const TypeContext&) = delete;
+    TypeContext& operator=(const TypeContext&) = delete;
+
     TypeBuilder builder();
+
+    VoidType *get_void();
 
     // Return a pointer to the PrimitiveType object with `kind`.
     PrimitiveType *get_primitive(PrimitiveType::Kind kind);
@@ -525,12 +683,25 @@ public:
     ArrayType *get_array(Type *base);
 
     // Create a function type based on its signature.
-    FunctionType *get_function(Type *ret, Vec<Type *> params, bool variadic);
+    FunctionType *get_function(Type *ret, Vec<Type *> params, bool variadic, sema::sym::Scope *scope);
 
     std::string to_string() const;
 
 private:
     int anonymous_ctr = 0;
+
+    // intern the primitive language-defined types directly in the context.
+    Box<VoidType> voidt;
+    Box<PrimitiveType> u8;
+    Box<PrimitiveType> u16;
+    Box<PrimitiveType> u32;
+    Box<PrimitiveType> u64;
+    Box<PrimitiveType> i8;
+    Box<PrimitiveType> i16;
+    Box<PrimitiveType> i32;
+    Box<PrimitiveType> i64;
+    Box<PrimitiveType> f64;
+    Box<PrimitiveType> boolt;
 
     template<typename T>
     struct pair_hash {
@@ -545,8 +716,8 @@ private:
     using ArrayKey = std::pair<Type *, std::optional<uint64_t>>;
     using PointerKey = std::pair<Type *, bool>;
 
-    // The map of base types (i.e. non-pointers).
-    std::unordered_map<std::string, Box<Type>> base_types;
+    // The map of record types (i.e. structs, unions, enums).
+    std::unordered_map<std::string, Box<UserType>> user_types;
 
     // The map of pointer types, mapped by their base type.
     std::unordered_map<PointerKey, Box<PointerType>, pair_hash<bool>> pointers;
@@ -556,22 +727,45 @@ private:
 
     // Generate a mangled, unique name for a type incorporating its associated scope.
     template <typename T>
-    requires std::derived_from<T, Type>
+    requires std::derived_from<T, UserType>
     std::string mangle(std::string name, sema::sym::Scope *sc) {
         std::stringstream ss;
 
-        ss << typeid(T).name() << "_" << name << static_cast<const void *>(sc);
+        ss << T::base() << name << "_" << static_cast<const void *>(sc);
 
         return ss.str();
     }
 
+
     template <typename T>
-    requires std::derived_from<T, Type>
-    T *make_insert_type(std::string name) {
-        Box<T> s = std::make_unique<T>();
+    requires std::derived_from<T, UserType>
+    // Create and insert a named type.
+    T *make_insert_type(std::string mangled, sema::sym::Scope *scope, std::string name) {
+        Box<T> s = std::make_unique<T>(name, scope);
 
         auto ret = s.get();
-        base_types.insert({name, std::move(s)});
+        for (auto const& [key, type] : user_types) {
+            // we find a type with the same name
+            if (name == type->get_name()) {
+                // if the scopes match
+                if (scope == type->scope) {
+                    throw type.get();
+                }
+            }
+        }
+        user_types.insert({mangled, std::move(s)});
+
+        return ret;
+    }
+
+    template <typename T>
+    requires std::derived_from<T, UserType>
+    T *make_insert_type(std::string mangled, sema::sym::Scope *scope) {
+        Box<T> s = std::make_unique<T>(scope);
+
+        auto ret = s.get();
+        // no collision check required for anonymous types.
+        user_types.insert({mangled, std::move(s)});
 
         return ret;
     }

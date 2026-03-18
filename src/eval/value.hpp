@@ -11,9 +11,9 @@ using namespace ecc::util;
 
 namespace ecc::exec {
 
-class EccInvalidCompileTimeEval : public EccError {
+class InvalidCompileTimeEval : public EccError {
 public:
-    EccInvalidCompileTimeEval(std::string msg, Location loc)
+    InvalidCompileTimeEval(std::string msg, Location loc)
     : EccError(msg, loc) {}
 };
 

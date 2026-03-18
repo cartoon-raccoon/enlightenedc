@@ -1,9 +1,17 @@
 #include <cassert>
 #include <stdexcept>
+#include <utility>
 
 #include "symbols.hpp"
 
 using namespace ecc::sema::sym;
+using namespace ecc::sema::types;
+
+Box<VarSymbol> FuncSymbol::as_funcptr(TypeContext& tctxt, bool is_const) {
+    Type *ptrtype = tctxt.get_pointer(signature, is_const);
+
+    return std::make_unique<VarSymbol>(loc, name, ptrtype);
+}
 
 void SymbolTable::push_scope(Symbol *assoc) {
     /*
@@ -12,6 +20,7 @@ void SymbolTable::push_scope(Symbol *assoc) {
     */
 
     Box<Scope> newscope = std::make_unique<Scope>(assoc, current);
+    dbprint("SymbolTable: pushing scope ", newscope.get());
     current->nested.push_back(std::move(newscope));
 
     enter_scope();
@@ -28,19 +37,25 @@ void SymbolTable::enter_scope() {
     }
 
     Scope *new_current = current->nested[current->nested_idx].get();
+    dbprint("SymbolTable: entering scope ", new_current);
 
     current = new_current;
+
+    dbprint("SymbolTable: current scope ", current);
 }
 
 void SymbolTable::pop_scope() {
     if (current != global.get()) {
         if (current->outer) {
+            dbprint("SymbolTable: exiting scope to ", current->outer);
             current = current->outer;
             current->nested_idx++;
         } else {
             throw std::runtime_error("tried to exit global scope");
         }
     }
+
+    dbprint("SymbolTable: current scope ", current);
 }
 
 void SymbolTable::reset() {
@@ -50,7 +65,6 @@ void SymbolTable::reset() {
 }
 
 void SymbolTable::reset_from(Scope *scope) {
-    dbprint("resetting scopes");
     scope->nested_idx = 0;
     for (auto& scope : scope->nested) {
         reset_from(scope.get());
@@ -68,6 +82,7 @@ void SymbolTable::clear() {
 
 
 Symbol *SymbolTable::lookup(std::string sym) {
+    dbprint("SymbolTable: looking up symbol ", sym);
 
     Scope *my_current = this->current;
 
@@ -76,6 +91,7 @@ Symbol *SymbolTable::lookup(std::string sym) {
         // if already global, return null
         if (my_current->outer == nullptr) {
             assert(my_current == global.get());
+            dbprint("SymbolTable: symbol \'", sym, "\' not found");
             return nullptr;
         }
 
@@ -87,6 +103,7 @@ Symbol *SymbolTable::lookup(std::string sym) {
 }
 
 void SymbolTable::tie_current_to(Symbol *sym, bool override) {
+    dbprint("SymbolTable: associating current scope ", current, " with symbol ", sym, " name \"", sym->name, "\"");
     if (current->assoc != nullptr) {
         if (override) {
             current->assoc = sym;
@@ -97,6 +114,12 @@ void SymbolTable::tie_current_to(Symbol *sym, bool override) {
 }
 
 Symbol *SymbolTable::insert(std::string name, Box<Symbol> sym) {
+    dbprint("SymbolTable: inserting symbol with name \"", name, "\"");
+    if (current->symbols.contains(name)) {
+        dbprint("SymbolTable: symbol with name ", name, " already exists");
+        Symbol *existing = current->symbols.find(name)->second.get();
+        throw existing->loc;
+    }
     Symbol *ret = sym.get();
     current->symbols.insert({name, std::move(sym)});
 

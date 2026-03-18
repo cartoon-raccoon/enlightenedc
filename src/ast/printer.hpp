@@ -10,6 +10,7 @@
 
 #include "ast/ast.hpp"
 #include "ast/visitor.hpp"
+#include "frontend/tokens.hpp"
 
 
 namespace ecc::ast {
@@ -38,6 +39,7 @@ public:
     void visit(StorageClassSpecifier& node) override;
     void visit(TypeQualifier& node) override;
     void visit(EnumSpecifier& node) override;
+    void visit(VoidSpecifier& node) override;
     void visit(PrimitiveSpecifier& node) override;
     void visit(ClassSpecifier& node) override;
     void visit(UnionSpecifier& node) override;
@@ -90,8 +92,15 @@ public:
 }
 
 private:
+    std::string binop_to_string(tokens::BinaryOp op);
 
-    std::string token_type_to_string(tokens::TokenType t);
+    std::string unop_to_string(tokens::UnaryOp op);
+
+    std::string assignop_to_string(tokens::AssignOp op);
+
+    std::string postfixop_to_string(tokens::PostfixOp op);
+
+    std::string infixop_to_string(tokens::InfixOp op);
 
     std::string primitive_to_string(PrimitiveSpecifier::PrimKind p);
 

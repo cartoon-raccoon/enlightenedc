@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "frontend/tokens.hpp"
-#include "codegen/value.hpp"
+#include "eval/value.hpp"
 #include "util.hpp"
 
 using namespace ecc;
@@ -52,6 +52,7 @@ public:
         CLASS_SPEC,
         UNION_SPEC,
         ENUM_SPEC,
+        VOID_SPEC,
         PRIM_SPEC,
         COMP_STMT,
         EXPR_STMT,
@@ -179,7 +180,7 @@ public:
 // Storage class specifiers (public, static, extern).
 class StorageClassSpecifier : public DeclarationSpecifier {
 public:
-    enum SpecType { PUBLIC, STATIC, EXTERN };
+    enum SpecType { PUBLIC, STATIC, EXTERN, EXTERNC };
 
     StorageClassSpecifier(Location loc, SpecType type)
         : DeclarationSpecifier(STORAGE_SPEC, loc), type(type) {}
@@ -520,16 +521,20 @@ public:
     void accept(ASTVisitor& visitor) override;
 };
 
+class VoidSpecifier : public TypeSpecifier {
+public:
+    VoidSpecifier(Location loc) : TypeSpecifier(VOID_SPEC, loc) {}
+
+    void accept(ASTVisitor& visitor) override;
+};
+
 class PrimitiveSpecifier : public TypeSpecifier {
 public:
     enum PrimKind {
-        VOID,
-        U0,
         U8,
         U16,
         U32,
         U64,
-        I0,
         I8,
         I16,
         I32,
@@ -591,7 +596,7 @@ public:
         case_expr(std::move(case_expr)),
         statement(std::move(statement)) {}
 
-    Box<Expression> case_expr;
+    Box<ConstExpression> case_expr;
     Box<Statement> statement;
 
     void accept(ASTVisitor& visitor) override;
@@ -723,8 +728,10 @@ public:
 
 class ForStatement : public Statement {
 public:
+    using ForInit = std::variant<Box<Expression>, Box<VariableDeclaration>>;
+
     ForStatement(Location loc,
-                 std::optional<Box<Expression>> init,
+                 std::optional<ForInit> init,
                  std::optional<Box<Expression>> condition,
                  std::optional<Box<Expression>> increment, 
                  Box<Statement> body)
@@ -734,7 +741,7 @@ public:
         increment(std::move(increment)), 
         body(std::move(body)) {}
 
-    std::optional<Box<Expression>> init;
+    std::optional<ForInit> init;
     std::optional<Box<Expression>> condition;
     std::optional<Box<Expression>> increment;
     Box<Statement> body;
@@ -803,7 +810,7 @@ public:
         Location loc,
         Box<Expression> left,
         Box<Expression> right,
-        tokens::TokenType op
+        tokens::BinaryOp op
     )
         : Expression(BIN_EXPR, loc),
         left(std::move(left)), 
@@ -812,7 +819,7 @@ public:
 
     Box<Expression> left;
     Box<Expression> right;
-    tokens::TokenType op;
+    tokens::BinaryOp op;
 
     void accept(ASTVisitor& visitor) override;
 
@@ -840,13 +847,13 @@ class UnaryExpression : public Expression {
 public:
     UnaryExpression(Location loc,
                     Box<Expression> operand, 
-                    tokens::TokenType op)
+                    tokens::UnaryOp op)
         : Expression(UN_EXPR, loc),
         operand(std::move(operand)),
         op(op) {}
 
     Box<Expression> operand;
-    tokens::TokenType op;
+    tokens::UnaryOp op;
 
     void accept(ASTVisitor& visitor) override;
 
@@ -858,7 +865,7 @@ public:
     AssignmentExpression(Location loc,
                          Box<Expression> left, 
                          Box<Expression> right,
-                         tokens::TokenType op)
+                         tokens::AssignOp op)
         : Expression(ASSGN_EXPR, loc),
         left(std::move(left)), 
         right(std::move(right)),
@@ -866,7 +873,7 @@ public:
 
     Box<Expression> left;
     Box<Expression> right;
-    tokens::TokenType op;
+    tokens::AssignOp op;
 
     void accept(ASTVisitor& visitor) override;
 
@@ -1006,13 +1013,13 @@ class PostfixExpression : public Expression {
 public:
     PostfixExpression(Location loc,
                       Box<Expression> operand,
-                      tokens::TokenType op)
+                      tokens::PostfixOp op)
         : Expression(POSTF_EXPR, loc),
         operand(std::move(operand)),
         op(op) {}
 
     Box<Expression> operand;
-    tokens::TokenType op;
+    tokens::PostfixOp op;
 
     void accept(ASTVisitor& visitor) override;
 

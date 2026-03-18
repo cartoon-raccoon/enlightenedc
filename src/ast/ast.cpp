@@ -1,6 +1,6 @@
 #include "ast/ast.hpp"
 #include "ast/visitor.hpp"
-#include "codegen/exec.hpp"
+#include "eval/exec.hpp"
 
 using namespace ecc::ast;
 
@@ -31,6 +31,8 @@ void StorageClassSpecifier::accept(ASTVisitor& visitor) {
 void TypeQualifier::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void EnumSpecifier::accept(ASTVisitor& visitor) { visitor.visit(*this); }
+
+void VoidSpecifier::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void PrimitiveSpecifier::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 

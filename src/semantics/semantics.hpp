@@ -5,6 +5,7 @@
 #include "ast/ast.hpp"
 #include "semantics/symbols.hpp"
 #include "semantics/types.hpp"
+#include "semantics/mir/mir.hpp"
 #include "util.hpp"
 
 #include <optional>
@@ -104,7 +105,7 @@ public:
         If `true` is passed, a new scopeguard will be created as well, that will be
         destroyed in the NodeGuard's destructor.
         */
-        NodeGuard(BaseSemanticVisitor& bsv, ast::ASTNode *node, bool new_scope = false) 
+        NodeGuard(BaseSemanticVisitor& bsv, ast::ASTNode *node) 
         : 
 #ifndef NDEBUG
         bsv(bsv), 
@@ -114,17 +115,14 @@ public:
             bsv.bsv_dbprint("Node: type ", node->kind, " {");
             bsv.inc_indent();
 #endif
-            if (new_scope) {
-                scope_guard.emplace(std::move(bsv.enter_scope()));
-            }
             context.push_back(node);
         }
 
         ~NodeGuard() {
             context.pop_back();
 #ifndef NDEBUG
-            bsv.bsv_dbprint("}");
             bsv.dec_indent();
+            bsv.bsv_dbprint("}");
 #endif
         }
 
@@ -188,7 +186,7 @@ public:
     ScopeGuard enter_scope(sym::Symbol *sym = nullptr);
 
     // Enter an AST node. If new_scope is true, additionally creates a new scope.
-    NodeGuard enter_node(ast::ASTNode *node, bool new_scope = false);
+    NodeGuard enter_node(ast::ASTNode *node);
 
     // Get the AST node immediately outside this node.
     ast::ASTNode *imm_ctxt();
@@ -226,6 +224,7 @@ public:
     void visit(ast::EnumSpecifier& node) override;
     void visit(ast::ClassSpecifier& node) override;
     void visit(ast::UnionSpecifier& node) override;
+    void visit(ast::VoidSpecifier& node) override;
     void visit(ast::PrimitiveSpecifier& node) override;
     void visit(ast::Initializer& node) override;
     void visit(ast::TypeName& node) override;
@@ -283,6 +282,7 @@ protected:
     virtual void do_visit(ast::EnumSpecifier& node);
     virtual void do_visit(ast::ClassSpecifier& node);
     virtual void do_visit(ast::UnionSpecifier& node);
+    virtual void do_visit(ast::VoidSpecifier& node);
     virtual void do_visit(ast::PrimitiveSpecifier& node);
     virtual void do_visit(ast::Initializer& node);
     virtual void do_visit(ast::TypeName& node);
@@ -341,7 +341,7 @@ public:
     sym::SymbolTable& symbols;
     types::TypeContext& types;
 
-    void check_semantics(ast::ASTNode& prog);
+    void check_semantics(ast::Program& prog, mir::ProgramMIR& mir);
 };
 
 }

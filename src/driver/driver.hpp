@@ -7,6 +7,7 @@
 #include "ast/ast.hpp"
 #include "frontend/frontend.hpp"
 #include "driver/backend.hpp"
+#include "semantics/mir/mir.hpp"
 #include "util.hpp"
 
 using namespace ecc;
@@ -16,10 +17,12 @@ namespace ecc::frontend {
 struct TranslationUnit {
     std::string *filename;
     Box<ast::Program> ast_root;
+    Box<sema::mir::ProgramMIR> prog_mir;
 
     TranslationUnit(std::string *filename) 
     : filename(filename),
-    ast_root(std::make_unique<ast::Program>(filename))
+    ast_root(std::make_unique<ast::Program>(filename)),
+    prog_mir(std::make_unique<sema::mir::ProgramMIR>())
     {}
 };
 

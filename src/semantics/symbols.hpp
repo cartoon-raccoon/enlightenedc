@@ -1,8 +1,9 @@
 #ifndef ECC_SYMBOLS_H
 #define ECC_SYMBOLS_H
 
-#include "semantics/types.hpp"
 #include "ast/ast.hpp"
+#include "semantics/types.hpp"
+#include "eval/value.hpp"
 #include "util.hpp"
 
 #include <unordered_map>
@@ -22,6 +23,13 @@ corresponding Symbol objects, within Scope objects.
 using namespace ecc;
 using namespace util;
 
+class PhysicalSymbol;
+class AbstractSymbol;
+class VarSymbol;
+class FuncSymbol;
+class TypeSymbol;
+class LabelSymbol;
+
 /*
 The abstract symbol class.
 */
@@ -29,17 +37,19 @@ class Symbol {
 public:
     // The kind of symbol.
     enum Kind {
-        Var, // This symbol references a variable.
-        Func, // This symbol references a function definition.
-        Ty, // This symbol references a declared type.
-        Lab, // This symbol references a label.
+        VAR, // This symbol references a variable.
+        FUNC, // This symbol references a function definition.
+        TYPE, // This symbol references a declared type.
+        LABEL, // This symbol references a label.
     };
 
-    Symbol(Kind kind) : kind(kind) {}
+    Symbol(Kind kind, std::string name) : kind(kind), name(name) {}
 
-    Symbol(Kind kind, Location loc) : kind(kind), loc(loc) {}
+    Symbol(Kind kind, Location loc, std::string name) : kind(kind), name(name), loc(loc) {}
 
     Kind kind;
+
+    std::string name;
 
     // std::optional<ecc::exec::Value> val;
 
@@ -53,71 +63,125 @@ public:
 
     virtual ~Symbol() = default;
 
+    virtual bool is_abstract() { return true; };
+
     virtual std::string to_string() const { return "base symbol"; }
+
+    virtual PhysicalSymbol *as_physical() { return nullptr; }
+    virtual AbstractSymbol *as_abstract() { return nullptr; }
+    virtual VarSymbol *as_varsym() { return nullptr; }
+    virtual FuncSymbol *as_funcsym() { return nullptr; }
+    virtual TypeSymbol *as_typesym() { return nullptr; }
+    virtual LabelSymbol *as_labsym() { return nullptr; }
+};
+
+// A symbol that has a phyiscal location in memory that can be referenced
+// (e.g. a variable or function).
+class PhysicalSymbol : public Symbol {
+public:
+    PhysicalSymbol(Kind kind, std::string name) : Symbol(kind, name) {}
+
+    PhysicalSymbol(Kind kind, Location loc, std::string name) : Symbol(kind, name) {}
+
+    PhysicalSymbol *as_physical() { return this; }
+
+    bool is_abstract() { return false; }
+};
+
+// A symbol that is abstract, and exists only for the purposes of the compiler.
+// (e.g. a label or type declaration).
+class AbstractSymbol : public Symbol {
+public:
+    AbstractSymbol(Kind kind, std::string name) : Symbol(kind, name) {}
+
+    AbstractSymbol(Kind kind, Location loc, std::string name) : Symbol(kind, name) {}
+
+    AbstractSymbol *as_abstract() { return this; }
+
+    bool is_abstract() { return true; }
 };
 
 /*
 A symbol representing a variable declaration.
 */
-class VarSymbol : public Symbol {
+class VarSymbol : public PhysicalSymbol {
 public:
-    VarSymbol() : Symbol(Symbol::Kind::Var), type(nullptr) {}
+    VarSymbol(Location loc, std::string name, types::Type *type) 
+        : PhysicalSymbol(Symbol::Kind::VAR, loc, name), type(type) {}
 
-    VarSymbol(types::Type *type) : Symbol(Symbol::Kind::Var), type(type) {}
+    VarSymbol(Location loc, std::string name, types::Type *type, exec::Value value) 
+        : PhysicalSymbol(Symbol::Kind::VAR, loc, name), type(type), value(value) {}
 
     /// The type of the symbol.
     types::Type *type;
+
+    // The value of the Symbol, if defined.
+    std::optional<exec::Value> value;
 
     /// If the symbol is const.
     bool is_const = false;
 
     // Storage class information.
 
-    /// If the symbol is external.
+    // If the symbol is external.
     bool is_extern = false;
 
+    // If the symbol is externally linked.
+    bool is_externc = false;
+
+    bool is_funcparam = false;
+
     virtual std::string to_string() const override;
+
+    VarSymbol *as_varsym() override { return this; }
 };
 
 /*
-A symbol representing a function declaration (function pointers are handled by VarSymbol).
+A symbol representing a function declaration 
+(function pointers and externally linked functions are handled by VarSymbol).
 */
-class FuncSymbol : public Symbol {
+class FuncSymbol : public PhysicalSymbol {
 public:
-    FuncSymbol() : Symbol(Symbol::Kind::Func), signature(nullptr) {}
-
-    FuncSymbol(types::FunctionType *signature) : Symbol(Symbol::Kind::Func), signature(signature) {}
+    FuncSymbol(Location loc, std::string name, types::FunctionType *signature)
+        : PhysicalSymbol(Symbol::Kind::FUNC, loc, name), signature(signature) {}
 
     // The function signature.
     types::FunctionType *signature;
 
-    bool is_extern = false;
-
     virtual std::string to_string() const override;
+
+    /// Create a function pointer VarSymbol from this FuncSymbol.
+    Box<VarSymbol> as_funcptr(sema::types::TypeContext& tctxt, bool is_const = false);
+
+    FuncSymbol *as_funcsym() override { return this; }
 };
 
 /*
 A symbol representing a type declaration (class, union, enum).
 */
-class TypeSymbol : public Symbol {
+class TypeSymbol : public AbstractSymbol {
 public:
-    TypeSymbol() : Symbol(Symbol::Kind::Ty), type(nullptr) {}
-
-    TypeSymbol(types::Type* type) : Symbol(Symbol::Kind::Ty), type(type) {}
+    TypeSymbol(Location loc, std::string name, types::Type* type)
+        : AbstractSymbol(Symbol::Kind::TYPE, loc, name), type(type) {}
 
     types::Type *type;
 
     virtual std::string to_string() const override;
+
+    TypeSymbol *as_typesym() override { return this; }
 };
 
 /*
 A symbol representing a label (for use by goto).
 */
-class LabelSymbol : public Symbol {
+class LabelSymbol : public AbstractSymbol {
 public:
-    LabelSymbol() : Symbol(Symbol::Kind::Lab) {}
+    LabelSymbol(Location loc, std::string name)
+        : AbstractSymbol(Symbol::Kind::LABEL, loc, name) {}
 
     virtual std::string to_string() const override;
+
+    LabelSymbol *as_labsym() override { return this; }
 };
 
 /*
@@ -141,6 +205,8 @@ public:
     std::unordered_map<std::string, Box<Symbol>> symbols = {};
     // inner scopes contained within this scope.
     Vec<Box<Scope>> nested;
+
+    std::string to_string() const;
 
 private:
 
@@ -196,7 +262,12 @@ public:
     void tie_current_to(Symbol *sym, bool override = false);
 
     // Add a new symbol to the current scope.
+    // Returns a pointer to the inserted symbol for further use.
+    // If a symbol with the same name already exists in the current scope,
+    // It throws a Location where the symbol was previously defined.
     Symbol *insert(std::string name, Box<Symbol> sym);
+
+    std::string to_string() const;
 
 };
 

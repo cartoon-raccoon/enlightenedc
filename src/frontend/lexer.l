@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <cstring>
 #include "frontend/lexer.hpp"
 #include "parser.hpp"
 
@@ -12,6 +13,89 @@
 #define YY_USER_ACTION loc.columns(yyleng);
 
 #define yyterminate() return ecc::parser::Parser::make_YYEOF(loc)
+
+static inline int hex_value(char c) {
+    if (c >= '0' && c <= '9')
+        return c - '0';
+    if (c >= 'a' && c <= 'f')
+        return 10 + (c - 'a');
+    if (c >= 'A' && c <= 'F')
+        return 10 + (c - 'A');
+    return -1;
+}
+
+static std::string decode_string_literal(char* text, size_t len) {
+    if (!memchr(text, '\\', len))
+        return std::string(text + 1, len - 2);
+
+    const char* p = text + 1;
+    const char* end = text + len - 1;
+    // null-terminate end of string
+    text[len] = '\0';
+
+    std::string out;
+    out.reserve(len - 2);
+
+    while (p < end) {
+        char c = *p++;
+
+        if (c != '\\') {
+            out.push_back(c);
+            continue;
+        }
+
+        if (p >= end)
+            break;
+
+        char esc = *p++;
+
+        switch (esc) {
+        case 'n':
+            out.push_back('\n');
+            break;
+        case 't':
+            out.push_back('\t');
+            break;
+        case 'r':
+            out.push_back('\r');
+            break;
+        case '0':
+            out.push_back('\0');
+            break;
+        case '\\':
+            out.push_back('\\');
+            break;
+        case '"':
+            out.push_back('"');
+            break;
+        case '\'':
+            out.push_back('\'');
+            break;
+
+        case 'x': {
+            int value = 0;
+            bool found = false;
+
+            while (p < end) {
+                int v = hex_value(*p);
+                if (v < 0) break;
+                found = true;
+                value = (value << 4) | v;
+                ++p;
+            }
+
+            if (found)
+                out.push_back(static_cast<char>(value));
+            break;
+        }
+
+        default:
+            out.push_back(esc);
+        }
+    }
+    return out;
+}
+
 %}
 
 %option c++
@@ -51,12 +135,11 @@
 "..." { return ecc::parser::Parser::make_ELLIPSIS(loc); }
 
 
-"U0i" { return ecc::parser::Parser::make_VOID(loc); } /* Type specifiers */
+"Void" { return ecc::parser::Parser::make_VOID(loc); } /* Type specifiers */
 "U8i" { return ecc::parser::Parser::make_U8(loc); }
 "U16i" { return ecc::parser::Parser::make_U16(loc); }
 "U32i" { return ecc::parser::Parser::make_U32(loc); }
 "U64i" { return ecc::parser::Parser::make_U64(loc); }
-"I0i" { return ecc::parser::Parser::make_I0(loc); }
 "I8i" { return ecc::parser::Parser::make_I8(loc); }
 "I16i" { return ecc::parser::Parser::make_I16(loc); }
 "I32i" { return ecc::parser::Parser::make_I32(loc); }
@@ -141,29 +224,20 @@
 }
 
 
-\'([^\\\']|\\.)\' { /* Character constants*/
-    std::string s(yytext);
-    char value;
+\'([^\\\']|\\.)\' { /* Character constants */
+    std::string decoded = decode_string_literal(yytext, yyleng);
 
-    if (s[1] == '\\') {
-        switch (s[2]) {
-            case 'n': value = '\n'; break;
-            case 't': value = '\t'; break;
-            case '\\': value = '\\'; break;
-            case '\'': value = '\''; break;
-            case '"': value = '"'; break;
-            default: value = s[2]; break;
-        }
-    } else {
-        value = s[1];
+    if (decoded.size() != 1) {
+        return ecc::parser::Parser::make_YYerror(loc);
     }
 
-    return ecc::parser::Parser::make_CHAR_CONST(value, loc);
+    return ecc::parser::Parser::make_CHAR_CONST(decoded[0], loc);
 }
 
 
 \"([^\\\"]|\\.)*\" { /* String constants */
-    return ecc::parser::Parser::make_STRING_LITERAL(yytext, loc);
+    std::string decoded = decode_string_literal(yytext, yyleng);
+    return ecc::parser::Parser::make_STRING_LITERAL(decoded, loc);
 }
 
 
