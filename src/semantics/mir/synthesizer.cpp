@@ -121,13 +121,17 @@ void MIRSynthesizer::do_visit(Program& node) {
             [this] (Box<FunctionMIR>& func) mutable {
                 prog_mir.add_item(std::move(func));
             },
-            [] (auto& _) {
-                // todo: throw exception
+            [] (std::monostate& _) {
+                // ignore and continue
+            },
+            [] (auto& e) {
+                throw EccError("unexpected item while parsing programitems");
             }
         }, last_result);
+        last_result = std::monostate {};
     }
 
-    // todo
+    dv_return(std::monostate {});
 }
 
 void MIRSynthesizer::do_visit(Function& node) {
@@ -250,12 +254,13 @@ void MIRSynthesizer::do_visit(TypeDeclaration& node) {
     auto specinfo = parse_speclist(node.specifiers, node.loc);
 
     if (specinfo->symbol) {
+        TypeSymbol *symptr = (*specinfo->symbol).get();
         syms.insert(specinfo->symbol.value()->name, std::move(*specinfo->symbol));
+        Box<DeclMIR> decl = std::make_unique<TypeDeclMIR>(node.loc, symptr);
+        dv_return(decl);
+    } else {
+        dv_return(std::monostate {});
     }
-    dv_return(std::monostate {});
-
-    Box<DeclMIR> decl = std::make_unique<TypeDeclMIR>(node.loc, specinfo->symbol.value().get());
-    dv_return(decl);
 }
 
 void MIRSynthesizer::do_visit(VariableDeclaration& node) {
@@ -868,6 +873,7 @@ void MIRSynthesizer::do_visit(CompoundStatement& node) {
 
     Vec<Box<ProgItemMIR>> progitems {};
     for (auto& item : node.items) {
+        dv_call(std::monostate {}, item);
         std::visit(overloaded {
             [&progitems] (Box<DeclMIR>& decl) mutable {
                 progitems.push_back(std::move(decl));
@@ -878,10 +884,14 @@ void MIRSynthesizer::do_visit(CompoundStatement& node) {
             [&progitems] (Box<FunctionMIR>& func) mutable {
                 progitems.push_back(std::move(func));
             },
+            [] (std::monostate& _) {
+                // ignore and continue
+            },
             [] (auto& _) {
-                // todo: throw exception
+                throw EccError("unexpected type while parsing program items");
             }
         }, last_result);
+        last_result = std::monostate {};
     }
 
     // resolve our return value
