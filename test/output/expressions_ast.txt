@@ -448,7 +448,7 @@ TypeContext: getting primitive type with value 0
             }
         }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x55afd26d6140
+TypeContext: pointer with base 0x562e2c090140
 SymbolTable: inserting symbol with name "s"
     }
     Node: type 23 {
@@ -556,18 +556,18 @@ SymbolTable: looking up symbol x
 Base Types:
 
 Pointer Types:
-  0x55afd26e2f40 : U8 *
+  0x562e2c09cf40 : U8 *
 
 Array Types:
 
 
 --------- SYMBOL TABLE ---------
 
-Scope 0x55afd26d5fb0
-  s -> 0x55afd26d87c0 : VarSymbol U8 *
-  b -> 0x55afd26d6f00 : VarSymbol U32
-  a -> 0x55afd26d6ce0 : VarSymbol U32
-  x -> 0x55afd26d6a70 : VarSymbol U32
+Scope 0x562e2c08ffb0
+  s -> 0x562e2c0927c0 : VarSymbol U8 *
+  b -> 0x562e2c090f00 : VarSymbol U32
+  a -> 0x562e2c090ce0 : VarSymbol U32
+  x -> 0x562e2c090a70 : VarSymbol U32
 
 --------- MIR ---------
 

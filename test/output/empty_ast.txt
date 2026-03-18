@@ -19,7 +19,7 @@ Array Types:
 
 --------- SYMBOL TABLE ---------
 
-Scope 0x562757998fb0
+Scope 0x55cb8df9ffb0
 
 --------- MIR ---------
 

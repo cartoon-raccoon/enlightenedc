@@ -166,7 +166,7 @@ Void Execute() {
                     JumpToAfter();
                 } else {
                     /* we are entering this bracket, so increment our nesting level */
-                    stack_push(insptr);
+                    StackPush(insptr);
                 }
                 break;
 

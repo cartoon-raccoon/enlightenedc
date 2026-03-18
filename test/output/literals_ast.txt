@@ -359,16 +359,16 @@ Array Types:
 
 --------- SYMBOL TABLE ---------
 
-Scope 0x565264164fb0
-  nl -> 0x565264166a80 : VarSymbol U8
-  ch -> 0x565264166860 : VarSymbol U8
-  f2 -> 0x5652641665f0 : VarSymbol I64
-  qt -> 0x565264166ca0 : VarSymbol U8
-  f1 -> 0x565264166380 : VarSymbol I64
-  c -> 0x565264165f80 : VarSymbol U32
-  b -> 0x565264165d10 : VarSymbol U32
-  d -> 0x565264166180 : VarSymbol U32
-  a -> 0x565264165aa0 : VarSymbol U32
+Scope 0x55e31ed3cfb0
+  nl -> 0x55e31ed3ea80 : VarSymbol U8
+  ch -> 0x55e31ed3e860 : VarSymbol U8
+  f2 -> 0x55e31ed3e5f0 : VarSymbol I64
+  qt -> 0x55e31ed3eca0 : VarSymbol U8
+  f1 -> 0x55e31ed3e380 : VarSymbol I64
+  c -> 0x55e31ed3df80 : VarSymbol U32
+  b -> 0x55e31ed3dd10 : VarSymbol U32
+  d -> 0x55e31ed3e180 : VarSymbol U32
+  a -> 0x55e31ed3daa0 : VarSymbol U32
 
 --------- MIR ---------
 
@@ -402,15 +402,15 @@ VarSymbol I64
 | VarDecl:  @ <input/literals.ec:9.1-13>
 VarSymbol U8
 | | Initializer @ <input/literals.ec:9.10-12>
-| | | Literal: true @ <input/literals.ec:9.10-12>
+| | | Literal: 65 @ <input/literals.ec:9.10-12>
 | VarDecl:  @ <input/literals.ec:10.1-14>
 VarSymbol U8
 | | Initializer @ <input/literals.ec:10.10-13>
-| | | Literal: false @ <input/literals.ec:10.10-13>
+| | | Literal: 10 @ <input/literals.ec:10.10-13>
 | VarDecl:  @ <input/literals.ec:11.1-14>
 VarSymbol U8
 | | Initializer @ <input/literals.ec:11.10-13>
-| | | Literal: false @ <input/literals.ec:11.10-13>
+| | | Literal: 34 @ <input/literals.ec:11.10-13>
 | Print: "Values:
 " @ <input/literals.ec:13.1-32>
 | | Ident: a @ <input/literals.ec:13.14>

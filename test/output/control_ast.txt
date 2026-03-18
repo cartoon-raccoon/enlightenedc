@@ -138,12 +138,22 @@ SymbolTable: looking up symbol n
                 }
             }
             Node: type 22 {
-SymbolTable: pushing scope 0x56130a6cace0
-SymbolTable: entering scope 0x56130a6cace0
-SymbolTable: current scope 0x56130a6cace0
+SymbolTable: pushing scope 0x55810e141ce0
+SymbolTable: entering scope 0x55810e141ce0
+SymbolTable: current scope 0x55810e141ce0
                 visiting CompoundStatement node: input/control.ec:4.13-6.1
-SymbolTable: exiting scope to 0x56130a6c9fb0
-SymbolTable: current scope 0x56130a6c9fb0
+                Node: type 23 {
+                    visiting ExpressionStatement node: input/control.ec:5.5-8
+                    Node: type 50 {
+                        visiting PostfixExpression node: input/control.ec:5.5-7
+                        Node: type 44 {
+                            visiting IdentifierExpression node: input/control.ec:5.5
+SymbolTable: looking up symbol n
+                        }
+                    }
+                }
+SymbolTable: exiting scope to 0x55810e140fb0
+SymbolTable: current scope 0x55810e140fb0
             }
             Node: type 29 {
                 visiting IfStatement node: input/control.ec:6.8-10.1
@@ -158,20 +168,43 @@ SymbolTable: looking up symbol n
                     }
                 }
                 Node: type 22 {
-SymbolTable: pushing scope 0x56130a6cae80
-SymbolTable: entering scope 0x56130a6cae80
-SymbolTable: current scope 0x56130a6cae80
+SymbolTable: pushing scope 0x55810e141f70
+SymbolTable: entering scope 0x55810e141f70
+SymbolTable: current scope 0x55810e141f70
                     visiting CompoundStatement node: input/control.ec:6.20-8.1
-SymbolTable: exiting scope to 0x56130a6c9fb0
-SymbolTable: current scope 0x56130a6c9fb0
+                    Node: type 23 {
+                        visiting ExpressionStatement node: input/control.ec:7.5-8
+                        Node: type 50 {
+                            visiting PostfixExpression node: input/control.ec:7.5-7
+                            Node: type 44 {
+                                visiting IdentifierExpression node: input/control.ec:7.5
+SymbolTable: looking up symbol n
+                            }
+                        }
+                    }
+SymbolTable: exiting scope to 0x55810e140fb0
+SymbolTable: current scope 0x55810e140fb0
                 }
                 Node: type 22 {
-SymbolTable: pushing scope 0x56130a6caf50
-SymbolTable: entering scope 0x56130a6caf50
-SymbolTable: current scope 0x56130a6caf50
+SymbolTable: pushing scope 0x55810e142150
+SymbolTable: entering scope 0x55810e142150
+SymbolTable: current scope 0x55810e142150
                     visiting CompoundStatement node: input/control.ec:8.8-10.1
-SymbolTable: exiting scope to 0x56130a6c9fb0
-SymbolTable: current scope 0x56130a6c9fb0
+                    Node: type 23 {
+                        visiting ExpressionStatement node: input/control.ec:9.5-11
+                        Node: type 42 {
+                            visiting AssignmentExpression node: input/control.ec:9.5-10
+                            Node: type 44 {
+                                visiting IdentifierExpression node: input/control.ec:9.5
+SymbolTable: looking up symbol n
+                            }
+                            Node: type 45 {
+                                visiting LiteralExpression node: input/control.ec:9.10
+                            }
+                        }
+                    }
+SymbolTable: exiting scope to 0x55810e140fb0
+SymbolTable: current scope 0x55810e140fb0
                 }
             }
         }
@@ -183,12 +216,62 @@ SymbolTable: current scope 0x56130a6c9fb0
 SymbolTable: looking up symbol n
         }
         Node: type 22 {
-SymbolTable: pushing scope 0x56130a6cb180
-SymbolTable: entering scope 0x56130a6cb180
-SymbolTable: current scope 0x56130a6cb180
+SymbolTable: pushing scope 0x55810e142510
+SymbolTable: entering scope 0x55810e142510
+SymbolTable: current scope 0x55810e142510
             visiting CompoundStatement node: input/control.ec:12.12-20.1
-SymbolTable: exiting scope to 0x56130a6c9fb0
-SymbolTable: current scope 0x56130a6c9fb0
+            Node: type 24 {
+                visiting CaseStatement node: input/control.ec:13.5-14.14
+                Node: type 38 {
+                    visiting ConstExpression node: input/control.ec:13.10
+                    Node: type 45 {
+                        visiting LiteralExpression node: input/control.ec:13.10
+                    }
+                }
+                Node: type 35 {
+                    visiting BreakStatement node: input/control.ec:14.9-14
+                }
+            }
+            Node: type 25 {
+                visiting CaseRangeStatement node: input/control.ec:15.5-16.15
+                Node: type 38 {
+                    visiting ConstExpression node: input/control.ec:15.10
+                    Node: type 45 {
+                        visiting LiteralExpression node: input/control.ec:15.10
+                    }
+                }
+                Node: type 38 {
+                    visiting ConstExpression node: input/control.ec:15.16
+                    Node: type 45 {
+                        visiting LiteralExpression node: input/control.ec:15.16
+                    }
+                }
+                Node: type 23 {
+                    visiting ExpressionStatement node: input/control.ec:16.9-15
+                    Node: type 42 {
+                        visiting AssignmentExpression node: input/control.ec:16.9-14
+                        Node: type 44 {
+                            visiting IdentifierExpression node: input/control.ec:16.9
+SymbolTable: looking up symbol n
+                        }
+                        Node: type 45 {
+                            visiting LiteralExpression node: input/control.ec:16.14
+                        }
+                    }
+                }
+            }
+            Node: type 35 {
+                visiting BreakStatement node: input/control.ec:17.9-14
+            }
+            Node: type 26 {
+                visiting DefaultStatement node: input/control.ec:18.5-19.19
+                Node: type 34 {
+                    visiting GotoStatement node: input/control.ec:19.9-19
+SymbolTable: looking up symbol start
+                }
+            }
+SymbolTable: exiting scope to 0x55810e140fb0
+SymbolTable: current scope 0x55810e140fb0
         }
     }
     Node: type 31 {
@@ -213,7 +296,7 @@ SymbolTable: looking up symbol n
                 }
             }
         }
-SymbolTable: inserting symbol with name "while_start_0x56130a6d57e0"
+SymbolTable: inserting symbol with name "while_start_0x55810e14c7e0"
     }
     Node: type 32 {
         visiting DoWhileStatement node: input/control.ec:25.1-27.16
@@ -228,24 +311,34 @@ SymbolTable: looking up symbol n
             }
         }
         Node: type 22 {
-SymbolTable: pushing scope 0x56130a6cb7d0
-SymbolTable: entering scope 0x56130a6cb7d0
-SymbolTable: current scope 0x56130a6cb7d0
+SymbolTable: pushing scope 0x55810e143100
+SymbolTable: entering scope 0x55810e143100
+SymbolTable: current scope 0x55810e143100
             visiting CompoundStatement node: input/control.ec:25.4-27.1
-SymbolTable: exiting scope to 0x56130a6c9fb0
-SymbolTable: current scope 0x56130a6c9fb0
+            Node: type 23 {
+                visiting ExpressionStatement node: input/control.ec:26.5-8
+                Node: type 50 {
+                    visiting PostfixExpression node: input/control.ec:26.5-7
+                    Node: type 44 {
+                        visiting IdentifierExpression node: input/control.ec:26.5
+SymbolTable: looking up symbol n
+                    }
+                }
+            }
+SymbolTable: exiting scope to 0x55810e140fb0
+SymbolTable: current scope 0x55810e140fb0
         }
-SymbolTable: inserting symbol with name "dowhile_start_0x56130a6d5a70"
+SymbolTable: inserting symbol with name "dowhile_start_0x55810e14ca70"
     }
     Node: type 33 {
-SymbolTable: pushing scope 0x56130a6cbae0
-SymbolTable: entering scope 0x56130a6cbae0
-SymbolTable: current scope 0x56130a6cbae0
+SymbolTable: pushing scope 0x55810e143600
+SymbolTable: entering scope 0x55810e143600
+SymbolTable: current scope 0x55810e143600
         visiting ForStatement node: input/control.ec:29.1-37
         Node: type 28 {
             visiting PrintStatement node: input/control.ec:29.30-37
         }
-SymbolTable: inserting symbol with name "for_start_0x56130a6d5f80"
+SymbolTable: inserting symbol with name "for_start_0x55810e14cf80"
         Node: type 9 {
             visiting VariableDeclaration node: input/control.ec:29.5-15
             parsing declaration specifier list for node at input/control.ec:29.5-15
@@ -289,30 +382,30 @@ SymbolTable: looking up symbol n
 SymbolTable: looking up symbol n
             }
         }
-SymbolTable: exiting scope to 0x56130a6c9fb0
-SymbolTable: current scope 0x56130a6c9fb0
+SymbolTable: exiting scope to 0x55810e140fb0
+SymbolTable: current scope 0x55810e140fb0
     }
     Node: type 33 {
-SymbolTable: pushing scope 0x56130a6cc400
-SymbolTable: entering scope 0x56130a6cc400
-SymbolTable: current scope 0x56130a6cc400
+SymbolTable: pushing scope 0x55810e143ef0
+SymbolTable: entering scope 0x55810e143ef0
+SymbolTable: current scope 0x55810e143ef0
         visiting ForStatement node: input/control.ec:31.1-27
         Node: type 28 {
             visiting PrintStatement node: input/control.ec:31.10-27
         }
-SymbolTable: inserting symbol with name "for_start_0x56130a6d6070"
-SymbolTable: exiting scope to 0x56130a6c9fb0
-SymbolTable: current scope 0x56130a6c9fb0
+SymbolTable: inserting symbol with name "for_start_0x55810e14d070"
+SymbolTable: exiting scope to 0x55810e140fb0
+SymbolTable: current scope 0x55810e140fb0
     }
     Node: type 33 {
-SymbolTable: pushing scope 0x56130a6cc800
-SymbolTable: entering scope 0x56130a6cc800
-SymbolTable: current scope 0x56130a6cc800
+SymbolTable: pushing scope 0x55810e144220
+SymbolTable: entering scope 0x55810e144220
+SymbolTable: current scope 0x55810e144220
         visiting ForStatement node: input/control.ec:33.1-32
         Node: type 28 {
             visiting PrintStatement node: input/control.ec:33.25-32
         }
-SymbolTable: inserting symbol with name "for_start_0x56130a6d63f0"
+SymbolTable: inserting symbol with name "for_start_0x55810e14d3f0"
         Node: type 42 {
             visiting AssignmentExpression node: input/control.ec:33.5-10
             Node: type 44 {
@@ -340,8 +433,8 @@ SymbolTable: looking up symbol n
 SymbolTable: looking up symbol n
             }
         }
-SymbolTable: exiting scope to 0x56130a6c9fb0
-SymbolTable: current scope 0x56130a6c9fb0
+SymbolTable: exiting scope to 0x55810e140fb0
+SymbolTable: current scope 0x55810e140fb0
     }
 }
 --------- TYPE CONTEXT ---------
@@ -355,23 +448,23 @@ Array Types:
 
 --------- SYMBOL TABLE ---------
 
-Scope 0x56130a6c9fb0
-  while_start_0x56130a6d57e0 -> 0x56130a6cb4b0 : LabelSymbol
-  dowhile_start_0x56130a6d5a70 -> 0x56130a6cb8f0 : LabelSymbol
-  start -> 0x56130a6cab70 : LabelSymbol
-  n -> 0x56130a6caa20 : VarSymbol I32
-  Scope 0x56130a6cace0
-  Scope 0x56130a6cae80
-  Scope 0x56130a6caf50
-  Scope 0x56130a6cb180
-  Scope 0x56130a6cb7d0
-  Scope 0x56130a6cbae0
-    n -> 0x56130a6cc1b0 : VarSymbol U32
-    for_start_0x56130a6d5f80 -> 0x56130a6cbbd0 : LabelSymbol
-  Scope 0x56130a6cc400
-    for_start_0x56130a6d6070 -> 0x56130a6cc480 : LabelSymbol
-  Scope 0x56130a6cc800
-    for_start_0x56130a6d63f0 -> 0x56130a6cc8f0 : LabelSymbol
+Scope 0x55810e140fb0
+  dowhile_start_0x55810e14ca70 -> 0x55810e143310 : LabelSymbol
+  while_start_0x55810e14c7e0 -> 0x55810e142de0 : LabelSymbol
+  start -> 0x55810e141b70 : LabelSymbol
+  n -> 0x55810e141a20 : VarSymbol I32
+  Scope 0x55810e141ce0
+  Scope 0x55810e141f70
+  Scope 0x55810e142150
+  Scope 0x55810e142510
+  Scope 0x55810e143100
+  Scope 0x55810e143600
+    n -> 0x55810e143ca0 : VarSymbol U32
+    for_start_0x55810e14cf80 -> 0x55810e1436f0 : LabelSymbol
+  Scope 0x55810e143ef0
+    for_start_0x55810e14d070 -> 0x55810e143fe0 : LabelSymbol
+  Scope 0x55810e144220
+    for_start_0x55810e14d3f0 -> 0x55810e144310 : LabelSymbol
 
 --------- MIR ---------
 
@@ -386,20 +479,46 @@ VarSymbol I32
 | | | | Ident: n @ <input/control.ec:4.4-5>
 | | | | Literal: 10 @ <input/control.ec:4.9-10>
 | | | CompoundStmtMIR @ <input/control.ec:4.13-6.1>
+| | | | ExprStmt @ <input/control.ec:5.5-8>
+| | | | | Postfix: ++ @ <input/control.ec:5.5-7>
+| | | | | | Ident: n @ <input/control.ec:5.5>
 | | | IfStmt @ <input/control.ec:6.8-10.1>
 | | | | Binary: > @ <input/control.ec:6.11-17>
 | | | | | Ident: n @ <input/control.ec:6.11-12>
 | | | | | Literal: 11 @ <input/control.ec:6.16-17>
 | | | | CompoundStmtMIR @ <input/control.ec:6.20-8.1>
+| | | | | ExprStmt @ <input/control.ec:7.5-8>
+| | | | | | Postfix: -- @ <input/control.ec:7.5-7>
+| | | | | | | Ident: n @ <input/control.ec:7.5>
 | | | | CompoundStmtMIR @ <input/control.ec:8.8-10.1>
+| | | | | ExprStmt @ <input/control.ec:9.5-11>
+| | | | | | Assign: += @ <input/control.ec:9.5-10>
+| | | | | | | Ident: n @ <input/control.ec:9.5>
+| | | | | | | Literal: 2 @ <input/control.ec:9.10>
 | SwitchStmt @ <input/control.ec:12.1-20.1>
 | | Ident: n @ <input/control.ec:12.8-9>
 | | CompoundStmtMIR @ <input/control.ec:12.12-20.1>
+| | | Case:  @ <input/control.ec:13.5-14.14>
+| | | | Const:  @ <input/control.ec:13.10>
+| | | | | Literal: 1 @ <input/control.ec:13.10>
+| | | | Break @ <input/control.ec:14.9-14>
+| | | CaseRange:  @ <input/control.ec:15.5-16.15>
+| | | | Const:  @ <input/control.ec:15.10>
+| | | | | Literal: 2 @ <input/control.ec:15.10>
+| | | | Const:  @ <input/control.ec:15.16>
+| | | | | Literal: 5 @ <input/control.ec:15.16>
+| | | | ExprStmt @ <input/control.ec:16.9-15>
+| | | | | Assign: += @ <input/control.ec:16.9-14>
+| | | | | | Ident: n @ <input/control.ec:16.9>
+| | | | | | Literal: 2 @ <input/control.ec:16.14>
+| | | Break @ <input/control.ec:17.9-14>
+| | | DefaultStmt @ <input/control.ec:18.5-19.19>
+| | | | Goto: start @ <input/control.ec:19.9-19>
 | LoopStmt @ <input/control.ec:22.1-23.8>
 | | Binary: > @ <input/control.ec:22.7-12>
 | | | Ident: n @ <input/control.ec:22.7-8>
 | | | Literal: 0 @ <input/control.ec:22.12>
-| | Label: while_start_0x56130a6d57e0 @ <input/control.ec:22.1-23.8>
+| | Label: while_start_0x55810e14c7e0 @ <input/control.ec:22.1-23.8>
 | | | ExprStmt @ <input/control.ec:23.5-8>
 | | | | Postfix: -- @ <input/control.ec:23.5-7>
 | | | | | Ident: n @ <input/control.ec:23.5>
@@ -407,8 +526,11 @@ VarSymbol I32
 | | Binary: < @ <input/control.ec:27.9-14>
 | | | Ident: n @ <input/control.ec:27.9-10>
 | | | Literal: 3 @ <input/control.ec:27.14>
-| | Label: dowhile_start_0x56130a6d5a70 @ <input/control.ec:25.1-27.16>
+| | Label: dowhile_start_0x55810e14ca70 @ <input/control.ec:25.1-27.16>
 | | | CompoundStmtMIR @ <input/control.ec:25.4-27.1>
+| | | | ExprStmt @ <input/control.ec:26.5-8>
+| | | | | Postfix: ++ @ <input/control.ec:26.5-7>
+| | | | | | Ident: n @ <input/control.ec:26.5>
 | LoopStmt @ <input/control.ec:29.1-37>
 | | VarDecl:  @ <input/control.ec:29.5-15>
 VarSymbol U32
@@ -420,10 +542,10 @@ VarSymbol U32
 | | ExprStmt @ <input/control.ec:29.25-27>
 | | | Postfix: ++ @ <input/control.ec:29.25-27>
 | | | | Ident: n @ <input/control.ec:29.25>
-| | Label: for_start_0x56130a6d5f80 @ <input/control.ec:29.1-37>
+| | Label: for_start_0x55810e14cf80 @ <input/control.ec:29.1-37>
 | | | Print: "hello" @ <input/control.ec:29.30-37>
 | LoopStmt @ <input/control.ec:31.1-27>
-| | Label: for_start_0x56130a6d6070 @ <input/control.ec:31.1-27>
+| | Label: for_start_0x55810e14d070 @ <input/control.ec:31.1-27>
 | | | Print: "looping forever" @ <input/control.ec:31.10-27>
 | LoopStmt @ <input/control.ec:33.1-32>
 | | ExprStmt @ <input/control.ec:33.5-10>
@@ -436,5 +558,5 @@ VarSymbol U32
 | | ExprStmt @ <input/control.ec:33.20-22>
 | | | Postfix: ++ @ <input/control.ec:33.20-22>
 | | | | Ident: n @ <input/control.ec:33.20>
-| | Label: for_start_0x56130a6d63f0 @ <input/control.ec:33.1-32>
+| | Label: for_start_0x55810e14d3f0 @ <input/control.ec:33.1-32>
 | | | Print: "hello" @ <input/control.ec:33.25-32>
