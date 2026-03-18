@@ -2,6 +2,7 @@
 #include "semantics/mir/visitor.hpp"
 
 using namespace sema::mir;
+using namespace sema::sym;
 
 void ProgramMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
 
@@ -18,6 +19,8 @@ void CompoundStmtMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
 void ExprStmtMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
 
 void SwitchStmtMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
+
+void CaseStmtMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
 
 void CaseRangeStmtMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
 
@@ -49,6 +52,8 @@ void CondExprMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
 
 void IdentExprMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
 
+void ConstExprMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
+
 void LiteralExprMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
 
 void StringExprMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
@@ -63,10 +68,18 @@ void PostfixExprMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
 
 void SizeofExprMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
 
-void CompoundStmtMIR::add_item(Box<ProgramItemMIR> item) {
+void CompoundStmtMIR::add_item(Box<ProgItemMIR> item) {
     items.push_back(std::move(item));
 }
 
-void ProgramMIR::add_item(Box<ProgramItemMIR> item) {
+void ProgramMIR::add_item(Box<ProgItemMIR> item) {
     items.push_back(std::move(item));
+}
+
+void VarDeclMIR::add_decl(VarSymbol *sym) {
+    decls.emplace_back(VarDecl {sym, {}});
+}
+
+void VarDeclMIR::add_decl(VarSymbol *sym, Box<InitializerMIR> init) {
+    decls.emplace_back(VarDecl {sym, std::move(init)});
 }

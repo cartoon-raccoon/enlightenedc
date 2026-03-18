@@ -19,6 +19,7 @@ public:
     virtual void visit(CompoundStmtMIR& node) = 0;
     virtual void visit(ExprStmtMIR& node) = 0;
     virtual void visit(SwitchStmtMIR& node) = 0;
+    virtual void visit(CaseStmtMIR& node) = 0;
     virtual void visit(CaseRangeStmtMIR& node) = 0;
     virtual void visit(DefaultStmtMIR& node) = 0;
     virtual void visit(LabeledStmtMIR& node) = 0;
@@ -35,6 +36,7 @@ public:
     virtual void visit(AssignExprMIR& node) = 0;
     virtual void visit(CondExprMIR& node) = 0;
     virtual void visit(IdentExprMIR& node) = 0;
+    virtual void visit(ConstExprMIR& node) = 0;
     virtual void visit(LiteralExprMIR& node) = 0;
     virtual void visit(StringExprMIR& node) = 0;
     virtual void visit(CallExprMIR& node) = 0;

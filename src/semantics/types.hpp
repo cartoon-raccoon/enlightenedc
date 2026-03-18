@@ -8,7 +8,6 @@
 #include <sstream>
 #include <concepts>
 #include <unordered_map>
-#include <unordered_set>
 #include <utility>
 #include <variant>
 
@@ -69,9 +68,6 @@ public:
 
     // The kind of the type.
     Kind kind;
-
-    // The location where the type was defined.
-    Location loc;
 
     bool is_void();
     bool is_primitive();
@@ -177,6 +173,8 @@ public:
 
     // The scope where the type was declared.
     sema::sym::Scope *scope;
+
+    Location loc;
 protected:
     UserType(Kind kind, sema::sym::Scope *scope) 
         : BaseType(kind), scope(scope) {}
@@ -385,7 +383,7 @@ public:
         // the name of the enum variant as declared in the source.
         std::string name;
         // the assigned value of the enum variant.
-        uint64_t value;
+        int64_t value;
         // the location of the declared enumerator.
         Location loc;
     };
@@ -399,10 +397,10 @@ public:
     std::size_t size() override;
 
     // Create an enumerator with an automatically chosen value.
-    void add_enumerator(std::string enumerator, Location loc);
+    int64_t add_enumerator(std::string enumerator, Location loc);
 
     // Create an enumerator with a provided value.
-    void add_enumerator(std::string enumerator, uint64_t value, Location loc);
+    int64_t add_enumerator(std::string enumerator, int64_t value, Location loc);
 
     // Check if an enum already contains an enumerator. 
     EnumTypeMember *find(std::string& name);
@@ -429,10 +427,6 @@ protected:
         : UserType(Kind::ENUM, scope), enumerators() {}
     EnumType(std::string name, sema::sym::Scope *scope)
         : UserType(Kind::ENUM, scope), enumerators(), name(name) {}
-
-private:
-    // existing values that have already been declared.
-    std::unordered_set<uint64_t> values;
 };
 
 

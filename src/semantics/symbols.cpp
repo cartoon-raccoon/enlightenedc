@@ -91,6 +91,7 @@ Symbol *SymbolTable::lookup(std::string sym) {
         // if already global, return null
         if (my_current->outer == nullptr) {
             assert(my_current == global.get());
+            dbprint("SymbolTable: symbol \'", sym, "\' not found");
             return nullptr;
         }
 

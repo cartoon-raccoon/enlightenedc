@@ -1,6 +1,9 @@
 #include "semantics/mir/printer.hpp"
+#include "semantics/types.hpp"
+#include <variant>
 
 using namespace ecc::sema::mir;
+using namespace ecc::sema::types;
 
 void MIRPrinter::print_indent() {
     for (int i = 0; i < indent; ++i)
@@ -146,12 +149,15 @@ void MIRPrinter::visit(TypeDeclMIR& node) {
 }
 
 void MIRPrinter::visit(VarDeclMIR& node) {
-    print_node("VarDecl: " + node.sym->name + " : " +
-                   node.sym->type->to_string(),
-               node, [&] {
-                   if (node.initializer)
-                       node.initializer.value()->accept(*this);
-               });
+    print_node("VarDecl: ",
+                node, [&] {
+                    for (auto& decl : node.decls) {
+                        std::cout << decl.sym->to_string() << "\n";
+                        if (decl.initializer) {
+                            (*decl.initializer)->accept(*this);
+                        }
+                    }
+                });
 }
 
 void MIRPrinter::visit(InitializerMIR& node) {
@@ -187,10 +193,19 @@ void MIRPrinter::visit(SwitchStmtMIR& node) {
         [&] { node.body->accept(*this); });
 }
 
+void MIRPrinter::visit(CaseStmtMIR& node) {
+    print_node("Case: ",
+               node, 
+               [&] { node.case_expr->accept(*this); },
+               [&] { node.stmt->accept(*this); });
+}
+
 void MIRPrinter::visit(CaseRangeStmtMIR& node) {
-    print_node("CaseRange: " + value_to_string(*node.case_start) + " .. " +
-                   value_to_string(*node.case_end),
-               node, [&] { node.stmt->accept(*this); });
+    print_node("CaseRange: ",
+               node, 
+               [&] { node.case_start->accept(*this); },
+               [&] { node.case_end->accept(*this); },
+               [&] { node.stmt->accept(*this); });
 }
 
 void MIRPrinter::visit(DefaultStmtMIR& node) {
@@ -226,7 +241,8 @@ void MIRPrinter::visit(LoopStmtMIR& node) {
             if (node.init)
                 node.init.value()->accept(*this);
         },
-        [&] { node.condition->accept(*this); },
+        [&] { if (node.condition) 
+                node.condition.value()->accept(*this); },
         [&] {
             if (node.step)
                 node.step.value()->accept(*this);
@@ -241,7 +257,10 @@ void MIRPrinter::visit(GotoStmtMIR& node) {
 void MIRPrinter::visit(BreakStmtMIR& node) { print_node("Break", node); }
 
 void MIRPrinter::visit(ReturnStmtMIR& node) {
-    print_node("Return", node, [&] { node.ret_expr->accept(*this); });
+    print_node("Return", node, [&] {
+        if (node.ret_expr)
+            node.ret_expr.value()->accept(*this); 
+    });
 }
 
 void MIRPrinter::visit(BinaryExprMIR& node) {
@@ -268,7 +287,8 @@ void MIRPrinter::visit(AssignExprMIR& node) {
 
 void MIRPrinter::visit(CondExprMIR& node) {
     print_node(
-        "CondExpr", node, [&] { node.condition->accept(*this); },
+        "CondExpr", node, 
+        [&] { node.condition->accept(*this); },
         [&] { node.true_expr->accept(*this); },
         [&] { node.false_expr->accept(*this); });
 }
@@ -277,8 +297,14 @@ void MIRPrinter::visit(IdentExprMIR& node) {
     print_node("Ident: " + node.ident->name, node);
 }
 
+void MIRPrinter::visit(ConstExprMIR& node) {
+    print_node("Const: ", node,
+        [&] { node.inner->accept(*this); }
+    );
+}
+
 void MIRPrinter::visit(LiteralExprMIR& node) {
-    print_node("Literal: " + value_to_string(*node.value), node);
+    print_node("Literal: " + value_to_string(node.value), node);
 }
 
 void MIRPrinter::visit(StringExprMIR& node) {
@@ -311,5 +337,16 @@ void MIRPrinter::visit(PostfixExprMIR& node) {
 }
 
 void MIRPrinter::visit(SizeofExprMIR& node) {
-    print_node("Sizeof: " + node.target->to_string(), node);
+    print_node("Sizeof: ", node, 
+        [&] {
+            std::visit(overloaded {
+                [this] (Box<ExprMIR>& expr) {
+                    expr->accept(*this);
+                },
+                [] (Type *& type) {
+                    std::cout << type->to_string() << '\n';
+                }
+            }, node.operand);
+        }
+    );
 }

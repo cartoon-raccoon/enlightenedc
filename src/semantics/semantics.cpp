@@ -3,11 +3,13 @@
 
 #include "ast/ast.hpp"
 #include "semantics/semantics.hpp"
+#include "semantics/mir/mir.hpp"
 #include "semantics/mir/synthesizer.hpp"
 #include "util.hpp"
 
 using namespace ecc::ast;
 using namespace ecc::sema;
+using namespace mir;
 
 BaseSemanticVisitor::ScopeGuard BaseSemanticVisitor::enter_scope(sym::Symbol *assoc) {
     return ScopeGuard(*this, assoc);
@@ -674,11 +676,11 @@ void BaseSemanticVisitor::do_visit(SizeofExpression& node) {
 }
 
 
-void SemanticChecker::check_semantics(ASTNode& prog) {
+void SemanticChecker::check_semantics(Program& prog, ProgramMIR& mir) {
     dbprint("checking semantics for ", prog.loc);
 
     dbprint("running elaborator for ", prog.loc);
-    MIRSynthesizer elaborator(symbols, types);
+    MIRSynthesizer elaborator(symbols, types, mir);
     prog.accept(elaborator);
 
     symbols.reset();

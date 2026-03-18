@@ -36,6 +36,7 @@ class MIRPrinter : public MIRVisitor {
     void visit(CompoundStmtMIR& node) override;
     void visit(ExprStmtMIR& node) override;
     void visit(SwitchStmtMIR& node) override;
+    void visit(CaseStmtMIR& node) override;
     void visit(CaseRangeStmtMIR& node) override;
     void visit(DefaultStmtMIR& node) override;
     void visit(LabeledStmtMIR& node) override;
@@ -52,6 +53,7 @@ class MIRPrinter : public MIRVisitor {
     void visit(AssignExprMIR& node) override;
     void visit(CondExprMIR& node) override;
     void visit(IdentExprMIR& node) override;
+    void visit(ConstExprMIR& node) override;
     void visit(LiteralExprMIR& node) override;
     void visit(StringExprMIR& node) override;
     void visit(CallExprMIR& node) override;

@@ -1,18 +1,18 @@
 #include <memory>
+#include <sstream>
 #include <stdexcept>
 #include <cassert>
-#include <unistd.h>
 #include <variant>
 
 #include "semantics/mir/synthesizer.hpp"
 #include "ast/ast.hpp"
 #include "semantics/mir/mir.hpp"
-#include "codegen/value.hpp"
 #include "error.hpp"
 #include "semantics/symbols.hpp"
 #include "semantics/semerr.hpp"
 #include "semantics/types.hpp"
-#include "codegen/exec.hpp"
+#include "eval/value.hpp"
+#include "eval/exec.hpp"
 #include "util.hpp"
 
 #define dv_return(val) do { last_result = std::move(val); return; } while (0)
@@ -109,24 +109,17 @@ Box<MIRSynthesizer::SpecifierInfo> MIRSynthesizer::parse_speclist(
 void MIRSynthesizer::do_visit(Program& node) {
     bsv_dbprint("visiting Program node: ", node.loc);
 
-    Vec<Box<ProgramItemMIR>> progitems {};
     for (auto& item : node.items) {
         dv_call(std::monostate {}, item);
         std::visit(overloaded {
-            [&progitems] (Box<DeclMIR>& decl) mutable {
-                progitems.push_back(std::move(decl));
+            [this] (Box<DeclMIR>& decl) mutable {
+                prog_mir.add_item(std::move(decl));
             },
-            [&progitems] (Box<StmtMIR>& stmt) mutable {
-                progitems.push_back(std::move(stmt));
+            [this] (Box<StmtMIR>& stmt) mutable {
+                prog_mir.add_item(std::move(stmt));
             },
-            [&progitems] (Box<FunctionMIR>& func) mutable {
-                progitems.push_back(std::move(func));
-            },
-            // 
-            [&progitems] (Vec<Box<DeclMIR>>& decls) mutable {
-                for (auto& decl : decls) {
-                    progitems.push_back(std::move(decl));
-                }
+            [this] (Box<FunctionMIR>& func) mutable {
+                prog_mir.add_item(std::move(func));
             },
             [] (auto& _) {
                 // todo: throw exception
@@ -245,7 +238,7 @@ void MIRSynthesizer::do_visit(Function& node) {
     // Then make call
     dv_call(cmpdstmtp, node.body);
 
-    auto res = take_last_result<std::pair<Box<sema::mir::CompoundStmtMIR>, sema::sym::Scope *>>();
+    auto res = take_last_result<CmpdStmtFromFuncRes>();
 
     Box<FunctionMIR> func = std::make_unique<FunctionMIR>(node.loc, sym_ptr, res.second, std::move(res.first));
     dv_return(func);
@@ -261,15 +254,15 @@ void MIRSynthesizer::do_visit(TypeDeclaration& node) {
     }
     dv_return(std::monostate {});
 
-    // todo
+    Box<DeclMIR> decl = std::make_unique<TypeDeclMIR>(node.loc, specinfo->symbol.value().get());
+    dv_return(decl);
 }
 
 void MIRSynthesizer::do_visit(VariableDeclaration& node) {
     bsv_dbprint("visiting VariableDeclaration node: ", node.loc);
     auto specinfo = parse_speclist(node.specifiers, node.loc);
 
-    Vec<Box<DeclMIR>> var_decls;
-    var_decls.reserve(node.declarators.size());
+    Box<VarDeclMIR> var_decl = std::make_unique<VarDeclMIR>(node.loc);
 
     for (auto& declarator : node.declarators) {
         // call accept on our declarator
@@ -310,13 +303,15 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
         // extract the initializer mir
         if (ret.init_mir) {
             Box<InitializerMIR> init_mir = std::move(*ret.init_mir);
-            var_decls.push_back(std::make_unique<VarDeclMIR>(node.loc, symptr, std::move(init_mir)));
+            var_decl->add_decl(symptr, std::move(init_mir));
         } else {
-            var_decls.push_back(std::make_unique<VarDeclMIR>(node.loc, symptr));
+            var_decl->add_decl(symptr);
         }
     }
 
-    dv_return(var_decls);
+    Box<DeclMIR> decl = std::move(var_decl);
+
+    dv_return(decl);
 }
 
 void MIRSynthesizer::do_visit(InitDeclarator& node) {
@@ -488,7 +483,7 @@ void MIRSynthesizer::do_visit(Pointer& node) {
 void MIRSynthesizer::do_visit(StorageClassSpecifier& node) {
     bsv_dbprint("visiting StorageClassSpecifier node: ", node.loc);
     /* terminal node */
-    last_result = node.type;
+    dv_return(node.type);
 }
 
 void MIRSynthesizer::do_visit(VoidSpecifier& node) {
@@ -562,12 +557,7 @@ void MIRSynthesizer::do_visit(EnumSpecifier& node) {
             enm = types.get_enum(syms.current);
         }
     } catch ( UserType *prev_def ) {
-        // todo
-    }
-
-    if (!enm) {
-        // error: type with name already exists but is not class
-        throw ecc::EccError("enum already declared as another type", node.loc);
+        throw TypeDecldAsOtherError("enum already declared as another type", node.loc, prev_def->loc);
     }
 
     TypeSpecRet<EnumType> ret({}, enm);
@@ -601,9 +591,10 @@ void MIRSynthesizer::do_visit(Enumerator& node) {
                         node.loc, mem->loc);
     }
 
+    exec::Value value;
     if (node.value) {
         exec::Evaluator evalr(syms, types);
-        exec::Value value = node.value.value()->accept(evalr);
+        value = node.value.value()->accept(evalr);
         std::optional<long> val = value.value_as<long>();
         if (val) {
             enm->add_enumerator(node.name, *val, node.loc);
@@ -611,10 +602,10 @@ void MIRSynthesizer::do_visit(Enumerator& node) {
             throw EccError("invalid enumerator value", node.loc);
         }
     } else {
-        enm->add_enumerator(node.name, node.loc);
+        value = enm->add_enumerator(node.name, node.loc);
     }
 
-    syms.insert(node.name, std::make_unique<VarSymbol>(node.loc, node.name, enm));
+    syms.insert(node.name, std::make_unique<VarSymbol>(node.loc, node.name, enm, value));
 
     dv_return(std::monostate {});
 }
@@ -622,15 +613,14 @@ void MIRSynthesizer::do_visit(Enumerator& node) {
 void MIRSynthesizer::do_visit(ClassSpecifier& node) {
     bsv_dbprint("visiting ClassSpecifier node: ", node.loc);
     ClassType *cls = nullptr;
-    if (node.name) {
-        cls = types.get_class(*(node.name), syms.current);
-    } else {
-        cls = types.get_class(syms.current);
-    }
-
-    if (!cls) {
-        // error: type with name already exists but is not class
-        throw ecc::EccError("class already declared as another type", node.loc);
+    try {
+        if (node.name) {
+            cls = types.get_class(*(node.name), syms.current);
+        } else {
+            cls = types.get_class(syms.current);
+        }
+    } catch (UserType *prev_def) {
+        throw TypeDecldAsOtherError("class already declared as another type", node.loc, prev_def->loc);
     }
 
     TypeSpecRet<ClassType> ret({}, cls);
@@ -660,15 +650,14 @@ void MIRSynthesizer::do_visit(ClassSpecifier& node) {
 void MIRSynthesizer::do_visit(UnionSpecifier& node) {
     bsv_dbprint("visiting UnionSpecifier node ", node.loc);
     UnionType *unn = nullptr;
-    if (node.name) {
-        unn = types.get_union(*(node.name), syms.current);
-    } else {
-        unn = types.get_union(syms.current);
-    }
-
-    if (!unn) { // todo: make this throw an error instead of just returning nullptr
-        // error: type with name already exists but is not union
-        throw ecc::EccError("union already declared as another type", node.loc);
+    try {
+        if (node.name) {
+            unn = types.get_union(*(node.name), syms.current);
+        } else {
+            unn = types.get_union(syms.current);
+        }
+    } catch (UserType *prev_def) {
+        throw TypeDecldAsOtherError("union already declared as another type", node.loc, prev_def->loc);
     }
 
     TypeSpecRet<UnionType> ret({}, unn);
@@ -679,8 +668,7 @@ void MIRSynthesizer::do_visit(UnionSpecifier& node) {
             // error: union was previously defined
             throw TypeAlrDefinedError("union was previously defined", node.loc, unn->loc);
         }
-        // class is defined here, populate its members and mark it complete
-        // todo: populate union
+        // union is defined here, populate its members and mark it complete
         for (auto& decl : *node.declarations) {
             dv_call(unn, decl);
         }
@@ -795,8 +783,6 @@ void MIRSynthesizer::do_visit(ClassDeclarator& node) {
 void MIRSynthesizer::do_visit(Initializer& node) {
     bsv_dbprint("visiting Initializer node: ", node.loc);
 
-    // todo: add initializer unfolding
-
     Location loc = node.loc;
 
     return std::visit(overloaded {
@@ -880,7 +866,7 @@ void MIRSynthesizer::do_visit(CompoundStatement& node) {
         }
     }
 
-    Vec<Box<ProgramItemMIR>> progitems {};
+    Vec<Box<ProgItemMIR>> progitems {};
     for (auto& item : node.items) {
         std::visit(overloaded {
             [&progitems] (Box<DeclMIR>& decl) mutable {
@@ -891,12 +877,6 @@ void MIRSynthesizer::do_visit(CompoundStatement& node) {
             },
             [&progitems] (Box<FunctionMIR>& func) mutable {
                 progitems.push_back(std::move(func));
-            },
-            // 
-            [&progitems] (Vec<Box<DeclMIR>>& decls) mutable {
-                for (auto& decl : decls) {
-                    progitems.push_back(std::move(decl));
-                }
             },
             [] (auto& _) {
                 // todo: throw exception
@@ -921,20 +901,7 @@ void MIRSynthesizer::do_visit(CompoundStatement& node) {
     }
 }
 
-void MIRSynthesizer::do_visit(LabeledStatement& node) { //* DONE
-    bsv_dbprint("visiting LabeledStatement node: ", node.loc);
-    Box<LabelSymbol> label = std::make_unique<sym::LabelSymbol>(node.loc, node.label);
-    LabelSymbol *labelptr = label.get();
-    syms.insert(node.label, std::move(label));
-    dv_call(std::monostate {}, node.statement);
-
-    auto stmt = take_last_result<Box<StmtMIR>>();
-
-    Box<StmtMIR> ret = std::make_unique<LabeledStmtMIR>(node.loc, labelptr, std::move(stmt));
-    dv_return(ret);
-}
-
-void MIRSynthesizer::do_visit(ExpressionStatement& node) { //* DONE
+void MIRSynthesizer::do_visit(ExpressionStatement& node) {
     bsv_dbprint("visiting ExpressionStatement node: ", node.loc);
     if (node.expression) {
         dv_call(std::monostate {}, *node.expression);
@@ -950,169 +917,456 @@ void MIRSynthesizer::do_visit(ExpressionStatement& node) { //* DONE
 
 void MIRSynthesizer::do_visit(CaseStatement& node) {
     bsv_dbprint("visiting CaseStatement node: ", node.loc);
-    node.case_expr->accept(*this);
-    node.statement->accept(*this);
+    dv_call(std::monostate {}, node.case_expr);
+    Box<ExprMIR> case_expr = take_last_result<Box<ExprMIR>>();
+
+    dv_call(std::monostate {}, node.statement);
+    Box<StmtMIR> stmt = take_last_result<Box<StmtMIR>>();
+
+    Box<StmtMIR> casestmt = std::make_unique<CaseStmtMIR>(
+        node.loc, std::move(case_expr), std::move(stmt));
+
+    dv_return(casestmt);
 }
 
 void MIRSynthesizer::do_visit(CaseRangeStatement& node) {
     bsv_dbprint("visiting CaseRangeStatement node: ", node.loc);
-    node.range_start->accept(*this);
-    node.range_end->accept(*this);
-    node.statement->accept(*this);
+
+    dv_call(std::monostate {}, node.range_start);
+    Box<ExprMIR> case_start = take_last_result<Box<ExprMIR>>();
+    
+    dv_call(std::monostate {}, node.range_end);
+    Box<ExprMIR> case_end = take_last_result<Box<ExprMIR>>();
+
+    dv_call(std::monostate {}, node.statement);
+    Box<StmtMIR> stmt = take_last_result<Box<StmtMIR>>();
+    
+    Box<StmtMIR> casestmt = std::make_unique<CaseRangeStmtMIR>(
+        node.loc, std::move(case_start), std::move(case_end), std::move(stmt));
+
+    dv_return(casestmt);
 }
 
 void MIRSynthesizer::do_visit(DefaultStatement& node) {
     bsv_dbprint("visiting DefaultStatement node: ", node.loc);
-    node.statement->accept(*this);
+    dv_call(std::monostate {}, node.statement);
+    Box<StmtMIR> stmt = take_last_result<Box<StmtMIR>>();
+    
+    Box<StmtMIR> defstmt = std::make_unique<DefaultStmtMIR>(
+        node.loc, std::move(stmt));
+
+    dv_return(defstmt);
+}
+
+void MIRSynthesizer::do_visit(LabeledStatement& node) {
+    bsv_dbprint("visiting LabeledStatement node: ", node.loc);
+    Box<LabelSymbol> label = std::make_unique<sym::LabelSymbol>(node.loc, node.label);
+    LabelSymbol *labelptr = label.get();
+    syms.insert(node.label, std::move(label));
+    dv_call(std::monostate {}, node.statement);
+
+    auto stmt = take_last_result<Box<StmtMIR>>();
+
+    Box<StmtMIR> ret = std::make_unique<LabeledStmtMIR>(node.loc, labelptr, std::move(stmt));
+    dv_return(ret);
 }
 
 void MIRSynthesizer::do_visit(PrintStatement& node) {
     bsv_dbprint("visiting PrintStatement node: ", node.loc);
+
+    Vec<Box<ExprMIR>> exprs {};
+    exprs.reserve(node.arguments.size());
+
     for (auto& arg : node.arguments) {
-        arg->accept(*this);
+        dv_call(std::monostate {}, arg);
+        Box<ExprMIR> argmir = take_last_result<Box<ExprMIR>>();
+        exprs.push_back(std::move(argmir));
     }
+
+    Box<StmtMIR> printstmt = std::make_unique<PrintStmtMIR>(
+        node.loc, node.format_string, std::move(exprs));
+
+    dv_return(printstmt);
 }
 
 void MIRSynthesizer::do_visit(IfStatement& node) {
     bsv_dbprint("visiting IfStatement node: ", node.loc);
-    node.condition->accept(*this);
+    dv_call(std::monostate {}, node.condition);
+    Box<ExprMIR> cond = take_last_result<Box<ExprMIR>>();
 
-    node.then_branch->accept(*this);
+    dv_call(std::monostate {}, node.then_branch);
+    Box<StmtMIR> then_br = take_last_result<Box<StmtMIR>>();
+
+    std::optional<Box<StmtMIR>> else_br;
     if (node.else_branch.has_value()) {
-        node.else_branch.value()->accept(*this);
+        dv_call(std::monostate {}, node.else_branch.value());
+        else_br = std::move(take_last_result<Box<StmtMIR>>());
     }
+
+    Box<StmtMIR> ifstmt = std::make_unique<IfStmtMIR>(
+        node.loc, std::move(cond), std::move(then_br), std::move(else_br));
+
+    dv_return(ifstmt);
 }
 
 void MIRSynthesizer::do_visit(SwitchStatement& node) {
     bsv_dbprint("visiting SwitchStatement node: ", node.loc);
-    node.condition->accept(*this);
-    node.body->accept(*this);
+    dv_call(std::monostate {}, node.condition);
+    Box<ExprMIR> cond = take_last_result<Box<ExprMIR>>();
+
+    dv_call(std::monostate {}, node.body);
+    Box<StmtMIR> stmt = take_last_result<Box<StmtMIR>>();
+
+    Box<StmtMIR> switchst = std::make_unique<SwitchStmtMIR>(
+        node.loc, std::move(cond), std::move(stmt));
+    
+    dv_return(switchst);
 }
 
 void MIRSynthesizer::do_visit(WhileStatement& node) {
     bsv_dbprint("visiting WhileStatement node: ", node.loc);
-    node.condition->accept(*this);
-    node.body->accept(*this);
+
+    dv_call(std::monostate {}, node.condition);
+    Box<ExprMIR> cond = take_last_result<Box<ExprMIR>>();
+    dv_call(std::monostate {}, node.body);
+    Box<StmtMIR> body = take_last_result<Box<StmtMIR>>();
+
+    // Create the name for the loop start label
+    std::stringstream ss;
+    ss << "while_start_" << &node;
+
+    // Create the label symbol
+    Box<LabelSymbol> loop_label = std::make_unique<LabelSymbol>(node.loc, ss.str());
+    LabelSymbol *loop_lbl_ptr = syms.insert(ss.str(), std::move(loop_label))->as_labsym();
+    assert(loop_lbl_ptr);
+
+    // Create the LabeledStmtMIR node
+    Box<LabeledStmtMIR> lab_body = std::make_unique<LabeledStmtMIR>(
+        node.loc, loop_lbl_ptr, std::move(body));
+
+    // Create the actual loop
+    Box<StmtMIR> loop = std::make_unique<LoopStmtMIR>(
+        node.loc, std::move(cond), std::move(lab_body), false);
+
+    dv_return(loop);
 }
 
 void MIRSynthesizer::do_visit(DoWhileStatement& node) {
     bsv_dbprint("visiting DoWhileStatement node: ", node.loc);
-    node.body->accept(*this);
-    node.condition->accept(*this);
+
+    dv_call(std::monostate {}, node.condition);
+    Box<ExprMIR> cond = take_last_result<Box<ExprMIR>>();
+    dv_call(std::monostate {}, node.body);
+    Box<StmtMIR> body = take_last_result<Box<StmtMIR>>();
+
+    std::stringstream ss;
+    ss << "dowhile_start_" << &node;
+
+    Box<LabelSymbol> loop_label = std::make_unique<LabelSymbol>(node.loc, ss.str());
+    LabelSymbol *loop_lbl_ptr = syms.insert(ss.str(), std::move(loop_label))->as_labsym();
+    assert(loop_lbl_ptr);
+
+    Box<LabeledStmtMIR> lab_body = std::make_unique<LabeledStmtMIR>(
+        node.loc, loop_lbl_ptr, std::move(body));
+
+    Box<StmtMIR> loop = std::make_unique<LoopStmtMIR>(
+        node.loc, std::move(cond), std::move(lab_body), true);
+
+    dv_return(loop);
 }
 
 void MIRSynthesizer::do_visit(ForStatement& node) {
     bsv_dbprint("visiting ForStatement node: ", node.loc);
+
+    dv_call(std::monostate {}, node.body);
+    Box<StmtMIR> body = take_last_result<Box<StmtMIR>>();
+
+    std::stringstream ss;
+    ss << "for_start_" << &node;
+
+    Box<LabelSymbol> loop_label = std::make_unique<LabelSymbol>(node.loc, ss.str());
+    LabelSymbol *loop_lbl_ptr = syms.insert(ss.str(), std::move(loop_label))->as_labsym();
+    assert(loop_lbl_ptr);
+
+    Box<LabeledStmtMIR> lab_body = std::make_unique<LabeledStmtMIR>(
+        node.loc, loop_lbl_ptr, std::move(body));
+
+    Box<LoopStmtMIR> loop = std::make_unique<LoopStmtMIR>(node.loc, std::move(lab_body));
+
     if (node.init.has_value()) {
-        node.init.value()->accept(*this);
+        std::visit(overloaded {
+            [this, &loop] (Box<Expression>& expr) {
+                dv_call(std::monostate {}, expr);
+                Box<ExprMIR> exprmir = take_last_result<Box<ExprMIR>>();
+                Box<ExprStmtMIR> exprstmt = std::make_unique<ExprStmtMIR>(
+                    expr->loc, std::move(exprmir));
+                
+                loop->init = std::move(exprstmt);
+            },
+            [this, &loop] (Box<VariableDeclaration>& decl) {
+                dv_call(std::monostate {}, decl);
+                Box<DeclMIR> declmir = take_last_result<Box<DeclMIR>>();
+                loop->init = std::move(declmir);
+            }
+        }, *node.init);
     }
 
     if (node.condition.has_value()) {
-        node.condition.value()->accept(*this);
+        dv_call(std::monostate {}, node.condition.value());
+        Box<ExprMIR> cond = take_last_result<Box<ExprMIR>>();
+        loop->condition = std::move(cond);
     }
 
     if (node.increment.has_value()) {
-        node.condition.value()->accept(*this);
+        dv_call(std::monostate {}, node.increment.value());
+        Box<ExprMIR> step_expr = take_last_result<Box<ExprMIR>>();
+        Box<StmtMIR> step_stmt = std::make_unique<ExprStmtMIR>(
+            step_expr->loc, std::move(step_expr));
+
+        loop->step = std::move(step_stmt);
     }
 
-    node.body->accept(*this);
+    Box<StmtMIR> stmt = std::move(loop);
+    dv_return(stmt);
 }
 
 void MIRSynthesizer::do_visit(GotoStatement& node) {
     bsv_dbprint("visiting GotoStatement node: ", node.loc);
+
+    Symbol *target = syms.lookup(node.target_label);
+    if (!target) {
+        throw EccError("could not find specified target label", node.loc);
+    }
+
+    LabelSymbol *label = target->as_labsym();
+
+    Box<StmtMIR> stmt = std::make_unique<GotoStmtMIR>(node.loc, label);
+    dv_return(stmt);
 }
 
 void MIRSynthesizer::do_visit(BreakStatement& node) {
     bsv_dbprint("visiting BreakStatement node: ", node.loc);
+
+    Box<StmtMIR> stmt = std::make_unique<BreakStmtMIR>(node.loc);
+    dv_return(stmt);
 }
 
 void MIRSynthesizer::do_visit(ReturnStatement& node) {
     bsv_dbprint("visiting ReturnStatement node: ", node.loc);
+
+    Box<ReturnStmtMIR> retstmt = std::make_unique<ReturnStmtMIR>(node.loc);
+
     if (node.return_value) {
-        node.return_value.value()->accept(*this);
+        dv_call(std::monostate {}, *node.return_value);
+        Box<ExprMIR> return_value = take_last_result<Box<ExprMIR>>();
+        retstmt->ret_expr = std::move(return_value);
     }
+
+    Box<StmtMIR> stmt = std::move(retstmt);
+    dv_return(stmt);
 }
 
 void MIRSynthesizer::do_visit(BinaryExpression& node) {
-    bsv_dbprint("visiting BinaryStatement node: ", node.loc);
-    node.left->accept(*this);
-    node.right->accept(*this);
-}
+    bsv_dbprint("visiting BinaryExpression node: ", node.loc);
 
-void MIRSynthesizer::do_visit(CastExpression& node) {
-    bsv_dbprint("visiting CastStatement node: ", node.loc);
-    node.inner->accept(*this);
-    node.type_name->accept(*this);
+    dv_call(std::monostate {}, node.left);
+    Box<ExprMIR> left = take_last_result<Box<ExprMIR>>();
+    dv_call(std::monostate {}, node.right);
+    Box<ExprMIR> right = take_last_result<Box<ExprMIR>>();
+
+    Box<ExprMIR> expr = std::make_unique<BinaryExprMIR>(
+        node.loc, std::move(left), std::move(right), node.op);
+
+    dv_return(expr);
 }
 
 void MIRSynthesizer::do_visit(UnaryExpression& node) {
     bsv_dbprint("visiting UnaryExpression node: ", node.loc);
-    node.operand->accept(*this);
+    dv_call(std::monostate {}, node.operand);
+    Box<ExprMIR> operand = take_last_result<Box<ExprMIR>>();
+
+    Box<ExprMIR> expr = std::make_unique<UnaryExprMIR>(
+        node.loc, std::move(operand), node.op);
+
+    dv_return(expr);
+}
+
+void MIRSynthesizer::do_visit(CastExpression& node) {
+    bsv_dbprint("visiting CastExpression node: ", node.loc);
+    dv_call(std::monostate {}, node.inner);
+    Box<ExprMIR> inner = take_last_result<Box<ExprMIR>>();
+    dv_call(std::monostate {}, node.type_name);
+    Type *target = take_last_result<Type *>();
+
+    Box<ExprMIR> expr = std::make_unique<CastExprMIR>(node.loc, target, std::move(inner));
+
+    dv_return(expr);
 }
 
 void MIRSynthesizer::do_visit(AssignmentExpression& node) {
     bsv_dbprint("visiting AssignmentExpression node: ", node.loc);
-    node.left->accept(*this);
-    node.right->accept(*this);
+    dv_call(std::monostate {}, node.left);
+    Box<ExprMIR> left = take_last_result<Box<ExprMIR>>();
+    dv_call(std::monostate {}, node.right);
+    Box<ExprMIR> right = take_last_result<Box<ExprMIR>>();
+
+    Box<ExprMIR> expr = std::make_unique<AssignExprMIR>(
+        node.loc, std::move(left), std::move(right), node.op);
+
+    dv_return(expr);
 }
 
 void MIRSynthesizer::do_visit(ConditionalExpression& node) {
     bsv_dbprint("visiting ConditionalExpression node: ", node.loc);
-    node.condition->accept(*this);
-    node.true_expr->accept(*this);
-    node.false_expr->accept(*this);
+    dv_call(std::monostate {}, node.condition);
+    Box<ExprMIR> condition = take_last_result<Box<ExprMIR>>();
+    dv_call(std::monostate {}, node.true_expr);
+    Box<ExprMIR> true_expr = take_last_result<Box<ExprMIR>>();
+    dv_call(std::monostate {}, node.false_expr);
+    Box<ExprMIR> false_expr = take_last_result<Box<ExprMIR>>();
+
+    Box<ExprMIR> expr = std::make_unique<CondExprMIR>(
+        node.loc, std::move(condition), std::move(true_expr), std::move(false_expr));
+    
+    dv_return(expr);
 }
 
 void MIRSynthesizer::do_visit(IdentifierExpression& node) {
     bsv_dbprint("visiting IdentifierExpression node: ", node.loc);
+
+    Symbol *sym = syms.lookup(node.name);
+    if (!sym) {
+        throw IdentNotDefinedError(node.name, node.loc);
+    }
+    if (sym->is_abstract()) {
+        throw InvalidIdentifierError(node.name, node.loc);
+    }
+
+    PhysicalSymbol *physsym = sym->as_physical();
+    assert(physsym);
+
+    Box<ExprMIR> expr = std::make_unique<IdentExprMIR>(node.loc, physsym);
+
+    dv_return(expr);
 }
 
 void MIRSynthesizer::do_visit(ConstExpression& node) {
     bsv_dbprint("visiting ConstExpression node: ", node.loc);
-    node.inner->accept(*this);
+    dv_call(std::monostate {}, node.inner);
+    Box<ExprMIR> inner = take_last_result<Box<ExprMIR>>();
+
+    Box<ExprMIR> expr = std::make_unique<ConstExprMIR>(node.loc, std::move(inner));
+
+    dv_return(expr);
 }
 
 void MIRSynthesizer::do_visit(LiteralExpression& node) {
     bsv_dbprint("visiting LiteralExpression node: ", node.loc);
+
+    exec::Value val;
+    switch (node.kind) {
+        case LiteralExpression::INT:
+        val = (long) node.value.i_val;
+        break;
+
+        case LiteralExpression::FLOAT:
+        val = node.value.f_val;
+        break;
+
+        case LiteralExpression::CHAR:
+        val = node.value.c_val;
+
+        case LiteralExpression::BOOL:
+        val = node.value.b_val;
+    }
+
+    Box<ExprMIR> expr = std::make_unique<LiteralExprMIR>(node.loc, val);
+
+    dv_return(expr);
 }
 
 void MIRSynthesizer::do_visit(StringExpression& node) {
     bsv_dbprint("visiting StringExpression node: ", node.loc);
+
+    Box<ExprMIR> expr = std::make_unique<LiteralExprMIR>(node.loc, node.value);
+
+    dv_return(expr);
 }
 
 void MIRSynthesizer::do_visit(CallExpression& node) {
     bsv_dbprint("visiting CallExpression node: ", node.loc);
-    node.callee->accept(*this);
+    dv_call(std::monostate {}, node.callee);
+    Box<ExprMIR> callee = take_last_result<Box<ExprMIR>>();
 
+    Vec<Box<ExprMIR>> args;
     for (auto& arg : node.arguments) {
-        arg->accept(*this);
+        dv_call(std::monostate {}, arg);
+        Box<ExprMIR> argument = take_last_result<Box<ExprMIR>>();
+        args.push_back(std::move(argument));
     }
+
+    Box<ExprMIR> call = std::make_unique<CallExprMIR>(
+        node.loc, std::move(callee), std::move(args));
+
+    dv_return(call);
 }
 
 void MIRSynthesizer::do_visit(MemberAccessExpression& node) {
     bsv_dbprint("visiting MemberAccessExpression node: ", node.loc);
-    node.object->accept(*this);
+    
+    dv_call(std::monostate {}, node.object);
+    Box<ExprMIR> object = take_last_result<Box<ExprMIR>>();
+
+    Box<ExprMIR> expr = std::make_unique<MemberAccExprMIR>(
+        node.loc, std::move(object), node.member, node.is_arrow);
+
+    dv_return(expr);
 }
 
 void MIRSynthesizer::do_visit(ArraySubscriptExpression& node) {
     bsv_dbprint("visiting ArraySubscriptExpression node: ", node.loc);
-    node.array->accept(*this);
-    node.index->accept(*this);
+    
+    dv_call(std::monostate {}, node.array);
+    Box<ExprMIR> array = take_last_result<Box<ExprMIR>>();
+
+    dv_call(std::monostate {}, node.index);
+    Box<ExprMIR> index = take_last_result<Box<ExprMIR>>();
+    
+    Box<ExprMIR> expr = std::make_unique<SubscrExprMIR>(
+        node.loc, std::move(array), std::move(index));
+
+    dv_return(expr);
 }
 
 void MIRSynthesizer::do_visit(PostfixExpression& node) {
     bsv_dbprint("visiting PostfixExpression node: ", node.loc);
-    node.operand->accept(*this);
+    
+    dv_call(std::monostate {}, node.operand);
+    Box<ExprMIR> operand = take_last_result<Box<ExprMIR>>();
+
+    Box<ExprMIR> expr = std::make_unique<PostfixExprMIR>(
+        node.loc, std::move(operand), node.op);
+
+    dv_return(expr);
 }
 
 void MIRSynthesizer::do_visit(SizeofExpression& node) {
     bsv_dbprint("visiting SizeofExpression node: ", node.loc);
+
+    Box<SizeofExprMIR> sizexpr = std::make_unique<SizeofExprMIR>(node.loc);
     std::visit(overloaded {
-        [this] (Box<Expression>& expr) {
-            expr->accept(*this);
+        [this, &sizexpr] (Box<Expression>& expr) mutable {
+            dv_call(std::monostate {}, expr);
+            Box<ExprMIR> target = take_last_result<Box<ExprMIR>>();
+            sizexpr->operand = std::move(target);
         },
-        [this] (Box<TypeName>& typen) {
-            typen->accept(*this);
+        [this, &sizexpr] (Box<TypeName>& typen) mutable {
+            dv_call(std::monostate {}, typen);
+            Type *target = take_last_result<Type *>();
+            sizexpr->operand = target;
         }
     }, node.operand);
+
+    Box<ExprMIR> expr = std::move(sizexpr);
+    dv_return(expr);
 }

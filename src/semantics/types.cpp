@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <cstddef>
 #include <cstdio>
 #include <memory>
@@ -7,6 +6,7 @@
 #include <variant>
 
 #include "semantics/types.hpp"
+#include "semantics/semerr.hpp"
 #include "util.hpp"
 
 #define MAX_SIZE 8
@@ -186,29 +186,35 @@ std::size_t EnumType::size() {
     return MAX_SIZE;
 }
 
-void EnumType::add_enumerator(std::string enumerator, Location loc) {
+int64_t EnumType::add_enumerator(std::string enumerator, Location loc) {
+    EnumTypeMember *prev_mem = find(enumerator);
+    if (prev_mem) {
+        throw EnumeratorAlrDecldError(enumerator, loc, prev_mem->loc);
+    }
 
     /*
-    Determine the value to use: If no values exist, start at 1.
-    If values already exist, take the max value + 1.
+    Value to use is the value of the last enumerator + 1.
+    Ignore any value collisions this might cause.
     */
-    auto it = std::max_element(values.begin(), values.end());
-    int value;
-    if (it != values.end()) {
-        value = *it + 1;
-    } else {
-        value = 1;
+    int64_t value = 0;
+    if (!enumerators.empty()) {
+        value = enumerators.back()->value + 1;
     }
     
-    add_enumerator(enumerator, value, loc);
+    return add_enumerator(enumerator, value, loc);
 }
 
-void EnumType::add_enumerator(std::string enumerator, uint64_t value, Location loc) {
+int64_t EnumType::add_enumerator(std::string enumerator, int64_t value, Location loc) {
+    EnumTypeMember *prev_mem = find(enumerator);
+    if (prev_mem) {
+        throw EnumeratorAlrDecldError(enumerator, loc, prev_mem->loc);
+    }
+
     Box<EnumTypeMember> member = std::make_unique<EnumTypeMember>(enumerator, value, loc);
 
-    values.insert(value);
-
     enumerators.push_back(std::move(member));
+
+    return value;
 }
 
 EnumType::EnumTypeMember *EnumType::find(std::string& name) {

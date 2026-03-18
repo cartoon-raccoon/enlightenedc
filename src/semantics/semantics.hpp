@@ -5,6 +5,7 @@
 #include "ast/ast.hpp"
 #include "semantics/symbols.hpp"
 #include "semantics/types.hpp"
+#include "semantics/mir/mir.hpp"
 #include "util.hpp"
 
 #include <optional>
@@ -340,7 +341,7 @@ public:
     sym::SymbolTable& symbols;
     types::TypeContext& types;
 
-    void check_semantics(ast::ASTNode& prog);
+    void check_semantics(ast::Program& prog, mir::ProgramMIR& mir);
 };
 
 }

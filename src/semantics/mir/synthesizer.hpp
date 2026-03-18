@@ -33,11 +33,15 @@ struct TypeSpecRet {
     Ty *type;
 };
 
-// The result of a 
+// The result of visiting an init declarator.
 struct InitDecltrRet {
     Box<DeclaratorBuilder> builder;
     std::optional<Box<sema::mir::InitializerMIR>> init_mir;
 };
+
+// The result of visiting a compound statement from a function.
+using CmpdStmtFromFuncRes = 
+    std::pair<Box<sema::mir::CompoundStmtMIR>, sema::sym::Scope *>;
 
 /*
 The result of visiting an AST node.
@@ -66,12 +70,15 @@ using ElabResult = std::variant<
     // The result of visiting a StorageClassSpecifier node.
     ast::StorageClassSpecifier::SpecType,
 
-    Box<sema::mir::ProgramItemMIR>,
+    Box<sema::mir::ProgItemMIR>,
     Box<sema::mir::FunctionMIR>,
-    // The return type of visiting VariableDeclaration node.
-    Vec<Box<sema::mir::DeclMIR>>,
     // The return type of visiting a CompoundStatement node from a Function node.
-    std::pair<Box<sema::mir::CompoundStmtMIR>, sema::sym::Scope *>,
+    CmpdStmtFromFuncRes,
+    /*
+    The results of visiting various Declaration, Statement, and Expression nodes.
+    We do not use the specific types, as we cannot match on those when returning,
+    due to how std::variant's visit and get_if functions work.
+    */
     Box<sema::mir::DeclMIR>,
     Box<sema::mir::StmtMIR>,
     Box<sema::mir::ExprMIR>,
@@ -112,8 +119,8 @@ The class that performs the elaboration pass.
 */
 class MIRSynthesizer : public BaseSemanticVisitor {
 public:
-    MIRSynthesizer(sym::SymbolTable& syms, types::TypeContext& types)
-    : BaseSemanticVisitor(BaseSemanticVisitor::State::WRITE, syms, types) {}
+    MIRSynthesizer(sym::SymbolTable& syms, types::TypeContext& types, mir::ProgramMIR& mir)
+    : BaseSemanticVisitor(BaseSemanticVisitor::State::WRITE, syms, types), prog_mir(mir) {}
 
     /*
     The result of the last visit(ast::) call. This is essentially the `return` value,
@@ -122,6 +129,8 @@ public:
     ElabResult last_result = std::monostate {};
 
     ElabVisitParam dovisit_param = std::monostate {};
+
+    mir::ProgramMIR& prog_mir;
 
     /*
     Takes the result of the last visit call, replacing it with `std::monostate`.
@@ -168,8 +177,6 @@ private:
     };
 
     Box<SpecifierInfo> parse_speclist(Vec<Box<ast::DeclarationSpecifier>>&, Location);
-
-    void unfold_initializer(); // todo
 
 protected:
     void do_visit(ast::Program& node) override;

@@ -6,7 +6,7 @@
 
 #include "semantics/types.hpp"
 #include "semantics/symbols.hpp"
-#include "codegen/value.hpp"
+#include "eval/value.hpp"
 #include "util.hpp"
 #include "frontend/tokens.hpp"
 
@@ -17,6 +17,14 @@ using namespace util;
 namespace ecc::sema::mir {
 /*
 Middle representation functionality.
+
+The Middle Intermediate Representation, or MIR for short, is a simpler tree-based
+structure that contains the semantic structure of the program, without unneccessary
+syntactic details that are no longer needed. Symbols are mapped directly to Symbol
+objects in the SymbolTable, and Expressions are directly tagged with Types.
+
+The MIR is where most semantic validation steps are performed, such as typechecking
+and some desugaring.
 */
 
 class MIRVisitor;
@@ -26,7 +34,7 @@ A simpler version of the AST, mapping symbols directly to types.
 */
 class MIRNode {
 public:
-    enum MIRNodeKind {
+    enum class MIRNodeKind {
         PROG_MIR,
         FUNC_MIR,
         INIT_MIR,
@@ -50,6 +58,7 @@ public:
         ASSGNEXPR_MIR,
         CONDEXPR_MIR,
         IDENTEXPR_MIR,
+        CONSTEXPR_MIR,
         LITEXPR_MIR,
         STREXPR_MIR,
         CALLEXPR_MIR,
@@ -58,6 +67,8 @@ public:
         PFIXEXPR_MIR,
         SIZEEXPR_MIR,
     };
+
+    MIRNode(MIRNodeKind kind) : loc() {}
 
     MIRNode(Location loc, MIRNodeKind kind) : loc(loc) {}
     virtual ~MIRNode() = default;
@@ -68,9 +79,9 @@ public:
     virtual void accept(MIRVisitor& visitor) = 0;
 };
 
-class ProgramItemMIR : public MIRNode {
+class ProgItemMIR : public MIRNode {
 public:
-    ProgramItemMIR(Location loc, MIRNodeKind kind) : MIRNode(loc, kind) {}
+    ProgItemMIR(Location loc, MIRNodeKind kind) : MIRNode(loc, kind) {}
 
     virtual void accept(MIRVisitor& visitor) = 0;
 };
@@ -94,24 +105,24 @@ public:
     virtual void accept(MIRVisitor& visitor) = 0;
 };
 
-class DeclMIR : public ProgramItemMIR {
+class DeclMIR : public ProgItemMIR {
 public:
-    DeclMIR(Location loc, MIRNodeKind kind) : ProgramItemMIR(loc, kind) {}
+    DeclMIR(Location loc, MIRNodeKind kind) : ProgItemMIR(loc, kind) {}
     virtual void accept(MIRVisitor& visitor) = 0;
 };
 
-class StmtMIR : public ProgramItemMIR {
+class StmtMIR : public ProgItemMIR {
 public:
-    StmtMIR(Location loc, MIRNodeKind kind) : ProgramItemMIR(loc, kind) {}
+    StmtMIR(Location loc, MIRNodeKind kind) : ProgItemMIR(loc, kind) {}
     virtual void accept(MIRVisitor& visitor) = 0;
 };
 
 class InitializerMIR : public MIRNode {
 public:
     InitializerMIR(Location loc, Box<ExprMIR> expr)
-        : MIRNode(loc, INIT_MIR), initializer(std::move(expr)) {}
+        : MIRNode(loc, MIRNodeKind::INIT_MIR), initializer(std::move(expr)) {}
     InitializerMIR(Location loc, Vec<Box<InitializerMIR>> initializers)
-        : MIRNode(loc, INIT_MIR), initializer(std::move(initializers)) {}
+        : MIRNode(loc, MIRNodeKind::INIT_MIR), initializer(std::move(initializers)) {}
     
     std::variant<Box<ExprMIR>, Vec<Box<InitializerMIR>>> initializer;
 
@@ -121,7 +132,7 @@ public:
 class TypeDeclMIR : public DeclMIR {
 public:
     TypeDeclMIR(Location loc, sema::sym::TypeSymbol *sym)
-        : DeclMIR(loc, TYPEDEC_MIR), sym(sym) {}
+        : DeclMIR(loc, MIRNodeKind::TYPEDEC_MIR), sym(sym) {}
     
     sema::sym::TypeSymbol *sym;
 
@@ -131,14 +142,19 @@ public:
 // A MIR node containing a single variable declaration and optional initializer.
 class VarDeclMIR : public DeclMIR {
 public:
-    VarDeclMIR(Location loc, sema::sym::VarSymbol *sym)
-        : DeclMIR(loc, VARDEC_MIR), sym(sym) {}
+    struct VarDecl {
+        sema::sym::VarSymbol *sym;
+        std::optional<Box<InitializerMIR>> initializer;
+    };
+
+    VarDeclMIR(Location loc)
+        : DeclMIR(loc, MIRNodeKind::VARDEC_MIR) {}
     
-    VarDeclMIR(Location loc, sema::sym::VarSymbol *sym, Box<InitializerMIR> init)
-        : DeclMIR(loc, VARDEC_MIR), sym(sym), initializer(std::move(init)) {}
-    
-    sema::sym::VarSymbol *sym;
-    std::optional<Box<InitializerMIR>> initializer;
+    Vec<VarDecl> decls;
+
+    void add_decl(sema::sym::VarSymbol *sym);
+
+    void add_decl(sema::sym::VarSymbol *sym, Box<InitializerMIR> init);
 
     void accept(MIRVisitor& visitor) override;
 };
@@ -146,14 +162,14 @@ public:
 class CompoundStmtMIR : public StmtMIR {
 public:
     CompoundStmtMIR(Location loc)
-        : StmtMIR(loc, CMPDSTMT_MIR), items() {}
+        : StmtMIR(loc, MIRNodeKind::CMPDSTMT_MIR), items() {}
     
-    CompoundStmtMIR(Location loc, Vec<Box<ProgramItemMIR>> items)
-        : StmtMIR(loc, CMPDSTMT_MIR), items(std::move(items)) {}
+    CompoundStmtMIR(Location loc, Vec<Box<ProgItemMIR>> items)
+        : StmtMIR(loc, MIRNodeKind::CMPDSTMT_MIR), items(std::move(items)) {}
     
-    Vec<Box<ProgramItemMIR>> items;
+    Vec<Box<ProgItemMIR>> items;
 
-    void add_item(Box<ProgramItemMIR> item);
+    void add_item(Box<ProgItemMIR> item);
 
     void accept(MIRVisitor& visitor) override;
 };
@@ -161,10 +177,10 @@ public:
 class ExprStmtMIR : public StmtMIR {
 public:
     ExprStmtMIR(Location loc, Box<ExprMIR> expr)
-        : StmtMIR(loc, EXPRSTMT_MIR), expr(std::move(expr)) {}
+        : StmtMIR(loc, MIRNodeKind::EXPRSTMT_MIR), expr(std::move(expr)) {}
     
     ExprStmtMIR(Location loc)
-        : StmtMIR(loc, EXPRSTMT_MIR) {}
+        : StmtMIR(loc, MIRNodeKind::EXPRSTMT_MIR) {}
     
     std::optional<Box<ExprMIR>> expr;
 
@@ -176,7 +192,7 @@ public:
 class SwitchStmtMIR : public StmtMIR {
 public:
     SwitchStmtMIR(Location loc, Box<ExprMIR> condition, Box<StmtMIR> body)
-        : StmtMIR(loc, SWITCHSTMT_MIR), 
+        : StmtMIR(loc, MIRNodeKind::SWITCHSTMT_MIR), 
         condition(std::move(condition)), body(std::move(body)) {}
     
     Box<ExprMIR> condition;
@@ -185,25 +201,32 @@ public:
     void accept(MIRVisitor& visitor) override;
 };
 
-class CaseRangeStmtMIR : public StmtMIR {
+class CaseStmtMIR : public StmtMIR {
 public:
-    CaseRangeStmtMIR(Location loc, Box<exec::Value> case_val, Box<StmtMIR> stmt)
-        : StmtMIR(loc, CASESTMT_MIR), 
-        case_start(std::make_unique<exec::Value>(*case_val)),
-        case_end(std::move(case_val)),
+    CaseStmtMIR(Location loc, Box<ExprMIR> case_expr, Box<StmtMIR> stmt)
+        : StmtMIR(loc, MIRNodeKind::CASESTMT_MIR), 
+        case_expr(std::move(case_expr)),
         stmt(std::move(stmt)) {}
 
+    Box<ExprMIR> case_expr;
+    Box<StmtMIR> stmt;
+
+    void accept(MIRVisitor& visitor) override;
+};
+
+class CaseRangeStmtMIR : public StmtMIR {
+public:
     CaseRangeStmtMIR(Location loc, 
-                     Box<exec::Value> case_start, 
-                     Box<exec::Value> case_end,
+                     Box<ExprMIR> case_start, 
+                     Box<ExprMIR> case_end,
                      Box<StmtMIR> stmt)
-        : StmtMIR(loc, CASESTMT_MIR), 
+        : StmtMIR(loc, MIRNodeKind::CASESTMT_MIR), 
         case_start(std::move(case_start)), 
         case_end(std::move(case_end)),
         stmt(std::move(stmt)) {}
 
-    Box<exec::Value> case_start;
-    Box<exec::Value> case_end;
+    Box<ExprMIR> case_start;
+    Box<ExprMIR> case_end;
     Box<StmtMIR> stmt;
 
     void accept(MIRVisitor& visitor) override;
@@ -212,7 +235,7 @@ public:
 class DefaultStmtMIR : public StmtMIR {
 public:
     DefaultStmtMIR(Location loc, Box<StmtMIR> stmt)
-        : StmtMIR(loc, DEFSTMT_MIR), stmt(std::move(stmt)) {}
+        : StmtMIR(loc, MIRNodeKind::DEFSTMT_MIR), stmt(std::move(stmt)) {}
     
     Box<StmtMIR> stmt;
 
@@ -222,7 +245,7 @@ public:
 class LabeledStmtMIR : public StmtMIR {
 public:
     LabeledStmtMIR(Location loc, sema::sym::LabelSymbol *label, Box<StmtMIR> stmt)
-        : StmtMIR(loc, LABSTMT_MIR), label(label), stmt(std::move(stmt)) {}
+        : StmtMIR(loc, MIRNodeKind::LABSTMT_MIR), label(label), stmt(std::move(stmt)) {}
 
     sema::sym::LabelSymbol *label;
     Box<StmtMIR> stmt;
@@ -233,7 +256,8 @@ public:
 class PrintStmtMIR : public StmtMIR {
 public:
     PrintStmtMIR(Location loc, std::string format_string, Vec<Box<ExprMIR>> arguments)
-        : StmtMIR(loc, PRINTSTMT_MIR), format_string(format_string), arguments(std::move(arguments)) {}
+        : StmtMIR(loc, MIRNodeKind::PRINTSTMT_MIR), 
+        format_string(format_string), arguments(std::move(arguments)) {}
     
     std::string format_string;
     Vec<Box<ExprMIR>> arguments;
@@ -246,7 +270,7 @@ public:
     IfStmtMIR(Location loc, 
               Box<ExprMIR> condition, Box<StmtMIR> then_branch, 
               Box<StmtMIR> else_branch)
-        : StmtMIR(loc, IFSTMT_MIR), 
+        : StmtMIR(loc, MIRNodeKind::IFSTMT_MIR), 
         condition(std::move(condition)), 
         then_branch(std::move(then_branch)),
         else_branch(std::move(else_branch)) {}
@@ -254,14 +278,14 @@ public:
     IfStmtMIR(Location loc, 
               Box<ExprMIR> condition, Box<StmtMIR> then_branch, 
               std::optional<Box<StmtMIR>> else_branch)
-        : StmtMIR(loc, IFSTMT_MIR), 
+        : StmtMIR(loc, MIRNodeKind::IFSTMT_MIR), 
         condition(std::move(condition)), 
         then_branch(std::move(then_branch)),
         else_branch(std::move(else_branch)) {}
 
     IfStmtMIR(Location loc, 
               Box<ExprMIR> condition, Box<StmtMIR> then_branch)
-        : StmtMIR(loc, IFSTMT_MIR), 
+        : StmtMIR(loc, MIRNodeKind::IFSTMT_MIR), 
         condition(std::move(condition)), 
         then_branch(std::move(then_branch)) {}
     
@@ -277,27 +301,49 @@ A basic loop that all loops expand into.
 */
 class LoopStmtMIR : public StmtMIR {
 public:
-    LoopStmtMIR(Location loc, Box<StmtMIR> init,
-                Box<ExprMIR> condition, Box<StmtMIR> step,
+    LoopStmtMIR(Location loc, Box<LabeledStmtMIR> body) 
+        : StmtMIR(loc, MIRNodeKind::LOOPSTMT_MIR),
+        body(std::move(body)) {}
+
+    LoopStmtMIR(Location loc, 
+                std::optional<Box<ProgItemMIR>> init,
+                std::optional<Box<ExprMIR>> condition, 
+                std::optional<Box<StmtMIR>> step,
                 Box<LabeledStmtMIR> body,
                 bool is_dowhile)
-        : StmtMIR(loc, LOOPSTMT_MIR),
+        : StmtMIR(loc, MIRNodeKind::LOOPSTMT_MIR),
         init(std::move(init)),
         condition(std::move(condition)),
         step(std::move(step)),
         body(std::move(body)),
         is_dowhile(is_dowhile) {}
     
-    LoopStmtMIR(Location loc, Box<ExprMIR> condition, 
-                Box<LabeledStmtMIR> body, bool is_dowhile)
-        : StmtMIR(loc, LOOPSTMT_MIR),
+    LoopStmtMIR(Location loc, 
+                Box<ExprMIR> condition, 
+                Box<LabeledStmtMIR> body,
+                bool is_dowhile)
+        : StmtMIR(loc, MIRNodeKind::LOOPSTMT_MIR),
         condition(std::move(condition)),
         body(std::move(body)),
         is_dowhile(is_dowhile) {}
-    
-    std::optional<Box<StmtMIR>> init; // only needed for for loops.
-    Box<ExprMIR> condition;
-    std::optional<Box<StmtMIR>> step; // only needed for for loops.
+
+    /*
+    Initialization code at the start of the loop.
+    Only for loops should be using this.
+    ProgItem is used because the init code can be a variable declaration
+    or an expression statement.
+    */
+    std::optional<Box<ProgItemMIR>> init;
+    /*
+    The condition needed for the loop to continue.
+    */
+    std::optional<Box<ExprMIR>> condition;
+    /*
+    The step condition for updating a sentinel value in the loop.
+    Only needed for `for` loops.
+    */
+    std::optional<Box<StmtMIR>> step;
+    // The actual body of the loop.
     Box<LabeledStmtMIR> body;
     bool is_dowhile;
 
@@ -307,7 +353,7 @@ public:
 class GotoStmtMIR : public StmtMIR {
 public:
     GotoStmtMIR(Location loc, sema::sym::LabelSymbol *target)
-        : StmtMIR(loc, GOTOSTMT_MIR), target(target) {}
+        : StmtMIR(loc, MIRNodeKind::GOTOSTMT_MIR), target(target) {}
     
     sema::sym::LabelSymbol *target;
 
@@ -316,17 +362,20 @@ public:
 
 class BreakStmtMIR : public StmtMIR {
 public:
-    BreakStmtMIR(Location loc) : StmtMIR(loc, BREAKSTMT_MIR) {}
+    BreakStmtMIR(Location loc) : StmtMIR(loc, MIRNodeKind::BREAKSTMT_MIR) {}
     
     void accept(MIRVisitor& visitor) override;
 };
 
 class ReturnStmtMIR : public StmtMIR {
 public:
+    ReturnStmtMIR(Location loc)
+        : StmtMIR(loc, MIRNodeKind::RETSTMT_MIR) {}
+
     ReturnStmtMIR(Location loc, Box<ExprMIR> ret_expr)
-        : StmtMIR(loc, RETSTMT_MIR), ret_expr(std::move(ret_expr)) {}
+        : StmtMIR(loc, MIRNodeKind::RETSTMT_MIR), ret_expr(std::move(ret_expr)) {}
     
-    Box<ExprMIR> ret_expr;
+    std::optional<Box<ExprMIR>> ret_expr;
 
     void accept(MIRVisitor& visitor) override;
 };
@@ -336,7 +385,7 @@ public:
     BinaryExprMIR(Location loc, 
                   Box<ExprMIR> left, Box<ExprMIR> right, 
                   tokens::BinaryOp op)
-        : ExprMIR(loc, BINEXPR_MIR), 
+        : ExprMIR(loc, MIRNodeKind::BINEXPR_MIR), 
         left(std::move(left)), right(std::move(right)), 
         op(op) {}
     
@@ -352,7 +401,7 @@ public:
 class UnaryExprMIR : public ExprMIR {
 public:
     UnaryExprMIR(Location loc, Box<ExprMIR> operand, tokens::UnaryOp op)
-        : ExprMIR(loc, UNEXPR_MIR), operand(std::move(operand)), op(op) {}
+        : ExprMIR(loc, MIRNodeKind::UNEXPR_MIR), operand(std::move(operand)), op(op) {}
     
     Box<ExprMIR> operand;
     tokens::UnaryOp op;
@@ -363,7 +412,8 @@ public:
 class CastExprMIR : public ExprMIR {
 public:
     CastExprMIR(Location loc, sema::types::Type *target, Box<ExprMIR> inner)
-        : ExprMIR(loc, CASTEXPR_MIR), target(target), inner(std::move(inner)) {}
+        : ExprMIR(loc, MIRNodeKind::CASTEXPR_MIR), 
+        target(target), inner(std::move(inner)) {}
     
     sema::types::Type *target;
     Box<ExprMIR> inner;
@@ -376,7 +426,7 @@ public:
     AssignExprMIR(Location loc, 
                   Box<ExprMIR> left, Box<ExprMIR> right, 
                   tokens::AssignOp op)
-        : ExprMIR(loc, ASSGNEXPR_MIR), 
+        : ExprMIR(loc, MIRNodeKind::ASSGNEXPR_MIR), 
         left(std::move(left)), right(std::move(right)), 
         op(op) {}
 
@@ -391,7 +441,9 @@ class CondExprMIR : public ExprMIR {
 public:
     CondExprMIR(Location loc, Box<ExprMIR> condition,
                 Box<ExprMIR> true_expr, Box<ExprMIR> false_expr)
-        : ExprMIR(loc, CONDEXPR_MIR), true_expr(std::move(true_expr)),
+        : ExprMIR(loc, MIRNodeKind::CONDEXPR_MIR), 
+        condition(std::move(condition)),
+        true_expr(std::move(true_expr)),
         false_expr(std::move(false_expr)) {}
 
     Box<ExprMIR> condition;
@@ -403,20 +455,30 @@ public:
 
 class IdentExprMIR : public ExprMIR {
 public:
-    IdentExprMIR(Location loc, sema::sym::Symbol *ident)
-        : ExprMIR(loc, IDENTEXPR_MIR), ident(ident) {}
+    IdentExprMIR(Location loc, sema::sym::PhysicalSymbol *ident)
+        : ExprMIR(loc, MIRNodeKind::IDENTEXPR_MIR), ident(ident) {}
 
-    sema::sym::Symbol *ident;
+    sema::sym::PhysicalSymbol *ident;
+
+    void accept(MIRVisitor& visitor) override;
+};
+
+class ConstExprMIR : public ExprMIR {
+public:
+    ConstExprMIR(Location loc, Box<ExprMIR> inner)
+        : ExprMIR(loc, MIRNodeKind::CONSTEXPR_MIR), inner(std::move(inner)) {}
+    
+    Box<ExprMIR> inner;
 
     void accept(MIRVisitor& visitor) override;
 };
 
 class LiteralExprMIR : public ExprMIR {
 public:
-    LiteralExprMIR(Location loc, Box<exec::Value> value)
-        : ExprMIR(loc, LITEXPR_MIR), value(std::move(value)) {}
+    LiteralExprMIR(Location loc, exec::Value value)
+        : ExprMIR(loc, MIRNodeKind::LITEXPR_MIR), value(value) {}
 
-    Box<exec::Value> value;
+    exec::Value value;
 
     void accept(MIRVisitor& visitor) override;
 };
@@ -424,7 +486,7 @@ public:
 class StringExprMIR : public ExprMIR {
 public:
     StringExprMIR(Location loc, std::string value)
-        : ExprMIR(loc, STREXPR_MIR), value(value) {}
+        : ExprMIR(loc, MIRNodeKind::STREXPR_MIR), value(value) {}
 
     std::string value;
 
@@ -434,7 +496,9 @@ public:
 class CallExprMIR : public ExprMIR {
 public:
     CallExprMIR(Location loc, Box<ExprMIR> callee, Vec<Box<ExprMIR>> args)
-        : ExprMIR(loc, CALLEXPR_MIR), callee(std::move(callee)), args(std::move(args)) {}
+        : ExprMIR(loc, MIRNodeKind::CALLEXPR_MIR), 
+        callee(std::move(callee)), 
+        args(std::move(args)) {}
 
     Box<ExprMIR> callee;
     Vec<Box<ExprMIR>> args;
@@ -444,11 +508,14 @@ public:
 
 class MemberAccExprMIR : public ExprMIR {
 public:
-    MemberAccExprMIR(Location loc, Box<ExprMIR> object, std::string member)
-        : ExprMIR(loc, MEMACCEXPR_MIR), object(std::move(object)), member(member) {}
+    MemberAccExprMIR(Location loc, 
+                     Box<ExprMIR> object, std::string member, bool is_arrow)
+        : ExprMIR(loc, MIRNodeKind::MEMACCEXPR_MIR), 
+        object(std::move(object)), member(member), is_arrow(is_arrow) {}
     
     Box<ExprMIR> object;
     std::string member;
+    bool is_arrow;
 
     void accept(MIRVisitor& visitor) override;
 };
@@ -456,7 +523,7 @@ public:
 class SubscrExprMIR : public ExprMIR {
 public:
     SubscrExprMIR(Location loc, Box<ExprMIR> array, Box<ExprMIR> index)
-        : ExprMIR(loc, SUBSCREXPR_MIR), 
+        : ExprMIR(loc, MIRNodeKind::SUBSCREXPR_MIR), 
         array(std::move(array)), index(std::move(index)) {}
 
     Box<ExprMIR> array;
@@ -468,7 +535,7 @@ public:
 class PostfixExprMIR : public ExprMIR {
 public:
     PostfixExprMIR(Location loc, Box<ExprMIR> operand, tokens::PostfixOp op)
-        : ExprMIR(loc, PFIXEXPR_MIR), operand(std::move(operand)), op(op) {}
+        : ExprMIR(loc, MIRNodeKind::PFIXEXPR_MIR), operand(std::move(operand)), op(op) {}
 
     Box<ExprMIR> operand;
     tokens::PostfixOp op;
@@ -478,21 +545,28 @@ public:
 
 class SizeofExprMIR : public ExprMIR {
 public:
+    using SizeofOperand = std::variant<Box<ExprMIR>, sema::types::Type *>;
+
+    SizeofExprMIR(Location loc) : ExprMIR(loc, MIRNodeKind::SIZEEXPR_MIR) {}
+
     SizeofExprMIR(Location loc, sema::types::Type *target)
-        : ExprMIR(loc, SIZEEXPR_MIR), target(target) {}
+        : ExprMIR(loc, MIRNodeKind::SIZEEXPR_MIR), operand(target) {}
+
+    SizeofExprMIR(Location loc, Box<ExprMIR> target)
+        : ExprMIR(loc, MIRNodeKind::SIZEEXPR_MIR), operand(std::move(target)) {}
     
-    sema::types::Type *target;
+    SizeofOperand operand;
 
     void accept(MIRVisitor& visitor) override;
 };
 
-class FunctionMIR : public ProgramItemMIR {
+class FunctionMIR : public ProgItemMIR {
 public:
     FunctionMIR(Location loc,
                 sema::sym::FuncSymbol *sym,
                 sema::sym::Scope *scope,
                 Box<CompoundStmtMIR> body)
-        : ProgramItemMIR(loc, FUNC_MIR),
+        : ProgItemMIR(loc, MIRNodeKind::FUNC_MIR),
         sym(sym), scope(scope), body(std::move(body)) {}
     
     // The symbol associated with the function.
@@ -508,14 +582,14 @@ public:
 
 class ProgramMIR : public MIRNode {
 public:
-    ProgramMIR(Location loc) : MIRNode(loc, PROG_MIR), items() {}
+    ProgramMIR() : MIRNode(MIRNodeKind::PROG_MIR), items() {}
 
-    ProgramMIR(Location loc, Vec<Box<ProgramItemMIR>> items)
-        : MIRNode(loc, PROG_MIR), items(std::move(items)) {}
+    ProgramMIR(Vec<Box<ProgItemMIR>> items)
+        : MIRNode(MIRNodeKind::PROG_MIR), items(std::move(items)) {}
     
-    Vec<Box<ProgramItemMIR>> items;
+    Vec<Box<ProgItemMIR>> items;
 
-    void add_item(Box<ProgramItemMIR> item);
+    void add_item(Box<ProgItemMIR> item);
 
     void accept(MIRVisitor& visitor) override;
 };

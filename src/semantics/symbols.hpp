@@ -3,6 +3,7 @@
 
 #include "ast/ast.hpp"
 #include "semantics/types.hpp"
+#include "eval/value.hpp"
 #include "util.hpp"
 
 #include <unordered_map>
@@ -22,6 +23,8 @@ corresponding Symbol objects, within Scope objects.
 using namespace ecc;
 using namespace util;
 
+class PhysicalSymbol;
+class AbstractSymbol;
 class VarSymbol;
 class FuncSymbol;
 class TypeSymbol;
@@ -60,24 +63,60 @@ public:
 
     virtual ~Symbol() = default;
 
+    virtual bool is_abstract() { return true; };
+
     virtual std::string to_string() const { return "base symbol"; }
 
+    virtual PhysicalSymbol *as_physical() { return nullptr; }
+    virtual AbstractSymbol *as_abstract() { return nullptr; }
     virtual VarSymbol *as_varsym() { return nullptr; }
     virtual FuncSymbol *as_funcsym() { return nullptr; }
     virtual TypeSymbol *as_typesym() { return nullptr; }
     virtual LabelSymbol *as_labsym() { return nullptr; }
 };
 
+// A symbol that has a phyiscal location in memory that can be referenced
+// (e.g. a variable or function).
+class PhysicalSymbol : public Symbol {
+public:
+    PhysicalSymbol(Kind kind, std::string name) : Symbol(kind, name) {}
+
+    PhysicalSymbol(Kind kind, Location loc, std::string name) : Symbol(kind, name) {}
+
+    PhysicalSymbol *as_physical() { return this; }
+
+    bool is_abstract() { return false; }
+};
+
+// A symbol that is abstract, and exists only for the purposes of the compiler.
+// (e.g. a label or type declaration).
+class AbstractSymbol : public Symbol {
+public:
+    AbstractSymbol(Kind kind, std::string name) : Symbol(kind, name) {}
+
+    AbstractSymbol(Kind kind, Location loc, std::string name) : Symbol(kind, name) {}
+
+    AbstractSymbol *as_abstract() { return this; }
+
+    bool is_abstract() { return true; }
+};
+
 /*
 A symbol representing a variable declaration.
 */
-class VarSymbol : public Symbol {
+class VarSymbol : public PhysicalSymbol {
 public:
     VarSymbol(Location loc, std::string name, types::Type *type) 
-        : Symbol(Symbol::Kind::VAR, loc, name), type(type) {}
+        : PhysicalSymbol(Symbol::Kind::VAR, loc, name), type(type) {}
+
+    VarSymbol(Location loc, std::string name, types::Type *type, exec::Value value) 
+        : PhysicalSymbol(Symbol::Kind::VAR, loc, name), type(type), value(value) {}
 
     /// The type of the symbol.
     types::Type *type;
+
+    // The value of the Symbol, if defined.
+    std::optional<exec::Value> value;
 
     /// If the symbol is const.
     bool is_const = false;
@@ -101,10 +140,10 @@ public:
 A symbol representing a function declaration 
 (function pointers and externally linked functions are handled by VarSymbol).
 */
-class FuncSymbol : public Symbol {
+class FuncSymbol : public PhysicalSymbol {
 public:
     FuncSymbol(Location loc, std::string name, types::FunctionType *signature)
-        : Symbol(Symbol::Kind::FUNC, loc, name), signature(signature) {}
+        : PhysicalSymbol(Symbol::Kind::FUNC, loc, name), signature(signature) {}
 
     // The function signature.
     types::FunctionType *signature;
@@ -120,10 +159,10 @@ public:
 /*
 A symbol representing a type declaration (class, union, enum).
 */
-class TypeSymbol : public Symbol {
+class TypeSymbol : public AbstractSymbol {
 public:
     TypeSymbol(Location loc, std::string name, types::Type* type)
-        : Symbol(Symbol::Kind::TYPE, loc, name), type(type) {}
+        : AbstractSymbol(Symbol::Kind::TYPE, loc, name), type(type) {}
 
     types::Type *type;
 
@@ -135,10 +174,10 @@ public:
 /*
 A symbol representing a label (for use by goto).
 */
-class LabelSymbol : public Symbol {
+class LabelSymbol : public AbstractSymbol {
 public:
     LabelSymbol(Location loc, std::string name)
-        : Symbol(Symbol::Kind::LABEL, loc, name) {}
+        : AbstractSymbol(Symbol::Kind::LABEL, loc, name) {}
 
     virtual std::string to_string() const override;
 
