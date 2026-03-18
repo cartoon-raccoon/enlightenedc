@@ -4,15 +4,15 @@
 #define DEFAULT_STACK_CAP 32
 
 /* a stack to store the position of opening brackets. */
-struct stack {
+class Stack {
     I32i cap;
     I32i len;
     I32i data[DEFAULT_STACK_CAP];
 };
 
-struct stack nesting = { DEFAULT_STACK_CAP, 0 };
+class Stack nesting = { DEFAULT_STACK_CAP, 0 };
 
-void stack_push(I32i item) {
+Void StackPush(I32i item) {
     /* if item is less than zero, fail silently */
     if (item < 0) return;
 
@@ -25,14 +25,14 @@ void stack_push(I32i item) {
     nesting.len++;
 }
 
-I32i stack_peek() {
+I32i StackPeek() {
     if (nesting.len <= 0)
         return -1;
 
     return nesting.data[nesting.len - 1];
 }
 
-I32i stack_pop() {
+I32i StackPop() {
     if (nesting.len <= 0) return -1;
 
     I32i ret = nesting.data[nesting.len - 1];
@@ -50,18 +50,18 @@ I32i codesize = DEFAULT_CODE_SIZE;
 U8i data[DEFAULT_DATA_SIZE];
 I32i dataptr = 0;
 
-enum errtype {SYSTEM = 1, BAD_CODE = 2};
-void die(U8i *errmsg, enum errtype errcode) {
+enum ErrType {SYSTEM = 1, BAD_CODE = 2};
+Void Die(U8i *errmsg, enum ErrType errcode) {
     if (errcode == SYSTEM) {
-        "ERROR: ", errmsg;
+        "ERROR: %s\n", errmsg;
     } else {
-        "ERROR@[Pos ", insptr, ": '", code[insptr], "']: ", errmsg;
+        "ERROR@[Pos %d: '%c']: %s\n", insptr, code[insptr], errmsg;
     }
     return;
 }
 
 U8i valid_chars[8] = {'>', '<', '+', '-', ',', '.', '[', ']'};
-Bool is_valid(U8i c) {
+Bool IsValid(U8i c) {
     I32i i = 0;
     while (i < 8) {
         if (c == valid_chars[i]) return 1;
@@ -72,17 +72,17 @@ Bool is_valid(U8i c) {
 }
 
 // code from string
-void read_code(U8i *src) {
+Void ReadCode(U8i *src) {
     I32i n = 0;
     I32i i = 0;
 
     while (src[i] != '\0') {
-        if (is_valid(src[i])) {
+        if (IsValid(src[i])) {
             code[n++] = src[i];
         }
 
         if (n + 1 == codesize) {
-            die("code too large", SYSTEM);
+            Die("code too large", SYSTEM);
             return;
         }
         i++;
@@ -93,7 +93,7 @@ void read_code(U8i *src) {
 }
 
 /* Jumps to the command after the matching closing bracket. */
-void jump_to_after() {
+Void JumpToAfter() {
     I32i current = nesting.len;
     while (code[insptr] != '\0') {
         if (code[insptr] == '[') {
@@ -107,7 +107,7 @@ void jump_to_after() {
         }
 
         if (current < nesting.len) {
-            die("malformed code, missing matching bracket", BAD_CODE);
+            Die("malformed code, missing matching bracket", BAD_CODE);
             return;
         }
 
@@ -115,17 +115,17 @@ void jump_to_after() {
     }
 }
 
-void execute() {
+Void Execute() {
 
     U8i c;
     while ((c = code[insptr]) != '\0') {
         if (insptr < 0) {
-            die("instruction pointer went below 0", BAD_CODE);
+            Die("instruction pointer went below 0", BAD_CODE);
             return;
         }
 
         if (dataptr < 0) {
-            die("data pointer went below 0", BAD_CODE);
+            Die("data pointer went below 0", BAD_CODE);
             return;
         }
         "got code: (", code, ")\n";
@@ -163,7 +163,7 @@ void execute() {
             case '[':
                 if (data[dataptr] == 0) {
                     /* skip this bracket */
-                    jump_to_after();
+                    JumpToAfter();
                 } else {
                     /* we are entering this bracket, so increment our nesting level */
                     stack_push(insptr);
@@ -173,10 +173,10 @@ void execute() {
             // if current byte is not zero,
             // jump to command after *matching* opening bracket
             case ']': {
-                I32i opening = stack_peek();
+                I32i opening = StackPeek();
 
                 if (opening < 0) {
-                    die("mismatched closing bracket", BAD_CODE);
+                    Die("mismatched closing bracket", BAD_CODE);
                     return;
                 }
 
@@ -184,12 +184,12 @@ void execute() {
                     insptr = opening;
                 } else {
                     /* exit our loop, go down one level of nesting */
-                    stack_pop();
+                    StackPop();
                 }
             } break;
         }
 
-        /* advance instruction pointer */
+        /* advance inclassion pointer */
         insptr++;
 
         if (insptr + 1 == codesize) {
@@ -198,7 +198,7 @@ void execute() {
     }
 }
 
-void initialize() {
+Void Initialize() {
     I32i i = 0;
 
     while (i < DEFAULT_DATA_SIZE) {
@@ -209,18 +209,20 @@ void initialize() {
     nesting.len = 0;
 }
 
-void print_usage(U8i *argname) {
+Void PrintUsage(U8i *argname) {
     "usage: ", argname, " [-m MEMSIZE] CODE";
 }
 
-I32i main() {
+I32i Main() {
 
-    initialize();
+    Initialize();
     // hello world
-    U8i program[] = ">++++++++[<+++++++++>-]<.>++++[<+++++++>-]<+.+++++++..+++.>>++++++[<+++++++>-]<++.------------.>++++++[<+++++++++>-]<+.<.+++.------.--------.>>>++++[<++++++++>-]<+."
+    U8i program[] = ">++++++++[<+++++++++>-]<.>++++[<+++++++>-]<+.+++++++..+++.>>++++++[<+++++++>-]<++.------------.>++++++[<+++++++++>-]<+.<.+++.------.--------.>>>++++[<++++++++>-]<+.";
 
-    read_code(program);
-    execute();
+    ReadCode(program);
+    Execute();
 
     return 0;
 }
+
+Main();
