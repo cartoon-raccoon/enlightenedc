@@ -1,9 +1,9 @@
 #ifndef ECC_MIR_VISITOR_H
 #define ECC_MIR_VISITOR_H
 
-#include "codegen/mir.hpp"
+#include "semantics/mir/mir.hpp"
 
-namespace ecc::compiler::mir {
+namespace ecc::sema::mir {
 
 class MIRVisitor {
 public:

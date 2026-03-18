@@ -1,19 +1,19 @@
-#include "elaborator.hpp"
-#include "ast/ast.hpp"
-#include "codegen/mir.hpp"
-#include "codegen/value.hpp"
-#include "error.hpp"
-#include "semantics/symbols.hpp"
-#include "semerr.hpp"
-#include "semantics/types.hpp"
-#include "codegen/exec.hpp"
-#include "util.hpp"
-
 #include <memory>
 #include <stdexcept>
 #include <cassert>
 #include <unistd.h>
 #include <variant>
+
+#include "semantics/mir/synthesizer.hpp"
+#include "ast/ast.hpp"
+#include "semantics/mir/mir.hpp"
+#include "codegen/value.hpp"
+#include "error.hpp"
+#include "semantics/symbols.hpp"
+#include "semantics/semerr.hpp"
+#include "semantics/types.hpp"
+#include "codegen/exec.hpp"
+#include "util.hpp"
 
 #define dv_return(val) do { last_result = std::move(val); return; } while (0)
 
@@ -23,9 +23,9 @@ using namespace ecc::ast;
 using namespace ecc::sema;
 using namespace ecc::sema::types;
 using namespace ecc::sema::sym;
-using namespace compiler::mir;
+using namespace ecc::sema::mir;
 
-Box<Elaborator::SpecifierInfo> Elaborator::parse_speclist(
+Box<MIRSynthesizer::SpecifierInfo> MIRSynthesizer::parse_speclist(
     Vec<Box<ast::DeclarationSpecifier>>& speclist, Location loc
 ) {
     using NK = ASTNode::NodeKind;
@@ -106,7 +106,7 @@ Box<Elaborator::SpecifierInfo> Elaborator::parse_speclist(
     return std::move(specinfo);
 }
 
-void Elaborator::do_visit(Program& node) {
+void MIRSynthesizer::do_visit(Program& node) {
     bsv_dbprint("visiting Program node: ", node.loc);
 
     Vec<Box<ProgramItemMIR>> progitems {};
@@ -137,7 +137,7 @@ void Elaborator::do_visit(Program& node) {
     // todo
 }
 
-void Elaborator::do_visit(Function& node) {
+void MIRSynthesizer::do_visit(Function& node) {
     /*
     1. Create function signature:
     - Return type from the decl spec list
@@ -245,13 +245,13 @@ void Elaborator::do_visit(Function& node) {
     // Then make call
     dv_call(cmpdstmtp, node.body);
 
-    auto res = take_last_result<std::pair<Box<compiler::mir::CompoundStmtMIR>, sema::sym::Scope *>>();
+    auto res = take_last_result<std::pair<Box<sema::mir::CompoundStmtMIR>, sema::sym::Scope *>>();
 
     Box<FunctionMIR> func = std::make_unique<FunctionMIR>(node.loc, sym_ptr, res.second, std::move(res.first));
     dv_return(func);
 }
 
-void Elaborator::do_visit(TypeDeclaration& node) {
+void MIRSynthesizer::do_visit(TypeDeclaration& node) {
     bsv_dbprint("visiting TypeDeclaration node: ", node.loc);
 
     auto specinfo = parse_speclist(node.specifiers, node.loc);
@@ -264,7 +264,7 @@ void Elaborator::do_visit(TypeDeclaration& node) {
     // todo
 }
 
-void Elaborator::do_visit(VariableDeclaration& node) {
+void MIRSynthesizer::do_visit(VariableDeclaration& node) {
     bsv_dbprint("visiting VariableDeclaration node: ", node.loc);
     auto specinfo = parse_speclist(node.specifiers, node.loc);
 
@@ -319,7 +319,7 @@ void Elaborator::do_visit(VariableDeclaration& node) {
     dv_return(var_decls);
 }
 
-void Elaborator::do_visit(InitDeclarator& node) {
+void MIRSynthesizer::do_visit(InitDeclarator& node) {
     bsv_dbprint("visiting InitDeclarator node: ", node.loc);
 
     dv_call(std::monostate {}, node.declarator);
@@ -338,7 +338,7 @@ void Elaborator::do_visit(InitDeclarator& node) {
     }
 }
 
-void Elaborator::do_visit(Declarator& node) {
+void MIRSynthesizer::do_visit(Declarator& node) {
     Box<DeclaratorBuilder> builder;
     if (node.direct) {
         dv_call(std::monostate {}, node.direct.value());
@@ -354,14 +354,14 @@ void Elaborator::do_visit(Declarator& node) {
     dv_return(builder);
 }
 
-void Elaborator::do_visit(ParenDeclarator& node) {
+void MIRSynthesizer::do_visit(ParenDeclarator& node) {
     bsv_dbprint("visiting ParenDeclarator node: ", node.loc);
     dv_call(std::monostate {}, node.inner);
 
     dv_return(take_last_result<Box<DeclaratorBuilder>>());
 }
 
-void Elaborator::do_visit(ArrayDeclarator& node) {
+void MIRSynthesizer::do_visit(ArrayDeclarator& node) {
     bsv_dbprint("visiting ArrayDeclarator node: ", node.loc);
     dv_call(std::monostate {}, node.base);
 
@@ -397,7 +397,7 @@ void Elaborator::do_visit(ArrayDeclarator& node) {
     dv_return(builder);
 }
 
-void Elaborator::do_visit(FunctionDeclarator& node) {
+void MIRSynthesizer::do_visit(FunctionDeclarator& node) {
     bsv_dbprint("visiting FunctionDeclarator node: ", node.loc);
     dv_call(std::monostate {}, node.base);
     auto builder = take_last_result<Box<DeclaratorBuilder>>();
@@ -414,7 +414,7 @@ void Elaborator::do_visit(FunctionDeclarator& node) {
     dv_return(builder);
 }
 
-void Elaborator::do_visit(ParameterDeclaration& node) {
+void MIRSynthesizer::do_visit(ParameterDeclaration& node) {
     /*
     dovisit_param: monostate
     last_result: FuncParam
@@ -446,7 +446,7 @@ void Elaborator::do_visit(ParameterDeclaration& node) {
     dv_return(ret);
 }
 
-void Elaborator::do_visit(IdentifierDeclarator& node) {
+void MIRSynthesizer::do_visit(IdentifierDeclarator& node) {
     /*
     Our base case for declarator type building.
 
@@ -456,7 +456,7 @@ void Elaborator::do_visit(IdentifierDeclarator& node) {
     dv_return(std::make_unique<DeclaratorBuilder>(node.name, types.builder()));
 }
 
-void Elaborator::do_visit(Pointer& node) {
+void MIRSynthesizer::do_visit(Pointer& node) {
     // dovisit_param: DeclaratorBuilder *
     // last_result: monostate
 
@@ -485,18 +485,18 @@ void Elaborator::do_visit(Pointer& node) {
     }
 }
 
-void Elaborator::do_visit(StorageClassSpecifier& node) {
+void MIRSynthesizer::do_visit(StorageClassSpecifier& node) {
     bsv_dbprint("visiting StorageClassSpecifier node: ", node.loc);
     /* terminal node */
     last_result = node.type;
 }
 
-void Elaborator::do_visit(VoidSpecifier& node) {
+void MIRSynthesizer::do_visit(VoidSpecifier& node) {
     bsv_dbprint("visiting VoidSpecifier node: ", node.loc);
     dv_return(types.get_void());
 }
 
-void Elaborator::do_visit(PrimitiveSpecifier& node) {
+void MIRSynthesizer::do_visit(PrimitiveSpecifier& node) {
     bsv_dbprint("visiting PrimitiveSpecifier node: ", node.loc);
     /* terminal node */
 
@@ -546,13 +546,13 @@ void Elaborator::do_visit(PrimitiveSpecifier& node) {
     }
 }
 
-void Elaborator::do_visit(TypeQualifier& node) {
+void MIRSynthesizer::do_visit(TypeQualifier& node) {
     bsv_dbprint("visiting TypeQualifier node: ", node.loc);
     /* terminal node */
     dv_return(node.qual);
 }
 
-void Elaborator::do_visit(EnumSpecifier& node) {
+void MIRSynthesizer::do_visit(EnumSpecifier& node) {
     bsv_dbprint("visiting EnumSpecifier node: ", node.loc);
     EnumType *enm = nullptr;
     try {
@@ -591,7 +591,7 @@ void Elaborator::do_visit(EnumSpecifier& node) {
     dv_return(ret);
 }
 
-void Elaborator::do_visit(Enumerator& node) {
+void MIRSynthesizer::do_visit(Enumerator& node) {
     bsv_dbprint("visiting Enumerator node with name ", node.name);
     EnumType *enm = take_dovisit_param<EnumType *>();
 
@@ -619,7 +619,7 @@ void Elaborator::do_visit(Enumerator& node) {
     dv_return(std::monostate {});
 }
 
-void Elaborator::do_visit(ClassSpecifier& node) {
+void MIRSynthesizer::do_visit(ClassSpecifier& node) {
     bsv_dbprint("visiting ClassSpecifier node: ", node.loc);
     ClassType *cls = nullptr;
     if (node.name) {
@@ -657,7 +657,7 @@ void Elaborator::do_visit(ClassSpecifier& node) {
     dv_return(ret);
 }
 
-void Elaborator::do_visit(UnionSpecifier& node) {
+void MIRSynthesizer::do_visit(UnionSpecifier& node) {
     bsv_dbprint("visiting UnionSpecifier node ", node.loc);
     UnionType *unn = nullptr;
     if (node.name) {
@@ -697,7 +697,7 @@ void Elaborator::do_visit(UnionSpecifier& node) {
     dv_return(ret);
 }
 
-void Elaborator::do_visit(ClassDeclaration& node) {
+void MIRSynthesizer::do_visit(ClassDeclaration& node) {
     bsv_dbprint("visiting ClassDeclaration node: ", node.loc);
 
     // save our current param, as it may get clobbered while parsing specifiers
@@ -780,7 +780,7 @@ void Elaborator::do_visit(ClassDeclaration& node) {
     dv_return(std::monostate {});
 }
 
-void Elaborator::do_visit(ClassDeclarator& node) {
+void MIRSynthesizer::do_visit(ClassDeclarator& node) {
     bsv_dbprint("visiting ClassDeclarator node: ", node.loc);
     if (node.declarator) {
         dv_call(std::monostate {}, node.declarator.value());
@@ -792,7 +792,7 @@ void Elaborator::do_visit(ClassDeclarator& node) {
     // fixme: ignoring bit width for now, implement this when able
 }
 
-void Elaborator::do_visit(Initializer& node) {
+void MIRSynthesizer::do_visit(Initializer& node) {
     bsv_dbprint("visiting Initializer node: ", node.loc);
 
     // todo: add initializer unfolding
@@ -821,7 +821,7 @@ void Elaborator::do_visit(Initializer& node) {
     }, node.initializer);
 }
 
-void Elaborator::do_visit(TypeName& node) {
+void MIRSynthesizer::do_visit(TypeName& node) {
     // dovisit_param: monostate
     // last_result: Type *
     Box<SpecifierInfo> specinfo = parse_speclist(node.specifiers, node.loc);
@@ -839,7 +839,7 @@ void Elaborator::do_visit(TypeName& node) {
     }
 }
 
-void Elaborator::do_visit(CompoundStatement& node) {
+void MIRSynthesizer::do_visit(CompoundStatement& node) {
     bsv_dbprint("visiting CompoundStatement node: ", node.loc);
     CmpdStmtDoVisitParam add_symbols;
 
@@ -921,7 +921,7 @@ void Elaborator::do_visit(CompoundStatement& node) {
     }
 }
 
-void Elaborator::do_visit(LabeledStatement& node) { //* DONE
+void MIRSynthesizer::do_visit(LabeledStatement& node) { //* DONE
     bsv_dbprint("visiting LabeledStatement node: ", node.loc);
     Box<LabelSymbol> label = std::make_unique<sym::LabelSymbol>(node.loc, node.label);
     LabelSymbol *labelptr = label.get();
@@ -934,7 +934,7 @@ void Elaborator::do_visit(LabeledStatement& node) { //* DONE
     dv_return(ret);
 }
 
-void Elaborator::do_visit(ExpressionStatement& node) { //* DONE
+void MIRSynthesizer::do_visit(ExpressionStatement& node) { //* DONE
     bsv_dbprint("visiting ExpressionStatement node: ", node.loc);
     if (node.expression) {
         dv_call(std::monostate {}, *node.expression);
@@ -948,32 +948,32 @@ void Elaborator::do_visit(ExpressionStatement& node) { //* DONE
     }
 }
 
-void Elaborator::do_visit(CaseStatement& node) {
+void MIRSynthesizer::do_visit(CaseStatement& node) {
     bsv_dbprint("visiting CaseStatement node: ", node.loc);
     node.case_expr->accept(*this);
     node.statement->accept(*this);
 }
 
-void Elaborator::do_visit(CaseRangeStatement& node) {
+void MIRSynthesizer::do_visit(CaseRangeStatement& node) {
     bsv_dbprint("visiting CaseRangeStatement node: ", node.loc);
     node.range_start->accept(*this);
     node.range_end->accept(*this);
     node.statement->accept(*this);
 }
 
-void Elaborator::do_visit(DefaultStatement& node) {
+void MIRSynthesizer::do_visit(DefaultStatement& node) {
     bsv_dbprint("visiting DefaultStatement node: ", node.loc);
     node.statement->accept(*this);
 }
 
-void Elaborator::do_visit(PrintStatement& node) {
+void MIRSynthesizer::do_visit(PrintStatement& node) {
     bsv_dbprint("visiting PrintStatement node: ", node.loc);
     for (auto& arg : node.arguments) {
         arg->accept(*this);
     }
 }
 
-void Elaborator::do_visit(IfStatement& node) {
+void MIRSynthesizer::do_visit(IfStatement& node) {
     bsv_dbprint("visiting IfStatement node: ", node.loc);
     node.condition->accept(*this);
 
@@ -983,25 +983,25 @@ void Elaborator::do_visit(IfStatement& node) {
     }
 }
 
-void Elaborator::do_visit(SwitchStatement& node) {
+void MIRSynthesizer::do_visit(SwitchStatement& node) {
     bsv_dbprint("visiting SwitchStatement node: ", node.loc);
     node.condition->accept(*this);
     node.body->accept(*this);
 }
 
-void Elaborator::do_visit(WhileStatement& node) {
+void MIRSynthesizer::do_visit(WhileStatement& node) {
     bsv_dbprint("visiting WhileStatement node: ", node.loc);
     node.condition->accept(*this);
     node.body->accept(*this);
 }
 
-void Elaborator::do_visit(DoWhileStatement& node) {
+void MIRSynthesizer::do_visit(DoWhileStatement& node) {
     bsv_dbprint("visiting DoWhileStatement node: ", node.loc);
     node.body->accept(*this);
     node.condition->accept(*this);
 }
 
-void Elaborator::do_visit(ForStatement& node) {
+void MIRSynthesizer::do_visit(ForStatement& node) {
     bsv_dbprint("visiting ForStatement node: ", node.loc);
     if (node.init.has_value()) {
         node.init.value()->accept(*this);
@@ -1018,69 +1018,69 @@ void Elaborator::do_visit(ForStatement& node) {
     node.body->accept(*this);
 }
 
-void Elaborator::do_visit(GotoStatement& node) {
+void MIRSynthesizer::do_visit(GotoStatement& node) {
     bsv_dbprint("visiting GotoStatement node: ", node.loc);
 }
 
-void Elaborator::do_visit(BreakStatement& node) {
+void MIRSynthesizer::do_visit(BreakStatement& node) {
     bsv_dbprint("visiting BreakStatement node: ", node.loc);
 }
 
-void Elaborator::do_visit(ReturnStatement& node) {
+void MIRSynthesizer::do_visit(ReturnStatement& node) {
     bsv_dbprint("visiting ReturnStatement node: ", node.loc);
     if (node.return_value) {
         node.return_value.value()->accept(*this);
     }
 }
 
-void Elaborator::do_visit(BinaryExpression& node) {
+void MIRSynthesizer::do_visit(BinaryExpression& node) {
     bsv_dbprint("visiting BinaryStatement node: ", node.loc);
     node.left->accept(*this);
     node.right->accept(*this);
 }
 
-void Elaborator::do_visit(CastExpression& node) {
+void MIRSynthesizer::do_visit(CastExpression& node) {
     bsv_dbprint("visiting CastStatement node: ", node.loc);
     node.inner->accept(*this);
     node.type_name->accept(*this);
 }
 
-void Elaborator::do_visit(UnaryExpression& node) {
+void MIRSynthesizer::do_visit(UnaryExpression& node) {
     bsv_dbprint("visiting UnaryExpression node: ", node.loc);
     node.operand->accept(*this);
 }
 
-void Elaborator::do_visit(AssignmentExpression& node) {
+void MIRSynthesizer::do_visit(AssignmentExpression& node) {
     bsv_dbprint("visiting AssignmentExpression node: ", node.loc);
     node.left->accept(*this);
     node.right->accept(*this);
 }
 
-void Elaborator::do_visit(ConditionalExpression& node) {
+void MIRSynthesizer::do_visit(ConditionalExpression& node) {
     bsv_dbprint("visiting ConditionalExpression node: ", node.loc);
     node.condition->accept(*this);
     node.true_expr->accept(*this);
     node.false_expr->accept(*this);
 }
 
-void Elaborator::do_visit(IdentifierExpression& node) {
+void MIRSynthesizer::do_visit(IdentifierExpression& node) {
     bsv_dbprint("visiting IdentifierExpression node: ", node.loc);
 }
 
-void Elaborator::do_visit(ConstExpression& node) {
+void MIRSynthesizer::do_visit(ConstExpression& node) {
     bsv_dbprint("visiting ConstExpression node: ", node.loc);
     node.inner->accept(*this);
 }
 
-void Elaborator::do_visit(LiteralExpression& node) {
+void MIRSynthesizer::do_visit(LiteralExpression& node) {
     bsv_dbprint("visiting LiteralExpression node: ", node.loc);
 }
 
-void Elaborator::do_visit(StringExpression& node) {
+void MIRSynthesizer::do_visit(StringExpression& node) {
     bsv_dbprint("visiting StringExpression node: ", node.loc);
 }
 
-void Elaborator::do_visit(CallExpression& node) {
+void MIRSynthesizer::do_visit(CallExpression& node) {
     bsv_dbprint("visiting CallExpression node: ", node.loc);
     node.callee->accept(*this);
 
@@ -1089,23 +1089,23 @@ void Elaborator::do_visit(CallExpression& node) {
     }
 }
 
-void Elaborator::do_visit(MemberAccessExpression& node) {
+void MIRSynthesizer::do_visit(MemberAccessExpression& node) {
     bsv_dbprint("visiting MemberAccessExpression node: ", node.loc);
     node.object->accept(*this);
 }
 
-void Elaborator::do_visit(ArraySubscriptExpression& node) {
+void MIRSynthesizer::do_visit(ArraySubscriptExpression& node) {
     bsv_dbprint("visiting ArraySubscriptExpression node: ", node.loc);
     node.array->accept(*this);
     node.index->accept(*this);
 }
 
-void Elaborator::do_visit(PostfixExpression& node) {
+void MIRSynthesizer::do_visit(PostfixExpression& node) {
     bsv_dbprint("visiting PostfixExpression node: ", node.loc);
     node.operand->accept(*this);
 }
 
-void Elaborator::do_visit(SizeofExpression& node) {
+void MIRSynthesizer::do_visit(SizeofExpression& node) {
     bsv_dbprint("visiting SizeofExpression node: ", node.loc);
     std::visit(overloaded {
         [this] (Box<Expression>& expr) {

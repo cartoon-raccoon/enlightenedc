@@ -1,7 +1,7 @@
-#include "codegen/mir.hpp"
-#include "codegen/visitor.hpp"
+#include "semantics/mir/mir.hpp"
+#include "semantics/mir/visitor.hpp"
 
-using namespace compiler::mir;
+using namespace sema::mir;
 
 void ProgramMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
 

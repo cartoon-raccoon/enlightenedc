@@ -14,7 +14,7 @@
 using namespace ecc;
 using namespace util;
 
-namespace ecc::compiler::mir {
+namespace ecc::sema::mir {
 /*
 Middle representation functionality.
 */

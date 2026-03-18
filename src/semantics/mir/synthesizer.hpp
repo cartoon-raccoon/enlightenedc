@@ -11,7 +11,7 @@
 #include "semantics/types.hpp"
 #include "semantics/symbols.hpp"
 #include "semantics/semantics.hpp"
-#include "codegen/mir.hpp"
+#include "semantics/mir/mir.hpp"
 #include "util.hpp"
 
 namespace ecc::sema {
@@ -36,7 +36,7 @@ struct TypeSpecRet {
 // The result of a 
 struct InitDecltrRet {
     Box<DeclaratorBuilder> builder;
-    std::optional<Box<compiler::mir::InitializerMIR>> init_mir;
+    std::optional<Box<sema::mir::InitializerMIR>> init_mir;
 };
 
 /*
@@ -66,16 +66,16 @@ using ElabResult = std::variant<
     // The result of visiting a StorageClassSpecifier node.
     ast::StorageClassSpecifier::SpecType,
 
-    Box<compiler::mir::ProgramItemMIR>,
-    Box<compiler::mir::FunctionMIR>,
+    Box<sema::mir::ProgramItemMIR>,
+    Box<sema::mir::FunctionMIR>,
     // The return type of visiting VariableDeclaration node.
-    Vec<Box<compiler::mir::DeclMIR>>,
+    Vec<Box<sema::mir::DeclMIR>>,
     // The return type of visiting a CompoundStatement node from a Function node.
-    std::pair<Box<compiler::mir::CompoundStmtMIR>, sema::sym::Scope *>,
-    Box<compiler::mir::DeclMIR>,
-    Box<compiler::mir::StmtMIR>,
-    Box<compiler::mir::ExprMIR>,
-    Box<compiler::mir::InitializerMIR>,
+    std::pair<Box<sema::mir::CompoundStmtMIR>, sema::sym::Scope *>,
+    Box<sema::mir::DeclMIR>,
+    Box<sema::mir::StmtMIR>,
+    Box<sema::mir::ExprMIR>,
+    Box<sema::mir::InitializerMIR>,
     // The return type of visiting an InitDeclarator.
     InitDecltrRet
 >;
@@ -110,9 +110,9 @@ using ElabVisitParam = std::variant<
 /*
 The class that performs the elaboration pass.
 */
-class Elaborator : public BaseSemanticVisitor {
+class MIRSynthesizer : public BaseSemanticVisitor {
 public:
-    Elaborator(sym::SymbolTable& syms, types::TypeContext& types)
+    MIRSynthesizer(sym::SymbolTable& syms, types::TypeContext& types)
     : BaseSemanticVisitor(BaseSemanticVisitor::State::WRITE, syms, types) {}
 
     /*

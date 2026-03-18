@@ -3,7 +3,7 @@
 
 #include "ast/ast.hpp"
 #include "semantics/semantics.hpp"
-#include "semantics/elaborator.hpp"
+#include "semantics/mir/synthesizer.hpp"
 #include "util.hpp"
 
 using namespace ecc::ast;
@@ -668,7 +668,7 @@ void SemanticChecker::check_semantics(ASTNode& prog) {
     dbprint("checking semantics for ", prog.loc);
 
     dbprint("running elaborator for ", prog.loc);
-    Elaborator elaborator(symbols, types);
+    MIRSynthesizer elaborator(symbols, types);
     prog.accept(elaborator);
 
     symbols.reset();

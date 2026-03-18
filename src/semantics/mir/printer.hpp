@@ -4,11 +4,11 @@
 #include <iostream>
 #include <string>
 
-#include "codegen/mir.hpp"
-#include "codegen/visitor.hpp"
+#include "semantics/mir/mir.hpp"
+#include "semantics/mir/visitor.hpp"
 #include "frontend/tokens.hpp"
 
-namespace ecc::compiler::mir {
+namespace ecc::sema::mir {
 
 class MIRPrinter : public MIRVisitor {
   public:
@@ -69,5 +69,5 @@ class MIRPrinter : public MIRVisitor {
     std::string value_to_string(const exec::Value& val);
 };
 
-} // namespace ecc::compiler::mir
+} // namespace ecc::sema::mir
 #endif

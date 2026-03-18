@@ -1,6 +1,6 @@
-#include "codegen/printer.hpp"
+#include "semantics/mir/printer.hpp"
 
-using namespace ecc::compiler::mir;
+using namespace ecc::sema::mir;
 
 void MIRPrinter::print_indent() {
     for (int i = 0; i < indent; ++i)
