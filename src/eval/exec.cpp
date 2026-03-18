@@ -28,19 +28,19 @@ Value Evaluator::eval(ast::BinaryExpression* expr) {
     Value right = expr->right.get()->accept(*this);
 
     switch (expr->op) {
-    case ecc::tokens::PLUS:
+    case ecc::tokens::BinaryOp::PLUS:
         return left + right;
         break;
 
-    case ecc::tokens::MINUS:
+    case ecc::tokens::BinaryOp::MINUS:
         return left - right;
         break;
 
-    case ecc::tokens::MUL:
+    case ecc::tokens::BinaryOp::MUL:
         return left * right;
         break;
 
-    case ecc::tokens::DIV:
+    case ecc::tokens::BinaryOp::DIV:
         return left / right;
         break;
 
@@ -63,19 +63,19 @@ Value Evaluator::eval(ast::UnaryExpression* expr) {
     Value operand = expr->operand.get()->accept(*this);
 
     switch (expr->op) {
-    case ecc::tokens::INC:
+    case ecc::tokens::UnaryOp::INC:
         return ++operand;
         break;
 
-    case ecc::tokens::DEC:
+    case ecc::tokens::UnaryOp::DEC:
         return --operand;
         break;
 
-    case ecc::tokens::NOT:
+    case ecc::tokens::UnaryOp::NOT:
         return !operand;
         break;
 
-    case ecc::tokens::TILDE:
+    case ecc::tokens::UnaryOp::TILDE:
         return ~operand;
 
     default:
@@ -154,12 +154,12 @@ Value Evaluator::eval(ast::ArraySubscriptExpression* expr) {
 Value Evaluator::eval(ast::PostfixExpression* expr) {
     Value value = expr->operand.get()->accept(*this);
 
-    if (expr->op == ecc::tokens::POSTINC) {
+    if (expr->op == ecc::tokens::PostfixOp::POSTINC) {
         if (value.is<long>()) {
             return value++;
         }
         throw_eval_error("Postfix increment requires an integer", expr);
-    } else if (expr->op == ecc::tokens::POSTDEC) {
+    } else if (expr->op == ecc::tokens::PostfixOp::POSTDEC) {
         if (value.is<long>()) {
             return value--;
         }

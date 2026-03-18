@@ -16,67 +16,67 @@ void ASTPrinter::print_indent() {
 
 std::string ASTPrinter::binop_to_string(tokens::BinaryOp op) {
     switch (op) {
-    case tokens::PLUS:
+    case tokens::BinaryOp::PLUS:
         return "+";
-    case tokens::MINUS:
+    case tokens::BinaryOp::MINUS:
         return "-";
-    case tokens::MUL:
+    case tokens::BinaryOp::MUL:
         return "*";
-    case tokens::DIV:
+    case tokens::BinaryOp::DIV:
         return "/";
-    case tokens::MOD:
+    case tokens::BinaryOp::MOD:
         return "%";
-    case tokens::EQ:
+    case tokens::BinaryOp::EQ:
         return "==";
-    case tokens::NE:
+    case tokens::BinaryOp::NE:
         return "!=";
-    case tokens::LE:
+    case tokens::BinaryOp::LE:
         return "<=";
-    case tokens::GE:
+    case tokens::BinaryOp::GE:
         return ">=";
 
-    case tokens::ANDAND:
+    case tokens::BinaryOp::ANDAND:
         return "&&";
-    case tokens::OROR:
+    case tokens::BinaryOp::OROR:
         return "||";
-    case tokens::AND:
+    case tokens::BinaryOp::AND:
         return "&";
-    case tokens::OR:
+    case tokens::BinaryOp::OR:
         return "|";
-    case tokens::XOR:
+    case tokens::BinaryOp::XOR:
         return "^";
 
-    case tokens::LT:
+    case tokens::BinaryOp::LT:
         return "<";
-    case tokens::GT:
+    case tokens::BinaryOp::GT:
         return ">";
 
-    case tokens::LSHIFT:
+    case tokens::BinaryOp::LSHIFT:
         return "<<";
-    case tokens::RSHIFT:
+    case tokens::BinaryOp::RSHIFT:
         return ">>";
-    case tokens::BINCOMMA:
+    case tokens::BinaryOp::BINCOMMA:
         return ",";
     }
 }
 
 std::string ASTPrinter::unop_to_string(tokens::UnaryOp op) {
     switch (op) {
-    case tokens::INC:
+    case tokens::UnaryOp::INC:
         return "++";
-    case tokens::DEC:
+    case tokens::UnaryOp::DEC:
         return "--";
-    case tokens::REF:
+    case tokens::UnaryOp::REF:
         return "&";
-    case tokens::DEREF:
+    case tokens::UnaryOp::DEREF:
         return "*";
-    case tokens::POS:
+    case tokens::UnaryOp::POS:
         return "+";
-    case tokens::NEG:
+    case tokens::UnaryOp::NEG:
         return "-";
-    case tokens::TILDE:
+    case tokens::UnaryOp::TILDE:
         return "~";
-    case tokens::NOT:
+    case tokens::UnaryOp::NOT:
         return "!";
     }
 }
@@ -84,49 +84,49 @@ std::string ASTPrinter::unop_to_string(tokens::UnaryOp op) {
 
 std::string ASTPrinter::assignop_to_string(tokens::AssignOp op) {
     switch (op) {
-    case tokens::ASSIGN:
+    case tokens::AssignOp::ASSIGN:
         return "=";
-    case tokens::PLUSEQ:
+    case tokens::AssignOp::PLUSEQ:
         return "+=";
-    case tokens::MINUSEQ:
+    case tokens::AssignOp::MINUSEQ:
         return "-=";
-    case tokens::MULEQ:
+    case tokens::AssignOp::MULEQ:
         return "*=";
-    case tokens::DIVEQ:
+    case tokens::AssignOp::DIVEQ:
         return "/=";
-    case tokens::MODEQ:
+    case tokens::AssignOp::MODEQ:
         return "%=";
-    case tokens::LSHIFTEQ:
+    case tokens::AssignOp::LSHIFTEQ:
         return "<<=";
-    case tokens::RSHIFTEQ:
+    case tokens::AssignOp::RSHIFTEQ:
         return ">>=";
-    case tokens::ANDEQ:
+    case tokens::AssignOp::ANDEQ:
         return "&=";
-    case tokens::OREQ:
+    case tokens::AssignOp::OREQ:
         return "|=";
-    case tokens::XOREQ:
+    case tokens::AssignOp::XOREQ:
         return "^=";
     }
 }
 
 std::string ASTPrinter::postfixop_to_string(tokens::PostfixOp op) {
     switch (op) {
-    case tokens::POSTINC:
+    case tokens::PostfixOp::POSTINC:
         return "++";
-    case tokens::POSTDEC:
+    case tokens::PostfixOp::POSTDEC:
         return "--";
     }
 }
 
 std::string ASTPrinter::infixop_to_string(tokens::InfixOp op) {
     switch (op) {
-    case tokens::DOT:
+    case tokens::InfixOp::DOT:
         return ".";
-    case tokens::ARROW:
+    case tokens::InfixOp::ARROW:
         return "->";
-    case tokens::COMMA:
+    case tokens::InfixOp::COMMA:
         return ",";
-    case tokens::SEMI:
+    case tokens::InfixOp::SEMI:
         return ";";
     }
 }

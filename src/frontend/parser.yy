@@ -740,7 +740,7 @@ expression:
         $$ = std::move($1);
     }
     | expression COMMA assignment_expression { // See examples.ec line 198 for an example.
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BINCOMMA);
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::BINCOMMA);
     }
 ;
 
@@ -756,17 +756,17 @@ assignment_expression:
 
 
 assignment_operator:
-    ASSIGN { $$ = ecc::tokens::ASSIGN; }
-    | MULEQ { $$ = ecc::tokens::MULEQ; }
-    | DIVEQ { $$ = ecc::tokens::DIVEQ; }
-    | MODEQ { $$ = ecc::tokens::MODEQ; }
-    | PLUSEQ { $$ = ecc::tokens::PLUSEQ; }
-    | MINUSEQ { $$ = ecc::tokens::MINUSEQ; }
-    | LSHIFTEQ { $$ = ecc::tokens::LSHIFTEQ; }
-    | RSHIFTEQ { $$ = ecc::tokens::RSHIFTEQ; }
-    | ANDEQ { $$ = ecc::tokens::ANDEQ; }
-    | XOREQ { $$ = ecc::tokens::XOREQ; }
-    | OREQ { $$ = ecc::tokens::OREQ; }
+    ASSIGN { $$ = ecc::tokens::AssignOp::ASSIGN; }
+    | MULEQ { $$ = ecc::tokens::AssignOp::MULEQ; }
+    | DIVEQ { $$ = ecc::tokens::AssignOp::DIVEQ; }
+    | MODEQ { $$ = ecc::tokens::AssignOp::MODEQ; }
+    | PLUSEQ { $$ = ecc::tokens::AssignOp::PLUSEQ; }
+    | MINUSEQ { $$ = ecc::tokens::AssignOp::MINUSEQ; }
+    | LSHIFTEQ { $$ = ecc::tokens::AssignOp::LSHIFTEQ; }
+    | RSHIFTEQ { $$ = ecc::tokens::AssignOp::RSHIFTEQ; }
+    | ANDEQ { $$ = ecc::tokens::AssignOp::ANDEQ; }
+    | XOREQ { $$ = ecc::tokens::AssignOp::XOREQ; }
+    | OREQ { $$ = ecc::tokens::AssignOp::OREQ; }
 ;
 
 conditional_expression:
@@ -783,7 +783,7 @@ logical_or_expression:
         $$ = std::move($1);
     }
     | logical_or_expression OROR logical_and_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::OROR);
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::OROR);
     }
     ;
 
@@ -792,7 +792,7 @@ logical_and_expression:
         $$ = std::move($1);
     }
     | logical_and_expression ANDAND inclusive_or_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::ANDAND);
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::ANDAND);
     }
     ;
 
@@ -801,7 +801,7 @@ inclusive_or_expression:
         $$ = std::move($1);
     }
     | inclusive_or_expression OR exclusive_or_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::OR);
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::OR);
     }
     ;
 
@@ -810,7 +810,7 @@ exclusive_or_expression:
         $$ = std::move($1);
     }
     | exclusive_or_expression XOR and_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::XOR);
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::XOR);
     }
     ;
 
@@ -819,7 +819,7 @@ and_expression:
         $$ = std::move($1);
     }
     | and_expression AND equality_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::AND);
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::AND);
     }
     ;
 
@@ -828,10 +828,10 @@ equality_expression:
         $$ = std::move($1);
     }
     | equality_expression EQ relational_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::EQ);
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::EQ);
     }
     | equality_expression NE relational_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::NE);
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::NE);
     }
     ;
 
@@ -840,16 +840,16 @@ relational_expression:
         $$ = std::move($1);
     }
     | relational_expression LT shift_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::LT);
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::LT);
     }
     | relational_expression GT shift_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::GT);
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::GT);
     }
     | relational_expression LE shift_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::LE);
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::LE);
     }
     | relational_expression GE shift_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::GE);
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::GE);
     }
     ;
 
@@ -858,10 +858,10 @@ shift_expression:
         $$ = std::move($1);
     }
     | shift_expression LSHIFT additive_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::LSHIFT);
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::LSHIFT);
     }
     | shift_expression RSHIFT additive_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::RSHIFT);
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::RSHIFT);
     }
     ;
 
@@ -870,10 +870,10 @@ additive_expression:
         $$ = std::move($1);
     }
     | additive_expression PLUS multiplicative_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::PLUS);
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::PLUS);
     }
     | additive_expression MINUS multiplicative_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::MINUS);
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::MINUS);
     }
     ;
 
@@ -882,13 +882,13 @@ multiplicative_expression:
         $$ = std::move($1);
     }
     | multiplicative_expression MUL cast_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::MUL);
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::MUL);
     }
     | multiplicative_expression DIV cast_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::DIV);
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::DIV);
     }
     | multiplicative_expression MOD cast_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::MOD);
+        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::MOD);
     }
 ;
 
@@ -906,10 +906,10 @@ unary_expression:
         $$ = std::move($1);
     }
     | INC unary_expression {
-        $$ = std::make_unique<UnaryExpression>(@$, std::move($2), ecc::tokens::INC);
+        $$ = std::make_unique<UnaryExpression>(@$, std::move($2), ecc::tokens::UnaryOp::INC);
     }
     | DEC unary_expression {
-        $$ = std::make_unique<UnaryExpression>(@$, std::move($2), ecc::tokens::DEC);
+        $$ = std::make_unique<UnaryExpression>(@$, std::move($2), ecc::tokens::UnaryOp::DEC);
     }
     | unary_operator unary_expression {
         $$ = std::make_unique<UnaryExpression>(@$, std::move($2), $1);
@@ -923,12 +923,12 @@ unary_expression:
 ;
 
 unary_operator:
-    AND { $$ = ecc::tokens::REF; }
-    | MUL { $$ = ecc::tokens::DEREF; }
-    | PLUS { $$ = ecc::tokens::POS; }
-    | MINUS { $$ = ecc::tokens::NEG; }
-    | TILDE { $$ = ecc::tokens::TILDE; }
-    | NOT { $$ = ecc::tokens::NOT; }
+    AND { $$ = ecc::tokens::UnaryOp::REF; }
+    | MUL { $$ = ecc::tokens::UnaryOp::DEREF; }
+    | PLUS { $$ = ecc::tokens::UnaryOp::POS; }
+    | MINUS { $$ = ecc::tokens::UnaryOp::NEG; }
+    | TILDE { $$ = ecc::tokens::UnaryOp::TILDE; }
+    | NOT { $$ = ecc::tokens::UnaryOp::NOT; }
 ;
 
 argument_expression_list:
@@ -997,10 +997,10 @@ postfix_expression:
         $$ = std::make_unique<MemberAccessExpression>(@$, std::move($1), std::move($3), true);
     }
     | postfix_expression INC {
-        $$ = std::make_unique<PostfixExpression>(@$, std::move($1), ecc::tokens::POSTINC);
+        $$ = std::make_unique<PostfixExpression>(@$, std::move($1), ecc::tokens::PostfixOp::POSTINC);
     }
     | postfix_expression DEC {
-        $$ = std::make_unique<PostfixExpression>(@$, std::move($1), ecc::tokens::POSTDEC);
+        $$ = std::make_unique<PostfixExpression>(@$, std::move($1), ecc::tokens::PostfixOp::POSTDEC);
     }
 ;
 

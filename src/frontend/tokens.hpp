@@ -1,11 +1,13 @@
 #ifndef ECC_TOKENS_H
 #define ECC_TOKENS_H
 
+#include <cstdint>
+
 namespace ecc::tokens {
 
 // All semantically relevant tokens in EnlightenedC.
 
-enum BinaryOp {
+enum class BinaryOp : uint8_t  {
     OROR,     // ||
     ANDAND,   // &&
     OR,       // |
@@ -27,7 +29,7 @@ enum BinaryOp {
     BINCOMMA  // ,
 };
 
-enum UnaryOp {
+enum class UnaryOp : uint8_t {
     INC,      // ++<symbol>
     DEC,      // --<symbol>
     REF,      // &
@@ -38,7 +40,7 @@ enum UnaryOp {
     NOT,      // !
 };
 
-enum AssignOp {
+enum class AssignOp : uint8_t {
     ASSIGN,   // =
     MULEQ,    // *=
     DIVEQ,    // /=
@@ -52,12 +54,12 @@ enum AssignOp {
     OREQ,     // |=
 };
 
-enum PostfixOp {
+enum class PostfixOp : uint8_t {
     POSTINC,  // <symbol>++
     POSTDEC,  // <symbol>--
 };
 
-enum InfixOp {
+enum class InfixOp : uint8_t {
     DOT,
     ARROW,
     COMMA,
