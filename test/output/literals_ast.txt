@@ -104,7 +104,7 @@ TypeContext: getting primitive type with value 2
             }
         }
 TypeBuilder: finalizing type
-SymbolTable: inserting symbol with name "a"
+SymbolTable: inserting varsymbol with name "a"
     }
     Node: type 9 {
         visiting VariableDeclaration node: input/literals.ec:2.1-13
@@ -133,7 +133,7 @@ TypeContext: getting primitive type with value 2
             }
         }
 TypeBuilder: finalizing type
-SymbolTable: inserting symbol with name "b"
+SymbolTable: inserting varsymbol with name "b"
     }
     Node: type 9 {
         visiting VariableDeclaration node: input/literals.ec:3.1-13
@@ -159,7 +159,7 @@ TypeContext: getting primitive type with value 2
             }
         }
 TypeBuilder: finalizing type
-SymbolTable: inserting symbol with name "c"
+SymbolTable: inserting varsymbol with name "c"
     }
     Node: type 9 {
         visiting VariableDeclaration node: input/literals.ec:4.1-14
@@ -185,7 +185,7 @@ TypeContext: getting primitive type with value 2
             }
         }
 TypeBuilder: finalizing type
-SymbolTable: inserting symbol with name "d"
+SymbolTable: inserting varsymbol with name "d"
     }
     Node: type 9 {
         visiting VariableDeclaration node: input/literals.ec:6.1-15
@@ -211,7 +211,7 @@ TypeContext: getting primitive type with value 8
             }
         }
 TypeBuilder: finalizing type
-SymbolTable: inserting symbol with name "f1"
+SymbolTable: inserting varsymbol with name "f1"
     }
     Node: type 9 {
         visiting VariableDeclaration node: input/literals.ec:7.1-19
@@ -240,7 +240,7 @@ TypeContext: getting primitive type with value 8
             }
         }
 TypeBuilder: finalizing type
-SymbolTable: inserting symbol with name "f2"
+SymbolTable: inserting varsymbol with name "f2"
     }
     Node: type 9 {
         visiting VariableDeclaration node: input/literals.ec:9.1-13
@@ -266,7 +266,7 @@ TypeContext: getting primitive type with value 0
             }
         }
 TypeBuilder: finalizing type
-SymbolTable: inserting symbol with name "ch"
+SymbolTable: inserting varsymbol with name "ch"
     }
     Node: type 9 {
         visiting VariableDeclaration node: input/literals.ec:10.1-14
@@ -292,7 +292,7 @@ TypeContext: getting primitive type with value 0
             }
         }
 TypeBuilder: finalizing type
-SymbolTable: inserting symbol with name "nl"
+SymbolTable: inserting varsymbol with name "nl"
     }
     Node: type 9 {
         visiting VariableDeclaration node: input/literals.ec:11.1-14
@@ -318,7 +318,7 @@ TypeContext: getting primitive type with value 0
             }
         }
 TypeBuilder: finalizing type
-SymbolTable: inserting symbol with name "qt"
+SymbolTable: inserting varsymbol with name "qt"
     }
     Node: type 28 {
         visiting PrintStatement node: input/literals.ec:13.1-32
@@ -359,16 +359,24 @@ Array Types:
 
 --------- SYMBOL TABLE ---------
 
-Scope 0x55e31ed3cfb0
-  nl -> 0x55e31ed3ea80 : VarSymbol U8
-  ch -> 0x55e31ed3e860 : VarSymbol U8
-  f2 -> 0x55e31ed3e5f0 : VarSymbol I64
-  qt -> 0x55e31ed3eca0 : VarSymbol U8
-  f1 -> 0x55e31ed3e380 : VarSymbol I64
-  c -> 0x55e31ed3df80 : VarSymbol U32
-  b -> 0x55e31ed3dd10 : VarSymbol U32
-  d -> 0x55e31ed3e180 : VarSymbol U32
-  a -> 0x55e31ed3daa0 : VarSymbol U32
+Scope 0x55971cb84fb0
+Variable Symbols:
+  nl -> 0x55971cb86b20 : VarSymbol U8
+  ch -> 0x55971cb86900 : VarSymbol U8
+  f2 -> 0x55971cb86690 : VarSymbol F64
+  qt -> 0x55971cb86d40 : VarSymbol U8
+  f1 -> 0x55971cb86420 : VarSymbol F64
+  c -> 0x55971cb86020 : VarSymbol U32
+  b -> 0x55971cb85db0 : VarSymbol U32
+  d -> 0x55971cb86220 : VarSymbol U32
+  a -> 0x55971cb85b40 : VarSymbol U32
+
+Function Symbols:
+
+Type Symbols:
+
+Label Symbols:
+-----------------------------------------------------------
 
 --------- MIR ---------
 
@@ -391,11 +399,11 @@ VarSymbol U32
 | | Initializer @ <input/literals.ec:4.10-13>
 | | | Literal: 255 @ <input/literals.ec:4.10-13>
 | VarDecl:  @ <input/literals.ec:6.1-15>
-VarSymbol I64
+VarSymbol F64
 | | Initializer @ <input/literals.ec:6.11-14>
 | | | Literal: 0.000000 @ <input/literals.ec:6.11-14>
 | VarDecl:  @ <input/literals.ec:7.1-19>
-VarSymbol I64
+VarSymbol F64
 | | Initializer @ <input/literals.ec:7.11-18>
 | | | Unary: - @ <input/literals.ec:7.11-18>
 | | | | Literal: 0.000000 @ <input/literals.ec:7.11-18>

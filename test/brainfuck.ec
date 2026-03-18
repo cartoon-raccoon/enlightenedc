@@ -3,6 +3,8 @@
 
 #define DEFAULT_STACK_CAP 32
 
+Void Execute();
+
 /* a stack to store the position of opening brackets. */
 class Stack {
     I32i cap;

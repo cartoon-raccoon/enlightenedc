@@ -19,7 +19,15 @@ Array Types:
 
 --------- SYMBOL TABLE ---------
 
-Scope 0x55cb8df9ffb0
+Scope 0x55b904142fb0
+Variable Symbols:
+
+Function Symbols:
+
+Type Symbols:
+
+Label Symbols:
+-----------------------------------------------------------
 
 --------- MIR ---------
 
