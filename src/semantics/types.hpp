@@ -76,8 +76,16 @@ public:
     bool is_void();
     bool is_primitive();
     bool is_pointer();
+    bool is_array();
+    bool is_function();
 
-    virtual int size() { return 0; };
+    virtual bool is_base() { return false; }
+
+    virtual bool is_user() { return false; } 
+
+    virtual bool is_derived() { return false; }
+
+    virtual std::size_t size() { return 0; }
 
     /*
     Check if a type can be implicitly coerced into `dst` without a cast,
@@ -148,6 +156,9 @@ An abstract class representing a type that does not depend on a base type
 classes, unions, and enums.
 */
 class BaseType : public Type {
+public:
+    bool is_base() override { return true; }
+
 protected:
     BaseType(Kind kind) : Type(kind) {}
 };
@@ -158,6 +169,9 @@ or is user-defined. These are the unions, structs, enums, and functions.
 */
 class UserType : public BaseType {
 public:
+
+    bool is_user() override { return true; }
+
     // Returns the kind of type: class, union, enum.
     static std::string base();
 
@@ -170,6 +184,8 @@ protected:
 
 class DerivedType : public Type {
 public:
+    bool is_derived() { return true; }
+
     Type *base;
 
 protected:
@@ -219,7 +235,7 @@ public:
 
     Kind primkind;
 
-    int size() override;
+    std::size_t size() override;
 
     bool is_compatible_with(Type *dst) override;
 
@@ -270,7 +286,7 @@ public:
     
     Vec<Box<ClassTypeMember>> members;
 
-    int size() override;
+    std::size_t size() override;
 
     void add_member(Box<ClassTypeMember> member);
 
@@ -323,7 +339,7 @@ public:
 
     std::optional<std::string> name;
 
-    int size() override;
+    std::size_t size() override;
 
     void add_member(Box<UnionTypeMember> member);
 
@@ -380,6 +396,8 @@ public:
 
     std::optional<std::string> name;
 
+    std::size_t size() override;
+
     // Create an enumerator with an automatically chosen value.
     void add_enumerator(std::string enumerator, Location loc);
 
@@ -435,10 +453,20 @@ class PointerType : public DerivedType {
 public:
     bool is_const;
 
+    std::size_t size() override;
+
     // Returns the level of nesting the pointer has (i.e. how many *'s there are).
     int nesting_lvl();
 
+    // Get the true base type of the pointer.
+    // A base type can also be an array, hence the Type * return type.
+    Type *true_base();
+
     PointerType *as_pointer() override { return this; }
+
+    bool is_subscriptable() override { return true; }
+
+    bool is_callable() override;
 
     bool is_compatible_with(Type *other) override;
 
@@ -483,6 +511,8 @@ public:
 
     ArrayType *as_array() override { return this; }
 
+    bool is_subscriptable() override { return true; }
+
     bool is_compatible_with(Type *other) override;
 
     std::string to_string() const override;
@@ -517,6 +547,8 @@ public:
 
     // Generate a hash based on the function signature.
     std::size_t hash_sig();
+
+    bool is_callable() override { return true; }
 
     FunctionType *as_function() override { return this; }
 
@@ -701,7 +733,7 @@ private:
 
     // Generate a mangled, unique name for a type incorporating its associated scope.
     template <typename T>
-    requires std::derived_from<T, Type>
+    requires std::derived_from<T, UserType>
     std::string mangle(std::string name, sema::sym::Scope *sc) {
         std::stringstream ss;
 
@@ -712,7 +744,7 @@ private:
 
 
     template <typename T>
-    requires std::derived_from<T, Type>
+    requires std::derived_from<T, UserType>
     // Create and insert a named type.
     T *make_insert_type(std::string mangled, sema::sym::Scope *scope, std::string name) {
         Box<T> s = std::make_unique<T>(name, scope);
@@ -733,7 +765,7 @@ private:
     }
 
     template <typename T>
-    requires std::derived_from<T, Type>
+    requires std::derived_from<T, UserType>
     T *make_insert_type(std::string mangled, sema::sym::Scope *scope) {
         Box<T> s = std::make_unique<T>(scope);
 

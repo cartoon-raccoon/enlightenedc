@@ -9,6 +9,10 @@ void FunctionMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
 
 void InitializerMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
 
+void TypeDeclMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
+
+void VarDeclMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
+
 void CompoundStmtMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
 
 void ExprStmtMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }

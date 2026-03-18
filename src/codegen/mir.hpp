@@ -163,7 +163,12 @@ public:
     ExprStmtMIR(Location loc, Box<ExprMIR> expr)
         : StmtMIR(loc, EXPRSTMT_MIR), expr(std::move(expr)) {}
     
-    Box<ExprMIR> expr;
+    ExprStmtMIR(Location loc)
+        : StmtMIR(loc, EXPRSTMT_MIR) {}
+    
+    std::optional<Box<ExprMIR>> expr;
+
+    bool is_empty() { return expr.has_value(); }
 
     void accept(MIRVisitor& visitor) override;
 };

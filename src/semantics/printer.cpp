@@ -25,6 +25,9 @@ std::string VarSymbol::to_string() const {
     if (is_extern)
         ss << " extern";
 
+    if (is_externc)
+        ss << " extern C";
+
     if (is_static)
         ss << " static";
 
@@ -43,9 +46,6 @@ std::string FuncSymbol::to_string() const {
         ss << signature->to_string();
     else
         ss << "<nullsig>";
-
-    if (is_extern)
-        ss << " extern";
 
     if (is_static)
         ss << " static";

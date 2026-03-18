@@ -84,8 +84,11 @@ public:
 
     // Storage class information.
 
-    /// If the symbol is external.
+    // If the symbol is external.
     bool is_extern = false;
+
+    // If the symbol is externally linked.
+    bool is_externc = false;
 
     bool is_funcparam = false;
 
@@ -95,7 +98,8 @@ public:
 };
 
 /*
-A symbol representing a function declaration (function pointers are handled by VarSymbol).
+A symbol representing a function declaration 
+(function pointers and externally linked functions are handled by VarSymbol).
 */
 class FuncSymbol : public Symbol {
 public:
@@ -104,8 +108,6 @@ public:
 
     // The function signature.
     types::FunctionType *signature;
-
-    bool is_extern = false;
 
     virtual std::string to_string() const override;
 

@@ -90,7 +90,7 @@ static ecc::parser::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 //* All actions must be filled with { $$ = std::move($1); }.
 %type <Box<Program>> program 
 %type <Box<ProgramItem>> program_item
-%type <Box<Function>> function_definition
+%type <Box<Function>> function
 %type <Box<Declaration>> declaration
 %type <Box<Statement>> statement
 %type <Box<Declarator>> declarator abstract_declarator
@@ -157,13 +157,13 @@ program:
 
 // Program item
 program_item:
-    function_definition { $$ = std::move($1); }
+    function { $$ = std::move($1); }
     | declaration { $$ = std::move($1); }
     | statement { $$ = std::move($1); }
 ;
 
 // Function definitions
-function_definition:
+function:
     declaration_specifier_list declarator compound_statement {
         $$ = std::make_unique<Function>(@$, std::move($1), std::move($2), std::move($3));
     }
@@ -662,12 +662,23 @@ stmt_or_decl_list: // A mixed list of declarations and statements.
         list.push_back(std::move(item));
         $$ = std::move(list);
     }
+    | function {
+        Vec<Box<ProgramItem>> list;
+        Box<ProgramItem> item = std::move($1);
+        list.push_back(std::move(item));
+        $$ = std::move(list);
+    }
     | stmt_or_decl_list declaration {
         Box<ProgramItem> item = std::move($2);
         $1.push_back(std::move(item));
         $$ = std::move($1);
     }
     | stmt_or_decl_list statement {
+        Box<ProgramItem> item = std::move($2);
+        $1.push_back(std::move(item));
+        $$ = std::move($1);
+    }
+    | stmt_or_decl_list function {
         Box<ProgramItem> item = std::move($2);
         $1.push_back(std::move(item));
         $$ = std::move($1);

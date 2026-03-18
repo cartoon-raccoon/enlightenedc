@@ -11,6 +11,7 @@
 #include "semantics/types.hpp"
 #include "semantics/symbols.hpp"
 #include "semantics/semantics.hpp"
+#include "codegen/mir.hpp"
 #include "util.hpp"
 
 namespace ecc::sema {
@@ -30,6 +31,12 @@ requires std::derived_from<Ty, typename types::Type>
 struct TypeSpecRet {
     std::optional<Box<sym::TypeSymbol>> symbol;
     Ty *type;
+};
+
+// The result of a 
+struct InitDecltrRet {
+    Box<DeclaratorBuilder> builder;
+    std::optional<Box<compiler::mir::InitializerMIR>> init_mir;
 };
 
 /*
@@ -57,7 +64,18 @@ using ElabResult = std::variant<
     // The result of visiting a TypeQualifier node.
     ast::TypeQualifier::QualType,
     // The result of visiting a StorageClassSpecifier node.
-    ast::StorageClassSpecifier::SpecType
+    ast::StorageClassSpecifier::SpecType,
+
+    Box<compiler::mir::ProgramItemMIR>,
+    Box<compiler::mir::FunctionMIR>,
+    // The return type of visiting VariableDeclaration node.
+    Vec<Box<compiler::mir::DeclMIR>>,
+    Box<compiler::mir::DeclMIR>,
+    Box<compiler::mir::StmtMIR>,
+    Box<compiler::mir::ExprMIR>,
+    Box<compiler::mir::InitializerMIR>,
+    // The return type of visiting an InitDeclarator.
+    InitDecltrRet
 >;
 
 
@@ -149,8 +167,10 @@ private:
 
     Box<SpecifierInfo> parse_speclist(Vec<Box<ast::DeclarationSpecifier>>&, Location);
 
-protected:
+    void unfold_initializer(); // todo
 
+protected:
+    void do_visit(ast::Program& node) override;
     void do_visit(ast::Function& node) override;
 
     void do_visit(ast::TypeDeclaration& node) override;

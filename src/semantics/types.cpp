@@ -9,6 +9,9 @@
 #include "semantics/types.hpp"
 #include "util.hpp"
 
+#define MAX_SIZE 8
+#define PTR_SIZE 8
+
 using namespace ecc::sema::types;
 
 bool Type::is_void() { return kind == Kind::VOID; }
@@ -16,6 +19,10 @@ bool Type::is_void() { return kind == Kind::VOID; }
 bool Type::is_primitive() { return kind == Kind::PRIMITIVE; }
 
 bool Type::is_pointer() { return kind == Kind::POINTER; }
+
+bool Type::is_array() { return kind == Kind::ARRAY; }
+
+bool Type::is_function() { return kind == Kind::FUNCTION; }
 
 bool PrimitiveType::is_integer() {
     // We maintain strict integral definitions for determining whether
@@ -40,6 +47,9 @@ bool PrimitiveType::is_integer() {
 }
 
 bool PrimitiveType::is_compatible_with(Type *dst) {
+    if (Type::is_compatible_with(dst))
+        return true;
+
     // Only primitive types allowed
     if (dst->kind != Type::Kind::PRIMITIVE) {
         return false;
@@ -57,7 +67,7 @@ bool PrimitiveType::is_compatible_with(Type *dst) {
     return true ? 0 < my_size && my_size <= new_other->size() : false;
 }
 
-int PrimitiveType::size() {
+std::size_t PrimitiveType::size() {
     switch (primkind) {
         case U8:
         case I8:
@@ -106,7 +116,7 @@ std::string PrimitiveType::formal() {
     }
 }
 
-int ClassType::size() {
+std::size_t ClassType::size() {
     return 0; // todo
 }
 
@@ -139,7 +149,7 @@ std::string ClassType::formal() {
     }
 }
 
-int UnionType::size() {
+std::size_t UnionType::size() {
     return 0; // todo
 }
 
@@ -170,6 +180,10 @@ std::string UnionType::formal() {
     } else {
         return "anon_union";
     }
+}
+
+std::size_t EnumType::size() {
+    return MAX_SIZE;
 }
 
 void EnumType::add_enumerator(std::string enumerator, Location loc) {
@@ -207,6 +221,9 @@ EnumType::EnumTypeMember *EnumType::find(std::string& name) {
 }
 
 bool EnumType::is_compatible_with(Type *dst) {
+    if (Type::is_compatible_with(dst))
+        return true;
+
     if (!dst->is_primitive()) {
         return false;
     }
@@ -223,6 +240,10 @@ std::string EnumType::formal() {
     }
 }
 
+std::size_t PointerType::size() {
+    return PTR_SIZE; // todo: create machineinfo to handle this better
+}
+
 int PointerType::nesting_lvl() {
     int lvl = 1;
 
@@ -235,8 +256,43 @@ int PointerType::nesting_lvl() {
     return lvl;
 }
 
+Type *PointerType::true_base() {
+    Type *curr = base;
+    while (curr->is_pointer()) {
+        curr = curr->as_pointer()->base;
+    }
+
+    return curr;
+}
+
+bool PointerType::is_callable() {
+    /*
+    A pointer is callable if it is a singly-nested pointer to a function.
+    */
+    if (nesting_lvl() == 1) {
+        if (base->is_function())
+            return true;
+    }
+    return false;
+}
+
 bool PointerType::is_compatible_with(Type *dst) {
-    return false; // todo
+    if (Type::is_compatible_with(dst))
+        return true;
+
+    PointerType *ptr = dst->as_pointer();
+    if (!ptr)
+        return false;
+
+    int my_nesting = nesting_lvl();
+    int ds_nesting = ptr->nesting_lvl();
+    Type *dst_base = ptr->true_base();
+
+    if (my_nesting == 1 && ds_nesting == 1) {
+        return base == dst_base || dst_base->is_void();
+    } else {
+        return dst == this;
+    }
 }
 
 std::size_t FunctionType::hash_sig() {
@@ -250,7 +306,22 @@ std::size_t FunctionType::hash_sig() {
 }
 
 bool ArrayType::is_compatible_with(Type *dst) {
-    return false; // todo
+    if (Type::is_compatible_with(dst))
+        return true;
+    
+    switch (dst->kind) {
+        case Kind::ARRAY: {
+            return this == dst;
+        }
+
+        case Kind::POINTER: {
+            PointerType *ptr = dst->as_pointer();
+            return base == ptr->base;
+        }
+        
+        default:
+        return false;
+    }
 }
 
 void TypeBuilder::add_array(uint64_t size) {
@@ -391,7 +462,7 @@ ClassType *TypeContext::get_class(sym::Scope *scope) {
     is not the same type as the named struct.
     */
     dbprint("TypeContext: anonymous class type on scope ", scope);
-    auto name = "anon_struct_" + std::to_string(anonymous_ctr);
+    auto name = "anon_" + std::to_string(anonymous_ctr);
     anonymous_ctr++;
     auto mangled = mangle<ClassType>(name, scope);
 
@@ -413,7 +484,7 @@ UnionType *TypeContext::get_union(std::string name, sym::Scope *scope) {
 
 UnionType *TypeContext::get_union(sym::Scope *scope) {
     dbprint("TypeContext: anonymous union type on scope ", scope);
-    auto name = "anon_union_" + std::to_string(anonymous_ctr);
+    auto name = "anon_" + std::to_string(anonymous_ctr);
     anonymous_ctr++;
     auto mangled = mangle<UnionType>(name, scope);
 
@@ -435,7 +506,7 @@ EnumType *TypeContext::get_enum(std::string name, sym::Scope *scope) {
 
 EnumType *TypeContext::get_enum(sym::Scope *scope) {
     dbprint("TypeContext: anonymous enum type on scope ", scope);
-    auto name = "anon_enum_" + std::to_string(anonymous_ctr);
+    auto name = "anon_" + std::to_string(anonymous_ctr);
     anonymous_ctr++;
     auto mangled = mangle<EnumType>(name, scope);
 

@@ -1,5 +1,6 @@
 #include "elaborator.hpp"
 #include "ast/ast.hpp"
+#include "codegen/mir.hpp"
 #include "codegen/value.hpp"
 #include "error.hpp"
 #include "semantics/symbols.hpp"
@@ -8,6 +9,7 @@
 #include "codegen/exec.hpp"
 #include "util.hpp"
 
+#include <memory>
 #include <stdexcept>
 #include <cassert>
 #include <unistd.h>
@@ -21,6 +23,7 @@ using namespace ecc::ast;
 using namespace ecc::sema;
 using namespace ecc::sema::types;
 using namespace ecc::sema::sym;
+using namespace compiler::mir;
 
 Box<Elaborator::SpecifierInfo> Elaborator::parse_speclist(
     Vec<Box<ast::DeclarationSpecifier>>& speclist, Location loc
@@ -101,6 +104,37 @@ Box<Elaborator::SpecifierInfo> Elaborator::parse_speclist(
     bsv_dbprint("finished parsing specifiers for node ", loc);
 
     return std::move(specinfo);
+}
+
+void Elaborator::do_visit(Program& node) {
+    bsv_dbprint("visiting Program node: ", node.loc);
+
+    Vec<Box<ProgramItemMIR>> progitems {};
+    for (auto& item : node.items) {
+        dv_call(std::monostate {}, item);
+        std::visit(overloaded {
+            [&progitems] (Box<DeclMIR>& decl) mutable {
+                progitems.push_back(std::move(decl));
+            },
+            [&progitems] (Box<StmtMIR>& stmt) mutable {
+                progitems.push_back(std::move(stmt));
+            },
+            [&progitems] (Box<FunctionMIR>& func) mutable {
+                progitems.push_back(std::move(func));
+            },
+            // 
+            [&progitems] (Vec<Box<DeclMIR>>& decls) mutable {
+                for (auto& decl : decls) {
+                    progitems.push_back(std::move(decl));
+                }
+            },
+            [] (auto& _) {
+                // todo: throw exception
+            }
+        }, last_result);
+    }
+
+    // todo
 }
 
 void Elaborator::do_visit(Function& node) {
@@ -210,6 +244,8 @@ void Elaborator::do_visit(Function& node) {
 
     // Then make call
     dv_call(cmpdstmtp, node.body);
+
+    // todo
 }
 
 void Elaborator::do_visit(TypeDeclaration& node) {
@@ -221,35 +257,82 @@ void Elaborator::do_visit(TypeDeclaration& node) {
         syms.insert(specinfo->symbol.value()->name, std::move(*specinfo->symbol));
     }
     dv_return(std::monostate {});
+
+    // todo
 }
 
 void Elaborator::do_visit(VariableDeclaration& node) {
     bsv_dbprint("visiting VariableDeclaration node: ", node.loc);
     auto specinfo = parse_speclist(node.specifiers, node.loc);
 
+    Vec<Box<DeclMIR>> var_decls;
+    var_decls.reserve(node.declarators.size());
+
     for (auto& declarator : node.declarators) {
+        // call accept on our declarator
         dv_call(std::monostate{}, declarator);
-        auto builder = take_last_result<Box<DeclaratorBuilder>>();
+
+        // take the last result; should be InitDecltrRet
+        auto ret = take_last_result<InitDecltrRet>();
+
+        // extract the builder and finalize our type
+        Box<DeclaratorBuilder> builder = std::move(ret.builder);
         builder->ty_bldr.set_base(specinfo->type);
         Type *complete = builder->ty_bldr.finalize();
+
+        // declare symbol and corresponding pointer
+        Box<VarSymbol> sym = nullptr;
+        VarSymbol *symptr = nullptr;
         if (builder->name) {
-            Box<VarSymbol> sym = std::make_unique<VarSymbol>(declarator->loc, *builder->name, complete);
+            // initialize our symbol and its pointer
+            sym = std::make_unique<VarSymbol>(declarator->loc, *builder->name, complete);
+            symptr = sym.get();
+
+            // populate other specifiers, and then insert into symbol table
             sym->is_public = specinfo->is_public;
             sym->is_static = specinfo->is_static;
             sym->is_const = specinfo->is_const;
             sym->is_extern = specinfo->is_extern;
+            sym->is_externc = specinfo->is_externc;
             syms.insert(*builder->name, std::move(sym));
         } else {
             throw EccError("variable declaration with no name", declarator->loc);
         }
+
+        // sym should be valid, since to get here builder's name had to exist
+        if (!symptr) {
+            throw EccError("unexpected null pointer when parsing variable declarator", declarator->loc);
+        }
+
+        // extract the initializer mir
+        if (ret.init_mir) {
+            Box<InitializerMIR> init_mir = std::move(*ret.init_mir);
+            var_decls.push_back(std::make_unique<VarDeclMIR>(node.loc, symptr, std::move(init_mir)));
+        } else {
+            var_decls.push_back(std::make_unique<VarDeclMIR>(node.loc, symptr));
+        }
     }
+
+    dv_return(var_decls);
 }
 
 void Elaborator::do_visit(InitDeclarator& node) {
     bsv_dbprint("visiting InitDeclarator node: ", node.loc);
 
     dv_call(std::monostate {}, node.declarator);
-    dv_return(take_last_result<Box<DeclaratorBuilder>>());
+    // pull builder before we visit the initializer
+    Box<DeclaratorBuilder> builder = take_last_result<Box<DeclaratorBuilder>>();
+
+    if (node.initializer) {
+        // call accept on our initializer
+        dv_call(std::monostate {}, *node.initializer);
+        auto init_mir = take_last_result<Box<InitializerMIR>>();
+        InitDecltrRet ret = {std::move(builder), std::move(init_mir)};
+        dv_return(ret);
+    } else {
+        InitDecltrRet ret = {std::move(builder), {}};
+        dv_return(ret);
+    }
 }
 
 void Elaborator::do_visit(Declarator& node) {
@@ -469,10 +552,14 @@ void Elaborator::do_visit(TypeQualifier& node) {
 void Elaborator::do_visit(EnumSpecifier& node) {
     bsv_dbprint("visiting EnumSpecifier node: ", node.loc);
     EnumType *enm = nullptr;
-    if (node.name) {
-        enm = types.get_enum(*(node.name), syms.current);
-    } else {
-        enm = types.get_enum(syms.current);
+    try {
+        if (node.name) {
+            enm = types.get_enum(*(node.name), syms.current);
+        } else {
+            enm = types.get_enum(syms.current);
+        }
+    } catch ( UserType *prev_def ) {
+        // todo
     }
 
     if (!enm) {
@@ -704,6 +791,31 @@ void Elaborator::do_visit(ClassDeclarator& node) {
 
 void Elaborator::do_visit(Initializer& node) {
     bsv_dbprint("visiting Initializer node: ", node.loc);
+
+    // todo: add initializer unfolding
+
+    Location loc = node.loc;
+
+    return std::visit(overloaded {
+        [this, loc] (Box<Expression>& expr) {
+            bsv_dbprint("visiting single initializer");
+            dv_call(std::monostate {}, expr);
+            Box<ExprMIR> exprmir = take_last_result<Box<ExprMIR>>();
+            Box<InitializerMIR> init = std::make_unique<InitializerMIR>(loc, std::move(exprmir));
+            dv_return(init);
+        },
+        [this, loc] (Vec<Box<Initializer>>& inits) {
+            bsv_dbprint("visiting compound initializer");
+            Vec<Box<InitializerMIR>> init_mirs {};
+            for (auto& init : inits) {
+                dv_call(std::monostate {}, init);
+                Box<InitializerMIR> initmir = take_last_result<Box<InitializerMIR>>();
+                init_mirs.push_back(std::move(initmir));
+            }
+            Box<InitializerMIR> fullinit = std::make_unique<InitializerMIR>(loc, std::move(init_mirs));
+            dv_return(fullinit);
+        }
+    }, node.initializer);
 }
 
 void Elaborator::do_visit(TypeName& node) {
@@ -768,18 +880,34 @@ void Elaborator::do_visit(CompoundStatement& node) {
     for (auto& item : node.items) {
         dv_call(std::monostate {}, item);
     }
+
+    // todo
 }
 
-void Elaborator::do_visit(LabeledStatement& node) {
+void Elaborator::do_visit(LabeledStatement& node) { //* DONE
     bsv_dbprint("visiting LabeledStatement node: ", node.loc);
-    syms.insert(node.label, std::make_unique<sym::LabelSymbol>(node.loc, node.label));
+    Box<LabelSymbol> label = std::make_unique<sym::LabelSymbol>(node.loc, node.label);
+    LabelSymbol *labelptr = label.get();
+    syms.insert(node.label, std::move(label));
     dv_call(std::monostate {}, node.statement);
+
+    auto stmt = take_last_result<Box<StmtMIR>>();
+
+    Box<StmtMIR> ret = std::make_unique<LabeledStmtMIR>(node.loc, labelptr, std::move(stmt));
+    dv_return(ret);
 }
 
-void Elaborator::do_visit(ExpressionStatement& node) {
+void Elaborator::do_visit(ExpressionStatement& node) { //* DONE
     bsv_dbprint("visiting ExpressionStatement node: ", node.loc);
-    if (node.expression.has_value()) {
-        node.expression.value()->accept(*this);
+    if (node.expression) {
+        dv_call(std::monostate {}, *node.expression);
+        auto expr = take_last_result<Box<ExprMIR>>();
+
+        Box<StmtMIR> stmt = std::make_unique<ExprStmtMIR>(node.loc, std::move(expr));
+        dv_return(stmt);
+    } else {
+        Box<StmtMIR> stmt = std::make_unique<ExprStmtMIR>(node.loc);
+        dv_return(stmt);
     }
 }
 
