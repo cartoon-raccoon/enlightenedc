@@ -184,7 +184,7 @@ public:
     
     std::optional<Box<ExprMIR>> expr;
 
-    bool is_empty() { return expr.has_value(); }
+    bool is_empty() { return !expr.has_value(); }
 
     void accept(MIRVisitor& visitor) override;
 };

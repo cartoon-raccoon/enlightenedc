@@ -70,21 +70,21 @@ Box<MIRSynthesizer::SpecifierInfo> MIRSynthesizer::parse_speclist(
             case NK::CLASS_SPEC: {
                 auto typespecret = take_last_result<TypeSpecRet<ClassType>>();
                 specinfo->type = typespecret.type;
-                specinfo->symbol = std::move(typespecret.symbol);
+                specinfo->symbol = typespecret.symbol;
                 break;
             }
 
             case NK::UNION_SPEC: {
                 auto typespecret = take_last_result<TypeSpecRet<UnionType>>();
                 specinfo->type = typespecret.type;
-                specinfo->symbol = std::move(typespecret.symbol);
+                specinfo->symbol = typespecret.symbol;
                 break;
             }
 
             case NK::ENUM_SPEC: {
                 auto typespecret = take_last_result<TypeSpecRet<EnumType>>();
                 specinfo->type = typespecret.type;
-                specinfo->symbol = std::move(typespecret.symbol);
+                specinfo->symbol = typespecret.symbol;
                 break;
             }
 
@@ -256,8 +256,7 @@ void MIRSynthesizer::do_visit(TypeDeclaration& node) {
     auto specinfo = parse_speclist(node.specifiers, node.loc);
 
     if (specinfo->symbol) {
-        TypeSymbol *symptr = (*specinfo->symbol).get();
-        syms.insert(specinfo->symbol.value()->name, std::move(*specinfo->symbol));
+        TypeSymbol *symptr = (*specinfo->symbol);
         Box<DeclMIR> decl = std::make_unique<TypeDeclMIR>(node.loc, symptr);
         dv_return(decl);
     } else {
@@ -577,10 +576,12 @@ void MIRSynthesizer::do_visit(EnumSpecifier& node) {
         for (auto& enumtr : *node.enumerators) {
             dv_call(enm, enumtr);
         }
+
+        enm->complete = true;
         if (node.name) {
             Box<TypeSymbol> sym = std::make_unique<sym::TypeSymbol>(node.loc, *node.name, enm);
-            syms.tie_current_to(sym.get());
-            ret.symbol = std::move(sym);
+            ret.symbol = sym.get();
+            syms.insert(*node.name, std::move(sym));
         }
     }
 
@@ -646,8 +647,8 @@ void MIRSynthesizer::do_visit(ClassSpecifier& node) {
         cls->complete = true;
         if (node.name) {
             Box<TypeSymbol> sym = std::make_unique<sym::TypeSymbol>(node.loc, *node.name, cls);
-            syms.tie_current_to(sym.get());
-            ret.symbol = std::move(sym);
+            ret.symbol = sym.get();
+            syms.insert(*node.name, std::move(sym));
         }
     }
 
@@ -684,8 +685,8 @@ void MIRSynthesizer::do_visit(UnionSpecifier& node) {
         // insert new symbol only at definition
         if (node.name) {
             Box<TypeSymbol> sym = std::make_unique<sym::TypeSymbol>(node.loc, *node.name, unn);
-            syms.tie_current_to(sym.get());
-            ret.symbol = std::move(sym);
+            ret.symbol = sym.get();
+            syms.insert(*node.name, std::move(sym));
         }
     }
 

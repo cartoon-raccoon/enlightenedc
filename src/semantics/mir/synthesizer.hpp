@@ -29,7 +29,7 @@ struct DeclaratorBuilder {
 template <typename Ty>
 requires std::derived_from<Ty, typename types::Type>
 struct TypeSpecRet {
-    std::optional<Box<sym::TypeSymbol>> symbol;
+    std::optional<sym::TypeSymbol *> symbol;
     Ty *type;
 };
 
@@ -117,10 +117,10 @@ using ElabVisitParam = std::variant<
 /*
 The class that performs the elaboration pass.
 */
-class MIRSynthesizer : public BaseSemanticVisitor {
+class MIRSynthesizer : public BaseASTSemaVisitor {
 public:
     MIRSynthesizer(sym::SymbolTable& syms, types::TypeContext& types, mir::ProgramMIR& mir)
-    : BaseSemanticVisitor(BaseSemanticVisitor::State::WRITE, syms, types), prog_mir(mir) {}
+    : BaseASTSemaVisitor(BaseSemanticVisitor::State::WRITE, syms, types), prog_mir(mir) {}
 
     /*
     The result of the last visit(ast::) call. This is essentially the `return` value,
@@ -168,7 +168,7 @@ public:
 private:
     struct SpecifierInfo {
         types::BaseType *type;
-        std::optional<Box<sym::TypeSymbol>> symbol;
+        std::optional<sym::TypeSymbol *> symbol;
         bool is_public;
         bool is_static;
         bool is_extern;
