@@ -6,8 +6,8 @@
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Type.h>
 
-#include "ast/ast.hpp"
-#include "ast/visitor.hpp"
+#include "codegen/mir.hpp"
+#include "codegen/visitor.hpp"
 #include "util.hpp"
 #include "semantics/types.hpp"
 #include "semantics/symbols.hpp"
@@ -23,7 +23,7 @@ using LLVMType = llvm::Type;
 
 // todo: use LLVM DataLayout to handle alignment
 
-class LLVMVisitor : public ast::ASTVisitor {
+class LLVMVisitor : public mir::MIRVisitor {
 public:
     LLVMVisitor(sema::sym::SymbolTable& syms, sema::types::TypeContext& tys)
     : syms(syms), tys(tys) {}
@@ -43,61 +43,39 @@ public:
 
     // Visitor method overrides
 
-    void visit(ast::Program& node) override;
-    void visit(ast::Function& node) override;
+    void visit(mir::ProgramMIR& node) override;
+    void visit(mir::FunctionMIR& node) override;
+    
+    void visit(mir::InitializerMIR& node) override;
+    void visit(mir::TypeDeclMIR& node) override;
+    void visit(mir::VarDeclMIR& node) override;
 
-    void visit(ast::TypeDeclaration& node) override;
-    void visit(ast::VariableDeclaration& node) override;
-    void visit(ast::ParameterDeclaration& node) override;
-    void visit(ast::Declarator& node) override;
-    void visit(ast::ParenDeclarator& node) override;
-    void visit(ast::ArrayDeclarator& node) override;
-    void visit(ast::FunctionDeclarator& node) override;
-    void visit(ast::InitDeclarator& node) override;
-    void visit(ast::Pointer& node) override;
-    void visit(ast::ClassDeclarator& node) override;
-    void visit(ast::ClassDeclaration& node) override;
-    void visit(ast::Enumerator& node) override;
-    void visit(ast::StorageClassSpecifier& node) override;
-    void visit(ast::TypeQualifier& node) override;
-    void visit(ast::EnumSpecifier& node) override;
-    void visit(ast::PrimitiveSpecifier& node) override;
-    void visit(ast::ClassSpecifier& node) override;
-    void visit(ast::UnionSpecifier& node) override;
-    void visit(ast::Initializer& node) override;
-    void visit(ast::TypeName& node) override;
-    void visit(ast::IdentifierDeclarator& node) override;
+    void visit(mir::CompoundStmtMIR& node) override;
+    void visit(mir::ExprStmtMIR& node) override;
+    void visit(mir::SwitchStmtMIR& node) override;
+    void visit(mir::CaseRangeStmtMIR& node) override;
+    void visit(mir::DefaultStmtMIR& node) override;
+    void visit(mir::LabeledStmtMIR& node) override;
+    void visit(mir::PrintStmtMIR& node) override;
+    void visit(mir::IfStmtMIR& node) override;
+    void visit(mir::LoopStmtMIR& node) override;
+    void visit(mir::GotoStmtMIR& node) override;
+    void visit(mir::BreakStmtMIR& node) override;
+    void visit(mir::ReturnStmtMIR& node) override;
 
-    void visit(ast::CompoundStatement& node) override;
-    void visit(ast::ExpressionStatement& node) override;
-    void visit(ast::CaseStatement& node) override;
-    void visit(ast::CaseRangeStatement& node) override;
-    void visit(ast::DefaultStatement& node) override;
-    void visit(ast::LabeledStatement& node) override;
-    void visit(ast::PrintStatement& node) override;
-    void visit(ast::IfStatement& node) override;
-    void visit(ast::SwitchStatement& node) override;
-    void visit(ast::WhileStatement& node) override;
-    void visit(ast::DoWhileStatement& node) override;
-    void visit(ast::ForStatement& node) override;
-    void visit(ast::GotoStatement& node) override;
-    void visit(ast::BreakStatement& node) override;
-    void visit(ast::ReturnStatement& node) override;
-
-    void visit(ast::BinaryExpression& node) override;
-    void visit(ast::CastExpression& node) override;
-    void visit(ast::UnaryExpression& node) override;
-    void visit(ast::AssignmentExpression& node) override;
-    void visit(ast::ConditionalExpression& node) override;
-    void visit(ast::IdentifierExpression& node) override;
-    void visit(ast::ConstExpression& node) override;
-    void visit(ast::LiteralExpression& node) override;
-    void visit(ast::StringExpression& node) override;
-    void visit(ast::CallExpression& node) override;
-    void visit(ast::MemberAccessExpression& node) override;
-    void visit(ast::ArraySubscriptExpression& node) override;
-    void visit(ast::PostfixExpression& node) override;
-    void visit(ast::SizeofExpression& node) override;
+    void visit(mir::BinaryExprMIR& node) override;
+    void visit(mir::UnaryExprMIR& node) override;
+    void visit(mir::CastExprMIR& node) override;
+    void visit(mir::AssignExprMIR& node) override;
+    void visit(mir::CondExprMIR& node) override;
+    void visit(mir::IdentExprMIR& node) override;
+    void visit(mir::LiteralExprMIR& node) override;
+    void visit(mir::StringExprMIR& node) override;
+    void visit(mir::CallExprMIR& node) override;
+    void visit(mir::MemberAccExprMIR& node) override;
+    void visit(mir::SubscrExprMIR& node) override;
+    void visit(mir::PostfixExprMIR& node) override;
+    void visit(mir::SizeofExprMIR& node) override;
 };
 
 } // namespace ecc::compiler
