@@ -387,7 +387,6 @@ public:
     void visit(mir::IdentExprMIR& node) override;
     void visit(mir::ConstExprMIR& node) override;
     void visit(mir::LiteralExprMIR& node) override;
-    void visit(mir::StringExprMIR& node) override;
     void visit(mir::CallExprMIR& node) override;
     void visit(mir::MemberAccExprMIR& node) override;
     void visit(mir::SubscrExprMIR& node) override;
@@ -428,7 +427,6 @@ protected:
     virtual void do_visit(mir::IdentExprMIR& node);
     virtual void do_visit(mir::ConstExprMIR& node);
     virtual void do_visit(mir::LiteralExprMIR& node);
-    virtual void do_visit(mir::StringExprMIR& node);
     virtual void do_visit(mir::CallExprMIR& node);
     virtual void do_visit(mir::MemberAccExprMIR& node);
     virtual void do_visit(mir::SubscrExprMIR& node);

@@ -6,6 +6,7 @@
 #include "eval/value.hpp"
 #include "util.hpp"
 
+#include <cstdint>
 #include <unordered_map>
 #include <memory>
 
@@ -29,6 +30,7 @@ class VarSymbol;
 class FuncSymbol;
 class TypeSymbol;
 class LabelSymbol;
+class Scope;
 
 /*
 The abstract symbol class.
@@ -43,18 +45,20 @@ public:
         LABEL, // This symbol references a label.
     };
 
-    Symbol(Kind kind, std::string name) : kind(kind), name(name) {}
+    Symbol(Kind kind, std::string name, Scope *scope)
+        : kind(kind), name(name), scope(scope) {}
 
-    Symbol(Kind kind, Location loc, std::string name) : kind(kind), name(name), loc(loc) {}
+    Symbol(Kind kind, Location loc, std::string name, Scope *scope)
+        : kind(kind), name(name), loc(loc), scope(scope) {}
 
     Kind kind;
 
     std::string name;
 
-    // std::optional<ecc::exec::Value> val;
-
     // The location of the symbol.
     Location loc;
+
+    Scope *scope;
 
     /// If the symbol is public.
     bool is_public = false;
@@ -65,7 +69,9 @@ public:
 
     virtual bool is_abstract() { return true; };
 
-    virtual std::string to_string() const { return "base symbol"; }
+    virtual std::string to_string() const  = 0;
+
+    virtual std::string mangle() const = 0;
 
     virtual PhysicalSymbol *as_physical() { return nullptr; }
     virtual AbstractSymbol *as_abstract() { return nullptr; }
@@ -79,9 +85,9 @@ public:
 // (e.g. a variable or function).
 class PhysicalSymbol : public Symbol {
 public:
-    PhysicalSymbol(Kind kind, std::string name) : Symbol(kind, name) {}
+    PhysicalSymbol(Kind kind, std::string name, Scope *scope) : Symbol(kind, name, scope) {}
 
-    PhysicalSymbol(Kind kind, Location loc, std::string name) : Symbol(kind, name) {}
+    PhysicalSymbol(Kind kind, Location loc, std::string name, Scope *scope) : Symbol(kind, name, scope) {}
 
     PhysicalSymbol *as_physical() { return this; }
 
@@ -92,9 +98,9 @@ public:
 // (e.g. a label or type declaration).
 class AbstractSymbol : public Symbol {
 public:
-    AbstractSymbol(Kind kind, std::string name) : Symbol(kind, name) {}
+    AbstractSymbol(Kind kind, std::string name, Scope *scope) : Symbol(kind, name, scope) {}
 
-    AbstractSymbol(Kind kind, Location loc, std::string name) : Symbol(kind, name) {}
+    AbstractSymbol(Kind kind, Location loc, std::string name, Scope *scope) : Symbol(kind, name, scope) {}
 
     AbstractSymbol *as_abstract() { return this; }
 
@@ -106,11 +112,11 @@ A symbol representing a variable declaration.
 */
 class VarSymbol : public PhysicalSymbol {
 public:
-    VarSymbol(Location loc, std::string name, types::Type *type) 
-        : PhysicalSymbol(Symbol::Kind::VAR, loc, name), type(type) {}
+    VarSymbol(Location loc, std::string name, Scope *scope, types::Type *type) 
+        : PhysicalSymbol(Symbol::Kind::VAR, loc, name, scope), type(type) {}
 
-    VarSymbol(Location loc, std::string name, types::Type *type, exec::Value value) 
-        : PhysicalSymbol(Symbol::Kind::VAR, loc, name), type(type), value(value) {}
+    VarSymbol(Location loc, std::string name, Scope *scope, types::Type *type, exec::Value value) 
+        : PhysicalSymbol(Symbol::Kind::VAR, loc, name, scope), type(type), value(value) {}
 
     /// The type of the symbol.
     types::Type *type;
@@ -133,6 +139,8 @@ public:
 
     virtual std::string to_string() const override;
 
+    std::string mangle() const override;
+
     VarSymbol *as_varsym() override { return this; }
 };
 
@@ -142,13 +150,24 @@ A symbol representing a function declaration
 */
 class FuncSymbol : public PhysicalSymbol {
 public:
-    FuncSymbol(Location loc, std::string name, types::FunctionType *signature)
-        : PhysicalSymbol(Symbol::Kind::FUNC, loc, name), signature(signature) {}
+    FuncSymbol(Location loc, 
+               std::string name,
+               Scope *scope,
+               types::FunctionType *signature, 
+               Vec<VarSymbol *> parameters)
+        : PhysicalSymbol(Symbol::Kind::FUNC, loc, name, scope), 
+        signature(signature),
+        parameters(std::move(parameters)) {}
 
     // The function signature.
     types::FunctionType *signature;
 
+    // The list of parameters to the function.
+    Vec<VarSymbol *> parameters;
+
     virtual std::string to_string() const override;
+
+    std::string mangle() const override;
 
     /// Create a function pointer VarSymbol from this FuncSymbol.
     Box<VarSymbol> as_funcptr(sema::types::TypeContext& tctxt, bool is_const = false);
@@ -161,12 +180,14 @@ A symbol representing a type declaration (class, union, enum).
 */
 class TypeSymbol : public AbstractSymbol {
 public:
-    TypeSymbol(Location loc, std::string name, types::BaseType* type)
-        : AbstractSymbol(Symbol::Kind::TYPE, loc, name), type(type) {}
+    TypeSymbol(Location loc, std::string name, Scope *scope, types::BaseType* type)
+        : AbstractSymbol(Symbol::Kind::TYPE, loc, name, scope), type(type) {}
 
     types::BaseType *type;
 
     virtual std::string to_string() const override;
+
+    std::string mangle() const override;
 
     TypeSymbol *as_typesym() override { return this; }
 };
@@ -176,10 +197,12 @@ A symbol representing a label (for use by goto).
 */
 class LabelSymbol : public AbstractSymbol {
 public:
-    LabelSymbol(Location loc, std::string name)
-        : AbstractSymbol(Symbol::Kind::LABEL, loc, name) {}
+    LabelSymbol(Location loc, std::string name, Scope *scope)
+        : AbstractSymbol(Symbol::Kind::LABEL, loc, name, scope) {}
 
     virtual std::string to_string() const override;
+
+    std::string mangle() const override;
 
     LabelSymbol *as_labsym() override { return this; }
 };
@@ -191,11 +214,11 @@ A scope stores symbols inside a translation unit.
 */
 class Scope {
 public:
-    Scope(Symbol *assoc, Scope *outer)
+    Scope(Symbol *assoc, Scope *outer, uint64_t id)
     : outer(outer), 
     assoc(assoc), 
     var_symbols(), func_symbols(), type_symbols(), label_symbols(),
-    nested() {}
+    nested(), id(id) {}
 
     // the outer scope enclosing the inner scope.
     Scope *outer;
@@ -212,6 +235,8 @@ public:
     // inner scopes contained within this scope.
     Vec<Box<Scope>> nested;
 
+    uint64_t id;
+
     std::string to_string() const;
 
 private:
@@ -227,12 +252,15 @@ The symbol table, storing all symbols in a given translation unit.
 */
 class SymbolTable {
 public:
-    SymbolTable() : global(std::make_unique<Scope>(nullptr, nullptr)), current(global.get()) {}
+    SymbolTable() : global(std::make_unique<Scope>(nullptr, nullptr, 0)), current(global.get()) {}
 
     // The global scope.
     Box<Scope> global;
     // The current scope.
     Scope *current;
+
+    // The ID to assign to the next scope.
+    uint64_t next_id = 1;
 
     // Create and enter a new scope.
     void push_scope(Symbol *assoc = nullptr);

@@ -6,16 +6,16 @@
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Type.h>
 
-#include "semantics/mir/mir.hpp"
-#include "semantics/mir/visitor.hpp"
 #include "semantics/types.hpp"
-#include "semantics/symbols.hpp"
+#include "codegen/lir/lir.hpp"
+#include "codegen/lir/visitor.hpp"
+#include "codegen/lir/symbols.hpp"
 #include "util.hpp"
 
 using namespace ecc;
 using namespace util;
 
-namespace ecc::compiler {
+namespace ecc::codegen {
 /*
 LLVM IR generation functionality.
 */
@@ -24,18 +24,16 @@ using LLVMType = llvm::Type;
 
 // todo: use LLVM DataLayout to handle alignment
 
-class LLVMVisitor : public sema::mir::MIRVisitor {
+class LLVMSynthesizer : public lir::LIRVisitor {
 public:
-    LLVMVisitor(sema::sym::SymbolTable& syms, sema::types::TypeContext& tys)
-    : syms(syms), tys(tys) {}
-    ~LLVMVisitor() = default;
+    LLVMSynthesizer(lir::LIRSymbolMap& syms) : syms(syms) {}
+    ~LLVMSynthesizer() = default;
 
     Box<llvm::Module> module;
     Box<llvm::LLVMContext> ctxt;
     Box<llvm::IRBuilder<>> builder;
 
-    sema::sym::SymbolTable& syms;
-    sema::types::TypeContext& tys;
+    lir::LIRSymbolMap& syms;
 
     /*
     Converts the provided type to its corresponding LLVM type.
@@ -45,6 +43,6 @@ public:
     // Visitor method overrides
 };
 
-} // namespace ecc::compiler
+} // namespace ecc::codegen
 
 #endif

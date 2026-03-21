@@ -69,9 +69,9 @@ public:
         SIZEEXPR_MIR,
     };
 
-    MIRNode(MIRNodeKind kind) : loc() {}
+    MIRNode(MIRNodeKind kind) : kind(kind), loc() {}
 
-    MIRNode(Location loc, MIRNodeKind kind) : loc(loc) {}
+    MIRNode(Location loc, MIRNodeKind kind) : kind(kind), loc(loc) {}
     virtual ~MIRNode() = default;
 
     MIRNodeKind kind;
@@ -93,7 +93,7 @@ public:
     ExprMIR(Location loc, MIRNodeKind kind,
             sema::types::Type *type) : MIRNode(loc, kind), type(type) {}
 
-    sema::types::Type *type;
+    sema::types::Type *type = nullptr;
 
     // Whether this expression can be assigned to,
     virtual bool is_assignable() { return false; }
@@ -491,16 +491,6 @@ public:
         : ExprMIR(loc, MIRNodeKind::LITEXPR_MIR), value(value) {}
 
     exec::Value value;
-
-    void accept(MIRVisitor& visitor) override;
-};
-
-class StringExprMIR : public ExprMIR {
-public:
-    StringExprMIR(Location loc, std::string value)
-        : ExprMIR(loc, MIRNodeKind::STREXPR_MIR), value(value) {}
-
-    std::string value;
 
     void accept(MIRVisitor& visitor) override;
 };

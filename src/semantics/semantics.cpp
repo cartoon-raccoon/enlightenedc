@@ -824,11 +824,6 @@ void BaseMIRSemaVisitor::visit(mir::LiteralExprMIR& node) {
     do_visit(node);
 }
 
-void BaseMIRSemaVisitor::visit(mir::StringExprMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
 void BaseMIRSemaVisitor::visit(mir::CallExprMIR& node) {
     auto guard = enter_node(&node);
     do_visit(node);
@@ -978,10 +973,6 @@ void BaseMIRSemaVisitor::do_visit(mir::ConstExprMIR& node) {
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::LiteralExprMIR& node) {
-    /* terminal node */
-}
-
-void BaseMIRSemaVisitor::do_visit(mir::StringExprMIR& node) {
     /* terminal node */
 }
 

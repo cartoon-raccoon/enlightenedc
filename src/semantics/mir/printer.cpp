@@ -309,10 +309,6 @@ void MIRPrinter::visit(LiteralExprMIR& node) {
     print_node("Literal: " + value_to_string(node.value), node);
 }
 
-void MIRPrinter::visit(StringExprMIR& node) {
-    print_node("String: " + node.value, node);
-}
-
 void MIRPrinter::visit(CallExprMIR& node) {
     print_node(
         "Call", node, [&] { node.callee->accept(*this); },

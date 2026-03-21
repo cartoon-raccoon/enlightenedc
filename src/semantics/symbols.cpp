@@ -1,4 +1,5 @@
 #include <cassert>
+#include <sstream>
 #include <stdexcept>
 #include <utility>
 
@@ -7,10 +8,34 @@
 using namespace ecc::sema::sym;
 using namespace ecc::sema::types;
 
+std::string VarSymbol::mangle() const {
+    std::stringstream ss;
+    ss << "var_" << name << "_" << "s" << scope->id;
+    return ss.str();
+}
+
+std::string FuncSymbol::mangle() const {
+    std::stringstream ss;
+    ss << "func_" << name << "_" << "s" << scope->id;
+    return ss.str();
+}
+
+std::string TypeSymbol::mangle() const {
+    std::stringstream ss;
+    ss << "type_" << name << "_" << "s" << scope->id;
+    return ss.str();
+}
+
+std::string LabelSymbol::mangle() const {
+    std::stringstream ss;
+    ss << "label_" << name << "_" << "s" << scope->id;
+    return ss.str();
+}
+
 Box<VarSymbol> FuncSymbol::as_funcptr(TypeContext& tctxt, bool is_const) {
     Type *ptrtype = tctxt.get_pointer(signature, is_const);
 
-    return std::make_unique<VarSymbol>(loc, name, ptrtype);
+    return std::make_unique<VarSymbol>(loc, name, scope, ptrtype);
 }
 
 void SymbolTable::push_scope(Symbol *assoc) {
@@ -19,8 +44,10 @@ void SymbolTable::push_scope(Symbol *assoc) {
     the new one
     */
 
-    Box<Scope> newscope = std::make_unique<Scope>(assoc, current);
-    dbprint("SymbolTable: pushing scope ", newscope.get());
+    Box<Scope> newscope = std::make_unique<Scope>(assoc, current, next_id);
+    next_id++;
+
+    dbprint("SymbolTable: pushing scope ", newscope->id);
     current->nested.push_back(std::move(newscope));
 
     enter_scope();
@@ -37,25 +64,21 @@ void SymbolTable::enter_scope() {
     }
 
     Scope *new_current = current->nested[current->nested_idx].get();
-    dbprint("SymbolTable: entering scope ", new_current);
+    dbprint("SymbolTable: entering scope ", new_current->id);
 
     current = new_current;
-
-    dbprint("SymbolTable: current scope ", current);
 }
 
 void SymbolTable::pop_scope() {
     if (current != global.get()) {
         if (current->outer) {
-            dbprint("SymbolTable: exiting scope to ", current->outer);
+            dbprint("SymbolTable: exiting scope to ", current->outer->id);
             current = current->outer;
             current->nested_idx++;
         } else {
             throw std::runtime_error("tried to exit global scope");
         }
     }
-
-    dbprint("SymbolTable: current scope ", current);
 }
 
 void SymbolTable::reset() {
@@ -218,7 +241,7 @@ LabelSymbol *SymbolTable::lookup_label(std::string& sym, bool current_only) {
 }
 
 void SymbolTable::tie_current_to(Symbol *sym, bool override) {
-    dbprint("SymbolTable: associating current scope ", current, " with symbol ", sym, " name \"", sym->name, "\"");
+    dbprint("SymbolTable: associating current scope ", current->id, " with symbol ", sym, " name \"", sym->name, "\"");
     if (current->assoc != nullptr) {
         if (override) {
             current->assoc = sym;

@@ -227,16 +227,6 @@ void MIRSynthesizer::do_visit(Function& node) {
         throw EccError("unable to parse name from declarator", node.declarator->loc);
     }
 
-    Box<FuncSymbol> symbol = std::make_unique<FuncSymbol>(node.loc, *builder->name, functype);
-    FuncSymbol *sym_ptr = symbol.get();
-    try {
-        syms.insert(*builder->name, std::move(symbol));
-    } catch ( Symbol *previous ) {
-        throw SymbolAlrDecldError(
-            std::format("function \"{}\" was previously declared", sym_ptr->name), 
-            sym_ptr->loc, previous->loc);
-    }
-
     dbprint("parsing params");
 
     Vec<Box<VarSymbol>> params;
@@ -244,7 +234,26 @@ void MIRSynthesizer::do_visit(Function& node) {
         if (!param.name) {
             throw EccError("parameter in function declaration has no name", param.loc);
         }
-        params.emplace_back(std::make_unique<VarSymbol>(param.loc, *param.name, param.type));
+        Box<VarSymbol> paramsym = std::make_unique<VarSymbol>(
+            param.loc, *param.name, syms.current, param.type);
+        paramsym->is_funcparam = true;
+        params.push_back(std::move(paramsym));
+    }
+
+    Vec<VarSymbol *> paramsym_ptrs {};
+    for (Box<VarSymbol>& sym : params) {
+        paramsym_ptrs.push_back(sym.get());
+    }
+
+    Box<FuncSymbol> symbol = std::make_unique<FuncSymbol>(
+        node.loc, *builder->name, syms.current, functype, std::move(paramsym_ptrs));
+    FuncSymbol *sym_ptr = symbol.get();
+    try {
+        syms.insert(*builder->name, std::move(symbol));
+    } catch ( Symbol *previous ) {
+        throw SymbolAlrDecldError(
+            std::format("function \"{}\" was previously declared", sym_ptr->name), 
+            sym_ptr->loc, previous->loc);
     }
 
     CmpdStmtDoVisitParam cmpdstmtp({sym_ptr, std::move(params)});
@@ -295,7 +304,8 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
         VarSymbol *symptr = nullptr;
         if (builder->name) {
             // initialize our symbol and its pointer
-            sym = std::make_unique<VarSymbol>(declarator->loc, *builder->name, complete);
+            sym = std::make_unique<VarSymbol>(
+                declarator->loc, *builder->name, syms.current, complete);
             symptr = sym.get();
 
             // populate other specifiers, and then insert into symbol table
@@ -589,7 +599,7 @@ void MIRSynthesizer::do_visit(EnumSpecifier& node) {
         bsv_dbprint("enum has name, inserting typesymbol if needed");
         TypeSymbol *enmsym = syms.lookup_type(*node.name, true);
         if (!enmsym) {
-            Box<TypeSymbol> sym = std::make_unique<sym::TypeSymbol>(node.loc, *node.name, enm);
+            Box<TypeSymbol> sym = std::make_unique<sym::TypeSymbol>(node.loc, *node.name, syms.current, enm);
             retsym = sym.get();
             syms.insert(*node.name, std::move(sym));
         } else {
@@ -646,7 +656,7 @@ void MIRSynthesizer::do_visit(Enumerator& node) {
         value = enm->add_enumerator(node.name, node.loc);
     }
 
-    syms.insert(node.name, std::make_unique<VarSymbol>(node.loc, node.name, enm, value));
+    syms.insert(node.name, std::make_unique<VarSymbol>(node.loc, node.name, syms.current, enm, value));
 
     dv_return(std::monostate {});
 }
@@ -671,7 +681,7 @@ void MIRSynthesizer::do_visit(ClassSpecifier& node) {
         bsv_dbprint("class has name, inserting typesymbol if needed");
         TypeSymbol *clssym = syms.lookup_type(*node.name, true);
         if (!clssym) {
-            Box<TypeSymbol> sym = std::make_unique<sym::TypeSymbol>(node.loc, *node.name, cls);
+            Box<TypeSymbol> sym = std::make_unique<sym::TypeSymbol>(node.loc, *node.name, syms.current, cls);
             retsym = sym.get();
             syms.insert(*node.name, std::move(sym));
         } else {
@@ -724,7 +734,7 @@ void MIRSynthesizer::do_visit(UnionSpecifier& node) {
         bsv_dbprint("union has name, inserting typesymbol if needed");
         TypeSymbol *unnsym = syms.lookup_type(*node.name, true);
         if (!unnsym) {
-            Box<TypeSymbol> sym = std::make_unique<sym::TypeSymbol>(node.loc, *node.name, unn);
+            Box<TypeSymbol> sym = std::make_unique<sym::TypeSymbol>(node.loc, *node.name, syms.current, unn);
             retsym = sym.get();
             syms.insert(*node.name, std::move(sym));
         } else {
@@ -1038,7 +1048,7 @@ void MIRSynthesizer::do_visit(DefaultStatement& node) {
 
 void MIRSynthesizer::do_visit(LabeledStatement& node) {
     bsv_dbprint("visiting LabeledStatement node: ", node.loc);
-    Box<LabelSymbol> label = std::make_unique<sym::LabelSymbol>(node.loc, node.label);
+    Box<LabelSymbol> label = std::make_unique<sym::LabelSymbol>(node.loc, node.label, syms.current);
     LabelSymbol *labelptr = label.get();
     syms.insert(node.label, std::move(label));
     dv_call(std::monostate {}, node.statement);
@@ -1114,7 +1124,7 @@ void MIRSynthesizer::do_visit(WhileStatement& node) {
     ss << "while_start_" << &node;
 
     // Create the label symbol
-    Box<LabelSymbol> loop_label = std::make_unique<LabelSymbol>(node.loc, ss.str());
+    Box<LabelSymbol> loop_label = std::make_unique<LabelSymbol>(node.loc, ss.str(), syms.current);
     LabelSymbol *loop_lbl_ptr = syms.insert(ss.str(), std::move(loop_label))->as_labsym();
     assert(loop_lbl_ptr);
 
@@ -1140,7 +1150,7 @@ void MIRSynthesizer::do_visit(DoWhileStatement& node) {
     std::stringstream ss;
     ss << "dowhile_start_" << &node;
 
-    Box<LabelSymbol> loop_label = std::make_unique<LabelSymbol>(node.loc, ss.str());
+    Box<LabelSymbol> loop_label = std::make_unique<LabelSymbol>(node.loc, ss.str(), syms.current);
     LabelSymbol *loop_lbl_ptr = syms.insert(ss.str(), std::move(loop_label))->as_labsym();
     assert(loop_lbl_ptr);
 
@@ -1162,7 +1172,7 @@ void MIRSynthesizer::do_visit(ForStatement& node) {
     std::stringstream ss;
     ss << "for_start_" << &node;
 
-    Box<LabelSymbol> loop_label = std::make_unique<LabelSymbol>(node.loc, ss.str());
+    Box<LabelSymbol> loop_label = std::make_unique<LabelSymbol>(node.loc, ss.str(), syms.current);
     LabelSymbol *loop_lbl_ptr = syms.insert(ss.str(), std::move(loop_label))->as_labsym();
     assert(loop_lbl_ptr);
 

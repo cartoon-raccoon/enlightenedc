@@ -279,7 +279,7 @@ std::string TypeContext::to_string() const {
 static void print_scope(std::stringstream& ss, Scope* scope, int depth) {
     std::string indent(depth * 2, ' ');
 
-    ss << indent << "Scope " << scope;
+    ss << indent << "Scope " << scope->id;
     if (scope->assoc) {
         ss << ": " << scope->assoc->to_string();
     }
