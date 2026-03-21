@@ -15,6 +15,14 @@ void ExprStmtLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
 
 void SwitchStmtLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
 
+void BreakStmtLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
+void ContStmtLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
+void IfStmtLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
+void LoopStmtLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
 void LabelStmtLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
 
 void PrintStmtLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }

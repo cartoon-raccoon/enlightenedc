@@ -18,22 +18,38 @@ class LIRVisitor;
 
 class LIRNode {
 public:
-    enum class LIRNodeKind {
+    enum class NodeKind {
         PROG_LIR,
         FUNC_LIR,
         VARDECL_LIR,
         GOTOSTMT_LIR,
-        EXPRSTMT_LIR,
+        RETSTMT_LIR,
         SWITCHSTMT_LIR,
+        BREAKSTMT_LIR,
+        CONTSTMT_LIR,
+        EXPRSTMT_LIR,
+        IFSTMT_LIR,
+        LOOPSTMT_LIR,
         LABELSTMT_LIR,
-
+        PRINTSTMT_LIR,
+        BINEXPR_LIR,
+        UNEXPR_LIR,
+        CASTEXPR_LIR,
+        ASSIGNEXPR_LIR,
+        CONDEXPR_LIR,
+        IDENTEXPR_LIR,
+        LITEXPR_LIR,
+        CALLEXPR_LIR,
+        MEMACCEXPR_LIR,
+        SUBSCREXPR_LIR,
+        PFIXEXPR_LIR,
     };
 
-    LIRNode(LIRNodeKind kind) : kind(kind), loc() {}
-    LIRNode(Location loc, LIRNodeKind kind) : kind(kind), loc(loc) {}
+    LIRNode(NodeKind kind) : kind(kind), loc() {}
+    LIRNode(Location loc, NodeKind kind) : kind(kind), loc(loc) {}
     virtual ~LIRNode() = default;
 
-    LIRNodeKind kind;
+    NodeKind kind;
     // Location is now optional because a lot of nodes in LIR will be compiler generated
     // and so will not have an intrinsic source code location.
     std::optional<Location> loc;
@@ -43,45 +59,65 @@ public:
 
 class ProgItemLIR : public LIRNode {
 public:
-    ProgItemLIR(LIRNodeKind kind) : LIRNode(kind) {}
-    ProgItemLIR(Location loc, LIRNodeKind kind) : LIRNode(loc, kind) {}
+    ProgItemLIR(NodeKind kind) : LIRNode(kind) {}
+    ProgItemLIR(Location loc, NodeKind kind) : LIRNode(loc, kind) {}
 
     virtual void accept(LIRVisitor& visitor) = 0;
 };
 
 class DeclLIR : public ProgItemLIR {
 public:
-    DeclLIR(LIRNodeKind kind) : ProgItemLIR(kind) {}
-    DeclLIR(Location loc, LIRNodeKind kind) : ProgItemLIR(loc, kind) {}
+    DeclLIR(NodeKind kind) : ProgItemLIR(kind) {}
+    DeclLIR(Location loc, NodeKind kind) : ProgItemLIR(loc, kind) {}
 
     virtual void accept(LIRVisitor& visitor) = 0;
 };
 
 class StmtLIR : public ProgItemLIR {
 public:
-    StmtLIR(LIRNodeKind kind) : ProgItemLIR(kind) {}
-    StmtLIR(Location loc, LIRNodeKind kind) : ProgItemLIR(loc, kind) {}
+    StmtLIR(NodeKind kind) : ProgItemLIR(kind) {}
+    StmtLIR(Location loc, NodeKind kind) : ProgItemLIR(loc, kind) {}
+
+    virtual bool is_terminal() { return false; }
+
+    virtual void accept(LIRVisitor& visitor) = 0;
+};
+
+/*
+*/
+class TerminalLIR : public StmtLIR {
+public:
+    TerminalLIR(NodeKind kind) : StmtLIR(kind) {}
+    TerminalLIR(Location loc, NodeKind kind) : StmtLIR(loc, kind) {}
+
+    virtual bool is_terminal() { return true; }
 
     virtual void accept(LIRVisitor& visitor) = 0;
 };
 
 class ExprLIR : public LIRNode {
 public:
-    ExprLIR(LIRNodeKind kind) : LIRNode(kind) {}
-    ExprLIR(Location loc, LIRNodeKind kind) : LIRNode(loc, kind) {}\
+    ExprLIR(NodeKind kind) : LIRNode(kind) {}
+    ExprLIR(Location loc, NodeKind kind) : LIRNode(loc, kind) {}\
 
     virtual void accept(LIRVisitor& visitor) = 0;
 };
 
 class FunctionLIR : public ProgItemLIR {
 public:
-
+    FunctionLIR(Location loc, 
+                std::string mangled, 
+                std::string name, 
+                sema::types::Type *returnty)
+        : ProgItemLIR(loc, NodeKind::FUNC_LIR), locals(), body() {}
+    
+    std::string mangled_name;
     std::string name;
 
     sema::types::Type *returnty;
 
     Vec<LIRVar *> locals;
-    Vec<Box<StmtLIR>> body;
+    Vec<Box<ProgItemLIR>> body;
 
     void accept(LIRVisitor& visitor) override;
 };
@@ -89,22 +125,22 @@ public:
 class VarDeclLIR : public DeclLIR {
 public:
     VarDeclLIR(Location loc, LIRVar *var)
-        : DeclLIR(loc, LIRNodeKind::VARDECL_LIR), var(var) {}
+        : DeclLIR(loc, NodeKind::VARDECL_LIR), var(var) {}
     VarDeclLIR(LIRVar *var)
-        : DeclLIR(LIRNodeKind::VARDECL_LIR), var(var) {}
+        : DeclLIR(NodeKind::VARDECL_LIR), var(var) {}
     
     LIRVar *var;
 
     void accept(LIRVisitor& visitor) override;
 };
 
-class GotoStmtLIR : public StmtLIR {
+class GotoStmtLIR : public TerminalLIR {
 public:
     GotoStmtLIR(std::string mangled_target)
-        : StmtLIR(LIRNodeKind::GOTOSTMT_LIR), mangled_target(mangled_target) {}
+        : TerminalLIR(NodeKind::GOTOSTMT_LIR), mangled_target(mangled_target) {}
     
     GotoStmtLIR(Location loc, std::string mangled_target, std::string target)
-        : StmtLIR(loc, LIRNodeKind::GOTOSTMT_LIR), 
+        : TerminalLIR(loc, NodeKind::GOTOSTMT_LIR), 
         mangled_target(mangled_target), target(target) {}
 
     // The mangled target name.
@@ -113,27 +149,87 @@ public:
     // Does not exist for compiler-generated targets.
     std::optional<std::string> target;
 
+    bool is_terminal() override { return true; }
+
+    void accept(LIRVisitor& visitor) override;
+};
+
+class ReturnStmtLIR : public TerminalLIR {
+public:
+    ReturnStmtLIR(Location loc, Box<ExprLIR> ret_value)
+        : TerminalLIR(loc, NodeKind::RETSTMT_LIR), 
+        ret_value(std::move(ret_value)) {}
+
+    ReturnStmtLIR(Location loc)
+        : TerminalLIR(loc, NodeKind::RETSTMT_LIR) {}
+
+    std::optional<Box<ExprLIR>> ret_value;
+
+    bool is_terminal() override { return true; }
+
+    void accept(LIRVisitor& visitor) override;
+};
+
+class SwitchStmtLIR : public TerminalLIR {
+public:
+    SwitchStmtLIR(Location loc, Box<ExprLIR> condition)
+        : TerminalLIR(loc, NodeKind::SWITCHSTMT_LIR),
+        condition(std::move(condition)) {}
+    
+    Box<ExprLIR> condition;
+    Vec<Box<ProgItemLIR>> body;
+
+    bool is_terminal() override { return true; }
+
+    void accept(LIRVisitor& visitor) override;
+};
+
+class BreakStmtLIR : public TerminalLIR {
+public:
+    BreakStmtLIR(Location loc) : TerminalLIR(loc, NodeKind::BREAKSTMT_LIR) {}
+
+    void accept(LIRVisitor& visitor) override;
+};
+
+class ContStmtLIR : public TerminalLIR {
+public:
+    ContStmtLIR(Location loc) : TerminalLIR(loc, NodeKind::CONTSTMT_LIR) {}
+
     void accept(LIRVisitor& visitor) override;
 };
 
 class ExprStmtLIR : public StmtLIR {
 public:
+    ExprStmtLIR(Location loc, Box<ExprLIR> expr)
+        : StmtLIR(loc, NodeKind::EXPRSTMT_LIR), expr(std::move(expr)) {}
+    
     Box<ExprLIR> expr;
 
     void accept(LIRVisitor& visitor) override;
 };
 
-class SwitchStmtLIR : public StmtLIR {
-public:
-
-    void accept(LIRVisitor& visitor) override;
-};
-
-class LabelStmtLIR : public StmtLIR {
+class LabelStmtLIR : public ProgItemLIR {
 public:
     std::string mangled_label;
     std::string label;
 
+    Vec<Box<ProgItemLIR>> body;
+
+    void accept(LIRVisitor& visitor) override;
+};
+
+
+class IfStmtLIR : public StmtLIR {
+public:
+    Box<ExprLIR> condition;
+    Vec<Box<ProgItemLIR>> then_br;
+    std::optional<Vec<Box<ProgItemLIR>>> else_br;
+
+    void accept(LIRVisitor& visitor) override;
+};
+
+class LoopStmtLIR : public StmtLIR {
+public:
     void accept(LIRVisitor& visitor) override;
 };
 
@@ -145,15 +241,15 @@ public:
     void accept(LIRVisitor& visitor) override;
 };
 
-class ReturnStmtLIR : public StmtLIR {
-public:
-    std::optional<Box<ExprLIR>> ret_value;
-
-    void accept(LIRVisitor& visitor) override;
-};
-
 class BinaryExprLIR : public ExprLIR {
 public:
+    BinaryExprLIR(Location loc, 
+                  Box<ExprLIR> left, 
+                  Box<ExprLIR> right, 
+                  tokens::BinaryOp op)
+        : ExprLIR(loc, NodeKind::BINEXPR_LIR),
+        left(std::move(left)), right(std::move(right)), op(op) {}
+
     Box<ExprLIR> left;
     Box<ExprLIR> right;
     tokens::BinaryOp op;
@@ -163,6 +259,10 @@ public:
 
 class UnaryExprLIR : public ExprLIR {
 public:
+    UnaryExprLIR(Location loc, Box<ExprLIR> operand, tokens::UnaryOp op)
+        : ExprLIR(loc, NodeKind::UNEXPR_LIR), 
+        operand(std::move(operand)), op(op) {}
+    
     Box<ExprLIR> operand;
     tokens::UnaryOp op;
 
@@ -171,6 +271,11 @@ public:
 
 class CastExprLIR : public ExprLIR {
 public:
+    CastExprLIR(Location loc, Box<ExprLIR> inner, sema::types::Type *target)
+        : ExprLIR(loc, NodeKind::CASTEXPR_LIR), 
+        target(target),
+        inner(std::move(inner)) {}
+    
     sema::types::Type *target;
     Box<ExprLIR> inner;
 
@@ -179,6 +284,12 @@ public:
 
 class AssignExprLIR : public ExprLIR {
 public:
+    AssignExprLIR(Location loc, 
+                  Box<ExprLIR> left, Box<ExprLIR> right, 
+                  tokens::AssignOp op)
+        : ExprLIR(loc, NodeKind::ASSIGNEXPR_LIR), 
+        left(std::move(left)), right(std::move(right)), op(op) {}
+    
     Box<ExprLIR> left;
     Box<ExprLIR> right;
     tokens::AssignOp op;
@@ -219,13 +330,14 @@ class MemberAccExprLIR : public ExprLIR {
 public:
     Box<ExprLIR> object;
     std::string member;
-    bool is_arrow;
 
     void accept(LIRVisitor& visitor) override;
 };
 
 class SubscrExprLIR : public ExprLIR {
 public:
+    Box<ExprLIR> array;
+    Box<ExprLIR> index;
     void accept(LIRVisitor& visitor) override;
 };
 
@@ -237,7 +349,7 @@ public:
 
 class ProgramLIR : public LIRNode {
 public:
-    ProgramLIR() : LIRNode(LIRNodeKind::PROG_LIR), functions(), progitems() {}
+    ProgramLIR() : LIRNode(NodeKind::PROG_LIR), functions(), progitems() {}
     Vec<Box<FunctionLIR>> functions;
     /*
     In HolyC, statements can be declared in the global scope, and they will be executed

@@ -44,6 +44,7 @@ public:
         EXPRSTMT_MIR,
         SWITCHSTMT_MIR,
         CASESTMT_MIR,
+        CASERGSTMT_MIR,
         DEFSTMT_MIR,
         LABSTMT_MIR,
         PRINTSTMT_MIR,
@@ -228,7 +229,7 @@ public:
                      Box<ExprMIR> case_start, 
                      Box<ExprMIR> case_end,
                      Box<StmtMIR> stmt)
-        : StmtMIR(loc, NodeKind::CASESTMT_MIR), 
+        : StmtMIR(loc, NodeKind::CASERGSTMT_MIR), 
         case_start(std::move(case_start)), 
         case_end(std::move(case_end)),
         stmt(std::move(stmt)) {}
