@@ -38,6 +38,8 @@ void GotoStmtMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
 
 void BreakStmtMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
 
+void ContStmtMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
+
 void ReturnStmtMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
 
 void BinaryExprMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }

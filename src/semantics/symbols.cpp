@@ -80,28 +80,37 @@ void SymbolTable::clear() {
     // todo
 }
 
-Symbol *SymbolTable::lookup(std::string& sym) {
-    VarSymbol *maybe_var = lookup_var(sym);
+Symbol *SymbolTable::lookup(std::string& sym, bool current_only) {
+    VarSymbol *maybe_var = lookup_var(sym, current_only);
     if (maybe_var)
         return maybe_var;
 
-    FuncSymbol *maybe_func = lookup_func(sym);
+    FuncSymbol *maybe_func = lookup_func(sym, current_only);
     if (maybe_func)
         return maybe_func;
 
-    TypeSymbol *maybe_type = lookup_type(sym);
+    TypeSymbol *maybe_type = lookup_type(sym, current_only);
     if (maybe_type)
         return maybe_type;
 
-    LabelSymbol *maybe_label = lookup_label(sym);
+    LabelSymbol *maybe_label = lookup_label(sym, current_only);
     if (maybe_label)
         return maybe_label;
 
     return nullptr;
 }
 
-VarSymbol *SymbolTable::lookup_var(std::string& sym) {
-    dbprint("SymbolTable: looking up symbol ", sym);
+VarSymbol *SymbolTable::lookup_var(std::string& sym, bool current_only) {
+    
+    if (current_only) {
+        dbprint("SymbolTable: looking up varsymbol ", sym, " in current scope");
+        if (this->current->var_symbols.contains(sym)) {
+            return this->current->var_symbols.find(sym)->second.get();
+        } else {
+            return nullptr;
+        }
+    }
+    dbprint("SymbolTable: looking up varsymbol ", sym);
 
     Scope *my_current = this->current;
 
@@ -121,8 +130,16 @@ VarSymbol *SymbolTable::lookup_var(std::string& sym) {
     return my_current->var_symbols.find(sym)->second.get();
 }
 
-FuncSymbol *SymbolTable::lookup_func(std::string& sym) {
-    dbprint("SymbolTable: looking up symbol ", sym);
+FuncSymbol *SymbolTable::lookup_func(std::string& sym, bool current_only) {
+    if (current_only) {
+        dbprint("SymbolTable: looking up funcsymbol ", sym, " in current scope");
+        if (this->current->func_symbols.contains(sym)) {
+            return this->current->func_symbols.find(sym)->second.get();
+        } else {
+            return nullptr;
+        }
+    }
+    dbprint("SymbolTable: looking up funcsymbol ", sym);
 
     Scope *my_current = this->current;
 
@@ -142,8 +159,16 @@ FuncSymbol *SymbolTable::lookup_func(std::string& sym) {
     return my_current->func_symbols.find(sym)->second.get();
 }
 
-TypeSymbol *SymbolTable::lookup_type(std::string& sym) {
-    dbprint("SymbolTable: looking up symbol ", sym);
+TypeSymbol *SymbolTable::lookup_type(std::string& sym, bool current_only) {
+    if (current_only) {
+        dbprint("SymbolTable: looking up typesymbol ", sym, " in current scope");
+        if (this->current->type_symbols.contains(sym)) {
+            return this->current->type_symbols.find(sym)->second.get();
+        } else {
+            return nullptr;
+        }
+    }
+    dbprint("SymbolTable: looking up typesymbol ", sym);
 
     Scope *my_current = this->current;
 
@@ -163,8 +188,16 @@ TypeSymbol *SymbolTable::lookup_type(std::string& sym) {
     return my_current->type_symbols.find(sym)->second.get();
 }
 
-LabelSymbol *SymbolTable::lookup_label(std::string& sym) {
-    dbprint("SymbolTable: looking up symbol ", sym);
+LabelSymbol *SymbolTable::lookup_label(std::string& sym, bool current_only) {
+    if (current) {
+        dbprint("SymbolTable: looking up labelsymbol ", sym, " in current scope");
+        if (this->current->label_symbols.contains(sym)) {
+            return this->current->label_symbols.find(sym)->second.get();
+        } else {
+            return nullptr;
+        }
+    }
+    dbprint("SymbolTable: looking up labelsymbol ", sym);
 
     Scope *my_current = this->current;
 

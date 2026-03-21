@@ -245,6 +245,7 @@ public:
     void visit(ast::EnumSpecifier& node) override;
     void visit(ast::ClassSpecifier& node) override;
     void visit(ast::UnionSpecifier& node) override;
+    void visit(ast::TypeIdentifier& node) override;
     void visit(ast::VoidSpecifier& node) override;
     void visit(ast::PrimitiveSpecifier& node) override;
     void visit(ast::Initializer& node) override;
@@ -265,6 +266,7 @@ public:
     void visit(ast::ForStatement& node) override;
     void visit(ast::GotoStatement& node) override;
     void visit(ast::BreakStatement& node) override;
+    void visit(ast::ContinueStatement& node) override;
     void visit(ast::ReturnStatement& node) override;
 
     void visit(ast::BinaryExpression& node) override;
@@ -303,6 +305,7 @@ protected:
     virtual void do_visit(ast::EnumSpecifier& node);
     virtual void do_visit(ast::ClassSpecifier& node);
     virtual void do_visit(ast::UnionSpecifier& node);
+    virtual void do_visit(ast::TypeIdentifier& node);
     virtual void do_visit(ast::VoidSpecifier& node);
     virtual void do_visit(ast::PrimitiveSpecifier& node);
     virtual void do_visit(ast::Initializer& node);
@@ -323,6 +326,7 @@ protected:
     virtual void do_visit(ast::ForStatement& node);
     virtual void do_visit(ast::GotoStatement& node);
     virtual void do_visit(ast::BreakStatement& node);
+    virtual void do_visit(ast::ContinueStatement& node);
     virtual void do_visit(ast::ReturnStatement& node);
 
     virtual void do_visit(ast::BinaryExpression& node);

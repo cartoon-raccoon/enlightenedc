@@ -51,6 +51,7 @@ public:
         LOOPSTMT_MIR,
         GOTOSTMT_MIR,
         BREAKSTMT_MIR,
+        CONTSTMT_MIR,
         RETSTMT_MIR,
         BINEXPR_MIR,
         UNEXPR_MIR,
@@ -367,6 +368,13 @@ public:
 class BreakStmtMIR : public StmtMIR {
 public:
     BreakStmtMIR(Location loc) : StmtMIR(loc, MIRNodeKind::BREAKSTMT_MIR) {}
+    
+    void accept(MIRVisitor& visitor) override;
+};
+
+class ContStmtMIR : public StmtMIR {
+public:
+    ContStmtMIR(Location loc) : StmtMIR(loc, MIRNodeKind::CONTSTMT_MIR) {}
     
     void accept(MIRVisitor& visitor) override;
 };

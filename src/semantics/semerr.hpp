@@ -3,6 +3,32 @@
 namespace ecc::sema {
 using namespace ecc;
 
+class InvalidTypeDefnError : public EccError {
+public:
+    InvalidTypeDefnError(std::string name, Location err_loc)
+    : EccError("invalid type definition", err_loc)
+    {
+        std::stringstream ss;
+        ss << EccError::what() << ": " << name << "\n"
+           << "types can only be declared in the global scope";
+
+        msg = ss.str();
+    }
+};
+
+class TypeNotDefinedError : public EccError {
+public:
+    TypeNotDefinedError(std::string name, Location err_loc)
+    : EccError("use of undefined type", err_loc)
+    {
+        std::stringstream ss;
+        ss << EccError::what() << "\n" 
+           << "type \'" << name << "\' is not declared";
+
+        msg = ss.str();
+    }
+};
+
 class IdentNotDefinedError : public EccError {
 public:
     IdentNotDefinedError(std::string name, Location err_loc)

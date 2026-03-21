@@ -112,6 +112,11 @@ void BaseASTSemaVisitor::visit(StorageClassSpecifier& node) {
     do_visit(node);
 }
 
+void BaseASTSemaVisitor::visit(TypeIdentifier& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
 void BaseASTSemaVisitor::visit(VoidSpecifier& node) {
     auto guard = enter_node(&node);
     do_visit(node);
@@ -234,6 +239,11 @@ void BaseASTSemaVisitor::visit(GotoStatement& node) {
 }
 
 void BaseASTSemaVisitor::visit(BreakStatement& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
+void BaseASTSemaVisitor::visit(ContinueStatement& node) {
     auto guard = enter_node(&node);
     do_visit(node);
 }
@@ -472,6 +482,10 @@ void BaseASTSemaVisitor::do_visit(VoidSpecifier& node) {
     /* terminal node */
 }
 
+void BaseASTSemaVisitor::do_visit(TypeIdentifier& node) {
+    /* terminal node */
+}
+
 void BaseASTSemaVisitor::do_visit(PrimitiveSpecifier& node) {
     /* terminal node */
 }
@@ -592,6 +606,10 @@ void BaseASTSemaVisitor::do_visit(GotoStatement& node) {
 }
 
 void BaseASTSemaVisitor::do_visit(BreakStatement& node) {
+    /* terminal node */
+}
+
+void BaseASTSemaVisitor::do_visit(ContinueStatement& node) {
     /* terminal node */
 }
 

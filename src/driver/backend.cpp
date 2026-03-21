@@ -15,6 +15,7 @@ void Backend::run(TranslationUnit& unit) {
     SemanticChecker semantic_checker(*symbols, *types);
 
     semantic_checker.check_semantics(*unit.ast_root, *unit.prog_mir);
+    dbprint("semantic checking complete");
 
     dbprint(*types);
     dbprint(*symbols);

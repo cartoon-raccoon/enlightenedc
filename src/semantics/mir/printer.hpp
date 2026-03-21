@@ -45,6 +45,7 @@ class MIRPrinter : public MIRVisitor {
     void visit(LoopStmtMIR& node) override;
     void visit(GotoStmtMIR& node) override;
     void visit(BreakStmtMIR& node) override;
+    void visit(ContStmtMIR& node) override;
     void visit(ReturnStmtMIR& node) override;
 
     void visit(BinaryExprMIR& node) override;

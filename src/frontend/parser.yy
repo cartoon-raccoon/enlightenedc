@@ -59,9 +59,9 @@ static ecc::parser::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 %token <char> CHAR_CONST
 
 // Keywords
-%token IF ELSE WHILE DO FOR SWITCH CASE DEFAULT BREAK RETURN GOTO TRUE FALSE
+%token IF ELSE WHILE DO FOR SWITCH CASE DEFAULT BREAK CONTINUE RETURN GOTO
 %token CLASS UNION ENUM CONST VOID U8 U16 U32 U64 I8 I16 I32 I64 F64 BOOL SIZEOF
-%token PUBLIC STATIC EXTERN
+%token PUBLIC STATIC EXTERN TRUE FALSE
 
 // Operators
 %token PLUS MINUS MUL DIV MOD ASSIGN EQ NE LE GE ANDAND OROR
@@ -737,6 +737,9 @@ jump_statement:
     }
     | BREAK SEMI {
         $$ = std::make_unique<BreakStatement>(@$);
+    }
+    | CONTINUE SEMI {
+        $$ = std::make_unique<ContinueStatement>(@$);
     }
     | RETURN SEMI {
         $$ = std::make_unique<ReturnStatement>(@$, std::nullopt);

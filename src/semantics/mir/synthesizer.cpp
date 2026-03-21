@@ -67,6 +67,14 @@ Box<MIRSynthesizer::SpecifierInfo> MIRSynthesizer::parse_speclist(
             }
             break;
 
+            case NK::TYPE_IDENT: {
+                specinfo->symbol = take_last_result<TypeSymbol *>();
+                // No need to check for nullptr here because it is guaranteed,
+                // if the ident didn't exist it would have thrown
+                specinfo->type = (*specinfo->symbol)->type;
+                break;
+            }
+
             case NK::CLASS_SPEC: {
                 auto typespecret = take_last_result<TypeSpecRet<ClassType>>();
                 specinfo->type = typespecret.type;
@@ -497,6 +505,15 @@ void MIRSynthesizer::do_visit(VoidSpecifier& node) {
     dv_return(types.get_void());
 }
 
+void MIRSynthesizer::do_visit(TypeIdentifier& node) {
+    bsv_dbprint("visiting TypeIdentifier node: ", node.loc);
+    TypeSymbol *typesym = syms.lookup_type(node.identifier);
+    if (!typesym) {
+        throw TypeNotDefinedError(node.identifier, node.loc);
+    }
+    dv_return(typesym);
+}
+
 void MIRSynthesizer::do_visit(PrimitiveSpecifier& node) {
     bsv_dbprint("visiting PrimitiveSpecifier node: ", node.loc);
     /* terminal node */
@@ -558,17 +575,38 @@ void MIRSynthesizer::do_visit(EnumSpecifier& node) {
     EnumType *enm = nullptr;
     try {
         if (node.name) {
-            enm = types.get_enum(*(node.name), syms.current);
+            enm = types.get_enum(*(node.name), syms.global.get());
         } else {
-            enm = types.get_enum(syms.current);
+            enm = types.get_enum(syms.global.get());
         }
     } catch ( UserType *prev_def ) {
         throw TypeDecldAsOtherError("enum already declared as another type", node.loc, prev_def->loc);
     }
 
+    std::optional<TypeSymbol *> retsym = {};
+    // If class has name, compute symbol to add
+    if (node.name) {
+        bsv_dbprint("enum has name, inserting typesymbol if needed");
+        TypeSymbol *enmsym = syms.lookup_type(*node.name, true);
+        if (!enmsym) {
+            Box<TypeSymbol> sym = std::make_unique<sym::TypeSymbol>(node.loc, *node.name, enm);
+            retsym = sym.get();
+            syms.insert(*node.name, std::move(sym));
+        } else {
+            retsym = enmsym;
+        }
+    }
+
     TypeSpecRet<EnumType> ret({}, enm);
 
     if (node.enumerators) {
+        if (syms.current != syms.global.get()) {
+            if (node.name) {
+                throw InvalidTypeDefnError(*node.name, node.loc);
+            } else {
+                throw InvalidTypeDefnError("anonymous enum", node.loc);
+            }
+        }
         if (enm->complete) {
             throw TypeAlrDefinedError("enum was previously defined", node.loc, enm->loc);
         }
@@ -578,11 +616,6 @@ void MIRSynthesizer::do_visit(EnumSpecifier& node) {
         }
 
         enm->complete = true;
-        if (node.name) {
-            Box<TypeSymbol> sym = std::make_unique<sym::TypeSymbol>(node.loc, *node.name, enm);
-            ret.symbol = sym.get();
-            syms.insert(*node.name, std::move(sym));
-        }
     }
 
 
@@ -623,17 +656,39 @@ void MIRSynthesizer::do_visit(ClassSpecifier& node) {
     ClassType *cls = nullptr;
     try {
         if (node.name) {
-            cls = types.get_class(*(node.name), syms.current);
+            // only allow classes to be created in the global scope now
+            cls = types.get_class(*(node.name), syms.global.get());
         } else {
-            cls = types.get_class(syms.current);
+            cls = types.get_class(syms.global.get());
         }
     } catch (UserType *prev_def) {
         throw TypeDecldAsOtherError("class already declared as another type", node.loc, prev_def->loc);
     }
 
-    TypeSpecRet<ClassType> ret({}, cls);
+    std::optional<TypeSymbol *> retsym = {};
+    // If class has name, compute symbol to add
+    if (node.name) {
+        bsv_dbprint("class has name, inserting typesymbol if needed");
+        TypeSymbol *clssym = syms.lookup_type(*node.name, true);
+        if (!clssym) {
+            Box<TypeSymbol> sym = std::make_unique<sym::TypeSymbol>(node.loc, *node.name, cls);
+            retsym = sym.get();
+            syms.insert(*node.name, std::move(sym));
+        } else {
+            retsym = clssym;
+        }
+    }
+
+    TypeSpecRet<ClassType> ret(retsym, cls);
 
     if (node.declarations) {
+        if (syms.current != syms.global.get()) {
+            if (node.name) {
+                throw InvalidTypeDefnError(*node.name, node.loc);
+            } else {
+                throw InvalidTypeDefnError("anonymous class", node.loc);
+            }
+        }
         if (cls->complete) {
             // error: class was previously defined
             throw TypeAlrDefinedError("class was previously defined", node.loc, cls->loc);
@@ -645,11 +700,6 @@ void MIRSynthesizer::do_visit(ClassSpecifier& node) {
         }
 
         cls->complete = true;
-        if (node.name) {
-            Box<TypeSymbol> sym = std::make_unique<sym::TypeSymbol>(node.loc, *node.name, cls);
-            ret.symbol = sym.get();
-            syms.insert(*node.name, std::move(sym));
-        }
     }
 
     dv_return(ret);
@@ -660,18 +710,39 @@ void MIRSynthesizer::do_visit(UnionSpecifier& node) {
     UnionType *unn = nullptr;
     try {
         if (node.name) {
-            unn = types.get_union(*(node.name), syms.current);
+            unn = types.get_union(*(node.name), syms.global.get());
         } else {
-            unn = types.get_union(syms.current);
+            unn = types.get_union(syms.global.get());
         }
     } catch (UserType *prev_def) {
         throw TypeDecldAsOtherError("union already declared as another type", node.loc, prev_def->loc);
     }
 
-    TypeSpecRet<UnionType> ret({}, unn);
+    std::optional<TypeSymbol *> retsym = {};
+    // If class has name, compute symbol to add
+    if (node.name) {
+        bsv_dbprint("union has name, inserting typesymbol if needed");
+        TypeSymbol *unnsym = syms.lookup_type(*node.name, true);
+        if (!unnsym) {
+            Box<TypeSymbol> sym = std::make_unique<sym::TypeSymbol>(node.loc, *node.name, unn);
+            retsym = sym.get();
+            syms.insert(*node.name, std::move(sym));
+        } else {
+            retsym = unnsym;
+        }
+    }
+
+    TypeSpecRet<UnionType> ret(retsym, unn);
 
     // declarations are present, start definition
     if (node.declarations) {
+        if (syms.current != syms.global.get()) {
+            if (node.name) {
+                throw InvalidTypeDefnError(*node.name, node.loc);
+            } else {
+                throw InvalidTypeDefnError("anonymous union", node.loc);
+            }
+        }
         if (unn->complete) {
             // error: union was previously defined
             throw TypeAlrDefinedError("union was previously defined", node.loc, unn->loc);
@@ -682,12 +753,6 @@ void MIRSynthesizer::do_visit(UnionSpecifier& node) {
         }
 
         unn->complete = true;
-        // insert new symbol only at definition
-        if (node.name) {
-            Box<TypeSymbol> sym = std::make_unique<sym::TypeSymbol>(node.loc, *node.name, unn);
-            ret.symbol = sym.get();
-            syms.insert(*node.name, std::move(sym));
-        }
     }
 
     dv_return(ret);
@@ -1154,6 +1219,13 @@ void MIRSynthesizer::do_visit(BreakStatement& node) {
     bsv_dbprint("visiting BreakStatement node: ", node.loc);
 
     Box<StmtMIR> stmt = std::make_unique<BreakStmtMIR>(node.loc);
+    dv_return(stmt);
+}
+
+void MIRSynthesizer::do_visit(ContinueStatement& node) {
+    bsv_dbprint("visiting ContinueStatement node: ", node.loc);
+
+    Box<StmtMIR> stmt = std::make_unique<ContStmtMIR>(node.loc);
     dv_return(stmt);
 }
 

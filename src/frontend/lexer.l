@@ -124,6 +124,7 @@ static std::string decode_string_literal(char* text, size_t len) {
 "case" { return ecc::parser::Parser::make_CASE(loc); }
 "default" { return ecc::parser::Parser::make_DEFAULT(loc); }
 "break" { return ecc::parser::Parser::make_BREAK(loc); }
+"continue" { return ecc::parser::Parser::make_CONTINUE(loc); }
 "return" { return ecc::parser::Parser::make_RETURN(loc); }
 "goto" { return ecc::parser::Parser::make_GOTO(loc); }
 "class" { return ecc::parser::Parser::make_CLASS(loc); }

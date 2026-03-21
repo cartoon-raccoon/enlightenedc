@@ -256,6 +256,8 @@ void MIRPrinter::visit(GotoStmtMIR& node) {
 
 void MIRPrinter::visit(BreakStmtMIR& node) { print_node("Break", node); }
 
+void MIRPrinter::visit(ContStmtMIR& node) { print_node("Continue", node); }
+
 void MIRPrinter::visit(ReturnStmtMIR& node) {
     print_node("Return", node, [&] {
         if (node.ret_expr)

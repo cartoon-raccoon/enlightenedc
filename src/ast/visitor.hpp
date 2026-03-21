@@ -32,6 +32,7 @@ public:
     virtual void visit(EnumSpecifier& node) = 0;
     virtual void visit(ClassSpecifier& node) = 0;
     virtual void visit(UnionSpecifier& node) = 0;
+    virtual void visit(TypeIdentifier& node) = 0;
     virtual void visit(VoidSpecifier& node) = 0;
     virtual void visit(PrimitiveSpecifier& node) = 0;
     virtual void visit(Initializer& node) = 0;
@@ -52,6 +53,7 @@ public:
     virtual void visit(ForStatement& node) = 0;
     virtual void visit(GotoStatement& node) = 0;
     virtual void visit(BreakStatement& node) = 0;
+    virtual void visit(ContinueStatement& node) = 0;
     virtual void visit(ReturnStatement& node) = 0;
 
     virtual void visit(BinaryExpression& node) = 0;

@@ -52,6 +52,7 @@ public:
         CLASS_SPEC,
         UNION_SPEC,
         ENUM_SPEC,
+        TYPE_IDENT,
         VOID_SPEC,
         PRIM_SPEC,
         COMP_STMT,
@@ -68,6 +69,7 @@ public:
         FOR_STMT,
         GOTO_STMT,
         BREAK_STMT,
+        CONT_STMT,
         RET_STMT,
         TYPE_NAME,
         CONST_EXPR,
@@ -521,6 +523,16 @@ public:
     void accept(ASTVisitor& visitor) override;
 };
 
+class TypeIdentifier : public TypeSpecifier {
+public:
+    TypeIdentifier(Location loc, std::string ident)
+        : TypeSpecifier(TYPE_IDENT, loc), identifier(ident) {}
+
+    std::string identifier;
+
+    void accept(ASTVisitor& visitor) override;
+};
+
 class VoidSpecifier : public TypeSpecifier {
 public:
     VoidSpecifier(Location loc) : TypeSpecifier(VOID_SPEC, loc) {}
@@ -770,6 +782,13 @@ public:
 class BreakStatement : public JumpStatement {
 public:
     BreakStatement(Location loc) : JumpStatement(BREAK_STMT, loc) {}
+
+    void accept(ASTVisitor& visitor) override;
+};
+
+class ContinueStatement : public JumpStatement {
+public:
+    ContinueStatement(Location loc) : JumpStatement(CONT_STMT, loc) {}
 
     void accept(ASTVisitor& visitor) override;
 };

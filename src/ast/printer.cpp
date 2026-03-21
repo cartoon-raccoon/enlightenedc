@@ -245,6 +245,12 @@ void ASTPrinter::visit(DefaultStatement& node) {
         [&] { node.statement->accept(*this); });
 }
 
+void ASTPrinter::visit(ContinueStatement& node) {
+    print_node(
+        "ContinueStatement: ",
+        node);
+}
+
 void ASTPrinter::visit(LabeledStatement& node) {
     print_node(
         "LabeledStatement: " + node.label,
@@ -465,6 +471,10 @@ void ASTPrinter::visit(Enumerator& node) {
 void ASTPrinter::visit(StorageClassSpecifier& node) {
     print_node("StorageClassSpecifier: " + storage_to_string(node.type),
                 node);
+}
+
+void ASTPrinter::visit(TypeIdentifier& node) {
+    print_node("TypeIdentifier: " + node.identifier, node);
 }
 
 void ASTPrinter::visit(VoidSpecifier& node) {

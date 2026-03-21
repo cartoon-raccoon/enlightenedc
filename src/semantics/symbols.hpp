@@ -161,10 +161,10 @@ A symbol representing a type declaration (class, union, enum).
 */
 class TypeSymbol : public AbstractSymbol {
 public:
-    TypeSymbol(Location loc, std::string name, types::Type* type)
+    TypeSymbol(Location loc, std::string name, types::BaseType* type)
         : AbstractSymbol(Symbol::Kind::TYPE, loc, name), type(type) {}
 
-    types::Type *type;
+    types::BaseType *type;
 
     virtual std::string to_string() const override;
 
@@ -260,15 +260,15 @@ public:
     void clear();
 
     // Lookup a symbol by name. Returns null if no symbol exists.
-    Symbol *lookup(std::string& sym);
+    Symbol *lookup(std::string& sym, bool current = false);
 
-    VarSymbol *lookup_var(std::string& sym);
+    VarSymbol *lookup_var(std::string& sym, bool current = false);
 
-    FuncSymbol *lookup_func(std::string& sym);
+    FuncSymbol *lookup_func(std::string& sym, bool current = false);
 
-    TypeSymbol *lookup_type(std::string& sym);
-    
-    LabelSymbol *lookup_label(std::string& sym);
+    TypeSymbol *lookup_type(std::string& sym, bool current = false);
+
+    LabelSymbol *lookup_label(std::string& sym, bool current = false);
 
     // Associate the current scope with the given Symbol `sym`.
     // If current scope is already tied to a symbol, replaces it

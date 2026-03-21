@@ -63,6 +63,7 @@ using ElabResult = std::variant<
     types::PrimitiveType *,
     types::PointerType *,
     types::Type *,
+    sym::TypeSymbol *,
     // The result of visiting a ParameterDeclaration node.
     types::FuncParam,
     // The result of visiting a TypeQualifier node.
@@ -199,6 +200,7 @@ protected:
     void do_visit(ast::EnumSpecifier& node) override;
     void do_visit(ast::ClassSpecifier& node) override;
     void do_visit(ast::UnionSpecifier& node) override;
+    void do_visit(ast::TypeIdentifier& node) override;
     void do_visit(ast::VoidSpecifier& node) override;
     void do_visit(ast::PrimitiveSpecifier& node) override;
     void do_visit(ast::Initializer& node) override;
@@ -219,6 +221,7 @@ protected:
     void do_visit(ast::ForStatement& node) override;
     void do_visit(ast::GotoStatement& node) override;
     void do_visit(ast::BreakStatement& node) override;
+    void do_visit(ast::ContinueStatement& node) override;
     void do_visit(ast::ReturnStatement& node) override;
 
     void do_visit(ast::BinaryExpression& node) override;

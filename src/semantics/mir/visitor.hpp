@@ -28,6 +28,7 @@ public:
     virtual void visit(LoopStmtMIR& node) = 0;
     virtual void visit(GotoStmtMIR& node) = 0;
     virtual void visit(BreakStmtMIR& node) = 0;
+    virtual void visit(ContStmtMIR& node) = 0;
     virtual void visit(ReturnStmtMIR& node) = 0;
 
     virtual void visit(BinaryExprMIR& node) = 0;

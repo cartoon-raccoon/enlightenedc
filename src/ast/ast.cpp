@@ -32,6 +32,8 @@ void TypeQualifier::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void EnumSpecifier::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
+void TypeIdentifier::accept(ASTVisitor& visitor) { visitor.visit(*this); }
+
 void VoidSpecifier::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void PrimitiveSpecifier::accept(ASTVisitor& visitor) { visitor.visit(*this); }
@@ -67,6 +69,8 @@ void ForStatement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 void GotoStatement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void BreakStatement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
+
+void ContinueStatement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 
 void ReturnStatement::accept(ASTVisitor& visitor) { visitor.visit(*this); }
 

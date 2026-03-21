@@ -43,6 +43,7 @@ public:
     void visit(PrimitiveSpecifier& node) override;
     void visit(ClassSpecifier& node) override;
     void visit(UnionSpecifier& node) override;
+    void visit(TypeIdentifier& node) override;
     void visit(Initializer& node) override;
     void visit(TypeName& node) override;
     void visit(IdentifierDeclarator& node) override;
@@ -61,6 +62,7 @@ public:
     void visit(ForStatement& node) override;
     void visit(GotoStatement& node) override;
     void visit(BreakStatement& node) override;
+    void visit(ContinueStatement& node) override;
     void visit(ReturnStatement& node) override;
 
     void visit(BinaryExpression& node) override;
