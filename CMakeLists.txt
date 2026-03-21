@@ -76,7 +76,6 @@ target_precompile_headers(ecc PRIVATE
     <memory>
     <unordered_map>
     <variant>
-    "src/ast/ast.hpp"
 )
 
 # 7. Link LLVM libraries
