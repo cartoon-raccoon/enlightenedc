@@ -22,7 +22,7 @@ int BaseASTSemaVisitor::in_node(ASTNode::NodeKind kind) {
     return -1;
 }
 
-int BaseMIRSemaVisitor::in_node(MIRNode::MIRNodeKind kind) {
+int BaseMIRSemaVisitor::in_node(MIRNode::NodeKind kind) {
     int ret = 0;
     for (auto i = ctxt_stack.rbegin(); i != ctxt_stack.rend(); i++) {
         if ((*i)->kind == kind) {
@@ -31,6 +31,15 @@ int BaseMIRSemaVisitor::in_node(MIRNode::MIRNodeKind kind) {
         ret++;
     }
     return -1;
+}
+
+MIRNode *BaseMIRSemaVisitor::get_context(MIRNode::NodeKind kind) {
+    for (auto i = ctxt_stack.rbegin(); i != ctxt_stack.rend(); i++) {
+        if ((*i)->kind == kind) {
+            return (*i);
+        }
+    }
+    return nullptr;
 }
 
 /*
@@ -692,6 +701,10 @@ void BaseASTSemaVisitor::do_visit(SizeofExpression& node) {
     }, node.operand);
 }
 
+/*
+* BaseMIRSemaVisitor METHODS
+*/
+
 void BaseMIRSemaVisitor::visit(mir::ProgramMIR& node) {
     auto guard = enter_node(&node);
     do_visit(node);
@@ -779,6 +792,11 @@ void BaseMIRSemaVisitor::visit(mir::BreakStmtMIR& node) {
     do_visit(node);
 }
 
+void BaseMIRSemaVisitor::visit(mir::ContStmtMIR& node) {
+    auto guard = enter_node(&node);
+    do_visit(node);
+}
+
 void BaseMIRSemaVisitor::visit(mir::ReturnStmtMIR& node) {
     auto guard = enter_node(&node);
     do_visit(node);
@@ -848,6 +866,10 @@ void BaseMIRSemaVisitor::visit(mir::SizeofExprMIR& node) {
     auto guard = enter_node(&node);
     do_visit(node);
 }
+
+/*
+* DO_VISIT METHODS
+*/
 
 void BaseMIRSemaVisitor::do_visit(mir::ProgramMIR& node) {
     for (auto& item : node.items) {
@@ -921,47 +943,75 @@ void BaseMIRSemaVisitor::do_visit(mir::LabeledStmtMIR& node) {
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::PrintStmtMIR& node) {
-
+    for (auto& expr : node.arguments) {
+        expr->accept(*this);
+    }
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::IfStmtMIR& node) {
-
+    node.condition->accept(*this);
+    node.then_branch->accept(*this);
+    if (node.else_branch) {
+        (*node.else_branch)->accept(*this);
+    }
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::LoopStmtMIR& node) {
+    if (node.init) {
+        (*node.init)->accept(*this);
+    }
 
+    if (node.condition) {
+        (*node.condition)->accept(*this);
+    }
+
+    if (node.step) {
+        (*node.step)->accept(*this);
+    }
+
+    node.body->accept(*this);
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::GotoStmtMIR& node) {
-
+    /* terminal node */
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::BreakStmtMIR& node) {
+    /* terminal node */
+}
 
+void BaseMIRSemaVisitor::do_visit(mir::ContStmtMIR& node) {
+    /* terminal node */
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::ReturnStmtMIR& node) {
-
+    if (node.ret_expr) {
+        (*node.ret_expr)->accept(*this);
+    }
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::BinaryExprMIR& node) {
-
+    node.left->accept(*this);
+    node.right->accept(*this);
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::UnaryExprMIR& node) {
-
+    node.operand->accept(*this);
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::CastExprMIR& node) {
-
+    node.inner->accept(*this);
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::AssignExprMIR& node) {
-
+    node.left->accept(*this);
+    node.right->accept(*this);
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::CondExprMIR& node) {
-
+    node.condition->accept(*this);
+    node.true_expr->accept(*this);
+    node.false_expr->accept(*this);
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::IdentExprMIR& node) {
@@ -969,7 +1019,7 @@ void BaseMIRSemaVisitor::do_visit(mir::IdentExprMIR& node) {
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::ConstExprMIR& node) {
-
+    node.inner->accept(*this);
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::LiteralExprMIR& node) {
@@ -977,23 +1027,34 @@ void BaseMIRSemaVisitor::do_visit(mir::LiteralExprMIR& node) {
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::CallExprMIR& node) {
-
+    node.callee->accept(*this);
+    for (auto& arg : node.args) {
+        arg->accept(*this);
+    }
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::MemberAccExprMIR& node) {
-
+    node.object->accept(*this);
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::SubscrExprMIR& node) {
-
+    node.array->accept(*this);
+    node.index->accept(*this);
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::PostfixExprMIR& node) {
-
+    node.operand->accept(*this);
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::SizeofExprMIR& node) {
-
+    std::visit(overloaded {
+        [this] (Box<ExprMIR>& expr) {
+            expr->accept(*this);
+        },
+        [this] (types::Type *& type) {
+            /* terminal node */
+        }
+    }, node.operand);
 }
 
 

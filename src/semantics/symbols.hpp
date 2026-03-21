@@ -91,6 +91,8 @@ public:
 
     PhysicalSymbol *as_physical() { return this; }
 
+    virtual types::Type *get_type() = 0;
+
     bool is_abstract() { return false; }
 };
 
@@ -142,6 +144,8 @@ public:
     std::string mangle() const override;
 
     VarSymbol *as_varsym() override { return this; }
+
+    types::Type *get_type() override { return type; }
 };
 
 /*
@@ -173,6 +177,8 @@ public:
     Box<VarSymbol> as_funcptr(sema::types::TypeContext& tctxt, bool is_const = false);
 
     FuncSymbol *as_funcsym() override { return this; }
+
+    types::Type *get_type() override { return signature; }
 };
 
 /*

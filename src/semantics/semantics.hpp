@@ -117,8 +117,10 @@ public:
 
     ScopeGuard(BaseSemanticVisitor<Node>& bsv, sym::Symbol *assoc) : st(bsv.syms) {
         if (bsv.state == BaseSemanticVisitor<Node>::State::READ) {
+            bsv.bsv_dbprint("BSV currently in state READ, entering scope");
             st.enter_scope();
         } else {
+            bsv.bsv_dbprint("BSV currently in state WRITE, pushing scope");
             st.push_scope(assoc);
         }
     }
@@ -354,7 +356,9 @@ public:
 
     /// \brief Checks if there is `kind` in the context, and if so, how many layers up.
     /// Returns -1 if there is no `kind` in the context.
-    int in_node(mir::MIRNode::MIRNodeKind kind);
+    int in_node(mir::MIRNode::NodeKind kind);
+
+    mir::MIRNode *get_context(mir::MIRNode::NodeKind kind);
 
     // Visitor method overrides
 
@@ -377,6 +381,7 @@ public:
     void visit(mir::LoopStmtMIR& node) override;
     void visit(mir::GotoStmtMIR& node) override;
     void visit(mir::BreakStmtMIR& node) override;
+    void visit(mir::ContStmtMIR& node) override;
     void visit(mir::ReturnStmtMIR& node) override;
 
     void visit(mir::BinaryExprMIR& node) override;
@@ -417,6 +422,7 @@ protected:
     virtual void do_visit(mir::LoopStmtMIR& node);
     virtual void do_visit(mir::GotoStmtMIR& node);
     virtual void do_visit(mir::BreakStmtMIR& node);
+    virtual void do_visit(mir::ContStmtMIR& node);
     virtual void do_visit(mir::ReturnStmtMIR& node);
 
     virtual void do_visit(mir::BinaryExprMIR& node);

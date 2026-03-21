@@ -3,6 +3,7 @@
 
 using namespace sema::mir;
 using namespace sema::sym;
+using namespace tokens;
 
 void ProgramMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
 
@@ -57,8 +58,6 @@ void IdentExprMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
 void ConstExprMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
 
 void LiteralExprMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
-
-void StringExprMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
 
 void CallExprMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
 

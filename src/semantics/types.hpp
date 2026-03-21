@@ -542,6 +542,10 @@ public:
     // Generate a hash based on the function signature.
     std::size_t hash_sig();
 
+    Type *returntype() { return signature.returntype; }
+
+    Vec<Type *>& params() { return signature.params; }
+
     bool is_callable() override { return true; }
 
     FunctionType *as_function() override { return this; }
