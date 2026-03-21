@@ -132,441 +132,419 @@ Program @ <input/classes.ec:1.1>
 running backend for file input/classes.ec
 checking semantics for input/classes.ec:1.1
 running elaborator for input/classes.ec:1.1
-Node: type 53 {
+Node {
     visiting Program node: input/classes.ec:1.1
-    Node: type 8 {
+    Node {
         visiting TypeDeclaration node: input/classes.ec:1.1-4.2
         parsing declaration specifier list for node at input/classes.ec:1.1-4.2
-        Node: type 17 {
-SymbolTable: pushing scope 0x5581c49da570
-SymbolTable: entering scope 0x5581c49da570
-SymbolTable: current scope 0x5581c49da570
+        Node {
             visiting ClassSpecifier node: input/classes.ec:1.154-4.1
-TypeContext: class type 'Point' on scope 0x5581c49da570
-            Node: type 15 {
+TypeContext: class type 'Point' on scope 0x562c1eaa7020
+            class has name, inserting typesymbol if needed
+SymbolTable: looking up typesymbol Point in current scope
+SymbolTable: inserting typesymbol with name "Point"
+            Node {
                 visiting ClassDeclaration node: input/classes.ec:2.5-11
                 parsing declaration specifier list for node at input/classes.ec:2.5-11
-                Node: type 21 {
+                Node {
                     visiting PrimitiveSpecifier node: input/classes.ec:2.5-8
 TypeContext: getting primitive type with value 6
                 }
                 finished parsing specifiers for node input/classes.ec:2.5-11
-                parsing ClassDeclaration for ClassType 0x5581c49b9580
-                Node: type 14 {
+                parsing ClassDeclaration for ClassType 0x562c1ea86580
+                Node {
                     visiting ClassDeclarator node: input/classes.ec:2.10
-                    Node: type 5 {
-                        Node: type 10 {
+                    Node {
+                        Node {
                             visiting IdentifierDeclarator node: input/classes.ec:2.10
                         }
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name x type 0x5581c49da2a0
+ClassType: adding member with name x type 0x562c1eaa7310
             }
-            Node: type 15 {
+            Node {
                 visiting ClassDeclaration node: input/classes.ec:3.5-11
                 parsing declaration specifier list for node at input/classes.ec:3.5-11
-                Node: type 21 {
+                Node {
                     visiting PrimitiveSpecifier node: input/classes.ec:3.5-8
 TypeContext: getting primitive type with value 6
                 }
                 finished parsing specifiers for node input/classes.ec:3.5-11
-                parsing ClassDeclaration for ClassType 0x5581c49b9580
-                Node: type 14 {
+                parsing ClassDeclaration for ClassType 0x562c1ea86580
+                Node {
                     visiting ClassDeclarator node: input/classes.ec:3.10
-                    Node: type 5 {
-                        Node: type 10 {
+                    Node {
+                        Node {
                             visiting IdentifierDeclarator node: input/classes.ec:3.10
                         }
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name y type 0x5581c49da2a0
+ClassType: adding member with name y type 0x562c1eaa7310
             }
-SymbolTable: associating current scope 0x5581c49da570 with symbol 0x5581c49dace0 name "Point"
-SymbolTable: exiting scope to 0x5581c49d9fb0
-SymbolTable: current scope 0x5581c49d9fb0
         }
-        Node: type 1 {
+        Node {
             visiting StorageClassSpecifier node: input/classes.ec:1.1-152
         }
         finished parsing specifiers for node input/classes.ec:1.1-4.2
-SymbolTable: inserting typesymbol with name "Point"
     }
-    Node: type 8 {
+    Node {
         visiting TypeDeclaration node: input/classes.ec:6.1-9.2
         parsing declaration specifier list for node at input/classes.ec:6.1-9.2
-        Node: type 18 {
-SymbolTable: pushing scope 0x5581c49dae40
-SymbolTable: entering scope 0x5581c49dae40
-SymbolTable: current scope 0x5581c49dae40
+        Node {
             visiting UnionSpecifier node input/classes.ec:6.1-9.1
-TypeContext: union type 'Data' on scope 0x5581c49dae40
-            Node: type 15 {
+TypeContext: union type 'Data' on scope 0x562c1eaa7020
+            union has name, inserting typesymbol if needed
+SymbolTable: looking up typesymbol Data in current scope
+SymbolTable: inserting typesymbol with name "Data"
+            Node {
                 visiting ClassDeclaration node: input/classes.ec:7.5-11
                 parsing declaration specifier list for node at input/classes.ec:7.5-11
-                Node: type 21 {
+                Node {
                     visiting PrimitiveSpecifier node: input/classes.ec:7.5-8
 TypeContext: getting primitive type with value 2
                 }
                 finished parsing specifiers for node input/classes.ec:7.5-11
-                parsing ClassDeclaration for UnionType 0x5581c49b8ad0
-                Node: type 14 {
+                parsing ClassDeclaration for UnionType 0x562c1ea85ad0
+                Node {
                     visiting ClassDeclarator node: input/classes.ec:7.10
-                    Node: type 5 {
-                        Node: type 10 {
+                    Node {
+                        Node {
                             visiting IdentifierDeclarator node: input/classes.ec:7.10
                         }
                     }
                 }
 TypeBuilder: finalizing type
-UnionType: adding member with name i type 0x5581c49da220
+UnionType: adding member with name i type 0x562c1eaa7290
             }
-            Node: type 15 {
+            Node {
                 visiting ClassDeclaration node: input/classes.ec:8.5-11
                 parsing declaration specifier list for node at input/classes.ec:8.5-11
-                Node: type 21 {
+                Node {
                     visiting PrimitiveSpecifier node: input/classes.ec:8.5-8
 TypeContext: getting primitive type with value 8
                 }
                 finished parsing specifiers for node input/classes.ec:8.5-11
-                parsing ClassDeclaration for UnionType 0x5581c49b8ad0
-                Node: type 14 {
+                parsing ClassDeclaration for UnionType 0x562c1ea85ad0
+                Node {
                     visiting ClassDeclarator node: input/classes.ec:8.10
-                    Node: type 5 {
-                        Node: type 10 {
+                    Node {
+                        Node {
                             visiting IdentifierDeclarator node: input/classes.ec:8.10
                         }
                     }
                 }
 TypeBuilder: finalizing type
-UnionType: adding member with name f type 0x5581c49da2e0
+UnionType: adding member with name f type 0x562c1eaa7350
             }
-SymbolTable: associating current scope 0x5581c49dae40 with symbol 0x5581c49db080 name "Data"
-SymbolTable: exiting scope to 0x5581c49d9fb0
-SymbolTable: current scope 0x5581c49d9fb0
         }
         finished parsing specifiers for node input/classes.ec:6.1-9.2
-SymbolTable: inserting typesymbol with name "Data"
     }
-    Node: type 8 {
+    Node {
         visiting TypeDeclaration node: input/classes.ec:11.1-15.2
         parsing declaration specifier list for node at input/classes.ec:11.1-15.2
-        Node: type 19 {
+        Node {
             visiting EnumSpecifier node: input/classes.ec:11.1-15.1
-TypeContext: enum type 'Color' on scope 0x5581c49d9fb0
-            Node: type 16 {
+TypeContext: enum type 'Color' on scope 0x562c1eaa7020
+            enum has name, inserting typesymbol if needed
+SymbolTable: looking up typesymbol Color in current scope
+SymbolTable: inserting typesymbol with name "Color"
+            Node {
                 visiting Enumerator node with name RED
 SymbolTable: inserting varsymbol with name "RED"
             }
-            Node: type 16 {
+            Node {
                 visiting Enumerator node with name GREEN
 SymbolTable: inserting varsymbol with name "GREEN"
             }
-            Node: type 16 {
+            Node {
                 visiting Enumerator node with name BLUE
 SymbolTable: inserting varsymbol with name "BLUE"
             }
-SymbolTable: associating current scope 0x5581c49d9fb0 with symbol 0x5581c49db560 name "Color"
         }
         finished parsing specifiers for node input/classes.ec:11.1-15.2
-SymbolTable: inserting typesymbol with name "Color"
     }
-    Node: type 8 {
+    Node {
         visiting TypeDeclaration node: input/classes.ec:17.1-19.2
         parsing declaration specifier list for node at input/classes.ec:17.1-19.2
-        Node: type 17 {
-SymbolTable: pushing scope 0x5581c49db650
-SymbolTable: entering scope 0x5581c49db650
-SymbolTable: current scope 0x5581c49db650
+        Node {
             visiting ClassSpecifier node: input/classes.ec:17.1-19.1
-TypeContext: class type 'Animal' on scope 0x5581c49db650
-            Node: type 15 {
+TypeContext: class type 'Animal' on scope 0x562c1eaa7020
+            class has name, inserting typesymbol if needed
+SymbolTable: looking up typesymbol Animal in current scope
+SymbolTable: inserting typesymbol with name "Animal"
+            Node {
                 visiting ClassDeclaration node: input/classes.ec:18.5-13
                 parsing declaration specifier list for node at input/classes.ec:18.5-13
-                Node: type 21 {
+                Node {
                     visiting PrimitiveSpecifier node: input/classes.ec:18.5-8
 TypeContext: getting primitive type with value 6
                 }
                 finished parsing specifiers for node input/classes.ec:18.5-13
-                parsing ClassDeclaration for ClassType 0x5581c49b8f50
-                Node: type 14 {
+                parsing ClassDeclaration for ClassType 0x562c1ea85f50
+                Node {
                     visiting ClassDeclarator node: input/classes.ec:18.10-12
-                    Node: type 5 {
-                        Node: type 10 {
+                    Node {
+                        Node {
                             visiting IdentifierDeclarator node: input/classes.ec:18.10-12
                         }
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name age type 0x5581c49da2a0
+ClassType: adding member with name age type 0x562c1eaa7310
             }
-SymbolTable: associating current scope 0x5581c49db650 with symbol 0x5581c49db970 name "Animal"
-SymbolTable: exiting scope to 0x5581c49d9fb0
-SymbolTable: current scope 0x5581c49d9fb0
         }
         finished parsing specifiers for node input/classes.ec:17.1-19.2
-SymbolTable: inserting typesymbol with name "Animal"
     }
-    Node: type 8 {
+    Node {
         visiting TypeDeclaration node: input/classes.ec:21.1-23.2
         parsing declaration specifier list for node at input/classes.ec:21.1-23.2
-        Node: type 17 {
-SymbolTable: pushing scope 0x5581c49dba60
-SymbolTable: entering scope 0x5581c49dba60
-SymbolTable: current scope 0x5581c49dba60
+        Node {
             visiting ClassSpecifier node: input/classes.ec:21.1-23.1
-TypeContext: class type 'Dog' on scope 0x5581c49dba60
-            Node: type 15 {
+TypeContext: class type 'Dog' on scope 0x562c1eaa7020
+            class has name, inserting typesymbol if needed
+SymbolTable: looking up typesymbol Dog in current scope
+SymbolTable: inserting typesymbol with name "Dog"
+            Node {
                 visiting ClassDeclaration node: input/classes.ec:22.5-20
                 parsing declaration specifier list for node at input/classes.ec:22.5-20
-                Node: type 19 {
+                Node {
                     visiting EnumSpecifier node: input/classes.ec:22.5-14
-TypeContext: enum type 'Color' on scope 0x5581c49dba60
+TypeContext: enum type 'Color' on scope 0x562c1eaa7020
+TypeContext: existing enum found
+                    enum has name, inserting typesymbol if needed
+SymbolTable: looking up typesymbol Color in current scope
                 }
                 finished parsing specifiers for node input/classes.ec:22.5-20
-                parsing ClassDeclaration for ClassType 0x5581c49b9190
-                Node: type 14 {
+                parsing ClassDeclaration for ClassType 0x562c1ea86190
+                Node {
                     visiting ClassDeclarator node: input/classes.ec:22.16-19
-                    Node: type 5 {
-                        Node: type 10 {
+                    Node {
+                        Node {
                             visiting IdentifierDeclarator node: input/classes.ec:22.16-19
                         }
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name coat type 0x5581c49b93d0
+ClassType: adding member with name coat type 0x562c1ea85d10
             }
-SymbolTable: associating current scope 0x5581c49dba60 with symbol 0x5581c49dbcf0 name "Dog"
-SymbolTable: exiting scope to 0x5581c49d9fb0
-SymbolTable: current scope 0x5581c49d9fb0
         }
         finished parsing specifiers for node input/classes.ec:21.1-23.2
-SymbolTable: inserting typesymbol with name "Dog"
     }
-    Node: type 8 {
+    Node {
         visiting TypeDeclaration node: input/classes.ec:25.1-13
         parsing declaration specifier list for node at input/classes.ec:25.1-13
-        Node: type 19 {
+        Node {
             visiting EnumSpecifier node: input/classes.ec:25.1-12
-TypeContext: enum type 'Forward' on scope 0x5581c49d9fb0
+TypeContext: enum type 'Forward' on scope 0x562c1eaa7020
+            enum has name, inserting typesymbol if needed
+SymbolTable: looking up typesymbol Forward in current scope
+SymbolTable: inserting typesymbol with name "Forward"
         }
         finished parsing specifiers for node input/classes.ec:25.1-13
     }
-    Node: type 8 {
+    Node {
         visiting TypeDeclaration node: input/classes.ec:27.1-31.2
         parsing declaration specifier list for node at input/classes.ec:27.1-31.2
-        Node: type 17 {
-SymbolTable: pushing scope 0x5581c49dbe20
-SymbolTable: entering scope 0x5581c49dbe20
-SymbolTable: current scope 0x5581c49dbe20
+        Node {
             visiting ClassSpecifier node: input/classes.ec:27.1-31.1
-TypeContext: class type 'Flags' on scope 0x5581c49dbe20
-            Node: type 15 {
+TypeContext: class type 'Flags' on scope 0x562c1eaa7020
+            class has name, inserting typesymbol if needed
+SymbolTable: looking up typesymbol Flags in current scope
+SymbolTable: inserting typesymbol with name "Flags"
+            Node {
                 visiting ClassDeclaration node: input/classes.ec:28.5-14
                 parsing declaration specifier list for node at input/classes.ec:28.5-14
-                Node: type 21 {
+                Node {
                     visiting PrimitiveSpecifier node: input/classes.ec:28.5-7
 TypeContext: getting primitive type with value 0
                 }
                 finished parsing specifiers for node input/classes.ec:28.5-14
-                parsing ClassDeclaration for ClassType 0x5581c49b8920
-                Node: type 14 {
+                parsing ClassDeclaration for ClassType 0x562c1ea86610
+                Node {
                     visiting ClassDeclarator node: input/classes.ec:28.9-13
-                    Node: type 5 {
-                        Node: type 10 {
+                    Node {
+                        Node {
                             visiting IdentifierDeclarator node: input/classes.ec:28.9
                         }
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name a type 0x5581c49da1e0
+ClassType: adding member with name a type 0x562c1eaa7250
             }
-            Node: type 15 {
+            Node {
                 visiting ClassDeclaration node: input/classes.ec:29.5-14
                 parsing declaration specifier list for node at input/classes.ec:29.5-14
-                Node: type 21 {
+                Node {
                     visiting PrimitiveSpecifier node: input/classes.ec:29.5-7
 TypeContext: getting primitive type with value 0
                 }
                 finished parsing specifiers for node input/classes.ec:29.5-14
-                parsing ClassDeclaration for ClassType 0x5581c49b8920
-                Node: type 14 {
+                parsing ClassDeclaration for ClassType 0x562c1ea86610
+                Node {
                     visiting ClassDeclarator node: input/classes.ec:29.9-13
-                    Node: type 5 {
-                        Node: type 10 {
+                    Node {
+                        Node {
                             visiting IdentifierDeclarator node: input/classes.ec:29.9
                         }
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name b type 0x5581c49da1e0
+ClassType: adding member with name b type 0x562c1eaa7250
             }
-            Node: type 15 {
+            Node {
                 visiting ClassDeclaration node: input/classes.ec:30.5-12
                 parsing declaration specifier list for node at input/classes.ec:30.5-12
-                Node: type 21 {
+                Node {
                     visiting PrimitiveSpecifier node: input/classes.ec:30.5-7
 TypeContext: getting primitive type with value 0
                 }
                 finished parsing specifiers for node input/classes.ec:30.5-12
-                parsing ClassDeclaration for ClassType 0x5581c49b8920
-                Node: type 14 {
+                parsing ClassDeclaration for ClassType 0x562c1ea86610
+                Node {
                     visiting ClassDeclarator node: input/classes.ec:30.9-11
                 }
-ClassType: adding anonymous member with type 0x5581c49da1e0
+ClassType: adding anonymous member with type 0x562c1eaa7250
             }
-SymbolTable: associating current scope 0x5581c49dbe20 with symbol 0x5581c49dc140 name "Flags"
-SymbolTable: exiting scope to 0x5581c49d9fb0
-SymbolTable: current scope 0x5581c49d9fb0
         }
         finished parsing specifiers for node input/classes.ec:27.1-31.2
-SymbolTable: inserting typesymbol with name "Flags"
     }
-    Node: type 8 {
+    Node {
         visiting TypeDeclaration node: input/classes.ec:33.1-39.2
         parsing declaration specifier list for node at input/classes.ec:33.1-39.2
-        Node: type 17 {
-SymbolTable: pushing scope 0x5581c49dc230
-SymbolTable: entering scope 0x5581c49dc230
-SymbolTable: current scope 0x5581c49dc230
+        Node {
             visiting ClassSpecifier node: input/classes.ec:33.1-39.1
-TypeContext: class type 'Value' on scope 0x5581c49dc230
-            Node: type 15 {
+TypeContext: class type 'Value' on scope 0x562c1eaa7020
+            class has name, inserting typesymbol if needed
+SymbolTable: looking up typesymbol Value in current scope
+SymbolTable: inserting typesymbol with name "Value"
+            Node {
                 visiting ClassDeclaration node: input/classes.ec:34.3-12
                 parsing declaration specifier list for node at input/classes.ec:34.3-12
-                Node: type 21 {
+                Node {
                     visiting PrimitiveSpecifier node: input/classes.ec:34.3-6
 TypeContext: getting primitive type with value 6
                 }
                 finished parsing specifiers for node input/classes.ec:34.3-12
-                parsing ClassDeclaration for ClassType 0x5581c49b8b60
-                Node: type 14 {
+                parsing ClassDeclaration for ClassType 0x562c1ea85920
+                Node {
                     visiting ClassDeclarator node: input/classes.ec:34.8-11
-                    Node: type 5 {
-                        Node: type 10 {
+                    Node {
+                        Node {
                             visiting IdentifierDeclarator node: input/classes.ec:34.8-11
                         }
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name type type 0x5581c49da2a0
+ClassType: adding member with name type type 0x562c1eaa7310
             }
-            Node: type 15 {
+            Node {
                 visiting ClassDeclaration node: input/classes.ec:35.3-38.6
                 parsing declaration specifier list for node at input/classes.ec:35.3-38.6
-                Node: type 18 {
-SymbolTable: pushing scope 0x5581c49dc420
-SymbolTable: entering scope 0x5581c49dc420
-SymbolTable: current scope 0x5581c49dc420
+                Node {
                     visiting UnionSpecifier node input/classes.ec:35.3-38.3
-TypeContext: anonymous union type on scope 0x5581c49dc420
-                    Node: type 15 {
+TypeContext: anonymous union type on scope 0x562c1eaa7020
+                    Node {
                         visiting ClassDeclaration node: input/classes.ec:36.5-11
                         parsing declaration specifier list for node at input/classes.ec:36.5-11
-                        Node: type 21 {
+                        Node {
                             visiting PrimitiveSpecifier node: input/classes.ec:36.5-8
 TypeContext: getting primitive type with value 8
                         }
                         finished parsing specifiers for node input/classes.ec:36.5-11
-                        parsing ClassDeclaration for UnionType 0x5581c49b8da0
-                        Node: type 14 {
+                        parsing ClassDeclaration for UnionType 0x562c1ea85b60
+                        Node {
                             visiting ClassDeclarator node: input/classes.ec:36.10
-                            Node: type 5 {
-                                Node: type 10 {
+                            Node {
+                                Node {
                                     visiting IdentifierDeclarator node: input/classes.ec:36.10
                                 }
                             }
                         }
 TypeBuilder: finalizing type
-UnionType: adding member with name f type 0x5581c49da2e0
+UnionType: adding member with name f type 0x562c1eaa7350
                     }
-                    Node: type 15 {
+                    Node {
                         visiting ClassDeclaration node: input/classes.ec:37.5-11
                         parsing declaration specifier list for node at input/classes.ec:37.5-11
-                        Node: type 21 {
+                        Node {
                             visiting PrimitiveSpecifier node: input/classes.ec:37.5-7
 TypeContext: getting primitive type with value 0
                         }
                         finished parsing specifiers for node input/classes.ec:37.5-11
-                        parsing ClassDeclaration for UnionType 0x5581c49b8da0
-                        Node: type 14 {
+                        parsing ClassDeclaration for UnionType 0x562c1ea85b60
+                        Node {
                             visiting ClassDeclarator node: input/classes.ec:37.9-10
-                            Node: type 5 {
-                                Node: type 10 {
+                            Node {
+                                Node {
                                     visiting IdentifierDeclarator node: input/classes.ec:37.9-10
                                 }
                             }
                         }
 TypeBuilder: finalizing type
-UnionType: adding member with name ch type 0x5581c49da1e0
+UnionType: adding member with name ch type 0x562c1eaa7250
                     }
-SymbolTable: exiting scope to 0x5581c49dc230
-SymbolTable: current scope 0x5581c49dc230
                 }
                 finished parsing specifiers for node input/classes.ec:35.3-38.6
-                parsing ClassDeclaration for ClassType 0x5581c49b8b60
-                Node: type 14 {
+                parsing ClassDeclaration for ClassType 0x562c1ea85920
+                Node {
                     visiting ClassDeclarator node: input/classes.ec:38.5
-                    Node: type 5 {
-                        Node: type 10 {
+                    Node {
+                        Node {
                             visiting IdentifierDeclarator node: input/classes.ec:38.5
                         }
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name u type 0x5581c49b8da0
+ClassType: adding member with name u type 0x562c1ea85b60
             }
-SymbolTable: associating current scope 0x5581c49dc230 with symbol 0x5581c49dc820 name "Value"
-SymbolTable: exiting scope to 0x5581c49d9fb0
-SymbolTable: current scope 0x5581c49d9fb0
         }
         finished parsing specifiers for node input/classes.ec:33.1-39.2
-SymbolTable: inserting typesymbol with name "Value"
     }
-    Node: type 8 {
+    Node {
         visiting TypeDeclaration node: input/classes.ec:41.1-43.2
         parsing declaration specifier list for node at input/classes.ec:41.1-43.2
-        Node: type 17 {
-SymbolTable: pushing scope 0x5581c49dc8d0
-SymbolTable: entering scope 0x5581c49dc8d0
-SymbolTable: current scope 0x5581c49dc8d0
+        Node {
             visiting ClassSpecifier node: input/classes.ec:41.1-43.1
-TypeContext: class type 'VTable' on scope 0x5581c49dc8d0
-            Node: type 15 {
+TypeContext: class type 'VTable' on scope 0x562c1eaa7020
+            class has name, inserting typesymbol if needed
+SymbolTable: looking up typesymbol VTable in current scope
+SymbolTable: inserting typesymbol with name "VTable"
+            Node {
                 visiting ClassDeclaration node: input/classes.ec:42.5-36
                 parsing declaration specifier list for node at input/classes.ec:42.5-36
-                Node: type 20 {
+                Node {
                     visiting VoidSpecifier node: input/classes.ec:42.5-8
                 }
                 finished parsing specifiers for node input/classes.ec:42.5-36
-                parsing ClassDeclaration for ClassType 0x5581c49ba1b0
-                Node: type 14 {
+                parsing ClassDeclaration for ClassType 0x562c1ea85fe0
+                Node {
                     visiting ClassDeclarator node: input/classes.ec:42.10-35
-                    Node: type 5 {
-                        Node: type 13 {
+                    Node {
+                        Node {
                             visiting FunctionDeclarator node: input/classes.ec:42.10-35
-                            Node: type 11 {
+                            Node {
                                 visiting ParenDeclarator node: input/classes.ec:42.10-22
-                                Node: type 5 {
-                                    Node: type 10 {
+                                Node {
+                                    Node {
                                         visiting IdentifierDeclarator node: input/classes.ec:42.10-21
                                     }
-                                    Node: type 2 {
+                                    Node {
                                         visiting Pointer node: input/classes.ec:42.10-11
                                     }
                                 }
                             }
-                            Node: type 7 {
+                            Node {
                                 visiting ParameterDeclarator node: input/classes.ec:42.24-34
                                 parsing declaration specifier list for node at input/classes.ec:42.24-34
-                                Node: type 21 {
+                                Node {
                                     visiting PrimitiveSpecifier node: input/classes.ec:42.24-28
 TypeContext: getting primitive type with value 3
                                 }
                                 finished parsing specifiers for node input/classes.ec:42.24-34
-                                Node: type 5 {
-                                    Node: type 10 {
+                                Node {
+                                    Node {
                                         visiting IdentifierDeclarator node: input/classes.ec:42.30-34
                                     }
                                 }
@@ -577,33 +555,27 @@ TypeBuilder: finalizing type
                 }
 TypeBuilder: finalizing type
 TypeContext: getting function type
-TypeContext: pointer with base 0x5581c49dcd50
-ClassType: adding member with name dispatcher type 0x5581c49db770
+TypeContext: pointer with base 0x562c1eaa9430
+ClassType: adding member with name dispatcher type 0x562c1eab4db0
             }
-SymbolTable: associating current scope 0x5581c49dc8d0 with symbol 0x5581c49dce80 name "VTable"
-SymbolTable: exiting scope to 0x5581c49d9fb0
-SymbolTable: current scope 0x5581c49d9fb0
         }
         finished parsing specifiers for node input/classes.ec:41.1-43.2
-SymbolTable: inserting typesymbol with name "VTable"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: input/classes.ec:45.1-16
         parsing declaration specifier list for node at input/classes.ec:45.1-16
-        Node: type 17 {
-SymbolTable: pushing scope 0x5581c49dcf70
-SymbolTable: entering scope 0x5581c49dcf70
-SymbolTable: current scope 0x5581c49dcf70
+        Node {
             visiting ClassSpecifier node: input/classes.ec:45.1-11
-TypeContext: class type 'Value' on scope 0x5581c49dcf70
-SymbolTable: exiting scope to 0x5581c49d9fb0
-SymbolTable: current scope 0x5581c49d9fb0
+TypeContext: class type 'Value' on scope 0x562c1eaa7020
+TypeContext: existing class found
+            class has name, inserting typesymbol if needed
+SymbolTable: looking up typesymbol Value in current scope
         }
         finished parsing specifiers for node input/classes.ec:45.1-16
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: input/classes.ec:45.13-15
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: input/classes.ec:45.13-15
                 }
             }
@@ -611,42 +583,40 @@ SymbolTable: current scope 0x5581c49d9fb0
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "val"
     }
-    Node: type 23 {
+    Node {
         visiting ExpressionStatement node: input/classes.ec:47.1-15
-        Node: type 42 {
+        Node {
             visiting AssignmentExpression node: input/classes.ec:47.1-14
-            Node: type 48 {
+            Node {
                 visiting MemberAccessExpression node: input/classes.ec:47.1-9
-                Node: type 48 {
+                Node {
                     visiting MemberAccessExpression node: input/classes.ec:47.1-6
-                    Node: type 44 {
+                    Node {
                         visiting IdentifierExpression node: input/classes.ec:47.1-3
-SymbolTable: looking up symbol val
+SymbolTable: looking up varsymbol val
                     }
                 }
             }
-            Node: type 45 {
+            Node {
                 visiting LiteralExpression node: input/classes.ec:47.13-14
             }
         }
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: input/classes.ec:49.1-20
         parsing declaration specifier list for node at input/classes.ec:49.1-20
-        Node: type 17 {
-SymbolTable: pushing scope 0x5581c49dd3b0
-SymbolTable: entering scope 0x5581c49dd3b0
-SymbolTable: current scope 0x5581c49dd3b0
+        Node {
             visiting ClassSpecifier node: input/classes.ec:49.1-12
-TypeContext: class type 'VTable' on scope 0x5581c49dd3b0
-SymbolTable: exiting scope to 0x5581c49d9fb0
-SymbolTable: current scope 0x5581c49d9fb0
+TypeContext: class type 'VTable' on scope 0x562c1eaa7020
+TypeContext: existing class found
+            class has name, inserting typesymbol if needed
+SymbolTable: looking up typesymbol VTable in current scope
         }
         finished parsing specifiers for node input/classes.ec:49.1-20
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: input/classes.ec:49.14-19
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: input/classes.ec:49.14-19
                 }
             }
@@ -654,160 +624,69 @@ SymbolTable: current scope 0x5581c49d9fb0
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "vtable"
     }
-    Node: type 23 {
+    Node {
         visiting ExpressionStatement node: input/classes.ec:51.1-23
-        Node: type 47 {
+        Node {
             visiting CallExpression node: input/classes.ec:51.1-22
-            Node: type 48 {
+            Node {
                 visiting MemberAccessExpression node: input/classes.ec:51.1-18
-                Node: type 44 {
+                Node {
                     visiting IdentifierExpression node: input/classes.ec:51.1-6
-SymbolTable: looking up symbol vtable
+SymbolTable: looking up varsymbol vtable
                 }
             }
-            Node: type 45 {
+            Node {
                 visiting LiteralExpression node: input/classes.ec:51.1-21
             }
         }
     }
 }
+semantic checking complete
 --------- TYPE CONTEXT ---------
 
 Base Types:
-  class_VTable_0x5581c49dd3b0 -> 0x5581c49dd4d0 : class
-  class_Point_0x5581c49da570 -> 0x5581c49b9580 : class { I32 x; I32 y; }
-  enum_Color_0x5581c49dba60 -> 0x5581c49b93d0 : enum
-  class_Value_0x5581c49dc230 -> 0x5581c49b8b60 : class { I32 type; union { F64 f; U8 ch; } u; }
-  union_Data_0x5581c49dae40 -> 0x5581c49b8ad0 : union { U32 i; F64 f; }
-  class_Animal_0x5581c49db650 -> 0x5581c49b8f50 : class { I32 age; }
-  enum_Color_0x5581c49d9fb0 -> 0x5581c49b8d10 : enum
-  class_Flags_0x5581c49dbe20 -> 0x5581c49b8920 : class { U8 a; U8 b; U8 ; }
-  class_Dog_0x5581c49dba60 -> 0x5581c49b9190 : class { enum coat; }
-  enum_Forward_0x5581c49d9fb0 -> 0x5581c49b9610 : enum
-  class_Value_0x5581c49dcf70 -> 0x5581c49ba2d0 : class
-  union_anon_0_0x5581c49dc420 -> 0x5581c49b8da0 : union { F64 f; U8 ch; }
-  class_VTable_0x5581c49dc8d0 -> 0x5581c49ba1b0 : class { Void (U64) * dispatcher; }
-  function_6085600335906037 -> 0x5581c49dcd50 : Void (U64)
+  function_6087529611366149 -> 0x562c1eaa9430 : Void (U64)
+  union_anon_0_0x562c1eaa7020 -> 0x562c1ea85b60 : union { F64 f; U8 ch; }
+  class_Dog_0x562c1eaa7020 -> 0x562c1ea86190 : class { enum { RED = 0, GREEN = 5, BLUE = 6 } coat; }
+  class_Flags_0x562c1eaa7020 -> 0x562c1ea86610 : class { U8 a; U8 b; U8 ; }
+  class_Animal_0x562c1eaa7020 -> 0x562c1ea85f50 : class { I32 age; }
+  class_Value_0x562c1eaa7020 -> 0x562c1ea85920 : class { I32 type; union { F64 f; U8 ch; } u; }
+  enum_Color_0x562c1eaa7020 -> 0x562c1ea85d10 : enum { RED = 0, GREEN = 5, BLUE = 6 }
+  class_VTable_0x562c1eaa7020 -> 0x562c1ea85fe0 : class { Void (U64) * dispatcher; }
+  union_Data_0x562c1eaa7020 -> 0x562c1ea85ad0 : union { U32 i; F64 f; }
+  enum_Forward_0x562c1eaa7020 -> 0x562c1ea863d0 : enum
+  class_Point_0x562c1eaa7020 -> 0x562c1ea86580 : class { I32 x; I32 y; }
 
 Pointer Types:
-  0x5581c49db770 : Void (U64) *
+  0x562c1eab4db0 : Void (U64) *
 
 Array Types:
 
 
 --------- SYMBOL TABLE ---------
 
-Scope 0x5581c49d9fb0: TypeSymbol enum
+Scope 0x562c1eaa7020
 Variable Symbols:
-  vtable -> 0x5581c49dd7a0 : VarSymbol class
-  val -> 0x5581c49dd160 : VarSymbol class
-  BLUE -> 0x5581c49db480 : VarSymbol enum
-  GREEN -> 0x5581c49db350 : VarSymbol enum
-  RED -> 0x5581c49db1e0 : VarSymbol enum
+  vtable -> 0x562c1eaa98f0 : VarSymbol class { Void (U64) * dispatcher; }
+  val -> 0x562c1eaa9650 : VarSymbol class { I32 type; union { F64 f; U8 ch; } u; }
+  BLUE -> 0x562c1eaa8340 : VarSymbol enum { RED = 0, GREEN = 5, BLUE = 6 }
+  GREEN -> 0x562c1eaa8210 : VarSymbol enum { RED = 0, GREEN = 5, BLUE = 6 }
+  RED -> 0x562c1eaa80a0 : VarSymbol enum { RED = 0, GREEN = 5, BLUE = 6 }
 
 Function Symbols:
 
 Type Symbols:
-  VTable -> 0x5581c49dce80 : TypeSymbol class { Void (U64) * dispatcher; }
-  Value -> 0x5581c49dc820 : TypeSymbol class { I32 type; union { F64 f; U8 ch; } u; }
-  Flags -> 0x5581c49dc140 : TypeSymbol class { U8 a; U8 b; U8 ; }
-  Dog -> 0x5581c49dbcf0 : TypeSymbol class { enum coat; }
-  Animal -> 0x5581c49db970 : TypeSymbol class { I32 age; }
-  Color -> 0x5581c49db560 : TypeSymbol enum
-  Data -> 0x5581c49db080 : TypeSymbol union { U32 i; F64 f; }
-  Point -> 0x5581c49dace0 : TypeSymbol class { I32 x; I32 y; }
+  VTable -> 0x562c1eaa9090 : TypeSymbol class { Void (U64) * dispatcher; }
+  Value -> 0x562c1eaa8cd0 : TypeSymbol class { I32 type; union { F64 f; U8 ch; } u; }
+  Flags -> 0x562c1eaa8a30 : TypeSymbol class { U8 a; U8 b; U8 ; }
+  Dog -> 0x562c1eaa8750 : TypeSymbol class { enum { RED = 0, GREEN = 5, BLUE = 6 } coat; }
+  Animal -> 0x562c1eaa84c0 : TypeSymbol class { I32 age; }
+  Color -> 0x562c1eaa7ff0 : TypeSymbol enum { RED = 0, GREEN = 5, BLUE = 6 }
+  Forward -> 0x562c1eaa8910 : TypeSymbol enum
+  Data -> 0x562c1eaa7dd0 : TypeSymbol union { U32 i; F64 f; }
+  Point -> 0x562c1eaa76f0 : TypeSymbol class { I32 x; I32 y; }
 
 Label Symbols:
------------------------------------------------------------
-  Scope 0x5581c49da570: TypeSymbol class { I32 x; I32 y; }
-  Variable Symbols:
-
-  Function Symbols:
-
-  Type Symbols:
-
-  Label Symbols:
------------------------------------------------------------
-  Scope 0x5581c49dae40: TypeSymbol union { U32 i; F64 f; }
-  Variable Symbols:
-
-  Function Symbols:
-
-  Type Symbols:
-
-  Label Symbols:
------------------------------------------------------------
-  Scope 0x5581c49db650: TypeSymbol class { I32 age; }
-  Variable Symbols:
-
-  Function Symbols:
-
-  Type Symbols:
-
-  Label Symbols:
------------------------------------------------------------
-  Scope 0x5581c49dba60: TypeSymbol class { enum coat; }
-  Variable Symbols:
-
-  Function Symbols:
-
-  Type Symbols:
-
-  Label Symbols:
------------------------------------------------------------
-  Scope 0x5581c49dbe20: TypeSymbol class { U8 a; U8 b; U8 ; }
-  Variable Symbols:
-
-  Function Symbols:
-
-  Type Symbols:
-
-  Label Symbols:
------------------------------------------------------------
-  Scope 0x5581c49dc230: TypeSymbol class { I32 type; union { F64 f; U8 ch; } u; }
-  Variable Symbols:
-
-  Function Symbols:
-
-  Type Symbols:
-
-  Label Symbols:
------------------------------------------------------------
-    Scope 0x5581c49dc420
-    Variable Symbols:
-
-    Function Symbols:
-
-    Type Symbols:
-
-    Label Symbols:
------------------------------------------------------------
-  Scope 0x5581c49dc8d0: TypeSymbol class { Void (U64) * dispatcher; }
-  Variable Symbols:
-
-  Function Symbols:
-
-  Type Symbols:
-
-  Label Symbols:
------------------------------------------------------------
-  Scope 0x5581c49dcf70
-  Variable Symbols:
-
-  Function Symbols:
-
-  Type Symbols:
-
-  Label Symbols:
------------------------------------------------------------
-  Scope 0x5581c49dd3b0
-  Variable Symbols:
-
-  Function Symbols:
-
-  Type Symbols:
-
-  Label Symbols:
 -----------------------------------------------------------
 
 --------- MIR ---------
@@ -815,14 +694,13 @@ Label Symbols:
 ProgramMIR @ <1.1>
 | TypeDecl: Point @ <input/classes.ec:1.1-4.2>
 | TypeDecl: Data @ <input/classes.ec:6.1-9.2>
-| TypeDecl: Color @ <input/classes.ec:11.1-15.2>
 | TypeDecl: Animal @ <input/classes.ec:17.1-19.2>
 | TypeDecl: Dog @ <input/classes.ec:21.1-23.2>
 | TypeDecl: Flags @ <input/classes.ec:27.1-31.2>
 | TypeDecl: Value @ <input/classes.ec:33.1-39.2>
 | TypeDecl: VTable @ <input/classes.ec:41.1-43.2>
 | VarDecl:  @ <input/classes.ec:45.1-16>
-VarSymbol class
+VarSymbol class { I32 type; union { F64 f; U8 ch; } u; }
 | ExprStmt @ <input/classes.ec:47.1-15>
 | | Assign: = @ <input/classes.ec:47.1-14>
 | | | Member: .ch @ <input/classes.ec:47.1-9>
@@ -830,7 +708,7 @@ VarSymbol class
 | | | | | Ident: val @ <input/classes.ec:47.1-3>
 | | | Literal: 23 @ <input/classes.ec:47.13-14>
 | VarDecl:  @ <input/classes.ec:49.1-20>
-VarSymbol class
+VarSymbol class { Void (U64) * dispatcher; }
 | ExprStmt @ <input/classes.ec:51.1-23>
 | | Call @ <input/classes.ec:51.1-22>
 | | | Member: .dispatcher @ <input/classes.ec:51.1-18>

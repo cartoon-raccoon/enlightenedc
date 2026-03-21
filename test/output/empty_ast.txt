@@ -5,9 +5,10 @@ Program @ <input/empty.ec:1.1>
 running backend for file input/empty.ec
 checking semantics for input/empty.ec:1.1
 running elaborator for input/empty.ec:1.1
-Node: type 53 {
+Node {
     visiting Program node: input/empty.ec:1.1
 }
+semantic checking complete
 --------- TYPE CONTEXT ---------
 
 Base Types:
@@ -19,7 +20,7 @@ Array Types:
 
 --------- SYMBOL TABLE ---------
 
-Scope 0x55b904142fb0
+Scope 0x561d8135b020
 Variable Symbols:
 
 Function Symbols:

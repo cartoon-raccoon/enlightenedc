@@ -12,11 +12,15 @@ public I32i compute(I32i x = 10, I32i y = 20, ...) {
 
     U64i new2 = new + 1;
 
-    class {
-        U32i hello;
-    };
-
     return x * y;
+}
+
+class What {
+  U32i hello;
+} complex_class_func(U32i thing) {
+  class What ret = { thing };
+
+  return ret;
 }
 
 class Point {
