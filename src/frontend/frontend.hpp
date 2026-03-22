@@ -1,9 +1,11 @@
 #ifndef ECC_FRONTEND_H
 #define ECC_FRONTEND_H
 
-namespace ecc::frontend {
+namespace ecc::driver {
+    struct TranslationUnit;
+}
 
-struct TranslationUnit;
+namespace ecc::frontend {
 
 /* Frontend driver code.
 
@@ -23,7 +25,7 @@ public:
     int result;
 
     // Run the frontend on file `f`. Returns 0 on success.
-    void parse(TranslationUnit& unit);
+    void parse(ecc::driver::TranslationUnit& unit);
 };
 
 

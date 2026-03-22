@@ -8,21 +8,24 @@
 #include "frontend/frontend.hpp"
 #include "driver/backend.hpp"
 #include "semantics/mir/mir.hpp"
+#include "codegen/llvm.hpp"
 #include "util.hpp"
 
 using namespace ecc;
 
-namespace ecc::frontend {
+namespace ecc::driver {
 
 struct TranslationUnit {
     std::string *filename;
     Box<ast::Program> ast_root;
     Box<sema::mir::ProgramMIR> prog_mir;
+    codegen::LLVM llvm;
 
     TranslationUnit(std::string *filename) 
     : filename(filename),
     ast_root(std::make_unique<ast::Program>(filename)),
-    prog_mir(std::make_unique<sema::mir::ProgramMIR>())
+    prog_mir(std::make_unique<sema::mir::ProgramMIR>()),
+    llvm()
     {}
 };
 
@@ -31,12 +34,12 @@ class Driver {
 public:
     Box<TranslationUnit> unit;
 
-    Box<Frontend> frontend;
+    Box<frontend::Frontend> frontend;
     Box<driver::Backend> backend;
 
     Driver(std::string *filename) :
     unit(std::make_unique<TranslationUnit>(filename)),
-    frontend(std::make_unique<Frontend>()),
+    frontend(std::make_unique<frontend::Frontend>()),
     backend(std::make_unique<driver::Backend>())
     {}
 

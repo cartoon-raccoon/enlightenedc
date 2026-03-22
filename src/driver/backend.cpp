@@ -10,7 +10,7 @@ using namespace ecc::sema;
 using namespace ecc::frontend;
 using namespace mir;
 
-void Backend::run(TranslationUnit& unit) {
+void Backend::run(driver::TranslationUnit& unit) {
     dbprint("running backend for file ", *unit.filename);
     SemanticChecker semantic_checker(*symbols, *types);
 

@@ -6,13 +6,11 @@
 #include "semantics/types.hpp"
 #include "semantics/symbols.hpp"
 
-namespace ecc::frontend {
-    struct TranslationUnit;
-}
-
 #include "util.hpp"
 
 namespace ecc::driver {
+
+struct TranslationUnit;
 
 class Backend {
 public:
@@ -24,7 +22,7 @@ public:
     symbols(std::make_unique<sema::sym::SymbolTable>()), 
     types(std::make_unique<sema::types::TypeContext>()) {}
 
-    void run(frontend::TranslationUnit& unit);
+    void run(TranslationUnit& unit);
 };
 
 }

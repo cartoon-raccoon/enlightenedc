@@ -9,7 +9,7 @@
 
 using namespace ecc::frontend;
 
-void Frontend::parse(TranslationUnit& unit) {
+void Frontend::parse(driver::TranslationUnit& unit) {
     dbprint("parsing file ", *unit.filename);
     try {
         ecc::preproc::PreProcessor preproc(unit.filename);

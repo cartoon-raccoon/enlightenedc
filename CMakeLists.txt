@@ -76,6 +76,26 @@ target_precompile_headers(ecc PRIVATE
     <memory>
     <unordered_map>
     <variant>
+    <llvm/ADT/APFloat.h>
+    <llvm/ADT/STLExtras.h>
+    <llvm/IR/BasicBlock.h>
+    <llvm/IR/Constants.h>
+    <llvm/IR/DerivedTypes.h>
+    <llvm/IR/Function.h>
+    <llvm/IR/IRBuilder.h>
+    <llvm/IR/Instructions.h>
+    <llvm/IR/LLVMContext.h>
+    <llvm/IR/LegacyPassManager.h>
+    <llvm/IR/Module.h>
+    <llvm/IR/Type.h>
+    <llvm/IR/Verifier.h>
+    <llvm/MC/TargetRegistry.h>
+    <llvm/Support/FileSystem.h>
+    <llvm/Support/TargetSelect.h>
+    <llvm/Support/raw_ostream.h>
+    <llvm/Target/TargetMachine.h>
+    <llvm/Target/TargetOptions.h>
+    <llvm/TargetParser/Host.h>
 )
 
 # 7. Link LLVM libraries
