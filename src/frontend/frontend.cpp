@@ -25,6 +25,7 @@ void Frontend::parse(driver::TranslationUnit& unit) {
         // temp for testing
         //parser.set_debug_level(1);
         int result = parser.parse();
+        preproc.close();
 
         if (result == 0) {
             dbprint("printing AST for file ", *unit.filename);
