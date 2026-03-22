@@ -34,6 +34,7 @@ bison_target(
     "${SRC_DIR}/frontend/parser.yy"
     "${BISON_OUTPUT_DIR}/parser.cpp"
     DEFINES_FILE "${BISON_OUTPUT_DIR}/parser.hpp"
+    VERBOSE REPORT_FILE "${CMAKE_BINARY_DIR}/parser.output"
 )
 
 flex_target(
