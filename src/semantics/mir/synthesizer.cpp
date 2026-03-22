@@ -23,6 +23,7 @@ using namespace ecc::sema;
 using namespace ecc::sema::types;
 using namespace ecc::sema::sym;
 using namespace ecc::sema::mir;
+using namespace ecc::tokens;
 
 Box<MIRSynthesizer::SpecifierInfo> MIRSynthesizer::parse_speclist(
     Vec<Box<ast::DeclarationSpecifier>>& speclist, Location loc
@@ -248,7 +249,7 @@ void MIRSynthesizer::do_visit(Function& node) {
         node.loc, *builder->name, syms.current, functype, std::move(paramsym_ptrs));
     FuncSymbol *sym_ptr = symbol.get();
     try {
-        syms.insert(*builder->name, std::move(symbol));
+        sym_ptr = syms.insert(*builder->name, std::move(symbol));
     } catch ( Symbol *previous ) {
         throw SymbolAlrDecldError(
             std::format("function \"{}\" was previously declared", sym_ptr->name), 
@@ -526,51 +527,7 @@ void MIRSynthesizer::do_visit(TypeIdentifier& node) {
 void MIRSynthesizer::do_visit(PrimitiveSpecifier& node) {
     bsv_dbprint("visiting PrimitiveSpecifier node: ", node.loc);
     /* terminal node */
-
-    using PK = PrimitiveSpecifier::PrimKind;
-    using PTK = PrimitiveType::Kind;
-
-    switch (node.pkind) {
-        case PK::U8:
-        dv_return(types.get_primitive(PTK::U8));
-        break;
-
-        case PK::U16:
-        dv_return(types.get_primitive(PTK::U16));
-        break;
-
-        case PK::U32:
-        dv_return(types.get_primitive(PTK::U32));
-        break;
-
-        case PK::U64:
-        dv_return(types.get_primitive(PTK::U64));
-        break;
-
-        case PK::I8:
-        dv_return(types.get_primitive(PTK::I8));
-        break;
-
-        case PK::I16:
-        dv_return(types.get_primitive(PTK::I16));
-        break;
-
-        case PK::I32:
-        dv_return(types.get_primitive(PTK::I32));
-        break;
-
-        case PK::I64:
-        dv_return(types.get_primitive(PTK::I64));
-        break;
-
-        case PK::F64:
-        dv_return(types.get_primitive(PTK::F64));
-        break;
-
-        case PK::BOOL:
-        dv_return(types.get_primitive(PTK::BOOL));
-        break;
-    }
+    dv_return(types.get_primitive(node.pkind));
 }
 
 void MIRSynthesizer::do_visit(TypeQualifier& node) {
@@ -734,6 +691,10 @@ void MIRSynthesizer::do_visit(UnionSpecifier& node) {
         if (unn->complete) {
             // error: union was previously defined
             throw TypeAlrDefinedError("union was previously defined", node.loc, unn->loc);
+        }
+        if (node.type_rep) {
+            PrimitiveType *typerep = types.get_primitive(*node.type_rep);
+            unn->type_rep = typerep;
         }
         // union is defined here, populate its members and mark it complete
         for (auto& decl : *node.declarations) {
@@ -969,12 +930,54 @@ void MIRSynthesizer::do_visit(CompoundStatement& node) {
 
 void MIRSynthesizer::do_visit(ExpressionStatement& node) {
     bsv_dbprint("visiting ExpressionStatement node: ", node.loc);
+    using MNK = MIRNode::NodeKind;
     if (node.expression) {
         dv_call(std::monostate {}, *node.expression);
         auto expr = take_last_result<Box<ExprMIR>>();
 
+        switch (expr->kind) {
+            // If the internal expression is a string literal expression, emit a PrintStatement
+            case MNK::LITEXPR_MIR: {
+                auto *litexpr = dynamic_cast<LiteralExprMIR *>(expr.get());
+                if (!litexpr) {
+                    throw std::runtime_error("could not cast LITEXPR_MIR to LiteralExprMIR");
+                }
+                if (auto *s = std::get_if<std::string>(&litexpr->value.inner)) {
+                    bsv_dbprint("found string literal inside ExpressionStatement, emitting PrintStmtMIR");
+                    std::string format_string = std::move(*s);
+                    Box<StmtMIR> stmt = std::make_unique<PrintStmtMIR>(node.loc, std::move(format_string));
+                    dv_return(stmt);
+                }
+                break;
+            }
+
+            // if the internal expression is an identifier with type function, and function has no params,
+            // emit a call to that function instead
+            case MNK::IDENTEXPR_MIR: {
+                auto *idexpr = dynamic_cast<IdentExprMIR *>(expr.get());
+                if (!idexpr) {
+                    throw std::runtime_error("could not cast IDENTEXPR_MIR to IdentExprMIR");
+                }
+                if (idexpr->ident->get_type()->is_function()) {
+                    auto *idtype = idexpr->ident->get_type()->as_function();
+                    if (!idtype) {
+                        throw std::runtime_error("type with kind TypeKind::Function is not FunctionType");
+                    }
+                    if (idtype->no_params()) {
+                        bsv_dbprint("found identexpr of type function with no params, emitting CallExprMIR");
+                        Vec<Box<ExprMIR>> empty_args {};
+                        expr = std::make_unique<CallExprMIR>(node.loc, std::move(expr), std::move(empty_args));
+                    }
+                }
+                break;
+            }
+
+            default:
+            break;
+        }
         Box<StmtMIR> stmt = std::make_unique<ExprStmtMIR>(node.loc, std::move(expr));
         dv_return(stmt);
+
     } else {
         Box<StmtMIR> stmt = std::make_unique<ExprStmtMIR>(node.loc);
         dv_return(stmt);

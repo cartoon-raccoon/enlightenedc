@@ -264,6 +264,10 @@ public:
 
 class PrintStmtMIR : public StmtMIR {
 public:
+    PrintStmtMIR(Location loc, std::string format_string)
+        : StmtMIR(loc, NodeKind::PRINTSTMT_MIR), 
+        format_string(format_string) {}
+
     PrintStmtMIR(Location loc, std::string format_string, Vec<Box<ExprMIR>> arguments)
         : StmtMIR(loc, NodeKind::PRINTSTMT_MIR), 
         format_string(format_string), arguments(std::move(arguments)) {}
@@ -535,6 +539,10 @@ public:
 
 class CallExprMIR : public ExprMIR {
 public:
+    CallExprMIR(Location loc, Box<ExprMIR> callee)
+        : ExprMIR(loc, NodeKind::CALLEXPR_MIR), 
+        callee(std::move(callee)) {}
+
     CallExprMIR(Location loc, Box<ExprMIR> callee, Vec<Box<ExprMIR>> args)
         : ExprMIR(loc, NodeKind::CALLEXPR_MIR), 
         callee(std::move(callee)), 

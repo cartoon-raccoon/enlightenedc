@@ -14,6 +14,7 @@
 #define PTR_SIZE 8
 
 using namespace ecc::sema::types;
+using namespace ecc::tokens;
 
 bool Type::is_void() { return kind == Kind::VOID; }
 
@@ -29,18 +30,18 @@ bool PrimitiveType::is_integer() {
     // We maintain strict integral definitions for determining whether
     // this type is an integer: it cannot be Bool or Float, and it has to be sized.
     switch (primkind) {
-        case U8:
-        case U16:
-        case U32:
-        case U64:
-        case I8:
-        case I16:
-        case I32:
-        case I64:
+        case PrimType::U8:
+        case PrimType::U16:
+        case PrimType::U32:
+        case PrimType::U64:
+        case PrimType::I8:
+        case PrimType::I16:
+        case PrimType::I32:
+        case PrimType::I64:
         return true;
         
-        case BOOL:
-        case F64:
+        case PrimType::F64:
+        case PrimType::BOOL:
         return false;
     }
     
@@ -70,22 +71,22 @@ bool PrimitiveType::is_compatible_with(Type *dst) {
 
 std::size_t PrimitiveType::size() {
     switch (primkind) {
-        case U8:
-        case I8:
-        case BOOL:
+        case PrimType::U8:
+        case PrimType::I8:
+        case PrimType::BOOL:
         return 1;
 
-        case U16:
-        case I16:
+        case PrimType::U16:
+        case PrimType::I16:
         return 2;
 
-        case U32:
-        case I32:
+        case PrimType::U32:
+        case PrimType::I32:
         return 4;
 
-        case U64:
-        case I64:
-        case F64:
+        case PrimType::U64:
+        case PrimType::I64:
+        case PrimType::F64:
         return 8;
     }
 
@@ -94,25 +95,25 @@ std::size_t PrimitiveType::size() {
 
 std::string PrimitiveType::formal() {
     switch (primkind) {
-        case U8:
+        case PrimType::U8:
         return "U8";
-        case U16:
+        case PrimType::U16:
         return "U16";
-        case U32:
+        case PrimType::U32:
         return "U32";
-        case U64:
+        case PrimType::U64:
         return "U64";
-        case I8:
+        case PrimType::I8:
         return "I8";
-        case I16:
+        case PrimType::I16:
         return "I16";
-        case I32:
+        case PrimType::I32:
         return "I32";
-        case I64:
+        case PrimType::I64:
         return "I64";
-        case BOOL:
+        case PrimType::BOOL:
         return "Bool";
-        case F64:
+        case PrimType::F64:
         return "F64";
     }
 }
@@ -126,6 +127,20 @@ void ClassType::add_member(Box<ClassType::ClassTypeMember> member) {
         dbprint("ClassType: adding member with name ", *member->name, " type ", member->ty);
     else {
         dbprint("ClassType: adding anonymous member with type ", member->ty);
+    }
+    if (member->ty == this) {
+        // member is guaranteed to have name, as anonymous types cannot be re-referenced
+        throw RecursiveTypeError(*member->name, member->loc);
+    }
+    if (member->ty->is_array()) {
+        auto *arrayty = member->ty->as_array();
+        if (!arrayty) {
+            throw std::runtime_error("Type with Kind::Array is not ArrayType");
+        }
+        if (arrayty->base == this) {
+            throw RecursiveTypeError(*member->name, member->loc);
+        }
+
     }
     members.push_back(std::move(member));
 }
@@ -142,6 +157,10 @@ ClassType::ClassTypeMember *ClassType::find(std::string& name) {
     return nullptr;
 }
 
+ClassType::ClassTypeMember *ClassType::index(int idx) {
+    return members[idx].get();
+}
+
 std::string ClassType::formal() {
     if (name) {
         return base() + *name;
@@ -152,6 +171,10 @@ std::string ClassType::formal() {
 
 std::size_t UnionType::size() {
     return 0; // todo
+}
+
+bool UnionType::is_compatible_with(Type *dst) {
+    return false; // todo
 }
 
 void UnionType::add_member(Box<UnionType::UnionTypeMember> member) {
@@ -173,6 +196,10 @@ UnionType::UnionTypeMember *UnionType::find(std::string& name) {
     }
 
     return nullptr;
+}
+
+UnionType::UnionTypeMember *UnionType::index(int idx) {
+    return members[idx].get();
 }
 
 std::string UnionType::formal() {
@@ -396,16 +423,16 @@ Type *TypeBuilder::finalize() {
 TypeContext::TypeContext(codegen::LLVM& llvm)
     : anonymous_ctr(0), user_types(), pointers(), arrays(), llvm(llvm),
     voidt(std::make_unique<VoidType>()),
-    u8(std::make_unique<PrimitiveType>(PrimitiveType::Kind::U8)),
-    u16(std::make_unique<PrimitiveType>(PrimitiveType::Kind::U16)),
-    u32(std::make_unique<PrimitiveType>(PrimitiveType::Kind::U32)),
-    u64(std::make_unique<PrimitiveType>(PrimitiveType::Kind::U64)),
-    i8(std::make_unique<PrimitiveType>(PrimitiveType::Kind::I8)),
-    i16(std::make_unique<PrimitiveType>(PrimitiveType::Kind::I16)),
-    i32(std::make_unique<PrimitiveType>(PrimitiveType::Kind::I32)),
-    i64(std::make_unique<PrimitiveType>(PrimitiveType::Kind::I64)),
-    f64(std::make_unique<PrimitiveType>(PrimitiveType::Kind::F64)),
-    boolt(std::make_unique<PrimitiveType>(PrimitiveType::Kind::BOOL))
+    u8(std::make_unique<PrimitiveType>(PrimType::U8)),
+    u16(std::make_unique<PrimitiveType>(PrimType::U16)),
+    u32(std::make_unique<PrimitiveType>(PrimType::U32)),
+    u64(std::make_unique<PrimitiveType>(PrimType::U64)),
+    i8(std::make_unique<PrimitiveType>(PrimType::I8)),
+    i16(std::make_unique<PrimitiveType>(PrimType::I16)),
+    i32(std::make_unique<PrimitiveType>(PrimType::I32)),
+    i64(std::make_unique<PrimitiveType>(PrimType::I64)),
+    f64(std::make_unique<PrimitiveType>(PrimType::F64)),
+    boolt(std::make_unique<PrimitiveType>(PrimType::BOOL))
 {}
 
 TypeBuilder TypeContext::builder() {
@@ -416,28 +443,28 @@ VoidType *TypeContext::get_void() {
     return voidt.get();
 }
 
-PrimitiveType *TypeContext::get_primitive(PrimitiveType::Kind pkind) {
-    dbprint("TypeContext: getting primitive type with value ", pkind);
+PrimitiveType *TypeContext::get_primitive(PrimType pkind) {
+    dbprint("TypeContext: getting primitive type");
     switch (pkind) {
-    case PrimitiveType::Kind::U8:
+    case PrimType::U8:
         return u8.get();
-    case PrimitiveType::Kind::U16:
+    case PrimType::U16:
         return u16.get();
-    case PrimitiveType::Kind::U32:
+    case PrimType::U32:
         return u32.get();
-    case PrimitiveType::Kind::U64:
+    case PrimType::U64:
         return u64.get();
-    case PrimitiveType::Kind::I8:
+    case PrimType::I8:
         return i8.get();
-    case PrimitiveType::Kind::I16:
+    case PrimType::I16:
         return i16.get();
-    case PrimitiveType::Kind::I32:
+    case PrimType::I32:
         return i32.get();
-    case PrimitiveType::Kind::I64:
+    case PrimType::I64:
         return i64.get();
-    case PrimitiveType::Kind::F64:
+    case PrimType::F64:
         return f64.get();
-    case PrimitiveType::Kind::BOOL:
+    case PrimType::BOOL:
         return boolt.get();
     default:
         return nullptr;
@@ -455,8 +482,10 @@ ClassType *TypeContext::get_class(std::string name, sym::Scope *scope) {
         return user_types.find(mangled)->second.get()->as_class();
     }
 
+    Box<ClassType> clsty = std::make_unique<ClassType>(name, scope);
+
     // If no struct matching the name, make a new struct
-    return make_insert_type<ClassType>(mangled, scope, name);
+    return make_insert_type<ClassType>(mangled, scope, std::move(clsty));
 }
 
 ClassType *TypeContext::get_class(sym::Scope *scope) {
@@ -473,7 +502,9 @@ ClassType *TypeContext::get_class(sym::Scope *scope) {
     anonymous_ctr++;
     auto mangled = mangle<ClassType>(name, scope);
 
-    return make_insert_type<ClassType>(mangled, scope);
+    Box<ClassType> clsty = std::make_unique<ClassType>(scope);
+
+    return make_insert_type<ClassType>(mangled, scope, std::move(clsty));
 }
 
 UnionType *TypeContext::get_union(std::string name, sym::Scope *scope) {
@@ -485,8 +516,25 @@ UnionType *TypeContext::get_union(std::string name, sym::Scope *scope) {
         return user_types.find(mangled)->second.get()->as_union();
     }
 
+    Box<UnionType> unnty = std::make_unique<UnionType>(name, scope);
+
     // If no struct matching the name, make a new struct
-    return make_insert_type<UnionType>(mangled, scope, name);
+    return make_insert_type<UnionType>(mangled, scope, std::move(unnty));
+}
+
+UnionType *TypeContext::get_union(std::string name, PrimitiveType *type_rep, sym::Scope *scope) {
+    dbprint("TypeContext: union type '", name, "' on scope ", scope);
+    std::string mangled = mangle<UnionType>(name, scope);
+
+    if (user_types.contains(mangled)) {
+        dbprint("TypeContext: existing union found");
+        return user_types.find(mangled)->second.get()->as_union();
+    }
+
+    Box<UnionType> unnty = std::make_unique<UnionType>(name, type_rep, scope);
+
+    // If no struct matching the name, make a new struct
+    return make_insert_type<UnionType>(mangled, scope, std::move(unnty));
 }
 
 UnionType *TypeContext::get_union(sym::Scope *scope) {
@@ -495,7 +543,20 @@ UnionType *TypeContext::get_union(sym::Scope *scope) {
     anonymous_ctr++;
     auto mangled = mangle<UnionType>(name, scope);
 
-    return make_insert_type<UnionType>(mangled, scope);
+    Box<UnionType> unnty = std::make_unique<UnionType>(scope);
+
+    return make_insert_type<UnionType>(mangled, scope, std::move(unnty));
+}
+
+UnionType *TypeContext::get_union(PrimitiveType *type_rep, sym::Scope *scope) {
+    dbprint("TypeContext: anonymous union type on scope ", scope);
+    auto name = "anon_" + std::to_string(anonymous_ctr);
+    anonymous_ctr++;
+    auto mangled = mangle<UnionType>(name, scope);
+
+    Box<UnionType> unnty = std::make_unique<UnionType>(type_rep, scope);
+
+    return make_insert_type<UnionType>(mangled, scope, std::move(unnty));
 }
 
 EnumType *TypeContext::get_enum(std::string name, sym::Scope *scope) {
@@ -507,8 +568,10 @@ EnumType *TypeContext::get_enum(std::string name, sym::Scope *scope) {
         return user_types.find(mangled)->second.get()->as_enum();
     }
 
+    Box<EnumType> enmty = std::make_unique<EnumType>(name, scope);
+
     // If no struct matching the name, make a new struct
-    return make_insert_type<EnumType>(mangled, scope, name);
+    return make_insert_type<EnumType>(mangled, scope, std::move(enmty));
 }
 
 EnumType *TypeContext::get_enum(sym::Scope *scope) {
@@ -517,7 +580,9 @@ EnumType *TypeContext::get_enum(sym::Scope *scope) {
     anonymous_ctr++;
     auto mangled = mangle<EnumType>(name, scope);
 
-    return make_insert_type<EnumType>(mangled, scope);
+    Box<EnumType> enmty = std::make_unique<EnumType>(scope);
+
+    return make_insert_type<EnumType>(mangled, scope, std::move(enmty));
 }
 
 PointerType *TypeContext::get_pointer(Type *base, bool is_const) {

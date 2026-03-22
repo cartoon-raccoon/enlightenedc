@@ -89,6 +89,12 @@ public:
 
     PhysicalSymbol(Kind kind, Location loc, std::string name, Scope *scope) : Symbol(kind, name, scope) {}
 
+    // If the symbol is external.
+    bool is_extern = false;
+
+    // If the symbol is externally linked.
+    bool is_externc = false;
+
     PhysicalSymbol *as_physical() { return this; }
 
     virtual types::Type *get_type() = 0;
@@ -130,12 +136,6 @@ public:
     bool is_const = false;
 
     // Storage class information.
-
-    // If the symbol is external.
-    bool is_extern = false;
-
-    // If the symbol is externally linked.
-    bool is_externc = false;
 
     bool is_funcparam = false;
 
@@ -223,7 +223,7 @@ public:
     Scope(Symbol *assoc, Scope *outer, uint64_t id)
     : outer(outer), 
     assoc(assoc), 
-    var_symbols(), func_symbols(), type_symbols(), label_symbols(),
+    phys_symbols(), type_symbols(), label_symbols(),
     nested(), id(id) {}
 
     // the outer scope enclosing the inner scope.
@@ -234,8 +234,7 @@ public:
     // an ASTNode associated with this scope, if any.
     ast::ASTNode *node;
     // the symbol tables.
-    std::unordered_map<std::string, Box<VarSymbol>> var_symbols = {};
-    std::unordered_map<std::string, Box<FuncSymbol>> func_symbols = {};
+    std::unordered_map<std::string, Box<PhysicalSymbol>> phys_symbols = {};
     std::unordered_map<std::string, Box<TypeSymbol>> type_symbols = {};
     std::unordered_map<std::string, Box<LabelSymbol>> label_symbols = {};
     // inner scopes contained within this scope.

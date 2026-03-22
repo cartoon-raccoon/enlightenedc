@@ -4,23 +4,25 @@
 #include "semantics/symbols.hpp"
 #include "semantics/types.hpp"
 #include "util.hpp"
+#include "frontend/tokens.hpp"
 
 using namespace ecc::sema;
 using namespace ecc::sema::sym;
 using namespace ecc::sema::types;
+using namespace ecc::tokens;
 
 std::string VarSymbol::to_string() const {
     std::stringstream ss;
 
-    ss << "VarSymbol ";
+    ss << "VarSymbol: " << name;
 
     if (is_const)
         ss << "const ";
 
     if (type)
-        ss << type->to_string();
+        ss << " :: " << type->to_string();
     else
-        ss << "<nulltype>";
+        ss << " :: <nulltype>";
 
     if (is_extern)
         ss << " extern";
@@ -40,12 +42,12 @@ std::string VarSymbol::to_string() const {
 std::string FuncSymbol::to_string() const {
     std::stringstream ss;
 
-    ss << "FuncSymbol ";
+    ss << "FuncSymbol: " << name;
 
     if (signature)
-        ss << signature->to_string();
+        ss << " :: " << signature->to_string();
     else
-        ss << "<nullsig>";
+        ss << " :: <nullsig>";
 
     if (is_static)
         ss << " static";
@@ -59,12 +61,12 @@ std::string FuncSymbol::to_string() const {
 std::string TypeSymbol::to_string() const {
     std::stringstream ss;
 
-    ss << "TypeSymbol ";
+    ss << "TypeSymbol: " << name;
 
     if (type)
-        ss << type->to_string();
+        ss << " :: " << type->to_string();
     else
-        ss << "<nulltype>";
+        ss << " :: <nulltype>";
 
     return ss.str();
 }
@@ -72,32 +74,32 @@ std::string TypeSymbol::to_string() const {
 std::string LabelSymbol::to_string() const {
     std::stringstream ss;
 
-    ss << "LabelSymbol";
+    ss << "LabelSymbol: " << name;
 
     return ss.str();
 }
 
 std::string PrimitiveType::to_string() const {
     switch (primkind) {
-    case U8:
+    case PrimType::U8:
         return "U8i";
-    case U16:
+    case PrimType::U16:
         return "U16i";
-    case U32:
+    case PrimType::U32:
         return "U32i";
-    case U64:
+    case PrimType::U64:
         return "U64i";
-    case I8:
+    case PrimType::I8:
         return "I8i";
-    case I16:
+    case PrimType::I16:
         return "I16i";
-    case I32:
+    case PrimType::I32:
         return "I32i";
-    case I64:
+    case PrimType::I64:
         return "I64i";
-    case F64:
+    case PrimType::F64:
         return "F64i";
-    case BOOL:
+    case PrimType::BOOL:
         return "Bool";
     }
 
@@ -300,13 +302,8 @@ static void print_scope(std::stringstream& ss, Scope* scope, int depth) {
     }
     ss << "\n";
 
-    ss << indent << "Variable Symbols:\n";
-    for (auto const& [name, sym] : scope->var_symbols) {
-        ss << indent << "  " << name << " -> " << sym.get() << " : "
-           << sym->to_string() << "\n";
-    }
-    ss << "\n" << indent << "Function Symbols:\n";
-    for (auto const& [name, sym] : scope->func_symbols) {
+    ss << indent << "Physical Symbols:\n";
+    for (auto const& [name, sym] : scope->phys_symbols) {
         ss << indent << "  " << name << " -> " << sym.get() << " : "
            << sym->to_string() << "\n";
     }

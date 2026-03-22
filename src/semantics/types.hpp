@@ -12,6 +12,7 @@
 #include <variant>
 
 #include "codegen/llvm.hpp"
+#include "frontend/tokens.hpp"
 #include "util.hpp"
 
 /*
@@ -90,10 +91,14 @@ public:
 
     Note that this relationship is not symmetric; if `this` is compatible
     with `other`, this does not mean `other` is compatible with `this`.
+
+    This function will return false if `this` and `dst` are exactly the same;
+    it is to be used for types that are not equal, but might be able to be
+    coerced into the other.
     */
     virtual bool is_compatible_with(Type * dst) {
-        // at the minimum, enforce strict equality (no subtyping).
-        return dst == this;
+        // by default, types cannot be coerced and require explicit casting.
+        return false;
     }
 
     // Cast this type to a PrimitiveType *.
@@ -131,8 +136,6 @@ public:
     // Whether the type is subscriptable/indexable.
     // Only arrays and pointers should be subscriptable.
     virtual bool is_subscriptable() { return false; };
-
-    virtual bool has_members() { return false; }
 
     virtual std::string to_string() const { return "()"; }
 
@@ -227,20 +230,8 @@ Zero-sized types (U0, I0) cannot be implicitly converted to other types.
 */
 class PrimitiveType : public BaseType {
 public:
-    enum Kind {
-        U8,
-        U16,
-        U32,
-        U64,
-        I8,
-        I16,
-        I32,
-        I64,
-        F64,
-        BOOL,
-    };
 
-    Kind primkind;
+    tokens::PrimType primkind;
 
     std::size_t size() override;
 
@@ -259,9 +250,9 @@ public:
 protected:
     friend class TypeContext;
 
-    friend constexpr Box<PrimitiveType> std::make_unique<PrimitiveType>(Kind&&);
+    friend constexpr Box<PrimitiveType> std::make_unique<PrimitiveType>(tokens::PrimType&&);
 
-    PrimitiveType(Kind kind) : BaseType(Type::Kind::PRIMITIVE), primkind(kind) {}
+    PrimitiveType(tokens::PrimType kind) : BaseType(Type::Kind::PRIMITIVE), primkind(kind) {}
 };
 
 class ClassType : public UserType {
@@ -299,9 +290,11 @@ public:
 
     ClassTypeMember *find(std::string& name);
 
-    ClassType *as_class() override { return this; }
+    ClassTypeMember *index(int idx);
 
-    bool has_members() override { return true; }
+    int num_members() { return members.size(); }
+
+    ClassType *as_class() override { return this; }
 
     std::string to_string() const override;
 
@@ -324,7 +317,34 @@ protected:
         : UserType(Kind::CLASS, scope), members(), name(name) {}
 };
 
+/*
+The union type.
 
+The union type can exist as each of its members, just not at the same time.
+Accessing a union's members essentially performs a bitcast to reinterpret the
+union's bits as the bits of the member's type.
+
+## Type Representative
+Unions can also be represented by a primitive type, where it is essentially that
+type in memory. Syntactically and semantically, however, it acts like a union.
+Such unions can be declared by specifying a primitive type before the `union`
+keyword, e.g. `U64i union U64`.
+
+The above example is used to alias the `U64i` intrinsic type and allow the
+programmer to access individual bytes within a U64i value. It is defined as:
+
+```
+U64i union U64 {
+    U8i  u8[8];
+    U16i u16[4];
+    U32i u32[2];
+    U64i u64[1];
+};
+```
+
+Then some member expression like `unn->u8` treats the U64i as an array of 8 bytes,
+and can be accessed as if it were one.
+*/
 class UnionType : public UserType {
 public:
     struct UnionTypeMember {
@@ -346,15 +366,21 @@ public:
 
     std::optional<std::string> name;
 
+    std::optional<PrimitiveType *> type_rep;
+
     std::size_t size() override;
+
+    bool is_compatible_with(Type *dst) override;
 
     void add_member(Box<UnionTypeMember> member);
 
     UnionTypeMember *find(std::string& name);
 
-    UnionType *as_union() override { return this; }
+    UnionTypeMember *index(int idx);
 
-    bool has_members() override { return true; }
+    int num_members() { return members.size(); }
+
+    UnionType *as_union() override { return this; }
 
     std::string to_string() const override;
 
@@ -367,13 +393,23 @@ public:
 protected:
     friend class TypeContext;
 
-    friend constexpr Box<UnionType> std::make_unique<UnionType>(sema::sym::Scope *&);
-    friend constexpr Box<UnionType> std::make_unique<UnionType>(std::string&, sema::sym::Scope *&);
+    friend constexpr Box<UnionType> 
+        std::make_unique<UnionType>(sema::sym::Scope *&);
+    friend constexpr Box<UnionType> 
+        std::make_unique<UnionType>(PrimitiveType *&, sema::sym::Scope *&);
+    friend constexpr Box<UnionType> 
+        std::make_unique<UnionType>(std::string&, sema::sym::Scope *&);
+    friend constexpr Box<UnionType> 
+        std::make_unique<UnionType>(std::string&, PrimitiveType *&, sema::sym::Scope *&);
 
     UnionType(sema::sym::Scope *scope)
         : UserType(Kind::UNION, scope), members() {}
+    UnionType(PrimitiveType *type_rep, sema::sym::Scope *scope)
+        : UserType(Kind::UNION, scope), members(), type_rep(type_rep) {}
     UnionType(std::string name, sema::sym::Scope *scope)
         : UserType(Kind::UNION, scope), members(), name(name) {}
+    UnionType(std::string name, PrimitiveType *type_rep, sema::sym::Scope *scope)
+        : UserType(Kind::UNION, scope), members(), name(name), type_rep(type_rep) {}
 };
 
 
@@ -546,7 +582,36 @@ public:
         Type *returntype;
         Vec<Type *> params;
         bool variadic;
-    } signature;
+
+        // Test if two function signatures are the same.
+        bool operator== (FunctionSignature& other) {
+            // Test return type
+            if (other.returntype != returntype) {
+                return false;
+            }
+
+            // Test param count
+            if (params.size() != other.params.size()) {
+                return false;
+            }
+
+            // Test the type of each param
+            for (int i = 0; i < params.size(); i++) {
+                if (params[i] != other.params[i]) {
+                    return false;
+                }
+            }
+
+            // Test variadic flag
+            if (variadic != other.variadic) {
+                return false;
+            }
+
+            return true;
+        }
+    };
+
+    FunctionSignature signature;
 
     // Generate a hash based on the function signature.
     std::size_t hash_sig();
@@ -554,6 +619,12 @@ public:
     Type *returntype() { return signature.returntype; }
 
     Vec<Type *>& params() { return signature.params; }
+
+    int num_params() { return signature.params.size(); }
+
+    Type *param_idx(int idx) { return signature.params[idx]; }
+
+    bool no_params() { return signature.params.empty(); }
 
     bool is_callable() override { return true; }
 
@@ -653,7 +724,27 @@ public:
     VoidType *get_void();
 
     // Return a pointer to the PrimitiveType object with `kind`.
-    PrimitiveType *get_primitive(PrimitiveType::Kind kind);
+    PrimitiveType *get_primitive(tokens::PrimType kind);
+
+    PrimitiveType *get_u8()   { return u8.get();    }
+
+    PrimitiveType *get_u16()  { return u16.get();   }
+
+    PrimitiveType *get_u32()  { return u32.get();   }
+
+    PrimitiveType *get_u64()  { return u64.get();   }
+
+    PrimitiveType *get_i8()   { return i8.get();    }
+
+    PrimitiveType *get_i16()  { return i16.get();   }
+
+    PrimitiveType *get_i32()  { return i32.get();   }
+
+    PrimitiveType *get_i64()  { return i64.get();   }
+
+    PrimitiveType *get_f64()  { return f64.get();   }
+
+    PrimitiveType *get_bool() { return boolt.get(); }
 
     /*
     Create or retrieve a class with the name `name`.
@@ -672,8 +763,18 @@ public:
     */
     UnionType *get_union(std::string name, sema::sym::Scope *scope);
 
+    /*
+    Create or retrieve a union with the name `name` and type representative `type_rep`.
+
+    Returns `nullptr` if a type with `name` is already declared, but is not a union.
+    */
+    UnionType *get_union(std::string name, PrimitiveType *type_rep, sema::sym::Scope *scope);
+
     // Create an anonymous union.
     UnionType *get_union(sema::sym::Scope *scope);
+
+    // Create an anonymous union with type representative `type_rep`.
+    UnionType *get_union(PrimitiveType *type_rep, sema::sym::Scope *scope);
 
     /*
     Create or retrieve an enum with the name `name`.
@@ -754,35 +855,24 @@ private:
     }
 
 
-    template <typename T>
-    requires std::derived_from<T, UserType>
+    template <typename Ty>
+    requires std::derived_from<Ty, UserType>
     // Create and insert a named type.
-    T *make_insert_type(std::string mangled, sema::sym::Scope *scope, std::string name) {
-        Box<T> s = std::make_unique<T>(name, scope);
+    Ty *make_insert_type(std::string mangled, sema::sym::Scope *scope, Box<Ty> type) {
 
-        auto ret = s.get();
-        for (auto const& [key, type] : user_types) {
-            // we find a type with the same name
-            if (name == type->get_name()) {
-                // if the scopes match
-                if (scope == type->scope) {
-                    throw type.get();
+        auto ret = type.get();
+        if (type->get_name()) {
+            for (auto const& [key, etype] : user_types) {
+                    // if type has name and we find another type with the same name
+                if (*type->get_name() == etype->get_name()) {
+                    // if the scopes match
+                    if (scope == etype->scope) {
+                        throw etype.get();
+                    }
                 }
             }
         }
-        user_types.insert({mangled, std::move(s)});
-
-        return ret;
-    }
-
-    template <typename T>
-    requires std::derived_from<T, UserType>
-    T *make_insert_type(std::string mangled, sema::sym::Scope *scope) {
-        Box<T> s = std::make_unique<T>(scope);
-
-        auto ret = s.get();
-        // no collision check required for anonymous types.
-        user_types.insert({mangled, std::move(s)});
+        user_types.insert({mangled, std::move(type)});
 
         return ret;
     }

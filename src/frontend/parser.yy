@@ -56,22 +56,102 @@ static ecc::parser::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 }
 
 // Tokens
-%token <std::string> IDENTIFIER STRING_LITERAL TYPE_IDENTIFIER
-%token <int> INT_CONST
-%token <double> FLOAT_CONST
-%token <char> CHAR_CONST
+%token 
+    <std::string> 
+    IDENTIFIER "identifier"
+    STRING_LITERAL "string literal"
+    TYPE_IDENTIFIER "type"
+    <int> 
+    INT_CONST "integer literal"
+    <double> 
+    FLOAT_CONST "float literal"
+    <char> 
+    CHAR_CONST "character literal"
 
 // Keywords
-%token IF ELSE WHILE DO FOR SWITCH CASE DEFAULT BREAK CONTINUE RETURN GOTO
-%token CLASS UNION ENUM CONST VOID U8 U16 U32 U64 I8 I16 I32 I64 F64 BOOL SIZEOF
-%token PUBLIC STATIC EXTERN TRUE FALSE
+%token 
+    IF       "if"
+    ELSE     "else"
+    WHILE    "while"
+    DO       "do"
+    FOR      "for"
+    SWITCH   "switch"
+    CASE     "case"
+    DEFAULT  "default"
+    BREAK    "break"
+    CONTINUE "continue"
+    RETURN   "return"
+    GOTO     "goto"
+    CLASS    "class"
+    UNION    "union"
+    ENUM     "enum"
+    CONST    "const"
+    VOID     "void"
+    U8       "U8i"
+    U16      "U16i"
+    U32      "U32i"
+    U64      "U64i"
+    I8       "I8i"
+    I16      "I16i" 
+    I32      "I32i"
+    I64      "I64i"
+    F64      "F64i"
+    BOOL     "Bool"
+    SIZEOF   "sizeof"
+    PUBLIC   "public"
+    STATIC   "static"
+    EXTERN   "extern"
+    TRUE     "true"
+    FALSE    "false"
 
 // Operators
-%token PLUS MINUS MUL DIV MOD ASSIGN EQ NE LE GE ANDAND OROR
-%token INC DEC PLUSEQ MINUSEQ MULEQ DIVEQ MODEQ LSHIFTEQ RSHIFTEQ ANDEQ OREQ XOREQ
-%token AND OR XOR TILDE NOT LT GT LSHIFT RSHIFT
-%token SEMI COMMA LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET DOT ARROW COLON QUESTION
-%token ELLIPSIS
+%token
+    PLUS     "+"
+    MINUS    "-"
+    MUL      "*"
+    DIV      "/"
+    MOD      "%"
+    ASSIGN   "="
+    EQ       "=="
+    NE       "!="
+    LE       "<="
+    GE       ">="
+    ANDAND   "&&"
+    OROR     "||"
+    INC      "++"
+    DEC      "--"
+    PLUSEQ   "+="
+    MINUSEQ  "-="
+    MULEQ    "*="
+    DIVEQ    "/="
+    MODEQ    "%="
+    LSHIFTEQ "<<="
+    RSHIFTEQ ">>="
+    ANDEQ    "&="
+    OREQ     "|="
+    XOREQ    "^="
+    AND      "&"
+    OR       "|"
+    XOR      "^"
+    TILDE    "~"
+    NOT      "!"
+    LT       "<"
+    GT       ">"
+    LSHIFT   "<<" 
+    RSHIFT   ">>"
+    SEMI     ";"
+    COMMA    ","
+    LPAREN   "("
+    RPAREN   ")"
+    LBRACE   "{"
+    RBRACE   "}"
+    LBRACKET "["
+    RBRACKET "]"
+    DOT      "."
+    ARROW    "->"
+    COLON    ":"
+    QUESTION "?"
+    ELLIPSIS "..."
 
 // Operator precedence.
 %left OROR
@@ -225,9 +305,9 @@ class_specifier:
     | CLASS TYPE_IDENTIFIER COLON class_parent_list LBRACE member_declaration_list RBRACE {
         $$ = std::make_unique<ClassSpecifier>(@$, std::move($2), std::move($4), std::move($6));
     }
-    // Class specifier with parent classes but no definition (is an error).
+    // Adding parent classes is part of the class definition, so if no members follow a
+    // class declaration with a parent list, that is a syntactic error.
     | CLASS IDENTIFIER COLON class_parent_list {
-        type_idents.insert($2);
         error(@$, "incomplete class definition");
         return 1;
     }
@@ -282,6 +362,16 @@ union_specifier:
     | UNION LBRACE member_declaration_list RBRACE {
         $$ = std::make_unique<UnionSpecifier>(@$, std::nullopt, std::nullopt, std::move($3));
     }
+    // Adding a type representative is part of the union definition, so if no members
+    // follow a union declaration with a primitive type, that is a syntactic error.
+    | primitive_type UNION IDENTIFIER {
+        error(@$, "incomplete union definition");
+        return 1;
+    }
+    | primitive_type UNION TYPE_IDENTIFIER {
+        error(@$, "incomplete union definition");
+        return 1;
+    }
     // Union specifier with no definition.
     | UNION IDENTIFIER {
         type_idents.insert($2);
@@ -293,16 +383,16 @@ union_specifier:
 ;
 
 primitive_type:
-    U8 { $$ = std::make_unique<PrimitiveSpecifier>(@1, PrimitiveSpecifier::U8); }
-    | U16 { $$ = std::make_unique<PrimitiveSpecifier>(@1, PrimitiveSpecifier::U16); }
-    | U32 { $$ = std::make_unique<PrimitiveSpecifier>(@1, PrimitiveSpecifier::U32); }
-    | U64 { $$ = std::make_unique<PrimitiveSpecifier>(@1, PrimitiveSpecifier::U64); }
-    | I8 { $$ = std::make_unique<PrimitiveSpecifier>(@1, PrimitiveSpecifier::I8); }
-    | I16 { $$ = std::make_unique<PrimitiveSpecifier>(@1, PrimitiveSpecifier::I16); }
-    | I32 { $$ = std::make_unique<PrimitiveSpecifier>(@1, PrimitiveSpecifier::I32); }
-    | I64 { $$ = std::make_unique<PrimitiveSpecifier>(@1, PrimitiveSpecifier::I64); }
-    | F64 { $$ = std::make_unique<PrimitiveSpecifier>(@1, PrimitiveSpecifier::F64); }
-    | BOOL { $$ = std::make_unique<PrimitiveSpecifier>(@1, PrimitiveSpecifier::BOOL); }
+    U8 { $$ = std::make_unique<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::U8); }
+    | U16 { $$ = std::make_unique<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::U16); }
+    | U32 { $$ = std::make_unique<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::U32); }
+    | U64 { $$ = std::make_unique<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::U64); }
+    | I8 { $$ = std::make_unique<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::I8); }
+    | I16 { $$ = std::make_unique<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::I16); }
+    | I32 { $$ = std::make_unique<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::I32); }
+    | I64 { $$ = std::make_unique<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::I64); }
+    | F64 { $$ = std::make_unique<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::F64); }
+    | BOOL { $$ = std::make_unique<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::BOOL); }
 ;
 
 type_qualifier:

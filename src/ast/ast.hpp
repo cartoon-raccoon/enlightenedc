@@ -448,23 +448,11 @@ public:
 
 class PrimitiveSpecifier : public TypeSpecifier {
 public:
-    enum PrimKind {
-        U8,
-        U16,
-        U32,
-        U64,
-        I8,
-        I16,
-        I32,
-        I64,
-        F64,
-        BOOL
-    };
 
-    PrimitiveSpecifier(Location loc, PrimKind pkind)
+    PrimitiveSpecifier(Location loc, tokens::PrimType pkind)
     : TypeSpecifier(PRIM_SPEC, loc), pkind(pkind) {}
 
-    PrimKind pkind;
+    tokens::PrimType pkind;
 
     void accept(ASTVisitor& visitor) override;
 };
@@ -493,7 +481,7 @@ class UnionSpecifier : public TypeSpecifier {
 public:
     UnionSpecifier(Location loc,
                    std::optional<std::string> name,
-                   std::optional<PrimitiveSpecifier::PrimKind> type_rep,
+                   std::optional<tokens::PrimType> type_rep,
                    std::optional<Vec<Box<ClassDeclaration>>> declarations)
         : TypeSpecifier(UNION_SPEC, loc),
         name(std::move(name)),
@@ -502,7 +490,7 @@ public:
 
     std::optional<std::string> name;
 
-    std::optional<PrimitiveSpecifier::PrimKind> type_rep;
+    std::optional<tokens::PrimType> type_rep;
 
     std::optional<Vec<Box<ClassDeclaration>>> declarations;
 

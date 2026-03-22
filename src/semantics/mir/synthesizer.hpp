@@ -1,5 +1,5 @@
-#ifndef ECC_ELAB_H
-#define ECC_ELAB_H
+#ifndef ECC_MIR_SYNTH_H
+#define ECC_MIR_SYNTH_H
 
 #include <concepts>
 #include <optional>

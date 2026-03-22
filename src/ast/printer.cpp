@@ -131,8 +131,8 @@ std::string ASTPrinter::infixop_to_string(tokens::InfixOp op) {
     }
 }
 
-std::string ASTPrinter::primitive_to_string(PrimitiveSpecifier::PrimKind p) {
-    using P = PrimitiveSpecifier::PrimKind;
+std::string ASTPrinter::primitive_to_string(tokens::PrimType p) {
+    using P = tokens::PrimType;
     switch (p) {
         return "u0";
     case P::U8:

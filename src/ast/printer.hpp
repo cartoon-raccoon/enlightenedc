@@ -104,7 +104,7 @@ private:
 
     std::string infixop_to_string(tokens::InfixOp op);
 
-    std::string primitive_to_string(PrimitiveSpecifier::PrimKind p);
+    std::string primitive_to_string(tokens::PrimType p);
 
     std::string storage_to_string(StorageClassSpecifier::SpecType t);
 

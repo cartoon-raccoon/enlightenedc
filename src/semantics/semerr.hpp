@@ -3,14 +3,14 @@
 namespace ecc::sema {
 using namespace ecc;
 
-class InvalidTypeDefnError : public EccError {
+class RecursiveTypeError : public EccError {
 public:
-    InvalidTypeDefnError(std::string name, Location err_loc)
-    : EccError("invalid type definition", err_loc)
+    RecursiveTypeError(std::string name, Location err_loc)
+    : EccError("recursive class member", err_loc)
     {
         std::stringstream ss;
         ss << EccError::what() << ": " << name << "\n"
-           << "types can only be declared in the global scope";
+           << "self-referential class members must be behind a pointer";
 
         msg = ss.str();
     }

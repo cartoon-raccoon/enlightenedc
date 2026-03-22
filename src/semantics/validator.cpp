@@ -8,6 +8,7 @@
 using namespace sema;
 using namespace types;
 using namespace mir;
+using namespace tokens;
 
 void Validator::eval_initializer(types::Type *type, InitializerMIR& init) {
     Vec<Accessor> path {};
@@ -167,25 +168,24 @@ void Validator::do_visit(ConstExprMIR& node) {
 }
 
 void Validator::do_visit(LiteralExprMIR& node) {
-    using PKind = PrimitiveType::Kind;
     std::visit(overloaded {
         [node, this] (std::monostate v) mutable {
             throw std::runtime_error("LiteralExprMIR should not have a null value");
         },
         [node, this] (char v) mutable {
-            node.type = types.get_primitive(PKind::I8);
+            node.type = types.get_i8();
         },
         [node, this] (long v) mutable {
-            node.type = types.get_primitive(PKind::I64);
+            node.type = types.get_i64();
         },
         [node, this] (double v) mutable {
-            node.type = types.get_primitive(PKind::F64);
+            node.type = types.get_f64();
         },
         [node, this] (bool v) mutable {
-            node.type = types.get_primitive(PKind::BOOL);
+            node.type = types.get_bool();
         },
         [node, this] (std::string& v) mutable {
-            node.type = types.get_pointer(types.get_primitive(PKind::U8), true);
+            node.type = types.get_pointer(types.get_u8(), true);
         }
     }, node.value.inner);
 }
@@ -220,5 +220,5 @@ void Validator::do_visit(PostfixExprMIR& node) {
 
 void Validator::do_visit(SizeofExprMIR& node) {
     using PKind = PrimitiveType::Kind;
-    node.type = types.get_primitive(PKind::U64);
+    node.type = types.get_u64();
 }

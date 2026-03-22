@@ -151,12 +151,15 @@ void MIRPrinter::visit(TypeDeclMIR& node) {
 void MIRPrinter::visit(VarDeclMIR& node) {
     print_node("VarDecl: ",
                 node, [&] {
+                    indent++;
                     for (auto& decl : node.decls) {
+                        print_indent();
                         std::cout << decl.sym->to_string() << "\n";
                         if (decl.initializer) {
                             (*decl.initializer)->accept(*this);
                         }
                     }
+                    indent--;
                 });
 }
 

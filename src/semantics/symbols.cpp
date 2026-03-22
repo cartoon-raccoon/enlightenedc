@@ -127,8 +127,9 @@ VarSymbol *SymbolTable::lookup_var(std::string& sym, bool current_only) {
     
     if (current_only) {
         dbprint("SymbolTable: looking up varsymbol ", sym, " in current scope");
-        if (this->current->var_symbols.contains(sym)) {
-            return this->current->var_symbols.find(sym)->second.get();
+        if (this->current->phys_symbols.contains(sym)) {
+            // this returns null if we pull a funcsymbol
+            return this->current->phys_symbols.find(sym)->second.get()->as_varsym();
         } else {
             return nullptr;
         }
@@ -138,7 +139,7 @@ VarSymbol *SymbolTable::lookup_var(std::string& sym, bool current_only) {
     Scope *my_current = this->current;
 
     // look for symbol in current scope
-    while (!(my_current->var_symbols.contains(sym))) {
+    while (!(my_current->phys_symbols.contains(sym))) {
         // if already global, return null
         if (my_current->outer == nullptr) {
             assert(my_current == global.get());
@@ -150,14 +151,14 @@ VarSymbol *SymbolTable::lookup_var(std::string& sym, bool current_only) {
         my_current = my_current->outer;
     }
 
-    return my_current->var_symbols.find(sym)->second.get();
+    return my_current->phys_symbols.find(sym)->second.get()->as_varsym();
 }
 
 FuncSymbol *SymbolTable::lookup_func(std::string& sym, bool current_only) {
     if (current_only) {
         dbprint("SymbolTable: looking up funcsymbol ", sym, " in current scope");
-        if (this->current->func_symbols.contains(sym)) {
-            return this->current->func_symbols.find(sym)->second.get();
+        if (this->current->phys_symbols.contains(sym)) {
+            return this->current->phys_symbols.find(sym)->second.get()->as_funcsym();
         } else {
             return nullptr;
         }
@@ -167,7 +168,7 @@ FuncSymbol *SymbolTable::lookup_func(std::string& sym, bool current_only) {
     Scope *my_current = this->current;
 
     // look for symbol in current scope
-    while (!(my_current->func_symbols.contains(sym))) {
+    while (!(my_current->phys_symbols.contains(sym))) {
         // if already global, return null
         if (my_current->outer == nullptr) {
             assert(my_current == global.get());
@@ -179,7 +180,7 @@ FuncSymbol *SymbolTable::lookup_func(std::string& sym, bool current_only) {
         my_current = my_current->outer;
     }
 
-    return my_current->func_symbols.find(sym)->second.get();
+    return my_current->phys_symbols.find(sym)->second.get()->as_funcsym();
 }
 
 TypeSymbol *SymbolTable::lookup_type(std::string& sym, bool current_only) {
@@ -253,26 +254,45 @@ void SymbolTable::tie_current_to(Symbol *sym, bool override) {
 
 VarSymbol *SymbolTable::insert(std::string name, Box<VarSymbol> sym) {
     dbprint("SymbolTable: inserting varsymbol with name \"", name, "\"");
-    if (current->var_symbols.contains(name)) {
+    if (current->phys_symbols.contains(name)) {
         dbprint("SymbolTable: varsymbol with name ", name, " already exists");
-        Symbol *existing = current->var_symbols.find(name)->second.get();
+        Symbol *existing = current->phys_symbols.find(name)->second.get();
         throw existing;
     }
     VarSymbol *ret = sym.get();
-    current->var_symbols.insert({name, std::move(sym)});
+    current->phys_symbols.insert({name, std::move(sym)});
 
     return ret;
 }
 
 FuncSymbol *SymbolTable::insert(std::string name, Box<FuncSymbol> sym) {
     dbprint("SymbolTable: inserting funcsymbol with name \"", name, "\"");
-    if (current->func_symbols.contains(name)) {
-        dbprint("SymbolTable: funcsymbol with name ", name, " already exists");
-        Symbol *existing = current->func_symbols.find(name)->second.get();
-        throw existing;
+    if (current->phys_symbols.contains(name)) {
+        dbprint("SymbolTable: symbol with name ", name, " already exists");
+        // if the same symbol exists, is a function, has the same signature, and is not extern
+        // replace the existing symbol with the new one
+        PhysicalSymbol *existing = current->phys_symbols.find(name)->second.get();
+        if (existing->get_type()->is_function()) {
+            dbprint("SymbolTable: existing symbol has function type, checking for replaceability");
+            FunctionType *othertype = existing->get_type()->as_function();
+            FunctionType *mytype = sym->get_type()->as_function();
+            if (!othertype || !mytype) {
+                dbprint("SymbolTable: could not cast othertype or mytype to FunctionType");
+                goto exists;
+            }
+            if (othertype == mytype && !existing->is_extern && !existing->is_externc) {
+                dbprint("SymbolTable: existing symbol matches function signature, replacing");
+                goto insert;
+            } else {
+                goto exists;
+            }
+        }
+    exists:
+        throw (Symbol *) existing;
     }
+insert:
     FuncSymbol *ret = sym.get();
-    current->func_symbols.insert({name, std::move(sym)});
+    current->phys_symbols.insert_or_assign(name, std::move(sym));
 
     return ret;
 }
