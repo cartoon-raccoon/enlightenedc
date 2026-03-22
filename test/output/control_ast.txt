@@ -296,7 +296,6 @@ SymbolTable: looking up varsymbol n
                 }
             }
         }
-SymbolTable: inserting labelsymbol with name "while_start_0x55bbcbb86730"
 SymbolTable: exiting scope to 0
     }
     Node {
@@ -331,7 +330,6 @@ SymbolTable: looking up varsymbol n
             }
 SymbolTable: exiting scope to 6
         }
-SymbolTable: inserting labelsymbol with name "dowhile_start_0x55bbcbb869c0"
 SymbolTable: exiting scope to 0
     }
     Node {
@@ -342,7 +340,6 @@ SymbolTable: entering scope 8
         Node {
             visiting PrintStatement node: input/control.ec:29.30-37
         }
-SymbolTable: inserting labelsymbol with name "for_start_0x55bbcbb86ed0"
         Node {
             visiting VariableDeclaration node: input/control.ec:29.5-15
             parsing declaration specifier list for node at input/control.ec:29.5-15
@@ -396,7 +393,6 @@ SymbolTable: entering scope 9
         Node {
             visiting PrintStatement node: input/control.ec:31.10-27
         }
-SymbolTable: inserting labelsymbol with name "for_start_0x55bbcbb86fc0"
 SymbolTable: exiting scope to 0
     }
     Node {
@@ -407,7 +403,6 @@ SymbolTable: entering scope 10
         Node {
             visiting PrintStatement node: input/control.ec:33.25-32
         }
-SymbolTable: inserting labelsymbol with name "for_start_0x55bbcbb87340"
         Node {
             visiting AssignmentExpression node: input/control.ec:33.5-10
             Node {
@@ -442,6 +437,7 @@ semantic checking complete
 --------- TYPE CONTEXT ---------
 
 Base Types:
+
 Function Types:
 
 Pointer Types:
@@ -453,14 +449,14 @@ Array Types:
 
 Scope 0
 Variable Symbols:
-  n -> 0x55bbcbb7bc40 : VarSymbol I64
+  n -> 0x557b81c87c40 : VarSymbol I64i
 
 Function Symbols:
 
 Type Symbols:
 
 Label Symbols:
-  start -> 0x55bbcbb7bda0 : LabelSymbol
+  start -> 0x557b81c87da0 : LabelSymbol
 -----------------------------------------------------------
   Scope 1
   Variable Symbols:
@@ -506,7 +502,6 @@ Label Symbols:
   Type Symbols:
 
   Label Symbols:
-    while_start_0x55bbcbb86730 -> 0x55bbcbb7d550 : LabelSymbol
 -----------------------------------------------------------
   Scope 6
   Variable Symbols:
@@ -516,7 +511,6 @@ Label Symbols:
   Type Symbols:
 
   Label Symbols:
-    dowhile_start_0x55bbcbb869c0 -> 0x55bbcbb7dc60 : LabelSymbol
 -----------------------------------------------------------
     Scope 7
     Variable Symbols:
@@ -529,14 +523,13 @@ Label Symbols:
 -----------------------------------------------------------
   Scope 8
   Variable Symbols:
-    n -> 0x55bbcbb7e690 : VarSymbol U32
+    n -> 0x557b81c89f40 : VarSymbol U32i
 
   Function Symbols:
 
   Type Symbols:
 
   Label Symbols:
-    for_start_0x55bbcbb86ed0 -> 0x55bbcbb7e0a0 : LabelSymbol
 -----------------------------------------------------------
   Scope 9
   Variable Symbols:
@@ -546,7 +539,6 @@ Label Symbols:
   Type Symbols:
 
   Label Symbols:
-    for_start_0x55bbcbb86fc0 -> 0x55bbcbb7eb00 : LabelSymbol
 -----------------------------------------------------------
   Scope 10
   Variable Symbols:
@@ -556,14 +548,13 @@ Label Symbols:
   Type Symbols:
 
   Label Symbols:
-    for_start_0x55bbcbb87340 -> 0x55bbcbb7eef0 : LabelSymbol
 -----------------------------------------------------------
 
 --------- MIR ---------
 
 ProgramMIR @ <1.1>
 | VarDecl:  @ <input/control.ec:1.1-157>
-VarSymbol I64
+VarSymbol I64i
 | | Initializer @ <input/control.ec:1.156>
 | | | Literal: 0 @ <input/control.ec:1.156>
 | Label: start @ <input/control.ec:3.1-10.1>
@@ -611,22 +602,20 @@ VarSymbol I64
 | | Binary: > @ <input/control.ec:22.7-12>
 | | | Ident: n @ <input/control.ec:22.7-8>
 | | | Literal: 0 @ <input/control.ec:22.12>
-| | Label: while_start_0x55bbcbb86730 @ <input/control.ec:22.1-23.8>
-| | | ExprStmt @ <input/control.ec:23.5-8>
-| | | | Postfix: -- @ <input/control.ec:23.5-7>
-| | | | | Ident: n @ <input/control.ec:23.5>
+| | ExprStmt @ <input/control.ec:23.5-8>
+| | | Postfix: -- @ <input/control.ec:23.5-7>
+| | | | Ident: n @ <input/control.ec:23.5>
 | LoopStmt (do-while) @ <input/control.ec:25.1-27.16>
 | | Binary: < @ <input/control.ec:27.9-14>
 | | | Ident: n @ <input/control.ec:27.9-10>
 | | | Literal: 3 @ <input/control.ec:27.14>
-| | Label: dowhile_start_0x55bbcbb869c0 @ <input/control.ec:25.1-27.16>
-| | | CompoundStmtMIR @ <input/control.ec:25.4-27.1>
-| | | | ExprStmt @ <input/control.ec:26.5-8>
-| | | | | Postfix: ++ @ <input/control.ec:26.5-7>
-| | | | | | Ident: n @ <input/control.ec:26.5>
+| | CompoundStmtMIR @ <input/control.ec:25.4-27.1>
+| | | ExprStmt @ <input/control.ec:26.5-8>
+| | | | Postfix: ++ @ <input/control.ec:26.5-7>
+| | | | | Ident: n @ <input/control.ec:26.5>
 | LoopStmt @ <input/control.ec:29.1-37>
 | | VarDecl:  @ <input/control.ec:29.5-15>
-VarSymbol U32
+VarSymbol U32i
 | | | Initializer @ <input/control.ec:29.15>
 | | | | Literal: 0 @ <input/control.ec:29.15>
 | | Binary: < @ <input/control.ec:29.18-22>
@@ -635,11 +624,9 @@ VarSymbol U32
 | | ExprStmt @ <input/control.ec:29.25-27>
 | | | Postfix: ++ @ <input/control.ec:29.25-27>
 | | | | Ident: n @ <input/control.ec:29.25>
-| | Label: for_start_0x55bbcbb86ed0 @ <input/control.ec:29.1-37>
-| | | Print: "hello" @ <input/control.ec:29.30-37>
+| | Print: "hello" @ <input/control.ec:29.30-37>
 | LoopStmt @ <input/control.ec:31.1-27>
-| | Label: for_start_0x55bbcbb86fc0 @ <input/control.ec:31.1-27>
-| | | Print: "looping forever" @ <input/control.ec:31.10-27>
+| | Print: "looping forever" @ <input/control.ec:31.10-27>
 | LoopStmt @ <input/control.ec:33.1-32>
 | | ExprStmt @ <input/control.ec:33.5-10>
 | | | Assign: = @ <input/control.ec:33.5-10>
@@ -651,5 +638,4 @@ VarSymbol U32
 | | ExprStmt @ <input/control.ec:33.20-22>
 | | | Postfix: ++ @ <input/control.ec:33.20-22>
 | | | | Ident: n @ <input/control.ec:33.20>
-| | Label: for_start_0x55bbcbb87340 @ <input/control.ec:33.1-32>
-| | | Print: "hello" @ <input/control.ec:33.25-32>
+| | Print: "hello" @ <input/control.ec:33.25-32>

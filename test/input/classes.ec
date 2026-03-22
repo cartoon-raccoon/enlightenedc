@@ -8,6 +8,28 @@ union Data {
     F64i f;
 };
 
+public U8i union U8 {
+    U8i u8[1];
+};
+
+public U16i union U16 {
+    U8   u8[2];
+    U16i u16[1];
+};
+
+public U32i union U32 {
+    U8   u8[4];
+    U16  u16[2];
+    U32i  u32[1];
+};
+
+public U64i union U64 {
+    U8   u8[8];
+    U16  u16[4];
+    U32  u32[2];
+    U64i  u64[1];
+};
+
 enum Color {
     RED,
     GREEN = 5,

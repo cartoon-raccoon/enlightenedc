@@ -450,7 +450,7 @@ TypeContext: getting primitive type with value 0
             }
         }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x55b9287bb260
+TypeContext: pointer with base 0x55c72759e260
 SymbolTable: inserting varsymbol with name "s"
     }
     Node {
@@ -557,10 +557,11 @@ semantic checking complete
 --------- TYPE CONTEXT ---------
 
 Base Types:
+
 Function Types:
 
 Pointer Types:
-  :U8 *
+  :U8i *
 
 Array Types:
 
@@ -569,10 +570,10 @@ Array Types:
 
 Scope 0
 Variable Symbols:
-  s -> 0x55b9287bd980 : VarSymbol U8 *
-  b -> 0x55b9287bc140 : VarSymbol U32
-  a -> 0x55b9287bbf10 : VarSymbol U32
-  x -> 0x55b9287bbc90 : VarSymbol U32
+  s -> 0x55c7275a0980 : VarSymbol U8i *
+  b -> 0x55c72759f140 : VarSymbol U32i
+  a -> 0x55c72759ef10 : VarSymbol U32i
+  x -> 0x55c72759ec90 : VarSymbol U32i
 
 Function Symbols:
 
@@ -585,15 +586,15 @@ Label Symbols:
 
 ProgramMIR @ <1.1>
 | VarDecl:  @ <input/expressions.ec:1.1-165>
-VarSymbol U32
+VarSymbol U32i
 | | Initializer @ <input/expressions.ec:1.164>
 | | | Literal: 0 @ <input/expressions.ec:1.164>
 | VarDecl:  @ <input/expressions.ec:2.1-11>
-VarSymbol U32
+VarSymbol U32i
 | | Initializer @ <input/expressions.ec:2.10>
 | | | Literal: 1 @ <input/expressions.ec:2.10>
 | VarDecl:  @ <input/expressions.ec:3.1-11>
-VarSymbol U32
+VarSymbol U32i
 | | Initializer @ <input/expressions.ec:3.10>
 | | | Literal: 2 @ <input/expressions.ec:3.10>
 | ExprStmt @ <input/expressions.ec:4.1-26>
@@ -650,16 +651,16 @@ VarSymbol U32
 | | Assign: = @ <input/expressions.ec:11.1-16>
 | | | Ident: x @ <input/expressions.ec:11.1>
 | | | Binary: + @ <input/expressions.ec:11.5-16>
-| | | | Cast -> U32 @ <input/expressions.ec:11.5-12>
+| | | | Cast -> U32i @ <input/expressions.ec:11.5-12>
 | | | | | Ident: a @ <input/expressions.ec:11.12>
 | | | | Literal: 2 @ <input/expressions.ec:11.16>
 | ExprStmt @ <input/expressions.ec:12.1-13>
 | | Assign: = @ <input/expressions.ec:12.1-12>
 | | | Ident: x @ <input/expressions.ec:12.1>
-| | | Cast -> I32 @ <input/expressions.ec:12.5-12>
+| | | Cast -> I32i @ <input/expressions.ec:12.5-12>
 | | | | Ident: a @ <input/expressions.ec:12.12>
 | VarDecl:  @ <input/expressions.ec:14.1-7>
-VarSymbol U8 *
+VarSymbol U8i *
 | ExprStmt @ <input/expressions.ec:15.1-13>
 | | Assign: = @ <input/expressions.ec:15.1-12>
 | | | Ident: s @ <input/expressions.ec:15.1>
@@ -674,7 +675,7 @@ VarSymbol U8 *
 | | Assign: += @ <input/expressions.ec:19.1-17>
 | | | Ident: x @ <input/expressions.ec:19.1>
 | | | Sizeof:  @ <input/expressions.ec:19.6-17>
-U32
+U32i
 | ExprStmt @ <input/expressions.ec:20.1-14>
 | | Assign: += @ <input/expressions.ec:20.1-13>
 | | | Ident: x @ <input/expressions.ec:20.1>
