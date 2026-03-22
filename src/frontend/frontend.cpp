@@ -1,3 +1,5 @@
+#include <set>
+
 #include "ast/printer.hpp"
 #include "driver/driver.hpp"
 #include "frontend/frontend.hpp"
@@ -14,8 +16,11 @@ void Frontend::parse(driver::TranslationUnit& unit) {
     try {
         ecc::preproc::PreProcessor preproc(unit.filename);
 
-        ecc::frontend::Lexer lexer(&preproc, unit.filename);
-        ecc::parser::Parser parser(lexer, *unit.ast_root);
+        // bodge for lexer hack
+        std::set<std::string> typedefs {};
+
+        ecc::frontend::Lexer lexer(&preproc, unit.filename, typedefs);
+        ecc::parser::Parser parser(lexer, *unit.ast_root, typedefs);
 
         // temp for testing
         //parser.set_debug_level(1);

@@ -80,25 +80,25 @@ std::string LabelSymbol::to_string() const {
 std::string PrimitiveType::to_string() const {
     switch (primkind) {
     case U8:
-        return "U8";
+        return "U8i";
     case U16:
-        return "U16";
+        return "U16i";
     case U32:
-        return "U32";
+        return "U32i";
     case U64:
-        return "U64";
+        return "U64i";
     case I8:
-        return "I8";
+        return "I8i";
     case I16:
-        return "I16";
+        return "I16i";
     case I32:
-        return "I32";
+        return "I32i";
     case I64:
-        return "I64";
+        return "I64i";
     case F64:
-        return "F64";
+        return "F64i";
     case BOOL:
-        return "bool";
+        return "Bool";
     }
 
     return "<primitive>";

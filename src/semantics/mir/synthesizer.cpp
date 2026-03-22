@@ -584,9 +584,9 @@ void MIRSynthesizer::do_visit(EnumSpecifier& node) {
     EnumType *enm = nullptr;
     try {
         if (node.name) {
-            enm = types.get_enum(*(node.name), syms.global.get());
+            enm = types.get_enum(*(node.name), syms.current);
         } else {
-            enm = types.get_enum(syms.global.get());
+            enm = types.get_enum(syms.current);
         }
     } catch ( UserType *prev_def ) {
         throw TypeDecldAsOtherError("enum already declared as another type", node.loc, prev_def->loc);
@@ -609,13 +609,6 @@ void MIRSynthesizer::do_visit(EnumSpecifier& node) {
     TypeSpecRet<EnumType> ret({}, enm);
 
     if (node.enumerators) {
-        if (syms.current != syms.global.get()) {
-            if (node.name) {
-                throw InvalidTypeDefnError(*node.name, node.loc);
-            } else {
-                throw InvalidTypeDefnError("anonymous enum", node.loc);
-            }
-        }
         if (enm->complete) {
             throw TypeAlrDefinedError("enum was previously defined", node.loc, enm->loc);
         }
@@ -666,9 +659,9 @@ void MIRSynthesizer::do_visit(ClassSpecifier& node) {
     try {
         if (node.name) {
             // only allow classes to be created in the global scope now
-            cls = types.get_class(*(node.name), syms.global.get());
+            cls = types.get_class(*(node.name), syms.current);
         } else {
-            cls = types.get_class(syms.global.get());
+            cls = types.get_class(syms.current);
         }
     } catch (UserType *prev_def) {
         throw TypeDecldAsOtherError("class already declared as another type", node.loc, prev_def->loc);
@@ -691,13 +684,6 @@ void MIRSynthesizer::do_visit(ClassSpecifier& node) {
     TypeSpecRet<ClassType> ret(retsym, cls);
 
     if (node.declarations) {
-        if (syms.current != syms.global.get()) {
-            if (node.name) {
-                throw InvalidTypeDefnError(*node.name, node.loc);
-            } else {
-                throw InvalidTypeDefnError("anonymous class", node.loc);
-            }
-        }
         if (cls->complete) {
             // error: class was previously defined
             throw TypeAlrDefinedError("class was previously defined", node.loc, cls->loc);
@@ -719,9 +705,9 @@ void MIRSynthesizer::do_visit(UnionSpecifier& node) {
     UnionType *unn = nullptr;
     try {
         if (node.name) {
-            unn = types.get_union(*(node.name), syms.global.get());
+            unn = types.get_union(*(node.name), syms.current);
         } else {
-            unn = types.get_union(syms.global.get());
+            unn = types.get_union(syms.current);
         }
     } catch (UserType *prev_def) {
         throw TypeDecldAsOtherError("union already declared as another type", node.loc, prev_def->loc);
@@ -745,13 +731,6 @@ void MIRSynthesizer::do_visit(UnionSpecifier& node) {
 
     // declarations are present, start definition
     if (node.declarations) {
-        if (syms.current != syms.global.get()) {
-            if (node.name) {
-                throw InvalidTypeDefnError(*node.name, node.loc);
-            } else {
-                throw InvalidTypeDefnError("anonymous union", node.loc);
-            }
-        }
         if (unn->complete) {
             // error: union was previously defined
             throw TypeAlrDefinedError("union was previously defined", node.loc, unn->loc);

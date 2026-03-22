@@ -5,7 +5,9 @@ using namespace ecc::frontend;
 extern FilenamePool filenames;
 
 // Use the standard yyFlexLexer constructor.
-Lexer::Lexer(std::istream *in, std::string *filename) : yyFlexLexer(in) {
+Lexer::Lexer(std::istream *in, std::string *filename, std::set<std::string>& typedefs)
+    : yyFlexLexer(in), typedefs(typedefs)
+{
     const std::string *main_file = filenames.intern(filename->c_str());
     loc.begin.filename = main_file;
     loc.end.filename = main_file;

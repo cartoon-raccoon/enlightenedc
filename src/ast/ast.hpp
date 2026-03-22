@@ -446,9 +446,27 @@ public:
     virtual void accept(ASTVisitor& visitor) = 0;
 };
 
-enum ClassOrUnion {
-    CLASS,
-    UNION,
+class PrimitiveSpecifier : public TypeSpecifier {
+public:
+    enum PrimKind {
+        U8,
+        U16,
+        U32,
+        U64,
+        I8,
+        I16,
+        I32,
+        I64,
+        F64,
+        BOOL
+    };
+
+    PrimitiveSpecifier(Location loc, PrimKind pkind)
+    : TypeSpecifier(PRIM_SPEC, loc), pkind(pkind) {}
+
+    PrimKind pkind;
+
+    void accept(ASTVisitor& visitor) override;
 };
 
 class ClassSpecifier : public TypeSpecifier {
@@ -475,12 +493,16 @@ class UnionSpecifier : public TypeSpecifier {
 public:
     UnionSpecifier(Location loc,
                    std::optional<std::string> name,
+                   std::optional<PrimitiveSpecifier::PrimKind> type_rep,
                    std::optional<Vec<Box<ClassDeclaration>>> declarations)
         : TypeSpecifier(UNION_SPEC, loc),
         name(std::move(name)),
+        type_rep(type_rep),
         declarations(std::move(declarations)) {}
 
     std::optional<std::string> name;
+
+    std::optional<PrimitiveSpecifier::PrimKind> type_rep;
 
     std::optional<Vec<Box<ClassDeclaration>>> declarations;
 
@@ -536,29 +558,6 @@ public:
 class VoidSpecifier : public TypeSpecifier {
 public:
     VoidSpecifier(Location loc) : TypeSpecifier(VOID_SPEC, loc) {}
-
-    void accept(ASTVisitor& visitor) override;
-};
-
-class PrimitiveSpecifier : public TypeSpecifier {
-public:
-    enum PrimKind {
-        U8,
-        U16,
-        U32,
-        U64,
-        I8,
-        I16,
-        I32,
-        I64,
-        F64,
-        BOOL
-    };
-
-    PrimitiveSpecifier(Location loc, PrimKind pkind)
-    : TypeSpecifier(PRIM_SPEC, loc), pkind(pkind) {}
-
-    PrimKind pkind;
 
     void accept(ASTVisitor& visitor) override;
 };
