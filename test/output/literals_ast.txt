@@ -1,4 +1,6 @@
 running pipeline on file input/literals.ec
+initializing LLVM
+LLVM initialized
 parsing file input/literals.ec
 printing AST for file input/literals.ec
 Program @ <input/literals.ec:1.1> 
@@ -352,6 +354,7 @@ semantic checking complete
 --------- TYPE CONTEXT ---------
 
 Base Types:
+Function Types:
 
 Pointer Types:
 
@@ -360,17 +363,17 @@ Array Types:
 
 --------- SYMBOL TABLE ---------
 
-Scope 0x559e776da020
+Scope 0
 Variable Symbols:
-  nl -> 0x559e776dbb90 : VarSymbol U8
-  ch -> 0x559e776db970 : VarSymbol U8
-  f2 -> 0x559e776db700 : VarSymbol F64
-  qt -> 0x559e776dbdb0 : VarSymbol U8
-  f1 -> 0x559e776db490 : VarSymbol F64
-  c -> 0x559e776db090 : VarSymbol U32
-  b -> 0x559e776dae20 : VarSymbol U32
-  d -> 0x559e776db290 : VarSymbol U32
-  a -> 0x559e776dabb0 : VarSymbol U32
+  nl -> 0x55f56f8b0d10 : VarSymbol U8
+  ch -> 0x55f56f8b0ae0 : VarSymbol U8
+  f2 -> 0x55f56f8b0860 : VarSymbol F64
+  qt -> 0x55f56f8b0f40 : VarSymbol U8
+  f1 -> 0x55f56f8b05e0 : VarSymbol F64
+  c -> 0x55f56f8b01c0 : VarSymbol U32
+  b -> 0x55f56f8aff40 : VarSymbol U32
+  d -> 0x55f56f8b03d0 : VarSymbol U32
+  a -> 0x55f56f8afcc0 : VarSymbol U32
 
 Function Symbols:
 

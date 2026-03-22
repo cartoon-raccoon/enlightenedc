@@ -1,4 +1,6 @@
 running pipeline on file input/empty.ec
+initializing LLVM
+LLVM initialized
 parsing file input/empty.ec
 printing AST for file input/empty.ec
 Program @ <input/empty.ec:1.1> 
@@ -12,6 +14,7 @@ semantic checking complete
 --------- TYPE CONTEXT ---------
 
 Base Types:
+Function Types:
 
 Pointer Types:
 
@@ -20,7 +23,7 @@ Array Types:
 
 --------- SYMBOL TABLE ---------
 
-Scope 0x561d8135b020
+Scope 0
 Variable Symbols:
 
 Function Symbols:

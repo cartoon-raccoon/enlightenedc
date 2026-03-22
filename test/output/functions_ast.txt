@@ -1,4 +1,6 @@
 running pipeline on file input/functions.ec
+initializing LLVM
+LLVM initialized
 parsing file input/functions.ec
 printing AST for file input/functions.ec
 Program @ <input/functions.ec:1.1> 
@@ -329,17 +331,17 @@ TypeBuilder: finalizing type
                 visiting Pointer node: input/functions.ec:5.6
             }
         }
-TypeContext: pointer with base 0x55f9bbbdb290
+TypeContext: pointer with base 0x55f0baaa02a0
 TypeContext: getting function type
-SymbolTable: inserting funcsymbol with name "add"
 parsing params
+SymbolTable: inserting funcsymbol with name "add"
         Node {
-SymbolTable: pushing scope 0x55f9bbbdc690
-SymbolTable: entering scope 0x55f9bbbdc690
-SymbolTable: current scope 0x55f9bbbdc690
+            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 1
+SymbolTable: entering scope 1
             visiting CompoundStatement node: input/functions.ec:5.27-7.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 0x55f9bbbdc690 with symbol 0x55f9bbbdc410 name "add"
+SymbolTable: associating current scope 1 with symbol 0x55f0baa67ad0 name "add"
 SymbolTable: inserting varsymbol with name "a"
 SymbolTable: inserting varsymbol with name "b"
             Node {
@@ -356,8 +358,7 @@ SymbolTable: looking up varsymbol b
                     }
                 }
             }
-SymbolTable: exiting scope to 0x55f9bbbdb020
-SymbolTable: current scope 0x55f9bbbdb020
+SymbolTable: exiting scope to 0
         }
     }
     Node {
@@ -410,15 +411,15 @@ TypeBuilder: finalizing type
             }
         }
 TypeContext: getting function type
-SymbolTable: inserting funcsymbol with name "compute"
 parsing params
+SymbolTable: inserting funcsymbol with name "compute"
         Node {
-SymbolTable: pushing scope 0x55f9bbbdcdd0
-SymbolTable: entering scope 0x55f9bbbdcdd0
-SymbolTable: current scope 0x55f9bbbdcdd0
+            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 2
+SymbolTable: entering scope 2
             visiting CompoundStatement node: input/functions.ec:9.52-16.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 0x55f9bbbdcdd0 with symbol 0x55f9bbbdcbc0 name "compute"
+SymbolTable: associating current scope 2 with symbol 0x55f0baa67d10 name "compute"
 SymbolTable: inserting varsymbol with name "x"
 SymbolTable: inserting varsymbol with name "y"
             Node {
@@ -518,8 +519,7 @@ SymbolTable: looking up varsymbol y
                     }
                 }
             }
-SymbolTable: exiting scope to 0x55f9bbbdb020
-SymbolTable: current scope 0x55f9bbbdb020
+SymbolTable: exiting scope to 0
         }
     }
     Node {
@@ -527,7 +527,7 @@ SymbolTable: current scope 0x55f9bbbdb020
         parsing declaration specifier list for node at input/functions.ec:18.1-24.1
         Node {
             visiting ClassSpecifier node: input/functions.ec:18.1-20.1
-TypeContext: class type 'What' on scope 0x55f9bbbdb020
+TypeContext: class type 'What' on scope 0x55f0baa9ffc0
             class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol What in current scope
 SymbolTable: inserting typesymbol with name "What"
@@ -539,7 +539,7 @@ SymbolTable: inserting typesymbol with name "What"
 TypeContext: getting primitive type with value 2
                 }
                 finished parsing specifiers for node input/functions.ec:19.3-13
-                parsing ClassDeclaration for ClassType 0x55f9bbbba580
+                parsing ClassDeclaration for ClassType 0x55f0baa68580
                 Node {
                     visiting ClassDeclarator node: input/functions.ec:19.8-12
                     Node {
@@ -549,7 +549,7 @@ TypeContext: getting primitive type with value 2
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name hello type 0x55f9bbbdb290
+ClassType: adding member with name hello type 0x55f0baaa02a0
             }
         }
         finished parsing specifiers for node input/functions.ec:18.1-24.1
@@ -577,22 +577,22 @@ TypeBuilder: finalizing type
             }
         }
 TypeContext: getting function type
-SymbolTable: inserting funcsymbol with name "complex_class_func"
 parsing params
+SymbolTable: inserting funcsymbol with name "complex_class_func"
         Node {
-SymbolTable: pushing scope 0x55f9bbbddea0
-SymbolTable: entering scope 0x55f9bbbddea0
-SymbolTable: current scope 0x55f9bbbddea0
+            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 3
+SymbolTable: entering scope 3
             visiting CompoundStatement node: input/functions.ec:20.34-24.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 0x55f9bbbddea0 with symbol 0x55f9bbbddcd0 name "complex_class_func"
+SymbolTable: associating current scope 3 with symbol 0x55f0baa68190 name "complex_class_func"
 SymbolTable: inserting varsymbol with name "thing"
             Node {
                 visiting VariableDeclaration node: input/functions.ec:21.3-29
                 parsing declaration specifier list for node at input/functions.ec:21.3-29
                 Node {
                     visiting ClassSpecifier node: input/functions.ec:21.3-12
-TypeContext: class type 'What' on scope 0x55f9bbbdb020
+TypeContext: class type 'What' on scope 0x55f0baa9ffc0
 TypeContext: existing class found
                     class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol What in current scope
@@ -629,8 +629,7 @@ SymbolTable: inserting varsymbol with name "ret"
 SymbolTable: looking up varsymbol ret
                 }
             }
-SymbolTable: exiting scope to 0x55f9bbbdb020
-SymbolTable: current scope 0x55f9bbbdb020
+SymbolTable: exiting scope to 0
         }
     }
     Node {
@@ -638,7 +637,7 @@ SymbolTable: current scope 0x55f9bbbdb020
         parsing declaration specifier list for node at input/functions.ec:26.1-29.2
         Node {
             visiting ClassSpecifier node: input/functions.ec:26.1-29.1
-TypeContext: class type 'Point' on scope 0x55f9bbbdb020
+TypeContext: class type 'Point' on scope 0x55f0baa9ffc0
             class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol Point in current scope
 SymbolTable: inserting typesymbol with name "Point"
@@ -650,7 +649,7 @@ SymbolTable: inserting typesymbol with name "Point"
 TypeContext: getting primitive type with value 6
                 }
                 finished parsing specifiers for node input/functions.ec:27.3-9
-                parsing ClassDeclaration for ClassType 0x55f9bbbb9ad0
+                parsing ClassDeclaration for ClassType 0x55f0baa67f50
                 Node {
                     visiting ClassDeclarator node: input/functions.ec:27.8
                     Node {
@@ -660,7 +659,7 @@ TypeContext: getting primitive type with value 6
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name x type 0x55f9bbbdb310
+ClassType: adding member with name x type 0x55f0baaa0320
             }
             Node {
                 visiting ClassDeclaration node: input/functions.ec:28.3-9
@@ -670,7 +669,7 @@ ClassType: adding member with name x type 0x55f9bbbdb310
 TypeContext: getting primitive type with value 6
                 }
                 finished parsing specifiers for node input/functions.ec:28.3-9
-                parsing ClassDeclaration for ClassType 0x55f9bbbb9ad0
+                parsing ClassDeclaration for ClassType 0x55f0baa67f50
                 Node {
                     visiting ClassDeclarator node: input/functions.ec:28.8
                     Node {
@@ -680,7 +679,7 @@ TypeContext: getting primitive type with value 6
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name y type 0x55f9bbbdb310
+ClassType: adding member with name y type 0x55f0baaa0320
             }
         }
         finished parsing specifiers for node input/functions.ec:26.1-29.2
@@ -690,7 +689,7 @@ ClassType: adding member with name y type 0x55f9bbbdb310
         parsing declaration specifier list for node at input/functions.ec:31.1-36.1
         Node {
             visiting ClassSpecifier node: input/functions.ec:31.1-11
-TypeContext: class type 'Point' on scope 0x55f9bbbdb020
+TypeContext: class type 'Point' on scope 0x55f0baa9ffc0
 TypeContext: existing class found
             class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol Point in current scope
@@ -707,7 +706,7 @@ SymbolTable: looking up typesymbol Point in current scope
                     parsing declaration specifier list for node at input/functions.ec:31.13-41
                     Node {
                         visiting ClassSpecifier node: input/functions.ec:31.13-38
-TypeContext: class type 'Point' on scope 0x55f9bbbdb020
+TypeContext: class type 'Point' on scope 0x55f0baa9ffc0
 TypeContext: existing class found
                         class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol Point in current scope
@@ -722,7 +721,7 @@ SymbolTable: looking up typesymbol Point in current scope
                         }
                     }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x55f9bbbb9ad0
+TypeContext: pointer with base 0x55f0baa67f50
                 }
                 Node {
                     visiting ParameterDeclarator node: input/functions.ec:31.44-50
@@ -759,17 +758,17 @@ TypeBuilder: finalizing type
                 visiting Pointer node: input/functions.ec:31.13
             }
         }
-TypeContext: pointer with base 0x55f9bbbb9ad0
+TypeContext: pointer with base 0x55f0baa67f50
 TypeContext: getting function type
-SymbolTable: inserting funcsymbol with name "compute_point"
 parsing params
+SymbolTable: inserting funcsymbol with name "compute_point"
         Node {
-SymbolTable: pushing scope 0x55f9bbbdeb20
-SymbolTable: entering scope 0x55f9bbbdeb20
-SymbolTable: current scope 0x55f9bbbdeb20
+            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 4
+SymbolTable: entering scope 4
             visiting CompoundStatement node: input/functions.ec:31.62-36.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 0x55f9bbbdeb20 with symbol 0x55f9bbbde870 name "compute_point"
+SymbolTable: associating current scope 4 with symbol 0x55f0baa68610 name "compute_point"
 SymbolTable: inserting varsymbol with name "p"
 SymbolTable: inserting varsymbol with name "dx"
 SymbolTable: inserting varsymbol with name "dy"
@@ -814,8 +813,7 @@ SymbolTable: looking up varsymbol dy
 SymbolTable: looking up varsymbol p
                 }
             }
-SymbolTable: exiting scope to 0x55f9bbbdb020
-SymbolTable: current scope 0x55f9bbbdb020
+SymbolTable: exiting scope to 0
         }
     }
     Node {
@@ -858,20 +856,19 @@ SymbolTable: looking up funcsymbol compute
             }
         }
 TypeContext: getting function type
-SymbolTable: inserting funcsymbol with name "noop"
 parsing params
+SymbolTable: inserting funcsymbol with name "noop"
         Node {
-SymbolTable: pushing scope 0x55f9bbbdf600
-SymbolTable: entering scope 0x55f9bbbdf600
-SymbolTable: current scope 0x55f9bbbdf600
+            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 5
+SymbolTable: entering scope 5
             visiting CompoundStatement node: input/functions.ec:40.13-42.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 0x55f9bbbdf600 with symbol 0x55f9bbbdf550 name "noop"
+SymbolTable: associating current scope 5 with symbol 0x55f0baa67920 name "noop"
             Node {
                 visiting ReturnStatement node: input/functions.ec:41.5-11
             }
-SymbolTable: exiting scope to 0x55f9bbbdb020
-SymbolTable: current scope 0x55f9bbbdb020
+SymbolTable: exiting scope to 0
         }
     }
     Node {
@@ -927,15 +924,15 @@ TypeBuilder: finalizing type
             }
         }
 TypeContext: getting function type
-SymbolTable: inserting funcsymbol with name "CallbackFunction"
 parsing params
+SymbolTable: inserting funcsymbol with name "CallbackFunction"
         Node {
-SymbolTable: pushing scope 0x55f9bbbdfd80
-SymbolTable: entering scope 0x55f9bbbdfd80
-SymbolTable: current scope 0x55f9bbbdfd80
+            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 6
+SymbolTable: entering scope 6
             visiting CompoundStatement node: input/functions.ec:49.1-51.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 0x55f9bbbdfd80 with symbol 0x55f9bbbdfbb0 name "CallbackFunction"
+SymbolTable: associating current scope 6 with symbol 0x55f0baa67da0 name "CallbackFunction"
 SymbolTable: inserting varsymbol with name "x"
             Node {
                 visiting ReturnStatement node: input/functions.ec:50.3-15
@@ -951,8 +948,7 @@ SymbolTable: looking up varsymbol x
                     }
                 }
             }
-SymbolTable: exiting scope to 0x55f9bbbdb020
-SymbolTable: current scope 0x55f9bbbdb020
+SymbolTable: exiting scope to 0
         }
     }
     Node {
@@ -1025,20 +1021,20 @@ TypeBuilder: finalizing type
 TypeBuilder: finalizing type
 TypeContext: getting function type
 TypeConstext: existing function type found
-TypeContext: pointer with base 0x55f9bbbdfb00
+TypeContext: pointer with base 0x55f0baaa49c0
                 }
             }
         }
 TypeContext: getting function type
-SymbolTable: inserting funcsymbol with name "MathFunc"
 parsing params
+SymbolTable: inserting funcsymbol with name "MathFunc"
         Node {
-SymbolTable: pushing scope 0x55f9bbbe06e0
-SymbolTable: entering scope 0x55f9bbbe06e0
-SymbolTable: current scope 0x55f9bbbe06e0
+            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 7
+SymbolTable: entering scope 7
             visiting CompoundStatement node: input/functions.ec:54.1-56.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 0x55f9bbbe06e0 with symbol 0x55f9bbbe04d0 name "MathFunc"
+SymbolTable: associating current scope 7 with symbol 0x55f0baa691b0 name "MathFunc"
 SymbolTable: inserting varsymbol with name "y"
 SymbolTable: inserting varsymbol with name "proc"
             Node {
@@ -1055,8 +1051,7 @@ SymbolTable: looking up varsymbol y
                     }
                 }
             }
-SymbolTable: exiting scope to 0x55f9bbbdb020
-SymbolTable: current scope 0x55f9bbbdb020
+SymbolTable: exiting scope to 0
         }
     }
     Node {
@@ -1076,15 +1071,15 @@ SymbolTable: current scope 0x55f9bbbdb020
         }
 TypeContext: getting function type
 TypeConstext: existing function type found
-SymbolTable: inserting funcsymbol with name "Main"
 parsing params
+SymbolTable: inserting funcsymbol with name "Main"
         Node {
-SymbolTable: pushing scope 0x55f9bbbe0ab0
-SymbolTable: entering scope 0x55f9bbbe0ab0
-SymbolTable: current scope 0x55f9bbbe0ab0
+            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 8
+SymbolTable: entering scope 8
             visiting CompoundStatement node: input/functions.ec:59.1-62.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 0x55f9bbbe0ab0 with symbol 0x55f9bbbe0a00 name "Main"
+SymbolTable: associating current scope 8 with symbol 0x55f0baa692d0 name "Main"
             Node {
                 visiting VariableDeclaration node: input/functions.ec:60.3-43
                 parsing declaration specifier list for node at input/functions.ec:60.3-43
@@ -1136,8 +1131,7 @@ SymbolTable: inserting varsymbol with name "x"
 SymbolTable: looking up varsymbol x
                 }
             }
-SymbolTable: exiting scope to 0x55f9bbbdb020
-SymbolTable: current scope 0x55f9bbbdb020
+SymbolTable: exiting scope to 0
         }
     }
 }
@@ -1145,52 +1139,53 @@ semantic checking complete
 --------- TYPE CONTEXT ---------
 
 Base Types:
-  function_387714853772526831 -> 0x55f9bbbe0430 : Void (I64, I64 (I64) *)
-  function_6117811611817605 -> 0x55f9bbbdfb00 : I64 (I64)
-  function_6117811755077673 -> 0x55f9bbbddc20 : class { U32 hello; } (U32)
-  class_What_0x55f9bbbdb020 -> 0x55f9bbbba580 : class { U32 hello; }
-  function_v387714861833969965 -> 0x55f9bbbdcb10 : I32 (I32, I32, ...)
-  function_94531084853040 -> 0x55f9bbbdf4a0 : Void ()
-  function_6689439513835288997 -> 0x55f9bbbde7c0 : class { I32 x; I32 y; } * (class { I32 x; I32 y; } *, I32, I32)
-  function_387714861021914506 -> 0x55f9bbbdc300 : U32 * (U32, U32)
-  class_Point_0x55f9bbbdb020 -> 0x55f9bbbb9ad0 : class { I32 x; I32 y; }
-  function_94531084989200 -> 0x55f9bbbdbab0 : I32 ()
+  class_Point_0x55f0baa9ffc0 : class { I32 x; I32 y; }
+  class_What_0x55f0baa9ffc0 : class { U32 hello; }
+Function Types:
+  function_389543510032379714 : Void (I64, I64 (I64) *)
+  function_6107153729769097 : I64 (I64)
+  function_94492412215872 : Void ()
+  function_6787397053200040844 : Point * (Point *, I32, I32)
+  function_6107153778276409 : class { U32 hello; } (U32)
+  function_v389543510033434680 : I32 (I32, I32, ...)
+  function_389543510293478059 : U32 * (U32, U32)
+  function_94492412216096 : I32 ()
 
 Pointer Types:
-  0x55f9bbbe0090 : I64 (I64) *
-  0x55f9bbbdd8a0 : class { I32 x; I32 y; } *
-  0x55f9bbbeae80 : U32 *
+  :I64 (I64) *
+  :Point *
+  :U32 *
 
 Array Types:
 
 
 --------- SYMBOL TABLE ---------
 
-Scope 0x55f9bbbdb020
+Scope 0
 Variable Symbols:
-  someinternalfunc -> 0x55f9bbbdbda0 : VarSymbol I32 ()
-  somefunc -> 0x55f9bbbdbb90 : VarSymbol I32 () extern C
+  someinternalfunc -> 0x55f0baaa0e30 : VarSymbol I32 ()
+  somefunc -> 0x55f0baaa0c30 : VarSymbol I32 () extern C
 
 Function Symbols:
-  Main -> 0x55f9bbbe0a00 : FuncSymbol Void ()
-  MathFunc -> 0x55f9bbbe04d0 : FuncSymbol Void (I64, I64 (I64) *)
-  CallbackFunction -> 0x55f9bbbdfbb0 : FuncSymbol I64 (I64)
-  noop -> 0x55f9bbbdf550 : FuncSymbol Void ()
-  compute_point -> 0x55f9bbbde870 : FuncSymbol class { I32 x; I32 y; } * (class { I32 x; I32 y; } *, I32, I32)
-  complex_class_func -> 0x55f9bbbddcd0 : FuncSymbol class { U32 hello; } (U32)
-  compute -> 0x55f9bbbdcbc0 : FuncSymbol I32 (I32, I32, ...)
-  add -> 0x55f9bbbdc410 : FuncSymbol U32 * (U32, U32)
+  Main -> 0x55f0baa692d0 : FuncSymbol Void ()
+  MathFunc -> 0x55f0baa691b0 : FuncSymbol Void (I64, I64 (I64) *)
+  CallbackFunction -> 0x55f0baa67da0 : FuncSymbol I64 (I64)
+  noop -> 0x55f0baa67920 : FuncSymbol Void ()
+  compute_point -> 0x55f0baa68610 : FuncSymbol Point * (Point *, I32, I32)
+  complex_class_func -> 0x55f0baa68190 : FuncSymbol class { U32 hello; } (U32)
+  compute -> 0x55f0baa67d10 : FuncSymbol I32 (I32, I32, ...)
+  add -> 0x55f0baa67ad0 : FuncSymbol U32 * (U32, U32)
 
 Type Symbols:
-  Point -> 0x55f9bbbde4f0 : TypeSymbol class { I32 x; I32 y; }
-  What -> 0x55f9bbbdd940 : TypeSymbol class { U32 hello; }
+  Point -> 0x55f0baaa35d0 : TypeSymbol class { I32 x; I32 y; }
+  What -> 0x55f0baaa2a60 : TypeSymbol class { U32 hello; }
 
 Label Symbols:
 -----------------------------------------------------------
-  Scope 0x55f9bbbdc690: FuncSymbol U32 * (U32, U32)
+  Scope 1: FuncSymbol U32 * (U32, U32)
   Variable Symbols:
-    b -> 0x55f9bbbdc5d0 : VarSymbol U32
-    a -> 0x55f9bbbdc530 : VarSymbol U32
+    b -> 0x55f0baaa1560 : VarSymbol U32
+    a -> 0x55f0baaa14b0 : VarSymbol U32
 
   Function Symbols:
 
@@ -1198,12 +1193,12 @@ Label Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
-  Scope 0x55f9bbbdcdd0: FuncSymbol I32 (I32, I32, ...)
+  Scope 2: FuncSymbol I32 (I32, I32, ...)
   Variable Symbols:
-    new2 -> 0x55f9bbbdd650 : VarSymbol U64
-    new -> 0x55f9bbbdd060 : VarSymbol I32
-    y -> 0x55f9bbbdcd10 : VarSymbol I32
-    x -> 0x55f9bbbdcc70 : VarSymbol I32
+    new2 -> 0x55f0baaa26d0 : VarSymbol U64
+    new -> 0x55f0baaa20f0 : VarSymbol I32
+    y -> 0x55f0baaa1cd0 : VarSymbol I32
+    x -> 0x55f0baaa1c20 : VarSymbol I32
 
   Function Symbols:
 
@@ -1211,32 +1206,23 @@ Label Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
-  Scope 0x55f9bbbddea0: FuncSymbol class { U32 hello; } (U32)
+  Scope 3: FuncSymbol class { U32 hello; } (U32)
   Variable Symbols:
-    ret -> 0x55f9bbbde270 : VarSymbol class { U32 hello; }
-    thing -> 0x55f9bbbdde00 : VarSymbol U32
+    ret -> 0x55f0baaa3360 : VarSymbol class { U32 hello; }
+    thing -> 0x55f0baaa2d80 : VarSymbol U32
 
   Function Symbols:
 
   Type Symbols:
-    What -> 0x55f9bbbde0a0 : TypeSymbol class { U32 hello; }
+    What -> 0x55f0baaa3140 : TypeSymbol class { U32 hello; }
 
   Label Symbols:
 -----------------------------------------------------------
-  Scope 0x55f9bbbdeb20: FuncSymbol class { I32 x; I32 y; } * (class { I32 x; I32 y; } *, I32, I32)
+  Scope 4: FuncSymbol Point * (Point *, I32, I32)
   Variable Symbols:
-    dy -> 0x55f9bbbdea80 : VarSymbol I32
-    dx -> 0x55f9bbbde9c0 : VarSymbol I32
-    p -> 0x55f9bbbde920 : VarSymbol class { I32 x; I32 y; } *
-
-  Function Symbols:
-
-  Type Symbols:
-
-  Label Symbols:
------------------------------------------------------------
-  Scope 0x55f9bbbdf600: FuncSymbol Void ()
-  Variable Symbols:
+    dy -> 0x55f0baaa3a60 : VarSymbol I32
+    dx -> 0x55f0baaa3990 : VarSymbol I32
+    p -> 0x55f0baaa38e0 : VarSymbol Point *
 
   Function Symbols:
 
@@ -1244,9 +1230,8 @@ Label Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
-  Scope 0x55f9bbbdfd80: FuncSymbol I64 (I64)
+  Scope 5: FuncSymbol Void ()
   Variable Symbols:
-    x -> 0x55f9bbbdfce0 : VarSymbol I64
 
   Function Symbols:
 
@@ -1254,10 +1239,9 @@ Label Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
-  Scope 0x55f9bbbe06e0: FuncSymbol Void (I64, I64 (I64) *)
+  Scope 6: FuncSymbol I64 (I64)
   Variable Symbols:
-    proc -> 0x55f9bbbe0620 : VarSymbol I64 (I64) *
-    y -> 0x55f9bbbe0580 : VarSymbol I64
+    x -> 0x55f0baaa4b80 : VarSymbol I64
 
   Function Symbols:
 
@@ -1265,9 +1249,20 @@ Label Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
-  Scope 0x55f9bbbe0ab0: FuncSymbol Void ()
+  Scope 7: FuncSymbol Void (I64, I64 (I64) *)
   Variable Symbols:
-    x -> 0x55f9bbbe0dd0 : VarSymbol I64
+    proc -> 0x55f0baaa5520 : VarSymbol I64 (I64) *
+    y -> 0x55f0baaa5470 : VarSymbol I64
+
+  Function Symbols:
+
+  Type Symbols:
+
+  Label Symbols:
+-----------------------------------------------------------
+  Scope 8: FuncSymbol Void ()
+  Variable Symbols:
+    x -> 0x55f0baaa5d20 : VarSymbol I64
 
   Function Symbols:
 
@@ -1325,7 +1320,7 @@ VarSymbol class { U32 hello; }
 | | | | Ident: ret @ <input/functions.ec:23.10-12>
 | TypeDecl: Point @ <input/functions.ec:26.1-29.2>
 | FunctionMIR: compute_point @ <input/functions.ec:31.1-36.1>
-    type: class { I32 x; I32 y; } * (class { I32 x; I32 y; } *, I32, I32)
+    type: Point * (Point *, I32, I32)
 | | CompoundStmtMIR @ <input/functions.ec:31.62-36.1>
 | | | ExprStmt @ <input/functions.ec:32.3-13>
 | | | | Assign: += @ <input/functions.ec:32.3-12>

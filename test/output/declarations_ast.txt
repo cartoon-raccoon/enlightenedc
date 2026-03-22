@@ -1,4 +1,6 @@
 running pipeline on file input/declarations.ec
+initializing LLVM
+LLVM initialized
 parsing file input/declarations.ec
 printing AST for file input/declarations.ec
 Program @ <input/declarations.ec:1.1> 
@@ -102,8 +104,8 @@ TypeContext: getting primitive type with value 2
             }
         }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x559bb46f7290
-TypeContext: pointer with base 0x559bb46f75e0
+TypeContext: pointer with base 0x560b932b92a0
+TypeContext: pointer with base 0x560b932b94e0
 SymbolTable: inserting varsymbol with name "ptrA"
     }
     Node {
@@ -160,7 +162,7 @@ SymbolTable: inserting varsymbol with name "b"
             }
         }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x559bb46f72f0, size 4
+TypeContext: array type with base 0x560b932b9300, size 4
 SymbolTable: inserting varsymbol with name "c"
     }
     Node {
@@ -186,7 +188,7 @@ TypeContext: getting primitive type with value 8
             }
         }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x559bb46f7350, no size
+TypeContext: array type with base 0x560b932b9360, no size
 SymbolTable: inserting varsymbol with name "table"
     }
     Node {
@@ -235,7 +237,7 @@ TypeContext: getting primitive type with value 0
             }
         }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x559bb46f7250, size 3
+TypeContext: array type with base 0x560b932b9260, size 3
 SymbolTable: inserting varsymbol with name "bytes"
     }
     Node {
@@ -277,7 +279,7 @@ TypeContext: getting primitive type with value 6
             }
         }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x559bb46f7310, size 2
+TypeContext: array type with base 0x560b932b9320, size 2
 SymbolTable: inserting varsymbol with name "matrix"
     }
 }
@@ -285,29 +287,30 @@ semantic checking complete
 --------- TYPE CONTEXT ---------
 
 Base Types:
+Function Types:
 
 Pointer Types:
-  0x559bb46f7b80 : U32 * const *
-  0x559bb46f75e0 : U32 * const
+  :U32 * const *
+  :U32 * const
 
 Array Types:
-  0x559bb46f8920 : I32[2]
-  0x559bb46f87d0 : U8[3]
-  0x559bb46f82d0 : F64[]
-  0x559bb46f7d30 : I16[4]
+ : I32[2]
+ : U8[3]
+ : F64[]
+ : I16[4]
 
 
 --------- SYMBOL TABLE ---------
 
-Scope 0x559bb46f7020
+Scope 0
 Variable Symbols:
-  bytes -> 0x559bb46f8840 : VarSymbol U8[3]
-  table -> 0x559bb46f8350 : VarSymbol F64[] extern
-  c -> 0x559bb46f8180 : VarSymbol I16[4] static
-  b -> 0x559bb46f7f60 : VarSymbol I16 static
-  matrix -> 0x559bb46f8c00 : VarSymbol I32[2]
-  a -> 0x559bb46f7db0 : VarSymbol I16 static
-  ptrA -> 0x559bb46f7be0 : VarSymbol const U32 * const * public
+  bytes -> 0x560b932ba9a0 : VarSymbol U8[3]
+  table -> 0x560b932ba4a0 : VarSymbol F64[] extern
+  c -> 0x560b932ba2c0 : VarSymbol I16[4] static
+  b -> 0x560b932ba090 : VarSymbol I16 static
+  matrix -> 0x560b932bad70 : VarSymbol I32[2]
+  a -> 0x560b932b9ed0 : VarSymbol I16 static
+  ptrA -> 0x560b932b9cf0 : VarSymbol const U32 * const * public
 
 Function Symbols:
 

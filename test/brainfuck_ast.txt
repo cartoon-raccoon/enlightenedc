@@ -1,4 +1,6 @@
 running pipeline on file test/brainfuck.ec
+initializing LLVM
+LLVM initialized
 parsing file test/brainfuck.ec
 printing AST for file test/brainfuck.ec
 Program @ <test/brainfuck.ec:1.1> 
@@ -682,7 +684,7 @@ SymbolTable: inserting varsymbol with name "Execute"
         parsing declaration specifier list for node at test/brainfuck.ec:9.1-13.2
         Node {
             visiting ClassSpecifier node: test/brainfuck.ec:9.1-13.1
-TypeContext: class type 'Stack' on scope 0x55b3dcdc3020
+TypeContext: class type 'Stack' on scope 0x5647ead3efc0
             class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol Stack in current scope
 SymbolTable: inserting typesymbol with name "Stack"
@@ -694,7 +696,7 @@ SymbolTable: inserting typesymbol with name "Stack"
 TypeContext: getting primitive type with value 6
                 }
                 finished parsing specifiers for node test/brainfuck.ec:10.5-13
-                parsing ClassDeclaration for ClassType 0x55b3dcda2580
+                parsing ClassDeclaration for ClassType 0x5647ead07580
                 Node {
                     visiting ClassDeclarator node: test/brainfuck.ec:10.10-12
                     Node {
@@ -704,7 +706,7 @@ TypeContext: getting primitive type with value 6
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name cap type 0x55b3dcdc3310
+ClassType: adding member with name cap type 0x5647ead3f320
             }
             Node {
                 visiting ClassDeclaration node: test/brainfuck.ec:11.5-13
@@ -714,7 +716,7 @@ ClassType: adding member with name cap type 0x55b3dcdc3310
 TypeContext: getting primitive type with value 6
                 }
                 finished parsing specifiers for node test/brainfuck.ec:11.5-13
-                parsing ClassDeclaration for ClassType 0x55b3dcda2580
+                parsing ClassDeclaration for ClassType 0x5647ead07580
                 Node {
                     visiting ClassDeclarator node: test/brainfuck.ec:11.10-12
                     Node {
@@ -724,7 +726,7 @@ TypeContext: getting primitive type with value 6
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name len type 0x55b3dcdc3310
+ClassType: adding member with name len type 0x5647ead3f320
             }
             Node {
                 visiting ClassDeclaration node: test/brainfuck.ec:12.5-18
@@ -734,7 +736,7 @@ ClassType: adding member with name len type 0x55b3dcdc3310
 TypeContext: getting primitive type with value 6
                 }
                 finished parsing specifiers for node test/brainfuck.ec:12.5-18
-                parsing ClassDeclaration for ClassType 0x55b3dcda2580
+                parsing ClassDeclaration for ClassType 0x5647ead07580
                 Node {
                     visiting ClassDeclarator node: test/brainfuck.ec:12.10-17
                     Node {
@@ -748,8 +750,8 @@ TypeContext: getting primitive type with value 6
                     }
                 }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55b3dcdc3310, size 32
-ClassType: adding member with name data type 0x55b3dcddc400
+TypeContext: array type with base 0x5647ead3f320, size 32
+ClassType: adding member with name data type 0x5647ead582b0
             }
         }
         finished parsing specifiers for node test/brainfuck.ec:9.1-13.2
@@ -759,7 +761,7 @@ ClassType: adding member with name data type 0x55b3dcddc400
         parsing declaration specifier list for node at test/brainfuck.ec:15.1-32
         Node {
             visiting ClassSpecifier node: test/brainfuck.ec:15.1-11
-TypeContext: class type 'Stack' on scope 0x55b3dcdc3020
+TypeContext: class type 'Stack' on scope 0x5647ead3efc0
 TypeContext: existing class found
             class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol Stack in current scope
@@ -825,15 +827,15 @@ TypeBuilder: finalizing type
             }
         }
 TypeContext: getting function type
-SymbolTable: inserting funcsymbol with name "StackPush"
 parsing params
+SymbolTable: inserting funcsymbol with name "StackPush"
         Node {
-SymbolTable: pushing scope 0x55b3dcdc4920
-SymbolTable: entering scope 0x55b3dcdc4920
-SymbolTable: current scope 0x55b3dcdc4920
+            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 1
+SymbolTable: entering scope 1
             visiting CompoundStatement node: test/brainfuck.ec:17.27-28.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 0x55b3dcdc4920 with symbol 0x55b3dcdc4760 name "StackPush"
+SymbolTable: associating current scope 1 with symbol 0x5647ead06d10 name "StackPush"
 SymbolTable: inserting varsymbol with name "item"
             Node {
                 visiting IfStatement node: test/brainfuck.ec:19.5-25
@@ -877,15 +879,14 @@ SymbolTable: looking up varsymbol nesting
                     }
                 }
                 Node {
-SymbolTable: pushing scope 0x55b3dcdc4e90
-SymbolTable: entering scope 0x55b3dcdc4e90
-SymbolTable: current scope 0x55b3dcdc4e90
+                    BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 2
+SymbolTable: entering scope 2
                     visiting CompoundStatement node: test/brainfuck.ec:21.40-24.5
                     Node {
                         visiting ReturnStatement node: test/brainfuck.ec:23.9-15
                     }
-SymbolTable: exiting scope to 0x55b3dcdc4920
-SymbolTable: current scope 0x55b3dcdc4920
+SymbolTable: exiting scope to 1
                 }
             }
             Node {
@@ -928,8 +929,7 @@ SymbolTable: looking up varsymbol nesting
                     }
                 }
             }
-SymbolTable: exiting scope to 0x55b3dcdc3020
-SymbolTable: current scope 0x55b3dcdc3020
+SymbolTable: exiting scope to 0
         }
     }
     Node {
@@ -949,15 +949,15 @@ TypeContext: getting primitive type with value 6
             }
         }
 TypeContext: getting function type
-SymbolTable: inserting funcsymbol with name "StackPeek"
 parsing params
+SymbolTable: inserting funcsymbol with name "StackPeek"
         Node {
-SymbolTable: pushing scope 0x55b3dcdc5850
-SymbolTable: entering scope 0x55b3dcdc5850
-SymbolTable: current scope 0x55b3dcdc5850
+            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 3
+SymbolTable: entering scope 3
             visiting CompoundStatement node: test/brainfuck.ec:30.18-35.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 0x55b3dcdc5850 with symbol 0x55b3dcdc57a0 name "StackPeek"
+SymbolTable: associating current scope 3 with symbol 0x5647ead06f50 name "StackPeek"
             Node {
                 visiting IfStatement node: test/brainfuck.ec:31.5-32.18
                 Node {
@@ -1009,8 +1009,7 @@ SymbolTable: looking up varsymbol nesting
                     }
                 }
             }
-SymbolTable: exiting scope to 0x55b3dcdc3020
-SymbolTable: current scope 0x55b3dcdc3020
+SymbolTable: exiting scope to 0
         }
     }
     Node {
@@ -1031,15 +1030,15 @@ TypeContext: getting primitive type with value 6
         }
 TypeContext: getting function type
 TypeConstext: existing function type found
-SymbolTable: inserting funcsymbol with name "StackPop"
 parsing params
+SymbolTable: inserting funcsymbol with name "StackPop"
         Node {
-SymbolTable: pushing scope 0x55b3dcdc60a0
-SymbolTable: entering scope 0x55b3dcdc60a0
-SymbolTable: current scope 0x55b3dcdc60a0
+            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 4
+SymbolTable: entering scope 4
             visiting CompoundStatement node: test/brainfuck.ec:37.17-44.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 0x55b3dcdc60a0 with symbol 0x55b3dcdc5ff0 name "StackPop"
+SymbolTable: associating current scope 4 with symbol 0x5647ead07190 name "StackPop"
             Node {
                 visiting IfStatement node: test/brainfuck.ec:38.5-36
                 Node {
@@ -1131,8 +1130,7 @@ SymbolTable: looking up varsymbol nesting
 SymbolTable: looking up varsymbol ret
                 }
             }
-SymbolTable: exiting scope to 0x55b3dcdc3020
-SymbolTable: current scope 0x55b3dcdc3020
+SymbolTable: exiting scope to 0
         }
     }
     Node {
@@ -1156,7 +1154,7 @@ TypeContext: getting primitive type with value 0
             }
         }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55b3dcdc3250, size 1024
+TypeContext: array type with base 0x5647ead3f260, size 1024
 SymbolTable: inserting varsymbol with name "code"
     }
     Node {
@@ -1232,7 +1230,7 @@ TypeContext: getting primitive type with value 0
             }
         }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55b3dcdc3250, size 30000
+TypeContext: array type with base 0x5647ead3f260, size 30000
 SymbolTable: inserting varsymbol with name "data"
     }
     Node {
@@ -1266,7 +1264,7 @@ SymbolTable: inserting varsymbol with name "dataptr"
         parsing declaration specifier list for node at test/brainfuck.ec:55.1-40
         Node {
             visiting EnumSpecifier node: test/brainfuck.ec:55.1-39
-TypeContext: enum type 'ErrType' on scope 0x55b3dcdc3020
+TypeContext: enum type 'ErrType' on scope 0x5647ead3efc0
             enum has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol ErrType in current scope
 SymbolTable: inserting typesymbol with name "ErrType"
@@ -1311,14 +1309,14 @@ TypeContext: getting primitive type with value 0
                         }
                     }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x55b3dcdc3250
+TypeContext: pointer with base 0x5647ead3f260
                 }
                 Node {
                     visiting ParameterDeclarator node: test/brainfuck.ec:56.23-42
                     parsing declaration specifier list for node at test/brainfuck.ec:56.23-42
                     Node {
                         visiting EnumSpecifier node: test/brainfuck.ec:56.23-34
-TypeContext: enum type 'ErrType' on scope 0x55b3dcdc3020
+TypeContext: enum type 'ErrType' on scope 0x5647ead3efc0
 TypeContext: existing enum found
                         enum has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol ErrType in current scope
@@ -1334,15 +1332,15 @@ TypeBuilder: finalizing type
             }
         }
 TypeContext: getting function type
-SymbolTable: inserting funcsymbol with name "Die"
 parsing params
+SymbolTable: inserting funcsymbol with name "Die"
         Node {
-SymbolTable: pushing scope 0x55b3dcdc7e30
-SymbolTable: entering scope 0x55b3dcdc7e30
-SymbolTable: current scope 0x55b3dcdc7e30
+            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 5
+SymbolTable: entering scope 5
             visiting CompoundStatement node: test/brainfuck.ec:56.45-63.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 0x55b3dcdc7e30 with symbol 0x55b3dcdc7c00 name "Die"
+SymbolTable: associating current scope 5 with symbol 0x5647ead06b60 name "Die"
 SymbolTable: inserting varsymbol with name "errmsg"
 SymbolTable: inserting varsymbol with name "errcode"
             Node {
@@ -1359,9 +1357,9 @@ SymbolTable: looking up varsymbol SYSTEM
                     }
                 }
                 Node {
-SymbolTable: pushing scope 0x55b3dcdc8040
-SymbolTable: entering scope 0x55b3dcdc8040
-SymbolTable: current scope 0x55b3dcdc8040
+                    BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 6
+SymbolTable: entering scope 6
                     visiting CompoundStatement node: test/brainfuck.ec:57.28-59.5
                     Node {
                         visiting PrintStatement node: test/brainfuck.ec:58.9-30
@@ -1370,13 +1368,12 @@ SymbolTable: current scope 0x55b3dcdc8040
 SymbolTable: looking up varsymbol errmsg
                         }
                     }
-SymbolTable: exiting scope to 0x55b3dcdc7e30
-SymbolTable: current scope 0x55b3dcdc7e30
+SymbolTable: exiting scope to 5
                 }
                 Node {
-SymbolTable: pushing scope 0x55b3dcdc82b0
-SymbolTable: entering scope 0x55b3dcdc82b0
-SymbolTable: current scope 0x55b3dcdc82b0
+                    BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 7
+SymbolTable: entering scope 7
                     visiting CompoundStatement node: test/brainfuck.ec:59.12-61.5
                     Node {
                         visiting PrintStatement node: test/brainfuck.ec:60.9-67
@@ -1400,15 +1397,13 @@ SymbolTable: looking up varsymbol insptr
 SymbolTable: looking up varsymbol errmsg
                         }
                     }
-SymbolTable: exiting scope to 0x55b3dcdc7e30
-SymbolTable: current scope 0x55b3dcdc7e30
+SymbolTable: exiting scope to 5
                 }
             }
             Node {
                 visiting ReturnStatement node: test/brainfuck.ec:62.5-11
             }
-SymbolTable: exiting scope to 0x55b3dcdc3020
-SymbolTable: current scope 0x55b3dcdc3020
+SymbolTable: exiting scope to 0
         }
     }
     Node {
@@ -1492,7 +1487,7 @@ TypeContext: getting primitive type with value 0
             }
         }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55b3dcdc3250, size 8
+TypeContext: array type with base 0x5647ead3f260, size 8
 SymbolTable: inserting varsymbol with name "valid_chars"
     }
     Node {
@@ -1527,15 +1522,15 @@ TypeBuilder: finalizing type
             }
         }
 TypeContext: getting function type
-SymbolTable: inserting funcsymbol with name "IsValid"
 parsing params
+SymbolTable: inserting funcsymbol with name "IsValid"
         Node {
-SymbolTable: pushing scope 0x55b3dcdc9550
-SymbolTable: entering scope 0x55b3dcdc9550
-SymbolTable: current scope 0x55b3dcdc9550
+            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 8
+SymbolTable: entering scope 8
             visiting CompoundStatement node: test/brainfuck.ec:66.21-74.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 0x55b3dcdc9550 with symbol 0x55b3dcdc9330 name "IsValid"
+SymbolTable: associating current scope 8 with symbol 0x5647ead06da0 name "IsValid"
 SymbolTable: inserting varsymbol with name "c"
             Node {
                 visiting VariableDeclaration node: test/brainfuck.ec:67.5-15
@@ -1564,9 +1559,9 @@ TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "i"
             }
             Node {
-SymbolTable: pushing scope 0x55b3dcdc9910
-SymbolTable: entering scope 0x55b3dcdc9910
-SymbolTable: current scope 0x55b3dcdc9910
+                BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 9
+SymbolTable: entering scope 9
                 visiting WhileStatement node: test/brainfuck.ec:68.5-71.5
                 Node {
                     visiting BinaryExpression node: test/brainfuck.ec:68.11-16
@@ -1579,9 +1574,9 @@ SymbolTable: looking up varsymbol i
                     }
                 }
                 Node {
-SymbolTable: pushing scope 0x55b3dcdc9b20
-SymbolTable: entering scope 0x55b3dcdc9b20
-SymbolTable: current scope 0x55b3dcdc9b20
+                    BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 10
+SymbolTable: entering scope 10
                     visiting CompoundStatement node: test/brainfuck.ec:68.19-71.5
                     Node {
                         visiting IfStatement node: test/brainfuck.ec:69.9-42
@@ -1620,12 +1615,10 @@ SymbolTable: looking up varsymbol i
                             }
                         }
                     }
-SymbolTable: exiting scope to 0x55b3dcdc9910
-SymbolTable: current scope 0x55b3dcdc9910
+SymbolTable: exiting scope to 9
                 }
-SymbolTable: inserting labelsymbol with name "while_start_0x55b3dcdd36f0"
-SymbolTable: exiting scope to 0x55b3dcdc9550
-SymbolTable: current scope 0x55b3dcdc9550
+SymbolTable: inserting labelsymbol with name "while_start_0x5647ead4f5a0"
+SymbolTable: exiting scope to 8
             }
             Node {
                 visiting ReturnStatement node: test/brainfuck.ec:73.5-13
@@ -1633,8 +1626,7 @@ SymbolTable: current scope 0x55b3dcdc9550
                     visiting LiteralExpression node: test/brainfuck.ec:73.12
                 }
             }
-SymbolTable: exiting scope to 0x55b3dcdc3020
-SymbolTable: current scope 0x55b3dcdc3020
+SymbolTable: exiting scope to 0
         }
     }
     Node {
@@ -1667,20 +1659,20 @@ TypeContext: getting primitive type with value 0
                         }
                     }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x55b3dcdc3250
+TypeContext: pointer with base 0x5647ead3f260
                 }
             }
         }
 TypeContext: getting function type
-SymbolTable: inserting funcsymbol with name "ReadCode"
 parsing params
+SymbolTable: inserting funcsymbol with name "ReadCode"
         Node {
-SymbolTable: pushing scope 0x55b3dcdca720
-SymbolTable: entering scope 0x55b3dcdca720
-SymbolTable: current scope 0x55b3dcdca720
+            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 11
+SymbolTable: entering scope 11
             visiting CompoundStatement node: test/brainfuck.ec:77.25-95.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 0x55b3dcdca720 with symbol 0x55b3dcdca5d0 name "ReadCode"
+SymbolTable: associating current scope 11 with symbol 0x5647ead06fe0 name "ReadCode"
 SymbolTable: inserting varsymbol with name "src"
             Node {
                 visiting VariableDeclaration node: test/brainfuck.ec:78.5-15
@@ -1735,9 +1727,9 @@ TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "i"
             }
             Node {
-SymbolTable: pushing scope 0x55b3dcdcad20
-SymbolTable: entering scope 0x55b3dcdcad20
-SymbolTable: current scope 0x55b3dcdcad20
+                BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 12
+SymbolTable: entering scope 12
                 visiting WhileStatement node: test/brainfuck.ec:81.5-91.5
                 Node {
                     visiting BinaryExpression node: test/brainfuck.ec:81.11-25
@@ -1757,9 +1749,9 @@ SymbolTable: looking up varsymbol i
                     }
                 }
                 Node {
-SymbolTable: pushing scope 0x55b3dcdcaf60
-SymbolTable: entering scope 0x55b3dcdcaf60
-SymbolTable: current scope 0x55b3dcdcaf60
+                    BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 13
+SymbolTable: entering scope 13
                     visiting CompoundStatement node: test/brainfuck.ec:81.28-91.5
                     Node {
                         visiting IfStatement node: test/brainfuck.ec:82.9-84.9
@@ -1784,9 +1776,9 @@ SymbolTable: looking up varsymbol i
                             }
                         }
                         Node {
-SymbolTable: pushing scope 0x55b3dcdcb260
-SymbolTable: entering scope 0x55b3dcdcb260
-SymbolTable: current scope 0x55b3dcdcb260
+                            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 14
+SymbolTable: entering scope 14
                             visiting CompoundStatement node: test/brainfuck.ec:82.30-84.9
                             Node {
                                 visiting ExpressionStatement node: test/brainfuck.ec:83.13-31
@@ -1819,8 +1811,7 @@ SymbolTable: looking up varsymbol i
                                     }
                                 }
                             }
-SymbolTable: exiting scope to 0x55b3dcdcaf60
-SymbolTable: current scope 0x55b3dcdcaf60
+SymbolTable: exiting scope to 13
                         }
                     }
                     Node {
@@ -1843,9 +1834,9 @@ SymbolTable: looking up varsymbol codesize
                             }
                         }
                         Node {
-SymbolTable: pushing scope 0x55b3dcdcb980
-SymbolTable: entering scope 0x55b3dcdcb980
-SymbolTable: current scope 0x55b3dcdcb980
+                            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 15
+SymbolTable: entering scope 15
                             visiting CompoundStatement node: test/brainfuck.ec:86.32-89.9
                             Node {
                                 visiting ExpressionStatement node: test/brainfuck.ec:87.13-42
@@ -1869,8 +1860,7 @@ SymbolTable: looking up varsymbol SYSTEM
                             Node {
                                 visiting ReturnStatement node: test/brainfuck.ec:88.13-19
                             }
-SymbolTable: exiting scope to 0x55b3dcdcaf60
-SymbolTable: current scope 0x55b3dcdcaf60
+SymbolTable: exiting scope to 13
                         }
                     }
                     Node {
@@ -1883,12 +1873,10 @@ SymbolTable: looking up varsymbol i
                             }
                         }
                     }
-SymbolTable: exiting scope to 0x55b3dcdcad20
-SymbolTable: current scope 0x55b3dcdcad20
+SymbolTable: exiting scope to 12
                 }
-SymbolTable: inserting labelsymbol with name "while_start_0x55b3dcdd4f10"
-SymbolTable: exiting scope to 0x55b3dcdca720
-SymbolTable: current scope 0x55b3dcdca720
+SymbolTable: inserting labelsymbol with name "while_start_0x5647ead50dc0"
+SymbolTable: exiting scope to 11
             }
             Node {
                 visiting ExpressionStatement node: test/brainfuck.ec:93.5-19
@@ -1920,8 +1908,7 @@ SymbolTable: looking up varsymbol code
                     visiting StringExpression node: test/brainfuck.ec:94.26-30
                 }
             }
-SymbolTable: exiting scope to 0x55b3dcdc3020
-SymbolTable: current scope 0x55b3dcdc3020
+SymbolTable: exiting scope to 0
         }
     }
     Node {
@@ -1941,15 +1928,15 @@ SymbolTable: current scope 0x55b3dcdc3020
         }
 TypeContext: getting function type
 TypeConstext: existing function type found
-SymbolTable: inserting funcsymbol with name "JumpToAfter"
 parsing params
+SymbolTable: inserting funcsymbol with name "JumpToAfter"
         Node {
-SymbolTable: pushing scope 0x55b3dcdcc660
-SymbolTable: entering scope 0x55b3dcdcc660
-SymbolTable: current scope 0x55b3dcdcc660
+            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 16
+SymbolTable: entering scope 16
             visiting CompoundStatement node: test/brainfuck.ec:98.20-118.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 0x55b3dcdcc660 with symbol 0x55b3dcdcc5b0 name "JumpToAfter"
+SymbolTable: associating current scope 16 with symbol 0x5647ead081b0 name "JumpToAfter"
             Node {
                 visiting VariableDeclaration node: test/brainfuck.ec:99.5-31
                 parsing declaration specifier list for node at test/brainfuck.ec:99.5-31
@@ -1981,9 +1968,9 @@ TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "current"
             }
             Node {
-SymbolTable: pushing scope 0x55b3dcdcc9e0
-SymbolTable: entering scope 0x55b3dcdcc9e0
-SymbolTable: current scope 0x55b3dcdcc9e0
+                BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 17
+SymbolTable: entering scope 17
                 visiting WhileStatement node: test/brainfuck.ec:100.5-117.5
                 Node {
                     visiting BinaryExpression node: test/brainfuck.ec:100.11-31
@@ -2003,9 +1990,9 @@ SymbolTable: looking up varsymbol insptr
                     }
                 }
                 Node {
-SymbolTable: pushing scope 0x55b3dcdccc70
-SymbolTable: entering scope 0x55b3dcdccc70
-SymbolTable: current scope 0x55b3dcdccc70
+                    BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 18
+SymbolTable: entering scope 18
                     visiting CompoundStatement node: test/brainfuck.ec:100.34-117.5
                     Node {
                         visiting IfStatement node: test/brainfuck.ec:101.9-109.9
@@ -2027,9 +2014,9 @@ SymbolTable: looking up varsymbol insptr
                             }
                         }
                         Node {
-SymbolTable: pushing scope 0x55b3dcdccf70
-SymbolTable: entering scope 0x55b3dcdccf70
-SymbolTable: current scope 0x55b3dcdccf70
+                            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 19
+SymbolTable: entering scope 19
                             visiting CompoundStatement node: test/brainfuck.ec:101.34-103.9
                             Node {
                                 visiting ExpressionStatement node: test/brainfuck.ec:102.13-22
@@ -2041,8 +2028,7 @@ SymbolTable: looking up varsymbol current
                                     }
                                 }
                             }
-SymbolTable: exiting scope to 0x55b3dcdccc70
-SymbolTable: current scope 0x55b3dcdccc70
+SymbolTable: exiting scope to 18
                         }
                         Node {
                             visiting IfStatement node: test/brainfuck.ec:103.16-109.9
@@ -2064,9 +2050,9 @@ SymbolTable: looking up varsymbol insptr
                                 }
                             }
                             Node {
-SymbolTable: pushing scope 0x55b3dcdcd410
-SymbolTable: entering scope 0x55b3dcdcd410
-SymbolTable: current scope 0x55b3dcdcd410
+                                BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 20
+SymbolTable: entering scope 20
                                 visiting CompoundStatement node: test/brainfuck.ec:103.41-109.9
                                 Node {
                                     visiting ExpressionStatement node: test/brainfuck.ec:104.13-22
@@ -2095,9 +2081,9 @@ SymbolTable: looking up varsymbol nesting
                                         }
                                     }
                                     Node {
-SymbolTable: pushing scope 0x55b3dcddc8a0
-SymbolTable: entering scope 0x55b3dcddc8a0
-SymbolTable: current scope 0x55b3dcddc8a0
+                                        BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 21
+SymbolTable: entering scope 21
                                         visiting CompoundStatement node: test/brainfuck.ec:105.41-108.13
                                         Node {
                                             visiting ExpressionStatement node: test/brainfuck.ec:106.17-25
@@ -2112,12 +2098,10 @@ SymbolTable: looking up varsymbol insptr
                                         Node {
                                             visiting ReturnStatement node: test/brainfuck.ec:107.17-23
                                         }
-SymbolTable: exiting scope to 0x55b3dcdcd410
-SymbolTable: current scope 0x55b3dcdcd410
+SymbolTable: exiting scope to 20
                                     }
                                 }
-SymbolTable: exiting scope to 0x55b3dcdccc70
-SymbolTable: current scope 0x55b3dcdccc70
+SymbolTable: exiting scope to 18
                             }
                         }
                     }
@@ -2138,9 +2122,9 @@ SymbolTable: looking up varsymbol nesting
                             }
                         }
                         Node {
-SymbolTable: pushing scope 0x55b3dcddce90
-SymbolTable: entering scope 0x55b3dcddce90
-SymbolTable: current scope 0x55b3dcddce90
+                            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 22
+SymbolTable: entering scope 22
                             visiting CompoundStatement node: test/brainfuck.ec:111.36-114.9
                             Node {
                                 visiting ExpressionStatement node: test/brainfuck.ec:112.13-70
@@ -2164,8 +2148,7 @@ SymbolTable: looking up varsymbol BAD_CODE
                             Node {
                                 visiting ReturnStatement node: test/brainfuck.ec:113.13-19
                             }
-SymbolTable: exiting scope to 0x55b3dcdccc70
-SymbolTable: current scope 0x55b3dcdccc70
+SymbolTable: exiting scope to 18
                         }
                     }
                     Node {
@@ -2178,15 +2161,12 @@ SymbolTable: looking up varsymbol insptr
                             }
                         }
                     }
-SymbolTable: exiting scope to 0x55b3dcdcc9e0
-SymbolTable: current scope 0x55b3dcdcc9e0
+SymbolTable: exiting scope to 17
                 }
-SymbolTable: inserting labelsymbol with name "while_start_0x55b3dcdd6b40"
-SymbolTable: exiting scope to 0x55b3dcdcc660
-SymbolTable: current scope 0x55b3dcdcc660
+SymbolTable: inserting labelsymbol with name "while_start_0x5647ead529f0"
+SymbolTable: exiting scope to 16
             }
-SymbolTable: exiting scope to 0x55b3dcdc3020
-SymbolTable: current scope 0x55b3dcdc3020
+SymbolTable: exiting scope to 0
         }
     }
     Node {
@@ -2206,15 +2186,15 @@ SymbolTable: current scope 0x55b3dcdc3020
         }
 TypeContext: getting function type
 TypeConstext: existing function type found
-SymbolTable: inserting funcsymbol with name "Execute"
 parsing params
+SymbolTable: inserting funcsymbol with name "Execute"
         Node {
-SymbolTable: pushing scope 0x55b3dcddd820
-SymbolTable: entering scope 0x55b3dcddd820
-SymbolTable: current scope 0x55b3dcddd820
+            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 23
+SymbolTable: entering scope 23
             visiting CompoundStatement node: test/brainfuck.ec:120.16-201.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 0x55b3dcddd820 with symbol 0x55b3dcddd7b0 name "Execute"
+SymbolTable: associating current scope 23 with symbol 0x5647ead082d0 name "Execute"
             Node {
                 visiting VariableDeclaration node: test/brainfuck.ec:122.5-10
                 parsing declaration specifier list for node at test/brainfuck.ec:122.5-10
@@ -2235,9 +2215,9 @@ TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "c"
             }
             Node {
-SymbolTable: pushing scope 0x55b3dcdddb30
-SymbolTable: entering scope 0x55b3dcdddb30
-SymbolTable: current scope 0x55b3dcdddb30
+                BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 24
+SymbolTable: entering scope 24
                 visiting WhileStatement node: test/brainfuck.ec:123.5-200.5
                 Node {
                     visiting BinaryExpression node: test/brainfuck.ec:123.11-37
@@ -2264,9 +2244,9 @@ SymbolTable: looking up varsymbol insptr
                     }
                 }
                 Node {
-SymbolTable: pushing scope 0x55b3dcddde40
-SymbolTable: entering scope 0x55b3dcddde40
-SymbolTable: current scope 0x55b3dcddde40
+                    BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 25
+SymbolTable: entering scope 25
                     visiting CompoundStatement node: test/brainfuck.ec:123.40-200.5
                     Node {
                         visiting IfStatement node: test/brainfuck.ec:124.9-127.9
@@ -2281,9 +2261,9 @@ SymbolTable: looking up varsymbol insptr
                             }
                         }
                         Node {
-SymbolTable: pushing scope 0x55b3dcdde0a0
-SymbolTable: entering scope 0x55b3dcdde0a0
-SymbolTable: current scope 0x55b3dcdde0a0
+                            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 26
+SymbolTable: entering scope 26
                             visiting CompoundStatement node: test/brainfuck.ec:124.25-127.9
                             Node {
                                 visiting ExpressionStatement node: test/brainfuck.ec:125.13-62
@@ -2307,8 +2287,7 @@ SymbolTable: looking up varsymbol BAD_CODE
                             Node {
                                 visiting ReturnStatement node: test/brainfuck.ec:126.13-19
                             }
-SymbolTable: exiting scope to 0x55b3dcddde40
-SymbolTable: current scope 0x55b3dcddde40
+SymbolTable: exiting scope to 25
                         }
                     }
                     Node {
@@ -2324,9 +2303,9 @@ SymbolTable: looking up varsymbol dataptr
                             }
                         }
                         Node {
-SymbolTable: pushing scope 0x55b3dcdde690
-SymbolTable: entering scope 0x55b3dcdde690
-SymbolTable: current scope 0x55b3dcdde690
+                            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 27
+SymbolTable: entering scope 27
                             visiting CompoundStatement node: test/brainfuck.ec:129.26-132.9
                             Node {
                                 visiting ExpressionStatement node: test/brainfuck.ec:130.13-55
@@ -2350,8 +2329,7 @@ SymbolTable: looking up varsymbol BAD_CODE
                             Node {
                                 visiting ReturnStatement node: test/brainfuck.ec:131.13-19
                             }
-SymbolTable: exiting scope to 0x55b3dcddde40
-SymbolTable: current scope 0x55b3dcddde40
+SymbolTable: exiting scope to 25
                         }
                     }
                     Node {
@@ -2371,9 +2349,9 @@ SymbolTable: looking up varsymbol code
 SymbolTable: looking up varsymbol c
                         }
                         Node {
-SymbolTable: pushing scope 0x55b3dcddec80
-SymbolTable: entering scope 0x55b3dcddec80
-SymbolTable: current scope 0x55b3dcddec80
+                            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 28
+SymbolTable: entering scope 28
                             visiting CompoundStatement node: test/brainfuck.ec:134.20-192.9
                             Node {
                                 visiting CaseStatement node: test/brainfuck.ec:136.13-137.26
@@ -2563,9 +2541,9 @@ SymbolTable: looking up varsymbol dataptr
                                         }
                                     }
                                     Node {
-SymbolTable: pushing scope 0x55b3dcde00b0
-SymbolTable: entering scope 0x55b3dcde00b0
-SymbolTable: current scope 0x55b3dcde00b0
+                                        BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 29
+SymbolTable: entering scope 29
                                         visiting CompoundStatement node: test/brainfuck.ec:166.41-169.17
                                         Node {
                                             visiting ExpressionStatement node: test/brainfuck.ec:168.21-34
@@ -2579,13 +2557,12 @@ SymbolTable: looking up funcsymbol JumpToAfter
                                                 }
                                             }
                                         }
-SymbolTable: exiting scope to 0x55b3dcddec80
-SymbolTable: current scope 0x55b3dcddec80
+SymbolTable: exiting scope to 28
                                     }
                                     Node {
-SymbolTable: pushing scope 0x55b3dcde0320
-SymbolTable: entering scope 0x55b3dcde0320
-SymbolTable: current scope 0x55b3dcde0320
+                                        BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 30
+SymbolTable: entering scope 30
                                         visiting CompoundStatement node: test/brainfuck.ec:169.24-172.17
                                         Node {
                                             visiting ExpressionStatement node: test/brainfuck.ec:171.21-38
@@ -2603,8 +2580,7 @@ SymbolTable: looking up varsymbol insptr
                                                 }
                                             }
                                         }
-SymbolTable: exiting scope to 0x55b3dcddec80
-SymbolTable: current scope 0x55b3dcddec80
+SymbolTable: exiting scope to 28
                                     }
                                 }
                             }
@@ -2620,9 +2596,9 @@ SymbolTable: current scope 0x55b3dcddec80
                                     }
                                 }
                                 Node {
-SymbolTable: pushing scope 0x55b3dcde07d0
-SymbolTable: entering scope 0x55b3dcde07d0
-SymbolTable: current scope 0x55b3dcde07d0
+                                    BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 31
+SymbolTable: entering scope 31
                                     visiting CompoundStatement node: test/brainfuck.ec:177.23-191.13
                                     Node {
                                         visiting VariableDeclaration node: test/brainfuck.ec:178.17-43
@@ -2669,9 +2645,9 @@ SymbolTable: looking up varsymbol opening
                                             }
                                         }
                                         Node {
-SymbolTable: pushing scope 0x55b3dcde0ce0
-SymbolTable: entering scope 0x55b3dcde0ce0
-SymbolTable: current scope 0x55b3dcde0ce0
+                                            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 32
+SymbolTable: entering scope 32
                                             visiting CompoundStatement node: test/brainfuck.ec:180.34-183.17
                                             Node {
                                                 visiting ExpressionStatement node: test/brainfuck.ec:181.21-64
@@ -2695,8 +2671,7 @@ SymbolTable: looking up varsymbol BAD_CODE
                                             Node {
                                                 visiting ReturnStatement node: test/brainfuck.ec:182.21-27
                                             }
-SymbolTable: exiting scope to 0x55b3dcde07d0
-SymbolTable: current scope 0x55b3dcde07d0
+SymbolTable: exiting scope to 31
                                         }
                                     }
                                     Node {
@@ -2719,9 +2694,9 @@ SymbolTable: looking up varsymbol dataptr
                                             }
                                         }
                                         Node {
-SymbolTable: pushing scope 0x55b3dcde1360
-SymbolTable: entering scope 0x55b3dcde1360
-SymbolTable: current scope 0x55b3dcde1360
+                                            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 33
+SymbolTable: entering scope 33
                                             visiting CompoundStatement node: test/brainfuck.ec:185.41-187.17
                                             Node {
                                                 visiting ExpressionStatement node: test/brainfuck.ec:186.21-37
@@ -2737,13 +2712,12 @@ SymbolTable: looking up varsymbol opening
                                                     }
                                                 }
                                             }
-SymbolTable: exiting scope to 0x55b3dcde07d0
-SymbolTable: current scope 0x55b3dcde07d0
+SymbolTable: exiting scope to 31
                                         }
                                         Node {
-SymbolTable: pushing scope 0x55b3dcde1620
-SymbolTable: entering scope 0x55b3dcde1620
-SymbolTable: current scope 0x55b3dcde1620
+                                            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 34
+SymbolTable: entering scope 34
                                             visiting CompoundStatement node: test/brainfuck.ec:187.24-190.17
                                             Node {
                                                 visiting ExpressionStatement node: test/brainfuck.ec:189.21-31
@@ -2757,19 +2731,16 @@ SymbolTable: looking up funcsymbol StackPop
                                                     }
                                                 }
                                             }
-SymbolTable: exiting scope to 0x55b3dcde07d0
-SymbolTable: current scope 0x55b3dcde07d0
+SymbolTable: exiting scope to 31
                                         }
                                     }
-SymbolTable: exiting scope to 0x55b3dcddec80
-SymbolTable: current scope 0x55b3dcddec80
+SymbolTable: exiting scope to 28
                                 }
                             }
                             Node {
                                 visiting BreakStatement node: test/brainfuck.ec:191.15-20
                             }
-SymbolTable: exiting scope to 0x55b3dcddde40
-SymbolTable: current scope 0x55b3dcddde40
+SymbolTable: exiting scope to 25
                         }
                     }
                     Node {
@@ -2802,26 +2773,22 @@ SymbolTable: looking up varsymbol codesize
                             }
                         }
                         Node {
-SymbolTable: pushing scope 0x55b3dcde1d70
-SymbolTable: entering scope 0x55b3dcde1d70
-SymbolTable: current scope 0x55b3dcde1d70
+                            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 35
+SymbolTable: entering scope 35
                             visiting CompoundStatement node: test/brainfuck.ec:197.37-199.9
                             Node {
                                 visiting ReturnStatement node: test/brainfuck.ec:198.13-19
                             }
-SymbolTable: exiting scope to 0x55b3dcddde40
-SymbolTable: current scope 0x55b3dcddde40
+SymbolTable: exiting scope to 25
                         }
                     }
-SymbolTable: exiting scope to 0x55b3dcdddb30
-SymbolTable: current scope 0x55b3dcdddb30
+SymbolTable: exiting scope to 24
                 }
-SymbolTable: inserting labelsymbol with name "while_start_0x55b3dcdda4b0"
-SymbolTable: exiting scope to 0x55b3dcddd820
-SymbolTable: current scope 0x55b3dcddd820
+SymbolTable: inserting labelsymbol with name "while_start_0x5647ead56360"
+SymbolTable: exiting scope to 23
             }
-SymbolTable: exiting scope to 0x55b3dcdc3020
-SymbolTable: current scope 0x55b3dcdc3020
+SymbolTable: exiting scope to 0
         }
     }
     Node {
@@ -2841,15 +2808,15 @@ SymbolTable: current scope 0x55b3dcdc3020
         }
 TypeContext: getting function type
 TypeConstext: existing function type found
-SymbolTable: inserting funcsymbol with name "Initialize"
 parsing params
+SymbolTable: inserting funcsymbol with name "Initialize"
         Node {
-SymbolTable: pushing scope 0x55b3dcde23e0
-SymbolTable: entering scope 0x55b3dcde23e0
-SymbolTable: current scope 0x55b3dcde23e0
+            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 36
+SymbolTable: entering scope 36
             visiting CompoundStatement node: test/brainfuck.ec:203.19-212.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 0x55b3dcde23e0 with symbol 0x55b3dcde2330 name "Initialize"
+SymbolTable: associating current scope 36 with symbol 0x5647ead06920 name "Initialize"
             Node {
                 visiting VariableDeclaration node: test/brainfuck.ec:204.5-15
                 parsing declaration specifier list for node at test/brainfuck.ec:204.5-15
@@ -2877,9 +2844,9 @@ TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "i"
             }
             Node {
-SymbolTable: pushing scope 0x55b3dcde2790
-SymbolTable: entering scope 0x55b3dcde2790
-SymbolTable: current scope 0x55b3dcde2790
+                BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 37
+SymbolTable: entering scope 37
                 visiting WhileStatement node: test/brainfuck.ec:206.5-209.5
                 Node {
                     visiting BinaryExpression node: test/brainfuck.ec:206.11-20
@@ -2892,9 +2859,9 @@ SymbolTable: looking up varsymbol i
                     }
                 }
                 Node {
-SymbolTable: pushing scope 0x55b3dcde29a0
-SymbolTable: entering scope 0x55b3dcde29a0
-SymbolTable: current scope 0x55b3dcde29a0
+                    BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 38
+SymbolTable: entering scope 38
                     visiting CompoundStatement node: test/brainfuck.ec:206.23-209.5
                     Node {
                         visiting ExpressionStatement node: test/brainfuck.ec:207.9-20
@@ -2926,12 +2893,10 @@ SymbolTable: looking up varsymbol i
                             }
                         }
                     }
-SymbolTable: exiting scope to 0x55b3dcde2790
-SymbolTable: current scope 0x55b3dcde2790
+SymbolTable: exiting scope to 37
                 }
-SymbolTable: inserting labelsymbol with name "while_start_0x55b3dcddae60"
-SymbolTable: exiting scope to 0x55b3dcde23e0
-SymbolTable: current scope 0x55b3dcde23e0
+SymbolTable: inserting labelsymbol with name "while_start_0x5647ead56d10"
+SymbolTable: exiting scope to 36
             }
             Node {
                 visiting ExpressionStatement node: test/brainfuck.ec:211.5-20
@@ -2949,8 +2914,7 @@ SymbolTable: looking up varsymbol nesting
                     }
                 }
             }
-SymbolTable: exiting scope to 0x55b3dcdc3020
-SymbolTable: current scope 0x55b3dcdc3020
+SymbolTable: exiting scope to 0
         }
     }
     Node {
@@ -2983,21 +2947,21 @@ TypeContext: getting primitive type with value 0
                         }
                     }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x55b3dcdc3250
+TypeContext: pointer with base 0x5647ead3f260
                 }
             }
         }
 TypeContext: getting function type
 TypeConstext: existing function type found
-SymbolTable: inserting funcsymbol with name "PrintUsage"
 parsing params
+SymbolTable: inserting funcsymbol with name "PrintUsage"
         Node {
-SymbolTable: pushing scope 0x55b3dcde35c0
-SymbolTable: entering scope 0x55b3dcde35c0
-SymbolTable: current scope 0x55b3dcde35c0
+            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 39
+SymbolTable: entering scope 39
             visiting CompoundStatement node: test/brainfuck.ec:214.31-216.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 0x55b3dcde35c0 with symbol 0x55b3dcde3470 name "PrintUsage"
+SymbolTable: associating current scope 39 with symbol 0x5647ead5e490 name "PrintUsage"
 SymbolTable: inserting varsymbol with name "argname"
             Node {
                 visiting PrintStatement node: test/brainfuck.ec:215.5-45
@@ -3009,8 +2973,7 @@ SymbolTable: looking up varsymbol argname
                     visiting StringExpression node: test/brainfuck.ec:215.25-44
                 }
             }
-SymbolTable: exiting scope to 0x55b3dcdc3020
-SymbolTable: current scope 0x55b3dcdc3020
+SymbolTable: exiting scope to 0
         }
     }
     Node {
@@ -3031,15 +2994,15 @@ TypeContext: getting primitive type with value 6
         }
 TypeContext: getting function type
 TypeConstext: existing function type found
-SymbolTable: inserting funcsymbol with name "Main"
 parsing params
+SymbolTable: inserting funcsymbol with name "Main"
         Node {
-SymbolTable: pushing scope 0x55b3dcde3a20
-SymbolTable: entering scope 0x55b3dcde3a20
-SymbolTable: current scope 0x55b3dcde3a20
+            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 40
+SymbolTable: entering scope 40
             visiting CompoundStatement node: test/brainfuck.ec:218.13-228.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 0x55b3dcde3a20 with symbol 0x55b3dcde3970 name "Main"
+SymbolTable: associating current scope 40 with symbol 0x5647ead5f9a0 name "Main"
             Node {
                 visiting ExpressionStatement node: test/brainfuck.ec:220.5-17
                 Node {
@@ -3079,7 +3042,7 @@ TypeContext: getting primitive type with value 0
                     }
                 }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55b3dcdc3250, no size
+TypeContext: array type with base 0x5647ead3f260, no size
 SymbolTable: inserting varsymbol with name "program"
             }
             Node {
@@ -3114,8 +3077,7 @@ SymbolTable: looking up varsymbol Execute
                     visiting LiteralExpression node: test/brainfuck.ec:227.12
                 }
             }
-SymbolTable: exiting scope to 0x55b3dcdc3020
-SymbolTable: current scope 0x55b3dcdc3020
+SymbolTable: exiting scope to 0
         }
     }
     Node {
@@ -3135,63 +3097,57 @@ semantic checking complete
 --------- TYPE CONTEXT ---------
 
 Base Types:
-  function_6066742061934485 -> 0x55b3dcdc9280 : bool (U8)
-  function_395382556761214715 -> 0x55b3dcdc7b50 : Void (U8 *, enum { SYSTEM = 1, BAD_CODE = 2 })
-  enum_ErrType_0x55b3dcdc3020 -> 0x55b3dcda1d10 : enum { SYSTEM = 1, BAD_CODE = 2 }
-  function_6066742036553109 -> 0x55b3dcdca520 : Void (U8 *)
-  function_94230992925456 -> 0x55b3dcdc56f0 : I32 ()
-  class_Stack_0x55b3dcdc3020 -> 0x55b3dcda2580 : class { I32 cap; I32 len; I32[32] data; }
-  function_6066742036537253 -> 0x55b3dcdc46b0 : Void (I32)
-  function_94230992789296 -> 0x55b3dcdc3ab0 : Void ()
+  enum_ErrType_0x5647ead3efc0 -> 0x5647ead073d0 : enum { SYSTEM = 1, BAD_CODE = 2 }
+  class_Stack_0x5647ead3efc0 -> 0x5647ead07580 : class { I32 cap; I32 len; I32[32] data; }
 
 Pointer Types:
-  0x55b3dcdc7520 : U8 *
+  0x5647ead43480 : U8 *
 
 Array Types:
-  0x55b3dcde3330 : U8[]
-  0x55b3dcdc72d0 : U8[8]
-  0x55b3dcdc6d40 : U8[30000]
-  0x55b3dcdc55c0 : U8[1024]
-  0x55b3dcddc400 : I32[32]
+  0x5647ead5f390 : U8[]
+  0x5647ead42c60 : U8[30000]
+  0x5647ead43220 : U8[8]
+  0x5647ead42340 : U8[1024]
+  0x5647ead582b0 : I32[32]
 
 
 --------- SYMBOL TABLE ---------
 
-Scope 0x55b3dcdc3020
+Scope 0
 Variable Symbols:
-  BAD_CODE -> 0x55b3dcdc77c0 : VarSymbol enum { SYSTEM = 1, BAD_CODE = 2 }
-  SYSTEM -> 0x55b3dcdc76c0 : VarSymbol enum { SYSTEM = 1, BAD_CODE = 2 }
-  dataptr -> 0x55b3dcdc7420 : VarSymbol I32
-  codesize -> 0x55b3dcdc7090 : VarSymbol I32
-  insptr -> 0x55b3dcdc6e90 : VarSymbol I32
-  data -> 0x55b3dcdc71d0 : VarSymbol U8[30000]
-  code -> 0x55b3dcdc6c60 : VarSymbol U8[1024]
-  valid_chars -> 0x55b3dcdc9010 : VarSymbol U8[8]
-  nesting -> 0x55b3dcdc4270 : VarSymbol class { I32 cap; I32 len; I32[32] data; }
-  Execute -> 0x55b3dcdc3b90 : VarSymbol Void ()
+  BAD_CODE -> 0x5647ead43730 : VarSymbol enum { SYSTEM = 1, BAD_CODE = 2 }
+  SYSTEM -> 0x5647ead43620 : VarSymbol enum { SYSTEM = 1, BAD_CODE = 2 }
+  dataptr -> 0x5647ead43370 : VarSymbol I32
+  codesize -> 0x5647ead42fc0 : VarSymbol I32
+  insptr -> 0x5647ead42db0 : VarSymbol I32
+  data -> 0x5647ead43110 : VarSymbol U8[30000]
+  code -> 0x5647ead42b70 : VarSymbol U8[1024]
+  valid_chars -> 0x5647ead44f70 : VarSymbol U8[8]
+  nesting -> 0x5647ead57970 : VarSymbol class { I32 cap; I32 len; I32[32] data; }
+  Execute -> 0x5647ead57a20 : VarSymbol Void ()
 
 Function Symbols:
-  Initialize -> 0x55b3dcde2330 : FuncSymbol Void ()
-  Execute -> 0x55b3dcddd7b0 : FuncSymbol Void ()
-  Main -> 0x55b3dcde3970 : FuncSymbol I32 ()
-  JumpToAfter -> 0x55b3dcdcc5b0 : FuncSymbol Void ()
-  IsValid -> 0x55b3dcdc9330 : FuncSymbol bool (U8)
-  Die -> 0x55b3dcdc7c00 : FuncSymbol Void (U8 *, enum { SYSTEM = 1, BAD_CODE = 2 })
-  ReadCode -> 0x55b3dcdca5d0 : FuncSymbol Void (U8 *)
-  StackPeek -> 0x55b3dcdc57a0 : FuncSymbol I32 ()
-  PrintUsage -> 0x55b3dcde3470 : FuncSymbol Void (U8 *)
-  StackPop -> 0x55b3dcdc5ff0 : FuncSymbol I32 ()
-  StackPush -> 0x55b3dcdc4760 : FuncSymbol Void (I32)
+  Initialize -> 0x5647ead06920 : FuncSymbol Void ()
+  Execute -> 0x5647ead082d0 : FuncSymbol Void ()
+  Main -> 0x5647ead5f9a0 : FuncSymbol I32 ()
+  JumpToAfter -> 0x5647ead081b0 : FuncSymbol Void ()
+  IsValid -> 0x5647ead06da0 : FuncSymbol bool (U8)
+  Die -> 0x5647ead06b60 : FuncSymbol Void (U8 *, enum { SYSTEM = 1, BAD_CODE = 2 })
+  ReadCode -> 0x5647ead06fe0 : FuncSymbol Void (U8 *)
+  StackPeek -> 0x5647ead06f50 : FuncSymbol I32 ()
+  PrintUsage -> 0x5647ead5e490 : FuncSymbol Void (U8 *)
+  StackPop -> 0x5647ead07190 : FuncSymbol I32 ()
+  StackPush -> 0x5647ead06d10 : FuncSymbol Void (I32)
 
 Type Symbols:
-  ErrType -> 0x55b3dcdc75f0 : TypeSymbol enum { SYSTEM = 1, BAD_CODE = 2 }
-  Stack -> 0x55b3dcdc3d50 : TypeSymbol class { I32 cap; I32 len; I32[32] data; }
+  ErrType -> 0x5647ead43550 : TypeSymbol enum { SYSTEM = 1, BAD_CODE = 2 }
+  Stack -> 0x5647ead3fdc0 : TypeSymbol class { I32 cap; I32 len; I32[32] data; }
 
 Label Symbols:
 -----------------------------------------------------------
-  Scope 0x55b3dcdc4920: FuncSymbol Void (I32)
+  Scope 1: FuncSymbol Void (I32)
   Variable Symbols:
-    item -> 0x55b3dcdc4880 : VarSymbol I32
+    item -> 0x5647ead40710 : VarSymbol I32
 
   Function Symbols:
 
@@ -3199,7 +3155,7 @@ Label Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
-    Scope 0x55b3dcdc4e90
+    Scope 2
     Variable Symbols:
 
     Function Symbols:
@@ -3208,7 +3164,7 @@ Label Symbols:
 
     Label Symbols:
 -----------------------------------------------------------
-  Scope 0x55b3dcdc5850: FuncSymbol I32 ()
+  Scope 3: FuncSymbol I32 ()
   Variable Symbols:
 
   Function Symbols:
@@ -3217,9 +3173,9 @@ Label Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
-  Scope 0x55b3dcdc60a0: FuncSymbol I32 ()
+  Scope 4: FuncSymbol I32 ()
   Variable Symbols:
-    ret -> 0x55b3dcdc6800 : VarSymbol I32
+    ret -> 0x5647ead42700 : VarSymbol I32
 
   Function Symbols:
 
@@ -3227,10 +3183,10 @@ Label Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
-  Scope 0x55b3dcdc7e30: FuncSymbol Void (U8 *, enum { SYSTEM = 1, BAD_CODE = 2 })
+  Scope 5: FuncSymbol Void (U8 *, enum { SYSTEM = 1, BAD_CODE = 2 })
   Variable Symbols:
-    errcode -> 0x55b3dcdc7d70 : VarSymbol enum { SYSTEM = 1, BAD_CODE = 2 }
-    errmsg -> 0x55b3dcdc7cb0 : VarSymbol U8 *
+    errcode -> 0x5647ead43be0 : VarSymbol enum { SYSTEM = 1, BAD_CODE = 2 }
+    errmsg -> 0x5647ead43b10 : VarSymbol U8 *
 
   Function Symbols:
 
@@ -3238,7 +3194,7 @@ Label Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
-    Scope 0x55b3dcdc8040
+    Scope 6
     Variable Symbols:
 
     Function Symbols:
@@ -3247,7 +3203,7 @@ Label Symbols:
 
     Label Symbols:
 -----------------------------------------------------------
-    Scope 0x55b3dcdc82b0
+    Scope 7
     Variable Symbols:
 
     Function Symbols:
@@ -3256,10 +3212,10 @@ Label Symbols:
 
     Label Symbols:
 -----------------------------------------------------------
-  Scope 0x55b3dcdc9550: FuncSymbol bool (U8)
+  Scope 8: FuncSymbol bool (U8)
   Variable Symbols:
-    i -> 0x55b3dcdc97f0 : VarSymbol I32
-    c -> 0x55b3dcdc93e0 : VarSymbol U8
+    i -> 0x5647ead45740 : VarSymbol I32
+    c -> 0x5647ead45230 : VarSymbol U8
 
   Function Symbols:
 
@@ -3267,7 +3223,7 @@ Label Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
-    Scope 0x55b3dcdc9910
+    Scope 9
     Variable Symbols:
 
     Function Symbols:
@@ -3275,9 +3231,9 @@ Label Symbols:
     Type Symbols:
 
     Label Symbols:
-      while_start_0x55b3dcdd36f0 -> 0x55b3dcdca050 : LabelSymbol
+      while_start_0x5647ead4f5a0 -> 0x5647ead45fd0 : LabelSymbol
 -----------------------------------------------------------
-      Scope 0x55b3dcdc9b20
+      Scope 10
       Variable Symbols:
 
       Function Symbols:
@@ -3286,11 +3242,11 @@ Label Symbols:
 
       Label Symbols:
 -----------------------------------------------------------
-  Scope 0x55b3dcdca720: FuncSymbol Void (U8 *)
+  Scope 11: FuncSymbol Void (U8 *)
   Variable Symbols:
-    i -> 0x55b3dcdcac00 : VarSymbol I32
-    n -> 0x55b3dcdca9e0 : VarSymbol I32
-    src -> 0x55b3dcdca680 : VarSymbol U8 *
+    i -> 0x5647ead46ad0 : VarSymbol I32
+    n -> 0x5647ead46880 : VarSymbol I32
+    src -> 0x5647ead46470 : VarSymbol U8 *
 
   Function Symbols:
 
@@ -3298,7 +3254,7 @@ Label Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
-    Scope 0x55b3dcdcad20
+    Scope 12
     Variable Symbols:
 
     Function Symbols:
@@ -3306,9 +3262,9 @@ Label Symbols:
     Type Symbols:
 
     Label Symbols:
-      while_start_0x55b3dcdd4f10 -> 0x55b3dcdcbf00 : LabelSymbol
+      while_start_0x5647ead50dc0 -> 0x5647ead47e20 : LabelSymbol
 -----------------------------------------------------------
-      Scope 0x55b3dcdcaf60
+      Scope 13
       Variable Symbols:
 
       Function Symbols:
@@ -3317,7 +3273,7 @@ Label Symbols:
 
       Label Symbols:
 -----------------------------------------------------------
-        Scope 0x55b3dcdcb260
+        Scope 14
         Variable Symbols:
 
         Function Symbols:
@@ -3326,7 +3282,7 @@ Label Symbols:
 
         Label Symbols:
 -----------------------------------------------------------
-        Scope 0x55b3dcdcb980
+        Scope 15
         Variable Symbols:
 
         Function Symbols:
@@ -3335,9 +3291,9 @@ Label Symbols:
 
         Label Symbols:
 -----------------------------------------------------------
-  Scope 0x55b3dcdcc660: FuncSymbol Void ()
+  Scope 16: FuncSymbol Void ()
   Variable Symbols:
-    current -> 0x55b3dcdcc890 : VarSymbol I32
+    current -> 0x5647ead48760 : VarSymbol I32
 
   Function Symbols:
 
@@ -3345,7 +3301,7 @@ Label Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
-    Scope 0x55b3dcdcc9e0
+    Scope 17
     Variable Symbols:
 
     Function Symbols:
@@ -3353,9 +3309,9 @@ Label Symbols:
     Type Symbols:
 
     Label Symbols:
-      while_start_0x55b3dcdd6b40 -> 0x55b3dcddd490 : LabelSymbol
+      while_start_0x5647ead529f0 -> 0x5647ead593e0 : LabelSymbol
 -----------------------------------------------------------
-      Scope 0x55b3dcdccc70
+      Scope 18
       Variable Symbols:
 
       Function Symbols:
@@ -3364,7 +3320,7 @@ Label Symbols:
 
       Label Symbols:
 -----------------------------------------------------------
-        Scope 0x55b3dcdccf70
+        Scope 19
         Variable Symbols:
 
         Function Symbols:
@@ -3373,7 +3329,7 @@ Label Symbols:
 
         Label Symbols:
 -----------------------------------------------------------
-        Scope 0x55b3dcdcd410
+        Scope 20
         Variable Symbols:
 
         Function Symbols:
@@ -3382,7 +3338,7 @@ Label Symbols:
 
         Label Symbols:
 -----------------------------------------------------------
-          Scope 0x55b3dcddc8a0
+          Scope 21
           Variable Symbols:
 
           Function Symbols:
@@ -3391,7 +3347,7 @@ Label Symbols:
 
           Label Symbols:
 -----------------------------------------------------------
-        Scope 0x55b3dcddce90
+        Scope 22
         Variable Symbols:
 
         Function Symbols:
@@ -3400,9 +3356,9 @@ Label Symbols:
 
         Label Symbols:
 -----------------------------------------------------------
-  Scope 0x55b3dcddd820: FuncSymbol Void ()
+  Scope 23: FuncSymbol Void ()
   Variable Symbols:
-    c -> 0x55b3dcddd9e0 : VarSymbol U8
+    c -> 0x5647ead598e0 : VarSymbol U8
 
   Function Symbols:
 
@@ -3410,7 +3366,7 @@ Label Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
-    Scope 0x55b3dcdddb30
+    Scope 24
     Variable Symbols:
 
     Function Symbols:
@@ -3418,9 +3374,9 @@ Label Symbols:
     Type Symbols:
 
     Label Symbols:
-      while_start_0x55b3dcdda4b0 -> 0x55b3dcde1fe0 : LabelSymbol
+      while_start_0x5647ead56360 -> 0x5647ead5dfc0 : LabelSymbol
 -----------------------------------------------------------
-      Scope 0x55b3dcddde40
+      Scope 25
       Variable Symbols:
 
       Function Symbols:
@@ -3429,7 +3385,7 @@ Label Symbols:
 
       Label Symbols:
 -----------------------------------------------------------
-        Scope 0x55b3dcdde0a0
+        Scope 26
         Variable Symbols:
 
         Function Symbols:
@@ -3438,7 +3394,7 @@ Label Symbols:
 
         Label Symbols:
 -----------------------------------------------------------
-        Scope 0x55b3dcdde690
+        Scope 27
         Variable Symbols:
 
         Function Symbols:
@@ -3447,7 +3403,7 @@ Label Symbols:
 
         Label Symbols:
 -----------------------------------------------------------
-        Scope 0x55b3dcddec80
+        Scope 28
         Variable Symbols:
 
         Function Symbols:
@@ -3456,7 +3412,7 @@ Label Symbols:
 
         Label Symbols:
 -----------------------------------------------------------
-          Scope 0x55b3dcde00b0
+          Scope 29
           Variable Symbols:
 
           Function Symbols:
@@ -3465,7 +3421,7 @@ Label Symbols:
 
           Label Symbols:
 -----------------------------------------------------------
-          Scope 0x55b3dcde0320
+          Scope 30
           Variable Symbols:
 
           Function Symbols:
@@ -3474,9 +3430,9 @@ Label Symbols:
 
           Label Symbols:
 -----------------------------------------------------------
-          Scope 0x55b3dcde07d0
+          Scope 31
           Variable Symbols:
-            opening -> 0x55b3dcde0aa0 : VarSymbol I32
+            opening -> 0x5647ead5ca30 : VarSymbol I32
 
           Function Symbols:
 
@@ -3484,7 +3440,7 @@ Label Symbols:
 
           Label Symbols:
 -----------------------------------------------------------
-            Scope 0x55b3dcde0ce0
+            Scope 32
             Variable Symbols:
 
             Function Symbols:
@@ -3493,7 +3449,7 @@ Label Symbols:
 
             Label Symbols:
 -----------------------------------------------------------
-            Scope 0x55b3dcde1360
+            Scope 33
             Variable Symbols:
 
             Function Symbols:
@@ -3502,7 +3458,7 @@ Label Symbols:
 
             Label Symbols:
 -----------------------------------------------------------
-            Scope 0x55b3dcde1620
+            Scope 34
             Variable Symbols:
 
             Function Symbols:
@@ -3511,7 +3467,7 @@ Label Symbols:
 
             Label Symbols:
 -----------------------------------------------------------
-        Scope 0x55b3dcde1d70
+        Scope 35
         Variable Symbols:
 
         Function Symbols:
@@ -3520,9 +3476,9 @@ Label Symbols:
 
         Label Symbols:
 -----------------------------------------------------------
-  Scope 0x55b3dcde23e0: FuncSymbol Void ()
+  Scope 36: FuncSymbol Void ()
   Variable Symbols:
-    i -> 0x55b3dcde2620 : VarSymbol I32
+    i -> 0x5647ead5e640 : VarSymbol I32
 
   Function Symbols:
 
@@ -3530,7 +3486,7 @@ Label Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
-    Scope 0x55b3dcde2790
+    Scope 37
     Variable Symbols:
 
     Function Symbols:
@@ -3538,9 +3494,9 @@ Label Symbols:
     Type Symbols:
 
     Label Symbols:
-      while_start_0x55b3dcddae60 -> 0x55b3dcde2e20 : LabelSymbol
+      while_start_0x5647ead56d10 -> 0x5647ead5ee70 : LabelSymbol
 -----------------------------------------------------------
-      Scope 0x55b3dcde29a0
+      Scope 38
       Variable Symbols:
 
       Function Symbols:
@@ -3549,9 +3505,9 @@ Label Symbols:
 
       Label Symbols:
 -----------------------------------------------------------
-  Scope 0x55b3dcde35c0: FuncSymbol Void (U8 *)
+  Scope 39: FuncSymbol Void (U8 *)
   Variable Symbols:
-    argname -> 0x55b3dcde3520 : VarSymbol U8 *
+    argname -> 0x5647ead5f4d0 : VarSymbol U8 *
 
   Function Symbols:
 
@@ -3559,9 +3515,9 @@ Label Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
-  Scope 0x55b3dcde3a20: FuncSymbol I32 ()
+  Scope 40: FuncSymbol I32 ()
   Variable Symbols:
-    program -> 0x55b3dcde3de0 : VarSymbol U8[]
+    program -> 0x5647ead5fde0 : VarSymbol U8[]
 
   Function Symbols:
 
@@ -3725,7 +3681,7 @@ VarSymbol I32
 | | | | Binary: < @ <test/brainfuck.ec:68.11-16>
 | | | | | Ident: i @ <test/brainfuck.ec:68.11-12>
 | | | | | Literal: 8 @ <test/brainfuck.ec:68.16>
-| | | | Label: while_start_0x55b3dcdd36f0 @ <test/brainfuck.ec:68.5-71.5>
+| | | | Label: while_start_0x5647ead4f5a0 @ <test/brainfuck.ec:68.5-71.5>
 | | | | | CompoundStmtMIR @ <test/brainfuck.ec:68.19-71.5>
 | | | | | | IfStmt @ <test/brainfuck.ec:69.9-42>
 | | | | | | | Binary: == @ <test/brainfuck.ec:69.12-31>
@@ -3757,7 +3713,7 @@ VarSymbol I32
 | | | | | | Ident: src @ <test/brainfuck.ec:81.11-14>
 | | | | | | Ident: i @ <test/brainfuck.ec:81.11-16>
 | | | | | Literal: 0 @ <test/brainfuck.ec:81.22-25>
-| | | | Label: while_start_0x55b3dcdd4f10 @ <test/brainfuck.ec:81.5-91.5>
+| | | | Label: while_start_0x5647ead50dc0 @ <test/brainfuck.ec:81.5-91.5>
 | | | | | CompoundStmtMIR @ <test/brainfuck.ec:81.28-91.5>
 | | | | | | IfStmt @ <test/brainfuck.ec:82.9-84.9>
 | | | | | | | Call @ <test/brainfuck.ec:82.12-27>
@@ -3815,7 +3771,7 @@ VarSymbol I32
 | | | | | | Ident: code @ <test/brainfuck.ec:100.11-15>
 | | | | | | Ident: insptr @ <test/brainfuck.ec:100.11-22>
 | | | | | Literal: 0 @ <test/brainfuck.ec:100.28-31>
-| | | | Label: while_start_0x55b3dcdd6b40 @ <test/brainfuck.ec:100.5-117.5>
+| | | | Label: while_start_0x5647ead529f0 @ <test/brainfuck.ec:100.5-117.5>
 | | | | | CompoundStmtMIR @ <test/brainfuck.ec:100.34-117.5>
 | | | | | | IfStmt @ <test/brainfuck.ec:101.9-109.9>
 | | | | | | | Binary: == @ <test/brainfuck.ec:101.12-31>
@@ -3875,7 +3831,7 @@ VarSymbol U8
 | | | | | | | Ident: code @ <test/brainfuck.ec:123.17-20>
 | | | | | | | Ident: insptr @ <test/brainfuck.ec:123.17-27>
 | | | | | Literal: 0 @ <test/brainfuck.ec:123.34-37>
-| | | | Label: while_start_0x55b3dcdda4b0 @ <test/brainfuck.ec:123.5-200.5>
+| | | | Label: while_start_0x5647ead56360 @ <test/brainfuck.ec:123.5-200.5>
 | | | | | CompoundStmtMIR @ <test/brainfuck.ec:123.40-200.5>
 | | | | | | IfStmt @ <test/brainfuck.ec:124.9-127.9>
 | | | | | | | Binary: < @ <test/brainfuck.ec:124.12-22>
@@ -4033,7 +3989,7 @@ VarSymbol I32
 | | | | Binary: < @ <test/brainfuck.ec:206.11-20>
 | | | | | Ident: i @ <test/brainfuck.ec:206.11-12>
 | | | | | Literal: 30000 @ <test/brainfuck.ec:206.16-20>
-| | | | Label: while_start_0x55b3dcddae60 @ <test/brainfuck.ec:206.5-209.5>
+| | | | Label: while_start_0x5647ead56d10 @ <test/brainfuck.ec:206.5-209.5>
 | | | | | CompoundStmtMIR @ <test/brainfuck.ec:206.23-209.5>
 | | | | | | ExprStmt @ <test/brainfuck.ec:207.9-20>
 | | | | | | | Assign: = @ <test/brainfuck.ec:207.9-19>
@@ -4077,3 +4033,5 @@ VarSymbol U8[]
 | ExprStmt @ <test/brainfuck.ec:230.1-7>
 | | Call @ <test/brainfuck.ec:230.1-6>
 | | | Ident: Main @ <test/brainfuck.ec:230.1-4>
+pipeline complete
+exit
