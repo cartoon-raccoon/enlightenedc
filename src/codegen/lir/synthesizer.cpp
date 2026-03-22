@@ -114,7 +114,7 @@ void LIRSynthesizer::do_visit(BinaryExprMIR& node) {
     Box<ExprLIR> right = std::move(last_expr);
 
     Box<ExprLIR> expr = std::make_unique<BinaryExprLIR>(
-        node.loc, std::move(left), std::move(right), node.op);
+        node.loc, node.type, std::move(left), std::move(right), node.op);
     last_expr = std::move(expr);
 }
 
@@ -123,7 +123,7 @@ void LIRSynthesizer::do_visit(UnaryExprMIR& node) {
     Box<ExprLIR> operand = std::move(last_expr);
 
     Box<ExprLIR> expr = std::make_unique<UnaryExprLIR>(
-        node.loc, std::move(operand), node.op);
+        node.loc, node.type, std::move(operand), node.op);
 
     last_expr = std::move(expr);
 }

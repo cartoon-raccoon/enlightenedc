@@ -97,8 +97,12 @@ public:
 
 class ExprLIR : public LIRNode {
 public:
-    ExprLIR(NodeKind kind) : LIRNode(kind) {}
-    ExprLIR(Location loc, NodeKind kind) : LIRNode(loc, kind) {}\
+    ExprLIR(NodeKind kind, sema::types::Type *type) : 
+        LIRNode(kind), type(type) {}
+    ExprLIR(Location loc, NodeKind kind, sema::types::Type *type) : 
+        LIRNode(loc, kind), type(type) {}
+
+    sema::types::Type *type;
 
     virtual void accept(LIRVisitor& visitor) = 0;
 };
@@ -243,11 +247,12 @@ public:
 
 class BinaryExprLIR : public ExprLIR {
 public:
-    BinaryExprLIR(Location loc, 
+    BinaryExprLIR(Location loc,
+                  sema::types::Type *type,
                   Box<ExprLIR> left, 
                   Box<ExprLIR> right, 
                   tokens::BinaryOp op)
-        : ExprLIR(loc, NodeKind::BINEXPR_LIR),
+        : ExprLIR(loc, NodeKind::BINEXPR_LIR, type),
         left(std::move(left)), right(std::move(right)), op(op) {}
 
     Box<ExprLIR> left;
@@ -259,8 +264,11 @@ public:
 
 class UnaryExprLIR : public ExprLIR {
 public:
-    UnaryExprLIR(Location loc, Box<ExprLIR> operand, tokens::UnaryOp op)
-        : ExprLIR(loc, NodeKind::UNEXPR_LIR), 
+    UnaryExprLIR(Location loc,
+                 sema::types::Type *type, 
+                 Box<ExprLIR> operand, 
+                 tokens::UnaryOp op)
+        : ExprLIR(loc, NodeKind::UNEXPR_LIR, type), 
         operand(std::move(operand)), op(op) {}
     
     Box<ExprLIR> operand;
@@ -271,8 +279,11 @@ public:
 
 class CastExprLIR : public ExprLIR {
 public:
-    CastExprLIR(Location loc, Box<ExprLIR> inner, sema::types::Type *target)
-        : ExprLIR(loc, NodeKind::CASTEXPR_LIR), 
+    CastExprLIR(Location loc,
+                sema::types::Type *type,
+                Box<ExprLIR> inner, 
+                sema::types::Type *target)
+        : ExprLIR(loc, NodeKind::CASTEXPR_LIR, type), 
         target(target),
         inner(std::move(inner)) {}
     
@@ -284,10 +295,11 @@ public:
 
 class AssignExprLIR : public ExprLIR {
 public:
-    AssignExprLIR(Location loc, 
+    AssignExprLIR(Location loc,
+                  sema::types::Type *type,
                   Box<ExprLIR> left, Box<ExprLIR> right, 
                   tokens::AssignOp op)
-        : ExprLIR(loc, NodeKind::ASSIGNEXPR_LIR), 
+        : ExprLIR(loc, NodeKind::ASSIGNEXPR_LIR, type), 
         left(std::move(left)), right(std::move(right)), op(op) {}
     
     Box<ExprLIR> left;
