@@ -87,7 +87,7 @@ Node {
         parsing declaration specifier list for node at input/literals.ec:1.1-161
         Node {
             visiting PrimitiveSpecifier node: input/literals.ec:1.1-152
-TypeContext: getting primitive type with value 2
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node input/literals.ec:1.1-161
         Node {
@@ -113,7 +113,7 @@ SymbolTable: inserting varsymbol with name "a"
         parsing declaration specifier list for node at input/literals.ec:2.1-13
         Node {
             visiting PrimitiveSpecifier node: input/literals.ec:2.1-4
-TypeContext: getting primitive type with value 2
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node input/literals.ec:2.1-13
         Node {
@@ -142,7 +142,7 @@ SymbolTable: inserting varsymbol with name "b"
         parsing declaration specifier list for node at input/literals.ec:3.1-13
         Node {
             visiting PrimitiveSpecifier node: input/literals.ec:3.1-4
-TypeContext: getting primitive type with value 2
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node input/literals.ec:3.1-13
         Node {
@@ -168,7 +168,7 @@ SymbolTable: inserting varsymbol with name "c"
         parsing declaration specifier list for node at input/literals.ec:4.1-14
         Node {
             visiting PrimitiveSpecifier node: input/literals.ec:4.1-4
-TypeContext: getting primitive type with value 2
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node input/literals.ec:4.1-14
         Node {
@@ -194,7 +194,7 @@ SymbolTable: inserting varsymbol with name "d"
         parsing declaration specifier list for node at input/literals.ec:6.1-15
         Node {
             visiting PrimitiveSpecifier node: input/literals.ec:6.1-4
-TypeContext: getting primitive type with value 8
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node input/literals.ec:6.1-15
         Node {
@@ -220,7 +220,7 @@ SymbolTable: inserting varsymbol with name "f1"
         parsing declaration specifier list for node at input/literals.ec:7.1-19
         Node {
             visiting PrimitiveSpecifier node: input/literals.ec:7.1-4
-TypeContext: getting primitive type with value 8
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node input/literals.ec:7.1-19
         Node {
@@ -249,7 +249,7 @@ SymbolTable: inserting varsymbol with name "f2"
         parsing declaration specifier list for node at input/literals.ec:9.1-13
         Node {
             visiting PrimitiveSpecifier node: input/literals.ec:9.1-3
-TypeContext: getting primitive type with value 0
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node input/literals.ec:9.1-13
         Node {
@@ -275,7 +275,7 @@ SymbolTable: inserting varsymbol with name "ch"
         parsing declaration specifier list for node at input/literals.ec:10.1-14
         Node {
             visiting PrimitiveSpecifier node: input/literals.ec:10.1-3
-TypeContext: getting primitive type with value 0
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node input/literals.ec:10.1-14
         Node {
@@ -301,7 +301,7 @@ SymbolTable: inserting varsymbol with name "nl"
         parsing declaration specifier list for node at input/literals.ec:11.1-14
         Node {
             visiting PrimitiveSpecifier node: input/literals.ec:11.1-3
-TypeContext: getting primitive type with value 0
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node input/literals.ec:11.1-14
         Node {
@@ -365,18 +365,16 @@ Array Types:
 --------- SYMBOL TABLE ---------
 
 Scope 0
-Variable Symbols:
-  nl -> 0x55a4253f5d10 : VarSymbol U8i
-  ch -> 0x55a4253f5ae0 : VarSymbol U8i
-  f2 -> 0x55a4253f5860 : VarSymbol F64i
-  qt -> 0x55a4253f5f40 : VarSymbol U8i
-  f1 -> 0x55a4253f55e0 : VarSymbol F64i
-  c -> 0x55a4253f51c0 : VarSymbol U32i
-  b -> 0x55a4253f4f40 : VarSymbol U32i
-  d -> 0x55a4253f53d0 : VarSymbol U32i
-  a -> 0x55a4253f4cc0 : VarSymbol U32i
-
-Function Symbols:
+Physical Symbols:
+  nl -> 0x56327f25bcd0 : VarSymbol: nl :: U8i
+  ch -> 0x56327f25baa0 : VarSymbol: ch :: U8i
+  f2 -> 0x56327f25b820 : VarSymbol: f2 :: F64i
+  qt -> 0x56327f25bf00 : VarSymbol: qt :: U8i
+  f1 -> 0x56327f25b5a0 : VarSymbol: f1 :: F64i
+  c -> 0x56327f25b180 : VarSymbol: c :: U32i
+  b -> 0x56327f25af00 : VarSymbol: b :: U32i
+  d -> 0x56327f25b390 : VarSymbol: d :: U32i
+  a -> 0x56327f25ac80 : VarSymbol: a :: U32i
 
 Type Symbols:
 
@@ -387,43 +385,43 @@ Label Symbols:
 
 ProgramMIR @ <1.1>
 | VarDecl:  @ <input/literals.ec:1.1-161>
-VarSymbol U32i
-| | Initializer @ <input/literals.ec:1.158-160>
-| | | Literal: 123 @ <input/literals.ec:1.158-160>
+| | | VarSymbol: a :: U32i
+| | | Initializer @ <input/literals.ec:1.158-160>
+| | | | Literal: 123 @ <input/literals.ec:1.158-160>
 | VarDecl:  @ <input/literals.ec:2.1-13>
-VarSymbol U32i
-| | Initializer @ <input/literals.ec:2.10-12>
-| | | Unary: - @ <input/literals.ec:2.10-12>
-| | | | Literal: 45 @ <input/literals.ec:2.10-12>
+| | | VarSymbol: b :: U32i
+| | | Initializer @ <input/literals.ec:2.10-12>
+| | | | Unary: - @ <input/literals.ec:2.10-12>
+| | | | | Literal: 45 @ <input/literals.ec:2.10-12>
 | VarDecl:  @ <input/literals.ec:3.1-13>
-VarSymbol U32i
-| | Initializer @ <input/literals.ec:3.10-12>
-| | | Literal: 63 @ <input/literals.ec:3.10-12>
+| | | VarSymbol: c :: U32i
+| | | Initializer @ <input/literals.ec:3.10-12>
+| | | | Literal: 63 @ <input/literals.ec:3.10-12>
 | VarDecl:  @ <input/literals.ec:4.1-14>
-VarSymbol U32i
-| | Initializer @ <input/literals.ec:4.10-13>
-| | | Literal: 255 @ <input/literals.ec:4.10-13>
+| | | VarSymbol: d :: U32i
+| | | Initializer @ <input/literals.ec:4.10-13>
+| | | | Literal: 255 @ <input/literals.ec:4.10-13>
 | VarDecl:  @ <input/literals.ec:6.1-15>
-VarSymbol F64i
-| | Initializer @ <input/literals.ec:6.11-14>
-| | | Literal: 0.000000 @ <input/literals.ec:6.11-14>
+| | | VarSymbol: f1 :: F64i
+| | | Initializer @ <input/literals.ec:6.11-14>
+| | | | Literal: 0.000000 @ <input/literals.ec:6.11-14>
 | VarDecl:  @ <input/literals.ec:7.1-19>
-VarSymbol F64i
-| | Initializer @ <input/literals.ec:7.11-18>
-| | | Unary: - @ <input/literals.ec:7.11-18>
-| | | | Literal: 0.000000 @ <input/literals.ec:7.11-18>
+| | | VarSymbol: f2 :: F64i
+| | | Initializer @ <input/literals.ec:7.11-18>
+| | | | Unary: - @ <input/literals.ec:7.11-18>
+| | | | | Literal: 0.000000 @ <input/literals.ec:7.11-18>
 | VarDecl:  @ <input/literals.ec:9.1-13>
-VarSymbol U8i
-| | Initializer @ <input/literals.ec:9.10-12>
-| | | Literal: 65 @ <input/literals.ec:9.10-12>
+| | | VarSymbol: ch :: U8i
+| | | Initializer @ <input/literals.ec:9.10-12>
+| | | | Literal: 65 @ <input/literals.ec:9.10-12>
 | VarDecl:  @ <input/literals.ec:10.1-14>
-VarSymbol U8i
-| | Initializer @ <input/literals.ec:10.10-13>
-| | | Literal: 10 @ <input/literals.ec:10.10-13>
+| | | VarSymbol: nl :: U8i
+| | | Initializer @ <input/literals.ec:10.10-13>
+| | | | Literal: 10 @ <input/literals.ec:10.10-13>
 | VarDecl:  @ <input/literals.ec:11.1-14>
-VarSymbol U8i
-| | Initializer @ <input/literals.ec:11.10-13>
-| | | Literal: 34 @ <input/literals.ec:11.10-13>
+| | | VarSymbol: qt :: U8i
+| | | Initializer @ <input/literals.ec:11.10-13>
+| | | | Literal: 34 @ <input/literals.ec:11.10-13>
 | Print: "Values:
 " @ <input/literals.ec:13.1-32>
 | | Ident: a @ <input/literals.ec:13.14>

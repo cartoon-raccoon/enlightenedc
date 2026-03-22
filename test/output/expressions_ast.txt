@@ -136,7 +136,7 @@ Node {
         parsing declaration specifier list for node at input/expressions.ec:1.1-165
         Node {
             visiting PrimitiveSpecifier node: input/expressions.ec:1.1-158
-TypeContext: getting primitive type with value 2
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node input/expressions.ec:1.1-165
         Node {
@@ -162,7 +162,7 @@ SymbolTable: inserting varsymbol with name "x"
         parsing declaration specifier list for node at input/expressions.ec:2.1-11
         Node {
             visiting PrimitiveSpecifier node: input/expressions.ec:2.1-4
-TypeContext: getting primitive type with value 2
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node input/expressions.ec:2.1-11
         Node {
@@ -188,7 +188,7 @@ SymbolTable: inserting varsymbol with name "a"
         parsing declaration specifier list for node at input/expressions.ec:3.1-11
         Node {
             visiting PrimitiveSpecifier node: input/expressions.ec:3.1-4
-TypeContext: getting primitive type with value 2
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node input/expressions.ec:3.1-11
         Node {
@@ -394,7 +394,7 @@ SymbolTable: looking up varsymbol a
                         parsing declaration specifier list for node at input/expressions.ec:11.5-9
                         Node {
                             visiting PrimitiveSpecifier node: input/expressions.ec:11.5-9
-TypeContext: getting primitive type with value 2
+TypeContext: getting primitive type
                         }
                         finished parsing specifiers for node input/expressions.ec:11.5-9
                     }
@@ -423,7 +423,7 @@ SymbolTable: looking up varsymbol a
                     parsing declaration specifier list for node at input/expressions.ec:12.5-9
                     Node {
                         visiting PrimitiveSpecifier node: input/expressions.ec:12.5-9
-TypeContext: getting primitive type with value 6
+TypeContext: getting primitive type
                     }
                     finished parsing specifiers for node input/expressions.ec:12.5-9
                 }
@@ -435,7 +435,7 @@ TypeContext: getting primitive type with value 6
         parsing declaration specifier list for node at input/expressions.ec:14.1-7
         Node {
             visiting PrimitiveSpecifier node: input/expressions.ec:14.1-3
-TypeContext: getting primitive type with value 0
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node input/expressions.ec:14.1-7
         Node {
@@ -450,7 +450,7 @@ TypeContext: getting primitive type with value 0
             }
         }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x55c72759e260
+TypeContext: pointer with base 0x564e9a54a220
 SymbolTable: inserting varsymbol with name "s"
     }
     Node {
@@ -500,7 +500,7 @@ SymbolTable: looking up varsymbol x
                     parsing declaration specifier list for node at input/expressions.ec:19.6-16
                     Node {
                         visiting PrimitiveSpecifier node: input/expressions.ec:19.6-16
-TypeContext: getting primitive type with value 2
+TypeContext: getting primitive type
                     }
                     finished parsing specifiers for node input/expressions.ec:19.6-16
                 }
@@ -569,13 +569,11 @@ Array Types:
 --------- SYMBOL TABLE ---------
 
 Scope 0
-Variable Symbols:
-  s -> 0x55c7275a0980 : VarSymbol U8i *
-  b -> 0x55c72759f140 : VarSymbol U32i
-  a -> 0x55c72759ef10 : VarSymbol U32i
-  x -> 0x55c72759ec90 : VarSymbol U32i
-
-Function Symbols:
+Physical Symbols:
+  s -> 0x564e9a54c940 : VarSymbol: s :: U8i *
+  b -> 0x564e9a54b100 : VarSymbol: b :: U32i
+  a -> 0x564e9a54aed0 : VarSymbol: a :: U32i
+  x -> 0x564e9a54ac50 : VarSymbol: x :: U32i
 
 Type Symbols:
 
@@ -586,17 +584,17 @@ Label Symbols:
 
 ProgramMIR @ <1.1>
 | VarDecl:  @ <input/expressions.ec:1.1-165>
-VarSymbol U32i
-| | Initializer @ <input/expressions.ec:1.164>
-| | | Literal: 0 @ <input/expressions.ec:1.164>
+| | | VarSymbol: x :: U32i
+| | | Initializer @ <input/expressions.ec:1.164>
+| | | | Literal: 0 @ <input/expressions.ec:1.164>
 | VarDecl:  @ <input/expressions.ec:2.1-11>
-VarSymbol U32i
-| | Initializer @ <input/expressions.ec:2.10>
-| | | Literal: 1 @ <input/expressions.ec:2.10>
+| | | VarSymbol: a :: U32i
+| | | Initializer @ <input/expressions.ec:2.10>
+| | | | Literal: 1 @ <input/expressions.ec:2.10>
 | VarDecl:  @ <input/expressions.ec:3.1-11>
-VarSymbol U32i
-| | Initializer @ <input/expressions.ec:3.10>
-| | | Literal: 2 @ <input/expressions.ec:3.10>
+| | | VarSymbol: b :: U32i
+| | | Initializer @ <input/expressions.ec:3.10>
+| | | | Literal: 2 @ <input/expressions.ec:3.10>
 | ExprStmt @ <input/expressions.ec:4.1-26>
 | | Assign: = @ <input/expressions.ec:4.1-25>
 | | | Ident: x @ <input/expressions.ec:4.1>
@@ -660,7 +658,7 @@ VarSymbol U32i
 | | | Cast -> I32i @ <input/expressions.ec:12.5-12>
 | | | | Ident: a @ <input/expressions.ec:12.12>
 | VarDecl:  @ <input/expressions.ec:14.1-7>
-VarSymbol U8i *
+| | | VarSymbol: s :: U8i *
 | ExprStmt @ <input/expressions.ec:15.1-13>
 | | Assign: = @ <input/expressions.ec:15.1-12>
 | | | Ident: s @ <input/expressions.ec:15.1>

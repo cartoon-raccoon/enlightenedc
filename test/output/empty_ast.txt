@@ -25,9 +25,7 @@ Array Types:
 --------- SYMBOL TABLE ---------
 
 Scope 0
-Variable Symbols:
-
-Function Symbols:
+Physical Symbols:
 
 Type Symbols:
 

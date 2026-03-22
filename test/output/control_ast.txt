@@ -103,7 +103,7 @@ Node {
         parsing declaration specifier list for node at input/control.ec:1.1-157
         Node {
             visiting PrimitiveSpecifier node: input/control.ec:1.1-150
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node input/control.ec:1.1-157
         Node {
@@ -345,7 +345,7 @@ SymbolTable: entering scope 8
             parsing declaration specifier list for node at input/control.ec:29.5-15
             Node {
                 visiting PrimitiveSpecifier node: input/control.ec:29.5-9
-TypeContext: getting primitive type with value 2
+TypeContext: getting primitive type
             }
             finished parsing specifiers for node input/control.ec:29.5-15
             Node {
@@ -448,102 +448,80 @@ Array Types:
 --------- SYMBOL TABLE ---------
 
 Scope 0
-Variable Symbols:
-  n -> 0x557b81c87c40 : VarSymbol I64i
-
-Function Symbols:
+Physical Symbols:
+  n -> 0x55d0bdd2ec00 : VarSymbol: n :: I64i
 
 Type Symbols:
 
 Label Symbols:
-  start -> 0x557b81c87da0 : LabelSymbol
+  start -> 0x55d0bdd2ed60 : LabelSymbol: start
 -----------------------------------------------------------
   Scope 1
-  Variable Symbols:
-
-  Function Symbols:
+  Physical Symbols:
 
   Type Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
   Scope 2
-  Variable Symbols:
-
-  Function Symbols:
+  Physical Symbols:
 
   Type Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
   Scope 3
-  Variable Symbols:
-
-  Function Symbols:
+  Physical Symbols:
 
   Type Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
   Scope 4
-  Variable Symbols:
-
-  Function Symbols:
+  Physical Symbols:
 
   Type Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
   Scope 5
-  Variable Symbols:
-
-  Function Symbols:
+  Physical Symbols:
 
   Type Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
   Scope 6
-  Variable Symbols:
-
-  Function Symbols:
+  Physical Symbols:
 
   Type Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
     Scope 7
-    Variable Symbols:
-
-    Function Symbols:
+    Physical Symbols:
 
     Type Symbols:
 
     Label Symbols:
 -----------------------------------------------------------
   Scope 8
-  Variable Symbols:
-    n -> 0x557b81c89f40 : VarSymbol U32i
-
-  Function Symbols:
+  Physical Symbols:
+    n -> 0x55d0bdd30cd0 : VarSymbol: n :: U32i
 
   Type Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
   Scope 9
-  Variable Symbols:
-
-  Function Symbols:
+  Physical Symbols:
 
   Type Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
   Scope 10
-  Variable Symbols:
-
-  Function Symbols:
+  Physical Symbols:
 
   Type Symbols:
 
@@ -554,9 +532,9 @@ Label Symbols:
 
 ProgramMIR @ <1.1>
 | VarDecl:  @ <input/control.ec:1.1-157>
-VarSymbol I64i
-| | Initializer @ <input/control.ec:1.156>
-| | | Literal: 0 @ <input/control.ec:1.156>
+| | | VarSymbol: n :: I64i
+| | | Initializer @ <input/control.ec:1.156>
+| | | | Literal: 0 @ <input/control.ec:1.156>
 | Label: start @ <input/control.ec:3.1-10.1>
 | | IfStmt @ <input/control.ec:4.1-10.1>
 | | | Binary: < @ <input/control.ec:4.4-10>
@@ -615,9 +593,9 @@ VarSymbol I64i
 | | | | | Ident: n @ <input/control.ec:26.5>
 | LoopStmt @ <input/control.ec:29.1-37>
 | | VarDecl:  @ <input/control.ec:29.5-15>
-VarSymbol U32i
-| | | Initializer @ <input/control.ec:29.15>
-| | | | Literal: 0 @ <input/control.ec:29.15>
+| | | | VarSymbol: n :: U32i
+| | | | Initializer @ <input/control.ec:29.15>
+| | | | | Literal: 0 @ <input/control.ec:29.15>
 | | Binary: < @ <input/control.ec:29.18-22>
 | | | Ident: n @ <input/control.ec:29.18>
 | | | Literal: 5 @ <input/control.ec:29.22>

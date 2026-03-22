@@ -1,9 +1,13 @@
 extern "C" I32i somefunc();
 
-I32i someinternalfunc();
+I32i someinternalfunc(I32i);
 
 U32i *add(U32i a, U32i b) {
     return a + b;
+}
+
+I32i someinternalfunc(I32i somearg) {
+    return somearg;
 }
 
 public I32i compute(I32i x = 10, I32i y = 20, ...) {
@@ -16,19 +20,19 @@ public I32i compute(I32i x = 10, I32i y = 20, ...) {
 }
 
 class What {
-  U32i hello;
+    U32i hello;
 } complex_class_func(U32i thing) {
-  class What ret = { thing };
+    What ret = { thing };
 
-  return ret;
+    return ret;
 }
 
 class Point {
-  I32i x;
-  I32i y;
+    I32i x;
+    I32i y;
 };
 
-class Point *compute_point(class Point *p, I32i dx, I32i dy) {
+Point *compute_point(class Point *p, I32i dx, I32i dy) {
   p->x += dx;
   p->y += dy;
 
@@ -41,9 +45,18 @@ Void noop() {
     return;
 }
 
+// Test call statement
 noop();
 
+// Test call statement without parens
 noop;
+
+// test assigning to function pointer;
+// noop should not expand to a call expr
+Void (*funcptr) () = noop;
+
+// Print statement test
+"TestPrintStatement";
 
 I64i CallbackFunction(I64i x)
 {
