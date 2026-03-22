@@ -182,10 +182,15 @@ std::string EnumType::to_string() const {
 std::string PointerType::to_string() const {
     std::stringstream ss;
 
-    if (base)
-        ss << base->to_string();
-    else
+    if (base) {
+        if (base->get_name()) {
+            ss << *(base->get_name());
+        } else {
+            ss << base->to_string();
+        }
+    } else {
         ss << "<null>";
+    }
 
     ss << " *";
 
@@ -198,10 +203,15 @@ std::string PointerType::to_string() const {
 std::string ArrayType::to_string() const {
     std::stringstream ss;
 
-    if (base)
-        ss << base->to_string();
-    else
+    if (base) {
+        if (base->get_name()) {
+            ss << *(base->get_name());
+        } else {
+            ss << base->to_string();
+        }
+    } else {
         ss << "<null>";
+    }
 
     ss << "[";
 
@@ -255,20 +265,25 @@ std::string TypeContext::to_string() const {
     ss << "Base Types:\n";
 
     for (auto const& [name, type] : user_types) {
-        ss << "  " << name << " -> " << type.get() << " : " << type->to_string()
-           << "\n";
+        ss << "  " << name << " : " << type->to_string() << "\n";
+    }
+
+    ss << "\nFunction Types:\n";
+
+    for (auto const&[name, type] : function_types) {
+        ss << "  " << name << " : " << type->to_string() << "\n";
     }
 
     ss << "\nPointer Types:\n";
 
     for (auto const& [key, ptr] : pointers) {
-        ss << "  " << ptr.get() << " : " << ptr->to_string() << "\n";
+        ss << "  :" << ptr->to_string() << "\n";
     }
 
     ss << "\nArray Types:\n";
 
     for (auto const& [key, arr] : arrays) {
-        ss << "  " << arr.get() << " : " << arr->to_string() << "\n";
+        ss << " : " << arr->to_string() << "\n";
     }
 
     ss << "\n";

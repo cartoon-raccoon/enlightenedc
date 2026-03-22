@@ -6,6 +6,7 @@
 #include <variant>
 
 #include "semantics/types.hpp"
+#include "codegen/llvm.hpp"
 #include "semantics/semerr.hpp"
 #include "util.hpp"
 
@@ -342,8 +343,8 @@ void TypeBuilder::add_pointer(bool is_const) {
     type_stack.push(Ptr {is_const});
 }
 
-void TypeBuilder::add_function(Vec<FuncParam> params, bool variadic, sym::Scope *scope) {
-    type_stack.push(FnParams {std::move(params), variadic, scope});
+void TypeBuilder::add_function(Vec<FuncParam> params, bool variadic) {
+    type_stack.push(FnParams {std::move(params), variadic});
 }
 
 void TypeBuilder::set_base(BaseType *base) {
@@ -381,7 +382,7 @@ Type *TypeBuilder::finalize() {
                     params.push_back(param.type);
                 }
                 // Wrap the base as the return type in a function type.
-                curr = this->ctxt.get_function(curr, std::move(params), fn.variadic, fn.scope);
+                curr = this->ctxt.get_function(curr, std::move(params), fn.variadic);
             }
         }, next_cstrctr);
 
@@ -392,8 +393,8 @@ Type *TypeBuilder::finalize() {
     return curr;
 }
 
-TypeContext::TypeContext()
-    : anonymous_ctr(0), user_types(), pointers(), arrays(),
+TypeContext::TypeContext(codegen::LLVM& llvm)
+    : anonymous_ctr(0), user_types(), pointers(), arrays(), llvm(llvm),
     voidt(std::make_unique<VoidType>()),
     u8(std::make_unique<PrimitiveType>(PrimitiveType::Kind::U8)),
     u16(std::make_unique<PrimitiveType>(PrimitiveType::Kind::U16)),
@@ -569,7 +570,7 @@ ArrayType *TypeContext::get_array(Type *base) {
     return ret;
 }
 
-FunctionType *TypeContext::get_function(Type *returntype, Vec<Type *> params, bool variadic, sym::Scope *scope) {
+FunctionType *TypeContext::get_function(Type *returntype, Vec<Type *> params, bool variadic) {
     /*
     Function types do not need to be scope-aware, since their names are purely symbolic, and
     have no bearing on type equality. If a pointer to a function that was declared in a non-global scope
@@ -579,7 +580,7 @@ FunctionType *TypeContext::get_function(Type *returntype, Vec<Type *> params, bo
     */
 
     dbprint("TypeContext: getting function type");
-    Box<FunctionType> func = std::make_unique<FunctionType>(scope);
+    Box<FunctionType> func = std::make_unique<FunctionType>(returntype);
     FunctionType *ret = func.get();
 
     FunctionType::FunctionSignature sig = {returntype, std::move(params), variadic};
@@ -598,12 +599,12 @@ FunctionType *TypeContext::get_function(Type *returntype, Vec<Type *> params, bo
     else
         name = "function_" + std::to_string(hash);
 
-    if (user_types.contains(name)) {
+    if (function_types.contains(name)) {
         dbprint("TypeConstext: existing function type found");
-        return user_types.find(name)->second.get()->as_function();
+        return function_types.find(name)->second.get();
     }
 
-    user_types[name] = std::move(func);
+    function_types[name] = std::move(func);
 
     return ret;
 }

@@ -11,6 +11,7 @@
 #include <utility>
 #include <variant>
 
+#include "codegen/llvm.hpp"
 #include "util.hpp"
 
 /*
@@ -161,7 +162,7 @@ protected:
 
 /*
 An abstract class representing a type that is constructed from BaseTypes,
-or is user-defined. These are the unions, structs, enums, and functions.
+or is user-defined. These are the unions, structs, and enums.
 */
 class UserType : public BaseType {
 public:
@@ -180,6 +181,14 @@ protected:
         : BaseType(kind), scope(scope) {}
 };
 
+/*
+An abstract class representing a type constructor whose final type
+relies on a base type. For example, a pointer relies on the type that
+it points to, in order for its full type to be known.
+
+In EnlightenedC, functions are considered derived types; their base
+type being their return type.
+*/
 class DerivedType : public Type {
 public:
     bool is_derived() { return true; }
@@ -531,7 +540,7 @@ struct FuncParam {
     bool is_const;
 };
 
-class FunctionType : public UserType {
+class FunctionType : public DerivedType {
 public:
     struct FunctionSignature {
         Type *returntype;
@@ -558,9 +567,9 @@ protected:
     friend class TypeContext;
     friend class TypeBuilder;
 
-    friend constexpr Box<FunctionType> std::make_unique<FunctionType>(sema::sym::Scope *&);
+    friend constexpr Box<FunctionType> std::make_unique<FunctionType>(Type *&);
 
-    FunctionType(sema::sym::Scope *scope) : UserType(Type::Kind::FUNCTION, scope) {}
+    FunctionType(Type *base) : DerivedType(Type::Kind::FUNCTION, base) {}
 };
 
 /*
@@ -585,7 +594,7 @@ public:
 
     void add_pointer(bool is_const);
 
-    void add_function(Vec<FuncParam> params, bool variadic, sema::sym::Scope *scope);
+    void add_function(Vec<FuncParam> params, bool variadic);
 
     void set_base(BaseType *type);
 
@@ -599,7 +608,6 @@ public:
     struct FnParams {
         Vec<FuncParam> params;
         bool variadic;
-        sema::sym::Scope *scope;
     };
 
     BaseType *base;
@@ -635,7 +643,7 @@ The TypeContext stores keys to types as mangled names, incorporating the kind of
 */
 class TypeContext {
 public:
-    TypeContext();
+    TypeContext(codegen::LLVM&);
 
     TypeContext(const TypeContext&) = delete;
     TypeContext& operator=(const TypeContext&) = delete;
@@ -687,7 +695,7 @@ public:
     ArrayType *get_array(Type *base);
 
     // Create a function type based on its signature.
-    FunctionType *get_function(Type *ret, Vec<Type *> params, bool variadic, sema::sym::Scope *scope);
+    FunctionType *get_function(Type *ret, Vec<Type *> params, bool variadic);
 
     std::string to_string() const;
 
@@ -707,6 +715,8 @@ private:
     Box<PrimitiveType> f64;
     Box<PrimitiveType> boolt;
 
+    codegen::LLVM& llvm;
+
     template<typename T>
     struct pair_hash {
         std::size_t operator() (const std::pair<Type *, T> p) const {
@@ -723,6 +733,9 @@ private:
     // The map of record types (i.e. structs, unions, enums).
     std::unordered_map<std::string, Box<UserType>> user_types;
 
+    // The map of function types.
+    std::unordered_map<std::string, Box<FunctionType>> function_types;
+
     // The map of pointer types, mapped by their base type.
     std::unordered_map<PointerKey, Box<PointerType>, pair_hash<bool>> pointers;
 
@@ -735,7 +748,7 @@ private:
     std::string mangle(std::string name, sema::sym::Scope *sc) {
         std::stringstream ss;
 
-        ss << T::base() << name << "_" << static_cast<const void *>(sc);
+        ss << T::base() << name << "_" << static_cast<const void *>(sc); // fixme: use scope id
 
         return ss.str();
     }

@@ -20,11 +20,20 @@ namespace ecc::codegen::lir {
 class LIRSynthesizer : public sema::BaseMIRSemaVisitor {
 public:
     LIRSynthesizer(sema::sym::SymbolTable& syms, sema::types::TypeContext& types)
-        : sema::BaseMIRSemaVisitor(State::READ, syms, types), symbolmap() {} 
+        : sema::BaseMIRSemaVisitor(State::READ, syms, types), 
+        symbolmap() {} 
 
     LIRSymbolMap symbolmap;
 
     Box<ExprLIR> last_expr;
+
+    void enqueue(Box<ProgItemLIR> item);
+    Box<ProgItemLIR> dequeue();
+
+    void push_queue();
+    void pop_queue();
+
+    bool curr_is_empty();
     
 protected:
     void do_visit(sema::mir::ProgramMIR& node) override;
@@ -64,6 +73,7 @@ protected:
     void do_visit(sema::mir::SizeofExprMIR& node) override;
 
 private:
+    std::queue<Box<ProgItemLIR>> current_q;
     std::stack<std::queue<Box<ProgItemLIR>>> queue_stack;
 };
 

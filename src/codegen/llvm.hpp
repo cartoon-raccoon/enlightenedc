@@ -32,14 +32,14 @@ namespace ecc::codegen {
 using LLVMType = llvm::Type;
 
 class LLVM {
-    static bool initialized;
+    inline static bool initialized;
 
 public:
-    LLVM();
-    ~LLVM() = default;
+    LLVM(std::string& module_name);
+    ~LLVM();
 
-    Box<llvm::Module> module;
     Box<llvm::LLVMContext> context;
+    Box<llvm::Module> llvmmod;
     Box<llvm::IRBuilder<>> irbuilder;
 };
 

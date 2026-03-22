@@ -310,7 +310,7 @@ A basic loop that all loops expand into.
 */
 class LoopStmtMIR : public StmtMIR {
 public:
-    LoopStmtMIR(Location loc, Box<LabeledStmtMIR> body) 
+    LoopStmtMIR(Location loc, Box<StmtMIR> body) 
         : StmtMIR(loc, NodeKind::LOOPSTMT_MIR),
         body(std::move(body)) {}
 
@@ -318,7 +318,7 @@ public:
                 std::optional<Box<ProgItemMIR>> init,
                 std::optional<Box<ExprMIR>> condition, 
                 std::optional<Box<StmtMIR>> step,
-                Box<LabeledStmtMIR> body,
+                Box<StmtMIR> body,
                 bool is_dowhile)
         : StmtMIR(loc, NodeKind::LOOPSTMT_MIR),
         init(std::move(init)),
@@ -329,7 +329,7 @@ public:
     
     LoopStmtMIR(Location loc, 
                 Box<ExprMIR> condition, 
-                Box<LabeledStmtMIR> body,
+                Box<StmtMIR> body,
                 bool is_dowhile)
         : StmtMIR(loc, NodeKind::LOOPSTMT_MIR),
         condition(std::move(condition)),
@@ -353,7 +353,7 @@ public:
     */
     std::optional<Box<StmtMIR>> step;
     // The actual body of the loop.
-    Box<LabeledStmtMIR> body;
+    Box<StmtMIR> body;
     bool is_dowhile;
 
     void accept(MIRVisitor& visitor) override;

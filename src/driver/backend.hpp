@@ -5,6 +5,7 @@
 
 #include "semantics/types.hpp"
 #include "semantics/symbols.hpp"
+#include "codegen/llvm.hpp"
 
 #include "util.hpp"
 
@@ -17,10 +18,10 @@ public:
     Box<sema::sym::SymbolTable> symbols;
     Box<sema::types::TypeContext> types;
 
-    Backend()
+    Backend(codegen::LLVM& llvm)
     : 
     symbols(std::make_unique<sema::sym::SymbolTable>()), 
-    types(std::make_unique<sema::types::TypeContext>()) {}
+    types(std::make_unique<sema::types::TypeContext>(llvm)) {}
 
     void run(TranslationUnit& unit);
 };

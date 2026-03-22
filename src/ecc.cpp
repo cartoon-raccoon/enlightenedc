@@ -25,7 +25,9 @@ void Ecc::run() {
 
 void Ecc::run_pipeline(std::string *filename) {
     dbprint("running pipeline on file ", *filename);
-    frontend::Driver driver(filename);
+
+    driver::TranslationUnit unit(filename);
+    driver::Driver driver(unit);
 
     driver.run();
 }

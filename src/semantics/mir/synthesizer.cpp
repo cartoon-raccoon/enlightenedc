@@ -1,5 +1,4 @@
 #include <memory>
-#include <sstream>
 #include <stdexcept>
 #include <cassert>
 #include <variant>
@@ -211,7 +210,7 @@ void MIRSynthesizer::do_visit(Function& node) {
                 last_func_params = std::move(fn.params);
                 // Wrap the base as the return type in a function type.
                 curr = builder->ty_bldr.ctxt.get_function(
-                    curr, std::move(params), fn.variadic, syms.current);
+                    curr, std::move(params), fn.variadic);
             }
         }, next_cstrctr);
 
@@ -428,7 +427,7 @@ void MIRSynthesizer::do_visit(FunctionDeclarator& node) {
         parameters.push_back(parsed);
     }
 
-    builder->ty_bldr.add_function(parameters, node.is_variadic, syms.current);
+    builder->ty_bldr.add_function(parameters, node.is_variadic);
 
     dv_return(builder);
 }
@@ -1119,22 +1118,9 @@ void MIRSynthesizer::do_visit(WhileStatement& node) {
     dv_call(std::monostate {}, node.body);
     Box<StmtMIR> body = take_last_result<Box<StmtMIR>>();
 
-    // Create the name for the loop start label
-    std::stringstream ss;
-    ss << "while_start_" << &node;
-
-    // Create the label symbol
-    Box<LabelSymbol> loop_label = std::make_unique<LabelSymbol>(node.loc, ss.str(), syms.current);
-    LabelSymbol *loop_lbl_ptr = syms.insert(ss.str(), std::move(loop_label))->as_labsym();
-    assert(loop_lbl_ptr);
-
-    // Create the LabeledStmtMIR node
-    Box<LabeledStmtMIR> lab_body = std::make_unique<LabeledStmtMIR>(
-        node.loc, loop_lbl_ptr, std::move(body));
-
     // Create the actual loop
     Box<StmtMIR> loop = std::make_unique<LoopStmtMIR>(
-        node.loc, std::move(cond), std::move(lab_body), false);
+        node.loc, std::move(cond), std::move(body), false);
 
     dv_return(loop);
 }
@@ -1147,18 +1133,8 @@ void MIRSynthesizer::do_visit(DoWhileStatement& node) {
     dv_call(std::monostate {}, node.body);
     Box<StmtMIR> body = take_last_result<Box<StmtMIR>>();
 
-    std::stringstream ss;
-    ss << "dowhile_start_" << &node;
-
-    Box<LabelSymbol> loop_label = std::make_unique<LabelSymbol>(node.loc, ss.str(), syms.current);
-    LabelSymbol *loop_lbl_ptr = syms.insert(ss.str(), std::move(loop_label))->as_labsym();
-    assert(loop_lbl_ptr);
-
-    Box<LabeledStmtMIR> lab_body = std::make_unique<LabeledStmtMIR>(
-        node.loc, loop_lbl_ptr, std::move(body));
-
     Box<StmtMIR> loop = std::make_unique<LoopStmtMIR>(
-        node.loc, std::move(cond), std::move(lab_body), true);
+        node.loc, std::move(cond), std::move(body), true);
 
     dv_return(loop);
 }
@@ -1169,17 +1145,7 @@ void MIRSynthesizer::do_visit(ForStatement& node) {
     dv_call(std::monostate {}, node.body);
     Box<StmtMIR> body = take_last_result<Box<StmtMIR>>();
 
-    std::stringstream ss;
-    ss << "for_start_" << &node;
-
-    Box<LabelSymbol> loop_label = std::make_unique<LabelSymbol>(node.loc, ss.str(), syms.current);
-    LabelSymbol *loop_lbl_ptr = syms.insert(ss.str(), std::move(loop_label))->as_labsym();
-    assert(loop_lbl_ptr);
-
-    Box<LabeledStmtMIR> lab_body = std::make_unique<LabeledStmtMIR>(
-        node.loc, loop_lbl_ptr, std::move(body));
-
-    Box<LoopStmtMIR> loop = std::make_unique<LoopStmtMIR>(node.loc, std::move(lab_body));
+    Box<LoopStmtMIR> loop = std::make_unique<LoopStmtMIR>(node.loc, std::move(body));
 
     if (node.init.has_value()) {
         std::visit(overloaded {

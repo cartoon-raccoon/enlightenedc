@@ -1,13 +1,17 @@
 #include "codegen/llvm.hpp"
-#include <llvm/MC/TargetRegistry.h>
-#include <llvm/Support/TargetSelect.h>
-#include <llvm/TargetParser/Host.h>
+
+#include "util.hpp"
 
 using namespace ecc::codegen;
 using namespace llvm;
 
-LLVM::LLVM() : module(), context(), irbuilder() {
+LLVM::LLVM(std::string& module_name) : 
+    context(), 
+    llvmmod(), 
+    irbuilder()
+{
     if (!initialized) {
+        dbprint("initializing LLVM");
         llvm::InitializeAllTargetInfos();
         llvm::InitializeAllTargets();
         llvm::InitializeAllTargetMCs();
@@ -17,14 +21,22 @@ LLVM::LLVM() : module(), context(), irbuilder() {
         initialized = true;
     }
 
+    context = std::make_unique<llvm::LLVMContext>();
+    llvmmod = std::make_unique<llvm::Module>(module_name, *context);
+    irbuilder = std::make_unique<llvm::IRBuilder<>>(*context);
+
     auto target_triple = sys::getDefaultTargetTriple();
-    module->setTargetTriple(Triple(target_triple));
+    llvmmod->setTargetTriple(Triple(target_triple));
 
     std::string error;
-    auto target = TargetRegistry::lookupTarget(module->getTargetTriple(), error);
+    auto target = TargetRegistry::lookupTarget(llvmmod->getTargetTriple(), error);
     if (!target) {
         // todo: throw error
     }
 
+    dbprint("LLVM initialized");
+}
 
+LLVM::~LLVM() {
+    
 }

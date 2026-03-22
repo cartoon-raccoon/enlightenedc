@@ -4,6 +4,27 @@
 using namespace codegen::lir;
 using namespace sema::mir;
 
+void LIRSynthesizer::enqueue(Box<ProgItemLIR> item) {
+    current_q.push(std::move(item));
+}
+
+Box<ProgItemLIR> LIRSynthesizer::dequeue() {
+    auto ret = std::move(current_q.front());
+    current_q.pop();
+
+    return std::move(ret);
+}
+
+void LIRSynthesizer::push_queue() {
+    queue_stack.push(std::move(current_q));
+    current_q = std::queue<Box<ProgItemLIR>>();
+}
+
+void LIRSynthesizer::pop_queue() {
+    current_q = std::move(queue_stack.top());
+    queue_stack.pop();
+}
+
 void LIRSynthesizer::do_visit(ProgramMIR& node) {
 
 }
@@ -57,7 +78,7 @@ void LIRSynthesizer::do_visit(PrintStmtMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(IfStmtMIR& node) {
-    
+
 }
 
 void LIRSynthesizer::do_visit(LoopStmtMIR& node) {
