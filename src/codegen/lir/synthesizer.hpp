@@ -3,6 +3,7 @@
 
 #include <stack>
 #include <queue>
+#include <variant>
 
 #include "semantics/semantics.hpp"
 #include "semantics/symbols.hpp"
@@ -19,21 +20,33 @@ namespace ecc::codegen::lir {
 
 class LIRSynthesizer : public sema::BaseMIRSemaVisitor {
 public:
-    LIRSynthesizer(sema::sym::SymbolTable& syms, sema::types::TypeContext& types)
+    LIRSynthesizer(sema::sym::SymbolTable& syms, 
+                   sema::types::TypeContext& types, 
+                   ProgramLIR& prog_lir)
         : sema::BaseMIRSemaVisitor(State::READ, syms, types), 
-        symbolmap() {} 
+        symbolmap(), prog_lir(prog_lir) {} 
+
+    using LIRSynthItem = std::variant<Box<FunctionLIR>, Box<DeclLIR>, Box<StmtLIR>>;
 
     LIRSymbolMap symbolmap;
 
+    ProgramLIR& prog_lir;
+
     Box<ExprLIR> last_expr;
 
-    void enqueue(Box<ProgItemLIR> item);
-    Box<ProgItemLIR> dequeue();
+    // Emit a LIR item into the current queue.
+    void emit(LIRSynthItem item);
+
+    // Consume a LIR item from the current queue.
+    LIRSynthItem consume();
 
     void push_queue();
+
     void pop_queue();
 
     bool curr_is_empty();
+
+    void unfold_initializer(sema::sym::VarSymbol *sym, sema::mir::InitializerMIR& init);
     
 protected:
     void do_visit(sema::mir::ProgramMIR& node) override;
@@ -73,8 +86,8 @@ protected:
     void do_visit(sema::mir::SizeofExprMIR& node) override;
 
 private:
-    std::queue<Box<ProgItemLIR>> current_q;
-    std::stack<std::queue<Box<ProgItemLIR>>> queue_stack;
+    std::queue<LIRSynthItem> current_q;
+    std::stack<std::queue<LIRSynthItem>> queue_stack;
 };
 
 }

@@ -83,7 +83,7 @@ public:
 
     virtual bool is_derived() { return false; }
 
-    virtual std::size_t size() { return 0; }
+    virtual size_t size() { return 0; }
 
     /*
     Check if a type can be implicitly coerced into `dst` without a cast,

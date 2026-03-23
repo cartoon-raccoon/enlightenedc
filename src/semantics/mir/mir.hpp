@@ -370,9 +370,14 @@ public:
     
     /*
     Since goto's can occur before their label is declared, do not resolve the
-    label now, resolve it at LIR, after the entire symbol table is complete.
+    label now, resolve it at validation, after the entire symbol table is complete.
     */
+
+    // The plain target to resolve to.
     std::string target;
+
+    // The resolved target symbol.
+    sym::LabelSymbol *target_sym = nullptr;
 
     void accept(MIRVisitor& visitor) override;
 };

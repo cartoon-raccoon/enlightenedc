@@ -37,14 +37,14 @@ class LIRSymbolMap {
 public:
     LIRSymbolMap() : map() {}
 
-    LIRVar *insert(sema::sym::VarSymbol *varsym, Box<LIRVar> var);
+    LIRVar *insert(sema::sym::PhysicalSymbol *sym, Box<LIRVar> var);
 
     LIRVar *lookup(std::string& mangled_name);
 
-    LIRVar *lookup(sema::sym::VarSymbol *varsym);
+    LIRVar *lookup(sema::sym::PhysicalSymbol *sym);
 
 private:
-    std::unordered_map<sema::sym::VarSymbol *, Box<LIRVar>> map;
+    std::unordered_map<sema::sym::PhysicalSymbol *, Box<LIRVar>> map;
 
 };
 
