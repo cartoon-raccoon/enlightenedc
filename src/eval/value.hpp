@@ -354,12 +354,14 @@ public:
 
     // Postfix INC
     Value operator++(int) {
-        return *this; // todo: throw error if value is string, since ++ on string is semantically bad
+        throw InvalidCompileTimeEval(
+            "Postfix ++ not allowed in constant expressions", Location{});
     }
-    
+
     // Postfix DEC
     Value operator--(int) {
-        return *this; // todo: throw error if value is string, since -- on string is semantically bad
+        throw InvalidCompileTimeEval(
+            "Postfix -- not allowed in constant expressions", Location{});
     }
 };
 
