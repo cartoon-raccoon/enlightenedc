@@ -61,7 +61,7 @@ static ecc::parser::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
     IDENTIFIER "identifier"
     STRING_LITERAL "string literal"
     TYPE_IDENTIFIER "type"
-    <int> 
+    <uint64_t> 
     INT_CONST "integer literal"
     <double> 
     FLOAT_CONST "float literal"
@@ -231,8 +231,8 @@ static ecc::parser::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 %type <Box<LiteralExpression>> constant
 %type <Box<ConstExpression>> constant_expression
 %type <Vec<Box<Expression>>> argument_expression_list
-%type <std::optional<ForStatement::ForInit>> for_init_opt
-%type <std::optional<Box<Expression>>> expression_opt
+%type <Optional<ForStatement::ForInit>> for_init_opt
+%type <Optional<Box<Expression>>> expression_opt
 
 %%
 

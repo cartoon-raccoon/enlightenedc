@@ -1,3 +1,5 @@
+#include <stdexcept>
+
 #include "codegen/lir/synthesizer.hpp"
 #include "codegen/lir/lir.hpp"
 #include "semantics/mir/mir.hpp"
@@ -106,7 +108,7 @@ void LIRSynthesizer::do_visit(FunctionMIR& node) {
 
 void LIRSynthesizer::do_visit(InitializerMIR& node) {
     // we provide our own initializer unfolder
-    // todo: throw error
+    throw std::runtime_error("called LIRSynthesizer::do_visit on InitializerMIR");
 }
 
 void LIRSynthesizer::do_visit(TypeDeclMIR& node) {
@@ -207,14 +209,23 @@ void LIRSynthesizer::do_visit(SwitchStmtMIR& node) {
 
 void LIRSynthesizer::do_visit(CaseStmtMIR& node) {
     // todo
+    push_queue();
+
+    pop_queue();
 }
 
 void LIRSynthesizer::do_visit(CaseRangeStmtMIR& node) {
     // todo
+    push_queue();
+
+    pop_queue();
 }
 
 void LIRSynthesizer::do_visit(DefaultStmtMIR& node) {
     // todo
+    push_queue();
+
+    pop_queue();
 }
 
 void LIRSynthesizer::do_visit(LabeledStmtMIR& node) {
@@ -263,7 +274,7 @@ void LIRSynthesizer::do_visit(LabeledStmtMIR& node) {
 
 void LIRSynthesizer::do_visit(PrintStmtMIR& node) {
     Vec<Box<ExprLIR>> args {};
-    
+
     for (auto& arg : node.arguments) {
         arg->accept(*this);
         args.push_back(std::move(last_expr));

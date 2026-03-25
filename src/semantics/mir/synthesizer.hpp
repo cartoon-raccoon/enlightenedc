@@ -2,7 +2,6 @@
 #define ECC_MIR_SYNTH_H
 
 #include <concepts>
-#include <optional>
 #include <stdexcept>
 #include <utility>
 #include <variant>
@@ -21,7 +20,7 @@ using namespace util;
 
 // Helper struct for building declarators.
 struct DeclaratorBuilder {
-    std::optional<std::string> name;
+    Optional<std::string> name;
     types::TypeBuilder ty_bldr;
 };
 
@@ -29,14 +28,14 @@ struct DeclaratorBuilder {
 template <typename Ty>
 requires std::derived_from<Ty, typename types::Type>
 struct TypeSpecRet {
-    std::optional<sym::TypeSymbol *> symbol;
+    Optional<sym::TypeSymbol *> symbol;
     Ty *type;
 };
 
 // The result of visiting an init declarator.
 struct InitDecltrRet {
     Box<DeclaratorBuilder> builder;
-    std::optional<Box<sema::mir::InitializerMIR>> init_mir;
+    Optional<Box<sema::mir::InitializerMIR>> init_mir;
 };
 
 // The result of visiting a compound statement from a function.
@@ -89,7 +88,7 @@ using ElabResult = std::variant<
 >;
 
 
-using CmpdStmtDoVisitParam = std::optional<
+using CmpdStmtDoVisitParam = Optional<
     std::pair<
         sym::FuncSymbol *, // The function symbol to tie this compound statement to.
         Vec<Box<sym::VarSymbol>> // The new symbols to add to the new scope.
@@ -169,7 +168,7 @@ public:
 private:
     struct SpecifierInfo {
         types::BaseType *type;
-        std::optional<sym::TypeSymbol *> symbol;
+        Optional<sym::TypeSymbol *> symbol;
         bool is_public;
         bool is_static;
         bool is_extern;

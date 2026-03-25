@@ -1,7 +1,6 @@
 #ifndef ECC_DRIVER_H
 #define ECC_DRIVER_H
 
-#include <memory>
 #include <string>
 
 #include "ast/ast.hpp"
@@ -21,12 +20,7 @@ struct TranslationUnit {
     Box<sema::mir::ProgramMIR> prog_mir;
     Box<codegen::LLVM> llvm;
 
-    TranslationUnit(std::string *filename) 
-    : filename(filename),
-    ast_root(std::make_unique<ast::Program>(filename)),
-    prog_mir(std::make_unique<sema::mir::ProgramMIR>()),
-    llvm(std::make_unique<codegen::LLVM>(*filename))
-    {}
+    TranslationUnit(std::string *filename);
 };
 
 // A class for driving the compilation process for a single translation unit.
@@ -37,11 +31,7 @@ public:
     Box<frontend::Frontend> frontend;
     Box<driver::Backend> backend;
 
-    Driver(TranslationUnit& unit) 
-        : unit(unit),
-        frontend(std::make_unique<frontend::Frontend>()),
-        backend(std::make_unique<driver::Backend>(*unit.llvm))
-    {}
+    Driver(TranslationUnit& unit);
 
     void run();
 };

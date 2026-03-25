@@ -9,8 +9,6 @@
 #include "semantics/mir/visitor.hpp"
 #include "util.hpp"
 
-#include <optional>
-
 namespace ecc::sema {
 /*
 Semantic validation functionality.
@@ -62,7 +60,7 @@ public:
         return ctxt_stack.back();
     }
 
-    ScopeGuard<Node> enter_scope(sym::Symbol *assoc = nullptr) {
+    ScopeGuard<Node> enter_scope(sym::FuncSymbol *assoc = nullptr) {
         return ScopeGuard(*this, assoc);
     }
 
@@ -115,7 +113,7 @@ public:
     friend class BaseMIRSemaVisitor;
     friend class NodeGuard<Node>;
 
-    ScopeGuard(BaseSemanticVisitor<Node>& bsv, sym::Symbol *assoc) : st(bsv.syms) {
+    ScopeGuard(BaseSemanticVisitor<Node>& bsv, sym::FuncSymbol *assoc) : st(bsv.syms) {
         if (bsv.state == BaseSemanticVisitor<Node>::State::READ) {
             bsv.bsv_dbprint("BSV currently in state READ, entering scope");
             st.enter_scope();
@@ -190,7 +188,7 @@ public:
 
 private:
     Vec<Node *>& context;
-    std::optional<ScopeGuard<Node>> scope_guard;
+    Optional<ScopeGuard<Node>> scope_guard;
 }; // class NodeGuard
 
 

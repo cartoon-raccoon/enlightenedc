@@ -38,7 +38,7 @@ Box<VarSymbol> FuncSymbol::as_funcptr(TypeContext& tctxt, bool is_const) {
     return std::make_unique<VarSymbol>(loc, name, scope, ptrtype);
 }
 
-void SymbolTable::push_scope(Symbol *assoc) {
+void SymbolTable::push_scope(FuncSymbol *assoc) {
     /*
     Create a new scope, push it onto the current one, replace current scope with
     the new one
@@ -221,16 +221,16 @@ LabelSymbol *SymbolTable::lookup_label(std::string& sym, bool current_only) {
             return nullptr;
         }
     }
-    dbprint("SymbolTable: looking up labelsymbol ", sym);
+    dbprint("SymbolTable: looking up labelsymbol in function scope ", sym);
 
     Scope *my_current = this->current;
 
-    // look for symbol in current scope
+    // look for symbol up to function scope
     while (!(my_current->label_symbols.contains(sym))) {
-        // if already global, return null
-        if (my_current->outer == nullptr) {
+        // if already at function scope, return null
+        if (my_current->assoc) {
             assert(my_current == global.get());
-            dbprint("SymbolTable: symbol \'", sym, "\' not found");
+            dbprint("SymbolTable: symbol \'", sym, "\' not found in function scope");
             return nullptr;
         }
 
@@ -241,7 +241,7 @@ LabelSymbol *SymbolTable::lookup_label(std::string& sym, bool current_only) {
     return my_current->label_symbols.find(sym)->second.get();
 }
 
-void SymbolTable::tie_current_to(Symbol *sym, bool override) {
+void SymbolTable::tie_current_to(FuncSymbol *sym, bool override) {
     dbprint("SymbolTable: associating current scope ", current->id, " with symbol ", sym, " name \"", sym->name, "\"");
     if (current->assoc != nullptr) {
         if (override) {

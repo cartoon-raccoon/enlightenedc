@@ -33,14 +33,21 @@ using LLVMType = llvm::Type;
 
 class LLVM {
     inline static bool initialized;
+    Box<llvm::LLVMContext> context;
+    Box<llvm::Module> llvmmod;
+    Box<llvm::IRBuilder<>> irbuilder;
+
+    const llvm::Target *target;
+    llvm::TargetMachine *target_machine;
 
 public:
     LLVM(std::string& module_name);
     ~LLVM();
 
-    Box<llvm::LLVMContext> context;
-    Box<llvm::Module> llvmmod;
-    Box<llvm::IRBuilder<>> irbuilder;
+    llvm::LLVMContext& ctx() { return *context; }
+    llvm::Module& mod() { return *llvmmod; }
+    llvm::IRBuilder<>& irb() { return *irbuilder; }
+
 };
 
 }

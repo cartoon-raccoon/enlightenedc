@@ -3,6 +3,7 @@
 #include "semantics/validator.hpp"
 #include "semantics/mir/mir.hpp"
 #include "semantics/types.hpp"
+#include "semantics/semerr.hpp"
 #include "util.hpp"
 
 using namespace sema;
@@ -71,19 +72,36 @@ void Validator::do_visit(SwitchStmtMIR& node) {
 }
 
 void Validator::do_visit(CaseStmtMIR& node) {
+    // check that we are in switch
+    if (!in_node(MIRNode::NodeKind::SWITCHSTMT_MIR)) {
+        throw InvalidCaseError(node.loc);
+    }
 
+    node.case_expr->accept(*this);
+    node.stmt->accept(*this);
 }
 
 void Validator::do_visit(CaseRangeStmtMIR& node) {
+    // check that we are in switch
+    if (in_node(MIRNode::NodeKind::SWITCHSTMT_MIR) < 0) {
+        throw InvalidCaseError(node.loc);
+    }
 
+    node.case_start->accept(*this);
+    node.case_end->accept(*this);
+    node.stmt->accept(*this);
 }
 
 void Validator::do_visit(DefaultStmtMIR& node) {
-
+    // check that we are in switch
+    if (in_node(MIRNode::NodeKind::SWITCHSTMT_MIR) < 0) {
+        throw InvalidCaseError(node.loc);
+    }
+    node.stmt->accept(*this);
 }
 
 void Validator::do_visit(PrintStmtMIR& node) {
-
+    // evaluate all arguments and check against format string
 }
 
 void Validator::do_visit(IfStmtMIR& node) {
@@ -94,26 +112,46 @@ void Validator::do_visit(LoopStmtMIR& node) {
     if (node.condition) {
         (*node.condition)->accept(*this);
     }
-
     
 }
 
 void Validator::do_visit(GotoStmtMIR& node) {
-
+    // check to make sure the label is in (function) scope
 }
 
 void Validator::do_visit(BreakStmtMIR& node) {
-
+    // check that we are in a loop or switch
+    if (in_node(MIRNode::NodeKind::SWITCHSTMT_MIR) < 0
+        || in_node(MIRNode::NodeKind::LOOPSTMT_MIR) < 0) {
+        throw InvalidBreakError(node.loc);
+    }
 }
 
 void Validator::do_visit(ContStmtMIR& node) {
-
+    // check that we are in a loop
+    if (in_node(MIRNode::NodeKind::LOOPSTMT_MIR) < 0) {
+        throw InvalidContError(node.loc);
+    }
 }
 
 void Validator::do_visit(ReturnStmtMIR& node) {
     if (node.ret_expr) {
         (*node.ret_expr)->accept(*this);
     }
+    if (in_node(MIRNode::NodeKind::FUNC_MIR) < 0) {
+
+    }
+
+    if(!node.ret_expr)
+        return;
+
+    FunctionMIR *func = dynamic_cast<FunctionMIR *>(
+        get_context(MIRNode::NodeKind::FUNC_MIR));
+    if (!func) {
+
+    }
+
+    // check return types
 }
 
 void Validator::do_visit(BinaryExprMIR& node) {
@@ -137,10 +175,16 @@ void Validator::do_visit(UnaryExprMIR& node) {
     bsv_dbprint("visiting UnaryExprMIR node");
     node.operand->accept(*this);
 
+    // check operator compatibility
 
 }
 
-void Validator::do_visit(CastExprMIR& node) {}
+void Validator::do_visit(CastExprMIR& node) {
+    bsv_dbprint("visiting CastExprMIR node");
+    node.inner->accept(*this);
+
+    // ??
+}
 
 void Validator::do_visit(AssignExprMIR& node) {
     node.left->accept(*this);
@@ -150,7 +194,7 @@ void Validator::do_visit(AssignExprMIR& node) {
         // todo: throw error
     }
 
-    // check operator
+    // check operator compatibility
 }
 
 void Validator::do_visit(CondExprMIR& node) {
@@ -173,10 +217,10 @@ void Validator::do_visit(LiteralExprMIR& node) {
             throw std::runtime_error("LiteralExprMIR should not have a null value");
         },
         [node, this] (char v) mutable {
-            node.type = types.get_i8();
+            node.type = types.get_u8();
         },
         [node, this] (long v) mutable {
-            node.type = types.get_i64();
+            node.type = types.get_u64();
         },
         [node, this] (double v) mutable {
             node.type = types.get_f64();
@@ -192,11 +236,12 @@ void Validator::do_visit(LiteralExprMIR& node) {
 
 void Validator::do_visit(CallExprMIR& node) {
     node.callee->accept(*this);
+    if (!node.callee->is_callable()) {
+        // todo
+    }
     for (auto& arg : node.args) {
         arg->accept(*this);
     }
-
-    node.type = node.callee->type;
 
     // todo: check type of each argument matches parameters
 }
@@ -216,9 +261,13 @@ void Validator::do_visit(SubscrExprMIR& node) {
 
 void Validator::do_visit(PostfixExprMIR& node) {
     node.operand->accept(*this);
+    // check operator
 }
 
 void Validator::do_visit(SizeofExprMIR& node) {
     using PKind = PrimitiveType::Kind;
+    // todo: if is expr, check if the expr is a function
+    // if it is, replace the node's operand with a function pointer type.
+    // if operand is type, if function, throw error
     node.type = types.get_u64();
 }

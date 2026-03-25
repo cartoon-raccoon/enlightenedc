@@ -386,7 +386,7 @@ void MIRSynthesizer::do_visit(ArrayDeclarator& node) {
 
     auto builder = take_last_result<Box<DeclaratorBuilder>>();
     
-    std::optional<uint64_t> size {};
+    Optional<uint64_t> size {};
     if (node.size) {
         bsv_dbprint("array declarator has size, checking for compile time computability");
         // if we have a size for the array, evaluate it
@@ -549,7 +549,7 @@ void MIRSynthesizer::do_visit(EnumSpecifier& node) {
         throw TypeDecldAsOtherError("enum already declared as another type", node.loc, prev_def->loc);
     }
 
-    std::optional<TypeSymbol *> retsym = {};
+    Optional<TypeSymbol *> retsym = {};
     // If class has name, compute symbol to add
     if (node.name) {
         bsv_dbprint("enum has name, inserting typesymbol if needed");
@@ -595,7 +595,7 @@ void MIRSynthesizer::do_visit(Enumerator& node) {
     if (node.value) {
         exec::Evaluator evalr(syms, types);
         value = node.value.value()->accept(evalr);
-        std::optional<long> val = value.value_as<long>();
+        Optional<long> val = value.value_as<long>();
         if (val) {
             enm->add_enumerator(node.name, *val, node.loc);
         } else {
@@ -624,7 +624,7 @@ void MIRSynthesizer::do_visit(ClassSpecifier& node) {
         throw TypeDecldAsOtherError("class already declared as another type", node.loc, prev_def->loc);
     }
 
-    std::optional<TypeSymbol *> retsym = {};
+    Optional<TypeSymbol *> retsym = {};
     // If class has name, compute symbol to add
     if (node.name) {
         bsv_dbprint("class has name, inserting typesymbol if needed");
@@ -670,7 +670,7 @@ void MIRSynthesizer::do_visit(UnionSpecifier& node) {
         throw TypeDecldAsOtherError("union already declared as another type", node.loc, prev_def->loc);
     }
 
-    std::optional<TypeSymbol *> retsym = {};
+    Optional<TypeSymbol *> retsym = {};
     // If class has name, compute symbol to add
     if (node.name) {
         bsv_dbprint("union has name, inserting typesymbol if needed");
@@ -694,6 +694,9 @@ void MIRSynthesizer::do_visit(UnionSpecifier& node) {
         }
         if (node.type_rep) {
             PrimitiveType *typerep = types.get_primitive(*node.type_rep);
+            if (!typerep->is_integer()) {
+                // todo: issue warning
+            }
             unn->type_rep = typerep;
         }
         // union is defined here, populate its members and mark it complete
@@ -1066,7 +1069,7 @@ void MIRSynthesizer::do_visit(IfStatement& node) {
     dv_call(std::monostate {}, node.then_branch);
     Box<StmtMIR> then_br = take_last_result<Box<StmtMIR>>();
 
-    std::optional<Box<StmtMIR>> else_br;
+    Optional<Box<StmtMIR>> else_br;
     if (node.else_branch.has_value()) {
         dv_call(std::monostate {}, node.else_branch.value());
         else_br = std::move(take_last_result<Box<StmtMIR>>());
@@ -1394,6 +1397,8 @@ void MIRSynthesizer::do_visit(SizeofExpression& node) {
     Box<SizeofExprMIR> sizexpr = std::make_unique<SizeofExprMIR>(node.loc);
     std::visit(overloaded {
         [this, &sizexpr] (Box<Expression>& expr) mutable {
+            // this might be a literal expression, so we defer
+            // resolution of the actual type to validation.
             dv_call(std::monostate {}, expr);
             Box<ExprMIR> target = take_last_result<Box<ExprMIR>>();
             sizexpr->operand = std::move(target);

@@ -40,7 +40,7 @@ public:
 
     template<typename T>
     requires VariantMember<T, ValueType>
-    std::optional<T> value_as() {
+    Optional<T> value_as() {
         if (auto *v = std::get_if<T>(&inner)) {
             return *v;
         } else {

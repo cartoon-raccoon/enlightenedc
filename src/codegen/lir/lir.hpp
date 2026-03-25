@@ -59,7 +59,7 @@ public:
     NodeKind kind;
     // Location is now optional because a lot of nodes in LIR will be compiler generated
     // and so will not have an intrinsic source code location.
-    std::optional<Location> loc;
+    Optional<Location> loc;
 
     virtual void accept(LIRVisitor& visitor) = 0;
 };
@@ -180,7 +180,7 @@ public:
     std::string mangled_target;
     // The original target name as defined in the source code.
     // Does not exist for compiler-generated targets.
-    std::optional<std::string> target;
+    Optional<std::string> target;
 
     bool is_terminal() override { return true; }
 
@@ -196,7 +196,7 @@ public:
     ReturnStmtLIR(Location loc)
         : TerminalLIR(loc, NodeKind::RETSTMT_LIR) {}
 
-    std::optional<Box<ExprLIR>> ret_value;
+    Optional<Box<ExprLIR>> ret_value;
 
     // No terminal is a switch target.
     Vec<SwitchTarget *> pull_switch_targets() override { return {}; }
@@ -303,7 +303,7 @@ public:
 
     Box<ExprLIR> condition;
     Vec<Box<StmtLIR>> then_br;
-    std::optional<Vec<Box<StmtLIR>>> else_br;
+    Optional<Vec<Box<StmtLIR>>> else_br;
 
     Vec<SwitchTarget *> pull_switch_targets() override;
 
@@ -316,9 +316,9 @@ public:
         : StmtLIR(loc, NodeKind::LOOPSTMT_LIR),
         init(), condition(), step(), body() {}
 
-    std::optional<Vec<Box<StmtLIR>>> init;
-    std::optional<Box<ExprLIR>> condition;
-    std::optional<Vec<Box<StmtLIR>>> step;
+    Optional<Vec<Box<StmtLIR>>> init;
+    Optional<Box<ExprLIR>> condition;
+    Optional<Vec<Box<StmtLIR>>> step;
     Vec<Box<StmtLIR>> body;
 
     Vec<SwitchTarget *> pull_switch_targets() override;

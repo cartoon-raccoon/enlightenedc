@@ -1,12 +1,14 @@
 #ifndef ECC_TYPES_H
 #define ECC_TYPES_H
 
+#include <cassert>
 #include <cstddef>
 #include <memory>
 #include <stack>
 #include <string>
 #include <sstream>
 #include <concepts>
+#include <type_traits>
 #include <unordered_map>
 #include <utility>
 #include <variant>
@@ -83,8 +85,11 @@ public:
 
     virtual bool is_derived() { return false; }
 
-    virtual size_t size() { return 0; }
+    /*
+    Get the size of the type as reported by LLVM.
+    */
 
+    virtual size_t size();
     /*
     Check if a type can be implicitly coerced into `dst` without a cast,
     i.e. the compiler will insert a cast expression to handle it.
@@ -137,17 +142,39 @@ public:
     // Only arrays and pointers should be subscriptable.
     virtual bool is_subscriptable() { return false; };
 
+    // Whether the type is a scalar type
+    // e.g. U8, F64, pointers, bools, enums.
+    virtual bool is_scalar() { return false; }
+
+    // Whether the type is strictly an integer type.
+    virtual bool is_integral() { return false; }
+
+    /*
+    Finalize the type with LLVM, creating the equivalent LLVM type.
+    Before this function has been called on a type, calling `size()` will
+    produce undefined results.
+    */
+    virtual void finalize() { if (!finalized) finalized = true; };
+
+    codegen::LLVMType *get_llvmtype() { return llvm_type; }
+
     virtual std::string to_string() const { return "()"; }
 
-    virtual std::optional<std::string> get_name() { return {}; };
+    virtual Optional<std::string> get_name() { return {}; };
 
     // Returns the formal name of the type.
     virtual std::string formal() { return "()"; }
 
+    Type& operator=(const Type other) = delete;
+
 protected:
-    Type(Kind kind) : kind(kind) {}
-    
+    Type(Kind kind, TypeContext& tyctxt) : kind(kind), tyctxt(tyctxt) {}
+    codegen::LLVMType *llvm_type = nullptr;
+
     friend class TypeContext;
+    TypeContext& tyctxt;
+
+    bool finalized = false;
 };
 
 /*
@@ -160,12 +187,12 @@ public:
     bool is_base() override { return true; }
 
 protected:
-    BaseType(Kind kind) : Type(kind) {}
+    BaseType(Kind kind, TypeContext& tyctxt) : Type(kind, tyctxt) {}
 };
 
 /*
 An abstract class representing a type that is constructed from BaseTypes,
-or is user-defined. These are the unions, structs, and enums.
+or is user-defined. These are the unions, classes, and enums.
 */
 class UserType : public BaseType {
 public:
@@ -175,13 +202,15 @@ public:
     // Returns the kind of type: class, union, enum.
     static std::string base();
 
+    virtual bool is_fully_defined() { return false; };
+
     // The scope where the type was declared.
     sema::sym::Scope *scope;
 
     Location loc;
 protected:
-    UserType(Kind kind, sema::sym::Scope *scope) 
-        : BaseType(kind), scope(scope) {}
+    UserType(Kind kind, TypeContext& tyctxt, sema::sym::Scope *scope) 
+        : BaseType(kind, tyctxt), scope(scope) {}
 };
 
 /*
@@ -199,7 +228,7 @@ public:
     Type *base;
 
 protected:
-    DerivedType(Kind kind, Type *base) : Type(kind), base(base) {} 
+    DerivedType(Kind kind, TypeContext& tyctxt, Type *base) : Type(kind, tyctxt), base(base) {} 
 };
 
 class VoidType : public BaseType {
@@ -208,9 +237,9 @@ public:
 protected:
     friend class TypeContext;
 
-    friend constexpr Box<VoidType> std::make_unique<VoidType>();
+    friend constexpr Box<VoidType> std::make_unique<VoidType>(TypeContext&);
 
-    VoidType() : BaseType(Type::Kind::VOID) {}
+    VoidType(TypeContext& tyctxt);
 };
 
 /*
@@ -233,15 +262,25 @@ public:
 
     tokens::PrimType primkind;
 
-    std::size_t size() override;
-
     bool is_compatible_with(Type *dst) override;
 
-    // Whether this Primitive type can be implicitly represented as an integer.
-    // Returns true for all primitive types except F64.
+    // Whether this Primitive type can be represented as an integer.
+    // Returns true for all primitive types except F64 and Bool.
     bool is_integer();
 
+    bool is_float();
+
+    bool is_bool();
+
+    bool is_signed();
+
+    size_t bit_width();
+
     PrimitiveType *as_primitive() override { return this; }
+
+    bool is_scalar() override { return true; }
+
+    bool is_integral() override { return is_integer(); }
 
     std::string to_string() const override;
 
@@ -250,15 +289,19 @@ public:
 protected:
     friend class TypeContext;
 
-    friend constexpr Box<PrimitiveType> std::make_unique<PrimitiveType>(tokens::PrimType&&);
+    friend constexpr Box<PrimitiveType> 
+        std::make_unique<PrimitiveType>(tokens::PrimType&&, TypeContext&);
 
-    PrimitiveType(tokens::PrimType kind) : BaseType(Type::Kind::PRIMITIVE), primkind(kind) {}
+    PrimitiveType(tokens::PrimType kind, TypeContext& tyctxt);
 };
 
+/*
+The ClassType in EnlightenedC.
+*/
 class ClassType : public UserType {
 public:
     struct ClassTypeMember {
-        std::optional<std::string> name;
+        Optional<std::string> name;
         Type *ty;
         Location loc;
         
@@ -266,7 +309,7 @@ public:
             : ty(ty), loc(loc) {}
         ClassTypeMember(std::string name, Type *ty, Location loc)
             : name(name), ty(ty), loc(loc) {}
-        ClassTypeMember(std::optional<std::string> name, Type *ty, Location loc)
+        ClassTypeMember(Optional<std::string> name, Type *ty, Location loc)
             : name(name), ty(ty), loc(loc) {}
     };
 
@@ -279,12 +322,19 @@ public:
     */
     bool complete = false;
 
+    /*
+    Whether the class is fully defined,
+
+    Unlike `complete`, which only marks whether this class has had all its members added,
+    this recursively checks whether any of the class members, if a UserType, is fully defined.
+    */
+    bool is_fully_defined() override;
     
-    std::optional<std::string> name;
+    Optional<std::string> name;
     
     Vec<Box<ClassTypeMember>> members;
 
-    std::size_t size() override;
+    size_t size() override;
 
     void add_member(Box<ClassTypeMember> member);
 
@@ -296,9 +346,11 @@ public:
 
     ClassType *as_class() override { return this; }
 
+    void finalize() override;
+
     std::string to_string() const override;
 
-    std::optional<std::string> get_name() override { return name; }
+    Optional<std::string> get_name() override { return name; }
 
     std::string formal() override;
 
@@ -307,14 +359,16 @@ public:
 protected:
     friend class TypeContext;
 
-    friend constexpr Box<ClassType> std::make_unique<ClassType>(sema::sym::Scope *&);
-    friend constexpr Box<ClassType> std::make_unique<ClassType>(std::string&, sema::sym::Scope *&);
+    friend constexpr Box<ClassType>
+        std::make_unique<ClassType>(sema::sym::Scope *&, TypeContext&);
+    friend constexpr Box<ClassType>
+        std::make_unique<ClassType>(std::string&, sema::sym::Scope *&, TypeContext&);
 
     // Construct an empty class.
-    ClassType(sema::sym::Scope *scope) 
-        : UserType(Kind::CLASS, scope), members() {}
-    ClassType(std::string name, sema::sym::Scope *scope) 
-        : UserType(Kind::CLASS, scope), members(), name(name) {}
+    ClassType(sema::sym::Scope *scope, TypeContext& tyctxt);
+    ClassType(std::string name, sema::sym::Scope *scope, TypeContext& tyctxt);
+
+private:
 };
 
 /*
@@ -348,7 +402,7 @@ and can be accessed as if it were one.
 class UnionType : public UserType {
 public:
     struct UnionTypeMember {
-        std::optional<std::string> name;
+        Optional<std::string> name;
         Type *ty;
         Location loc;
 
@@ -356,7 +410,7 @@ public:
             : ty(ty), loc(loc) {}
         UnionTypeMember(std::string name, Type *ty, Location loc)
             : name(name), ty(ty), loc(loc) {}
-        UnionTypeMember(std::optional<std::string> name, Type *ty, Location loc)
+        UnionTypeMember(Optional<std::string> name, Type *ty, Location loc)
             : name(name), ty(ty), loc(loc) {}
     };
 
@@ -364,11 +418,11 @@ public:
 
     Vec<Box<UnionTypeMember>> members;
 
-    std::optional<std::string> name;
+    Optional<std::string> name;
 
-    std::optional<PrimitiveType *> type_rep;
+    Optional<PrimitiveType *> type_rep;
 
-    std::size_t size() override;
+    bool is_fully_defined() override;
 
     bool is_compatible_with(Type *dst) override;
 
@@ -382,9 +436,11 @@ public:
 
     UnionType *as_union() override { return this; }
 
+    void finalize() override;
+
     std::string to_string() const override;
 
-    std::optional<std::string> get_name() override { return name; }
+    Optional<std::string> get_name() override { return name; }
 
     std::string formal() override;
 
@@ -394,22 +450,22 @@ protected:
     friend class TypeContext;
 
     friend constexpr Box<UnionType> 
-        std::make_unique<UnionType>(sema::sym::Scope *&);
+        std::make_unique<UnionType>(sema::sym::Scope *&, TypeContext&);
     friend constexpr Box<UnionType> 
-        std::make_unique<UnionType>(PrimitiveType *&, sema::sym::Scope *&);
+        std::make_unique<UnionType>(PrimitiveType *&, sema::sym::Scope *&, TypeContext&);
     friend constexpr Box<UnionType> 
-        std::make_unique<UnionType>(std::string&, sema::sym::Scope *&);
+        std::make_unique<UnionType>(std::string&, sema::sym::Scope *&, TypeContext&);
     friend constexpr Box<UnionType> 
-        std::make_unique<UnionType>(std::string&, PrimitiveType *&, sema::sym::Scope *&);
+        std::make_unique<UnionType>(std::string&, PrimitiveType *&, sema::sym::Scope *&, TypeContext&);
 
-    UnionType(sema::sym::Scope *scope)
-        : UserType(Kind::UNION, scope), members() {}
-    UnionType(PrimitiveType *type_rep, sema::sym::Scope *scope)
-        : UserType(Kind::UNION, scope), members(), type_rep(type_rep) {}
-    UnionType(std::string name, sema::sym::Scope *scope)
-        : UserType(Kind::UNION, scope), members(), name(name) {}
-    UnionType(std::string name, PrimitiveType *type_rep, sema::sym::Scope *scope)
-        : UserType(Kind::UNION, scope), members(), name(name), type_rep(type_rep) {}
+    UnionType(sema::sym::Scope *scope, TypeContext& tyctxt)
+        : UserType(Kind::UNION, tyctxt, scope), members() {}
+    UnionType(PrimitiveType *type_rep, sema::sym::Scope *scope, TypeContext& tyctxt)
+        : UserType(Kind::UNION, tyctxt, scope), members(), type_rep(type_rep) {}
+    UnionType(std::string name, sema::sym::Scope *scope, TypeContext& tyctxt)
+        : UserType(Kind::UNION, tyctxt, scope), members(), name(name) {}
+    UnionType(std::string name, PrimitiveType *type_rep, sema::sym::Scope *scope, TypeContext& tyctxt)
+        : UserType(Kind::UNION, tyctxt, scope), members(), name(name), type_rep(type_rep) {}
 };
 
 
@@ -437,9 +493,9 @@ public:
 
     Vec<Box<EnumTypeMember>> enumerators;
 
-    std::optional<std::string> name;
+    Optional<std::string> name;
 
-    std::size_t size() override;
+    bool is_fully_defined() override { return complete; }
 
     // Create an enumerator with an automatically chosen value.
     int64_t add_enumerator(std::string enumerator, Location loc);
@@ -450,13 +506,22 @@ public:
     // Check if an enum already contains an enumerator. 
     EnumTypeMember *find(std::string& name);
 
+    // Find enumerator at the specified index.
+    EnumTypeMember *find(size_t i);
+
     bool is_compatible_with(Type *dst) override;
 
     EnumType *as_enum() override { return this; }
 
+    bool is_scalar() override { return true; }
+
+    bool is_integral() override { return true; }
+
+    void finalize() override;
+
     std::string to_string() const override;
 
-    std::optional<std::string> get_name() override { return name; }
+    Optional<std::string> get_name() override { return name; }
 
     std::string formal() override;
 
@@ -465,13 +530,15 @@ public:
 protected:
     friend class TypeContext;
 
-    friend constexpr Box<EnumType> std::make_unique<EnumType>(sema::sym::Scope *&);
-    friend constexpr Box<EnumType> std::make_unique<EnumType>(std::string& name, sema::sym::Scope *&);
+    friend constexpr Box<EnumType>
+        std::make_unique<EnumType>(sema::sym::Scope *&, TypeContext&);
+    friend constexpr Box<EnumType>
+        std::make_unique<EnumType>(std::string& name, sema::sym::Scope *&, TypeContext&);
 
-    EnumType(sema::sym::Scope *scope)
-        : UserType(Kind::ENUM, scope), enumerators() {}
-    EnumType(std::string name, sema::sym::Scope *scope)
-        : UserType(Kind::ENUM, scope), enumerators(), name(name) {}
+    EnumType(sema::sym::Scope *scope, TypeContext& tyctxt)
+        : UserType(Kind::ENUM, tyctxt, scope), enumerators() {}
+    EnumType(std::string name, sema::sym::Scope *scope, TypeContext& tyctxt)
+        : UserType(Kind::ENUM, tyctxt, scope), enumerators(), name(name) {}
 };
 
 
@@ -492,8 +559,6 @@ class PointerType : public DerivedType {
 public:
     bool is_const;
 
-    std::size_t size() override;
-
     // Returns the level of nesting the pointer has (i.e. how many *'s there are).
     int nesting_lvl();
 
@@ -509,15 +574,19 @@ public:
 
     bool is_compatible_with(Type *other) override;
 
+    bool is_scalar() override { return true; };
+
+    bool is_integral() override { return false; };
+
     std::string to_string() const override;
 
 protected:
     friend class TypeContext;
     friend class TypeBuilder;
 
-    friend constexpr Box<PointerType> std::make_unique<PointerType>(Type *&);
+    friend constexpr Box<PointerType> std::make_unique<PointerType>(Type *&, TypeContext&);
     
-    PointerType(Type *base) : DerivedType(Kind::POINTER, base) {}
+    PointerType(Type *base, TypeContext& tyctxt) : DerivedType(Kind::POINTER, tyctxt, base) {}
 };
 
 
@@ -546,7 +615,7 @@ decayed to a pointer.
 class ArrayType : public DerivedType {
 public:
     // The size of the array, populated after elaboration.
-    std::optional<uint64_t> size;
+    Optional<uint64_t> size;
 
     ArrayType *as_array() override { return this; }
 
@@ -554,24 +623,30 @@ public:
 
     bool is_compatible_with(Type *other) override;
 
+    void finalize() override;
+
     std::string to_string() const override;
     
 protected:
     friend class TypeContext;
 
-    friend constexpr Box<ArrayType> std::make_unique<ArrayType>(Type *&, uint64_t&);
+    friend constexpr Box<ArrayType>
+        std::make_unique<ArrayType>(Type *&, uint64_t&, TypeContext&);
 
-    friend constexpr Box<ArrayType> std::make_unique<ArrayType>(Type *&);
+    friend constexpr Box<ArrayType>
+        std::make_unique<ArrayType>(Type *&, TypeContext&);
 
-    ArrayType(Type *base, uint64_t size) : DerivedType(Kind::ARRAY, base), size(size) {}
+    ArrayType(Type *base, uint64_t size, TypeContext& tyctxt)
+        : DerivedType(Kind::ARRAY, tyctxt, base), size(size) {}
 
-    ArrayType(Type *base) : DerivedType(Kind::ARRAY, base) {}
+    ArrayType(Type *base, TypeContext& tyctxt)
+        : DerivedType(Kind::ARRAY, tyctxt, base) {}
 };
 
 // A function parameter containing an optional name.
 struct FuncParam {
     Type *type;
-    std::optional<std::string> name;
+    Optional<std::string> name;
     Location loc;
     bool is_const;
 };
@@ -613,6 +688,8 @@ public:
 
     FunctionSignature signature;
 
+    size_t size() override;
+
     // Generate a hash based on the function signature.
     std::size_t hash_sig();
 
@@ -630,6 +707,8 @@ public:
 
     FunctionType *as_function() override { return this; }
 
+    void finalize() override;
+
     std::string to_string() const override;
 
     static std::string base() { return "function_"; }
@@ -638,9 +717,11 @@ protected:
     friend class TypeContext;
     friend class TypeBuilder;
 
-    friend constexpr Box<FunctionType> std::make_unique<FunctionType>(Type *&);
+    friend constexpr Box<FunctionType>
+        std::make_unique<FunctionType>(Type *&, TypeContext&);
 
-    FunctionType(Type *base) : DerivedType(Type::Kind::FUNCTION, base) {}
+    FunctionType(Type *base, TypeContext& tyctxt)
+        : DerivedType(Type::Kind::FUNCTION, tyctxt, base) {}
 };
 
 /*
@@ -656,7 +737,6 @@ the type and returns a pointer to the created concrete type.
 */
 class TypeBuilder {
 public:
-
     // Add an array to the type.
     void add_array(uint64_t size);
 
@@ -674,7 +754,7 @@ public:
         bool is_const;
     };
     struct Arr {
-        std::optional<uint64_t> size;
+        Optional<uint64_t> size;
     };
     struct FnParams {
         Vec<FuncParam> params;
@@ -690,9 +770,47 @@ public:
 protected:
 
     friend class TypeContext;
-    friend constexpr Box<TypeBuilder> std::make_unique<TypeBuilder>(TypeContext&&);
+    friend constexpr Box<TypeBuilder> std::make_unique<TypeBuilder>(TypeContext&);
 
     TypeBuilder(TypeContext& ctxt) : ctxt(ctxt), base(nullptr) {}
+};
+
+template <typename Ty>
+requires std::derived_from<Ty, Type>
+class TypeHandle {
+    static_assert(std::is_base_of_v<Type, Ty>, "Ty must be a Type" );
+    Ty *ptr;
+
+    friend class TypeContext;
+
+    TypeContext& tyctxt;
+
+    TypeHandle(Ty *p, TypeContext& tyctxt) : ptr(p), tyctxt(tyctxt) {
+        assert(p != nullptr && "tried to create TypeHandle from null Type pointer");
+    }
+public:
+    static Optional<TypeHandle<Ty>> create(Ty *ptr);
+
+    template <typename Dst>
+    Optional<TypeHandle<Dst>> as() {
+        Dst *targ = dynamic_cast<Dst *>(ptr);
+        if (!targ) {
+            return {};
+        }
+
+        return TypeHandle(targ, tyctxt);
+    }
+
+    template <typename Dst>
+    TypeHandle(const TypeHandle<Dst>& dst) : ptr(dst.ptr) {}
+
+    template<typename Other>
+    bool operator==(const TypeHandle<Other>& other) {
+        return ptr == other.ptr;
+    }
+
+    Ty *operator->() const { return ptr; }
+    Ty& operator*() const { return *ptr; }
 };
 
 /*
@@ -714,6 +832,16 @@ The TypeContext stores keys to types as mangled names, incorporating the kind of
 */
 class TypeContext {
 public:
+    friend class Type;
+    friend class VoidType;
+    friend class PrimitiveType;
+    friend class ClassType;
+    friend class UnionType;
+    friend class EnumType;
+    friend class PointerType;
+    friend class ArrayType;
+    friend class FunctionType;
+
     TypeContext(codegen::LLVM&);
 
     TypeContext(const TypeContext&) = delete;
@@ -798,10 +926,13 @@ public:
     // Create a function type based on its signature.
     FunctionType *get_function(Type *ret, Vec<Type *> params, bool variadic);
 
+    void finalize_all();
+
     std::string to_string() const;
 
 private:
     int anonymous_ctr = 0;
+    codegen::LLVM& llvm;
 
     // intern the primitive language-defined types directly in the context.
     Box<VoidType> voidt;
@@ -816,7 +947,6 @@ private:
     Box<PrimitiveType> f64;
     Box<PrimitiveType> boolt;
 
-    codegen::LLVM& llvm;
 
     template<typename T>
     struct pair_hash {
@@ -828,7 +958,7 @@ private:
         }
     };
 
-    using ArrayKey = std::pair<Type *, std::optional<uint64_t>>;
+    using ArrayKey = std::pair<Type *, Optional<uint64_t>>;
     using PointerKey = std::pair<Type *, bool>;
 
     // The map of record types (i.e. structs, unions, enums).
@@ -841,7 +971,7 @@ private:
     std::unordered_map<PointerKey, Box<PointerType>, pair_hash<bool>> pointers;
 
     // The map of array types, mapped by their base type (todo: add size)
-    std::unordered_map<ArrayKey, Box<ArrayType>, pair_hash<std::optional<uint64_t>>> arrays;
+    std::unordered_map<ArrayKey, Box<ArrayType>, pair_hash<Optional<uint64_t>>> arrays;
 
     // Generate a mangled, unique name for a type incorporating its associated scope.
     template <typename T>

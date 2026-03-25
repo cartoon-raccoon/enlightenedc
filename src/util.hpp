@@ -1,13 +1,36 @@
 #ifndef ECC_UTIL_H
 #define ECC_UTIL_H
 
+#include <exception>
 #include <memory>
+#include <optional>
+#include <sstream>
 #include <vector>
 #include <variant>
 #include <type_traits>
+#include <source_location>
 
 #ifndef NDEBUG
 #include <iostream>
+
+#define todo() throw Todo(std::source_location::current())
+
+class Todo : std::exception {
+public:
+    std::string location;
+
+    Todo(std::source_location at) {
+        std::stringstream ss;
+        ss << at.file_name() << " - ";
+        ss << at.function_name();
+        ss << " (" << at.line() << ":" << at.column() << ")";
+        location = ss.str();
+    }
+
+    const char *what() const noexcept override {
+        return location.c_str();
+    }
+};
 
 template <typename ... Args>
 void dbprint(Args&&... args) {
@@ -25,6 +48,9 @@ using Box = std::unique_ptr<T>;
 
 template<typename T>
 using Vec = std::vector<T>;
+
+template<typename T>
+using Optional = std::optional<T>;
 
 // Overloaded template class for Rust-style pattern matching on variants.
 template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };

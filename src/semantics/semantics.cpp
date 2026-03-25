@@ -5,6 +5,7 @@
 #include "semantics/semantics.hpp"
 #include "semantics/mir/mir.hpp"
 #include "semantics/mir/synthesizer.hpp"
+#include "semantics/validator.hpp"
 #include "util.hpp"
 
 using namespace ecc::ast;
@@ -1059,16 +1060,16 @@ void BaseMIRSemaVisitor::do_visit(mir::SizeofExprMIR& node) {
 
 
 void SemanticChecker::check_semantics(Program& prog, ProgramMIR& mir) {
-    dbprint("checking semantics for ", prog.loc);
+    dbprint("Checking semantics for ", prog.loc);
 
-    dbprint("running elaborator for ", prog.loc);
-    MIRSynthesizer elaborator(symbols, types, mir);
-    prog.accept(elaborator);
-
+    dbprint("Synthesizing MIR for ", prog.loc);
+    MIRSynthesizer mirsynthesizer(symbols, types, mir);
+    prog.accept(mirsynthesizer);
+    
     symbols.reset();
 
-    // todo: replace with mir
-    // dbprint("validating ", prog.loc);
-    // Validator validator(symbols, types);
-    // prog.accept(validator);
+    // todo: types.finalize_all()
+
+    // todo: validate
+    Validator validator(symbols, types);
 }

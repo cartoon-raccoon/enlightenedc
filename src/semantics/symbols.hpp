@@ -130,7 +130,7 @@ public:
     types::Type *type;
 
     // The value of the Symbol, if defined.
-    std::optional<exec::Value> value;
+    Optional<exec::Value> value;
 
     /// If the symbol is const.
     bool is_const = false;
@@ -220,7 +220,7 @@ A scope stores symbols inside a translation unit.
 */
 class Scope {
 public:
-    Scope(Symbol *assoc, Scope *outer, uint64_t id)
+    Scope(FuncSymbol *assoc, Scope *outer, uint64_t id)
     : outer(outer), 
     assoc(assoc), 
     phys_symbols(), type_symbols(), label_symbols(),
@@ -228,9 +228,9 @@ public:
 
     // the outer scope enclosing the inner scope.
     Scope *outer;
-    // a symbol associated with this scope, usually a function.
+    // A function associated with this scope.
     // if null, this is an anonymous scope.
-    Symbol *assoc;
+    FuncSymbol *assoc;
     // an ASTNode associated with this scope, if any.
     ast::ASTNode *node;
     // the symbol tables.
@@ -268,7 +268,7 @@ public:
     uint64_t next_id = 1;
 
     // Create and enter a new scope.
-    void push_scope(Symbol *assoc = nullptr);
+    void push_scope(FuncSymbol *assoc = nullptr);
 
     /*
     Enter the currently indexed scope in current scope.
@@ -301,12 +301,19 @@ public:
 
     TypeSymbol *lookup_type(std::string& sym, bool current = false);
 
+    /*
+    Look up a label up to the first function scope.
+
+    Unlike other lookup functions, which continue on to global scope,
+    `lookup_label` only recurses outwards until a function boundary.
+    This is because labels are scoped to function scope specifically.
+    */
     LabelSymbol *lookup_label(std::string& sym, bool current = false);
 
-    // Associate the current scope with the given Symbol `sym`.
+    // Associate the current scope with the given FuncSymbol `sym`.
     // If current scope is already tied to a symbol, replaces it
     // with the new one depending on value of `override`.
-    void tie_current_to(Symbol *sym, bool override = false);
+    void tie_current_to(FuncSymbol *sym, bool override = false);
 
     // Add a new symbol to the current scope.
     // Returns a pointer to the inserted symbol for further use.

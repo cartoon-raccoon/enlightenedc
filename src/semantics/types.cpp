@@ -9,12 +9,20 @@
 #include "codegen/llvm.hpp"
 #include "semantics/semerr.hpp"
 #include "util.hpp"
-
-#define MAX_SIZE 8
-#define PTR_SIZE 8
+#include "error.hpp"
 
 using namespace ecc::sema::types;
 using namespace ecc::tokens;
+using namespace ecc::codegen;
+
+size_t Type::size() {
+    if (!llvm_type) {
+        throw std::runtime_error("LLVM Type not initialized on type, cannot get size");
+    }
+
+    const llvm::DataLayout& dl = tyctxt.llvm.mod().getDataLayout();
+    return dl.getTypeAllocSize(llvm_type);
+}
 
 bool Type::is_void() { return kind == Kind::VOID; }
 
@@ -25,6 +33,41 @@ bool Type::is_pointer() { return kind == Kind::POINTER; }
 bool Type::is_array() { return kind == Kind::ARRAY; }
 
 bool Type::is_function() { return kind == Kind::FUNCTION; }
+
+VoidType::VoidType(TypeContext& tyctxt) : BaseType(Type::Kind::VOID, tyctxt) {
+    llvm_type = llvm::Type::getVoidTy(tyctxt.llvm.ctx());
+}
+
+PrimitiveType::PrimitiveType(tokens::PrimType kind, TypeContext& tyctxt)
+        : BaseType(Type::Kind::PRIMITIVE, tyctxt), primkind(kind)
+{
+    switch (primkind) {
+        case PrimType::U8:
+        case PrimType::I8:
+        case PrimType::BOOL: //? should bool be 1 bit?
+        llvm_type = llvm::Type::getInt8Ty(tyctxt.llvm.ctx());
+        break;
+
+        case PrimType::U16:
+        case PrimType::I16:
+        llvm_type = llvm::Type::getInt16Ty(tyctxt.llvm.ctx());
+        break;
+
+        case PrimType::U32:
+        case PrimType::I32:
+        llvm_type = llvm::Type::getInt32Ty(tyctxt.llvm.ctx());
+        break;
+
+        case PrimType::U64:
+        case PrimType::I64:
+        llvm_type = llvm::Type::getInt64Ty(tyctxt.llvm.ctx());
+        break;
+
+        case PrimType::F64:
+        llvm_type = llvm::Type::getDoubleTy(tyctxt.llvm.ctx());
+        break;
+    }
+}
 
 bool PrimitiveType::is_integer() {
     // We maintain strict integral definitions for determining whether
@@ -44,54 +87,57 @@ bool PrimitiveType::is_integer() {
         case PrimType::BOOL:
         return false;
     }
-    
-    return false;
+}
+
+bool PrimitiveType::is_signed() {
+    switch (primkind) {
+        case PrimType::U8:
+        case PrimType::U16:
+        case PrimType::U32:
+        case PrimType::U64:
+        case PrimType::BOOL:
+        return false;
+
+        case PrimType::I8:
+        case PrimType::I16:
+        case PrimType::I32:
+        case PrimType::I64:
+        case PrimType::F64:
+        return true;
+    }
+}
+
+bool PrimitiveType::is_float() {
+    return primkind == PrimType::F64;
+}
+
+bool PrimitiveType::is_bool() {
+    return primkind == PrimType::BOOL;
 }
 
 bool PrimitiveType::is_compatible_with(Type *dst) {
-    if (Type::is_compatible_with(dst))
-        return true;
-
     // Only primitive types allowed
     if (dst->kind != Type::Kind::PRIMITIVE) {
         return false;
     }
 
-    PrimitiveType *new_other = static_cast<PrimitiveType *>(dst);
+    PrimitiveType *new_dst = dst->as_primitive();
+    if (is_bool()) {
+        // bool can be promoted to anything numeric
+        return new_dst->is_integer() || new_dst->is_float();
+    }
 
     // If either is not an integer, return false
-    if (!this->is_integer() || !new_other->is_integer()) {
+    if (!this->is_integer() && !new_dst->is_integer()) {
         return false;
     }
 
     int my_size = this->size();
 
-    return true ? 0 < my_size && my_size <= new_other->size() : false;
+    return true ? 0 < my_size && my_size <= new_dst->size() : false;
 }
 
-std::size_t PrimitiveType::size() {
-    switch (primkind) {
-        case PrimType::U8:
-        case PrimType::I8:
-        case PrimType::BOOL:
-        return 1;
 
-        case PrimType::U16:
-        case PrimType::I16:
-        return 2;
-
-        case PrimType::U32:
-        case PrimType::I32:
-        return 4;
-
-        case PrimType::U64:
-        case PrimType::I64:
-        case PrimType::F64:
-        return 8;
-    }
-
-    std::unreachable();
-}
 
 std::string PrimitiveType::formal() {
     switch (primkind) {
@@ -118,8 +164,78 @@ std::string PrimitiveType::formal() {
     }
 }
 
-std::size_t ClassType::size() {
-    return 0; // todo
+ClassType::ClassType(sema::sym::Scope *scope, TypeContext& tyctxt) 
+    : UserType(Kind::CLASS, tyctxt, scope), members()
+{
+    llvm_type = llvm::StructType::create(tyctxt.llvm.ctx());
+}
+
+ClassType::ClassType(std::string name, sema::sym::Scope *scope, TypeContext& tyctxt) 
+    : UserType(Kind::CLASS, tyctxt, scope), members(), name(name)
+{
+    llvm_type = llvm::StructType::create(tyctxt.llvm.ctx());
+}
+
+size_t ClassType::size() {
+    if (!finalized) {
+        finalize();
+    }
+    return Type::size();
+}
+
+bool ClassType::is_fully_defined() {
+    if (!complete)
+        return false;
+
+    bool ret = true;
+    for (auto& member : members) {
+        switch (member->ty->kind) {
+            case Kind::CLASS: {
+                ClassType *cls = member->ty->as_class();
+                assert(cls);
+                ret = ret && cls->is_fully_defined();
+            }
+            break;
+            
+            case Kind::UNION: {
+                UnionType *unn = member->ty->as_union();
+                assert(unn);
+                ret = ret && unn->is_fully_defined();
+            }
+            break;
+
+            case Kind::ENUM: {
+                EnumType *enm = member->ty->as_enum();
+                assert(enm);
+                ret = ret && enm->is_fully_defined();
+            }
+            break;
+
+            default: {
+                ret = ret && true;
+            }
+            break;
+        }
+    }
+
+    return ret;
+}
+
+void ClassType::finalize() {
+    if (finalized)
+        return;
+
+    if (!complete) {
+        throw EccError(ErrorSource::SEMANTIC, "Class not fully defined");
+    }
+
+    Vec<LLVMType *> args;
+    for (auto& member : members) {
+        member->ty->finalize();
+        assert(member->ty->get_llvmtype());
+
+        todo(); // todo
+    }
 }
 
 void ClassType::add_member(Box<ClassType::ClassTypeMember> member) {
@@ -158,6 +274,9 @@ ClassType::ClassTypeMember *ClassType::find(std::string& name) {
 }
 
 ClassType::ClassTypeMember *ClassType::index(int idx) {
+    if (idx >= num_members()) {
+        return nullptr;
+    }
     return members[idx].get();
 }
 
@@ -169,12 +288,19 @@ std::string ClassType::formal() {
     }
 }
 
-std::size_t UnionType::size() {
-    return 0; // todo
+bool UnionType::is_fully_defined() {
+    todo();
+    return false;
 }
 
 bool UnionType::is_compatible_with(Type *dst) {
-    return false; // todo
+    // If there is an underlying type representative, check that
+    if (type_rep) {
+        return (*type_rep)->is_compatible_with(dst);
+    }
+
+    // Otherwise, unions are incompatible with anything
+    return false;
 }
 
 void UnionType::add_member(Box<UnionType::UnionTypeMember> member) {
@@ -202,6 +328,10 @@ UnionType::UnionTypeMember *UnionType::index(int idx) {
     return members[idx].get();
 }
 
+void UnionType::finalize() {
+    todo();
+}
+
 std::string UnionType::formal() {
     if (name) {
         return base() + *name;
@@ -210,8 +340,8 @@ std::string UnionType::formal() {
     }
 }
 
-std::size_t EnumType::size() {
-    return MAX_SIZE;
+void EnumType::finalize() {
+    todo();
 }
 
 int64_t EnumType::add_enumerator(std::string enumerator, Location loc) {
@@ -274,10 +404,6 @@ std::string EnumType::formal() {
     }
 }
 
-std::size_t PointerType::size() {
-    return PTR_SIZE; // todo: create machineinfo to handle this better
-}
-
 int PointerType::nesting_lvl() {
     int lvl = 1;
 
@@ -329,16 +455,6 @@ bool PointerType::is_compatible_with(Type *dst) {
     }
 }
 
-std::size_t FunctionType::hash_sig() {
-    std::size_t h = std::hash<Type *>{}(signature.returntype);
-
-    for (auto *p : signature.params) {
-        h ^= std::hash<Type*>{}(p) + 0x9e3779b9 + (h << 6) + (h >> 2);
-    }
-
-    return h;
-}
-
 bool ArrayType::is_compatible_with(Type *dst) {
     if (Type::is_compatible_with(dst))
         return true;
@@ -356,6 +472,28 @@ bool ArrayType::is_compatible_with(Type *dst) {
         default:
         return false;
     }
+}
+
+void ArrayType::finalize() {
+    todo();
+}
+
+size_t FunctionType::size() {
+    throw EccError("cannot call size() on FunctionType");
+}
+
+std::size_t FunctionType::hash_sig() {
+    std::size_t h = std::hash<Type *>{}(signature.returntype);
+
+    for (auto *p : signature.params) {
+        h ^= std::hash<Type*>{}(p) + 0x9e3779b9 + (h << 6) + (h >> 2);
+    }
+
+    return h;
+}
+
+void FunctionType::finalize() {
+    todo();
 }
 
 void TypeBuilder::add_array(uint64_t size) {
@@ -422,17 +560,17 @@ Type *TypeBuilder::finalize() {
 
 TypeContext::TypeContext(codegen::LLVM& llvm)
     : anonymous_ctr(0), user_types(), pointers(), arrays(), llvm(llvm),
-    voidt(std::make_unique<VoidType>()),
-    u8(std::make_unique<PrimitiveType>(PrimType::U8)),
-    u16(std::make_unique<PrimitiveType>(PrimType::U16)),
-    u32(std::make_unique<PrimitiveType>(PrimType::U32)),
-    u64(std::make_unique<PrimitiveType>(PrimType::U64)),
-    i8(std::make_unique<PrimitiveType>(PrimType::I8)),
-    i16(std::make_unique<PrimitiveType>(PrimType::I16)),
-    i32(std::make_unique<PrimitiveType>(PrimType::I32)),
-    i64(std::make_unique<PrimitiveType>(PrimType::I64)),
-    f64(std::make_unique<PrimitiveType>(PrimType::F64)),
-    boolt(std::make_unique<PrimitiveType>(PrimType::BOOL))
+    voidt(std::make_unique<VoidType>(*this)),
+    u8(std::make_unique<PrimitiveType>(PrimType::U8, *this)),
+    u16(std::make_unique<PrimitiveType>(PrimType::U16, *this)),
+    u32(std::make_unique<PrimitiveType>(PrimType::U32, *this)),
+    u64(std::make_unique<PrimitiveType>(PrimType::U64, *this)),
+    i8(std::make_unique<PrimitiveType>(PrimType::I8, *this)),
+    i16(std::make_unique<PrimitiveType>(PrimType::I16, *this)),
+    i32(std::make_unique<PrimitiveType>(PrimType::I32, *this)),
+    i64(std::make_unique<PrimitiveType>(PrimType::I64, *this)),
+    f64(std::make_unique<PrimitiveType>(PrimType::F64, *this)),
+    boolt(std::make_unique<PrimitiveType>(PrimType::BOOL, *this))
 {}
 
 TypeBuilder TypeContext::builder() {
@@ -482,7 +620,7 @@ ClassType *TypeContext::get_class(std::string name, sym::Scope *scope) {
         return user_types.find(mangled)->second.get()->as_class();
     }
 
-    Box<ClassType> clsty = std::make_unique<ClassType>(name, scope);
+    Box<ClassType> clsty = std::make_unique<ClassType>(name, scope, *this);
 
     // If no struct matching the name, make a new struct
     return make_insert_type<ClassType>(mangled, scope, std::move(clsty));
@@ -502,7 +640,7 @@ ClassType *TypeContext::get_class(sym::Scope *scope) {
     anonymous_ctr++;
     auto mangled = mangle<ClassType>(name, scope);
 
-    Box<ClassType> clsty = std::make_unique<ClassType>(scope);
+    Box<ClassType> clsty = std::make_unique<ClassType>(scope, *this);
 
     return make_insert_type<ClassType>(mangled, scope, std::move(clsty));
 }
@@ -516,7 +654,7 @@ UnionType *TypeContext::get_union(std::string name, sym::Scope *scope) {
         return user_types.find(mangled)->second.get()->as_union();
     }
 
-    Box<UnionType> unnty = std::make_unique<UnionType>(name, scope);
+    Box<UnionType> unnty = std::make_unique<UnionType>(name, scope, *this);
 
     // If no struct matching the name, make a new struct
     return make_insert_type<UnionType>(mangled, scope, std::move(unnty));
@@ -531,7 +669,7 @@ UnionType *TypeContext::get_union(std::string name, PrimitiveType *type_rep, sym
         return user_types.find(mangled)->second.get()->as_union();
     }
 
-    Box<UnionType> unnty = std::make_unique<UnionType>(name, type_rep, scope);
+    Box<UnionType> unnty = std::make_unique<UnionType>(name, type_rep, scope, *this);
 
     // If no struct matching the name, make a new struct
     return make_insert_type<UnionType>(mangled, scope, std::move(unnty));
@@ -543,7 +681,7 @@ UnionType *TypeContext::get_union(sym::Scope *scope) {
     anonymous_ctr++;
     auto mangled = mangle<UnionType>(name, scope);
 
-    Box<UnionType> unnty = std::make_unique<UnionType>(scope);
+    Box<UnionType> unnty = std::make_unique<UnionType>(scope, *this);
 
     return make_insert_type<UnionType>(mangled, scope, std::move(unnty));
 }
@@ -554,7 +692,7 @@ UnionType *TypeContext::get_union(PrimitiveType *type_rep, sym::Scope *scope) {
     anonymous_ctr++;
     auto mangled = mangle<UnionType>(name, scope);
 
-    Box<UnionType> unnty = std::make_unique<UnionType>(type_rep, scope);
+    Box<UnionType> unnty = std::make_unique<UnionType>(type_rep, scope, *this);
 
     return make_insert_type<UnionType>(mangled, scope, std::move(unnty));
 }
@@ -568,7 +706,7 @@ EnumType *TypeContext::get_enum(std::string name, sym::Scope *scope) {
         return user_types.find(mangled)->second.get()->as_enum();
     }
 
-    Box<EnumType> enmty = std::make_unique<EnumType>(name, scope);
+    Box<EnumType> enmty = std::make_unique<EnumType>(name, scope, *this);
 
     // If no struct matching the name, make a new struct
     return make_insert_type<EnumType>(mangled, scope, std::move(enmty));
@@ -580,7 +718,7 @@ EnumType *TypeContext::get_enum(sym::Scope *scope) {
     anonymous_ctr++;
     auto mangled = mangle<EnumType>(name, scope);
 
-    Box<EnumType> enmty = std::make_unique<EnumType>(scope);
+    Box<EnumType> enmty = std::make_unique<EnumType>(scope, *this);
 
     return make_insert_type<EnumType>(mangled, scope, std::move(enmty));
 }
@@ -597,7 +735,7 @@ PointerType *TypeContext::get_pointer(Type *base, bool is_const) {
     // since base is a Type *, we can assume it has already been created.
 
     // If not found, create a new pointer.
-    Box<PointerType> ptr = std::make_unique<PointerType>(base);
+    Box<PointerType> ptr = std::make_unique<PointerType>(base, *this);
     ptr->is_const = is_const;
     auto ret = ptr.get();
     pointers[{base, is_const}] = std::move(ptr);
@@ -613,7 +751,7 @@ ArrayType *TypeContext::get_array(Type *base, uint64_t size) {
         return it->second.get();
     }
 
-    Box<ArrayType> arr = std::make_unique<ArrayType>(base, size);
+    Box<ArrayType> arr = std::make_unique<ArrayType>(base, size, *this);
     auto ret = arr.get();
     arrays[key] = std::move(arr);
 
@@ -628,7 +766,7 @@ ArrayType *TypeContext::get_array(Type *base) {
         return it->second.get();
     }
 
-    Box<ArrayType> arr = std::make_unique<ArrayType>(base);
+    Box<ArrayType> arr = std::make_unique<ArrayType>(base, *this);
     auto ret = arr.get();
     arrays[key] = std::move(arr);
 
@@ -645,7 +783,7 @@ FunctionType *TypeContext::get_function(Type *returntype, Vec<Type *> params, bo
     */
 
     dbprint("TypeContext: getting function type");
-    Box<FunctionType> func = std::make_unique<FunctionType>(returntype);
+    Box<FunctionType> func = std::make_unique<FunctionType>(returntype, *this);
     FunctionType *ret = func.get();
 
     FunctionType::FunctionSignature sig = {returntype, std::move(params), variadic};

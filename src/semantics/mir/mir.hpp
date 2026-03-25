@@ -1,7 +1,6 @@
 #ifndef ECC_MIR_H
 #define ECC_MIR_H
 
-#include <optional>
 #include <variant>
 
 #include "semantics/types.hpp"
@@ -153,7 +152,7 @@ class VarDeclMIR : public DeclMIR {
 public:
     struct VarDecl {
         sema::sym::VarSymbol *sym;
-        std::optional<Box<InitializerMIR>> initializer;
+        Optional<Box<InitializerMIR>> initializer;
     };
 
     VarDeclMIR(Location loc)
@@ -191,7 +190,7 @@ public:
     ExprStmtMIR(Location loc)
         : StmtMIR(loc, NodeKind::EXPRSTMT_MIR) {}
     
-    std::optional<Box<ExprMIR>> expr;
+    Optional<Box<ExprMIR>> expr;
 
     bool is_empty() { return !expr.has_value(); }
 
@@ -290,7 +289,7 @@ public:
 
     IfStmtMIR(Location loc, 
               Box<ExprMIR> condition, Box<StmtMIR> then_branch, 
-              std::optional<Box<StmtMIR>> else_branch)
+              Optional<Box<StmtMIR>> else_branch)
         : StmtMIR(loc, NodeKind::IFSTMT_MIR), 
         condition(std::move(condition)), 
         then_branch(std::move(then_branch)),
@@ -304,7 +303,7 @@ public:
     
     Box<ExprMIR> condition;
     Box<StmtMIR> then_branch;
-    std::optional<Box<StmtMIR>> else_branch;
+    Optional<Box<StmtMIR>> else_branch;
 
     void accept(MIRVisitor& visitor) override;
 };
@@ -319,9 +318,9 @@ public:
         body(std::move(body)) {}
 
     LoopStmtMIR(Location loc, 
-                std::optional<Box<ProgItemMIR>> init,
-                std::optional<Box<ExprMIR>> condition, 
-                std::optional<Box<StmtMIR>> step,
+                Optional<Box<ProgItemMIR>> init,
+                Optional<Box<ExprMIR>> condition, 
+                Optional<Box<StmtMIR>> step,
                 Box<StmtMIR> body,
                 bool is_dowhile)
         : StmtMIR(loc, NodeKind::LOOPSTMT_MIR),
@@ -346,16 +345,16 @@ public:
     ProgItem is used because the init code can be a variable declaration
     or an expression statement.
     */
-    std::optional<Box<ProgItemMIR>> init;
+    Optional<Box<ProgItemMIR>> init;
     /*
     The condition needed for the loop to continue.
     */
-    std::optional<Box<ExprMIR>> condition;
+    Optional<Box<ExprMIR>> condition;
     /*
     The step condition for updating a sentinel value in the loop.
     Only needed for `for` loops.
     */
-    std::optional<Box<StmtMIR>> step;
+    Optional<Box<StmtMIR>> step;
     // The actual body of the loop.
     Box<StmtMIR> body;
     bool is_dowhile;
@@ -404,7 +403,7 @@ public:
     ReturnStmtMIR(Location loc, Box<ExprMIR> ret_expr)
         : StmtMIR(loc, NodeKind::RETSTMT_MIR), ret_expr(std::move(ret_expr)) {}
     
-    std::optional<Box<ExprMIR>> ret_expr;
+    Optional<Box<ExprMIR>> ret_expr;
 
     void accept(MIRVisitor& visitor) override;
 };
