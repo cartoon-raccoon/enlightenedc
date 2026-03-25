@@ -78,8 +78,8 @@ Program @ <input/literals.ec:1.1>
 | | IdentifierExpression: f1 @ <input/literals.ec:13.26-27> 
 | | IdentifierExpression: f2 @ <input/literals.ec:13.30-31> 
 running backend for file input/literals.ec
-checking semantics for input/literals.ec:1.1
-running elaborator for input/literals.ec:1.1
+Checking semantics for input/literals.ec:1.1
+Synthesizing MIR for input/literals.ec:1.1
 Node {
     visiting Program node: input/literals.ec:1.1
     Node {
@@ -366,15 +366,15 @@ Array Types:
 
 Scope 0
 Physical Symbols:
-  nl -> 0x56327f25bcd0 : VarSymbol: nl :: U8i
-  ch -> 0x56327f25baa0 : VarSymbol: ch :: U8i
-  f2 -> 0x56327f25b820 : VarSymbol: f2 :: F64i
-  qt -> 0x56327f25bf00 : VarSymbol: qt :: U8i
-  f1 -> 0x56327f25b5a0 : VarSymbol: f1 :: F64i
-  c -> 0x56327f25b180 : VarSymbol: c :: U32i
-  b -> 0x56327f25af00 : VarSymbol: b :: U32i
-  d -> 0x56327f25b390 : VarSymbol: d :: U32i
-  a -> 0x56327f25ac80 : VarSymbol: a :: U32i
+  nl -> 0x559e32876060 : VarSymbol: nl :: U8i
+  ch -> 0x559e32875e30 : VarSymbol: ch :: U8i
+  f2 -> 0x559e32875bb0 : VarSymbol: f2 :: F64i
+  qt -> 0x559e32876290 : VarSymbol: qt :: U8i
+  f1 -> 0x559e32875930 : VarSymbol: f1 :: F64i
+  c -> 0x559e32875510 : VarSymbol: c :: U32i
+  b -> 0x559e32875290 : VarSymbol: b :: U32i
+  d -> 0x559e32875720 : VarSymbol: d :: U32i
+  a -> 0x559e3286d620 : VarSymbol: a :: U32i
 
 Type Symbols:
 

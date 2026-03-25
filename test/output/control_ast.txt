@@ -94,8 +94,8 @@ Program @ <input/control.ec:1.1>
 | | | IdentifierExpression: n @ <input/control.ec:33.20> 
 | | PrintStatement: "hello" @ <input/control.ec:33.25-32> 
 running backend for file input/control.ec
-checking semantics for input/control.ec:1.1
-running elaborator for input/control.ec:1.1
+Checking semantics for input/control.ec:1.1
+Synthesizing MIR for input/control.ec:1.1
 Node {
     visiting Program node: input/control.ec:1.1
     Node {
@@ -449,12 +449,12 @@ Array Types:
 
 Scope 0
 Physical Symbols:
-  n -> 0x55d0bdd2ec00 : VarSymbol: n :: I64i
+  n -> 0x563f59587620 : VarSymbol: n :: I64i
 
 Type Symbols:
 
 Label Symbols:
-  start -> 0x55d0bdd2ed60 : LabelSymbol: start
+  start -> 0x563f5958f0f0 : LabelSymbol: start
 -----------------------------------------------------------
   Scope 1
   Physical Symbols:
@@ -507,7 +507,7 @@ Label Symbols:
 -----------------------------------------------------------
   Scope 8
   Physical Symbols:
-    n -> 0x55d0bdd30cd0 : VarSymbol: n :: U32i
+    n -> 0x563f595910a0 : VarSymbol: n :: U32i
 
   Type Symbols:
 

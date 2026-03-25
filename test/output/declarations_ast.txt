@@ -68,8 +68,8 @@ Program @ <input/declarations.ec:1.1>
 | | | | Initializer:  @ <input/declarations.ec:6.22> 
 | | | | | Literal: 1 @ <input/declarations.ec:6.22> 
 running backend for file input/declarations.ec
-checking semantics for input/declarations.ec:1.1
-running elaborator for input/declarations.ec:1.1
+Checking semantics for input/declarations.ec:1.1
+Synthesizing MIR for input/declarations.ec:1.1
 Node {
     visiting Program node: input/declarations.ec:1.1
     Node {
@@ -104,8 +104,8 @@ TypeContext: getting primitive type
             }
         }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x55ced9163260
-TypeContext: pointer with base 0x55ced91634a0
+TypeContext: pointer with base 0x55d80eaa4830
+TypeContext: pointer with base 0x55d80eaa5020
 SymbolTable: inserting varsymbol with name "ptrA"
     }
     Node {
@@ -162,7 +162,7 @@ SymbolTable: inserting varsymbol with name "b"
             }
         }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55ced91632c0, size 4
+TypeContext: array type with base 0x55d80eaa48c0, size 4
 SymbolTable: inserting varsymbol with name "c"
     }
     Node {
@@ -188,7 +188,7 @@ TypeContext: getting primitive type
             }
         }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55ced9163320, no size
+TypeContext: array type with base 0x55d80eaa4950, no size
 SymbolTable: inserting varsymbol with name "table"
     }
     Node {
@@ -237,7 +237,7 @@ TypeContext: getting primitive type
             }
         }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55ced9163220, size 3
+TypeContext: array type with base 0x55d80eaa47d0, size 3
 SymbolTable: inserting varsymbol with name "bytes"
     }
     Node {
@@ -279,7 +279,7 @@ TypeContext: getting primitive type
             }
         }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55ced91632e0, size 2
+TypeContext: array type with base 0x55d80eaa48f0, size 2
 SymbolTable: inserting varsymbol with name "matrix"
     }
 }
@@ -305,13 +305,13 @@ Array Types:
 
 Scope 0
 Physical Symbols:
-  bytes -> 0x55ced9164960 : VarSymbol: bytes :: U8i[3]
-  table -> 0x55ced9164460 : VarSymbol: table :: F64i[] extern
-  c -> 0x55ced9164280 : VarSymbol: c :: I16i[4] static
-  b -> 0x55ced9164050 : VarSymbol: b :: I16i static
-  matrix -> 0x55ced9164d30 : VarSymbol: matrix :: I32i[2]
-  a -> 0x55ced9163e90 : VarSymbol: a :: I16i static
-  ptrA -> 0x55ced9163cb0 : VarSymbol: ptrAconst  :: U32i * const * public
+  bytes -> 0x55d80eaa5d20 : VarSymbol: bytes :: U8i[3]
+  table -> 0x55d80eaa5830 : VarSymbol: table :: F64i[] extern
+  c -> 0x55d80eaa5630 : VarSymbol: c :: I16i[4] static
+  b -> 0x55d80eaa5400 : VarSymbol: b :: I16i static
+  matrix -> 0x55d80eaa6140 : VarSymbol: matrix :: I32i[2]
+  a -> 0x55d80eaa5240 : VarSymbol: a :: I16i static
+  ptrA -> 0x55d80ea9d620 : VarSymbol: ptrAconst  :: U32i * const * public
 
 Type Symbols:
 

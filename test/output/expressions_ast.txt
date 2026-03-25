@@ -127,8 +127,8 @@ Program @ <input/expressions.ec:1.1>
 | | | | | IdentifierExpression: b @ <input/expressions.ec:22.9> 
 | | | | IdentifierExpression: x @ <input/expressions.ec:22.12> 
 running backend for file input/expressions.ec
-checking semantics for input/expressions.ec:1.1
-running elaborator for input/expressions.ec:1.1
+Checking semantics for input/expressions.ec:1.1
+Synthesizing MIR for input/expressions.ec:1.1
 Node {
     visiting Program node: input/expressions.ec:1.1
     Node {
@@ -450,7 +450,7 @@ TypeContext: getting primitive type
             }
         }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x564e9a54a220
+TypeContext: pointer with base 0x56068b4b77d0
 SymbolTable: inserting varsymbol with name "s"
     }
     Node {
@@ -570,10 +570,10 @@ Array Types:
 
 Scope 0
 Physical Symbols:
-  s -> 0x564e9a54c940 : VarSymbol: s :: U8i *
-  b -> 0x564e9a54b100 : VarSymbol: b :: U32i
-  a -> 0x564e9a54aed0 : VarSymbol: a :: U32i
-  x -> 0x564e9a54ac50 : VarSymbol: x :: U32i
+  s -> 0x56068b4b9d40 : VarSymbol: s :: U8i *
+  b -> 0x56068b4b8490 : VarSymbol: b :: U32i
+  a -> 0x56068b4b8260 : VarSymbol: a :: U32i
+  x -> 0x56068b4b0620 : VarSymbol: x :: U32i
 
 Type Symbols:
 
