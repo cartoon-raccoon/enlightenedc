@@ -70,44 +70,97 @@ public:
     }
 
     Value operator||(const Value rhs) {
-        return std::monostate {}; // todo
+        return Value(static_cast<bool>(*this) || static_cast<bool>(rhs));
     }
-    
+
     Value operator&&(const Value rhs) {
-        return std::monostate {}; // todo
+        return Value(static_cast<bool>(*this) && static_cast<bool>(rhs));
     }
-    
-    // Binary bitwise XOR
+
+    // Binary bitwise OR
     Value operator|(const Value rhs) {
-        return std::monostate {}; // todo
+        return std::visit(
+            overloaded{[](auto a, auto b) -> Value {
+                using A = std::decay_t<decltype(a)>;
+                using B = std::decay_t<decltype(b)>;
+
+                if constexpr ((std::is_same_v<A, char> ||
+                               std::is_same_v<A, long> ||
+                               std::is_same_v<
+                                   A, bool>)&&(std::is_same_v<B, char> ||
+                                               std::is_same_v<B, long> ||
+                                               std::is_same_v<B, bool>)) {
+                    return Value((long)a | (long)b);
+                } else {
+                    throw InvalidCompileTimeEval("Invalid types for bitwise OR",
+                                                 Location{});
+                }
+            }},
+            inner, rhs.inner);
     }
 
     // Binary bitwise XOR
     Value operator^(const Value rhs) {
-        return std::monostate {}; // todo
+        return std::visit(
+            overloaded{[](auto a, auto b) -> Value {
+                using A = std::decay_t<decltype(a)>;
+                using B = std::decay_t<decltype(b)>;
+
+                if constexpr ((std::is_same_v<A, char> ||
+                               std::is_same_v<A, long> ||
+                               std::is_same_v<
+                                   A, bool>)&&(std::is_same_v<B, char> ||
+                                               std::is_same_v<B, long> ||
+                                               std::is_same_v<B, bool>)) {
+                    return Value((long)a ^ (long)b);
+                } else {
+                    throw InvalidCompileTimeEval(
+                        "Invalid types for bitwise XOR", Location{});
+                }
+            }},
+            inner, rhs.inner);
     }
 
     // Binary bitwise AND
     Value operator&(const Value rhs) {
-        return std::monostate {}; // todo
+        return std::visit(
+            overloaded{[](auto a, auto b) -> Value {
+                using A = std::decay_t<decltype(a)>;
+                using B = std::decay_t<decltype(b)>;
+
+                if constexpr ((std::is_same_v<A, char> ||
+                               std::is_same_v<A, long> ||
+                               std::is_same_v<
+                                   A, bool>)&&(std::is_same_v<B, char> ||
+                                               std::is_same_v<B, long> ||
+                                               std::is_same_v<B, bool>)) {
+                    return Value((long)a & (long)b);
+                } else {
+                    throw InvalidCompileTimeEval(
+                        "Invalid types for bitwise AND", Location{});
+                }
+            }},
+            inner, rhs.inner);
     }
 
     // Binary EQ
     Value operator==(const Value rhs) {
-        return std::visit(overloaded {
-            [](long a, long b) { return Value(a == b); },
-            [](char a, long b) { return Value(a == b); },
-            [](long a, char b) { return Value(a == b); },
-            [](double a, double b) { return Value(a == b); },
-            [](long a, double b) { return Value((double)a == b); },
-            [](char a, double b) { return Value((double)a == b); },
-            [](double a, long b) { return Value(a == (double)b); },
-            [](double a, char b) { return Value(a == (double)b); },
-            [](const std::string& a, const std::string& b) { return Value(a == b); },
-            [](auto&&, auto&&) -> Value { 
-                throw EccError("Invalid types for addition"); 
-            }
-        }, inner, rhs.inner);
+        return std::visit(
+            overloaded{[](long a, long b) { return Value(a == b); },
+                       [](char a, long b) { return Value(a == b); },
+                       [](long a, char b) { return Value(a == b); },
+                       [](double a, double b) { return Value(a == b); },
+                       [](long a, double b) { return Value((double)a == b); },
+                       [](char a, double b) { return Value((double)a == b); },
+                       [](double a, long b) { return Value(a == (double)b); },
+                       [](double a, char b) { return Value(a == (double)b); },
+                       [](const std::string& a, const std::string& b) {
+                           return Value(a == b);
+                       },
+                       [](auto&&, auto&&) -> Value {
+                           throw EccError("Invalid types for addition");
+                       }},
+            inner, rhs.inner);
     }
 
     // Binary NEQ
@@ -127,130 +180,170 @@ public:
 
     // Binary LT
     Value operator<(const Value rhs) {
-        return std::visit(overloaded {
-            [](long a, long b) { return Value(a < b); },
-            [](char a, long b) { return Value(a < b); },
-            [](long a, char b) { return Value(a < b); },
-            [](double a, double b) { return Value(a < b); },
-            [](long a, double b) { return Value((double)a < b); },
-            [](char a, double b) { return Value((double)a < b); },
-            [](double a, long b) { return Value(a < (double)b); },
-            [](double a, char b) { return Value(a > (double)b); },
-            [](const std::string& a, const std::string& b) { return Value(a < b); },
-            [](auto&&, auto&&) -> Value { 
-                throw EccError("Invalid types for addition"); 
-            }
-        }, inner, rhs.inner);
+        return std::visit(
+            overloaded{[](long a, long b) { return Value(a < b); },
+                       [](char a, long b) { return Value(a < b); },
+                       [](long a, char b) { return Value(a < b); },
+                       [](double a, double b) { return Value(a < b); },
+                       [](long a, double b) { return Value((double)a < b); },
+                       [](char a, double b) { return Value((double)a < b); },
+                       [](double a, long b) { return Value(a < (double)b); },
+                       [](double a, char b) { return Value(a < (double)b); },
+                       [](const std::string& a, const std::string& b) {
+                           return Value(a < b);
+                       },
+                       [](auto&&, auto&&) -> Value {
+                           throw EccError("Invalid types for addition");
+                       }},
+            inner, rhs.inner);
     }
 
-    Value operator>( const Value rhs) {
-        return std::visit(overloaded {
-            [](long a, long b) { return Value(a > b); },
-            [](char a, long b) { return Value(a > b); },
-            [](long a, char b) { return Value(a > b); },
-            [](double a, double b) { return Value(a > b); },
-            [](long a, double b) { return Value((double)a > b); },
-            [](char a, double b) { return Value((double)a > b); },
-            [](double a, long b) { return Value(a > (double)b); },
-            [](double a, char b) { return Value(a > (double)b); },
-            [](const std::string& a, const std::string& b) { return Value(a > b); },
-            [](auto&&, auto&&) -> Value { 
-                throw EccError("Invalid types for addition"); 
-            }
-        }, inner, rhs.inner);
+    Value operator>(const Value rhs) {
+        return std::visit(
+            overloaded{[](long a, long b) { return Value(a > b); },
+                       [](char a, long b) { return Value(a > b); },
+                       [](long a, char b) { return Value(a > b); },
+                       [](double a, double b) { return Value(a > b); },
+                       [](long a, double b) { return Value((double)a > b); },
+                       [](char a, double b) { return Value((double)a > b); },
+                       [](double a, long b) { return Value(a > (double)b); },
+                       [](double a, char b) { return Value(a > (double)b); },
+                       [](const std::string& a, const std::string& b) {
+                           return Value(a > b);
+                       },
+                       [](auto&&, auto&&) -> Value {
+                           throw EccError("Invalid types for addition");
+                       }},
+            inner, rhs.inner);
     }
 
     Value operator+(const Value rhs) {
-        return std::visit(overloaded {
-            [](long a, long b) { return Value(a + b); },
-            [](char a, long b) { return Value(a + b); },
-            [](long a, char b) { return Value(a + b); },
-            [](double a, double b) { return Value(a + b); },
-            [](long a, double b) { return Value((double)a + b); },
-            [](char a, double b) { return Value((double)a + b); },
-            [](double a, long b) { return Value(a + (double)b); },
-            [](double a, char b) { return Value(a + (double)b); },
-            [](const std::string& a, const std::string& b) { return Value(a + b); },
-            [](auto&&, auto&&) -> Value { 
-                throw EccError("Invalid types for addition"); 
-            }
-        }, inner, rhs.inner);
+        return std::visit(
+            overloaded{[](long a, long b) { return Value(a + b); },
+                       [](char a, long b) { return Value(a + b); },
+                       [](long a, char b) { return Value(a + b); },
+                       [](double a, double b) { return Value(a + b); },
+                       [](long a, double b) { return Value((double)a + b); },
+                       [](char a, double b) { return Value((double)a + b); },
+                       [](double a, long b) { return Value(a + (double)b); },
+                       [](double a, char b) { return Value(a + (double)b); },
+                       [](const std::string& a, const std::string& b) {
+                           return Value(a + b);
+                       },
+                       [](auto&&, auto&&) -> Value {
+                           throw EccError("Invalid types for addition");
+                       }},
+            inner, rhs.inner);
     }
 
     Value operator-(const Value rhs) {
-        return std::visit(overloaded {
-            [](long a, long b) { return Value(a - b); },
-            [](char a, long b) { return Value(a - b); },
-            [](long a, char b) { return Value(a - b); },
-            [](double a, double b) { return Value(a - b); },
-            [](long a, double b) { return Value((double)a - b); },
-            [](char a, double b) { return Value((double)a - b); },
-            [](double a, long b) { return Value(a - (double)b); },
-            [](double a, char b) { return Value(a - (double)b); },
-            [](auto&&, auto&&) -> Value { 
-                throw EccError("Invalid types for subtraction"); 
-            }
-        }, inner, rhs.inner);
+        return std::visit(
+            overloaded{[](long a, long b) { return Value(a - b); },
+                       [](char a, long b) { return Value(a - b); },
+                       [](long a, char b) { return Value(a - b); },
+                       [](double a, double b) { return Value(a - b); },
+                       [](long a, double b) { return Value((double)a - b); },
+                       [](char a, double b) { return Value((double)a - b); },
+                       [](double a, long b) { return Value(a - (double)b); },
+                       [](double a, char b) { return Value(a - (double)b); },
+                       [](auto&&, auto&&) -> Value {
+                           throw EccError("Invalid types for subtraction");
+                       }},
+            inner, rhs.inner);
     }
 
     Value operator*(const Value rhs) {
-        return std::visit(overloaded {
-            [](long a, long b) { return Value(a * b); },
-            [](char a, long b) { return Value(a * b); },
-            [](long a, char b) { return Value(a * b); },
-            [](double a, double b) { return Value(a * b); },
-            [](long a, double b) { return Value((double)a * b); },
-            [](char a, double b) { return Value((double)a * b); },
-            [](double a, long b) { return Value(a * (double)b); },
-            [](double a, char b) { return Value(a * (double)b); },
-            [](auto&&, auto&&) -> Value { 
-                throw EccError("Invalid types for multiplication"); 
-            }
-        }, inner, rhs.inner);
+        return std::visit(
+            overloaded{[](long a, long b) { return Value(a * b); },
+                       [](char a, long b) { return Value(a * b); },
+                       [](long a, char b) { return Value(a * b); },
+                       [](double a, double b) { return Value(a * b); },
+                       [](long a, double b) { return Value((double)a * b); },
+                       [](char a, double b) { return Value((double)a * b); },
+                       [](double a, long b) { return Value(a * (double)b); },
+                       [](double a, char b) { return Value(a * (double)b); },
+                       [](auto&&, auto&&) -> Value {
+                           throw EccError("Invalid types for multiplication");
+                       }},
+            inner, rhs.inner);
     }
-    
+
     Value operator/(const Value rhs) {
-        return std::visit(overloaded {
-            [](long a, long b) { return Value(a / b); },
-            [](char a, long b) { return Value(a / b); },
-            [](long a, char b) { return Value(a / b); },
-            [](double a, double b) { return Value(a / b); },
-            [](long a, double b) { return Value((double)a / b); },
-            [](char a, double b) { return Value((double)a / b); },
-            [](double a, long b) { return Value(a / (double)b); },
-            [](double a, char b) { return Value(a / (double)b); },
-            [](auto&&, auto&&) -> Value { 
-                throw EccError("Invalid types for division"); 
-            }
-        }, inner, rhs.inner);
+        return std::visit(
+            overloaded{[](long a, long b) { return Value(a / b); },
+                       [](char a, long b) { return Value(a / b); },
+                       [](long a, char b) { return Value(a / b); },
+                       [](double a, double b) { return Value(a / b); },
+                       [](long a, double b) { return Value((double)a / b); },
+                       [](char a, double b) { return Value((double)a / b); },
+                       [](double a, long b) { return Value(a / (double)b); },
+                       [](double a, char b) { return Value(a / (double)b); },
+                       [](auto&&, auto&&) -> Value {
+                           throw EccError("Invalid types for division");
+                       }},
+            inner, rhs.inner);
     }
-    
+
     // Unary logical NOT
-    Value operator!() {
-        return std::monostate {}; // todo
-    }
+    Value operator!() { return Value(!static_cast<bool>(*this)); }
 
     /*
     Unary bitwise NOT
     */
     Value operator~() {
-        return std::monostate {}; // todo
+        return std::visit(overloaded{[](auto v) -> Value {
+                              using T = std::decay_t<decltype(v)>;
+
+                              if constexpr (std::is_same_v<T, char> ||
+                                            std::is_same_v<T, long> ||
+                                            std::is_same_v<T, bool>) {
+                                  return Value(~(long)v);
+                              } else {
+                                  throw InvalidCompileTimeEval(
+                                      "Invalid type for bitwise NOT",
+                                      Location{});
+                              }
+                          }},
+                          inner);
     }
-    
+
     // Unary NEG
     Value operator-() {
-        return std::monostate {}; // todo
+        return std::visit(overloaded{[](long v) { return Value(-v); },
+                                     [](char v) { return Value(-(long)v); },
+                                     [](double v) { return Value(-v); },
+                                     [](auto&&) -> Value {
+                                         throw InvalidCompileTimeEval(
+                                             "Invalid type for unary minus",
+                                             Location{});
+                                     }},
+                          inner);
     }
-    
+
     // Prefix INC
     Value operator++() {
-        return std::monostate {}; // todo
+        return std::visit(
+            overloaded{[this](long& v) -> Value { return Value(++v); },
+                       [this](char& v) -> Value { return Value(++v); },
+                       [this](double& v) -> Value { return Value(++v); },
+                       [](auto&) -> Value {
+                           throw InvalidCompileTimeEval(
+                               "Invalid type for prefix ++", Location{});
+                       }},
+            inner);
     }
-    
 
     // Prefix DEC
     Value operator--() {
-        return std::monostate {}; // todo
+        return std::visit(
+            overloaded{[this](long& v) -> Value { return Value(--v); },
+                       [this](char& v) -> Value { return Value(--v); },
+                       [this](double& v) -> Value { return Value(--v); },
+                       [](auto&) -> Value {
+                           throw InvalidCompileTimeEval(
+                               "Invalid type for prefix --", Location{});
+                       }},
+            inner);
     }
 
     /*
@@ -261,12 +354,14 @@ public:
 
     // Postfix INC
     Value operator++(int) {
-        return *this; // todo: throw error if value is string, since ++ on string is semantically bad
+        throw InvalidCompileTimeEval(
+            "Postfix ++ not allowed in constant expressions", Location{});
     }
-    
+
     // Postfix DEC
     Value operator--(int) {
-        return *this; // todo: throw error if value is string, since -- on string is semantically bad
+        throw InvalidCompileTimeEval(
+            "Postfix -- not allowed in constant expressions", Location{});
     }
 };
 
