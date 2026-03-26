@@ -4,7 +4,7 @@
 #include <stdfloat>
 
 #include "semantics/symbols.hpp"
-#include "value.hpp"
+#include "eval/value.hpp"
 #include "semantics/types.hpp"
 
 namespace ecc::sema::mir {

@@ -1,39 +1,43 @@
 #include <iostream>
 
 #include "ecc.hpp"
+#include "config.hpp"
 #include "driver/driver.hpp"
 #include "util.hpp"
 
 using namespace ecc;
 
-EccConfig::EccConfig(int argc, char *argv[]) {
-    for (int i = 1; i < argc; i++) {
-        input_files.emplace_back(argv[i]);
+int Ecc::run() {
+    try {
+        if (config->input_files.empty()) {
+            throw EccError("no input files provided");
+        }
+        for (auto& file : config->input_files) {
+            run_pipeline(&file);
+        }
+    } catch (EccError e) {
+        std::cerr << e.to_string() << "\n";
+        return 1;
     }
-}
 
-void Ecc::run() {
-    for (auto& file : config->input_files) {
-        run_pipeline(&file);
-    }
+    return 0;
 }
 
 void Ecc::run_pipeline(std::string *filename) {
     dbprint("running pipeline on file ", *filename);
 
-    driver::TranslationUnit unit(filename);
+    driver::TranslationUnit unit(filename, *llvm);
     driver::Driver driver(unit);
 
     driver.run();
 }
 
 int main(int argc, char** argv) {
-    if (argc < 2) {
-        std::cerr << "Usage: ecc <file>\n";
+    try {
+        ecc::Ecc ecc(argc, argv);
+        return ecc.run();
+    } catch (ArgError e) {
+        std::cerr << e.to_string() << "\n";
         return 1;
     }
-
-    ecc::Ecc ecc(argc, argv);
-
-    ecc.run();
 }

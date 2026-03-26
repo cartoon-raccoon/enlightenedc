@@ -17,6 +17,7 @@
 #include <llvm/MC/TargetRegistry.h>
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/TargetSelect.h>
+#include <llvm/Support/ManagedStatic.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Target/TargetMachine.h>
 #include <llvm/Target/TargetOptions.h>
@@ -31,18 +32,33 @@ namespace ecc::codegen {
 
 using LLVMType = llvm::Type;
 
-class LLVM {
-    inline static bool initialized;
+/**
+Global LLVM state.
+*/
+class LLVMCore {
+    llvm::Triple target_triple;
+    const llvm::Target *target;
+    llvm::TargetMachine *target_machine;
+public:
+    LLVMCore();
+    ~LLVMCore();
+
+    friend class LLVMUnit;
+};
+
+/**
+LLVM state for a single translation unit.
+*/
+class LLVMUnit {
     Box<llvm::LLVMContext> context;
     Box<llvm::Module> llvmmod;
     Box<llvm::IRBuilder<>> irbuilder;
 
-    const llvm::Target *target;
-    llvm::TargetMachine *target_machine;
-
 public:
-    LLVM(std::string& module_name);
-    ~LLVM();
+    LLVMUnit(std::string& module_name, LLVMCore& llvmcore);
+    ~LLVMUnit();
+
+    friend class LLVMCore;
 
     llvm::LLVMContext& ctx() { return *context; }
     llvm::Module& mod() { return *llvmmod; }

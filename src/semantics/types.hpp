@@ -406,8 +406,6 @@ public:
     The members of the class.
     */
     Vec<Box<ClassTypeMember>> members;
-    
-    size_t size() override;
 
     /*
     Whether the class is fully defined,
@@ -505,6 +503,8 @@ public:
     Optional<std::string> name;
 
     Optional<PrimitiveType *> type_rep = {};
+
+    size_t size() override;
 
     bool is_fully_defined() override;
 
@@ -695,8 +695,6 @@ public:
     // The number of elements in the array, populated after elaboration.
     Optional<uint64_t> arr_size;
 
-    size_t size() override;
-
     ArrayType *as_array() override { return this; }
 
     bool is_subscriptable() override { return true; }
@@ -884,7 +882,7 @@ public:
     friend class ArrayType;
     friend class FunctionType;
 
-    TypeContext(codegen::LLVM&);
+    TypeContext(codegen::LLVMUnit&);
 
     TypeContext(const TypeContext&) = delete;
     TypeContext& operator=(const TypeContext&) = delete;
@@ -982,7 +980,7 @@ public:
 
 private:
     int anonymous_ctr = 0;
-    codegen::LLVM& llvm;
+    codegen::LLVMUnit& llvm;
 
     // intern the primitive language-defined types directly in the context.
     Box<VoidType> voidt;

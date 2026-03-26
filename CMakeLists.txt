@@ -53,7 +53,7 @@ file(GLOB_RECURSE FRONTEND_SRC "${SRC_DIR}/frontend/*.cpp")
 file(GLOB_RECURSE SEMANTICS_SRC "${SRC_DIR}/semantics/*.cpp")
 file(GLOB_RECURSE CODEGEN_SRC "${SRC_DIR}/codegen/*.cpp")
 file(GLOB_RECURSE EVAL_SRC "${SRC_DIR}/eval/*.cpp")
-file(GLOB_RECURSE ECC_SRC "${SRC_DIR}/*.cpp")
+file(GLOB         ECC_SRC "${SRC_DIR}/*.cpp")
 
 # 5. Create our target executable
 add_executable(ecc 
@@ -66,7 +66,7 @@ add_executable(ecc
     ${EVAL_SRC}
     ${BISON_parser_OUTPUTS} 
     ${FLEX_scanner_OUTPUTS} 
-    "${SRC_DIR}/ecc.cpp"
+    ${ECC_SRC}
 )
 
 # 6. Setup include paths

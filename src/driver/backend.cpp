@@ -22,4 +22,8 @@ void Backend::run(driver::TranslationUnit& unit) {
     dbprint("--------- MIR ---------\n");
     MIRPrinter printer;
     unit.prog_mir->accept(printer);
+
+    // todo: types->finalize_all()
+
+    // todo: synthesize LIR
 }

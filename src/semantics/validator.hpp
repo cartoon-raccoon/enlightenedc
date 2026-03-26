@@ -58,7 +58,14 @@ private:
 
     void visit_single_vardecl(sym::VarSymbol *varsym, mir::InitializerMIR& init);
 
-    void eval_initializer_rec(Vec<Accessor>& path, types::Type *type, mir::InitializerMIR& init);
+    void eval_initializer_rec(
+        Vec<Accessor>& path, types::Type *type, mir::InitializerMIR& init);
+
+    void eval_initializer_rec(
+        Vec<Accessor>& path, types::ClassType *cls, Vec<Box<mir::InitializerMIR>>& init);
+
+    void eval_initializer_rec(
+        Vec<Accessor>& path, types::ArrayType *arr, Vec<Box<mir::InitializerMIR>>& init);
 };
 
 }

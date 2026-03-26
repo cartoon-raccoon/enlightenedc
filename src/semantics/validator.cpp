@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <cassert>
 
 #include "semantics/validator.hpp"
 #include "semantics/mir/mir.hpp"
@@ -22,7 +23,7 @@ void Validator::eval_initializer_rec(Vec<Accessor>& path, types::Type *type, Ini
         /*
         Base case. If evaluates to a single expression, perform type comparison.
         */
-        [this, path, type] (Box<ExprMIR>& expr) mutable {
+        [this, path, type, &init] (Box<ExprMIR>& expr) mutable {
             bsv_dbprint("Validator: matched on single expression");
             expr->accept(*this);
             if (type != expr->type) {
@@ -30,14 +31,40 @@ void Validator::eval_initializer_rec(Vec<Accessor>& path, types::Type *type, Ini
                 if (type->is_compatible_with(expr->type)) {
     
                 } else {
-                    // throw error
+                    // todo: throw error
                 }
             }
         },
-        [this, path, type] (Vec<Box<InitializerMIR>>& inner) mutable {
+        /*
+        Recursive case. If there is a list of initializers, this has to be a class or array.
+        */
+        [this, path, type, &init] (Vec<Box<InitializerMIR>>& inner) mutable {
+            switch (type->kind) {
+                case Type::Kind::CLASS:
+                eval_initializer_rec(path, type->as_class(), init);
+                break;
 
+                case Type::Kind::ARRAY:
+                eval_initializer_rec(path, type->as_array(), init);
+                break;
+
+                default:
+                // todo: throw error
+            }
         }
     }, init.initializer);
+}
+
+void Validator::eval_initializer_rec(Vec<Accessor>& path, ClassType *cls, Vec<Box<InitializerMIR>>& init) {
+    assert(cls && "cls was null while evaluating initializer");
+
+    // todo
+}
+
+void Validator::eval_initializer_rec(Vec<Accessor>& path, ArrayType *arr, Vec<Box<InitializerMIR>>& init) {
+    assert(arr && "arr was null while evaluating initializer");
+
+    // todo
 }
 
 void Validator::visit_single_vardecl(sym::VarSymbol *varsym, InitializerMIR& init) {

@@ -7,6 +7,7 @@
 #include "frontend/frontend.hpp"
 #include "driver/backend.hpp"
 #include "semantics/mir/mir.hpp"
+#include "codegen/lir/lir.hpp"
 #include "codegen/llvm.hpp"
 #include "util.hpp"
 
@@ -14,13 +15,15 @@ using namespace ecc;
 
 namespace ecc::driver {
 
-struct TranslationUnit {
+class TranslationUnit {
+public:
+    TranslationUnit(std::string *filename, codegen::LLVMCore& llvmcore);
+
     std::string *filename;
+    Box<codegen::LLVMUnit> llvm;
     Box<ast::Program> ast_root;
     Box<sema::mir::ProgramMIR> prog_mir;
-    Box<codegen::LLVM> llvm;
-
-    TranslationUnit(std::string *filename);
+    Box<codegen::lir::ProgramLIR> prog_lir;
 };
 
 // A class for driving the compilation process for a single translation unit.

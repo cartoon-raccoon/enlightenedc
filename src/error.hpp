@@ -3,7 +3,6 @@
 
 #include <exception>
 #include <string>
-#include <optional>
 #include <sstream>
 
 #include "util.hpp"

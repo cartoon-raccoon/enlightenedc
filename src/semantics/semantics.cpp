@@ -1068,8 +1068,6 @@ void SemanticChecker::check_semantics(Program& prog, ProgramMIR& mir) {
     
     symbols.reset();
 
-    // todo: types.finalize_all()
-
     // todo: validate
     Validator validator(symbols, types);
 }

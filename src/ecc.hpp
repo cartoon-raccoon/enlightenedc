@@ -3,52 +3,25 @@
 
 #include <string>
 
+#include "codegen/llvm.hpp"
+#include "config.hpp"
 #include "util.hpp"
 
 using namespace ecc::util;
 
 namespace ecc {
 
-class EccConfig {
-public:
-    EccConfig(int argc, char *argv[]);
-    
-    // The list of input files.
-    Vec<std::string> input_files;
-
-    std::string output_file;
-
-    // Whether to enable verbose messages.
-    bool verbose = false;
-
-    /*
-    The phase of compilation at which to stop.
-    */
-    enum StopAt {
-        // Only preprocess the input files, dumping them to their own files.
-        PREPROCESS,
-        // Only parse the input files. (warn if no output method is detected.)
-        PARSE,
-        // Parse and validate the input files, and then stop, emitting any errors.
-        VALIDATE,
-        // Compile the files, emitting LLVM IR bytecode by default. Other output formats
-        // (e.g. assembly text, LLVM IR text) can be specified.
-        COMPILE,
-        // Assemble the files into a single object file.
-        ASSEMBLE,
-        // Fully complete the process, linking into any standard libraries needed.
-        COMPLETE,
-    } stop_at = COMPLETE;
-};
-
 /*
 The EnlightenedC Compiler main driver class.
 */
 class Ecc {
 public:
-    Ecc(int argc, char *argv[]) : config(std::make_unique<EccConfig>(argc, argv)) {}
+    Ecc(int argc, char **argv) 
+        : config(std::make_unique<EccConfig>(argc, argv)),
+        llvm(std::make_unique<codegen::LLVMCore>()) {}
 
     Box<EccConfig> config;
+    Box<codegen::LLVMCore> llvm;
 
     /*
     Run the compilation pipeline on a single input file.
@@ -58,7 +31,7 @@ public:
     */
     void run_pipeline(std::string *filename);
 
-    void run();
+    int run();
 };
 
 

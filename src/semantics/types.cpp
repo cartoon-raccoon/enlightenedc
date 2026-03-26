@@ -1,6 +1,3 @@
-#include <cstddef>
-#include <cstdio>
-#include <llvm/IR/DerivedTypes.h>
 #include <memory>
 #include <stdexcept>
 #include <utility>
@@ -44,11 +41,13 @@ bool Type::is_function() { return kind == Kind::FUNCTION; }
 */
 
 void VoidType::finalize() {
-    dbprint("VoidType: finalizing");
     if (finalized) {
         assert(llvm_type && "VoidType marked finalized but llvm_type is null");
+        dbprint("VoidType: already finalized, skipping");
         return;
     }
+
+    dbprint("VoidType: finalizing");
     llvm_type = llvm::Type::getVoidTy(tyctxt.llvm.ctx());
 
     finalized = true;
@@ -126,11 +125,12 @@ bool PrimitiveType::is_compatible_with(Type *dst) {
 }
 
 void PrimitiveType::finalize() {
-    dbprint("PrimitiveType: finalizing ", to_string());
     if (finalized) {
         assert(llvm_type && "PrimitiveType marked finalize but llvm_type is null");
+        dbprint("PrimitiveType: ", to_string(), " already finalized, skipping");
         return;
     }
+    dbprint("PrimitiveType: finalizing ", to_string());
 
     switch (primkind) {
         case PrimType::U8:
@@ -191,13 +191,6 @@ std::string PrimitiveType::formal() {
 * CLASS TYPE METHODS
 */
 
-size_t ClassType::size() {
-    if (!finalized) {
-        finalize();
-    }
-    return Type::size();
-}
-
 bool ClassType::is_fully_defined() {
     if (!is_complete())
         return false;
@@ -239,8 +232,10 @@ bool ClassType::is_fully_defined() {
 void ClassType::finalize() {
     if (finalized) {
         assert(llvm_type && "ClassType marked finalize but llvm_type is null");
+        dbprint("ClassType: already finalized, skipping");
         return;
     }
+    dbprint("ClassType: finalizing");
 
     if (!is_complete()) {
         throw EccError(ErrorSource::SEMANTIC, "Class not fully defined", decl_loc);
@@ -317,9 +312,12 @@ std::string ClassType::formal() {
 * UNION TYPE METHODS
 */
 
+size_t UnionType::size() {
+    todo();
+}
+
 bool UnionType::is_fully_defined() {
     todo();
-    return false;
 }
 
 bool UnionType::is_compatible_with(Type *dst) {
@@ -358,6 +356,13 @@ UnionType::UnionTypeMember *UnionType::index(int idx) {
 }
 
 void UnionType::finalize() {
+    /*
+    Union types do not have an LLVM equivalent, so we only finalize members.
+    */
+    if (finalized) {
+        dbprint("UnionType: already finalized, skipping");
+        return;
+    }
     todo();
 }
 
@@ -520,10 +525,6 @@ void PointerType::finalize() {
 * ARRAY TYPE METHODS
 */
 
-size_t ArrayType::size() {
-    todo();
-}
-
 bool ArrayType::is_compatible_with(Type *dst) {
     if (Type::is_compatible_with(dst))
         return true;
@@ -544,6 +545,11 @@ bool ArrayType::is_compatible_with(Type *dst) {
 }
 
 void ArrayType::finalize() {
+    if (finalized) {
+        assert(llvm_type && "ArrayType marked finalized but llvm_type is null");
+        dbprint("ArrayType: already finalized, skipping");
+        return;
+    }
     todo();
 }
 
@@ -566,6 +572,11 @@ std::size_t FunctionType::hash_sig() {
 }
 
 void FunctionType::finalize() {
+    if (finalized) {
+        assert(llvm_type && "FunctionType marked finalized but llvm_type is null");
+        dbprint("FunctionType: already finalized, skipping");
+        return;
+    }
     todo();
 }
 
@@ -635,7 +646,7 @@ Type *TypeBuilder::finalize() {
 * TYPE CONTEXT METHODS
 */
 
-TypeContext::TypeContext(codegen::LLVM& llvm)
+TypeContext::TypeContext(codegen::LLVMUnit& llvm)
     : anonymous_ctr(0), user_types(), pointers(), arrays(), llvm(llvm),
     voidt(std::make_unique<VoidType>(*this)),
     u8(std::make_unique<PrimitiveType>(PrimType::U8, *this)),
