@@ -449,12 +449,12 @@ Array Types:
 
 Scope 0
 Physical Symbols:
-  n -> 0x563f59587620 : VarSymbol: n :: I64i
+  n -> 0x55c630b16620 : VarSymbol: n :: I64i
 
 Type Symbols:
 
 Label Symbols:
-  start -> 0x563f5958f0f0 : LabelSymbol: start
+  start -> 0x55c630b1e0f0 : LabelSymbol: start
 -----------------------------------------------------------
   Scope 1
   Physical Symbols:
@@ -507,7 +507,7 @@ Label Symbols:
 -----------------------------------------------------------
   Scope 8
   Physical Symbols:
-    n -> 0x563f595910a0 : VarSymbol: n :: U32i
+    n -> 0x55c630b20100 : VarSymbol: n :: U32i
 
   Type Symbols:
 

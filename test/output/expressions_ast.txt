@@ -450,7 +450,7 @@ TypeContext: getting primitive type
             }
         }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x56068b4b77d0
+TypeContext: pointer with base 0x55c08e2be7d0
 SymbolTable: inserting varsymbol with name "s"
     }
     Node {
@@ -570,10 +570,10 @@ Array Types:
 
 Scope 0
 Physical Symbols:
-  s -> 0x56068b4b9d40 : VarSymbol: s :: U8i *
-  b -> 0x56068b4b8490 : VarSymbol: b :: U32i
-  a -> 0x56068b4b8260 : VarSymbol: a :: U32i
-  x -> 0x56068b4b0620 : VarSymbol: x :: U32i
+  s -> 0x55c08e2c0d80 : VarSymbol: s :: U8i *
+  b -> 0x55c08e2bf490 : VarSymbol: b :: U32i
+  a -> 0x55c08e2bf260 : VarSymbol: a :: U32i
+  x -> 0x55c08e2b7620 : VarSymbol: x :: U32i
 
 Type Symbols:
 

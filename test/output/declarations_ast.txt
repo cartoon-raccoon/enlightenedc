@@ -104,8 +104,8 @@ TypeContext: getting primitive type
             }
         }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x55d80eaa4830
-TypeContext: pointer with base 0x55d80eaa5020
+TypeContext: pointer with base 0x56335b186830
+TypeContext: pointer with base 0x56335b187020
 SymbolTable: inserting varsymbol with name "ptrA"
     }
     Node {
@@ -158,11 +158,17 @@ SymbolTable: inserting varsymbol with name "b"
                         visiting IdentifierDeclarator node: input/declarations.ec:2.25
                     }
                     array declarator has size, checking for compile time computability
+                    Node {
+                        visiting ConstExpression node: input/declarations.ec:2.25-27
+                        Node {
+                            visiting LiteralExpression node: input/declarations.ec:2.25-27
+                        }
+                    }
                 }
             }
         }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55d80eaa48c0, size 4
+TypeContext: array type with base 0x56335b1868c0, size 4
 SymbolTable: inserting varsymbol with name "c"
     }
     Node {
@@ -188,7 +194,7 @@ TypeContext: getting primitive type
             }
         }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55d80eaa4950, no size
+TypeContext: array type with base 0x56335b186950, no size
 SymbolTable: inserting varsymbol with name "table"
     }
     Node {
@@ -208,6 +214,12 @@ TypeContext: getting primitive type
                         visiting IdentifierDeclarator node: input/declarations.ec:5.5-9
                     }
                     array declarator has size, checking for compile time computability
+                    Node {
+                        visiting ConstExpression node: input/declarations.ec:5.5-11
+                        Node {
+                            visiting LiteralExpression node: input/declarations.ec:5.5-11
+                        }
+                    }
                 }
             }
             Node {
@@ -237,7 +249,7 @@ TypeContext: getting primitive type
             }
         }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55d80eaa47d0, size 3
+TypeContext: array type with base 0x56335b1867d0, size 3
 SymbolTable: inserting varsymbol with name "bytes"
     }
     Node {
@@ -257,6 +269,12 @@ TypeContext: getting primitive type
                         visiting IdentifierDeclarator node: input/declarations.ec:6.6-11
                     }
                     array declarator has size, checking for compile time computability
+                    Node {
+                        visiting ConstExpression node: input/declarations.ec:6.6-13
+                        Node {
+                            visiting LiteralExpression node: input/declarations.ec:6.6-13
+                        }
+                    }
                 }
             }
             Node {
@@ -279,7 +297,7 @@ TypeContext: getting primitive type
             }
         }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55d80eaa48f0, size 2
+TypeContext: array type with base 0x56335b1868f0, size 2
 SymbolTable: inserting varsymbol with name "matrix"
     }
 }
@@ -305,13 +323,13 @@ Array Types:
 
 Scope 0
 Physical Symbols:
-  bytes -> 0x55d80eaa5d20 : VarSymbol: bytes :: U8i[3]
-  table -> 0x55d80eaa5830 : VarSymbol: table :: F64i[] extern
-  c -> 0x55d80eaa5630 : VarSymbol: c :: I16i[4] static
-  b -> 0x55d80eaa5400 : VarSymbol: b :: I16i static
-  matrix -> 0x55d80eaa6140 : VarSymbol: matrix :: I32i[2]
-  a -> 0x55d80eaa5240 : VarSymbol: a :: I16i static
-  ptrA -> 0x55d80ea9d620 : VarSymbol: ptrAconst  :: U32i * const * public
+  bytes -> 0x56335b187d30 : VarSymbol: bytes :: U8i[3]
+  table -> 0x56335b187840 : VarSymbol: table :: F64i[] extern
+  c -> 0x56335b187640 : VarSymbol: c :: I16i[4] static
+  b -> 0x56335b187460 : VarSymbol: b :: I16i static
+  matrix -> 0x56335b188150 : VarSymbol: matrix :: I32i[2]
+  a -> 0x56335b187240 : VarSymbol: a :: I16i static
+  ptrA -> 0x56335b17f620 : VarSymbol: ptrAconst  :: U32i * const * public
 
 Type Symbols:
 
