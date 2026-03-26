@@ -1,4 +1,5 @@
 #include "error.hpp"
+#include "util.hpp"
 
 namespace ecc::sema {
 using namespace ecc;
@@ -109,6 +110,18 @@ public:
         std::stringstream ss;
         ss << EccError::what() << "\n" 
            << "enumerator previously defined with this value at " << def_loc;
+
+        msg = ss.str();
+    }
+};
+
+class InvalidEnumUnderlyingError : public EccSemError {
+public:
+    InvalidEnumUnderlyingError(Location err_loc)
+    : EccSemError("invalid enum underlying type", err_loc)
+    {
+        std::stringstream ss;
+        ss << EccError::what() << "\n" << "underlying type of an enum must be an integer";
 
         msg = ss.str();
     }

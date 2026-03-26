@@ -111,7 +111,7 @@ std::string ClassType::to_string() const {
 
     ss << "class";
 
-    if (complete) {
+    if (is_complete()) {
         ss << " { ";
 
         bool first = true;
@@ -137,7 +137,11 @@ std::string UnionType::to_string() const {
 
     ss << "union";
 
-    if (complete) {
+    if (type_rep) {
+        ss << ": " << (*type_rep)->to_string() << " ";
+    }
+
+    if (is_complete()) {
         ss << " { ";
 
         bool first = true;
@@ -163,7 +167,11 @@ std::string EnumType::to_string() const {
 
     ss << "enum";
 
-    if (complete) {
+    if (underlying) {
+        ss << ": " << (*underlying).to_string() << " ";
+    }
+
+    if (is_complete()) {
         ss << " { ";
 
         bool first = true;
@@ -217,8 +225,8 @@ std::string ArrayType::to_string() const {
 
     ss << "[";
 
-    if (size)
-        ss << *size;
+    if (arr_size)
+        ss << *arr_size;
 
     ss << "]";
 

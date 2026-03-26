@@ -907,19 +907,37 @@ enum_specifier:
     ENUM LBRACE enumerator_list RBRACE {
         $$ = std::make_unique<EnumSpecifier>(@$, std::nullopt, std::move($3));
     }
+    | primitive_type ENUM LBRACE enumerator_list RBRACE {
+        $$ = std::make_unique<EnumSpecifier>(@$, std::nullopt, std::move($4), $1->pkind);
+    }
     | ENUM IDENTIFIER LBRACE enumerator_list RBRACE {
         type_idents.insert($2);
         $$ = std::make_unique<EnumSpecifier>(@$, $2, std::move($4));
     }
+    | primitive_type ENUM IDENTIFIER LBRACE enumerator_list RBRACE {
+        type_idents.insert($3);
+        $$ = std::make_unique<EnumSpecifier>(@$, $3, std::move($5), $1->pkind);
+    }
     | ENUM TYPE_IDENTIFIER LBRACE enumerator_list RBRACE {
         $$ = std::make_unique<EnumSpecifier>(@$, $2, std::move($4));
+    }
+    | primitive_type ENUM TYPE_IDENTIFIER LBRACE enumerator_list RBRACE {
+        $$ = std::make_unique<EnumSpecifier>(@$, $3, std::move($5), $1->pkind);
     }
     | ENUM IDENTIFIER {
         type_idents.insert($2);
         $$ = std::make_unique<EnumSpecifier>(@$, $2, std::nullopt);
     }
+    | primitive_type ENUM IDENTIFIER {
+        error(@$, "incomplete enum definition");
+        return 1;
+    }
     | ENUM TYPE_IDENTIFIER {
         $$ = std::make_unique<EnumSpecifier>(@$, $2, std::nullopt);
+    }
+    | primitive_type ENUM TYPE_IDENTIFIER {
+        error(@$, "incomplete enum definition");
+        return 1;
     }
 ;
 

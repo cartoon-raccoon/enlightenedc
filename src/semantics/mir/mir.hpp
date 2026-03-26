@@ -3,6 +3,7 @@
 
 #include <variant>
 
+#include "eval/exec.hpp"
 #include "semantics/types.hpp"
 #include "semantics/symbols.hpp"
 #include "eval/value.hpp"
@@ -91,10 +92,12 @@ public:
 
 class ExprMIR : public MIRNode {
 public:
-    ExprMIR(Location loc, NodeKind kind) : MIRNode(loc, kind) {}
-    ExprMIR(Location loc, NodeKind kind,
-            sema::types::Type *type) : MIRNode(loc, kind), type(type) {}
+    ExprMIR(Location loc, NodeKind kind, sema::sym::Scope *scope)
+        : MIRNode(loc, kind), scope(scope) {}
+    ExprMIR(Location loc, NodeKind kind, sema::sym::Scope *scope, sema::types::Type *type)
+        : MIRNode(loc, kind), scope(scope), type(type) {}
 
+    sema::sym::Scope *scope = nullptr;
     sema::types::Type *type = nullptr;
 
     // Whether this expression can be assigned to,
@@ -111,6 +114,8 @@ public:
     virtual bool is_subscriptable() { return type->is_subscriptable(); }
 
     virtual void accept(MIRVisitor& visitor) = 0;
+
+    virtual exec::Value eval(exec::Evaluator& ev) = 0;
 };
 
 class DeclMIR : public ProgItemMIR {
@@ -411,9 +416,10 @@ public:
 class BinaryExprMIR : public ExprMIR {
 public:
     BinaryExprMIR(Location loc, 
+                  sema::sym::Scope *scope,
                   Box<ExprMIR> left, Box<ExprMIR> right, 
                   tokens::BinaryOp op)
-        : ExprMIR(loc, NodeKind::BINEXPR_MIR), 
+        : ExprMIR(loc, NodeKind::BINEXPR_MIR, scope), 
         left(std::move(left)), right(std::move(right)), 
         op(op) {}
     
@@ -426,12 +432,17 @@ public:
     bool is_lvalue() override { return false; }
 
     void accept(MIRVisitor& visitor) override;
+
+    exec::Value eval(exec::Evaluator& ev) override;
 };
 
 class UnaryExprMIR : public ExprMIR {
 public:
-    UnaryExprMIR(Location loc, Box<ExprMIR> operand, tokens::UnaryOp op)
-        : ExprMIR(loc, NodeKind::UNEXPR_MIR), operand(std::move(operand)), op(op) {}
+    UnaryExprMIR(Location loc,
+                 sema::sym::Scope *scope, 
+                 Box<ExprMIR> operand, 
+                 tokens::UnaryOp op)
+        : ExprMIR(loc, NodeKind::UNEXPR_MIR, scope), operand(std::move(operand)), op(op) {}
     
     Box<ExprMIR> operand;
     tokens::UnaryOp op;
@@ -441,12 +452,17 @@ public:
     bool is_lvalue() override { return op == tokens::UnaryOp::DEREF; };
 
     void accept(MIRVisitor& visitor) override;
+
+    exec::Value eval(exec::Evaluator& ev) override;
 };
 
 class CastExprMIR : public ExprMIR {
 public:
-    CastExprMIR(Location loc, sema::types::Type *target, Box<ExprMIR> inner)
-        : ExprMIR(loc, NodeKind::CASTEXPR_MIR), 
+    CastExprMIR(Location loc, 
+                sema::sym::Scope *scope, 
+                sema::types::Type *target, 
+                Box<ExprMIR> inner)
+        : ExprMIR(loc, NodeKind::CASTEXPR_MIR, scope), 
         target(target), inner(std::move(inner)) {}
     
     sema::types::Type *target;
@@ -457,14 +473,17 @@ public:
     bool is_lvalue() override { return false; }
 
     void accept(MIRVisitor& visitor) override;
+
+    exec::Value eval(exec::Evaluator& ev) override;
 };
 
 class AssignExprMIR : public ExprMIR {
 public:
-    AssignExprMIR(Location loc, 
+    AssignExprMIR(Location loc,
+                  sema::sym::Scope *scope, 
                   Box<ExprMIR> left, Box<ExprMIR> right, 
                   tokens::AssignOp op)
-        : ExprMIR(loc, NodeKind::ASSGNEXPR_MIR), 
+        : ExprMIR(loc, NodeKind::ASSGNEXPR_MIR, scope), 
         left(std::move(left)), right(std::move(right)), 
         op(op) {}
 
@@ -473,13 +492,18 @@ public:
     tokens::AssignOp op;
 
     void accept(MIRVisitor& visitor) override;
+
+    exec::Value eval(exec::Evaluator& ev) override;
 };
 
 class CondExprMIR : public ExprMIR {
 public:
-    CondExprMIR(Location loc, Box<ExprMIR> condition,
-                Box<ExprMIR> true_expr, Box<ExprMIR> false_expr)
-        : ExprMIR(loc, NodeKind::CONDEXPR_MIR), 
+    CondExprMIR(Location loc,
+                sema::sym::Scope *scope, 
+                Box<ExprMIR> condition,
+                Box<ExprMIR> true_expr,
+                Box<ExprMIR> false_expr)
+        : ExprMIR(loc, NodeKind::CONDEXPR_MIR, scope), 
         condition(std::move(condition)),
         true_expr(std::move(true_expr)),
         false_expr(std::move(false_expr)) {}
@@ -491,12 +515,16 @@ public:
     bool is_lvalue() override { return false; }
 
     void accept(MIRVisitor& visitor) override;
+
+    exec::Value eval(exec::Evaluator& ev) override;
 };
 
 class IdentExprMIR : public ExprMIR {
 public:
-    IdentExprMIR(Location loc, sema::sym::PhysicalSymbol *ident)
-        : ExprMIR(loc, NodeKind::IDENTEXPR_MIR), ident(ident) {}
+    IdentExprMIR(Location loc,
+                 sema::sym::Scope *scope, 
+                 sema::sym::PhysicalSymbol *ident)
+        : ExprMIR(loc, NodeKind::IDENTEXPR_MIR, scope), ident(ident) {}
 
     sema::sym::PhysicalSymbol *ident;
 
@@ -509,24 +537,28 @@ public:
     bool is_subscriptable() override { return type->is_subscriptable(); }
 
     void accept(MIRVisitor& visitor) override;
+
+    exec::Value eval(exec::Evaluator& ev) override;
 };
 
 class ConstExprMIR : public ExprMIR {
 public:
-    ConstExprMIR(Location loc, Box<ExprMIR> inner)
-        : ExprMIR(loc, NodeKind::CONSTEXPR_MIR), inner(std::move(inner)) {}
+    ConstExprMIR(Location loc, sema::sym::Scope *scope, Box<ExprMIR> inner)
+        : ExprMIR(loc, NodeKind::CONSTEXPR_MIR, scope), inner(std::move(inner)) {}
     
     Box<ExprMIR> inner;
 
     NodeKind get_kind() override { return inner->get_kind(); }
 
     void accept(MIRVisitor& visitor) override;
+
+    exec::Value eval(exec::Evaluator& ev) override;
 };
 
 class LiteralExprMIR : public ExprMIR {
 public:
-    LiteralExprMIR(Location loc, exec::Value value)
-        : ExprMIR(loc, NodeKind::LITEXPR_MIR), value(value) {}
+    LiteralExprMIR(Location loc, sema::sym::Scope *scope, exec::Value value)
+        : ExprMIR(loc, NodeKind::LITEXPR_MIR, scope), value(value) {}
 
     exec::Value value;
 
@@ -539,16 +571,23 @@ public:
     bool is_subscriptable() override { return false; }
 
     void accept(MIRVisitor& visitor) override;
+
+    exec::Value eval(exec::Evaluator& ev) override;
 };
 
 class CallExprMIR : public ExprMIR {
 public:
-    CallExprMIR(Location loc, Box<ExprMIR> callee)
-        : ExprMIR(loc, NodeKind::CALLEXPR_MIR), 
+    CallExprMIR(Location loc, 
+                sema::sym::Scope *scope, 
+                Box<ExprMIR> callee)
+        : ExprMIR(loc, NodeKind::CALLEXPR_MIR, scope), 
         callee(std::move(callee)) {}
 
-    CallExprMIR(Location loc, Box<ExprMIR> callee, Vec<Box<ExprMIR>> args)
-        : ExprMIR(loc, NodeKind::CALLEXPR_MIR), 
+    CallExprMIR(Location loc, 
+                sema::sym::Scope *scope, 
+                Box<ExprMIR> callee, 
+                Vec<Box<ExprMIR>> args)
+        : ExprMIR(loc, NodeKind::CALLEXPR_MIR, scope), 
         callee(std::move(callee)), 
         args(std::move(args)) {}
 
@@ -556,13 +595,16 @@ public:
     Vec<Box<ExprMIR>> args;
 
     void accept(MIRVisitor& visitor) override;
+
+    exec::Value eval(exec::Evaluator& ev) override;
 };
 
 class MemberAccExprMIR : public ExprMIR {
 public:
     MemberAccExprMIR(Location loc, 
+                     sema::sym::Scope *scope,
                      Box<ExprMIR> object, std::string member, bool is_arrow)
-        : ExprMIR(loc, NodeKind::MEMACCEXPR_MIR), 
+        : ExprMIR(loc, NodeKind::MEMACCEXPR_MIR, scope), 
         object(std::move(object)), member(member), is_arrow(is_arrow) {}
     
     Box<ExprMIR> object;
@@ -572,12 +614,16 @@ public:
     bool is_lvalue() override { return true; }
 
     void accept(MIRVisitor& visitor) override;
+
+    exec::Value eval(exec::Evaluator& ev) override;
 };
 
 class SubscrExprMIR : public ExprMIR {
 public:
-    SubscrExprMIR(Location loc, Box<ExprMIR> array, Box<ExprMIR> index)
-        : ExprMIR(loc, NodeKind::SUBSCREXPR_MIR), 
+    SubscrExprMIR(Location loc, 
+                  sema::sym::Scope *scope,
+                  Box<ExprMIR> array, Box<ExprMIR> index)
+        : ExprMIR(loc, NodeKind::SUBSCREXPR_MIR, scope), 
         array(std::move(array)), index(std::move(index)) {}
 
     Box<ExprMIR> array;
@@ -586,34 +632,44 @@ public:
     bool is_lvalue() override { return true; }
 
     void accept(MIRVisitor& visitor) override;
+
+    exec::Value eval(exec::Evaluator& ev) override;
 };
 
 class PostfixExprMIR : public ExprMIR {
 public:
-    PostfixExprMIR(Location loc, Box<ExprMIR> operand, tokens::PostfixOp op)
-        : ExprMIR(loc, NodeKind::PFIXEXPR_MIR), operand(std::move(operand)), op(op) {}
+    PostfixExprMIR(Location loc,
+                   sema::sym::Scope *scope,
+                   Box<ExprMIR> operand, tokens::PostfixOp op)
+        : ExprMIR(loc, NodeKind::PFIXEXPR_MIR, scope), 
+        operand(std::move(operand)), op(op) {}
 
     Box<ExprMIR> operand;
     tokens::PostfixOp op;
 
     void accept(MIRVisitor& visitor) override;
+
+    exec::Value eval(exec::Evaluator& ev) override;
 };
 
 class SizeofExprMIR : public ExprMIR {
 public:
     using SizeofOperand = std::variant<Box<ExprMIR>, sema::types::Type *>;
 
-    SizeofExprMIR(Location loc) : ExprMIR(loc, NodeKind::SIZEEXPR_MIR) {}
+    SizeofExprMIR(Location loc, sema::sym::Scope *scope)
+        : ExprMIR(loc, NodeKind::SIZEEXPR_MIR, scope) {}
 
-    SizeofExprMIR(Location loc, sema::types::Type *target)
-        : ExprMIR(loc, NodeKind::SIZEEXPR_MIR), operand(target) {}
+    SizeofExprMIR(Location loc, sema::sym::Scope *scope, sema::types::Type *target)
+        : ExprMIR(loc, NodeKind::SIZEEXPR_MIR, scope), operand(target) {}
 
-    SizeofExprMIR(Location loc, Box<ExprMIR> target)
-        : ExprMIR(loc, NodeKind::SIZEEXPR_MIR), operand(std::move(target)) {}
+    SizeofExprMIR(Location loc, sema::sym::Scope *scope, Box<ExprMIR> target)
+        : ExprMIR(loc, NodeKind::SIZEEXPR_MIR, scope), operand(std::move(target)) {}
     
     SizeofOperand operand;
 
     void accept(MIRVisitor& visitor) override;
+
+    exec::Value eval(exec::Evaluator& ev) override;
 };
 
 class FunctionMIR : public ProgItemMIR {

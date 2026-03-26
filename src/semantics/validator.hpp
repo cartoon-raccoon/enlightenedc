@@ -23,36 +23,35 @@ public:
 
     void eval_initializer(types::Type *type, mir::InitializerMIR& init);
 
-protected:
-    void do_visit(mir::InitializerMIR& node) override;
-    void do_visit(mir::VarDeclMIR& node) override;
+    void do_visit(mir::InitializerMIR& node) final override;
+    void do_visit(mir::VarDeclMIR& node) final override;
 
-    void do_visit(mir::ExprStmtMIR& node) override;
-    void do_visit(mir::SwitchStmtMIR& node) override;
-    void do_visit(mir::CaseStmtMIR& node) override;
-    void do_visit(mir::CaseRangeStmtMIR& node) override;
-    void do_visit(mir::DefaultStmtMIR& node) override;
-    void do_visit(mir::PrintStmtMIR& node) override;
-    void do_visit(mir::IfStmtMIR& node) override;
-    void do_visit(mir::LoopStmtMIR& node) override;
-    void do_visit(mir::GotoStmtMIR& node) override;
-    void do_visit(mir::BreakStmtMIR& node) override;
-    void do_visit(mir::ContStmtMIR& node) override;
-    void do_visit(mir::ReturnStmtMIR& node) override;
+    void do_visit(mir::ExprStmtMIR& node) final override;
+    void do_visit(mir::SwitchStmtMIR& node) final override;
+    void do_visit(mir::CaseStmtMIR& node) final override;
+    void do_visit(mir::CaseRangeStmtMIR& node) final override;
+    void do_visit(mir::DefaultStmtMIR& node) final override;
+    void do_visit(mir::PrintStmtMIR& node) final override;
+    void do_visit(mir::IfStmtMIR& node) final override;
+    void do_visit(mir::LoopStmtMIR& node) final override;
+    void do_visit(mir::GotoStmtMIR& node) final override;
+    void do_visit(mir::BreakStmtMIR& node) final override;
+    void do_visit(mir::ContStmtMIR& node) final override;
+    void do_visit(mir::ReturnStmtMIR& node) final override;
 
-    void do_visit(mir::BinaryExprMIR& node) override;
-    void do_visit(mir::UnaryExprMIR& node) override;
-    void do_visit(mir::CastExprMIR& node) override;
-    void do_visit(mir::AssignExprMIR& node) override;
-    void do_visit(mir::CondExprMIR& node) override;
-    void do_visit(mir::IdentExprMIR& node) override;
-    void do_visit(mir::ConstExprMIR& node) override;
-    void do_visit(mir::LiteralExprMIR& node) override;
-    void do_visit(mir::CallExprMIR& node) override;
-    void do_visit(mir::MemberAccExprMIR& node) override;
-    void do_visit(mir::SubscrExprMIR& node) override;
-    void do_visit(mir::PostfixExprMIR& node) override;
-    void do_visit(mir::SizeofExprMIR& node) override;
+    void do_visit(mir::BinaryExprMIR& node) final override;
+    void do_visit(mir::UnaryExprMIR& node) final override;
+    void do_visit(mir::CastExprMIR& node) final override;
+    void do_visit(mir::AssignExprMIR& node) final override;
+    void do_visit(mir::CondExprMIR& node) final override;
+    void do_visit(mir::IdentExprMIR& node) final override;
+    void do_visit(mir::ConstExprMIR& node) final override;
+    void do_visit(mir::LiteralExprMIR& node) final override;
+    void do_visit(mir::CallExprMIR& node) final override;
+    void do_visit(mir::MemberAccExprMIR& node) final override;
+    void do_visit(mir::SubscrExprMIR& node) final override;
+    void do_visit(mir::PostfixExprMIR& node) final override;
+    void do_visit(mir::SizeofExprMIR& node) final override;
 
 private:
     using Accessor = std::variant<std::string, uint64_t>;

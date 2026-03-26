@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "frontend/tokens.hpp"
-#include "eval/value.hpp"
 #include "util.hpp"
 
 using namespace ecc;
@@ -119,8 +118,6 @@ public:
     //virtual bool is_compiletime_computable() = 0;
 
     virtual void accept(ASTVisitor& visitor) = 0;
-
-    virtual exec::Value accept(ecc::exec::Evaluator& eval) = 0;
 };
 
 /*
@@ -138,8 +135,6 @@ public:
     Box<Expression> inner;
 
     void accept(ASTVisitor& visitor) override;
-
-    exec::Value accept(exec::Evaluator& eval) override;
 };
 
 //* DECLARATIONS
@@ -525,9 +520,23 @@ public:
         : TypeSpecifier(ENUM_SPEC, loc),
         name(std::move(name)),
         enumerators(std::move(enumerators)) {}
+    
+    EnumSpecifier(Location loc,
+                  Optional<std::string> name,
+                  Optional<Vec<Box<Enumerator>>> enumerators,
+                  tokens::PrimType underlying)
+        : TypeSpecifier(ENUM_SPEC, loc),
+        name(std::move(name)),
+        enumerators(std::move(enumerators)),
+        underlying(underlying) {}
 
     Optional<std::string> name;
     Optional<Vec<Box<Enumerator>>> enumerators;
+
+    /**
+    The underlying type of the enum, if applicable.
+    */
+    Optional<tokens::PrimType> underlying;
 
     void accept(ASTVisitor& visitor) override;
 };
@@ -827,8 +836,6 @@ public:
     tokens::BinaryOp op;
 
     void accept(ASTVisitor& visitor) override;
-
-    exec::Value accept(exec::Evaluator& ev) override;
 };
 
 class CastExpression : public Expression {
@@ -844,8 +851,6 @@ public:
     Box<TypeName> type_name;
 
     void accept(ASTVisitor& visitor) override;
-
-    exec::Value accept(exec::Evaluator& ev) override;
 };
 
 class UnaryExpression : public Expression {
@@ -861,8 +866,6 @@ public:
     tokens::UnaryOp op;
 
     void accept(ASTVisitor& visitor) override;
-
-    exec::Value accept(exec::Evaluator& ev) override;
 };
 
 class AssignmentExpression : public Expression {
@@ -881,8 +884,6 @@ public:
     tokens::AssignOp op;
 
     void accept(ASTVisitor& visitor) override;
-
-    exec::Value accept(exec::Evaluator& ev) override;
 };
 
 class ConditionalExpression : public Expression {
@@ -901,8 +902,6 @@ public:
     Box<Expression> false_expr;
 
     void accept(ASTVisitor& visitor) override;
-
-    exec::Value accept(exec::Evaluator& ev) override;
 };
 
 class IdentifierExpression : public Expression {
@@ -914,8 +913,6 @@ public:
     std::string name;
 
     void accept(ASTVisitor& visitor) override;
-
-    exec::Value accept(exec::Evaluator& ev) override;
 };
 
 class LiteralExpression : public Expression {
@@ -940,8 +937,6 @@ public:
     Value value;
 
     void accept(ASTVisitor& visitor) override;
-
-    exec::Value accept(exec::Evaluator& ev) override;
 };
 
 class StringExpression : public Expression {
@@ -954,8 +949,6 @@ public:
     std::string value;
 
     void accept(ASTVisitor& visitor) override;
-
-    exec::Value accept(exec::Evaluator& ev) override;
 };
 
 class CallExpression : public Expression {
@@ -971,8 +964,6 @@ public:
     Vec<Box<Expression>> arguments;
 
     void accept(ASTVisitor& visitor) override;
-
-    exec::Value accept(exec::Evaluator& ev) override;
 };
 
 class MemberAccessExpression : public Expression {
@@ -991,9 +982,6 @@ public:
     bool is_arrow;
 
     void accept(ASTVisitor& visitor) override;
-
-    exec::Value accept(exec::Evaluator& ev) override;
-
 };
 
 class ArraySubscriptExpression : public Expression {
@@ -1009,9 +997,6 @@ public:
     Box<Expression> index;
 
     void accept(ASTVisitor& visitor) override;
-
-    exec::Value accept(exec::Evaluator& ev) override;
-
 };
 
 class PostfixExpression : public Expression {
@@ -1027,9 +1012,6 @@ public:
     tokens::PostfixOp op;
 
     void accept(ASTVisitor& visitor) override;
-
-    exec::Value accept(exec::Evaluator& ev) override;
-
 };
 
 class SizeofExpression : public Expression {
@@ -1044,9 +1026,6 @@ public:
     std::variant<Box<Expression>, Box<TypeName>> operand;
 
     void accept(ASTVisitor& visitor) override;
-
-    exec::Value accept(exec::Evaluator& ev) override;
-
 };
 
 class Function : public ProgramItem {

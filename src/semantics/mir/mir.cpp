@@ -1,4 +1,5 @@
 #include "semantics/mir/mir.hpp"
+#include "eval/exec.hpp"
 #include "semantics/mir/visitor.hpp"
 
 using namespace sema::mir;
@@ -68,6 +69,32 @@ void SubscrExprMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
 void PostfixExprMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
 
 void SizeofExprMIR::accept(MIRVisitor& visitor) { visitor.visit(*this); }
+
+exec::Value BinaryExprMIR::eval(exec::Evaluator& ev) { return ev.eval(*this); }
+
+exec::Value UnaryExprMIR::eval(exec::Evaluator& ev) { return ev.eval(*this); }
+
+exec::Value CastExprMIR::eval(exec::Evaluator& ev) { return ev.eval(*this); }
+
+exec::Value AssignExprMIR::eval(exec::Evaluator& ev) { return ev.eval(*this); }
+
+exec::Value CondExprMIR::eval(exec::Evaluator& ev) { return ev.eval(*this); }
+
+exec::Value IdentExprMIR::eval(exec::Evaluator& ev) { return ev.eval(*this); }
+
+exec::Value ConstExprMIR::eval(exec::Evaluator& ev) { return ev.eval(*this); }
+
+exec::Value LiteralExprMIR::eval(exec::Evaluator& ev) { return ev.eval(*this); }
+
+exec::Value CallExprMIR::eval(exec::Evaluator& ev) { return ev.eval(*this); }
+
+exec::Value MemberAccExprMIR::eval(exec::Evaluator& ev) { return ev.eval(*this); }
+
+exec::Value SubscrExprMIR::eval(exec::Evaluator& ev) { return ev.eval(*this); }
+
+exec::Value PostfixExprMIR::eval(exec::Evaluator& ev) { return ev.eval(*this); }
+
+exec::Value SizeofExprMIR::eval(exec::Evaluator& ev) { return ev.eval(*this); }
 
 void CompoundStmtMIR::add_item(Box<ProgItemMIR> item) {
     items.push_back(std::move(item));

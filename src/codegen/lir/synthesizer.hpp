@@ -47,8 +47,7 @@ public:
     bool curr_is_empty();
 
     void unfold_initializer(sema::sym::VarSymbol *sym, sema::mir::InitializerMIR& init);
-    
-protected:
+
     void do_visit(sema::mir::ProgramMIR& node) override;
     void do_visit(sema::mir::FunctionMIR& node) override;
     

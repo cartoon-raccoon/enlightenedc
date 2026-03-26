@@ -1,5 +1,6 @@
 #include <cstddef>
 #include <cstdio>
+#include <llvm/IR/DerivedTypes.h>
 #include <memory>
 #include <stdexcept>
 #include <utility>
@@ -14,6 +15,10 @@
 using namespace ecc::sema::types;
 using namespace ecc::tokens;
 using namespace ecc::codegen;
+
+/*
+* TYPE METHODS
+*/
 
 size_t Type::size() {
     if (!llvm_type) {
@@ -34,41 +39,24 @@ bool Type::is_array() { return kind == Kind::ARRAY; }
 
 bool Type::is_function() { return kind == Kind::FUNCTION; }
 
-VoidType::VoidType(TypeContext& tyctxt) : BaseType(Type::Kind::VOID, tyctxt) {
-    llvm_type = llvm::Type::getVoidTy(tyctxt.llvm.ctx());
-}
+/*
+* VOID TYPE METHODS
+*/
 
-PrimitiveType::PrimitiveType(tokens::PrimType kind, TypeContext& tyctxt)
-        : BaseType(Type::Kind::PRIMITIVE, tyctxt), primkind(kind)
-{
-    switch (primkind) {
-        case PrimType::U8:
-        case PrimType::I8:
-        case PrimType::BOOL: //? should bool be 1 bit?
-        llvm_type = llvm::Type::getInt8Ty(tyctxt.llvm.ctx());
-        break;
-
-        case PrimType::U16:
-        case PrimType::I16:
-        llvm_type = llvm::Type::getInt16Ty(tyctxt.llvm.ctx());
-        break;
-
-        case PrimType::U32:
-        case PrimType::I32:
-        llvm_type = llvm::Type::getInt32Ty(tyctxt.llvm.ctx());
-        break;
-
-        case PrimType::U64:
-        case PrimType::I64:
-        llvm_type = llvm::Type::getInt64Ty(tyctxt.llvm.ctx());
-        break;
-
-        case PrimType::F64:
-        llvm_type = llvm::Type::getDoubleTy(tyctxt.llvm.ctx());
-        break;
+void VoidType::finalize() {
+    dbprint("VoidType: finalizing");
+    if (finalized) {
+        assert(llvm_type && "VoidType marked finalized but llvm_type is null");
+        return;
     }
+    llvm_type = llvm::Type::getVoidTy(tyctxt.llvm.ctx());
+
+    finalized = true;
 }
 
+/*
+* PRIMITIVE TYPE METHODS
+*/
 bool PrimitiveType::is_integer() {
     // We maintain strict integral definitions for determining whether
     // this type is an integer: it cannot be Bool or Float, and it has to be sized.
@@ -137,7 +125,42 @@ bool PrimitiveType::is_compatible_with(Type *dst) {
     return true ? 0 < my_size && my_size <= new_dst->size() : false;
 }
 
+void PrimitiveType::finalize() {
+    dbprint("PrimitiveType: finalizing ", to_string());
+    if (finalized) {
+        assert(llvm_type && "PrimitiveType marked finalize but llvm_type is null");
+        return;
+    }
 
+    switch (primkind) {
+        case PrimType::U8:
+        case PrimType::I8:
+        case PrimType::BOOL: //? should bool be 1 bit?
+        llvm_type = llvm::Type::getInt8Ty(tyctxt.llvm.ctx());
+        break;
+
+        case PrimType::U16:
+        case PrimType::I16:
+        llvm_type = llvm::Type::getInt16Ty(tyctxt.llvm.ctx());
+        break;
+
+        case PrimType::U32:
+        case PrimType::I32:
+        llvm_type = llvm::Type::getInt32Ty(tyctxt.llvm.ctx());
+        break;
+
+        case PrimType::U64:
+        case PrimType::I64:
+        llvm_type = llvm::Type::getInt64Ty(tyctxt.llvm.ctx());
+        break;
+
+        case PrimType::F64:
+        llvm_type = llvm::Type::getDoubleTy(tyctxt.llvm.ctx());
+        break;
+    }
+
+    finalized = true;
+}
 
 std::string PrimitiveType::formal() {
     switch (primkind) {
@@ -164,17 +187,9 @@ std::string PrimitiveType::formal() {
     }
 }
 
-ClassType::ClassType(sema::sym::Scope *scope, TypeContext& tyctxt) 
-    : UserType(Kind::CLASS, tyctxt, scope), members()
-{
-    llvm_type = llvm::StructType::create(tyctxt.llvm.ctx());
-}
-
-ClassType::ClassType(std::string name, sema::sym::Scope *scope, TypeContext& tyctxt) 
-    : UserType(Kind::CLASS, tyctxt, scope), members(), name(name)
-{
-    llvm_type = llvm::StructType::create(tyctxt.llvm.ctx());
-}
+/*
+* CLASS TYPE METHODS
+*/
 
 size_t ClassType::size() {
     if (!finalized) {
@@ -184,7 +199,7 @@ size_t ClassType::size() {
 }
 
 bool ClassType::is_fully_defined() {
-    if (!complete)
+    if (!is_complete())
         return false;
 
     bool ret = true;
@@ -222,20 +237,30 @@ bool ClassType::is_fully_defined() {
 }
 
 void ClassType::finalize() {
-    if (finalized)
+    if (finalized) {
+        assert(llvm_type && "ClassType marked finalize but llvm_type is null");
         return;
+    }
 
-    if (!complete) {
-        throw EccError(ErrorSource::SEMANTIC, "Class not fully defined");
+    if (!is_complete()) {
+        throw EccError(ErrorSource::SEMANTIC, "Class not fully defined", decl_loc);
     }
 
     Vec<LLVMType *> args;
+    args.reserve(num_members());
     for (auto& member : members) {
         member->ty->finalize();
         assert(member->ty->get_llvmtype());
-
-        todo(); // todo
+        args.push_back(member->ty->get_llvmtype());
     }
+
+    if (name) {
+        llvm_type = llvm::StructType::create(tyctxt.llvm.ctx(), std::move(args), *name);
+    } else {
+        llvm_type = llvm::StructType::create(tyctxt.llvm.ctx(), std::move(args));
+    }
+
+    finalized = true;
 }
 
 void ClassType::add_member(Box<ClassType::ClassTypeMember> member) {
@@ -287,6 +312,10 @@ std::string ClassType::formal() {
         return "class_anon";
     }
 }
+
+/*
+* UNION TYPE METHODS
+*/
 
 bool UnionType::is_fully_defined() {
     todo();
@@ -340,9 +369,23 @@ std::string UnionType::formal() {
     }
 }
 
-void EnumType::finalize() {
-    todo();
-}
+/*
+* ENUM TYPE METHODS
+*/
+
+EnumType::EnumType(
+    Location decl_loc, sema::sym::Scope *scope, TypeContext& tyctxt)
+: UserType(decl_loc, Kind::ENUM, tyctxt, scope), 
+enumerators(),
+// default type for an enum with no declared underlying type is U64.
+underlying(tyctxt.get_u64()) {}
+
+EnumType::EnumType(
+    Location decl_loc, std::string name, sema::sym::Scope *scope, TypeContext& tyctxt)
+: UserType(decl_loc, Kind::ENUM, tyctxt, scope), 
+enumerators(), name(name), 
+// default type for an enum with no declared underlying type is U64.
+underlying(tyctxt.get_u64()) {}
 
 int64_t EnumType::add_enumerator(std::string enumerator, Location loc) {
     EnumTypeMember *prev_mem = find(enumerator);
@@ -396,6 +439,10 @@ bool EnumType::is_compatible_with(Type *dst) {
     return prim->is_integer();
 }
 
+void EnumType::finalize() {
+    todo();
+}
+
 std::string EnumType::formal() {
     if (name) {
         return std::format("enum_{}", *name);
@@ -403,6 +450,10 @@ std::string EnumType::formal() {
         return "anon_enum";
     }
 }
+
+/*
+* POINTER TYPE METHODS
+*/
 
 int PointerType::nesting_lvl() {
     int lvl = 1;
@@ -455,6 +506,24 @@ bool PointerType::is_compatible_with(Type *dst) {
     }
 }
 
+void PointerType::finalize() {
+    if (finalized) {
+        assert(llvm_type && "PointerType was marked finalized but llvm_type was null");
+        return;
+    }
+
+    llvm_type = llvm::PointerType::get(tyctxt.llvm.ctx(), 0);
+    finalized = true;
+}
+
+/*
+* ARRAY TYPE METHODS
+*/
+
+size_t ArrayType::size() {
+    todo();
+}
+
 bool ArrayType::is_compatible_with(Type *dst) {
     if (Type::is_compatible_with(dst))
         return true;
@@ -477,6 +546,10 @@ bool ArrayType::is_compatible_with(Type *dst) {
 void ArrayType::finalize() {
     todo();
 }
+
+/*
+* FUNCTION TYPE METHODS
+*/
 
 size_t FunctionType::size() {
     throw EccError("cannot call size() on FunctionType");
@@ -558,6 +631,10 @@ Type *TypeBuilder::finalize() {
     return curr;
 }
 
+/*
+* TYPE CONTEXT METHODS
+*/
+
 TypeContext::TypeContext(codegen::LLVM& llvm)
     : anonymous_ctr(0), user_types(), pointers(), arrays(), llvm(llvm),
     voidt(std::make_unique<VoidType>(*this)),
@@ -611,7 +688,7 @@ PrimitiveType *TypeContext::get_primitive(PrimType pkind) {
     std::unreachable();
 }
 
-ClassType *TypeContext::get_class(std::string name, sym::Scope *scope) {
+ClassType *TypeContext::get_class(Location decl_loc, std::string name, sym::Scope *scope) {
     dbprint("TypeContext: class type '", name, "' on scope ", scope);
     std::string mangled = mangle<ClassType>(name, scope);
 
@@ -620,13 +697,13 @@ ClassType *TypeContext::get_class(std::string name, sym::Scope *scope) {
         return user_types.find(mangled)->second.get()->as_class();
     }
 
-    Box<ClassType> clsty = std::make_unique<ClassType>(name, scope, *this);
+    Box<ClassType> clsty = std::make_unique<ClassType>(decl_loc, name, scope, *this);
 
     // If no struct matching the name, make a new struct
     return make_insert_type<ClassType>(mangled, scope, std::move(clsty));
 }
 
-ClassType *TypeContext::get_class(sym::Scope *scope) {
+ClassType *TypeContext::get_class(Location decl_loc, sym::Scope *scope) {
     /*
     In EnlightenedC (and most C-family languages), two structs are considered
     equal iff they have the same name. (If two structs are named the same but
@@ -640,12 +717,12 @@ ClassType *TypeContext::get_class(sym::Scope *scope) {
     anonymous_ctr++;
     auto mangled = mangle<ClassType>(name, scope);
 
-    Box<ClassType> clsty = std::make_unique<ClassType>(scope, *this);
+    Box<ClassType> clsty = std::make_unique<ClassType>(decl_loc, scope, *this);
 
     return make_insert_type<ClassType>(mangled, scope, std::move(clsty));
 }
 
-UnionType *TypeContext::get_union(std::string name, sym::Scope *scope) {
+UnionType *TypeContext::get_union(Location decl_loc, std::string name, sym::Scope *scope) {
     dbprint("TypeContext: union type '", name, "' on scope ", scope);
     std::string mangled = mangle<UnionType>(name, scope);
 
@@ -654,50 +731,24 @@ UnionType *TypeContext::get_union(std::string name, sym::Scope *scope) {
         return user_types.find(mangled)->second.get()->as_union();
     }
 
-    Box<UnionType> unnty = std::make_unique<UnionType>(name, scope, *this);
+    Box<UnionType> unnty = std::make_unique<UnionType>(decl_loc, name, scope, *this);
 
     // If no struct matching the name, make a new struct
     return make_insert_type<UnionType>(mangled, scope, std::move(unnty));
 }
 
-UnionType *TypeContext::get_union(std::string name, PrimitiveType *type_rep, sym::Scope *scope) {
-    dbprint("TypeContext: union type '", name, "' on scope ", scope);
-    std::string mangled = mangle<UnionType>(name, scope);
-
-    if (user_types.contains(mangled)) {
-        dbprint("TypeContext: existing union found");
-        return user_types.find(mangled)->second.get()->as_union();
-    }
-
-    Box<UnionType> unnty = std::make_unique<UnionType>(name, type_rep, scope, *this);
-
-    // If no struct matching the name, make a new struct
-    return make_insert_type<UnionType>(mangled, scope, std::move(unnty));
-}
-
-UnionType *TypeContext::get_union(sym::Scope *scope) {
+UnionType *TypeContext::get_union(Location decl_loc, sym::Scope *scope) {
     dbprint("TypeContext: anonymous union type on scope ", scope);
     auto name = "anon_" + std::to_string(anonymous_ctr);
     anonymous_ctr++;
     auto mangled = mangle<UnionType>(name, scope);
 
-    Box<UnionType> unnty = std::make_unique<UnionType>(scope, *this);
+    Box<UnionType> unnty = std::make_unique<UnionType>(decl_loc, scope, *this);
 
     return make_insert_type<UnionType>(mangled, scope, std::move(unnty));
 }
 
-UnionType *TypeContext::get_union(PrimitiveType *type_rep, sym::Scope *scope) {
-    dbprint("TypeContext: anonymous union type on scope ", scope);
-    auto name = "anon_" + std::to_string(anonymous_ctr);
-    anonymous_ctr++;
-    auto mangled = mangle<UnionType>(name, scope);
-
-    Box<UnionType> unnty = std::make_unique<UnionType>(type_rep, scope, *this);
-
-    return make_insert_type<UnionType>(mangled, scope, std::move(unnty));
-}
-
-EnumType *TypeContext::get_enum(std::string name, sym::Scope *scope) {
+EnumType *TypeContext::get_enum(Location decl_loc, std::string name, sym::Scope *scope) {
     dbprint("TypeContext: enum type '", name, "' on scope ", scope);
     std::string mangled = mangle<EnumType>(name, scope);
 
@@ -706,19 +757,19 @@ EnumType *TypeContext::get_enum(std::string name, sym::Scope *scope) {
         return user_types.find(mangled)->second.get()->as_enum();
     }
 
-    Box<EnumType> enmty = std::make_unique<EnumType>(name, scope, *this);
+    Box<EnumType> enmty = std::make_unique<EnumType>(decl_loc, name, scope, *this);
 
     // If no struct matching the name, make a new struct
     return make_insert_type<EnumType>(mangled, scope, std::move(enmty));
 }
 
-EnumType *TypeContext::get_enum(sym::Scope *scope) {
+EnumType *TypeContext::get_enum(Location decl_loc, sym::Scope *scope) {
     dbprint("TypeContext: anonymous enum type on scope ", scope);
     auto name = "anon_" + std::to_string(anonymous_ctr);
     anonymous_ctr++;
     auto mangled = mangle<EnumType>(name, scope);
 
-    Box<EnumType> enmty = std::make_unique<EnumType>(scope, *this);
+    Box<EnumType> enmty = std::make_unique<EnumType>(decl_loc, scope, *this);
 
     return make_insert_type<EnumType>(mangled, scope, std::move(enmty));
 }
@@ -810,5 +861,41 @@ FunctionType *TypeContext::get_function(Type *returntype, Vec<Type *> params, bo
     function_types[name] = std::move(func);
 
     return ret;
+}
+
+void TypeContext::finalize_all() {
+    dbprint("TypeContext: finalizing all types");
+
+    voidt->finalize();
+    u8->finalize();
+    u16->finalize();
+    u32->finalize();
+    u64->finalize();
+    i8->finalize();
+    i16->finalize();
+    i32->finalize();
+    i64->finalize();
+    f64->finalize();
+    boolt->finalize();
+
+    dbprint("TypeContext: finalizing user types");
+    for (auto& [name, usertype] : user_types) {
+        usertype->finalize();
+    }
+
+    dbprint("TypeContext: finalizing function types");
+    for (auto& [name, functype] : function_types) {
+        functype->finalize();
+    }
+
+    dbprint("TypeContext: finalizing function types");
+    for (auto& [name, ptr] : pointers) {
+        ptr->finalize();
+    }
+
+    dbprint("TypeContext: finalizing array types");
+    for (auto& [name, arr] : arrays) {
+        arr->finalize();
+    }
 }
 

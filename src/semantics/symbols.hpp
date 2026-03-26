@@ -292,14 +292,36 @@ public:
     // Clear the entire SymbolTable.
     void clear();
 
-    // Lookup a symbol by name. Returns null if no symbol exists.
+    /**
+    Lookup a symbol by name. Returns null of no symbol exists.
+    */
     Symbol *lookup(std::string& sym, bool current = false);
+
+    /**
+    Lookup a symbol by name from Scope `from`. Returns null if no symbol exists.
+    */
+    Symbol *lookup(std::string& sym, Scope *from, bool current = false);
 
     VarSymbol *lookup_var(std::string& sym, bool current = false);
 
+    VarSymbol *lookup_var(std::string& sym, Scope *from, bool current = false);
+
     FuncSymbol *lookup_func(std::string& sym, bool current = false);
 
+    FuncSymbol *lookup_func(std::string& sym, Scope *from, bool current = false);
+
     TypeSymbol *lookup_type(std::string& sym, bool current = false);
+
+    TypeSymbol *lookup_type(std::string& sym, Scope *from, bool current = false);
+
+    /*
+    Look up a label from Scope `from`, up to the first function scope.
+
+    Unlike other lookup functions, which continue on to global scope,
+    `lookup_label` only recurses outwards until a function boundary.
+    This is because labels are scoped to function scope specifically.
+    */
+    LabelSymbol *lookup_label(std::string& sym, bool current = false);
 
     /*
     Look up a label up to the first function scope.
@@ -308,7 +330,7 @@ public:
     `lookup_label` only recurses outwards until a function boundary.
     This is because labels are scoped to function scope specifically.
     */
-    LabelSymbol *lookup_label(std::string& sym, bool current = false);
+    LabelSymbol *lookup_label(std::string& sym, Scope *from, bool current = false);
 
     // Associate the current scope with the given FuncSymbol `sym`.
     // If current scope is already tied to a symbol, replaces it

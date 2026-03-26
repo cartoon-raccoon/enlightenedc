@@ -133,7 +133,7 @@ void MIRSynthesizer::do_visit(Program& node) {
                 // ignore and continue
             },
             [] (auto& e) {
-                throw EccError("unexpected item while parsing programitems");
+                throw std::runtime_error("unexpected item while parsing programitems");
             }
         }, last_result);
         last_result = std::monostate {};
@@ -389,10 +389,12 @@ void MIRSynthesizer::do_visit(ArrayDeclarator& node) {
     Optional<uint64_t> size {};
     if (node.size) {
         bsv_dbprint("array declarator has size, checking for compile time computability");
+        dv_call(std::monostate {}, *node.size);
+        Box<ExprMIR> arr_size_expr = take_last_result<Box<ExprMIR>>();
         // if we have a size for the array, evaluate it
         exec::Value val;
         exec::Evaluator evalr(syms, types);
-        val = node.size.value().get()->accept(evalr);
+        val = arr_size_expr->eval(evalr);
 
         // if we were able to parse it as a u64, great
         if (auto s = val.value_as<long>()) {
@@ -541,12 +543,12 @@ void MIRSynthesizer::do_visit(EnumSpecifier& node) {
     EnumType *enm = nullptr;
     try {
         if (node.name) {
-            enm = types.get_enum(*(node.name), syms.current);
+            enm = types.get_enum(node.loc, *(node.name), syms.current);
         } else {
-            enm = types.get_enum(syms.current);
+            enm = types.get_enum(node.loc, syms.current);
         }
     } catch ( UserType *prev_def ) {
-        throw TypeDecldAsOtherError("enum already declared as another type", node.loc, prev_def->loc);
+        throw TypeDecldAsOtherError("enum already declared as another type", node.loc, prev_def->decl_loc);
     }
 
     Optional<TypeSymbol *> retsym = {};
@@ -566,15 +568,21 @@ void MIRSynthesizer::do_visit(EnumSpecifier& node) {
     TypeSpecRet<EnumType> ret({}, enm);
 
     if (node.enumerators) {
-        if (enm->complete) {
-            throw TypeAlrDefinedError("enum was previously defined", node.loc, enm->loc);
+        if (enm->is_complete()) {
+            throw TypeAlrDefinedError("enum was previously defined", node.loc, enm->def_loc);
+        }
+        if (node.underlying) {
+            PrimitiveType *underlying = types.get_primitive(*node.underlying);
+            if (!underlying->is_integral()) {
+                throw InvalidEnumUnderlyingError(node.loc);
+            }
         }
 
         for (auto& enumtr : *node.enumerators) {
             dv_call(enm, enumtr);
         }
 
-        enm->complete = true;
+        enm->finish(node.loc);
     }
 
 
@@ -592,9 +600,11 @@ void MIRSynthesizer::do_visit(Enumerator& node) {
     }
 
     exec::Value value;
-    if (node.value) {
+    if (node.value) { 
+        dv_call(std::monostate {}, *node.value);
+        Box<ExprMIR> value_expr = take_last_result<Box<ExprMIR>>();
         exec::Evaluator evalr(syms, types);
-        value = node.value.value()->accept(evalr);
+        value = value_expr->eval(evalr);
         Optional<long> val = value.value_as<long>();
         if (val) {
             enm->add_enumerator(node.name, *val, node.loc);
@@ -616,12 +626,12 @@ void MIRSynthesizer::do_visit(ClassSpecifier& node) {
     try {
         if (node.name) {
             // only allow classes to be created in the global scope now
-            cls = types.get_class(*(node.name), syms.current);
+            cls = types.get_class(node.loc, *(node.name), syms.current);
         } else {
-            cls = types.get_class(syms.current);
+            cls = types.get_class(node.loc, syms.current);
         }
     } catch (UserType *prev_def) {
-        throw TypeDecldAsOtherError("class already declared as another type", node.loc, prev_def->loc);
+        throw TypeDecldAsOtherError("class already declared as another type", node.loc, prev_def->decl_loc);
     }
 
     Optional<TypeSymbol *> retsym = {};
@@ -641,9 +651,9 @@ void MIRSynthesizer::do_visit(ClassSpecifier& node) {
     TypeSpecRet<ClassType> ret(retsym, cls);
 
     if (node.declarations) {
-        if (cls->complete) {
+        if (cls->is_complete()) {
             // error: class was previously defined
-            throw TypeAlrDefinedError("class was previously defined", node.loc, cls->loc);
+            throw TypeAlrDefinedError("class was previously defined", node.loc, cls->def_loc);
         }
 
         // class is defined here, populate its members and mark it complete
@@ -651,7 +661,7 @@ void MIRSynthesizer::do_visit(ClassSpecifier& node) {
             dv_call(cls, decl);
         }
 
-        cls->complete = true;
+        cls->finish(node.loc);
     }
 
     dv_return(ret);
@@ -662,12 +672,12 @@ void MIRSynthesizer::do_visit(UnionSpecifier& node) {
     UnionType *unn = nullptr;
     try {
         if (node.name) {
-            unn = types.get_union(*(node.name), syms.current);
+            unn = types.get_union(node.loc, *(node.name), syms.current);
         } else {
-            unn = types.get_union(syms.current);
+            unn = types.get_union(node.loc, syms.current);
         }
     } catch (UserType *prev_def) {
-        throw TypeDecldAsOtherError("union already declared as another type", node.loc, prev_def->loc);
+        throw TypeDecldAsOtherError("union already declared as another type", node.loc, prev_def->decl_loc);
     }
 
     Optional<TypeSymbol *> retsym = {};
@@ -688,9 +698,9 @@ void MIRSynthesizer::do_visit(UnionSpecifier& node) {
 
     // declarations are present, start definition
     if (node.declarations) {
-        if (unn->complete) {
+        if (unn->is_complete()) {
             // error: union was previously defined
-            throw TypeAlrDefinedError("union was previously defined", node.loc, unn->loc);
+            throw TypeAlrDefinedError("union was previously defined", node.loc, unn->def_loc);
         }
         if (node.type_rep) {
             PrimitiveType *typerep = types.get_primitive(*node.type_rep);
@@ -704,7 +714,7 @@ void MIRSynthesizer::do_visit(UnionSpecifier& node) {
             dv_call(unn, decl);
         }
 
-        unn->complete = true;
+        unn->finish(node.loc);
     }
 
     dv_return(ret);
@@ -908,7 +918,7 @@ void MIRSynthesizer::do_visit(CompoundStatement& node) {
                 // ignore and continue
             },
             [] (auto& _) {
-                throw EccError("unexpected type while parsing program items");
+                throw std::runtime_error("unexpected type while parsing program items");
             }
         }, last_result);
         last_result = std::monostate {};
@@ -969,7 +979,8 @@ void MIRSynthesizer::do_visit(ExpressionStatement& node) {
                     if (idtype->no_params()) {
                         bsv_dbprint("found identexpr of type function with no params, emitting CallExprMIR");
                         Vec<Box<ExprMIR>> empty_args {};
-                        expr = std::make_unique<CallExprMIR>(node.loc, std::move(expr), std::move(empty_args));
+                        expr = std::make_unique<CallExprMIR>(
+                            node.loc, syms.current, std::move(expr), std::move(empty_args));
                     }
                 }
                 break;
@@ -1214,7 +1225,7 @@ void MIRSynthesizer::do_visit(BinaryExpression& node) {
     Box<ExprMIR> right = take_last_result<Box<ExprMIR>>();
 
     Box<ExprMIR> expr = std::make_unique<BinaryExprMIR>(
-        node.loc, std::move(left), std::move(right), node.op);
+        node.loc, syms.current, std::move(left), std::move(right), node.op);
 
     dv_return(expr);
 }
@@ -1225,7 +1236,7 @@ void MIRSynthesizer::do_visit(UnaryExpression& node) {
     Box<ExprMIR> operand = take_last_result<Box<ExprMIR>>();
 
     Box<ExprMIR> expr = std::make_unique<UnaryExprMIR>(
-        node.loc, std::move(operand), node.op);
+        node.loc, syms.current, std::move(operand), node.op);
 
     dv_return(expr);
 }
@@ -1237,7 +1248,7 @@ void MIRSynthesizer::do_visit(CastExpression& node) {
     dv_call(std::monostate {}, node.type_name);
     Type *target = take_last_result<Type *>();
 
-    Box<ExprMIR> expr = std::make_unique<CastExprMIR>(node.loc, target, std::move(inner));
+    Box<ExprMIR> expr = std::make_unique<CastExprMIR>(node.loc, syms.current, target, std::move(inner));
 
     dv_return(expr);
 }
@@ -1250,7 +1261,7 @@ void MIRSynthesizer::do_visit(AssignmentExpression& node) {
     Box<ExprMIR> right = take_last_result<Box<ExprMIR>>();
 
     Box<ExprMIR> expr = std::make_unique<AssignExprMIR>(
-        node.loc, std::move(left), std::move(right), node.op);
+        node.loc, syms.current, std::move(left), std::move(right), node.op);
 
     dv_return(expr);
 }
@@ -1265,7 +1276,7 @@ void MIRSynthesizer::do_visit(ConditionalExpression& node) {
     Box<ExprMIR> false_expr = take_last_result<Box<ExprMIR>>();
 
     Box<ExprMIR> expr = std::make_unique<CondExprMIR>(
-        node.loc, std::move(condition), std::move(true_expr), std::move(false_expr));
+        node.loc, syms.current, std::move(condition), std::move(true_expr), std::move(false_expr));
     
     dv_return(expr);
 }
@@ -1284,7 +1295,7 @@ void MIRSynthesizer::do_visit(IdentifierExpression& node) {
     PhysicalSymbol *physsym = sym->as_physical();
     assert(physsym);
 
-    Box<ExprMIR> expr = std::make_unique<IdentExprMIR>(node.loc, physsym);
+    Box<ExprMIR> expr = std::make_unique<IdentExprMIR>(node.loc, syms.current, physsym);
 
     dv_return(expr);
 }
@@ -1294,7 +1305,7 @@ void MIRSynthesizer::do_visit(ConstExpression& node) {
     dv_call(std::monostate {}, node.inner);
     Box<ExprMIR> inner = take_last_result<Box<ExprMIR>>();
 
-    Box<ExprMIR> expr = std::make_unique<ConstExprMIR>(node.loc, std::move(inner));
+    Box<ExprMIR> expr = std::make_unique<ConstExprMIR>(node.loc, syms.current, std::move(inner));
 
     dv_return(expr);
 }
@@ -1321,7 +1332,7 @@ void MIRSynthesizer::do_visit(LiteralExpression& node) {
         break;
     }
 
-    Box<ExprMIR> expr = std::make_unique<LiteralExprMIR>(node.loc, val);
+    Box<ExprMIR> expr = std::make_unique<LiteralExprMIR>(node.loc, syms.current, val);
 
     dv_return(expr);
 }
@@ -1329,7 +1340,7 @@ void MIRSynthesizer::do_visit(LiteralExpression& node) {
 void MIRSynthesizer::do_visit(StringExpression& node) {
     bsv_dbprint("visiting StringExpression node: ", node.loc);
 
-    Box<ExprMIR> expr = std::make_unique<LiteralExprMIR>(node.loc, node.value);
+    Box<ExprMIR> expr = std::make_unique<LiteralExprMIR>(node.loc, syms.current, node.value);
 
     dv_return(expr);
 }
@@ -1347,7 +1358,7 @@ void MIRSynthesizer::do_visit(CallExpression& node) {
     }
 
     Box<ExprMIR> call = std::make_unique<CallExprMIR>(
-        node.loc, std::move(callee), std::move(args));
+        node.loc, syms.current, std::move(callee), std::move(args));
 
     dv_return(call);
 }
@@ -1359,7 +1370,7 @@ void MIRSynthesizer::do_visit(MemberAccessExpression& node) {
     Box<ExprMIR> object = take_last_result<Box<ExprMIR>>();
 
     Box<ExprMIR> expr = std::make_unique<MemberAccExprMIR>(
-        node.loc, std::move(object), node.member, node.is_arrow);
+        node.loc, syms.current, std::move(object), node.member, node.is_arrow);
 
     dv_return(expr);
 }
@@ -1374,7 +1385,7 @@ void MIRSynthesizer::do_visit(ArraySubscriptExpression& node) {
     Box<ExprMIR> index = take_last_result<Box<ExprMIR>>();
     
     Box<ExprMIR> expr = std::make_unique<SubscrExprMIR>(
-        node.loc, std::move(array), std::move(index));
+        node.loc, syms.current, std::move(array), std::move(index));
 
     dv_return(expr);
 }
@@ -1386,7 +1397,7 @@ void MIRSynthesizer::do_visit(PostfixExpression& node) {
     Box<ExprMIR> operand = take_last_result<Box<ExprMIR>>();
 
     Box<ExprMIR> expr = std::make_unique<PostfixExprMIR>(
-        node.loc, std::move(operand), node.op);
+        node.loc, syms.current, std::move(operand), node.op);
 
     dv_return(expr);
 }
@@ -1394,7 +1405,7 @@ void MIRSynthesizer::do_visit(PostfixExpression& node) {
 void MIRSynthesizer::do_visit(SizeofExpression& node) {
     bsv_dbprint("visiting SizeofExpression node: ", node.loc);
 
-    Box<SizeofExprMIR> sizexpr = std::make_unique<SizeofExprMIR>(node.loc);
+    Box<SizeofExprMIR> sizexpr = std::make_unique<SizeofExprMIR>(node.loc, syms.current);
     std::visit(overloaded {
         [this, &sizexpr] (Box<Expression>& expr) mutable {
             // this might be a literal expression, so we defer

@@ -491,7 +491,8 @@ void ASTPrinter::visit(TypeQualifier& node) {
 
 void ASTPrinter::visit(EnumSpecifier& node) {
     print_node(std::string("EnumSpecifier") +
-                    (node.name ? ": " + node.name.value() : ""),
+                    (node.name ? ": " + node.name.value() : "") +
+                    (node.underlying ? " " + primitive_to_string(*node.underlying) : ""),
                 node, [&] {
                     if (node.enumerators)
                         for (auto& e : node.enumerators.value())
