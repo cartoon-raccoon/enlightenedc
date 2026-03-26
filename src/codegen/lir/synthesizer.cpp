@@ -343,7 +343,7 @@ void LIRSynthesizer::do_visit(IfStmtMIR& node) {
 
     pop_queue();
 
-        for (auto& func : functions) {
+    for (auto& func : functions) {
         emit(std::move(func));
     }
 
