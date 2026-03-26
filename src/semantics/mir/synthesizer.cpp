@@ -40,7 +40,11 @@ Box<MIRSynthesizer::SpecifierInfo> MIRSynthesizer::parse_speclist(
                 auto qualtype = take_last_result<TypeQualifier::QualType>();
                 switch (qualtype) {
                     case TypeQualifier::QualType::CONST:
-                    specinfo->is_const = true;
+                    if (specinfo->is_const) {
+                        add_error<EccSemError>("duplicate const qualifier", decl_spec->loc);
+                    } else {
+                        specinfo->is_const = true;
+                    }
                 }
             }
             break;
@@ -48,20 +52,36 @@ Box<MIRSynthesizer::SpecifierInfo> MIRSynthesizer::parse_speclist(
             case NK::STORAGE_SPEC: {
                 auto spectype = take_last_result<StorageClassSpecifier::SpecType>();
                 switch (spectype) {
-                    case StorageClassSpecifier::EXTERN:
-                    specinfo->is_extern = true;
-                    break;
-
                     case StorageClassSpecifier::PUBLIC:
-                    specinfo->is_public = true;
+                    if (specinfo->is_public) {
+                        add_error<EccSemError>("duplicate public specifier", decl_spec->loc);
+                    } else {
+                        specinfo->is_public = true;
+                    }
                     break;
 
                     case StorageClassSpecifier::STATIC:
-                    specinfo->is_static = true;
+                    if (specinfo->is_static) {
+                        add_error<EccSemError>("duplicate static specifier", decl_spec->loc);
+                    } else {
+                        specinfo->is_static = true;
+                    }
+                    break;
+
+                    case StorageClassSpecifier::EXTERN:
+                    if (specinfo->linkage != PhysicalSymbol::Linkage::INTERNAL) {
+                        add_error<EccSemError>("multiple storage class specifiers", decl_spec->loc);
+                    } else {
+                        specinfo->linkage = PhysicalSymbol::Linkage::EXTERNAL;
+                    }
                     break;
 
                     case StorageClassSpecifier::EXTERNC:
-                    specinfo->is_externc = true;
+                    if (specinfo->linkage != PhysicalSymbol::Linkage::INTERNAL) {
+                        add_error<EccSemError>("multiple storage class specifiers", decl_spec->loc);
+                    } else {
+                        specinfo->linkage = PhysicalSymbol::Linkage::EXTERNC;
+                    }
                     break;
                 }
             }
@@ -317,8 +337,13 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
             sym->is_public = specinfo->is_public;
             sym->is_static = specinfo->is_static;
             sym->is_const = specinfo->is_const;
-            sym->is_extern = specinfo->is_extern;
-            sym->is_externc = specinfo->is_externc;
+            sym->linkage = specinfo->linkage;
+
+            if (sym->is_external() && syms.current != syms.global.get()) {
+                add_error<EccSemError>("extern variable declaration must be at global scope", declarator->loc);
+                throw UnableToContinue();
+            }
+
             syms.insert(*builder->name, std::move(sym));
         } else {
             add_error<EccSemError>("variable declaration with no name", declarator->loc);
@@ -556,7 +581,8 @@ void MIRSynthesizer::do_visit(EnumSpecifier& node) {
             enm = types.get_enum(node.loc, syms.current);
         }
     } catch ( UserType *prev_def ) {
-        throw TypeDecldAsOtherError("enum already declared as another type", node.loc, prev_def->decl_loc);
+        add_error<TypeDecldAsOtherError>("enum already declared as another type", node.loc, prev_def->decl_loc);
+        throw UnableToContinue();
     }
 
     Optional<TypeSymbol *> retsym = {};
@@ -602,9 +628,10 @@ void MIRSynthesizer::do_visit(Enumerator& node) {
     EnumType *enm = take_dovisit_param<EnumType *>();
 
     if (auto mem = enm->find(node.name)) {
-        throw EnumeratorAlrDecldError(
+        add_error<EnumeratorAlrDecldError>(
             std::format("symbol \"{}\" previously declared", node.name), 
                         node.loc, mem->loc);
+        throw UnableToContinue();
     }
 
     exec::Value value;
@@ -633,13 +660,13 @@ void MIRSynthesizer::do_visit(ClassSpecifier& node) {
     ClassType *cls = nullptr;
     try {
         if (node.name) {
-            // only allow classes to be created in the global scope now
             cls = types.get_class(node.loc, *(node.name), syms.current);
         } else {
             cls = types.get_class(node.loc, syms.current);
         }
     } catch (UserType *prev_def) {
-        throw TypeDecldAsOtherError("class already declared as another type", node.loc, prev_def->decl_loc);
+        add_error<TypeDecldAsOtherError>("class already declared as another type", node.loc, prev_def->decl_loc);
+        throw UnableToContinue();
     }
 
     Optional<TypeSymbol *> retsym = {};

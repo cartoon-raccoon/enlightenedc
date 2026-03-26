@@ -89,11 +89,17 @@ public:
 
     PhysicalSymbol(Kind kind, Location loc, std::string name, Scope *scope) : Symbol(kind, name, scope) {}
 
-    // If the symbol is external.
-    bool is_extern = false;
+    // The linkage of the symbol.
+    enum class Linkage {
+        // The symbol is only visible within the current translation unit.
+        INTERNAL,
+        // The symbol is visible to other translation units, and should be linked to if referenced.
+        EXTERNAL,
+        // The symbol is visible to other translation units, and should be linked to if referenced, with C linkage.
+        EXTERNC
+    } linkage = Linkage::INTERNAL;
 
-    // If the symbol is externally linked.
-    bool is_externc = false;
+    bool is_external() const { return linkage != Linkage::INTERNAL; }
 
     PhysicalSymbol *as_physical() { return this; }
 

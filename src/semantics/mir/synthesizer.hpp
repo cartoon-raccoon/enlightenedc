@@ -183,9 +183,8 @@ private:
         Optional<sym::TypeSymbol *> symbol;
         bool is_public;
         bool is_static;
-        bool is_extern;
-        bool is_externc;
         bool is_const;
+        sym::PhysicalSymbol::Linkage linkage = sym::PhysicalSymbol::Linkage::INTERNAL;
     };
 
     Box<SpecifierInfo> parse_speclist(Vec<Box<ast::DeclarationSpecifier>>&, Location);
