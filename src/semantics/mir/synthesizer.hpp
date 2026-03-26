@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef ECC_MIR_SYNTH_H
 #define ECC_MIR_SYNTH_H
 
@@ -11,6 +13,7 @@
 #include "semantics/symbols.hpp"
 #include "semantics/semantics.hpp"
 #include "semantics/mir/mir.hpp"
+#include "semantics/semerr.hpp"
 #include "util.hpp"
 
 namespace ecc::sema {
@@ -132,6 +135,8 @@ public:
 
     mir::ProgramMIR& prog_mir;
 
+    Vec<Box<EccSemError>> errors;
+
     /*
     Takes the result of the last visit call, replacing it with `std::monostate`.
     */
@@ -163,6 +168,13 @@ public:
         }
 
         return std::move(ret);
+    }
+
+    template<typename E, typename ... Args>
+    requires std::derived_from<E, EccSemError>
+    void add_error(Args ... args) {
+        Box<EccSemError> err = std::make_unique<E>(args ...);
+        errors.push_back(std::move(err));
     }
 
 private:

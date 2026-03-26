@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef ECC_TYPECHECK_H
 #define ECC_TYPECHECK_H
 
@@ -7,6 +9,7 @@
 #include "semantics/symbols.hpp"
 #include "semantics/types.hpp"
 #include "semantics/mir/mir.hpp"
+#include "semantics/semerr.hpp"
 
 using namespace ecc;
 using namespace util;
@@ -21,7 +24,16 @@ public:
     Validator(sym::SymbolTable& syms, types::TypeContext& types)
         : BaseMIRSemaVisitor(State::READ, syms, types) {}
 
+    Vec<Box<EccSemError>> errors;
+
     void eval_initializer(types::Type *type, mir::InitializerMIR& init);
+
+    template<typename E, typename ... Args>
+    requires std::derived_from<E, EccSemError>
+    void add_error(Args ... args) {
+        Box<EccSemError> err = std::make_unique<E>(args ...);
+        errors.push_back(std::move(err));
+    }
 
     void do_visit(mir::InitializerMIR& node) final override;
     void do_visit(mir::VarDeclMIR& node) final override;

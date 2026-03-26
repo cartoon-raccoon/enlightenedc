@@ -3,15 +3,15 @@
 #include <cassert>
 #include <variant>
 
-#include "semantics/mir/synthesizer.hpp"
 #include "ast/ast.hpp"
-#include "semantics/mir/mir.hpp"
-#include "error.hpp"
 #include "semantics/symbols.hpp"
-#include "semantics/semerr.hpp"
 #include "semantics/types.hpp"
+#include "semantics/mir/mir.hpp"
+#include "semantics/mir/synthesizer.hpp"
+#include "semantics/semerr.hpp"
 #include "eval/value.hpp"
 #include "eval/exec.hpp"
+#include "error.hpp"
 #include "util.hpp"
 
 #define dv_return(val) do { last_result = std::move(val); return; } while (0)
@@ -168,10 +168,12 @@ void MIRSynthesizer::do_visit(Function& node) {
     BaseType *return_base = specinfo->type;
 
     if (!node.declarator->direct) {
-        throw EccError("function declaration but missing direct declarator", node.declarator->loc);
+        add_error<EccSemError>("function declaration but missing direct declarator", node.declarator->loc);
+        throw UnableToContinue();
     }
     if (node.declarator->direct.value()->kind != ASTNode::FUNC_DECLTR) {
-        throw EccError("function declaration but declarator is not function", node.declarator->loc);
+        add_error<EccSemError>("function declaration but declarator is not function", node.declarator->loc);
+        throw UnableToContinue();
     }
 
     // Visit the Declarator to construct the type builder.
@@ -221,10 +223,12 @@ void MIRSynthesizer::do_visit(Function& node) {
 
     FunctionType *functype = curr->as_function();
     if (!functype) {
-        throw EccError("unable to resolve declarator to function declarator", node.loc);
+        add_error<EccSemError>("unable to resolve declarator to function declarator", node.loc);
+        throw UnableToContinue();
     }
     if (!builder->name) {
-        throw EccError("unable to parse name from declarator", node.declarator->loc);
+        add_error<EccSemError>("unable to parse name from declarator", node.declarator->loc);
+        throw UnableToContinue();
     }
 
     dbprint("parsing params");
@@ -232,7 +236,7 @@ void MIRSynthesizer::do_visit(Function& node) {
     Vec<Box<VarSymbol>> params;
     for (FuncParam& param : last_func_params) {
         if (!param.name) {
-            throw EccError("parameter in function declaration has no name", param.loc);
+            add_error<EccSemError>("parameter in function declaration has no name", param.loc);
         }
         Box<VarSymbol> paramsym = std::make_unique<VarSymbol>(
             param.loc, *param.name, syms.current, param.type);
@@ -251,9 +255,10 @@ void MIRSynthesizer::do_visit(Function& node) {
     try {
         sym_ptr = syms.insert(*builder->name, std::move(symbol));
     } catch ( Symbol *previous ) {
-        throw SymbolAlrDecldError(
+        add_error<SymbolAlrDecldError>(
             std::format("function \"{}\" was previously declared", sym_ptr->name), 
             sym_ptr->loc, previous->loc);
+        throw UnableToContinue();
     }
 
     CmpdStmtDoVisitParam cmpdstmtp({sym_ptr, std::move(params)});
@@ -316,12 +321,14 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
             sym->is_externc = specinfo->is_externc;
             syms.insert(*builder->name, std::move(sym));
         } else {
-            throw EccError("variable declaration with no name", declarator->loc);
+            add_error<EccSemError>("variable declaration with no name", declarator->loc);
+            throw UnableToContinue();
         }
 
         // sym should be valid, since to get here builder's name had to exist
         if (!symptr) {
-            throw EccError("unexpected null pointer when parsing variable declarator", declarator->loc);
+            add_error<EccSemError>("unexpected null pointer when parsing variable declarator", declarator->loc);
+            throw UnableToContinue();
         }
 
         // extract the initializer mir
@@ -399,13 +406,13 @@ void MIRSynthesizer::do_visit(ArrayDeclarator& node) {
         // if we were able to parse it as a u64, great
         if (auto s = val.value_as<long>()) {
             if (*s < 0) {
-                throw EccError("array size cannot be a negative number");
+                add_error<EccSemError>("array size cannot be a negative number", (*node.size)->loc);
             }
             size = *s;
         } else {
             // otherwise, the expression could not resolve, throw error
             // (do NOT coerce to unsized)
-            throw EccError("could not evaluate size expression to U64", node.loc);
+            add_error<EccSemError>("could not evaluate size expression to U64", node.loc);
         }
     }
 
@@ -521,7 +528,8 @@ void MIRSynthesizer::do_visit(TypeIdentifier& node) {
     bsv_dbprint("visiting TypeIdentifier node: ", node.loc);
     TypeSymbol *typesym = syms.lookup_type(node.identifier);
     if (!typesym) {
-        throw TypeNotDefinedError(node.identifier, node.loc);
+        add_error<TypeNotDefinedError>(node.identifier, node.loc);
+        throw UnableToContinue();
     }
     dv_return(typesym);
 }
@@ -609,7 +617,7 @@ void MIRSynthesizer::do_visit(Enumerator& node) {
         if (val) {
             enm->add_enumerator(node.name, *val, node.loc);
         } else {
-            throw EccError("invalid enumerator value", node.loc);
+            add_error<EccSemError>("invalid enumerator value", node.loc);
         }
     } else {
         value = enm->add_enumerator(node.name, node.loc);
@@ -1286,10 +1294,12 @@ void MIRSynthesizer::do_visit(IdentifierExpression& node) {
 
     Symbol *sym = syms.lookup(node.name);
     if (!sym) {
-        throw IdentNotDefinedError(node.name, node.loc);
+        add_error<IdentNotDefinedError>(node.name, node.loc);
+        throw UnableToContinue();
     }
     if (sym->is_abstract()) {
-        throw InvalidIdentifierError(node.name, node.loc);
+        add_error<InvalidIdentifierError>(node.name, node.loc);
+        throw UnableToContinue();
     }
 
     PhysicalSymbol *physsym = sym->as_physical();

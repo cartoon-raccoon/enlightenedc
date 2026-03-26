@@ -1,3 +1,10 @@
+#pragma once
+
+#ifndef ECC_SEMERR_H
+#define ECC_SEMERR_H
+
+#include <sstream>
+
 #include "error.hpp"
 #include "util.hpp"
 
@@ -8,6 +15,12 @@ class EccSemError : public EccError {
 public:
     EccSemError(std::string msg, Location err_loc)
         : EccError(ErrorSource::SEMANTIC, msg, err_loc) {}
+
+    virtual std::string to_string() override {
+        std::stringstream ss;
+        ss << "error <" << *loc << ">: " << msg << "\n";
+        return ss.str();
+    }
 };
 
 class InvalidCaseError : public EccSemError {
@@ -43,8 +56,8 @@ public:
 
     std::string to_string() override {
         std::stringstream ss;
-        ss << EccError::to_string() << ": " << name << "\n"
-           << "self-referential class members must be behind a pointer";
+        ss << EccSemError::to_string() << ": " << name
+           << "self-referential class members must be behind a pointer\n";
 
         return ss.str();
     }
@@ -53,13 +66,16 @@ public:
 class TypeNotDefinedError : public EccSemError {
 public:
     TypeNotDefinedError(std::string name, Location err_loc)
-    : EccSemError("use of undefined type", err_loc)
-    {
-        std::stringstream ss;
-        ss << EccError::what() << "\n" 
-           << "type \'" << name << "\' is not declared";
+        : EccSemError("use of undefined type", err_loc), name(name) {}
 
-        msg = ss.str();
+    std::string name;
+
+    std::string to_string() override {
+        std::stringstream ss;
+        ss << EccSemError::to_string() 
+           << "type \'" << name << "\' is not declared\n";
+
+        return ss.str();
     }
 };
 
@@ -69,8 +85,8 @@ public:
     : EccSemError("identifier not defined", err_loc)
     {
         std::stringstream ss;
-        ss << EccError::what() << "\n" 
-           << "identifier \'" << name << "\' is not declared";
+        ss << EccError::what() 
+           << "identifier \'" << name << "\' is not declared\n";
 
         msg = ss.str();
     }
@@ -164,3 +180,5 @@ public:
 };
 
 }
+
+#endif

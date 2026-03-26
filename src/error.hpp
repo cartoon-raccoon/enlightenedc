@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef ECC_ERROR_H
 #define ECC_ERROR_H
 
@@ -52,6 +54,15 @@ public:
         ss << msg;
 
         return ss.str();
+    }
+};
+
+class UnableToContinue : public EccError {
+public:
+    UnableToContinue() : EccError("unable to continue") {}
+
+    std::string to_string() override {
+        return "";
     }
 };
 

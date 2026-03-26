@@ -29,7 +29,7 @@ public:
 
 class InvalidArgError : public ArgError {
 public:
-    InvalidArgError(std::string arg) : ArgError("invalid arg"), arg(arg) {}
+    InvalidArgError(std::string arg) : ArgError("unrecognized argument"), arg(arg) {}
 
     std::string arg;
 

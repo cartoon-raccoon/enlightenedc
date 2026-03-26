@@ -3,6 +3,7 @@
 #include "ecc.hpp"
 #include "config.hpp"
 #include "driver/driver.hpp"
+#include "error.hpp"
 #include "util.hpp"
 
 using namespace ecc;
@@ -15,10 +16,12 @@ int Ecc::run() {
         for (auto& file : config->input_files) {
             run_pipeline(&file);
         }
-    } catch (EccError e) {
+    } catch (UnableToContinue _) {
+        return 1;
+    } catch (EccError& e) {
         std::cerr << e.to_string() << "\n";
         return 1;
-    }
+    } 
 
     return 0;
 }
@@ -36,8 +39,8 @@ int main(int argc, char** argv) {
     try {
         ecc::Ecc ecc(argc, argv);
         return ecc.run();
-    } catch (ArgError e) {
-        std::cerr << e.to_string() << "\n";
+    } catch (ArgError& e) {
+        std::cerr << e.to_string();
         return 1;
     }
 }

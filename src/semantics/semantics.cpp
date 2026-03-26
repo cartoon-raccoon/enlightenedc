@@ -3,6 +3,7 @@
 
 #include "ast/ast.hpp"
 #include "semantics/semantics.hpp"
+#include "error.hpp"
 #include "semantics/mir/mir.hpp"
 #include "semantics/mir/synthesizer.hpp"
 #include "semantics/validator.hpp"
@@ -1062,9 +1063,22 @@ void BaseMIRSemaVisitor::do_visit(mir::SizeofExprMIR& node) {
 void SemanticChecker::check_semantics(Program& prog, ProgramMIR& mir) {
     dbprint("Checking semantics for ", prog.loc);
 
-    dbprint("Synthesizing MIR for ", prog.loc);
     MIRSynthesizer mirsynthesizer(symbols, types, mir);
-    prog.accept(mirsynthesizer);
+    try {
+        dbprint("Synthesizing MIR for ", prog.loc);
+        prog.accept(mirsynthesizer);
+    } catch (UnableToContinue e) {
+        for (auto& err : mirsynthesizer.errors) {
+            std::cerr << err->to_string() << "\n";
+        }
+        throw e;
+    }
+    if (!mirsynthesizer.errors.empty()) {
+        for (auto& err : mirsynthesizer.errors) {
+            std::cerr << err->to_string() << "\n";
+        }
+        throw UnableToContinue();
+    }
     
     symbols.reset();
 
