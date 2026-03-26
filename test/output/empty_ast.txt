@@ -1,6 +1,8 @@
-running pipeline on file input/empty.ec
-initializing LLVM
+Initializing LLVM
 LLVM initialized
+running pipeline on file input/empty.ec
+LLVM: Creating LLVMUnit with module name 'input/empty.ec'
+LLVM: LLVMUnit created
 parsing file input/empty.ec
 printing AST for file input/empty.ec
 Program @ <input/empty.ec:1.1> 
@@ -35,3 +37,4 @@ Label Symbols:
 --------- MIR ---------
 
 ProgramMIR @ <1.1>
+LLVM: Shutting down

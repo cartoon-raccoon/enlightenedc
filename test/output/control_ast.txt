@@ -1,6 +1,8 @@
-running pipeline on file input/control.ec
-initializing LLVM
+Initializing LLVM
 LLVM initialized
+running pipeline on file input/control.ec
+LLVM: Creating LLVMUnit with module name 'input/control.ec'
+LLVM: LLVMUnit created
 parsing file input/control.ec
 printing AST for file input/control.ec
 Program @ <input/control.ec:1.1> 
@@ -449,12 +451,12 @@ Array Types:
 
 Scope 0
 Physical Symbols:
-  n -> 0x55c630b16620 : VarSymbol: n :: I64i
+  n -> 0x56441c288670 : VarSymbol: n :: I64i
 
 Type Symbols:
 
 Label Symbols:
-  start -> 0x55c630b1e0f0 : LabelSymbol: start
+  start -> 0x56441c29d3a0 : LabelSymbol: start
 -----------------------------------------------------------
   Scope 1
   Physical Symbols:
@@ -507,7 +509,7 @@ Label Symbols:
 -----------------------------------------------------------
   Scope 8
   Physical Symbols:
-    n -> 0x55c630b20100 : VarSymbol: n :: U32i
+    n -> 0x56441c29f3f0 : VarSymbol: n :: U32i
 
   Type Symbols:
 
@@ -617,3 +619,4 @@ ProgramMIR @ <1.1>
 | | | Postfix: ++ @ <input/control.ec:33.20-22>
 | | | | Ident: n @ <input/control.ec:33.20>
 | | Print: "hello" @ <input/control.ec:33.25-32>
+LLVM: Shutting down

@@ -1,6 +1,8 @@
-running pipeline on file input/declarations.ec
-initializing LLVM
+Initializing LLVM
 LLVM initialized
+running pipeline on file input/declarations.ec
+LLVM: Creating LLVMUnit with module name 'input/declarations.ec'
+LLVM: LLVMUnit created
 parsing file input/declarations.ec
 printing AST for file input/declarations.ec
 Program @ <input/declarations.ec:1.1> 
@@ -104,8 +106,8 @@ TypeContext: getting primitive type
             }
         }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x56335b186830
-TypeContext: pointer with base 0x56335b187020
+TypeContext: pointer with base 0x55c474c528d0
+TypeContext: pointer with base 0x55c474c532d0
 SymbolTable: inserting varsymbol with name "ptrA"
     }
     Node {
@@ -168,7 +170,7 @@ SymbolTable: inserting varsymbol with name "b"
             }
         }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x56335b1868c0, size 4
+TypeContext: array type with base 0x55c474c52960, size 4
 SymbolTable: inserting varsymbol with name "c"
     }
     Node {
@@ -194,7 +196,7 @@ TypeContext: getting primitive type
             }
         }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x56335b186950, no size
+TypeContext: array type with base 0x55c474c529f0, no size
 SymbolTable: inserting varsymbol with name "table"
     }
     Node {
@@ -249,7 +251,7 @@ TypeContext: getting primitive type
             }
         }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x56335b1867d0, size 3
+TypeContext: array type with base 0x55c474c52870, size 3
 SymbolTable: inserting varsymbol with name "bytes"
     }
     Node {
@@ -297,7 +299,7 @@ TypeContext: getting primitive type
             }
         }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x56335b1868f0, size 2
+TypeContext: array type with base 0x55c474c52990, size 2
 SymbolTable: inserting varsymbol with name "matrix"
     }
 }
@@ -313,9 +315,9 @@ Pointer Types:
   :U32i * const
 
 Array Types:
- : I32i[2]
  : U8i[3]
  : F64i[]
+ : I32i[2]
  : I16i[4]
 
 
@@ -323,13 +325,13 @@ Array Types:
 
 Scope 0
 Physical Symbols:
-  bytes -> 0x56335b187d30 : VarSymbol: bytes :: U8i[3]
-  table -> 0x56335b187840 : VarSymbol: table :: F64i[] extern
-  c -> 0x56335b187640 : VarSymbol: c :: I16i[4] static
-  b -> 0x56335b187460 : VarSymbol: b :: I16i static
-  matrix -> 0x56335b188150 : VarSymbol: matrix :: I32i[2]
-  a -> 0x56335b187240 : VarSymbol: a :: I16i static
-  ptrA -> 0x56335b17f620 : VarSymbol: ptrAconst  :: U32i * const * public
+  bytes -> 0x55c474c53fe0 : VarSymbol: bytes :: U8i[3]
+  table -> 0x55c474c53af0 : VarSymbol: table :: F64i[] extern
+  c -> 0x55c474c538f0 : VarSymbol: c :: I16i[4] static
+  b -> 0x55c474c53710 : VarSymbol: b :: I16i static
+  matrix -> 0x55c474c54400 : VarSymbol: matrix :: I32i[2]
+  a -> 0x55c474c534f0 : VarSymbol: a :: I16i static
+  ptrA -> 0x55c474c3e670 : VarSymbol: ptrAconst  :: U32i * const * public
 
 Type Symbols:
 
@@ -366,3 +368,4 @@ ProgramMIR @ <1.1>
 | | | | | Literal: 0 @ <input/declarations.ec:6.18-19>
 | | | | Initializer @ <input/declarations.ec:6.22>
 | | | | | Literal: 1 @ <input/declarations.ec:6.22>
+LLVM: Shutting down

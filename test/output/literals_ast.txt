@@ -1,6 +1,8 @@
-running pipeline on file input/literals.ec
-initializing LLVM
+Initializing LLVM
 LLVM initialized
+running pipeline on file input/literals.ec
+LLVM: Creating LLVMUnit with module name 'input/literals.ec'
+LLVM: LLVMUnit created
 parsing file input/literals.ec
 printing AST for file input/literals.ec
 Program @ <input/literals.ec:1.1> 
@@ -366,15 +368,15 @@ Array Types:
 
 Scope 0
 Physical Symbols:
-  nl -> 0x5644da5d4080 : VarSymbol: nl :: U8i
-  ch -> 0x5644da5d3e50 : VarSymbol: ch :: U8i
-  f2 -> 0x5644da5d3c20 : VarSymbol: f2 :: F64i
-  qt -> 0x5644da5d42b0 : VarSymbol: qt :: U8i
-  f1 -> 0x5644da5d3940 : VarSymbol: f1 :: F64i
-  c -> 0x5644da5d3520 : VarSymbol: c :: U32i
-  b -> 0x5644da5d32f0 : VarSymbol: b :: U32i
-  d -> 0x5644da5d3730 : VarSymbol: d :: U32i
-  a -> 0x5644da5cb620 : VarSymbol: a :: U32i
+  nl -> 0x5562f7b2d330 : VarSymbol: nl :: U8i
+  ch -> 0x5562f7b2d100 : VarSymbol: ch :: U8i
+  f2 -> 0x5562f7b2ced0 : VarSymbol: f2 :: F64i
+  qt -> 0x5562f7b2d560 : VarSymbol: qt :: U8i
+  f1 -> 0x5562f7b2cbf0 : VarSymbol: f1 :: F64i
+  c -> 0x5562f7b2c7d0 : VarSymbol: c :: U32i
+  b -> 0x5562f7b2c5a0 : VarSymbol: b :: U32i
+  d -> 0x5562f7b2c9e0 : VarSymbol: d :: U32i
+  a -> 0x5562f7b17670 : VarSymbol: a :: U32i
 
 Type Symbols:
 
@@ -430,3 +432,4 @@ ProgramMIR @ <1.1>
 | | Ident: d @ <input/literals.ec:13.23>
 | | Ident: f1 @ <input/literals.ec:13.26-27>
 | | Ident: f2 @ <input/literals.ec:13.30-31>
+LLVM: Shutting down

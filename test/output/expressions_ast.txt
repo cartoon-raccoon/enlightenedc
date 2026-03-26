@@ -1,6 +1,8 @@
-running pipeline on file input/expressions.ec
-initializing LLVM
+Initializing LLVM
 LLVM initialized
+running pipeline on file input/expressions.ec
+LLVM: Creating LLVMUnit with module name 'input/expressions.ec'
+LLVM: LLVMUnit created
 parsing file input/expressions.ec
 printing AST for file input/expressions.ec
 Program @ <input/expressions.ec:1.1> 
@@ -450,7 +452,7 @@ TypeContext: getting primitive type
             }
         }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x55c08e2be7d0
+TypeContext: pointer with base 0x559e01573870
 SymbolTable: inserting varsymbol with name "s"
     }
     Node {
@@ -570,10 +572,10 @@ Array Types:
 
 Scope 0
 Physical Symbols:
-  s -> 0x55c08e2c0d80 : VarSymbol: s :: U8i *
-  b -> 0x55c08e2bf490 : VarSymbol: b :: U32i
-  a -> 0x55c08e2bf260 : VarSymbol: a :: U32i
-  x -> 0x55c08e2b7620 : VarSymbol: x :: U32i
+  s -> 0x559e01576070 : VarSymbol: s :: U8i *
+  b -> 0x559e01574740 : VarSymbol: b :: U32i
+  a -> 0x559e01574510 : VarSymbol: a :: U32i
+  x -> 0x559e0155f670 : VarSymbol: x :: U32i
 
 Type Symbols:
 
@@ -687,3 +689,4 @@ U32i
 | | | | | Ident: a @ <input/expressions.ec:22.5-6>
 | | | | | Ident: b @ <input/expressions.ec:22.9>
 | | | | Ident: x @ <input/expressions.ec:22.12>
+LLVM: Shutting down
