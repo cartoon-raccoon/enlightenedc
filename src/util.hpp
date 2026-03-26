@@ -13,6 +13,17 @@
 #ifndef NDEBUG
 #include <iostream>
 
+template <typename ... Args>
+void dbprint(Args&&... args) {
+    (std::cout << ... << args) << "\n";
+}
+#else
+template <typename T, typename ... Args>
+void dbprint(T msg, Args&&... args) {}
+#endif
+
+namespace ecc::util {
+
 #define todo() throw Todo(std::source_location::current())
 
 class Todo : std::exception {
@@ -31,17 +42,6 @@ public:
         return location.c_str();
     }
 };
-
-template <typename ... Args>
-void dbprint(Args&&... args) {
-    (std::cout << ... << args) << "\n";
-}
-#else
-template <typename T, typename ... Args>
-void dbprint(T msg, Args&&... args) {}
-#endif
-
-namespace ecc::util {
 
 template<typename T>
 using Box = std::unique_ptr<T>;
