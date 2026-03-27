@@ -6,9 +6,14 @@
 #include <cstdio>
 #include <FlexLexer.h>
 
-//#include "error.hpp"
+#include "error.hpp"
 
 namespace ecc::preproc {
+
+class PreprocError : public EccError {
+public:
+    PreprocError() : EccError("preprocessor exited with error") {}
+};
 
 /*
 

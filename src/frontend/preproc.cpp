@@ -24,10 +24,12 @@ PreProcessor::PreProcessor(const std::string *filename) : std::istream(nullptr) 
 }
 
 void PreProcessor::close() {
-    int res = pclose(pipe);
-    pipe = nullptr;
-    if (res != 0) {
-        throw EccError("preprocessor exited with error");
+    if (pipe) {
+        int res = pclose(pipe);
+        pipe = nullptr;
+        if (res != 0) {
+            throw PreprocError();
+        }
     }
 }
 

@@ -1044,10 +1044,10 @@ private:
     // Generate a mangled, unique name for a type incorporating its associated scope.
     template <typename T>
     requires std::derived_from<T, UserType>
-    std::string mangle(std::string name, sema::sym::Scope *sc) {
+    std::string mangle(std::string name, uint64_t scopeid) {
         std::stringstream ss;
 
-        ss << T::base() << name << "_" << static_cast<const void *>(sc); // fixme: use scope id
+        ss << T::base() << name << "_" << scopeid;
 
         return ss.str();
     }

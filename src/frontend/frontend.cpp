@@ -6,39 +6,41 @@
 #include "frontend/lexer.hpp"
 #include "parser.hpp"
 #include "frontend/preproc.hpp"
-#include "error.hpp"
 #include "util.hpp"
 
 using namespace ecc::frontend;
+using namespace ecc::preproc;
 
-void Frontend::parse(driver::TranslationUnit& unit) {
+void Frontend::run(driver::TranslationUnit& unit) {
     dbprint("parsing file ", *unit.filename);
+    ecc::preproc::PreProcessor preproc(unit.filename);
+
+    // bodge for lexer hack
+    std::set<std::string> typedefs {};
+
+    ecc::frontend::Lexer lexer(&preproc, unit.filename, typedefs);
+    ecc::parser::Parser parser(lexer, *unit.ast_root, typedefs);
+
     try {
-        ecc::preproc::PreProcessor preproc(unit.filename);
-
-        // bodge for lexer hack
-        std::set<std::string> typedefs {};
-
-        ecc::frontend::Lexer lexer(&preproc, unit.filename, typedefs);
-        ecc::parser::Parser parser(lexer, *unit.ast_root, typedefs);
 
         // temp for testing
         //parser.set_debug_level(1);
-        int result = parser.parse();
-        preproc.close();
-
-        if (result == 0) {
-            dbprint("printing AST for file ", *unit.filename);
-            ast::ASTPrinter printer;
-            unit.ast_root->accept(printer);
+        parser.parse();
+    } catch (ParseError& e) {
+        // the preprocessor exiting before processing the entire file
+        // will also result in a parse error, so if we catch a parse error,
+        // we try to close the preprocessor and see if it throws something.
+        try {
+            preproc.close();
+        } catch (PreprocError& pperr) {
+            throw pperr;
         }
-
-        if (result != 0) {
-            throw EccError("Parsing exited with error");
-        }
-
-    } catch (const std::exception& e) {
-        std::cerr << "Preprocessor error: " << e.what() << "\n";
-        throw EccError("preprocessor exited with error");
+        throw e;
     }
+    preproc.close();
+    
+    // todo: hide this behind an if guard
+    dbprint("printing AST for file ", *unit.filename);
+    ast::ASTPrinter printer;
+    unit.ast_root->accept(printer);
 }

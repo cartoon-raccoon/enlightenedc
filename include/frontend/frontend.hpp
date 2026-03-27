@@ -4,6 +4,7 @@
 #define ECC_FRONTEND_H
 
 #include "error.hpp"
+#include "util.hpp"
 
 namespace ecc::driver {
     struct TranslationUnit;
@@ -20,6 +21,8 @@ returning the completed ASTNode when done.
 
 class ParseError : public EccError {
 public:
+    ParseError(std::string err, Location loc)
+        : EccError(ErrorSource::PARSE, err, loc) {}
 };
 
 // The object driving the Frontend's functionality.
@@ -29,10 +32,8 @@ public:
 
     ~Frontend() = default;
 
-    int result;
-
     // Run the frontend on file `f`. Returns 0 on success.
-    void parse(driver::TranslationUnit& unit);
+    void run(driver::TranslationUnit& unit);
 };
 
 

@@ -1182,6 +1182,6 @@ jump_statement:
 // FIXME: do better than this
 namespace ecc::parser {
     void Parser::error(const Location& loc, const std::string& msg) {
-        std::cerr << "Error at " << loc << ": " << msg << std::endl;
+        throw ecc::frontend::ParseError(msg, loc);
     }
 }

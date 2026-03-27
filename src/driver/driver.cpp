@@ -25,6 +25,6 @@ Driver::Driver(TranslationUnit& unit) : unit(unit), frontend(), backend() {
 }
 
 void Driver::run() {
-    frontend->parse(unit);
+    frontend->run(unit);
     backend->run(unit);
 }
