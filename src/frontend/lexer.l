@@ -137,6 +137,7 @@ static std::string decode_string_literal(char* text, size_t len) {
 
 
 "Void" { return ecc::parser::Parser::make_VOID(loc); } /* Type specifiers */
+"U0" { return ecc::parser::Parser::make_VOID(loc); }
 "U8i" { return ecc::parser::Parser::make_U8(loc); }
 "U16i" { return ecc::parser::Parser::make_U16(loc); }
 "U32i" { return ecc::parser::Parser::make_U32(loc); }
