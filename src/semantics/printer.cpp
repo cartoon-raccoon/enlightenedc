@@ -24,10 +24,10 @@ std::string VarSymbol::to_string() const {
     else
         ss << " :: <nulltype>";
 
-    if (is_extern)
+    if (linkage == PhysicalSymbol::Linkage::EXTERNAL)
         ss << " extern";
 
-    if (is_externc)
+    if (linkage == PhysicalSymbol::Linkage::EXTERNC)
         ss << " extern C";
 
     if (is_static)

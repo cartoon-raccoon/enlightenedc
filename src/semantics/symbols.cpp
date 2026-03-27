@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <utility>
 
-#include "symbols.hpp"
+#include "semantics/symbols.hpp"
 
 using namespace ecc::sema::sym;
 using namespace ecc::sema::types;
@@ -303,7 +303,7 @@ FuncSymbol *SymbolTable::insert(std::string name, Box<FuncSymbol> sym) {
                 dbprint("SymbolTable: could not cast othertype or mytype to FunctionType");
                 goto exists;
             }
-            if (othertype == mytype && !existing->is_extern && !existing->is_externc) {
+            if (othertype == mytype && !existing->is_external()) {
                 dbprint("SymbolTable: existing symbol matches function signature, replacing");
                 goto insert;
             } else {

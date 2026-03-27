@@ -11,6 +11,7 @@ set(CMAKE_C_COMPILER clang)
 set(CMAKE_CXX_COMPILER clang++)
 
 set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
+set(INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include")
 
 # 2. Finding our dependencies
 
@@ -71,6 +72,9 @@ add_executable(ecc
 
 # 6. Setup include paths
 target_include_directories(ecc PRIVATE ${SRC_DIR} ${BISON_OUTPUT_DIR})
+target_include_directories(ecc PUBLIC ${INCLUDE_DIR})
+
+# 7. Add precompiled headers
 target_precompile_headers(ecc PRIVATE 
     <vector> 
     <string>
@@ -99,7 +103,7 @@ target_precompile_headers(ecc PRIVATE
     <llvm/TargetParser/Host.h>
 )
 
-# 7. Link LLVM libraries
+# 8. Link LLVM libraries
 llvm_map_components_to_libnames(llvm_libs
     core
     executionengine
