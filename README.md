@@ -1,13 +1,16 @@
 # EnlightenedC
 
-An LLVM-powered compiler and REPL for EnlightenedC, a subset of HolyC
-
-EnlightenedC is a dialect/subset of HolyC, that adapts HolyC to non-TempleOS platforms.
+An LLVM-powered compiler and REPL for HolyC, the implementation language of TempleOS, created by Terry A. Davis.
 
 ## Features
 
-The EnlightenedC compiler is backed by LLVM, which handles the final stage of compilation.
-It is capable of both AOT compilation to an executable, or JIT compilation in a REPL-like environment.
+- Powered by LLVM, so it can compile to any architecture.
+- Adds new code features to the original HolyC language to make the programming experience easier
+- Operates as both an AOT compiler and JIT REPL, mirroring the original use of HolyC in TempleOS.
+
+## Documentation
+
+Documentation is currently missing, but will be written once the compiler is complete.
 
 ## Building
 
@@ -25,7 +28,8 @@ Run the following commands in the project root:
 # and create a new `build` dir for the build
 $ cmake -S . -B build
 # run the build process, specifying the `build` dir
-$ cmake --build build
+# you can add optional parallelism
+$ cmake --build build --parallel <n>
 ```
 
 To clean the build directory, run:
