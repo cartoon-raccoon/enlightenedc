@@ -32,6 +32,9 @@ public:
 
     ProgramLIR& prog_lir;
 
+    void generate_lir(sema::mir::ProgramMIR& prog);
+
+protected:
     Box<ExprLIR> last_expr;
 
     // Emit a LIR item into the current queue.

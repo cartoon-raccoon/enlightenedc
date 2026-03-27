@@ -12,6 +12,10 @@ using namespace sema::types;
 
 using NK = LIRNode::NodeKind;
 
+void LIRSynthesizer::generate_lir(ProgramMIR& prog) {
+    prog.accept(*this);
+}
+
 void LIRSynthesizer::emit(LIRSynthItem item) {
     current_q.push(std::move(item));
 }

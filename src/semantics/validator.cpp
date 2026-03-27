@@ -12,6 +12,10 @@ using namespace types;
 using namespace mir;
 using namespace tokens;
 
+void Validator::validate(ProgramMIR& progmir) {
+    progmir.accept(*this);
+}
+
 void Validator::eval_initializer(types::Type *type, InitializerMIR& init) {
     Vec<Accessor> path {};
     eval_initializer_rec(path, type, init);

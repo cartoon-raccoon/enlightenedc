@@ -25,6 +25,10 @@ using namespace ecc::sema::sym;
 using namespace ecc::sema::mir;
 using namespace ecc::tokens;
 
+void MIRSynthesizer::generate_mir(Program& prog) {
+    prog.accept(*this);
+}
+
 Box<MIRSynthesizer::SpecifierInfo> MIRSynthesizer::parse_speclist(
     Vec<Box<ast::DeclarationSpecifier>>& speclist, Location loc
 ) {

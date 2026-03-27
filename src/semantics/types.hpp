@@ -972,9 +972,29 @@ public:
     FunctionType *get_function(Type *ret, Vec<Type *> params, bool variadic);
 
     /**
-    Finalize all currently declared types.
+    Finalize all primitive types.
     */
-    void finalize_all();
+    void finalize_primitives();
+
+    /**
+    Finalize all user-defined types.
+    */
+    void finalize_usertypes();
+
+    /**
+    Finalize all function types.
+    */
+    void finalize_functions();
+
+    /**
+    Finalize all function types.
+    */
+    void finalize_pointers();
+
+    /**
+    Finalize all array types.
+    */
+    void finalize_arrays();
 
     std::string to_string() const;
 

@@ -125,6 +125,16 @@ public:
     MIRSynthesizer(sym::SymbolTable& syms, types::TypeContext& types, mir::ProgramMIR& mir)
     : BaseASTSemaVisitor(BaseSemanticVisitor::State::WRITE, syms, types), prog_mir(mir) {}
 
+    mir::ProgramMIR& prog_mir;
+
+    Vec<Box<EccSemError>> errors;
+
+    /**
+    Run the MIRSynthesizer on the provided AST.
+    */
+    void generate_mir(ast::Program& prog);
+
+protected:
     /*
     The result of the last visit(ast::) call. This is essentially the `return` value,
     placed here since visit calls cannot directly return values.
@@ -132,11 +142,6 @@ public:
     ElabResult last_result = std::monostate {};
 
     ElabVisitParam dovisit_param = std::monostate {};
-
-    mir::ProgramMIR& prog_mir;
-
-    Vec<Box<EccSemError>> errors;
-
     /*
     Takes the result of the last visit call, replacing it with `std::monostate`.
     */
@@ -177,18 +182,7 @@ public:
         errors.push_back(std::move(err));
     }
 
-private:
-    struct SpecifierInfo {
-        types::BaseType *type;
-        Optional<sym::TypeSymbol *> symbol;
-        bool is_public;
-        bool is_static;
-        bool is_const;
-        sym::PhysicalSymbol::Linkage linkage = sym::PhysicalSymbol::Linkage::INTERNAL;
-    };
-
-    Box<SpecifierInfo> parse_speclist(Vec<Box<ast::DeclarationSpecifier>>&, Location);
-
+    /* DO_VISIT OVERRIDES */
 protected:
     void do_visit(ast::Program& node) override;
     void do_visit(ast::Function& node) override;
@@ -248,6 +242,18 @@ protected:
     void do_visit(ast::ArraySubscriptExpression& node) override;
     void do_visit(ast::PostfixExpression& node) override;
     void do_visit(ast::SizeofExpression& node) override;
+
+private:
+    struct SpecifierInfo {
+        types::BaseType *type;
+        Optional<sym::TypeSymbol *> symbol;
+        bool is_public;
+        bool is_static;
+        bool is_const;
+        sym::PhysicalSymbol::Linkage linkage = sym::PhysicalSymbol::Linkage::INTERNAL;
+    };
+
+    Box<SpecifierInfo> parse_speclist(Vec<Box<ast::DeclarationSpecifier>>&, Location);
 };
 
 }

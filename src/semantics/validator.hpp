@@ -35,6 +35,9 @@ public:
         errors.push_back(std::move(err));
     }
 
+    void validate(mir::ProgramMIR& progmir);
+
+protected:
     void do_visit(mir::InitializerMIR& node) final override;
     void do_visit(mir::VarDeclMIR& node) final override;
 

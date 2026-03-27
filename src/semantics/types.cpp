@@ -874,9 +874,8 @@ FunctionType *TypeContext::get_function(Type *returntype, Vec<Type *> params, bo
     return ret;
 }
 
-void TypeContext::finalize_all() {
-    dbprint("TypeContext: finalizing all types");
-
+void TypeContext::finalize_primitives() {
+    dbprint("TypeContext: finalizing primitives");
     voidt->finalize();
     u8->finalize();
     u16->finalize();
@@ -888,25 +887,35 @@ void TypeContext::finalize_all() {
     i64->finalize();
     f64->finalize();
     boolt->finalize();
+}
 
+void TypeContext::finalize_usertypes() {
     dbprint("TypeContext: finalizing user types");
     for (auto& [name, usertype] : user_types) {
         usertype->finalize();
     }
+}
 
+void TypeContext::finalize_functions() {
     dbprint("TypeContext: finalizing function types");
-    for (auto& [name, functype] : function_types) {
-        functype->finalize();
+    for (auto& [name, func] : function_types) {
+        func->finalize();
     }
+}
 
+void TypeContext::finalize_pointers() {
     dbprint("TypeContext: finalizing function types");
     for (auto& [name, ptr] : pointers) {
         ptr->finalize();
     }
+}
 
+void TypeContext::finalize_arrays() {
     dbprint("TypeContext: finalizing array types");
     for (auto& [name, arr] : arrays) {
         arr->finalize();
     }
 }
+
+
 

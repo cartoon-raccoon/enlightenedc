@@ -1066,7 +1066,7 @@ void SemanticChecker::check_semantics(Program& prog, ProgramMIR& mir) {
     MIRSynthesizer mirsynthesizer(symbols, types, mir);
     try {
         dbprint("Synthesizing MIR for ", prog.loc);
-        prog.accept(mirsynthesizer);
+        mirsynthesizer.generate_mir(prog);
     } catch (UnableToContinue e) {
         for (auto& err : mirsynthesizer.errors) {
             std::cerr << err->to_string() << "\n";
@@ -1082,6 +1082,21 @@ void SemanticChecker::check_semantics(Program& prog, ProgramMIR& mir) {
     
     symbols.reset();
 
-    // todo: validate
+    // types.finalize_primitives();
+    // types.finalize_usertypes();
+    // types.finalize_functions();
+    // types.finalize_pointers();
+
     Validator validator(symbols, types);
+    // validator.validate(mir);
+
+    // if (!validator.errors.empty()) {
+    //     for (auto& err : validator.errors) {
+    //         std::cerr << err->to_string() << "\n";
+    //     }
+    //     throw UnableToContinue();
+    // }
+
+    // // We finalize array types after validation because the validator infers array size.
+    // types.finalize_arrays();
 }
