@@ -1,109 +1,109 @@
 Initializing LLVM
 LLVM initialized
-running pipeline on file input/literals.ec
-LLVM: Creating LLVMUnit with module name 'input/literals.ec'
+running pipeline on file input/literals.HC
+LLVM: Creating LLVMUnit with module name 'input/literals.HC'
 LLVM: LLVMUnit created
-parsing file input/literals.ec
-printing AST for file input/literals.ec
-Program @ <input/literals.ec:1.1> 
-| VariableDeclaration @ <input/literals.ec:1.1-161> 
-| | PrimitiveSpecifier: u32 @ <input/literals.ec:1.1-152> 
-| | InitDeclarator @ <input/literals.ec:1.154-160> 
-| | | Declarator @ <input/literals.ec:1.154> 
-| | | | IdentifierDeclarator: a @ <input/literals.ec:1.154> 
-| | | Initializer:  @ <input/literals.ec:1.158-160> 
-| | | | Literal: 123 @ <input/literals.ec:1.158-160> 
-| VariableDeclaration @ <input/literals.ec:2.1-13> 
-| | PrimitiveSpecifier: u32 @ <input/literals.ec:2.1-4> 
-| | InitDeclarator @ <input/literals.ec:2.6-12> 
-| | | Declarator @ <input/literals.ec:2.6> 
-| | | | IdentifierDeclarator: b @ <input/literals.ec:2.6> 
-| | | Initializer:  @ <input/literals.ec:2.10-12> 
-| | | | UnaryExpression: - @ <input/literals.ec:2.10-12> 
-| | | | | Literal: 45 @ <input/literals.ec:2.10-12> 
-| VariableDeclaration @ <input/literals.ec:3.1-13> 
-| | PrimitiveSpecifier: u32 @ <input/literals.ec:3.1-4> 
-| | InitDeclarator @ <input/literals.ec:3.6-12> 
-| | | Declarator @ <input/literals.ec:3.6> 
-| | | | IdentifierDeclarator: c @ <input/literals.ec:3.6> 
-| | | Initializer:  @ <input/literals.ec:3.10-12> 
-| | | | Literal: 63 @ <input/literals.ec:3.10-12> 
-| VariableDeclaration @ <input/literals.ec:4.1-14> 
-| | PrimitiveSpecifier: u32 @ <input/literals.ec:4.1-4> 
-| | InitDeclarator @ <input/literals.ec:4.6-13> 
-| | | Declarator @ <input/literals.ec:4.6> 
-| | | | IdentifierDeclarator: d @ <input/literals.ec:4.6> 
-| | | Initializer:  @ <input/literals.ec:4.10-13> 
-| | | | Literal: 255 @ <input/literals.ec:4.10-13> 
-| VariableDeclaration @ <input/literals.ec:6.1-15> 
-| | PrimitiveSpecifier: f64 @ <input/literals.ec:6.1-4> 
-| | InitDeclarator @ <input/literals.ec:6.6-14> 
-| | | Declarator @ <input/literals.ec:6.6-7> 
-| | | | IdentifierDeclarator: f1 @ <input/literals.ec:6.6-7> 
-| | | Initializer:  @ <input/literals.ec:6.11-14> 
-| | | | Literal: 0.000000 @ <input/literals.ec:6.11-14> 
-| VariableDeclaration @ <input/literals.ec:7.1-19> 
-| | PrimitiveSpecifier: f64 @ <input/literals.ec:7.1-4> 
-| | InitDeclarator @ <input/literals.ec:7.6-18> 
-| | | Declarator @ <input/literals.ec:7.6-7> 
-| | | | IdentifierDeclarator: f2 @ <input/literals.ec:7.6-7> 
-| | | Initializer:  @ <input/literals.ec:7.11-18> 
-| | | | UnaryExpression: - @ <input/literals.ec:7.11-18> 
-| | | | | Literal: 0.000000 @ <input/literals.ec:7.11-18> 
-| VariableDeclaration @ <input/literals.ec:9.1-13> 
-| | PrimitiveSpecifier: u8 @ <input/literals.ec:9.1-3> 
-| | InitDeclarator @ <input/literals.ec:9.5-12> 
-| | | Declarator @ <input/literals.ec:9.5-6> 
-| | | | IdentifierDeclarator: ch @ <input/literals.ec:9.5-6> 
-| | | Initializer:  @ <input/literals.ec:9.10-12> 
-| | | | Literal: 65 @ <input/literals.ec:9.10-12> 
-| VariableDeclaration @ <input/literals.ec:10.1-14> 
-| | PrimitiveSpecifier: u8 @ <input/literals.ec:10.1-3> 
-| | InitDeclarator @ <input/literals.ec:10.5-13> 
-| | | Declarator @ <input/literals.ec:10.5-6> 
-| | | | IdentifierDeclarator: nl @ <input/literals.ec:10.5-6> 
-| | | Initializer:  @ <input/literals.ec:10.10-13> 
-| | | | Literal: 10 @ <input/literals.ec:10.10-13> 
-| VariableDeclaration @ <input/literals.ec:11.1-14> 
-| | PrimitiveSpecifier: u8 @ <input/literals.ec:11.1-3> 
-| | InitDeclarator @ <input/literals.ec:11.5-13> 
-| | | Declarator @ <input/literals.ec:11.5-6> 
-| | | | IdentifierDeclarator: qt @ <input/literals.ec:11.5-6> 
-| | | Initializer:  @ <input/literals.ec:11.10-13> 
-| | | | Literal: 34 @ <input/literals.ec:11.10-13> 
+parsing file input/literals.HC
+printing AST for file input/literals.HC
+Program @ <input/literals.HC:1.1> 
+| VariableDeclaration @ <input/literals.HC:1.1-161> 
+| | PrimitiveSpecifier: u32 @ <input/literals.HC:1.1-152> 
+| | InitDeclarator @ <input/literals.HC:1.154-160> 
+| | | Declarator @ <input/literals.HC:1.154> 
+| | | | IdentifierDeclarator: a @ <input/literals.HC:1.154> 
+| | | Initializer:  @ <input/literals.HC:1.158-160> 
+| | | | Literal: 123 @ <input/literals.HC:1.158-160> 
+| VariableDeclaration @ <input/literals.HC:2.1-13> 
+| | PrimitiveSpecifier: u32 @ <input/literals.HC:2.1-4> 
+| | InitDeclarator @ <input/literals.HC:2.6-12> 
+| | | Declarator @ <input/literals.HC:2.6> 
+| | | | IdentifierDeclarator: b @ <input/literals.HC:2.6> 
+| | | Initializer:  @ <input/literals.HC:2.10-12> 
+| | | | UnaryExpression: - @ <input/literals.HC:2.10-12> 
+| | | | | Literal: 45 @ <input/literals.HC:2.10-12> 
+| VariableDeclaration @ <input/literals.HC:3.1-13> 
+| | PrimitiveSpecifier: u32 @ <input/literals.HC:3.1-4> 
+| | InitDeclarator @ <input/literals.HC:3.6-12> 
+| | | Declarator @ <input/literals.HC:3.6> 
+| | | | IdentifierDeclarator: c @ <input/literals.HC:3.6> 
+| | | Initializer:  @ <input/literals.HC:3.10-12> 
+| | | | Literal: 63 @ <input/literals.HC:3.10-12> 
+| VariableDeclaration @ <input/literals.HC:4.1-14> 
+| | PrimitiveSpecifier: u32 @ <input/literals.HC:4.1-4> 
+| | InitDeclarator @ <input/literals.HC:4.6-13> 
+| | | Declarator @ <input/literals.HC:4.6> 
+| | | | IdentifierDeclarator: d @ <input/literals.HC:4.6> 
+| | | Initializer:  @ <input/literals.HC:4.10-13> 
+| | | | Literal: 255 @ <input/literals.HC:4.10-13> 
+| VariableDeclaration @ <input/literals.HC:6.1-15> 
+| | PrimitiveSpecifier: f64 @ <input/literals.HC:6.1-4> 
+| | InitDeclarator @ <input/literals.HC:6.6-14> 
+| | | Declarator @ <input/literals.HC:6.6-7> 
+| | | | IdentifierDeclarator: f1 @ <input/literals.HC:6.6-7> 
+| | | Initializer:  @ <input/literals.HC:6.11-14> 
+| | | | Literal: 0.000000 @ <input/literals.HC:6.11-14> 
+| VariableDeclaration @ <input/literals.HC:7.1-19> 
+| | PrimitiveSpecifier: f64 @ <input/literals.HC:7.1-4> 
+| | InitDeclarator @ <input/literals.HC:7.6-18> 
+| | | Declarator @ <input/literals.HC:7.6-7> 
+| | | | IdentifierDeclarator: f2 @ <input/literals.HC:7.6-7> 
+| | | Initializer:  @ <input/literals.HC:7.11-18> 
+| | | | UnaryExpression: - @ <input/literals.HC:7.11-18> 
+| | | | | Literal: 0.000000 @ <input/literals.HC:7.11-18> 
+| VariableDeclaration @ <input/literals.HC:9.1-13> 
+| | PrimitiveSpecifier: u8 @ <input/literals.HC:9.1-3> 
+| | InitDeclarator @ <input/literals.HC:9.5-12> 
+| | | Declarator @ <input/literals.HC:9.5-6> 
+| | | | IdentifierDeclarator: ch @ <input/literals.HC:9.5-6> 
+| | | Initializer:  @ <input/literals.HC:9.10-12> 
+| | | | Literal: 65 @ <input/literals.HC:9.10-12> 
+| VariableDeclaration @ <input/literals.HC:10.1-14> 
+| | PrimitiveSpecifier: u8 @ <input/literals.HC:10.1-3> 
+| | InitDeclarator @ <input/literals.HC:10.5-13> 
+| | | Declarator @ <input/literals.HC:10.5-6> 
+| | | | IdentifierDeclarator: nl @ <input/literals.HC:10.5-6> 
+| | | Initializer:  @ <input/literals.HC:10.10-13> 
+| | | | Literal: 10 @ <input/literals.HC:10.10-13> 
+| VariableDeclaration @ <input/literals.HC:11.1-14> 
+| | PrimitiveSpecifier: u8 @ <input/literals.HC:11.1-3> 
+| | InitDeclarator @ <input/literals.HC:11.5-13> 
+| | | Declarator @ <input/literals.HC:11.5-6> 
+| | | | IdentifierDeclarator: qt @ <input/literals.HC:11.5-6> 
+| | | Initializer:  @ <input/literals.HC:11.10-13> 
+| | | | Literal: 34 @ <input/literals.HC:11.10-13> 
 | PrintStatement: "Values:
-" @ <input/literals.ec:13.1-32> 
-| | IdentifierExpression: a @ <input/literals.ec:13.14> 
-| | IdentifierExpression: b @ <input/literals.ec:13.17> 
-| | IdentifierExpression: c @ <input/literals.ec:13.20> 
-| | IdentifierExpression: d @ <input/literals.ec:13.23> 
-| | IdentifierExpression: f1 @ <input/literals.ec:13.26-27> 
-| | IdentifierExpression: f2 @ <input/literals.ec:13.30-31> 
-running backend for file input/literals.ec
-Checking semantics for input/literals.ec:1.1
-Synthesizing MIR for input/literals.ec:1.1
+" @ <input/literals.HC:13.1-32> 
+| | IdentifierExpression: a @ <input/literals.HC:13.14> 
+| | IdentifierExpression: b @ <input/literals.HC:13.17> 
+| | IdentifierExpression: c @ <input/literals.HC:13.20> 
+| | IdentifierExpression: d @ <input/literals.HC:13.23> 
+| | IdentifierExpression: f1 @ <input/literals.HC:13.26-27> 
+| | IdentifierExpression: f2 @ <input/literals.HC:13.30-31> 
+running backend for file input/literals.HC
+Checking semantics for input/literals.HC:1.1
+Synthesizing MIR for input/literals.HC:1.1
 Node {
-    visiting Program node: input/literals.ec:1.1
+    visiting Program node: input/literals.HC:1.1
     Node {
-        visiting VariableDeclaration node: input/literals.ec:1.1-161
-        parsing declaration specifier list for node at input/literals.ec:1.1-161
+        visiting VariableDeclaration node: input/literals.HC:1.1-161
+        parsing declaration specifier list for node at input/literals.HC:1.1-161
         Node {
-            visiting PrimitiveSpecifier node: input/literals.ec:1.1-152
+            visiting PrimitiveSpecifier node: input/literals.HC:1.1-152
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/literals.ec:1.1-161
+        finished parsing specifiers for node input/literals.HC:1.1-161
         Node {
-            visiting InitDeclarator node: input/literals.ec:1.154-160
+            visiting InitDeclarator node: input/literals.HC:1.154-160
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/literals.ec:1.154
+                    visiting IdentifierDeclarator node: input/literals.HC:1.154
                 }
             }
             Node {
-                visiting Initializer node: input/literals.ec:1.158-160
+                visiting Initializer node: input/literals.HC:1.158-160
                 visiting single initializer
                 Node {
-                    visiting LiteralExpression node: input/literals.ec:1.158-160
+                    visiting LiteralExpression node: input/literals.HC:1.158-160
                 }
             }
         }
@@ -111,27 +111,27 @@ TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "a"
     }
     Node {
-        visiting VariableDeclaration node: input/literals.ec:2.1-13
-        parsing declaration specifier list for node at input/literals.ec:2.1-13
+        visiting VariableDeclaration node: input/literals.HC:2.1-13
+        parsing declaration specifier list for node at input/literals.HC:2.1-13
         Node {
-            visiting PrimitiveSpecifier node: input/literals.ec:2.1-4
+            visiting PrimitiveSpecifier node: input/literals.HC:2.1-4
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/literals.ec:2.1-13
+        finished parsing specifiers for node input/literals.HC:2.1-13
         Node {
-            visiting InitDeclarator node: input/literals.ec:2.6-12
+            visiting InitDeclarator node: input/literals.HC:2.6-12
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/literals.ec:2.6
+                    visiting IdentifierDeclarator node: input/literals.HC:2.6
                 }
             }
             Node {
-                visiting Initializer node: input/literals.ec:2.10-12
+                visiting Initializer node: input/literals.HC:2.10-12
                 visiting single initializer
                 Node {
-                    visiting UnaryExpression node: input/literals.ec:2.10-12
+                    visiting UnaryExpression node: input/literals.HC:2.10-12
                     Node {
-                        visiting LiteralExpression node: input/literals.ec:2.10-12
+                        visiting LiteralExpression node: input/literals.HC:2.10-12
                     }
                 }
             }
@@ -140,25 +140,25 @@ TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "b"
     }
     Node {
-        visiting VariableDeclaration node: input/literals.ec:3.1-13
-        parsing declaration specifier list for node at input/literals.ec:3.1-13
+        visiting VariableDeclaration node: input/literals.HC:3.1-13
+        parsing declaration specifier list for node at input/literals.HC:3.1-13
         Node {
-            visiting PrimitiveSpecifier node: input/literals.ec:3.1-4
+            visiting PrimitiveSpecifier node: input/literals.HC:3.1-4
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/literals.ec:3.1-13
+        finished parsing specifiers for node input/literals.HC:3.1-13
         Node {
-            visiting InitDeclarator node: input/literals.ec:3.6-12
+            visiting InitDeclarator node: input/literals.HC:3.6-12
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/literals.ec:3.6
+                    visiting IdentifierDeclarator node: input/literals.HC:3.6
                 }
             }
             Node {
-                visiting Initializer node: input/literals.ec:3.10-12
+                visiting Initializer node: input/literals.HC:3.10-12
                 visiting single initializer
                 Node {
-                    visiting LiteralExpression node: input/literals.ec:3.10-12
+                    visiting LiteralExpression node: input/literals.HC:3.10-12
                 }
             }
         }
@@ -166,25 +166,25 @@ TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "c"
     }
     Node {
-        visiting VariableDeclaration node: input/literals.ec:4.1-14
-        parsing declaration specifier list for node at input/literals.ec:4.1-14
+        visiting VariableDeclaration node: input/literals.HC:4.1-14
+        parsing declaration specifier list for node at input/literals.HC:4.1-14
         Node {
-            visiting PrimitiveSpecifier node: input/literals.ec:4.1-4
+            visiting PrimitiveSpecifier node: input/literals.HC:4.1-4
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/literals.ec:4.1-14
+        finished parsing specifiers for node input/literals.HC:4.1-14
         Node {
-            visiting InitDeclarator node: input/literals.ec:4.6-13
+            visiting InitDeclarator node: input/literals.HC:4.6-13
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/literals.ec:4.6
+                    visiting IdentifierDeclarator node: input/literals.HC:4.6
                 }
             }
             Node {
-                visiting Initializer node: input/literals.ec:4.10-13
+                visiting Initializer node: input/literals.HC:4.10-13
                 visiting single initializer
                 Node {
-                    visiting LiteralExpression node: input/literals.ec:4.10-13
+                    visiting LiteralExpression node: input/literals.HC:4.10-13
                 }
             }
         }
@@ -192,25 +192,25 @@ TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "d"
     }
     Node {
-        visiting VariableDeclaration node: input/literals.ec:6.1-15
-        parsing declaration specifier list for node at input/literals.ec:6.1-15
+        visiting VariableDeclaration node: input/literals.HC:6.1-15
+        parsing declaration specifier list for node at input/literals.HC:6.1-15
         Node {
-            visiting PrimitiveSpecifier node: input/literals.ec:6.1-4
+            visiting PrimitiveSpecifier node: input/literals.HC:6.1-4
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/literals.ec:6.1-15
+        finished parsing specifiers for node input/literals.HC:6.1-15
         Node {
-            visiting InitDeclarator node: input/literals.ec:6.6-14
+            visiting InitDeclarator node: input/literals.HC:6.6-14
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/literals.ec:6.6-7
+                    visiting IdentifierDeclarator node: input/literals.HC:6.6-7
                 }
             }
             Node {
-                visiting Initializer node: input/literals.ec:6.11-14
+                visiting Initializer node: input/literals.HC:6.11-14
                 visiting single initializer
                 Node {
-                    visiting LiteralExpression node: input/literals.ec:6.11-14
+                    visiting LiteralExpression node: input/literals.HC:6.11-14
                 }
             }
         }
@@ -218,27 +218,27 @@ TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "f1"
     }
     Node {
-        visiting VariableDeclaration node: input/literals.ec:7.1-19
-        parsing declaration specifier list for node at input/literals.ec:7.1-19
+        visiting VariableDeclaration node: input/literals.HC:7.1-19
+        parsing declaration specifier list for node at input/literals.HC:7.1-19
         Node {
-            visiting PrimitiveSpecifier node: input/literals.ec:7.1-4
+            visiting PrimitiveSpecifier node: input/literals.HC:7.1-4
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/literals.ec:7.1-19
+        finished parsing specifiers for node input/literals.HC:7.1-19
         Node {
-            visiting InitDeclarator node: input/literals.ec:7.6-18
+            visiting InitDeclarator node: input/literals.HC:7.6-18
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/literals.ec:7.6-7
+                    visiting IdentifierDeclarator node: input/literals.HC:7.6-7
                 }
             }
             Node {
-                visiting Initializer node: input/literals.ec:7.11-18
+                visiting Initializer node: input/literals.HC:7.11-18
                 visiting single initializer
                 Node {
-                    visiting UnaryExpression node: input/literals.ec:7.11-18
+                    visiting UnaryExpression node: input/literals.HC:7.11-18
                     Node {
-                        visiting LiteralExpression node: input/literals.ec:7.11-18
+                        visiting LiteralExpression node: input/literals.HC:7.11-18
                     }
                 }
             }
@@ -247,25 +247,25 @@ TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "f2"
     }
     Node {
-        visiting VariableDeclaration node: input/literals.ec:9.1-13
-        parsing declaration specifier list for node at input/literals.ec:9.1-13
+        visiting VariableDeclaration node: input/literals.HC:9.1-13
+        parsing declaration specifier list for node at input/literals.HC:9.1-13
         Node {
-            visiting PrimitiveSpecifier node: input/literals.ec:9.1-3
+            visiting PrimitiveSpecifier node: input/literals.HC:9.1-3
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/literals.ec:9.1-13
+        finished parsing specifiers for node input/literals.HC:9.1-13
         Node {
-            visiting InitDeclarator node: input/literals.ec:9.5-12
+            visiting InitDeclarator node: input/literals.HC:9.5-12
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/literals.ec:9.5-6
+                    visiting IdentifierDeclarator node: input/literals.HC:9.5-6
                 }
             }
             Node {
-                visiting Initializer node: input/literals.ec:9.10-12
+                visiting Initializer node: input/literals.HC:9.10-12
                 visiting single initializer
                 Node {
-                    visiting LiteralExpression node: input/literals.ec:9.10-12
+                    visiting LiteralExpression node: input/literals.HC:9.10-12
                 }
             }
         }
@@ -273,25 +273,25 @@ TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "ch"
     }
     Node {
-        visiting VariableDeclaration node: input/literals.ec:10.1-14
-        parsing declaration specifier list for node at input/literals.ec:10.1-14
+        visiting VariableDeclaration node: input/literals.HC:10.1-14
+        parsing declaration specifier list for node at input/literals.HC:10.1-14
         Node {
-            visiting PrimitiveSpecifier node: input/literals.ec:10.1-3
+            visiting PrimitiveSpecifier node: input/literals.HC:10.1-3
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/literals.ec:10.1-14
+        finished parsing specifiers for node input/literals.HC:10.1-14
         Node {
-            visiting InitDeclarator node: input/literals.ec:10.5-13
+            visiting InitDeclarator node: input/literals.HC:10.5-13
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/literals.ec:10.5-6
+                    visiting IdentifierDeclarator node: input/literals.HC:10.5-6
                 }
             }
             Node {
-                visiting Initializer node: input/literals.ec:10.10-13
+                visiting Initializer node: input/literals.HC:10.10-13
                 visiting single initializer
                 Node {
-                    visiting LiteralExpression node: input/literals.ec:10.10-13
+                    visiting LiteralExpression node: input/literals.HC:10.10-13
                 }
             }
         }
@@ -299,25 +299,25 @@ TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "nl"
     }
     Node {
-        visiting VariableDeclaration node: input/literals.ec:11.1-14
-        parsing declaration specifier list for node at input/literals.ec:11.1-14
+        visiting VariableDeclaration node: input/literals.HC:11.1-14
+        parsing declaration specifier list for node at input/literals.HC:11.1-14
         Node {
-            visiting PrimitiveSpecifier node: input/literals.ec:11.1-3
+            visiting PrimitiveSpecifier node: input/literals.HC:11.1-3
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/literals.ec:11.1-14
+        finished parsing specifiers for node input/literals.HC:11.1-14
         Node {
-            visiting InitDeclarator node: input/literals.ec:11.5-13
+            visiting InitDeclarator node: input/literals.HC:11.5-13
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/literals.ec:11.5-6
+                    visiting IdentifierDeclarator node: input/literals.HC:11.5-6
                 }
             }
             Node {
-                visiting Initializer node: input/literals.ec:11.10-13
+                visiting Initializer node: input/literals.HC:11.10-13
                 visiting single initializer
                 Node {
-                    visiting LiteralExpression node: input/literals.ec:11.10-13
+                    visiting LiteralExpression node: input/literals.HC:11.10-13
                 }
             }
         }
@@ -325,29 +325,29 @@ TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "qt"
     }
     Node {
-        visiting PrintStatement node: input/literals.ec:13.1-32
+        visiting PrintStatement node: input/literals.HC:13.1-32
         Node {
-            visiting IdentifierExpression node: input/literals.ec:13.14
+            visiting IdentifierExpression node: input/literals.HC:13.14
 SymbolTable: looking up varsymbol a
         }
         Node {
-            visiting IdentifierExpression node: input/literals.ec:13.17
+            visiting IdentifierExpression node: input/literals.HC:13.17
 SymbolTable: looking up varsymbol b
         }
         Node {
-            visiting IdentifierExpression node: input/literals.ec:13.20
+            visiting IdentifierExpression node: input/literals.HC:13.20
 SymbolTable: looking up varsymbol c
         }
         Node {
-            visiting IdentifierExpression node: input/literals.ec:13.23
+            visiting IdentifierExpression node: input/literals.HC:13.23
 SymbolTable: looking up varsymbol d
         }
         Node {
-            visiting IdentifierExpression node: input/literals.ec:13.26-27
+            visiting IdentifierExpression node: input/literals.HC:13.26-27
 SymbolTable: looking up varsymbol f1
         }
         Node {
-            visiting IdentifierExpression node: input/literals.ec:13.30-31
+            visiting IdentifierExpression node: input/literals.HC:13.30-31
 SymbolTable: looking up varsymbol f2
         }
     }
@@ -368,15 +368,15 @@ Array Types:
 
 Scope 0
 Physical Symbols:
-  nl -> 0x5562f7b2d330 : VarSymbol: nl :: U8i
-  ch -> 0x5562f7b2d100 : VarSymbol: ch :: U8i
-  f2 -> 0x5562f7b2ced0 : VarSymbol: f2 :: F64i
-  qt -> 0x5562f7b2d560 : VarSymbol: qt :: U8i
-  f1 -> 0x5562f7b2cbf0 : VarSymbol: f1 :: F64i
-  c -> 0x5562f7b2c7d0 : VarSymbol: c :: U32i
-  b -> 0x5562f7b2c5a0 : VarSymbol: b :: U32i
-  d -> 0x5562f7b2c9e0 : VarSymbol: d :: U32i
-  a -> 0x5562f7b17670 : VarSymbol: a :: U32i
+  nl -> 0x55b7511b3330 : VarSymbol: nl :: U8i
+  ch -> 0x55b7511b3100 : VarSymbol: ch :: U8i
+  f2 -> 0x55b7511b2ed0 : VarSymbol: f2 :: F64i
+  qt -> 0x55b7511b3560 : VarSymbol: qt :: U8i
+  f1 -> 0x55b7511b2bf0 : VarSymbol: f1 :: F64i
+  c -> 0x55b7511b27d0 : VarSymbol: c :: U32i
+  b -> 0x55b7511b25a0 : VarSymbol: b :: U32i
+  d -> 0x55b7511b29e0 : VarSymbol: d :: U32i
+  a -> 0x55b75119d670 : VarSymbol: a :: U32i
 
 Type Symbols:
 
@@ -386,50 +386,50 @@ Label Symbols:
 --------- MIR ---------
 
 ProgramMIR @ <1.1>
-| VarDecl:  @ <input/literals.ec:1.1-161>
+| VarDecl:  @ <input/literals.HC:1.1-161>
 | | | VarSymbol: a :: U32i
-| | | Initializer @ <input/literals.ec:1.158-160>
-| | | | Literal: 123 @ <input/literals.ec:1.158-160>
-| VarDecl:  @ <input/literals.ec:2.1-13>
+| | | Initializer @ <input/literals.HC:1.158-160>
+| | | | Literal: 123 @ <input/literals.HC:1.158-160>
+| VarDecl:  @ <input/literals.HC:2.1-13>
 | | | VarSymbol: b :: U32i
-| | | Initializer @ <input/literals.ec:2.10-12>
-| | | | Unary: - @ <input/literals.ec:2.10-12>
-| | | | | Literal: 45 @ <input/literals.ec:2.10-12>
-| VarDecl:  @ <input/literals.ec:3.1-13>
+| | | Initializer @ <input/literals.HC:2.10-12>
+| | | | Unary: - @ <input/literals.HC:2.10-12>
+| | | | | Literal: 45 @ <input/literals.HC:2.10-12>
+| VarDecl:  @ <input/literals.HC:3.1-13>
 | | | VarSymbol: c :: U32i
-| | | Initializer @ <input/literals.ec:3.10-12>
-| | | | Literal: 63 @ <input/literals.ec:3.10-12>
-| VarDecl:  @ <input/literals.ec:4.1-14>
+| | | Initializer @ <input/literals.HC:3.10-12>
+| | | | Literal: 63 @ <input/literals.HC:3.10-12>
+| VarDecl:  @ <input/literals.HC:4.1-14>
 | | | VarSymbol: d :: U32i
-| | | Initializer @ <input/literals.ec:4.10-13>
-| | | | Literal: 255 @ <input/literals.ec:4.10-13>
-| VarDecl:  @ <input/literals.ec:6.1-15>
+| | | Initializer @ <input/literals.HC:4.10-13>
+| | | | Literal: 255 @ <input/literals.HC:4.10-13>
+| VarDecl:  @ <input/literals.HC:6.1-15>
 | | | VarSymbol: f1 :: F64i
-| | | Initializer @ <input/literals.ec:6.11-14>
-| | | | Literal: 0.000000 @ <input/literals.ec:6.11-14>
-| VarDecl:  @ <input/literals.ec:7.1-19>
+| | | Initializer @ <input/literals.HC:6.11-14>
+| | | | Literal: 0.000000 @ <input/literals.HC:6.11-14>
+| VarDecl:  @ <input/literals.HC:7.1-19>
 | | | VarSymbol: f2 :: F64i
-| | | Initializer @ <input/literals.ec:7.11-18>
-| | | | Unary: - @ <input/literals.ec:7.11-18>
-| | | | | Literal: 0.000000 @ <input/literals.ec:7.11-18>
-| VarDecl:  @ <input/literals.ec:9.1-13>
+| | | Initializer @ <input/literals.HC:7.11-18>
+| | | | Unary: - @ <input/literals.HC:7.11-18>
+| | | | | Literal: 0.000000 @ <input/literals.HC:7.11-18>
+| VarDecl:  @ <input/literals.HC:9.1-13>
 | | | VarSymbol: ch :: U8i
-| | | Initializer @ <input/literals.ec:9.10-12>
-| | | | Literal: 65 @ <input/literals.ec:9.10-12>
-| VarDecl:  @ <input/literals.ec:10.1-14>
+| | | Initializer @ <input/literals.HC:9.10-12>
+| | | | Literal: 65 @ <input/literals.HC:9.10-12>
+| VarDecl:  @ <input/literals.HC:10.1-14>
 | | | VarSymbol: nl :: U8i
-| | | Initializer @ <input/literals.ec:10.10-13>
-| | | | Literal: 10 @ <input/literals.ec:10.10-13>
-| VarDecl:  @ <input/literals.ec:11.1-14>
+| | | Initializer @ <input/literals.HC:10.10-13>
+| | | | Literal: 10 @ <input/literals.HC:10.10-13>
+| VarDecl:  @ <input/literals.HC:11.1-14>
 | | | VarSymbol: qt :: U8i
-| | | Initializer @ <input/literals.ec:11.10-13>
-| | | | Literal: 34 @ <input/literals.ec:11.10-13>
+| | | Initializer @ <input/literals.HC:11.10-13>
+| | | | Literal: 34 @ <input/literals.HC:11.10-13>
 | Print: "Values:
-" @ <input/literals.ec:13.1-32>
-| | Ident: a @ <input/literals.ec:13.14>
-| | Ident: b @ <input/literals.ec:13.17>
-| | Ident: c @ <input/literals.ec:13.20>
-| | Ident: d @ <input/literals.ec:13.23>
-| | Ident: f1 @ <input/literals.ec:13.26-27>
-| | Ident: f2 @ <input/literals.ec:13.30-31>
+" @ <input/literals.HC:13.1-32>
+| | Ident: a @ <input/literals.HC:13.14>
+| | Ident: b @ <input/literals.HC:13.17>
+| | Ident: c @ <input/literals.HC:13.20>
+| | Ident: d @ <input/literals.HC:13.23>
+| | Ident: f1 @ <input/literals.HC:13.26-27>
+| | Ident: f2 @ <input/literals.HC:13.30-31>
 LLVM: Shutting down

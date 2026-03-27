@@ -1,16 +1,16 @@
 Initializing LLVM
 LLVM initialized
-running pipeline on file input/empty.ec
-LLVM: Creating LLVMUnit with module name 'input/empty.ec'
+running pipeline on file input/empty.HC
+LLVM: Creating LLVMUnit with module name 'input/empty.HC'
 LLVM: LLVMUnit created
-parsing file input/empty.ec
-printing AST for file input/empty.ec
-Program @ <input/empty.ec:1.1> 
-running backend for file input/empty.ec
-Checking semantics for input/empty.ec:1.1
-Synthesizing MIR for input/empty.ec:1.1
+parsing file input/empty.HC
+printing AST for file input/empty.HC
+Program @ <input/empty.HC:1.1> 
+running backend for file input/empty.HC
+Checking semantics for input/empty.HC:1.1
+Synthesizing MIR for input/empty.HC:1.1
 Node {
-    visiting Program node: input/empty.ec:1.1
+    visiting Program node: input/empty.HC:1.1
 }
 semantic checking complete
 --------- TYPE CONTEXT ---------

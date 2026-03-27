@@ -1,158 +1,158 @@
 Initializing LLVM
 LLVM initialized
-running pipeline on file input/expressions.ec
-LLVM: Creating LLVMUnit with module name 'input/expressions.ec'
+running pipeline on file input/expressions.HC
+LLVM: Creating LLVMUnit with module name 'input/expressions.HC'
 LLVM: LLVMUnit created
-parsing file input/expressions.ec
-printing AST for file input/expressions.ec
-Program @ <input/expressions.ec:1.1> 
-| VariableDeclaration @ <input/expressions.ec:1.1-165> 
-| | PrimitiveSpecifier: u32 @ <input/expressions.ec:1.1-158> 
-| | InitDeclarator @ <input/expressions.ec:1.160-164> 
-| | | Declarator @ <input/expressions.ec:1.160> 
-| | | | IdentifierDeclarator: x @ <input/expressions.ec:1.160> 
-| | | Initializer:  @ <input/expressions.ec:1.164> 
-| | | | Literal: 0 @ <input/expressions.ec:1.164> 
-| VariableDeclaration @ <input/expressions.ec:2.1-11> 
-| | PrimitiveSpecifier: u32 @ <input/expressions.ec:2.1-4> 
-| | InitDeclarator @ <input/expressions.ec:2.6-10> 
-| | | Declarator @ <input/expressions.ec:2.6> 
-| | | | IdentifierDeclarator: a @ <input/expressions.ec:2.6> 
-| | | Initializer:  @ <input/expressions.ec:2.10> 
-| | | | Literal: 1 @ <input/expressions.ec:2.10> 
-| VariableDeclaration @ <input/expressions.ec:3.1-11> 
-| | PrimitiveSpecifier: u32 @ <input/expressions.ec:3.1-4> 
-| | InitDeclarator @ <input/expressions.ec:3.6-10> 
-| | | Declarator @ <input/expressions.ec:3.6> 
-| | | | IdentifierDeclarator: b @ <input/expressions.ec:3.6> 
-| | | Initializer:  @ <input/expressions.ec:3.10> 
-| | | | Literal: 2 @ <input/expressions.ec:3.10> 
-| ExpressionStatement @ <input/expressions.ec:4.1-26> 
-| | AssignmentExpression: = @ <input/expressions.ec:4.1-25> 
-| | | IdentifierExpression: x @ <input/expressions.ec:4.1> 
-| | | BinaryExpression: - @ <input/expressions.ec:4.5-25> 
-| | | | BinaryExpression: + @ <input/expressions.ec:4.5-13> 
-| | | | | IdentifierExpression: a @ <input/expressions.ec:4.5> 
-| | | | | BinaryExpression: * @ <input/expressions.ec:4.9-13> 
-| | | | | | IdentifierExpression: b @ <input/expressions.ec:4.9> 
-| | | | | | Literal: 3 @ <input/expressions.ec:4.13> 
-| | | | BinaryExpression: % @ <input/expressions.ec:4.17-25> 
-| | | | | BinaryExpression: / @ <input/expressions.ec:4.17-21> 
-| | | | | | Literal: 4 @ <input/expressions.ec:4.17> 
-| | | | | | Literal: 2 @ <input/expressions.ec:4.21> 
-| | | | | Literal: 5 @ <input/expressions.ec:4.25> 
-| ExpressionStatement @ <input/expressions.ec:5.1-8> 
-| | AssignmentExpression: <<= @ <input/expressions.ec:5.1-7> 
-| | | IdentifierExpression: x @ <input/expressions.ec:5.1> 
-| | | Literal: 2 @ <input/expressions.ec:5.7> 
-| ExpressionStatement @ <input/expressions.ec:6.1-15> 
-| | AssignmentExpression: |= @ <input/expressions.ec:6.1-14> 
-| | | IdentifierExpression: x @ <input/expressions.ec:6.1> 
-| | | BinaryExpression: ^ @ <input/expressions.ec:6.6-14> 
-| | | | Literal: 1 @ <input/expressions.ec:6.6> 
-| | | | BinaryExpression: & @ <input/expressions.ec:6.10-14> 
-| | | | | Literal: 3 @ <input/expressions.ec:6.10> 
-| | | | | Literal: 7 @ <input/expressions.ec:6.14> 
-| ExpressionStatement @ <input/expressions.ec:8.1-14> 
-| | AssignmentExpression: = @ <input/expressions.ec:8.1-13> 
-| | | IdentifierExpression: a @ <input/expressions.ec:8.1> 
-| | | ConditionalExpression @ <input/expressions.ec:8.5-13> 
-| | | | Literal: 2 @ <input/expressions.ec:8.5> 
-| | | | Literal: 1 @ <input/expressions.ec:8.9> 
-| | | | Literal: 5 @ <input/expressions.ec:8.13> 
-| ExpressionStatement @ <input/expressions.ec:9.1-20> 
-| | AssignmentExpression: = @ <input/expressions.ec:9.1-19> 
-| | | IdentifierExpression: x @ <input/expressions.ec:9.1> 
-| | | ConditionalExpression @ <input/expressions.ec:9.5-19> 
-| | | | BinaryExpression: > @ <input/expressions.ec:9.5-11> 
-| | | | | IdentifierExpression: a @ <input/expressions.ec:9.5-6> 
-| | | | | IdentifierExpression: b @ <input/expressions.ec:9.10> 
-| | | | IdentifierExpression: a @ <input/expressions.ec:9.15> 
-| | | | IdentifierExpression: b @ <input/expressions.ec:9.19> 
-| ExpressionStatement @ <input/expressions.ec:10.1-16> 
-| | AssignmentExpression: = @ <input/expressions.ec:10.1-15> 
-| | | IdentifierExpression: x @ <input/expressions.ec:10.1> 
-| | | BinaryExpression: || @ <input/expressions.ec:10.5-15> 
-| | | | BinaryExpression: && @ <input/expressions.ec:10.5-10> 
-| | | | | IdentifierExpression: a @ <input/expressions.ec:10.5> 
-| | | | | IdentifierExpression: b @ <input/expressions.ec:10.10> 
-| | | | IdentifierExpression: a @ <input/expressions.ec:10.15> 
-| ExpressionStatement @ <input/expressions.ec:11.1-17> 
-| | AssignmentExpression: = @ <input/expressions.ec:11.1-16> 
-| | | IdentifierExpression: x @ <input/expressions.ec:11.1> 
-| | | BinaryExpression: + @ <input/expressions.ec:11.5-16> 
-| | | | CastExpression:  @ <input/expressions.ec:11.5-12> 
-| | | | | IdentifierExpression: a @ <input/expressions.ec:11.12> 
-| | | | | TypeName @ <input/expressions.ec:11.5-9> 
-| | | | | | PrimitiveSpecifier: u32 @ <input/expressions.ec:11.5-9> 
-| | | | Literal: 2 @ <input/expressions.ec:11.16> 
-| ExpressionStatement @ <input/expressions.ec:12.1-13> 
-| | AssignmentExpression: = @ <input/expressions.ec:12.1-12> 
-| | | IdentifierExpression: x @ <input/expressions.ec:12.1> 
-| | | CastExpression:  @ <input/expressions.ec:12.5-12> 
-| | | | IdentifierExpression: a @ <input/expressions.ec:12.12> 
-| | | | TypeName @ <input/expressions.ec:12.5-9> 
-| | | | | PrimitiveSpecifier: i32 @ <input/expressions.ec:12.5-9> 
-| VariableDeclaration @ <input/expressions.ec:14.1-7> 
-| | PrimitiveSpecifier: u8 @ <input/expressions.ec:14.1-3> 
-| | InitDeclarator @ <input/expressions.ec:14.5-6> 
-| | | Declarator @ <input/expressions.ec:14.5-6> 
-| | | | Pointer @ <input/expressions.ec:14.5> 
-| | | | IdentifierDeclarator: s @ <input/expressions.ec:14.5-6> 
-| ExpressionStatement @ <input/expressions.ec:15.1-13> 
-| | AssignmentExpression: = @ <input/expressions.ec:15.1-12> 
-| | | IdentifierExpression: s @ <input/expressions.ec:15.1> 
-| | | String: hello! @ <input/expressions.ec:15.5-12> 
-| ExpressionStatement @ <input/expressions.ec:17.1-4> 
-| | UnaryExpression: ++ @ <input/expressions.ec:17.1-3> 
-| | | IdentifierExpression: x @ <input/expressions.ec:17.1-3> 
-| ExpressionStatement @ <input/expressions.ec:18.1-4> 
-| | PostfixExpression: -- @ <input/expressions.ec:18.1-3> 
-| | | IdentifierExpression: x @ <input/expressions.ec:18.1> 
-| ExpressionStatement @ <input/expressions.ec:19.1-18> 
-| | AssignmentExpression: += @ <input/expressions.ec:19.1-17> 
-| | | IdentifierExpression: x @ <input/expressions.ec:19.1> 
-| | | SizeofExpression @ <input/expressions.ec:19.6-17> 
-| | | | TypeName @ <input/expressions.ec:19.6-16> 
-| | | | | PrimitiveSpecifier: u32 @ <input/expressions.ec:19.6-16> 
-| ExpressionStatement @ <input/expressions.ec:20.1-14> 
-| | AssignmentExpression: += @ <input/expressions.ec:20.1-13> 
-| | | IdentifierExpression: x @ <input/expressions.ec:20.1> 
-| | | SizeofExpression @ <input/expressions.ec:20.6-13> 
-| | | | IdentifierExpression: x @ <input/expressions.ec:20.13> 
-| ExpressionStatement @ <input/expressions.ec:22.1-14> 
-| | AssignmentExpression: = @ <input/expressions.ec:22.1-13> 
-| | | IdentifierExpression: x @ <input/expressions.ec:22.1> 
-| | | BinaryExpression: , @ <input/expressions.ec:22.5-13> 
-| | | | BinaryExpression: , @ <input/expressions.ec:22.5-9> 
-| | | | | IdentifierExpression: a @ <input/expressions.ec:22.5-6> 
-| | | | | IdentifierExpression: b @ <input/expressions.ec:22.9> 
-| | | | IdentifierExpression: x @ <input/expressions.ec:22.12> 
-running backend for file input/expressions.ec
-Checking semantics for input/expressions.ec:1.1
-Synthesizing MIR for input/expressions.ec:1.1
+parsing file input/expressions.HC
+printing AST for file input/expressions.HC
+Program @ <input/expressions.HC:1.1> 
+| VariableDeclaration @ <input/expressions.HC:1.1-165> 
+| | PrimitiveSpecifier: u32 @ <input/expressions.HC:1.1-158> 
+| | InitDeclarator @ <input/expressions.HC:1.160-164> 
+| | | Declarator @ <input/expressions.HC:1.160> 
+| | | | IdentifierDeclarator: x @ <input/expressions.HC:1.160> 
+| | | Initializer:  @ <input/expressions.HC:1.164> 
+| | | | Literal: 0 @ <input/expressions.HC:1.164> 
+| VariableDeclaration @ <input/expressions.HC:2.1-11> 
+| | PrimitiveSpecifier: u32 @ <input/expressions.HC:2.1-4> 
+| | InitDeclarator @ <input/expressions.HC:2.6-10> 
+| | | Declarator @ <input/expressions.HC:2.6> 
+| | | | IdentifierDeclarator: a @ <input/expressions.HC:2.6> 
+| | | Initializer:  @ <input/expressions.HC:2.10> 
+| | | | Literal: 1 @ <input/expressions.HC:2.10> 
+| VariableDeclaration @ <input/expressions.HC:3.1-11> 
+| | PrimitiveSpecifier: u32 @ <input/expressions.HC:3.1-4> 
+| | InitDeclarator @ <input/expressions.HC:3.6-10> 
+| | | Declarator @ <input/expressions.HC:3.6> 
+| | | | IdentifierDeclarator: b @ <input/expressions.HC:3.6> 
+| | | Initializer:  @ <input/expressions.HC:3.10> 
+| | | | Literal: 2 @ <input/expressions.HC:3.10> 
+| ExpressionStatement @ <input/expressions.HC:4.1-26> 
+| | AssignmentExpression: = @ <input/expressions.HC:4.1-25> 
+| | | IdentifierExpression: x @ <input/expressions.HC:4.1> 
+| | | BinaryExpression: - @ <input/expressions.HC:4.5-25> 
+| | | | BinaryExpression: + @ <input/expressions.HC:4.5-13> 
+| | | | | IdentifierExpression: a @ <input/expressions.HC:4.5> 
+| | | | | BinaryExpression: * @ <input/expressions.HC:4.9-13> 
+| | | | | | IdentifierExpression: b @ <input/expressions.HC:4.9> 
+| | | | | | Literal: 3 @ <input/expressions.HC:4.13> 
+| | | | BinaryExpression: % @ <input/expressions.HC:4.17-25> 
+| | | | | BinaryExpression: / @ <input/expressions.HC:4.17-21> 
+| | | | | | Literal: 4 @ <input/expressions.HC:4.17> 
+| | | | | | Literal: 2 @ <input/expressions.HC:4.21> 
+| | | | | Literal: 5 @ <input/expressions.HC:4.25> 
+| ExpressionStatement @ <input/expressions.HC:5.1-8> 
+| | AssignmentExpression: <<= @ <input/expressions.HC:5.1-7> 
+| | | IdentifierExpression: x @ <input/expressions.HC:5.1> 
+| | | Literal: 2 @ <input/expressions.HC:5.7> 
+| ExpressionStatement @ <input/expressions.HC:6.1-15> 
+| | AssignmentExpression: |= @ <input/expressions.HC:6.1-14> 
+| | | IdentifierExpression: x @ <input/expressions.HC:6.1> 
+| | | BinaryExpression: ^ @ <input/expressions.HC:6.6-14> 
+| | | | Literal: 1 @ <input/expressions.HC:6.6> 
+| | | | BinaryExpression: & @ <input/expressions.HC:6.10-14> 
+| | | | | Literal: 3 @ <input/expressions.HC:6.10> 
+| | | | | Literal: 7 @ <input/expressions.HC:6.14> 
+| ExpressionStatement @ <input/expressions.HC:8.1-14> 
+| | AssignmentExpression: = @ <input/expressions.HC:8.1-13> 
+| | | IdentifierExpression: a @ <input/expressions.HC:8.1> 
+| | | ConditionalExpression @ <input/expressions.HC:8.5-13> 
+| | | | Literal: 2 @ <input/expressions.HC:8.5> 
+| | | | Literal: 1 @ <input/expressions.HC:8.9> 
+| | | | Literal: 5 @ <input/expressions.HC:8.13> 
+| ExpressionStatement @ <input/expressions.HC:9.1-20> 
+| | AssignmentExpression: = @ <input/expressions.HC:9.1-19> 
+| | | IdentifierExpression: x @ <input/expressions.HC:9.1> 
+| | | ConditionalExpression @ <input/expressions.HC:9.5-19> 
+| | | | BinaryExpression: > @ <input/expressions.HC:9.5-11> 
+| | | | | IdentifierExpression: a @ <input/expressions.HC:9.5-6> 
+| | | | | IdentifierExpression: b @ <input/expressions.HC:9.10> 
+| | | | IdentifierExpression: a @ <input/expressions.HC:9.15> 
+| | | | IdentifierExpression: b @ <input/expressions.HC:9.19> 
+| ExpressionStatement @ <input/expressions.HC:10.1-16> 
+| | AssignmentExpression: = @ <input/expressions.HC:10.1-15> 
+| | | IdentifierExpression: x @ <input/expressions.HC:10.1> 
+| | | BinaryExpression: || @ <input/expressions.HC:10.5-15> 
+| | | | BinaryExpression: && @ <input/expressions.HC:10.5-10> 
+| | | | | IdentifierExpression: a @ <input/expressions.HC:10.5> 
+| | | | | IdentifierExpression: b @ <input/expressions.HC:10.10> 
+| | | | IdentifierExpression: a @ <input/expressions.HC:10.15> 
+| ExpressionStatement @ <input/expressions.HC:11.1-17> 
+| | AssignmentExpression: = @ <input/expressions.HC:11.1-16> 
+| | | IdentifierExpression: x @ <input/expressions.HC:11.1> 
+| | | BinaryExpression: + @ <input/expressions.HC:11.5-16> 
+| | | | CastExpression:  @ <input/expressions.HC:11.5-12> 
+| | | | | IdentifierExpression: a @ <input/expressions.HC:11.12> 
+| | | | | TypeName @ <input/expressions.HC:11.5-9> 
+| | | | | | PrimitiveSpecifier: u32 @ <input/expressions.HC:11.5-9> 
+| | | | Literal: 2 @ <input/expressions.HC:11.16> 
+| ExpressionStatement @ <input/expressions.HC:12.1-13> 
+| | AssignmentExpression: = @ <input/expressions.HC:12.1-12> 
+| | | IdentifierExpression: x @ <input/expressions.HC:12.1> 
+| | | CastExpression:  @ <input/expressions.HC:12.5-12> 
+| | | | IdentifierExpression: a @ <input/expressions.HC:12.12> 
+| | | | TypeName @ <input/expressions.HC:12.5-9> 
+| | | | | PrimitiveSpecifier: i32 @ <input/expressions.HC:12.5-9> 
+| VariableDeclaration @ <input/expressions.HC:14.1-7> 
+| | PrimitiveSpecifier: u8 @ <input/expressions.HC:14.1-3> 
+| | InitDeclarator @ <input/expressions.HC:14.5-6> 
+| | | Declarator @ <input/expressions.HC:14.5-6> 
+| | | | Pointer @ <input/expressions.HC:14.5> 
+| | | | IdentifierDeclarator: s @ <input/expressions.HC:14.5-6> 
+| ExpressionStatement @ <input/expressions.HC:15.1-13> 
+| | AssignmentExpression: = @ <input/expressions.HC:15.1-12> 
+| | | IdentifierExpression: s @ <input/expressions.HC:15.1> 
+| | | String: hello! @ <input/expressions.HC:15.5-12> 
+| ExpressionStatement @ <input/expressions.HC:17.1-4> 
+| | UnaryExpression: ++ @ <input/expressions.HC:17.1-3> 
+| | | IdentifierExpression: x @ <input/expressions.HC:17.1-3> 
+| ExpressionStatement @ <input/expressions.HC:18.1-4> 
+| | PostfixExpression: -- @ <input/expressions.HC:18.1-3> 
+| | | IdentifierExpression: x @ <input/expressions.HC:18.1> 
+| ExpressionStatement @ <input/expressions.HC:19.1-18> 
+| | AssignmentExpression: += @ <input/expressions.HC:19.1-17> 
+| | | IdentifierExpression: x @ <input/expressions.HC:19.1> 
+| | | SizeofExpression @ <input/expressions.HC:19.6-17> 
+| | | | TypeName @ <input/expressions.HC:19.6-16> 
+| | | | | PrimitiveSpecifier: u32 @ <input/expressions.HC:19.6-16> 
+| ExpressionStatement @ <input/expressions.HC:20.1-14> 
+| | AssignmentExpression: += @ <input/expressions.HC:20.1-13> 
+| | | IdentifierExpression: x @ <input/expressions.HC:20.1> 
+| | | SizeofExpression @ <input/expressions.HC:20.6-13> 
+| | | | IdentifierExpression: x @ <input/expressions.HC:20.13> 
+| ExpressionStatement @ <input/expressions.HC:22.1-14> 
+| | AssignmentExpression: = @ <input/expressions.HC:22.1-13> 
+| | | IdentifierExpression: x @ <input/expressions.HC:22.1> 
+| | | BinaryExpression: , @ <input/expressions.HC:22.5-13> 
+| | | | BinaryExpression: , @ <input/expressions.HC:22.5-9> 
+| | | | | IdentifierExpression: a @ <input/expressions.HC:22.5-6> 
+| | | | | IdentifierExpression: b @ <input/expressions.HC:22.9> 
+| | | | IdentifierExpression: x @ <input/expressions.HC:22.12> 
+running backend for file input/expressions.HC
+Checking semantics for input/expressions.HC:1.1
+Synthesizing MIR for input/expressions.HC:1.1
 Node {
-    visiting Program node: input/expressions.ec:1.1
+    visiting Program node: input/expressions.HC:1.1
     Node {
-        visiting VariableDeclaration node: input/expressions.ec:1.1-165
-        parsing declaration specifier list for node at input/expressions.ec:1.1-165
+        visiting VariableDeclaration node: input/expressions.HC:1.1-165
+        parsing declaration specifier list for node at input/expressions.HC:1.1-165
         Node {
-            visiting PrimitiveSpecifier node: input/expressions.ec:1.1-158
+            visiting PrimitiveSpecifier node: input/expressions.HC:1.1-158
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/expressions.ec:1.1-165
+        finished parsing specifiers for node input/expressions.HC:1.1-165
         Node {
-            visiting InitDeclarator node: input/expressions.ec:1.160-164
+            visiting InitDeclarator node: input/expressions.HC:1.160-164
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/expressions.ec:1.160
+                    visiting IdentifierDeclarator node: input/expressions.HC:1.160
                 }
             }
             Node {
-                visiting Initializer node: input/expressions.ec:1.164
+                visiting Initializer node: input/expressions.HC:1.164
                 visiting single initializer
                 Node {
-                    visiting LiteralExpression node: input/expressions.ec:1.164
+                    visiting LiteralExpression node: input/expressions.HC:1.164
                 }
             }
         }
@@ -160,25 +160,25 @@ TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "x"
     }
     Node {
-        visiting VariableDeclaration node: input/expressions.ec:2.1-11
-        parsing declaration specifier list for node at input/expressions.ec:2.1-11
+        visiting VariableDeclaration node: input/expressions.HC:2.1-11
+        parsing declaration specifier list for node at input/expressions.HC:2.1-11
         Node {
-            visiting PrimitiveSpecifier node: input/expressions.ec:2.1-4
+            visiting PrimitiveSpecifier node: input/expressions.HC:2.1-4
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/expressions.ec:2.1-11
+        finished parsing specifiers for node input/expressions.HC:2.1-11
         Node {
-            visiting InitDeclarator node: input/expressions.ec:2.6-10
+            visiting InitDeclarator node: input/expressions.HC:2.6-10
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/expressions.ec:2.6
+                    visiting IdentifierDeclarator node: input/expressions.HC:2.6
                 }
             }
             Node {
-                visiting Initializer node: input/expressions.ec:2.10
+                visiting Initializer node: input/expressions.HC:2.10
                 visiting single initializer
                 Node {
-                    visiting LiteralExpression node: input/expressions.ec:2.10
+                    visiting LiteralExpression node: input/expressions.HC:2.10
                 }
             }
         }
@@ -186,25 +186,25 @@ TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "a"
     }
     Node {
-        visiting VariableDeclaration node: input/expressions.ec:3.1-11
-        parsing declaration specifier list for node at input/expressions.ec:3.1-11
+        visiting VariableDeclaration node: input/expressions.HC:3.1-11
+        parsing declaration specifier list for node at input/expressions.HC:3.1-11
         Node {
-            visiting PrimitiveSpecifier node: input/expressions.ec:3.1-4
+            visiting PrimitiveSpecifier node: input/expressions.HC:3.1-4
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/expressions.ec:3.1-11
+        finished parsing specifiers for node input/expressions.HC:3.1-11
         Node {
-            visiting InitDeclarator node: input/expressions.ec:3.6-10
+            visiting InitDeclarator node: input/expressions.HC:3.6-10
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/expressions.ec:3.6
+                    visiting IdentifierDeclarator node: input/expressions.HC:3.6
                 }
             }
             Node {
-                visiting Initializer node: input/expressions.ec:3.10
+                visiting Initializer node: input/expressions.HC:3.10
                 visiting single initializer
                 Node {
-                    visiting LiteralExpression node: input/expressions.ec:3.10
+                    visiting LiteralExpression node: input/expressions.HC:3.10
                 }
             }
         }
@@ -212,343 +212,343 @@ TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "b"
     }
     Node {
-        visiting ExpressionStatement node: input/expressions.ec:4.1-26
+        visiting ExpressionStatement node: input/expressions.HC:4.1-26
         Node {
-            visiting AssignmentExpression node: input/expressions.ec:4.1-25
+            visiting AssignmentExpression node: input/expressions.HC:4.1-25
             Node {
-                visiting IdentifierExpression node: input/expressions.ec:4.1
+                visiting IdentifierExpression node: input/expressions.HC:4.1
 SymbolTable: looking up varsymbol x
             }
             Node {
-                visiting BinaryExpression node: input/expressions.ec:4.5-25
+                visiting BinaryExpression node: input/expressions.HC:4.5-25
                 Node {
-                    visiting BinaryExpression node: input/expressions.ec:4.5-13
+                    visiting BinaryExpression node: input/expressions.HC:4.5-13
                     Node {
-                        visiting IdentifierExpression node: input/expressions.ec:4.5
+                        visiting IdentifierExpression node: input/expressions.HC:4.5
 SymbolTable: looking up varsymbol a
                     }
                     Node {
-                        visiting BinaryExpression node: input/expressions.ec:4.9-13
+                        visiting BinaryExpression node: input/expressions.HC:4.9-13
                         Node {
-                            visiting IdentifierExpression node: input/expressions.ec:4.9
+                            visiting IdentifierExpression node: input/expressions.HC:4.9
 SymbolTable: looking up varsymbol b
                         }
                         Node {
-                            visiting LiteralExpression node: input/expressions.ec:4.13
+                            visiting LiteralExpression node: input/expressions.HC:4.13
                         }
                     }
                 }
                 Node {
-                    visiting BinaryExpression node: input/expressions.ec:4.17-25
+                    visiting BinaryExpression node: input/expressions.HC:4.17-25
                     Node {
-                        visiting BinaryExpression node: input/expressions.ec:4.17-21
+                        visiting BinaryExpression node: input/expressions.HC:4.17-21
                         Node {
-                            visiting LiteralExpression node: input/expressions.ec:4.17
+                            visiting LiteralExpression node: input/expressions.HC:4.17
                         }
                         Node {
-                            visiting LiteralExpression node: input/expressions.ec:4.21
+                            visiting LiteralExpression node: input/expressions.HC:4.21
                         }
                     }
                     Node {
-                        visiting LiteralExpression node: input/expressions.ec:4.25
+                        visiting LiteralExpression node: input/expressions.HC:4.25
                     }
                 }
             }
         }
     }
     Node {
-        visiting ExpressionStatement node: input/expressions.ec:5.1-8
+        visiting ExpressionStatement node: input/expressions.HC:5.1-8
         Node {
-            visiting AssignmentExpression node: input/expressions.ec:5.1-7
+            visiting AssignmentExpression node: input/expressions.HC:5.1-7
             Node {
-                visiting IdentifierExpression node: input/expressions.ec:5.1
+                visiting IdentifierExpression node: input/expressions.HC:5.1
 SymbolTable: looking up varsymbol x
             }
             Node {
-                visiting LiteralExpression node: input/expressions.ec:5.7
+                visiting LiteralExpression node: input/expressions.HC:5.7
             }
         }
     }
     Node {
-        visiting ExpressionStatement node: input/expressions.ec:6.1-15
+        visiting ExpressionStatement node: input/expressions.HC:6.1-15
         Node {
-            visiting AssignmentExpression node: input/expressions.ec:6.1-14
+            visiting AssignmentExpression node: input/expressions.HC:6.1-14
             Node {
-                visiting IdentifierExpression node: input/expressions.ec:6.1
+                visiting IdentifierExpression node: input/expressions.HC:6.1
 SymbolTable: looking up varsymbol x
             }
             Node {
-                visiting BinaryExpression node: input/expressions.ec:6.6-14
+                visiting BinaryExpression node: input/expressions.HC:6.6-14
                 Node {
-                    visiting LiteralExpression node: input/expressions.ec:6.6
+                    visiting LiteralExpression node: input/expressions.HC:6.6
                 }
                 Node {
-                    visiting BinaryExpression node: input/expressions.ec:6.10-14
+                    visiting BinaryExpression node: input/expressions.HC:6.10-14
                     Node {
-                        visiting LiteralExpression node: input/expressions.ec:6.10
+                        visiting LiteralExpression node: input/expressions.HC:6.10
                     }
                     Node {
-                        visiting LiteralExpression node: input/expressions.ec:6.14
+                        visiting LiteralExpression node: input/expressions.HC:6.14
                     }
                 }
             }
         }
     }
     Node {
-        visiting ExpressionStatement node: input/expressions.ec:8.1-14
+        visiting ExpressionStatement node: input/expressions.HC:8.1-14
         Node {
-            visiting AssignmentExpression node: input/expressions.ec:8.1-13
+            visiting AssignmentExpression node: input/expressions.HC:8.1-13
             Node {
-                visiting IdentifierExpression node: input/expressions.ec:8.1
+                visiting IdentifierExpression node: input/expressions.HC:8.1
 SymbolTable: looking up varsymbol a
             }
             Node {
-                visiting ConditionalExpression node: input/expressions.ec:8.5-13
+                visiting ConditionalExpression node: input/expressions.HC:8.5-13
                 Node {
-                    visiting LiteralExpression node: input/expressions.ec:8.5
+                    visiting LiteralExpression node: input/expressions.HC:8.5
                 }
                 Node {
-                    visiting LiteralExpression node: input/expressions.ec:8.9
+                    visiting LiteralExpression node: input/expressions.HC:8.9
                 }
                 Node {
-                    visiting LiteralExpression node: input/expressions.ec:8.13
+                    visiting LiteralExpression node: input/expressions.HC:8.13
                 }
             }
         }
     }
     Node {
-        visiting ExpressionStatement node: input/expressions.ec:9.1-20
+        visiting ExpressionStatement node: input/expressions.HC:9.1-20
         Node {
-            visiting AssignmentExpression node: input/expressions.ec:9.1-19
+            visiting AssignmentExpression node: input/expressions.HC:9.1-19
             Node {
-                visiting IdentifierExpression node: input/expressions.ec:9.1
+                visiting IdentifierExpression node: input/expressions.HC:9.1
 SymbolTable: looking up varsymbol x
             }
             Node {
-                visiting ConditionalExpression node: input/expressions.ec:9.5-19
+                visiting ConditionalExpression node: input/expressions.HC:9.5-19
                 Node {
-                    visiting BinaryExpression node: input/expressions.ec:9.5-11
+                    visiting BinaryExpression node: input/expressions.HC:9.5-11
                     Node {
-                        visiting IdentifierExpression node: input/expressions.ec:9.5-6
+                        visiting IdentifierExpression node: input/expressions.HC:9.5-6
 SymbolTable: looking up varsymbol a
                     }
                     Node {
-                        visiting IdentifierExpression node: input/expressions.ec:9.10
-SymbolTable: looking up varsymbol b
-                    }
-                }
-                Node {
-                    visiting IdentifierExpression node: input/expressions.ec:9.15
-SymbolTable: looking up varsymbol a
-                }
-                Node {
-                    visiting IdentifierExpression node: input/expressions.ec:9.19
-SymbolTable: looking up varsymbol b
-                }
-            }
-        }
-    }
-    Node {
-        visiting ExpressionStatement node: input/expressions.ec:10.1-16
-        Node {
-            visiting AssignmentExpression node: input/expressions.ec:10.1-15
-            Node {
-                visiting IdentifierExpression node: input/expressions.ec:10.1
-SymbolTable: looking up varsymbol x
-            }
-            Node {
-                visiting BinaryExpression node: input/expressions.ec:10.5-15
-                Node {
-                    visiting BinaryExpression node: input/expressions.ec:10.5-10
-                    Node {
-                        visiting IdentifierExpression node: input/expressions.ec:10.5
-SymbolTable: looking up varsymbol a
-                    }
-                    Node {
-                        visiting IdentifierExpression node: input/expressions.ec:10.10
+                        visiting IdentifierExpression node: input/expressions.HC:9.10
 SymbolTable: looking up varsymbol b
                     }
                 }
                 Node {
-                    visiting IdentifierExpression node: input/expressions.ec:10.15
+                    visiting IdentifierExpression node: input/expressions.HC:9.15
+SymbolTable: looking up varsymbol a
+                }
+                Node {
+                    visiting IdentifierExpression node: input/expressions.HC:9.19
+SymbolTable: looking up varsymbol b
+                }
+            }
+        }
+    }
+    Node {
+        visiting ExpressionStatement node: input/expressions.HC:10.1-16
+        Node {
+            visiting AssignmentExpression node: input/expressions.HC:10.1-15
+            Node {
+                visiting IdentifierExpression node: input/expressions.HC:10.1
+SymbolTable: looking up varsymbol x
+            }
+            Node {
+                visiting BinaryExpression node: input/expressions.HC:10.5-15
+                Node {
+                    visiting BinaryExpression node: input/expressions.HC:10.5-10
+                    Node {
+                        visiting IdentifierExpression node: input/expressions.HC:10.5
+SymbolTable: looking up varsymbol a
+                    }
+                    Node {
+                        visiting IdentifierExpression node: input/expressions.HC:10.10
+SymbolTable: looking up varsymbol b
+                    }
+                }
+                Node {
+                    visiting IdentifierExpression node: input/expressions.HC:10.15
 SymbolTable: looking up varsymbol a
                 }
             }
         }
     }
     Node {
-        visiting ExpressionStatement node: input/expressions.ec:11.1-17
+        visiting ExpressionStatement node: input/expressions.HC:11.1-17
         Node {
-            visiting AssignmentExpression node: input/expressions.ec:11.1-16
+            visiting AssignmentExpression node: input/expressions.HC:11.1-16
             Node {
-                visiting IdentifierExpression node: input/expressions.ec:11.1
+                visiting IdentifierExpression node: input/expressions.HC:11.1
 SymbolTable: looking up varsymbol x
             }
             Node {
-                visiting BinaryExpression node: input/expressions.ec:11.5-16
+                visiting BinaryExpression node: input/expressions.HC:11.5-16
                 Node {
-                    visiting CastExpression node: input/expressions.ec:11.5-12
+                    visiting CastExpression node: input/expressions.HC:11.5-12
                     Node {
-                        visiting IdentifierExpression node: input/expressions.ec:11.12
+                        visiting IdentifierExpression node: input/expressions.HC:11.12
 SymbolTable: looking up varsymbol a
                     }
                     Node {
-                        parsing declaration specifier list for node at input/expressions.ec:11.5-9
+                        parsing declaration specifier list for node at input/expressions.HC:11.5-9
                         Node {
-                            visiting PrimitiveSpecifier node: input/expressions.ec:11.5-9
+                            visiting PrimitiveSpecifier node: input/expressions.HC:11.5-9
 TypeContext: getting primitive type
                         }
-                        finished parsing specifiers for node input/expressions.ec:11.5-9
+                        finished parsing specifiers for node input/expressions.HC:11.5-9
                     }
                 }
                 Node {
-                    visiting LiteralExpression node: input/expressions.ec:11.16
+                    visiting LiteralExpression node: input/expressions.HC:11.16
                 }
             }
         }
     }
     Node {
-        visiting ExpressionStatement node: input/expressions.ec:12.1-13
+        visiting ExpressionStatement node: input/expressions.HC:12.1-13
         Node {
-            visiting AssignmentExpression node: input/expressions.ec:12.1-12
+            visiting AssignmentExpression node: input/expressions.HC:12.1-12
             Node {
-                visiting IdentifierExpression node: input/expressions.ec:12.1
+                visiting IdentifierExpression node: input/expressions.HC:12.1
 SymbolTable: looking up varsymbol x
             }
             Node {
-                visiting CastExpression node: input/expressions.ec:12.5-12
+                visiting CastExpression node: input/expressions.HC:12.5-12
                 Node {
-                    visiting IdentifierExpression node: input/expressions.ec:12.12
+                    visiting IdentifierExpression node: input/expressions.HC:12.12
 SymbolTable: looking up varsymbol a
                 }
                 Node {
-                    parsing declaration specifier list for node at input/expressions.ec:12.5-9
+                    parsing declaration specifier list for node at input/expressions.HC:12.5-9
                     Node {
-                        visiting PrimitiveSpecifier node: input/expressions.ec:12.5-9
+                        visiting PrimitiveSpecifier node: input/expressions.HC:12.5-9
 TypeContext: getting primitive type
                     }
-                    finished parsing specifiers for node input/expressions.ec:12.5-9
+                    finished parsing specifiers for node input/expressions.HC:12.5-9
                 }
             }
         }
     }
     Node {
-        visiting VariableDeclaration node: input/expressions.ec:14.1-7
-        parsing declaration specifier list for node at input/expressions.ec:14.1-7
+        visiting VariableDeclaration node: input/expressions.HC:14.1-7
+        parsing declaration specifier list for node at input/expressions.HC:14.1-7
         Node {
-            visiting PrimitiveSpecifier node: input/expressions.ec:14.1-3
+            visiting PrimitiveSpecifier node: input/expressions.HC:14.1-3
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/expressions.ec:14.1-7
+        finished parsing specifiers for node input/expressions.HC:14.1-7
         Node {
-            visiting InitDeclarator node: input/expressions.ec:14.5-6
+            visiting InitDeclarator node: input/expressions.HC:14.5-6
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/expressions.ec:14.5-6
+                    visiting IdentifierDeclarator node: input/expressions.HC:14.5-6
                 }
                 Node {
-                    visiting Pointer node: input/expressions.ec:14.5
+                    visiting Pointer node: input/expressions.HC:14.5
                 }
             }
         }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x559e01573870
+TypeContext: pointer with base 0x55bdc7eb2870
 SymbolTable: inserting varsymbol with name "s"
     }
     Node {
-        visiting ExpressionStatement node: input/expressions.ec:15.1-13
+        visiting ExpressionStatement node: input/expressions.HC:15.1-13
         Node {
-            visiting AssignmentExpression node: input/expressions.ec:15.1-12
+            visiting AssignmentExpression node: input/expressions.HC:15.1-12
             Node {
-                visiting IdentifierExpression node: input/expressions.ec:15.1
+                visiting IdentifierExpression node: input/expressions.HC:15.1
 SymbolTable: looking up varsymbol s
             }
             Node {
-                visiting StringExpression node: input/expressions.ec:15.5-12
+                visiting StringExpression node: input/expressions.HC:15.5-12
             }
         }
     }
     Node {
-        visiting ExpressionStatement node: input/expressions.ec:17.1-4
+        visiting ExpressionStatement node: input/expressions.HC:17.1-4
         Node {
-            visiting UnaryExpression node: input/expressions.ec:17.1-3
+            visiting UnaryExpression node: input/expressions.HC:17.1-3
             Node {
-                visiting IdentifierExpression node: input/expressions.ec:17.1-3
+                visiting IdentifierExpression node: input/expressions.HC:17.1-3
 SymbolTable: looking up varsymbol x
             }
         }
     }
     Node {
-        visiting ExpressionStatement node: input/expressions.ec:18.1-4
+        visiting ExpressionStatement node: input/expressions.HC:18.1-4
         Node {
-            visiting PostfixExpression node: input/expressions.ec:18.1-3
+            visiting PostfixExpression node: input/expressions.HC:18.1-3
             Node {
-                visiting IdentifierExpression node: input/expressions.ec:18.1
+                visiting IdentifierExpression node: input/expressions.HC:18.1
 SymbolTable: looking up varsymbol x
             }
         }
     }
     Node {
-        visiting ExpressionStatement node: input/expressions.ec:19.1-18
+        visiting ExpressionStatement node: input/expressions.HC:19.1-18
         Node {
-            visiting AssignmentExpression node: input/expressions.ec:19.1-17
+            visiting AssignmentExpression node: input/expressions.HC:19.1-17
             Node {
-                visiting IdentifierExpression node: input/expressions.ec:19.1
+                visiting IdentifierExpression node: input/expressions.HC:19.1
 SymbolTable: looking up varsymbol x
             }
             Node {
-                visiting SizeofExpression node: input/expressions.ec:19.6-17
+                visiting SizeofExpression node: input/expressions.HC:19.6-17
                 Node {
-                    parsing declaration specifier list for node at input/expressions.ec:19.6-16
+                    parsing declaration specifier list for node at input/expressions.HC:19.6-16
                     Node {
-                        visiting PrimitiveSpecifier node: input/expressions.ec:19.6-16
+                        visiting PrimitiveSpecifier node: input/expressions.HC:19.6-16
 TypeContext: getting primitive type
                     }
-                    finished parsing specifiers for node input/expressions.ec:19.6-16
+                    finished parsing specifiers for node input/expressions.HC:19.6-16
                 }
             }
         }
     }
     Node {
-        visiting ExpressionStatement node: input/expressions.ec:20.1-14
+        visiting ExpressionStatement node: input/expressions.HC:20.1-14
         Node {
-            visiting AssignmentExpression node: input/expressions.ec:20.1-13
+            visiting AssignmentExpression node: input/expressions.HC:20.1-13
             Node {
-                visiting IdentifierExpression node: input/expressions.ec:20.1
+                visiting IdentifierExpression node: input/expressions.HC:20.1
 SymbolTable: looking up varsymbol x
             }
             Node {
-                visiting SizeofExpression node: input/expressions.ec:20.6-13
+                visiting SizeofExpression node: input/expressions.HC:20.6-13
                 Node {
-                    visiting IdentifierExpression node: input/expressions.ec:20.13
+                    visiting IdentifierExpression node: input/expressions.HC:20.13
 SymbolTable: looking up varsymbol x
                 }
             }
         }
     }
     Node {
-        visiting ExpressionStatement node: input/expressions.ec:22.1-14
+        visiting ExpressionStatement node: input/expressions.HC:22.1-14
         Node {
-            visiting AssignmentExpression node: input/expressions.ec:22.1-13
+            visiting AssignmentExpression node: input/expressions.HC:22.1-13
             Node {
-                visiting IdentifierExpression node: input/expressions.ec:22.1
+                visiting IdentifierExpression node: input/expressions.HC:22.1
 SymbolTable: looking up varsymbol x
             }
             Node {
-                visiting BinaryExpression node: input/expressions.ec:22.5-13
+                visiting BinaryExpression node: input/expressions.HC:22.5-13
                 Node {
-                    visiting BinaryExpression node: input/expressions.ec:22.5-9
+                    visiting BinaryExpression node: input/expressions.HC:22.5-9
                     Node {
-                        visiting IdentifierExpression node: input/expressions.ec:22.5-6
+                        visiting IdentifierExpression node: input/expressions.HC:22.5-6
 SymbolTable: looking up varsymbol a
                     }
                     Node {
-                        visiting IdentifierExpression node: input/expressions.ec:22.9
+                        visiting IdentifierExpression node: input/expressions.HC:22.9
 SymbolTable: looking up varsymbol b
                     }
                 }
                 Node {
-                    visiting IdentifierExpression node: input/expressions.ec:22.12
+                    visiting IdentifierExpression node: input/expressions.HC:22.12
 SymbolTable: looking up varsymbol x
                 }
             }
@@ -572,10 +572,10 @@ Array Types:
 
 Scope 0
 Physical Symbols:
-  s -> 0x559e01576070 : VarSymbol: s :: U8i *
-  b -> 0x559e01574740 : VarSymbol: b :: U32i
-  a -> 0x559e01574510 : VarSymbol: a :: U32i
-  x -> 0x559e0155f670 : VarSymbol: x :: U32i
+  s -> 0x55bdc7eb5070 : VarSymbol: s :: U8i *
+  b -> 0x55bdc7eb3740 : VarSymbol: b :: U32i
+  a -> 0x55bdc7eb3510 : VarSymbol: a :: U32i
+  x -> 0x55bdc7e9e670 : VarSymbol: x :: U32i
 
 Type Symbols:
 
@@ -585,108 +585,108 @@ Label Symbols:
 --------- MIR ---------
 
 ProgramMIR @ <1.1>
-| VarDecl:  @ <input/expressions.ec:1.1-165>
+| VarDecl:  @ <input/expressions.HC:1.1-165>
 | | | VarSymbol: x :: U32i
-| | | Initializer @ <input/expressions.ec:1.164>
-| | | | Literal: 0 @ <input/expressions.ec:1.164>
-| VarDecl:  @ <input/expressions.ec:2.1-11>
+| | | Initializer @ <input/expressions.HC:1.164>
+| | | | Literal: 0 @ <input/expressions.HC:1.164>
+| VarDecl:  @ <input/expressions.HC:2.1-11>
 | | | VarSymbol: a :: U32i
-| | | Initializer @ <input/expressions.ec:2.10>
-| | | | Literal: 1 @ <input/expressions.ec:2.10>
-| VarDecl:  @ <input/expressions.ec:3.1-11>
+| | | Initializer @ <input/expressions.HC:2.10>
+| | | | Literal: 1 @ <input/expressions.HC:2.10>
+| VarDecl:  @ <input/expressions.HC:3.1-11>
 | | | VarSymbol: b :: U32i
-| | | Initializer @ <input/expressions.ec:3.10>
-| | | | Literal: 2 @ <input/expressions.ec:3.10>
-| ExprStmt @ <input/expressions.ec:4.1-26>
-| | Assign: = @ <input/expressions.ec:4.1-25>
-| | | Ident: x @ <input/expressions.ec:4.1>
-| | | Binary: - @ <input/expressions.ec:4.5-25>
-| | | | Binary: + @ <input/expressions.ec:4.5-13>
-| | | | | Ident: a @ <input/expressions.ec:4.5>
-| | | | | Binary: * @ <input/expressions.ec:4.9-13>
-| | | | | | Ident: b @ <input/expressions.ec:4.9>
-| | | | | | Literal: 3 @ <input/expressions.ec:4.13>
-| | | | Binary: % @ <input/expressions.ec:4.17-25>
-| | | | | Binary: / @ <input/expressions.ec:4.17-21>
-| | | | | | Literal: 4 @ <input/expressions.ec:4.17>
-| | | | | | Literal: 2 @ <input/expressions.ec:4.21>
-| | | | | Literal: 5 @ <input/expressions.ec:4.25>
-| ExprStmt @ <input/expressions.ec:5.1-8>
-| | Assign: <<= @ <input/expressions.ec:5.1-7>
-| | | Ident: x @ <input/expressions.ec:5.1>
-| | | Literal: 2 @ <input/expressions.ec:5.7>
-| ExprStmt @ <input/expressions.ec:6.1-15>
-| | Assign: |= @ <input/expressions.ec:6.1-14>
-| | | Ident: x @ <input/expressions.ec:6.1>
-| | | Binary: ^ @ <input/expressions.ec:6.6-14>
-| | | | Literal: 1 @ <input/expressions.ec:6.6>
-| | | | Binary: & @ <input/expressions.ec:6.10-14>
-| | | | | Literal: 3 @ <input/expressions.ec:6.10>
-| | | | | Literal: 7 @ <input/expressions.ec:6.14>
-| ExprStmt @ <input/expressions.ec:8.1-14>
-| | Assign: = @ <input/expressions.ec:8.1-13>
-| | | Ident: a @ <input/expressions.ec:8.1>
-| | | CondExpr @ <input/expressions.ec:8.5-13>
-| | | | Literal: 2 @ <input/expressions.ec:8.5>
-| | | | Literal: 1 @ <input/expressions.ec:8.9>
-| | | | Literal: 5 @ <input/expressions.ec:8.13>
-| ExprStmt @ <input/expressions.ec:9.1-20>
-| | Assign: = @ <input/expressions.ec:9.1-19>
-| | | Ident: x @ <input/expressions.ec:9.1>
-| | | CondExpr @ <input/expressions.ec:9.5-19>
-| | | | Binary: > @ <input/expressions.ec:9.5-11>
-| | | | | Ident: a @ <input/expressions.ec:9.5-6>
-| | | | | Ident: b @ <input/expressions.ec:9.10>
-| | | | Ident: a @ <input/expressions.ec:9.15>
-| | | | Ident: b @ <input/expressions.ec:9.19>
-| ExprStmt @ <input/expressions.ec:10.1-16>
-| | Assign: = @ <input/expressions.ec:10.1-15>
-| | | Ident: x @ <input/expressions.ec:10.1>
-| | | Binary: || @ <input/expressions.ec:10.5-15>
-| | | | Binary: && @ <input/expressions.ec:10.5-10>
-| | | | | Ident: a @ <input/expressions.ec:10.5>
-| | | | | Ident: b @ <input/expressions.ec:10.10>
-| | | | Ident: a @ <input/expressions.ec:10.15>
-| ExprStmt @ <input/expressions.ec:11.1-17>
-| | Assign: = @ <input/expressions.ec:11.1-16>
-| | | Ident: x @ <input/expressions.ec:11.1>
-| | | Binary: + @ <input/expressions.ec:11.5-16>
-| | | | Cast -> U32i @ <input/expressions.ec:11.5-12>
-| | | | | Ident: a @ <input/expressions.ec:11.12>
-| | | | Literal: 2 @ <input/expressions.ec:11.16>
-| ExprStmt @ <input/expressions.ec:12.1-13>
-| | Assign: = @ <input/expressions.ec:12.1-12>
-| | | Ident: x @ <input/expressions.ec:12.1>
-| | | Cast -> I32i @ <input/expressions.ec:12.5-12>
-| | | | Ident: a @ <input/expressions.ec:12.12>
-| VarDecl:  @ <input/expressions.ec:14.1-7>
+| | | Initializer @ <input/expressions.HC:3.10>
+| | | | Literal: 2 @ <input/expressions.HC:3.10>
+| ExprStmt @ <input/expressions.HC:4.1-26>
+| | Assign: = @ <input/expressions.HC:4.1-25>
+| | | Ident: x @ <input/expressions.HC:4.1>
+| | | Binary: - @ <input/expressions.HC:4.5-25>
+| | | | Binary: + @ <input/expressions.HC:4.5-13>
+| | | | | Ident: a @ <input/expressions.HC:4.5>
+| | | | | Binary: * @ <input/expressions.HC:4.9-13>
+| | | | | | Ident: b @ <input/expressions.HC:4.9>
+| | | | | | Literal: 3 @ <input/expressions.HC:4.13>
+| | | | Binary: % @ <input/expressions.HC:4.17-25>
+| | | | | Binary: / @ <input/expressions.HC:4.17-21>
+| | | | | | Literal: 4 @ <input/expressions.HC:4.17>
+| | | | | | Literal: 2 @ <input/expressions.HC:4.21>
+| | | | | Literal: 5 @ <input/expressions.HC:4.25>
+| ExprStmt @ <input/expressions.HC:5.1-8>
+| | Assign: <<= @ <input/expressions.HC:5.1-7>
+| | | Ident: x @ <input/expressions.HC:5.1>
+| | | Literal: 2 @ <input/expressions.HC:5.7>
+| ExprStmt @ <input/expressions.HC:6.1-15>
+| | Assign: |= @ <input/expressions.HC:6.1-14>
+| | | Ident: x @ <input/expressions.HC:6.1>
+| | | Binary: ^ @ <input/expressions.HC:6.6-14>
+| | | | Literal: 1 @ <input/expressions.HC:6.6>
+| | | | Binary: & @ <input/expressions.HC:6.10-14>
+| | | | | Literal: 3 @ <input/expressions.HC:6.10>
+| | | | | Literal: 7 @ <input/expressions.HC:6.14>
+| ExprStmt @ <input/expressions.HC:8.1-14>
+| | Assign: = @ <input/expressions.HC:8.1-13>
+| | | Ident: a @ <input/expressions.HC:8.1>
+| | | CondExpr @ <input/expressions.HC:8.5-13>
+| | | | Literal: 2 @ <input/expressions.HC:8.5>
+| | | | Literal: 1 @ <input/expressions.HC:8.9>
+| | | | Literal: 5 @ <input/expressions.HC:8.13>
+| ExprStmt @ <input/expressions.HC:9.1-20>
+| | Assign: = @ <input/expressions.HC:9.1-19>
+| | | Ident: x @ <input/expressions.HC:9.1>
+| | | CondExpr @ <input/expressions.HC:9.5-19>
+| | | | Binary: > @ <input/expressions.HC:9.5-11>
+| | | | | Ident: a @ <input/expressions.HC:9.5-6>
+| | | | | Ident: b @ <input/expressions.HC:9.10>
+| | | | Ident: a @ <input/expressions.HC:9.15>
+| | | | Ident: b @ <input/expressions.HC:9.19>
+| ExprStmt @ <input/expressions.HC:10.1-16>
+| | Assign: = @ <input/expressions.HC:10.1-15>
+| | | Ident: x @ <input/expressions.HC:10.1>
+| | | Binary: || @ <input/expressions.HC:10.5-15>
+| | | | Binary: && @ <input/expressions.HC:10.5-10>
+| | | | | Ident: a @ <input/expressions.HC:10.5>
+| | | | | Ident: b @ <input/expressions.HC:10.10>
+| | | | Ident: a @ <input/expressions.HC:10.15>
+| ExprStmt @ <input/expressions.HC:11.1-17>
+| | Assign: = @ <input/expressions.HC:11.1-16>
+| | | Ident: x @ <input/expressions.HC:11.1>
+| | | Binary: + @ <input/expressions.HC:11.5-16>
+| | | | Cast -> U32i @ <input/expressions.HC:11.5-12>
+| | | | | Ident: a @ <input/expressions.HC:11.12>
+| | | | Literal: 2 @ <input/expressions.HC:11.16>
+| ExprStmt @ <input/expressions.HC:12.1-13>
+| | Assign: = @ <input/expressions.HC:12.1-12>
+| | | Ident: x @ <input/expressions.HC:12.1>
+| | | Cast -> I32i @ <input/expressions.HC:12.5-12>
+| | | | Ident: a @ <input/expressions.HC:12.12>
+| VarDecl:  @ <input/expressions.HC:14.1-7>
 | | | VarSymbol: s :: U8i *
-| ExprStmt @ <input/expressions.ec:15.1-13>
-| | Assign: = @ <input/expressions.ec:15.1-12>
-| | | Ident: s @ <input/expressions.ec:15.1>
-| | | Literal: "hello!" @ <input/expressions.ec:15.5-12>
-| ExprStmt @ <input/expressions.ec:17.1-4>
-| | Unary: ++ @ <input/expressions.ec:17.1-3>
-| | | Ident: x @ <input/expressions.ec:17.1-3>
-| ExprStmt @ <input/expressions.ec:18.1-4>
-| | Postfix: -- @ <input/expressions.ec:18.1-3>
-| | | Ident: x @ <input/expressions.ec:18.1>
-| ExprStmt @ <input/expressions.ec:19.1-18>
-| | Assign: += @ <input/expressions.ec:19.1-17>
-| | | Ident: x @ <input/expressions.ec:19.1>
-| | | Sizeof:  @ <input/expressions.ec:19.6-17>
+| ExprStmt @ <input/expressions.HC:15.1-13>
+| | Assign: = @ <input/expressions.HC:15.1-12>
+| | | Ident: s @ <input/expressions.HC:15.1>
+| | | Literal: "hello!" @ <input/expressions.HC:15.5-12>
+| ExprStmt @ <input/expressions.HC:17.1-4>
+| | Unary: ++ @ <input/expressions.HC:17.1-3>
+| | | Ident: x @ <input/expressions.HC:17.1-3>
+| ExprStmt @ <input/expressions.HC:18.1-4>
+| | Postfix: -- @ <input/expressions.HC:18.1-3>
+| | | Ident: x @ <input/expressions.HC:18.1>
+| ExprStmt @ <input/expressions.HC:19.1-18>
+| | Assign: += @ <input/expressions.HC:19.1-17>
+| | | Ident: x @ <input/expressions.HC:19.1>
+| | | Sizeof:  @ <input/expressions.HC:19.6-17>
 U32i
-| ExprStmt @ <input/expressions.ec:20.1-14>
-| | Assign: += @ <input/expressions.ec:20.1-13>
-| | | Ident: x @ <input/expressions.ec:20.1>
-| | | Sizeof:  @ <input/expressions.ec:20.6-13>
-| | | | Ident: x @ <input/expressions.ec:20.13>
-| ExprStmt @ <input/expressions.ec:22.1-14>
-| | Assign: = @ <input/expressions.ec:22.1-13>
-| | | Ident: x @ <input/expressions.ec:22.1>
-| | | Binary: , @ <input/expressions.ec:22.5-13>
-| | | | Binary: , @ <input/expressions.ec:22.5-9>
-| | | | | Ident: a @ <input/expressions.ec:22.5-6>
-| | | | | Ident: b @ <input/expressions.ec:22.9>
-| | | | Ident: x @ <input/expressions.ec:22.12>
+| ExprStmt @ <input/expressions.HC:20.1-14>
+| | Assign: += @ <input/expressions.HC:20.1-13>
+| | | Ident: x @ <input/expressions.HC:20.1>
+| | | Sizeof:  @ <input/expressions.HC:20.6-13>
+| | | | Ident: x @ <input/expressions.HC:20.13>
+| ExprStmt @ <input/expressions.HC:22.1-14>
+| | Assign: = @ <input/expressions.HC:22.1-13>
+| | | Ident: x @ <input/expressions.HC:22.1>
+| | | Binary: , @ <input/expressions.HC:22.5-13>
+| | | | Binary: , @ <input/expressions.HC:22.5-9>
+| | | | | Ident: a @ <input/expressions.HC:22.5-6>
+| | | | | Ident: b @ <input/expressions.HC:22.9>
+| | | | Ident: x @ <input/expressions.HC:22.12>
 LLVM: Shutting down

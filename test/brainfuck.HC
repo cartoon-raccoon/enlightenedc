@@ -3,7 +3,7 @@
 
 #define DEFAULT_STACK_CAP 32
 
-Void Execute();
+U0 Execute();
 
 /* a stack to store the position of opening brackets. */
 class Stack {
@@ -14,7 +14,7 @@ class Stack {
 
 class Stack nesting = { DEFAULT_STACK_CAP, 0 };
 
-Void StackPush(I32i item) {
+U0 StackPush(I32i item) {
     /* if item is less than zero, fail silently */
     if (item < 0) return;
 
@@ -53,7 +53,7 @@ U8i data[DEFAULT_DATA_SIZE];
 I32i dataptr = 0;
 
 enum ErrType {SYSTEM = 1, BAD_CODE = 2};
-Void Die(U8i *errmsg, enum ErrType errcode) {
+U0 Die(U8i *errmsg, enum ErrType errcode) {
     if (errcode == SYSTEM) {
         "ERROR: %s\n", errmsg;
     } else {
@@ -74,7 +74,7 @@ Bool IsValid(U8i c) {
 }
 
 // code from string
-Void ReadCode(U8i *src) {
+U0 ReadCode(U8i *src) {
     I32i n = 0;
     I32i i = 0;
 
@@ -95,7 +95,7 @@ Void ReadCode(U8i *src) {
 }
 
 /* Jumps to the command after the matching closing bracket. */
-Void JumpToAfter() {
+U0 JumpToAfter() {
     I32i current = nesting.len;
     while (code[insptr] != '\0') {
         if (code[insptr] == '[') {
@@ -117,7 +117,7 @@ Void JumpToAfter() {
     }
 }
 
-Void Execute() {
+U0 Execute() {
 
     U8i c;
     while ((c = code[insptr]) != '\0') {
@@ -200,7 +200,7 @@ Void Execute() {
     }
 }
 
-Void Initialize() {
+U0 Initialize() {
     I32i i = 0;
 
     while (i < DEFAULT_DATA_SIZE) {
@@ -211,7 +211,7 @@ Void Initialize() {
     nesting.len = 0;
 }
 
-Void PrintUsage(U8i *argname) {
+U0 PrintUsage(U8i *argname) {
     "usage: ", argname, " [-m MEMSIZE] CODE";
 }
 
