@@ -686,7 +686,7 @@ SymbolTable: inserting varsymbol with name "Execute"
         parsing declaration specifier list for node at test/brainfuck.HC:9.1-13.2
         Node {
             visiting ClassSpecifier node: test/brainfuck.HC:9.1-13.1
-TypeContext: class type 'Stack' on scope 0x560798be1600
+TypeContext: class type 'Stack' on scope 0x55d9efea9600
             class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol Stack in current scope
 SymbolTable: inserting typesymbol with name "Stack"
@@ -698,7 +698,7 @@ SymbolTable: inserting typesymbol with name "Stack"
 TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node test/brainfuck.HC:10.5-13
-                parsing ClassDeclaration for ClassType 0x560798bfaa30
+                parsing ClassDeclaration for ClassType 0x55d9efec2a30
                 Node {
                     visiting ClassDeclarator node: test/brainfuck.HC:10.10-12
                     Node {
@@ -708,7 +708,7 @@ TypeContext: getting primitive type
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name cap type 0x560798be1990
+ClassType: adding member with name cap type 0x55d9efea9990
             }
             Node {
                 visiting ClassDeclaration node: test/brainfuck.HC:11.5-13
@@ -718,7 +718,7 @@ ClassType: adding member with name cap type 0x560798be1990
 TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node test/brainfuck.HC:11.5-13
-                parsing ClassDeclaration for ClassType 0x560798bfaa30
+                parsing ClassDeclaration for ClassType 0x55d9efec2a30
                 Node {
                     visiting ClassDeclarator node: test/brainfuck.HC:11.10-12
                     Node {
@@ -728,7 +728,7 @@ TypeContext: getting primitive type
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name len type 0x560798be1990
+ClassType: adding member with name len type 0x55d9efea9990
             }
             Node {
                 visiting ClassDeclaration node: test/brainfuck.HC:12.5-18
@@ -738,7 +738,7 @@ ClassType: adding member with name len type 0x560798be1990
 TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node test/brainfuck.HC:12.5-18
-                parsing ClassDeclaration for ClassType 0x560798bfaa30
+                parsing ClassDeclaration for ClassType 0x55d9efec2a30
                 Node {
                     visiting ClassDeclarator node: test/brainfuck.HC:12.10-17
                     Node {
@@ -758,8 +758,8 @@ TypeContext: getting primitive type
                     }
                 }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x560798be1990, size 32
-ClassType: adding member with name data type 0x560798bec5b0
+TypeContext: array type with base 0x55d9efea9990, size 32
+ClassType: adding member with name data type 0x55d9efeb45b0
             }
         }
         finished parsing specifiers for node test/brainfuck.HC:9.1-13.2
@@ -769,7 +769,7 @@ ClassType: adding member with name data type 0x560798bec5b0
         parsing declaration specifier list for node at test/brainfuck.HC:15.1-32
         Node {
             visiting ClassSpecifier node: test/brainfuck.HC:15.1-11
-TypeContext: class type 'Stack' on scope 0x560798be1600
+TypeContext: class type 'Stack' on scope 0x55d9efea9600
 TypeContext: existing class found
             class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol Stack in current scope
@@ -843,7 +843,7 @@ SymbolTable: pushing scope 1
 SymbolTable: entering scope 1
             visiting CompoundStatement node: test/brainfuck.HC:17.25-28.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 1 with symbol 0x560798ba23d0 name "StackPush"
+SymbolTable: associating current scope 1 with symbol 0x55d9efe6a3d0 name "StackPush"
 SymbolTable: inserting varsymbol with name "item"
             Node {
                 visiting IfStatement node: test/brainfuck.HC:19.5-25
@@ -965,7 +965,7 @@ SymbolTable: pushing scope 3
 SymbolTable: entering scope 3
             visiting CompoundStatement node: test/brainfuck.HC:30.18-35.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 3 with symbol 0x560798ba2610 name "StackPeek"
+SymbolTable: associating current scope 3 with symbol 0x55d9efe6a610 name "StackPeek"
             Node {
                 visiting IfStatement node: test/brainfuck.HC:31.5-32.18
                 Node {
@@ -1046,7 +1046,7 @@ SymbolTable: pushing scope 4
 SymbolTable: entering scope 4
             visiting CompoundStatement node: test/brainfuck.HC:37.17-44.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 4 with symbol 0x560798ba1920 name "StackPop"
+SymbolTable: associating current scope 4 with symbol 0x55d9efe69920 name "StackPop"
             Node {
                 visiting IfStatement node: test/brainfuck.HC:38.5-36
                 Node {
@@ -1168,7 +1168,7 @@ TypeContext: getting primitive type
             }
         }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x560798be1870, size 1024
+TypeContext: array type with base 0x55d9efea9870, size 1024
 SymbolTable: inserting varsymbol with name "code"
     }
     Node {
@@ -1250,7 +1250,7 @@ TypeContext: getting primitive type
             }
         }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x560798be1870, size 30000
+TypeContext: array type with base 0x55d9efea9870, size 30000
 SymbolTable: inserting varsymbol with name "data"
     }
     Node {
@@ -1284,7 +1284,7 @@ SymbolTable: inserting varsymbol with name "dataptr"
         parsing declaration specifier list for node at test/brainfuck.HC:55.1-40
         Node {
             visiting EnumSpecifier node: test/brainfuck.HC:55.1-39
-TypeContext: enum type 'ErrType' on scope 0x560798be1600
+TypeContext: enum type 'ErrType' on scope 0x55d9efea9600
             enum has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol ErrType in current scope
 SymbolTable: inserting typesymbol with name "ErrType"
@@ -1341,14 +1341,14 @@ TypeContext: getting primitive type
                         }
                     }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x560798be1870
+TypeContext: pointer with base 0x55d9efea9870
                 }
                 Node {
                     visiting ParameterDeclarator node: test/brainfuck.HC:56.21-40
                     parsing declaration specifier list for node at test/brainfuck.HC:56.21-40
                     Node {
                         visiting EnumSpecifier node: test/brainfuck.HC:56.21-32
-TypeContext: enum type 'ErrType' on scope 0x560798be1600
+TypeContext: enum type 'ErrType' on scope 0x55d9efea9600
 TypeContext: existing enum found
                         enum has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol ErrType in current scope
@@ -1372,7 +1372,7 @@ SymbolTable: pushing scope 5
 SymbolTable: entering scope 5
             visiting CompoundStatement node: test/brainfuck.HC:56.43-63.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 5 with symbol 0x560798ba1da0 name "Die"
+SymbolTable: associating current scope 5 with symbol 0x55d9efe69da0 name "Die"
 SymbolTable: inserting varsymbol with name "errmsg"
 SymbolTable: inserting varsymbol with name "errcode"
             Node {
@@ -1525,7 +1525,7 @@ TypeContext: getting primitive type
             }
         }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x560798be1870, size 8
+TypeContext: array type with base 0x55d9efea9870, size 8
 SymbolTable: inserting varsymbol with name "valid_chars"
     }
     Node {
@@ -1568,7 +1568,7 @@ SymbolTable: pushing scope 8
 SymbolTable: entering scope 8
             visiting CompoundStatement node: test/brainfuck.HC:66.21-74.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 8 with symbol 0x560798ba1fe0 name "IsValid"
+SymbolTable: associating current scope 8 with symbol 0x55d9efe69fe0 name "IsValid"
 SymbolTable: inserting varsymbol with name "c"
             Node {
                 visiting VariableDeclaration node: test/brainfuck.HC:67.5-15
@@ -1696,7 +1696,7 @@ TypeContext: getting primitive type
                         }
                     }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x560798be1870
+TypeContext: pointer with base 0x55d9efea9870
                 }
             }
         }
@@ -1709,7 +1709,7 @@ SymbolTable: pushing scope 11
 SymbolTable: entering scope 11
             visiting CompoundStatement node: test/brainfuck.HC:77.23-95.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 11 with symbol 0x560798ba31b0 name "ReadCode"
+SymbolTable: associating current scope 11 with symbol 0x55d9efe6b1b0 name "ReadCode"
 SymbolTable: inserting varsymbol with name "src"
             Node {
                 visiting VariableDeclaration node: test/brainfuck.HC:78.5-15
@@ -1970,7 +1970,7 @@ SymbolTable: pushing scope 16
 SymbolTable: entering scope 16
             visiting CompoundStatement node: test/brainfuck.HC:98.18-118.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 16 with symbol 0x560798ba32d0 name "JumpToAfter"
+SymbolTable: associating current scope 16 with symbol 0x55d9efe6b2d0 name "JumpToAfter"
             Node {
                 visiting VariableDeclaration node: test/brainfuck.HC:99.5-31
                 parsing declaration specifier list for node at test/brainfuck.HC:99.5-31
@@ -2229,7 +2229,7 @@ SymbolTable: pushing scope 23
 SymbolTable: entering scope 23
             visiting CompoundStatement node: test/brainfuck.HC:120.14-201.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 23 with symbol 0x560798ba33f0 name "Execute"
+SymbolTable: associating current scope 23 with symbol 0x55d9efe6b3f0 name "Execute"
             Node {
                 visiting VariableDeclaration node: test/brainfuck.HC:122.5-10
                 parsing declaration specifier list for node at test/brainfuck.HC:122.5-10
@@ -2843,7 +2843,7 @@ SymbolTable: pushing scope 36
 SymbolTable: entering scope 36
             visiting CompoundStatement node: test/brainfuck.HC:203.17-212.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 36 with symbol 0x560798ba1b60 name "Initialize"
+SymbolTable: associating current scope 36 with symbol 0x55d9efe69b60 name "Initialize"
             Node {
                 visiting VariableDeclaration node: test/brainfuck.HC:204.5-15
                 parsing declaration specifier list for node at test/brainfuck.HC:204.5-15
@@ -2973,7 +2973,7 @@ TypeContext: getting primitive type
                         }
                     }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x560798be1870
+TypeContext: pointer with base 0x55d9efea9870
                 }
             }
         }
@@ -2987,7 +2987,7 @@ SymbolTable: pushing scope 39
 SymbolTable: entering scope 39
             visiting CompoundStatement node: test/brainfuck.HC:214.29-216.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 39 with symbol 0x560798bfff80 name "PrintUsage"
+SymbolTable: associating current scope 39 with symbol 0x55d9efec7f20 name "PrintUsage"
 SymbolTable: inserting varsymbol with name "argname"
             Node {
                 visiting PrintStatement node: test/brainfuck.HC:215.5-45
@@ -3028,7 +3028,7 @@ SymbolTable: pushing scope 40
 SymbolTable: entering scope 40
             visiting CompoundStatement node: test/brainfuck.HC:218.13-228.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 40 with symbol 0x560798c01230 name "Main"
+SymbolTable: associating current scope 40 with symbol 0x55d9efec91d0 name "Main"
             Node {
                 visiting ExpressionStatement node: test/brainfuck.HC:220.5-17
                 Node {
@@ -3067,7 +3067,7 @@ TypeContext: getting primitive type
                     }
                 }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x560798be1870, no size
+TypeContext: array type with base 0x55d9efea9870, no size
 SymbolTable: inserting varsymbol with name "program"
             }
             Node {
@@ -3121,16 +3121,16 @@ semantic checking complete
 --------- TYPE CONTEXT ---------
 
 Base Types:
-  enum_ErrType_0x560798be1600 : enum: U64i  { SYSTEM = 1, BAD_CODE = 2 }
-  class_Stack_0x560798be1600 : class { I32i cap; I32i len; I32i[32] data; }
+  enum_ErrType_0 : enum: U64i  { SYSTEM = 1, BAD_CODE = 2 }
+  class_Stack_0 : class { I32i cap; I32i len; I32i[32] data; }
 
 Function Types:
-  function_6117097844598809 : Void (U8i *)
-  function_6117097844619921 : Bool (U8i)
-  function_94590627355024 : I32i ()
-  function_6117097844584729 : Void (I32i)
-  function_387619273301843158 : Void (U8i *, enum: U64i  { SYSTEM = 1, BAD_CODE = 2 })
-  function_94590627354688 : Void ()
+  function_6108976448640921 : Void (U8i *)
+  function_6108976448658065 : Bool (U8i)
+  function_389416294383564566 : Void (U8i *, enum: U64i  { SYSTEM = 1, BAD_CODE = 2 })
+  function_6108976448557337 : Void (I32i)
+  function_94394521393552 : I32i ()
+  function_94394521393216 : Void ()
 
 Pointer Types:
   :U8i *
@@ -3147,36 +3147,36 @@ Array Types:
 
 Scope 0
 Physical Symbols:
-  PrintUsage -> 0x560798bfff80 : FuncSymbol: PrintUsage :: Void (U8i *)
-  JumpToAfter -> 0x560798ba32d0 : FuncSymbol: JumpToAfter :: Void ()
-  valid_chars -> 0x560798be7700 : VarSymbol: valid_chars :: U8i[8]
-  Initialize -> 0x560798ba1b60 : FuncSymbol: Initialize :: Void ()
-  Execute -> 0x560798ba33f0 : FuncSymbol: Execute :: Void ()
-  Main -> 0x560798c01230 : FuncSymbol: Main :: I32i ()
-  StackPush -> 0x560798ba23d0 : FuncSymbol: StackPush :: Void (I32i)
-  StackPop -> 0x560798ba1920 : FuncSymbol: StackPop :: I32i ()
-  SYSTEM -> 0x560798be5da0 : VarSymbol: SYSTEM :: enum: U64i  { SYSTEM = 1, BAD_CODE = 2 }
-  StackPeek -> 0x560798ba2610 : FuncSymbol: StackPeek :: I32i ()
-  nesting -> 0x560798bcd670 : VarSymbol: nesting :: class { I32i cap; I32i len; I32i[32] data; }
-  code -> 0x560798be51f0 : VarSymbol: code :: U8i[1024]
-  data -> 0x560798be57b0 : VarSymbol: data :: U8i[30000]
-  insptr -> 0x560798be53e0 : VarSymbol: insptr :: I32i
-  ReadCode -> 0x560798ba31b0 : FuncSymbol: ReadCode :: Void (U8i *)
-  IsValid -> 0x560798ba1fe0 : FuncSymbol: IsValid :: Bool (U8i)
-  Die -> 0x560798ba1da0 : FuncSymbol: Die :: Void (U8i *, enum: U64i  { SYSTEM = 1, BAD_CODE = 2 })
-  codesize -> 0x560798be55f0 : VarSymbol: codesize :: I32i
-  dataptr -> 0x560798be59c0 : VarSymbol: dataptr :: I32i
-  BAD_CODE -> 0x560798be5f00 : VarSymbol: BAD_CODE :: enum: U64i  { SYSTEM = 1, BAD_CODE = 2 }
+  PrintUsage -> 0x55d9efec7f20 : FuncSymbol: PrintUsage :: Void (U8i *)
+  JumpToAfter -> 0x55d9efe6b2d0 : FuncSymbol: JumpToAfter :: Void ()
+  valid_chars -> 0x55d9efeaf6b0 : VarSymbol: valid_chars :: U8i[8]
+  Initialize -> 0x55d9efe69b60 : FuncSymbol: Initialize :: Void ()
+  Execute -> 0x55d9efe6b3f0 : FuncSymbol: Execute :: Void ()
+  Main -> 0x55d9efec91d0 : FuncSymbol: Main :: I32i ()
+  StackPush -> 0x55d9efe6a3d0 : FuncSymbol: StackPush :: Void (I32i)
+  StackPop -> 0x55d9efe69920 : FuncSymbol: StackPop :: I32i ()
+  SYSTEM -> 0x55d9efeadcf0 : VarSymbol: SYSTEM :: enum: U64i  { SYSTEM = 1, BAD_CODE = 2 }
+  StackPeek -> 0x55d9efe6a610 : FuncSymbol: StackPeek :: I32i ()
+  nesting -> 0x55d9efe95670 : VarSymbol: nesting :: class { I32i cap; I32i len; I32i[32] data; }
+  code -> 0x55d9efead1d0 : VarSymbol: code :: U8i[1024]
+  data -> 0x55d9efead790 : VarSymbol: data :: U8i[30000]
+  insptr -> 0x55d9efead3c0 : VarSymbol: insptr :: I32i
+  ReadCode -> 0x55d9efe6b1b0 : FuncSymbol: ReadCode :: Void (U8i *)
+  IsValid -> 0x55d9efe69fe0 : FuncSymbol: IsValid :: Bool (U8i)
+  Die -> 0x55d9efe69da0 : FuncSymbol: Die :: Void (U8i *, enum: U64i  { SYSTEM = 1, BAD_CODE = 2 })
+  codesize -> 0x55d9efead5d0 : VarSymbol: codesize :: I32i
+  dataptr -> 0x55d9efead9a0 : VarSymbol: dataptr :: I32i
+  BAD_CODE -> 0x55d9efeade50 : VarSymbol: BAD_CODE :: enum: U64i  { SYSTEM = 1, BAD_CODE = 2 }
 
 Type Symbols:
-  ErrType -> 0x560798be5c60 : TypeSymbol: ErrType :: enum: U64i  { SYSTEM = 1, BAD_CODE = 2 }
-  Stack -> 0x560798be23d0 : TypeSymbol: Stack :: class { I32i cap; I32i len; I32i[32] data; }
+  ErrType -> 0x55d9efeadbb0 : TypeSymbol: ErrType :: enum: U64i  { SYSTEM = 1, BAD_CODE = 2 }
+  Stack -> 0x55d9efeaa3a0 : TypeSymbol: Stack :: class { I32i cap; I32i len; I32i[32] data; }
 
 Label Symbols:
 -----------------------------------------------------------
   Scope 1: FuncSymbol: StackPush :: Void (I32i)
   Physical Symbols:
-    item -> 0x560798be2d60 : VarSymbol: item :: I32i
+    item -> 0x55d9efeaad30 : VarSymbol: item :: I32i
 
   Type Symbols:
 
@@ -3198,7 +3198,7 @@ Label Symbols:
 -----------------------------------------------------------
   Scope 4: FuncSymbol: StackPop :: I32i ()
   Physical Symbols:
-    ret -> 0x560798be4d10 : VarSymbol: ret :: I32i
+    ret -> 0x55d9efeaccd0 : VarSymbol: ret :: I32i
 
   Type Symbols:
 
@@ -3206,8 +3206,8 @@ Label Symbols:
 -----------------------------------------------------------
   Scope 5: FuncSymbol: Die :: Void (U8i *, enum: U64i  { SYSTEM = 1, BAD_CODE = 2 })
   Physical Symbols:
-    errcode -> 0x560798be63c0 : VarSymbol: errcode :: enum: U64i  { SYSTEM = 1, BAD_CODE = 2 }
-    errmsg -> 0x560798be62f0 : VarSymbol: errmsg :: U8i *
+    errcode -> 0x55d9efeae370 : VarSymbol: errcode :: enum: U64i  { SYSTEM = 1, BAD_CODE = 2 }
+    errmsg -> 0x55d9efeae2a0 : VarSymbol: errmsg :: U8i *
 
   Type Symbols:
 
@@ -3229,8 +3229,8 @@ Label Symbols:
 -----------------------------------------------------------
   Scope 8: FuncSymbol: IsValid :: Bool (U8i)
   Physical Symbols:
-    i -> 0x560798be7ec0 : VarSymbol: i :: I32i
-    c -> 0x560798be7b70 : VarSymbol: c :: U8i
+    i -> 0x55d9efeafe70 : VarSymbol: i :: I32i
+    c -> 0x55d9efeafb70 : VarSymbol: c :: U8i
 
   Type Symbols:
 
@@ -3252,9 +3252,9 @@ Label Symbols:
 -----------------------------------------------------------
   Scope 11: FuncSymbol: ReadCode :: Void (U8i *)
   Physical Symbols:
-    i -> 0x560798be9070 : VarSymbol: i :: I32i
-    n -> 0x560798be8e20 : VarSymbol: n :: I32i
-    src -> 0x560798be8aa0 : VarSymbol: src :: U8i *
+    i -> 0x55d9efeb1020 : VarSymbol: i :: I32i
+    n -> 0x55d9efeb0dd0 : VarSymbol: n :: I32i
+    src -> 0x55d9efeb0a50 : VarSymbol: src :: U8i *
 
   Type Symbols:
 
@@ -3290,7 +3290,7 @@ Label Symbols:
 -----------------------------------------------------------
   Scope 16: FuncSymbol: JumpToAfter :: Void ()
   Physical Symbols:
-    current -> 0x560798beaa90 : VarSymbol: current :: I32i
+    current -> 0x55d9efeb2a40 : VarSymbol: current :: I32i
 
   Type Symbols:
 
@@ -3340,7 +3340,7 @@ Label Symbols:
 -----------------------------------------------------------
   Scope 23: FuncSymbol: Execute :: Void ()
   Physical Symbols:
-    c -> 0x560798bfa020 : VarSymbol: c :: U8i
+    c -> 0x55d9efec2020 : VarSymbol: c :: U8i
 
   Type Symbols:
 
@@ -3397,7 +3397,7 @@ Label Symbols:
 -----------------------------------------------------------
           Scope 31
           Physical Symbols:
-            opening -> 0x560798bfe790 : VarSymbol: opening :: I32i
+            opening -> 0x55d9efec6730 : VarSymbol: opening :: I32i
 
           Type Symbols:
 
@@ -3433,7 +3433,7 @@ Label Symbols:
 -----------------------------------------------------------
   Scope 36: FuncSymbol: Initialize :: Void ()
   Physical Symbols:
-    i -> 0x560798c000d0 : VarSymbol: i :: I32i
+    i -> 0x55d9efec8070 : VarSymbol: i :: I32i
 
   Type Symbols:
 
@@ -3455,7 +3455,7 @@ Label Symbols:
 -----------------------------------------------------------
   Scope 39: FuncSymbol: PrintUsage :: Void (U8i *)
   Physical Symbols:
-    argname -> 0x560798c00da0 : VarSymbol: argname :: U8i *
+    argname -> 0x55d9efec8d40 : VarSymbol: argname :: U8i *
 
   Type Symbols:
 
@@ -3463,7 +3463,7 @@ Label Symbols:
 -----------------------------------------------------------
   Scope 40: FuncSymbol: Main :: I32i ()
   Physical Symbols:
-    program -> 0x560798c016a0 : VarSymbol: program :: U8i[]
+    program -> 0x55d9efec9640 : VarSymbol: program :: U8i[]
 
   Type Symbols:
 
