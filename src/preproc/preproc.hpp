@@ -6,6 +6,8 @@
 #include <cstdio>
 #include <FlexLexer.h>
 
+//#include "error.hpp"
+
 namespace ecc::preproc {
 
 /*
@@ -21,6 +23,10 @@ class PreProcessor : public std::istream {
 public:
     // Throws std::runtime_error on failure
     PreProcessor(const std::string *filename);
+
+    // Calls pclose on the PreProcessor's internal file descriptor.
+    // Throws error if `cpp` terminated unusually for whatever reason.
+    void close();
 
     ~PreProcessor();
 };

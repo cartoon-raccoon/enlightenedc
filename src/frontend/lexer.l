@@ -124,6 +124,7 @@ static std::string decode_string_literal(char* text, size_t len) {
 "case" { return ecc::parser::Parser::make_CASE(loc); }
 "default" { return ecc::parser::Parser::make_DEFAULT(loc); }
 "break" { return ecc::parser::Parser::make_BREAK(loc); }
+"continue" { return ecc::parser::Parser::make_CONTINUE(loc); }
 "return" { return ecc::parser::Parser::make_RETURN(loc); }
 "goto" { return ecc::parser::Parser::make_GOTO(loc); }
 "class" { return ecc::parser::Parser::make_CLASS(loc); }
@@ -206,7 +207,12 @@ static std::string decode_string_literal(char* text, size_t len) {
 
 
 [_a-zA-Z][_a-zA-Z0-9]* { /* Identifiers */
-    return ecc::parser::Parser::make_IDENTIFIER(yytext, loc);
+    std::string identifier(yytext);
+    if (typedefs.contains(identifier)) {
+        return ecc::parser::Parser::make_TYPE_IDENTIFIER(yytext, loc);
+    } else {
+        return ecc::parser::Parser::make_IDENTIFIER(yytext, loc);
+    }
 }
 
 [0-9]+\.[0-9]*([eE][-+]?[0-9]+)?|[0-9]+[eE][-+]?[0-9]+ { /* Floating constants */

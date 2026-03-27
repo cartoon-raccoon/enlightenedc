@@ -4,23 +4,25 @@
 #include "semantics/symbols.hpp"
 #include "semantics/types.hpp"
 #include "util.hpp"
+#include "frontend/tokens.hpp"
 
 using namespace ecc::sema;
 using namespace ecc::sema::sym;
 using namespace ecc::sema::types;
+using namespace ecc::tokens;
 
 std::string VarSymbol::to_string() const {
     std::stringstream ss;
 
-    ss << "VarSymbol ";
+    ss << "VarSymbol: " << name;
 
     if (is_const)
         ss << "const ";
 
     if (type)
-        ss << type->to_string();
+        ss << " :: " << type->to_string();
     else
-        ss << "<nulltype>";
+        ss << " :: <nulltype>";
 
     if (is_extern)
         ss << " extern";
@@ -40,12 +42,12 @@ std::string VarSymbol::to_string() const {
 std::string FuncSymbol::to_string() const {
     std::stringstream ss;
 
-    ss << "FuncSymbol ";
+    ss << "FuncSymbol: " << name;
 
     if (signature)
-        ss << signature->to_string();
+        ss << " :: " << signature->to_string();
     else
-        ss << "<nullsig>";
+        ss << " :: <nullsig>";
 
     if (is_static)
         ss << " static";
@@ -59,12 +61,12 @@ std::string FuncSymbol::to_string() const {
 std::string TypeSymbol::to_string() const {
     std::stringstream ss;
 
-    ss << "TypeSymbol ";
+    ss << "TypeSymbol: " << name;
 
     if (type)
-        ss << type->to_string();
+        ss << " :: " << type->to_string();
     else
-        ss << "<nulltype>";
+        ss << " :: <nulltype>";
 
     return ss.str();
 }
@@ -72,33 +74,33 @@ std::string TypeSymbol::to_string() const {
 std::string LabelSymbol::to_string() const {
     std::stringstream ss;
 
-    ss << "LabelSymbol";
+    ss << "LabelSymbol: " << name;
 
     return ss.str();
 }
 
 std::string PrimitiveType::to_string() const {
     switch (primkind) {
-    case U8:
-        return "U8";
-    case U16:
-        return "U16";
-    case U32:
-        return "U32";
-    case U64:
-        return "U64";
-    case I8:
-        return "I8";
-    case I16:
-        return "I16";
-    case I32:
-        return "I32";
-    case I64:
-        return "I64";
-    case F64:
-        return "F64";
-    case BOOL:
-        return "bool";
+    case PrimType::U8:
+        return "U8i";
+    case PrimType::U16:
+        return "U16i";
+    case PrimType::U32:
+        return "U32i";
+    case PrimType::U64:
+        return "U64i";
+    case PrimType::I8:
+        return "I8i";
+    case PrimType::I16:
+        return "I16i";
+    case PrimType::I32:
+        return "I32i";
+    case PrimType::I64:
+        return "I64i";
+    case PrimType::F64:
+        return "F64i";
+    case PrimType::BOOL:
+        return "Bool";
     }
 
     return "<primitive>";
@@ -109,7 +111,7 @@ std::string ClassType::to_string() const {
 
     ss << "class";
 
-    if (complete) {
+    if (is_complete()) {
         ss << " { ";
 
         bool first = true;
@@ -135,7 +137,11 @@ std::string UnionType::to_string() const {
 
     ss << "union";
 
-    if (complete) {
+    if (type_rep) {
+        ss << ": " << (*type_rep)->to_string() << " ";
+    }
+
+    if (is_complete()) {
         ss << " { ";
 
         bool first = true;
@@ -161,7 +167,11 @@ std::string EnumType::to_string() const {
 
     ss << "enum";
 
-    if (complete) {
+    if (underlying) {
+        ss << ": " << (*underlying).to_string() << " ";
+    }
+
+    if (is_complete()) {
         ss << " { ";
 
         bool first = true;
@@ -182,10 +192,15 @@ std::string EnumType::to_string() const {
 std::string PointerType::to_string() const {
     std::stringstream ss;
 
-    if (base)
-        ss << base->to_string();
-    else
+    if (base) {
+        if (base->get_name()) {
+            ss << *(base->get_name());
+        } else {
+            ss << base->to_string();
+        }
+    } else {
         ss << "<null>";
+    }
 
     ss << " *";
 
@@ -198,15 +213,20 @@ std::string PointerType::to_string() const {
 std::string ArrayType::to_string() const {
     std::stringstream ss;
 
-    if (base)
-        ss << base->to_string();
-    else
+    if (base) {
+        if (base->get_name()) {
+            ss << *(base->get_name());
+        } else {
+            ss << base->to_string();
+        }
+    } else {
         ss << "<null>";
+    }
 
     ss << "[";
 
-    if (size)
-        ss << *size;
+    if (arr_size)
+        ss << *arr_size;
 
     ss << "]";
 
@@ -255,20 +275,25 @@ std::string TypeContext::to_string() const {
     ss << "Base Types:\n";
 
     for (auto const& [name, type] : user_types) {
-        ss << "  " << name << " -> " << type.get() << " : " << type->to_string()
-           << "\n";
+        ss << "  " << name << " : " << type->to_string() << "\n";
+    }
+
+    ss << "\nFunction Types:\n";
+
+    for (auto const&[name, type] : function_types) {
+        ss << "  " << name << " : " << type->to_string() << "\n";
     }
 
     ss << "\nPointer Types:\n";
 
     for (auto const& [key, ptr] : pointers) {
-        ss << "  " << ptr.get() << " : " << ptr->to_string() << "\n";
+        ss << "  :" << ptr->to_string() << "\n";
     }
 
     ss << "\nArray Types:\n";
 
     for (auto const& [key, arr] : arrays) {
-        ss << "  " << arr.get() << " : " << arr->to_string() << "\n";
+        ss << " : " << arr->to_string() << "\n";
     }
 
     ss << "\n";
@@ -279,19 +304,14 @@ std::string TypeContext::to_string() const {
 static void print_scope(std::stringstream& ss, Scope* scope, int depth) {
     std::string indent(depth * 2, ' ');
 
-    ss << indent << "Scope " << scope;
+    ss << indent << "Scope " << scope->id;
     if (scope->assoc) {
         ss << ": " << scope->assoc->to_string();
     }
     ss << "\n";
 
-    ss << indent << "Variable Symbols:\n";
-    for (auto const& [name, sym] : scope->var_symbols) {
-        ss << indent << "  " << name << " -> " << sym.get() << " : "
-           << sym->to_string() << "\n";
-    }
-    ss << "\n" << indent << "Function Symbols:\n";
-    for (auto const& [name, sym] : scope->func_symbols) {
+    ss << indent << "Physical Symbols:\n";
+    for (auto const& [name, sym] : scope->phys_symbols) {
         ss << indent << "  " << name << " -> " << sym.get() << " : "
            << sym->to_string() << "\n";
     }

@@ -1,1 +1,120 @@
 #include "codegen/lir/lir.hpp"
+#include "codegen/lir/visitor.hpp"
+
+using namespace codegen::lir;
+
+void ProgramLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
+void FunctionLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
+void VarDeclLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
+void GotoStmtLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
+void ExprStmtLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
+void SwitchStmtLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
+void CaseStmtLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
+void DefaultStmtLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
+void BreakStmtLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
+void ContStmtLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
+void IfStmtLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
+void LoopStmtLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
+void LabelStmtLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
+void PrintStmtLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
+void ReturnStmtLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
+void BinaryExprLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
+void UnaryExprLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
+void CastExprLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
+void AssignExprLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
+void CondExprLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
+void IdentExprLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
+void LiteralExprLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
+void CallExprLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
+void MemberAccExprLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
+void SubscrExprLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
+void PostfixExprLIR::accept(LIRVisitor& visitor) { visitor.visit(*this); }
+
+Vec<SwitchTarget *> CaseStmtLIR::pull_switch_targets() {
+    Vec<SwitchTarget *> targets = { this };
+
+    for (auto& stmt : body) {
+        auto inner_targets = stmt->pull_switch_targets();
+        targets.insert(targets.end(), inner_targets.begin(), inner_targets.end());
+    }
+
+    return std::move(targets);
+}
+
+Vec<SwitchTarget *> DefaultStmtLIR::pull_switch_targets() {
+    Vec<SwitchTarget *> targets = { this };
+
+    for (auto& stmt : body) {
+        auto inner_targets = stmt->pull_switch_targets();
+        targets.insert(targets.end(), inner_targets.begin(), inner_targets.end());
+    }
+
+    return std::move(targets);
+}
+
+Vec<SwitchTarget *> IfStmtLIR::pull_switch_targets() {
+    Vec<SwitchTarget *> targets {};
+
+    for (auto& stmt : then_br) {
+        auto inner_targets = stmt->pull_switch_targets();
+        targets.insert(targets.end(), inner_targets.begin(), inner_targets.end());
+    }
+
+    if (else_br) {
+        for (auto& stmt : *else_br) {
+            auto inner_targets = stmt->pull_switch_targets();
+            targets.insert(targets.end(), inner_targets.begin(), inner_targets.end());
+        }
+    }
+
+    return std::move(targets);
+}
+
+Vec<SwitchTarget *> LoopStmtLIR::pull_switch_targets() {
+    Vec<SwitchTarget *> targets {};
+
+    // only search the body, as that is the only "block" that is user defined.
+    for (auto& stmt : body) {
+        auto inner_targets = stmt->pull_switch_targets();
+        targets.insert(targets.end(), inner_targets.begin(), inner_targets.end());
+    }
+
+    return std::move(targets);
+}
+
+Vec<SwitchTarget *> LabelStmtLIR::pull_switch_targets() {
+    Vec<SwitchTarget *> targets {};
+
+    // only search the body, as that is the only "block" that is user defined.
+    for (auto& stmt : body) {
+        auto inner_targets = stmt->pull_switch_targets();
+        targets.insert(targets.end(), inner_targets.begin(), inner_targets.end());
+    }
+
+    return std::move(targets);
+}

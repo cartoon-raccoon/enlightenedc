@@ -1,6 +1,11 @@
 #include <istream>
-#include <stdexcept>
+
+extern "C" {
+#include <stdio.h>
+}
+
 #include "preproc/preproc.hpp"
+#include "error.hpp"
 
 using namespace ecc::preproc;
 
@@ -11,10 +16,19 @@ PreProcessor::PreProcessor(const std::string *filename) : std::istream(nullptr) 
     if (this->pipe) {
         this->buffer = __gnu_cxx::stdio_filebuf<char>(pipe, std::ios::in);
     } else {
-        throw std::runtime_error("unable to start cpp");
+        perror("");
+        throw EccError("unable to start cpp");
     }
 
     this->init(&buffer);
+}
+
+void PreProcessor::close() {
+    int res = pclose(pipe);
+    pipe = nullptr;
+    if (res != 0) {
+        throw EccError("preprocessor exited with error");
+    }
 }
 
 PreProcessor::~PreProcessor() {

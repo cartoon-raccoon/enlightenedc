@@ -151,12 +151,15 @@ void MIRPrinter::visit(TypeDeclMIR& node) {
 void MIRPrinter::visit(VarDeclMIR& node) {
     print_node("VarDecl: ",
                 node, [&] {
+                    indent++;
                     for (auto& decl : node.decls) {
+                        print_indent();
                         std::cout << decl.sym->to_string() << "\n";
                         if (decl.initializer) {
                             (*decl.initializer)->accept(*this);
                         }
                     }
+                    indent--;
                 });
 }
 
@@ -256,6 +259,8 @@ void MIRPrinter::visit(GotoStmtMIR& node) {
 
 void MIRPrinter::visit(BreakStmtMIR& node) { print_node("Break", node); }
 
+void MIRPrinter::visit(ContStmtMIR& node) { print_node("Continue", node); }
+
 void MIRPrinter::visit(ReturnStmtMIR& node) {
     print_node("Return", node, [&] {
         if (node.ret_expr)
@@ -305,10 +310,6 @@ void MIRPrinter::visit(ConstExprMIR& node) {
 
 void MIRPrinter::visit(LiteralExprMIR& node) {
     print_node("Literal: " + value_to_string(node.value), node);
-}
-
-void MIRPrinter::visit(StringExprMIR& node) {
-    print_node("String: " + node.value, node);
 }
 
 void MIRPrinter::visit(CallExprMIR& node) {

@@ -1,33 +1,35 @@
 #include <variant>
 
-#include "exec.hpp"
+#include "eval/exec.hpp"
 #include "eval/value.hpp"
+#include "semantics/mir/mir.hpp"
 #include "frontend/tokens.hpp"
 #include "util.hpp"
 
 using namespace ecc::sema::sym;
 using namespace ecc::sema::types;
+using namespace ecc::sema::mir;
 
 namespace ecc::exec {
 
 /* Helper function to throw an error if an expression can't be evaluated.
  */
 inline void throw_eval_error(const std::string& msg,
-                               const ast::Expression* expr) {
-    throw InvalidCompileTimeEval(msg, expr->loc);
+                               const ExprMIR& expr) {
+    throw InvalidCompileTimeEval(msg, expr.loc);
 }
 
 /* The Evaluator class evaluates AST expressions at compile time.
  */
-Value Evaluator::eval(ast::ConstExpression* expr) {
-    return expr->inner.get()->accept(*this);
+Value Evaluator::eval(ConstExprMIR& expr) {
+    return expr.inner->eval(*this);
 }
 
-Value Evaluator::eval(ast::BinaryExpression* expr) {
-    Value left = expr->left.get()->accept(*this);
-    Value right = expr->right.get()->accept(*this);
+Value Evaluator::eval(BinaryExprMIR& expr) {
+    Value left = expr.left->eval(*this);
+    Value right = expr.right->eval(*this);
 
-    switch (expr->op) {
+    switch (expr.op) {
     case ecc::tokens::BinaryOp::PLUS:
         return left + right;
         break;
@@ -52,17 +54,17 @@ Value Evaluator::eval(ast::BinaryExpression* expr) {
     throw_eval_error("Unsupported binary operation", expr);
 }
 
-Value Evaluator::eval(ast::CastExpression* expr) {
-    Value val = expr->inner.get()->accept(*this);
+Value Evaluator::eval(CastExprMIR& expr) {
+    Value val = expr.inner->eval(*this);
 
    
     return val; // todo
 }
 
-Value Evaluator::eval(ast::UnaryExpression* expr) {
-    Value operand = expr->operand.get()->accept(*this);
+Value Evaluator::eval(UnaryExprMIR& expr) {
+    Value operand = expr.operand->eval(*this);
 
-    switch (expr->op) {
+    switch (expr.op) {
     case ecc::tokens::UnaryOp::INC:
         return ++operand;
         break;
@@ -86,25 +88,20 @@ Value Evaluator::eval(ast::UnaryExpression* expr) {
     throw_eval_error("unsupported unary expression", expr);
 }
 
-Value Evaluator::eval(ast::AssignmentExpression* expr) {
+Value Evaluator::eval(AssignExprMIR& expr) {
     throw_eval_error("assignment expressions cannot be evaluated at compile time", expr);
 }
 
-Value Evaluator::eval(ast::ConditionalExpression* expr) {
-    Value condition = expr->condition.get()->accept(*this);
+Value Evaluator::eval(CondExprMIR& expr) {
+    Value condition = expr.condition->eval(*this);
 
-    return condition ? expr->true_expr.get()->accept(*this)
-                     : expr->false_expr.get()->accept(*this);
+    return condition ? expr.true_expr->eval(*this)
+                     : expr.false_expr->eval(*this);
 }
 
-Value Evaluator::eval(ast::IdentifierExpression* expr) {
-    // lookup symbol
-    auto sym = symtable.lookup(expr->name);
-    if (!sym) {
-        throw_eval_error("undefined variable", expr);
-    }
+Value Evaluator::eval(IdentExprMIR& expr) {
     // attempt to resolve symbol to VarSymbol
-    VarSymbol *varsym = sym->as_varsym();
+    VarSymbol *varsym = expr.ident->as_varsym();
     if (!varsym) {
         throw_eval_error("provided identifier is not a valid symbol", expr);
     }
@@ -117,49 +114,34 @@ Value Evaluator::eval(ast::IdentifierExpression* expr) {
     return std::monostate {};
 }
 
-Value Evaluator::eval(ast::LiteralExpression* expr) {
-
-    switch (expr->kind) {
-        case ast::LiteralExpression::INT:
-            return Value(static_cast<long>(expr->value.i_val));
-        case ast::LiteralExpression::FLOAT:
-            return Value(expr->value.f_val);
-        case ast::LiteralExpression::CHAR:
-            return Value(expr->value.c_val);
-        case ast::LiteralExpression::BOOL:
-            return Value(expr->value.b_val);
-    }
-    throw_eval_error("Unsupported literal kind", expr);
+Value Evaluator::eval(LiteralExprMIR& expr) {
+    return expr.value;
 }
 
-Value Evaluator::eval(ast::StringExpression* expr) {
-    return Value(expr->value);
-}
-
-Value Evaluator::eval(ast::CallExpression* expr) {
+Value Evaluator::eval(CallExprMIR& expr) {
     throw_eval_error(
         "function calls cannot be evaluated at compile time", expr);
 }
 
-Value Evaluator::eval(ast::MemberAccessExpression* expr) {
+Value Evaluator::eval(MemberAccExprMIR& expr) {
     throw_eval_error(
         "compile-time member access evaluation is not currently supported", expr);
 }
 
-Value Evaluator::eval(ast::ArraySubscriptExpression* expr) {
+Value Evaluator::eval(SubscrExprMIR& expr) {
     throw_eval_error(
         "compile-time array subscript evaluation is not currently supported", expr);
 }
 
-Value Evaluator::eval(ast::PostfixExpression* expr) {
-    Value value = expr->operand.get()->accept(*this);
+Value Evaluator::eval(PostfixExprMIR& expr) {
+    Value value = expr.operand->eval(*this);
 
-    if (expr->op == ecc::tokens::PostfixOp::POSTINC) {
+    if (expr.op == ecc::tokens::PostfixOp::POSTINC) {
         if (value.is<long>()) {
             return value++;
         }
         throw_eval_error("Postfix increment requires an integer", expr);
-    } else if (expr->op == ecc::tokens::PostfixOp::POSTDEC) {
+    } else if (expr.op == ecc::tokens::PostfixOp::POSTDEC) {
         if (value.is<long>()) {
             return value--;
         }
@@ -169,7 +151,7 @@ Value Evaluator::eval(ast::PostfixExpression* expr) {
     throw_eval_error("Invalid postfix expression", expr);
 }
 
-Value Evaluator::eval(ast::SizeofExpression* expr) {
+Value Evaluator::eval(SizeofExprMIR& expr) {
     throw_eval_error("invalid sizeof operand", expr);
 }
 

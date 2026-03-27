@@ -1,16 +1,23 @@
+Initializing LLVM
+LLVM initialized
 running pipeline on file input/empty.ec
+LLVM: Creating LLVMUnit with module name 'input/empty.ec'
+LLVM: LLVMUnit created
 parsing file input/empty.ec
 printing AST for file input/empty.ec
 Program @ <input/empty.ec:1.1> 
 running backend for file input/empty.ec
-checking semantics for input/empty.ec:1.1
-running elaborator for input/empty.ec:1.1
-Node: type 53 {
+Checking semantics for input/empty.ec:1.1
+Synthesizing MIR for input/empty.ec:1.1
+Node {
     visiting Program node: input/empty.ec:1.1
 }
+semantic checking complete
 --------- TYPE CONTEXT ---------
 
 Base Types:
+
+Function Types:
 
 Pointer Types:
 
@@ -19,10 +26,8 @@ Array Types:
 
 --------- SYMBOL TABLE ---------
 
-Scope 0x55b904142fb0
-Variable Symbols:
-
-Function Symbols:
+Scope 0
+Physical Symbols:
 
 Type Symbols:
 
@@ -32,3 +37,4 @@ Label Symbols:
 --------- MIR ---------
 
 ProgramMIR @ <1.1>
+LLVM: Shutting down

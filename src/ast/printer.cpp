@@ -131,8 +131,8 @@ std::string ASTPrinter::infixop_to_string(tokens::InfixOp op) {
     }
 }
 
-std::string ASTPrinter::primitive_to_string(PrimitiveSpecifier::PrimKind p) {
-    using P = PrimitiveSpecifier::PrimKind;
+std::string ASTPrinter::primitive_to_string(tokens::PrimType p) {
+    using P = tokens::PrimType;
     switch (p) {
         return "u0";
     case P::U8:
@@ -243,6 +243,12 @@ void ASTPrinter::visit(DefaultStatement& node) {
         "DefaultStatement: ",
         node,
         [&] { node.statement->accept(*this); });
+}
+
+void ASTPrinter::visit(ContinueStatement& node) {
+    print_node(
+        "ContinueStatement: ",
+        node);
 }
 
 void ASTPrinter::visit(LabeledStatement& node) {
@@ -467,6 +473,10 @@ void ASTPrinter::visit(StorageClassSpecifier& node) {
                 node);
 }
 
+void ASTPrinter::visit(TypeIdentifier& node) {
+    print_node("TypeIdentifier: " + node.identifier, node);
+}
+
 void ASTPrinter::visit(VoidSpecifier& node) {
     print_node("VoidSpecifier", node);
 }
@@ -481,7 +491,8 @@ void ASTPrinter::visit(TypeQualifier& node) {
 
 void ASTPrinter::visit(EnumSpecifier& node) {
     print_node(std::string("EnumSpecifier") +
-                    (node.name ? ": " + node.name.value() : ""),
+                    (node.name ? ": " + node.name.value() : "") +
+                    (node.underlying ? " " + primitive_to_string(*node.underlying) : ""),
                 node, [&] {
                     if (node.enumerators)
                         for (auto& e : node.enumerators.value())

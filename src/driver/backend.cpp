@@ -10,15 +10,20 @@ using namespace ecc::sema;
 using namespace ecc::frontend;
 using namespace mir;
 
-void Backend::run(TranslationUnit& unit) {
+void Backend::run(driver::TranslationUnit& unit) {
     dbprint("running backend for file ", *unit.filename);
     SemanticChecker semantic_checker(*symbols, *types);
 
     semantic_checker.check_semantics(*unit.ast_root, *unit.prog_mir);
+    dbprint("semantic checking complete");
 
     dbprint(*types);
     dbprint(*symbols);
     dbprint("--------- MIR ---------\n");
     MIRPrinter printer;
     unit.prog_mir->accept(printer);
+
+    // todo: types->finalize_all()
+
+    // todo: synthesize LIR
 }

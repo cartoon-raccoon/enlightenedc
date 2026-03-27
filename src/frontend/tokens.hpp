@@ -66,6 +66,19 @@ enum class InfixOp : uint8_t {
     SEMI,
 };
 
+enum class PrimType : uint8_t {
+    U8,
+    U16,
+    U32,
+    U64,
+    I8,
+    I16,
+    I32,
+    I64,
+    F64,
+    BOOL,
+};
+
 }; // namespace ecc::tokens
 
 #endif // ECC_TOKENS_H

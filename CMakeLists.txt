@@ -34,6 +34,7 @@ bison_target(
     "${SRC_DIR}/frontend/parser.yy"
     "${BISON_OUTPUT_DIR}/parser.cpp"
     DEFINES_FILE "${BISON_OUTPUT_DIR}/parser.hpp"
+    VERBOSE REPORT_FILE "${CMAKE_BINARY_DIR}/parser.output"
 )
 
 flex_target(
@@ -52,7 +53,7 @@ file(GLOB_RECURSE FRONTEND_SRC "${SRC_DIR}/frontend/*.cpp")
 file(GLOB_RECURSE SEMANTICS_SRC "${SRC_DIR}/semantics/*.cpp")
 file(GLOB_RECURSE CODEGEN_SRC "${SRC_DIR}/codegen/*.cpp")
 file(GLOB_RECURSE EVAL_SRC "${SRC_DIR}/eval/*.cpp")
-file(GLOB_RECURSE ECC_SRC "${SRC_DIR}/*.cpp")
+file(GLOB         ECC_SRC "${SRC_DIR}/*.cpp")
 
 # 5. Create our target executable
 add_executable(ecc 
@@ -65,7 +66,7 @@ add_executable(ecc
     ${EVAL_SRC}
     ${BISON_parser_OUTPUTS} 
     ${FLEX_scanner_OUTPUTS} 
-    "${SRC_DIR}/ecc.cpp"
+    ${ECC_SRC}
 )
 
 # 6. Setup include paths
@@ -76,7 +77,26 @@ target_precompile_headers(ecc PRIVATE
     <memory>
     <unordered_map>
     <variant>
-    "src/ast/ast.hpp"
+    <llvm/ADT/APFloat.h>
+    <llvm/ADT/STLExtras.h>
+    <llvm/IR/BasicBlock.h>
+    <llvm/IR/Constants.h>
+    <llvm/IR/DerivedTypes.h>
+    <llvm/IR/Function.h>
+    <llvm/IR/IRBuilder.h>
+    <llvm/IR/Instructions.h>
+    <llvm/IR/LLVMContext.h>
+    <llvm/IR/LegacyPassManager.h>
+    <llvm/IR/Module.h>
+    <llvm/IR/Type.h>
+    <llvm/IR/Verifier.h>
+    <llvm/MC/TargetRegistry.h>
+    <llvm/Support/FileSystem.h>
+    <llvm/Support/TargetSelect.h>
+    <llvm/Support/raw_ostream.h>
+    <llvm/Target/TargetMachine.h>
+    <llvm/Target/TargetOptions.h>
+    <llvm/TargetParser/Host.h>
 )
 
 # 7. Link LLVM libraries

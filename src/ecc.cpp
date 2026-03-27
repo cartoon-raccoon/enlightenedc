@@ -1,42 +1,46 @@
 #include <iostream>
-#include <filesystem>
 
 #include "ecc.hpp"
-#include "error.hpp"
+#include "config.hpp"
 #include "driver/driver.hpp"
+#include "error.hpp"
 #include "util.hpp"
 
 using namespace ecc;
 
-EccConfig::EccConfig(int argc, char *argv[]) {
-    for (int i = 1; i < argc; i++) {
-        input_files.emplace_back(argv[i]);
-    }
-}
-
-void Ecc::run() {
-    for (auto& file : config->input_files) {
-        if (!std::filesystem::exists(file)) {
-            throw EccError("File not found: no such file or directory");
+int Ecc::run() {
+    try {
+        if (config->input_files.empty()) {
+            throw EccError("no input files provided");
         }
-        run_pipeline(&file);
-    }
+        for (auto& file : config->input_files) {
+            run_pipeline(&file);
+        }
+    } catch (UnableToContinue _) {
+        return 1;
+    } catch (EccError& e) {
+        std::cerr << e.to_string() << "\n";
+        return 1;
+    } 
+
+    return 0;
 }
 
 void Ecc::run_pipeline(std::string *filename) {
     dbprint("running pipeline on file ", *filename);
-    frontend::Driver driver(filename);
+
+    driver::TranslationUnit unit(filename, *llvm);
+    driver::Driver driver(unit);
 
     driver.run();
 }
 
 int main(int argc, char** argv) {
-    if (argc < 2) {
-        std::cerr << "Usage: ecc <file>\n";
+    try {
+        ecc::Ecc ecc(argc, argv);
+        return ecc.run();
+    } catch (ArgError& e) {
+        std::cerr << e.to_string();
         return 1;
     }
-
-    ecc::Ecc ecc(argc, argv);
-
-    ecc.run();
 }

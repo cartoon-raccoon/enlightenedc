@@ -28,6 +28,7 @@ public:
     virtual void visit(LoopStmtMIR& node) = 0;
     virtual void visit(GotoStmtMIR& node) = 0;
     virtual void visit(BreakStmtMIR& node) = 0;
+    virtual void visit(ContStmtMIR& node) = 0;
     virtual void visit(ReturnStmtMIR& node) = 0;
 
     virtual void visit(BinaryExprMIR& node) = 0;
@@ -38,7 +39,6 @@ public:
     virtual void visit(IdentExprMIR& node) = 0;
     virtual void visit(ConstExprMIR& node) = 0;
     virtual void visit(LiteralExprMIR& node) = 0;
-    virtual void visit(StringExprMIR& node) = 0;
     virtual void visit(CallExprMIR& node) = 0;
     virtual void visit(MemberAccExprMIR& node) = 0;
     virtual void visit(SubscrExprMIR& node) = 0;

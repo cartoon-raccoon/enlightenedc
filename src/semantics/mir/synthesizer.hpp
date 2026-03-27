@@ -1,8 +1,9 @@
-#ifndef ECC_ELAB_H
-#define ECC_ELAB_H
+#pragma once
+
+#ifndef ECC_MIR_SYNTH_H
+#define ECC_MIR_SYNTH_H
 
 #include <concepts>
-#include <optional>
 #include <stdexcept>
 #include <utility>
 #include <variant>
@@ -12,6 +13,7 @@
 #include "semantics/symbols.hpp"
 #include "semantics/semantics.hpp"
 #include "semantics/mir/mir.hpp"
+#include "semantics/semerr.hpp"
 #include "util.hpp"
 
 namespace ecc::sema {
@@ -21,7 +23,7 @@ using namespace util;
 
 // Helper struct for building declarators.
 struct DeclaratorBuilder {
-    std::optional<std::string> name;
+    Optional<std::string> name;
     types::TypeBuilder ty_bldr;
 };
 
@@ -29,14 +31,14 @@ struct DeclaratorBuilder {
 template <typename Ty>
 requires std::derived_from<Ty, typename types::Type>
 struct TypeSpecRet {
-    std::optional<Box<sym::TypeSymbol>> symbol;
+    Optional<sym::TypeSymbol *> symbol;
     Ty *type;
 };
 
 // The result of visiting an init declarator.
 struct InitDecltrRet {
     Box<DeclaratorBuilder> builder;
-    std::optional<Box<sema::mir::InitializerMIR>> init_mir;
+    Optional<Box<sema::mir::InitializerMIR>> init_mir;
 };
 
 // The result of visiting a compound statement from a function.
@@ -63,6 +65,7 @@ using ElabResult = std::variant<
     types::PrimitiveType *,
     types::PointerType *,
     types::Type *,
+    sym::TypeSymbol *,
     // The result of visiting a ParameterDeclaration node.
     types::FuncParam,
     // The result of visiting a TypeQualifier node.
@@ -88,7 +91,7 @@ using ElabResult = std::variant<
 >;
 
 
-using CmpdStmtDoVisitParam = std::optional<
+using CmpdStmtDoVisitParam = Optional<
     std::pair<
         sym::FuncSymbol *, // The function symbol to tie this compound statement to.
         Vec<Box<sym::VarSymbol>> // The new symbols to add to the new scope.
@@ -117,11 +120,21 @@ using ElabVisitParam = std::variant<
 /*
 The class that performs the elaboration pass.
 */
-class MIRSynthesizer : public BaseSemanticVisitor {
+class MIRSynthesizer : public BaseASTSemaVisitor {
 public:
     MIRSynthesizer(sym::SymbolTable& syms, types::TypeContext& types, mir::ProgramMIR& mir)
-    : BaseSemanticVisitor(BaseSemanticVisitor::State::WRITE, syms, types), prog_mir(mir) {}
+    : BaseASTSemaVisitor(BaseSemanticVisitor::State::WRITE, syms, types), prog_mir(mir) {}
 
+    mir::ProgramMIR& prog_mir;
+
+    Vec<Box<EccSemError>> errors;
+
+    /**
+    Run the MIRSynthesizer on the provided AST.
+    */
+    void generate_mir(ast::Program& prog);
+
+protected:
     /*
     The result of the last visit(ast::) call. This is essentially the `return` value,
     placed here since visit calls cannot directly return values.
@@ -129,9 +142,6 @@ public:
     ElabResult last_result = std::monostate {};
 
     ElabVisitParam dovisit_param = std::monostate {};
-
-    mir::ProgramMIR& prog_mir;
-
     /*
     Takes the result of the last visit call, replacing it with `std::monostate`.
     */
@@ -165,19 +175,14 @@ public:
         return std::move(ret);
     }
 
-private:
-    struct SpecifierInfo {
-        types::BaseType *type;
-        std::optional<Box<sym::TypeSymbol>> symbol;
-        bool is_public;
-        bool is_static;
-        bool is_extern;
-        bool is_externc;
-        bool is_const;
-    };
+    template<typename E, typename ... Args>
+    requires std::derived_from<E, EccSemError>
+    void add_error(Args ... args) {
+        Box<EccSemError> err = std::make_unique<E>(args ...);
+        errors.push_back(std::move(err));
+    }
 
-    Box<SpecifierInfo> parse_speclist(Vec<Box<ast::DeclarationSpecifier>>&, Location);
-
+    /* DO_VISIT OVERRIDES */
 protected:
     void do_visit(ast::Program& node) override;
     void do_visit(ast::Function& node) override;
@@ -199,6 +204,7 @@ protected:
     void do_visit(ast::EnumSpecifier& node) override;
     void do_visit(ast::ClassSpecifier& node) override;
     void do_visit(ast::UnionSpecifier& node) override;
+    void do_visit(ast::TypeIdentifier& node) override;
     void do_visit(ast::VoidSpecifier& node) override;
     void do_visit(ast::PrimitiveSpecifier& node) override;
     void do_visit(ast::Initializer& node) override;
@@ -219,6 +225,7 @@ protected:
     void do_visit(ast::ForStatement& node) override;
     void do_visit(ast::GotoStatement& node) override;
     void do_visit(ast::BreakStatement& node) override;
+    void do_visit(ast::ContinueStatement& node) override;
     void do_visit(ast::ReturnStatement& node) override;
 
     void do_visit(ast::BinaryExpression& node) override;
@@ -235,6 +242,18 @@ protected:
     void do_visit(ast::ArraySubscriptExpression& node) override;
     void do_visit(ast::PostfixExpression& node) override;
     void do_visit(ast::SizeofExpression& node) override;
+
+private:
+    struct SpecifierInfo {
+        types::BaseType *type;
+        Optional<sym::TypeSymbol *> symbol;
+        bool is_public;
+        bool is_static;
+        bool is_const;
+        sym::PhysicalSymbol::Linkage linkage = sym::PhysicalSymbol::Linkage::INTERNAL;
+    };
+
+    Box<SpecifierInfo> parse_speclist(Vec<Box<ast::DeclarationSpecifier>>&, Location);
 };
 
 }

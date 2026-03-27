@@ -3,10 +3,25 @@
 
 #include <stdfloat>
 
-#include "ast/ast.hpp"
 #include "semantics/symbols.hpp"
-#include "value.hpp"
+#include "eval/value.hpp"
 #include "semantics/types.hpp"
+
+namespace ecc::sema::mir {
+    class ConstExprMIR;
+    class BinaryExprMIR;
+    class CastExprMIR;
+    class UnaryExprMIR;
+    class AssignExprMIR;
+    class CondExprMIR;
+    class IdentExprMIR;
+    class LiteralExprMIR;
+    class CallExprMIR;
+    class MemberAccExprMIR;
+    class SubscrExprMIR;
+    class PostfixExprMIR;
+    class SizeofExprMIR;
+}
 
 namespace ecc::exec {
 /*
@@ -26,33 +41,31 @@ public:
     sema::types::TypeContext& typectxt;
     sema::sym::SymbolTable& symtable;
     
-    Value eval(ast::ConstExpression *expr);
+    Value eval(sema::mir::ConstExprMIR& expr);
 
-    Value eval(ast::BinaryExpression *expr);
+    Value eval(sema::mir::BinaryExprMIR& expr);
 
-    Value eval(ast::CastExpression *expr);
+    Value eval(sema::mir::CastExprMIR& expr);
 
-    Value eval(ast::UnaryExpression *expr);
+    Value eval(sema::mir::UnaryExprMIR& expr);
 
-    Value eval(ast::AssignmentExpression *expr);
+    Value eval(sema::mir::AssignExprMIR& expr);
 
-    Value eval(ast::ConditionalExpression *expr);
+    Value eval(sema::mir::CondExprMIR& expr);
 
-    Value eval(ast::IdentifierExpression *expr);
+    Value eval(sema::mir::IdentExprMIR& expr);
 
-    Value eval(ast::LiteralExpression *expr);
+    Value eval(sema::mir::LiteralExprMIR& expr);
 
-    Value eval(ast::StringExpression *expr);
+    Value eval(sema::mir::CallExprMIR& expr);
 
-    Value eval(ast::CallExpression *expr);
+    Value eval(sema::mir::MemberAccExprMIR& expr);
 
-    Value eval(ast::MemberAccessExpression *expr);
+    Value eval(sema::mir::SubscrExprMIR& expr);
 
-    Value eval(ast::ArraySubscriptExpression *expr);
+    Value eval(sema::mir::PostfixExprMIR& expr);
 
-    Value eval(ast::PostfixExpression *expr);
-
-    Value eval(ast::SizeofExpression *expr);
+    Value eval(sema::mir::SizeofExprMIR& expr);
 };
 
 

@@ -1,18 +1,30 @@
-#include <cstddef>
-#include <cstdio>
 #include <memory>
 #include <stdexcept>
 #include <utility>
 #include <variant>
 
 #include "semantics/types.hpp"
+#include "codegen/llvm.hpp"
 #include "semantics/semerr.hpp"
 #include "util.hpp"
-
-#define MAX_SIZE 8
-#define PTR_SIZE 8
+#include "error.hpp"
 
 using namespace ecc::sema::types;
+using namespace ecc::tokens;
+using namespace ecc::codegen;
+
+/*
+* TYPE METHODS
+*/
+
+size_t Type::size() {
+    if (!llvm_type) {
+        throw std::runtime_error("LLVM Type not initialized on type, cannot get size");
+    }
+
+    const llvm::DataLayout& dl = tyctxt.llvm.mod().getDataLayout();
+    return dl.getTypeAllocSize(llvm_type);
+}
 
 bool Type::is_void() { return kind == Kind::VOID; }
 
@@ -24,100 +36,226 @@ bool Type::is_array() { return kind == Kind::ARRAY; }
 
 bool Type::is_function() { return kind == Kind::FUNCTION; }
 
+/*
+* VOID TYPE METHODS
+*/
+
+void VoidType::finalize() {
+    if (finalized) {
+        assert(llvm_type && "VoidType marked finalized but llvm_type is null");
+        dbprint("VoidType: already finalized, skipping");
+        return;
+    }
+
+    dbprint("VoidType: finalizing");
+    llvm_type = llvm::Type::getVoidTy(tyctxt.llvm.ctx());
+
+    finalized = true;
+}
+
+/*
+* PRIMITIVE TYPE METHODS
+*/
 bool PrimitiveType::is_integer() {
     // We maintain strict integral definitions for determining whether
     // this type is an integer: it cannot be Bool or Float, and it has to be sized.
     switch (primkind) {
-        case U8:
-        case U16:
-        case U32:
-        case U64:
-        case I8:
-        case I16:
-        case I32:
-        case I64:
+        case PrimType::U8:
+        case PrimType::U16:
+        case PrimType::U32:
+        case PrimType::U64:
+        case PrimType::I8:
+        case PrimType::I16:
+        case PrimType::I32:
+        case PrimType::I64:
         return true;
         
-        case BOOL:
-        case F64:
+        case PrimType::F64:
+        case PrimType::BOOL:
         return false;
     }
-    
-    return false;
+}
+
+bool PrimitiveType::is_signed() {
+    switch (primkind) {
+        case PrimType::U8:
+        case PrimType::U16:
+        case PrimType::U32:
+        case PrimType::U64:
+        case PrimType::BOOL:
+        return false;
+
+        case PrimType::I8:
+        case PrimType::I16:
+        case PrimType::I32:
+        case PrimType::I64:
+        case PrimType::F64:
+        return true;
+    }
+}
+
+bool PrimitiveType::is_float() {
+    return primkind == PrimType::F64;
+}
+
+bool PrimitiveType::is_bool() {
+    return primkind == PrimType::BOOL;
 }
 
 bool PrimitiveType::is_compatible_with(Type *dst) {
-    if (Type::is_compatible_with(dst))
-        return true;
-
     // Only primitive types allowed
     if (dst->kind != Type::Kind::PRIMITIVE) {
         return false;
     }
 
-    PrimitiveType *new_other = static_cast<PrimitiveType *>(dst);
+    PrimitiveType *new_dst = dst->as_primitive();
+    if (is_bool()) {
+        // bool can be promoted to anything numeric
+        return new_dst->is_integer() || new_dst->is_float();
+    }
 
     // If either is not an integer, return false
-    if (!this->is_integer() || !new_other->is_integer()) {
+    if (!this->is_integer() && !new_dst->is_integer()) {
         return false;
     }
 
     int my_size = this->size();
 
-    return true ? 0 < my_size && my_size <= new_other->size() : false;
+    return true ? 0 < my_size && my_size <= new_dst->size() : false;
 }
 
-std::size_t PrimitiveType::size() {
+void PrimitiveType::finalize() {
+    if (finalized) {
+        assert(llvm_type && "PrimitiveType marked finalize but llvm_type is null");
+        dbprint("PrimitiveType: ", to_string(), " already finalized, skipping");
+        return;
+    }
+    dbprint("PrimitiveType: finalizing ", to_string());
+
     switch (primkind) {
-        case U8:
-        case I8:
-        case BOOL:
-        return 1;
+        case PrimType::U8:
+        case PrimType::I8:
+        case PrimType::BOOL: //? should bool be 1 bit?
+        llvm_type = llvm::Type::getInt8Ty(tyctxt.llvm.ctx());
+        break;
 
-        case U16:
-        case I16:
-        return 2;
+        case PrimType::U16:
+        case PrimType::I16:
+        llvm_type = llvm::Type::getInt16Ty(tyctxt.llvm.ctx());
+        break;
 
-        case U32:
-        case I32:
-        return 4;
+        case PrimType::U32:
+        case PrimType::I32:
+        llvm_type = llvm::Type::getInt32Ty(tyctxt.llvm.ctx());
+        break;
 
-        case U64:
-        case I64:
-        case F64:
-        return 8;
+        case PrimType::U64:
+        case PrimType::I64:
+        llvm_type = llvm::Type::getInt64Ty(tyctxt.llvm.ctx());
+        break;
+
+        case PrimType::F64:
+        llvm_type = llvm::Type::getDoubleTy(tyctxt.llvm.ctx());
+        break;
     }
 
-    std::unreachable();
+    finalized = true;
 }
 
 std::string PrimitiveType::formal() {
     switch (primkind) {
-        case U8:
+        case PrimType::U8:
         return "U8";
-        case U16:
+        case PrimType::U16:
         return "U16";
-        case U32:
+        case PrimType::U32:
         return "U32";
-        case U64:
+        case PrimType::U64:
         return "U64";
-        case I8:
+        case PrimType::I8:
         return "I8";
-        case I16:
+        case PrimType::I16:
         return "I16";
-        case I32:
+        case PrimType::I32:
         return "I32";
-        case I64:
+        case PrimType::I64:
         return "I64";
-        case BOOL:
+        case PrimType::BOOL:
         return "Bool";
-        case F64:
+        case PrimType::F64:
         return "F64";
     }
 }
 
-std::size_t ClassType::size() {
-    return 0; // todo
+/*
+* CLASS TYPE METHODS
+*/
+
+bool ClassType::is_fully_defined() {
+    if (!is_complete())
+        return false;
+
+    bool ret = true;
+    for (auto& member : members) {
+        switch (member->ty->kind) {
+            case Kind::CLASS: {
+                ClassType *cls = member->ty->as_class();
+                assert(cls);
+                ret = ret && cls->is_fully_defined();
+            }
+            break;
+            
+            case Kind::UNION: {
+                UnionType *unn = member->ty->as_union();
+                assert(unn);
+                ret = ret && unn->is_fully_defined();
+            }
+            break;
+
+            case Kind::ENUM: {
+                EnumType *enm = member->ty->as_enum();
+                assert(enm);
+                ret = ret && enm->is_fully_defined();
+            }
+            break;
+
+            default: {
+                ret = ret && true;
+            }
+            break;
+        }
+    }
+
+    return ret;
+}
+
+void ClassType::finalize() {
+    if (finalized) {
+        assert(llvm_type && "ClassType marked finalize but llvm_type is null");
+        dbprint("ClassType: already finalized, skipping");
+        return;
+    }
+    dbprint("ClassType: finalizing");
+
+    if (!is_complete()) {
+        throw EccError(ErrorSource::SEMANTIC, "Class not fully defined", decl_loc);
+    }
+
+    Vec<LLVMType *> args;
+    args.reserve(num_members());
+    for (auto& member : members) {
+        member->ty->finalize();
+        assert(member->ty->get_llvmtype());
+        args.push_back(member->ty->get_llvmtype());
+    }
+
+    if (name) {
+        llvm_type = llvm::StructType::create(tyctxt.llvm.ctx(), std::move(args), *name);
+    } else {
+        llvm_type = llvm::StructType::create(tyctxt.llvm.ctx(), std::move(args));
+    }
+
+    finalized = true;
 }
 
 void ClassType::add_member(Box<ClassType::ClassTypeMember> member) {
@@ -125,6 +263,20 @@ void ClassType::add_member(Box<ClassType::ClassTypeMember> member) {
         dbprint("ClassType: adding member with name ", *member->name, " type ", member->ty);
     else {
         dbprint("ClassType: adding anonymous member with type ", member->ty);
+    }
+    if (member->ty == this) {
+        // member is guaranteed to have name, as anonymous types cannot be re-referenced
+        throw RecursiveTypeError(*member->name, member->loc);
+    }
+    if (member->ty->is_array()) {
+        auto *arrayty = member->ty->as_array();
+        if (!arrayty) {
+            throw std::runtime_error("Type with Kind::Array is not ArrayType");
+        }
+        if (arrayty->base == this) {
+            throw RecursiveTypeError(*member->name, member->loc);
+        }
+
     }
     members.push_back(std::move(member));
 }
@@ -141,6 +293,13 @@ ClassType::ClassTypeMember *ClassType::find(std::string& name) {
     return nullptr;
 }
 
+ClassType::ClassTypeMember *ClassType::index(int idx) {
+    if (idx >= num_members()) {
+        return nullptr;
+    }
+    return members[idx].get();
+}
+
 std::string ClassType::formal() {
     if (name) {
         return base() + *name;
@@ -149,8 +308,26 @@ std::string ClassType::formal() {
     }
 }
 
-std::size_t UnionType::size() {
-    return 0; // todo
+/*
+* UNION TYPE METHODS
+*/
+
+size_t UnionType::size() {
+    todo();
+}
+
+bool UnionType::is_fully_defined() {
+    todo();
+}
+
+bool UnionType::is_compatible_with(Type *dst) {
+    // If there is an underlying type representative, check that
+    if (type_rep) {
+        return (*type_rep)->is_compatible_with(dst);
+    }
+
+    // Otherwise, unions are incompatible with anything
+    return false;
 }
 
 void UnionType::add_member(Box<UnionType::UnionTypeMember> member) {
@@ -174,6 +351,21 @@ UnionType::UnionTypeMember *UnionType::find(std::string& name) {
     return nullptr;
 }
 
+UnionType::UnionTypeMember *UnionType::index(int idx) {
+    return members[idx].get();
+}
+
+void UnionType::finalize() {
+    /*
+    Union types do not have an LLVM equivalent, so we only finalize members.
+    */
+    if (finalized) {
+        dbprint("UnionType: already finalized, skipping");
+        return;
+    }
+    todo();
+}
+
 std::string UnionType::formal() {
     if (name) {
         return base() + *name;
@@ -182,9 +374,23 @@ std::string UnionType::formal() {
     }
 }
 
-std::size_t EnumType::size() {
-    return MAX_SIZE;
-}
+/*
+* ENUM TYPE METHODS
+*/
+
+EnumType::EnumType(
+    Location decl_loc, sema::sym::Scope *scope, TypeContext& tyctxt)
+: UserType(decl_loc, Kind::ENUM, tyctxt, scope), 
+enumerators(),
+// default type for an enum with no declared underlying type is U64.
+underlying(tyctxt.get_u64()) {}
+
+EnumType::EnumType(
+    Location decl_loc, std::string name, sema::sym::Scope *scope, TypeContext& tyctxt)
+: UserType(decl_loc, Kind::ENUM, tyctxt, scope), 
+enumerators(), name(name), 
+// default type for an enum with no declared underlying type is U64.
+underlying(tyctxt.get_u64()) {}
 
 int64_t EnumType::add_enumerator(std::string enumerator, Location loc) {
     EnumTypeMember *prev_mem = find(enumerator);
@@ -238,6 +444,10 @@ bool EnumType::is_compatible_with(Type *dst) {
     return prim->is_integer();
 }
 
+void EnumType::finalize() {
+    todo();
+}
+
 std::string EnumType::formal() {
     if (name) {
         return std::format("enum_{}", *name);
@@ -246,9 +456,9 @@ std::string EnumType::formal() {
     }
 }
 
-std::size_t PointerType::size() {
-    return PTR_SIZE; // todo: create machineinfo to handle this better
-}
+/*
+* POINTER TYPE METHODS
+*/
 
 int PointerType::nesting_lvl() {
     int lvl = 1;
@@ -301,15 +511,19 @@ bool PointerType::is_compatible_with(Type *dst) {
     }
 }
 
-std::size_t FunctionType::hash_sig() {
-    std::size_t h = std::hash<Type *>{}(signature.returntype);
-
-    for (auto *p : signature.params) {
-        h ^= std::hash<Type*>{}(p) + 0x9e3779b9 + (h << 6) + (h >> 2);
+void PointerType::finalize() {
+    if (finalized) {
+        assert(llvm_type && "PointerType was marked finalized but llvm_type was null");
+        return;
     }
 
-    return h;
+    llvm_type = llvm::PointerType::get(tyctxt.llvm.ctx(), 0);
+    finalized = true;
 }
+
+/*
+* ARRAY TYPE METHODS
+*/
 
 bool ArrayType::is_compatible_with(Type *dst) {
     if (Type::is_compatible_with(dst))
@@ -330,6 +544,42 @@ bool ArrayType::is_compatible_with(Type *dst) {
     }
 }
 
+void ArrayType::finalize() {
+    if (finalized) {
+        assert(llvm_type && "ArrayType marked finalized but llvm_type is null");
+        dbprint("ArrayType: already finalized, skipping");
+        return;
+    }
+    todo();
+}
+
+/*
+* FUNCTION TYPE METHODS
+*/
+
+size_t FunctionType::size() {
+    throw EccError("cannot call size() on FunctionType");
+}
+
+std::size_t FunctionType::hash_sig() {
+    std::size_t h = std::hash<Type *>{}(signature.returntype);
+
+    for (auto *p : signature.params) {
+        h ^= std::hash<Type*>{}(p) + 0x9e3779b9 + (h << 6) + (h >> 2);
+    }
+
+    return h;
+}
+
+void FunctionType::finalize() {
+    if (finalized) {
+        assert(llvm_type && "FunctionType marked finalized but llvm_type is null");
+        dbprint("FunctionType: already finalized, skipping");
+        return;
+    }
+    todo();
+}
+
 void TypeBuilder::add_array(uint64_t size) {
     type_stack.push(Arr {size});
 }
@@ -342,8 +592,8 @@ void TypeBuilder::add_pointer(bool is_const) {
     type_stack.push(Ptr {is_const});
 }
 
-void TypeBuilder::add_function(Vec<FuncParam> params, bool variadic, sym::Scope *scope) {
-    type_stack.push(FnParams {std::move(params), variadic, scope});
+void TypeBuilder::add_function(Vec<FuncParam> params, bool variadic) {
+    type_stack.push(FnParams {std::move(params), variadic});
 }
 
 void TypeBuilder::set_base(BaseType *base) {
@@ -381,7 +631,7 @@ Type *TypeBuilder::finalize() {
                     params.push_back(param.type);
                 }
                 // Wrap the base as the return type in a function type.
-                curr = this->ctxt.get_function(curr, std::move(params), fn.variadic, fn.scope);
+                curr = this->ctxt.get_function(curr, std::move(params), fn.variadic);
             }
         }, next_cstrctr);
 
@@ -392,19 +642,23 @@ Type *TypeBuilder::finalize() {
     return curr;
 }
 
-TypeContext::TypeContext()
-    : anonymous_ctr(0), user_types(), pointers(), arrays(),
-    voidt(std::make_unique<VoidType>()),
-    u8(std::make_unique<PrimitiveType>(PrimitiveType::Kind::U8)),
-    u16(std::make_unique<PrimitiveType>(PrimitiveType::Kind::U16)),
-    u32(std::make_unique<PrimitiveType>(PrimitiveType::Kind::U32)),
-    u64(std::make_unique<PrimitiveType>(PrimitiveType::Kind::U64)),
-    i8(std::make_unique<PrimitiveType>(PrimitiveType::Kind::I8)),
-    i16(std::make_unique<PrimitiveType>(PrimitiveType::Kind::I16)),
-    i32(std::make_unique<PrimitiveType>(PrimitiveType::Kind::I32)),
-    i64(std::make_unique<PrimitiveType>(PrimitiveType::Kind::I64)),
-    f64(std::make_unique<PrimitiveType>(PrimitiveType::Kind::F64)),
-    boolt(std::make_unique<PrimitiveType>(PrimitiveType::Kind::BOOL))
+/*
+* TYPE CONTEXT METHODS
+*/
+
+TypeContext::TypeContext(codegen::LLVMUnit& llvm)
+    : anonymous_ctr(0), user_types(), pointers(), arrays(), llvm(llvm),
+    voidt(std::make_unique<VoidType>(*this)),
+    u8(std::make_unique<PrimitiveType>(PrimType::U8, *this)),
+    u16(std::make_unique<PrimitiveType>(PrimType::U16, *this)),
+    u32(std::make_unique<PrimitiveType>(PrimType::U32, *this)),
+    u64(std::make_unique<PrimitiveType>(PrimType::U64, *this)),
+    i8(std::make_unique<PrimitiveType>(PrimType::I8, *this)),
+    i16(std::make_unique<PrimitiveType>(PrimType::I16, *this)),
+    i32(std::make_unique<PrimitiveType>(PrimType::I32, *this)),
+    i64(std::make_unique<PrimitiveType>(PrimType::I64, *this)),
+    f64(std::make_unique<PrimitiveType>(PrimType::F64, *this)),
+    boolt(std::make_unique<PrimitiveType>(PrimType::BOOL, *this))
 {}
 
 TypeBuilder TypeContext::builder() {
@@ -415,28 +669,28 @@ VoidType *TypeContext::get_void() {
     return voidt.get();
 }
 
-PrimitiveType *TypeContext::get_primitive(PrimitiveType::Kind pkind) {
-    dbprint("TypeContext: getting primitive type with value ", pkind);
+PrimitiveType *TypeContext::get_primitive(PrimType pkind) {
+    dbprint("TypeContext: getting primitive type");
     switch (pkind) {
-    case PrimitiveType::Kind::U8:
+    case PrimType::U8:
         return u8.get();
-    case PrimitiveType::Kind::U16:
+    case PrimType::U16:
         return u16.get();
-    case PrimitiveType::Kind::U32:
+    case PrimType::U32:
         return u32.get();
-    case PrimitiveType::Kind::U64:
+    case PrimType::U64:
         return u64.get();
-    case PrimitiveType::Kind::I8:
+    case PrimType::I8:
         return i8.get();
-    case PrimitiveType::Kind::I16:
+    case PrimType::I16:
         return i16.get();
-    case PrimitiveType::Kind::I32:
+    case PrimType::I32:
         return i32.get();
-    case PrimitiveType::Kind::I64:
+    case PrimType::I64:
         return i64.get();
-    case PrimitiveType::Kind::F64:
+    case PrimType::F64:
         return f64.get();
-    case PrimitiveType::Kind::BOOL:
+    case PrimType::BOOL:
         return boolt.get();
     default:
         return nullptr;
@@ -445,7 +699,7 @@ PrimitiveType *TypeContext::get_primitive(PrimitiveType::Kind pkind) {
     std::unreachable();
 }
 
-ClassType *TypeContext::get_class(std::string name, sym::Scope *scope) {
+ClassType *TypeContext::get_class(Location decl_loc, std::string name, sym::Scope *scope) {
     dbprint("TypeContext: class type '", name, "' on scope ", scope);
     std::string mangled = mangle<ClassType>(name, scope);
 
@@ -454,11 +708,13 @@ ClassType *TypeContext::get_class(std::string name, sym::Scope *scope) {
         return user_types.find(mangled)->second.get()->as_class();
     }
 
+    Box<ClassType> clsty = std::make_unique<ClassType>(decl_loc, name, scope, *this);
+
     // If no struct matching the name, make a new struct
-    return make_insert_type<ClassType>(mangled, scope, name);
+    return make_insert_type<ClassType>(mangled, scope, std::move(clsty));
 }
 
-ClassType *TypeContext::get_class(sym::Scope *scope) {
+ClassType *TypeContext::get_class(Location decl_loc, sym::Scope *scope) {
     /*
     In EnlightenedC (and most C-family languages), two structs are considered
     equal iff they have the same name. (If two structs are named the same but
@@ -472,10 +728,12 @@ ClassType *TypeContext::get_class(sym::Scope *scope) {
     anonymous_ctr++;
     auto mangled = mangle<ClassType>(name, scope);
 
-    return make_insert_type<ClassType>(mangled, scope);
+    Box<ClassType> clsty = std::make_unique<ClassType>(decl_loc, scope, *this);
+
+    return make_insert_type<ClassType>(mangled, scope, std::move(clsty));
 }
 
-UnionType *TypeContext::get_union(std::string name, sym::Scope *scope) {
+UnionType *TypeContext::get_union(Location decl_loc, std::string name, sym::Scope *scope) {
     dbprint("TypeContext: union type '", name, "' on scope ", scope);
     std::string mangled = mangle<UnionType>(name, scope);
 
@@ -484,20 +742,24 @@ UnionType *TypeContext::get_union(std::string name, sym::Scope *scope) {
         return user_types.find(mangled)->second.get()->as_union();
     }
 
+    Box<UnionType> unnty = std::make_unique<UnionType>(decl_loc, name, scope, *this);
+
     // If no struct matching the name, make a new struct
-    return make_insert_type<UnionType>(mangled, scope, name);
+    return make_insert_type<UnionType>(mangled, scope, std::move(unnty));
 }
 
-UnionType *TypeContext::get_union(sym::Scope *scope) {
+UnionType *TypeContext::get_union(Location decl_loc, sym::Scope *scope) {
     dbprint("TypeContext: anonymous union type on scope ", scope);
     auto name = "anon_" + std::to_string(anonymous_ctr);
     anonymous_ctr++;
     auto mangled = mangle<UnionType>(name, scope);
 
-    return make_insert_type<UnionType>(mangled, scope);
+    Box<UnionType> unnty = std::make_unique<UnionType>(decl_loc, scope, *this);
+
+    return make_insert_type<UnionType>(mangled, scope, std::move(unnty));
 }
 
-EnumType *TypeContext::get_enum(std::string name, sym::Scope *scope) {
+EnumType *TypeContext::get_enum(Location decl_loc, std::string name, sym::Scope *scope) {
     dbprint("TypeContext: enum type '", name, "' on scope ", scope);
     std::string mangled = mangle<EnumType>(name, scope);
 
@@ -506,17 +768,21 @@ EnumType *TypeContext::get_enum(std::string name, sym::Scope *scope) {
         return user_types.find(mangled)->second.get()->as_enum();
     }
 
+    Box<EnumType> enmty = std::make_unique<EnumType>(decl_loc, name, scope, *this);
+
     // If no struct matching the name, make a new struct
-    return make_insert_type<EnumType>(mangled, scope, name);
+    return make_insert_type<EnumType>(mangled, scope, std::move(enmty));
 }
 
-EnumType *TypeContext::get_enum(sym::Scope *scope) {
+EnumType *TypeContext::get_enum(Location decl_loc, sym::Scope *scope) {
     dbprint("TypeContext: anonymous enum type on scope ", scope);
     auto name = "anon_" + std::to_string(anonymous_ctr);
     anonymous_ctr++;
     auto mangled = mangle<EnumType>(name, scope);
 
-    return make_insert_type<EnumType>(mangled, scope);
+    Box<EnumType> enmty = std::make_unique<EnumType>(decl_loc, scope, *this);
+
+    return make_insert_type<EnumType>(mangled, scope, std::move(enmty));
 }
 
 PointerType *TypeContext::get_pointer(Type *base, bool is_const) {
@@ -531,7 +797,7 @@ PointerType *TypeContext::get_pointer(Type *base, bool is_const) {
     // since base is a Type *, we can assume it has already been created.
 
     // If not found, create a new pointer.
-    Box<PointerType> ptr = std::make_unique<PointerType>(base);
+    Box<PointerType> ptr = std::make_unique<PointerType>(base, *this);
     ptr->is_const = is_const;
     auto ret = ptr.get();
     pointers[{base, is_const}] = std::move(ptr);
@@ -547,7 +813,7 @@ ArrayType *TypeContext::get_array(Type *base, uint64_t size) {
         return it->second.get();
     }
 
-    Box<ArrayType> arr = std::make_unique<ArrayType>(base, size);
+    Box<ArrayType> arr = std::make_unique<ArrayType>(base, size, *this);
     auto ret = arr.get();
     arrays[key] = std::move(arr);
 
@@ -562,14 +828,14 @@ ArrayType *TypeContext::get_array(Type *base) {
         return it->second.get();
     }
 
-    Box<ArrayType> arr = std::make_unique<ArrayType>(base);
+    Box<ArrayType> arr = std::make_unique<ArrayType>(base, *this);
     auto ret = arr.get();
     arrays[key] = std::move(arr);
 
     return ret;
 }
 
-FunctionType *TypeContext::get_function(Type *returntype, Vec<Type *> params, bool variadic, sym::Scope *scope) {
+FunctionType *TypeContext::get_function(Type *returntype, Vec<Type *> params, bool variadic) {
     /*
     Function types do not need to be scope-aware, since their names are purely symbolic, and
     have no bearing on type equality. If a pointer to a function that was declared in a non-global scope
@@ -579,7 +845,7 @@ FunctionType *TypeContext::get_function(Type *returntype, Vec<Type *> params, bo
     */
 
     dbprint("TypeContext: getting function type");
-    Box<FunctionType> func = std::make_unique<FunctionType>(scope);
+    Box<FunctionType> func = std::make_unique<FunctionType>(returntype, *this);
     FunctionType *ret = func.get();
 
     FunctionType::FunctionSignature sig = {returntype, std::move(params), variadic};
@@ -598,13 +864,58 @@ FunctionType *TypeContext::get_function(Type *returntype, Vec<Type *> params, bo
     else
         name = "function_" + std::to_string(hash);
 
-    if (user_types.contains(name)) {
+    if (function_types.contains(name)) {
         dbprint("TypeConstext: existing function type found");
-        return user_types.find(name)->second.get()->as_function();
+        return function_types.find(name)->second.get();
     }
 
-    user_types[name] = std::move(func);
+    function_types[name] = std::move(func);
 
     return ret;
 }
+
+void TypeContext::finalize_primitives() {
+    dbprint("TypeContext: finalizing primitives");
+    voidt->finalize();
+    u8->finalize();
+    u16->finalize();
+    u32->finalize();
+    u64->finalize();
+    i8->finalize();
+    i16->finalize();
+    i32->finalize();
+    i64->finalize();
+    f64->finalize();
+    boolt->finalize();
+}
+
+void TypeContext::finalize_usertypes() {
+    dbprint("TypeContext: finalizing user types");
+    for (auto& [name, usertype] : user_types) {
+        usertype->finalize();
+    }
+}
+
+void TypeContext::finalize_functions() {
+    dbprint("TypeContext: finalizing function types");
+    for (auto& [name, func] : function_types) {
+        func->finalize();
+    }
+}
+
+void TypeContext::finalize_pointers() {
+    dbprint("TypeContext: finalizing function types");
+    for (auto& [name, ptr] : pointers) {
+        ptr->finalize();
+    }
+}
+
+void TypeContext::finalize_arrays() {
+    dbprint("TypeContext: finalizing array types");
+    for (auto& [name, arr] : arrays) {
+        arr->finalize();
+    }
+}
+
+
 

@@ -1,50 +1,66 @@
 #ifndef ECC_COMPILER_H
 #define ECC_COMPILER_H
 
+#include "codegen/lir/lir.hpp"
+#include "codegen/lir/visitor.hpp"
+#include "codegen/llvm.hpp"
 #include <llvm/IR/IRBuilder.h>
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/Module.h>
-#include <llvm/IR/Type.h>
-
-#include "semantics/mir/mir.hpp"
-#include "semantics/mir/visitor.hpp"
-#include "semantics/types.hpp"
-#include "semantics/symbols.hpp"
-#include "util.hpp"
 
 using namespace ecc;
 using namespace util;
 
-namespace ecc::compiler {
+namespace ecc::codegen {
 /*
 LLVM IR generation functionality.
 */
 
-using LLVMType = llvm::Type;
-
 // todo: use LLVM DataLayout to handle alignment
 
-class LLVMVisitor : public sema::mir::MIRVisitor {
+class LLVMSynthesizer : public lir::LIRVisitor {
 public:
-    LLVMVisitor(sema::sym::SymbolTable& syms, sema::types::TypeContext& tys)
-    : syms(syms), tys(tys) {}
-    ~LLVMVisitor() = default;
+    LLVMSynthesizer(lir::LIRSymbolMap& syms, LLVMUnit& llvm);
+    ~LLVMSynthesizer() = default;
 
-    Box<llvm::Module> module;
-    Box<llvm::LLVMContext> ctxt;
-    Box<llvm::IRBuilder<>> builder;
+    llvm::LLVMContext& ctxt;
+    llvm::Module& mod;
+    llvm::IRBuilder<>& irb;
 
-    sema::sym::SymbolTable& syms;
-    sema::types::TypeContext& tys;
+    lir::LIRSymbolMap& syms;
 
-    /*
-    Converts the provided type to its corresponding LLVM type.
-    */
-    LLVMType *map_to_llvm_type(sema::types::Type *ty);
+    void compile(lir::ProgramLIR& prog);
 
     // Visitor method overrides
+    void visit(lir::ProgramLIR& node) override;
+    void visit(lir::FunctionLIR& node) override;
+    
+    void visit(lir::VarDeclLIR& node) override;
+    
+    void visit(lir::ExprStmtLIR& node) override;
+    void visit(lir::GotoStmtLIR& node) override;
+    void visit(lir::SwitchStmtLIR& node) override;
+    void visit(lir::BreakStmtLIR& node) override;
+    void visit(lir::ContStmtLIR& node) override;
+    void visit(lir::IfStmtLIR& node) override;
+    void visit(lir::CaseStmtLIR& node) override;
+    void visit(lir::DefaultStmtLIR& node) override;
+    void visit(lir::LoopStmtLIR& node) override;
+    void visit(lir::LabelStmtLIR& node) override;
+    void visit(lir::PrintStmtLIR& node) override;
+    void visit(lir::ReturnStmtLIR& node) override;
+    
+    void visit(lir::BinaryExprLIR& node) override;
+    void visit(lir::UnaryExprLIR& node) override;
+    void visit(lir::CastExprLIR& node) override;
+    void visit(lir::AssignExprLIR& node) override;
+    void visit(lir::CondExprLIR& node) override;
+    void visit(lir::IdentExprLIR& node) override;
+    void visit(lir::LiteralExprLIR& node) override;
+    void visit(lir::CallExprLIR& node) override;
+    void visit(lir::MemberAccExprLIR& node) override;
+    void visit(lir::SubscrExprLIR& node) override;
+    void visit(lir::PostfixExprLIR& node) override;    
 };
 
-} // namespace ecc::compiler
+} // namespace ecc::codegen
 
 #endif

@@ -1,3 +1,5 @@
+#include <set>
+
 #include "ast/printer.hpp"
 #include "driver/driver.hpp"
 #include "frontend/frontend.hpp"
@@ -9,17 +11,21 @@
 
 using namespace ecc::frontend;
 
-void Frontend::parse(TranslationUnit& unit) {
+void Frontend::parse(driver::TranslationUnit& unit) {
     dbprint("parsing file ", *unit.filename);
     try {
         ecc::preproc::PreProcessor preproc(unit.filename);
 
-        ecc::frontend::Lexer lexer(&preproc, unit.filename);
-        ecc::parser::Parser parser(lexer, *unit.ast_root);
+        // bodge for lexer hack
+        std::set<std::string> typedefs {};
+
+        ecc::frontend::Lexer lexer(&preproc, unit.filename, typedefs);
+        ecc::parser::Parser parser(lexer, *unit.ast_root, typedefs);
 
         // temp for testing
         //parser.set_debug_level(1);
         int result = parser.parse();
+        preproc.close();
 
         if (result == 0) {
             dbprint("printing AST for file ", *unit.filename);

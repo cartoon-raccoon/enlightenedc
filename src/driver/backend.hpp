@@ -5,26 +5,25 @@
 
 #include "semantics/types.hpp"
 #include "semantics/symbols.hpp"
-
-namespace ecc::frontend {
-    struct TranslationUnit;
-}
+#include "codegen/llvm.hpp"
 
 #include "util.hpp"
 
 namespace ecc::driver {
+
+struct TranslationUnit;
 
 class Backend {
 public:
     Box<sema::sym::SymbolTable> symbols;
     Box<sema::types::TypeContext> types;
 
-    Backend()
+    Backend(codegen::LLVMUnit& llvm)
     : 
     symbols(std::make_unique<sema::sym::SymbolTable>()), 
-    types(std::make_unique<sema::types::TypeContext>()) {}
+    types(std::make_unique<sema::types::TypeContext>(llvm)) {}
 
-    void run(frontend::TranslationUnit& unit);
+    void run(TranslationUnit& unit);
 };
 
 }

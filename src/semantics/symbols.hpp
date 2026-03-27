@@ -6,6 +6,7 @@
 #include "eval/value.hpp"
 #include "util.hpp"
 
+#include <cstdint>
 #include <unordered_map>
 #include <memory>
 
@@ -29,6 +30,7 @@ class VarSymbol;
 class FuncSymbol;
 class TypeSymbol;
 class LabelSymbol;
+class Scope;
 
 /*
 The abstract symbol class.
@@ -43,18 +45,20 @@ public:
         LABEL, // This symbol references a label.
     };
 
-    Symbol(Kind kind, std::string name) : kind(kind), name(name) {}
+    Symbol(Kind kind, std::string name, Scope *scope)
+        : kind(kind), name(name), scope(scope) {}
 
-    Symbol(Kind kind, Location loc, std::string name) : kind(kind), name(name), loc(loc) {}
+    Symbol(Kind kind, Location loc, std::string name, Scope *scope)
+        : kind(kind), name(name), loc(loc), scope(scope) {}
 
     Kind kind;
 
     std::string name;
 
-    // std::optional<ecc::exec::Value> val;
-
     // The location of the symbol.
     Location loc;
+
+    Scope *scope;
 
     /// If the symbol is public.
     bool is_public = false;
@@ -65,7 +69,9 @@ public:
 
     virtual bool is_abstract() { return true; };
 
-    virtual std::string to_string() const { return "base symbol"; }
+    virtual std::string to_string() const  = 0;
+
+    virtual std::string mangle() const = 0;
 
     virtual PhysicalSymbol *as_physical() { return nullptr; }
     virtual AbstractSymbol *as_abstract() { return nullptr; }
@@ -79,11 +85,25 @@ public:
 // (e.g. a variable or function).
 class PhysicalSymbol : public Symbol {
 public:
-    PhysicalSymbol(Kind kind, std::string name) : Symbol(kind, name) {}
+    PhysicalSymbol(Kind kind, std::string name, Scope *scope) : Symbol(kind, name, scope) {}
 
-    PhysicalSymbol(Kind kind, Location loc, std::string name) : Symbol(kind, name) {}
+    PhysicalSymbol(Kind kind, Location loc, std::string name, Scope *scope) : Symbol(kind, name, scope) {}
+
+    // The linkage of the symbol.
+    enum class Linkage {
+        // The symbol is only visible within the current translation unit.
+        INTERNAL,
+        // The symbol is visible to other translation units, and should be linked to if referenced.
+        EXTERNAL,
+        // The symbol is visible to other translation units, and should be linked to if referenced, with C linkage.
+        EXTERNC
+    } linkage = Linkage::INTERNAL;
+
+    bool is_external() const { return linkage != Linkage::INTERNAL; }
 
     PhysicalSymbol *as_physical() { return this; }
+
+    virtual types::Type *get_type() = 0;
 
     bool is_abstract() { return false; }
 };
@@ -92,9 +112,9 @@ public:
 // (e.g. a label or type declaration).
 class AbstractSymbol : public Symbol {
 public:
-    AbstractSymbol(Kind kind, std::string name) : Symbol(kind, name) {}
+    AbstractSymbol(Kind kind, std::string name, Scope *scope) : Symbol(kind, name, scope) {}
 
-    AbstractSymbol(Kind kind, Location loc, std::string name) : Symbol(kind, name) {}
+    AbstractSymbol(Kind kind, Location loc, std::string name, Scope *scope) : Symbol(kind, name, scope) {}
 
     AbstractSymbol *as_abstract() { return this; }
 
@@ -106,34 +126,32 @@ A symbol representing a variable declaration.
 */
 class VarSymbol : public PhysicalSymbol {
 public:
-    VarSymbol(Location loc, std::string name, types::Type *type) 
-        : PhysicalSymbol(Symbol::Kind::VAR, loc, name), type(type) {}
+    VarSymbol(Location loc, std::string name, Scope *scope, types::Type *type) 
+        : PhysicalSymbol(Symbol::Kind::VAR, loc, name, scope), type(type) {}
 
-    VarSymbol(Location loc, std::string name, types::Type *type, exec::Value value) 
-        : PhysicalSymbol(Symbol::Kind::VAR, loc, name), type(type), value(value) {}
+    VarSymbol(Location loc, std::string name, Scope *scope, types::Type *type, exec::Value value) 
+        : PhysicalSymbol(Symbol::Kind::VAR, loc, name, scope), type(type), value(value) {}
 
     /// The type of the symbol.
     types::Type *type;
 
     // The value of the Symbol, if defined.
-    std::optional<exec::Value> value;
+    Optional<exec::Value> value;
 
     /// If the symbol is const.
     bool is_const = false;
 
     // Storage class information.
 
-    // If the symbol is external.
-    bool is_extern = false;
-
-    // If the symbol is externally linked.
-    bool is_externc = false;
-
     bool is_funcparam = false;
 
     virtual std::string to_string() const override;
 
+    std::string mangle() const override;
+
     VarSymbol *as_varsym() override { return this; }
+
+    types::Type *get_type() override { return type; }
 };
 
 /*
@@ -142,18 +160,31 @@ A symbol representing a function declaration
 */
 class FuncSymbol : public PhysicalSymbol {
 public:
-    FuncSymbol(Location loc, std::string name, types::FunctionType *signature)
-        : PhysicalSymbol(Symbol::Kind::FUNC, loc, name), signature(signature) {}
+    FuncSymbol(Location loc, 
+               std::string name,
+               Scope *scope,
+               types::FunctionType *signature, 
+               Vec<VarSymbol *> parameters)
+        : PhysicalSymbol(Symbol::Kind::FUNC, loc, name, scope), 
+        signature(signature),
+        parameters(std::move(parameters)) {}
 
     // The function signature.
     types::FunctionType *signature;
 
+    // The list of parameters to the function.
+    Vec<VarSymbol *> parameters;
+
     virtual std::string to_string() const override;
+
+    std::string mangle() const override;
 
     /// Create a function pointer VarSymbol from this FuncSymbol.
     Box<VarSymbol> as_funcptr(sema::types::TypeContext& tctxt, bool is_const = false);
 
     FuncSymbol *as_funcsym() override { return this; }
+
+    types::Type *get_type() override { return signature; }
 };
 
 /*
@@ -161,12 +192,14 @@ A symbol representing a type declaration (class, union, enum).
 */
 class TypeSymbol : public AbstractSymbol {
 public:
-    TypeSymbol(Location loc, std::string name, types::Type* type)
-        : AbstractSymbol(Symbol::Kind::TYPE, loc, name), type(type) {}
+    TypeSymbol(Location loc, std::string name, Scope *scope, types::BaseType* type)
+        : AbstractSymbol(Symbol::Kind::TYPE, loc, name, scope), type(type) {}
 
-    types::Type *type;
+    types::BaseType *type;
 
     virtual std::string to_string() const override;
+
+    std::string mangle() const override;
 
     TypeSymbol *as_typesym() override { return this; }
 };
@@ -176,10 +209,12 @@ A symbol representing a label (for use by goto).
 */
 class LabelSymbol : public AbstractSymbol {
 public:
-    LabelSymbol(Location loc, std::string name)
-        : AbstractSymbol(Symbol::Kind::LABEL, loc, name) {}
+    LabelSymbol(Location loc, std::string name, Scope *scope)
+        : AbstractSymbol(Symbol::Kind::LABEL, loc, name, scope) {}
 
     virtual std::string to_string() const override;
+
+    std::string mangle() const override;
 
     LabelSymbol *as_labsym() override { return this; }
 };
@@ -191,26 +226,27 @@ A scope stores symbols inside a translation unit.
 */
 class Scope {
 public:
-    Scope(Symbol *assoc, Scope *outer)
+    Scope(FuncSymbol *assoc, Scope *outer, uint64_t id)
     : outer(outer), 
     assoc(assoc), 
-    var_symbols(), func_symbols(), type_symbols(), label_symbols(),
-    nested() {}
+    phys_symbols(), type_symbols(), label_symbols(),
+    nested(), id(id) {}
 
     // the outer scope enclosing the inner scope.
     Scope *outer;
-    // a symbol associated with this scope, usually a function.
+    // A function associated with this scope.
     // if null, this is an anonymous scope.
-    Symbol *assoc;
+    FuncSymbol *assoc;
     // an ASTNode associated with this scope, if any.
     ast::ASTNode *node;
     // the symbol tables.
-    std::unordered_map<std::string, Box<VarSymbol>> var_symbols = {};
-    std::unordered_map<std::string, Box<FuncSymbol>> func_symbols = {};
+    std::unordered_map<std::string, Box<PhysicalSymbol>> phys_symbols = {};
     std::unordered_map<std::string, Box<TypeSymbol>> type_symbols = {};
     std::unordered_map<std::string, Box<LabelSymbol>> label_symbols = {};
     // inner scopes contained within this scope.
     Vec<Box<Scope>> nested;
+
+    uint64_t id;
 
     std::string to_string() const;
 
@@ -227,15 +263,18 @@ The symbol table, storing all symbols in a given translation unit.
 */
 class SymbolTable {
 public:
-    SymbolTable() : global(std::make_unique<Scope>(nullptr, nullptr)), current(global.get()) {}
+    SymbolTable() : global(std::make_unique<Scope>(nullptr, nullptr, 0)), current(global.get()) {}
 
     // The global scope.
     Box<Scope> global;
     // The current scope.
     Scope *current;
 
+    // The ID to assign to the next scope.
+    uint64_t next_id = 1;
+
     // Create and enter a new scope.
-    void push_scope(Symbol *assoc = nullptr);
+    void push_scope(FuncSymbol *assoc = nullptr);
 
     /*
     Enter the currently indexed scope in current scope.
@@ -259,21 +298,50 @@ public:
     // Clear the entire SymbolTable.
     void clear();
 
-    // Lookup a symbol by name. Returns null if no symbol exists.
-    Symbol *lookup(std::string& sym);
+    /**
+    Lookup a symbol by name. Returns null of no symbol exists.
+    */
+    Symbol *lookup(std::string& sym, bool current = false);
 
-    VarSymbol *lookup_var(std::string& sym);
+    /**
+    Lookup a symbol by name from Scope `from`. Returns null if no symbol exists.
+    */
+    Symbol *lookup(std::string& sym, Scope *from, bool current = false);
 
-    FuncSymbol *lookup_func(std::string& sym);
+    VarSymbol *lookup_var(std::string& sym, bool current = false);
 
-    TypeSymbol *lookup_type(std::string& sym);
-    
-    LabelSymbol *lookup_label(std::string& sym);
+    VarSymbol *lookup_var(std::string& sym, Scope *from, bool current = false);
 
-    // Associate the current scope with the given Symbol `sym`.
+    FuncSymbol *lookup_func(std::string& sym, bool current = false);
+
+    FuncSymbol *lookup_func(std::string& sym, Scope *from, bool current = false);
+
+    TypeSymbol *lookup_type(std::string& sym, bool current = false);
+
+    TypeSymbol *lookup_type(std::string& sym, Scope *from, bool current = false);
+
+    /*
+    Look up a label from Scope `from`, up to the first function scope.
+
+    Unlike other lookup functions, which continue on to global scope,
+    `lookup_label` only recurses outwards until a function boundary.
+    This is because labels are scoped to function scope specifically.
+    */
+    LabelSymbol *lookup_label(std::string& sym, bool current = false);
+
+    /*
+    Look up a label up to the first function scope.
+
+    Unlike other lookup functions, which continue on to global scope,
+    `lookup_label` only recurses outwards until a function boundary.
+    This is because labels are scoped to function scope specifically.
+    */
+    LabelSymbol *lookup_label(std::string& sym, Scope *from, bool current = false);
+
+    // Associate the current scope with the given FuncSymbol `sym`.
     // If current scope is already tied to a symbol, replaces it
     // with the new one depending on value of `override`.
-    void tie_current_to(Symbol *sym, bool override = false);
+    void tie_current_to(FuncSymbol *sym, bool override = false);
 
     // Add a new symbol to the current scope.
     // Returns a pointer to the inserted symbol for further use.

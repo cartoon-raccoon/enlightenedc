@@ -6,6 +6,8 @@
 #include <FlexLexer.h>
 #endif
 
+#include <set>
+
 #include "parser.hpp"
 #include "util.hpp"
 #include "frontend/filenames.hpp"
@@ -20,9 +22,11 @@ class Lexer : public yyFlexLexer {
 public:
 
     // Use the standard yyFlexLexer constructor.
-    Lexer(std::istream *in, std::string *filename);
+    Lexer(std::istream *in, std::string *filename, std::set<std::string>& typedefs);
 
     Location loc;
+
+    std::set<std::string>& typedefs;
 
     // Override the yyFlexLexer constructor.
     Parser::symbol_type get_next_token();

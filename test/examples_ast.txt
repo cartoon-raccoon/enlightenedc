@@ -1,4 +1,6 @@
 running pipeline on file test/examples.ec
+initializing LLVM
+LLVM initialized
 parsing file test/examples.ec
 printing AST for file test/examples.ec
 Program @ <test/examples.ec:1.1> 
@@ -723,30 +725,30 @@ Program @ <test/examples.ec:1.1>
 running backend for file test/examples.ec
 checking semantics for test/examples.ec:1.1
 running elaborator for test/examples.ec:1.1
-Node: type 53 {
+Node {
     visiting Program node: test/examples.ec:1.1
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:14.1-195
         parsing declaration specifier list for node at test/examples.ec:14.1-195
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:14.178-181
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
-        Node: type 1 {
+        Node {
             visiting StorageClassSpecifier node: test/examples.ec:14.1-176
         }
         finished parsing specifiers for node test/examples.ec:14.1-195
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:14.183-194
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:14.183-190
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:14.194
                 visiting single initializer
-                Node: type 45 {
+                Node {
                     visiting LiteralExpression node: test/examples.ec:14.194
                 }
             }
@@ -754,28 +756,28 @@ TypeContext: getting primitive type with value 7
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "g_public"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:15.1-25
         parsing declaration specifier list for node at test/examples.ec:15.1-25
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:15.8-11
-TypeContext: getting primitive type with value 6
+TypeContext: getting primitive type
         }
-        Node: type 1 {
+        Node {
             visiting StorageClassSpecifier node: test/examples.ec:15.1-6
         }
         finished parsing specifiers for node test/examples.ec:15.1-25
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:15.13-24
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:15.13-20
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:15.24
                 visiting single initializer
-                Node: type 45 {
+                Node {
                     visiting LiteralExpression node: test/examples.ec:15.24
                 }
             }
@@ -783,21 +785,21 @@ TypeContext: getting primitive type with value 6
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "g_static"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:16.1-21
         parsing declaration specifier list for node at test/examples.ec:16.1-21
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:16.8-11
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
-        Node: type 1 {
+        Node {
             visiting StorageClassSpecifier node: test/examples.ec:16.1-6
         }
         finished parsing specifiers for node test/examples.ec:16.1-21
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:16.13-20
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:16.13-20
                 }
             }
@@ -805,28 +807,28 @@ TypeContext: getting primitive type with value 7
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "g_extern"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:18.1-24
         parsing declaration specifier list for node at test/examples.ec:18.1-24
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:18.7-10
-TypeContext: getting primitive type with value 2
+TypeContext: getting primitive type
         }
-        Node: type 0 {
+        Node {
             visiting TypeQualifier node: test/examples.ec:18.1-5
         }
         finished parsing specifiers for node test/examples.ec:18.1-24
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:18.12-23
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:18.12-18
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:18.22-23
                 visiting single initializer
-                Node: type 45 {
+                Node {
                     visiting LiteralExpression node: test/examples.ec:18.22-23
                 }
             }
@@ -834,25 +836,25 @@ TypeContext: getting primitive type with value 2
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "g_const"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:20.1-14
         parsing declaration specifier list for node at test/examples.ec:20.1-14
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:20.1-3
-TypeContext: getting primitive type with value 0
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:20.1-14
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:20.5-13
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:20.5-7
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:20.11-13
                 visiting single initializer
-                Node: type 45 {
+                Node {
                     visiting LiteralExpression node: test/examples.ec:20.11-13
                 }
             }
@@ -860,25 +862,25 @@ TypeContext: getting primitive type with value 0
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "u8v"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:21.1-18
         parsing declaration specifier list for node at test/examples.ec:21.1-18
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:21.1-4
-TypeContext: getting primitive type with value 1
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:21.1-18
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:21.6-17
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:21.6-9
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:21.13-17
                 visiting single initializer
-                Node: type 45 {
+                Node {
                     visiting LiteralExpression node: test/examples.ec:21.13-17
                 }
             }
@@ -886,25 +888,25 @@ TypeContext: getting primitive type with value 1
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "u16v"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:22.1-17
         parsing declaration specifier list for node at test/examples.ec:22.1-17
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:22.1-4
-TypeContext: getting primitive type with value 2
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:22.1-17
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:22.6-16
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:22.6-9
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:22.13-16
                 visiting single initializer
-                Node: type 45 {
+                Node {
                     visiting LiteralExpression node: test/examples.ec:22.13-16
                 }
             }
@@ -912,25 +914,25 @@ TypeContext: getting primitive type with value 2
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "u32v"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:23.1-19
         parsing declaration specifier list for node at test/examples.ec:23.1-19
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:23.1-4
-TypeContext: getting primitive type with value 3
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:23.1-19
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:23.6-18
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:23.6-9
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:23.13-18
                 visiting single initializer
-                Node: type 45 {
+                Node {
                     visiting LiteralExpression node: test/examples.ec:23.13-18
                 }
             }
@@ -938,27 +940,27 @@ TypeContext: getting primitive type with value 3
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "u64v"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:25.1-13
         parsing declaration specifier list for node at test/examples.ec:25.1-13
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:25.1-3
-TypeContext: getting primitive type with value 4
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:25.1-13
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:25.5-12
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:25.5-7
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:25.11-12
                 visiting single initializer
-                Node: type 41 {
+                Node {
                     visiting UnaryExpression node: test/examples.ec:25.11-12
-                    Node: type 45 {
+                    Node {
                         visiting LiteralExpression node: test/examples.ec:25.11-12
                     }
                 }
@@ -967,27 +969,27 @@ TypeContext: getting primitive type with value 4
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "i8v"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:26.1-15
         parsing declaration specifier list for node at test/examples.ec:26.1-15
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:26.1-4
-TypeContext: getting primitive type with value 5
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:26.1-15
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:26.6-14
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:26.6-9
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:26.13-14
                 visiting single initializer
-                Node: type 41 {
+                Node {
                     visiting UnaryExpression node: test/examples.ec:26.13-14
-                    Node: type 45 {
+                    Node {
                         visiting LiteralExpression node: test/examples.ec:26.13-14
                     }
                 }
@@ -996,27 +998,27 @@ TypeContext: getting primitive type with value 5
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "i16v"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:27.1-15
         parsing declaration specifier list for node at test/examples.ec:27.1-15
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:27.1-4
-TypeContext: getting primitive type with value 6
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:27.1-15
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:27.6-14
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:27.6-9
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:27.13-14
                 visiting single initializer
-                Node: type 41 {
+                Node {
                     visiting UnaryExpression node: test/examples.ec:27.13-14
-                    Node: type 45 {
+                    Node {
                         visiting LiteralExpression node: test/examples.ec:27.13-14
                     }
                 }
@@ -1025,27 +1027,27 @@ TypeContext: getting primitive type with value 6
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "i32v"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:28.1-15
         parsing declaration specifier list for node at test/examples.ec:28.1-15
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:28.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:28.1-15
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:28.6-14
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:28.6-9
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:28.13-14
                 visiting single initializer
-                Node: type 41 {
+                Node {
                     visiting UnaryExpression node: test/examples.ec:28.13-14
-                    Node: type 45 {
+                    Node {
                         visiting LiteralExpression node: test/examples.ec:28.13-14
                     }
                 }
@@ -1054,25 +1056,25 @@ TypeContext: getting primitive type with value 7
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "i64v"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:30.1-20
         parsing declaration specifier list for node at test/examples.ec:30.1-20
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:30.1-4
-TypeContext: getting primitive type with value 8
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:30.1-20
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:30.6-19
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:30.6-9
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:30.13-19
                 visiting single initializer
-                Node: type 45 {
+                Node {
                     visiting LiteralExpression node: test/examples.ec:30.13-19
                 }
             }
@@ -1080,25 +1082,25 @@ TypeContext: getting primitive type with value 8
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "f64v"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:31.1-15
         parsing declaration specifier list for node at test/examples.ec:31.1-15
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:31.1-4
-TypeContext: getting primitive type with value 9
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:31.1-15
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:31.6-14
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:31.6-7
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:31.11-14
                 visiting single initializer
-                Node: type 45 {
+                Node {
                     visiting LiteralExpression node: test/examples.ec:31.11-14
                 }
             }
@@ -1106,205 +1108,190 @@ TypeContext: getting primitive type with value 9
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "bv"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:32.1-9
         parsing declaration specifier list for node at test/examples.ec:32.1-9
-        Node: type 20 {
+        Node {
             visiting VoidSpecifier node: test/examples.ec:32.1-4
         }
         finished parsing specifiers for node test/examples.ec:32.1-9
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:32.6-8
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:32.6-8
                 }
-                Node: type 2 {
+                Node {
                     visiting Pointer node: test/examples.ec:32.6
                 }
             }
         }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x563ffb043f30
+TypeContext: pointer with base 0x55b4e7168200
 SymbolTable: inserting varsymbol with name "vp"
     }
-    Node: type 8 {
+    Node {
         visiting TypeDeclaration node: test/examples.ec:37.1-11
         parsing declaration specifier list for node at test/examples.ec:37.1-11
-        Node: type 17 {
-SymbolTable: pushing scope 0x563ffb067bb0
-SymbolTable: entering scope 0x563ffb067bb0
-SymbolTable: current scope 0x563ffb067bb0
+        Node {
             visiting ClassSpecifier node: test/examples.ec:37.1-10
-TypeContext: class type 'Node' on scope 0x563ffb067bb0
-SymbolTable: exiting scope to 0x563ffb064fb0
-SymbolTable: current scope 0x563ffb064fb0
+TypeContext: class type 'Node' on scope 0x55b4e7167fc0
+            class has name, inserting typesymbol if needed
+SymbolTable: looking up typesymbol Node in current scope
+SymbolTable: inserting typesymbol with name "Node"
         }
         finished parsing specifiers for node test/examples.ec:37.1-11
     }
-    Node: type 8 {
+    Node {
         visiting TypeDeclaration node: test/examples.ec:39.1-42.2
         parsing declaration specifier list for node at test/examples.ec:39.1-42.2
-        Node: type 17 {
-SymbolTable: pushing scope 0x563ffb067e30
-SymbolTable: entering scope 0x563ffb067e30
-SymbolTable: current scope 0x563ffb067e30
+        Node {
             visiting ClassSpecifier node: test/examples.ec:39.1-42.1
-TypeContext: class type 'Point' on scope 0x563ffb067e30
-            Node: type 15 {
+TypeContext: class type 'Point' on scope 0x55b4e7167fc0
+            class has name, inserting typesymbol if needed
+SymbolTable: looking up typesymbol Point in current scope
+SymbolTable: inserting typesymbol with name "Point"
+            Node {
                 visiting ClassDeclaration node: test/examples.ec:40.5-11
                 parsing declaration specifier list for node at test/examples.ec:40.5-11
-                Node: type 21 {
+                Node {
                     visiting PrimitiveSpecifier node: test/examples.ec:40.5-8
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node test/examples.ec:40.5-11
-                parsing ClassDeclaration for ClassType 0x563ffb043ad0
-                Node: type 14 {
+                parsing ClassDeclaration for ClassType 0x55b4e712fd10
+                Node {
                     visiting ClassDeclarator node: test/examples.ec:40.10
-                    Node: type 5 {
-                        Node: type 10 {
+                    Node {
+                        Node {
                             visiting IdentifierDeclarator node: test/examples.ec:40.10
                         }
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name x type 0x563ffb0652c0
+ClassType: adding member with name x type 0x55b4e7168300
             }
-            Node: type 15 {
+            Node {
                 visiting ClassDeclaration node: test/examples.ec:41.5-11
                 parsing declaration specifier list for node at test/examples.ec:41.5-11
-                Node: type 21 {
+                Node {
                     visiting PrimitiveSpecifier node: test/examples.ec:41.5-8
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node test/examples.ec:41.5-11
-                parsing ClassDeclaration for ClassType 0x563ffb043ad0
-                Node: type 14 {
+                parsing ClassDeclaration for ClassType 0x55b4e712fd10
+                Node {
                     visiting ClassDeclarator node: test/examples.ec:41.10
-                    Node: type 5 {
-                        Node: type 10 {
+                    Node {
+                        Node {
                             visiting IdentifierDeclarator node: test/examples.ec:41.10
                         }
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name y type 0x563ffb0652c0
+ClassType: adding member with name y type 0x55b4e7168300
             }
-SymbolTable: associating current scope 0x563ffb067e30 with symbol 0x563ffb0680c0 name "Point"
-SymbolTable: exiting scope to 0x563ffb064fb0
-SymbolTable: current scope 0x563ffb064fb0
         }
         finished parsing specifiers for node test/examples.ec:39.1-42.2
-SymbolTable: inserting typesymbol with name "Point"
     }
-    Node: type 8 {
+    Node {
         visiting TypeDeclaration node: test/examples.ec:44.1-48.2
         parsing declaration specifier list for node at test/examples.ec:44.1-48.2
-        Node: type 17 {
-SymbolTable: pushing scope 0x563ffb068220
-SymbolTable: entering scope 0x563ffb068220
-SymbolTable: current scope 0x563ffb068220
+        Node {
             visiting ClassSpecifier node: test/examples.ec:44.1-48.1
-TypeContext: class type 'Bits' on scope 0x563ffb068220
-            Node: type 15 {
+TypeContext: class type 'Bits' on scope 0x55b4e7167fc0
+            class has name, inserting typesymbol if needed
+SymbolTable: looking up typesymbol Bits in current scope
+SymbolTable: inserting typesymbol with name "Bits"
+            Node {
                 visiting ClassDeclaration node: test/examples.ec:45.5-15
                 parsing declaration specifier list for node at test/examples.ec:45.5-15
-                Node: type 21 {
+                Node {
                     visiting PrimitiveSpecifier node: test/examples.ec:45.5-8
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node test/examples.ec:45.5-15
-                parsing ClassDeclaration for ClassType 0x563ffb043d10
-                Node: type 14 {
+                parsing ClassDeclaration for ClassType 0x55b4e7130580
+                Node {
                     visiting ClassDeclarator node: test/examples.ec:45.10-14
-                    Node: type 5 {
-                        Node: type 10 {
+                    Node {
+                        Node {
                             visiting IdentifierDeclarator node: test/examples.ec:45.10
                         }
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name a type 0x563ffb0652c0
+ClassType: adding member with name a type 0x55b4e7168300
             }
-            Node: type 15 {
+            Node {
                 visiting ClassDeclaration node: test/examples.ec:46.5-13
                 parsing declaration specifier list for node at test/examples.ec:46.5-13
-                Node: type 21 {
+                Node {
                     visiting PrimitiveSpecifier node: test/examples.ec:46.5-8
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node test/examples.ec:46.5-13
-                parsing ClassDeclaration for ClassType 0x563ffb043d10
-                Node: type 14 {
+                parsing ClassDeclaration for ClassType 0x55b4e7130580
+                Node {
                     visiting ClassDeclarator node: test/examples.ec:46.10-12
                 }
-ClassType: adding anonymous member with type 0x563ffb0652c0
+ClassType: adding anonymous member with type 0x55b4e7168300
             }
-            Node: type 15 {
+            Node {
                 visiting ClassDeclaration node: test/examples.ec:47.5-15
                 parsing declaration specifier list for node at test/examples.ec:47.5-15
-                Node: type 21 {
+                Node {
                     visiting PrimitiveSpecifier node: test/examples.ec:47.5-8
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node test/examples.ec:47.5-15
-                parsing ClassDeclaration for ClassType 0x563ffb043d10
-                Node: type 14 {
+                parsing ClassDeclaration for ClassType 0x55b4e7130580
+                Node {
                     visiting ClassDeclarator node: test/examples.ec:47.10-14
-                    Node: type 5 {
-                        Node: type 10 {
+                    Node {
+                        Node {
                             visiting IdentifierDeclarator node: test/examples.ec:47.10
                         }
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name b type 0x563ffb0652c0
+ClassType: adding member with name b type 0x55b4e7168300
             }
-SymbolTable: associating current scope 0x563ffb068220 with symbol 0x563ffb068500 name "Bits"
-SymbolTable: exiting scope to 0x563ffb064fb0
-SymbolTable: current scope 0x563ffb064fb0
         }
         finished parsing specifiers for node test/examples.ec:44.1-48.2
-SymbolTable: inserting typesymbol with name "Bits"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:50.1-52.13
         parsing declaration specifier list for node at test/examples.ec:50.1-52.13
-        Node: type 17 {
-SymbolTable: pushing scope 0x563ffb0685f0
-SymbolTable: entering scope 0x563ffb0685f0
-SymbolTable: current scope 0x563ffb0685f0
+        Node {
             visiting ClassSpecifier node: test/examples.ec:50.1-52.1
-TypeContext: anonymous class type on scope 0x563ffb0685f0
-            Node: type 15 {
+TypeContext: anonymous class type on scope 0x55b4e7167fc0
+            Node {
                 visiting ClassDeclaration node: test/examples.ec:51.5-20
                 parsing declaration specifier list for node at test/examples.ec:51.5-20
-                Node: type 21 {
+                Node {
                     visiting PrimitiveSpecifier node: test/examples.ec:51.5-8
-TypeContext: getting primitive type with value 6
+TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node test/examples.ec:51.5-20
-                parsing ClassDeclaration for ClassType 0x563ffb044340
-                Node: type 14 {
+                parsing ClassDeclaration for ClassType 0x55b4e712ff50
+                Node {
                     visiting ClassDeclarator node: test/examples.ec:51.10-19
-                    Node: type 5 {
-                        Node: type 10 {
+                    Node {
+                        Node {
                             visiting IdentifierDeclarator node: test/examples.ec:51.10-19
                         }
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name anon_field type 0x563ffb0652a0
+ClassType: adding member with name anon_field type 0x55b4e71682e0
             }
-SymbolTable: exiting scope to 0x563ffb064fb0
-SymbolTable: current scope 0x563ffb064fb0
         }
         finished parsing specifiers for node test/examples.ec:50.1-52.13
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:52.3-12
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:52.3-12
                 }
             }
@@ -1312,326 +1299,326 @@ SymbolTable: current scope 0x563ffb064fb0
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "anon_class"
     }
-    Node: type 8 {
+    Node {
         visiting TypeDeclaration node: test/examples.ec:57.1-60.2
         parsing declaration specifier list for node at test/examples.ec:57.1-60.2
-        Node: type 18 {
-SymbolTable: pushing scope 0x563ffb068940
-SymbolTable: entering scope 0x563ffb068940
-SymbolTable: current scope 0x563ffb068940
+        Node {
             visiting UnionSpecifier node test/examples.ec:57.1-60.1
-TypeContext: union type 'Value' on scope 0x563ffb068940
-            Node: type 15 {
+TypeContext: union type 'Value' on scope 0x55b4e7167fc0
+            union has name, inserting typesymbol if needed
+SymbolTable: looking up typesymbol Value in current scope
+SymbolTable: inserting typesymbol with name "Value"
+            Node {
                 visiting ClassDeclaration node: test/examples.ec:58.5-11
                 parsing declaration specifier list for node at test/examples.ec:58.5-11
-                Node: type 21 {
+                Node {
                     visiting PrimitiveSpecifier node: test/examples.ec:58.5-8
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node test/examples.ec:58.5-11
-                parsing ClassDeclaration for UnionType 0x563ffb043f50
-                Node: type 14 {
+                parsing ClassDeclaration for UnionType 0x55b4e716b2d0
+                Node {
                     visiting ClassDeclarator node: test/examples.ec:58.10
-                    Node: type 5 {
-                        Node: type 10 {
+                    Node {
+                        Node {
                             visiting IdentifierDeclarator node: test/examples.ec:58.10
                         }
                     }
                 }
 TypeBuilder: finalizing type
-UnionType: adding member with name i type 0x563ffb0652c0
+UnionType: adding member with name i type 0x55b4e7168300
             }
-            Node: type 15 {
+            Node {
                 visiting ClassDeclaration node: test/examples.ec:59.5-11
                 parsing declaration specifier list for node at test/examples.ec:59.5-11
-                Node: type 21 {
+                Node {
                     visiting PrimitiveSpecifier node: test/examples.ec:59.5-8
-TypeContext: getting primitive type with value 8
+TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node test/examples.ec:59.5-11
-                parsing ClassDeclaration for UnionType 0x563ffb043f50
-                Node: type 14 {
+                parsing ClassDeclaration for UnionType 0x55b4e716b2d0
+                Node {
                     visiting ClassDeclarator node: test/examples.ec:59.10
-                    Node: type 5 {
-                        Node: type 10 {
+                    Node {
+                        Node {
                             visiting IdentifierDeclarator node: test/examples.ec:59.10
                         }
                     }
                 }
 TypeBuilder: finalizing type
-UnionType: adding member with name f type 0x563ffb0652e0
+UnionType: adding member with name f type 0x55b4e7168320
             }
-SymbolTable: associating current scope 0x563ffb068940 with symbol 0x563ffb068bf0 name "Value"
-SymbolTable: exiting scope to 0x563ffb064fb0
-SymbolTable: current scope 0x563ffb064fb0
         }
         finished parsing specifiers for node test/examples.ec:57.1-60.2
-SymbolTable: inserting typesymbol with name "Value"
     }
-    Node: type 8 {
+    Node {
         visiting TypeDeclaration node: test/examples.ec:65.1-36
         parsing declaration specifier list for node at test/examples.ec:65.1-36
-        Node: type 19 {
+        Node {
             visiting EnumSpecifier node: test/examples.ec:65.1-35
-TypeContext: enum type 'Color' on scope 0x563ffb064fb0
-            Node: type 16 {
+TypeContext: enum type 'Color' on scope 0x55b4e7167fc0
+            enum has name, inserting typesymbol if needed
+SymbolTable: looking up typesymbol Color in current scope
+SymbolTable: inserting typesymbol with name "Color"
+            Node {
                 visiting Enumerator node with name RED
 SymbolTable: inserting varsymbol with name "RED"
             }
-            Node: type 16 {
+            Node {
                 visiting Enumerator node with name GREEN
 SymbolTable: inserting varsymbol with name "GREEN"
             }
-            Node: type 16 {
+            Node {
                 visiting Enumerator node with name BLUE
 SymbolTable: inserting varsymbol with name "BLUE"
             }
-SymbolTable: associating current scope 0x563ffb064fb0 with symbol 0x563ffb069060 name "Color"
         }
         finished parsing specifiers for node test/examples.ec:65.1-36
-SymbolTable: inserting typesymbol with name "Color"
     }
-    Node: type 8 {
+    Node {
         visiting TypeDeclaration node: test/examples.ec:67.1-17
         parsing declaration specifier list for node at test/examples.ec:67.1-17
-        Node: type 19 {
+        Node {
             visiting EnumSpecifier node: test/examples.ec:67.1-16
-TypeContext: anonymous enum type on scope 0x563ffb064fb0
-            Node: type 16 {
+TypeContext: anonymous enum type on scope 0x55b4e7167fc0
+            Node {
                 visiting Enumerator node with name A
 SymbolTable: inserting varsymbol with name "A"
             }
-            Node: type 16 {
+            Node {
                 visiting Enumerator node with name B
 SymbolTable: inserting varsymbol with name "B"
             }
-            Node: type 16 {
+            Node {
                 visiting Enumerator node with name C
 SymbolTable: inserting varsymbol with name "C"
             }
         }
         finished parsing specifiers for node test/examples.ec:67.1-17
     }
-    Node: type 8 {
+    Node {
         visiting TypeDeclaration node: test/examples.ec:69.1-13
         parsing declaration specifier list for node at test/examples.ec:69.1-13
-        Node: type 19 {
+        Node {
             visiting EnumSpecifier node: test/examples.ec:69.1-12
-TypeContext: enum type 'Forward' on scope 0x563ffb064fb0
+TypeContext: enum type 'Forward' on scope 0x55b4e7167fc0
+            enum has name, inserting typesymbol if needed
+SymbolTable: looking up typesymbol Forward in current scope
+SymbolTable: inserting typesymbol with name "Forward"
         }
         finished parsing specifiers for node test/examples.ec:69.1-13
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:74.1-23
         parsing declaration specifier list for node at test/examples.ec:74.1-23
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:74.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:74.1-23
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:74.6-22
-            Node: type 5 {
-                Node: type 12 {
+            Node {
+                Node {
                     visiting ArrayDeclarator node: test/examples.ec:74.6-12
-                    Node: type 10 {
+                    Node {
                         visiting IdentifierDeclarator node: test/examples.ec:74.6-9
                     }
                     array declarator has size, checking for compile time computability
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:74.16-22
                 visiting compound initializer
-                Node: type 4 {
+                Node {
                     visiting Initializer node: test/examples.ec:74.16-17
                     visiting single initializer
-                    Node: type 45 {
+                    Node {
                         visiting LiteralExpression node: test/examples.ec:74.16-17
                     }
                 }
-                Node: type 4 {
+                Node {
                     visiting Initializer node: test/examples.ec:74.16-19
                     visiting single initializer
-                    Node: type 45 {
+                    Node {
                         visiting LiteralExpression node: test/examples.ec:74.16-19
                     }
                 }
-                Node: type 4 {
+                Node {
                     visiting Initializer node: test/examples.ec:74.16-21
                     visiting single initializer
-                    Node: type 45 {
+                    Node {
                         visiting LiteralExpression node: test/examples.ec:74.16-21
                     }
                 }
             }
         }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x563ffb0652c0, size 3
+TypeContext: array type with base 0x55b4e7168300, size 3
 SymbolTable: inserting varsymbol with name "arr1"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:75.1-24
         parsing declaration specifier list for node at test/examples.ec:75.1-24
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:75.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:75.1-24
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:75.6-23
-            Node: type 5 {
-                Node: type 12 {
+            Node {
+                Node {
                     visiting ArrayDeclarator node: test/examples.ec:75.6-12
-                    Node: type 10 {
+                    Node {
                         visiting IdentifierDeclarator node: test/examples.ec:75.6-9
                     }
                     array declarator has size, checking for compile time computability
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:75.16-23
                 visiting compound initializer
-                Node: type 4 {
+                Node {
                     visiting Initializer node: test/examples.ec:75.16-17
                     visiting single initializer
-                    Node: type 45 {
+                    Node {
                         visiting LiteralExpression node: test/examples.ec:75.16-17
                     }
                 }
-                Node: type 4 {
+                Node {
                     visiting Initializer node: test/examples.ec:75.16-19
                     visiting single initializer
-                    Node: type 45 {
+                    Node {
                         visiting LiteralExpression node: test/examples.ec:75.16-19
                     }
                 }
-                Node: type 4 {
+                Node {
                     visiting Initializer node: test/examples.ec:75.16-21
                     visiting single initializer
-                    Node: type 45 {
+                    Node {
                         visiting LiteralExpression node: test/examples.ec:75.16-21
                     }
                 }
             }
         }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x563ffb0652c0, size 3
+TypeContext: array type with base 0x55b4e7168300, size 3
 SymbolTable: inserting varsymbol with name "arr2"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:76.1-12
         parsing declaration specifier list for node at test/examples.ec:76.1-12
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:76.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:76.1-12
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:76.6-11
-            Node: type 5 {
-                Node: type 12 {
+            Node {
+                Node {
                     visiting ArrayDeclarator node: test/examples.ec:76.6-11
-                    Node: type 10 {
+                    Node {
                         visiting IdentifierDeclarator node: test/examples.ec:76.6-9
                     }
                 }
             }
         }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x563ffb0652c0, no size
+TypeContext: array type with base 0x55b4e7168300, no size
 SymbolTable: inserting varsymbol with name "arr3"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:81.1-10
         parsing declaration specifier list for node at test/examples.ec:81.1-10
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:81.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:81.1-10
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:81.6-9
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:81.6-9
                 }
-                Node: type 2 {
+                Node {
                     visiting Pointer node: test/examples.ec:81.6
                 }
             }
         }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x563ffb0652c0
+TypeContext: pointer with base 0x55b4e7168300
 SymbolTable: inserting varsymbol with name "ptr"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:82.1-31
         parsing declaration specifier list for node at test/examples.ec:82.1-31
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:82.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:82.1-31
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:82.6-30
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:82.14-22
                 }
-                Node: type 2 {
+                Node {
                     visiting Pointer node: test/examples.ec:82.6-12
-                    Node: type 0 {
+                    Node {
                         visiting TypeQualifier node: test/examples.ec:82.8-12
                     }
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:82.26-30
                 visiting single initializer
-                Node: type 41 {
+                Node {
                     visiting UnaryExpression node: test/examples.ec:82.26-30
-                    Node: type 44 {
+                    Node {
                         visiting IdentifierExpression node: test/examples.ec:82.26-30
-SymbolTable: looking up symbol i64v
+SymbolTable: looking up varsymbol i64v
                     }
                 }
             }
         }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x563ffb0652c0
+TypeContext: pointer with base 0x55b4e7168300
 SymbolTable: inserting varsymbol with name "const_ptr"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:84.1-23
         parsing declaration specifier list for node at test/examples.ec:84.1-23
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:84.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:84.1-23
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:84.6-22
-            Node: type 5 {
-                Node: type 13 {
+            Node {
+                Node {
                     visiting FunctionDeclarator node: test/examples.ec:84.6-22
-                    Node: type 11 {
+                    Node {
                         visiting ParenDeclarator node: test/examples.ec:84.6-16
-                        Node: type 5 {
-                            Node: type 10 {
+                        Node {
+                            Node {
                                 visiting IdentifierDeclarator node: test/examples.ec:84.6-15
                             }
-                            Node: type 2 {
+                            Node {
                                 visiting Pointer node: test/examples.ec:84.6-7
                             }
                         }
                     }
-                    Node: type 7 {
+                    Node {
                         visiting ParameterDeclarator node: test/examples.ec:84.6-21
                         parsing declaration specifier list for node at test/examples.ec:84.6-21
-                        Node: type 21 {
+                        Node {
                             visiting PrimitiveSpecifier node: test/examples.ec:84.6-21
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
                         }
                         finished parsing specifiers for node test/examples.ec:84.6-21
                     }
@@ -1640,48 +1627,48 @@ TypeContext: getting primitive type with value 7
         }
 TypeBuilder: finalizing type
 TypeContext: getting function type
-TypeContext: pointer with base 0x563ffb06a720
+TypeContext: pointer with base 0x55b4e716cfd0
 SymbolTable: inserting varsymbol with name "func_ptr"
     }
-    Node: type 52 {
+    Node {
         visiting Function node: test/examples.ec:89.1-91.1
         parsing declaration specifier list for node at test/examples.ec:89.1-91.1
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:89.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:89.1-91.1
-        Node: type 5 {
-            Node: type 13 {
+        Node {
+            Node {
                 visiting FunctionDeclarator node: test/examples.ec:89.6-24
-                Node: type 10 {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:89.6-8
                 }
-                Node: type 7 {
+                Node {
                     visiting ParameterDeclarator node: test/examples.ec:89.6-15
                     parsing declaration specifier list for node at test/examples.ec:89.6-15
-                    Node: type 21 {
+                    Node {
                         visiting PrimitiveSpecifier node: test/examples.ec:89.6-13
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
                     }
                     finished parsing specifiers for node test/examples.ec:89.6-15
-                    Node: type 5 {
-                        Node: type 10 {
+                    Node {
+                        Node {
                             visiting IdentifierDeclarator node: test/examples.ec:89.15
                         }
                     }
 TypeBuilder: finalizing type
                 }
-                Node: type 7 {
+                Node {
                     visiting ParameterDeclarator node: test/examples.ec:89.18-23
                     parsing declaration specifier list for node at test/examples.ec:89.18-23
-                    Node: type 21 {
+                    Node {
                         visiting PrimitiveSpecifier node: test/examples.ec:89.18-21
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
                     }
                     finished parsing specifiers for node test/examples.ec:89.18-23
-                    Node: type 5 {
-                        Node: type 10 {
+                    Node {
+                        Node {
                             visiting IdentifierDeclarator node: test/examples.ec:89.23
                         }
                     }
@@ -1690,59 +1677,58 @@ TypeBuilder: finalizing type
             }
         }
 TypeContext: getting function type
-SymbolTable: inserting funcsymbol with name "Add"
 parsing params
-        Node: type 22 {
-SymbolTable: pushing scope 0x563ffb06b090
-SymbolTable: entering scope 0x563ffb06b090
-SymbolTable: current scope 0x563ffb06b090
+SymbolTable: inserting funcsymbol with name "Add"
+        Node {
+            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 1
+SymbolTable: entering scope 1
             visiting CompoundStatement node: test/examples.ec:89.26-91.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 0x563ffb06b090 with symbol 0x563ffb06adf0 name "Add"
+SymbolTable: associating current scope 1 with symbol 0x55b4e712fb60 name "Add"
 SymbolTable: inserting varsymbol with name "a"
 SymbolTable: inserting varsymbol with name "b"
-            Node: type 36 {
+            Node {
                 visiting ReturnStatement node: test/examples.ec:90.5-17
-                Node: type 39 {
+                Node {
                     visiting BinaryExpression node: test/examples.ec:90.12-16
-                    Node: type 44 {
+                    Node {
                         visiting IdentifierExpression node: test/examples.ec:90.12
-SymbolTable: looking up symbol a
+SymbolTable: looking up varsymbol a
                     }
-                    Node: type 44 {
+                    Node {
                         visiting IdentifierExpression node: test/examples.ec:90.16
-SymbolTable: looking up symbol b
+SymbolTable: looking up varsymbol b
                     }
                 }
             }
-SymbolTable: exiting scope to 0x563ffb064fb0
-SymbolTable: current scope 0x563ffb064fb0
+SymbolTable: exiting scope to 0
         }
     }
-    Node: type 52 {
+    Node {
         visiting Function node: test/examples.ec:93.1-95.1
         parsing declaration specifier list for node at test/examples.ec:93.1-95.1
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:93.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:93.1-95.1
-        Node: type 5 {
-            Node: type 13 {
+        Node {
+            Node {
                 visiting FunctionDeclarator node: test/examples.ec:93.6-29
-                Node: type 10 {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:93.6-17
                 }
-                Node: type 7 {
+                Node {
                     visiting ParameterDeclarator node: test/examples.ec:93.6-28
                     parsing declaration specifier list for node at test/examples.ec:93.6-28
-                    Node: type 21 {
+                    Node {
                         visiting PrimitiveSpecifier node: test/examples.ec:93.6-22
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
                     }
                     finished parsing specifiers for node test/examples.ec:93.6-28
-                    Node: type 5 {
-                        Node: type 10 {
+                    Node {
+                        Node {
                             visiting IdentifierDeclarator node: test/examples.ec:93.24
                         }
                     }
@@ -1752,51 +1738,50 @@ TypeBuilder: finalizing type
         }
 TypeContext: getting function type
 TypeConstext: existing function type found
-SymbolTable: inserting funcsymbol with name "DefaultParam"
 parsing params
-        Node: type 22 {
-SymbolTable: pushing scope 0x563ffb06b630
-SymbolTable: entering scope 0x563ffb06b630
-SymbolTable: current scope 0x563ffb06b630
+SymbolTable: inserting funcsymbol with name "DefaultParam"
+        Node {
+            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 2
+SymbolTable: entering scope 2
             visiting CompoundStatement node: test/examples.ec:93.31-95.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 0x563ffb06b630 with symbol 0x563ffb0674f0 name "DefaultParam"
+SymbolTable: associating current scope 2 with symbol 0x55b4e712fda0 name "DefaultParam"
 SymbolTable: inserting varsymbol with name "x"
-            Node: type 36 {
+            Node {
                 visiting ReturnStatement node: test/examples.ec:94.5-13
-                Node: type 44 {
+                Node {
                     visiting IdentifierExpression node: test/examples.ec:94.12
-SymbolTable: looking up symbol x
+SymbolTable: looking up varsymbol x
                 }
             }
-SymbolTable: exiting scope to 0x563ffb064fb0
-SymbolTable: current scope 0x563ffb064fb0
+SymbolTable: exiting scope to 0
         }
     }
-    Node: type 52 {
+    Node {
         visiting Function node: test/examples.ec:97.1-99.1
         parsing declaration specifier list for node at test/examples.ec:97.1-99.1
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:97.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:97.1-99.1
-        Node: type 5 {
-            Node: type 13 {
+        Node {
+            Node {
                 visiting FunctionDeclarator node: test/examples.ec:97.6-26
-                Node: type 10 {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:97.6-13
                 }
-                Node: type 7 {
+                Node {
                     visiting ParameterDeclarator node: test/examples.ec:97.6-20
                     parsing declaration specifier list for node at test/examples.ec:97.6-20
-                    Node: type 21 {
+                    Node {
                         visiting PrimitiveSpecifier node: test/examples.ec:97.6-18
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
                     }
                     finished parsing specifiers for node test/examples.ec:97.6-20
-                    Node: type 5 {
-                        Node: type 10 {
+                    Node {
+                        Node {
                             visiting IdentifierDeclarator node: test/examples.ec:97.20
                         }
                     }
@@ -1805,87 +1790,85 @@ TypeBuilder: finalizing type
             }
         }
 TypeContext: getting function type
-SymbolTable: inserting funcsymbol with name "Variadic"
 parsing params
-        Node: type 22 {
-SymbolTable: pushing scope 0x563ffb06bb40
-SymbolTable: entering scope 0x563ffb06bb40
-SymbolTable: current scope 0x563ffb06bb40
+SymbolTable: inserting funcsymbol with name "Variadic"
+        Node {
+            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 3
+SymbolTable: entering scope 3
             visiting CompoundStatement node: test/examples.ec:97.28-99.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 0x563ffb06bb40 with symbol 0x563ffb06b9f0 name "Variadic"
+SymbolTable: associating current scope 3 with symbol 0x55b4e712ffe0 name "Variadic"
 SymbolTable: inserting varsymbol with name "x"
-            Node: type 36 {
+            Node {
                 visiting ReturnStatement node: test/examples.ec:98.5-13
-                Node: type 44 {
+                Node {
                     visiting IdentifierExpression node: test/examples.ec:98.12
-SymbolTable: looking up symbol x
+SymbolTable: looking up varsymbol x
                 }
             }
-SymbolTable: exiting scope to 0x563ffb064fb0
-SymbolTable: current scope 0x563ffb064fb0
+SymbolTable: exiting scope to 0
         }
     }
-    Node: type 52 {
+    Node {
         visiting Function node: test/examples.ec:101.1-102.1
         parsing declaration specifier list for node at test/examples.ec:101.1-102.1
-        Node: type 20 {
+        Node {
             visiting VoidSpecifier node: test/examples.ec:101.1-4
         }
         finished parsing specifiers for node test/examples.ec:101.1-102.1
-        Node: type 5 {
-            Node: type 13 {
+        Node {
+            Node {
                 visiting FunctionDeclarator node: test/examples.ec:101.6-15
-                Node: type 10 {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:101.6-13
                 }
             }
         }
 TypeContext: getting function type
-SymbolTable: inserting funcsymbol with name "VoidFunc"
 parsing params
-        Node: type 22 {
-SymbolTable: pushing scope 0x563ffb06bf80
-SymbolTable: entering scope 0x563ffb06bf80
-SymbolTable: current scope 0x563ffb06bf80
+SymbolTable: inserting funcsymbol with name "VoidFunc"
+        Node {
+            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 4
+SymbolTable: entering scope 4
             visiting CompoundStatement node: test/examples.ec:101.17-102.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 0x563ffb06bf80 with symbol 0x563ffb06bed0 name "VoidFunc"
-SymbolTable: exiting scope to 0x563ffb064fb0
-SymbolTable: current scope 0x563ffb064fb0
+SymbolTable: associating current scope 4 with symbol 0x55b4e71311b0 name "VoidFunc"
+SymbolTable: exiting scope to 0
         }
     }
-    Node: type 52 {
+    Node {
         visiting Function node: test/examples.ec:104.1-106.1
         parsing declaration specifier list for node at test/examples.ec:104.1-106.1
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:104.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:104.1-106.1
-        Node: type 5 {
-            Node: type 13 {
+        Node {
+            Node {
                 visiting FunctionDeclarator node: test/examples.ec:104.6-29
-                Node: type 11 {
+                Node {
                     visiting ParenDeclarator node: test/examples.ec:104.6-23
-                    Node: type 5 {
-                        Node: type 13 {
+                    Node {
+                        Node {
                             visiting FunctionDeclarator node: test/examples.ec:104.6-22
-                            Node: type 10 {
+                            Node {
                                 visiting IdentifierDeclarator node: test/examples.ec:104.6-20
                             }
                         }
-                        Node: type 2 {
+                        Node {
                             visiting Pointer node: test/examples.ec:104.6-7
                         }
                     }
                 }
-                Node: type 7 {
+                Node {
                     visiting ParameterDeclarator node: test/examples.ec:104.6-28
                     parsing declaration specifier list for node at test/examples.ec:104.6-28
-                    Node: type 21 {
+                    Node {
                         visiting PrimitiveSpecifier node: test/examples.ec:104.6-28
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
                     }
                     finished parsing specifiers for node test/examples.ec:104.6-28
                 }
@@ -1893,54 +1876,52 @@ TypeContext: getting primitive type with value 7
         }
 TypeContext: getting function type
 TypeConstext: existing function type found
-TypeContext: pointer with base 0x563ffb06a720
+TypeContext: pointer with base 0x55b4e716cfd0
 TypeContext: getting function type
-SymbolTable: inserting funcsymbol with name "ReturnFuncPtr"
 parsing params
-        Node: type 22 {
-SymbolTable: pushing scope 0x563ffb06c2a0
-SymbolTable: entering scope 0x563ffb06c2a0
-SymbolTable: current scope 0x563ffb06c2a0
+SymbolTable: inserting funcsymbol with name "ReturnFuncPtr"
+        Node {
+            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 5
+SymbolTable: entering scope 5
             visiting CompoundStatement node: test/examples.ec:104.31-106.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 0x563ffb06c2a0 with symbol 0x563ffb06c1f0 name "ReturnFuncPtr"
-            Node: type 36 {
+SymbolTable: associating current scope 5 with symbol 0x55b4e71312d0 name "ReturnFuncPtr"
+            Node {
                 visiting ReturnStatement node: test/examples.ec:105.5-15
-                Node: type 44 {
+                Node {
                     visiting IdentifierExpression node: test/examples.ec:105.12-14
-SymbolTable: looking up symbol Add
-SymbolTable: symbol 'Add' not found
-SymbolTable: looking up symbol Add
+SymbolTable: looking up varsymbol Add
+SymbolTable: looking up funcsymbol Add
                 }
             }
-SymbolTable: exiting scope to 0x563ffb064fb0
-SymbolTable: current scope 0x563ffb064fb0
+SymbolTable: exiting scope to 0
         }
     }
-    Node: type 22 {
-SymbolTable: pushing scope 0x563ffb06c4d0
-SymbolTable: entering scope 0x563ffb06c4d0
-SymbolTable: current scope 0x563ffb06c4d0
+    Node {
+        BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 6
+SymbolTable: entering scope 6
         visiting CompoundStatement node: test/examples.ec:111.1-119.1
-        Node: type 9 {
+        Node {
             visiting VariableDeclaration node: test/examples.ec:112.5-19
             parsing declaration specifier list for node at test/examples.ec:112.5-19
-            Node: type 21 {
+            Node {
                 visiting PrimitiveSpecifier node: test/examples.ec:112.5-8
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
             }
             finished parsing specifiers for node test/examples.ec:112.5-19
-            Node: type 6 {
+            Node {
                 visiting InitDeclarator node: test/examples.ec:112.10-18
-                Node: type 5 {
-                    Node: type 10 {
+                Node {
+                    Node {
                         visiting IdentifierDeclarator node: test/examples.ec:112.10-14
                     }
                 }
-                Node: type 4 {
+                Node {
                     visiting Initializer node: test/examples.ec:112.18
                     visiting single initializer
-                    Node: type 45 {
+                    Node {
                         visiting LiteralExpression node: test/examples.ec:112.18
                     }
                 }
@@ -1948,25 +1929,25 @@ TypeContext: getting primitive type with value 7
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "local"
         }
-        Node: type 9 {
+        Node {
             visiting VariableDeclaration node: test/examples.ec:113.5-22
             parsing declaration specifier list for node at test/examples.ec:113.5-22
-            Node: type 21 {
+            Node {
                 visiting PrimitiveSpecifier node: test/examples.ec:113.5-8
-TypeContext: getting primitive type with value 8
+TypeContext: getting primitive type
             }
             finished parsing specifiers for node test/examples.ec:113.5-22
-            Node: type 6 {
+            Node {
                 visiting InitDeclarator node: test/examples.ec:113.10-21
-                Node: type 5 {
-                    Node: type 10 {
+                Node {
+                    Node {
                         visiting IdentifierDeclarator node: test/examples.ec:113.10-15
                     }
                 }
-                Node: type 4 {
+                Node {
                     visiting Initializer node: test/examples.ec:113.19-21
                     visiting single initializer
-                    Node: type 45 {
+                    Node {
                         visiting LiteralExpression node: test/examples.ec:113.19-21
                     }
                 }
@@ -1974,80 +1955,79 @@ TypeContext: getting primitive type with value 8
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "localf"
         }
-        Node: type 23 {
+        Node {
             visiting ExpressionStatement node: test/examples.ec:115.5-15
-            Node: type 42 {
+            Node {
                 visiting AssignmentExpression node: test/examples.ec:115.5-14
-                Node: type 44 {
+                Node {
                     visiting IdentifierExpression node: test/examples.ec:115.5-9
-SymbolTable: looking up symbol local
+SymbolTable: looking up varsymbol local
                 }
-                Node: type 45 {
+                Node {
                     visiting LiteralExpression node: test/examples.ec:115.14
                 }
             }
         }
-        Node: type 23 {
+        Node {
             visiting ExpressionStatement node: test/examples.ec:116.5-15
-            Node: type 42 {
+            Node {
                 visiting AssignmentExpression node: test/examples.ec:116.5-14
-                Node: type 44 {
+                Node {
                     visiting IdentifierExpression node: test/examples.ec:116.5-9
-SymbolTable: looking up symbol local
+SymbolTable: looking up varsymbol local
                 }
-                Node: type 45 {
+                Node {
                     visiting LiteralExpression node: test/examples.ec:116.14
                 }
             }
         }
-        Node: type 23 {
+        Node {
             visiting ExpressionStatement node: test/examples.ec:117.5-16
-            Node: type 42 {
+            Node {
                 visiting AssignmentExpression node: test/examples.ec:117.5-15
-                Node: type 44 {
+                Node {
                     visiting IdentifierExpression node: test/examples.ec:117.5-9
-SymbolTable: looking up symbol local
+SymbolTable: looking up varsymbol local
                 }
-                Node: type 45 {
+                Node {
                     visiting LiteralExpression node: test/examples.ec:117.15
                 }
             }
         }
-        Node: type 23 {
+        Node {
             visiting ExpressionStatement node: test/examples.ec:118.5-15
-            Node: type 42 {
+            Node {
                 visiting AssignmentExpression node: test/examples.ec:118.5-14
-                Node: type 44 {
+                Node {
                     visiting IdentifierExpression node: test/examples.ec:118.5-9
-SymbolTable: looking up symbol local
+SymbolTable: looking up varsymbol local
                 }
-                Node: type 45 {
+                Node {
                     visiting LiteralExpression node: test/examples.ec:118.14
                 }
             }
         }
-SymbolTable: exiting scope to 0x563ffb064fb0
-SymbolTable: current scope 0x563ffb064fb0
+SymbolTable: exiting scope to 0
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:124.1-17
         parsing declaration specifier list for node at test/examples.ec:124.1-17
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:124.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:124.1-17
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:124.6-16
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:124.6-12
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:124.16
                 visiting single initializer
-                Node: type 45 {
+                Node {
                     visiting LiteralExpression node: test/examples.ec:124.16
                 }
             }
@@ -2055,157 +2035,156 @@ TypeContext: getting primitive type with value 7
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "control"
     }
-    Node: type 29 {
+    Node {
         visiting IfStatement node: test/examples.ec:126.1-129.16
-        Node: type 39 {
+        Node {
             visiting BinaryExpression node: test/examples.ec:126.4-40
-            Node: type 39 {
+            Node {
                 visiting BinaryExpression node: test/examples.ec:126.4-31
-                Node: type 39 {
+                Node {
                     visiting BinaryExpression node: test/examples.ec:126.4-15
-                    Node: type 44 {
+                    Node {
                         visiting IdentifierExpression node: test/examples.ec:126.4-11
-SymbolTable: looking up symbol control
+SymbolTable: looking up varsymbol control
                     }
-                    Node: type 45 {
+                    Node {
                         visiting LiteralExpression node: test/examples.ec:126.15
                     }
                 }
-                Node: type 39 {
+                Node {
                     visiting BinaryExpression node: test/examples.ec:126.20-31
-                    Node: type 44 {
+                    Node {
                         visiting IdentifierExpression node: test/examples.ec:126.20-26
-SymbolTable: looking up symbol control
+SymbolTable: looking up varsymbol control
                     }
-                    Node: type 45 {
+                    Node {
                         visiting LiteralExpression node: test/examples.ec:126.30-31
                     }
                 }
             }
-            Node: type 45 {
+            Node {
                 visiting LiteralExpression node: test/examples.ec:126.36-40
             }
         }
-        Node: type 23 {
+        Node {
             visiting ExpressionStatement node: test/examples.ec:127.5-16
-            Node: type 42 {
+            Node {
                 visiting AssignmentExpression node: test/examples.ec:127.5-15
-                Node: type 44 {
+                Node {
                     visiting IdentifierExpression node: test/examples.ec:127.5-11
-SymbolTable: looking up symbol control
+SymbolTable: looking up varsymbol control
                 }
-                Node: type 45 {
+                Node {
                     visiting LiteralExpression node: test/examples.ec:127.15
                 }
             }
         }
-        Node: type 23 {
+        Node {
             visiting ExpressionStatement node: test/examples.ec:129.5-16
-            Node: type 42 {
+            Node {
                 visiting AssignmentExpression node: test/examples.ec:129.5-15
-                Node: type 44 {
+                Node {
                     visiting IdentifierExpression node: test/examples.ec:129.5-11
-SymbolTable: looking up symbol control
+SymbolTable: looking up varsymbol control
                 }
-                Node: type 45 {
+                Node {
                     visiting LiteralExpression node: test/examples.ec:129.15
                 }
             }
         }
     }
-    Node: type 30 {
+    Node {
         visiting SwitchStatement node: test/examples.ec:131.1-139.1
-        Node: type 44 {
+        Node {
             visiting IdentifierExpression node: test/examples.ec:131.8-15
-SymbolTable: looking up symbol control
+SymbolTable: looking up varsymbol control
         }
-        Node: type 22 {
-SymbolTable: pushing scope 0x563ffb06db40
-SymbolTable: entering scope 0x563ffb06db40
-SymbolTable: current scope 0x563ffb06db40
+        Node {
+            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 7
+SymbolTable: entering scope 7
             visiting CompoundStatement node: test/examples.ec:131.18-139.1
-            Node: type 24 {
+            Node {
                 visiting CaseStatement node: test/examples.ec:132.5-133.14
-                Node: type 38 {
+                Node {
                     visiting ConstExpression node: test/examples.ec:132.10
-                    Node: type 45 {
+                    Node {
                         visiting LiteralExpression node: test/examples.ec:132.10
                     }
                 }
-                Node: type 35 {
+                Node {
                     visiting BreakStatement node: test/examples.ec:133.9-14
                 }
             }
-            Node: type 25 {
+            Node {
                 visiting CaseRangeStatement node: test/examples.ec:134.5-135.18
-                Node: type 38 {
+                Node {
                     visiting ConstExpression node: test/examples.ec:134.10
-                    Node: type 45 {
+                    Node {
                         visiting LiteralExpression node: test/examples.ec:134.10
                     }
                 }
-                Node: type 38 {
+                Node {
                     visiting ConstExpression node: test/examples.ec:134.16
-                    Node: type 45 {
+                    Node {
                         visiting LiteralExpression node: test/examples.ec:134.16
                     }
                 }
-                Node: type 23 {
+                Node {
                     visiting ExpressionStatement node: test/examples.ec:135.9-18
-                    Node: type 50 {
+                    Node {
                         visiting PostfixExpression node: test/examples.ec:135.9-17
-                        Node: type 44 {
+                        Node {
                             visiting IdentifierExpression node: test/examples.ec:135.9-15
-SymbolTable: looking up symbol control
+SymbolTable: looking up varsymbol control
                         }
                     }
                 }
             }
-            Node: type 35 {
+            Node {
                 visiting BreakStatement node: test/examples.ec:136.9-14
             }
-            Node: type 26 {
+            Node {
                 visiting DefaultStatement node: test/examples.ec:137.5-138.21
-                Node: type 23 {
+                Node {
                     visiting ExpressionStatement node: test/examples.ec:138.9-21
-                    Node: type 42 {
+                    Node {
                         visiting AssignmentExpression node: test/examples.ec:138.9-20
-                        Node: type 44 {
+                        Node {
                             visiting IdentifierExpression node: test/examples.ec:138.9-15
-SymbolTable: looking up symbol control
+SymbolTable: looking up varsymbol control
                         }
-                        Node: type 41 {
+                        Node {
                             visiting UnaryExpression node: test/examples.ec:138.19-20
-                            Node: type 45 {
+                            Node {
                                 visiting LiteralExpression node: test/examples.ec:138.19-20
                             }
                         }
                     }
                 }
             }
-SymbolTable: exiting scope to 0x563ffb064fb0
-SymbolTable: current scope 0x563ffb064fb0
+SymbolTable: exiting scope to 0
         }
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:144.1-11
         parsing declaration specifier list for node at test/examples.ec:144.1-11
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:144.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:144.1-11
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:144.6-10
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:144.6
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:144.10
                 visiting single initializer
-                Node: type 45 {
+                Node {
                     visiting LiteralExpression node: test/examples.ec:144.10
                 }
             }
@@ -2213,186 +2192,187 @@ TypeContext: getting primitive type with value 7
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "i"
     }
-    Node: type 31 {
+    Node {
+        BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 8
+SymbolTable: entering scope 8
         visiting WhileStatement node: test/examples.ec:146.1-148.1
-        Node: type 39 {
+        Node {
             visiting BinaryExpression node: test/examples.ec:146.7-12
-            Node: type 44 {
+            Node {
                 visiting IdentifierExpression node: test/examples.ec:146.7-8
-SymbolTable: looking up symbol i
+SymbolTable: looking up varsymbol i
             }
-            Node: type 45 {
+            Node {
                 visiting LiteralExpression node: test/examples.ec:146.12
             }
         }
-        Node: type 22 {
-SymbolTable: pushing scope 0x563ffb06e8c0
-SymbolTable: entering scope 0x563ffb06e8c0
-SymbolTable: current scope 0x563ffb06e8c0
+        Node {
+            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 9
+SymbolTable: entering scope 9
             visiting CompoundStatement node: test/examples.ec:146.15-148.1
-            Node: type 23 {
+            Node {
                 visiting ExpressionStatement node: test/examples.ec:147.5-8
-                Node: type 50 {
+                Node {
                     visiting PostfixExpression node: test/examples.ec:147.5-7
-                    Node: type 44 {
+                    Node {
                         visiting IdentifierExpression node: test/examples.ec:147.5
-SymbolTable: looking up symbol i
+SymbolTable: looking up varsymbol i
                     }
                 }
             }
-SymbolTable: exiting scope to 0x563ffb064fb0
-SymbolTable: current scope 0x563ffb064fb0
+SymbolTable: exiting scope to 8
         }
-SymbolTable: inserting labelsymbol with name "while_start_0x563ffb078ba0"
+SymbolTable: exiting scope to 0
     }
-    Node: type 32 {
+    Node {
+        BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 10
+SymbolTable: entering scope 10
         visiting DoWhileStatement node: test/examples.ec:150.1-152.16
-        Node: type 39 {
+        Node {
             visiting BinaryExpression node: test/examples.ec:152.9-14
-            Node: type 44 {
+            Node {
                 visiting IdentifierExpression node: test/examples.ec:152.9-10
-SymbolTable: looking up symbol i
+SymbolTable: looking up varsymbol i
             }
-            Node: type 45 {
+            Node {
                 visiting LiteralExpression node: test/examples.ec:152.14
             }
         }
-        Node: type 22 {
-SymbolTable: pushing scope 0x563ffb06ee30
-SymbolTable: entering scope 0x563ffb06ee30
-SymbolTable: current scope 0x563ffb06ee30
+        Node {
+            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 11
+SymbolTable: entering scope 11
             visiting CompoundStatement node: test/examples.ec:150.4-152.1
-            Node: type 23 {
+            Node {
                 visiting ExpressionStatement node: test/examples.ec:151.5-8
-                Node: type 50 {
+                Node {
                     visiting PostfixExpression node: test/examples.ec:151.5-7
-                    Node: type 44 {
+                    Node {
                         visiting IdentifierExpression node: test/examples.ec:151.5
-SymbolTable: looking up symbol i
+SymbolTable: looking up varsymbol i
                     }
                 }
             }
-SymbolTable: exiting scope to 0x563ffb064fb0
-SymbolTable: current scope 0x563ffb064fb0
+SymbolTable: exiting scope to 10
         }
-SymbolTable: inserting labelsymbol with name "dowhile_start_0x563ffb078e50"
+SymbolTable: exiting scope to 0
     }
-    Node: type 33 {
-SymbolTable: pushing scope 0x563ffb06f280
-SymbolTable: entering scope 0x563ffb06f280
-SymbolTable: current scope 0x563ffb06f280
+    Node {
+        BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 12
+SymbolTable: entering scope 12
         visiting ForStatement node: test/examples.ec:154.1-157.1
-        Node: type 22 {
-SymbolTable: pushing scope 0x563ffb06f3a0
-SymbolTable: entering scope 0x563ffb06f3a0
-SymbolTable: current scope 0x563ffb06f3a0
+        Node {
+            BSV currently in state WRITE, pushing scope
+SymbolTable: pushing scope 13
+SymbolTable: entering scope 13
             visiting CompoundStatement node: test/examples.ec:154.25-157.1
-            Node: type 29 {
+            Node {
                 visiting IfStatement node: test/examples.ec:155.5-156.14
-                Node: type 39 {
+                Node {
                     visiting BinaryExpression node: test/examples.ec:155.8-14
-                    Node: type 44 {
+                    Node {
                         visiting IdentifierExpression node: test/examples.ec:155.8-9
-SymbolTable: looking up symbol i
+SymbolTable: looking up varsymbol i
                     }
-                    Node: type 45 {
+                    Node {
                         visiting LiteralExpression node: test/examples.ec:155.14
                     }
                 }
-                Node: type 35 {
+                Node {
                     visiting BreakStatement node: test/examples.ec:156.9-14
                 }
             }
-SymbolTable: exiting scope to 0x563ffb06f280
-SymbolTable: current scope 0x563ffb06f280
+SymbolTable: exiting scope to 12
         }
-SymbolTable: inserting labelsymbol with name "for_start_0x563ffb079330"
-        Node: type 42 {
+        Node {
             visiting AssignmentExpression node: test/examples.ec:154.5-10
-            Node: type 44 {
+            Node {
                 visiting IdentifierExpression node: test/examples.ec:154.5-6
-SymbolTable: looking up symbol i
+SymbolTable: looking up varsymbol i
             }
-            Node: type 45 {
+            Node {
                 visiting LiteralExpression node: test/examples.ec:154.10
             }
         }
-        Node: type 39 {
+        Node {
             visiting BinaryExpression node: test/examples.ec:154.13-17
-            Node: type 44 {
+            Node {
                 visiting IdentifierExpression node: test/examples.ec:154.13
-SymbolTable: looking up symbol i
+SymbolTable: looking up varsymbol i
             }
-            Node: type 45 {
+            Node {
                 visiting LiteralExpression node: test/examples.ec:154.17
             }
         }
-        Node: type 50 {
+        Node {
             visiting PostfixExpression node: test/examples.ec:154.20-22
-            Node: type 44 {
+            Node {
                 visiting IdentifierExpression node: test/examples.ec:154.20
-SymbolTable: looking up symbol i
+SymbolTable: looking up varsymbol i
             }
         }
-SymbolTable: exiting scope to 0x563ffb064fb0
-SymbolTable: current scope 0x563ffb064fb0
+SymbolTable: exiting scope to 0
     }
-    Node: type 34 {
+    Node {
         visiting GotoStatement node: test/examples.ec:162.1-17
     }
-    Node: type 27 {
+    Node {
         visiting LabeledStatement node: test/examples.ec:164.1-165.8
 SymbolTable: inserting labelsymbol with name "label_here"
-        Node: type 23 {
+        Node {
             visiting ExpressionStatement node: test/examples.ec:165.1-8
-            Node: type 42 {
+            Node {
                 visiting AssignmentExpression node: test/examples.ec:165.1-7
-                Node: type 44 {
+                Node {
                     visiting IdentifierExpression node: test/examples.ec:165.1
-SymbolTable: looking up symbol i
+SymbolTable: looking up varsymbol i
                 }
-                Node: type 45 {
+                Node {
                     visiting LiteralExpression node: test/examples.ec:165.5-7
                 }
             }
         }
     }
-    Node: type 27 {
+    Node {
         visiting LabeledStatement node: test/examples.ec:167.1-168.8
 SymbolTable: inserting labelsymbol with name "after_label"
-        Node: type 23 {
+        Node {
             visiting ExpressionStatement node: test/examples.ec:168.1-8
-            Node: type 42 {
+            Node {
                 visiting AssignmentExpression node: test/examples.ec:168.1-7
-                Node: type 44 {
+                Node {
                     visiting IdentifierExpression node: test/examples.ec:168.1
-SymbolTable: looking up symbol i
+SymbolTable: looking up varsymbol i
                 }
-                Node: type 45 {
+                Node {
                     visiting LiteralExpression node: test/examples.ec:168.5-7
                 }
             }
         }
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:173.1-11
         parsing declaration specifier list for node at test/examples.ec:173.1-11
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:173.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:173.1-11
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:173.6-10
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:173.6
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:173.10
                 visiting single initializer
-                Node: type 45 {
+                Node {
                     visiting LiteralExpression node: test/examples.ec:173.10
                 }
             }
@@ -2400,25 +2380,25 @@ TypeContext: getting primitive type with value 7
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "a"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:174.1-11
         parsing declaration specifier list for node at test/examples.ec:174.1-11
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:174.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:174.1-11
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:174.6-10
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:174.6
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:174.10
                 visiting single initializer
-                Node: type 45 {
+                Node {
                     visiting LiteralExpression node: test/examples.ec:174.10
                 }
             }
@@ -2426,55 +2406,55 @@ TypeContext: getting primitive type with value 7
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "b"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:176.1-35
         parsing declaration specifier list for node at test/examples.ec:176.1-35
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:176.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:176.1-35
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:176.6-34
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:176.6-10
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:176.14-34
                 visiting single initializer
-                Node: type 39 {
+                Node {
                     visiting BinaryExpression node: test/examples.ec:176.14-34
-                    Node: type 39 {
+                    Node {
                         visiting BinaryExpression node: test/examples.ec:176.14-22
-                        Node: type 44 {
+                        Node {
                             visiting IdentifierExpression node: test/examples.ec:176.14
-SymbolTable: looking up symbol a
+SymbolTable: looking up varsymbol a
                         }
-                        Node: type 39 {
+                        Node {
                             visiting BinaryExpression node: test/examples.ec:176.18-22
-                            Node: type 44 {
+                            Node {
                                 visiting IdentifierExpression node: test/examples.ec:176.18
-SymbolTable: looking up symbol b
+SymbolTable: looking up varsymbol b
                             }
-                            Node: type 45 {
+                            Node {
                                 visiting LiteralExpression node: test/examples.ec:176.22
                             }
                         }
                     }
-                    Node: type 39 {
+                    Node {
                         visiting BinaryExpression node: test/examples.ec:176.26-34
-                        Node: type 39 {
+                        Node {
                             visiting BinaryExpression node: test/examples.ec:176.26-30
-                            Node: type 45 {
+                            Node {
                                 visiting LiteralExpression node: test/examples.ec:176.26
                             }
-                            Node: type 45 {
+                            Node {
                                 visiting LiteralExpression node: test/examples.ec:176.30
                             }
                         }
-                        Node: type 45 {
+                        Node {
                             visiting LiteralExpression node: test/examples.ec:176.34
                         }
                     }
@@ -2484,37 +2464,37 @@ SymbolTable: looking up symbol b
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "arith"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:177.1-25
         parsing declaration specifier list for node at test/examples.ec:177.1-25
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:177.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:177.1-25
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:177.6-24
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:177.6-10
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:177.14-24
                 visiting single initializer
-                Node: type 39 {
+                Node {
                     visiting BinaryExpression node: test/examples.ec:177.14-24
-                    Node: type 39 {
+                    Node {
                         visiting BinaryExpression node: test/examples.ec:177.14-19
-                        Node: type 44 {
+                        Node {
                             visiting IdentifierExpression node: test/examples.ec:177.14
-SymbolTable: looking up symbol a
+SymbolTable: looking up varsymbol a
                         }
-                        Node: type 45 {
+                        Node {
                             visiting LiteralExpression node: test/examples.ec:177.19
                         }
                     }
-                    Node: type 45 {
+                    Node {
                         visiting LiteralExpression node: test/examples.ec:177.24
                     }
                 }
@@ -2523,46 +2503,46 @@ SymbolTable: looking up symbol a
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "shift"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:178.1-32
         parsing declaration specifier list for node at test/examples.ec:178.1-32
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:178.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:178.1-32
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:178.6-31
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:178.6-11
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:178.15-31
                 visiting single initializer
-                Node: type 39 {
+                Node {
                     visiting BinaryExpression node: test/examples.ec:178.15-31
-                    Node: type 39 {
+                    Node {
                         visiting BinaryExpression node: test/examples.ec:178.15-21
-                        Node: type 44 {
+                        Node {
                             visiting IdentifierExpression node: test/examples.ec:178.15-16
-SymbolTable: looking up symbol a
+SymbolTable: looking up varsymbol a
                         }
-                        Node: type 44 {
+                        Node {
                             visiting IdentifierExpression node: test/examples.ec:178.20
-SymbolTable: looking up symbol b
+SymbolTable: looking up varsymbol b
                         }
                     }
-                    Node: type 39 {
+                    Node {
                         visiting BinaryExpression node: test/examples.ec:178.25-31
-                        Node: type 44 {
+                        Node {
                             visiting IdentifierExpression node: test/examples.ec:178.25-26
-SymbolTable: looking up symbol a
+SymbolTable: looking up varsymbol a
                         }
-                        Node: type 44 {
+                        Node {
                             visiting IdentifierExpression node: test/examples.ec:178.30
-SymbolTable: looking up symbol b
+SymbolTable: looking up varsymbol b
                         }
                     }
                 }
@@ -2571,33 +2551,33 @@ SymbolTable: looking up symbol b
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "bitops"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:179.1-18
         parsing declaration specifier list for node at test/examples.ec:179.1-18
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:179.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:179.1-18
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:179.6-17
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:179.6-8
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:179.12-17
                 visiting single initializer
-                Node: type 39 {
+                Node {
                     visiting BinaryExpression node: test/examples.ec:179.12-17
-                    Node: type 44 {
+                    Node {
                         visiting IdentifierExpression node: test/examples.ec:179.12
-SymbolTable: looking up symbol a
+SymbolTable: looking up varsymbol a
                     }
-                    Node: type 44 {
+                    Node {
                         visiting IdentifierExpression node: test/examples.ec:179.17
-SymbolTable: looking up symbol b
+SymbolTable: looking up varsymbol b
                     }
                 }
             }
@@ -2605,33 +2585,33 @@ SymbolTable: looking up symbol b
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "rel"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:180.1-17
         parsing declaration specifier list for node at test/examples.ec:180.1-17
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:180.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:180.1-17
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:180.6-16
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:180.6-7
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:180.11-16
                 visiting single initializer
-                Node: type 39 {
+                Node {
                     visiting BinaryExpression node: test/examples.ec:180.11-16
-                    Node: type 44 {
+                    Node {
                         visiting IdentifierExpression node: test/examples.ec:180.11
-SymbolTable: looking up symbol a
+SymbolTable: looking up varsymbol a
                     }
-                    Node: type 44 {
+                    Node {
                         visiting IdentifierExpression node: test/examples.ec:180.16
-SymbolTable: looking up symbol b
+SymbolTable: looking up varsymbol b
                     }
                 }
             }
@@ -2639,33 +2619,33 @@ SymbolTable: looking up symbol b
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "eq"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:181.1-18
         parsing declaration specifier list for node at test/examples.ec:181.1-18
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:181.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:181.1-18
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:181.6-17
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:181.6-8
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:181.12-17
                 visiting single initializer
-                Node: type 39 {
+                Node {
                     visiting BinaryExpression node: test/examples.ec:181.12-17
-                    Node: type 44 {
+                    Node {
                         visiting IdentifierExpression node: test/examples.ec:181.12
-SymbolTable: looking up symbol a
+SymbolTable: looking up varsymbol a
                     }
-                    Node: type 44 {
+                    Node {
                         visiting IdentifierExpression node: test/examples.ec:181.17
-SymbolTable: looking up symbol b
+SymbolTable: looking up varsymbol b
                     }
                 }
             }
@@ -2673,44 +2653,44 @@ SymbolTable: looking up symbol b
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "neq"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:182.1-26
         parsing declaration specifier list for node at test/examples.ec:182.1-26
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:182.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:182.1-26
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:182.6-25
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:182.6-9
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:182.13-25
                 visiting single initializer
-                Node: type 43 {
+                Node {
                     visiting ConditionalExpression node: test/examples.ec:182.13-25
-                    Node: type 39 {
+                    Node {
                         visiting BinaryExpression node: test/examples.ec:182.13-17
-                        Node: type 44 {
+                        Node {
                             visiting IdentifierExpression node: test/examples.ec:182.13
-SymbolTable: looking up symbol a
+SymbolTable: looking up varsymbol a
                         }
-                        Node: type 44 {
+                        Node {
                             visiting IdentifierExpression node: test/examples.ec:182.17
-SymbolTable: looking up symbol b
+SymbolTable: looking up varsymbol b
                         }
                     }
-                    Node: type 44 {
+                    Node {
                         visiting IdentifierExpression node: test/examples.ec:182.21
-SymbolTable: looking up symbol a
+SymbolTable: looking up varsymbol a
                     }
-                    Node: type 44 {
+                    Node {
                         visiting IdentifierExpression node: test/examples.ec:182.25
-SymbolTable: looking up symbol b
+SymbolTable: looking up varsymbol b
                     }
                 }
             }
@@ -2718,228 +2698,228 @@ SymbolTable: looking up symbol b
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "tern"
     }
-    Node: type 23 {
+    Node {
         visiting ExpressionStatement node: test/examples.ec:184.1-7
-        Node: type 42 {
+        Node {
             visiting AssignmentExpression node: test/examples.ec:184.1-6
-            Node: type 44 {
+            Node {
                 visiting IdentifierExpression node: test/examples.ec:184.1
-SymbolTable: looking up symbol a
+SymbolTable: looking up varsymbol a
             }
-            Node: type 45 {
+            Node {
                 visiting LiteralExpression node: test/examples.ec:184.6
             }
         }
     }
-    Node: type 23 {
+    Node {
         visiting ExpressionStatement node: test/examples.ec:185.1-7
-        Node: type 42 {
+        Node {
             visiting AssignmentExpression node: test/examples.ec:185.1-6
-            Node: type 44 {
+            Node {
                 visiting IdentifierExpression node: test/examples.ec:185.1
-SymbolTable: looking up symbol a
+SymbolTable: looking up varsymbol a
             }
-            Node: type 45 {
+            Node {
                 visiting LiteralExpression node: test/examples.ec:185.6
             }
         }
     }
-    Node: type 23 {
+    Node {
         visiting ExpressionStatement node: test/examples.ec:186.1-7
-        Node: type 42 {
+        Node {
             visiting AssignmentExpression node: test/examples.ec:186.1-6
-            Node: type 44 {
+            Node {
                 visiting IdentifierExpression node: test/examples.ec:186.1
-SymbolTable: looking up symbol a
+SymbolTable: looking up varsymbol a
             }
-            Node: type 45 {
+            Node {
                 visiting LiteralExpression node: test/examples.ec:186.6
             }
         }
     }
-    Node: type 23 {
+    Node {
         visiting ExpressionStatement node: test/examples.ec:187.1-7
-        Node: type 42 {
+        Node {
             visiting AssignmentExpression node: test/examples.ec:187.1-6
-            Node: type 44 {
+            Node {
                 visiting IdentifierExpression node: test/examples.ec:187.1
-SymbolTable: looking up symbol a
+SymbolTable: looking up varsymbol a
             }
-            Node: type 45 {
+            Node {
                 visiting LiteralExpression node: test/examples.ec:187.6
             }
         }
     }
-    Node: type 23 {
+    Node {
         visiting ExpressionStatement node: test/examples.ec:188.1-7
-        Node: type 42 {
+        Node {
             visiting AssignmentExpression node: test/examples.ec:188.1-6
-            Node: type 44 {
+            Node {
                 visiting IdentifierExpression node: test/examples.ec:188.1
-SymbolTable: looking up symbol a
+SymbolTable: looking up varsymbol a
             }
-            Node: type 45 {
+            Node {
                 visiting LiteralExpression node: test/examples.ec:188.6
             }
         }
     }
-    Node: type 23 {
+    Node {
         visiting ExpressionStatement node: test/examples.ec:189.1-7
-        Node: type 42 {
+        Node {
             visiting AssignmentExpression node: test/examples.ec:189.1-6
-            Node: type 44 {
+            Node {
                 visiting IdentifierExpression node: test/examples.ec:189.1
-SymbolTable: looking up symbol a
+SymbolTable: looking up varsymbol a
             }
-            Node: type 45 {
+            Node {
                 visiting LiteralExpression node: test/examples.ec:189.6
             }
         }
     }
-    Node: type 23 {
+    Node {
         visiting ExpressionStatement node: test/examples.ec:190.1-7
-        Node: type 42 {
+        Node {
             visiting AssignmentExpression node: test/examples.ec:190.1-6
-            Node: type 44 {
+            Node {
                 visiting IdentifierExpression node: test/examples.ec:190.1
-SymbolTable: looking up symbol a
+SymbolTable: looking up varsymbol a
             }
-            Node: type 45 {
+            Node {
                 visiting LiteralExpression node: test/examples.ec:190.6
             }
         }
     }
-    Node: type 23 {
+    Node {
         visiting ExpressionStatement node: test/examples.ec:191.1-7
-        Node: type 42 {
+        Node {
             visiting AssignmentExpression node: test/examples.ec:191.1-6
-            Node: type 44 {
+            Node {
                 visiting IdentifierExpression node: test/examples.ec:191.1
-SymbolTable: looking up symbol a
+SymbolTable: looking up varsymbol a
             }
-            Node: type 45 {
+            Node {
                 visiting LiteralExpression node: test/examples.ec:191.6
             }
         }
     }
-    Node: type 23 {
+    Node {
         visiting ExpressionStatement node: test/examples.ec:192.1-8
-        Node: type 42 {
+        Node {
             visiting AssignmentExpression node: test/examples.ec:192.1-7
-            Node: type 44 {
+            Node {
                 visiting IdentifierExpression node: test/examples.ec:192.1
-SymbolTable: looking up symbol a
+SymbolTable: looking up varsymbol a
             }
-            Node: type 45 {
+            Node {
                 visiting LiteralExpression node: test/examples.ec:192.7
             }
         }
     }
-    Node: type 23 {
+    Node {
         visiting ExpressionStatement node: test/examples.ec:193.1-8
-        Node: type 42 {
+        Node {
             visiting AssignmentExpression node: test/examples.ec:193.1-7
-            Node: type 44 {
+            Node {
                 visiting IdentifierExpression node: test/examples.ec:193.1
-SymbolTable: looking up symbol a
+SymbolTable: looking up varsymbol a
             }
-            Node: type 45 {
+            Node {
                 visiting LiteralExpression node: test/examples.ec:193.7
             }
         }
     }
-    Node: type 23 {
+    Node {
         visiting ExpressionStatement node: test/examples.ec:195.1-4
-        Node: type 41 {
+        Node {
             visiting UnaryExpression node: test/examples.ec:195.1-3
-            Node: type 44 {
+            Node {
                 visiting IdentifierExpression node: test/examples.ec:195.1-3
-SymbolTable: looking up symbol a
+SymbolTable: looking up varsymbol a
             }
         }
     }
-    Node: type 23 {
+    Node {
         visiting ExpressionStatement node: test/examples.ec:196.1-4
-        Node: type 41 {
+        Node {
             visiting UnaryExpression node: test/examples.ec:196.1-3
-            Node: type 44 {
+            Node {
                 visiting IdentifierExpression node: test/examples.ec:196.1-3
-SymbolTable: looking up symbol a
+SymbolTable: looking up varsymbol a
             }
         }
     }
-    Node: type 23 {
+    Node {
         visiting ExpressionStatement node: test/examples.ec:197.1-4
-        Node: type 50 {
+        Node {
             visiting PostfixExpression node: test/examples.ec:197.1-3
-            Node: type 44 {
+            Node {
                 visiting IdentifierExpression node: test/examples.ec:197.1
-SymbolTable: looking up symbol a
+SymbolTable: looking up varsymbol a
             }
         }
     }
-    Node: type 23 {
+    Node {
         visiting ExpressionStatement node: test/examples.ec:198.1-4
-        Node: type 50 {
+        Node {
             visiting PostfixExpression node: test/examples.ec:198.1-3
-            Node: type 44 {
+            Node {
                 visiting IdentifierExpression node: test/examples.ec:198.1
-SymbolTable: looking up symbol a
+SymbolTable: looking up varsymbol a
             }
         }
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:200.1-35
         parsing declaration specifier list for node at test/examples.ec:200.1-35
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:200.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:200.1-35
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:200.6-34
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:200.6-10
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:200.14-34
                 visiting single initializer
-                Node: type 39 {
+                Node {
                     visiting BinaryExpression node: test/examples.ec:200.14-34
-                    Node: type 39 {
+                    Node {
                         visiting BinaryExpression node: test/examples.ec:200.14-26
-                        Node: type 42 {
+                        Node {
                             visiting AssignmentExpression node: test/examples.ec:200.14-19
-                            Node: type 44 {
+                            Node {
                                 visiting IdentifierExpression node: test/examples.ec:200.14-15
-SymbolTable: looking up symbol a
+SymbolTable: looking up varsymbol a
                             }
-                            Node: type 45 {
+                            Node {
                                 visiting LiteralExpression node: test/examples.ec:200.19
                             }
                         }
-                        Node: type 42 {
+                        Node {
                             visiting AssignmentExpression node: test/examples.ec:200.22-26
-                            Node: type 44 {
+                            Node {
                                 visiting IdentifierExpression node: test/examples.ec:200.22
-SymbolTable: looking up symbol b
+SymbolTable: looking up varsymbol b
                             }
-                            Node: type 45 {
+                            Node {
                                 visiting LiteralExpression node: test/examples.ec:200.26
                             }
                         }
                     }
-                    Node: type 39 {
+                    Node {
                         visiting BinaryExpression node: test/examples.ec:200.29-33
-                        Node: type 44 {
+                        Node {
                             visiting IdentifierExpression node: test/examples.ec:200.29
-SymbolTable: looking up symbol a
+SymbolTable: looking up varsymbol a
                         }
-                        Node: type 44 {
+                        Node {
                             visiting IdentifierExpression node: test/examples.ec:200.33
-SymbolTable: looking up symbol b
+SymbolTable: looking up varsymbol b
                         }
                     }
                 }
@@ -2948,23 +2928,21 @@ SymbolTable: looking up symbol b
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "comma"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:205.1-14
         parsing declaration specifier list for node at test/examples.ec:205.1-14
-        Node: type 17 {
-SymbolTable: pushing scope 0x563ffb084b40
-SymbolTable: entering scope 0x563ffb084b40
-SymbolTable: current scope 0x563ffb084b40
+        Node {
             visiting ClassSpecifier node: test/examples.ec:205.1-11
-TypeContext: class type 'Point' on scope 0x563ffb084b40
-SymbolTable: exiting scope to 0x563ffb064fb0
-SymbolTable: current scope 0x563ffb064fb0
+TypeContext: class type 'Point' on scope 0x55b4e7167fc0
+TypeContext: existing class found
+            class has name, inserting typesymbol if needed
+SymbolTable: looking up typesymbol Point in current scope
         }
         finished parsing specifiers for node test/examples.ec:205.1-14
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:205.13
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:205.13
                 }
             }
@@ -2972,152 +2950,150 @@ SymbolTable: current scope 0x563ffb064fb0
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "p"
     }
-    Node: type 23 {
+    Node {
         visiting ExpressionStatement node: test/examples.ec:206.1-8
-        Node: type 42 {
+        Node {
             visiting AssignmentExpression node: test/examples.ec:206.1-7
-            Node: type 48 {
+            Node {
                 visiting MemberAccessExpression node: test/examples.ec:206.1-3
-                Node: type 44 {
+                Node {
                     visiting IdentifierExpression node: test/examples.ec:206.1
-SymbolTable: looking up symbol p
+SymbolTable: looking up varsymbol p
                 }
             }
-            Node: type 45 {
+            Node {
                 visiting LiteralExpression node: test/examples.ec:206.7
             }
         }
     }
-    Node: type 23 {
+    Node {
         visiting ExpressionStatement node: test/examples.ec:207.1-8
-        Node: type 42 {
+        Node {
             visiting AssignmentExpression node: test/examples.ec:207.1-7
-            Node: type 48 {
+            Node {
                 visiting MemberAccessExpression node: test/examples.ec:207.1-3
-                Node: type 44 {
+                Node {
                     visiting IdentifierExpression node: test/examples.ec:207.1
-SymbolTable: looking up symbol p
+SymbolTable: looking up varsymbol p
                 }
             }
-            Node: type 45 {
+            Node {
                 visiting LiteralExpression node: test/examples.ec:207.7
             }
         }
     }
-    Node: type 23 {
+    Node {
         visiting ExpressionStatement node: test/examples.ec:209.1-11
-        Node: type 42 {
+        Node {
             visiting AssignmentExpression node: test/examples.ec:209.1-10
-            Node: type 44 {
+            Node {
                 visiting IdentifierExpression node: test/examples.ec:209.1-3
-SymbolTable: looking up symbol ptr
+SymbolTable: looking up varsymbol ptr
             }
-            Node: type 41 {
+            Node {
                 visiting UnaryExpression node: test/examples.ec:209.7-10
-                Node: type 48 {
+                Node {
                     visiting MemberAccessExpression node: test/examples.ec:209.7-10
-                    Node: type 44 {
+                    Node {
                         visiting IdentifierExpression node: test/examples.ec:209.7-8
-SymbolTable: looking up symbol p
+SymbolTable: looking up varsymbol p
                     }
                 }
             }
         }
     }
-    Node: type 23 {
+    Node {
         visiting ExpressionStatement node: test/examples.ec:210.1-10
-        Node: type 42 {
+        Node {
             visiting AssignmentExpression node: test/examples.ec:210.1-9
-            Node: type 41 {
+            Node {
                 visiting UnaryExpression node: test/examples.ec:210.1-4
-                Node: type 44 {
+                Node {
                     visiting IdentifierExpression node: test/examples.ec:210.1-4
-SymbolTable: looking up symbol ptr
+SymbolTable: looking up varsymbol ptr
                 }
             }
-            Node: type 45 {
+            Node {
                 visiting LiteralExpression node: test/examples.ec:210.8-9
             }
         }
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:212.1-21
         parsing declaration specifier list for node at test/examples.ec:212.1-21
-        Node: type 17 {
-SymbolTable: pushing scope 0x563ffb085550
-SymbolTable: entering scope 0x563ffb085550
-SymbolTable: current scope 0x563ffb085550
+        Node {
             visiting ClassSpecifier node: test/examples.ec:212.1-11
-TypeContext: class type 'Point' on scope 0x563ffb085550
-SymbolTable: exiting scope to 0x563ffb064fb0
-SymbolTable: current scope 0x563ffb064fb0
+TypeContext: class type 'Point' on scope 0x55b4e7167fc0
+TypeContext: existing class found
+            class has name, inserting typesymbol if needed
+SymbolTable: looking up typesymbol Point in current scope
         }
         finished parsing specifiers for node test/examples.ec:212.1-21
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:212.13-20
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:212.13-15
                 }
-                Node: type 2 {
+                Node {
                     visiting Pointer node: test/examples.ec:212.13
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:212.19-20
                 visiting single initializer
-                Node: type 41 {
+                Node {
                     visiting UnaryExpression node: test/examples.ec:212.19-20
-                    Node: type 44 {
+                    Node {
                         visiting IdentifierExpression node: test/examples.ec:212.19-20
-SymbolTable: looking up symbol p
+SymbolTable: looking up varsymbol p
                     }
                 }
             }
         }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x563ffb043b60
+TypeContext: pointer with base 0x55b4e712fd10
 SymbolTable: inserting varsymbol with name "pp"
     }
-    Node: type 23 {
+    Node {
         visiting ExpressionStatement node: test/examples.ec:213.1-11
-        Node: type 42 {
+        Node {
             visiting AssignmentExpression node: test/examples.ec:213.1-10
-            Node: type 48 {
+            Node {
                 visiting MemberAccessExpression node: test/examples.ec:213.1-5
-                Node: type 44 {
+                Node {
                     visiting IdentifierExpression node: test/examples.ec:213.1-2
-SymbolTable: looking up symbol pp
+SymbolTable: looking up varsymbol pp
                 }
             }
-            Node: type 45 {
+            Node {
                 visiting LiteralExpression node: test/examples.ec:213.9-10
             }
         }
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:218.1-20
         parsing declaration specifier list for node at test/examples.ec:218.1-20
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:218.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:218.1-20
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:218.6-19
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:218.6-8
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:218.12-19
                 visiting single initializer
-                Node: type 51 {
+                Node {
                     visiting SizeofExpression node: test/examples.ec:218.12-19
-                    Node: type 44 {
+                    Node {
                         visiting IdentifierExpression node: test/examples.ec:218.19
-SymbolTable: looking up symbol a
+SymbolTable: looking up varsymbol a
                     }
                 }
             }
@@ -3125,31 +3101,31 @@ SymbolTable: looking up symbol a
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "sz1"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:219.1-24
         parsing declaration specifier list for node at test/examples.ec:219.1-24
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:219.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:219.1-24
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:219.6-23
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:219.6-8
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:219.12-23
                 visiting single initializer
-                Node: type 51 {
+                Node {
                     visiting SizeofExpression node: test/examples.ec:219.12-23
-                    Node: type 37 {
+                    Node {
                         parsing declaration specifier list for node at test/examples.ec:219.12-22
-                        Node: type 21 {
+                        Node {
                             visiting PrimitiveSpecifier node: test/examples.ec:219.12-22
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
                         }
                         finished parsing specifiers for node test/examples.ec:219.12-22
                     }
@@ -3159,36 +3135,34 @@ TypeContext: getting primitive type with value 7
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "sz2"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:220.1-31
         parsing declaration specifier list for node at test/examples.ec:220.1-31
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:220.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:220.1-31
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:220.6-30
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:220.6-8
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:220.12-30
                 visiting single initializer
-                Node: type 51 {
+                Node {
                     visiting SizeofExpression node: test/examples.ec:220.12-30
-                    Node: type 37 {
+                    Node {
                         parsing declaration specifier list for node at test/examples.ec:220.12-29
-                        Node: type 17 {
-SymbolTable: pushing scope 0x563ffb086080
-SymbolTable: entering scope 0x563ffb086080
-SymbolTable: current scope 0x563ffb086080
+                        Node {
                             visiting ClassSpecifier node: test/examples.ec:220.12-29
-TypeContext: class type 'Point' on scope 0x563ffb086080
-SymbolTable: exiting scope to 0x563ffb064fb0
-SymbolTable: current scope 0x563ffb064fb0
+TypeContext: class type 'Point' on scope 0x55b4e7167fc0
+TypeContext: existing class found
+                            class has name, inserting typesymbol if needed
+SymbolTable: looking up typesymbol Point in current scope
                         }
                         finished parsing specifiers for node test/examples.ec:220.12-29
                     }
@@ -3198,25 +3172,25 @@ SymbolTable: current scope 0x563ffb064fb0
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "sz3"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:225.1-19
         parsing declaration specifier list for node at test/examples.ec:225.1-19
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:225.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:225.1-19
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:225.6-18
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:225.6-9
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:225.13-18
                 visiting single initializer
-                Node: type 45 {
+                Node {
                     visiting LiteralExpression node: test/examples.ec:225.13-18
                 }
             }
@@ -3224,25 +3198,25 @@ TypeContext: getting primitive type with value 7
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "hexv"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:226.1-17
         parsing declaration specifier list for node at test/examples.ec:226.1-17
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:226.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:226.1-17
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:226.6-16
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:226.6-9
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:226.13-16
                 visiting single initializer
-                Node: type 45 {
+                Node {
                     visiting LiteralExpression node: test/examples.ec:226.13-16
                 }
             }
@@ -3250,27 +3224,27 @@ TypeContext: getting primitive type with value 7
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "octv"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:227.1-17
         parsing declaration specifier list for node at test/examples.ec:227.1-17
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:227.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:227.1-17
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:227.6-16
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:227.6-9
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:227.13-16
                 visiting single initializer
-                Node: type 41 {
+                Node {
                     visiting UnaryExpression node: test/examples.ec:227.13-16
-                    Node: type 45 {
+                    Node {
                         visiting LiteralExpression node: test/examples.ec:227.13-16
                     }
                 }
@@ -3279,25 +3253,25 @@ TypeContext: getting primitive type with value 7
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "negv"
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:229.1-16
         parsing declaration specifier list for node at test/examples.ec:229.1-16
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:229.1-3
-TypeContext: getting primitive type with value 0
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:229.1-16
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:229.5-15
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:229.5-9
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:229.13-15
                 visiting single initializer
-                Node: type 45 {
+                Node {
                     visiting LiteralExpression node: test/examples.ec:229.13-15
                 }
             }
@@ -3305,50 +3279,49 @@ TypeContext: getting primitive type with value 0
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "charv"
     }
-    Node: type 28 {
+    Node {
         visiting PrintStatement node: test/examples.ec:234.1-21
-        Node: type 44 {
+        Node {
             visiting IdentifierExpression node: test/examples.ec:234.11
-SymbolTable: looking up symbol a
+SymbolTable: looking up varsymbol a
         }
-        Node: type 44 {
+        Node {
             visiting IdentifierExpression node: test/examples.ec:234.14
-SymbolTable: looking up symbol b
+SymbolTable: looking up varsymbol b
         }
-        Node: type 46 {
+        Node {
             visiting StringExpression node: test/examples.ec:234.17-20
         }
     }
-    Node: type 9 {
+    Node {
         visiting VariableDeclaration node: test/examples.ec:239.1-23
         parsing declaration specifier list for node at test/examples.ec:239.1-23
-        Node: type 21 {
+        Node {
             visiting PrimitiveSpecifier node: test/examples.ec:239.1-4
-TypeContext: getting primitive type with value 7
+TypeContext: getting primitive type
         }
         finished parsing specifiers for node test/examples.ec:239.1-23
-        Node: type 6 {
+        Node {
             visiting InitDeclarator node: test/examples.ec:239.6-22
-            Node: type 5 {
-                Node: type 10 {
+            Node {
+                Node {
                     visiting IdentifierDeclarator node: test/examples.ec:239.6-11
                 }
             }
-            Node: type 4 {
+            Node {
                 visiting Initializer node: test/examples.ec:239.15-22
                 visiting single initializer
-                Node: type 47 {
+                Node {
                     visiting CallExpression node: test/examples.ec:239.15-22
-                    Node: type 44 {
+                    Node {
                         visiting IdentifierExpression node: test/examples.ec:239.15-17
-SymbolTable: looking up symbol Add
-SymbolTable: symbol 'Add' not found
-SymbolTable: looking up symbol Add
+SymbolTable: looking up varsymbol Add
+SymbolTable: looking up funcsymbol Add
                     }
-                    Node: type 45 {
+                    Node {
                         visiting LiteralExpression node: test/examples.ec:239.15-19
                     }
-                    Node: type 45 {
+                    Node {
                         visiting LiteralExpression node: test/examples.ec:239.15-21
                     }
                 }
@@ -3357,443 +3330,359 @@ SymbolTable: looking up symbol Add
 TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "result"
     }
-    Node: type 23 {
+    Node {
         visiting ExpressionStatement node: test/examples.ec:240.1-15
-        Node: type 42 {
+        Node {
             visiting AssignmentExpression node: test/examples.ec:240.1-14
-            Node: type 44 {
+            Node {
                 visiting IdentifierExpression node: test/examples.ec:240.1-8
-SymbolTable: looking up symbol func_ptr
+SymbolTable: looking up varsymbol func_ptr
             }
-            Node: type 44 {
+            Node {
                 visiting IdentifierExpression node: test/examples.ec:240.12-14
-SymbolTable: looking up symbol Add
-SymbolTable: symbol 'Add' not found
-SymbolTable: looking up symbol Add
+SymbolTable: looking up varsymbol Add
+SymbolTable: looking up funcsymbol Add
             }
         }
     }
-    Node: type 23 {
+    Node {
         visiting ExpressionStatement node: test/examples.ec:241.1-21
-        Node: type 42 {
+        Node {
             visiting AssignmentExpression node: test/examples.ec:241.1-20
-            Node: type 44 {
+            Node {
                 visiting IdentifierExpression node: test/examples.ec:241.1-6
-SymbolTable: looking up symbol result
+SymbolTable: looking up varsymbol result
             }
-            Node: type 47 {
+            Node {
                 visiting CallExpression node: test/examples.ec:241.10-20
-                Node: type 44 {
+                Node {
                     visiting IdentifierExpression node: test/examples.ec:241.10-17
-SymbolTable: looking up symbol func_ptr
+SymbolTable: looking up varsymbol func_ptr
                 }
-                Node: type 45 {
+                Node {
                     visiting LiteralExpression node: test/examples.ec:241.10-19
                 }
             }
         }
     }
-    Node: type 23 {
+    Node {
         visiting ExpressionStatement node: test/examples.ec:246.1
     }
 }
+semantic checking complete
 --------- TYPE CONTEXT ---------
 
 Base Types:
-  class_Point_0x563ffb086080 -> 0x563ffb043fe0 : class
-  class_Point_0x563ffb084b40 -> 0x563ffb043920 : class
-  class_Node_0x563ffb067bb0 -> 0x563ffb044580 : class
-  class_Point_0x563ffb067e30 -> 0x563ffb043ad0 : class { I64 x; I64 y; }
-  class_Bits_0x563ffb068220 -> 0x563ffb043d10 : class { I64 a; I64 ; I64 b; }
-  enum_Color_0x563ffb064fb0 -> 0x563ffb044190 : enum
-  class_anon_0_0x563ffb0685f0 -> 0x563ffb044340 : class { I32 anon_field; }
-  enum_Forward_0x563ffb064fb0 -> 0x563ffb044610 : enum
-  union_Value_0x563ffb068940 -> 0x563ffb043f50 : union { I64 i; F64 f; }
-  function_94832794287920 -> 0x563ffb06be20 : Void ()
-  enum_anon_1_0x563ffb064fb0 -> 0x563ffb0443d0 : enum
-  function_v6102223542174697 -> 0x563ffb06b940 : I64 (I64, ...)
-  class_Point_0x563ffb085550 -> 0x563ffb043b60 : class
-  function_6102223542174697 -> 0x563ffb06a720 : I64 (I64)
-  function_388593891032503386 -> 0x563ffb06ad40 : I64 (I64, I64)
-  function_94832794445120 -> 0x563ffb06c140 : I64 (I64) * ()
+  enum_anon_1_0x55b4e7167fc0 : enum { A = 0, B = 1, C = 2 }
+  enum_Forward_0x55b4e7167fc0 : enum
+  union_Value_0x55b4e7167fc0 : union { I64i i; F64i f; }
+  enum_Color_0x55b4e7167fc0 : enum { RED = 0, GREEN = 5, BLUE = 6 }
+  class_anon_0_0x55b4e7167fc0 : class { I32i anon_field; }
+  class_Bits_0x55b4e7167fc0 : class { I64i a; I64i ; I64i b; }
+  class_Point_0x55b4e7167fc0 : class { I64i x; I64i y; }
+  class_Node_0x55b4e7167fc0 : class
+
+Function Types:
+  function_94235459506000 : I64i (I64i) * ()
+  function_94235459486208 : Void ()
+  function_v6067003754471033 : I64i (I64i, ...)
+  function_395400465552805102 : I64i (I64i, I64i)
+  function_6067003754471033 : I64i (I64i)
 
 Pointer Types:
-  0x563ffb06c0f0 : class *
-  0x563ffb06a540 : I64 (I64) *
-  0x563ffb06a2e0 : I64 * const
-  0x563ffb06a130 : I64 *
-  0x563ffb0801f0 : Void *
+  :Point *
+  :I64i (I64i) *
+  :I64i *
+  :I64i * const
+  :Void *
 
 Array Types:
-  0x563ffb069f90 : I64[]
-  0x563ffb069150 : I64[3]
+ : I64i[]
+ : I64i[3]
 
 
 --------- SYMBOL TABLE ---------
 
-Scope 0x563ffb064fb0: TypeSymbol enum
-Variable Symbols:
-  charv -> 0x563ffb086bf0 : VarSymbol U8
-  result -> 0x563ffb0870c0 : VarSymbol I64
-  hexv -> 0x563ffb086540 : VarSymbol I64
-  tern -> 0x563ffb082e60 : VarSymbol I64
-  neq -> 0x563ffb082ab0 : VarSymbol I64
-  shift -> 0x563ffb081e90 : VarSymbol I64
-  comma -> 0x563ffb084a40 : VarSymbol I64
-  b -> 0x563ffb081550 : VarSymbol I64
-  eq -> 0x563ffb082800 : VarSymbol I64
-  a -> 0x563ffb081330 : VarSymbol I64
-  negv -> 0x563ffb086980 : VarSymbol I64
-  sz3 -> 0x563ffb0862d0 : VarSymbol I64
-  i -> 0x563ffb06e530 : VarSymbol I64
-  i64v -> 0x563ffb067280 : VarSymbol I64
-  ptr -> 0x563ffb06a1e0 : VarSymbol I64 *
-  arr2 -> 0x563ffb069eb0 : VarSymbol I64[3]
-  i8v -> 0x563ffb066b80 : VarSymbol I8
-  i16v -> 0x563ffb066da0 : VarSymbol I16
-  g_const -> 0x563ffb0660b0 : VarSymbol const U32
-  p -> 0x563ffb084dd0 : VarSymbol class
-  u32v -> 0x563ffb066740 : VarSymbol U32
-  u16v -> 0x563ffb066520 : VarSymbol U16
-  u8v -> 0x563ffb0662b0 : VarSymbol U8
-  GREEN -> 0x563ffb068e50 : VarSymbol enum
-  g_extern -> 0x563ffb065eb0 : VarSymbol I64 extern
-  C -> 0x563ffb0694a0 : VarSymbol enum
-  pp -> 0x563ffb085880 : VarSymbol class *
-  g_public -> 0x563ffb065b10 : VarSymbol I64 public
-  arr1 -> 0x563ffb069a90 : VarSymbol I64[3]
-  i32v -> 0x563ffb067010 : VarSymbol I32
-  u64v -> 0x563ffb066960 : VarSymbol U64
-  g_static -> 0x563ffb065d80 : VarSymbol I32 static
-  sz1 -> 0x563ffb085cb0 : VarSymbol I64
-  RED -> 0x563ffb068d50 : VarSymbol enum
-  arr3 -> 0x563ffb06a050 : VarSymbol I64[]
-  arith -> 0x563ffb081af0 : VarSymbol I64
-  bv -> 0x563ffb067870 : VarSymbol bool
-  vp -> 0x563ffb067ab0 : VarSymbol Void *
-  sz2 -> 0x563ffb085ee0 : VarSymbol I64
-  anon_class -> 0x563ffb068860 : VarSymbol class { I32 anon_field; }
-  rel -> 0x563ffb082550 : VarSymbol I64
-  f64v -> 0x563ffb067650 : VarSymbol F64
-  BLUE -> 0x563ffb068f80 : VarSymbol enum
-  A -> 0x563ffb069240 : VarSymbol enum
-  B -> 0x563ffb069370 : VarSymbol enum
-  octv -> 0x563ffb086760 : VarSymbol I64
-  bitops -> 0x563ffb0822a0 : VarSymbol I64
-  const_ptr -> 0x563ffb06a440 : VarSymbol I64 * const
-  func_ptr -> 0x563ffb06a800 : VarSymbol I64 (I64) *
-  control -> 0x563ffb06d1f0 : VarSymbol I64
-
-Function Symbols:
-  ReturnFuncPtr -> 0x563ffb06c1f0 : FuncSymbol I64 (I64) * ()
-  VoidFunc -> 0x563ffb06bed0 : FuncSymbol Void ()
-  Variadic -> 0x563ffb06b9f0 : FuncSymbol I64 (I64, ...)
-  DefaultParam -> 0x563ffb0674f0 : FuncSymbol I64 (I64)
-  Add -> 0x563ffb06adf0 : FuncSymbol I64 (I64, I64)
+Scope 0
+Physical Symbols:
+  charv -> 0x55b4e7188960 : VarSymbol: charv :: U8i
+  result -> 0x55b4e7188e40 : VarSymbol: result :: I64i
+  hexv -> 0x55b4e7188280 : VarSymbol: hexv :: I64i
+  tern -> 0x55b4e7185000 : VarSymbol: tern :: I64i
+  neq -> 0x55b4e7184c40 : VarSymbol: neq :: I64i
+  shift -> 0x55b4e7183fe0 : VarSymbol: shift :: I64i
+  comma -> 0x55b4e7186bf0 : VarSymbol: comma :: I64i
+  b -> 0x55b4e7183680 : VarSymbol: b :: I64i
+  eq -> 0x55b4e7184980 : VarSymbol: eq :: I64i
+  a -> 0x55b4e7183450 : VarSymbol: a :: I64i
+  negv -> 0x55b4e71886e0 : VarSymbol: negv :: I64i
+  sz3 -> 0x55b4e7188000 : VarSymbol: sz3 :: I64i
+  i -> 0x55b4e7170e00 : VarSymbol: i :: I64i
+  control -> 0x55b4e716fae0 : VarSymbol: control :: I64i
+  ReturnFuncPtr -> 0x55b4e71312d0 : FuncSymbol: ReturnFuncPtr :: I64i (I64i) * ()
+  Variadic -> 0x55b4e712ffe0 : FuncSymbol: Variadic :: I64i (I64i, ...)
+  i64v -> 0x55b4e716a080 : VarSymbol: i64v :: I64i
+  ptr -> 0x55b4e716cbd0 : VarSymbol: ptr :: I64i *
+  arr2 -> 0x55b4e716c880 : VarSymbol: arr2 :: I64i[3]
+  i8v -> 0x55b4e7169950 : VarSymbol: i8v :: I8i
+  i16v -> 0x55b4e7169b80 : VarSymbol: i16v :: I16i
+  DefaultParam -> 0x55b4e712fda0 : FuncSymbol: DefaultParam :: I64i (I64i)
+  g_const -> 0x55b4e7168e30 : VarSymbol: g_constconst  :: U32i
+  p -> 0x55b4e7186da0 : VarSymbol: p :: class { I64i x; I64i y; }
+  u32v -> 0x55b4e71694f0 : VarSymbol: u32v :: U32i
+  u16v -> 0x55b4e71692c0 : VarSymbol: u16v :: U16i
+  u8v -> 0x55b4e7169040 : VarSymbol: u8v :: U8i
+  GREEN -> 0x55b4e716b800 : VarSymbol: GREEN :: enum { RED = 0, GREEN = 5, BLUE = 6 }
+  g_extern -> 0x55b4e7168c70 : VarSymbol: g_extern :: I64i extern
+  C -> 0x55b4e716bda0 : VarSymbol: C :: enum { A = 0, B = 1, C = 2 }
+  pp -> 0x55b4e7187740 : VarSymbol: pp :: Point *
+  g_public -> 0x55b4e7168950 : VarSymbol: g_public :: I64i public
+  Add -> 0x55b4e712fb60 : FuncSymbol: Add :: I64i (I64i, I64i)
+  arr1 -> 0x55b4e716c450 : VarSymbol: arr1 :: I64i[3]
+  i32v -> 0x55b4e7169e00 : VarSymbol: i32v :: I32i
+  u64v -> 0x55b4e7169720 : VarSymbol: u64v :: U64i
+  g_static -> 0x55b4e7168b80 : VarSymbol: g_static :: I32i static
+  sz1 -> 0x55b4e7187bb0 : VarSymbol: sz1 :: I64i
+  RED -> 0x55b4e716b6f0 : VarSymbol: RED :: enum { RED = 0, GREEN = 5, BLUE = 6 }
+  arr3 -> 0x55b4e716ca30 : VarSymbol: arr3 :: I64i[]
+  arith -> 0x55b4e7183c30 : VarSymbol: arith :: I64i
+  VoidFunc -> 0x55b4e71311b0 : FuncSymbol: VoidFunc :: Void ()
+  bv -> 0x55b4e716a5e0 : VarSymbol: bv :: Bool
+  vp -> 0x55b4e716a7e0 : VarSymbol: vp :: Void *
+  sz2 -> 0x55b4e7187df0 : VarSymbol: sz2 :: I64i
+  anon_class -> 0x55b4e716b1e0 : VarSymbol: anon_class :: class { I32i anon_field; }
+  rel -> 0x55b4e71846c0 : VarSymbol: rel :: I64i
+  f64v -> 0x55b4e716a300 : VarSymbol: f64v :: F64i
+  BLUE -> 0x55b4e716b940 : VarSymbol: BLUE :: enum { RED = 0, GREEN = 5, BLUE = 6 }
+  A -> 0x55b4e716bb20 : VarSymbol: A :: enum { A = 0, B = 1, C = 2 }
+  B -> 0x55b4e716bc60 : VarSymbol: B :: enum { A = 0, B = 1, C = 2 }
+  octv -> 0x55b4e71884b0 : VarSymbol: octv :: I64i
+  bitops -> 0x55b4e7184400 : VarSymbol: bitops :: I64i
+  const_ptr -> 0x55b4e716ce40 : VarSymbol: const_ptr :: I64i * const
+  func_ptr -> 0x55b4e716d210 : VarSymbol: func_ptr :: I64i (I64i) *
 
 Type Symbols:
-  Color -> 0x563ffb069060 : TypeSymbol enum
-  Value -> 0x563ffb068bf0 : TypeSymbol union { I64 i; F64 f; }
-  Bits -> 0x563ffb068500 : TypeSymbol class { I64 a; I64 ; I64 b; }
-  Point -> 0x563ffb0680c0 : TypeSymbol class { I64 x; I64 y; }
+  Forward -> 0x55b4e716bf30 : TypeSymbol: Forward :: enum
+  Color -> 0x55b4e716b640 : TypeSymbol: Color :: enum { RED = 0, GREEN = 5, BLUE = 6 }
+  Bits -> 0x55b4e716ae60 : TypeSymbol: Bits :: class { I64i a; I64i ; I64i b; }
+  Point -> 0x55b4e716ac00 : TypeSymbol: Point :: class { I64i x; I64i y; }
+  Value -> 0x55b4e716b3e0 : TypeSymbol: Value :: union { I64i i; F64i f; }
+  Node -> 0x55b4e716aa30 : TypeSymbol: Node :: class
 
 Label Symbols:
-  after_label -> 0x563ffb080f10 : LabelSymbol
-  dowhile_start_0x563ffb078e50 -> 0x563ffb06f0b0 : LabelSymbol
-  label_here -> 0x563ffb080cb0 : LabelSymbol
-  while_start_0x563ffb078ba0 -> 0x563ffb06ead0 : LabelSymbol
+  after_label -> 0x55b4e7172350 : LabelSymbol: after_label
+  label_here -> 0x55b4e7172070 : LabelSymbol: label_here
 -----------------------------------------------------------
-  Scope 0x563ffb067bb0
-  Variable Symbols:
-
-  Function Symbols:
+  Scope 1: FuncSymbol: Add :: I64i (I64i, I64i)
+  Physical Symbols:
+    b -> 0x55b4e716d8c0 : VarSymbol: b :: I64i
+    a -> 0x55b4e716d7f0 : VarSymbol: a :: I64i
 
   Type Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
-  Scope 0x563ffb067e30: TypeSymbol class { I64 x; I64 y; }
-  Variable Symbols:
-
-  Function Symbols:
-
-  Type Symbols:
-
-  Label Symbols:
------------------------------------------------------------
-  Scope 0x563ffb068220: TypeSymbol class { I64 a; I64 ; I64 b; }
-  Variable Symbols:
-
-  Function Symbols:
+  Scope 2: FuncSymbol: DefaultParam :: I64i (I64i)
+  Physical Symbols:
+    x -> 0x55b4e716de60 : VarSymbol: x :: I64i
 
   Type Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
-  Scope 0x563ffb0685f0
-  Variable Symbols:
-
-  Function Symbols:
-
-  Type Symbols:
-
-  Label Symbols:
------------------------------------------------------------
-  Scope 0x563ffb068940: TypeSymbol union { I64 i; F64 f; }
-  Variable Symbols:
-
-  Function Symbols:
+  Scope 3: FuncSymbol: Variadic :: I64i (I64i, ...)
+  Physical Symbols:
+    x -> 0x55b4e716e3c0 : VarSymbol: x :: I64i
 
   Type Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
-  Scope 0x563ffb06b090: FuncSymbol I64 (I64, I64)
-  Variable Symbols:
-    b -> 0x563ffb06afd0 : VarSymbol I64
-    a -> 0x563ffb06af10 : VarSymbol I64
-
-  Function Symbols:
+  Scope 4: FuncSymbol: VoidFunc :: Void ()
+  Physical Symbols:
 
   Type Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
-  Scope 0x563ffb06b630: FuncSymbol I64 (I64)
-  Variable Symbols:
-    x -> 0x563ffb06b590 : VarSymbol I64
-
-  Function Symbols:
+  Scope 5: FuncSymbol: ReturnFuncPtr :: I64i (I64i) * ()
+  Physical Symbols:
 
   Type Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
-  Scope 0x563ffb06bb40: FuncSymbol I64 (I64, ...)
-  Variable Symbols:
-    x -> 0x563ffb06baa0 : VarSymbol I64
-
-  Function Symbols:
-
-  Type Symbols:
-
-  Label Symbols:
------------------------------------------------------------
-  Scope 0x563ffb06bf80: FuncSymbol Void ()
-  Variable Symbols:
-
-  Function Symbols:
+  Scope 6
+  Physical Symbols:
+    localf -> 0x55b4e716f230 : VarSymbol: localf :: F64i
+    local -> 0x55b4e716efd0 : VarSymbol: local :: I64i
 
   Type Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
-  Scope 0x563ffb06c2a0: FuncSymbol I64 (I64) * ()
-  Variable Symbols:
-
-  Function Symbols:
+  Scope 7
+  Physical Symbols:
 
   Type Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
-  Scope 0x563ffb06c4d0
-  Variable Symbols:
-    localf -> 0x563ffb06c950 : VarSymbol F64
-    local -> 0x563ffb06c700 : VarSymbol I64
-
-  Function Symbols:
+  Scope 8
+  Physical Symbols:
 
   Type Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
-  Scope 0x563ffb06db40
-  Variable Symbols:
-
-  Function Symbols:
-
-  Type Symbols:
-
-  Label Symbols:
------------------------------------------------------------
-  Scope 0x563ffb06e8c0
-  Variable Symbols:
-
-  Function Symbols:
-
-  Type Symbols:
-
-  Label Symbols:
------------------------------------------------------------
-  Scope 0x563ffb06ee30
-  Variable Symbols:
-
-  Function Symbols:
-
-  Type Symbols:
-
-  Label Symbols:
------------------------------------------------------------
-  Scope 0x563ffb06f280
-  Variable Symbols:
-
-  Function Symbols:
-
-  Type Symbols:
-
-  Label Symbols:
-    for_start_0x563ffb079330 -> 0x563ffb080480 : LabelSymbol
------------------------------------------------------------
-    Scope 0x563ffb06f3a0
-    Variable Symbols:
-
-    Function Symbols:
+    Scope 9
+    Physical Symbols:
 
     Type Symbols:
 
     Label Symbols:
 -----------------------------------------------------------
-  Scope 0x563ffb084b40
-  Variable Symbols:
-
-  Function Symbols:
+  Scope 10
+  Physical Symbols:
 
   Type Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
-  Scope 0x563ffb085550
-  Variable Symbols:
+    Scope 11
+    Physical Symbols:
 
-  Function Symbols:
+    Type Symbols:
+
+    Label Symbols:
+-----------------------------------------------------------
+  Scope 12
+  Physical Symbols:
 
   Type Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
-  Scope 0x563ffb086080
-  Variable Symbols:
+    Scope 13
+    Physical Symbols:
 
-  Function Symbols:
+    Type Symbols:
 
-  Type Symbols:
-
-  Label Symbols:
+    Label Symbols:
 -----------------------------------------------------------
 
 --------- MIR ---------
 
 ProgramMIR @ <1.1>
 | VarDecl:  @ <test/examples.ec:14.1-195>
-VarSymbol I64 public
-| | Initializer @ <test/examples.ec:14.194>
-| | | Literal: 1 @ <test/examples.ec:14.194>
+| | | VarSymbol: g_public :: I64i public
+| | | Initializer @ <test/examples.ec:14.194>
+| | | | Literal: 1 @ <test/examples.ec:14.194>
 | VarDecl:  @ <test/examples.ec:15.1-25>
-VarSymbol I32 static
-| | Initializer @ <test/examples.ec:15.24>
-| | | Literal: 2 @ <test/examples.ec:15.24>
+| | | VarSymbol: g_static :: I32i static
+| | | Initializer @ <test/examples.ec:15.24>
+| | | | Literal: 2 @ <test/examples.ec:15.24>
 | VarDecl:  @ <test/examples.ec:16.1-21>
-VarSymbol I64 extern
+| | | VarSymbol: g_extern :: I64i extern
 | VarDecl:  @ <test/examples.ec:18.1-24>
-VarSymbol const U32
-| | Initializer @ <test/examples.ec:18.22-23>
-| | | Literal: 42 @ <test/examples.ec:18.22-23>
+| | | VarSymbol: g_constconst  :: U32i
+| | | Initializer @ <test/examples.ec:18.22-23>
+| | | | Literal: 42 @ <test/examples.ec:18.22-23>
 | VarDecl:  @ <test/examples.ec:20.1-14>
-VarSymbol U8
-| | Initializer @ <test/examples.ec:20.11-13>
-| | | Literal: 255 @ <test/examples.ec:20.11-13>
+| | | VarSymbol: u8v :: U8i
+| | | Initializer @ <test/examples.ec:20.11-13>
+| | | | Literal: 255 @ <test/examples.ec:20.11-13>
 | VarDecl:  @ <test/examples.ec:21.1-18>
-VarSymbol U16
-| | Initializer @ <test/examples.ec:21.13-17>
-| | | Literal: 65535 @ <test/examples.ec:21.13-17>
+| | | VarSymbol: u16v :: U16i
+| | | Initializer @ <test/examples.ec:21.13-17>
+| | | | Literal: 65535 @ <test/examples.ec:21.13-17>
 | VarDecl:  @ <test/examples.ec:22.1-17>
-VarSymbol U32
-| | Initializer @ <test/examples.ec:22.13-16>
-| | | Literal: 1000 @ <test/examples.ec:22.13-16>
+| | | VarSymbol: u32v :: U32i
+| | | Initializer @ <test/examples.ec:22.13-16>
+| | | | Literal: 1000 @ <test/examples.ec:22.13-16>
 | VarDecl:  @ <test/examples.ec:23.1-19>
-VarSymbol U64
-| | Initializer @ <test/examples.ec:23.13-18>
-| | | Literal: 100000 @ <test/examples.ec:23.13-18>
+| | | VarSymbol: u64v :: U64i
+| | | Initializer @ <test/examples.ec:23.13-18>
+| | | | Literal: 100000 @ <test/examples.ec:23.13-18>
 | VarDecl:  @ <test/examples.ec:25.1-13>
-VarSymbol I8
-| | Initializer @ <test/examples.ec:25.11-12>
-| | | Unary: - @ <test/examples.ec:25.11-12>
-| | | | Literal: 1 @ <test/examples.ec:25.11-12>
+| | | VarSymbol: i8v :: I8i
+| | | Initializer @ <test/examples.ec:25.11-12>
+| | | | Unary: - @ <test/examples.ec:25.11-12>
+| | | | | Literal: 1 @ <test/examples.ec:25.11-12>
 | VarDecl:  @ <test/examples.ec:26.1-15>
-VarSymbol I16
-| | Initializer @ <test/examples.ec:26.13-14>
-| | | Unary: - @ <test/examples.ec:26.13-14>
-| | | | Literal: 2 @ <test/examples.ec:26.13-14>
+| | | VarSymbol: i16v :: I16i
+| | | Initializer @ <test/examples.ec:26.13-14>
+| | | | Unary: - @ <test/examples.ec:26.13-14>
+| | | | | Literal: 2 @ <test/examples.ec:26.13-14>
 | VarDecl:  @ <test/examples.ec:27.1-15>
-VarSymbol I32
-| | Initializer @ <test/examples.ec:27.13-14>
-| | | Unary: - @ <test/examples.ec:27.13-14>
-| | | | Literal: 3 @ <test/examples.ec:27.13-14>
+| | | VarSymbol: i32v :: I32i
+| | | Initializer @ <test/examples.ec:27.13-14>
+| | | | Unary: - @ <test/examples.ec:27.13-14>
+| | | | | Literal: 3 @ <test/examples.ec:27.13-14>
 | VarDecl:  @ <test/examples.ec:28.1-15>
-VarSymbol I64
-| | Initializer @ <test/examples.ec:28.13-14>
-| | | Unary: - @ <test/examples.ec:28.13-14>
-| | | | Literal: 4 @ <test/examples.ec:28.13-14>
+| | | VarSymbol: i64v :: I64i
+| | | Initializer @ <test/examples.ec:28.13-14>
+| | | | Unary: - @ <test/examples.ec:28.13-14>
+| | | | | Literal: 4 @ <test/examples.ec:28.13-14>
 | VarDecl:  @ <test/examples.ec:30.1-20>
-VarSymbol F64
-| | Initializer @ <test/examples.ec:30.13-19>
-| | | Literal: 0.000000 @ <test/examples.ec:30.13-19>
+| | | VarSymbol: f64v :: F64i
+| | | Initializer @ <test/examples.ec:30.13-19>
+| | | | Literal: 0.000000 @ <test/examples.ec:30.13-19>
 | VarDecl:  @ <test/examples.ec:31.1-15>
-VarSymbol bool
-| | Initializer @ <test/examples.ec:31.11-14>
-| | | Literal: true @ <test/examples.ec:31.11-14>
+| | | VarSymbol: bv :: Bool
+| | | Initializer @ <test/examples.ec:31.11-14>
+| | | | Literal: true @ <test/examples.ec:31.11-14>
 | VarDecl:  @ <test/examples.ec:32.1-9>
-VarSymbol Void *
+| | | VarSymbol: vp :: Void *
+| TypeDecl: Node @ <test/examples.ec:37.1-11>
 | TypeDecl: Point @ <test/examples.ec:39.1-42.2>
 | TypeDecl: Bits @ <test/examples.ec:44.1-48.2>
 | VarDecl:  @ <test/examples.ec:50.1-52.13>
-VarSymbol class { I32 anon_field; }
+| | | VarSymbol: anon_class :: class { I32i anon_field; }
 | TypeDecl: Value @ <test/examples.ec:57.1-60.2>
-| TypeDecl: Color @ <test/examples.ec:65.1-36>
 | VarDecl:  @ <test/examples.ec:74.1-23>
-VarSymbol I64[3]
-| | Initializer @ <test/examples.ec:74.16-22>
-| | | Initializer @ <test/examples.ec:74.16-17>
-| | | | Literal: 1 @ <test/examples.ec:74.16-17>
-| | | Initializer @ <test/examples.ec:74.16-19>
-| | | | Literal: 2 @ <test/examples.ec:74.16-19>
-| | | Initializer @ <test/examples.ec:74.16-21>
-| | | | Literal: 3 @ <test/examples.ec:74.16-21>
+| | | VarSymbol: arr1 :: I64i[3]
+| | | Initializer @ <test/examples.ec:74.16-22>
+| | | | Initializer @ <test/examples.ec:74.16-17>
+| | | | | Literal: 1 @ <test/examples.ec:74.16-17>
+| | | | Initializer @ <test/examples.ec:74.16-19>
+| | | | | Literal: 2 @ <test/examples.ec:74.16-19>
+| | | | Initializer @ <test/examples.ec:74.16-21>
+| | | | | Literal: 3 @ <test/examples.ec:74.16-21>
 | VarDecl:  @ <test/examples.ec:75.1-24>
-VarSymbol I64[3]
-| | Initializer @ <test/examples.ec:75.16-23>
-| | | Initializer @ <test/examples.ec:75.16-17>
-| | | | Literal: 4 @ <test/examples.ec:75.16-17>
-| | | Initializer @ <test/examples.ec:75.16-19>
-| | | | Literal: 5 @ <test/examples.ec:75.16-19>
-| | | Initializer @ <test/examples.ec:75.16-21>
-| | | | Literal: 6 @ <test/examples.ec:75.16-21>
+| | | VarSymbol: arr2 :: I64i[3]
+| | | Initializer @ <test/examples.ec:75.16-23>
+| | | | Initializer @ <test/examples.ec:75.16-17>
+| | | | | Literal: 4 @ <test/examples.ec:75.16-17>
+| | | | Initializer @ <test/examples.ec:75.16-19>
+| | | | | Literal: 5 @ <test/examples.ec:75.16-19>
+| | | | Initializer @ <test/examples.ec:75.16-21>
+| | | | | Literal: 6 @ <test/examples.ec:75.16-21>
 | VarDecl:  @ <test/examples.ec:76.1-12>
-VarSymbol I64[]
+| | | VarSymbol: arr3 :: I64i[]
 | VarDecl:  @ <test/examples.ec:81.1-10>
-VarSymbol I64 *
+| | | VarSymbol: ptr :: I64i *
 | VarDecl:  @ <test/examples.ec:82.1-31>
-VarSymbol I64 * const
-| | Initializer @ <test/examples.ec:82.26-30>
-| | | Unary: & @ <test/examples.ec:82.26-30>
-| | | | Ident: i64v @ <test/examples.ec:82.26-30>
+| | | VarSymbol: const_ptr :: I64i * const
+| | | Initializer @ <test/examples.ec:82.26-30>
+| | | | Unary: & @ <test/examples.ec:82.26-30>
+| | | | | Ident: i64v @ <test/examples.ec:82.26-30>
 | VarDecl:  @ <test/examples.ec:84.1-23>
-VarSymbol I64 (I64) *
+| | | VarSymbol: func_ptr :: I64i (I64i) *
 | FunctionMIR: Add @ <test/examples.ec:89.1-91.1>
-    type: I64 (I64, I64)
+    type: I64i (I64i, I64i)
 | | CompoundStmtMIR @ <test/examples.ec:89.26-91.1>
 | | | Return @ <test/examples.ec:90.5-17>
 | | | | Binary: + @ <test/examples.ec:90.12-16>
 | | | | | Ident: a @ <test/examples.ec:90.12>
 | | | | | Ident: b @ <test/examples.ec:90.16>
 | FunctionMIR: DefaultParam @ <test/examples.ec:93.1-95.1>
-    type: I64 (I64)
+    type: I64i (I64i)
 | | CompoundStmtMIR @ <test/examples.ec:93.31-95.1>
 | | | Return @ <test/examples.ec:94.5-13>
 | | | | Ident: x @ <test/examples.ec:94.12>
 | FunctionMIR: Variadic @ <test/examples.ec:97.1-99.1>
-    type: I64 (I64, ...)
+    type: I64i (I64i, ...)
 | | CompoundStmtMIR @ <test/examples.ec:97.28-99.1>
 | | | Return @ <test/examples.ec:98.5-13>
 | | | | Ident: x @ <test/examples.ec:98.12>
@@ -3801,19 +3690,19 @@ VarSymbol I64 (I64) *
     type: Void ()
 | | CompoundStmtMIR @ <test/examples.ec:101.17-102.1>
 | FunctionMIR: ReturnFuncPtr @ <test/examples.ec:104.1-106.1>
-    type: I64 (I64) * ()
+    type: I64i (I64i) * ()
 | | CompoundStmtMIR @ <test/examples.ec:104.31-106.1>
 | | | Return @ <test/examples.ec:105.5-15>
 | | | | Ident: Add @ <test/examples.ec:105.12-14>
 | CompoundStmtMIR @ <test/examples.ec:111.1-119.1>
 | | VarDecl:  @ <test/examples.ec:112.5-19>
-VarSymbol I64
-| | | Initializer @ <test/examples.ec:112.18>
-| | | | Literal: 5 @ <test/examples.ec:112.18>
+| | | | VarSymbol: local :: I64i
+| | | | Initializer @ <test/examples.ec:112.18>
+| | | | | Literal: 5 @ <test/examples.ec:112.18>
 | | VarDecl:  @ <test/examples.ec:113.5-22>
-VarSymbol F64
-| | | Initializer @ <test/examples.ec:113.19-21>
-| | | | Literal: 0.000000 @ <test/examples.ec:113.19-21>
+| | | | VarSymbol: localf :: F64i
+| | | | Initializer @ <test/examples.ec:113.19-21>
+| | | | | Literal: 0.000000 @ <test/examples.ec:113.19-21>
 | | ExprStmt @ <test/examples.ec:115.5-15>
 | | | Assign: += @ <test/examples.ec:115.5-14>
 | | | | Ident: local @ <test/examples.ec:115.5-9>
@@ -3831,9 +3720,9 @@ VarSymbol F64
 | | | | Ident: local @ <test/examples.ec:118.5-9>
 | | | | Literal: 7 @ <test/examples.ec:118.14>
 | VarDecl:  @ <test/examples.ec:124.1-17>
-VarSymbol I64
-| | Initializer @ <test/examples.ec:124.16>
-| | | Literal: 2 @ <test/examples.ec:124.16>
+| | | VarSymbol: control :: I64i
+| | | Initializer @ <test/examples.ec:124.16>
+| | | | Literal: 2 @ <test/examples.ec:124.16>
 | IfStmt @ <test/examples.ec:126.1-129.16>
 | | Binary: || @ <test/examples.ec:126.4-40>
 | | | Binary: && @ <test/examples.ec:126.4-31>
@@ -3875,27 +3764,25 @@ VarSymbol I64
 | | | | | | Unary: - @ <test/examples.ec:138.19-20>
 | | | | | | | Literal: 1 @ <test/examples.ec:138.19-20>
 | VarDecl:  @ <test/examples.ec:144.1-11>
-VarSymbol I64
-| | Initializer @ <test/examples.ec:144.10>
-| | | Literal: 0 @ <test/examples.ec:144.10>
+| | | VarSymbol: i :: I64i
+| | | Initializer @ <test/examples.ec:144.10>
+| | | | Literal: 0 @ <test/examples.ec:144.10>
 | LoopStmt @ <test/examples.ec:146.1-148.1>
 | | Binary: < @ <test/examples.ec:146.7-12>
 | | | Ident: i @ <test/examples.ec:146.7-8>
 | | | Literal: 3 @ <test/examples.ec:146.12>
-| | Label: while_start_0x563ffb078ba0 @ <test/examples.ec:146.1-148.1>
-| | | CompoundStmtMIR @ <test/examples.ec:146.15-148.1>
-| | | | ExprStmt @ <test/examples.ec:147.5-8>
-| | | | | Postfix: ++ @ <test/examples.ec:147.5-7>
-| | | | | | Ident: i @ <test/examples.ec:147.5>
+| | CompoundStmtMIR @ <test/examples.ec:146.15-148.1>
+| | | ExprStmt @ <test/examples.ec:147.5-8>
+| | | | Postfix: ++ @ <test/examples.ec:147.5-7>
+| | | | | Ident: i @ <test/examples.ec:147.5>
 | LoopStmt (do-while) @ <test/examples.ec:150.1-152.16>
 | | Binary: > @ <test/examples.ec:152.9-14>
 | | | Ident: i @ <test/examples.ec:152.9-10>
 | | | Literal: 0 @ <test/examples.ec:152.14>
-| | Label: dowhile_start_0x563ffb078e50 @ <test/examples.ec:150.1-152.16>
-| | | CompoundStmtMIR @ <test/examples.ec:150.4-152.1>
-| | | | ExprStmt @ <test/examples.ec:151.5-8>
-| | | | | Postfix: -- @ <test/examples.ec:151.5-7>
-| | | | | | Ident: i @ <test/examples.ec:151.5>
+| | CompoundStmtMIR @ <test/examples.ec:150.4-152.1>
+| | | ExprStmt @ <test/examples.ec:151.5-8>
+| | | | Postfix: -- @ <test/examples.ec:151.5-7>
+| | | | | Ident: i @ <test/examples.ec:151.5>
 | LoopStmt @ <test/examples.ec:154.1-157.1>
 | | ExprStmt @ <test/examples.ec:154.5-10>
 | | | Assign: = @ <test/examples.ec:154.5-10>
@@ -3907,13 +3794,12 @@ VarSymbol I64
 | | ExprStmt @ <test/examples.ec:154.20-22>
 | | | Postfix: ++ @ <test/examples.ec:154.20-22>
 | | | | Ident: i @ <test/examples.ec:154.20>
-| | Label: for_start_0x563ffb079330 @ <test/examples.ec:154.1-157.1>
-| | | CompoundStmtMIR @ <test/examples.ec:154.25-157.1>
-| | | | IfStmt @ <test/examples.ec:155.5-156.14>
-| | | | | Binary: == @ <test/examples.ec:155.8-14>
-| | | | | | Ident: i @ <test/examples.ec:155.8-9>
-| | | | | | Literal: 2 @ <test/examples.ec:155.14>
-| | | | | Break @ <test/examples.ec:156.9-14>
+| | CompoundStmtMIR @ <test/examples.ec:154.25-157.1>
+| | | IfStmt @ <test/examples.ec:155.5-156.14>
+| | | | Binary: == @ <test/examples.ec:155.8-14>
+| | | | | Ident: i @ <test/examples.ec:155.8-9>
+| | | | | Literal: 2 @ <test/examples.ec:155.14>
+| | | | Break @ <test/examples.ec:156.9-14>
 | Goto: after_label @ <test/examples.ec:162.1-17>
 | Label: label_here @ <test/examples.ec:164.1-165.8>
 | | ExprStmt @ <test/examples.ec:165.1-8>
@@ -3926,72 +3812,72 @@ VarSymbol I64
 | | | | Ident: i @ <test/examples.ec:168.1>
 | | | | Literal: 200 @ <test/examples.ec:168.5-7>
 | VarDecl:  @ <test/examples.ec:173.1-11>
-VarSymbol I64
-| | Initializer @ <test/examples.ec:173.10>
-| | | Literal: 5 @ <test/examples.ec:173.10>
+| | | VarSymbol: a :: I64i
+| | | Initializer @ <test/examples.ec:173.10>
+| | | | Literal: 5 @ <test/examples.ec:173.10>
 | VarDecl:  @ <test/examples.ec:174.1-11>
-VarSymbol I64
-| | Initializer @ <test/examples.ec:174.10>
-| | | Literal: 2 @ <test/examples.ec:174.10>
+| | | VarSymbol: b :: I64i
+| | | Initializer @ <test/examples.ec:174.10>
+| | | | Literal: 2 @ <test/examples.ec:174.10>
 | VarDecl:  @ <test/examples.ec:176.1-35>
-VarSymbol I64
-| | Initializer @ <test/examples.ec:176.14-34>
-| | | Binary: - @ <test/examples.ec:176.14-34>
-| | | | Binary: + @ <test/examples.ec:176.14-22>
-| | | | | Ident: a @ <test/examples.ec:176.14>
-| | | | | Binary: * @ <test/examples.ec:176.18-22>
-| | | | | | Ident: b @ <test/examples.ec:176.18>
-| | | | | | Literal: 3 @ <test/examples.ec:176.22>
-| | | | Binary: % @ <test/examples.ec:176.26-34>
-| | | | | Binary: / @ <test/examples.ec:176.26-30>
-| | | | | | Literal: 1 @ <test/examples.ec:176.26>
-| | | | | | Literal: 1 @ <test/examples.ec:176.30>
-| | | | | Literal: 2 @ <test/examples.ec:176.34>
+| | | VarSymbol: arith :: I64i
+| | | Initializer @ <test/examples.ec:176.14-34>
+| | | | Binary: - @ <test/examples.ec:176.14-34>
+| | | | | Binary: + @ <test/examples.ec:176.14-22>
+| | | | | | Ident: a @ <test/examples.ec:176.14>
+| | | | | | Binary: * @ <test/examples.ec:176.18-22>
+| | | | | | | Ident: b @ <test/examples.ec:176.18>
+| | | | | | | Literal: 3 @ <test/examples.ec:176.22>
+| | | | | Binary: % @ <test/examples.ec:176.26-34>
+| | | | | | Binary: / @ <test/examples.ec:176.26-30>
+| | | | | | | Literal: 1 @ <test/examples.ec:176.26>
+| | | | | | | Literal: 1 @ <test/examples.ec:176.30>
+| | | | | | Literal: 2 @ <test/examples.ec:176.34>
 | VarDecl:  @ <test/examples.ec:177.1-25>
-VarSymbol I64
-| | Initializer @ <test/examples.ec:177.14-24>
-| | | Binary: >> @ <test/examples.ec:177.14-24>
-| | | | Binary: << @ <test/examples.ec:177.14-19>
-| | | | | Ident: a @ <test/examples.ec:177.14>
-| | | | | Literal: 1 @ <test/examples.ec:177.19>
-| | | | Literal: 1 @ <test/examples.ec:177.24>
+| | | VarSymbol: shift :: I64i
+| | | Initializer @ <test/examples.ec:177.14-24>
+| | | | Binary: >> @ <test/examples.ec:177.14-24>
+| | | | | Binary: << @ <test/examples.ec:177.14-19>
+| | | | | | Ident: a @ <test/examples.ec:177.14>
+| | | | | | Literal: 1 @ <test/examples.ec:177.19>
+| | | | | Literal: 1 @ <test/examples.ec:177.24>
 | VarDecl:  @ <test/examples.ec:178.1-32>
-VarSymbol I64
-| | Initializer @ <test/examples.ec:178.15-31>
-| | | Binary: ^ @ <test/examples.ec:178.15-31>
-| | | | Binary: | @ <test/examples.ec:178.15-21>
-| | | | | Ident: a @ <test/examples.ec:178.15-16>
-| | | | | Ident: b @ <test/examples.ec:178.20>
-| | | | Binary: & @ <test/examples.ec:178.25-31>
-| | | | | Ident: a @ <test/examples.ec:178.25-26>
-| | | | | Ident: b @ <test/examples.ec:178.30>
+| | | VarSymbol: bitops :: I64i
+| | | Initializer @ <test/examples.ec:178.15-31>
+| | | | Binary: ^ @ <test/examples.ec:178.15-31>
+| | | | | Binary: | @ <test/examples.ec:178.15-21>
+| | | | | | Ident: a @ <test/examples.ec:178.15-16>
+| | | | | | Ident: b @ <test/examples.ec:178.20>
+| | | | | Binary: & @ <test/examples.ec:178.25-31>
+| | | | | | Ident: a @ <test/examples.ec:178.25-26>
+| | | | | | Ident: b @ <test/examples.ec:178.30>
 | VarDecl:  @ <test/examples.ec:179.1-18>
-VarSymbol I64
-| | Initializer @ <test/examples.ec:179.12-17>
-| | | Binary: >= @ <test/examples.ec:179.12-17>
-| | | | Ident: a @ <test/examples.ec:179.12>
-| | | | Ident: b @ <test/examples.ec:179.17>
+| | | VarSymbol: rel :: I64i
+| | | Initializer @ <test/examples.ec:179.12-17>
+| | | | Binary: >= @ <test/examples.ec:179.12-17>
+| | | | | Ident: a @ <test/examples.ec:179.12>
+| | | | | Ident: b @ <test/examples.ec:179.17>
 | VarDecl:  @ <test/examples.ec:180.1-17>
-VarSymbol I64
-| | Initializer @ <test/examples.ec:180.11-16>
-| | | Binary: == @ <test/examples.ec:180.11-16>
-| | | | Ident: a @ <test/examples.ec:180.11>
-| | | | Ident: b @ <test/examples.ec:180.16>
+| | | VarSymbol: eq :: I64i
+| | | Initializer @ <test/examples.ec:180.11-16>
+| | | | Binary: == @ <test/examples.ec:180.11-16>
+| | | | | Ident: a @ <test/examples.ec:180.11>
+| | | | | Ident: b @ <test/examples.ec:180.16>
 | VarDecl:  @ <test/examples.ec:181.1-18>
-VarSymbol I64
-| | Initializer @ <test/examples.ec:181.12-17>
-| | | Binary: != @ <test/examples.ec:181.12-17>
-| | | | Ident: a @ <test/examples.ec:181.12>
-| | | | Ident: b @ <test/examples.ec:181.17>
+| | | VarSymbol: neq :: I64i
+| | | Initializer @ <test/examples.ec:181.12-17>
+| | | | Binary: != @ <test/examples.ec:181.12-17>
+| | | | | Ident: a @ <test/examples.ec:181.12>
+| | | | | Ident: b @ <test/examples.ec:181.17>
 | VarDecl:  @ <test/examples.ec:182.1-26>
-VarSymbol I64
-| | Initializer @ <test/examples.ec:182.13-25>
-| | | CondExpr @ <test/examples.ec:182.13-25>
-| | | | Binary: > @ <test/examples.ec:182.13-17>
-| | | | | Ident: a @ <test/examples.ec:182.13>
-| | | | | Ident: b @ <test/examples.ec:182.17>
-| | | | Ident: a @ <test/examples.ec:182.21>
-| | | | Ident: b @ <test/examples.ec:182.25>
+| | | VarSymbol: tern :: I64i
+| | | Initializer @ <test/examples.ec:182.13-25>
+| | | | CondExpr @ <test/examples.ec:182.13-25>
+| | | | | Binary: > @ <test/examples.ec:182.13-17>
+| | | | | | Ident: a @ <test/examples.ec:182.13>
+| | | | | | Ident: b @ <test/examples.ec:182.17>
+| | | | | Ident: a @ <test/examples.ec:182.21>
+| | | | | Ident: b @ <test/examples.ec:182.25>
 | ExprStmt @ <test/examples.ec:184.1-7>
 | | Assign: += @ <test/examples.ec:184.1-6>
 | | | Ident: a @ <test/examples.ec:184.1>
@@ -4045,21 +3931,21 @@ VarSymbol I64
 | | Postfix: -- @ <test/examples.ec:198.1-3>
 | | | Ident: a @ <test/examples.ec:198.1>
 | VarDecl:  @ <test/examples.ec:200.1-35>
-VarSymbol I64
-| | Initializer @ <test/examples.ec:200.14-34>
-| | | Binary: , @ <test/examples.ec:200.14-34>
-| | | | Binary: , @ <test/examples.ec:200.14-26>
-| | | | | Assign: = @ <test/examples.ec:200.14-19>
-| | | | | | Ident: a @ <test/examples.ec:200.14-15>
-| | | | | | Literal: 1 @ <test/examples.ec:200.19>
-| | | | | Assign: = @ <test/examples.ec:200.22-26>
-| | | | | | Ident: b @ <test/examples.ec:200.22>
-| | | | | | Literal: 2 @ <test/examples.ec:200.26>
-| | | | Binary: + @ <test/examples.ec:200.29-33>
-| | | | | Ident: a @ <test/examples.ec:200.29>
-| | | | | Ident: b @ <test/examples.ec:200.33>
+| | | VarSymbol: comma :: I64i
+| | | Initializer @ <test/examples.ec:200.14-34>
+| | | | Binary: , @ <test/examples.ec:200.14-34>
+| | | | | Binary: , @ <test/examples.ec:200.14-26>
+| | | | | | Assign: = @ <test/examples.ec:200.14-19>
+| | | | | | | Ident: a @ <test/examples.ec:200.14-15>
+| | | | | | | Literal: 1 @ <test/examples.ec:200.19>
+| | | | | | Assign: = @ <test/examples.ec:200.22-26>
+| | | | | | | Ident: b @ <test/examples.ec:200.22>
+| | | | | | | Literal: 2 @ <test/examples.ec:200.26>
+| | | | | Binary: + @ <test/examples.ec:200.29-33>
+| | | | | | Ident: a @ <test/examples.ec:200.29>
+| | | | | | Ident: b @ <test/examples.ec:200.33>
 | VarDecl:  @ <test/examples.ec:205.1-14>
-VarSymbol class
+| | | VarSymbol: p :: class { I64i x; I64i y; }
 | ExprStmt @ <test/examples.ec:206.1-8>
 | | Assign: = @ <test/examples.ec:206.1-7>
 | | | Member: .x @ <test/examples.ec:206.1-3>
@@ -4082,59 +3968,59 @@ VarSymbol class
 | | | | Ident: ptr @ <test/examples.ec:210.1-4>
 | | | Literal: 10 @ <test/examples.ec:210.8-9>
 | VarDecl:  @ <test/examples.ec:212.1-21>
-VarSymbol class *
-| | Initializer @ <test/examples.ec:212.19-20>
-| | | Unary: & @ <test/examples.ec:212.19-20>
-| | | | Ident: p @ <test/examples.ec:212.19-20>
+| | | VarSymbol: pp :: Point *
+| | | Initializer @ <test/examples.ec:212.19-20>
+| | | | Unary: & @ <test/examples.ec:212.19-20>
+| | | | | Ident: p @ <test/examples.ec:212.19-20>
 | ExprStmt @ <test/examples.ec:213.1-11>
 | | Assign: = @ <test/examples.ec:213.1-10>
 | | | Member: .y @ <test/examples.ec:213.1-5>
 | | | | Ident: pp @ <test/examples.ec:213.1-2>
 | | | Literal: 20 @ <test/examples.ec:213.9-10>
 | VarDecl:  @ <test/examples.ec:218.1-20>
-VarSymbol I64
-| | Initializer @ <test/examples.ec:218.12-19>
-| | | Sizeof:  @ <test/examples.ec:218.12-19>
-| | | | Ident: a @ <test/examples.ec:218.19>
+| | | VarSymbol: sz1 :: I64i
+| | | Initializer @ <test/examples.ec:218.12-19>
+| | | | Sizeof:  @ <test/examples.ec:218.12-19>
+| | | | | Ident: a @ <test/examples.ec:218.19>
 | VarDecl:  @ <test/examples.ec:219.1-24>
-VarSymbol I64
-| | Initializer @ <test/examples.ec:219.12-23>
-| | | Sizeof:  @ <test/examples.ec:219.12-23>
-I64
+| | | VarSymbol: sz2 :: I64i
+| | | Initializer @ <test/examples.ec:219.12-23>
+| | | | Sizeof:  @ <test/examples.ec:219.12-23>
+I64i
 | VarDecl:  @ <test/examples.ec:220.1-31>
-VarSymbol I64
-| | Initializer @ <test/examples.ec:220.12-30>
-| | | Sizeof:  @ <test/examples.ec:220.12-30>
-class
+| | | VarSymbol: sz3 :: I64i
+| | | Initializer @ <test/examples.ec:220.12-30>
+| | | | Sizeof:  @ <test/examples.ec:220.12-30>
+class { I64i x; I64i y; }
 | VarDecl:  @ <test/examples.ec:225.1-19>
-VarSymbol I64
-| | Initializer @ <test/examples.ec:225.13-18>
-| | | Literal: 43981 @ <test/examples.ec:225.13-18>
+| | | VarSymbol: hexv :: I64i
+| | | Initializer @ <test/examples.ec:225.13-18>
+| | | | Literal: 43981 @ <test/examples.ec:225.13-18>
 | VarDecl:  @ <test/examples.ec:226.1-17>
-VarSymbol I64
-| | Initializer @ <test/examples.ec:226.13-16>
-| | | Literal: 511 @ <test/examples.ec:226.13-16>
+| | | VarSymbol: octv :: I64i
+| | | Initializer @ <test/examples.ec:226.13-16>
+| | | | Literal: 511 @ <test/examples.ec:226.13-16>
 | VarDecl:  @ <test/examples.ec:227.1-17>
-VarSymbol I64
-| | Initializer @ <test/examples.ec:227.13-16>
-| | | Unary: - @ <test/examples.ec:227.13-16>
-| | | | Literal: 123 @ <test/examples.ec:227.13-16>
+| | | VarSymbol: negv :: I64i
+| | | Initializer @ <test/examples.ec:227.13-16>
+| | | | Unary: - @ <test/examples.ec:227.13-16>
+| | | | | Literal: 123 @ <test/examples.ec:227.13-16>
 | VarDecl:  @ <test/examples.ec:229.1-16>
-VarSymbol U8
-| | Initializer @ <test/examples.ec:229.13-15>
-| | | Literal: 65 @ <test/examples.ec:229.13-15>
+| | | VarSymbol: charv :: U8i
+| | | Initializer @ <test/examples.ec:229.13-15>
+| | | | Literal: 65 @ <test/examples.ec:229.13-15>
 | Print: "value:" @ <test/examples.ec:234.1-21>
 | | Ident: a @ <test/examples.ec:234.11>
 | | Ident: b @ <test/examples.ec:234.14>
 | | Literal: "
 " @ <test/examples.ec:234.17-20>
 | VarDecl:  @ <test/examples.ec:239.1-23>
-VarSymbol I64
-| | Initializer @ <test/examples.ec:239.15-22>
-| | | Call @ <test/examples.ec:239.15-22>
-| | | | Ident: Add @ <test/examples.ec:239.15-17>
-| | | | Literal: 3 @ <test/examples.ec:239.15-19>
-| | | | Literal: 4 @ <test/examples.ec:239.15-21>
+| | | VarSymbol: result :: I64i
+| | | Initializer @ <test/examples.ec:239.15-22>
+| | | | Call @ <test/examples.ec:239.15-22>
+| | | | | Ident: Add @ <test/examples.ec:239.15-17>
+| | | | | Literal: 3 @ <test/examples.ec:239.15-19>
+| | | | | Literal: 4 @ <test/examples.ec:239.15-21>
 | ExprStmt @ <test/examples.ec:240.1-15>
 | | Assign: = @ <test/examples.ec:240.1-14>
 | | | Ident: func_ptr @ <test/examples.ec:240.1-8>
