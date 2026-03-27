@@ -1,6 +1,6 @@
 #include "ast/printer.hpp"
 #include "ast/ast.hpp"
-#include "frontend/tokens.hpp"
+#include "tokens.hpp"
 
 #include <iostream>
 #include <string>

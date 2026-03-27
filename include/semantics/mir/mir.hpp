@@ -8,7 +8,7 @@
 #include "semantics/symbols.hpp"
 #include "eval/value.hpp"
 #include "util.hpp"
-#include "frontend/tokens.hpp"
+#include "tokens.hpp"
 
 
 using namespace ecc;

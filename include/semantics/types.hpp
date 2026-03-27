@@ -14,7 +14,7 @@
 #include <variant>
 
 #include "codegen/llvm.hpp"
-#include "frontend/tokens.hpp"
+#include "tokens.hpp"
 #include "util.hpp"
 
 /*

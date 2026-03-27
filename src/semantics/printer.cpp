@@ -4,7 +4,7 @@
 #include "semantics/symbols.hpp"
 #include "semantics/types.hpp"
 #include "util.hpp"
-#include "frontend/tokens.hpp"
+#include "tokens.hpp"
 
 using namespace ecc::sema;
 using namespace ecc::sema::sym;

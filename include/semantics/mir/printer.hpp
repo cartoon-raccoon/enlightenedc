@@ -6,7 +6,7 @@
 
 #include "semantics/mir/mir.hpp"
 #include "semantics/mir/visitor.hpp"
-#include "frontend/tokens.hpp"
+#include "tokens.hpp"
 
 namespace ecc::sema::mir {
 

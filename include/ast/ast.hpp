@@ -5,7 +5,7 @@
 #include <variant>
 #include <vector>
 
-#include "frontend/tokens.hpp"
+#include "tokens.hpp"
 #include "util.hpp"
 
 using namespace ecc;

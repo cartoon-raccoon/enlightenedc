@@ -3,7 +3,7 @@
 #include "eval/exec.hpp"
 #include "eval/value.hpp"
 #include "semantics/mir/mir.hpp"
-#include "frontend/tokens.hpp"
+#include "tokens.hpp"
 #include "util.hpp"
 
 using namespace ecc::sema::sym;

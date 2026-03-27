@@ -6,7 +6,7 @@
 
 #include "semantics/types.hpp"
 #include "codegen/lir/symbols.hpp"
-#include "frontend/tokens.hpp"
+#include "tokens.hpp"
 #include "eval/value.hpp"
 #include "util.hpp"
 
