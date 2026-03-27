@@ -4,7 +4,7 @@ extern "C" {
 #include <stdio.h>
 }
 
-#include "preproc/preproc.hpp"
+#include "frontend/preproc.hpp"
 #include "error.hpp"
 
 using namespace ecc::preproc;

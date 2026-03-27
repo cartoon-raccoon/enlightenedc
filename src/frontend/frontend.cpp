@@ -5,7 +5,7 @@
 #include "frontend/frontend.hpp"
 #include "frontend/lexer.hpp"
 #include "parser.hpp"
-#include "preproc/preproc.hpp"
+#include "frontend/preproc.hpp"
 #include "error.hpp"
 #include "util.hpp"
 
