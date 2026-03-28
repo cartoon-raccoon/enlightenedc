@@ -37,6 +37,9 @@ void Validator::eval_initializer_rec(Vec<Accessor>& path, types::Type *type, Ini
                 } else {
                     // todo: throw error
                 }
+                if (type->is_array()) {
+                    // the only time an array should match here is if we're assigning a string literal
+                }
             }
         },
         /*

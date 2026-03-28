@@ -23,6 +23,12 @@ public:
     }
 };
 
+class TypeSemError : public EccSemError {
+public:
+    TypeSemError(std::string msg, Location err_loc)
+        : EccSemError(msg, err_loc) {}
+};
+
 class InvalidCaseError : public EccSemError {
 public:
     InvalidCaseError(Location err_loc)
@@ -47,10 +53,10 @@ public:
     : EccSemError("invalid function call", err_loc) {}
 };
 
-class RecursiveTypeError : public EccSemError {
+class RecursiveTypeError : public TypeSemError {
 public:
     RecursiveTypeError(std::string name, Location err_loc)
-        : EccSemError("recursive class member", err_loc), name(name) {}
+        : TypeSemError("recursive class member", err_loc), name(name) {}
 
     std::string name;
 
@@ -105,10 +111,10 @@ public:
     }
 };
 
-class EnumeratorAlrDecldError : public EccSemError {
+class EnumeratorAlrDecldError : public TypeSemError {
 public:
     EnumeratorAlrDecldError(std::string name, Location err_loc, Location def_loc)
-    : EccSemError("enumerator name conflict", err_loc)
+    : TypeSemError("enumerator name conflict", err_loc)
     {
         std::stringstream ss;
         ss << EccError::what() << "\n" << "enumerator with name \'" << name << "\'" 
@@ -118,23 +124,10 @@ public:
     }
 };
 
-class EnumeratorValueClashError : public EccSemError {
-public:
-    EnumeratorValueClashError(int64_t value, Location err_loc, Location def_loc)
-    : EccSemError("two enumerators cannot have the same value", err_loc)
-    {
-        std::stringstream ss;
-        ss << EccError::what() << "\n" 
-           << "enumerator previously defined with this value at " << def_loc;
-
-        msg = ss.str();
-    }
-};
-
-class InvalidEnumUnderlyingError : public EccSemError {
+class InvalidEnumUnderlyingError : public TypeSemError {
 public:
     InvalidEnumUnderlyingError(Location err_loc)
-    : EccSemError("invalid enum underlying type", err_loc)
+    : TypeSemError("invalid enum underlying type", err_loc)
     {
         std::stringstream ss;
         ss << EccError::what() << "\n" << "underlying type of an enum must be an integer";
@@ -143,10 +136,10 @@ public:
     }
 };
 
-class TypeDecldAsOtherError : public EccSemError {
+class TypeDecldAsOtherError : public TypeSemError {
 public:
     TypeDecldAsOtherError(std::string err, Location err_loc, Location def_loc)
-    : EccSemError(err, err_loc)
+    : TypeSemError(err, err_loc)
     {
         std::stringstream ss;
         ss << EccError::what() << "\n" << "type previously declared at " << def_loc;

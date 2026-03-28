@@ -189,6 +189,11 @@ void MIRSynthesizer::do_visit(Function& node) {
     Box<SpecifierInfo> specinfo = parse_speclist(node.decl_spec_list, node.loc);
     dovisit_param = std::move(param);
 
+    if (specinfo->linkage != PhysicalSymbol::Linkage::INTERNAL) {
+        add_error<EccSemError>("externally linked functions cannot have a body", node.loc);
+        throw UnableToContinue();
+    }
+
     BaseType *return_base = specinfo->type;
 
     if (!node.declarator->direct) {
@@ -381,6 +386,7 @@ void MIRSynthesizer::do_visit(InitDeclarator& node) {
     // pull builder before we visit the initializer
     Box<DeclaratorBuilder> builder = take_last_result<Box<DeclaratorBuilder>>();
 
+    // todo: construct the variable here instead of at the variable decl node
     if (node.initializer) {
         // call accept on our initializer
         dv_call(std::monostate {}, *node.initializer);
@@ -443,6 +449,8 @@ void MIRSynthesizer::do_visit(ArrayDeclarator& node) {
             // (do NOT coerce to unsized)
             add_error<EccSemError>("could not evaluate size expression to U64", node.loc);
         }
+    } else {
+        // fixme: context check here for if size is optional?
     }
 
     if (size) {
@@ -612,7 +620,7 @@ void MIRSynthesizer::do_visit(EnumSpecifier& node) {
         if (node.underlying) {
             PrimitiveType *underlying = types.get_primitive(*node.underlying);
             if (!underlying->is_integral()) {
-                throw InvalidEnumUnderlyingError(node.loc);
+                add_error<InvalidEnumUnderlyingError>(node.loc);
             }
         }
 
@@ -692,7 +700,8 @@ void MIRSynthesizer::do_visit(ClassSpecifier& node) {
     if (node.declarations) {
         if (cls->is_complete()) {
             // error: class was previously defined
-            throw TypeAlrDefinedError("class was previously defined", node.loc, cls->def_loc);
+            add_error<TypeAlrDefinedError>("class was previously defined", node.loc, cls->def_loc);
+            throw UnableToContinue();
         }
 
         // class is defined here, populate its members and mark it complete
@@ -716,7 +725,8 @@ void MIRSynthesizer::do_visit(UnionSpecifier& node) {
             unn = types.get_union(node.loc, syms.current);
         }
     } catch (UserType *prev_def) {
-        throw TypeDecldAsOtherError("union already declared as another type", node.loc, prev_def->decl_loc);
+        add_error<TypeDecldAsOtherError>("union already declared as another type", node.loc, prev_def->decl_loc);
+        throw UnableToContinue();
     }
 
     Optional<TypeSymbol *> retsym = {};
@@ -739,7 +749,8 @@ void MIRSynthesizer::do_visit(UnionSpecifier& node) {
     if (node.declarations) {
         if (unn->is_complete()) {
             // error: union was previously defined
-            throw TypeAlrDefinedError("union was previously defined", node.loc, unn->def_loc);
+            add_error<TypeAlrDefinedError>("union was previously defined", node.loc, unn->def_loc);
+            throw UnableToContinue();
         }
         if (node.type_rep) {
             PrimitiveType *typerep = types.get_primitive(*node.type_rep);

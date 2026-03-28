@@ -353,7 +353,24 @@ public:
 
     bool is_bool();
 
+    /**
+    Returns whether the primitive type is signed.
+    */
     bool is_signed();
+
+    /**
+    The integer maximum of the primitive type.
+
+    Returns an empty optional if the primitive is a floating point or bool.
+    */
+    Optional<uint64_t> int_max();
+
+    /**
+    The floating point maximum of the primitive type.
+
+    Returns an empty optional if the primitive is an integer.
+    */
+    Optional<double> flt_max();
 
     PrimitiveType *as_primitive() override { return this; }
 
@@ -503,8 +520,6 @@ public:
     Optional<std::string> name;
 
     Optional<PrimitiveType *> type_rep = {};
-
-    size_t size() override;
 
     bool is_fully_defined() override;
 

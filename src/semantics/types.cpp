@@ -2,13 +2,13 @@
 #include <stdexcept>
 #include <utility>
 #include <variant>
+#include <cfloat>
 
 #include "semantics/types.hpp"
 #include "semantics/symbols.hpp"
 #include "codegen/llvm.hpp"
 #include "semantics/semerr.hpp"
 #include "util.hpp"
-#include "error.hpp"
 
 using namespace ecc::sema::types;
 using namespace ecc::tokens;
@@ -103,26 +103,59 @@ bool PrimitiveType::is_bool() {
     return primkind == PrimType::BOOL;
 }
 
-bool PrimitiveType::is_compatible_with(Type *dst) {
+bool PrimitiveType::is_compatible_with(Type *from) {
     // Only primitive types allowed
-    if (dst->kind != Type::Kind::PRIMITIVE) {
+    if (from->kind != Type::Kind::PRIMITIVE) {
         return false;
     }
 
-    PrimitiveType *new_dst = dst->as_primitive();
+    PrimitiveType *new_from = from->as_primitive();
     if (is_bool()) {
         // bool can be promoted to anything numeric
-        return new_dst->is_integer() || new_dst->is_float();
+        return new_from->is_integer() || new_from->is_float();
     }
 
     // If either is not an integer, return false
-    if (!this->is_integer() && !new_dst->is_integer()) {
+    if (!this->is_integer() && !new_from->is_integer()) {
         return false;
     }
 
     int my_size = this->size();
 
-    return true ? 0 < my_size && my_size <= new_dst->size() : false;
+    return 0 < my_size && my_size <= new_from->size();
+}
+
+Optional<uint64_t> PrimitiveType::int_max() {
+    switch (primkind) {
+        case PrimType::U8:
+        return UINT8_MAX;
+        case PrimType::U16:
+        return UINT16_MAX;
+        case PrimType::U32:
+        return UINT32_MAX;
+        case PrimType::U64:
+        return UINT64_MAX;
+        case PrimType::BOOL:
+        return 1;
+        case PrimType::I8:
+        return INT8_MAX;
+        case PrimType::I16:
+        return INT16_MAX;
+        case PrimType::I32:
+        return INT32_MAX;
+        case PrimType::I64:
+        return INT64_MAX;
+        case PrimType::F64:
+        return {};
+    }
+}
+
+Optional<double> PrimitiveType::flt_max() {
+    if (primkind == PrimType::F64) {
+        return DBL_MAX;
+    } else {
+        return {};
+    }
 }
 
 void PrimitiveType::finalize() {
@@ -239,12 +272,17 @@ void ClassType::finalize() {
     dbprint("ClassType: finalizing");
 
     if (!is_complete()) {
-        throw EccError(ErrorSource::SEMANTIC, "Class not fully defined", decl_loc);
+        throw TypeSemError("class not fully defined", decl_loc);
     }
 
     Vec<LLVMType *> args;
     args.reserve(num_members());
     for (auto& member : members) {
+        if (member->ty->is_array()) {
+            if (!member->ty->as_array()->arr_size) {
+                throw TypeSemError("arrays as class members must have sizes declared", member->loc);
+            }
+        }
         member->ty->finalize();
         assert(member->ty->get_llvmtype());
         args.push_back(member->ty->get_llvmtype());
@@ -313,12 +351,42 @@ std::string ClassType::formal() {
 * UNION TYPE METHODS
 */
 
-size_t UnionType::size() {
-    todo();
-}
-
 bool UnionType::is_fully_defined() {
-    todo();
+    if (!is_complete())
+        return false;
+
+    bool ret = true;
+    for (auto& member : members) {
+        switch (member->ty->kind) {
+            case Kind::CLASS: {
+                ClassType *cls = member->ty->as_class();
+                assert(cls);
+                ret = ret && cls->is_fully_defined();
+            }
+            break;
+            
+            case Kind::UNION: {
+                UnionType *unn = member->ty->as_union();
+                assert(unn);
+                ret = ret && unn->is_fully_defined();
+            }
+            break;
+
+            case Kind::ENUM: {
+                EnumType *enm = member->ty->as_enum();
+                assert(enm);
+                ret = ret && enm->is_fully_defined();
+            }
+            break;
+
+            default: {
+                ret = ret && true;
+            }
+            break;
+        }
+    }
+
+    return ret;
 }
 
 bool UnionType::is_compatible_with(Type *dst) {
@@ -358,13 +426,45 @@ UnionType::UnionTypeMember *UnionType::index(int idx) {
 
 void UnionType::finalize() {
     /*
-    Union types do not have an LLVM equivalent, so we only finalize members.
+    If the union has a type representative, that becomes the final type of the union.
+    Otherwise, the LLVM type of the union becomes that of the largest member.
     */
     if (finalized) {
+        assert(llvm_type && "UnionType marked finalize but llvm_type is null");
         dbprint("UnionType: already finalized, skipping");
         return;
     }
-    todo();
+    dbprint("UnionType: finalizing");
+
+    if (!is_complete()) {
+        throw TypeSemError("union not fully defined", decl_loc);
+    }
+
+    if (type_rep) {
+        (*type_rep)->finalize();
+    }
+    // Finalize all members first
+    for (auto& member: members) {
+        if (member->ty->is_array()) {
+            if (!member->ty->as_array()->arr_size) {
+                throw TypeSemError("arrays as union members must have sizes declared", member->loc);
+            }
+        }
+        member->ty->finalize();
+        assert(member->ty->get_llvmtype());
+    }
+
+    if (type_rep) {
+        // since type_rep is primitive, it is guaranteed to be finalized
+        llvm_type = (*type_rep)->get_llvmtype();
+
+        // todo: validate that no members are larger than type rep
+    } else {
+        // todo: get largest member and set that as llvm_type
+        
+    }
+
+    finalized = true;
 }
 
 std::string UnionType::formal() {
@@ -446,7 +546,17 @@ bool EnumType::is_compatible_with(Type *dst) {
 }
 
 void EnumType::finalize() {
-    todo();
+    if (finalized) {
+        assert(llvm_type && "EnumType marked finalized but llvm_type is null");
+        dbprint("EnumType: already finalized, skipping");
+        return;
+    }
+    underlying->finalize();
+    llvm_type = underlying->get_llvmtype();
+
+    // todo: check # of enumerators <= max value of underlying
+
+    finalized = true;
 }
 
 std::string EnumType::formal() {
@@ -527,14 +637,14 @@ void PointerType::finalize() {
 */
 
 bool ArrayType::is_compatible_with(Type *dst) {
-    if (Type::is_compatible_with(dst))
-        return true;
-    
     switch (dst->kind) {
+
+        // if the other is an array, enforce strict equality
         case Kind::ARRAY: {
             return this == dst;
         }
 
+        // if pointer, make sure bases match
         case Kind::POINTER: {
             PointerType *ptr = dst->as_pointer();
             return base == ptr->base;
@@ -551,7 +661,17 @@ void ArrayType::finalize() {
         dbprint("ArrayType: already finalized, skipping");
         return;
     }
-    todo();
+
+    if (arr_size) {
+        base->finalize();
+        llvm_type = llvm::ArrayType::get(base->get_llvmtype(), *arr_size);
+        assert(llvm_type);
+    } else {
+        //? would this be a problem?
+        dbprint("ArrayType: no size, unable to finalize");
+    }
+
+    finalized = true;
 }
 
 /*
@@ -559,7 +679,7 @@ void ArrayType::finalize() {
 */
 
 size_t FunctionType::size() {
-    throw EccError("cannot call size() on FunctionType");
+    throw std::runtime_error("cannot call size() on FunctionType");
 }
 
 std::size_t FunctionType::hash_sig() {

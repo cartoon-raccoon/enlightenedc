@@ -6,6 +6,7 @@
 #include "error.hpp"
 #include "semantics/mir/mir.hpp"
 #include "semantics/mir/synthesizer.hpp"
+#include "semantics/semerr.hpp"
 #include "semantics/validator.hpp"
 #include "util.hpp"
 
@@ -1082,10 +1083,15 @@ void SemanticChecker::check_semantics(Program& prog, ProgramMIR& mir) {
     
     symbols.reset();
 
-    // types.finalize_primitives();
-    // types.finalize_usertypes();
-    // types.finalize_functions();
-    // types.finalize_pointers();
+    try {
+        types.finalize_primitives();
+        types.finalize_usertypes();
+        // types.finalize_functions();
+        // types.finalize_pointers();
+    } catch (TypeSemError& err) {
+        std::cerr << err.to_string() << "\n";
+        throw UnableToContinue();
+    }
 
     Validator validator(symbols, types);
     // validator.validate(mir);
