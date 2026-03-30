@@ -503,7 +503,7 @@ void BaseASTSemaVisitor::do_visit(PrimitiveSpecifier& node) {
 }
 
 void BaseASTSemaVisitor::do_visit(Initializer& node) {
-    std::visit(overloaded {
+    std::visit(match {
         [this] (Box<Expression>& expr) {
             expr->accept(*this);
         },
@@ -592,7 +592,7 @@ void BaseASTSemaVisitor::do_visit(DoWhileStatement& node) {
 
 void BaseASTSemaVisitor::do_visit(ForStatement& node) {
     if (node.init.has_value()) {
-        std::visit(overloaded {
+        std::visit(match {
             [this] (Box<Expression>& expr) {
                 expr->accept(*this);
             },
@@ -694,7 +694,7 @@ void BaseASTSemaVisitor::do_visit(PostfixExpression& node) {
 }
 
 void BaseASTSemaVisitor::do_visit(SizeofExpression& node) {
-    std::visit(overloaded {
+    std::visit(match {
         [this] (Box<Expression>& expr) {
             expr->accept(*this);
         },
@@ -885,7 +885,7 @@ void BaseMIRSemaVisitor::do_visit(mir::FunctionMIR& node) {
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::InitializerMIR& node) {
-    std::visit(overloaded {
+    std::visit(match {
         [this] (Box<ExprMIR>& expr) {
             expr->accept(*this);
         },
@@ -1050,7 +1050,7 @@ void BaseMIRSemaVisitor::do_visit(mir::PostfixExprMIR& node) {
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::SizeofExprMIR& node) {
-    std::visit(overloaded {
+    std::visit(match {
         [this] (Box<ExprMIR>& expr) {
             expr->accept(*this);
         },

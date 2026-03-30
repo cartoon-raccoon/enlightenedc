@@ -55,7 +55,7 @@ public:
     }
 
     operator bool() const {
-        return std::visit(overloaded {
+        return std::visit(match {
             [](std::monostate) { return false; },
             [](char v) { return v != 0; },
             [](long v) { return v != 0; },
@@ -80,7 +80,7 @@ public:
     // Binary bitwise OR
     Value operator|(const Value rhs) {
         return std::visit(
-            overloaded{[](auto a, auto b) -> Value {
+            match{[](auto a, auto b) -> Value {
                 using A = std::decay_t<decltype(a)>;
                 using B = std::decay_t<decltype(b)>;
 
@@ -102,7 +102,7 @@ public:
     // Binary bitwise XOR
     Value operator^(const Value rhs) {
         return std::visit(
-            overloaded{[](auto a, auto b) -> Value {
+            match{[](auto a, auto b) -> Value {
                 using A = std::decay_t<decltype(a)>;
                 using B = std::decay_t<decltype(b)>;
 
@@ -124,7 +124,7 @@ public:
     // Binary bitwise AND
     Value operator&(const Value rhs) {
         return std::visit(
-            overloaded{[](auto a, auto b) -> Value {
+            match{[](auto a, auto b) -> Value {
                 using A = std::decay_t<decltype(a)>;
                 using B = std::decay_t<decltype(b)>;
 
@@ -146,7 +146,7 @@ public:
     // Binary EQ
     Value operator==(const Value rhs) {
         return std::visit(
-            overloaded{[](long a, long b) { return Value(a == b); },
+            match{[](long a, long b) { return Value(a == b); },
                        [](char a, long b) { return Value(a == b); },
                        [](long a, char b) { return Value(a == b); },
                        [](double a, double b) { return Value(a == b); },
@@ -181,7 +181,7 @@ public:
     // Binary LT
     Value operator<(const Value rhs) {
         return std::visit(
-            overloaded{[](long a, long b) { return Value(a < b); },
+            match{[](long a, long b) { return Value(a < b); },
                        [](char a, long b) { return Value(a < b); },
                        [](long a, char b) { return Value(a < b); },
                        [](double a, double b) { return Value(a < b); },
@@ -200,7 +200,7 @@ public:
 
     Value operator>(const Value rhs) {
         return std::visit(
-            overloaded{[](long a, long b) { return Value(a > b); },
+            match{[](long a, long b) { return Value(a > b); },
                        [](char a, long b) { return Value(a > b); },
                        [](long a, char b) { return Value(a > b); },
                        [](double a, double b) { return Value(a > b); },
@@ -219,7 +219,7 @@ public:
 
     Value operator+(const Value rhs) {
         return std::visit(
-            overloaded{[](long a, long b) { return Value(a + b); },
+            match{[](long a, long b) { return Value(a + b); },
                        [](char a, long b) { return Value(a + b); },
                        [](long a, char b) { return Value(a + b); },
                        [](double a, double b) { return Value(a + b); },
@@ -238,7 +238,7 @@ public:
 
     Value operator-(const Value rhs) {
         return std::visit(
-            overloaded{[](long a, long b) { return Value(a - b); },
+            match{[](long a, long b) { return Value(a - b); },
                        [](char a, long b) { return Value(a - b); },
                        [](long a, char b) { return Value(a - b); },
                        [](double a, double b) { return Value(a - b); },
@@ -254,7 +254,7 @@ public:
 
     Value operator*(const Value rhs) {
         return std::visit(
-            overloaded{[](long a, long b) { return Value(a * b); },
+            match{[](long a, long b) { return Value(a * b); },
                        [](char a, long b) { return Value(a * b); },
                        [](long a, char b) { return Value(a * b); },
                        [](double a, double b) { return Value(a * b); },
@@ -270,7 +270,7 @@ public:
 
     Value operator/(const Value rhs) {
         return std::visit(
-            overloaded{[](long a, long b) { return Value(a / b); },
+            match{[](long a, long b) { return Value(a / b); },
                        [](char a, long b) { return Value(a / b); },
                        [](long a, char b) { return Value(a / b); },
                        [](double a, double b) { return Value(a / b); },
@@ -291,7 +291,7 @@ public:
     Unary bitwise NOT
     */
     Value operator~() {
-        return std::visit(overloaded{[](auto v) -> Value {
+        return std::visit(match{[](auto v) -> Value {
                               using T = std::decay_t<decltype(v)>;
 
                               if constexpr (std::is_same_v<T, char> ||
@@ -309,7 +309,7 @@ public:
 
     // Unary NEG
     Value operator-() {
-        return std::visit(overloaded{[](long v) { return Value(-v); },
+        return std::visit(match{[](long v) { return Value(-v); },
                                      [](char v) { return Value(-(long)v); },
                                      [](double v) { return Value(-v); },
                                      [](auto&&) -> Value {
@@ -323,7 +323,7 @@ public:
     // Prefix INC
     Value operator++() {
         return std::visit(
-            overloaded{[this](long& v) -> Value { return Value(++v); },
+            match{[this](long& v) -> Value { return Value(++v); },
                        [this](char& v) -> Value { return Value(++v); },
                        [this](double& v) -> Value { return Value(++v); },
                        [](auto&) -> Value {
@@ -336,7 +336,7 @@ public:
     // Prefix DEC
     Value operator--() {
         return std::visit(
-            overloaded{[this](long& v) -> Value { return Value(--v); },
+            match{[this](long& v) -> Value { return Value(--v); },
                        [this](char& v) -> Value { return Value(--v); },
                        [this](double& v) -> Value { return Value(--v); },
                        [](auto&) -> Value {

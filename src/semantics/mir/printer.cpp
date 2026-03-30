@@ -116,7 +116,7 @@ std::string MIRPrinter::postfixop_to_string(tokens::PostfixOp op) {
 
 std::string MIRPrinter::value_to_string(const exec::Value& val) {
     return std::visit(
-        overloaded{[](std::monostate) { return std::string("void"); },
+        match{[](std::monostate) { return std::string("void"); },
                    [](char v) { return std::to_string(v); },
                    [](long v) { return std::to_string(v); },
                    [](double v) { return std::to_string(v); },
@@ -340,7 +340,7 @@ void MIRPrinter::visit(PostfixExprMIR& node) {
 void MIRPrinter::visit(SizeofExprMIR& node) {
     print_node("Sizeof: ", node, 
         [&] {
-            std::visit(overloaded {
+            std::visit(match {
                 [this] (Box<ExprMIR>& expr) {
                     expr->accept(*this);
                 },

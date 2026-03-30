@@ -302,7 +302,7 @@ void ASTPrinter::visit(ForStatement& node) {
         "ForStatement", node,
         [&] {
             if (node.init) {
-                std::visit(overloaded {
+                std::visit(match {
                     [this] (Box<Expression>& expr) {
                         expr->accept(*this);
                     },

@@ -144,7 +144,7 @@ void MIRSynthesizer::do_visit(Program& node) {
 
     for (auto& item : node.items) {
         dv_call(std::monostate {}, item);
-        std::visit(overloaded {
+        std::visit(match {
             [this] (Box<DeclMIR>& decl) mutable {
                 prog_mir.add_item(std::move(decl));
             },
@@ -219,7 +219,7 @@ void MIRSynthesizer::do_visit(Function& node) {
 
     while (!builder->ty_bldr.type_stack.empty()) {
         auto next_cstrctr = builder->ty_bldr.type_stack.top();
-        std::visit(overloaded{
+        std::visit(match{
             [&builder, &curr] (TypeBuilder::Arr& a) mutable {
                 // Wrap the base in an array.
                 if (a.size) {
@@ -789,14 +789,14 @@ void MIRSynthesizer::do_visit(ClassDeclaration& node) {
     dovisit_param = std::move(param);
     
 
-    std::visit(overloaded {
+    std::visit(match {
         // ClassType case
         [&specinfo, &node, this] (ClassType *cls) {
             bsv_dbprint("parsing ClassDeclaration for ClassType ", cls);
             for (auto& decltr : node.declarators) {
                 dv_call(std::monostate {}, decltr);
                 try {
-                std::visit(overloaded {
+                std::visit(match {
                     [&cls, &specinfo, &decltr] (Box<DeclaratorBuilder>& builder) {
                         builder->ty_bldr.set_base(specinfo->type);
                         Type *finaltype = builder->ty_bldr.finalize();
@@ -831,7 +831,7 @@ void MIRSynthesizer::do_visit(ClassDeclaration& node) {
             for (auto& decltr : node.declarators) {
                 dv_call(std::monostate {}, decltr);
                 try {
-                std::visit(overloaded {
+                std::visit(match {
                     [&unn, &specinfo, &decltr] (Box<DeclaratorBuilder>& builder) {
                         builder->ty_bldr.set_base(specinfo->type);
                         Type *finaltype = builder->ty_bldr.finalize();
@@ -886,7 +886,7 @@ void MIRSynthesizer::do_visit(Initializer& node) {
     Type *type = take_dovisit_param<Type *>();
     Location loc = node.loc;
 
-    return std::visit(overloaded {
+    return std::visit(match {
         // Base case: single expression
         [this, loc] (Box<Expression>& expr) {
             bsv_dbprint("visiting single initializer");
@@ -1013,7 +1013,7 @@ void MIRSynthesizer::do_visit(CompoundStatement& node) {
     // Since do_visit on this node can be called outside of functions,
     // having the param not be of the expected type is valid,
     // we just don't use it.
-    std::visit(overloaded {
+    std::visit(match {
         [&add_symbols] (CmpdStmtDoVisitParam& param) mutable {
             //dbprint("CmpdStmtDoVisitParams found");
             add_symbols = std::move(param);
@@ -1046,7 +1046,7 @@ void MIRSynthesizer::do_visit(CompoundStatement& node) {
     Vec<Box<ProgItemMIR>> progitems {};
     for (auto& item : node.items) {
         dv_call(std::monostate {}, item);
-        std::visit(overloaded {
+        std::visit(match {
             [&progitems] (Box<DeclMIR>& decl) mutable {
                 progitems.push_back(std::move(decl));
             },
@@ -1286,7 +1286,7 @@ void MIRSynthesizer::do_visit(ForStatement& node) {
     Box<LoopStmtMIR> loop = std::make_unique<LoopStmtMIR>(node.loc, std::move(body));
 
     if (node.init.has_value()) {
-        std::visit(overloaded {
+        std::visit(match {
             [this, &loop] (Box<Expression>& expr) {
                 dv_call(std::monostate {}, expr);
                 Box<ExprMIR> exprmir = take_last_result<Box<ExprMIR>>();
@@ -1550,7 +1550,7 @@ void MIRSynthesizer::do_visit(SizeofExpression& node) {
     bsv_dbprint("visiting SizeofExpression node: ", node.loc);
 
     Box<SizeofExprMIR> sizexpr = std::make_unique<SizeofExprMIR>(node.loc, syms.current);
-    std::visit(overloaded {
+    std::visit(match {
         [this, &sizexpr] (Box<Expression>& expr) mutable {
             // this might be a literal expression, so we defer
             // resolution of the actual type to validation.

@@ -797,7 +797,7 @@ Type *TypeBuilder::finalize() {
     Type *curr = base;
     while (!type_stack.empty()) {
         auto next_cstrctr = type_stack.top();
-        std::visit(overloaded{
+        std::visit(match{
             [this, &curr] (Arr& a) mutable {
                 // Wrap the base in an array.
                 if (a.size) {
@@ -1126,7 +1126,7 @@ void TypeContext::deallocate_unsized_array(Type *base) {
                     deallocate_unsized_array(arrbase);
                 }
             }
-            
+
             dbprint("TypeContext: deleting array of base ", base);
             arrays.erase(key);
         }

@@ -53,7 +53,7 @@ void LIRSynthesizer::do_visit(ProgramMIR& node) {
 
     while (!current_q.empty()) {
         LIRSynthItem item = consume();
-        std::visit(overloaded {
+        std::visit(match {
             [this] (Box<FunctionLIR>& func) {
                 prog_lir.functions.push_back(std::move(func));
             },
@@ -83,7 +83,7 @@ void LIRSynthesizer::do_visit(FunctionMIR& node) {
 
     while (!current_q.empty()) {
         LIRSynthItem item = consume();
-        std::visit(overloaded {
+        std::visit(match {
             [&functions] (Box<FunctionLIR>& func) {
                 // Hoist any functions to the global queue.
                 functions.push_back(std::move(func));
@@ -176,7 +176,7 @@ void LIRSynthesizer::do_visit(SwitchStmtMIR& node) {
     node.body->accept(*this);
     while (!current_q.empty()) {
         LIRSynthItem item = consume();
-        std::visit(overloaded {
+        std::visit(match {
             [&functions] (Box<FunctionLIR>& func) {
                 // Hoist any functions to the global queue.
                 functions.push_back(std::move(func));
@@ -246,7 +246,7 @@ void LIRSynthesizer::do_visit(LabeledStmtMIR& node) {
     node.stmt->accept(*this);
     while (!current_q.empty()) {
         LIRSynthItem item = consume();
-        std::visit(overloaded {
+        std::visit(match {
             [&functions] (Box<FunctionLIR>& func) {
                 // Hoist any functions to the global queue.
                 functions.push_back(std::move(func));
@@ -304,7 +304,7 @@ void LIRSynthesizer::do_visit(IfStmtMIR& node) {
     node.then_branch->accept(*this);
     while (!current_q.empty()) {
         LIRSynthItem item = consume();
-        std::visit(overloaded {
+        std::visit(match {
             [&functions] (Box<FunctionLIR>& func) {
                 // Hoist any functions to the global queue.
                 functions.push_back(std::move(func));
@@ -326,7 +326,7 @@ void LIRSynthesizer::do_visit(IfStmtMIR& node) {
         (*node.else_branch)->accept(*this);
         while (!current_q.empty()) {
             LIRSynthItem item = consume();
-            std::visit(overloaded {
+            std::visit(match {
                 [&functions] (Box<FunctionLIR>& func) {
                     // Hoist any functions to the global queue.
                     functions.push_back(std::move(func));
@@ -379,7 +379,7 @@ void LIRSynthesizer::do_visit(LoopStmtMIR& node) {
 
         while (!current_q.empty()) {
             LIRSynthItem item = consume();
-            std::visit(overloaded {
+            std::visit(match {
                 [&functions] (Box<FunctionLIR>& func) {
                     // Hoist any functions to the global queue.
                     functions.push_back(std::move(func));
@@ -403,7 +403,7 @@ void LIRSynthesizer::do_visit(LoopStmtMIR& node) {
 
         while (!current_q.empty()) {
             LIRSynthItem item = consume();
-            std::visit(overloaded {
+            std::visit(match {
                 [&functions] (Box<FunctionLIR>& func) {
                     // Hoist any functions to the global queue.
                     functions.push_back(std::move(func));
@@ -425,7 +425,7 @@ void LIRSynthesizer::do_visit(LoopStmtMIR& node) {
     node.body->accept(*this);
     while (!current_q.empty()) {
         LIRSynthItem item = consume();
-        std::visit(overloaded {
+        std::visit(match {
             [&functions] (Box<FunctionLIR>& func) {
                 // Hoist any functions to the global queue.
                 functions.push_back(std::move(func));
@@ -565,7 +565,7 @@ void LIRSynthesizer::do_visit(PostfixExprMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(SizeofExprMIR& node) {
-    size_t size = std::visit(overloaded {
+    size_t size = std::visit(match {
         [] (Box<ExprMIR>& expr) mutable {
             return expr->type->alloc_size();
         },

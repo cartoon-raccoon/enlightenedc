@@ -53,8 +53,8 @@ template<typename T>
 using Optional = std::optional<T>;
 
 // Overloaded template class for Rust-style pattern matching on variants.
-template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
-template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+template<class... Ts> struct match : Ts... { using Ts::operator()...; };
+template<class... Ts> match(Ts...) -> match<Ts...>;
 
 /*
 A basic point in a source file.

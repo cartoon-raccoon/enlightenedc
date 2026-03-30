@@ -23,7 +23,7 @@ void Validator::eval_initializer(types::Type *type, InitializerMIR& init) {
 
 void Validator::eval_initializer_rec(Vec<Accessor>& path, types::Type *type, InitializerMIR& init) {
     bsv_dbprint("Validator: eval_initializer");
-    std::visit(overloaded {
+    std::visit(match {
         /*
         Base case. If evaluates to a single expression, perform type comparison.
         */
@@ -246,7 +246,7 @@ void Validator::do_visit(ConstExprMIR& node) {
 }
 
 void Validator::do_visit(LiteralExprMIR& node) {
-    std::visit(overloaded {
+    std::visit(match {
         [node, this] (std::monostate v) mutable {
             throw std::runtime_error("LiteralExprMIR should not have a null value");
         },
