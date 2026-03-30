@@ -9,17 +9,16 @@
 #include "util.hpp"
 
 using namespace ecc::frontend;
-using namespace ecc::preproc;
 
 void Frontend::run(driver::TranslationUnit& unit) {
     dbprint("parsing file ", *unit.filename);
-    ecc::preproc::PreProcessor preproc(unit.filename);
+    Preprocessor preproc(unit.filename);
 
     // bodge for lexer hack
     std::set<std::string> typedefs {};
 
-    ecc::frontend::Lexer lexer(&preproc, unit.filename, typedefs);
-    ecc::parser::Parser parser(lexer, *unit.ast_root, typedefs);
+    Lexer lexer(&preproc, unit.filename, typedefs);
+    Parser parser(lexer, *unit.ast_root, typedefs);
 
     try {
 

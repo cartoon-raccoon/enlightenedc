@@ -8,7 +8,7 @@
 
 #include "error.hpp"
 
-namespace ecc::preproc {
+namespace ecc::frontend {
 
 class PreprocError : public EccError {
 public:
@@ -22,20 +22,20 @@ The EnlightenedC Preprocessor.
 Currently this wraps the system `cpp` command and returns the fully preprocessed
 source as a string.
 */
-class PreProcessor : public std::istream {
+class Preprocessor : public std::istream {
     FILE *pipe;
     __gnu_cxx::stdio_filebuf<char> buffer;
 public:
     // Throws std::runtime_error on failure
-    PreProcessor(const std::string *filename);
+    Preprocessor(const std::string *filename);
 
     // Calls pclose on the PreProcessor's internal file descriptor.
     // Throws error if `cpp` terminated unusually for whatever reason.
     void close();
 
-    ~PreProcessor();
+    ~Preprocessor();
 };
 
-} // namespace ecc::preproc
+} // namespace ecc::frontend
 
 #endif

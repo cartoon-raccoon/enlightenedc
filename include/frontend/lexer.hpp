@@ -12,8 +12,6 @@
 #include "util.hpp"
 #include "frontend/filenames.hpp"
 
-using namespace ecc::parser;
-
 namespace ecc::frontend {
 
 extern frontend::FilenamePool filenames;

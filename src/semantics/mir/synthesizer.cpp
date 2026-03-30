@@ -481,7 +481,7 @@ void MIRSynthesizer::do_visit(FunctionDeclarator& node) {
         parameters.push_back(parsed);
     }
 
-    builder->ty_bldr.add_function(node.loc, parameters, node.is_variadic);
+    builder->ty_bldr.add_function(node.base->loc, parameters, node.is_variadic);
 
     dv_return(builder);
 }

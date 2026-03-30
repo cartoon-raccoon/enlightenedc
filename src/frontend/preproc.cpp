@@ -7,9 +7,9 @@ extern "C" {
 #include "frontend/preproc.hpp"
 #include "error.hpp"
 
-using namespace ecc::preproc;
+using namespace ecc::frontend;
 
-PreProcessor::PreProcessor(const std::string *filename) : std::istream(nullptr) {
+Preprocessor::Preprocessor(const std::string *filename) : std::istream(nullptr) {
     std::string command = "cpp " + *filename;
 
     this->pipe = popen(command.c_str(), "r");
@@ -23,7 +23,7 @@ PreProcessor::PreProcessor(const std::string *filename) : std::istream(nullptr) 
     this->init(&buffer);
 }
 
-void PreProcessor::close() {
+void Preprocessor::close() {
     if (pipe) {
         int res = pclose(pipe);
         pipe = nullptr;
@@ -33,7 +33,7 @@ void PreProcessor::close() {
     }
 }
 
-PreProcessor::~PreProcessor() {
+Preprocessor::~Preprocessor() {
     if (pipe) {
         pclose(pipe);
     }
