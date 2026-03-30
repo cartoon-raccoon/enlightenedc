@@ -12,16 +12,16 @@ using namespace mir;
 
 void Backend::run(driver::TranslationUnit& unit) {
     dbprint("running backend for file ", *unit.filename);
-    SemanticChecker semantic_checker(*symbols, *types);
+    SemanticChecker semantic_checker(*unit.prog_mir->symbols, *unit.types);
 
-    semantic_checker.check_semantics(*unit.ast_root, *unit.prog_mir);
+    semantic_checker.check_semantics(*unit.ast_root, *unit.prog_mir->mir);
     dbprint("semantic checking complete");
 
-    dbprint(*types);
-    dbprint(*symbols);
+    dbprint(*unit.types);
+    dbprint(*unit.prog_mir->symbols);
     dbprint("--------- MIR ---------\n");
     MIRPrinter printer;
-    unit.prog_mir->accept(printer);
+    unit.prog_mir->mir->accept(printer);
 
     // todo: types->finalize_all()
 
