@@ -567,10 +567,10 @@ void LIRSynthesizer::do_visit(PostfixExprMIR& node) {
 void LIRSynthesizer::do_visit(SizeofExprMIR& node) {
     size_t size = std::visit(overloaded {
         [] (Box<ExprMIR>& expr) mutable {
-            return expr->type->size();
+            return expr->type->alloc_size();
         },
         [] (Type *& type) mutable {
-            return type->size();
+            return type->alloc_size();
         }
     }, node.operand);
 

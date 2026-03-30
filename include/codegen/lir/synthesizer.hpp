@@ -7,7 +7,6 @@
 
 #include "semantics/semantics.hpp"
 #include "semantics/symbols.hpp"
-#include "semantics/types.hpp"
 #include "semantics/mir/mir.hpp"
 #include "codegen/lir/lir.hpp"
 #include "codegen/lir/symbols.hpp"
@@ -20,15 +19,13 @@ namespace ecc::codegen::lir {
 
 class LIRSynthesizer : public sema::BaseMIRSemaVisitor {
 public:
-    LIRSynthesizer(sema::sym::SymbolTable& syms, 
-                   sema::types::TypeContext& types, 
-                   ProgramLIR& prog_lir)
-        : sema::BaseMIRSemaVisitor(State::READ, syms, types), 
-        symbolmap(), prog_lir(prog_lir) {} 
+    LIRSynthesizer(ProgramLIR& prog_lir, LIRSymbolMap& symbolmap)
+        : sema::BaseMIRSemaVisitor(State::READ), 
+        symbolmap(symbolmap), prog_lir(prog_lir) {} 
 
     using LIRSynthItem = std::variant<Box<FunctionLIR>, Box<DeclLIR>, Box<StmtLIR>>;
 
-    LIRSymbolMap symbolmap;
+    LIRSymbolMap& symbolmap;
 
     ProgramLIR& prog_lir;
 

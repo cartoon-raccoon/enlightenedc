@@ -9,6 +9,7 @@
 #include "semantics/mir/mir.hpp"
 #include "semantics/mir/synthesizer.hpp"
 #include "semantics/semerr.hpp"
+#include "semantics/typeerr.hpp"
 #include "eval/value.hpp"
 #include "eval/exec.hpp"
 #include "error.hpp"
@@ -242,7 +243,7 @@ void MIRSynthesizer::do_visit(Function& node) {
                 last_func_params = std::move(fn.params);
                 // Wrap the base as the return type in a function type.
                 curr = builder->ty_bldr.ctxt.get_function(
-                    curr, std::move(params), fn.variadic);
+                    fn.loc, curr, std::move(params), fn.variadic);
             }
         }, next_cstrctr);
 
@@ -323,23 +324,18 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
 
     for (auto& declarator : node.declarators) {
         // call accept on our declarator
-        dv_call(std::monostate{}, declarator);
+        dv_call(specinfo->type, declarator);
 
         // take the last result; should be InitDecltrRet
         auto ret = take_last_result<InitDecltrRet>();
 
-        // extract the builder and finalize our type
-        Box<DeclaratorBuilder> builder = std::move(ret.builder);
-        builder->ty_bldr.set_base(specinfo->type);
-        Type *complete = builder->ty_bldr.finalize();
-
         // declare symbol and corresponding pointer
         Box<VarSymbol> sym = nullptr;
         VarSymbol *symptr = nullptr;
-        if (builder->name) {
+        if (ret.name) {
             // initialize our symbol and its pointer
             sym = std::make_unique<VarSymbol>(
-                declarator->loc, *builder->name, syms.current, complete);
+                declarator->loc, *ret.name, syms.current, ret.type);
             symptr = sym.get();
 
             // populate other specifiers, and then insert into symbol table
@@ -353,7 +349,7 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
                 throw UnableToContinue();
             }
 
-            syms.insert(*builder->name, std::move(sym));
+            syms.insert(*ret.name, std::move(sym));
         } else {
             add_error<EccSemError>("variable declaration with no name", declarator->loc);
             throw UnableToContinue();
@@ -382,19 +378,30 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
 void MIRSynthesizer::do_visit(InitDeclarator& node) {
     bsv_dbprint("visiting InitDeclarator node: ", node.loc);
 
+    BaseType *base = take_dovisit_param<BaseType *>();
+
     dv_call(std::monostate {}, node.declarator);
     // pull builder before we visit the initializer
     Box<DeclaratorBuilder> builder = take_last_result<Box<DeclaratorBuilder>>();
 
+    builder->ty_bldr.set_base(base);
+    Type *complete = builder->ty_bldr.finalize();
+
     // todo: construct the variable here instead of at the variable decl node
     if (node.initializer) {
         // call accept on our initializer
-        dv_call(std::monostate {}, *node.initializer);
-        auto init_mir = take_last_result<Box<InitializerMIR>>();
-        InitDecltrRet ret = {std::move(builder), std::move(init_mir)};
+        dv_call(complete, *node.initializer);
+        auto init_ret = take_last_result<InitializerRet>();
+        Type *ret_type;
+        if (init_ret.new_type) {
+            ret_type = *init_ret.new_type;
+        } else {
+            ret_type = complete;
+        }
+        InitDecltrRet ret = {std::move(builder->name), ret_type, std::move(init_ret.init_mir)};
         dv_return(ret);
     } else {
-        InitDecltrRet ret = {std::move(builder), {}};
+        InitDecltrRet ret = {std::move(builder->name), complete, {}};
         dv_return(ret);
     }
 }
@@ -474,7 +481,7 @@ void MIRSynthesizer::do_visit(FunctionDeclarator& node) {
         parameters.push_back(parsed);
     }
 
-    builder->ty_bldr.add_function(parameters, node.is_variadic);
+    builder->ty_bldr.add_function(node.loc, parameters, node.is_variadic);
 
     dv_return(builder);
 }
@@ -622,6 +629,7 @@ void MIRSynthesizer::do_visit(EnumSpecifier& node) {
             if (!underlying->is_integral()) {
                 add_error<InvalidEnumUnderlyingError>(node.loc);
             }
+            enm->underlying = underlying;
         }
 
         for (auto& enumtr : *node.enumerators) {
@@ -787,21 +795,21 @@ void MIRSynthesizer::do_visit(ClassDeclaration& node) {
             bsv_dbprint("parsing ClassDeclaration for ClassType ", cls);
             for (auto& decltr : node.declarators) {
                 dv_call(std::monostate {}, decltr);
+                try {
                 std::visit(overloaded {
                     [&cls, &specinfo, &decltr] (Box<DeclaratorBuilder>& builder) {
                         builder->ty_bldr.set_base(specinfo->type);
                         Type *finaltype = builder->ty_bldr.finalize();
-                        auto member = std::make_unique<ClassType::ClassTypeMember>(
-                            ClassType::ClassTypeMember(builder->name, finaltype, decltr->loc));
 
-                        cls->add_member(std::move(member));
+                        if (builder->name) {
+                            cls->add_member(*builder->name, finaltype, decltr->loc);
+                        } else {
+                            cls->add_member(finaltype, decltr->loc);
+                        }
                     },
                     [&cls, &specinfo, &decltr] (std::monostate& _) {
                         // no declarator, use the base type
-                        auto member = std::make_unique<ClassType::ClassTypeMember>(
-                            ClassType::ClassTypeMember(specinfo->type, decltr->loc));
-
-                        cls->add_member(std::move(member));
+                        cls->add_member(specinfo->type, decltr->loc);
                     },
                     [] (auto& _) {
                         throw std::runtime_error("unexpected last_result when parsing ClassDeclaration");
@@ -809,6 +817,10 @@ void MIRSynthesizer::do_visit(ClassDeclaration& node) {
                 }, last_result);
 
                 last_result = std::monostate {};
+                } catch (TypeSemError& e) {
+                    add_error<TypeSemError>(e);
+                    throw UnableToContinue();
+                }
             }
 
         },
@@ -818,22 +830,21 @@ void MIRSynthesizer::do_visit(ClassDeclaration& node) {
             bsv_dbprint("parsing ClassDeclaration for UnionType ", unn);
             for (auto& decltr : node.declarators) {
                 dv_call(std::monostate {}, decltr);
+                try {
                 std::visit(overloaded {
                     [&unn, &specinfo, &decltr] (Box<DeclaratorBuilder>& builder) {
                         builder->ty_bldr.set_base(specinfo->type);
                         Type *finaltype = builder->ty_bldr.finalize();
 
-                        auto member = std::make_unique<UnionType::UnionTypeMember>(
-                            UnionType::UnionTypeMember(builder->name, finaltype, decltr->loc));
-
-                        unn->add_member(std::move(member));
+                        if (builder->name) {
+                            unn->add_member(*builder->name, finaltype, decltr->loc);
+                        } else {
+                            unn->add_member(finaltype, decltr->loc);
+                        }
                     },
                     [&unn, &specinfo, &decltr] (std::monostate& _) {
                         // no declarator, use the base type
-                        auto member = std::make_unique<UnionType::UnionTypeMember>(
-                            UnionType::UnionTypeMember(specinfo->type, decltr->loc));
-
-                        unn->add_member(std::move(member));
+                        unn->add_member(specinfo->type, decltr->loc);
                     },
                     [] (auto& _) {
                         throw std::runtime_error("unexpected last_result when parsing UnionDeclaration");
@@ -841,6 +852,10 @@ void MIRSynthesizer::do_visit(ClassDeclaration& node) {
                 }, last_result);
 
                 last_result = std::monostate {};
+                } catch (TypeSemError& e) {
+                    add_error<TypeSemError>(e);
+                    throw UnableToContinue();
+                } 
             }
         },
 
@@ -868,26 +883,103 @@ void MIRSynthesizer::do_visit(ClassDeclarator& node) {
 void MIRSynthesizer::do_visit(Initializer& node) {
     bsv_dbprint("visiting Initializer node: ", node.loc);
 
+    Type *type = take_dovisit_param<Type *>();
     Location loc = node.loc;
 
     return std::visit(overloaded {
+        // Base case: single expression
         [this, loc] (Box<Expression>& expr) {
             bsv_dbprint("visiting single initializer");
             dv_call(std::monostate {}, expr);
             Box<ExprMIR> exprmir = take_last_result<Box<ExprMIR>>();
             Box<InitializerMIR> init = std::make_unique<InitializerMIR>(loc, std::move(exprmir));
-            dv_return(init);
+            InitializerRet ret = {{}, std::move(init)};
+            dv_return(ret);
         },
-        [this, loc] (Vec<Box<Initializer>>& inits) {
+        // Recursive case: sub-initializer
+        [this, loc, type, &node] (Vec<Box<Initializer>>& inits) {
             bsv_dbprint("visiting compound initializer");
+
             Vec<Box<InitializerMIR>> init_mirs {};
-            for (auto& init : inits) {
-                dv_call(std::monostate {}, init);
-                Box<InitializerMIR> initmir = take_last_result<Box<InitializerMIR>>();
-                init_mirs.push_back(std::move(initmir));
+            InitializerRet ret {{}, nullptr};
+
+            switch (type->kind) {
+                case Type::Kind::ARRAY: {
+                    bsv_dbprint("visiting arraytype compound initializer");
+                    ArrayType *arrtype = type->as_array();
+                    // if there are any subarrays, this is the one pointing to the largest one
+                    ArrayType *max_subarray = nullptr;
+
+                    for (auto& init : inits) {
+                        // visit each initializer and take the return value
+                        dv_call(arrtype->base, init);
+                        auto initmir = take_last_result<InitializerRet>();
+
+                        /*
+                        If there is a new array type reported by an initializer, we need to
+                        propagate that up to our array type.
+
+                        Since sub-array initializers can vary in size (unused spaces remain deinitialized),
+                        we take the largest sub-initializer that we encounter.
+                        */
+                        if (initmir.new_type) {
+                            // if we already have a max array set
+                            if (max_subarray) {
+                                // if the new array is larger than the current max size
+                                if ((*initmir.new_type)->arr_size > max_subarray->arr_size) {
+                                    max_subarray = *initmir.new_type;
+                                }
+                            } else {
+                                // else, just set our array
+                                max_subarray = *initmir.new_type;
+                            }
+                        }
+                        init_mirs.push_back(std::move(initmir.init_mir));
+                    }
+
+                    if (!arrtype->arr_size) {
+                        // if no size
+                        bsv_dbprint("array has no size, inferring from size of initializer");
+                        if (max_subarray) {
+                            // if max_subarray was set, use that as our base
+                            arrtype = types.set_array_size(max_subarray, inits.size());
+                        } else {
+                            // otherwise, use our current base
+                            arrtype = types.set_array_size(arrtype->base, inits.size());
+                        }
+                        ret.new_type = arrtype;
+                    }
+                }
+                break; // end case ARRAY
+
+                case Type::Kind::CLASS: {
+                    bsv_dbprint("visiting classtype compound initializer");
+                    ClassType *clstype = type->as_class();
+                    
+                    for (int i = 0; i < inits.size(); i++) {
+                        auto& init = inits[i];
+                        ClassType::ClassTypeMember *mem = clstype->index(i);
+                        if (!mem) continue;
+                        
+                        dv_call(mem->ty, init);
+                        auto initmir = take_last_result<InitializerRet>();
+                        // ignore new array type here, since arrays in classes must have declared size
+                        init_mirs.push_back(std::move(initmir.init_mir));
+                    }
+                }
+                break; // end case CLASS
+
+                default: {
+                    add_error<InvalidInitializerError>(
+                        // fixme: better error
+                        "cannot initialize a variable that is not class or array with compound initializer", node.loc);
+                    throw UnableToContinue();
+                }
             }
+
             Box<InitializerMIR> fullinit = std::make_unique<InitializerMIR>(loc, std::move(init_mirs));
-            dv_return(fullinit);
+            ret.init_mir = std::move(fullinit);
+            dv_return(ret);
         }
     }, node.initializer);
 }

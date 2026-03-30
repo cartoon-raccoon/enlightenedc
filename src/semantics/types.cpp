@@ -7,7 +7,7 @@
 #include "semantics/types.hpp"
 #include "semantics/symbols.hpp"
 #include "codegen/llvm.hpp"
-#include "semantics/semerr.hpp"
+#include "semantics/typeerr.hpp"
 #include "util.hpp"
 
 using namespace ecc::sema::types;
@@ -18,8 +18,14 @@ using namespace ecc::codegen;
 * TYPE METHODS
 */
 
-size_t Type::size() {
+size_t Type::alloc_size() {
+    // If no type, call finalize
     if (!llvm_type) {
+        finalize();
+    }
+
+    // Check that type has been initialized properly
+    if (!llvm_type && finalized) {
         throw std::runtime_error("LLVM Type not initialized on type, cannot get size");
     }
 
@@ -31,11 +37,55 @@ bool Type::is_void() { return kind == Kind::VOID; }
 
 bool Type::is_primitive() { return kind == Kind::PRIMITIVE; }
 
+bool Type::is_class() { return kind == Kind::CLASS; }
+
+bool Type::is_union() { return kind == Kind::UNION; }
+
+bool Type::is_enum() { return kind == Kind::ENUM; }
+
 bool Type::is_pointer() { return kind == Kind::POINTER; }
 
 bool Type::is_array() { return kind == Kind::ARRAY; }
 
 bool Type::is_function() { return kind == Kind::FUNCTION; }
+
+LLVMType * Type::get_llvmtype() {
+    if (llvm_type) return llvm_type;
+
+    finalize();
+
+    assert(llvm_type);
+    return llvm_type;
+}
+
+void UserType::validate_member_type(Type *type, Optional<std::string> name, Location loc) {
+    if (type == this) {
+        // check for recursion without indirection
+
+        // member is guaranteed to have name, as anonymous types cannot be re-referenced
+        throw RecursiveTypeError(*name, loc);
+    } else if (type->is_usertype()) {
+        // if member is usertype, check for completeness
+        UserType *uty = type->as_usertype();
+        if (!uty->is_complete()) {
+            throw IncompleteTypeUseError(*uty->name, uty->decl_loc);
+        }
+    } else if (type->is_void()) {
+        // check if type is void
+        throw InvalidVoidError(loc);
+    } else if (type->is_array()) {
+        // if type is array:
+        ArrayType *arrayty = type->as_array();
+        if (arrayty->base == this) {
+            // check for recursive errors with arrays as well
+            throw RecursiveTypeError(*name, loc);
+        }
+        if (!arrayty->arr_size) {
+            // check that array is sized
+            throw UnsizedArrInUserTypeError(loc);
+        }
+    }
+}
 
 /*
 * VOID TYPE METHODS
@@ -120,9 +170,9 @@ bool PrimitiveType::is_compatible_with(Type *from) {
         return false;
     }
 
-    int my_size = this->size();
+    int my_size = this->alloc_size();
 
-    return 0 < my_size && my_size <= new_from->size();
+    return 0 < my_size && my_size <= new_from->alloc_size();
 }
 
 Optional<uint64_t> PrimitiveType::int_max() {
@@ -253,6 +303,15 @@ bool ClassType::is_fully_defined() {
             }
             break;
 
+            // This branch shouldn't be reached because array sizedness is checked
+            // when adding a member anyway.
+            case Kind::ARRAY: {
+                ArrayType *arr = member->ty->as_array();
+                assert(arr);
+                ret = ret && arr->arr_size.has_value();
+            }
+            break;
+
             default: {
                 ret = ret && true;
             }
@@ -269,7 +328,7 @@ void ClassType::finalize() {
         dbprint("ClassType: already finalized, skipping");
         return;
     }
-    dbprint("ClassType: finalizing");
+    dbprint("ClassType: finalizing class defined at ", def_loc);
 
     if (!is_complete()) {
         throw TypeSemError("class not fully defined", decl_loc);
@@ -278,11 +337,7 @@ void ClassType::finalize() {
     Vec<LLVMType *> args;
     args.reserve(num_members());
     for (auto& member : members) {
-        if (member->ty->is_array()) {
-            if (!member->ty->as_array()->arr_size) {
-                throw TypeSemError("arrays as class members must have sizes declared", member->loc);
-            }
-        }
+        dbprint("UnionType: finalizing member declared at ", member->loc);
         member->ty->finalize();
         assert(member->ty->get_llvmtype());
         args.push_back(member->ty->get_llvmtype());
@@ -297,26 +352,21 @@ void ClassType::finalize() {
     finalized = true;
 }
 
-void ClassType::add_member(Box<ClassType::ClassTypeMember> member) {
-    if (member->name)
-        dbprint("ClassType: adding member with name ", *member->name, " type ", member->ty);
-    else {
-        dbprint("ClassType: adding anonymous member with type ", member->ty);
-    }
-    if (member->ty == this) {
-        // member is guaranteed to have name, as anonymous types cannot be re-referenced
-        throw RecursiveTypeError(*member->name, member->loc);
-    }
-    if (member->ty->is_array()) {
-        auto *arrayty = member->ty->as_array();
-        if (!arrayty) {
-            throw std::runtime_error("Type with Kind::Array is not ArrayType");
-        }
-        if (arrayty->base == this) {
-            throw RecursiveTypeError(*member->name, member->loc);
-        }
+void ClassType::add_member(std::string name, Type *type, Location loc) {
+    dbprint("ClassType: adding member with name ", name, " type ", type);
 
-    }
+    validate_member_type(type, name, loc);
+
+    Box<ClassTypeMember> member = std::make_unique<ClassTypeMember>(name, type, loc);
+    members.push_back(std::move(member));
+}
+
+void ClassType::add_member(Type *type, Location loc) {
+    dbprint("ClassType: adding anonymous member with type ", type);
+
+    validate_member_type(type, {}, loc);
+
+    Box<ClassTypeMember> member = std::make_unique<ClassTypeMember>(type, loc);
     members.push_back(std::move(member));
 }
 
@@ -399,12 +449,21 @@ bool UnionType::is_compatible_with(Type *dst) {
     return false;
 }
 
-void UnionType::add_member(Box<UnionType::UnionTypeMember> member) {
-    if (member->name)
-        dbprint("UnionType: adding member with name ", *member->name, " type ", member->ty);
-    else {
-        dbprint("UnionType: adding anonymous member with type ", member->ty);
-    }
+void UnionType::add_member(std::string name, Type *type, Location loc) {
+    dbprint("UnionType: adding member with name ", name, " type ", type);
+
+    validate_member_type(type, name, loc);
+
+    Box<UnionTypeMember> member = std::make_unique<UnionTypeMember>(name, type, loc);
+    members.push_back(std::move(member));
+}
+
+void UnionType::add_member(Type *type, Location loc) {
+    dbprint("UnionType: adding anonymous member with type ", type);
+
+    validate_member_type(type, {}, loc);
+
+    Box<UnionTypeMember> member = std::make_unique<UnionTypeMember>(type, loc);
     members.push_back(std::move(member));
 }
 
@@ -434,7 +493,7 @@ void UnionType::finalize() {
         dbprint("UnionType: already finalized, skipping");
         return;
     }
-    dbprint("UnionType: finalizing");
+    dbprint("UnionType: finalizing union defined at ", def_loc);
 
     if (!is_complete()) {
         throw TypeSemError("union not fully defined", decl_loc);
@@ -445,11 +504,7 @@ void UnionType::finalize() {
     }
     // Finalize all members first
     for (auto& member: members) {
-        if (member->ty->is_array()) {
-            if (!member->ty->as_array()->arr_size) {
-                throw TypeSemError("arrays as union members must have sizes declared", member->loc);
-            }
-        }
+        dbprint("UnionType: finalizing member declared at ", member->loc);
         member->ty->finalize();
         assert(member->ty->get_llvmtype());
     }
@@ -459,9 +514,10 @@ void UnionType::finalize() {
         llvm_type = (*type_rep)->get_llvmtype();
 
         // todo: validate that no members are larger than type rep
+        todo();
     } else {
         // todo: get largest member and set that as llvm_type
-        
+        todo();
     }
 
     finalized = true;
@@ -488,8 +544,8 @@ underlying(tyctxt.get_u64()) {}
 
 EnumType::EnumType(
     Location decl_loc, std::string name, sema::sym::Scope *scope, TypeContext& tyctxt)
-: UserType(decl_loc, Kind::ENUM, tyctxt, scope), 
-enumerators(), name(name), 
+: UserType(decl_loc, Kind::ENUM, name, tyctxt, scope), 
+enumerators(), 
 // default type for an enum with no declared underlying type is U64.
 underlying(tyctxt.get_u64()) {}
 
@@ -636,6 +692,15 @@ void PointerType::finalize() {
 * ARRAY TYPE METHODS
 */
 
+bool ArrayType::is_fully_sized() {
+    // fixme: does not work if there is a break in the type hierarchy of arrays
+    if (base->is_array()) {
+        return arr_size.has_value() && base->as_array()->is_fully_sized();
+    } else {
+        return arr_size.has_value();
+    }
+}
+
 bool ArrayType::is_compatible_with(Type *dst) {
     switch (dst->kind) {
 
@@ -678,7 +743,7 @@ void ArrayType::finalize() {
 * FUNCTION TYPE METHODS
 */
 
-size_t FunctionType::size() {
+size_t FunctionType::alloc_size() {
     throw std::runtime_error("cannot call size() on FunctionType");
 }
 
@@ -714,8 +779,8 @@ void TypeBuilder::add_pointer(bool is_const) {
     type_stack.push(Ptr {is_const});
 }
 
-void TypeBuilder::add_function(Vec<FuncParam> params, bool variadic) {
-    type_stack.push(FnParams {std::move(params), variadic});
+void TypeBuilder::add_function(Location loc, Vec<FuncParam> params, bool variadic) {
+    type_stack.push(FnParams {loc, std::move(params), variadic});
 }
 
 void TypeBuilder::set_base(BaseType *base) {
@@ -753,7 +818,7 @@ Type *TypeBuilder::finalize() {
                     params.push_back(param.type);
                 }
                 // Wrap the base as the return type in a function type.
-                curr = this->ctxt.get_function(curr, std::move(params), fn.variadic);
+                curr = this->ctxt.get_function(fn.loc, curr, std::move(params), fn.variadic);
             }
         }, next_cstrctr);
 
@@ -927,11 +992,28 @@ PointerType *TypeContext::get_pointer(Type *base, bool is_const) {
     return ret;
 }
 
+PointerType *TypeContext::decay_array(ArrayType *arr) {
+    ArrayKey key = {arr->base, arr->arr_size};
+    auto it = arrays.find(key);
+    assert(it != arrays.end());
+    
+    // Create the pointer type
+    PointerType *ret = get_pointer(arr->base, false);
+
+    // If the array we want to decay is unsized, deallocate it
+    if (!arr->arr_size) {
+        deallocate_unsized_array(arr->base);
+    }
+
+    return ret;
+}
+
 ArrayType *TypeContext::get_array(Type *base, uint64_t size) {
     dbprint("TypeContext: array type with base ", base, ", size ", size);
     ArrayKey key(base, size);
     auto it = arrays.find(key);
     if (it != arrays.end()) {
+        it->second->ref_count++;
         return it->second.get();
     }
 
@@ -947,6 +1029,8 @@ ArrayType *TypeContext::get_array(Type *base) {
     ArrayKey key(base, {});
     auto it = arrays.find(key);
     if (it != arrays.end()) {
+        dbprint("TypeContext: found existing array, returning");
+        it->second->ref_count++;
         return it->second.get();
     }
 
@@ -957,7 +1041,26 @@ ArrayType *TypeContext::get_array(Type *base) {
     return ret;
 }
 
-FunctionType *TypeContext::get_function(Type *returntype, Vec<Type *> params, bool variadic) {
+ArrayType *TypeContext::set_array_size(Type *base, uint64_t size) {
+    dbprint("TypeContext: set array of base ", base, ", with size ", size);
+
+    // If array of specified size already exists, return that
+    ArrayKey key1 = {base, size};
+    auto it = arrays.find(key1);
+    if (it != arrays.end()) {
+        it->second->ref_count++;
+        return it->second.get();
+    }
+
+    // Otherwise, create a new one.
+
+    // First, deallocate the previous unsized base
+    deallocate_unsized_array(base);
+
+    return get_array(base, size);
+}
+
+FunctionType *TypeContext::get_function(Location loc, Type *returntype, Vec<Type *> params, bool variadic) {
     /*
     Function types do not need to be scope-aware, since their names are purely symbolic, and
     have no bearing on type equality. If a pointer to a function that was declared in a non-global scope
@@ -967,6 +1070,13 @@ FunctionType *TypeContext::get_function(Type *returntype, Vec<Type *> params, bo
     */
 
     dbprint("TypeContext: getting function type");
+
+    if (returntype->is_array() || returntype->is_function()) {
+        // fixme: use proper location
+        throw InvalidReturnTypeError(loc);
+    }
+
+
     Box<FunctionType> func = std::make_unique<FunctionType>(returntype, *this);
     FunctionType *ret = func.get();
 
@@ -987,7 +1097,7 @@ FunctionType *TypeContext::get_function(Type *returntype, Vec<Type *> params, bo
         name = "function_" + std::to_string(hash);
 
     if (function_types.contains(name)) {
-        dbprint("TypeConstext: existing function type found");
+        dbprint("TypeContext: existing function type found");
         return function_types.find(name)->second.get();
     }
 
@@ -996,48 +1106,29 @@ FunctionType *TypeContext::get_function(Type *returntype, Vec<Type *> params, bo
     return ret;
 }
 
-void TypeContext::finalize_primitives() {
-    dbprint("TypeContext: finalizing primitives");
-    voidt->finalize();
-    u8->finalize();
-    u16->finalize();
-    u32->finalize();
-    u64->finalize();
-    i8->finalize();
-    i16->finalize();
-    i32->finalize();
-    i64->finalize();
-    f64->finalize();
-    boolt->finalize();
-}
+void TypeContext::deallocate_unsized_array(Type *base) {
+    ArrayKey key = {base, {}};
 
-void TypeContext::finalize_usertypes() {
-    dbprint("TypeContext: finalizing user types");
-    for (auto& [name, usertype] : user_types) {
-        usertype->finalize();
+    auto it = arrays.find(key);
+    if (it != arrays.end()) {
+        // If exists, decrease its ref count
+        dbprint("TypeContext: found array of base ", base, " to deallocate");
+        it->second->ref_count--;
+
+        // If ref count is zero, proceed to deallocate
+        if (it->second->ref_count == 0) {
+
+            // If base is also an array, check if it is unsized; if so, deallocate it too
+            // This is basically recursive ref counting deallocation.
+            if (base->is_array()) {
+                ArrayType *arrbase = base->as_array();
+                if (!arrbase->arr_size) {
+                    deallocate_unsized_array(arrbase);
+                }
+            }
+            
+            dbprint("TypeContext: deleting array of base ", base);
+            arrays.erase(key);
+        }
     }
 }
-
-void TypeContext::finalize_functions() {
-    dbprint("TypeContext: finalizing function types");
-    for (auto& [name, func] : function_types) {
-        func->finalize();
-    }
-}
-
-void TypeContext::finalize_pointers() {
-    dbprint("TypeContext: finalizing function types");
-    for (auto& [name, ptr] : pointers) {
-        ptr->finalize();
-    }
-}
-
-void TypeContext::finalize_arrays() {
-    dbprint("TypeContext: finalizing array types");
-    for (auto& [name, arr] : arrays) {
-        arr->finalize();
-    }
-}
-
-
-

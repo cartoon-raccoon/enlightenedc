@@ -13,7 +13,6 @@
 #include "semantics/symbols.hpp"
 #include "semantics/semantics.hpp"
 #include "semantics/mir/mir.hpp"
-#include "semantics/semerr.hpp"
 #include "util.hpp"
 
 namespace ecc::sema {
@@ -35,10 +34,19 @@ struct TypeSpecRet {
     Ty *type;
 };
 
-// The result of visiting an init declarator.
+// The result of visiting an InitDeclarator node.
 struct InitDecltrRet {
-    Box<DeclaratorBuilder> builder;
+    Optional<std::string> name;
+    types::Type *type;
     Optional<Box<sema::mir::InitializerMIR>> init_mir;
+};
+
+// The result of visiting an Initializer node.
+struct InitializerRet {
+    // A new type to apply if needed.
+    // Used only in array size inference.
+    Optional<types::ArrayType *> new_type;
+    Box<sema::mir::InitializerMIR> init_mir;
 };
 
 // The result of visiting a compound statement from a function.
@@ -87,7 +95,9 @@ using ElabResult = std::variant<
     Box<sema::mir::ExprMIR>,
     Box<sema::mir::InitializerMIR>,
     // The return type of visiting an InitDeclarator.
-    InitDecltrRet
+    InitDecltrRet,
+    // The return type of visiting an Initializer.
+    InitializerRet
 >;
 
 
@@ -114,16 +124,22 @@ using ElabVisitParam = std::variant<
     types::UnionType *,
     types::EnumType *,
     types::PrimitiveType *,
+    types::BaseType *,
     types::Type *
 >;
 
-/*
-The class that performs the elaboration pass.
+/**
+The class that lowers the AST to MIR, populating the TypeContext and SymbolTable.
 */
 class MIRSynthesizer : public BaseASTSemaVisitor {
 public:
     MIRSynthesizer(sym::SymbolTable& syms, types::TypeContext& types, mir::ProgramMIR& mir)
-    : BaseASTSemaVisitor(BaseSemanticVisitor::State::WRITE, syms, types), prog_mir(mir) {}
+        : BaseASTSemaVisitor(BaseSemanticVisitor::State::WRITE),
+        prog_mir(mir), types(types), syms(syms) {}
+
+    types::TypeContext& types;
+
+    sym::SymbolTable& syms;
 
     mir::ProgramMIR& prog_mir;
 
@@ -142,6 +158,10 @@ protected:
     ElabResult last_result = std::monostate {};
 
     ElabVisitParam dovisit_param = std::monostate {};
+
+    ScopeGuard<ast::ASTNode> enter_scope(sym::FuncSymbol *assoc = nullptr) override {
+        return ScopeGuard<ast::ASTNode>(state, syms, assoc);
+    }
     /*
     Takes the result of the last visit call, replacing it with `std::monostate`.
     */

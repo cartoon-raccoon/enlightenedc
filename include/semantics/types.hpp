@@ -42,6 +42,10 @@ using namespace util;
 using namespace ecc;
 
 class Type;
+class BaseType;
+class VoidType;
+class UserType;
+class DerivedType;
 class PrimitiveType;
 class ClassType;
 class UnionType;
@@ -128,22 +132,27 @@ public:
 
     bool is_void();
     bool is_primitive();
+
+    bool is_class();
+    bool is_union();
+    bool is_enum();
+
     bool is_pointer();
     bool is_array();
     bool is_function();
 
-    virtual bool is_base() { return false; }
+    virtual bool is_basetype() { return false; }
 
-    virtual bool is_user() { return false; } 
+    virtual bool is_usertype() { return false; } 
 
-    virtual bool is_derived() { return false; }
+    virtual bool is_derivedtype() { return false; }
 
     /**
     Get the size of the type as reported by LLVM.
 
     Before `finalize()` is called, calling this will throw an error.
     */
-    virtual size_t size();
+    virtual size_t alloc_size();
 
     /*
     Check if a type can be implicitly coerced into `dst` without a cast,
@@ -161,9 +170,13 @@ public:
         return false;
     }
 
+    virtual VoidType *as_void() { return nullptr; }
+
     // Cast this type to a PrimitiveType *.
     // Returns null if the underlying type is not a PrimitiveType.
     virtual PrimitiveType *as_primitive() { return nullptr; }
+
+    virtual UserType *as_usertype() { return nullptr; }
 
     // Cast this type to a ClassType *.
     // Returns null if the underlying type is not a ClassType.
@@ -176,6 +189,8 @@ public:
     // Cast this type to an EnumType *.
     // Returns null if the underlying type is not a ClassType.
     virtual EnumType *as_enum() { return nullptr; }
+
+    virtual DerivedType *as_derivedtype() { return nullptr; }
 
     // Cast this type to a PointerType *.
     // Returns null if the underlying type is not a ClassType.
@@ -211,7 +226,7 @@ public:
     */
     virtual void finalize() = 0;
 
-    codegen::LLVMType *get_llvmtype() { return llvm_type; }
+    codegen::LLVMType *get_llvmtype();
 
     virtual std::string to_string() const { return "()"; }
 
@@ -241,7 +256,7 @@ classes, unions, and enums.
 */
 class BaseType : public Type {
 public:
-    bool is_base() override { return true; }
+    bool is_basetype() override { return true; }
 
 protected:
     BaseType(Kind kind, TypeContext& tyctxt) : Type(kind, tyctxt) {}
@@ -263,9 +278,16 @@ class UserType : public BaseType {
 
 public:
 
+    /**
+    Validate that the type of a prospective member is valid to be added,
+    */
+    virtual void validate_member_type(Type *type, Optional<std::string> name, Location loc);
+
+    UserType *as_usertype() override { return this; }
+
     bool is_complete() const { return complete; }
 
-    bool is_user() override { return true; }
+    bool is_usertype() override { return true; }
 
     // Returns the kind of type: class, union, enum.
     static std::string base();
@@ -280,6 +302,8 @@ public:
     // The scope where the type was declared.
     sema::sym::Scope *scope;
 
+    Optional<std::string> name;
+
     /** The location that the type was declared. */
     Location decl_loc;
     /** The location that the type was defined. */
@@ -287,6 +311,9 @@ public:
 protected:
     UserType(Location decl_loc, Kind kind, TypeContext& tyctxt, sema::sym::Scope *scope) 
         : BaseType(kind, tyctxt), scope(scope), decl_loc(decl_loc) {}
+
+    UserType(Location decl_loc, Kind kind, std::string name, TypeContext& tyctxt, sema::sym::Scope *scope) 
+        : BaseType(kind, tyctxt), name(name), scope(scope), decl_loc(decl_loc) {}
 };
 
 /*
@@ -299,7 +326,9 @@ type being their return type.
 */
 class DerivedType : public Type {
 public:
-    bool is_derived() { return true; }
+    DerivedType *as_derivedtype() override { return this; }
+
+    bool is_derivedtype() override { return true; }
 
     Type *base;
 
@@ -312,6 +341,8 @@ The Void Type in EnlightenedC.
 */
 class VoidType : public BaseType {
 public:
+    VoidType *as_void() override { return this; }
+
     void finalize() override;
 
     virtual std::string to_string() const override { return "Void"; }
@@ -413,13 +444,6 @@ public:
     };
 
     /**
-    The name of the class.
-
-    If the name is empty, the class is anonymous.
-    */
-    Optional<std::string> name;
-
-    /**
     The members of the class.
     */
     Vec<Box<ClassTypeMember>> members;
@@ -432,7 +456,9 @@ public:
     */
     bool is_fully_defined() override;
 
-    void add_member(Box<ClassTypeMember> member);
+    void add_member(std::string name, Type *type, Location loc);
+
+    void add_member(Type *type, Location loc);
 
     ClassTypeMember *find(std::string& name);
 
@@ -467,7 +493,7 @@ protected:
         : UserType(decl_loc, Kind::CLASS, tyctxt, scope), members() {}
     /** Construct an empty class with a given name. */
     ClassType(Location decl_loc, std::string name, sema::sym::Scope *scope, TypeContext& tyctxt)
-        : UserType(decl_loc, Kind::CLASS, tyctxt, scope), members(), name(name) {}
+        : UserType(decl_loc, Kind::CLASS, name, tyctxt, scope), members() {}
 
 private:
 };
@@ -517,15 +543,15 @@ public:
 
     Vec<Box<UnionTypeMember>> members;
 
-    Optional<std::string> name;
-
     Optional<PrimitiveType *> type_rep = {};
 
     bool is_fully_defined() override;
 
     bool is_compatible_with(Type *dst) override;
 
-    void add_member(Box<UnionTypeMember> member);
+    void add_member(std::string name, Type *type, Location loc);
+
+    void add_member(Type *type, Location loc);
 
     UnionTypeMember *find(std::string& name);
 
@@ -558,7 +584,7 @@ protected:
     UnionType(Location decl_loc, sema::sym::Scope *scope, TypeContext& tyctxt)
         : UserType(decl_loc, Kind::UNION, tyctxt, scope), members() {}
     UnionType(Location decl_loc, std::string name, sema::sym::Scope *scope, TypeContext& tyctxt)
-        : UserType(decl_loc, Kind::UNION, tyctxt, scope), members(), name(name) {}
+        : UserType(decl_loc, Kind::UNION, name, tyctxt, scope), members() {}
 };
 
 
@@ -581,8 +607,6 @@ public:
         // the location of the declared enumerator.
         Location loc;
     };
-
-    Optional<std::string> name;
 
     Vec<Box<EnumTypeMember>> enumerators;
 
@@ -624,10 +648,7 @@ protected:
     friend constexpr Box<EnumType>
         std::make_unique<EnumType>(Location&, std::string& name, sema::sym::Scope *&, TypeContext&);
     
-    EnumType(
-        Location decl_loc, 
-        sema::sym::Scope *scope, 
-        TypeContext& tyctxt);
+    EnumType(Location decl_loc, sema::sym::Scope *scope, TypeContext& tyctxt);
 
     EnumType(Location decl_loc, std::string name, sema::sym::Scope *scope, TypeContext& tyctxt);
 };
@@ -710,6 +731,8 @@ public:
     // The number of elements in the array, populated after elaboration.
     Optional<uint64_t> arr_size;
 
+    bool is_fully_sized();
+
     ArrayType *as_array() override { return this; }
 
     bool is_subscriptable() override { return true; }
@@ -734,6 +757,28 @@ protected:
 
     ArrayType(Type *base, TypeContext& tyctxt)
         : DerivedType(Kind::ARRAY, tyctxt, base) {}
+
+    /*
+    Ref counter for basic ref counting instance management.
+
+    In HolyC, arrays can be created unsized and have their size inferred later,
+    or they can be decayed into pointers. However, in order to do this, a valid
+    unsized ArrayType has to be created. If this ArrayType later gets converted
+    into a sized array or decayed into a pointer, a new ArrayType or PointerType instance 
+    is created, leaving the unsized array, which may not have any references
+    (i.e. symbols that point to it). This causes problems if we bulk finalize arrays,
+    since arrays cannot be finalized if they do not have a size.
+    
+    Therefore, we implement a basic reference counting scheme to track
+    the number of references a given ArrayType instance holds, and delete it if there
+    are no more references to it. This guarantees that if we attempt to finalize an
+    unsized array, it has one or more valid references, and thus we can throw an error,
+    since unsized arrays are a semantic violation.
+
+    ArrayType ref counts are handled by `TypeContext::deallocate_unsized_array()`,
+    which in turn is called by `TypeContext::decay_array` and `TypeContext::set_array_size`.
+    */
+    uint32_t ref_count = 1;
 };
 
 // A function parameter containing an optional name.
@@ -781,7 +826,7 @@ public:
 
     FunctionSignature signature;
 
-    size_t size() override;
+    size_t alloc_size() override;
 
     // Generate a hash based on the function signature.
     std::size_t hash_sig();
@@ -838,7 +883,7 @@ public:
 
     void add_pointer(bool is_const);
 
-    void add_function(Vec<FuncParam> params, bool variadic);
+    void add_function(Location loc, Vec<FuncParam> params, bool variadic);
 
     void set_base(BaseType *type);
 
@@ -850,6 +895,7 @@ public:
         Optional<uint64_t> size;
     };
     struct FnParams {
+        Location loc;
         Vec<FuncParam> params;
         bool variadic;
     };
@@ -974,8 +1020,15 @@ public:
     // Create an anonymous enum.
     EnumType *get_enum(Location decl_loc, sema::sym::Scope *scope);
 
-    // Create a pointer with the given `base` type.
+    /**
+    Create a pointer with the given `base` type.
+    */
     PointerType *get_pointer(Type *base, bool is_const);
+
+    /**
+    Decay the provided array type to a corresponding pointer type.
+    */
+    PointerType *decay_array(ArrayType *arr);
 
     // Create or get an array with the given `base` type and specified size.
     ArrayType *get_array(Type *base, uint64_t size);
@@ -983,33 +1036,13 @@ public:
     // Create or get an array with the given `base` type and no specified size.
     ArrayType *get_array(Type *base);
 
+    /**
+    Set the size of an unsized array with base type `base` with `size.
+    */
+    ArrayType *set_array_size(Type *base, uint64_t size);
+
     // Create a function type based on its signature.
-    FunctionType *get_function(Type *ret, Vec<Type *> params, bool variadic);
-
-    /**
-    Finalize all primitive types.
-    */
-    void finalize_primitives();
-
-    /**
-    Finalize all user-defined types.
-    */
-    void finalize_usertypes();
-
-    /**
-    Finalize all function types.
-    */
-    void finalize_functions();
-
-    /**
-    Finalize all function types.
-    */
-    void finalize_pointers();
-
-    /**
-    Finalize all array types.
-    */
-    void finalize_arrays();
+    FunctionType *get_function(Location loc, Type *ret, Vec<Type *> params, bool variadic);
 
     std::string to_string() const;
 
@@ -1067,7 +1100,6 @@ private:
         return ss.str();
     }
 
-
     template <typename Ty>
     requires std::derived_from<Ty, UserType>
     // Create and insert a named type.
@@ -1089,6 +1121,11 @@ private:
 
         return ret;
     }
+
+    /**
+    Remove an unsized array of base type `base`.
+    */
+    void deallocate_unsized_array(Type *base);
 }; // class TypeContext
 
 }

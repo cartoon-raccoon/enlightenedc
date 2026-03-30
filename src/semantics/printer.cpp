@@ -293,7 +293,7 @@ std::string TypeContext::to_string() const {
     ss << "\nArray Types:\n";
 
     for (auto const& [key, arr] : arrays) {
-        ss << " : " << arr->to_string() << "\n";
+        ss << " : " << arr->to_string() << " #" << arr->ref_count <<"\n";
     }
 
     ss << "\n";
@@ -310,20 +310,28 @@ static void print_scope(std::stringstream& ss, Scope* scope, int depth) {
     }
     ss << "\n";
 
-    ss << indent << "Physical Symbols:\n";
-    for (auto const& [name, sym] : scope->phys_symbols) {
-        ss << indent << "  " << name << " -> " << sym.get() << " : "
-           << sym->to_string() << "\n";
+    if (!scope->phys_symbols.empty()) {
+        ss << indent << "Physical Symbols:\n";
+        for (auto const& [name, sym] : scope->phys_symbols) {
+            ss << indent << "  " << name << " -> " << sym.get() << " : "
+               << sym->to_string() << "\n";
+        }
     }
-    ss << "\n" << indent << "Type Symbols:\n";
-    for (auto const& [name, sym] : scope->type_symbols) {
-        ss << indent << "  " << name << " -> " << sym.get() << " : "
-           << sym->to_string() << "\n";
+
+    if (!scope->type_symbols.empty()) {
+        ss << "\n" << indent << "Type Symbols:\n";
+        for (auto const& [name, sym] : scope->type_symbols) {
+            ss << indent << "  " << name << " -> " << sym.get() << " : "
+               << sym->to_string() << "\n";
+        }
     }
-    ss << "\n" << indent << "Label Symbols:\n";
-    for (auto const& [name, sym] : scope->label_symbols) {
-        ss << indent << "  " << name << " -> " << sym.get() << " : "
-           << sym->to_string() << "\n";
+
+    if (!scope->label_symbols.empty()) {
+        ss << "\n" << indent << "Label Symbols:\n";
+        for (auto const& [name, sym] : scope->label_symbols) {
+            ss << indent << "  " << name << " -> " << sym.get() << " : "
+               << sym->to_string() << "\n";
+        }
     }
 
     ss << "-----------------------------------------------------------\n";

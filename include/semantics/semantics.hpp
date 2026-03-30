@@ -48,11 +48,6 @@ public:
         WRITE,
     } state;
 
-        // The Symbol Table.
-    sym::SymbolTable& syms;
-    // The Type Context.
-    types::TypeContext& types;
-
     // Tracks the outer nodes that the current node rests in.
     Vec<Node *> ctxt_stack;
 
@@ -60,11 +55,9 @@ public:
         return ctxt_stack.back();
     }
 
-    ScopeGuard<Node> enter_scope(sym::FuncSymbol *assoc = nullptr) {
-        return ScopeGuard(*this, assoc);
-    }
+    virtual ScopeGuard<Node> enter_scope(sym::FuncSymbol *assoc = nullptr) = 0;
 
-    NodeGuard<Node> enter_node(Node *node) {
+    virtual NodeGuard<Node> enter_node(Node *node) {
         return NodeGuard(*this, node);
     }
 
@@ -92,8 +85,7 @@ public:
     void bsv_dbprint(Args ...args) {}
 #endif
 
-    BaseSemanticVisitor(sym::SymbolTable& syms, types::TypeContext& types, State state)
-        : syms(syms), types(types) {}
+    BaseSemanticVisitor(State state) {}
 }; // class BaseSemanticVisitor
 
 
@@ -113,12 +105,10 @@ public:
     friend class BaseMIRSemaVisitor;
     friend class NodeGuard<Node>;
 
-    ScopeGuard(BaseSemanticVisitor<Node>& bsv, sym::FuncSymbol *assoc) : st(bsv.syms) {
-        if (bsv.state == BaseSemanticVisitor<Node>::State::READ) {
-            bsv.bsv_dbprint("BSV currently in state READ, entering scope");
+    ScopeGuard(BaseSemanticVisitor<Node>::State state, sym::SymbolTable& syms, sym::FuncSymbol *assoc) : st(syms) {
+        if (state == BaseSemanticVisitor<Node>::State::READ) {
             st.enter_scope();
         } else {
-            bsv.bsv_dbprint("BSV currently in state WRITE, pushing scope");
             st.push_scope(assoc);
         }
     }
@@ -212,8 +202,8 @@ of BaseSemanticVisitor, after all scope management has been handled.
 class BaseASTSemaVisitor : public ast::ASTVisitor, public BaseSemanticVisitor<ast::ASTNode> {
 public:
 
-    BaseASTSemaVisitor(State state, sym::SymbolTable& syms, types::TypeContext& types)
-    : BaseSemanticVisitor(syms, types, state) {}
+    BaseASTSemaVisitor(State state)
+    : BaseSemanticVisitor(state) {}
 
     /// \brief Checks if there is `kind` in the context, and if so, how many layers up.
     /// Returns -1 if there is no `kind` in the context.
@@ -348,8 +338,8 @@ protected:
 class BaseMIRSemaVisitor : public mir::MIRVisitor, public BaseSemanticVisitor<mir::MIRNode> {
 public:
 
-    BaseMIRSemaVisitor(State state, sym::SymbolTable& syms, types::TypeContext& types)
-        : BaseSemanticVisitor(syms, types, state) {}
+    BaseMIRSemaVisitor(State state)
+        : BaseSemanticVisitor(state) {}
 
     /// \brief Checks if there is `kind` in the context, and if so, how many layers up.
     /// Returns -1 if there is no `kind` in the context.

@@ -66,6 +66,18 @@ public:
     }
 };
 
+class EccSemError : public EccError {
+public:
+    EccSemError(std::string msg, Location err_loc)
+        : EccError(ErrorSource::SEMANTIC, msg, err_loc) {}
+
+    virtual std::string to_string() override {
+        std::stringstream ss;
+        ss << "error <" << *loc << ">: " << msg << "\n";
+        return ss.str();
+    }
+};
+
 }
 
 #endif

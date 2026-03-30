@@ -9,7 +9,6 @@
 #include "semantics/symbols.hpp"
 #include "semantics/types.hpp"
 #include "semantics/mir/mir.hpp"
-#include "semantics/semerr.hpp"
 
 using namespace ecc;
 using namespace util;
@@ -22,9 +21,12 @@ The class that performs type-checking and semantic validation.
 class Validator : public BaseMIRSemaVisitor {
 public:
     Validator(sym::SymbolTable& syms, types::TypeContext& types)
-        : BaseMIRSemaVisitor(State::READ, syms, types) {}
+        : BaseMIRSemaVisitor(State::READ), types(types), syms(syms) {}
 
     Vec<Box<EccSemError>> errors;
+
+    types::TypeContext& types;
+    sym::SymbolTable& syms;
 
     void eval_initializer(types::Type *type, mir::InitializerMIR& init);
 
@@ -38,6 +40,10 @@ public:
     void validate(mir::ProgramMIR& progmir);
 
 protected:
+    ScopeGuard<mir::MIRNode> enter_scope(sym::FuncSymbol *assoc = nullptr) override {
+        return ScopeGuard<mir::MIRNode>(state, syms, assoc);
+    }
+
     void do_visit(mir::InitializerMIR& node) final override;
     void do_visit(mir::VarDeclMIR& node) final override;
 
