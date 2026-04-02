@@ -11,6 +11,11 @@ I32i square(I32i x) {
     return x * x;
 }
 
+// Should infer U32i[6]
+U32i inferred_arr[] = {5, 4, 3, 2, 1, 0};
+
+U32i complex_arr[][] = {{5, 4}, {6, 4}, {1}};
+
 U32i arr[5];
 
 U32i *ptr_array[5];

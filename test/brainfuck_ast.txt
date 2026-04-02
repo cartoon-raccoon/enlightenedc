@@ -32,16 +32,16 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | | | | IdentifierDeclarator: data @ <test/brainfuck.HC:12.10-13> 
 | | | | | | | ConstExpression:  @ <test/brainfuck.HC:12.10-16> 
 | | | | | | | | Literal: 32 @ <test/brainfuck.HC:12.10-16> 
-| VariableDeclaration @ <test/brainfuck.HC:15.1-32> 
-| | ClassSpecifier:  Stack: @ <test/brainfuck.HC:15.1-11> 
-| | InitDeclarator @ <test/brainfuck.HC:15.13-31> 
-| | | Declarator @ <test/brainfuck.HC:15.13-19> 
-| | | | IdentifierDeclarator: nesting @ <test/brainfuck.HC:15.13-19> 
-| | | Initializer:  @ <test/brainfuck.HC:15.23-31> 
-| | | | Initializer:  @ <test/brainfuck.HC:15.25-26> 
-| | | | | Literal: 32 @ <test/brainfuck.HC:15.25-26> 
-| | | | Initializer:  @ <test/brainfuck.HC:15.29> 
-| | | | | Literal: 0 @ <test/brainfuck.HC:15.29> 
+| VariableDeclaration @ <test/brainfuck.HC:15.1-26> 
+| | TypeIdentifier: Stack @ <test/brainfuck.HC:15.1-5> 
+| | InitDeclarator @ <test/brainfuck.HC:15.7-25> 
+| | | Declarator @ <test/brainfuck.HC:15.7-13> 
+| | | | IdentifierDeclarator: nesting @ <test/brainfuck.HC:15.7-13> 
+| | | Initializer:  @ <test/brainfuck.HC:15.17-25> 
+| | | | Initializer:  @ <test/brainfuck.HC:15.19-20> 
+| | | | | Literal: 32 @ <test/brainfuck.HC:15.19-20> 
+| | | | Initializer:  @ <test/brainfuck.HC:15.23> 
+| | | | | Literal: 0 @ <test/brainfuck.HC:15.23> 
 | Function @ <test/brainfuck.HC:17.1-28.1> 
 | | VoidSpecifier @ <test/brainfuck.HC:17.1-2> 
 | | Declarator @ <test/brainfuck.HC:17.4-23> 
@@ -676,9 +676,9 @@ Node {
                     }
                 }
             }
-        }
 TypeBuilder: finalizing type
 TypeContext: getting function type
+        }
 SymbolTable: inserting varsymbol with name "Execute"
     }
     Node {
@@ -686,7 +686,7 @@ SymbolTable: inserting varsymbol with name "Execute"
         parsing declaration specifier list for node at test/brainfuck.HC:9.1-13.2
         Node {
             visiting ClassSpecifier node: test/brainfuck.HC:9.1-13.1
-TypeContext: class type 'Stack' on scope 0x55d9efea9600
+TypeContext: class type 'Stack' on scope 0x55dee384b8f0
             class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol Stack in current scope
 SymbolTable: inserting typesymbol with name "Stack"
@@ -698,7 +698,7 @@ SymbolTable: inserting typesymbol with name "Stack"
 TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node test/brainfuck.HC:10.5-13
-                parsing ClassDeclaration for ClassType 0x55d9efec2a30
+                parsing ClassDeclaration for ClassType 0x55dee3864a70
                 Node {
                     visiting ClassDeclarator node: test/brainfuck.HC:10.10-12
                     Node {
@@ -708,7 +708,7 @@ TypeContext: getting primitive type
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name cap type 0x55d9efea9990
+ClassType: adding member with name cap type 0x55dee384b7f0
             }
             Node {
                 visiting ClassDeclaration node: test/brainfuck.HC:11.5-13
@@ -718,7 +718,7 @@ ClassType: adding member with name cap type 0x55d9efea9990
 TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node test/brainfuck.HC:11.5-13
-                parsing ClassDeclaration for ClassType 0x55d9efec2a30
+                parsing ClassDeclaration for ClassType 0x55dee3864a70
                 Node {
                     visiting ClassDeclarator node: test/brainfuck.HC:11.10-12
                     Node {
@@ -728,7 +728,7 @@ TypeContext: getting primitive type
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name len type 0x55d9efea9990
+ClassType: adding member with name len type 0x55dee384b7f0
             }
             Node {
                 visiting ClassDeclaration node: test/brainfuck.HC:12.5-18
@@ -738,7 +738,7 @@ ClassType: adding member with name len type 0x55d9efea9990
 TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node test/brainfuck.HC:12.5-18
-                parsing ClassDeclaration for ClassType 0x55d9efec2a30
+                parsing ClassDeclaration for ClassType 0x55dee3864a70
                 Node {
                     visiting ClassDeclarator node: test/brainfuck.HC:12.10-17
                     Node {
@@ -758,50 +758,48 @@ TypeContext: getting primitive type
                     }
                 }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55d9efea9990, size 32
-ClassType: adding member with name data type 0x55d9efeb45b0
+TypeContext: array type with base 0x55dee384b7f0, size 32
+ClassType: adding member with name data type 0x55dee3856630
             }
         }
         finished parsing specifiers for node test/brainfuck.HC:9.1-13.2
     }
     Node {
-        visiting VariableDeclaration node: test/brainfuck.HC:15.1-32
-        parsing declaration specifier list for node at test/brainfuck.HC:15.1-32
+        visiting VariableDeclaration node: test/brainfuck.HC:15.1-26
+        parsing declaration specifier list for node at test/brainfuck.HC:15.1-26
         Node {
-            visiting ClassSpecifier node: test/brainfuck.HC:15.1-11
-TypeContext: class type 'Stack' on scope 0x55d9efea9600
-TypeContext: existing class found
-            class has name, inserting typesymbol if needed
-SymbolTable: looking up typesymbol Stack in current scope
+            visiting TypeIdentifier node: test/brainfuck.HC:15.1-5
+SymbolTable: looking up typesymbol Stack
         }
-        finished parsing specifiers for node test/brainfuck.HC:15.1-32
+        finished parsing specifiers for node test/brainfuck.HC:15.1-26
         Node {
-            visiting InitDeclarator node: test/brainfuck.HC:15.13-31
+            visiting InitDeclarator node: test/brainfuck.HC:15.7-25
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: test/brainfuck.HC:15.13-19
+                    visiting IdentifierDeclarator node: test/brainfuck.HC:15.7-13
                 }
             }
-            Node {
-                visiting Initializer node: test/brainfuck.HC:15.23-31
-                visiting compound initializer
-                Node {
-                    visiting Initializer node: test/brainfuck.HC:15.25-26
-                    visiting single initializer
-                    Node {
-                        visiting LiteralExpression node: test/brainfuck.HC:15.25-26
-                    }
-                }
-                Node {
-                    visiting Initializer node: test/brainfuck.HC:15.29
-                    visiting single initializer
-                    Node {
-                        visiting LiteralExpression node: test/brainfuck.HC:15.29
-                    }
-                }
-            }
-        }
 TypeBuilder: finalizing type
+            Node {
+                visiting Initializer node: test/brainfuck.HC:15.17-25
+                visiting compound initializer
+                visiting classtype compound initializer
+                Node {
+                    visiting Initializer node: test/brainfuck.HC:15.19-20
+                    visiting single initializer
+                    Node {
+                        visiting LiteralExpression node: test/brainfuck.HC:15.19-20
+                    }
+                }
+                Node {
+                    visiting Initializer node: test/brainfuck.HC:15.23
+                    visiting single initializer
+                    Node {
+                        visiting LiteralExpression node: test/brainfuck.HC:15.23
+                    }
+                }
+            }
+        }
 SymbolTable: inserting varsymbol with name "nesting"
     }
     Node {
@@ -838,12 +836,11 @@ TypeContext: getting function type
 parsing params
 SymbolTable: inserting funcsymbol with name "StackPush"
         Node {
-            BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 1
 SymbolTable: entering scope 1
             visiting CompoundStatement node: test/brainfuck.HC:17.25-28.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 1 with symbol 0x55d9efe6a3d0 name "StackPush"
+SymbolTable: associating current scope 1 with symbol 0x55dee380c3d0 name "StackPush"
 SymbolTable: inserting varsymbol with name "item"
             Node {
                 visiting IfStatement node: test/brainfuck.HC:19.5-25
@@ -887,7 +884,6 @@ SymbolTable: looking up varsymbol nesting
                     }
                 }
                 Node {
-                    BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 2
 SymbolTable: entering scope 2
                     visiting CompoundStatement node: test/brainfuck.HC:21.40-24.5
@@ -960,12 +956,11 @@ TypeContext: getting function type
 parsing params
 SymbolTable: inserting funcsymbol with name "StackPeek"
         Node {
-            BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 3
 SymbolTable: entering scope 3
             visiting CompoundStatement node: test/brainfuck.HC:30.18-35.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 3 with symbol 0x55d9efe6a610 name "StackPeek"
+SymbolTable: associating current scope 3 with symbol 0x55dee380c610 name "StackPeek"
             Node {
                 visiting IfStatement node: test/brainfuck.HC:31.5-32.18
                 Node {
@@ -1037,16 +1032,15 @@ TypeContext: getting primitive type
             }
         }
 TypeContext: getting function type
-TypeConstext: existing function type found
+TypeContext: existing function type found
 parsing params
 SymbolTable: inserting funcsymbol with name "StackPop"
         Node {
-            BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 4
 SymbolTable: entering scope 4
             visiting CompoundStatement node: test/brainfuck.HC:37.17-44.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 4 with symbol 0x55d9efe69920 name "StackPop"
+SymbolTable: associating current scope 4 with symbol 0x55dee380b920 name "StackPop"
             Node {
                 visiting IfStatement node: test/brainfuck.HC:38.5-36
                 Node {
@@ -1087,6 +1081,7 @@ TypeContext: getting primitive type
                             visiting IdentifierDeclarator node: test/brainfuck.HC:40.10-12
                         }
                     }
+TypeBuilder: finalizing type
                     Node {
                         visiting Initializer node: test/brainfuck.HC:40.16-44
                         visiting single initializer
@@ -1115,7 +1110,6 @@ SymbolTable: looking up varsymbol nesting
                         }
                     }
                 }
-TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "ret"
             }
             Node {
@@ -1166,9 +1160,9 @@ TypeContext: getting primitive type
                     }
                 }
             }
-        }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55d9efea9870, size 1024
+TypeContext: array type with base 0x55dee384b6d0, size 1024
+        }
 SymbolTable: inserting varsymbol with name "code"
     }
     Node {
@@ -1186,6 +1180,7 @@ TypeContext: getting primitive type
                     visiting IdentifierDeclarator node: test/brainfuck.HC:48.6-11
                 }
             }
+TypeBuilder: finalizing type
             Node {
                 visiting Initializer node: test/brainfuck.HC:48.15
                 visiting single initializer
@@ -1194,7 +1189,6 @@ TypeContext: getting primitive type
                 }
             }
         }
-TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "insptr"
     }
     Node {
@@ -1212,6 +1206,7 @@ TypeContext: getting primitive type
                     visiting IdentifierDeclarator node: test/brainfuck.HC:49.6-13
                 }
             }
+TypeBuilder: finalizing type
             Node {
                 visiting Initializer node: test/brainfuck.HC:49.17-20
                 visiting single initializer
@@ -1220,7 +1215,6 @@ TypeContext: getting primitive type
                 }
             }
         }
-TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "codesize"
     }
     Node {
@@ -1248,9 +1242,9 @@ TypeContext: getting primitive type
                     }
                 }
             }
-        }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55d9efea9870, size 30000
+TypeContext: array type with base 0x55dee384b6d0, size 30000
+        }
 SymbolTable: inserting varsymbol with name "data"
     }
     Node {
@@ -1268,6 +1262,7 @@ TypeContext: getting primitive type
                     visiting IdentifierDeclarator node: test/brainfuck.HC:53.6-12
                 }
             }
+TypeBuilder: finalizing type
             Node {
                 visiting Initializer node: test/brainfuck.HC:53.16
                 visiting single initializer
@@ -1276,7 +1271,6 @@ TypeContext: getting primitive type
                 }
             }
         }
-TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "dataptr"
     }
     Node {
@@ -1284,7 +1278,7 @@ SymbolTable: inserting varsymbol with name "dataptr"
         parsing declaration specifier list for node at test/brainfuck.HC:55.1-40
         Node {
             visiting EnumSpecifier node: test/brainfuck.HC:55.1-39
-TypeContext: enum type 'ErrType' on scope 0x55d9efea9600
+TypeContext: enum type 'ErrType' on scope 0x55dee384b8f0
             enum has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol ErrType in current scope
 SymbolTable: inserting typesymbol with name "ErrType"
@@ -1341,14 +1335,14 @@ TypeContext: getting primitive type
                         }
                     }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x55d9efea9870
+TypeContext: pointer with base 0x55dee384b6d0
                 }
                 Node {
                     visiting ParameterDeclarator node: test/brainfuck.HC:56.21-40
                     parsing declaration specifier list for node at test/brainfuck.HC:56.21-40
                     Node {
                         visiting EnumSpecifier node: test/brainfuck.HC:56.21-32
-TypeContext: enum type 'ErrType' on scope 0x55d9efea9600
+TypeContext: enum type 'ErrType' on scope 0x55dee384b8f0
 TypeContext: existing enum found
                         enum has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol ErrType in current scope
@@ -1367,12 +1361,11 @@ TypeContext: getting function type
 parsing params
 SymbolTable: inserting funcsymbol with name "Die"
         Node {
-            BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 5
 SymbolTable: entering scope 5
             visiting CompoundStatement node: test/brainfuck.HC:56.43-63.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 5 with symbol 0x55d9efe69da0 name "Die"
+SymbolTable: associating current scope 5 with symbol 0x55dee380bda0 name "Die"
 SymbolTable: inserting varsymbol with name "errmsg"
 SymbolTable: inserting varsymbol with name "errcode"
             Node {
@@ -1389,7 +1382,6 @@ SymbolTable: looking up varsymbol SYSTEM
                     }
                 }
                 Node {
-                    BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 6
 SymbolTable: entering scope 6
                     visiting CompoundStatement node: test/brainfuck.HC:57.28-59.5
@@ -1403,7 +1395,6 @@ SymbolTable: looking up varsymbol errmsg
 SymbolTable: exiting scope to 5
                 }
                 Node {
-                    BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 7
 SymbolTable: entering scope 7
                     visiting CompoundStatement node: test/brainfuck.HC:59.12-61.5
@@ -1463,9 +1454,12 @@ TypeContext: getting primitive type
                     }
                 }
             }
+TypeBuilder: finalizing type
+TypeContext: array type with base 0x55dee384b6d0, size 8
             Node {
                 visiting Initializer node: test/brainfuck.HC:65.22-61
                 visiting compound initializer
+                visiting arraytype compound initializer
                 Node {
                     visiting Initializer node: test/brainfuck.HC:65.22-25
                     visiting single initializer
@@ -1524,8 +1518,6 @@ TypeContext: getting primitive type
                 }
             }
         }
-TypeBuilder: finalizing type
-TypeContext: array type with base 0x55d9efea9870, size 8
 SymbolTable: inserting varsymbol with name "valid_chars"
     }
     Node {
@@ -1563,12 +1555,11 @@ TypeContext: getting function type
 parsing params
 SymbolTable: inserting funcsymbol with name "IsValid"
         Node {
-            BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 8
 SymbolTable: entering scope 8
             visiting CompoundStatement node: test/brainfuck.HC:66.21-74.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 8 with symbol 0x55d9efe69fe0 name "IsValid"
+SymbolTable: associating current scope 8 with symbol 0x55dee380bfe0 name "IsValid"
 SymbolTable: inserting varsymbol with name "c"
             Node {
                 visiting VariableDeclaration node: test/brainfuck.HC:67.5-15
@@ -1585,6 +1576,7 @@ TypeContext: getting primitive type
                             visiting IdentifierDeclarator node: test/brainfuck.HC:67.10
                         }
                     }
+TypeBuilder: finalizing type
                     Node {
                         visiting Initializer node: test/brainfuck.HC:67.14
                         visiting single initializer
@@ -1593,11 +1585,9 @@ TypeContext: getting primitive type
                         }
                     }
                 }
-TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "i"
             }
             Node {
-                BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 9
 SymbolTable: entering scope 9
                 visiting WhileStatement node: test/brainfuck.HC:68.5-71.5
@@ -1612,7 +1602,6 @@ SymbolTable: looking up varsymbol i
                     }
                 }
                 Node {
-                    BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 10
 SymbolTable: entering scope 10
                     visiting CompoundStatement node: test/brainfuck.HC:68.19-71.5
@@ -1696,7 +1685,7 @@ TypeContext: getting primitive type
                         }
                     }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x55d9efea9870
+TypeContext: pointer with base 0x55dee384b6d0
                 }
             }
         }
@@ -1704,12 +1693,11 @@ TypeContext: getting function type
 parsing params
 SymbolTable: inserting funcsymbol with name "ReadCode"
         Node {
-            BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 11
 SymbolTable: entering scope 11
             visiting CompoundStatement node: test/brainfuck.HC:77.23-95.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 11 with symbol 0x55d9efe6b1b0 name "ReadCode"
+SymbolTable: associating current scope 11 with symbol 0x55dee380d1b0 name "ReadCode"
 SymbolTable: inserting varsymbol with name "src"
             Node {
                 visiting VariableDeclaration node: test/brainfuck.HC:78.5-15
@@ -1726,6 +1714,7 @@ TypeContext: getting primitive type
                             visiting IdentifierDeclarator node: test/brainfuck.HC:78.10
                         }
                     }
+TypeBuilder: finalizing type
                     Node {
                         visiting Initializer node: test/brainfuck.HC:78.14
                         visiting single initializer
@@ -1734,7 +1723,6 @@ TypeContext: getting primitive type
                         }
                     }
                 }
-TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "n"
             }
             Node {
@@ -1752,6 +1740,7 @@ TypeContext: getting primitive type
                             visiting IdentifierDeclarator node: test/brainfuck.HC:79.10
                         }
                     }
+TypeBuilder: finalizing type
                     Node {
                         visiting Initializer node: test/brainfuck.HC:79.14
                         visiting single initializer
@@ -1760,11 +1749,9 @@ TypeContext: getting primitive type
                         }
                     }
                 }
-TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "i"
             }
             Node {
-                BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 12
 SymbolTable: entering scope 12
                 visiting WhileStatement node: test/brainfuck.HC:81.5-91.5
@@ -1786,7 +1773,6 @@ SymbolTable: looking up varsymbol i
                     }
                 }
                 Node {
-                    BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 13
 SymbolTable: entering scope 13
                     visiting CompoundStatement node: test/brainfuck.HC:81.28-91.5
@@ -1812,7 +1798,6 @@ SymbolTable: looking up varsymbol i
                             }
                         }
                         Node {
-                            BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 14
 SymbolTable: entering scope 14
                             visiting CompoundStatement node: test/brainfuck.HC:82.30-84.9
@@ -1870,7 +1855,6 @@ SymbolTable: looking up varsymbol codesize
                             }
                         }
                         Node {
-                            BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 15
 SymbolTable: entering scope 15
                             visiting CompoundStatement node: test/brainfuck.HC:86.32-89.9
@@ -1961,16 +1945,15 @@ SymbolTable: exiting scope to 0
             }
         }
 TypeContext: getting function type
-TypeConstext: existing function type found
+TypeContext: existing function type found
 parsing params
 SymbolTable: inserting funcsymbol with name "JumpToAfter"
         Node {
-            BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 16
 SymbolTable: entering scope 16
             visiting CompoundStatement node: test/brainfuck.HC:98.18-118.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 16 with symbol 0x55d9efe6b2d0 name "JumpToAfter"
+SymbolTable: associating current scope 16 with symbol 0x55dee380d2d0 name "JumpToAfter"
             Node {
                 visiting VariableDeclaration node: test/brainfuck.HC:99.5-31
                 parsing declaration specifier list for node at test/brainfuck.HC:99.5-31
@@ -1986,6 +1969,7 @@ TypeContext: getting primitive type
                             visiting IdentifierDeclarator node: test/brainfuck.HC:99.10-16
                         }
                     }
+TypeBuilder: finalizing type
                     Node {
                         visiting Initializer node: test/brainfuck.HC:99.20-30
                         visiting single initializer
@@ -1998,11 +1982,9 @@ SymbolTable: looking up varsymbol nesting
                         }
                     }
                 }
-TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "current"
             }
             Node {
-                BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 17
 SymbolTable: entering scope 17
                 visiting WhileStatement node: test/brainfuck.HC:100.5-117.5
@@ -2024,7 +2006,6 @@ SymbolTable: looking up varsymbol insptr
                     }
                 }
                 Node {
-                    BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 18
 SymbolTable: entering scope 18
                     visiting CompoundStatement node: test/brainfuck.HC:100.34-117.5
@@ -2048,7 +2029,6 @@ SymbolTable: looking up varsymbol insptr
                             }
                         }
                         Node {
-                            BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 19
 SymbolTable: entering scope 19
                             visiting CompoundStatement node: test/brainfuck.HC:101.34-103.9
@@ -2084,7 +2064,6 @@ SymbolTable: looking up varsymbol insptr
                                 }
                             }
                             Node {
-                                BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 20
 SymbolTable: entering scope 20
                                 visiting CompoundStatement node: test/brainfuck.HC:103.41-109.9
@@ -2115,7 +2094,6 @@ SymbolTable: looking up varsymbol nesting
                                         }
                                     }
                                     Node {
-                                        BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 21
 SymbolTable: entering scope 21
                                         visiting CompoundStatement node: test/brainfuck.HC:105.41-108.13
@@ -2156,7 +2134,6 @@ SymbolTable: looking up varsymbol nesting
                             }
                         }
                         Node {
-                            BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 22
 SymbolTable: entering scope 22
                             visiting CompoundStatement node: test/brainfuck.HC:111.36-114.9
@@ -2217,19 +2194,18 @@ SymbolTable: exiting scope to 0
             }
         }
 TypeContext: getting function type
-TypeConstext: existing function type found
+TypeContext: existing function type found
 parsing params
 SymbolTable: inserting funcsymbol with name "Execute"
 SymbolTable: symbol with name Execute already exists
 SymbolTable: existing symbol has function type, checking for replaceability
 SymbolTable: existing symbol matches function signature, replacing
         Node {
-            BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 23
 SymbolTable: entering scope 23
             visiting CompoundStatement node: test/brainfuck.HC:120.14-201.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 23 with symbol 0x55d9efe6b3f0 name "Execute"
+SymbolTable: associating current scope 23 with symbol 0x55dee380d3f0 name "Execute"
             Node {
                 visiting VariableDeclaration node: test/brainfuck.HC:122.5-10
                 parsing declaration specifier list for node at test/brainfuck.HC:122.5-10
@@ -2245,12 +2221,11 @@ TypeContext: getting primitive type
                             visiting IdentifierDeclarator node: test/brainfuck.HC:122.9
                         }
                     }
-                }
 TypeBuilder: finalizing type
+                }
 SymbolTable: inserting varsymbol with name "c"
             }
             Node {
-                BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 24
 SymbolTable: entering scope 24
                 visiting WhileStatement node: test/brainfuck.HC:123.5-200.5
@@ -2279,7 +2254,6 @@ SymbolTable: looking up varsymbol insptr
                     }
                 }
                 Node {
-                    BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 25
 SymbolTable: entering scope 25
                     visiting CompoundStatement node: test/brainfuck.HC:123.40-200.5
@@ -2296,7 +2270,6 @@ SymbolTable: looking up varsymbol insptr
                             }
                         }
                         Node {
-                            BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 26
 SymbolTable: entering scope 26
                             visiting CompoundStatement node: test/brainfuck.HC:124.25-127.9
@@ -2337,7 +2310,6 @@ SymbolTable: looking up varsymbol dataptr
                             }
                         }
                         Node {
-                            BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 27
 SymbolTable: entering scope 27
                             visiting CompoundStatement node: test/brainfuck.HC:129.26-132.9
@@ -2382,7 +2354,6 @@ SymbolTable: looking up varsymbol code
 SymbolTable: looking up varsymbol c
                         }
                         Node {
-                            BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 28
 SymbolTable: entering scope 28
                             visiting CompoundStatement node: test/brainfuck.HC:134.20-192.9
@@ -2574,7 +2545,6 @@ SymbolTable: looking up varsymbol dataptr
                                         }
                                     }
                                     Node {
-                                        BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 29
 SymbolTable: entering scope 29
                                         visiting CompoundStatement node: test/brainfuck.HC:166.41-169.17
@@ -2592,7 +2562,6 @@ SymbolTable: looking up funcsymbol JumpToAfter
 SymbolTable: exiting scope to 28
                                     }
                                     Node {
-                                        BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 30
 SymbolTable: entering scope 30
                                         visiting CompoundStatement node: test/brainfuck.HC:169.24-172.17
@@ -2627,7 +2596,6 @@ SymbolTable: exiting scope to 28
                                     }
                                 }
                                 Node {
-                                    BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 31
 SymbolTable: entering scope 31
                                     visiting CompoundStatement node: test/brainfuck.HC:177.23-191.13
@@ -2646,6 +2614,7 @@ TypeContext: getting primitive type
                                                     visiting IdentifierDeclarator node: test/brainfuck.HC:178.22-28
                                                 }
                                             }
+TypeBuilder: finalizing type
                                             Node {
                                                 visiting Initializer node: test/brainfuck.HC:178.32-42
                                                 visiting single initializer
@@ -2659,7 +2628,6 @@ SymbolTable: looking up funcsymbol StackPeek
                                                 }
                                             }
                                         }
-TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "opening"
                                     }
                                     Node {
@@ -2675,7 +2643,6 @@ SymbolTable: looking up varsymbol opening
                                             }
                                         }
                                         Node {
-                                            BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 32
 SymbolTable: entering scope 32
                                             visiting CompoundStatement node: test/brainfuck.HC:180.34-183.17
@@ -2723,7 +2690,6 @@ SymbolTable: looking up varsymbol dataptr
                                             }
                                         }
                                         Node {
-                                            BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 33
 SymbolTable: entering scope 33
                                             visiting CompoundStatement node: test/brainfuck.HC:185.41-187.17
@@ -2744,7 +2710,6 @@ SymbolTable: looking up varsymbol opening
 SymbolTable: exiting scope to 31
                                         }
                                         Node {
-                                            BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 34
 SymbolTable: entering scope 34
                                             visiting CompoundStatement node: test/brainfuck.HC:187.24-190.17
@@ -2801,7 +2766,6 @@ SymbolTable: looking up varsymbol codesize
                             }
                         }
                         Node {
-                            BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 35
 SymbolTable: entering scope 35
                             visiting CompoundStatement node: test/brainfuck.HC:197.37-199.9
@@ -2834,16 +2798,15 @@ SymbolTable: exiting scope to 0
             }
         }
 TypeContext: getting function type
-TypeConstext: existing function type found
+TypeContext: existing function type found
 parsing params
 SymbolTable: inserting funcsymbol with name "Initialize"
         Node {
-            BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 36
 SymbolTable: entering scope 36
             visiting CompoundStatement node: test/brainfuck.HC:203.17-212.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 36 with symbol 0x55d9efe69b60 name "Initialize"
+SymbolTable: associating current scope 36 with symbol 0x55dee380bb60 name "Initialize"
             Node {
                 visiting VariableDeclaration node: test/brainfuck.HC:204.5-15
                 parsing declaration specifier list for node at test/brainfuck.HC:204.5-15
@@ -2859,6 +2822,7 @@ TypeContext: getting primitive type
                             visiting IdentifierDeclarator node: test/brainfuck.HC:204.10
                         }
                     }
+TypeBuilder: finalizing type
                     Node {
                         visiting Initializer node: test/brainfuck.HC:204.14
                         visiting single initializer
@@ -2867,11 +2831,9 @@ TypeContext: getting primitive type
                         }
                     }
                 }
-TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "i"
             }
             Node {
-                BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 37
 SymbolTable: entering scope 37
                 visiting WhileStatement node: test/brainfuck.HC:206.5-209.5
@@ -2886,7 +2848,6 @@ SymbolTable: looking up varsymbol i
                     }
                 }
                 Node {
-                    BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 38
 SymbolTable: entering scope 38
                     visiting CompoundStatement node: test/brainfuck.HC:206.23-209.5
@@ -2973,21 +2934,20 @@ TypeContext: getting primitive type
                         }
                     }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x55d9efea9870
+TypeContext: pointer with base 0x55dee384b6d0
                 }
             }
         }
 TypeContext: getting function type
-TypeConstext: existing function type found
+TypeContext: existing function type found
 parsing params
 SymbolTable: inserting funcsymbol with name "PrintUsage"
         Node {
-            BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 39
 SymbolTable: entering scope 39
             visiting CompoundStatement node: test/brainfuck.HC:214.29-216.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 39 with symbol 0x55d9efec7f20 name "PrintUsage"
+SymbolTable: associating current scope 39 with symbol 0x55dee3869f80 name "PrintUsage"
 SymbolTable: inserting varsymbol with name "argname"
             Node {
                 visiting PrintStatement node: test/brainfuck.HC:215.5-45
@@ -3019,16 +2979,15 @@ TypeContext: getting primitive type
             }
         }
 TypeContext: getting function type
-TypeConstext: existing function type found
+TypeContext: existing function type found
 parsing params
 SymbolTable: inserting funcsymbol with name "Main"
         Node {
-            BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 40
 SymbolTable: entering scope 40
             visiting CompoundStatement node: test/brainfuck.HC:218.13-228.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 40 with symbol 0x55d9efec91d0 name "Main"
+SymbolTable: associating current scope 40 with symbol 0x55dee386b230 name "Main"
             Node {
                 visiting ExpressionStatement node: test/brainfuck.HC:220.5-17
                 Node {
@@ -3058,6 +3017,8 @@ TypeContext: getting primitive type
                             }
                         }
                     }
+TypeBuilder: finalizing type
+TypeContext: array type with base 0x55dee384b6d0, no size
                     Node {
                         visiting Initializer node: test/brainfuck.HC:222.21-186
                         visiting single initializer
@@ -3066,8 +3027,6 @@ TypeContext: getting primitive type
                         }
                     }
                 }
-TypeBuilder: finalizing type
-TypeContext: array type with base 0x55d9efea9870, no size
 SymbolTable: inserting varsymbol with name "program"
             }
             Node {
@@ -3125,349 +3084,158 @@ Base Types:
   class_Stack_0 : class { I32i cap; I32i len; I32i[32] data; }
 
 Function Types:
-  function_6108976448640921 : Void (U8i *)
-  function_6108976448658065 : Bool (U8i)
-  function_389416294383564566 : Void (U8i *, enum: U64i  { SYSTEM = 1, BAD_CODE = 2 })
-  function_6108976448557337 : Void (I32i)
-  function_94394521393552 : I32i ()
-  function_94394521393216 : Void ()
+  function_6111974556427953 : Void (U8i *)
+  function_6111974556419625 : Bool (U8i)
+  function_389211309335772228 : Void (U8i *, enum: U64i  { SYSTEM = 1, BAD_CODE = 2 })
+  function_94415788226544 : I32i ()
+  function_6111974556414449 : Void (I32i)
+  function_94415788226208 : Void ()
 
 Pointer Types:
   :U8i *
 
 Array Types:
- : U8i[8]
- : U8i[]
- : U8i[1024]
- : U8i[30000]
- : I32i[32]
+ : U8i[8] #1
+ : U8i[30000] #1
+ : U8i[] #1
+ : U8i[1024] #1
+ : I32i[32] #1
 
 
 --------- SYMBOL TABLE ---------
 
 Scope 0
 Physical Symbols:
-  PrintUsage -> 0x55d9efec7f20 : FuncSymbol: PrintUsage :: Void (U8i *)
-  JumpToAfter -> 0x55d9efe6b2d0 : FuncSymbol: JumpToAfter :: Void ()
-  valid_chars -> 0x55d9efeaf6b0 : VarSymbol: valid_chars :: U8i[8]
-  Initialize -> 0x55d9efe69b60 : FuncSymbol: Initialize :: Void ()
-  Execute -> 0x55d9efe6b3f0 : FuncSymbol: Execute :: Void ()
-  Main -> 0x55d9efec91d0 : FuncSymbol: Main :: I32i ()
-  StackPush -> 0x55d9efe6a3d0 : FuncSymbol: StackPush :: Void (I32i)
-  StackPop -> 0x55d9efe69920 : FuncSymbol: StackPop :: I32i ()
-  SYSTEM -> 0x55d9efeadcf0 : VarSymbol: SYSTEM :: enum: U64i  { SYSTEM = 1, BAD_CODE = 2 }
-  StackPeek -> 0x55d9efe6a610 : FuncSymbol: StackPeek :: I32i ()
-  nesting -> 0x55d9efe95670 : VarSymbol: nesting :: class { I32i cap; I32i len; I32i[32] data; }
-  code -> 0x55d9efead1d0 : VarSymbol: code :: U8i[1024]
-  data -> 0x55d9efead790 : VarSymbol: data :: U8i[30000]
-  insptr -> 0x55d9efead3c0 : VarSymbol: insptr :: I32i
-  ReadCode -> 0x55d9efe6b1b0 : FuncSymbol: ReadCode :: Void (U8i *)
-  IsValid -> 0x55d9efe69fe0 : FuncSymbol: IsValid :: Bool (U8i)
-  Die -> 0x55d9efe69da0 : FuncSymbol: Die :: Void (U8i *, enum: U64i  { SYSTEM = 1, BAD_CODE = 2 })
-  codesize -> 0x55d9efead5d0 : VarSymbol: codesize :: I32i
-  dataptr -> 0x55d9efead9a0 : VarSymbol: dataptr :: I32i
-  BAD_CODE -> 0x55d9efeade50 : VarSymbol: BAD_CODE :: enum: U64i  { SYSTEM = 1, BAD_CODE = 2 }
+  PrintUsage -> 0x55dee3869f80 : FuncSymbol: PrintUsage :: Void (U8i *)
+  JumpToAfter -> 0x55dee380d2d0 : FuncSymbol: JumpToAfter :: Void ()
+  valid_chars -> 0x55dee3851750 : VarSymbol: valid_chars :: U8i[8]
+  Initialize -> 0x55dee380bb60 : FuncSymbol: Initialize :: Void ()
+  Execute -> 0x55dee380d3f0 : FuncSymbol: Execute :: Void ()
+  Main -> 0x55dee386b230 : FuncSymbol: Main :: I32i ()
+  StackPush -> 0x55dee380c3d0 : FuncSymbol: StackPush :: Void (I32i)
+  StackPop -> 0x55dee380b920 : FuncSymbol: StackPop :: I32i ()
+  SYSTEM -> 0x55dee384fd90 : VarSymbol: SYSTEM :: enum: U64i  { SYSTEM = 1, BAD_CODE = 2 }
+  StackPeek -> 0x55dee380c610 : FuncSymbol: StackPeek :: I32i ()
+  nesting -> 0x55dee3837670 : VarSymbol: nesting :: class { I32i cap; I32i len; I32i[32] data; }
+  code -> 0x55dee384f270 : VarSymbol: code :: U8i[1024]
+  data -> 0x55dee384f830 : VarSymbol: data :: U8i[30000]
+  insptr -> 0x55dee384f460 : VarSymbol: insptr :: I32i
+  ReadCode -> 0x55dee380d1b0 : FuncSymbol: ReadCode :: Void (U8i *)
+  IsValid -> 0x55dee380bfe0 : FuncSymbol: IsValid :: Bool (U8i)
+  Die -> 0x55dee380bda0 : FuncSymbol: Die :: Void (U8i *, enum: U64i  { SYSTEM = 1, BAD_CODE = 2 })
+  codesize -> 0x55dee384f670 : VarSymbol: codesize :: I32i
+  dataptr -> 0x55dee384fa40 : VarSymbol: dataptr :: I32i
+  BAD_CODE -> 0x55dee384fef0 : VarSymbol: BAD_CODE :: enum: U64i  { SYSTEM = 1, BAD_CODE = 2 }
 
 Type Symbols:
-  ErrType -> 0x55d9efeadbb0 : TypeSymbol: ErrType :: enum: U64i  { SYSTEM = 1, BAD_CODE = 2 }
-  Stack -> 0x55d9efeaa3a0 : TypeSymbol: Stack :: class { I32i cap; I32i len; I32i[32] data; }
-
-Label Symbols:
+  ErrType -> 0x55dee384fc50 : TypeSymbol: ErrType :: enum: U64i  { SYSTEM = 1, BAD_CODE = 2 }
+  Stack -> 0x55dee384c440 : TypeSymbol: Stack :: class { I32i cap; I32i len; I32i[32] data; }
 -----------------------------------------------------------
   Scope 1: FuncSymbol: StackPush :: Void (I32i)
   Physical Symbols:
-    item -> 0x55d9efeaad30 : VarSymbol: item :: I32i
-
-  Type Symbols:
-
-  Label Symbols:
+    item -> 0x55dee384cde0 : VarSymbol: item :: I32i
 -----------------------------------------------------------
     Scope 2
-    Physical Symbols:
-
-    Type Symbols:
-
-    Label Symbols:
 -----------------------------------------------------------
   Scope 3: FuncSymbol: StackPeek :: I32i ()
-  Physical Symbols:
-
-  Type Symbols:
-
-  Label Symbols:
 -----------------------------------------------------------
   Scope 4: FuncSymbol: StackPop :: I32i ()
   Physical Symbols:
-    ret -> 0x55d9efeaccd0 : VarSymbol: ret :: I32i
-
-  Type Symbols:
-
-  Label Symbols:
+    ret -> 0x55dee384ed90 : VarSymbol: ret :: I32i
 -----------------------------------------------------------
   Scope 5: FuncSymbol: Die :: Void (U8i *, enum: U64i  { SYSTEM = 1, BAD_CODE = 2 })
   Physical Symbols:
-    errcode -> 0x55d9efeae370 : VarSymbol: errcode :: enum: U64i  { SYSTEM = 1, BAD_CODE = 2 }
-    errmsg -> 0x55d9efeae2a0 : VarSymbol: errmsg :: U8i *
-
-  Type Symbols:
-
-  Label Symbols:
+    errcode -> 0x55dee3850410 : VarSymbol: errcode :: enum: U64i  { SYSTEM = 1, BAD_CODE = 2 }
+    errmsg -> 0x55dee3850340 : VarSymbol: errmsg :: U8i *
 -----------------------------------------------------------
     Scope 6
-    Physical Symbols:
-
-    Type Symbols:
-
-    Label Symbols:
 -----------------------------------------------------------
     Scope 7
-    Physical Symbols:
-
-    Type Symbols:
-
-    Label Symbols:
 -----------------------------------------------------------
   Scope 8: FuncSymbol: IsValid :: Bool (U8i)
   Physical Symbols:
-    i -> 0x55d9efeafe70 : VarSymbol: i :: I32i
-    c -> 0x55d9efeafb70 : VarSymbol: c :: U8i
-
-  Type Symbols:
-
-  Label Symbols:
+    i -> 0x55dee3851f10 : VarSymbol: i :: I32i
+    c -> 0x55dee3851bf0 : VarSymbol: c :: U8i
 -----------------------------------------------------------
     Scope 9
-    Physical Symbols:
-
-    Type Symbols:
-
-    Label Symbols:
 -----------------------------------------------------------
       Scope 10
-      Physical Symbols:
-
-      Type Symbols:
-
-      Label Symbols:
 -----------------------------------------------------------
   Scope 11: FuncSymbol: ReadCode :: Void (U8i *)
   Physical Symbols:
-    i -> 0x55d9efeb1020 : VarSymbol: i :: I32i
-    n -> 0x55d9efeb0dd0 : VarSymbol: n :: I32i
-    src -> 0x55d9efeb0a50 : VarSymbol: src :: U8i *
-
-  Type Symbols:
-
-  Label Symbols:
+    i -> 0x55dee38530c0 : VarSymbol: i :: I32i
+    n -> 0x55dee3852e70 : VarSymbol: n :: I32i
+    src -> 0x55dee3852af0 : VarSymbol: src :: U8i *
 -----------------------------------------------------------
     Scope 12
-    Physical Symbols:
-
-    Type Symbols:
-
-    Label Symbols:
 -----------------------------------------------------------
       Scope 13
-      Physical Symbols:
-
-      Type Symbols:
-
-      Label Symbols:
 -----------------------------------------------------------
         Scope 14
-        Physical Symbols:
-
-        Type Symbols:
-
-        Label Symbols:
 -----------------------------------------------------------
         Scope 15
-        Physical Symbols:
-
-        Type Symbols:
-
-        Label Symbols:
 -----------------------------------------------------------
   Scope 16: FuncSymbol: JumpToAfter :: Void ()
   Physical Symbols:
-    current -> 0x55d9efeb2a40 : VarSymbol: current :: I32i
-
-  Type Symbols:
-
-  Label Symbols:
+    current -> 0x55dee3854ae0 : VarSymbol: current :: I32i
 -----------------------------------------------------------
     Scope 17
-    Physical Symbols:
-
-    Type Symbols:
-
-    Label Symbols:
 -----------------------------------------------------------
       Scope 18
-      Physical Symbols:
-
-      Type Symbols:
-
-      Label Symbols:
 -----------------------------------------------------------
         Scope 19
-        Physical Symbols:
-
-        Type Symbols:
-
-        Label Symbols:
 -----------------------------------------------------------
         Scope 20
-        Physical Symbols:
-
-        Type Symbols:
-
-        Label Symbols:
 -----------------------------------------------------------
           Scope 21
-          Physical Symbols:
-
-          Type Symbols:
-
-          Label Symbols:
 -----------------------------------------------------------
         Scope 22
-        Physical Symbols:
-
-        Type Symbols:
-
-        Label Symbols:
 -----------------------------------------------------------
   Scope 23: FuncSymbol: Execute :: Void ()
   Physical Symbols:
-    c -> 0x55d9efec2020 : VarSymbol: c :: U8i
-
-  Type Symbols:
-
-  Label Symbols:
+    c -> 0x55dee3864060 : VarSymbol: c :: U8i
 -----------------------------------------------------------
     Scope 24
-    Physical Symbols:
-
-    Type Symbols:
-
-    Label Symbols:
 -----------------------------------------------------------
       Scope 25
-      Physical Symbols:
-
-      Type Symbols:
-
-      Label Symbols:
 -----------------------------------------------------------
         Scope 26
-        Physical Symbols:
-
-        Type Symbols:
-
-        Label Symbols:
 -----------------------------------------------------------
         Scope 27
-        Physical Symbols:
-
-        Type Symbols:
-
-        Label Symbols:
 -----------------------------------------------------------
         Scope 28
-        Physical Symbols:
-
-        Type Symbols:
-
-        Label Symbols:
 -----------------------------------------------------------
           Scope 29
-          Physical Symbols:
-
-          Type Symbols:
-
-          Label Symbols:
 -----------------------------------------------------------
           Scope 30
-          Physical Symbols:
-
-          Type Symbols:
-
-          Label Symbols:
 -----------------------------------------------------------
           Scope 31
           Physical Symbols:
-            opening -> 0x55d9efec6730 : VarSymbol: opening :: I32i
-
-          Type Symbols:
-
-          Label Symbols:
+            opening -> 0x55dee3868790 : VarSymbol: opening :: I32i
 -----------------------------------------------------------
             Scope 32
-            Physical Symbols:
-
-            Type Symbols:
-
-            Label Symbols:
 -----------------------------------------------------------
             Scope 33
-            Physical Symbols:
-
-            Type Symbols:
-
-            Label Symbols:
 -----------------------------------------------------------
             Scope 34
-            Physical Symbols:
-
-            Type Symbols:
-
-            Label Symbols:
 -----------------------------------------------------------
         Scope 35
-        Physical Symbols:
-
-        Type Symbols:
-
-        Label Symbols:
 -----------------------------------------------------------
   Scope 36: FuncSymbol: Initialize :: Void ()
   Physical Symbols:
-    i -> 0x55d9efec8070 : VarSymbol: i :: I32i
-
-  Type Symbols:
-
-  Label Symbols:
+    i -> 0x55dee386a0d0 : VarSymbol: i :: I32i
 -----------------------------------------------------------
     Scope 37
-    Physical Symbols:
-
-    Type Symbols:
-
-    Label Symbols:
 -----------------------------------------------------------
       Scope 38
-      Physical Symbols:
-
-      Type Symbols:
-
-      Label Symbols:
 -----------------------------------------------------------
   Scope 39: FuncSymbol: PrintUsage :: Void (U8i *)
   Physical Symbols:
-    argname -> 0x55d9efec8d40 : VarSymbol: argname :: U8i *
-
-  Type Symbols:
-
-  Label Symbols:
+    argname -> 0x55dee386ada0 : VarSymbol: argname :: U8i *
 -----------------------------------------------------------
   Scope 40: FuncSymbol: Main :: I32i ()
   Physical Symbols:
-    program -> 0x55d9efec9640 : VarSymbol: program :: U8i[]
-
-  Type Symbols:
-
-  Label Symbols:
+    program -> 0x55dee386b6e0 : VarSymbol: program :: U8i[]
 -----------------------------------------------------------
 
 --------- MIR ---------
@@ -3476,13 +3244,13 @@ ProgramMIR @ <1.1>
 | VarDecl:  @ <test/brainfuck.HC:6.1-13>
 | | | VarSymbol: c :: U8i
 | TypeDecl: Stack @ <test/brainfuck.HC:9.1-13.2>
-| VarDecl:  @ <test/brainfuck.HC:15.1-32>
+| VarDecl:  @ <test/brainfuck.HC:15.1-26>
 | | | VarSymbol: nesting :: class { I32i cap; I32i len; I32i[32] data; }
-| | | Initializer @ <test/brainfuck.HC:15.23-31>
-| | | | Initializer @ <test/brainfuck.HC:15.25-26>
-| | | | | Literal: 32 @ <test/brainfuck.HC:15.25-26>
-| | | | Initializer @ <test/brainfuck.HC:15.29>
-| | | | | Literal: 0 @ <test/brainfuck.HC:15.29>
+| | | Initializer @ <test/brainfuck.HC:15.17-25>
+| | | | Initializer @ <test/brainfuck.HC:15.19-20>
+| | | | | Literal: 32 @ <test/brainfuck.HC:15.19-20>
+| | | | Initializer @ <test/brainfuck.HC:15.23>
+| | | | | Literal: 0 @ <test/brainfuck.HC:15.23>
 | FunctionMIR: StackPush @ <test/brainfuck.HC:17.1-28.1>
     type: Void (I32i)
 | | CompoundStmtMIR @ <test/brainfuck.HC:17.25-28.1>

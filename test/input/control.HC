@@ -14,6 +14,7 @@ switch (n) {
         break;
     case 2 ... 5:
         n += 2;
+        U32i i = 0;
         break;
     default:
         goto start;

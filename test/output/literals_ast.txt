@@ -99,6 +99,7 @@ TypeContext: getting primitive type
                     visiting IdentifierDeclarator node: input/literals.HC:1.154
                 }
             }
+TypeBuilder: finalizing type
             Node {
                 visiting Initializer node: input/literals.HC:1.158-160
                 visiting single initializer
@@ -107,7 +108,6 @@ TypeContext: getting primitive type
                 }
             }
         }
-TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "a"
     }
     Node {
@@ -125,6 +125,7 @@ TypeContext: getting primitive type
                     visiting IdentifierDeclarator node: input/literals.HC:2.6
                 }
             }
+TypeBuilder: finalizing type
             Node {
                 visiting Initializer node: input/literals.HC:2.10-12
                 visiting single initializer
@@ -136,7 +137,6 @@ TypeContext: getting primitive type
                 }
             }
         }
-TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "b"
     }
     Node {
@@ -154,6 +154,7 @@ TypeContext: getting primitive type
                     visiting IdentifierDeclarator node: input/literals.HC:3.6
                 }
             }
+TypeBuilder: finalizing type
             Node {
                 visiting Initializer node: input/literals.HC:3.10-12
                 visiting single initializer
@@ -162,7 +163,6 @@ TypeContext: getting primitive type
                 }
             }
         }
-TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "c"
     }
     Node {
@@ -180,6 +180,7 @@ TypeContext: getting primitive type
                     visiting IdentifierDeclarator node: input/literals.HC:4.6
                 }
             }
+TypeBuilder: finalizing type
             Node {
                 visiting Initializer node: input/literals.HC:4.10-13
                 visiting single initializer
@@ -188,7 +189,6 @@ TypeContext: getting primitive type
                 }
             }
         }
-TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "d"
     }
     Node {
@@ -206,6 +206,7 @@ TypeContext: getting primitive type
                     visiting IdentifierDeclarator node: input/literals.HC:6.6-7
                 }
             }
+TypeBuilder: finalizing type
             Node {
                 visiting Initializer node: input/literals.HC:6.11-14
                 visiting single initializer
@@ -214,7 +215,6 @@ TypeContext: getting primitive type
                 }
             }
         }
-TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "f1"
     }
     Node {
@@ -232,6 +232,7 @@ TypeContext: getting primitive type
                     visiting IdentifierDeclarator node: input/literals.HC:7.6-7
                 }
             }
+TypeBuilder: finalizing type
             Node {
                 visiting Initializer node: input/literals.HC:7.11-18
                 visiting single initializer
@@ -243,7 +244,6 @@ TypeContext: getting primitive type
                 }
             }
         }
-TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "f2"
     }
     Node {
@@ -261,6 +261,7 @@ TypeContext: getting primitive type
                     visiting IdentifierDeclarator node: input/literals.HC:9.5-6
                 }
             }
+TypeBuilder: finalizing type
             Node {
                 visiting Initializer node: input/literals.HC:9.10-12
                 visiting single initializer
@@ -269,7 +270,6 @@ TypeContext: getting primitive type
                 }
             }
         }
-TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "ch"
     }
     Node {
@@ -287,6 +287,7 @@ TypeContext: getting primitive type
                     visiting IdentifierDeclarator node: input/literals.HC:10.5-6
                 }
             }
+TypeBuilder: finalizing type
             Node {
                 visiting Initializer node: input/literals.HC:10.10-13
                 visiting single initializer
@@ -295,7 +296,6 @@ TypeContext: getting primitive type
                 }
             }
         }
-TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "nl"
     }
     Node {
@@ -313,6 +313,7 @@ TypeContext: getting primitive type
                     visiting IdentifierDeclarator node: input/literals.HC:11.5-6
                 }
             }
+TypeBuilder: finalizing type
             Node {
                 visiting Initializer node: input/literals.HC:11.10-13
                 visiting single initializer
@@ -321,7 +322,6 @@ TypeContext: getting primitive type
                 }
             }
         }
-TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "qt"
     }
     Node {
@@ -352,6 +352,19 @@ SymbolTable: looking up varsymbol f2
         }
     }
 }
+TypeContext: finalizing primitives
+VoidType: finalizing
+PrimitiveType: finalizing U8i
+PrimitiveType: finalizing U16i
+PrimitiveType: finalizing U32i
+PrimitiveType: finalizing U64i
+PrimitiveType: finalizing I8i
+PrimitiveType: finalizing I16i
+PrimitiveType: finalizing I32i
+PrimitiveType: finalizing I64i
+PrimitiveType: finalizing F64i
+PrimitiveType: finalizing Bool
+TypeContext: finalizing user types
 semantic checking complete
 --------- TYPE CONTEXT ---------
 
@@ -368,15 +381,15 @@ Array Types:
 
 Scope 0
 Physical Symbols:
-  nl -> 0x5626deca2330 : VarSymbol: nl :: U8i
-  ch -> 0x5626deca2100 : VarSymbol: ch :: U8i
-  f2 -> 0x5626deca1ed0 : VarSymbol: f2 :: F64i
-  qt -> 0x5626deca2560 : VarSymbol: qt :: U8i
-  f1 -> 0x5626deca1bf0 : VarSymbol: f1 :: F64i
-  c -> 0x5626deca17d0 : VarSymbol: c :: U32i
-  b -> 0x5626deca15a0 : VarSymbol: b :: U32i
-  d -> 0x5626deca19e0 : VarSymbol: d :: U32i
-  a -> 0x5626dec8c670 : VarSymbol: a :: U32i
+  nl -> 0x5635e049d330 : VarSymbol: nl :: U8i
+  ch -> 0x5635e049d100 : VarSymbol: ch :: U8i
+  f2 -> 0x5635e049ced0 : VarSymbol: f2 :: F64i
+  qt -> 0x5635e049d560 : VarSymbol: qt :: U8i
+  f1 -> 0x5635e049cbf0 : VarSymbol: f1 :: F64i
+  c -> 0x5635e049c7d0 : VarSymbol: c :: U32i
+  b -> 0x5635e049c5a0 : VarSymbol: b :: U32i
+  d -> 0x5635e049c9e0 : VarSymbol: d :: U32i
+  a -> 0x5635e0487670 : VarSymbol: a :: U32i
 
 Type Symbols:
 

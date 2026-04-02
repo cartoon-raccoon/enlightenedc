@@ -12,6 +12,19 @@ Synthesizing MIR for input/empty.HC:1.1
 Node {
     visiting Program node: input/empty.HC:1.1
 }
+TypeContext: finalizing primitives
+VoidType: finalizing
+PrimitiveType: finalizing U8i
+PrimitiveType: finalizing U16i
+PrimitiveType: finalizing U32i
+PrimitiveType: finalizing U64i
+PrimitiveType: finalizing I8i
+PrimitiveType: finalizing I16i
+PrimitiveType: finalizing I32i
+PrimitiveType: finalizing I64i
+PrimitiveType: finalizing F64i
+PrimitiveType: finalizing Bool
+TypeContext: finalizing user types
 semantic checking complete
 --------- TYPE CONTEXT ---------
 

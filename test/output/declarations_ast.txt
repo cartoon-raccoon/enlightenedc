@@ -104,10 +104,10 @@ TypeContext: getting primitive type
                     }
                 }
             }
-        }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x556ecf7698d0
-TypeContext: pointer with base 0x556ecf76a2d0
+TypeContext: pointer with base 0x55f68b1658d0
+TypeContext: pointer with base 0x55f68b1662d0
+        }
 SymbolTable: inserting varsymbol with name "ptrA"
     }
     Node {
@@ -128,8 +128,8 @@ TypeContext: getting primitive type
                     visiting IdentifierDeclarator node: input/declarations.HC:2.13
                 }
             }
-        }
 TypeBuilder: finalizing type
+        }
 SymbolTable: inserting varsymbol with name "a"
         Node {
             visiting InitDeclarator node: input/declarations.HC:2.16-22
@@ -138,6 +138,7 @@ SymbolTable: inserting varsymbol with name "a"
                     visiting IdentifierDeclarator node: input/declarations.HC:2.16
                 }
             }
+TypeBuilder: finalizing type
             Node {
                 visiting Initializer node: input/declarations.HC:2.20-22
                 visiting single initializer
@@ -149,7 +150,6 @@ SymbolTable: inserting varsymbol with name "a"
                 }
             }
         }
-TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "b"
         Node {
             visiting InitDeclarator node: input/declarations.HC:2.25-28
@@ -168,9 +168,9 @@ SymbolTable: inserting varsymbol with name "b"
                     }
                 }
             }
-        }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x556ecf769960, size 4
+TypeContext: array type with base 0x55f68b165960, size 4
+        }
 SymbolTable: inserting varsymbol with name "c"
     }
     Node {
@@ -194,9 +194,9 @@ TypeContext: getting primitive type
                     }
                 }
             }
-        }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x556ecf7699f0, no size
+TypeContext: array type with base 0x55f68b1659f0, no size
+        }
 SymbolTable: inserting varsymbol with name "table"
     }
     Node {
@@ -224,6 +224,8 @@ TypeContext: getting primitive type
                     }
                 }
             }
+TypeBuilder: finalizing type
+TypeContext: array type with base 0x55f68b165870, size 3
             Node {
                 visiting Initializer node: input/declarations.HC:5.16-24
                 visiting compound initializer
@@ -250,8 +252,6 @@ TypeContext: getting primitive type
                 }
             }
         }
-TypeBuilder: finalizing type
-TypeContext: array type with base 0x556ecf769870, size 3
 SymbolTable: inserting varsymbol with name "bytes"
     }
     Node {
@@ -279,6 +279,8 @@ TypeContext: getting primitive type
                     }
                 }
             }
+TypeBuilder: finalizing type
+TypeContext: array type with base 0x55f68b165990, size 2
             Node {
                 visiting Initializer node: input/declarations.HC:6.18-23
                 visiting compound initializer
@@ -298,11 +300,22 @@ TypeContext: getting primitive type
                 }
             }
         }
-TypeBuilder: finalizing type
-TypeContext: array type with base 0x556ecf769990, size 2
 SymbolTable: inserting varsymbol with name "matrix"
     }
 }
+TypeContext: finalizing primitives
+VoidType: finalizing
+PrimitiveType: finalizing U8i
+PrimitiveType: finalizing U16i
+PrimitiveType: finalizing U32i
+PrimitiveType: finalizing U64i
+PrimitiveType: finalizing I8i
+PrimitiveType: finalizing I16i
+PrimitiveType: finalizing I32i
+PrimitiveType: finalizing I64i
+PrimitiveType: finalizing F64i
+PrimitiveType: finalizing Bool
+TypeContext: finalizing user types
 semantic checking complete
 --------- TYPE CONTEXT ---------
 
@@ -316,8 +329,8 @@ Pointer Types:
 
 Array Types:
  : I32i[2]
- : F64i[]
  : U8i[3]
+ : F64i[]
  : I16i[4]
 
 
@@ -325,13 +338,13 @@ Array Types:
 
 Scope 0
 Physical Symbols:
-  bytes -> 0x556ecf76afe0 : VarSymbol: bytes :: U8i[3]
-  table -> 0x556ecf76aaf0 : VarSymbol: table :: F64i[] extern
-  c -> 0x556ecf76a8f0 : VarSymbol: c :: I16i[4] static
-  b -> 0x556ecf76a710 : VarSymbol: b :: I16i static
-  matrix -> 0x556ecf76b400 : VarSymbol: matrix :: I32i[2]
-  a -> 0x556ecf76a4f0 : VarSymbol: a :: I16i static
-  ptrA -> 0x556ecf755670 : VarSymbol: ptrAconst  :: U32i * const * public
+  bytes -> 0x55f68b166fe0 : VarSymbol: bytes :: U8i[3]
+  table -> 0x55f68b166af0 : VarSymbol: table :: F64i[] extern
+  c -> 0x55f68b1668f0 : VarSymbol: c :: I16i[4] static
+  b -> 0x55f68b166710 : VarSymbol: b :: I16i static
+  matrix -> 0x55f68b167400 : VarSymbol: matrix :: I32i[2]
+  a -> 0x55f68b1664f0 : VarSymbol: a :: I16i static
+  ptrA -> 0x55f68b151670 : VarSymbol: ptrAconst  :: U32i * const * public
 
 Type Symbols:
 

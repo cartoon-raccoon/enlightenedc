@@ -12,7 +12,7 @@ class Stack {
     I32i data[DEFAULT_STACK_CAP];
 };
 
-class Stack nesting = { DEFAULT_STACK_CAP, 0 };
+Stack nesting = { DEFAULT_STACK_CAP, 0 };
 
 U0 StackPush(I32i item) {
     /* if item is less than zero, fail silently */

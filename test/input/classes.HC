@@ -1,3 +1,7 @@
+class Opaque;
+
+Opaque *opaque_ptr;
+
 public class Point {
     I32i x;
     I32i y;

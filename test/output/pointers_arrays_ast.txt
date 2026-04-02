@@ -1,263 +1,303 @@
 Initializing LLVM
 LLVM initialized
-running pipeline on file input/pointers_arrays.HC
-LLVM: Creating LLVMUnit with module name 'input/pointers_arrays.HC'
+running pipeline on file test/input/pointers_arrays.HC
+LLVM: Creating LLVMUnit with module name 'test/input/pointers_arrays.HC'
 LLVM: LLVMUnit created
-parsing file input/pointers_arrays.HC
-printing AST for file input/pointers_arrays.HC
-Program @ <input/pointers_arrays.HC:1.1> 
-| TypeDeclaration @ <input/pointers_arrays.HC:1.1-4.2> 
-| | ClassSpecifier:  Node: @ <input/pointers_arrays.HC:1.1-4.1> 
-| | | ClassDeclaration @ <input/pointers_arrays.HC:2.5-15> 
-| | | | PrimitiveSpecifier: i32 @ <input/pointers_arrays.HC:2.5-8> 
-| | | | ClassDeclarator @ <input/pointers_arrays.HC:2.10-14> 
-| | | | | Declarator @ <input/pointers_arrays.HC:2.10-14> 
-| | | | | | IdentifierDeclarator: value @ <input/pointers_arrays.HC:2.10-14> 
-| | | ClassDeclaration @ <input/pointers_arrays.HC:3.5-21> 
-| | | | ClassSpecifier:  Node: @ <input/pointers_arrays.HC:3.5-14> 
-| | | | ClassDeclarator @ <input/pointers_arrays.HC:3.16-20> 
-| | | | | Declarator @ <input/pointers_arrays.HC:3.16-20> 
-| | | | | | Pointer @ <input/pointers_arrays.HC:3.16> 
-| | | | | | IdentifierDeclarator: next @ <input/pointers_arrays.HC:3.16-20> 
-| Function @ <input/pointers_arrays.HC:6.1-8.1> 
-| | PrimitiveSpecifier: i32 @ <input/pointers_arrays.HC:6.1-4> 
-| | Declarator @ <input/pointers_arrays.HC:6.6-36> 
-| | | FunctionDeclarator @ <input/pointers_arrays.HC:6.6-36> 
-| | | | IdentifierDeclarator: apply @ <input/pointers_arrays.HC:6.6-10> 
-| | | | ParameterDeclaration @ <input/pointers_arrays.HC:6.6-27> 
-| | | | | PrimitiveSpecifier: i32 @ <input/pointers_arrays.HC:6.6-15> 
-| | | | | Declarator @ <input/pointers_arrays.HC:6.17-27> 
-| | | | | | FunctionDeclarator @ <input/pointers_arrays.HC:6.17-27> 
-| | | | | | | ParenDeclarator @ <input/pointers_arrays.HC:6.17-21> 
-| | | | | | | | Declarator @ <input/pointers_arrays.HC:6.17-20> 
-| | | | | | | | | Pointer @ <input/pointers_arrays.HC:6.17-18> 
-| | | | | | | | | IdentifierDeclarator: fn @ <input/pointers_arrays.HC:6.17-20> 
-| | | | | | | ParameterDeclaration @ <input/pointers_arrays.HC:6.17-26> 
-| | | | | | | | PrimitiveSpecifier: i32 @ <input/pointers_arrays.HC:6.17-26> 
-| | | | ParameterDeclaration @ <input/pointers_arrays.HC:6.30-35> 
-| | | | | PrimitiveSpecifier: i32 @ <input/pointers_arrays.HC:6.30-33> 
-| | | | | Declarator @ <input/pointers_arrays.HC:6.35> 
-| | | | | | IdentifierDeclarator: v @ <input/pointers_arrays.HC:6.35> 
-| | CompoundStatement @ <input/pointers_arrays.HC:6.38-8.1> 
-| | | ReturnStatement @ <input/pointers_arrays.HC:7.5-17> 
-| | | | CallExpression @ <input/pointers_arrays.HC:7.12-16> 
-| | | | | IdentifierExpression: fn @ <input/pointers_arrays.HC:7.12-13> 
-| | | | | IdentifierExpression: v @ <input/pointers_arrays.HC:7.12-15> 
-| Function @ <input/pointers_arrays.HC:10.1-12.1> 
-| | PrimitiveSpecifier: i32 @ <input/pointers_arrays.HC:10.1-4> 
-| | Declarator @ <input/pointers_arrays.HC:10.6-19> 
-| | | FunctionDeclarator @ <input/pointers_arrays.HC:10.6-19> 
-| | | | IdentifierDeclarator: square @ <input/pointers_arrays.HC:10.6-11> 
-| | | | ParameterDeclaration @ <input/pointers_arrays.HC:10.6-18> 
-| | | | | PrimitiveSpecifier: i32 @ <input/pointers_arrays.HC:10.6-16> 
-| | | | | Declarator @ <input/pointers_arrays.HC:10.18> 
-| | | | | | IdentifierDeclarator: x @ <input/pointers_arrays.HC:10.18> 
-| | CompoundStatement @ <input/pointers_arrays.HC:10.21-12.1> 
-| | | ReturnStatement @ <input/pointers_arrays.HC:11.5-17> 
-| | | | BinaryExpression: * @ <input/pointers_arrays.HC:11.12-16> 
-| | | | | IdentifierExpression: x @ <input/pointers_arrays.HC:11.12> 
-| | | | | IdentifierExpression: x @ <input/pointers_arrays.HC:11.16> 
-| VariableDeclaration @ <input/pointers_arrays.HC:14.1-12> 
-| | PrimitiveSpecifier: u32 @ <input/pointers_arrays.HC:14.1-4> 
-| | InitDeclarator @ <input/pointers_arrays.HC:14.6-11> 
-| | | Declarator @ <input/pointers_arrays.HC:14.6-11> 
-| | | | ArrayDeclarator @ <input/pointers_arrays.HC:14.6-11> 
-| | | | | IdentifierDeclarator: arr @ <input/pointers_arrays.HC:14.6-8> 
-| | | | | ConstExpression:  @ <input/pointers_arrays.HC:14.6-10> 
-| | | | | | Literal: 5 @ <input/pointers_arrays.HC:14.6-10> 
-| VariableDeclaration @ <input/pointers_arrays.HC:16.1-19> 
-| | PrimitiveSpecifier: u32 @ <input/pointers_arrays.HC:16.1-4> 
-| | InitDeclarator @ <input/pointers_arrays.HC:16.6-18> 
-| | | Declarator @ <input/pointers_arrays.HC:16.6-18> 
-| | | | Pointer @ <input/pointers_arrays.HC:16.6> 
-| | | | ArrayDeclarator @ <input/pointers_arrays.HC:16.6-18> 
-| | | | | IdentifierDeclarator: ptr_array @ <input/pointers_arrays.HC:16.6-15> 
-| | | | | ConstExpression:  @ <input/pointers_arrays.HC:16.6-17> 
-| | | | | | Literal: 5 @ <input/pointers_arrays.HC:16.6-17> 
-| VariableDeclaration @ <input/pointers_arrays.HC:18.1-24> 
-| | PrimitiveSpecifier: u32 @ <input/pointers_arrays.HC:18.1-4> 
-| | InitDeclarator @ <input/pointers_arrays.HC:18.6-23> 
-| | | Declarator @ <input/pointers_arrays.HC:18.6-23> 
-| | | | ArrayDeclarator @ <input/pointers_arrays.HC:18.6-23> 
-| | | | | ParenDeclarator @ <input/pointers_arrays.HC:18.6-19> 
-| | | | | | Declarator @ <input/pointers_arrays.HC:18.6-18> 
-| | | | | | | Pointer @ <input/pointers_arrays.HC:18.6-7> 
-| | | | | | | IdentifierDeclarator: ptr_to_arr @ <input/pointers_arrays.HC:18.9-18> 
-| | | | | ConstExpression:  @ <input/pointers_arrays.HC:18.21-22> 
-| | | | | | Literal: 5 @ <input/pointers_arrays.HC:18.21-22> 
-| VariableDeclaration @ <input/pointers_arrays.HC:20.1-28> 
-| | PrimitiveSpecifier: u32 @ <input/pointers_arrays.HC:20.1-4> 
-| | InitDeclarator @ <input/pointers_arrays.HC:20.6-27> 
-| | | Declarator @ <input/pointers_arrays.HC:20.6-27> 
-| | | | Pointer @ <input/pointers_arrays.HC:20.6> 
-| | | | ArrayDeclarator @ <input/pointers_arrays.HC:20.6-27> 
-| | | | | ParenDeclarator @ <input/pointers_arrays.HC:20.6-23> 
-| | | | | | Declarator @ <input/pointers_arrays.HC:20.6-22> 
-| | | | | | | Pointer @ <input/pointers_arrays.HC:20.6-8> 
-| | | | | | | IdentifierDeclarator: ptr_to_ptr_arr @ <input/pointers_arrays.HC:20.6-22> 
-| | | | | ConstExpression:  @ <input/pointers_arrays.HC:20.25-26> 
-| | | | | | Literal: 5 @ <input/pointers_arrays.HC:20.25-26> 
-| Function @ <input/pointers_arrays.HC:22.1-30.1> 
-| | PrimitiveSpecifier: i32 @ <input/pointers_arrays.HC:22.1-4> 
-| | Declarator @ <input/pointers_arrays.HC:22.6-10> 
-| | | FunctionDeclarator @ <input/pointers_arrays.HC:22.6-10> 
-| | | | IdentifierDeclarator: run @ <input/pointers_arrays.HC:22.6-8> 
-| | CompoundStatement @ <input/pointers_arrays.HC:22.12-30.1> 
-| | | VariableDeclaration @ <input/pointers_arrays.HC:23.5-11> 
-| | | | TypeIdentifier: Node @ <input/pointers_arrays.HC:23.5-8> 
-| | | | InitDeclarator @ <input/pointers_arrays.HC:23.10> 
-| | | | | Declarator @ <input/pointers_arrays.HC:23.10> 
-| | | | | | IdentifierDeclarator: n @ <input/pointers_arrays.HC:23.10> 
-| | | VariableDeclaration @ <input/pointers_arrays.HC:24.5-17> 
-| | | | TypeIdentifier: Node @ <input/pointers_arrays.HC:24.5-8> 
-| | | | InitDeclarator @ <input/pointers_arrays.HC:24.10-16> 
-| | | | | Declarator @ <input/pointers_arrays.HC:24.10-11> 
-| | | | | | Pointer @ <input/pointers_arrays.HC:24.10> 
-| | | | | | IdentifierDeclarator: p @ <input/pointers_arrays.HC:24.10-11> 
-| | | | | Initializer:  @ <input/pointers_arrays.HC:24.15-16> 
-| | | | | | UnaryExpression: & @ <input/pointers_arrays.HC:24.15-16> 
-| | | | | | | IdentifierExpression: n @ <input/pointers_arrays.HC:24.15-16> 
-| | | ExpressionStatement @ <input/pointers_arrays.HC:26.5-16> 
-| | | | AssignmentExpression: = @ <input/pointers_arrays.HC:26.5-15> 
-| | | | | MemberAccess: .value @ <input/pointers_arrays.HC:26.5-11> 
-| | | | | | IdentifierExpression: n @ <input/pointers_arrays.HC:26.5> 
-| | | | | Literal: 5 @ <input/pointers_arrays.HC:26.15> 
-| | | ExpressionStatement @ <input/pointers_arrays.HC:27.5-15> 
-| | | | PostfixExpression: ++ @ <input/pointers_arrays.HC:27.5-14> 
-| | | | | MemberAccess: ->value @ <input/pointers_arrays.HC:27.5-12> 
-| | | | | | IdentifierExpression: p @ <input/pointers_arrays.HC:27.5> 
-| | | ReturnStatement @ <input/pointers_arrays.HC:29.5-34> 
-| | | | CallExpression @ <input/pointers_arrays.HC:29.12-33> 
-| | | | | IdentifierExpression: apply @ <input/pointers_arrays.HC:29.12-16> 
-| | | | | IdentifierExpression: square @ <input/pointers_arrays.HC:29.12-23> 
-| | | | | MemberAccess: .value @ <input/pointers_arrays.HC:29.26-32> 
-| | | | | | IdentifierExpression: n @ <input/pointers_arrays.HC:29.26> 
-running backend for file input/pointers_arrays.HC
-Checking semantics for input/pointers_arrays.HC:1.1
-Synthesizing MIR for input/pointers_arrays.HC:1.1
+parsing file test/input/pointers_arrays.HC
+printing AST for file test/input/pointers_arrays.HC
+Program @ <test/input/pointers_arrays.HC:1.1> 
+| TypeDeclaration @ <test/input/pointers_arrays.HC:1.1-4.2> 
+| | ClassSpecifier:  Node: @ <test/input/pointers_arrays.HC:1.1-4.1> 
+| | | ClassDeclaration @ <test/input/pointers_arrays.HC:2.5-15> 
+| | | | PrimitiveSpecifier: i32 @ <test/input/pointers_arrays.HC:2.5-8> 
+| | | | ClassDeclarator @ <test/input/pointers_arrays.HC:2.10-14> 
+| | | | | Declarator @ <test/input/pointers_arrays.HC:2.10-14> 
+| | | | | | IdentifierDeclarator: value @ <test/input/pointers_arrays.HC:2.10-14> 
+| | | ClassDeclaration @ <test/input/pointers_arrays.HC:3.5-21> 
+| | | | ClassSpecifier:  Node: @ <test/input/pointers_arrays.HC:3.5-14> 
+| | | | ClassDeclarator @ <test/input/pointers_arrays.HC:3.16-20> 
+| | | | | Declarator @ <test/input/pointers_arrays.HC:3.16-20> 
+| | | | | | Pointer @ <test/input/pointers_arrays.HC:3.16> 
+| | | | | | IdentifierDeclarator: next @ <test/input/pointers_arrays.HC:3.16-20> 
+| Function @ <test/input/pointers_arrays.HC:6.1-8.1> 
+| | PrimitiveSpecifier: i32 @ <test/input/pointers_arrays.HC:6.1-4> 
+| | Declarator @ <test/input/pointers_arrays.HC:6.6-36> 
+| | | FunctionDeclarator @ <test/input/pointers_arrays.HC:6.6-36> 
+| | | | IdentifierDeclarator: apply @ <test/input/pointers_arrays.HC:6.6-10> 
+| | | | ParameterDeclaration @ <test/input/pointers_arrays.HC:6.6-27> 
+| | | | | PrimitiveSpecifier: i32 @ <test/input/pointers_arrays.HC:6.6-15> 
+| | | | | Declarator @ <test/input/pointers_arrays.HC:6.17-27> 
+| | | | | | FunctionDeclarator @ <test/input/pointers_arrays.HC:6.17-27> 
+| | | | | | | ParenDeclarator @ <test/input/pointers_arrays.HC:6.17-21> 
+| | | | | | | | Declarator @ <test/input/pointers_arrays.HC:6.17-20> 
+| | | | | | | | | Pointer @ <test/input/pointers_arrays.HC:6.17-18> 
+| | | | | | | | | IdentifierDeclarator: fn @ <test/input/pointers_arrays.HC:6.17-20> 
+| | | | | | | ParameterDeclaration @ <test/input/pointers_arrays.HC:6.17-26> 
+| | | | | | | | PrimitiveSpecifier: i32 @ <test/input/pointers_arrays.HC:6.17-26> 
+| | | | ParameterDeclaration @ <test/input/pointers_arrays.HC:6.30-35> 
+| | | | | PrimitiveSpecifier: i32 @ <test/input/pointers_arrays.HC:6.30-33> 
+| | | | | Declarator @ <test/input/pointers_arrays.HC:6.35> 
+| | | | | | IdentifierDeclarator: v @ <test/input/pointers_arrays.HC:6.35> 
+| | CompoundStatement @ <test/input/pointers_arrays.HC:6.38-8.1> 
+| | | ReturnStatement @ <test/input/pointers_arrays.HC:7.5-17> 
+| | | | CallExpression @ <test/input/pointers_arrays.HC:7.12-16> 
+| | | | | IdentifierExpression: fn @ <test/input/pointers_arrays.HC:7.12-13> 
+| | | | | IdentifierExpression: v @ <test/input/pointers_arrays.HC:7.12-15> 
+| Function @ <test/input/pointers_arrays.HC:10.1-12.1> 
+| | PrimitiveSpecifier: i32 @ <test/input/pointers_arrays.HC:10.1-4> 
+| | Declarator @ <test/input/pointers_arrays.HC:10.6-19> 
+| | | FunctionDeclarator @ <test/input/pointers_arrays.HC:10.6-19> 
+| | | | IdentifierDeclarator: square @ <test/input/pointers_arrays.HC:10.6-11> 
+| | | | ParameterDeclaration @ <test/input/pointers_arrays.HC:10.6-18> 
+| | | | | PrimitiveSpecifier: i32 @ <test/input/pointers_arrays.HC:10.6-16> 
+| | | | | Declarator @ <test/input/pointers_arrays.HC:10.18> 
+| | | | | | IdentifierDeclarator: x @ <test/input/pointers_arrays.HC:10.18> 
+| | CompoundStatement @ <test/input/pointers_arrays.HC:10.21-12.1> 
+| | | ReturnStatement @ <test/input/pointers_arrays.HC:11.5-17> 
+| | | | BinaryExpression: * @ <test/input/pointers_arrays.HC:11.12-16> 
+| | | | | IdentifierExpression: x @ <test/input/pointers_arrays.HC:11.12> 
+| | | | | IdentifierExpression: x @ <test/input/pointers_arrays.HC:11.16> 
+| VariableDeclaration @ <test/input/pointers_arrays.HC:15.1-41> 
+| | PrimitiveSpecifier: u32 @ <test/input/pointers_arrays.HC:15.1-4> 
+| | InitDeclarator @ <test/input/pointers_arrays.HC:15.6-40> 
+| | | Declarator @ <test/input/pointers_arrays.HC:15.6-19> 
+| | | | ArrayDeclarator @ <test/input/pointers_arrays.HC:15.6-19> 
+| | | | | IdentifierDeclarator: inferred_arr @ <test/input/pointers_arrays.HC:15.6-17> 
+| | | Initializer:  @ <test/input/pointers_arrays.HC:15.23-40> 
+| | | | Initializer:  @ <test/input/pointers_arrays.HC:15.23-24> 
+| | | | | Literal: 5 @ <test/input/pointers_arrays.HC:15.23-24> 
+| | | | Initializer:  @ <test/input/pointers_arrays.HC:15.27> 
+| | | | | Literal: 4 @ <test/input/pointers_arrays.HC:15.27> 
+| | | | Initializer:  @ <test/input/pointers_arrays.HC:15.30> 
+| | | | | Literal: 3 @ <test/input/pointers_arrays.HC:15.30> 
+| | | | Initializer:  @ <test/input/pointers_arrays.HC:15.33> 
+| | | | | Literal: 2 @ <test/input/pointers_arrays.HC:15.33> 
+| | | | Initializer:  @ <test/input/pointers_arrays.HC:15.36> 
+| | | | | Literal: 1 @ <test/input/pointers_arrays.HC:15.36> 
+| | | | Initializer:  @ <test/input/pointers_arrays.HC:15.39> 
+| | | | | Literal: 0 @ <test/input/pointers_arrays.HC:15.39> 
+| VariableDeclaration @ <test/input/pointers_arrays.HC:17.1-45> 
+| | PrimitiveSpecifier: u32 @ <test/input/pointers_arrays.HC:17.1-4> 
+| | InitDeclarator @ <test/input/pointers_arrays.HC:17.6-44> 
+| | | Declarator @ <test/input/pointers_arrays.HC:17.6-20> 
+| | | | ArrayDeclarator @ <test/input/pointers_arrays.HC:17.6-20> 
+| | | | | ArrayDeclarator @ <test/input/pointers_arrays.HC:17.6-18> 
+| | | | | | IdentifierDeclarator: complex_arr @ <test/input/pointers_arrays.HC:17.6-16> 
+| | | Initializer:  @ <test/input/pointers_arrays.HC:17.24-44> 
+| | | | Initializer:  @ <test/input/pointers_arrays.HC:17.24-30> 
+| | | | | Initializer:  @ <test/input/pointers_arrays.HC:17.24-26> 
+| | | | | | Literal: 5 @ <test/input/pointers_arrays.HC:17.24-26> 
+| | | | | Initializer:  @ <test/input/pointers_arrays.HC:17.29> 
+| | | | | | Literal: 4 @ <test/input/pointers_arrays.HC:17.29> 
+| | | | Initializer:  @ <test/input/pointers_arrays.HC:17.33-38> 
+| | | | | Initializer:  @ <test/input/pointers_arrays.HC:17.33-34> 
+| | | | | | Literal: 6 @ <test/input/pointers_arrays.HC:17.33-34> 
+| | | | | Initializer:  @ <test/input/pointers_arrays.HC:17.37> 
+| | | | | | Literal: 4 @ <test/input/pointers_arrays.HC:17.37> 
+| | | | Initializer:  @ <test/input/pointers_arrays.HC:17.41-43> 
+| | | | | Initializer:  @ <test/input/pointers_arrays.HC:17.41-42> 
+| | | | | | Literal: 1 @ <test/input/pointers_arrays.HC:17.41-42> 
+| VariableDeclaration @ <test/input/pointers_arrays.HC:19.1-12> 
+| | PrimitiveSpecifier: u32 @ <test/input/pointers_arrays.HC:19.1-4> 
+| | InitDeclarator @ <test/input/pointers_arrays.HC:19.6-11> 
+| | | Declarator @ <test/input/pointers_arrays.HC:19.6-11> 
+| | | | ArrayDeclarator @ <test/input/pointers_arrays.HC:19.6-11> 
+| | | | | IdentifierDeclarator: arr @ <test/input/pointers_arrays.HC:19.6-8> 
+| | | | | ConstExpression:  @ <test/input/pointers_arrays.HC:19.6-10> 
+| | | | | | Literal: 5 @ <test/input/pointers_arrays.HC:19.6-10> 
+| VariableDeclaration @ <test/input/pointers_arrays.HC:21.1-19> 
+| | PrimitiveSpecifier: u32 @ <test/input/pointers_arrays.HC:21.1-4> 
+| | InitDeclarator @ <test/input/pointers_arrays.HC:21.6-18> 
+| | | Declarator @ <test/input/pointers_arrays.HC:21.6-18> 
+| | | | Pointer @ <test/input/pointers_arrays.HC:21.6> 
+| | | | ArrayDeclarator @ <test/input/pointers_arrays.HC:21.6-18> 
+| | | | | IdentifierDeclarator: ptr_array @ <test/input/pointers_arrays.HC:21.6-15> 
+| | | | | ConstExpression:  @ <test/input/pointers_arrays.HC:21.6-17> 
+| | | | | | Literal: 5 @ <test/input/pointers_arrays.HC:21.6-17> 
+| VariableDeclaration @ <test/input/pointers_arrays.HC:23.1-24> 
+| | PrimitiveSpecifier: u32 @ <test/input/pointers_arrays.HC:23.1-4> 
+| | InitDeclarator @ <test/input/pointers_arrays.HC:23.6-23> 
+| | | Declarator @ <test/input/pointers_arrays.HC:23.6-23> 
+| | | | ArrayDeclarator @ <test/input/pointers_arrays.HC:23.6-23> 
+| | | | | ParenDeclarator @ <test/input/pointers_arrays.HC:23.6-19> 
+| | | | | | Declarator @ <test/input/pointers_arrays.HC:23.6-18> 
+| | | | | | | Pointer @ <test/input/pointers_arrays.HC:23.6-7> 
+| | | | | | | IdentifierDeclarator: ptr_to_arr @ <test/input/pointers_arrays.HC:23.9-18> 
+| | | | | ConstExpression:  @ <test/input/pointers_arrays.HC:23.21-22> 
+| | | | | | Literal: 5 @ <test/input/pointers_arrays.HC:23.21-22> 
+| VariableDeclaration @ <test/input/pointers_arrays.HC:25.1-28> 
+| | PrimitiveSpecifier: u32 @ <test/input/pointers_arrays.HC:25.1-4> 
+| | InitDeclarator @ <test/input/pointers_arrays.HC:25.6-27> 
+| | | Declarator @ <test/input/pointers_arrays.HC:25.6-27> 
+| | | | Pointer @ <test/input/pointers_arrays.HC:25.6> 
+| | | | ArrayDeclarator @ <test/input/pointers_arrays.HC:25.6-27> 
+| | | | | ParenDeclarator @ <test/input/pointers_arrays.HC:25.6-23> 
+| | | | | | Declarator @ <test/input/pointers_arrays.HC:25.6-22> 
+| | | | | | | Pointer @ <test/input/pointers_arrays.HC:25.6-8> 
+| | | | | | | IdentifierDeclarator: ptr_to_ptr_arr @ <test/input/pointers_arrays.HC:25.6-22> 
+| | | | | ConstExpression:  @ <test/input/pointers_arrays.HC:25.25-26> 
+| | | | | | Literal: 5 @ <test/input/pointers_arrays.HC:25.25-26> 
+| Function @ <test/input/pointers_arrays.HC:27.1-35.1> 
+| | PrimitiveSpecifier: i32 @ <test/input/pointers_arrays.HC:27.1-4> 
+| | Declarator @ <test/input/pointers_arrays.HC:27.6-10> 
+| | | FunctionDeclarator @ <test/input/pointers_arrays.HC:27.6-10> 
+| | | | IdentifierDeclarator: run @ <test/input/pointers_arrays.HC:27.6-8> 
+| | CompoundStatement @ <test/input/pointers_arrays.HC:27.12-35.1> 
+| | | VariableDeclaration @ <test/input/pointers_arrays.HC:28.5-11> 
+| | | | TypeIdentifier: Node @ <test/input/pointers_arrays.HC:28.5-8> 
+| | | | InitDeclarator @ <test/input/pointers_arrays.HC:28.10> 
+| | | | | Declarator @ <test/input/pointers_arrays.HC:28.10> 
+| | | | | | IdentifierDeclarator: n @ <test/input/pointers_arrays.HC:28.10> 
+| | | VariableDeclaration @ <test/input/pointers_arrays.HC:29.5-17> 
+| | | | TypeIdentifier: Node @ <test/input/pointers_arrays.HC:29.5-8> 
+| | | | InitDeclarator @ <test/input/pointers_arrays.HC:29.10-16> 
+| | | | | Declarator @ <test/input/pointers_arrays.HC:29.10-11> 
+| | | | | | Pointer @ <test/input/pointers_arrays.HC:29.10> 
+| | | | | | IdentifierDeclarator: p @ <test/input/pointers_arrays.HC:29.10-11> 
+| | | | | Initializer:  @ <test/input/pointers_arrays.HC:29.15-16> 
+| | | | | | UnaryExpression: & @ <test/input/pointers_arrays.HC:29.15-16> 
+| | | | | | | IdentifierExpression: n @ <test/input/pointers_arrays.HC:29.15-16> 
+| | | ExpressionStatement @ <test/input/pointers_arrays.HC:31.5-16> 
+| | | | AssignmentExpression: = @ <test/input/pointers_arrays.HC:31.5-15> 
+| | | | | MemberAccess: .value @ <test/input/pointers_arrays.HC:31.5-11> 
+| | | | | | IdentifierExpression: n @ <test/input/pointers_arrays.HC:31.5> 
+| | | | | Literal: 5 @ <test/input/pointers_arrays.HC:31.15> 
+| | | ExpressionStatement @ <test/input/pointers_arrays.HC:32.5-15> 
+| | | | PostfixExpression: ++ @ <test/input/pointers_arrays.HC:32.5-14> 
+| | | | | MemberAccess: ->value @ <test/input/pointers_arrays.HC:32.5-12> 
+| | | | | | IdentifierExpression: p @ <test/input/pointers_arrays.HC:32.5> 
+| | | ReturnStatement @ <test/input/pointers_arrays.HC:34.5-34> 
+| | | | CallExpression @ <test/input/pointers_arrays.HC:34.12-33> 
+| | | | | IdentifierExpression: apply @ <test/input/pointers_arrays.HC:34.12-16> 
+| | | | | IdentifierExpression: square @ <test/input/pointers_arrays.HC:34.12-23> 
+| | | | | MemberAccess: .value @ <test/input/pointers_arrays.HC:34.26-32> 
+| | | | | | IdentifierExpression: n @ <test/input/pointers_arrays.HC:34.26> 
+running backend for file test/input/pointers_arrays.HC
+Checking semantics for test/input/pointers_arrays.HC:1.1
+Synthesizing MIR for test/input/pointers_arrays.HC:1.1
 Node {
-    visiting Program node: input/pointers_arrays.HC:1.1
+    visiting Program node: test/input/pointers_arrays.HC:1.1
     Node {
-        visiting TypeDeclaration node: input/pointers_arrays.HC:1.1-4.2
-        parsing declaration specifier list for node at input/pointers_arrays.HC:1.1-4.2
+        visiting TypeDeclaration node: test/input/pointers_arrays.HC:1.1-4.2
+        parsing declaration specifier list for node at test/input/pointers_arrays.HC:1.1-4.2
         Node {
-            visiting ClassSpecifier node: input/pointers_arrays.HC:1.1-4.1
-TypeContext: class type 'Node' on scope 0x556c47e80630
+            visiting ClassSpecifier node: test/input/pointers_arrays.HC:1.1-4.1
+TypeContext: class type 'Node' on scope 0x56335f5cd920
             class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol Node in current scope
 SymbolTable: inserting typesymbol with name "Node"
             Node {
-                visiting ClassDeclaration node: input/pointers_arrays.HC:2.5-15
-                parsing declaration specifier list for node at input/pointers_arrays.HC:2.5-15
+                visiting ClassDeclaration node: test/input/pointers_arrays.HC:2.5-15
+                parsing declaration specifier list for node at test/input/pointers_arrays.HC:2.5-15
                 Node {
-                    visiting PrimitiveSpecifier node: input/pointers_arrays.HC:2.5-8
+                    visiting PrimitiveSpecifier node: test/input/pointers_arrays.HC:2.5-8
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node input/pointers_arrays.HC:2.5-15
-                parsing ClassDeclaration for ClassType 0x556c47e80bc0
+                finished parsing specifiers for node test/input/pointers_arrays.HC:2.5-15
+                parsing ClassDeclaration for ClassType 0x56335f5cdc00
                 Node {
-                    visiting ClassDeclarator node: input/pointers_arrays.HC:2.10-14
+                    visiting ClassDeclarator node: test/input/pointers_arrays.HC:2.10-14
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/pointers_arrays.HC:2.10-14
+                            visiting IdentifierDeclarator node: test/input/pointers_arrays.HC:2.10-14
                         }
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name value type 0x556c47e809c0
+ClassType: adding member with name value type 0x56335f5cd820
             }
             Node {
-                visiting ClassDeclaration node: input/pointers_arrays.HC:3.5-21
-                parsing declaration specifier list for node at input/pointers_arrays.HC:3.5-21
+                visiting ClassDeclaration node: test/input/pointers_arrays.HC:3.5-21
+                parsing declaration specifier list for node at test/input/pointers_arrays.HC:3.5-21
                 Node {
-                    visiting ClassSpecifier node: input/pointers_arrays.HC:3.5-14
-TypeContext: class type 'Node' on scope 0x556c47e80630
+                    visiting ClassSpecifier node: test/input/pointers_arrays.HC:3.5-14
+TypeContext: class type 'Node' on scope 0x56335f5cd920
 TypeContext: existing class found
                     class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol Node in current scope
                 }
-                finished parsing specifiers for node input/pointers_arrays.HC:3.5-21
-                parsing ClassDeclaration for ClassType 0x556c47e80bc0
+                finished parsing specifiers for node test/input/pointers_arrays.HC:3.5-21
+                parsing ClassDeclaration for ClassType 0x56335f5cdc00
                 Node {
-                    visiting ClassDeclarator node: input/pointers_arrays.HC:3.16-20
+                    visiting ClassDeclarator node: test/input/pointers_arrays.HC:3.16-20
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/pointers_arrays.HC:3.16-20
+                            visiting IdentifierDeclarator node: test/input/pointers_arrays.HC:3.16-20
                         }
                         Node {
-                            visiting Pointer node: input/pointers_arrays.HC:3.16
+                            visiting Pointer node: test/input/pointers_arrays.HC:3.16
                         }
                     }
                 }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x556c47e80bc0
-ClassType: adding member with name next type 0x556c47e81520
+TypeContext: pointer with base 0x56335f5cdc00
+ClassType: adding member with name next type 0x56335f5ce580
             }
         }
-        finished parsing specifiers for node input/pointers_arrays.HC:1.1-4.2
+        finished parsing specifiers for node test/input/pointers_arrays.HC:1.1-4.2
     }
     Node {
-        visiting Function node: input/pointers_arrays.HC:6.1-8.1
-        parsing declaration specifier list for node at input/pointers_arrays.HC:6.1-8.1
+        visiting Function node: test/input/pointers_arrays.HC:6.1-8.1
+        parsing declaration specifier list for node at test/input/pointers_arrays.HC:6.1-8.1
         Node {
-            visiting PrimitiveSpecifier node: input/pointers_arrays.HC:6.1-4
+            visiting PrimitiveSpecifier node: test/input/pointers_arrays.HC:6.1-4
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/pointers_arrays.HC:6.1-8.1
+        finished parsing specifiers for node test/input/pointers_arrays.HC:6.1-8.1
         Node {
             Node {
-                visiting FunctionDeclarator node: input/pointers_arrays.HC:6.6-36
+                visiting FunctionDeclarator node: test/input/pointers_arrays.HC:6.6-36
                 Node {
-                    visiting IdentifierDeclarator node: input/pointers_arrays.HC:6.6-10
+                    visiting IdentifierDeclarator node: test/input/pointers_arrays.HC:6.6-10
                 }
                 Node {
-                    visiting ParameterDeclarator node: input/pointers_arrays.HC:6.6-27
-                    parsing declaration specifier list for node at input/pointers_arrays.HC:6.6-27
+                    visiting ParameterDeclarator node: test/input/pointers_arrays.HC:6.6-27
+                    parsing declaration specifier list for node at test/input/pointers_arrays.HC:6.6-27
                     Node {
-                        visiting PrimitiveSpecifier node: input/pointers_arrays.HC:6.6-15
+                        visiting PrimitiveSpecifier node: test/input/pointers_arrays.HC:6.6-15
 TypeContext: getting primitive type
                     }
-                    finished parsing specifiers for node input/pointers_arrays.HC:6.6-27
+                    finished parsing specifiers for node test/input/pointers_arrays.HC:6.6-27
                     Node {
                         Node {
-                            visiting FunctionDeclarator node: input/pointers_arrays.HC:6.17-27
+                            visiting FunctionDeclarator node: test/input/pointers_arrays.HC:6.17-27
                             Node {
-                                visiting ParenDeclarator node: input/pointers_arrays.HC:6.17-21
+                                visiting ParenDeclarator node: test/input/pointers_arrays.HC:6.17-21
                                 Node {
                                     Node {
-                                        visiting IdentifierDeclarator node: input/pointers_arrays.HC:6.17-20
+                                        visiting IdentifierDeclarator node: test/input/pointers_arrays.HC:6.17-20
                                     }
                                     Node {
-                                        visiting Pointer node: input/pointers_arrays.HC:6.17-18
+                                        visiting Pointer node: test/input/pointers_arrays.HC:6.17-18
                                     }
                                 }
                             }
                             Node {
-                                visiting ParameterDeclarator node: input/pointers_arrays.HC:6.17-26
-                                parsing declaration specifier list for node at input/pointers_arrays.HC:6.17-26
+                                visiting ParameterDeclarator node: test/input/pointers_arrays.HC:6.17-26
+                                parsing declaration specifier list for node at test/input/pointers_arrays.HC:6.17-26
                                 Node {
-                                    visiting PrimitiveSpecifier node: input/pointers_arrays.HC:6.17-26
+                                    visiting PrimitiveSpecifier node: test/input/pointers_arrays.HC:6.17-26
 TypeContext: getting primitive type
                                 }
-                                finished parsing specifiers for node input/pointers_arrays.HC:6.17-26
+                                finished parsing specifiers for node test/input/pointers_arrays.HC:6.17-26
                             }
                         }
                     }
 TypeBuilder: finalizing type
 TypeContext: getting function type
-TypeContext: pointer with base 0x556c47e81990
+TypeContext: pointer with base 0x56335f5cea00
                 }
                 Node {
-                    visiting ParameterDeclarator node: input/pointers_arrays.HC:6.30-35
-                    parsing declaration specifier list for node at input/pointers_arrays.HC:6.30-35
+                    visiting ParameterDeclarator node: test/input/pointers_arrays.HC:6.30-35
+                    parsing declaration specifier list for node at test/input/pointers_arrays.HC:6.30-35
                     Node {
-                        visiting PrimitiveSpecifier node: input/pointers_arrays.HC:6.30-33
+                        visiting PrimitiveSpecifier node: test/input/pointers_arrays.HC:6.30-33
 TypeContext: getting primitive type
                     }
-                    finished parsing specifiers for node input/pointers_arrays.HC:6.30-35
+                    finished parsing specifiers for node test/input/pointers_arrays.HC:6.30-35
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/pointers_arrays.HC:6.35
+                            visiting IdentifierDeclarator node: test/input/pointers_arrays.HC:6.35
                         }
                     }
 TypeBuilder: finalizing type
@@ -268,24 +308,23 @@ TypeContext: getting function type
 parsing params
 SymbolTable: inserting funcsymbol with name "apply"
         Node {
-            BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 1
 SymbolTable: entering scope 1
-            visiting CompoundStatement node: input/pointers_arrays.HC:6.38-8.1
+            visiting CompoundStatement node: test/input/pointers_arrays.HC:6.38-8.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 1 with symbol 0x556c47e40d10 name "apply"
+SymbolTable: associating current scope 1 with symbol 0x56335f58df50 name "apply"
 SymbolTable: inserting varsymbol with name "fn"
 SymbolTable: inserting varsymbol with name "v"
             Node {
-                visiting ReturnStatement node: input/pointers_arrays.HC:7.5-17
+                visiting ReturnStatement node: test/input/pointers_arrays.HC:7.5-17
                 Node {
-                    visiting CallExpression node: input/pointers_arrays.HC:7.12-16
+                    visiting CallExpression node: test/input/pointers_arrays.HC:7.12-16
                     Node {
-                        visiting IdentifierExpression node: input/pointers_arrays.HC:7.12-13
+                        visiting IdentifierExpression node: test/input/pointers_arrays.HC:7.12-13
 SymbolTable: looking up varsymbol fn
                     }
                     Node {
-                        visiting IdentifierExpression node: input/pointers_arrays.HC:7.12-15
+                        visiting IdentifierExpression node: test/input/pointers_arrays.HC:7.12-15
 SymbolTable: looking up varsymbol v
                     }
                 }
@@ -294,30 +333,30 @@ SymbolTable: exiting scope to 0
         }
     }
     Node {
-        visiting Function node: input/pointers_arrays.HC:10.1-12.1
-        parsing declaration specifier list for node at input/pointers_arrays.HC:10.1-12.1
+        visiting Function node: test/input/pointers_arrays.HC:10.1-12.1
+        parsing declaration specifier list for node at test/input/pointers_arrays.HC:10.1-12.1
         Node {
-            visiting PrimitiveSpecifier node: input/pointers_arrays.HC:10.1-4
+            visiting PrimitiveSpecifier node: test/input/pointers_arrays.HC:10.1-4
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/pointers_arrays.HC:10.1-12.1
+        finished parsing specifiers for node test/input/pointers_arrays.HC:10.1-12.1
         Node {
             Node {
-                visiting FunctionDeclarator node: input/pointers_arrays.HC:10.6-19
+                visiting FunctionDeclarator node: test/input/pointers_arrays.HC:10.6-19
                 Node {
-                    visiting IdentifierDeclarator node: input/pointers_arrays.HC:10.6-11
+                    visiting IdentifierDeclarator node: test/input/pointers_arrays.HC:10.6-11
                 }
                 Node {
-                    visiting ParameterDeclarator node: input/pointers_arrays.HC:10.6-18
-                    parsing declaration specifier list for node at input/pointers_arrays.HC:10.6-18
+                    visiting ParameterDeclarator node: test/input/pointers_arrays.HC:10.6-18
+                    parsing declaration specifier list for node at test/input/pointers_arrays.HC:10.6-18
                     Node {
-                        visiting PrimitiveSpecifier node: input/pointers_arrays.HC:10.6-16
+                        visiting PrimitiveSpecifier node: test/input/pointers_arrays.HC:10.6-16
 TypeContext: getting primitive type
                     }
-                    finished parsing specifiers for node input/pointers_arrays.HC:10.6-18
+                    finished parsing specifiers for node test/input/pointers_arrays.HC:10.6-18
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/pointers_arrays.HC:10.18
+                            visiting IdentifierDeclarator node: test/input/pointers_arrays.HC:10.18
                         }
                     }
 TypeBuilder: finalizing type
@@ -325,27 +364,26 @@ TypeBuilder: finalizing type
             }
         }
 TypeContext: getting function type
-TypeConstext: existing function type found
+TypeContext: existing function type found
 parsing params
 SymbolTable: inserting funcsymbol with name "square"
         Node {
-            BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 2
 SymbolTable: entering scope 2
-            visiting CompoundStatement node: input/pointers_arrays.HC:10.21-12.1
+            visiting CompoundStatement node: test/input/pointers_arrays.HC:10.21-12.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 2 with symbol 0x556c47e40f50 name "square"
+SymbolTable: associating current scope 2 with symbol 0x56335f58e190 name "square"
 SymbolTable: inserting varsymbol with name "x"
             Node {
-                visiting ReturnStatement node: input/pointers_arrays.HC:11.5-17
+                visiting ReturnStatement node: test/input/pointers_arrays.HC:11.5-17
                 Node {
-                    visiting BinaryExpression node: input/pointers_arrays.HC:11.12-16
+                    visiting BinaryExpression node: test/input/pointers_arrays.HC:11.12-16
                     Node {
-                        visiting IdentifierExpression node: input/pointers_arrays.HC:11.12
+                        visiting IdentifierExpression node: test/input/pointers_arrays.HC:11.12
 SymbolTable: looking up varsymbol x
                     }
                     Node {
-                        visiting IdentifierExpression node: input/pointers_arrays.HC:11.16
+                        visiting IdentifierExpression node: test/input/pointers_arrays.HC:11.16
 SymbolTable: looking up varsymbol x
                     }
                 }
@@ -354,164 +392,331 @@ SymbolTable: exiting scope to 0
         }
     }
     Node {
-        visiting VariableDeclaration node: input/pointers_arrays.HC:14.1-12
-        parsing declaration specifier list for node at input/pointers_arrays.HC:14.1-12
+        visiting VariableDeclaration node: test/input/pointers_arrays.HC:15.1-41
+        parsing declaration specifier list for node at test/input/pointers_arrays.HC:15.1-41
         Node {
-            visiting PrimitiveSpecifier node: input/pointers_arrays.HC:14.1-4
+            visiting PrimitiveSpecifier node: test/input/pointers_arrays.HC:15.1-4
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/pointers_arrays.HC:14.1-12
+        finished parsing specifiers for node test/input/pointers_arrays.HC:15.1-41
         Node {
-            visiting InitDeclarator node: input/pointers_arrays.HC:14.6-11
+            visiting InitDeclarator node: test/input/pointers_arrays.HC:15.6-40
             Node {
                 Node {
-                    visiting ArrayDeclarator node: input/pointers_arrays.HC:14.6-11
+                    visiting ArrayDeclarator node: test/input/pointers_arrays.HC:15.6-19
                     Node {
-                        visiting IdentifierDeclarator node: input/pointers_arrays.HC:14.6-8
+                        visiting IdentifierDeclarator node: test/input/pointers_arrays.HC:15.6-17
                     }
-                    array declarator has size, checking for compile time computability
+                }
+            }
+TypeBuilder: finalizing type
+TypeContext: array type with base 0x56335f5cd760, no size
+            Node {
+                visiting Initializer node: test/input/pointers_arrays.HC:15.23-40
+                visiting compound initializer
+                visiting arraytype compound initializer
+                Node {
+                    visiting Initializer node: test/input/pointers_arrays.HC:15.23-24
+                    visiting single initializer
                     Node {
-                        visiting ConstExpression node: input/pointers_arrays.HC:14.6-10
+                        visiting LiteralExpression node: test/input/pointers_arrays.HC:15.23-24
+                    }
+                }
+                Node {
+                    visiting Initializer node: test/input/pointers_arrays.HC:15.27
+                    visiting single initializer
+                    Node {
+                        visiting LiteralExpression node: test/input/pointers_arrays.HC:15.27
+                    }
+                }
+                Node {
+                    visiting Initializer node: test/input/pointers_arrays.HC:15.30
+                    visiting single initializer
+                    Node {
+                        visiting LiteralExpression node: test/input/pointers_arrays.HC:15.30
+                    }
+                }
+                Node {
+                    visiting Initializer node: test/input/pointers_arrays.HC:15.33
+                    visiting single initializer
+                    Node {
+                        visiting LiteralExpression node: test/input/pointers_arrays.HC:15.33
+                    }
+                }
+                Node {
+                    visiting Initializer node: test/input/pointers_arrays.HC:15.36
+                    visiting single initializer
+                    Node {
+                        visiting LiteralExpression node: test/input/pointers_arrays.HC:15.36
+                    }
+                }
+                Node {
+                    visiting Initializer node: test/input/pointers_arrays.HC:15.39
+                    visiting single initializer
+                    Node {
+                        visiting LiteralExpression node: test/input/pointers_arrays.HC:15.39
+                    }
+                }
+                array has no size, inferring from size of initializer
+TypeContext: set array of base 0x56335f5cd760, with size 6
+TypeContext: found array of base 0x56335f5cd760 to deallocate
+TypeContext: deleting array of base 0x56335f5cd760
+TypeContext: array type with base 0x56335f5cd760, size 6
+            }
+        }
+SymbolTable: inserting varsymbol with name "inferred_arr"
+    }
+    Node {
+        visiting VariableDeclaration node: test/input/pointers_arrays.HC:17.1-45
+        parsing declaration specifier list for node at test/input/pointers_arrays.HC:17.1-45
+        Node {
+            visiting PrimitiveSpecifier node: test/input/pointers_arrays.HC:17.1-4
+TypeContext: getting primitive type
+        }
+        finished parsing specifiers for node test/input/pointers_arrays.HC:17.1-45
+        Node {
+            visiting InitDeclarator node: test/input/pointers_arrays.HC:17.6-44
+            Node {
+                Node {
+                    visiting ArrayDeclarator node: test/input/pointers_arrays.HC:17.6-20
+                    Node {
+                        visiting ArrayDeclarator node: test/input/pointers_arrays.HC:17.6-18
                         Node {
-                            visiting LiteralExpression node: input/pointers_arrays.HC:14.6-10
+                            visiting IdentifierDeclarator node: test/input/pointers_arrays.HC:17.6-16
                         }
                     }
                 }
             }
-        }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x556c47e80900, size 5
+TypeContext: array type with base 0x56335f5cd760, no size
+TypeContext: array type with base 0x56335f5cffe0, no size
+            Node {
+                visiting Initializer node: test/input/pointers_arrays.HC:17.24-44
+                visiting compound initializer
+                visiting arraytype compound initializer
+                Node {
+                    visiting Initializer node: test/input/pointers_arrays.HC:17.24-30
+                    visiting compound initializer
+                    visiting arraytype compound initializer
+                    Node {
+                        visiting Initializer node: test/input/pointers_arrays.HC:17.24-26
+                        visiting single initializer
+                        Node {
+                            visiting LiteralExpression node: test/input/pointers_arrays.HC:17.24-26
+                        }
+                    }
+                    Node {
+                        visiting Initializer node: test/input/pointers_arrays.HC:17.29
+                        visiting single initializer
+                        Node {
+                            visiting LiteralExpression node: test/input/pointers_arrays.HC:17.29
+                        }
+                    }
+                    array has no size, inferring from size of initializer
+TypeContext: set array of base 0x56335f5cd760, with size 2
+TypeContext: found array of base 0x56335f5cd760 to deallocate
+TypeContext: deleting array of base 0x56335f5cd760
+TypeContext: array type with base 0x56335f5cd760, size 2
+                }
+                Node {
+                    visiting Initializer node: test/input/pointers_arrays.HC:17.33-38
+                    visiting compound initializer
+                    visiting arraytype compound initializer
+                    Node {
+                        visiting Initializer node: test/input/pointers_arrays.HC:17.33-34
+                        visiting single initializer
+                        Node {
+                            visiting LiteralExpression node: test/input/pointers_arrays.HC:17.33-34
+                        }
+                    }
+                    Node {
+                        visiting Initializer node: test/input/pointers_arrays.HC:17.37
+                        visiting single initializer
+                        Node {
+                            visiting LiteralExpression node: test/input/pointers_arrays.HC:17.37
+                        }
+                    }
+                }
+                Node {
+                    visiting Initializer node: test/input/pointers_arrays.HC:17.41-43
+                    visiting compound initializer
+                    visiting arraytype compound initializer
+                    Node {
+                        visiting Initializer node: test/input/pointers_arrays.HC:17.41-42
+                        visiting single initializer
+                        Node {
+                            visiting LiteralExpression node: test/input/pointers_arrays.HC:17.41-42
+                        }
+                    }
+                }
+                array has no size, inferring from size of initializer
+TypeContext: set array of base 0x56335f5cffe0, with size 3
+TypeContext: found array of base 0x56335f5cffe0 to deallocate
+TypeContext: deleting array of base 0x56335f5cffe0
+TypeContext: array type with base 0x56335f5cffe0, size 3
+            }
+        }
+SymbolTable: inserting varsymbol with name "complex_arr"
+    }
+    Node {
+        visiting VariableDeclaration node: test/input/pointers_arrays.HC:19.1-12
+        parsing declaration specifier list for node at test/input/pointers_arrays.HC:19.1-12
+        Node {
+            visiting PrimitiveSpecifier node: test/input/pointers_arrays.HC:19.1-4
+TypeContext: getting primitive type
+        }
+        finished parsing specifiers for node test/input/pointers_arrays.HC:19.1-12
+        Node {
+            visiting InitDeclarator node: test/input/pointers_arrays.HC:19.6-11
+            Node {
+                Node {
+                    visiting ArrayDeclarator node: test/input/pointers_arrays.HC:19.6-11
+                    Node {
+                        visiting IdentifierDeclarator node: test/input/pointers_arrays.HC:19.6-8
+                    }
+                    array declarator has size, checking for compile time computability
+                    Node {
+                        visiting ConstExpression node: test/input/pointers_arrays.HC:19.6-10
+                        Node {
+                            visiting LiteralExpression node: test/input/pointers_arrays.HC:19.6-10
+                        }
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+TypeContext: array type with base 0x56335f5cd760, size 5
+        }
 SymbolTable: inserting varsymbol with name "arr"
     }
     Node {
-        visiting VariableDeclaration node: input/pointers_arrays.HC:16.1-19
-        parsing declaration specifier list for node at input/pointers_arrays.HC:16.1-19
+        visiting VariableDeclaration node: test/input/pointers_arrays.HC:21.1-19
+        parsing declaration specifier list for node at test/input/pointers_arrays.HC:21.1-19
         Node {
-            visiting PrimitiveSpecifier node: input/pointers_arrays.HC:16.1-4
+            visiting PrimitiveSpecifier node: test/input/pointers_arrays.HC:21.1-4
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/pointers_arrays.HC:16.1-19
+        finished parsing specifiers for node test/input/pointers_arrays.HC:21.1-19
         Node {
-            visiting InitDeclarator node: input/pointers_arrays.HC:16.6-18
+            visiting InitDeclarator node: test/input/pointers_arrays.HC:21.6-18
             Node {
                 Node {
-                    visiting ArrayDeclarator node: input/pointers_arrays.HC:16.6-18
+                    visiting ArrayDeclarator node: test/input/pointers_arrays.HC:21.6-18
                     Node {
-                        visiting IdentifierDeclarator node: input/pointers_arrays.HC:16.6-15
+                        visiting IdentifierDeclarator node: test/input/pointers_arrays.HC:21.6-15
                     }
                     array declarator has size, checking for compile time computability
                     Node {
-                        visiting ConstExpression node: input/pointers_arrays.HC:16.6-17
+                        visiting ConstExpression node: test/input/pointers_arrays.HC:21.6-17
                         Node {
-                            visiting LiteralExpression node: input/pointers_arrays.HC:16.6-17
+                            visiting LiteralExpression node: test/input/pointers_arrays.HC:21.6-17
                         }
                     }
                 }
                 Node {
-                    visiting Pointer node: input/pointers_arrays.HC:16.6
+                    visiting Pointer node: test/input/pointers_arrays.HC:21.6
                 }
             }
-        }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x556c47e80900
-TypeContext: array type with base 0x556c47e82a50, size 5
+TypeContext: pointer with base 0x56335f5cd760
+TypeContext: array type with base 0x56335f5d0b30, size 5
+        }
 SymbolTable: inserting varsymbol with name "ptr_array"
     }
     Node {
-        visiting VariableDeclaration node: input/pointers_arrays.HC:18.1-24
-        parsing declaration specifier list for node at input/pointers_arrays.HC:18.1-24
+        visiting VariableDeclaration node: test/input/pointers_arrays.HC:23.1-24
+        parsing declaration specifier list for node at test/input/pointers_arrays.HC:23.1-24
         Node {
-            visiting PrimitiveSpecifier node: input/pointers_arrays.HC:18.1-4
+            visiting PrimitiveSpecifier node: test/input/pointers_arrays.HC:23.1-4
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/pointers_arrays.HC:18.1-24
+        finished parsing specifiers for node test/input/pointers_arrays.HC:23.1-24
         Node {
-            visiting InitDeclarator node: input/pointers_arrays.HC:18.6-23
+            visiting InitDeclarator node: test/input/pointers_arrays.HC:23.6-23
             Node {
                 Node {
-                    visiting ArrayDeclarator node: input/pointers_arrays.HC:18.6-23
+                    visiting ArrayDeclarator node: test/input/pointers_arrays.HC:23.6-23
                     Node {
-                        visiting ParenDeclarator node: input/pointers_arrays.HC:18.6-19
+                        visiting ParenDeclarator node: test/input/pointers_arrays.HC:23.6-19
                         Node {
                             Node {
-                                visiting IdentifierDeclarator node: input/pointers_arrays.HC:18.9-18
+                                visiting IdentifierDeclarator node: test/input/pointers_arrays.HC:23.9-18
                             }
                             Node {
-                                visiting Pointer node: input/pointers_arrays.HC:18.6-7
+                                visiting Pointer node: test/input/pointers_arrays.HC:23.6-7
                             }
                         }
                     }
                     array declarator has size, checking for compile time computability
                     Node {
-                        visiting ConstExpression node: input/pointers_arrays.HC:18.21-22
+                        visiting ConstExpression node: test/input/pointers_arrays.HC:23.21-22
                         Node {
-                            visiting LiteralExpression node: input/pointers_arrays.HC:18.21-22
+                            visiting LiteralExpression node: test/input/pointers_arrays.HC:23.21-22
                         }
                     }
                 }
             }
-        }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x556c47e80900, size 5
-TypeContext: pointer with base 0x556c47e82750
+TypeContext: array type with base 0x56335f5cd760, size 5
+TypeContext: pointer with base 0x56335f5d0880
+        }
 SymbolTable: inserting varsymbol with name "ptr_to_arr"
     }
     Node {
-        visiting VariableDeclaration node: input/pointers_arrays.HC:20.1-28
-        parsing declaration specifier list for node at input/pointers_arrays.HC:20.1-28
+        visiting VariableDeclaration node: test/input/pointers_arrays.HC:25.1-28
+        parsing declaration specifier list for node at test/input/pointers_arrays.HC:25.1-28
         Node {
-            visiting PrimitiveSpecifier node: input/pointers_arrays.HC:20.1-4
+            visiting PrimitiveSpecifier node: test/input/pointers_arrays.HC:25.1-4
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/pointers_arrays.HC:20.1-28
+        finished parsing specifiers for node test/input/pointers_arrays.HC:25.1-28
         Node {
-            visiting InitDeclarator node: input/pointers_arrays.HC:20.6-27
+            visiting InitDeclarator node: test/input/pointers_arrays.HC:25.6-27
             Node {
                 Node {
-                    visiting ArrayDeclarator node: input/pointers_arrays.HC:20.6-27
+                    visiting ArrayDeclarator node: test/input/pointers_arrays.HC:25.6-27
                     Node {
-                        visiting ParenDeclarator node: input/pointers_arrays.HC:20.6-23
+                        visiting ParenDeclarator node: test/input/pointers_arrays.HC:25.6-23
                         Node {
                             Node {
-                                visiting IdentifierDeclarator node: input/pointers_arrays.HC:20.6-22
+                                visiting IdentifierDeclarator node: test/input/pointers_arrays.HC:25.6-22
                             }
                             Node {
-                                visiting Pointer node: input/pointers_arrays.HC:20.6-8
+                                visiting Pointer node: test/input/pointers_arrays.HC:25.6-8
                             }
                         }
                     }
                     array declarator has size, checking for compile time computability
                     Node {
-                        visiting ConstExpression node: input/pointers_arrays.HC:20.25-26
+                        visiting ConstExpression node: test/input/pointers_arrays.HC:25.25-26
                         Node {
-                            visiting LiteralExpression node: input/pointers_arrays.HC:20.25-26
+                            visiting LiteralExpression node: test/input/pointers_arrays.HC:25.25-26
                         }
                     }
                 }
                 Node {
-                    visiting Pointer node: input/pointers_arrays.HC:20.6
+                    visiting Pointer node: test/input/pointers_arrays.HC:25.6
                 }
             }
-        }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x556c47e80900
-TypeContext: array type with base 0x556c47e82a50, size 5
-TypeContext: pointer with base 0x556c47e82990
+TypeContext: pointer with base 0x56335f5cd760
+TypeContext: array type with base 0x56335f5d0b30, size 5
+TypeContext: pointer with base 0x56335f5d0ae0
+        }
 SymbolTable: inserting varsymbol with name "ptr_to_ptr_arr"
     }
     Node {
-        visiting Function node: input/pointers_arrays.HC:22.1-30.1
-        parsing declaration specifier list for node at input/pointers_arrays.HC:22.1-30.1
+        visiting Function node: test/input/pointers_arrays.HC:27.1-35.1
+        parsing declaration specifier list for node at test/input/pointers_arrays.HC:27.1-35.1
         Node {
-            visiting PrimitiveSpecifier node: input/pointers_arrays.HC:22.1-4
+            visiting PrimitiveSpecifier node: test/input/pointers_arrays.HC:27.1-4
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/pointers_arrays.HC:22.1-30.1
+        finished parsing specifiers for node test/input/pointers_arrays.HC:27.1-35.1
         Node {
             Node {
-                visiting FunctionDeclarator node: input/pointers_arrays.HC:22.6-10
+                visiting FunctionDeclarator node: test/input/pointers_arrays.HC:27.6-10
                 Node {
-                    visiting IdentifierDeclarator node: input/pointers_arrays.HC:22.6-8
+                    visiting IdentifierDeclarator node: test/input/pointers_arrays.HC:27.6-8
                 }
             }
         }
@@ -519,112 +724,111 @@ TypeContext: getting function type
 parsing params
 SymbolTable: inserting funcsymbol with name "run"
         Node {
-            BSV currently in state WRITE, pushing scope
 SymbolTable: pushing scope 3
 SymbolTable: entering scope 3
-            visiting CompoundStatement node: input/pointers_arrays.HC:22.12-30.1
+            visiting CompoundStatement node: test/input/pointers_arrays.HC:27.12-35.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 3 with symbol 0x556c47e41190 name "run"
+SymbolTable: associating current scope 3 with symbol 0x56335f58e610 name "run"
             Node {
-                visiting VariableDeclaration node: input/pointers_arrays.HC:23.5-11
-                parsing declaration specifier list for node at input/pointers_arrays.HC:23.5-11
+                visiting VariableDeclaration node: test/input/pointers_arrays.HC:28.5-11
+                parsing declaration specifier list for node at test/input/pointers_arrays.HC:28.5-11
                 Node {
-                    visiting TypeIdentifier node: input/pointers_arrays.HC:23.5-8
+                    visiting TypeIdentifier node: test/input/pointers_arrays.HC:28.5-8
 SymbolTable: looking up typesymbol Node
                 }
-                finished parsing specifiers for node input/pointers_arrays.HC:23.5-11
+                finished parsing specifiers for node test/input/pointers_arrays.HC:28.5-11
                 Node {
-                    visiting InitDeclarator node: input/pointers_arrays.HC:23.10
+                    visiting InitDeclarator node: test/input/pointers_arrays.HC:28.10
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/pointers_arrays.HC:23.10
+                            visiting IdentifierDeclarator node: test/input/pointers_arrays.HC:28.10
                         }
                     }
-                }
 TypeBuilder: finalizing type
+                }
 SymbolTable: inserting varsymbol with name "n"
             }
             Node {
-                visiting VariableDeclaration node: input/pointers_arrays.HC:24.5-17
-                parsing declaration specifier list for node at input/pointers_arrays.HC:24.5-17
+                visiting VariableDeclaration node: test/input/pointers_arrays.HC:29.5-17
+                parsing declaration specifier list for node at test/input/pointers_arrays.HC:29.5-17
                 Node {
-                    visiting TypeIdentifier node: input/pointers_arrays.HC:24.5-8
+                    visiting TypeIdentifier node: test/input/pointers_arrays.HC:29.5-8
 SymbolTable: looking up typesymbol Node
                 }
-                finished parsing specifiers for node input/pointers_arrays.HC:24.5-17
+                finished parsing specifiers for node test/input/pointers_arrays.HC:29.5-17
                 Node {
-                    visiting InitDeclarator node: input/pointers_arrays.HC:24.10-16
+                    visiting InitDeclarator node: test/input/pointers_arrays.HC:29.10-16
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/pointers_arrays.HC:24.10-11
+                            visiting IdentifierDeclarator node: test/input/pointers_arrays.HC:29.10-11
                         }
                         Node {
-                            visiting Pointer node: input/pointers_arrays.HC:24.10
+                            visiting Pointer node: test/input/pointers_arrays.HC:29.10
                         }
                     }
+TypeBuilder: finalizing type
+TypeContext: pointer with base 0x56335f5cdc00
                     Node {
-                        visiting Initializer node: input/pointers_arrays.HC:24.15-16
+                        visiting Initializer node: test/input/pointers_arrays.HC:29.15-16
                         visiting single initializer
                         Node {
-                            visiting UnaryExpression node: input/pointers_arrays.HC:24.15-16
+                            visiting UnaryExpression node: test/input/pointers_arrays.HC:29.15-16
                             Node {
-                                visiting IdentifierExpression node: input/pointers_arrays.HC:24.15-16
+                                visiting IdentifierExpression node: test/input/pointers_arrays.HC:29.15-16
 SymbolTable: looking up varsymbol n
                             }
                         }
                     }
                 }
-TypeBuilder: finalizing type
-TypeContext: pointer with base 0x556c47e80bc0
 SymbolTable: inserting varsymbol with name "p"
             }
             Node {
-                visiting ExpressionStatement node: input/pointers_arrays.HC:26.5-16
+                visiting ExpressionStatement node: test/input/pointers_arrays.HC:31.5-16
                 Node {
-                    visiting AssignmentExpression node: input/pointers_arrays.HC:26.5-15
+                    visiting AssignmentExpression node: test/input/pointers_arrays.HC:31.5-15
                     Node {
-                        visiting MemberAccessExpression node: input/pointers_arrays.HC:26.5-11
+                        visiting MemberAccessExpression node: test/input/pointers_arrays.HC:31.5-11
                         Node {
-                            visiting IdentifierExpression node: input/pointers_arrays.HC:26.5
+                            visiting IdentifierExpression node: test/input/pointers_arrays.HC:31.5
 SymbolTable: looking up varsymbol n
                         }
                     }
                     Node {
-                        visiting LiteralExpression node: input/pointers_arrays.HC:26.15
+                        visiting LiteralExpression node: test/input/pointers_arrays.HC:31.15
                     }
                 }
             }
             Node {
-                visiting ExpressionStatement node: input/pointers_arrays.HC:27.5-15
+                visiting ExpressionStatement node: test/input/pointers_arrays.HC:32.5-15
                 Node {
-                    visiting PostfixExpression node: input/pointers_arrays.HC:27.5-14
+                    visiting PostfixExpression node: test/input/pointers_arrays.HC:32.5-14
                     Node {
-                        visiting MemberAccessExpression node: input/pointers_arrays.HC:27.5-12
+                        visiting MemberAccessExpression node: test/input/pointers_arrays.HC:32.5-12
                         Node {
-                            visiting IdentifierExpression node: input/pointers_arrays.HC:27.5
+                            visiting IdentifierExpression node: test/input/pointers_arrays.HC:32.5
 SymbolTable: looking up varsymbol p
                         }
                     }
                 }
             }
             Node {
-                visiting ReturnStatement node: input/pointers_arrays.HC:29.5-34
+                visiting ReturnStatement node: test/input/pointers_arrays.HC:34.5-34
                 Node {
-                    visiting CallExpression node: input/pointers_arrays.HC:29.12-33
+                    visiting CallExpression node: test/input/pointers_arrays.HC:34.12-33
                     Node {
-                        visiting IdentifierExpression node: input/pointers_arrays.HC:29.12-16
+                        visiting IdentifierExpression node: test/input/pointers_arrays.HC:34.12-16
 SymbolTable: looking up varsymbol apply
 SymbolTable: looking up funcsymbol apply
                     }
                     Node {
-                        visiting IdentifierExpression node: input/pointers_arrays.HC:29.12-23
+                        visiting IdentifierExpression node: test/input/pointers_arrays.HC:34.12-23
 SymbolTable: looking up varsymbol square
 SymbolTable: looking up funcsymbol square
                     }
                     Node {
-                        visiting MemberAccessExpression node: input/pointers_arrays.HC:29.26-32
+                        visiting MemberAccessExpression node: test/input/pointers_arrays.HC:34.26-32
                         Node {
-                            visiting IdentifierExpression node: input/pointers_arrays.HC:29.26
+                            visiting IdentifierExpression node: test/input/pointers_arrays.HC:34.26
 SymbolTable: looking up varsymbol n
                         }
                     }
@@ -641,115 +845,137 @@ Base Types:
   class_Node_0 : class { I32i value; Node * next; }
 
 Function Types:
-  function_93923551218112 : I32i ()
-  function_395322475389671106 : I32i (I32i (I32i) *, I32i)
-  function_6070084627069993 : I32i (I32i)
+  function_94778643240992 : I32i ()
+  function_388649254321596020 : I32i (I32i (I32i) *, I32i)
+  function_6103028067030977 : I32i (I32i)
 
 Pointer Types:
-  :U32i[5] *
-  :U32i *
-  :I32i (I32i) *
   :U32i *[5] *
+  :U32i *
+  :U32i[5] *
+  :I32i (I32i) *
   :Node *
 
 Array Types:
- : U32i *[5]
- : U32i[5]
+ : U32i *[5] #2
+ : U32i[5] #2
+ : U32i[2][3] #1
+ : U32i[2] #1
+ : U32i[6] #1
 
 
 --------- SYMBOL TABLE ---------
 
 Scope 0
 Physical Symbols:
-  run -> 0x556c47e41190 : FuncSymbol: run :: I32i ()
-  ptr_to_ptr_arr -> 0x556c47e82f80 : VarSymbol: ptr_to_ptr_arr :: U32i *[5] *
-  ptr_to_arr -> 0x556c47e82db0 : VarSymbol: ptr_to_arr :: U32i[5] *
-  ptr_array -> 0x556c47e82ad0 : VarSymbol: ptr_array :: U32i *[5]
-  arr -> 0x556c47e82850 : VarSymbol: arr :: U32i[5]
-  square -> 0x556c47e40f50 : FuncSymbol: square :: I32i (I32i)
-  apply -> 0x556c47e40d10 : FuncSymbol: apply :: I32i (I32i (I32i) *, I32i)
+  run -> 0x56335f58e610 : FuncSymbol: run :: I32i ()
+  ptr_to_ptr_arr -> 0x56335f5d0f40 : VarSymbol: ptr_to_ptr_arr :: U32i *[5] *
+  ptr_to_arr -> 0x56335f5d0da0 : VarSymbol: ptr_to_arr :: U32i[5] *
+  ptr_array -> 0x56335f5d0bb0 : VarSymbol: ptr_array :: U32i *[5]
+  complex_arr -> 0x56335f5d06f0 : VarSymbol: complex_arr :: U32i[2][3]
+  arr -> 0x56335f5d0980 : VarSymbol: arr :: U32i[5]
+  inferred_arr -> 0x56335f5cfea0 : VarSymbol: inferred_arr :: U32i[6]
+  square -> 0x56335f58e190 : FuncSymbol: square :: I32i (I32i)
+  apply -> 0x56335f58df50 : FuncSymbol: apply :: I32i (I32i (I32i) *, I32i)
 
 Type Symbols:
-  Node -> 0x556c47e80d30 : TypeSymbol: Node :: class { I32i value; Node * next; }
-
-Label Symbols:
+  Node -> 0x56335f5cdd70 : TypeSymbol: Node :: class { I32i value; Node * next; }
 -----------------------------------------------------------
   Scope 1: FuncSymbol: apply :: I32i (I32i (I32i) *, I32i)
   Physical Symbols:
-    v -> 0x556c47e81c90 : VarSymbol: v :: I32i
-    fn -> 0x556c47e6c680 : VarSymbol: fn :: I32i (I32i) *
-
-  Type Symbols:
-
-  Label Symbols:
+    v -> 0x56335f5ced00 : VarSymbol: v :: I32i
+    fn -> 0x56335f5b9680 : VarSymbol: fn :: I32i (I32i) *
 -----------------------------------------------------------
   Scope 2: FuncSymbol: square :: I32i (I32i)
   Physical Symbols:
-    x -> 0x556c47e82340 : VarSymbol: x :: I32i
-
-  Type Symbols:
-
-  Label Symbols:
+    x -> 0x56335f5cf3b0 : VarSymbol: x :: I32i
 -----------------------------------------------------------
   Scope 3: FuncSymbol: run :: I32i ()
   Physical Symbols:
-    p -> 0x556c47e83510 : VarSymbol: p :: Node *
-    n -> 0x556c47e83350 : VarSymbol: n :: class { I32i value; Node * next; }
-
-  Type Symbols:
-
-  Label Symbols:
+    p -> 0x56335f5d1540 : VarSymbol: p :: Node *
+    n -> 0x56335f5d1320 : VarSymbol: n :: class { I32i value; Node * next; }
 -----------------------------------------------------------
 
 --------- MIR ---------
 
 ProgramMIR @ <1.1>
-| TypeDecl: Node @ <input/pointers_arrays.HC:1.1-4.2>
-| FunctionMIR: apply @ <input/pointers_arrays.HC:6.1-8.1>
+| TypeDecl: Node @ <test/input/pointers_arrays.HC:1.1-4.2>
+| FunctionMIR: apply @ <test/input/pointers_arrays.HC:6.1-8.1>
     type: I32i (I32i (I32i) *, I32i)
-| | CompoundStmtMIR @ <input/pointers_arrays.HC:6.38-8.1>
-| | | Return @ <input/pointers_arrays.HC:7.5-17>
-| | | | Call @ <input/pointers_arrays.HC:7.12-16>
-| | | | | Ident: fn @ <input/pointers_arrays.HC:7.12-13>
-| | | | | Ident: v @ <input/pointers_arrays.HC:7.12-15>
-| FunctionMIR: square @ <input/pointers_arrays.HC:10.1-12.1>
+| | CompoundStmtMIR @ <test/input/pointers_arrays.HC:6.38-8.1>
+| | | Return @ <test/input/pointers_arrays.HC:7.5-17>
+| | | | Call @ <test/input/pointers_arrays.HC:7.12-16>
+| | | | | Ident: fn @ <test/input/pointers_arrays.HC:7.12-13>
+| | | | | Ident: v @ <test/input/pointers_arrays.HC:7.12-15>
+| FunctionMIR: square @ <test/input/pointers_arrays.HC:10.1-12.1>
     type: I32i (I32i)
-| | CompoundStmtMIR @ <input/pointers_arrays.HC:10.21-12.1>
-| | | Return @ <input/pointers_arrays.HC:11.5-17>
-| | | | Binary: * @ <input/pointers_arrays.HC:11.12-16>
-| | | | | Ident: x @ <input/pointers_arrays.HC:11.12>
-| | | | | Ident: x @ <input/pointers_arrays.HC:11.16>
-| VarDecl:  @ <input/pointers_arrays.HC:14.1-12>
+| | CompoundStmtMIR @ <test/input/pointers_arrays.HC:10.21-12.1>
+| | | Return @ <test/input/pointers_arrays.HC:11.5-17>
+| | | | Binary: * @ <test/input/pointers_arrays.HC:11.12-16>
+| | | | | Ident: x @ <test/input/pointers_arrays.HC:11.12>
+| | | | | Ident: x @ <test/input/pointers_arrays.HC:11.16>
+| VarDecl:  @ <test/input/pointers_arrays.HC:15.1-41>
+| | | VarSymbol: inferred_arr :: U32i[6]
+| | | Initializer @ <test/input/pointers_arrays.HC:15.23-40>
+| | | | Initializer @ <test/input/pointers_arrays.HC:15.23-24>
+| | | | | Literal: 5 @ <test/input/pointers_arrays.HC:15.23-24>
+| | | | Initializer @ <test/input/pointers_arrays.HC:15.27>
+| | | | | Literal: 4 @ <test/input/pointers_arrays.HC:15.27>
+| | | | Initializer @ <test/input/pointers_arrays.HC:15.30>
+| | | | | Literal: 3 @ <test/input/pointers_arrays.HC:15.30>
+| | | | Initializer @ <test/input/pointers_arrays.HC:15.33>
+| | | | | Literal: 2 @ <test/input/pointers_arrays.HC:15.33>
+| | | | Initializer @ <test/input/pointers_arrays.HC:15.36>
+| | | | | Literal: 1 @ <test/input/pointers_arrays.HC:15.36>
+| | | | Initializer @ <test/input/pointers_arrays.HC:15.39>
+| | | | | Literal: 0 @ <test/input/pointers_arrays.HC:15.39>
+| VarDecl:  @ <test/input/pointers_arrays.HC:17.1-45>
+| | | VarSymbol: complex_arr :: U32i[2][3]
+| | | Initializer @ <test/input/pointers_arrays.HC:17.24-44>
+| | | | Initializer @ <test/input/pointers_arrays.HC:17.24-30>
+| | | | | Initializer @ <test/input/pointers_arrays.HC:17.24-26>
+| | | | | | Literal: 5 @ <test/input/pointers_arrays.HC:17.24-26>
+| | | | | Initializer @ <test/input/pointers_arrays.HC:17.29>
+| | | | | | Literal: 4 @ <test/input/pointers_arrays.HC:17.29>
+| | | | Initializer @ <test/input/pointers_arrays.HC:17.33-38>
+| | | | | Initializer @ <test/input/pointers_arrays.HC:17.33-34>
+| | | | | | Literal: 6 @ <test/input/pointers_arrays.HC:17.33-34>
+| | | | | Initializer @ <test/input/pointers_arrays.HC:17.37>
+| | | | | | Literal: 4 @ <test/input/pointers_arrays.HC:17.37>
+| | | | Initializer @ <test/input/pointers_arrays.HC:17.41-43>
+| | | | | Initializer @ <test/input/pointers_arrays.HC:17.41-42>
+| | | | | | Literal: 1 @ <test/input/pointers_arrays.HC:17.41-42>
+| VarDecl:  @ <test/input/pointers_arrays.HC:19.1-12>
 | | | VarSymbol: arr :: U32i[5]
-| VarDecl:  @ <input/pointers_arrays.HC:16.1-19>
+| VarDecl:  @ <test/input/pointers_arrays.HC:21.1-19>
 | | | VarSymbol: ptr_array :: U32i *[5]
-| VarDecl:  @ <input/pointers_arrays.HC:18.1-24>
+| VarDecl:  @ <test/input/pointers_arrays.HC:23.1-24>
 | | | VarSymbol: ptr_to_arr :: U32i[5] *
-| VarDecl:  @ <input/pointers_arrays.HC:20.1-28>
+| VarDecl:  @ <test/input/pointers_arrays.HC:25.1-28>
 | | | VarSymbol: ptr_to_ptr_arr :: U32i *[5] *
-| FunctionMIR: run @ <input/pointers_arrays.HC:22.1-30.1>
+| FunctionMIR: run @ <test/input/pointers_arrays.HC:27.1-35.1>
     type: I32i ()
-| | CompoundStmtMIR @ <input/pointers_arrays.HC:22.12-30.1>
-| | | VarDecl:  @ <input/pointers_arrays.HC:23.5-11>
+| | CompoundStmtMIR @ <test/input/pointers_arrays.HC:27.12-35.1>
+| | | VarDecl:  @ <test/input/pointers_arrays.HC:28.5-11>
 | | | | | VarSymbol: n :: class { I32i value; Node * next; }
-| | | VarDecl:  @ <input/pointers_arrays.HC:24.5-17>
+| | | VarDecl:  @ <test/input/pointers_arrays.HC:29.5-17>
 | | | | | VarSymbol: p :: Node *
-| | | | | Initializer @ <input/pointers_arrays.HC:24.15-16>
-| | | | | | Unary: & @ <input/pointers_arrays.HC:24.15-16>
-| | | | | | | Ident: n @ <input/pointers_arrays.HC:24.15-16>
-| | | ExprStmt @ <input/pointers_arrays.HC:26.5-16>
-| | | | Assign: = @ <input/pointers_arrays.HC:26.5-15>
-| | | | | Member: .value @ <input/pointers_arrays.HC:26.5-11>
-| | | | | | Ident: n @ <input/pointers_arrays.HC:26.5>
-| | | | | Literal: 5 @ <input/pointers_arrays.HC:26.15>
-| | | ExprStmt @ <input/pointers_arrays.HC:27.5-15>
-| | | | Postfix: ++ @ <input/pointers_arrays.HC:27.5-14>
-| | | | | Member: .value @ <input/pointers_arrays.HC:27.5-12>
-| | | | | | Ident: p @ <input/pointers_arrays.HC:27.5>
-| | | Return @ <input/pointers_arrays.HC:29.5-34>
-| | | | Call @ <input/pointers_arrays.HC:29.12-33>
-| | | | | Ident: apply @ <input/pointers_arrays.HC:29.12-16>
-| | | | | Ident: square @ <input/pointers_arrays.HC:29.12-23>
-| | | | | Member: .value @ <input/pointers_arrays.HC:29.26-32>
-| | | | | | Ident: n @ <input/pointers_arrays.HC:29.26>
+| | | | | Initializer @ <test/input/pointers_arrays.HC:29.15-16>
+| | | | | | Unary: & @ <test/input/pointers_arrays.HC:29.15-16>
+| | | | | | | Ident: n @ <test/input/pointers_arrays.HC:29.15-16>
+| | | ExprStmt @ <test/input/pointers_arrays.HC:31.5-16>
+| | | | Assign: = @ <test/input/pointers_arrays.HC:31.5-15>
+| | | | | Member: .value @ <test/input/pointers_arrays.HC:31.5-11>
+| | | | | | Ident: n @ <test/input/pointers_arrays.HC:31.5>
+| | | | | Literal: 5 @ <test/input/pointers_arrays.HC:31.15>
+| | | ExprStmt @ <test/input/pointers_arrays.HC:32.5-15>
+| | | | Postfix: ++ @ <test/input/pointers_arrays.HC:32.5-14>
+| | | | | Member: .value @ <test/input/pointers_arrays.HC:32.5-12>
+| | | | | | Ident: p @ <test/input/pointers_arrays.HC:32.5>
+| | | Return @ <test/input/pointers_arrays.HC:34.5-34>
+| | | | Call @ <test/input/pointers_arrays.HC:34.12-33>
+| | | | | Ident: apply @ <test/input/pointers_arrays.HC:34.12-16>
+| | | | | Ident: square @ <test/input/pointers_arrays.HC:34.12-23>
+| | | | | Member: .value @ <test/input/pointers_arrays.HC:34.26-32>
+| | | | | | Ident: n @ <test/input/pointers_arrays.HC:34.26>
 LLVM: Shutting down
