@@ -13,6 +13,9 @@ set(CMAKE_CXX_COMPILER clang++)
 set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
 set(INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include")
 
+# option to toggle clang-tidy during compilation, on by default
+option(ENABLE_CLANG_TIDY "Enable clang-tidy during compilation" ON)
+
 # 2. Finding our dependencies
 
 find_package(BISON 3.8 REQUIRED)
@@ -56,25 +59,54 @@ file(GLOB_RECURSE CODEGEN_SRC "${SRC_DIR}/codegen/*.cpp")
 file(GLOB_RECURSE EVAL_SRC "${SRC_DIR}/eval/*.cpp")
 file(GLOB         ECC_SRC "${SRC_DIR}/*.cpp")
 
-# 5. Create our target executable
-add_executable(ecc 
-    ${AST_SRC}
-    ${PREPROC_SRC}
-    ${DRIVER_SRC}
+# All the files we wrote ourselves.
+list(APPEND ALL_WRITTEN_FILES 
+    ${AST_SRC} 
+    ${PREPROC_SRC} 
+    ${DRIVER_SRC} 
     ${FRONTEND_SRC}
     ${SEMANTICS_SRC}
-    ${CODEGEN_SRC} 
+    ${CODEGEN_SRC}
     ${EVAL_SRC}
-    ${BISON_parser_OUTPUTS} 
-    ${FLEX_scanner_OUTPUTS} 
     ${ECC_SRC}
 )
+
+# Add the generated files
+list(APPEND ALL_SOURCE_FILES
+    ${ALL_WRITTEN_FILES}
+    ${BISON_parser_OUTPUTS} 
+    ${FLEX_scanner_OUTPUTS}
+)
+
+# 5. Create our target executable
+add_executable(ecc ${ALL_SOURCE_FILES})
 
 # 6. Setup include paths
 target_include_directories(ecc PRIVATE ${SRC_DIR} ${BISON_OUTPUT_DIR})
 target_include_directories(ecc PUBLIC ${INCLUDE_DIR})
 
-# 7. Add precompiled headers
+# 7. Set clang-tidy and clang-format
+find_program(CLANG_TIDY_EXE NAMES "clang-tidy")
+if(CLANG_TIDY_EXE)
+    if (ENABLE_CLANG_TIDY)
+        message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
+        set_target_properties(ecc PROPERTIES CXX_CLANG_TIDY ${CLANG_TIDY_EXE})
+    endif()
+else()
+    message(WARNING "clang-tidy not found")
+endif()
+
+find_program(CLANG_FORMAT_EXE NAMES "clang-format")
+if(CLANG_FORMAT_EXE)
+    add_custom_target(format
+        COMMAND ${CLANG_FORMAT_EXE} -i ${ALL_WRITTEN_FILES}
+        COMMENT "Format code with clang-format"
+    )
+else()
+    message(WARNING "clang-format not found, `format` target is unavailable")
+endif()
+
+# 8. Add precompiled headers
 target_precompile_headers(ecc PRIVATE 
     <vector> 
     <string>
@@ -103,7 +135,7 @@ target_precompile_headers(ecc PRIVATE
     <llvm/TargetParser/Host.h>
 )
 
-# 8. Link LLVM libraries
+# 9. Link LLVM libraries
 llvm_map_components_to_libnames(llvm_libs
     core
     executionengine
@@ -111,5 +143,6 @@ llvm_map_components_to_libnames(llvm_libs
     native
     support
 )
+
 message(STATUS "LLVM libraries: ${LLVM_LIBRARY_DIRS}")
 target_link_libraries(ecc PRIVATE LLVM)

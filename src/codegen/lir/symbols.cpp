@@ -1,4 +1,5 @@
 #include "codegen/lir/symbols.hpp"
+
 #include "semantics/symbols.hpp"
 
 using namespace sema::sym;
@@ -6,7 +7,7 @@ using namespace codegen::lir;
 
 LIRVarSym *LIRFuncSym::insert(VarSymbol *sym, Box<LIRVarSym> var) {
     LIRVarSym *ret = var.get();
-    map[sym] = std::move(var);
+    map[sym]       = std::move(var);
 
     return ret;
 }
@@ -24,23 +25,19 @@ LIRVarSym *LIRFuncSym::lookup(std::string& mangled_name) {
 LIRVarSym *LIRFuncSym::lookup(VarSymbol *sym) {
     auto it = map.find(sym);
 
-    if (it != map.end()) {
-        return it->second.get();
-    } else {
-        return nullptr;
-    }
+    return it != map.end() ? it->second.get() : nullptr;
 }
 
 LIRFuncSym *LIRSymbolMap::add_function(sema::sym::FuncSymbol *funcsym, Box<LIRFuncSym> func) {
     LIRFuncSym *ret = func.get();
-    funcs[funcsym] = std::move(func);
+    funcs[funcsym]  = std::move(func);
 
     return ret;
 }
 
 LIRVarSym *LIRSymbolMap::insert_global(sema::sym::VarSymbol *sym, Box<LIRVarSym> var) {
     LIRVarSym *ret = var.get();
-    globals[sym] = std::move(var);
+    globals[sym]   = std::move(var);
 
     return ret;
 }

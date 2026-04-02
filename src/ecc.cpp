@@ -1,6 +1,7 @@
+#include "ecc.hpp"
+
 #include <iostream>
 
-#include "ecc.hpp"
 #include "config.hpp"
 #include "driver/driver.hpp"
 #include "error.hpp"
@@ -21,7 +22,7 @@ int Ecc::run() {
     } catch (EccError& e) {
         std::cerr << e.to_string() << "\n";
         return 1;
-    } 
+    }
 
     return 0;
 }
@@ -35,7 +36,7 @@ void Ecc::run_pipeline(std::string *filename) {
     driver.run();
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
     try {
         ecc::Ecc ecc(argc, argv);
         return ecc.run();

@@ -89,25 +89,22 @@ public:
     /// Construct an empty Point (no filename, starts at 1:1).
     Point() : column(1), line(1), filename(nullptr) {}
 
-    inline bool empty() {
+    bool empty() const {
         return column == 1 && line == 1 && filename == nullptr;
     }
 
     /// Add `rhs` columns.
-    inline Point&
-    operator+= (int rhs) {
+    Point& operator+= (int rhs) {
         this->column += rhs;
         return *this;
     }
 
     /// Add `lhs` columns.
-    inline Point
-    operator+ (int rhs) {
+    Point operator+ (int rhs) const {
         return Point(filename, column + rhs, line);
     }
 
-    inline bool
-    operator== (Point& other) const {
+    bool operator== (Point& other) const {
         return
             (*filename == *other.filename) &&
             (column == other.column) &&
@@ -146,7 +143,7 @@ public:
     Point end;
 
     /// Construct a Location from two points.
-    Location(Point start, Point end) : begin(std::move(start)), end(std::move(end)) {}
+    Location(Point start, Point end) : begin(start), end(end) {}
 
     /// Construct a zero-width location from a Point.
     Location(Point pt) : begin(pt), end(pt) {}
@@ -172,19 +169,18 @@ public:
     /**
     Check if a Location crosses a file boundary.
     */
-    inline bool crosses_files() {
+    bool crosses_files() const {
         return begin.filename != end.filename;
     }
 
-    inline bool empty() {
+    bool empty() {
         return begin.empty() && end.empty();
     }
 
     /**
     Check if `other` overlaps with `this`.
     */
-    inline bool 
-    operator||(Location& other) const {
+    bool operator||(Location& other) const {
         if (((begin.filename != other.begin.filename) || (end.filename != other.end.filename))) {
             return false;
         }
@@ -201,8 +197,7 @@ public:
     `other` being fully contained within `this` does not imply
     `this` is fully contained within `other`.
     */
-    inline bool 
-    operator&&(Location& other) const {
+    bool operator&&(Location& other) const {
         if (((begin.filename != other.begin.filename) || (end.filename != other.end.filename))) {
             return false;
         }
@@ -210,8 +205,7 @@ public:
         return false; // todo
     }
 
-    inline Location
-    operator&(Location& rhs) const {
+    Location operator&(Location& rhs) const {
         return Location {}; // todo
     }
 };
@@ -247,6 +241,24 @@ struct is_variant_member<T, std::variant<Types...>>
 // Concept to check if a type T is a member of a std::variant,
 template <typename T, typename Variant>
 concept VariantMember = is_variant_member<T, Variant>::value;
+
+class NoCopy { // NOLINT(cppcoreguidelines-special-member-functions)
+public:
+    NoCopy(NoCopy const &) = delete;
+    NoCopy& operator=(NoCopy const &) = delete;
+
+    NoCopy(NoCopy &&) = default;
+    NoCopy& operator=(NoCopy &&) = default;
+    NoCopy() = default;
+};
+
+class NoMove { // NOLINT(cppcoreguidelines-special-member-functions)
+public:
+    NoMove(NoMove &&) = delete;
+    NoMove &operator=(NoMove &&) = delete;
+
+    NoMove() = default;
+};
 
 }
 

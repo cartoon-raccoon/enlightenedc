@@ -131,7 +131,7 @@ using ElabVisitParam = std::variant<
 /**
 The class that lowers the AST to MIR, populating the TypeContext and SymbolTable.
 */
-class MIRSynthesizer : public BaseASTSemaVisitor {
+class MIRSynthesizer : public BaseASTSemaVisitor, public NoMove {
 public:
     MIRSynthesizer(sym::SymbolTable& syms, types::TypeContext& types, mir::ProgramMIR& mir)
         : BaseASTSemaVisitor(BaseSemanticVisitor::State::WRITE),

@@ -18,7 +18,7 @@ namespace ecc::sema {
 /*
 The class that performs type-checking and semantic validation.
 */
-class Validator : public BaseMIRSemaVisitor {
+class Validator : public BaseMIRSemaVisitor, public NoMove {
 public:
     Validator(sym::SymbolTable& syms, types::TypeContext& types)
         : BaseMIRSemaVisitor(State::READ), types(types), syms(syms) {}
@@ -44,35 +44,35 @@ protected:
         return ScopeGuard<mir::MIRNode>(state, syms, assoc);
     }
 
-    void do_visit(mir::InitializerMIR& node) final override;
-    void do_visit(mir::VarDeclMIR& node) final override;
+    void do_visit(mir::InitializerMIR& node) final;
+    void do_visit(mir::VarDeclMIR& node) final;
 
-    void do_visit(mir::ExprStmtMIR& node) final override;
-    void do_visit(mir::SwitchStmtMIR& node) final override;
-    void do_visit(mir::CaseStmtMIR& node) final override;
-    void do_visit(mir::CaseRangeStmtMIR& node) final override;
-    void do_visit(mir::DefaultStmtMIR& node) final override;
-    void do_visit(mir::PrintStmtMIR& node) final override;
-    void do_visit(mir::IfStmtMIR& node) final override;
-    void do_visit(mir::LoopStmtMIR& node) final override;
-    void do_visit(mir::GotoStmtMIR& node) final override;
-    void do_visit(mir::BreakStmtMIR& node) final override;
-    void do_visit(mir::ContStmtMIR& node) final override;
-    void do_visit(mir::ReturnStmtMIR& node) final override;
+    void do_visit(mir::ExprStmtMIR& node) final;
+    void do_visit(mir::SwitchStmtMIR& node) final;
+    void do_visit(mir::CaseStmtMIR& node) final;
+    void do_visit(mir::CaseRangeStmtMIR& node) final;
+    void do_visit(mir::DefaultStmtMIR& node) final;
+    void do_visit(mir::PrintStmtMIR& node) final;
+    void do_visit(mir::IfStmtMIR& node) final;
+    void do_visit(mir::LoopStmtMIR& node) final;
+    void do_visit(mir::GotoStmtMIR& node) final;
+    void do_visit(mir::BreakStmtMIR& node) final;
+    void do_visit(mir::ContStmtMIR& node) final;
+    void do_visit(mir::ReturnStmtMIR& node) final;
 
-    void do_visit(mir::BinaryExprMIR& node) final override;
-    void do_visit(mir::UnaryExprMIR& node) final override;
-    void do_visit(mir::CastExprMIR& node) final override;
-    void do_visit(mir::AssignExprMIR& node) final override;
-    void do_visit(mir::CondExprMIR& node) final override;
-    void do_visit(mir::IdentExprMIR& node) final override;
-    void do_visit(mir::ConstExprMIR& node) final override;
-    void do_visit(mir::LiteralExprMIR& node) final override;
-    void do_visit(mir::CallExprMIR& node) final override;
-    void do_visit(mir::MemberAccExprMIR& node) final override;
-    void do_visit(mir::SubscrExprMIR& node) final override;
-    void do_visit(mir::PostfixExprMIR& node) final override;
-    void do_visit(mir::SizeofExprMIR& node) final override;
+    void do_visit(mir::BinaryExprMIR& node) final;
+    void do_visit(mir::UnaryExprMIR& node) final;
+    void do_visit(mir::CastExprMIR& node) final;
+    void do_visit(mir::AssignExprMIR& node) final;
+    void do_visit(mir::CondExprMIR& node) final;
+    void do_visit(mir::IdentExprMIR& node) final;
+    void do_visit(mir::ConstExprMIR& node) final;
+    void do_visit(mir::LiteralExprMIR& node) final;
+    void do_visit(mir::CallExprMIR& node) final;
+    void do_visit(mir::MemberAccExprMIR& node) final;
+    void do_visit(mir::SubscrExprMIR& node) final;
+    void do_visit(mir::PostfixExprMIR& node) final;
+    void do_visit(mir::SizeofExprMIR& node) final;
 
 private:
     using Accessor = std::variant<std::string, uint64_t>;

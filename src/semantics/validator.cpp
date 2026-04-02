@@ -1,10 +1,11 @@
-#include <stdexcept>
-#include <cassert>
-
 #include "semantics/validator.hpp"
+
+#include <cassert>
+#include <stdexcept>
+
 #include "semantics/mir/mir.hpp"
-#include "semantics/types.hpp"
 #include "semantics/semerr.hpp"
+#include "semantics/types.hpp"
 #include "util.hpp"
 
 using namespace sema;
@@ -17,58 +18,61 @@ void Validator::validate(ProgramMIR& progmir) {
 }
 
 void Validator::eval_initializer(types::Type *type, InitializerMIR& init) {
-    Vec<Accessor> path {};
+    Vec<Accessor> path{};
     eval_initializer_rec(path, type, init);
 }
 
 void Validator::eval_initializer_rec(Vec<Accessor>& path, types::Type *type, InitializerMIR& init) {
     bsv_dbprint("Validator: eval_initializer");
-    std::visit(match {
-        /*
-        Base case. If evaluates to a single expression, perform type comparison.
-        */
-        [this, path, type, &init] (Box<ExprMIR>& expr) mutable {
-            bsv_dbprint("Validator: matched on single expression");
-            expr->accept(*this);
-            if (type != expr->type) {
-                bsv_dbprint("types are not equal, checking compatibility");
-                if (type->is_compatible_with(expr->type)) {
-    
-                } else {
-                    // todo: throw error
-                }
-                if (type->is_array()) {
-                    // the only time an array should match here is if we're assigning a string literal
-                }
-            }
-        },
-        /*
-        Recursive case. If there is a list of initializers, this has to be a class or array.
-        */
-        [this, path, type, &init] (Vec<Box<InitializerMIR>>& inner) mutable {
-            switch (type->kind) {
-                case Type::Kind::CLASS:
-                eval_initializer_rec(path, type->as_class(), init);
-                break;
+    std::visit(
+        match{/*
+              Base case. If evaluates to a single expression, perform type comparison.
+              */
+              [this, path, type, &init](Box<ExprMIR>& expr) mutable {
+                  bsv_dbprint("Validator: matched on single expression");
+                  expr->accept(*this);
+                  if (type != expr->type) {
+                      bsv_dbprint("types are not equal, checking compatibility");
+                      if (type->is_compatible_with(expr->type)) {
 
-                case Type::Kind::ARRAY:
-                eval_initializer_rec(path, type->as_array(), init);
-                break;
+                      } else {
+                          // todo: throw error
+                      }
+                      if (type->is_array()) {
+                          // the only time an array should match here is if we're assigning a string
+                          // literal
+                      }
+                  }
+              },
+              /*
+              Recursive case. If there is a list of initializers, this has to be a class or array.
+              */
+              [this, path, type, &init](Vec<Box<InitializerMIR>>& inner) mutable {
+                  switch (type->kind) {
+                  case Type::Kind::CLASS:
+                      eval_initializer_rec(path, type->as_class(), init);
+                      break;
 
-                default:
-                // todo: throw error
-            }
-        }
-    }, init.initializer);
+                  case Type::Kind::ARRAY:
+                      eval_initializer_rec(path, type->as_array(), init);
+                      break;
+
+                  default:
+                      // todo: throw error
+                  }
+              }},
+        init.initializer);
 }
 
-void Validator::eval_initializer_rec(Vec<Accessor>& path, ClassType *cls, Vec<Box<InitializerMIR>>& init) {
+void Validator::eval_initializer_rec(Vec<Accessor>& path, ClassType *cls,
+                                     Vec<Box<InitializerMIR>>& init) {
     assert(cls && "cls was null while evaluating initializer");
 
     // todo
 }
 
-void Validator::eval_initializer_rec(Vec<Accessor>& path, ArrayType *arr, Vec<Box<InitializerMIR>>& init) {
+void Validator::eval_initializer_rec(Vec<Accessor>& path, ArrayType *arr,
+                                     Vec<Box<InitializerMIR>>& init) {
     assert(arr && "arr was null while evaluating initializer");
 
     // todo
@@ -89,7 +93,7 @@ void Validator::do_visit(InitializerMIR& node) {
 void Validator::do_visit(VarDeclMIR& node) {
     bsv_dbprint("visiting VarDeclMIR node");
 
-    if (in_node(MIRNode::NodeKind::CMPDSTMT_MIR) == 1 && 
+    if (in_node(MIRNode::NodeKind::CMPDSTMT_MIR) == 1 &&
         in_node(MIRNode::NodeKind::SWITCHSTMT_MIR) == 2) {
         // todo: throw error (cannot declare variable directly in switch)
     }
@@ -154,7 +158,6 @@ void Validator::do_visit(LoopStmtMIR& node) {
     if (node.condition) {
         (*node.condition)->accept(*this);
     }
-    
 }
 
 void Validator::do_visit(GotoStmtMIR& node) {
@@ -163,8 +166,8 @@ void Validator::do_visit(GotoStmtMIR& node) {
 
 void Validator::do_visit(BreakStmtMIR& node) {
     // check that we are in a loop or switch
-    if (in_node(MIRNode::NodeKind::SWITCHSTMT_MIR) < 0
-        || in_node(MIRNode::NodeKind::LOOPSTMT_MIR) < 0) {
+    if (in_node(MIRNode::NodeKind::SWITCHSTMT_MIR) < 0 ||
+        in_node(MIRNode::NodeKind::LOOPSTMT_MIR) < 0) {
         throw InvalidBreakError(node.loc);
     }
 }
@@ -181,16 +184,13 @@ void Validator::do_visit(ReturnStmtMIR& node) {
         (*node.ret_expr)->accept(*this);
     }
     if (in_node(MIRNode::NodeKind::FUNC_MIR) < 0) {
-
     }
 
-    if(!node.ret_expr)
+    if (!node.ret_expr)
         return;
 
-    FunctionMIR *func = dynamic_cast<FunctionMIR *>(
-        get_context(MIRNode::NodeKind::FUNC_MIR));
+    FunctionMIR *func = dynamic_cast<FunctionMIR *>(get_context(MIRNode::NodeKind::FUNC_MIR));
     if (!func) {
-
     }
 
     // check return types
@@ -218,7 +218,6 @@ void Validator::do_visit(UnaryExprMIR& node) {
     node.operand->accept(*this);
 
     // check operator compatibility
-
 }
 
 void Validator::do_visit(CastExprMIR& node) {
@@ -240,7 +239,6 @@ void Validator::do_visit(AssignExprMIR& node) {
 }
 
 void Validator::do_visit(CondExprMIR& node) {
-    
 }
 
 void Validator::do_visit(IdentExprMIR& node) {
@@ -254,39 +252,31 @@ void Validator::do_visit(ConstExprMIR& node) {
 }
 
 void Validator::do_visit(LiteralExprMIR& node) {
-    std::visit(match {
-        [node, this] (std::monostate v) mutable {
-            throw std::runtime_error("LiteralExprMIR should not have a null value");
-        },
-        [node, this] (char v) mutable {
-            node.type = types.get_i8();
-        },
-        [node, this] (long v) mutable {
-            /*
-            Select the type to use based on value
-            */
-            if (v <= *types.get_i32()->int_max()) {
-                // Attempt to default to I32
-                node.type = types.get_i32();
-            } else
-            if (v <= *types.get_i64()->int_max()) {
-                // If cannot fit, try I64
-                node.type = types.get_i64();
-            } else {
-                // If all else fails, use U64
-                node.type = types.get_u64();
-            }
-        },
-        [node, this] (double v) mutable {
-            node.type = types.get_f64();
-        },
-        [node, this] (bool v) mutable {
-            node.type = types.get_bool();
-        },
-        [node, this] (std::string& v) mutable {
-            node.type = types.get_pointer(types.get_i8(), true);
-        }
-    }, node.value.inner);
+    std::visit(match{[&node, this](std::monostate val) mutable {
+                         throw std::runtime_error("LiteralExprMIR should not have a null value");
+                     },
+                     [&node, this](char val) mutable { node.type = types.get_i8(); },
+                     [&node, this](long val) mutable {
+                         /*
+                         Select the type to use based on value
+                         */
+                         if (val <= *types.get_i32()->int_max()) {
+                             // Attempt to default to I32
+                             node.type = types.get_i32();
+                         } else if (val <= *types.get_i64()->int_max()) {
+                             // If cannot fit, try I64
+                             node.type = types.get_i64();
+                         } else {
+                             // If all else fails, use U64
+                             node.type = types.get_u64();
+                         }
+                     },
+                     [&node, this](double val) mutable { node.type = types.get_f64(); },
+                     [&node, this](bool val) mutable { node.type = types.get_bool(); },
+                     [&node, this](std::string& val) mutable {
+                         node.type = types.get_pointer(types.get_i8(), true);
+                     }},
+               node.value.inner);
 }
 
 void Validator::do_visit(CallExprMIR& node) {
@@ -305,7 +295,6 @@ void Validator::do_visit(MemberAccExprMIR& node) {
     node.object->accept(*this);
 
     if (node.is_arrow) {
-
     }
 }
 

@@ -24,12 +24,12 @@ class ASTVisitor;
 //
 // Each AST node (binary, unary expr, statement, etc.) defines its own subclass
 // that inherits from this main superclass.
-class ASTNode {
+class ASTNode : public NoCopy {
 public:
 
     util::Location loc;
 
-    enum NodeKind {
+    enum NodeKind : uint8_t {
         TYPE_QUAL,
         STORAGE_SPEC,
         POINTER,
@@ -103,21 +103,12 @@ Abstract class denoting a program item: declaration, statement, or function defi
 class ProgramItem : public ASTNode {
 public:
     ProgramItem(NodeKind kind, Location loc) : ASTNode(kind, loc)  {}
-    ~ProgramItem() = default;
-
-    virtual void accept(ASTVisitor& visitor) = 0;
 };
 
 // The abstract Expression class that all expressions inherit from.
 class Expression : public ASTNode {
 public:
     Expression(NodeKind kind, Location loc) : ASTNode(kind, loc)  {}
-    virtual ~Expression() = default;
-
-    // Whether or not the expression can be computed at compile time.
-    //virtual bool is_compiletime_computable() = 0;
-
-    virtual void accept(ASTVisitor& visitor) = 0;
 };
 
 /*
@@ -145,9 +136,6 @@ The Declaration abstract class that all declarations inherit from.
 class Declaration : public ProgramItem {
 public:
     Declaration(NodeKind kind, Location loc) : ProgramItem(kind, loc)  {}
-    ~Declaration() = default;
-
-    virtual void accept(ASTVisitor& visitor) = 0;
 };
 
 /*
@@ -156,14 +144,11 @@ Abstract class denoting a storage class or type specifier, or a type qualifier.
 class DeclarationSpecifier : public ASTNode {
 public:
     DeclarationSpecifier(NodeKind kind, Location loc) : ASTNode(kind, loc)  {}
-    virtual ~DeclarationSpecifier() = default;
-
-    virtual void accept(ASTVisitor& visitor) = 0;
 };
 
 class TypeQualifier : public DeclarationSpecifier {
 public:
-    enum QualType { CONST };
+    enum QualType : uint8_t { CONST };
 
     TypeQualifier(Location loc, QualType qual)
         : DeclarationSpecifier(TYPE_QUAL, loc), qual(qual) {}
@@ -176,7 +161,7 @@ public:
 // Storage class specifiers (public, static, extern).
 class StorageClassSpecifier : public DeclarationSpecifier {
 public:
-    enum SpecType { PUBLIC, STATIC, EXTERN, EXTERNC };
+    enum SpecType : uint8_t { PUBLIC, STATIC, EXTERN, EXTERNC };
 
     StorageClassSpecifier(Location loc, SpecType type)
         : DeclarationSpecifier(STORAGE_SPEC, loc), type(type) {}
@@ -206,9 +191,6 @@ A non-pointer declarator abstract class.
 class DirectDeclarator : public ASTNode {
 public:
     DirectDeclarator(NodeKind kind, Location loc) : ASTNode(kind, loc)  {}
-    ~DirectDeclarator() = default;
-
-    virtual void accept(ASTVisitor& visitor) = 0;
 };
 
 /*
@@ -349,9 +331,9 @@ of `arr` in the former is `U32`.
 */
 class ParenDeclarator : public DirectDeclarator {
 public:
-    ParenDeclarator(Location loc, Box<Declarator> d)
+    ParenDeclarator(Location loc, Box<Declarator> decl)
         : DirectDeclarator(PAREN_DECLTR, loc),
-        inner(std::move(d)) {}
+        inner(std::move(decl)) {}
 
     Box<Declarator> inner;
 
@@ -361,11 +343,11 @@ public:
 class ArrayDeclarator : public DirectDeclarator {
 public:
     ArrayDeclarator(Location loc,
-                    Box<DirectDeclarator> b,
-                    Optional<Box<ConstExpression>> s)
+                    Box<DirectDeclarator> base,
+                    Optional<Box<ConstExpression>> size)
         : DirectDeclarator(ARR_DECLTR, loc),
-        base(std::move(b)), 
-        size(std::move(s)) {}
+        base(std::move(base)), 
+        size(std::move(size)) {}
 
     Box<DirectDeclarator> base;
     Optional<Box<ConstExpression>> size;
@@ -376,13 +358,13 @@ public:
 class FunctionDeclarator : public DirectDeclarator {
 public:
     FunctionDeclarator(Location loc,
-                       Box<DirectDeclarator> b,
-                       std::vector<Box<ParameterDeclaration>> p,
-                       bool v)
+                       Box<DirectDeclarator> base,
+                       Vec<Box<ParameterDeclaration>> params,
+                       bool is_variadic)
         : DirectDeclarator(FUNC_DECLTR, loc),
-        base(std::move(b)),
-        parameters(std::move(p)),
-        is_variadic(v) {}
+        base(std::move(base)),
+        parameters(std::move(params)),
+        is_variadic(is_variadic) {}
 
     Box<DirectDeclarator> base;
     Vec<Box<ParameterDeclaration>> parameters;
@@ -436,8 +418,6 @@ class TypeSpecifier : public DeclarationSpecifier {
 public:
     TypeSpecifier(NodeKind kind, Location loc)
     : DeclarationSpecifier(kind, loc) {}
-
-    virtual void accept(ASTVisitor& visitor) = 0;
 };
 
 class PrimitiveSpecifier : public TypeSpecifier {
@@ -544,7 +524,7 @@ public:
 class TypeIdentifier : public TypeSpecifier {
 public:
     TypeIdentifier(Location loc, std::string ident)
-        : TypeSpecifier(TYPE_IDENT, loc), identifier(ident) {}
+        : TypeSpecifier(TYPE_IDENT, loc), identifier(std::move(ident)) {}
 
     std::string identifier;
 
@@ -564,9 +544,6 @@ public:
 class Statement : public ProgramItem {
 public:
     Statement(NodeKind kind, Location loc) : ProgramItem(kind, loc) {}
-    ~Statement() = default;
-
-    void accept(ASTVisitor& visitor) = 0;
 };
 
 // A block of mixed declarations and statements, surrounded by braces.
@@ -645,7 +622,7 @@ public:
                      std::string label,
                      Box<Statement> statement)
         : Statement(LABEL_STMT, loc),
-        label(label), 
+        label(std::move(label)), 
         statement(std::move(statement)) {}
 
     std::string label;
@@ -759,15 +736,13 @@ public:
 class JumpStatement : public Statement {
 public:
     JumpStatement(NodeKind kind, Location loc) : Statement(kind, loc) {}
-
-    virtual void accept(ASTVisitor& visitor) = 0;
 };
 
 class GotoStatement : public JumpStatement {
 public:
     GotoStatement(Location loc, std::string target_label) 
         : JumpStatement(GOTO_STMT, loc),
-        target_label(target_label) {}
+        target_label(std::move(target_label)) {}
 
     std::string target_label;
 
@@ -917,7 +892,7 @@ public:
 
 class LiteralExpression : public Expression {
 public:
-    enum LiteralKind { INT, FLOAT, CHAR, BOOL };
+    enum LiteralKind : uint8_t { INT, FLOAT, CHAR, BOOL };
 
     union Value {
         uint64_t i_val;
@@ -944,7 +919,7 @@ public:
     StringExpression(Location loc,
                      std::string value)
         : Expression(STR_EXPR, loc),
-        value(value) {}
+        value(std::move(value)) {}
 
     std::string value;
 
@@ -1046,12 +1021,10 @@ public:
         body(std::move(body)) {
     }
 
-    ~Function() = default;
-
     /*
     Any possible specifiers (e.g. public, int, etc.)
     */
-    Vec<Box<DeclarationSpecifier>> decl_spec_list = {};
+    Vec<Box<DeclarationSpecifier>> decl_spec_list;
     /*
     The function name and its parameters.
     Note: If the declarator contains a pointer, the pointer applies to its return type.
@@ -1068,7 +1041,6 @@ The toplevel Program class.
 class Program : public ASTNode {
 public:
     Program(std::string *filename) : ASTNode(PROG, Location(filename))  {}
-    ~Program() = default;
 
     // Program items.
     std::vector<std::unique_ptr<ProgramItem>> items;

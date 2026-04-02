@@ -1,9 +1,9 @@
+#include "semantics/symbols.hpp"
+
 #include <cassert>
 #include <sstream>
 #include <stdexcept>
 #include <utility>
-
-#include "semantics/symbols.hpp"
 
 using namespace ecc::sema::sym;
 using namespace ecc::sema::types;
@@ -97,7 +97,6 @@ void SymbolTable::reset_from(Scope *scope) {
 void SymbolTable::reset_current() {
     current->nested_idx = 0;
 }
-
 
 void SymbolTable::clear() {
     // todo
@@ -265,7 +264,8 @@ LabelSymbol *SymbolTable::lookup_label(std::string& sym, Scope *from, bool curre
 }
 
 void SymbolTable::tie_current_to(FuncSymbol *sym, bool override) {
-    dbprint("SymbolTable: associating current scope ", current->id, " with symbol ", sym, " name \"", sym->name, "\"");
+    dbprint("SymbolTable: associating current scope ", current->id, " with symbol ", sym,
+            " name \"", sym->name, "\"");
     if (current->assoc != nullptr) {
         if (override) {
             current->assoc = sym;
@@ -298,7 +298,7 @@ FuncSymbol *SymbolTable::insert(std::string name, Box<FuncSymbol> sym) {
         if (existing->get_type()->is_function()) {
             dbprint("SymbolTable: existing symbol has function type, checking for replaceability");
             FunctionType *othertype = existing->get_type()->as_function();
-            FunctionType *mytype = sym->get_type()->as_function();
+            FunctionType *mytype    = sym->get_type()->as_function();
             if (!othertype || !mytype) {
                 dbprint("SymbolTable: could not cast othertype or mytype to FunctionType");
                 goto exists;
@@ -311,7 +311,7 @@ FuncSymbol *SymbolTable::insert(std::string name, Box<FuncSymbol> sym) {
             }
         }
     exists:
-        throw (Symbol *) existing;
+        throw (Symbol *)existing;
     }
 insert:
     FuncSymbol *ret = sym.get();

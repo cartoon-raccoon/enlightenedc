@@ -1,8 +1,9 @@
 #include "driver/backend.hpp"
+
 #include "driver/driver.hpp"
-#include "semantics/semantics.hpp"
 #include "semantics/mir/printer.hpp"
 #include "semantics/printer.hpp"
+#include "semantics/semantics.hpp"
 #include "util.hpp"
 
 using namespace ecc::driver;

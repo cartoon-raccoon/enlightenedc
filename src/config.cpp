@@ -1,4 +1,5 @@
 #include "config.hpp"
+
 #include "util.hpp"
 
 using namespace ecc;
@@ -12,7 +13,7 @@ void EccConfig::parse_args(int argc, char *argv[]) {
     ArgVIterator args(argc, argv);
 
     Arg curr_arg = args.next();
-    while(curr_arg) {
+    while (curr_arg) {
         parse_single_arg(curr_arg, args);
         curr_arg = args.next();
     }
@@ -57,28 +58,23 @@ void EccConfig::parse_long_arg(std::string& arg, ArgVIterator& iter) {
 }
 
 void EccConfig::add_args() {
-    add_short_arg("E", [] (EccConfig& cfg, ArgVIterator& iter) {
+    add_short_arg("E", [](EccConfig& cfg, ArgVIterator& iter) {
         // todo: add check that stop_at was not previously set
         cfg.stop_at = StopAt::PREPROCESS;
     });
-    add_short_arg("S", [] (EccConfig& cfg, ArgVIterator& iter) {
-        cfg.stop_at = StopAt::COMPILE;
-    });
-    add_short_arg("c", [] (EccConfig& cfg, ArgVIterator& iter) {
-        cfg.stop_at = StopAt::ASSEMBLE;
-    });
-    add_short_arg("emit-llvm", [] (EccConfig& cfg, ArgVIterator& iter) {
+    add_short_arg("S", [](EccConfig& cfg, ArgVIterator& iter) { cfg.stop_at = StopAt::COMPILE; });
+    add_short_arg("c", [](EccConfig& cfg, ArgVIterator& iter) { cfg.stop_at = StopAt::ASSEMBLE; });
+    add_short_arg("emit-llvm", [](EccConfig& cfg, ArgVIterator& iter) {
         // todo: check that stop_at is compatible
         cfg.comp_output = CompilationOutput::LLVM;
     });
-    add_short_arg("dump-ast", [] (EccConfig& cfg, ArgVIterator& iter) {
-        
-    });
-    add_short_arg("dump-mir", [] (EccConfig& cfg, ArgVIterator& iter) {
-        
-    });
-    add_short_arg("dump-lir", [] (EccConfig& cfg, ArgVIterator& iter) {
-        
-    });
+    add_short_arg("dump-ast", [](EccConfig& cfg, ArgVIterator& iter) {
 
+    });
+    add_short_arg("dump-mir", [](EccConfig& cfg, ArgVIterator& iter) {
+
+    });
+    add_short_arg("dump-lir", [](EccConfig& cfg, ArgVIterator& iter) {
+
+    });
 }

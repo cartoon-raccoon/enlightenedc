@@ -16,7 +16,7 @@ namespace ecc::codegen::lir {
 class LIRVarSym;
 class LIRFuncSym;
 
-class LIRSym {
+class LIRSym : public NoCopy {
 public:
     enum class LIRSymKind {
         FUNC,
@@ -24,7 +24,9 @@ public:
     };
 
     LIRSym(LIRSymKind kind, std::string mangled, std::string name, Location loc)
-        : mangled_name(mangled), name(name), loc(loc) {}
+        : kind(kind), mangled_name(std::move(mangled)), name(std::move(name)), loc(loc) {}
+
+    virtual ~LIRSym() = default;
 
     LIRSymKind kind;
 
@@ -64,7 +66,7 @@ public:
                std::string name,
                Location loc, 
                sema::sym::FuncSymbol *symbol)
-        : LIRSym(LIRSymKind::FUNC, mangled, name, loc), symbol(symbol), map() {}
+        : LIRSym(LIRSymKind::FUNC, mangled, name, loc), symbol(symbol) {}
 
     sema::sym::FuncSymbol *symbol;
 
@@ -88,7 +90,7 @@ A function-scoped mapping of symbols to their respective functions.
 */
 class LIRSymbolMap {
 public:
-    LIRSymbolMap() : funcs(), globals() {}
+    LIRSymbolMap() {}
 
     LIRFuncSym *add_function(sema::sym::FuncSymbol *funcsym, Box<LIRFuncSym> func);
 

@@ -1,8 +1,9 @@
+#include "semantics/semantics.hpp"
+
 #include <cassert>
 #include <memory>
 
 #include "ast/ast.hpp"
-#include "semantics/semantics.hpp"
 #include "error.hpp"
 #include "semantics/mir/mir.hpp"
 #include "semantics/mir/synthesizer.hpp"
@@ -46,8 +47,8 @@ MIRNode *BaseMIRSemaVisitor::get_context(MIRNode::NodeKind kind) {
 }
 
 /*
-* VISIT METHODS
-*/
+ * VISIT METHODS
+ */
 
 void BaseASTSemaVisitor::visit(Program& node) {
     auto guard = enter_node(&node);
@@ -226,13 +227,13 @@ void BaseASTSemaVisitor::visit(SwitchStatement& node) {
 }
 
 void BaseASTSemaVisitor::visit(WhileStatement& node) {
-    auto guard = enter_node(&node);
+    auto guard  = enter_node(&node);
     auto sguard = enter_scope();
     do_visit(node);
 }
 
 void BaseASTSemaVisitor::visit(DoWhileStatement& node) {
-    auto guard = enter_node(&node);
+    auto guard  = enter_node(&node);
     auto sguard = enter_scope();
     do_visit(node);
 }
@@ -336,8 +337,8 @@ void BaseASTSemaVisitor::visit(SizeofExpression& node) {
 }
 
 /*
-* DO_VISIT methods
-*/
+ * DO_VISIT methods
+ */
 
 void BaseASTSemaVisitor::do_visit(Program& node) {
     for (auto& item : node.items) {
@@ -447,7 +448,7 @@ void BaseASTSemaVisitor::do_visit(ClassDeclaration& node) {
         spec->accept(*this);
     }
 
-    for (auto& decl: node.declarators) {
+    for (auto& decl : node.declarators) {
         decl->accept(*this);
     }
 }
@@ -458,12 +459,10 @@ void BaseASTSemaVisitor::do_visit(Enumerator& node) {
     }
 }
 
-void BaseASTSemaVisitor::do_visit(StorageClassSpecifier& node) {
-    /* terminal node */
+void BaseASTSemaVisitor::do_visit(StorageClassSpecifier& node) { /* terminal node */
 }
 
-void BaseASTSemaVisitor::do_visit(TypeQualifier& node) {
-    /* terminal node */
+void BaseASTSemaVisitor::do_visit(TypeQualifier& node) { /* terminal node */
 }
 
 void BaseASTSemaVisitor::do_visit(EnumSpecifier& node) {
@@ -490,29 +489,23 @@ void BaseASTSemaVisitor::do_visit(UnionSpecifier& node) {
     }
 }
 
-void BaseASTSemaVisitor::do_visit(VoidSpecifier& node) {
-    /* terminal node */
+void BaseASTSemaVisitor::do_visit(VoidSpecifier& node) { /* terminal node */
 }
 
-void BaseASTSemaVisitor::do_visit(TypeIdentifier& node) {
-    /* terminal node */
+void BaseASTSemaVisitor::do_visit(TypeIdentifier& node) { /* terminal node */
 }
 
-void BaseASTSemaVisitor::do_visit(PrimitiveSpecifier& node) {
-    /* terminal node */
+void BaseASTSemaVisitor::do_visit(PrimitiveSpecifier& node) { /* terminal node */
 }
 
 void BaseASTSemaVisitor::do_visit(Initializer& node) {
-    std::visit(match {
-        [this] (Box<Expression>& expr) {
-            expr->accept(*this);
-        },
-        [this] (Vec<Box<Initializer>>& inits) {
-            for (auto& init : inits) {
-                init->accept(*this);
-            }
-        }
-    }, node.initializer);
+    std::visit(match{[this](Box<Expression>& expr) { expr->accept(*this); },
+                     [this](Vec<Box<Initializer>>& inits) {
+                         for (auto& init : inits) {
+                             init->accept(*this);
+                         }
+                     }},
+               node.initializer);
 }
 
 void BaseASTSemaVisitor::do_visit(TypeName& node) {
@@ -525,8 +518,7 @@ void BaseASTSemaVisitor::do_visit(TypeName& node) {
     }
 }
 
-void BaseASTSemaVisitor::do_visit(IdentifierDeclarator& node) {
-    /* terminal node */
+void BaseASTSemaVisitor::do_visit(IdentifierDeclarator& node) { /* terminal node */
 }
 
 void BaseASTSemaVisitor::do_visit(CompoundStatement& node) {
@@ -592,14 +584,9 @@ void BaseASTSemaVisitor::do_visit(DoWhileStatement& node) {
 
 void BaseASTSemaVisitor::do_visit(ForStatement& node) {
     if (node.init.has_value()) {
-        std::visit(match {
-            [this] (Box<Expression>& expr) {
-                expr->accept(*this);
-            },
-            [this] (Box<VariableDeclaration>& decl) {
-                decl->accept(*this);
-            }
-        }, *node.init);
+        std::visit(match{[this](Box<Expression>& expr) { expr->accept(*this); },
+                         [this](Box<VariableDeclaration>& decl) { decl->accept(*this); }},
+                   *node.init);
     }
 
     if (node.condition.has_value()) {
@@ -613,16 +600,13 @@ void BaseASTSemaVisitor::do_visit(ForStatement& node) {
     node.body->accept(*this);
 }
 
-void BaseASTSemaVisitor::do_visit(GotoStatement& node) {
-    /* terminal node */
+void BaseASTSemaVisitor::do_visit(GotoStatement& node) { /* terminal node */
 }
 
-void BaseASTSemaVisitor::do_visit(BreakStatement& node) {
-    /* terminal node */
+void BaseASTSemaVisitor::do_visit(BreakStatement& node) { /* terminal node */
 }
 
-void BaseASTSemaVisitor::do_visit(ContinueStatement& node) {
-    /* terminal node */
+void BaseASTSemaVisitor::do_visit(ContinueStatement& node) { /* terminal node */
 }
 
 void BaseASTSemaVisitor::do_visit(ReturnStatement& node) {
@@ -656,20 +640,17 @@ void BaseASTSemaVisitor::do_visit(ConditionalExpression& node) {
     node.false_expr->accept(*this);
 }
 
-void BaseASTSemaVisitor::do_visit(IdentifierExpression& node) {
-    /* terminal node */
+void BaseASTSemaVisitor::do_visit(IdentifierExpression& node) { /* terminal node */
 }
 
 void BaseASTSemaVisitor::do_visit(ConstExpression& node) {
     node.inner->accept(*this);
 }
 
-void BaseASTSemaVisitor::do_visit(LiteralExpression& node) {
-    /* terminal node */
+void BaseASTSemaVisitor::do_visit(LiteralExpression& node) { /* terminal node */
 }
 
-void BaseASTSemaVisitor::do_visit(StringExpression& node) {
-    /* terminal node */
+void BaseASTSemaVisitor::do_visit(StringExpression& node) { /* terminal node */
 }
 
 void BaseASTSemaVisitor::do_visit(CallExpression& node) {
@@ -694,19 +675,14 @@ void BaseASTSemaVisitor::do_visit(PostfixExpression& node) {
 }
 
 void BaseASTSemaVisitor::do_visit(SizeofExpression& node) {
-    std::visit(match {
-        [this] (Box<Expression>& expr) {
-            expr->accept(*this);
-        },
-        [this] (Box<TypeName>& typen) {
-            typen->accept(*this);
-        }
-    }, node.operand);
+    std::visit(match{[this](Box<Expression>& expr) { expr->accept(*this); },
+                     [this](Box<TypeName>& typen) { typen->accept(*this); }},
+               node.operand);
 }
 
 /*
-* BaseMIRSemaVisitor METHODS
-*/
+ * BaseMIRSemaVisitor METHODS
+ */
 
 void BaseMIRSemaVisitor::visit(mir::ProgramMIR& node) {
     auto guard = enter_node(&node);
@@ -734,7 +710,7 @@ void BaseMIRSemaVisitor::visit(mir::VarDeclMIR& node) {
 }
 
 void BaseMIRSemaVisitor::visit(mir::CompoundStmtMIR& node) {
-    auto guard = enter_node(&node);
+    auto guard  = enter_node(&node);
     auto sguard = enter_scope();
     do_visit(node);
 }
@@ -780,7 +756,7 @@ void BaseMIRSemaVisitor::visit(mir::IfStmtMIR& node) {
 }
 
 void BaseMIRSemaVisitor::visit(mir::LoopStmtMIR& node) {
-    auto guard = enter_node(&node);
+    auto guard  = enter_node(&node);
     auto sguard = enter_scope();
     do_visit(node);
 }
@@ -871,8 +847,8 @@ void BaseMIRSemaVisitor::visit(mir::SizeofExprMIR& node) {
 }
 
 /*
-* DO_VISIT METHODS
-*/
+ * DO_VISIT METHODS
+ */
 
 void BaseMIRSemaVisitor::do_visit(mir::ProgramMIR& node) {
     for (auto& item : node.items) {
@@ -885,20 +861,16 @@ void BaseMIRSemaVisitor::do_visit(mir::FunctionMIR& node) {
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::InitializerMIR& node) {
-    std::visit(match {
-        [this] (Box<ExprMIR>& expr) {
-            expr->accept(*this);
-        },
-        [this] (Vec<Box<InitializerMIR>>& inits) {
-            for (auto& init : inits) {
-                init->accept(*this);
-            }
-        }
-    }, node.initializer);
+    std::visit(match{[this](Box<ExprMIR>& expr) { expr->accept(*this); },
+                     [this](Vec<Box<InitializerMIR>>& inits) {
+                         for (auto& init : inits) {
+                             init->accept(*this);
+                         }
+                     }},
+               node.initializer);
 }
 
-void BaseMIRSemaVisitor::do_visit(mir::TypeDeclMIR& node) {
-    /* terminal node */
+void BaseMIRSemaVisitor::do_visit(mir::TypeDeclMIR& node) { /* terminal node */
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::VarDeclMIR& node) {
@@ -975,16 +947,13 @@ void BaseMIRSemaVisitor::do_visit(mir::LoopStmtMIR& node) {
     node.body->accept(*this);
 }
 
-void BaseMIRSemaVisitor::do_visit(mir::GotoStmtMIR& node) {
-    /* terminal node */
+void BaseMIRSemaVisitor::do_visit(mir::GotoStmtMIR& node) { /* terminal node */
 }
 
-void BaseMIRSemaVisitor::do_visit(mir::BreakStmtMIR& node) {
-    /* terminal node */
+void BaseMIRSemaVisitor::do_visit(mir::BreakStmtMIR& node) { /* terminal node */
 }
 
-void BaseMIRSemaVisitor::do_visit(mir::ContStmtMIR& node) {
-    /* terminal node */
+void BaseMIRSemaVisitor::do_visit(mir::ContStmtMIR& node) { /* terminal node */
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::ReturnStmtMIR& node) {
@@ -1017,16 +986,14 @@ void BaseMIRSemaVisitor::do_visit(mir::CondExprMIR& node) {
     node.false_expr->accept(*this);
 }
 
-void BaseMIRSemaVisitor::do_visit(mir::IdentExprMIR& node) {
-    /* terminal node */
+void BaseMIRSemaVisitor::do_visit(mir::IdentExprMIR& node) { /* terminal node */
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::ConstExprMIR& node) {
     node.inner->accept(*this);
 }
 
-void BaseMIRSemaVisitor::do_visit(mir::LiteralExprMIR& node) {
-    /* terminal node */
+void BaseMIRSemaVisitor::do_visit(mir::LiteralExprMIR& node) { /* terminal node */
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::CallExprMIR& node) {
@@ -1050,16 +1017,12 @@ void BaseMIRSemaVisitor::do_visit(mir::PostfixExprMIR& node) {
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::SizeofExprMIR& node) {
-    std::visit(match {
-        [this] (Box<ExprMIR>& expr) {
-            expr->accept(*this);
-        },
-        [this] (types::Type *& type) {
-            /* terminal node */
-        }
-    }, node.operand);
+    std::visit(match{[this](Box<ExprMIR>& expr) { expr->accept(*this); },
+                     [this](types::Type *& type) {
+                         /* terminal node */
+                     }},
+               node.operand);
 }
-
 
 void SemanticChecker::check_semantics(Program& prog, ProgramMIR& mir) {
     dbprint("Checking semantics for ", prog.loc);
@@ -1085,7 +1048,7 @@ void SemanticChecker::check_semantics(Program& prog, ProgramMIR& mir) {
         }
         throw UnableToContinue();
     }
-    
+
     symbols.reset();
 
     Validator validator(symbols, types);

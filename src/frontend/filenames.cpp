@@ -1,4 +1,5 @@
 #include "frontend/filenames.hpp"
+
 #include <string>
 
 namespace ecc::frontend {
@@ -8,7 +9,7 @@ namespace ecc::frontend {
 // must last the entire length of the program.
 FilenamePool filenames;
 
-}
+} // namespace ecc::frontend
 
 using namespace ecc::frontend;
 

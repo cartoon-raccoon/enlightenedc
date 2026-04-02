@@ -1,12 +1,13 @@
+#include "semantics/types.hpp"
+
+#include <cfloat>
 #include <memory>
 #include <stdexcept>
 #include <utility>
 #include <variant>
-#include <cfloat>
 
-#include "semantics/types.hpp"
-#include "semantics/symbols.hpp"
 #include "codegen/llvm.hpp"
+#include "semantics/symbols.hpp"
 #include "semantics/typeerr.hpp"
 #include "util.hpp"
 
@@ -15,8 +16,8 @@ using namespace ecc::tokens;
 using namespace ecc::codegen;
 
 /*
-* TYPE METHODS
-*/
+ * TYPE METHODS
+ */
 
 size_t Type::alloc_size() {
     // If no type, call finalize
@@ -33,24 +34,41 @@ size_t Type::alloc_size() {
     return dl.getTypeAllocSize(llvm_type);
 }
 
-bool Type::is_void() { return kind == Kind::VOID; }
+bool Type::is_void() const {
+    return kind == Kind::VOID;
+}
 
-bool Type::is_primitive() { return kind == Kind::PRIMITIVE; }
+bool Type::is_primitive() const {
+    return kind == Kind::PRIMITIVE;
+}
 
-bool Type::is_class() { return kind == Kind::CLASS; }
+bool Type::is_class() const {
+    return kind == Kind::CLASS;
+}
 
-bool Type::is_union() { return kind == Kind::UNION; }
+bool Type::is_union() const {
+    return kind == Kind::UNION;
+}
 
-bool Type::is_enum() { return kind == Kind::ENUM; }
+bool Type::is_enum() const {
+    return kind == Kind::ENUM;
+}
 
-bool Type::is_pointer() { return kind == Kind::POINTER; }
+bool Type::is_pointer() const {
+    return kind == Kind::POINTER;
+}
 
-bool Type::is_array() { return kind == Kind::ARRAY; }
+bool Type::is_array() const {
+    return kind == Kind::ARRAY;
+}
 
-bool Type::is_function() { return kind == Kind::FUNCTION; }
+bool Type::is_function() const {
+    return kind == Kind::FUNCTION;
+}
 
-LLVMType * Type::get_llvmtype() {
-    if (llvm_type) return llvm_type;
+LLVMType *Type::get_llvmtype() {
+    if (llvm_type)
+        return llvm_type;
 
     finalize();
 
@@ -64,7 +82,9 @@ void UserType::validate_member_type(Type *type, Optional<std::string> name, Loca
 
         // member is guaranteed to have name, as anonymous types cannot be re-referenced
         throw RecursiveTypeError(*name, loc);
-    } else if (type->is_usertype()) {
+    }
+
+    if (type->is_usertype()) {
         // if member is usertype, check for completeness
         UserType *uty = type->as_usertype();
         if (!uty->is_complete()) {
@@ -88,8 +108,8 @@ void UserType::validate_member_type(Type *type, Optional<std::string> name, Loca
 }
 
 /*
-* VOID TYPE METHODS
-*/
+ * VOID TYPE METHODS
+ */
 
 void VoidType::finalize() {
     if (finalized) {
@@ -105,51 +125,51 @@ void VoidType::finalize() {
 }
 
 /*
-* PRIMITIVE TYPE METHODS
-*/
-bool PrimitiveType::is_integer() {
+ * PRIMITIVE TYPE METHODS
+ */
+bool PrimitiveType::is_integer() const {
     // We maintain strict integral definitions for determining whether
     // this type is an integer: it cannot be Bool or Float, and it has to be sized.
     switch (primkind) {
-        case PrimType::U8:
-        case PrimType::U16:
-        case PrimType::U32:
-        case PrimType::U64:
-        case PrimType::I8:
-        case PrimType::I16:
-        case PrimType::I32:
-        case PrimType::I64:
+    case PrimType::U8:
+    case PrimType::U16:
+    case PrimType::U32:
+    case PrimType::U64:
+    case PrimType::I8:
+    case PrimType::I16:
+    case PrimType::I32:
+    case PrimType::I64:
         return true;
-        
-        case PrimType::F64:
-        case PrimType::BOOL:
+
+    case PrimType::F64:
+    case PrimType::BOOL:
         return false;
     }
 }
 
-bool PrimitiveType::is_signed() {
+bool PrimitiveType::is_signed() const {
     switch (primkind) {
-        case PrimType::U8:
-        case PrimType::U16:
-        case PrimType::U32:
-        case PrimType::U64:
-        case PrimType::BOOL:
+    case PrimType::U8:
+    case PrimType::U16:
+    case PrimType::U32:
+    case PrimType::U64:
+    case PrimType::BOOL:
         return false;
 
-        case PrimType::I8:
-        case PrimType::I16:
-        case PrimType::I32:
-        case PrimType::I64:
-        case PrimType::F64:
+    case PrimType::I8:
+    case PrimType::I16:
+    case PrimType::I32:
+    case PrimType::I64:
+    case PrimType::F64:
         return true;
     }
 }
 
-bool PrimitiveType::is_float() {
+bool PrimitiveType::is_float() const {
     return primkind == PrimType::F64;
 }
 
-bool PrimitiveType::is_bool() {
+bool PrimitiveType::is_bool() const {
     return primkind == PrimType::BOOL;
 }
 
@@ -170,37 +190,37 @@ bool PrimitiveType::is_compatible_with(Type *from) {
         return false;
     }
 
-    int my_size = this->alloc_size();
+    size_t my_size = this->alloc_size();
 
     return 0 < my_size && my_size <= new_from->alloc_size();
 }
 
-Optional<uint64_t> PrimitiveType::int_max() {
+Optional<uint64_t> PrimitiveType::int_max() const {
     switch (primkind) {
-        case PrimType::U8:
+    case PrimType::U8:
         return UINT8_MAX;
-        case PrimType::U16:
+    case PrimType::U16:
         return UINT16_MAX;
-        case PrimType::U32:
+    case PrimType::U32:
         return UINT32_MAX;
-        case PrimType::U64:
+    case PrimType::U64:
         return UINT64_MAX;
-        case PrimType::BOOL:
+    case PrimType::BOOL:
         return 1;
-        case PrimType::I8:
+    case PrimType::I8:
         return INT8_MAX;
-        case PrimType::I16:
+    case PrimType::I16:
         return INT16_MAX;
-        case PrimType::I32:
+    case PrimType::I32:
         return INT32_MAX;
-        case PrimType::I64:
+    case PrimType::I64:
         return INT64_MAX;
-        case PrimType::F64:
+    case PrimType::F64:
         return {};
     }
 }
 
-Optional<double> PrimitiveType::flt_max() {
+Optional<double> PrimitiveType::flt_max() const {
     if (primkind == PrimType::F64) {
         return DBL_MAX;
     } else {
@@ -217,28 +237,28 @@ void PrimitiveType::finalize() {
     dbprint("PrimitiveType: finalizing ", to_string());
 
     switch (primkind) {
-        case PrimType::U8:
-        case PrimType::I8:
-        case PrimType::BOOL: //? should bool be 1 bit?
+    case PrimType::U8:
+    case PrimType::I8:
+    case PrimType::BOOL: //? should bool be 1 bit?
         llvm_type = llvm::Type::getInt8Ty(tyctxt.llvm.ctx());
         break;
 
-        case PrimType::U16:
-        case PrimType::I16:
+    case PrimType::U16:
+    case PrimType::I16:
         llvm_type = llvm::Type::getInt16Ty(tyctxt.llvm.ctx());
         break;
 
-        case PrimType::U32:
-        case PrimType::I32:
+    case PrimType::U32:
+    case PrimType::I32:
         llvm_type = llvm::Type::getInt32Ty(tyctxt.llvm.ctx());
         break;
 
-        case PrimType::U64:
-        case PrimType::I64:
+    case PrimType::U64:
+    case PrimType::I64:
         llvm_type = llvm::Type::getInt64Ty(tyctxt.llvm.ctx());
         break;
 
-        case PrimType::F64:
+    case PrimType::F64:
         llvm_type = llvm::Type::getDoubleTy(tyctxt.llvm.ctx());
         break;
     }
@@ -248,32 +268,32 @@ void PrimitiveType::finalize() {
 
 std::string PrimitiveType::formal() {
     switch (primkind) {
-        case PrimType::U8:
+    case PrimType::U8:
         return "U8";
-        case PrimType::U16:
+    case PrimType::U16:
         return "U16";
-        case PrimType::U32:
+    case PrimType::U32:
         return "U32";
-        case PrimType::U64:
+    case PrimType::U64:
         return "U64";
-        case PrimType::I8:
+    case PrimType::I8:
         return "I8";
-        case PrimType::I16:
+    case PrimType::I16:
         return "I16";
-        case PrimType::I32:
+    case PrimType::I32:
         return "I32";
-        case PrimType::I64:
+    case PrimType::I64:
         return "I64";
-        case PrimType::BOOL:
+    case PrimType::BOOL:
         return "Bool";
-        case PrimType::F64:
+    case PrimType::F64:
         return "F64";
     }
 }
 
 /*
-* CLASS TYPE METHODS
-*/
+ * CLASS TYPE METHODS
+ */
 
 bool ClassType::is_fully_defined() {
     if (!is_complete())
@@ -282,40 +302,35 @@ bool ClassType::is_fully_defined() {
     bool ret = true;
     for (auto& member : members) {
         switch (member->ty->kind) {
-            case Kind::CLASS: {
-                ClassType *cls = member->ty->as_class();
-                assert(cls);
-                ret = ret && cls->is_fully_defined();
-            }
-            break;
-            
-            case Kind::UNION: {
-                UnionType *unn = member->ty->as_union();
-                assert(unn);
-                ret = ret && unn->is_fully_defined();
-            }
-            break;
+        case Kind::CLASS: {
+            ClassType *cls = member->ty->as_class();
+            assert(cls);
+            ret = ret && cls->is_fully_defined();
+        } break;
 
-            case Kind::ENUM: {
-                EnumType *enm = member->ty->as_enum();
-                assert(enm);
-                ret = ret && enm->is_fully_defined();
-            }
-            break;
+        case Kind::UNION: {
+            UnionType *unn = member->ty->as_union();
+            assert(unn);
+            ret = ret && unn->is_fully_defined();
+        } break;
 
-            // This branch shouldn't be reached because array sizedness is checked
-            // when adding a member anyway.
-            case Kind::ARRAY: {
-                ArrayType *arr = member->ty->as_array();
-                assert(arr);
-                ret = ret && arr->arr_size.has_value();
-            }
-            break;
+        case Kind::ENUM: {
+            EnumType *enm = member->ty->as_enum();
+            assert(enm);
+            ret = ret && enm->is_fully_defined();
+        } break;
 
-            default: {
-                ret = ret && true;
-            }
-            break;
+        // This branch shouldn't be reached because array sizedness is checked
+        // when adding a member anyway.
+        case Kind::ARRAY: {
+            ArrayType *arr = member->ty->as_array();
+            assert(arr);
+            ret = ret && arr->arr_size.has_value();
+        } break;
+
+        default: {
+            ret = ret && true; // NOLINT
+        } break;
         }
     }
 
@@ -398,8 +413,8 @@ std::string ClassType::formal() {
 }
 
 /*
-* UNION TYPE METHODS
-*/
+ * UNION TYPE METHODS
+ */
 
 bool UnionType::is_fully_defined() {
     if (!is_complete())
@@ -408,31 +423,28 @@ bool UnionType::is_fully_defined() {
     bool ret = true;
     for (auto& member : members) {
         switch (member->ty->kind) {
-            case Kind::CLASS: {
-                ClassType *cls = member->ty->as_class();
-                assert(cls);
-                ret = ret && cls->is_fully_defined();
-            }
-            break;
-            
-            case Kind::UNION: {
-                UnionType *unn = member->ty->as_union();
-                assert(unn);
-                ret = ret && unn->is_fully_defined();
-            }
-            break;
+        case Kind::CLASS: {
+            ClassType *cls = member->ty->as_class();
+            assert(cls);
+            ret = ret && cls->is_fully_defined();
+        } break;
 
-            case Kind::ENUM: {
-                EnumType *enm = member->ty->as_enum();
-                assert(enm);
-                ret = ret && enm->is_fully_defined();
-            }
-            break;
+        case Kind::UNION: {
+            UnionType *unn = member->ty->as_union();
+            assert(unn);
+            ret = ret && unn->is_fully_defined();
+        } break;
 
-            default: {
-                ret = ret && true;
-            }
-            break;
+        case Kind::ENUM: {
+            EnumType *enm = member->ty->as_enum();
+            assert(enm);
+            ret = ret && enm->is_fully_defined();
+        } break;
+
+        default: {
+            // explicitly express that any other class is implicitly fully defined.
+            ret = ret && true; // NOLINT
+        } break;
         }
     }
 
@@ -503,7 +515,7 @@ void UnionType::finalize() {
         (*type_rep)->finalize();
     }
     // Finalize all members first
-    for (auto& member: members) {
+    for (auto& member : members) {
         dbprint("UnionType: finalizing member declared at ", member->loc);
         member->ty->finalize();
         assert(member->ty->get_llvmtype());
@@ -532,22 +544,21 @@ std::string UnionType::formal() {
 }
 
 /*
-* ENUM TYPE METHODS
-*/
+ * ENUM TYPE METHODS
+ */
 
-EnumType::EnumType(
-    Location decl_loc, sema::sym::Scope *scope, TypeContext& tyctxt)
-: UserType(decl_loc, Kind::ENUM, tyctxt, scope), 
-enumerators(),
-// default type for an enum with no declared underlying type is U64.
-underlying(tyctxt.get_u64()) {}
+EnumType::EnumType(Location decl_loc, sema::sym::Scope *scope, TypeContext& tyctxt)
+    : UserType(decl_loc, Kind::ENUM, tyctxt, scope),
+      // default type for an enum with no declared underlying type is U64.
+      underlying(tyctxt.get_u64()) {
+}
 
-EnumType::EnumType(
-    Location decl_loc, std::string name, sema::sym::Scope *scope, TypeContext& tyctxt)
-: UserType(decl_loc, Kind::ENUM, name, tyctxt, scope), 
-enumerators(), 
-// default type for an enum with no declared underlying type is U64.
-underlying(tyctxt.get_u64()) {}
+EnumType::EnumType(Location decl_loc, std::string name, sema::sym::Scope *scope,
+                   TypeContext& tyctxt)
+    : UserType(decl_loc, Kind::ENUM, name, tyctxt, scope),
+      // default type for an enum with no declared underlying type is U64.
+      underlying(tyctxt.get_u64()) {
+}
 
 int64_t EnumType::add_enumerator(std::string enumerator, Location loc) {
     EnumTypeMember *prev_mem = find(enumerator);
@@ -563,7 +574,7 @@ int64_t EnumType::add_enumerator(std::string enumerator, Location loc) {
     if (!enumerators.empty()) {
         value = enumerators.back()->value + 1;
     }
-    
+
     return add_enumerator(enumerator, value, loc);
 }
 
@@ -581,6 +592,15 @@ int64_t EnumType::add_enumerator(std::string enumerator, int64_t value, Location
 }
 
 EnumType::EnumTypeMember *EnumType::find(std::string& name) {
+    for (auto& member : enumerators) {
+        if (name == member->name)
+            return member.get();
+    }
+
+    return nullptr;
+}
+
+EnumType::EnumTypeMember *EnumType::find(size_t idx) {
     for (auto& member : enumerators) {
         if (name == member->name)
             return member.get();
@@ -624,8 +644,8 @@ std::string EnumType::formal() {
 }
 
 /*
-* POINTER TYPE METHODS
-*/
+ * POINTER TYPE METHODS
+ */
 
 int PointerType::nesting_lvl() {
     int lvl = 1;
@@ -652,18 +672,15 @@ bool PointerType::is_callable() {
     /*
     A pointer is callable if it is a singly-nested pointer to a function.
     */
-    if (nesting_lvl() == 1) {
-        if (base->is_function())
-            return true;
-    }
-    return false;
+
+    return nesting_lvl() == 1 && base->is_function();
 }
 
-bool PointerType::is_compatible_with(Type *dst) {
-    if (Type::is_compatible_with(dst))
+bool PointerType::is_compatible_with(Type *from) {
+    if (Type::is_compatible_with(from))
         return true;
 
-    PointerType *ptr = dst->as_pointer();
+    PointerType *ptr = from->as_pointer();
     if (!ptr)
         return false;
 
@@ -674,7 +691,7 @@ bool PointerType::is_compatible_with(Type *dst) {
     if (my_nesting == 1 && ds_nesting == 1) {
         return base == dst_base || dst_base->is_void();
     } else {
-        return dst == this;
+        return from == this;
     }
 }
 
@@ -689,8 +706,8 @@ void PointerType::finalize() {
 }
 
 /*
-* ARRAY TYPE METHODS
-*/
+ * ARRAY TYPE METHODS
+ */
 
 bool ArrayType::is_fully_sized() {
     // fixme: does not work if there is a break in the type hierarchy of arrays
@@ -704,18 +721,18 @@ bool ArrayType::is_fully_sized() {
 bool ArrayType::is_compatible_with(Type *dst) {
     switch (dst->kind) {
 
-        // if the other is an array, enforce strict equality
-        case Kind::ARRAY: {
-            return this == dst;
-        }
+    // if the other is an array, enforce strict equality
+    case Kind::ARRAY: {
+        return this == dst;
+    }
 
-        // if pointer, make sure bases match
-        case Kind::POINTER: {
-            PointerType *ptr = dst->as_pointer();
-            return base == ptr->base;
-        }
-        
-        default:
+    // if pointer, make sure bases match
+    case Kind::POINTER: {
+        PointerType *ptr = dst->as_pointer();
+        return base == ptr->base;
+    }
+
+    default:
         return false;
     }
 }
@@ -740,8 +757,8 @@ void ArrayType::finalize() {
 }
 
 /*
-* FUNCTION TYPE METHODS
-*/
+ * FUNCTION TYPE METHODS
+ */
 
 size_t FunctionType::alloc_size() {
     throw std::runtime_error("cannot call size() on FunctionType");
@@ -752,7 +769,7 @@ std::size_t FunctionType::hash_sig() {
     std::size_t h = std::hash<Type *>{}(signature.returntype);
 
     for (auto *p : signature.params) {
-        h ^= std::hash<Type*>{}(p) + 0x9e3779b9 + (h << 6) + (h >> 2);
+        h ^= std::hash<Type *>{}(p) + 0x9e3779b9 + (h << 6) + (h >> 2);
     }
 
     return h;
@@ -768,19 +785,19 @@ void FunctionType::finalize() {
 }
 
 void TypeBuilder::add_array(uint64_t size) {
-    type_stack.push(Arr {size});
+    type_stack.push(Arr{size});
 }
 
 void TypeBuilder::add_array() {
-    type_stack.push(Arr {{}});
+    type_stack.push(Arr{{}});
 }
 
 void TypeBuilder::add_pointer(bool is_const) {
-    type_stack.push(Ptr {is_const});
+    type_stack.push(Ptr{is_const});
 }
 
 void TypeBuilder::add_function(Location loc, Vec<FuncParam> params, bool variadic) {
-    type_stack.push(FnParams {loc, std::move(params), variadic});
+    type_stack.push(FnParams{loc, std::move(params), variadic});
 }
 
 void TypeBuilder::set_base(BaseType *base) {
@@ -793,34 +810,34 @@ Type *TypeBuilder::finalize() {
     }
 
     dbprint("TypeBuilder: finalizing type");
-    
+
     Type *curr = base;
     while (!type_stack.empty()) {
         auto next_cstrctr = type_stack.top();
-        std::visit(match{
-            [this, &curr] (Arr& a) mutable {
-                // Wrap the base in an array.
-                if (a.size) {
-                    curr = this->ctxt.get_array(curr, *a.size);
-                } else {
-                    curr = this->ctxt.get_array(curr);
-                }
-            },
-            [this, &curr] (Ptr& p) mutable {
-                // Wrap the base in a pointer.
-                curr = this->ctxt.get_pointer(curr, p.is_const);
-            },
-            [this, &curr] (FnParams& fn) mutable {
-                Vec<Type *> params;
-                // map out the identifiers.
-                params.reserve(fn.params.size());
-                for (auto& param : fn.params) {
-                    params.push_back(param.type);
-                }
-                // Wrap the base as the return type in a function type.
-                curr = this->ctxt.get_function(fn.loc, curr, std::move(params), fn.variadic);
-            }
-        }, next_cstrctr);
+        std::visit(match{[this, &curr](Arr& arr) mutable {
+                             // Wrap the base in an array.
+                             if (arr.size) {
+                                 curr = this->ctxt.get_array(curr, *arr.size);
+                             } else {
+                                 curr = this->ctxt.get_array(curr);
+                             }
+                         },
+                         [this, &curr](Ptr& ptr) mutable {
+                             // Wrap the base in a pointer.
+                             curr = this->ctxt.get_pointer(curr, ptr.is_const);
+                         },
+                         [this, &curr](FnParams& fn) mutable {
+                             Vec<Type *> params;
+                             // map out the identifiers.
+                             params.reserve(fn.params.size());
+                             for (auto& param : fn.params) {
+                                 params.push_back(param.type);
+                             }
+                             // Wrap the base as the return type in a function type.
+                             curr = this->ctxt.get_function(fn.loc, curr, std::move(params),
+                                                            fn.variadic);
+                         }},
+                   next_cstrctr);
 
         // Pop the stack to the next constructor
         type_stack.pop();
@@ -830,23 +847,22 @@ Type *TypeBuilder::finalize() {
 }
 
 /*
-* TYPE CONTEXT METHODS
-*/
+ * TYPE CONTEXT METHODS
+ */
 
 TypeContext::TypeContext(codegen::LLVMUnit& llvm)
-    : anonymous_ctr(0), user_types(), pointers(), arrays(), llvm(llvm),
-    voidt(std::make_unique<VoidType>(*this)),
-    u8(std::make_unique<PrimitiveType>(PrimType::U8, *this)),
-    u16(std::make_unique<PrimitiveType>(PrimType::U16, *this)),
-    u32(std::make_unique<PrimitiveType>(PrimType::U32, *this)),
-    u64(std::make_unique<PrimitiveType>(PrimType::U64, *this)),
-    i8(std::make_unique<PrimitiveType>(PrimType::I8, *this)),
-    i16(std::make_unique<PrimitiveType>(PrimType::I16, *this)),
-    i32(std::make_unique<PrimitiveType>(PrimType::I32, *this)),
-    i64(std::make_unique<PrimitiveType>(PrimType::I64, *this)),
-    f64(std::make_unique<PrimitiveType>(PrimType::F64, *this)),
-    boolt(std::make_unique<PrimitiveType>(PrimType::BOOL, *this))
-{}
+    : llvm(llvm), voidt(std::make_unique<VoidType>(*this)),
+      u8(std::make_unique<PrimitiveType>(PrimType::U8, *this)),
+      u16(std::make_unique<PrimitiveType>(PrimType::U16, *this)),
+      u32(std::make_unique<PrimitiveType>(PrimType::U32, *this)),
+      u64(std::make_unique<PrimitiveType>(PrimType::U64, *this)),
+      i8(std::make_unique<PrimitiveType>(PrimType::I8, *this)),
+      i16(std::make_unique<PrimitiveType>(PrimType::I16, *this)),
+      i32(std::make_unique<PrimitiveType>(PrimType::I32, *this)),
+      i64(std::make_unique<PrimitiveType>(PrimType::I64, *this)),
+      f64(std::make_unique<PrimitiveType>(PrimType::F64, *this)),
+      boolt(std::make_unique<PrimitiveType>(PrimType::BOOL, *this)) {
+}
 
 TypeBuilder TypeContext::builder() {
     return TypeBuilder(*this);
@@ -892,7 +908,7 @@ ClassType *TypeContext::get_class(Location decl_loc, std::string name, sym::Scop
 
     if (user_types.contains(mangled)) {
         dbprint("TypeContext: existing class found");
-        return user_types.find(mangled)->second.get()->as_class();
+        return user_types.find(mangled)->second->as_class();
     }
 
     Box<ClassType> clsty = std::make_unique<ClassType>(decl_loc, name, scope, *this);
@@ -926,7 +942,7 @@ UnionType *TypeContext::get_union(Location decl_loc, std::string name, sym::Scop
 
     if (user_types.contains(mangled)) {
         dbprint("TypeContext: existing union found");
-        return user_types.find(mangled)->second.get()->as_union();
+        return user_types.find(mangled)->second->as_union();
     }
 
     Box<UnionType> unnty = std::make_unique<UnionType>(decl_loc, name, scope, *this);
@@ -952,7 +968,7 @@ EnumType *TypeContext::get_enum(Location decl_loc, std::string name, sym::Scope 
 
     if (user_types.contains(mangled)) {
         dbprint("TypeContext: existing enum found");
-        return user_types.find(mangled)->second.get()->as_enum();
+        return user_types.find(mangled)->second->as_enum();
     }
 
     Box<EnumType> enmty = std::make_unique<EnumType>(decl_loc, name, scope, *this);
@@ -985,8 +1001,10 @@ PointerType *TypeContext::get_pointer(Type *base, bool is_const) {
 
     // If not found, create a new pointer.
     Box<PointerType> ptr = std::make_unique<PointerType>(base, *this);
+
     ptr->is_const = is_const;
-    auto ret = ptr.get();
+    auto *ret     = ptr.get();
+
     pointers[{base, is_const}] = std::move(ptr);
 
     return ret;
@@ -994,9 +1012,10 @@ PointerType *TypeContext::get_pointer(Type *base, bool is_const) {
 
 PointerType *TypeContext::decay_array(ArrayType *arr) {
     ArrayKey key = {arr->base, arr->arr_size};
+
     auto it = arrays.find(key);
     assert(it != arrays.end());
-    
+
     // Create the pointer type
     PointerType *ret = get_pointer(arr->base, false);
 
@@ -1018,8 +1037,8 @@ ArrayType *TypeContext::get_array(Type *base, uint64_t size) {
     }
 
     Box<ArrayType> arr = std::make_unique<ArrayType>(base, size, *this);
-    auto ret = arr.get();
-    arrays[key] = std::move(arr);
+    auto *ret          = arr.get();
+    arrays[key]        = std::move(arr);
 
     return ret;
 }
@@ -1035,8 +1054,8 @@ ArrayType *TypeContext::get_array(Type *base) {
     }
 
     Box<ArrayType> arr = std::make_unique<ArrayType>(base, *this);
-    auto ret = arr.get();
-    arrays[key] = std::move(arr);
+    auto *ret          = arr.get();
+    arrays[key]        = std::move(arr);
 
     return ret;
 }
@@ -1046,6 +1065,7 @@ ArrayType *TypeContext::set_array_size(Type *base, uint64_t size) {
 
     // If array of specified size already exists, return that
     ArrayKey key1 = {base, size};
+
     auto it = arrays.find(key1);
     if (it != arrays.end()) {
         it->second->ref_count++;
@@ -1060,13 +1080,15 @@ ArrayType *TypeContext::set_array_size(Type *base, uint64_t size) {
     return get_array(base, size);
 }
 
-FunctionType *TypeContext::get_function(Location loc, Type *returntype, Vec<Type *> params, bool variadic) {
+FunctionType *TypeContext::get_function(Location loc, Type *returntype, Vec<Type *> params,
+                                        bool variadic) {
     /*
     Function types do not need to be scope-aware, since their names are purely symbolic, and
-    have no bearing on type equality. If a pointer to a function that was declared in a non-global scope
-    is used where it is not declared, the SymbolTable resolves that automatically. We have to account for
-    scope with named types like class, union, and enum because their name is the main key to type equality,
-    and named types in a nested scope shadow any type with the same name in an outer scope.
+    have no bearing on type equality. If a pointer to a function that was declared in a non-global
+    scope is used where it is not declared, the SymbolTable resolves that automatically. We have to
+    account for scope with named types like class, union, and enum because their name is the main
+    key to type equality, and named types in a nested scope shadow any type with the same name in an
+    outer scope.
     */
 
     dbprint("TypeContext: getting function type");
@@ -1076,13 +1098,12 @@ FunctionType *TypeContext::get_function(Location loc, Type *returntype, Vec<Type
         throw InvalidReturnTypeError(loc);
     }
 
-
     Box<FunctionType> func = std::make_unique<FunctionType>(returntype, *this);
-    FunctionType *ret = func.get();
+    FunctionType *ret      = func.get();
 
     FunctionType::FunctionSignature sig = {returntype, std::move(params), variadic};
-    func->signature = std::move(sig);
-    
+    func->signature                     = std::move(sig);
+
     /*
     function type naming convention:
 
@@ -1090,11 +1111,8 @@ FunctionType *TypeContext::get_function(Location loc, Type *returntype, Vec<Type
     "function_<sig hash>" if not.
     */
     size_t hash = func->hash_sig();
-    std::string name;
-    if (variadic)
-        name = "function_v" + std::to_string(hash);
-    else
-        name = "function_" + std::to_string(hash);
+    std::string name =
+        variadic ? "function_v" + std::to_string(hash) : "function_" + std::to_string(hash);
 
     if (function_types.contains(name)) {
         dbprint("TypeContext: existing function type found");

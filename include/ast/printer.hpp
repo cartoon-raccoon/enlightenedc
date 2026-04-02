@@ -17,7 +17,6 @@ namespace ecc::ast {
 
 class ASTPrinter : public ASTVisitor {
 public:
-    ~ASTPrinter() = default;
 
     int indent = 0;
 

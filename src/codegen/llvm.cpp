@@ -1,8 +1,9 @@
 #include "codegen/llvm.hpp"
 
+#include <llvm/TargetParser/Host.h>
+
 #include "error.hpp"
 #include "util.hpp"
-#include <llvm/TargetParser/Host.h>
 
 using namespace ecc::codegen;
 using namespace llvm;
@@ -17,20 +18,20 @@ LLVMCore::LLVMCore() {
     llvm::InitializeAllAsmPrinters();
 
     auto triple_str = sys::getDefaultTargetTriple();
-    target_triple = Triple(triple_str);
+    target_triple   = Triple(triple_str);
     std::string error;
     target = TargetRegistry::lookupTarget(target_triple, error);
     if (!target) {
         throw EccError(ErrorSource::LLVM, error);
     }
 
-    auto cpu = sys::getHostCPUName();
-    auto features = "";
+    auto cpu             = sys::getHostCPUName();
+    const auto *features = "";
     TargetOptions opt;
 
-    target_machine = target->createTargetMachine(
-        Triple(target_triple), cpu, features, opt, Reloc::PIC_);
-    
+    target_machine =
+        target->createTargetMachine(Triple(target_triple), cpu, features, opt, Reloc::PIC_);
+
     dbprint("LLVM initialized");
 }
 
@@ -39,10 +40,10 @@ LLVMCore::~LLVMCore() {
     llvm::llvm_shutdown();
 }
 
-LLVMUnit::LLVMUnit(std::string& module_name, LLVMCore& llvmcore) : context(), llvmmod(), irbuilder() {
+LLVMUnit::LLVMUnit(std::string& module_name, LLVMCore& llvmcore) {
     dbprint("LLVM: Creating LLVMUnit with module name '", module_name, "'");
-    context = std::make_unique<llvm::LLVMContext>();
-    llvmmod = std::make_unique<llvm::Module>(module_name, *context);
+    context   = std::make_unique<llvm::LLVMContext>();
+    llvmmod   = std::make_unique<llvm::Module>(module_name, *context);
     irbuilder = std::make_unique<llvm::IRBuilder<>>(*context);
 
     llvmmod->setTargetTriple(llvmcore.target_triple);
@@ -53,5 +54,4 @@ LLVMUnit::LLVMUnit(std::string& module_name, LLVMCore& llvmcore) : context(), ll
 }
 
 LLVMUnit::~LLVMUnit() {
-    
 }

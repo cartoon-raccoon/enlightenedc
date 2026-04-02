@@ -101,11 +101,11 @@ public:
 
     bool is_external() const { return linkage != Linkage::INTERNAL; }
 
-    PhysicalSymbol *as_physical() { return this; }
+    PhysicalSymbol *as_physical() override { return this; }
 
     virtual types::Type *get_type() = 0;
 
-    bool is_abstract() { return false; }
+    bool is_abstract() override { return false; }
 };
 
 // A symbol that is abstract, and exists only for the purposes of the compiler.
@@ -116,9 +116,9 @@ public:
 
     AbstractSymbol(Kind kind, Location loc, std::string name, Scope *scope) : Symbol(kind, name, scope) {}
 
-    AbstractSymbol *as_abstract() { return this; }
+    AbstractSymbol *as_abstract() override { return this; }
 
-    bool is_abstract() { return true; }
+    bool is_abstract() override { return true; }
 };
 
 /*
@@ -145,7 +145,7 @@ public:
 
     bool is_funcparam = false;
 
-    virtual std::string to_string() const override;
+    std::string to_string() const override;
 
     std::string mangle() const override;
 
@@ -175,7 +175,7 @@ public:
     // The list of parameters to the function.
     Vec<VarSymbol *> parameters;
 
-    virtual std::string to_string() const override;
+    std::string to_string() const override;
 
     std::string mangle() const override;
 
@@ -197,7 +197,7 @@ public:
 
     types::BaseType *type;
 
-    virtual std::string to_string() const override;
+    std::string to_string() const override;
 
     std::string mangle() const override;
 
@@ -212,7 +212,7 @@ public:
     LabelSymbol(Location loc, std::string name, Scope *scope)
         : AbstractSymbol(Symbol::Kind::LABEL, loc, name, scope) {}
 
-    virtual std::string to_string() const override;
+    std::string to_string() const override;
 
     std::string mangle() const override;
 
@@ -227,10 +227,7 @@ A scope stores symbols inside a translation unit.
 class Scope {
 public:
     Scope(FuncSymbol *assoc, Scope *outer, uint64_t id)
-    : outer(outer), 
-    assoc(assoc), 
-    phys_symbols(), type_symbols(), label_symbols(),
-    nested(), id(id) {}
+        : outer(outer), assoc(assoc), id(id) {}
 
     // the outer scope enclosing the inner scope.
     Scope *outer;
@@ -238,11 +235,11 @@ public:
     // if null, this is an anonymous scope.
     FuncSymbol *assoc;
     // an ASTNode associated with this scope, if any.
-    ast::ASTNode *node;
+    ast::ASTNode *node = nullptr;
     // the symbol tables.
-    std::unordered_map<std::string, Box<PhysicalSymbol>> phys_symbols = {};
-    std::unordered_map<std::string, Box<TypeSymbol>> type_symbols = {};
-    std::unordered_map<std::string, Box<LabelSymbol>> label_symbols = {};
+    std::unordered_map<std::string, Box<PhysicalSymbol>> phys_symbols;
+    std::unordered_map<std::string, Box<TypeSymbol>> type_symbols;
+    std::unordered_map<std::string, Box<LabelSymbol>> label_symbols;
     // inner scopes contained within this scope.
     Vec<Box<Scope>> nested;
 

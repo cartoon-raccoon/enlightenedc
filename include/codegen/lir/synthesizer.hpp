@@ -19,7 +19,7 @@ using namespace util;
 
 namespace ecc::codegen::lir {
 
-class LIRSynthesizer : public sema::BaseMIRSemaVisitor {
+class LIRSynthesizer : public sema::BaseMIRSemaVisitor, public NoMove {
 public:
     LIRSynthesizer(ProgramLIR& prog_lir, LIRSymbolMap& symbolmap)
         : sema::BaseMIRSemaVisitor(State::READ), 
@@ -34,8 +34,6 @@ public:
     void generate_lir(sema::mir::ProgramMIR& prog);
 
 protected:
-    Box<ExprLIR> last_expr;
-
     // Emit a LIR item into the current queue.
     void emit(LIRSynthItem item);
 
@@ -89,6 +87,8 @@ protected:
     void do_visit(sema::mir::SizeofExprMIR& node) override;
 
 private:
+    Box<ExprLIR> last_expr;
+    
     std::queue<LIRSynthItem> current_q;
     std::stack<std::queue<LIRSynthItem>> queue_stack;
     std::stack<LIRFuncSym *> func_stack;

@@ -1,6 +1,7 @@
+#include "eval/exec.hpp"
+
 #include <variant>
 
-#include "eval/exec.hpp"
 #include "eval/value.hpp"
 #include "semantics/mir/mir.hpp"
 #include "tokens.hpp"
@@ -14,8 +15,7 @@ namespace ecc::exec {
 
 /* Helper function to throw an error if an expression can't be evaluated.
  */
-inline void throw_eval_error(const std::string& msg,
-                               const ExprMIR& expr) {
+inline void throw_eval_error(const std::string& msg, const ExprMIR& expr) {
     throw InvalidCompileTimeEval(msg, expr.loc);
 }
 
@@ -26,7 +26,7 @@ Value Evaluator::eval(ConstExprMIR& expr) {
 }
 
 Value Evaluator::eval(BinaryExprMIR& expr) {
-    Value left = expr.left->eval(*this);
+    Value left  = expr.left->eval(*this);
     Value right = expr.right->eval(*this);
 
     switch (expr.op) {
@@ -57,7 +57,6 @@ Value Evaluator::eval(BinaryExprMIR& expr) {
 Value Evaluator::eval(CastExprMIR& expr) {
     Value val = expr.inner->eval(*this);
 
-   
     return val; // todo
 }
 
@@ -95,8 +94,7 @@ Value Evaluator::eval(AssignExprMIR& expr) {
 Value Evaluator::eval(CondExprMIR& expr) {
     Value condition = expr.condition->eval(*this);
 
-    return condition ? expr.true_expr->eval(*this)
-                     : expr.false_expr->eval(*this);
+    return condition ? expr.true_expr->eval(*this) : expr.false_expr->eval(*this);
 }
 
 Value Evaluator::eval(IdentExprMIR& expr) {
@@ -111,7 +109,7 @@ Value Evaluator::eval(IdentExprMIR& expr) {
         throw_eval_error("unable to resolve value of identifier", expr);
     }
 
-    return std::monostate {};
+    return std::monostate{};
 }
 
 Value Evaluator::eval(LiteralExprMIR& expr) {
@@ -119,18 +117,15 @@ Value Evaluator::eval(LiteralExprMIR& expr) {
 }
 
 Value Evaluator::eval(CallExprMIR& expr) {
-    throw_eval_error(
-        "function calls cannot be evaluated at compile time", expr);
+    throw_eval_error("function calls cannot be evaluated at compile time", expr);
 }
 
 Value Evaluator::eval(MemberAccExprMIR& expr) {
-    throw_eval_error(
-        "compile-time member access evaluation is not currently supported", expr);
+    throw_eval_error("compile-time member access evaluation is not currently supported", expr);
 }
 
 Value Evaluator::eval(SubscrExprMIR& expr) {
-    throw_eval_error(
-        "compile-time array subscript evaluation is not currently supported", expr);
+    throw_eval_error("compile-time array subscript evaluation is not currently supported", expr);
 }
 
 Value Evaluator::eval(PostfixExprMIR& expr) {
@@ -155,4 +150,4 @@ Value Evaluator::eval(SizeofExprMIR& expr) {
     throw_eval_error("invalid sizeof operand", expr);
 }
 
-}
+} // namespace ecc::exec

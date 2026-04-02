@@ -40,7 +40,7 @@ public:
     /*
     The state of the BaseSemanticVisitor.
     */
-    enum State {
+    enum State : uint8_t {
         // The visitor should populate the symbol table and type context.
         READ,
         // The symbol table and type context have already been populated,
@@ -86,6 +86,8 @@ public:
 #endif
 
     BaseSemanticVisitor(State state) {}
+
+    virtual ~BaseSemanticVisitor() = default;
 }; // class BaseSemanticVisitor
 
 
@@ -99,7 +101,7 @@ When the destructor is called, the ScopeGuard automatically pops the scope from 
 stored symbol table reference.
 */
 template <typename Node>
-class ScopeGuard {
+class ScopeGuard : public NoCopy {
 public:
     friend class BaseASTSemaVisitor;
     friend class BaseMIRSemaVisitor;
@@ -114,7 +116,7 @@ public:
     }
 
     // Allow the ScopeGuard to be moved.
-    ScopeGuard(ScopeGuard&& other) : st(other.st) {}
+    ScopeGuard(ScopeGuard&& other) noexcept : st(other.st) {}
 
     ~ScopeGuard() {
         st.pop_scope();
@@ -137,7 +139,7 @@ When a NodeGuard is created, it pushes an associated ASTNode onto the
 context. When it is destroyed, it pops the top node from the context.
 */
 template <typename Node>
-class NodeGuard {
+class NodeGuard : public NoCopy {
 public:
     friend class BaseASTSemaVisitor;
     friend class BaseMIRSemaVisitor;
@@ -430,7 +432,7 @@ protected:
 /*
 The parent class that owns the symbol table and type context.
 */
-class SemanticChecker {
+class SemanticChecker : public NoMove {
 public:
     SemanticChecker(sym::SymbolTable& symbols, types::TypeContext& types) :
     symbols(symbols),

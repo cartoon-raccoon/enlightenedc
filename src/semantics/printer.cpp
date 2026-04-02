@@ -3,8 +3,8 @@
 
 #include "semantics/symbols.hpp"
 #include "semantics/types.hpp"
-#include "util.hpp"
 #include "tokens.hpp"
+#include "util.hpp"
 
 using namespace ecc::sema;
 using namespace ecc::sema::sym;
@@ -245,7 +245,7 @@ std::string FunctionType::to_string() const {
 
     bool first = true;
 
-    for (auto* p : signature.params) {
+    for (auto *p : signature.params) {
         if (!first)
             ss << ", ";
         first = false;
@@ -280,7 +280,7 @@ std::string TypeContext::to_string() const {
 
     ss << "\nFunction Types:\n";
 
-    for (auto const&[name, type] : function_types) {
+    for (auto const& [name, type] : function_types) {
         ss << "  " << name << " : " << type->to_string() << "\n";
     }
 
@@ -293,7 +293,7 @@ std::string TypeContext::to_string() const {
     ss << "\nArray Types:\n";
 
     for (auto const& [key, arr] : arrays) {
-        ss << " : " << arr->to_string() << " #" << arr->ref_count <<"\n";
+        ss << " : " << arr->to_string() << " #" << arr->ref_count << "\n";
     }
 
     ss << "\n";
@@ -301,7 +301,7 @@ std::string TypeContext::to_string() const {
     return ss.str();
 }
 
-static void print_scope(std::stringstream& ss, Scope* scope, int depth) {
+static void print_scope(std::stringstream& ss, Scope *scope, int depth) {
     std::string indent(depth * 2, ' ');
 
     ss << indent << "Scope " << scope->id;
@@ -313,24 +313,24 @@ static void print_scope(std::stringstream& ss, Scope* scope, int depth) {
     if (!scope->phys_symbols.empty()) {
         ss << indent << "Physical Symbols:\n";
         for (auto const& [name, sym] : scope->phys_symbols) {
-            ss << indent << "  " << name << " -> " << sym.get() << " : "
-               << sym->to_string() << "\n";
+            ss << indent << "  " << name << " -> " << sym.get() << " : " << sym->to_string()
+               << "\n";
         }
     }
 
     if (!scope->type_symbols.empty()) {
         ss << "\n" << indent << "Type Symbols:\n";
         for (auto const& [name, sym] : scope->type_symbols) {
-            ss << indent << "  " << name << " -> " << sym.get() << " : "
-               << sym->to_string() << "\n";
+            ss << indent << "  " << name << " -> " << sym.get() << " : " << sym->to_string()
+               << "\n";
         }
     }
 
     if (!scope->label_symbols.empty()) {
         ss << "\n" << indent << "Label Symbols:\n";
         for (auto const& [name, sym] : scope->label_symbols) {
-            ss << indent << "  " << name << " -> " << sym.get() << " : "
-               << sym->to_string() << "\n";
+            ss << indent << "  " << name << " -> " << sym.get() << " : " << sym->to_string()
+               << "\n";
         }
     }
 

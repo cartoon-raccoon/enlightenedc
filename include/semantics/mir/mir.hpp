@@ -32,7 +32,7 @@ class MIRVisitor;
 /*
 A simpler version of the AST, mapping symbols directly to types.
 */
-class MIRNode {
+class MIRNode : public NoCopy {
 public:
     enum class NodeKind {
         PROG_MIR,
@@ -70,7 +70,7 @@ public:
         SIZEEXPR_MIR,
     };
 
-    MIRNode(NodeKind kind) : kind(kind), loc() {}
+    MIRNode(NodeKind kind) : kind(kind) {}
 
     MIRNode(Location loc, NodeKind kind) : kind(kind), loc(loc) {}
     virtual ~MIRNode() = default;
@@ -694,7 +694,7 @@ public:
 
 class ProgramMIR : public MIRNode {
 public:
-    ProgramMIR() : MIRNode(NodeKind::PROG_MIR), items() {}
+    ProgramMIR() : MIRNode(NodeKind::PROG_MIR) {}
 
     ProgramMIR(Vec<Box<ProgItemMIR>> items)
         : MIRNode(NodeKind::PROG_MIR), items(std::move(items)) {}

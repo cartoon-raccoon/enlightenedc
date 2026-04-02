@@ -1,11 +1,12 @@
 #include "ast/printer.hpp"
-#include "ast/ast.hpp"
-#include "tokens.hpp"
 
 #include <iostream>
+#include <ranges>
 #include <string>
 #include <variant>
-#include <ranges>
+
+#include "ast/ast.hpp"
+#include "tokens.hpp"
 
 using namespace ecc::ast;
 
@@ -80,7 +81,6 @@ std::string ASTPrinter::unop_to_string(tokens::UnaryOp op) {
         return "!";
     }
 }
-
 
 std::string ASTPrinter::assignop_to_string(tokens::AssignOp op) {
     switch (op) {
@@ -197,8 +197,7 @@ void ASTPrinter::visit(Function& node) {
             for (auto& spec : node.decl_spec_list)
                 spec->accept(*this);
         },
-        [&] { node.declarator->accept(*this); },
-        [&] { node.body->accept(*this); });
+        [&] { node.declarator->accept(*this); }, [&] { node.body->accept(*this); });
 }
 
 void ASTPrinter::visit(CompoundStatement& node) {
@@ -217,49 +216,29 @@ void ASTPrinter::visit(ExpressionStatement& node) {
 
 void ASTPrinter::visit(CaseStatement& node) {
     print_node(
-        "CaseStatement: " ,
-        node,
-        [&] {
-            node.case_expr->accept(*this);
-        },
+        "CaseStatement: ", node, [&] { node.case_expr->accept(*this); },
         [&] { node.statement->accept(*this); });
 }
 
 void ASTPrinter::visit(CaseRangeStatement& node) {
     print_node(
-        "CaseRangeStatement: ",
-        node,
-        [&] {
-            node.range_start->accept(*this);
-        },
-        [&] {
-            node.range_end->accept(*this);
-        },
-        [&] { node.statement->accept(*this); });
+        "CaseRangeStatement: ", node, [&] { node.range_start->accept(*this); },
+        [&] { node.range_end->accept(*this); }, [&] { node.statement->accept(*this); });
 }
 
 void ASTPrinter::visit(DefaultStatement& node) {
-    print_node(
-        "DefaultStatement: ",
-        node,
-        [&] { node.statement->accept(*this); });
+    print_node("DefaultStatement: ", node, [&] { node.statement->accept(*this); });
 }
 
 void ASTPrinter::visit(ContinueStatement& node) {
-    print_node(
-        "ContinueStatement: ",
-        node);
+    print_node("ContinueStatement: ", node);
 }
 
 void ASTPrinter::visit(LabeledStatement& node) {
-    print_node(
-        "LabeledStatement: " + node.label,
-        node,
-        [&] {
-            if (node.statement)
-                node.statement->accept(*this);
-        }
-    );
+    print_node("LabeledStatement: " + node.label, node, [&] {
+        if (node.statement)
+            node.statement->accept(*this);
+    });
 }
 
 void ASTPrinter::visit(PrintStatement& node) {
@@ -302,14 +281,9 @@ void ASTPrinter::visit(ForStatement& node) {
         "ForStatement", node,
         [&] {
             if (node.init) {
-                std::visit(match {
-                    [this] (Box<Expression>& expr) {
-                        expr->accept(*this);
-                    },
-                    [this] (Box<VariableDeclaration>& decl) {
-                        decl->accept(*this);
-                    }
-                }, *node.init);
+                std::visit(match{[this](Box<Expression>& expr) { expr->accept(*this); },
+                                 [this](Box<VariableDeclaration>& decl) { decl->accept(*this); }},
+                           *node.init);
             }
         },
         [&] {
@@ -324,29 +298,19 @@ void ASTPrinter::visit(ForStatement& node) {
 }
 
 void ASTPrinter::visit(GotoStatement& node) {
-    print_node(
-        "GotoStatement: " + node.target_label,
-        node
-    );
+    print_node("GotoStatement: " + node.target_label, node);
 }
 
 void ASTPrinter::visit(BreakStatement& node) {
-    print_node(
-        "BreakStatement",
-        node
-    );
+    print_node("BreakStatement", node);
 }
 
 void ASTPrinter::visit(ReturnStatement& node) {
-    print_node(
-        "ReturnStatement",
-        node,
-        [&] {
-            if (node.return_value) {
-                node.return_value.value()->accept(*this);
-            }
+    print_node("ReturnStatement", node, [&] {
+        if (node.return_value) {
+            node.return_value.value()->accept(*this);
         }
-    );
+    });
 }
 
 void ASTPrinter::visit(TypeDeclaration& node) {
@@ -417,9 +381,8 @@ void ASTPrinter::visit(ArrayDeclarator& node) {
 
 void ASTPrinter::visit(FunctionDeclarator& node) {
     print_node(
-        std::string("FunctionDeclarator") +
-            (node.is_variadic ? " (variadic)" : ""),
-        node, [&] { node.base->accept(*this); },
+        std::string("FunctionDeclarator") + (node.is_variadic ? " (variadic)" : ""), node,
+        [&] { node.base->accept(*this); },
         [&] {
             for (auto& param : node.parameters)
                 param->accept(*this);
@@ -469,8 +432,7 @@ void ASTPrinter::visit(Enumerator& node) {
 }
 
 void ASTPrinter::visit(StorageClassSpecifier& node) {
-    print_node("StorageClassSpecifier: " + storage_to_string(node.type),
-                node);
+    print_node("StorageClassSpecifier: " + storage_to_string(node.type), node);
 }
 
 void ASTPrinter::visit(TypeIdentifier& node) {
@@ -490,59 +452,51 @@ void ASTPrinter::visit(TypeQualifier& node) {
 }
 
 void ASTPrinter::visit(EnumSpecifier& node) {
-    print_node(std::string("EnumSpecifier") +
-                    (node.name ? ": " + node.name.value() : "") +
-                    (node.underlying ? " " + primitive_to_string(*node.underlying) : ""),
-                node, [&] {
-                    if (node.enumerators)
-                        for (auto& e : node.enumerators.value())
-                            e->accept(*this);
-                });
+    print_node(std::string("EnumSpecifier") + (node.name ? ": " + node.name.value() : "") +
+                   (node.underlying ? " " + primitive_to_string(*node.underlying) : ""),
+               node, [&] {
+                   if (node.enumerators)
+                       for (auto& e : node.enumerators.value())
+                           e->accept(*this);
+               });
 }
 
 void ASTPrinter::visit(ClassSpecifier& node) {
     std::string parents;
     if (node.parents.has_value()) {
-        parents = node.parents.value() | std::views::join_with(' ') | std::ranges::to<std::string>();
+        parents =
+            node.parents.value() | std::views::join_with(' ') | std::ranges::to<std::string>();
     } else {
         parents = "";
     }
 
-    print_node("ClassSpecifier: " +
-                    (node.name ? " " + node.name.value() : "")
-                    + ":"
-                    + parents
-                    ,
-                node, [&] {
-                    if (node.declarations)
-                        for (auto& decl : node.declarations.value())
-                            decl->accept(*this);
-                });
+    print_node("ClassSpecifier: " + (node.name ? " " + node.name.value() : "") + ":" + parents,
+               node, [&] {
+                   if (node.declarations)
+                       for (auto& decl : node.declarations.value())
+                           decl->accept(*this);
+               });
 }
 
 void ASTPrinter::visit(UnionSpecifier& node) {
 
-    print_node("UnionSpecifier: " +
-                    (node.name ? " " + node.name.value() : ""),
-                node, [&] {
-                    if (node.declarations)
-                        for (auto& decl : node.declarations.value())
-                            decl->accept(*this);
-                });
+    print_node("UnionSpecifier: " + (node.name ? " " + node.name.value() : ""), node, [&] {
+        if (node.declarations)
+            for (auto& decl : node.declarations.value())
+                decl->accept(*this);
+    });
 }
 
 void ASTPrinter::visit(Initializer& node) {
-    print_node(
-        "Initializer: ", node,
-        [&] {
-            if (auto* s = std::get_if<Box<Expression>>(&node.initializer)) {
-                (*s)->accept(*this);
-            } else if (auto* s = std::get_if<Vec<Box<Initializer>>>(&node.initializer)) {
-                for (auto& init : *s) {
-                    init->accept(*this);
-                }
+    print_node("Initializer: ", node, [&] {
+        if (auto *s = std::get_if<Box<Expression>>(&node.initializer)) {
+            (*s)->accept(*this);
+        } else if (auto *s = std::get_if<Vec<Box<Initializer>>>(&node.initializer)) {
+            for (auto& init : *s) {
+                init->accept(*this);
             }
-        });
+        }
+    });
 }
 
 void ASTPrinter::visit(TypeName& node) {
@@ -556,16 +510,16 @@ void ASTPrinter::visit(TypeName& node) {
 
 void ASTPrinter::visit(LiteralExpression& node) {
     switch (node.kind) {
-        case LiteralExpression::LiteralKind::INT:
+    case LiteralExpression::LiteralKind::INT:
         print_node("Literal: " + std::to_string(node.value.i_val), node);
         break;
-        case LiteralExpression::LiteralKind::FLOAT:
+    case LiteralExpression::LiteralKind::FLOAT:
         print_node("Literal: " + std::to_string(node.value.f_val), node);
         break;
-        case LiteralExpression::LiteralKind::CHAR:
+    case LiteralExpression::LiteralKind::CHAR:
         print_node("Literal: " + std::to_string(node.value.c_val), node);
         break;
-        case LiteralExpression::LiteralKind::BOOL:
+    case LiteralExpression::LiteralKind::BOOL:
         print_node("Literal: " + std::to_string(node.value.b_val), node);
         break;
     }
@@ -580,44 +534,36 @@ void ASTPrinter::visit(IdentifierExpression& node) {
 }
 
 void ASTPrinter::visit(ConstExpression& node) {
-    print_node("ConstExpression: ", node,
-        [&] { node.inner->accept(*this); }
-    );
+    print_node("ConstExpression: ", node, [&] { node.inner->accept(*this); });
 }
 
 void ASTPrinter::visit(BinaryExpression& node) {
     print_node(
-        "BinaryExpression: " + binop_to_string(node.op), node,
-        [&] { node.left->accept(*this); },
+        "BinaryExpression: " + binop_to_string(node.op), node, [&] { node.left->accept(*this); },
         [&] { node.right->accept(*this); });
 }
 
 void ASTPrinter::visit(CastExpression& node) {
     print_node(
-        "CastExpression: ", node,
-        [&] { node.inner->accept(*this); },
-        [&] { node.type_name->accept(*this); }
-    );
+        "CastExpression: ", node, [&] { node.inner->accept(*this); },
+        [&] { node.type_name->accept(*this); });
 }
 
 void ASTPrinter::visit(UnaryExpression& node) {
     print_node("UnaryExpression: " + unop_to_string(node.op), node,
-                [&] { node.operand->accept(*this); });
+               [&] { node.operand->accept(*this); });
 }
 
 void ASTPrinter::visit(AssignmentExpression& node) {
     print_node(
         "AssignmentExpression: " + assignop_to_string(node.op), node,
-        [&] { node.left->accept(*this); },
-        [&] { node.right->accept(*this); });
+        [&] { node.left->accept(*this); }, [&] { node.right->accept(*this); });
 }
 
 void ASTPrinter::visit(ConditionalExpression& node) {
     print_node(
-        "ConditionalExpression", node,
-        [&] { node.condition->accept(*this); },
-        [&] { node.true_expr->accept(*this); },
-        [&] { node.false_expr->accept(*this); });
+        "ConditionalExpression", node, [&] { node.condition->accept(*this); },
+        [&] { node.true_expr->accept(*this); }, [&] { node.false_expr->accept(*this); });
 }
 
 void ASTPrinter::visit(CallExpression& node) {
@@ -630,21 +576,19 @@ void ASTPrinter::visit(CallExpression& node) {
 }
 
 void ASTPrinter::visit(MemberAccessExpression& node) {
-    print_node(std::string("MemberAccess: ") +
-                    (node.is_arrow ? "->" : ".") + node.member,
-                node, [&] { node.object->accept(*this); });
+    print_node(std::string("MemberAccess: ") + (node.is_arrow ? "->" : ".") + node.member, node,
+               [&] { node.object->accept(*this); });
 }
 
 void ASTPrinter::visit(ArraySubscriptExpression& node) {
     print_node(
-        "ArraySubscriptExpression", node,
-        [&] { node.array->accept(*this); },
+        "ArraySubscriptExpression", node, [&] { node.array->accept(*this); },
         [&] { node.index->accept(*this); });
 }
 
 void ASTPrinter::visit(PostfixExpression& node) {
     print_node("PostfixExpression: " + postfixop_to_string(node.op), node,
-                [&] { node.operand->accept(*this); });
+               [&] { node.operand->accept(*this); });
 }
 
 void ASTPrinter::visit(SizeofExpression& node) {

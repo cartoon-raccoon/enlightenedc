@@ -23,9 +23,9 @@ class StmtLIR;
 class FunctionLIR;
 class SwitchTarget;
 
-class LIRNode {
+class LIRNode : public NoCopy {
 public:
-    enum class NodeKind {
+    enum class NodeKind : uint8_t {
         PROG_LIR,
         FUNC_LIR,
         VARDECL_LIR,
@@ -54,7 +54,7 @@ public:
         PFIXEXPR_LIR,
     };
 
-    LIRNode(NodeKind kind) : kind(kind), loc() {}
+    LIRNode(NodeKind kind) : kind(kind) {}
     LIRNode(Location loc, NodeKind kind) : kind(kind), loc(loc) {}
     virtual ~LIRNode() = default;
 
@@ -74,8 +74,6 @@ public:
     virtual DeclLIR *as_decl() { return nullptr; }
     virtual StmtLIR *as_stmt() { return nullptr; }
     virtual FunctionLIR *as_func() { return nullptr; }
-
-    virtual void accept(LIRVisitor& visitor) = 0;
 };
 
 class DeclLIR : public ProgItemLIR {
@@ -83,9 +81,7 @@ public:
     DeclLIR(NodeKind kind) : ProgItemLIR(kind) {}
     DeclLIR(Location loc, NodeKind kind) : ProgItemLIR(loc, kind) {}
 
-    virtual DeclLIR *as_decl() { return this; }
-
-    virtual void accept(LIRVisitor& visitor) = 0;
+    DeclLIR *as_decl() override { return this; }
 };
 
 class StmtLIR : public ProgItemLIR {
@@ -93,14 +89,12 @@ public:
     StmtLIR(NodeKind kind) : ProgItemLIR(kind) {}
     StmtLIR(Location loc, NodeKind kind) : ProgItemLIR(loc, kind) {}
 
-    virtual StmtLIR *as_stmt() { return this; }
+    StmtLIR *as_stmt() override { return this; }
 
     virtual Vec<SwitchTarget *> pull_switch_targets() = 0;
 
     virtual bool is_terminal() { return false; }
     virtual bool is_jump_target() { return false; }
-
-    virtual void accept(LIRVisitor& visitor) = 0;
 };
 
 /*
@@ -113,8 +107,6 @@ public:
     virtual Vec<SwitchTarget *> pull_switch_targets() { return {}; }
 
     virtual bool is_terminal() { return true; }
-
-    virtual void accept(LIRVisitor& visitor) = 0;
 };
 
 class SwitchTarget : public StmtLIR {
@@ -123,8 +115,6 @@ public:
         : StmtLIR(loc, kind) {}
 
     virtual bool is_jump_target() { return true; }
-
-    virtual void accept(LIRVisitor& visitor) = 0;
 };
 
 class ExprLIR : public LIRNode {
@@ -135,8 +125,6 @@ public:
         LIRNode(loc, kind), type(type) {}
 
     sema::types::Type *type;
-
-    virtual void accept(LIRVisitor& visitor) = 0;
 };
 
 class FunctionLIR : public ProgItemLIR {
@@ -144,7 +132,7 @@ public:
     FunctionLIR(Location loc, 
                 std::string mangled, 
                 std::string name)
-        : ProgItemLIR(loc, NodeKind::FUNC_LIR), locals(), body() {}
+        : ProgItemLIR(loc, NodeKind::FUNC_LIR) {}
     
     std::string mangled_name;
     std::string name;
@@ -228,7 +216,7 @@ class CaseStmtLIR : public SwitchTarget {
 public:
     CaseStmtLIR(Location loc, exec::Value case_value)
         : SwitchTarget(loc, NodeKind::CASESTMT_LIR), 
-        case_value(case_value), body() {}
+        case_value(case_value) {}
     
     exec::Value case_value;
 
@@ -242,7 +230,7 @@ public:
 class DefaultStmtLIR : public SwitchTarget {
 public:
     DefaultStmtLIR(Location loc)
-        : SwitchTarget(loc, NodeKind::DEFSTMT_LIR), body() {}
+        : SwitchTarget(loc, NodeKind::DEFSTMT_LIR) {}
     
     Vec<Box<StmtLIR>> body;
 
@@ -315,8 +303,7 @@ public:
 class LoopStmtLIR : public StmtLIR {
 public:
     LoopStmtLIR(Location loc)
-        : StmtLIR(loc, NodeKind::LOOPSTMT_LIR),
-        init(), condition(), step(), body() {}
+        : StmtLIR(loc, NodeKind::LOOPSTMT_LIR) {}
 
     Optional<Vec<Box<StmtLIR>>> init;
     Optional<Box<ExprLIR>> condition;
@@ -441,7 +428,7 @@ public:
     Box<ExprLIR> callee;
     Vec<ExprLIR> args;
 
-    void accept(LIRVisitor& visit);
+    void accept(LIRVisitor& visit) override;
 };
 
 class MemberAccExprLIR : public ExprLIR {
@@ -471,7 +458,7 @@ public:
 class ProgramLIR : public LIRNode {
 public:
     ProgramLIR()
-        : LIRNode(NodeKind::PROG_LIR), functions(), globals(), statements() {}
+        : LIRNode(NodeKind::PROG_LIR) {}
     
     Vec<Box<FunctionLIR>> functions;
     /*

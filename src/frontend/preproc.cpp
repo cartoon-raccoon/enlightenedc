@@ -4,8 +4,8 @@ extern "C" {
 #include <stdio.h>
 }
 
-#include "frontend/preproc.hpp"
 #include "error.hpp"
+#include "frontend/preproc.hpp"
 
 using namespace ecc::frontend;
 
@@ -26,7 +26,7 @@ Preprocessor::Preprocessor(const std::string *filename) : std::istream(nullptr) 
 void Preprocessor::close() {
     if (pipe) {
         int res = pclose(pipe);
-        pipe = nullptr;
+        pipe    = nullptr;
         if (res != 0) {
             throw PreprocError();
         }

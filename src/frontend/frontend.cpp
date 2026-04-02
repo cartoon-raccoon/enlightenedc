@@ -1,11 +1,12 @@
+#include "frontend/frontend.hpp"
+
 #include <set>
 
 #include "ast/printer.hpp"
 #include "driver/driver.hpp"
-#include "frontend/frontend.hpp"
 #include "frontend/lexer.hpp"
-#include "parser.hpp"
 #include "frontend/preproc.hpp"
+#include "parser.hpp"
 #include "util.hpp"
 
 using namespace ecc::frontend;
@@ -15,7 +16,7 @@ void Frontend::run(driver::TranslationUnit& unit) {
     Preprocessor preproc(unit.filename);
 
     // bodge for lexer hack
-    std::set<std::string> typedefs {};
+    std::set<std::string> typedefs{};
 
     Lexer lexer(&preproc, unit.filename, typedefs);
     Parser parser(lexer, *unit.ast_root, typedefs);
@@ -23,7 +24,7 @@ void Frontend::run(driver::TranslationUnit& unit) {
     try {
 
         // temp for testing
-        //parser.set_debug_level(1);
+        // parser.set_debug_level(1);
         parser.parse();
     } catch (ParseError& e) {
         // the preprocessor exiting before processing the entire file
@@ -37,7 +38,7 @@ void Frontend::run(driver::TranslationUnit& unit) {
         throw e;
     }
     preproc.close();
-    
+
     // todo: hide this behind an if guard
     dbprint("printing AST for file ", *unit.filename);
     ast::ASTPrinter printer;

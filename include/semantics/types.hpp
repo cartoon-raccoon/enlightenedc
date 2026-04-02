@@ -57,14 +57,14 @@ A handle to a Type object, ensuring that the internal Type * can never be null.
 */
 template <typename Ty>
 requires std::derived_from<Ty, Type>
-class TypeHandle {
+class TypeHandle : public NoMove {
     static_assert(std::is_base_of_v<Type, Ty>, "Ty must be a Type" );
 
     Ty *ptr;
     TypeContext& tyctxt;
     
-    TypeHandle(Ty *p, TypeContext& tyctxt) : ptr(p), tyctxt(tyctxt) {
-        assert(p != nullptr && "tried to create TypeHandle from null Type pointer");
+    TypeHandle(Ty *ptr, TypeContext& tyctxt) : ptr(ptr), tyctxt(tyctxt) {
+        assert(ptr != nullptr && "tried to create TypeHandle from null Type pointer");
     }
     friend class TypeContext;
 public:
@@ -111,9 +111,9 @@ They are instead created and managed by a `TypeContext`, and are retrieved using
 
 Type size and member alignment is calculated at compile time, using LLVM's `DataLayout` class.
 */
-class Type {
+class Type : public NoCopy, public NoMove {
 public:
-    enum Kind {
+    enum Kind : uint8_t {
         VOID,
         PRIMITIVE,
         CLASS,
@@ -127,16 +127,16 @@ public:
     // The kind of the type.
     Kind kind;
 
-    bool is_void();
-    bool is_primitive();
+    bool is_void() const;
+    bool is_primitive() const;
 
-    bool is_class();
-    bool is_union();
-    bool is_enum();
+    bool is_class() const;
+    bool is_union() const;
+    bool is_enum() const;
 
-    bool is_pointer();
-    bool is_array();
-    bool is_function();
+    bool is_pointer() const;
+    bool is_array() const;
+    bool is_function() const;
 
     virtual bool is_basetype() { return false; }
 
@@ -234,9 +234,10 @@ public:
 
     Type& operator=(const Type other) = delete;
 
+    virtual ~Type() = default;
+
 protected:
     Type(Kind kind, TypeContext& tyctxt) : kind(kind), tyctxt(tyctxt) {}
-    virtual ~Type() = default;
     codegen::LLVMType *llvm_type = nullptr;
 
     friend class TypeContext;
@@ -344,7 +345,7 @@ public:
 
     void finalize() override;
 
-    virtual std::string to_string() const override { return "Void"; }
+    std::string to_string() const override { return "Void"; }
 protected:
     friend class TypeContext;
 
@@ -373,34 +374,34 @@ public:
 
     tokens::PrimType primkind;
 
-    bool is_compatible_with(Type *dst) override;
+    bool is_compatible_with(Type *from) override;
 
     // Whether this Primitive type can be represented as an integer.
     // Returns true for all primitive types except F64 and Bool.
-    bool is_integer();
+    bool is_integer() const;
 
-    bool is_float();
+    bool is_float() const;
 
-    bool is_bool();
+    bool is_bool() const;
 
     /**
     Returns whether the primitive type is signed.
     */
-    bool is_signed();
+    bool is_signed() const;
 
     /**
     The integer maximum of the primitive type.
 
     Returns an empty optional if the primitive is a floating point or bool.
     */
-    Optional<uint64_t> int_max();
+    Optional<uint64_t> int_max() const;
 
     /**
     The floating point maximum of the primitive type.
 
     Returns an empty optional if the primitive is an integer.
     */
-    Optional<double> flt_max();
+    Optional<double> flt_max() const;
 
     PrimitiveType *as_primitive() override { return this; }
 
@@ -439,7 +440,7 @@ public:
         ClassTypeMember(std::string name, Type *ty, Location loc)
             : name(name), ty(ty), loc(loc) {}
         ClassTypeMember(Optional<std::string> name, Type *ty, Location loc)
-            : name(name), ty(ty), loc(loc) {}
+            : name(std::move(name)), ty(ty), loc(loc) {}
     };
 
     /**
@@ -463,7 +464,7 @@ public:
 
     ClassTypeMember *index(int idx);
 
-    int num_members() { return members.size(); }
+    size_t num_members() const { return members.size(); }
 
     ClassType *as_class() override { return this; }
 
@@ -537,12 +538,12 @@ public:
         UnionTypeMember(std::string name, Type *ty, Location loc)
             : name(name), ty(ty), loc(loc) {}
         UnionTypeMember(Optional<std::string> name, Type *ty, Location loc)
-            : name(name), ty(ty), loc(loc) {}
+            : name(std::move(name)), ty(ty), loc(loc) {}
     };
 
     Vec<Box<UnionTypeMember>> members;
 
-    Optional<PrimitiveType *> type_rep = {};
+    Optional<PrimitiveType *> type_rep;
 
     bool is_fully_defined() override;
 
@@ -556,7 +557,7 @@ public:
 
     UnionTypeMember *index(int idx);
 
-    int num_members() { return members.size(); }
+    size_t num_members() const { return members.size(); }
 
     UnionType *as_union() override { return this; }
 
@@ -581,9 +582,9 @@ protected:
             Location&, std::string&, sema::sym::Scope *&, TypeContext&);
 
     UnionType(Location decl_loc, sema::sym::Scope *scope, TypeContext& tyctxt)
-        : UserType(decl_loc, Kind::UNION, tyctxt, scope), members() {}
+        : UserType(decl_loc, Kind::UNION, tyctxt, scope) {}
     UnionType(Location decl_loc, std::string name, sema::sym::Scope *scope, TypeContext& tyctxt)
-        : UserType(decl_loc, Kind::UNION, name, tyctxt, scope), members() {}
+        : UserType(decl_loc, Kind::UNION, std::move(name), tyctxt, scope) {}
 };
 
 
@@ -623,7 +624,7 @@ public:
     EnumTypeMember *find(std::string& name);
 
     // Find enumerator at the specified index.
-    EnumTypeMember *find(size_t i);
+    EnumTypeMember *find(size_t idx);
 
     bool is_compatible_with(Type *dst) override;
 
@@ -814,12 +815,7 @@ public:
                 }
             }
 
-            // Test variadic flag
-            if (variadic != other.variadic) {
-                return false;
-            }
-
-            return true;
+            return variadic != other.variadic;
         }
     };
 
@@ -830,15 +826,15 @@ public:
     // Generate a hash based on the function signature.
     std::size_t hash_sig();
 
-    Type *returntype() { return signature.returntype; }
+    Type *returntype() const { return signature.returntype; }
 
     Vec<Type *>& params() { return signature.params; }
 
-    int num_params() { return signature.params.size(); }
+    size_t num_params() const { return signature.params.size(); }
 
     Type *param_idx(int idx) { return signature.params[idx]; }
 
-    bool no_params() { return signature.params.empty(); }
+    bool no_params() const { return signature.params.empty(); }
 
     bool is_callable() override { return true; }
 
@@ -899,7 +895,7 @@ public:
         bool variadic;
     };
 
-    BaseType *base;
+    BaseType *base = nullptr;
 
     TypeContext& ctxt;
 
@@ -910,7 +906,7 @@ protected:
     friend class TypeContext;
     friend constexpr Box<TypeBuilder> std::make_unique<TypeBuilder>(TypeContext&);
 
-    TypeBuilder(TypeContext& ctxt) : ctxt(ctxt), base(nullptr) {}
+    TypeBuilder(TypeContext& ctxt) : ctxt(ctxt) {}
 };
 
 /**
@@ -1047,6 +1043,7 @@ public:
 
 private:
     int anonymous_ctr = 0;
+
     codegen::LLVMUnit& llvm;
 
     // intern the primitive language-defined types directly in the context.
@@ -1069,7 +1066,7 @@ private:
             auto h1 = std::hash<Type *>{}(p.first);
             auto h2 = std::hash<T>{}(p.second);
 
-            return h1 ^ h2 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2);
+            return h1 ^ (h2 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2));
         }
     };
 

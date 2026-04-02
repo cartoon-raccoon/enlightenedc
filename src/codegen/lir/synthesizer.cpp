@@ -1,6 +1,7 @@
+#include "codegen/lir/synthesizer.hpp"
+
 #include <stdexcept>
 
-#include "codegen/lir/synthesizer.hpp"
 #include "codegen/lir/lir.hpp"
 #include "codegen/lir/symbols.hpp"
 #include "semantics/mir/mir.hpp"
@@ -63,55 +64,48 @@ void LIRSynthesizer::do_visit(ProgramMIR& node) {
 
     while (!current_q.empty()) {
         LIRSynthItem item = consume();
-        std::visit(match {
-            [this] (Box<FunctionLIR>& func) {
-                prog_lir.functions.push_back(std::move(func));
+        std::visit(
+            match{
+                [this](Box<FunctionLIR>& func) { prog_lir.functions.push_back(std::move(func)); },
+                [this](Box<DeclLIR>& decl) { prog_lir.globals.push_back(std::move(decl)); },
+                [this](Box<StmtLIR>& stmt) { prog_lir.statements.push_back(std::move(stmt)); },
             },
-            [this] (Box<DeclLIR>& decl) {
-                prog_lir.globals.push_back(std::move(decl));
-            },
-            [this] (Box<StmtLIR>& stmt) {
-                prog_lir.statements.push_back(std::move(stmt));
-            },
-        }, item);
+            item);
     }
 }
 
 void LIRSynthesizer::do_visit(FunctionMIR& node) {
     // Push a new queue onto the queue stack
     push_queue();
-    
-    FuncSymbol *sym = node.sym;
+
+    FuncSymbol *sym     = node.sym;
     std::string mangled = sym->mangle();
-    std::string name = sym->name;
-    
+    std::string name    = sym->name;
+
     Box<LIRFuncSym> func = std::make_unique<LIRFuncSym>(mangled, name, node.loc, node.sym);
-    
+
     LIRFuncSym *funcptr = symbolmap.add_function(sym, std::move(func));
 
     func_stack.push(funcptr);
 
     node.body->accept(*this);
 
-    Box<FunctionLIR> this_func = std::make_unique<FunctionLIR>(
-        node.loc, mangled, name);
+    Box<FunctionLIR> this_func = std::make_unique<FunctionLIR>(node.loc, mangled, name);
 
     Vec<Box<FunctionLIR>> functions;
 
     while (!current_q.empty()) {
         LIRSynthItem item = consume();
-        std::visit(match {
-            [&functions] (Box<FunctionLIR>& func) {
-                // Hoist any functions to the global queue.
-                functions.push_back(std::move(func));
+        std::visit(
+            match{
+                [&functions](Box<FunctionLIR>& func) {
+                    // Hoist any functions to the global queue.
+                    functions.push_back(std::move(func));
+                },
+                [&this_func](Box<DeclLIR>& decl) { this_func->locals.push_back(std::move(decl)); },
+                [&this_func](Box<StmtLIR>& stmt) { this_func->body.push_back(std::move(stmt)); },
             },
-            [&this_func] (Box<DeclLIR>& decl) {
-                this_func->locals.push_back(std::move(decl));
-            },
-            [&this_func] (Box<StmtLIR>& stmt) {
-                this_func->body.push_back(std::move(stmt));
-            },
-        }, item);
+            item);
     }
 
     func_stack.pop();
@@ -137,12 +131,12 @@ void LIRSynthesizer::do_visit(VarDeclMIR& node) {
     for (auto& decl : node.decls) {
         // grab our names
         std::string mangled = decl.sym->mangle();
-        std::string name = decl.sym->name;
+        std::string name    = decl.sym->name;
 
         // create our LIRVar and insert it
-        Box<LIRVarSym> boxed_var = std::make_unique<LIRVarSym>(
-            mangled, name, node.loc, decl.sym, decl.sym->is_funcparam);
-        
+        Box<LIRVarSym> boxed_var =
+            std::make_unique<LIRVarSym>(mangled, name, node.loc, decl.sym, decl.sym->is_funcparam);
+
         LIRVarSym *lirvar = insert_varsym(decl.sym, std::move(boxed_var));
 
         // emit a vardecl
@@ -168,8 +162,7 @@ void LIRSynthesizer::do_visit(ExprStmtMIR& node) {
         (*node.expr)->accept(*this);
         Box<ExprLIR> expr = std::move(last_expr);
 
-        Box<StmtLIR> stmt = std::make_unique<ExprStmtLIR>(
-            node.loc, std::move(expr));
+        Box<StmtLIR> stmt = std::make_unique<ExprStmtLIR>(node.loc, std::move(expr));
 
         emit(std::move(stmt));
     }
@@ -184,30 +177,31 @@ void LIRSynthesizer::do_visit(SwitchStmtMIR& node) {
     Vec<Box<FunctionLIR>> functions;
     Vec<Box<DeclLIR>> decls;
 
-    Box<SwitchStmtLIR> this_stmt = std::make_unique<SwitchStmtLIR>(
-        node.loc, std::move(condition));
+    Box<SwitchStmtLIR> this_stmt = std::make_unique<SwitchStmtLIR>(node.loc, std::move(condition));
 
     node.body->accept(*this);
     while (!current_q.empty()) {
         LIRSynthItem item = consume();
-        std::visit(match {
-            [&functions] (Box<FunctionLIR>& func) {
-                // Hoist any functions to the global queue.
-                functions.push_back(std::move(func));
-            },
-            [&decls] (Box<DeclLIR>& decl) {
-                // Hoist any declarations to the function queue.
-                decls.push_back(std::move(decl));
-            },
-            [&this_stmt] (Box<StmtLIR>& stmt) {
-                // pull any switch targets we might have and insert
-                Vec<SwitchTarget *> targets = stmt->pull_switch_targets();
-                this_stmt->targets.insert(this_stmt->targets.end(), targets.begin(), targets.end());
+        std::visit(match{
+                       [&functions](Box<FunctionLIR>& func) {
+                           // Hoist any functions to the global queue.
+                           functions.push_back(std::move(func));
+                       },
+                       [&decls](Box<DeclLIR>& decl) {
+                           // Hoist any declarations to the function queue.
+                           decls.push_back(std::move(decl));
+                       },
+                       [&this_stmt](Box<StmtLIR>& stmt) {
+                           // pull any switch targets we might have and insert
+                           Vec<SwitchTarget *> targets = stmt->pull_switch_targets();
+                           this_stmt->targets.insert(this_stmt->targets.end(), targets.begin(),
+                                                     targets.end());
 
-                // push the stmt into our body
-                this_stmt->body.push_back(std::move(stmt));
-            },
-        }, item);
+                           // push the stmt into our body
+                           this_stmt->body.push_back(std::move(stmt));
+                       },
+                   },
+                   item);
     }
 
     pop_queue();
@@ -250,30 +244,31 @@ void LIRSynthesizer::do_visit(LabeledStmtMIR& node) {
     push_queue();
 
     std::string mangled = node.label->mangle();
-    std::string name = node.label->name;
+    std::string name    = node.label->name;
 
     Box<LabelStmtLIR> this_stmt = std::make_unique<LabelStmtLIR>(node.loc, mangled, name);
 
-    Vec<Box<FunctionLIR>> functions {};
-    Vec<Box<DeclLIR>> decls {};
+    Vec<Box<FunctionLIR>> functions{};
+    Vec<Box<DeclLIR>> decls{};
 
     node.stmt->accept(*this);
     while (!current_q.empty()) {
         LIRSynthItem item = consume();
-        std::visit(match {
-            [&functions] (Box<FunctionLIR>& func) {
-                // Hoist any functions to the global queue.
-                functions.push_back(std::move(func));
-            },
-            [&decls] (Box<DeclLIR>& decl) {
-                // Hoist any declarations to the function queue.
-                decls.push_back(std::move(decl));
-            },
-            [&this_stmt] (Box<StmtLIR>& stmt) {
-                // push the stmt into our body
-                this_stmt->body.push_back(std::move(stmt));
-            },
-        }, item);
+        std::visit(match{
+                       [&functions](Box<FunctionLIR>& func) {
+                           // Hoist any functions to the global queue.
+                           functions.push_back(std::move(func));
+                       },
+                       [&decls](Box<DeclLIR>& decl) {
+                           // Hoist any declarations to the function queue.
+                           decls.push_back(std::move(decl));
+                       },
+                       [&this_stmt](Box<StmtLIR>& stmt) {
+                           // push the stmt into our body
+                           this_stmt->body.push_back(std::move(stmt));
+                       },
+                   },
+                   item);
     }
 
     pop_queue();
@@ -291,15 +286,15 @@ void LIRSynthesizer::do_visit(LabeledStmtMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(PrintStmtMIR& node) {
-    Vec<Box<ExprLIR>> args {};
+    Vec<Box<ExprLIR>> args{};
 
     for (auto& arg : node.arguments) {
         arg->accept(*this);
         args.push_back(std::move(last_expr));
     }
 
-    Box<StmtLIR> stmt = std::make_unique<PrintStmtLIR>(
-        node.loc, node.format_string, std::move(args));
+    Box<StmtLIR> stmt =
+        std::make_unique<PrintStmtLIR>(node.loc, node.format_string, std::move(args));
 
     emit(std::move(stmt));
 }
@@ -312,48 +307,50 @@ void LIRSynthesizer::do_visit(IfStmtMIR& node) {
 
     Box<IfStmtLIR> ifstmt = std::make_unique<IfStmtLIR>(node.loc, std::move(condition));
 
-    Vec<Box<FunctionLIR>> functions {};
-    Vec<Box<DeclLIR>> decls {};
+    Vec<Box<FunctionLIR>> functions{};
+    Vec<Box<DeclLIR>> decls{};
 
     node.then_branch->accept(*this);
     while (!current_q.empty()) {
         LIRSynthItem item = consume();
-        std::visit(match {
-            [&functions] (Box<FunctionLIR>& func) {
-                // Hoist any functions to the global queue.
-                functions.push_back(std::move(func));
-            },
-            [&decls] (Box<DeclLIR>& decl) {
-                // Hoist any declarations to the function queue.
-                decls.push_back(std::move(decl));
-            },
-            [&ifstmt] (Box<StmtLIR>& stmt) {
-                // push the stmt into our then branch
-                ifstmt->then_br.push_back(std::move(stmt));
-            },
-        }, item);
+        std::visit(match{
+                       [&functions](Box<FunctionLIR>& func) {
+                           // Hoist any functions to the global queue.
+                           functions.push_back(std::move(func));
+                       },
+                       [&decls](Box<DeclLIR>& decl) {
+                           // Hoist any declarations to the function queue.
+                           decls.push_back(std::move(decl));
+                       },
+                       [&ifstmt](Box<StmtLIR>& stmt) {
+                           // push the stmt into our then branch
+                           ifstmt->then_br.push_back(std::move(stmt));
+                       },
+                   },
+                   item);
     }
 
     if (node.else_branch) {
-        Vec<Box<StmtLIR>> else_stmts {};
+        Vec<Box<StmtLIR>> else_stmts{};
 
         (*node.else_branch)->accept(*this);
         while (!current_q.empty()) {
             LIRSynthItem item = consume();
-            std::visit(match {
-                [&functions] (Box<FunctionLIR>& func) {
-                    // Hoist any functions to the global queue.
-                    functions.push_back(std::move(func));
-                },
-                [&decls] (Box<DeclLIR>& decl) {
-                    // Hoist any declarations to the function queue.
-                    decls.push_back(std::move(decl));
-                },
-                [&else_stmts] (Box<StmtLIR>& stmt) {
-                    // push the stmt into our else branch
-                    else_stmts.push_back(std::move(stmt));
-                },
-            }, item);
+            std::visit(match{
+                           [&functions](Box<FunctionLIR>& func) {
+                               // Hoist any functions to the global queue.
+                               functions.push_back(std::move(func));
+                           },
+                           [&decls](Box<DeclLIR>& decl) {
+                               // Hoist any declarations to the function queue.
+                               decls.push_back(std::move(decl));
+                           },
+                           [&else_stmts](Box<StmtLIR>& stmt) {
+                               // push the stmt into our else branch
+                               else_stmts.push_back(std::move(stmt));
+                           },
+                       },
+                       item);
         }
 
         ifstmt->else_br = std::move(else_stmts);
@@ -393,20 +390,19 @@ void LIRSynthesizer::do_visit(LoopStmtMIR& node) {
 
         while (!current_q.empty()) {
             LIRSynthItem item = consume();
-            std::visit(match {
-                [&functions] (Box<FunctionLIR>& func) {
-                    // Hoist any functions to the global queue.
-                    functions.push_back(std::move(func));
+            std::visit(
+                match{
+                    [&functions](Box<FunctionLIR>& func) {
+                        // Hoist any functions to the global queue.
+                        functions.push_back(std::move(func));
+                    },
+                    [&decls](Box<DeclLIR>& decl) {
+                        // Hoist any declarations to the function queue.
+                        decls.push_back(std::move(decl));
+                    },
+                    [&init_stmts](Box<StmtLIR>& stmt) { init_stmts.push_back(std::move(stmt)); },
                 },
-                [&decls] (Box<DeclLIR>& decl) {
-                    // Hoist any declarations to the function queue.
-                    decls.push_back(std::move(decl));
-                },
-                [&init_stmts] (Box<StmtLIR>& stmt) {
-                    init_stmts.push_back(std::move(stmt));
-                },
-            }, item);
-
+                item);
         }
         loop->init = std::move(init_stmts);
     }
@@ -417,20 +413,19 @@ void LIRSynthesizer::do_visit(LoopStmtMIR& node) {
 
         while (!current_q.empty()) {
             LIRSynthItem item = consume();
-            std::visit(match {
-                [&functions] (Box<FunctionLIR>& func) {
-                    // Hoist any functions to the global queue.
-                    functions.push_back(std::move(func));
+            std::visit(
+                match{
+                    [&functions](Box<FunctionLIR>& func) {
+                        // Hoist any functions to the global queue.
+                        functions.push_back(std::move(func));
+                    },
+                    [&decls](Box<DeclLIR>& decl) {
+                        // Hoist any declarations to the function queue.
+                        decls.push_back(std::move(decl));
+                    },
+                    [&step_stmts](Box<StmtLIR>& stmt) { step_stmts.push_back(std::move(stmt)); },
                 },
-                [&decls] (Box<DeclLIR>& decl) {
-                    // Hoist any declarations to the function queue.
-                    decls.push_back(std::move(decl));
-                },
-                [&step_stmts] (Box<StmtLIR>& stmt) {
-                    step_stmts.push_back(std::move(stmt));
-                },
-            }, item);
-
+                item);
         }
         loop->step = std::move(step_stmts);
     }
@@ -439,20 +434,18 @@ void LIRSynthesizer::do_visit(LoopStmtMIR& node) {
     node.body->accept(*this);
     while (!current_q.empty()) {
         LIRSynthItem item = consume();
-        std::visit(match {
-            [&functions] (Box<FunctionLIR>& func) {
-                // Hoist any functions to the global queue.
-                functions.push_back(std::move(func));
-            },
-            [&decls] (Box<DeclLIR>& decl) {
-                // Hoist any declarations to the function queue.
-                decls.push_back(std::move(decl));
-            },
-            [&body] (Box<StmtLIR>& stmt) {
-                body.push_back(std::move(stmt));
-            },
-        }, item);
-
+        std::visit(match{
+                       [&functions](Box<FunctionLIR>& func) {
+                           // Hoist any functions to the global queue.
+                           functions.push_back(std::move(func));
+                       },
+                       [&decls](Box<DeclLIR>& decl) {
+                           // Hoist any declarations to the function queue.
+                           decls.push_back(std::move(decl));
+                       },
+                       [&body](Box<StmtLIR>& stmt) { body.push_back(std::move(stmt)); },
+                   },
+                   item);
     }
     loop->body = std::move(body);
 
@@ -475,7 +468,7 @@ void LIRSynthesizer::do_visit(GotoStmtMIR& node) {
     }
 
     std::string mangled = node.target_sym->mangle();
-    std::string name = node.target_sym->name;
+    std::string name    = node.target_sym->name;
 
     // todo
 }
@@ -512,9 +505,9 @@ void LIRSynthesizer::do_visit(BinaryExprMIR& node) {
     node.right->accept(*this);
     Box<ExprLIR> right = std::move(last_expr);
 
-    Box<ExprLIR> expr = std::make_unique<BinaryExprLIR>(
-        node.loc, node.type, std::move(left), std::move(right), node.op);
-    
+    Box<ExprLIR> expr = std::make_unique<BinaryExprLIR>(node.loc, node.type, std::move(left),
+                                                        std::move(right), node.op);
+
     last_expr = std::move(expr);
 }
 
@@ -522,22 +515,19 @@ void LIRSynthesizer::do_visit(UnaryExprMIR& node) {
     node.operand->accept(*this);
     Box<ExprLIR> operand = std::move(last_expr);
 
-    Box<ExprLIR> expr = std::make_unique<UnaryExprLIR>(
-        node.loc, node.type, std::move(operand), node.op);
+    Box<ExprLIR> expr =
+        std::make_unique<UnaryExprLIR>(node.loc, node.type, std::move(operand), node.op);
 
     last_expr = std::move(expr);
 }
 
 void LIRSynthesizer::do_visit(CastExprMIR& node) {
-
 }
 
 void LIRSynthesizer::do_visit(AssignExprMIR& node) {
-
 }
 
 void LIRSynthesizer::do_visit(CondExprMIR& node) {
-
 }
 
 void LIRSynthesizer::do_visit(IdentExprMIR& node) {
@@ -546,22 +536,18 @@ void LIRSynthesizer::do_visit(IdentExprMIR& node) {
         // todo: throw exception
     }
 
-    Box<ExprLIR> identexpr = std::make_unique<IdentExprLIR>(
-        node.loc, sym, node.type);
+    Box<ExprLIR> identexpr = std::make_unique<IdentExprLIR>(node.loc, sym, node.type);
 
     last_expr = std::move(identexpr);
 }
 
 void LIRSynthesizer::do_visit(ConstExprMIR& node) {
-
 }
 
 void LIRSynthesizer::do_visit(LiteralExprMIR& node) {
-
 }
 
 void LIRSynthesizer::do_visit(CallExprMIR& node) {
-
 }
 
 void LIRSynthesizer::do_visit(MemberAccExprMIR& node) {
@@ -571,25 +557,18 @@ void LIRSynthesizer::do_visit(MemberAccExprMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(SubscrExprMIR& node) {
-
 }
 
 void LIRSynthesizer::do_visit(PostfixExprMIR& node) {
-
 }
 
 void LIRSynthesizer::do_visit(SizeofExprMIR& node) {
-    size_t size = std::visit(match {
-        [] (Box<ExprMIR>& expr) mutable {
-            return expr->type->alloc_size();
-        },
-        [] (Type *& type) mutable {
-            return type->alloc_size();
-        }
-    }, node.operand);
+    size_t size =
+        std::visit(match{[](Box<ExprMIR>& expr) mutable { return expr->type->alloc_size(); },
+                         [](Type *& type) mutable { return type->alloc_size(); }},
+                   node.operand);
 
-    Box<ExprLIR> ret = std::make_unique<LiteralExprLIR>(
-        node.loc, (long) size, node.type);
+    Box<ExprLIR> ret = std::make_unique<LiteralExprLIR>(node.loc, (long)size, node.type);
 
     last_expr = std::move(ret);
 }
