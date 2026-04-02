@@ -221,11 +221,7 @@ Optional<uint64_t> PrimitiveType::int_max() const {
 }
 
 Optional<double> PrimitiveType::flt_max() const {
-    if (primkind == PrimType::F64) {
-        return DBL_MAX;
-    } else {
-        return {};
-    }
+    return primkind == PrimType::F64 ? DBL_MAX : Optional<double>{};
 }
 
 void PrimitiveType::finalize() {
@@ -359,9 +355,9 @@ void ClassType::finalize() {
     }
 
     if (name) {
-        llvm_type = llvm::StructType::create(tyctxt.llvm.ctx(), std::move(args), *name);
+        llvm_type = llvm::StructType::create(tyctxt.llvm.ctx(), args, *name);
     } else {
-        llvm_type = llvm::StructType::create(tyctxt.llvm.ctx(), std::move(args));
+        llvm_type = llvm::StructType::create(tyctxt.llvm.ctx(), args);
     }
 
     finalized = true;
@@ -405,11 +401,7 @@ ClassType::ClassTypeMember *ClassType::index(int idx) {
 }
 
 std::string ClassType::formal() {
-    if (name) {
-        return base() + *name;
-    } else {
-        return "class_anon";
-    }
+    return name ? base() + *name : "class_anon";
 }
 
 /*
@@ -536,11 +528,7 @@ void UnionType::finalize() {
 }
 
 std::string UnionType::formal() {
-    if (name) {
-        return base() + *name;
-    } else {
-        return "anon_union";
-    }
+    return name ? base() + *name : "union_anon";
 }
 
 /*
@@ -555,7 +543,7 @@ EnumType::EnumType(Location decl_loc, sema::sym::Scope *scope, TypeContext& tyct
 
 EnumType::EnumType(Location decl_loc, std::string name, sema::sym::Scope *scope,
                    TypeContext& tyctxt)
-    : UserType(decl_loc, Kind::ENUM, name, tyctxt, scope),
+    : UserType(decl_loc, Kind::ENUM, std::move(name), tyctxt, scope),
       // default type for an enum with no declared underlying type is U64.
       underlying(tyctxt.get_u64()) {
 }
@@ -636,11 +624,7 @@ void EnumType::finalize() {
 }
 
 std::string EnumType::formal() {
-    if (name) {
-        return std::format("enum_{}", *name);
-    } else {
-        return "anon_enum";
-    }
+    return name ? base() + *name : "enum_anon";
 }
 
 /*
@@ -688,11 +672,8 @@ bool PointerType::is_compatible_with(Type *from) {
     int ds_nesting = ptr->nesting_lvl();
     Type *dst_base = ptr->true_base();
 
-    if (my_nesting == 1 && ds_nesting == 1) {
-        return base == dst_base || dst_base->is_void();
-    } else {
-        return from == this;
-    }
+    return my_nesting == 1 && ds_nesting == 1 ? base == dst_base || dst_base->is_void()
+                                              : from == this;
 }
 
 void PointerType::finalize() {
@@ -711,24 +692,21 @@ void PointerType::finalize() {
 
 bool ArrayType::is_fully_sized() {
     // fixme: does not work if there is a break in the type hierarchy of arrays
-    if (base->is_array()) {
-        return arr_size.has_value() && base->as_array()->is_fully_sized();
-    } else {
-        return arr_size.has_value();
-    }
+    return base->is_array() ? arr_size.has_value() && base->as_array()->is_fully_sized()
+                            : arr_size.has_value();
 }
 
-bool ArrayType::is_compatible_with(Type *dst) {
-    switch (dst->kind) {
+bool ArrayType::is_compatible_with(Type *from) {
+    switch (from->kind) {
 
     // if the other is an array, enforce strict equality
     case Kind::ARRAY: {
-        return this == dst;
+        return this == from;
     }
 
     // if pointer, make sure bases match
     case Kind::POINTER: {
-        PointerType *ptr = dst->as_pointer();
+        PointerType *ptr = from->as_pointer();
         return base == ptr->base;
     }
 
@@ -766,13 +744,14 @@ size_t FunctionType::alloc_size() {
 
 std::size_t FunctionType::hash_sig() {
     // fixme: don't use pointers
-    std::size_t h = std::hash<Type *>{}(signature.returntype);
+    std::size_t hash = std::hash<Type *>{}(signature.returntype);
 
-    for (auto *p : signature.params) {
-        h ^= std::hash<Type *>{}(p) + 0x9e3779b9 + (h << 6) + (h >> 2);
+    for (auto *param : signature.params) {
+        hash ^= std::hash<Type *>{}(param) + BOOST_GOLDEN_RATIO + (hash << HASH_SHL) +
+                (hash >> HASH_SHR);
     }
 
-    return h;
+    return hash;
 }
 
 void FunctionType::finalize() {
@@ -902,7 +881,7 @@ PrimitiveType *TypeContext::get_primitive(PrimType pkind) {
     std::unreachable();
 }
 
-ClassType *TypeContext::get_class(Location decl_loc, std::string name, sym::Scope *scope) {
+ClassType *TypeContext::get_class(Location decl_loc, std::string& name, sym::Scope *scope) {
     dbprint("TypeContext: class type '", name, "' on scope ", scope);
     std::string mangled = mangle<ClassType>(name, scope->id);
 
@@ -936,7 +915,7 @@ ClassType *TypeContext::get_class(Location decl_loc, sym::Scope *scope) {
     return make_insert_type<ClassType>(mangled, scope, std::move(clsty));
 }
 
-UnionType *TypeContext::get_union(Location decl_loc, std::string name, sym::Scope *scope) {
+UnionType *TypeContext::get_union(Location decl_loc, std::string& name, sym::Scope *scope) {
     dbprint("TypeContext: union type '", name, "' on scope ", scope);
     std::string mangled = mangle<UnionType>(name, scope->id);
 
@@ -962,7 +941,7 @@ UnionType *TypeContext::get_union(Location decl_loc, sym::Scope *scope) {
     return make_insert_type<UnionType>(mangled, scope, std::move(unnty));
 }
 
-EnumType *TypeContext::get_enum(Location decl_loc, std::string name, sym::Scope *scope) {
+EnumType *TypeContext::get_enum(Location decl_loc, std::string& name, sym::Scope *scope) {
     dbprint("TypeContext: enum type '", name, "' on scope ", scope);
     std::string mangled = mangle<EnumType>(name, scope->id);
 
@@ -1000,7 +979,7 @@ PointerType *TypeContext::get_pointer(Type *base, bool is_const) {
     // since base is a Type *, we can assume it has already been created.
 
     // If not found, create a new pointer.
-    Box<PointerType> ptr = std::make_unique<PointerType>(base, *this);
+    Box<PointerType> ptr = std::make_unique<PointerType>(base, is_const, *this);
 
     ptr->is_const = is_const;
     auto *ret     = ptr.get();

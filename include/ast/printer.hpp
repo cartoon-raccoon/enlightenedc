@@ -1,6 +1,4 @@
-// for testing:
-// rm -rf build; cmake -B build; cmake --build build
-// ./build/ecc src/test/test.ec
+#pragma once
 
 #ifndef ECC_AST_PRINTER_H
 #define ECC_AST_PRINTER_H
@@ -88,7 +86,7 @@ public:
         print_indent();
         std::cout << name << " @ <" << node.loc << "> " << "\n";
         indent++;
-        (children(), ...);
+        (std::forward<Children>(children)(), ...);
         indent--;
 }
 
@@ -103,11 +101,11 @@ private:
 
     std::string infixop_to_string(tokens::InfixOp op);
 
-    std::string primitive_to_string(tokens::PrimType p);
+    std::string primitive_to_string(tokens::PrimType pr);
 
-    std::string storage_to_string(StorageClassSpecifier::SpecType t);
+    std::string storage_to_string(StorageClassSpecifier::SpecType ty);
 
-    std::string qualifier_to_string(TypeQualifier::QualType q);
+    std::string qualifier_to_string(TypeQualifier::QualType qual);
 };
 
 } // namespace ecc::ast

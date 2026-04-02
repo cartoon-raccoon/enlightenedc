@@ -452,11 +452,11 @@ void MIRSynthesizer::do_visit(ArrayDeclarator& node) {
         val = arr_size_expr->eval(evalr);
 
         // if we were able to parse it as a u64, great
-        if (auto s = val.value_as<long>()) {
-            if (*s < 0) {
+        if (auto maybe_size = val.value_as<long>()) {
+            if (*maybe_size < 0) {
                 add_error<EccSemError>("array size cannot be a negative number", (*node.size)->loc);
             }
-            size = *s;
+            size = *maybe_size;
         } else {
             // otherwise, the expression could not resolve, throw error
             // (do NOT coerce to unsized)

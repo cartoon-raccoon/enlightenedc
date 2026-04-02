@@ -490,10 +490,10 @@ protected:
 
     /** Construct an anonymous empty class. */
     ClassType(Location decl_loc, sema::sym::Scope *scope, TypeContext& tyctxt)
-        : UserType(decl_loc, Kind::CLASS, tyctxt, scope), members() {}
+        : UserType(decl_loc, Kind::CLASS, tyctxt, scope) {}
     /** Construct an empty class with a given name. */
     ClassType(Location decl_loc, std::string name, sema::sym::Scope *scope, TypeContext& tyctxt)
-        : UserType(decl_loc, Kind::CLASS, name, tyctxt, scope), members() {}
+        : UserType(decl_loc, Kind::CLASS, name, tyctxt, scope) {}
 
 private:
 };
@@ -684,7 +684,7 @@ public:
 
     bool is_callable() override;
 
-    bool is_compatible_with(Type *other) override;
+    bool is_compatible_with(Type *from) override;
 
     bool is_scalar() override { return true; };
 
@@ -698,9 +698,10 @@ protected:
     friend class TypeContext;
     friend class TypeBuilder;
 
-    friend constexpr Box<PointerType> std::make_unique<PointerType>(Type *&, TypeContext&);
+    friend constexpr Box<PointerType> std::make_unique<PointerType>(Type *&, bool&, TypeContext&);
     
-    PointerType(Type *base, TypeContext& tyctxt) : DerivedType(Kind::POINTER, tyctxt, base) {}
+    PointerType(Type *base, bool is_const, TypeContext& tyctxt)
+        : DerivedType(Kind::POINTER, tyctxt, base), is_const(is_const) {}
 };
 
 
@@ -737,7 +738,7 @@ public:
 
     bool is_subscriptable() override { return true; }
 
-    bool is_compatible_with(Type *other) override;
+    bool is_compatible_with(Type *from) override;
 
     void finalize() override;
 
@@ -880,7 +881,7 @@ public:
 
     void add_function(Location loc, Vec<FuncParam> params, bool variadic);
 
-    void set_base(BaseType *type);
+    void set_base(BaseType *base);
 
     Type *finalize();
     struct Ptr {
@@ -986,7 +987,7 @@ public:
 
     Returns `nullptr` if a type with `name` is already declared, but is not a class.
     */
-    ClassType *get_class(Location decl_loc, std::string name, sema::sym::Scope *scope);
+    ClassType *get_class(Location decl_loc, std::string& name, sema::sym::Scope *scope);
 
     /**
     Create an anonymous class.
@@ -998,7 +999,7 @@ public:
 
     Returns `nullptr` if a type with `name` is already declared, but is not a union.
     */
-    UnionType *get_union(Location decl_loc, std::string name, sema::sym::Scope *scope);
+    UnionType *get_union(Location decl_loc, std::string& name, sema::sym::Scope *scope);
 
     /**
     Create an anonymous union.
@@ -1010,7 +1011,7 @@ public:
 
     Returns `nullptr` if a type with `name` is already declared, but is not an enum.
     */
-    EnumType *get_enum(Location decl_loc, std::string name, sema::sym::Scope *scope);
+    EnumType *get_enum(Location decl_loc, std::string& name, sema::sym::Scope *scope);
 
     // Create an anonymous enum.
     EnumType *get_enum(Location decl_loc, sema::sym::Scope *scope);
@@ -1066,7 +1067,7 @@ private:
             auto h1 = std::hash<Type *>{}(p.first);
             auto h2 = std::hash<T>{}(p.second);
 
-            return h1 ^ (h2 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2));
+            return h1 ^ (h2 + BOOST_GOLDEN_RATIO + (h1 << HASH_SHL) + (h1 >> HASH_SHR));
         }
     };
 

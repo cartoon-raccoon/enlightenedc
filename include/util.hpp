@@ -5,6 +5,7 @@
 #include <memory>
 #include <optional>
 #include <sstream>
+#include <utility>
 #include <vector>
 #include <variant>
 #include <type_traits>
@@ -16,16 +17,18 @@
 
 template <typename ... Args>
 void dbprint(Args&&... args) {
-    (std::cout << ... << args) << "\n";
+    (std::cout << ... << std::forward<Args>(args)) << "\n";
 }
 #else
 template <typename T, typename ... Args>
 void dbprint(T msg, Args&&... args) {}
 #endif
 
-namespace ecc::util {
+constexpr std::size_t BOOST_GOLDEN_RATIO = 0x9e3779b9;
+constexpr std::size_t HASH_SHL = 6;
+constexpr std::size_t HASH_SHR = 2;
 
-#define todo() throw Todo(std::source_location::current())
+namespace ecc::util {
 
 class Todo : std::exception {
 public:
@@ -44,6 +47,8 @@ public:
     }
 };
 
+constexpr void todo() { throw Todo(std::source_location::current()); }
+
 template<typename T>
 using Box = std::unique_ptr<T>;
 
@@ -60,10 +65,10 @@ template<class... Ts> match(Ts...) -> match<Ts...>;
 template <typename ... Types>
 struct VarHash {
     // Helper to combine an individual seed with a new value
-    void hash_combine(std::size_t& seed, const auto& v) const {
-        std::hash<std::decay_t<decltype(v)>> hasher;
+    void hash_combine(std::size_t& seed, const auto& val) const {
+        std::hash<std::decay_t<decltype(val)>> hasher;
         // The Boost "Golden Ratio" formula
-        seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= hasher(val) + BOOST_GOLDEN_RATIO + (seed << HASH_SHL) + (seed >> HASH_SHR);
     }
 
     std::size_t operator()(const Types&... args) const {
@@ -173,7 +178,7 @@ public:
         return begin.filename != end.filename;
     }
 
-    bool empty() {
+    bool empty() const {
         return begin.empty() && end.empty();
     }
 
@@ -221,12 +226,15 @@ std::basic_ostream<T>&
 operator<< (std::basic_ostream<T>& ostr, const Location& loc) {
     int end_col = 0 < loc.end.column ? loc.end.column - 1 : 0;
     ostr << loc.begin;
-    if ((loc.begin.filename || loc.begin.filename) && loc.begin.filename != loc.end.filename)
+    if ((loc.begin.filename || loc.begin.filename) && loc.begin.filename != loc.end.filename) {
         ostr << '-' << *loc.end.filename << ':' << loc.end.line << '.' << end_col;
-    else if (loc.begin.line < loc.end.line)
+    }
+    else if (loc.begin.line < loc.end.line) {
         ostr << '-' << loc.end.line << '.' << end_col;
-    else if (loc.begin.column < end_col)
+    }
+    else if (loc.begin.column < end_col) {
         ostr << '-' << end_col;
+    }
     return ostr;
 }
 
@@ -255,7 +263,7 @@ public:
 class NoMove { // NOLINT(cppcoreguidelines-special-member-functions)
 public:
     NoMove(NoMove &&) = delete;
-    NoMove &operator=(NoMove &&) = delete;
+    NoMove& operator=(NoMove &&) = delete;
 
     NoMove() = default;
 };
