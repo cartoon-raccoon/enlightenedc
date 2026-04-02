@@ -318,6 +318,7 @@ void MIRSynthesizer::do_visit(TypeDeclaration& node) {
 
 void MIRSynthesizer::do_visit(VariableDeclaration& node) {
     bsv_dbprint("visiting VariableDeclaration node: ", node.loc);
+
     auto specinfo = parse_speclist(node.specifiers, node.loc);
 
     Box<VarDeclMIR> var_decl = std::make_unique<VarDeclMIR>(node.loc);

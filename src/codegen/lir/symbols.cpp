@@ -4,14 +4,14 @@
 using namespace sema::sym;
 using namespace codegen::lir;
 
-LIRVar *LIRSymbolMap::insert(PhysicalSymbol *sym, Box<LIRVar> var) {
-    LIRVar *ret = var.get();
+LIRVarSym *LIRFuncSym::insert(VarSymbol *sym, Box<LIRVarSym> var) {
+    LIRVarSym *ret = var.get();
     map[sym] = std::move(var);
 
     return ret;
 }
 
-LIRVar *LIRSymbolMap::lookup(std::string& mangled_name) {
+LIRVarSym *LIRFuncSym::lookup(std::string& mangled_name) {
     for (auto& [sym, var] : map) {
         if (var->mangled_name == mangled_name) {
             return var.get();
@@ -21,7 +21,7 @@ LIRVar *LIRSymbolMap::lookup(std::string& mangled_name) {
     return nullptr;
 }
 
-LIRVar *LIRSymbolMap::lookup(PhysicalSymbol *sym) {
+LIRVarSym *LIRFuncSym::lookup(VarSymbol *sym) {
     auto it = map.find(sym);
 
     if (it != map.end()) {
@@ -29,4 +29,22 @@ LIRVar *LIRSymbolMap::lookup(PhysicalSymbol *sym) {
     } else {
         return nullptr;
     }
+}
+
+LIRFuncSym *LIRSymbolMap::add_function(sema::sym::FuncSymbol *funcsym, Box<LIRFuncSym> func) {
+    LIRFuncSym *ret = func.get();
+    funcs[funcsym] = std::move(func);
+
+    return ret;
+}
+
+LIRVarSym *LIRSymbolMap::insert_global(sema::sym::VarSymbol *sym, Box<LIRVarSym> var) {
+    LIRVarSym *ret = var.get();
+    globals[sym] = std::move(var);
+
+    return ret;
+}
+
+LIRSym *LIRSymbolMap::lookup(sema::sym::PhysicalSymbol *sym) {
+    todo();
 }

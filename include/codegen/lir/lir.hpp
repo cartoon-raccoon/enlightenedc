@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef ECC_LIR_H
 #define ECC_LIR_H
 
@@ -157,12 +159,12 @@ public:
 
 class VarDeclLIR : public DeclLIR {
 public:
-    VarDeclLIR(Location loc, LIRVar *var)
+    VarDeclLIR(Location loc, LIRVarSym *var)
         : DeclLIR(loc, NodeKind::VARDECL_LIR), var(var) {}
-    VarDeclLIR(LIRVar *var)
+    VarDeclLIR(LIRVarSym *var)
         : DeclLIR(NodeKind::VARDECL_LIR), var(var) {}
     
-    LIRVar *var;
+    LIRVarSym *var;
 
     void accept(LIRVisitor& visitor) override;
 };
@@ -416,10 +418,10 @@ public:
 
 class IdentExprLIR : public ExprLIR {
 public:
-    IdentExprLIR(Location loc, LIRVar *var, sema::types::Type *type)
-        : ExprLIR(loc, NodeKind::IDENTEXPR_LIR, type), var(var) {}
+    IdentExprLIR(Location loc, LIRSym *sym, sema::types::Type *type)
+        : ExprLIR(loc, NodeKind::IDENTEXPR_LIR, type), sym(sym) {}
 
-    LIRVar *var;
+    LIRSym *sym;
 
     void accept(LIRVisitor& visitor) override;
 };

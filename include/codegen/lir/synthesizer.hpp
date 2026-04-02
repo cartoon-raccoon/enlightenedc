@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef ECC_LIR_SYNTH_H
 #define ECC_LIR_SYNTH_H
 
@@ -46,6 +48,8 @@ protected:
 
     bool curr_is_empty();
 
+    LIRVarSym *insert_varsym(sema::sym::VarSymbol *sym, Box<LIRVarSym> varsym);
+
     void unfold_initializer(sema::sym::VarSymbol *sym, sema::mir::InitializerMIR& init);
 
     void do_visit(sema::mir::ProgramMIR& node) override;
@@ -87,6 +91,7 @@ protected:
 private:
     std::queue<LIRSynthItem> current_q;
     std::stack<std::queue<LIRSynthItem>> queue_stack;
+    std::stack<LIRFuncSym *> func_stack;
 };
 
 }

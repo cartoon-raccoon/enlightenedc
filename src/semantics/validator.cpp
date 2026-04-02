@@ -88,6 +88,12 @@ void Validator::do_visit(InitializerMIR& node) {
 
 void Validator::do_visit(VarDeclMIR& node) {
     bsv_dbprint("visiting VarDeclMIR node");
+
+    if (in_node(MIRNode::NodeKind::CMPDSTMT_MIR) == 1 && 
+        in_node(MIRNode::NodeKind::SWITCHSTMT_MIR) == 2) {
+        // todo: throw error (cannot declare variable directly in switch)
+    }
+
     for (auto& decl : node.decls) {
         if (decl.initializer) {
             visit_single_vardecl(decl.sym, **decl.initializer);
@@ -103,6 +109,8 @@ void Validator::do_visit(ExprStmtMIR& node) {
 
 void Validator::do_visit(SwitchStmtMIR& node) {
     node.condition->accept(*this);
+    // todo: check validity of condition (e.g. classes are not valid)
+    node.body->accept(*this);
 }
 
 void Validator::do_visit(CaseStmtMIR& node) {
@@ -251,10 +259,23 @@ void Validator::do_visit(LiteralExprMIR& node) {
             throw std::runtime_error("LiteralExprMIR should not have a null value");
         },
         [node, this] (char v) mutable {
-            node.type = types.get_u8();
+            node.type = types.get_i8();
         },
         [node, this] (long v) mutable {
-            node.type = types.get_u64();
+            /*
+            Select the type to use based on value
+            */
+            if (v <= *types.get_i32()->int_max()) {
+                // Attempt to default to I32
+                node.type = types.get_i32();
+            } else
+            if (v <= *types.get_i64()->int_max()) {
+                // If cannot fit, try I64
+                node.type = types.get_i64();
+            } else {
+                // If all else fails, use U64
+                node.type = types.get_u64();
+            }
         },
         [node, this] (double v) mutable {
             node.type = types.get_f64();
@@ -263,7 +284,7 @@ void Validator::do_visit(LiteralExprMIR& node) {
             node.type = types.get_bool();
         },
         [node, this] (std::string& v) mutable {
-            node.type = types.get_pointer(types.get_u8(), true);
+            node.type = types.get_pointer(types.get_i8(), true);
         }
     }, node.value.inner);
 }

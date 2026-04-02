@@ -2,7 +2,9 @@
 
 #include "codegen/lir/synthesizer.hpp"
 #include "codegen/lir/lir.hpp"
+#include "codegen/lir/symbols.hpp"
 #include "semantics/mir/mir.hpp"
+#include "semantics/symbols.hpp"
 #include "util.hpp"
 
 using namespace codegen::lir;
@@ -42,6 +44,14 @@ bool LIRSynthesizer::curr_is_empty() {
     return current_q.empty();
 }
 
+LIRVarSym *LIRSynthesizer::insert_varsym(VarSymbol *sym, Box<LIRVarSym> var) {
+    if (func_stack.empty()) {
+        return symbolmap.insert_global(sym, std::move(var));
+    } else {
+        return func_stack.top()->insert(sym, std::move(var));
+    }
+}
+
 void LIRSynthesizer::unfold_initializer(VarSymbol *sym, InitializerMIR& init) {
     // todo
 }
@@ -70,11 +80,18 @@ void LIRSynthesizer::do_visit(ProgramMIR& node) {
 void LIRSynthesizer::do_visit(FunctionMIR& node) {
     // Push a new queue onto the queue stack
     push_queue();
-    node.body->accept(*this);
-
+    
     FuncSymbol *sym = node.sym;
     std::string mangled = sym->mangle();
     std::string name = sym->name;
+    
+    Box<LIRFuncSym> func = std::make_unique<LIRFuncSym>(mangled, name, node.loc, node.sym);
+    
+    LIRFuncSym *funcptr = symbolmap.add_function(sym, std::move(func));
+
+    func_stack.push(funcptr);
+
+    node.body->accept(*this);
 
     Box<FunctionLIR> this_func = std::make_unique<FunctionLIR>(
         node.loc, mangled, name);
@@ -96,16 +113,13 @@ void LIRSynthesizer::do_visit(FunctionMIR& node) {
             },
         }, item);
     }
+
+    func_stack.pop();
     pop_queue();
 
     for (auto& func : functions) {
         emit(std::move(func));
     }
-
-    Box<LIRVar> lirvar = std::make_unique<LIRVar>(
-        mangled, name, sym->get_type(), node.loc, true, false);
-
-    symbolmap.insert(sym, std::move(lirvar));
 
     emit(std::move(this_func));
 }
@@ -126,10 +140,10 @@ void LIRSynthesizer::do_visit(VarDeclMIR& node) {
         std::string name = decl.sym->name;
 
         // create our LIRVar and insert it
-        Box<LIRVar> boxed_var = std::make_unique<LIRVar>(
-            mangled, name, decl.sym->get_type(), node.loc, false, decl.sym->is_funcparam);
+        Box<LIRVarSym> boxed_var = std::make_unique<LIRVarSym>(
+            mangled, name, node.loc, decl.sym, decl.sym->is_funcparam);
         
-        LIRVar *lirvar = symbolmap.insert(decl.sym, std::move(boxed_var));
+        LIRVarSym *lirvar = insert_varsym(decl.sym, std::move(boxed_var));
 
         // emit a vardecl
         Box<DeclLIR> vardecl = std::make_unique<VarDeclLIR>(node.loc, lirvar);
@@ -527,13 +541,13 @@ void LIRSynthesizer::do_visit(CondExprMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(IdentExprMIR& node) {
-    LIRVar *var = symbolmap.lookup(node.ident);
-    if (!var) {
+    LIRSym *sym = symbolmap.lookup(node.ident);
+    if (!sym) {
         // todo: throw exception
     }
 
     Box<ExprLIR> identexpr = std::make_unique<IdentExprLIR>(
-        node.loc, var, node.type);
+        node.loc, sym, node.type);
 
     last_expr = std::move(identexpr);
 }

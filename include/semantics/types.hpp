@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef ECC_TYPES_H
 #define ECC_TYPES_H
 
@@ -22,11 +24,6 @@ Forward declaration of Scope from symbols
 */
 namespace ecc::sema::sym {
     class Scope;
-}
-
-// Forward declaration of ExprMIR from MIR
-namespace ecc::sema::mir {
-    class ExprMIR;
 }
 
 /**
@@ -205,7 +202,7 @@ public:
     virtual FunctionType *as_function() { return nullptr; }
 
     // Whether the type is callable.
-    // Only functions should be callable.
+    // Only functions and function pointers should be callable.
     virtual bool is_callable() { return false; };
 
     // Whether the type is subscriptable/indexable.
@@ -329,6 +326,8 @@ public:
     DerivedType *as_derivedtype() override { return this; }
 
     bool is_derivedtype() override { return true; }
+
+    //virtual std::string construct_str(std::string& base);
 
     Type *base;
 
