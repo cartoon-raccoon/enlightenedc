@@ -28,25 +28,29 @@ public:
 class InvalidContError : public EccSemError {
 public:
     InvalidContError(Location err_loc)
-    : EccSemError("continue not in loop", err_loc) {}
+        : EccSemError("continue not in loop", err_loc) {}
 };
 
 class InvalidCallExprError : public EccSemError {
 public:
     InvalidCallExprError(std::string ident, Location err_loc)
-    : EccSemError("invalid function call", err_loc) {}
+        : EccSemError("invalid function call", err_loc), ident(std::move(ident)) {}
+
+    std::string ident;
 };
 
 class InvalidInitializerError : public EccSemError {
 public:
     InvalidInitializerError(std::string err, Location err_loc)
-    : EccSemError("invalid initializer", err_loc) {}
+        : EccSemError("invalid initializer", err_loc), err(std::move(err)) {}
+
+    std::string err;
 };
 
 class TypeNotDefinedError : public EccSemError {
 public:
     TypeNotDefinedError(std::string name, Location err_loc)
-        : EccSemError("use of undefined type", err_loc), name(name) {}
+        : EccSemError("use of undefined type", err_loc), name(std::move(name)) {}
 
     std::string name;
 
@@ -62,26 +66,32 @@ public:
 class IdentNotDefinedError : public EccSemError {
 public:
     IdentNotDefinedError(std::string name, Location err_loc)
-    : EccSemError("identifier not defined", err_loc)
-    {
+        : EccSemError("identifier not defined", err_loc), name(std::move(name)) {}
+
+    std::string name;
+
+    std::string to_string() override {
         std::stringstream ss;
         ss << EccError::what() 
            << "identifier \'" << name << "\' is not declared\n";
 
-        msg = ss.str();
+        return ss.str();
     }
 };
 
 class InvalidIdentifierError : public EccSemError {
 public:
     InvalidIdentifierError(std::string name, Location err_loc)
-    : EccSemError("invalid identifier", err_loc)
-    {
+        : EccSemError("invalid identifier", err_loc), name(std::move(name)) {}
+
+    std::string name;
+
+    std::string to_string() override {
         std::stringstream ss;
         ss << EccError::what() << "\n" 
            << "identifier \'" << name << "\' must reference a function or variable";
 
-        msg = ss.str();
+        return ss.str();
     }
 };
 
@@ -90,24 +100,30 @@ public:
 class TypeAlrDefinedError : public EccSemError {
 public:
     TypeAlrDefinedError(std::string err, Location err_loc, Location def_loc) 
-    : EccSemError(err, err_loc)
-    {
+        : EccSemError(std::move(err), err_loc), def_loc(def_loc) {}
+
+    Location def_loc;
+
+    std::string to_string() override {
         std::stringstream ss;
         ss << EccError::what() << "\n" << "type previously defined at " << def_loc;
 
-        msg = ss.str();
+        return ss.str();
     }
 };
 
 class SymbolAlrDecldError : public EccSemError {
 public:
     SymbolAlrDecldError(std::string err, Location err_loc, Location def_loc)
-    : EccSemError(err, err_loc)
-    {
+        : EccSemError(std::move(err), err_loc), def_loc(def_loc) {}
+
+    Location def_loc;
+
+    std::string to_string() override {
         std::stringstream ss;
         ss << EccError::what() << "\n" << "symbol previously declared at " << def_loc;
 
-        msg = ss.str();
+        return ss.str();
     }
 };
 

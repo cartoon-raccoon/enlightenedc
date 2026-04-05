@@ -12,7 +12,7 @@
 using namespace ecc::util;
 namespace ecc {
 
-enum class ErrorSource {
+enum class ErrorSource : uint8_t {
     NONE, // bodge for now
     PREPROC,
     PARSE,
@@ -24,15 +24,15 @@ enum class ErrorSource {
 class EccError : public std::exception {
 public:
     EccError(ErrorSource src, std::string err, Location loc)
-        : src(src) ,msg(err), loc(loc) {}
+        : src(src) ,msg(std::move(err)), loc(loc) {}
 
     EccError(ErrorSource src, std::string err)
-        : src(src) ,msg(err) {}
+        : src(src) ,msg(std::move(err)) {}
 
     EccError(std::string err, Location loc)
-        : msg(err), loc(loc) {}
+        : msg(std::move(err)), loc(loc) {}
 
-    EccError(std::string err) : msg(err) {}
+    EccError(std::string err) : msg(std::move(err)) {}
 
     ErrorSource src = ErrorSource::NONE;
     std::string msg;
@@ -69,9 +69,9 @@ public:
 class EccSemError : public EccError {
 public:
     EccSemError(std::string msg, Location err_loc)
-        : EccError(ErrorSource::SEMANTIC, msg, err_loc) {}
+        : EccError(ErrorSource::SEMANTIC, std::move(msg), err_loc) {}
 
-    virtual std::string to_string() override {
+    std::string to_string() override {
         std::stringstream ss;
         ss << "error <" << *loc << ">: " << msg << "\n";
         return ss.str();

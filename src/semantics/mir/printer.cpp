@@ -3,127 +3,15 @@
 #include <variant>
 
 #include "semantics/types.hpp"
+#include "tokens.hpp"
 
 using namespace ecc::sema::mir;
 using namespace ecc::sema::types;
+using namespace ecc::tokens;
 
-void MIRPrinter::print_indent() {
+void MIRPrinter::print_indent() const {
     for (int i = 0; i < indent; ++i)
         std::cout << "| ";
-}
-
-std::string MIRPrinter::binop_to_string(tokens::BinaryOp op) {
-    switch (op) {
-    case tokens::BinaryOp::PLUS:
-        return "+";
-    case tokens::BinaryOp::MINUS:
-        return "-";
-    case tokens::BinaryOp::MUL:
-        return "*";
-    case tokens::BinaryOp::DIV:
-        return "/";
-    case tokens::BinaryOp::MOD:
-        return "%";
-    case tokens::BinaryOp::EQ:
-        return "==";
-    case tokens::BinaryOp::NE:
-        return "!=";
-    case tokens::BinaryOp::LE:
-        return "<=";
-    case tokens::BinaryOp::GE:
-        return ">=";
-    case tokens::BinaryOp::LT:
-        return "<";
-    case tokens::BinaryOp::GT:
-        return ">";
-    case tokens::BinaryOp::ANDAND:
-        return "&&";
-    case tokens::BinaryOp::OROR:
-        return "||";
-    case tokens::BinaryOp::AND:
-        return "&";
-    case tokens::BinaryOp::OR:
-        return "|";
-    case tokens::BinaryOp::XOR:
-        return "^";
-    case tokens::BinaryOp::LSHIFT:
-        return "<<";
-    case tokens::BinaryOp::RSHIFT:
-        return ">>";
-    case tokens::BinaryOp::BINCOMMA:
-        return ",";
-    }
-    return "";
-}
-
-std::string MIRPrinter::unop_to_string(tokens::UnaryOp op) {
-    switch (op) {
-    case tokens::UnaryOp::INC:
-        return "++";
-    case tokens::UnaryOp::DEC:
-        return "--";
-    case tokens::UnaryOp::REF:
-        return "&";
-    case tokens::UnaryOp::DEREF:
-        return "*";
-    case tokens::UnaryOp::POS:
-        return "+";
-    case tokens::UnaryOp::NEG:
-        return "-";
-    case tokens::UnaryOp::TILDE:
-        return "~";
-    case tokens::UnaryOp::NOT:
-        return "!";
-    }
-    return "";
-}
-
-std::string MIRPrinter::assignop_to_string(tokens::AssignOp op) {
-    switch (op) {
-    case tokens::AssignOp::ASSIGN:
-        return "=";
-    case tokens::AssignOp::PLUSEQ:
-        return "+=";
-    case tokens::AssignOp::MINUSEQ:
-        return "-=";
-    case tokens::AssignOp::MULEQ:
-        return "*=";
-    case tokens::AssignOp::DIVEQ:
-        return "/=";
-    case tokens::AssignOp::MODEQ:
-        return "%=";
-    case tokens::AssignOp::LSHIFTEQ:
-        return "<<=";
-    case tokens::AssignOp::RSHIFTEQ:
-        return ">>=";
-    case tokens::AssignOp::ANDEQ:
-        return "&=";
-    case tokens::AssignOp::OREQ:
-        return "|=";
-    case tokens::AssignOp::XOREQ:
-        return "^=";
-    }
-    return "";
-}
-
-std::string MIRPrinter::postfixop_to_string(tokens::PostfixOp op) {
-    switch (op) {
-    case tokens::PostfixOp::POSTINC:
-        return "++";
-    case tokens::PostfixOp::POSTDEC:
-        return "--";
-    }
-    return "";
-}
-
-std::string MIRPrinter::value_to_string(const exec::Value& val) {
-    return std::visit(match{[](std::monostate) { return std::string("void"); },
-                            [](char v) { return std::to_string(v); },
-                            [](long v) { return std::to_string(v); },
-                            [](double v) { return std::to_string(v); },
-                            [](bool v) { return v ? std::string("true") : std::string("false"); },
-                            [](const std::string& v) { return "\"" + v + "\""; }},
-                      val.inner);
 }
 
 void MIRPrinter::visit(ProgramMIR& node) {
@@ -301,7 +189,7 @@ void MIRPrinter::visit(ConstExprMIR& node) {
 }
 
 void MIRPrinter::visit(LiteralExprMIR& node) {
-    print_node("Literal: " + value_to_string(node.value), node);
+    print_node("Literal: " + node.value.to_string(), node);
 }
 
 void MIRPrinter::visit(CallExprMIR& node) {

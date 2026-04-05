@@ -109,9 +109,9 @@ public:
 
     ScopeGuard(BaseSemanticVisitor<Node>::State state, sym::SymbolTable& syms, sym::FuncSymbol *assoc) : st(syms) {
         if (state == BaseSemanticVisitor<Node>::State::READ) {
-            st.enter_scope();
+            st.get().enter_scope();
         } else {
-            st.push_scope(assoc);
+            st.get().push_scope(assoc);
         }
     }
 
@@ -119,7 +119,7 @@ public:
     ScopeGuard(ScopeGuard&& other) noexcept : st(other.st) {}
 
     ~ScopeGuard() {
-        st.pop_scope();
+        st.get().pop_scope();
     }
 
     // Prevent deep copies of the ScopeGuard.
@@ -127,7 +127,7 @@ public:
     ScopeGuard& operator=(const ScopeGuard&) = delete;
     
 private:
-    sym::SymbolTable& st;
+    Ref<sym::SymbolTable> st;
 }; // class ScopeGuard
 
 

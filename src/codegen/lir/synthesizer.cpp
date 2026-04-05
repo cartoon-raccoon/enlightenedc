@@ -90,7 +90,7 @@ void LIRSynthesizer::do_visit(FunctionMIR& node) {
 
     node.body->accept(*this);
 
-    Box<FunctionLIR> this_func = std::make_unique<FunctionLIR>(node.loc, mangled, name);
+    Box<FunctionLIR> this_func = make_box<FunctionLIR>(node.loc, mangled, name);
 
     Vec<Box<FunctionLIR>> functions;
 

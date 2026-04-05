@@ -252,10 +252,7 @@ void Validator::do_visit(ConstExprMIR& node) {
 }
 
 void Validator::do_visit(LiteralExprMIR& node) {
-    std::visit(match{[&node, this](std::monostate val) mutable {
-                         throw std::runtime_error("LiteralExprMIR should not have a null value");
-                     },
-                     [&node, this](char val) mutable { node.type = types.get_i8(); },
+    std::visit(match{[&node, this](char val) mutable { node.type = types.get_i8(); },
                      [&node, this](long val) mutable {
                          /*
                          Select the type to use based on value

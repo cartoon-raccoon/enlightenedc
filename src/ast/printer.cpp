@@ -9,178 +9,11 @@
 #include "tokens.hpp"
 
 using namespace ecc::ast;
+using namespace ecc::tokens;
 
-void ASTPrinter::print_indent() {
+void ASTPrinter::print_indent() const {
     for (int i = 0; i < indent; ++i)
         std::cout << "| ";
-}
-
-std::string ASTPrinter::binop_to_string(tokens::BinaryOp op) {
-    switch (op) {
-    case tokens::BinaryOp::PLUS:
-        return "+";
-    case tokens::BinaryOp::MINUS:
-        return "-";
-    case tokens::BinaryOp::MUL:
-        return "*";
-    case tokens::BinaryOp::DIV:
-        return "/";
-    case tokens::BinaryOp::MOD:
-        return "%";
-    case tokens::BinaryOp::EQ:
-        return "==";
-    case tokens::BinaryOp::NE:
-        return "!=";
-    case tokens::BinaryOp::LE:
-        return "<=";
-    case tokens::BinaryOp::GE:
-        return ">=";
-
-    case tokens::BinaryOp::ANDAND:
-        return "&&";
-    case tokens::BinaryOp::OROR:
-        return "||";
-    case tokens::BinaryOp::AND:
-        return "&";
-    case tokens::BinaryOp::OR:
-        return "|";
-    case tokens::BinaryOp::XOR:
-        return "^";
-
-    case tokens::BinaryOp::LT:
-        return "<";
-    case tokens::BinaryOp::GT:
-        return ">";
-
-    case tokens::BinaryOp::LSHIFT:
-        return "<<";
-    case tokens::BinaryOp::RSHIFT:
-        return ">>";
-    case tokens::BinaryOp::BINCOMMA:
-        return ",";
-    }
-}
-
-std::string ASTPrinter::unop_to_string(tokens::UnaryOp op) {
-    switch (op) {
-    case tokens::UnaryOp::INC:
-        return "++";
-    case tokens::UnaryOp::DEC:
-        return "--";
-    case tokens::UnaryOp::REF:
-        return "&";
-    case tokens::UnaryOp::DEREF:
-        return "*";
-    case tokens::UnaryOp::POS:
-        return "+";
-    case tokens::UnaryOp::NEG:
-        return "-";
-    case tokens::UnaryOp::TILDE:
-        return "~";
-    case tokens::UnaryOp::NOT:
-        return "!";
-    }
-}
-
-std::string ASTPrinter::assignop_to_string(tokens::AssignOp op) {
-    switch (op) {
-    case tokens::AssignOp::ASSIGN:
-        return "=";
-    case tokens::AssignOp::PLUSEQ:
-        return "+=";
-    case tokens::AssignOp::MINUSEQ:
-        return "-=";
-    case tokens::AssignOp::MULEQ:
-        return "*=";
-    case tokens::AssignOp::DIVEQ:
-        return "/=";
-    case tokens::AssignOp::MODEQ:
-        return "%=";
-    case tokens::AssignOp::LSHIFTEQ:
-        return "<<=";
-    case tokens::AssignOp::RSHIFTEQ:
-        return ">>=";
-    case tokens::AssignOp::ANDEQ:
-        return "&=";
-    case tokens::AssignOp::OREQ:
-        return "|=";
-    case tokens::AssignOp::XOREQ:
-        return "^=";
-    }
-}
-
-std::string ASTPrinter::postfixop_to_string(tokens::PostfixOp op) {
-    switch (op) {
-    case tokens::PostfixOp::POSTINC:
-        return "++";
-    case tokens::PostfixOp::POSTDEC:
-        return "--";
-    }
-}
-
-std::string ASTPrinter::infixop_to_string(tokens::InfixOp op) {
-    switch (op) {
-    case tokens::InfixOp::DOT:
-        return ".";
-    case tokens::InfixOp::ARROW:
-        return "->";
-    case tokens::InfixOp::COMMA:
-        return ",";
-    case tokens::InfixOp::SEMI:
-        return ";";
-    }
-}
-
-std::string ASTPrinter::primitive_to_string(tokens::PrimType p) {
-    using P = tokens::PrimType;
-    switch (p) {
-        return "u0";
-    case P::U8:
-        return "u8";
-    case P::U16:
-        return "u16";
-    case P::U32:
-        return "u32";
-    case P::U64:
-        return "u64";
-    case P::I8:
-        return "i8";
-    case P::I16:
-        return "i16";
-    case P::I32:
-        return "i32";
-    case P::I64:
-        return "i64";
-    case P::F64:
-        return "f64";
-    case P::BOOL:
-        return "bool";
-    }
-    return "";
-}
-
-std::string ASTPrinter::storage_to_string(StorageClassSpecifier::SpecType t) {
-    using S = StorageClassSpecifier::SpecType;
-    switch (t) {
-    case S::PUBLIC:
-        return "public";
-    case S::STATIC:
-        return "static";
-    case S::EXTERN:
-        return "extern";
-    case S::EXTERNC:
-        return "extern \"C\"";
-    }
-    return "";
-}
-
-std::string ASTPrinter::qualifier_to_string(TypeQualifier::QualType q) {
-    using Q = TypeQualifier::QualType;
-    switch (q) {
-    case Q::CONST:
-        return "const";
-    }
-    return "";
 }
 
 void ASTPrinter::visit(Program& node) {
@@ -455,9 +288,10 @@ void ASTPrinter::visit(EnumSpecifier& node) {
     print_node(std::string("EnumSpecifier") + (node.name ? ": " + node.name.value() : "") +
                    (node.underlying ? " " + primitive_to_string(*node.underlying) : ""),
                node, [&] {
-                   if (node.enumerators)
-                       for (auto& e : node.enumerators.value())
+                   if (node.enumerators) {
+                       for (auto& e : node.enumerators.value()) 
                            e->accept(*this);
+                   }
                });
 }
 
@@ -472,27 +306,29 @@ void ASTPrinter::visit(ClassSpecifier& node) {
 
     print_node("ClassSpecifier: " + (node.name ? " " + node.name.value() : "") + ":" + parents,
                node, [&] {
-                   if (node.declarations)
+                   if (node.declarations) {
                        for (auto& decl : node.declarations.value())
                            decl->accept(*this);
+                   }
                });
 }
 
 void ASTPrinter::visit(UnionSpecifier& node) {
 
     print_node("UnionSpecifier: " + (node.name ? " " + node.name.value() : ""), node, [&] {
-        if (node.declarations)
+        if (node.declarations) {
             for (auto& decl : node.declarations.value())
                 decl->accept(*this);
+        }
     });
 }
 
 void ASTPrinter::visit(Initializer& node) {
     print_node("Initializer: ", node, [&] {
-        if (auto *s = std::get_if<Box<Expression>>(&node.initializer)) {
-            (*s)->accept(*this);
-        } else if (auto *s = std::get_if<Vec<Box<Initializer>>>(&node.initializer)) {
-            for (auto& init : *s) {
+        if (auto *init = std::get_if<Box<Expression>>(&node.initializer)) {
+            (*init)->accept(*this);
+        } else if (auto *init = std::get_if<Vec<Box<Initializer>>>(&node.initializer)) {
+            for (auto& init : *init) {
                 init->accept(*this);
             }
         }
@@ -511,16 +347,16 @@ void ASTPrinter::visit(TypeName& node) {
 void ASTPrinter::visit(LiteralExpression& node) {
     switch (node.kind) {
     case LiteralExpression::LiteralKind::INT:
-        print_node("Literal: " + std::to_string(node.value.i_val), node);
+        print_node(std::format("{}", node.value.i_val), node);
         break;
     case LiteralExpression::LiteralKind::FLOAT:
-        print_node("Literal: " + std::to_string(node.value.f_val), node);
+        print_node(std::format("{}", node.value.f_val), node);
         break;
     case LiteralExpression::LiteralKind::CHAR:
-        print_node("Literal: " + std::to_string(node.value.c_val), node);
+        print_node(std::format("{}", node.value.c_val), node);
         break;
     case LiteralExpression::LiteralKind::BOOL:
-        print_node("Literal: " + std::to_string(node.value.b_val), node);
+        print_node(std::format("{}", node.value.b_val), node);
         break;
     }
 }
@@ -593,9 +429,10 @@ void ASTPrinter::visit(PostfixExpression& node) {
 
 void ASTPrinter::visit(SizeofExpression& node) {
     print_node("SizeofExpression", node, [&] {
-        if (std::holds_alternative<Box<Expression>>(node.operand))
+        if (std::holds_alternative<Box<Expression>>(node.operand)) {
             std::get<Box<Expression>>(node.operand)->accept(*this);
-        else
+        } else {
             std::get<Box<TypeName>>(node.operand)->accept(*this);
+        }
     });
 }

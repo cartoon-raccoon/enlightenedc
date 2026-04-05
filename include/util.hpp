@@ -52,11 +52,19 @@ constexpr void todo() { throw Todo(std::source_location::current()); }
 template<typename T>
 using Box = std::unique_ptr<T>;
 
+template <typename T, typename... Args>
+auto make_box(Args&&... args) -> decltype(std::make_unique<T>(std::forward<Args>(args)...)) {
+    return std::make_unique<T>(std::forward<Args>(args)...);
+}
+
 template<typename T>
 using Vec = std::vector<T>;
 
 template<typename T>
 using Optional = std::optional<T>;
+
+template<typename T>
+using Ref = std::reference_wrapper<T>;
 
 // Overloaded template class for Rust-style pattern matching on variants.
 template<class... Ts> struct match : Ts... { using Ts::operator()...; };

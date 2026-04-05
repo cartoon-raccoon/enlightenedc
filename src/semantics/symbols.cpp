@@ -94,7 +94,7 @@ void SymbolTable::reset_from(Scope *scope) {
     }
 }
 
-void SymbolTable::reset_current() {
+void SymbolTable::reset_current() const {
     current->nested_idx = 0;
 }
 
@@ -103,19 +103,19 @@ void SymbolTable::clear() {
 }
 
 // Lookup a symbol by name. Returns null if no symbol exists.
-Symbol *SymbolTable::lookup(std::string& sym, bool current_only) {
+Symbol *SymbolTable::lookup(std::string& sym, bool current_only) const {
     return lookup(sym, current, current_only);
 }
 
-VarSymbol *SymbolTable::lookup_var(std::string& sym, bool current_only) {
+VarSymbol *SymbolTable::lookup_var(std::string& sym, bool current_only) const {
     return lookup_var(sym, current, current_only);
 }
 
-FuncSymbol *SymbolTable::lookup_func(std::string& sym, bool current_only) {
+FuncSymbol *SymbolTable::lookup_func(std::string& sym, bool current_only) const {
     return lookup_func(sym, current, current_only);
 }
 
-TypeSymbol *SymbolTable::lookup_type(std::string& sym, bool current_only) {
+TypeSymbol *SymbolTable::lookup_type(std::string& sym, bool current_only) const {
     return lookup_type(sym, current, current_only);
 }
 
@@ -126,11 +126,11 @@ Unlike other lookup functions, which continue on to global scope,
 `lookup_label` only recurses outwards until a function boundary.
 This is because labels are scoped to function scope specifically.
 */
-LabelSymbol *SymbolTable::lookup_label(std::string& sym, bool current_only) {
+LabelSymbol *SymbolTable::lookup_label(std::string& sym, bool current_only) const {
     return lookup_label(sym, current, current_only);
 }
 
-Symbol *SymbolTable::lookup(std::string& sym, Scope *from, bool current_only) {
+Symbol *SymbolTable::lookup(std::string& sym, Scope *from, bool current_only) const {
     VarSymbol *maybe_var = lookup_var(sym, from, current_only);
     if (maybe_var)
         return maybe_var;
@@ -150,13 +150,13 @@ Symbol *SymbolTable::lookup(std::string& sym, Scope *from, bool current_only) {
     return nullptr;
 }
 
-VarSymbol *SymbolTable::lookup_var(std::string& sym, Scope *from, bool current_only) {
+VarSymbol *SymbolTable::lookup_var(std::string& sym, Scope *from, bool current_only) const {
     Scope *my_current = from;
     if (current_only) {
         dbprint("SymbolTable: looking up varsymbol ", sym, " in current scope");
         if (my_current->phys_symbols.contains(sym)) {
             // this returns null if we pull a funcsymbol
-            return my_current->phys_symbols.find(sym)->second.get()->as_varsym();
+            return my_current->phys_symbols.find(sym)->second->as_varsym();
         } else {
             return nullptr;
         }
@@ -176,15 +176,15 @@ VarSymbol *SymbolTable::lookup_var(std::string& sym, Scope *from, bool current_o
         my_current = my_current->outer;
     }
 
-    return my_current->phys_symbols.find(sym)->second.get()->as_varsym();
+    return my_current->phys_symbols.find(sym)->second->as_varsym();
 }
 
-FuncSymbol *SymbolTable::lookup_func(std::string& sym, Scope *from, bool current_only) {
+FuncSymbol *SymbolTable::lookup_func(std::string& sym, Scope *from, bool current_only) const {
     Scope *my_current = from;
     if (current_only) {
         dbprint("SymbolTable: looking up funcsymbol ", sym, " in current scope");
         if (my_current->phys_symbols.contains(sym)) {
-            return my_current->phys_symbols.find(sym)->second.get()->as_funcsym();
+            return my_current->phys_symbols.find(sym)->second->as_funcsym();
         } else {
             return nullptr;
         }
@@ -204,10 +204,10 @@ FuncSymbol *SymbolTable::lookup_func(std::string& sym, Scope *from, bool current
         my_current = my_current->outer;
     }
 
-    return my_current->phys_symbols.find(sym)->second.get()->as_funcsym();
+    return my_current->phys_symbols.find(sym)->second->as_funcsym();
 }
 
-TypeSymbol *SymbolTable::lookup_type(std::string& sym, Scope *from, bool current_only) {
+TypeSymbol *SymbolTable::lookup_type(std::string& sym, Scope *from, bool current_only) const {
     Scope *my_current = from;
     if (current_only) {
         dbprint("SymbolTable: looking up typesymbol ", sym, " in current scope");
@@ -235,7 +235,7 @@ TypeSymbol *SymbolTable::lookup_type(std::string& sym, Scope *from, bool current
     return my_current->type_symbols.find(sym)->second.get();
 }
 
-LabelSymbol *SymbolTable::lookup_label(std::string& sym, Scope *from, bool current_only) {
+LabelSymbol *SymbolTable::lookup_label(std::string& sym, Scope *from, bool current_only) const {
     Scope *my_current = from;
     if (current_only) {
         dbprint("SymbolTable: looking up labelsymbol ", sym, " in current scope");
@@ -263,7 +263,7 @@ LabelSymbol *SymbolTable::lookup_label(std::string& sym, Scope *from, bool curre
     return my_current->label_symbols.find(sym)->second.get();
 }
 
-void SymbolTable::tie_current_to(FuncSymbol *sym, bool override) {
+void SymbolTable::tie_current_to(FuncSymbol *sym, bool override) const {
     dbprint("SymbolTable: associating current scope ", current->id, " with symbol ", sym,
             " name \"", sym->name, "\"");
     if (current->assoc != nullptr) {
@@ -275,7 +275,7 @@ void SymbolTable::tie_current_to(FuncSymbol *sym, bool override) {
     }
 }
 
-VarSymbol *SymbolTable::insert(std::string name, Box<VarSymbol> sym) {
+VarSymbol *SymbolTable::insert(std::string& name, Box<VarSymbol> sym) const {
     dbprint("SymbolTable: inserting varsymbol with name \"", name, "\"");
     if (current->phys_symbols.contains(name)) {
         dbprint("SymbolTable: varsymbol with name ", name, " already exists");
@@ -288,7 +288,7 @@ VarSymbol *SymbolTable::insert(std::string name, Box<VarSymbol> sym) {
     return ret;
 }
 
-FuncSymbol *SymbolTable::insert(std::string name, Box<FuncSymbol> sym) {
+FuncSymbol *SymbolTable::insert(std::string& name, Box<FuncSymbol> sym) const {
     dbprint("SymbolTable: inserting funcsymbol with name \"", name, "\"");
     if (current->phys_symbols.contains(name)) {
         dbprint("SymbolTable: symbol with name ", name, " already exists");
@@ -320,7 +320,7 @@ insert:
     return ret;
 }
 
-TypeSymbol *SymbolTable::insert(std::string name, Box<TypeSymbol> sym) {
+TypeSymbol *SymbolTable::insert(std::string& name, Box<TypeSymbol> sym) const {
     dbprint("SymbolTable: inserting typesymbol with name \"", name, "\"");
     if (current->type_symbols.contains(name)) {
         dbprint("SymbolTable: typesymbol with name ", name, " already exists");
@@ -333,7 +333,7 @@ TypeSymbol *SymbolTable::insert(std::string name, Box<TypeSymbol> sym) {
     return ret;
 }
 
-LabelSymbol *SymbolTable::insert(std::string name, Box<LabelSymbol> sym) {
+LabelSymbol *SymbolTable::insert(std::string& name, Box<LabelSymbol> sym) const {
     dbprint("SymbolTable: inserting labelsymbol with name \"", name, "\"");
     if (current->label_symbols.contains(name)) {
         dbprint("SymbolTable: labelsymbol with name ", name, " already exists");

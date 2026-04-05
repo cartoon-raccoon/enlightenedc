@@ -2,7 +2,7 @@
 
 using namespace ecc::frontend;
 
-extern FilenamePool filenames;
+constexpr size_t FILENAME_BUF_SIZE = 2048;
 
 // Use the standard yyFlexLexer constructor.
 Lexer::Lexer(std::istream *in, std::string *filename, std::set<std::string>& typedefs)
@@ -14,7 +14,7 @@ Lexer::Lexer(std::istream *in, std::string *filename, std::set<std::string>& typ
 
 void Lexer::handle_linemarker(const char *yytext) {
     int line_num;
-    char filename_buf[1024];
+    char filename_buf[FILENAME_BUF_SIZE];
     int flag = 0;
     int chars_read;
 

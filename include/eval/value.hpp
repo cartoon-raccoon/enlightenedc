@@ -1,6 +1,7 @@
 #ifndef ECC_VALUE_H
 #define ECC_VALUE_H
 
+#include <format>
 #include <variant>
 #include <string>
 #include "util.hpp"
@@ -14,13 +15,12 @@ namespace ecc::exec {
 class InvalidCompileTimeEval : public EccError {
 public:
     InvalidCompileTimeEval(std::string msg, Location loc)
-    : EccError(msg, loc) {}
+    : EccError(std::move(msg), loc) {}
 };
 
 class Value {
 public:
     using ValueType = std::variant<
-        std::monostate,
         char,
         long,
         double,
@@ -28,8 +28,6 @@ public:
         std::string
     >;
 
-    Value() : inner(std::monostate {}) {}
-    Value(std::monostate v) : inner(v) {}
     Value(char v) : inner(v) {}
     Value(long v) : inner(v) {}
     Value(double v) : inner(v) {}
@@ -56,7 +54,6 @@ public:
 
     operator bool() const {
         return std::visit(match {
-            [](std::monostate) { return false; },
             [](char v) { return v != 0; },
             [](long v) { return v != 0; },
             [](double v) { return v != 0.0; },
@@ -69,18 +66,18 @@ public:
         return inner;
     }
 
-    Value operator||(const Value rhs) {
+    Value operator||(const Value& rhs) const {
         return Value(static_cast<bool>(*this) || static_cast<bool>(rhs));
     }
 
-    Value operator&&(const Value rhs) {
+    Value operator&&(const Value& rhs) const {
         return Value(static_cast<bool>(*this) && static_cast<bool>(rhs));
     }
 
     // Binary bitwise OR
-    Value operator|(const Value rhs) {
+    Value operator|(const Value& rhs) {
         return std::visit(
-            match{[](auto a, auto b) -> Value {
+            match{[](auto& a, auto& b) -> Value {
                 using A = std::decay_t<decltype(a)>;
                 using B = std::decay_t<decltype(b)>;
 
@@ -100,9 +97,9 @@ public:
     }
 
     // Binary bitwise XOR
-    Value operator^(const Value rhs) {
+    Value operator^(const Value& rhs) {
         return std::visit(
-            match{[](auto a, auto b) -> Value {
+            match{[](auto& a, auto& b) -> Value {
                 using A = std::decay_t<decltype(a)>;
                 using B = std::decay_t<decltype(b)>;
 
@@ -122,9 +119,9 @@ public:
     }
 
     // Binary bitwise AND
-    Value operator&(const Value rhs) {
+    Value operator&(const Value& rhs) {
         return std::visit(
-            match{[](auto a, auto b) -> Value {
+            match{[](auto& a, auto& b) -> Value {
                 using A = std::decay_t<decltype(a)>;
                 using B = std::decay_t<decltype(b)>;
 
@@ -144,7 +141,7 @@ public:
     }
 
     // Binary EQ
-    Value operator==(const Value rhs) {
+    Value operator==(const Value& rhs) {
         return std::visit(
             match{[](long a, long b) { return Value(a == b); },
                        [](char a, long b) { return Value(a == b); },
@@ -164,22 +161,22 @@ public:
     }
 
     // Binary NEQ
-    Value operator!=(const Value rhs) {
+    Value operator!=(const Value& rhs) {
         return !(*this == rhs);
     }
 
     // Binary LEQ
-    Value operator<=(const Value rhs) {
+    Value operator<=(const Value& rhs) {
         return !(*this > rhs);
     }
 
     // Binary GEQ
-    Value operator>=(const Value rhs) {
+    Value operator>=(const Value& rhs) {
         return !(*this < rhs);
     }
 
     // Binary LT
-    Value operator<(const Value rhs) {
+    Value operator<(const Value& rhs) {
         return std::visit(
             match{[](long a, long b) { return Value(a < b); },
                        [](char a, long b) { return Value(a < b); },
@@ -198,7 +195,7 @@ public:
             inner, rhs.inner);
     }
 
-    Value operator>(const Value rhs) {
+    Value operator>(const Value& rhs) {
         return std::visit(
             match{[](long a, long b) { return Value(a > b); },
                        [](char a, long b) { return Value(a > b); },
@@ -217,7 +214,7 @@ public:
             inner, rhs.inner);
     }
 
-    Value operator+(const Value rhs) {
+    Value operator+(const Value& rhs) {
         return std::visit(
             match{[](long a, long b) { return Value(a + b); },
                        [](char a, long b) { return Value(a + b); },
@@ -236,7 +233,7 @@ public:
             inner, rhs.inner);
     }
 
-    Value operator-(const Value rhs) {
+    Value operator-(const Value& rhs) {
         return std::visit(
             match{[](long a, long b) { return Value(a - b); },
                        [](char a, long b) { return Value(a - b); },
@@ -252,7 +249,7 @@ public:
             inner, rhs.inner);
     }
 
-    Value operator*(const Value rhs) {
+    Value operator*(const Value& rhs) {
         return std::visit(
             match{[](long a, long b) { return Value(a * b); },
                        [](char a, long b) { return Value(a * b); },
@@ -268,7 +265,7 @@ public:
             inner, rhs.inner);
     }
 
-    Value operator/(const Value rhs) {
+    Value operator/(const Value& rhs) {
         return std::visit(
             match{[](long a, long b) { return Value(a / b); },
                        [](char a, long b) { return Value(a / b); },
@@ -285,13 +282,13 @@ public:
     }
 
     // Unary logical NOT
-    Value operator!() { return Value(!static_cast<bool>(*this)); }
+    Value operator!() const { return Value(!static_cast<bool>(*this)); }
 
     /*
     Unary bitwise NOT
     */
     Value operator~() {
-        return std::visit(match{[](auto v) -> Value {
+        return std::visit(match{[](auto& v) -> Value {
                               using T = std::decay_t<decltype(v)>;
 
                               if constexpr (std::is_same_v<T, char> ||
@@ -362,6 +359,10 @@ public:
     Value operator--(int) {
         throw InvalidCompileTimeEval(
             "Postfix -- not allowed in constant expressions", Location{});
+    }
+
+    std::string to_string() {
+        return std::visit([this] (const auto& v) { return std::format("{}", v); }, inner);
     }
 };
 

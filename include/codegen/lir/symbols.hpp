@@ -18,7 +18,7 @@ class LIRFuncSym;
 
 class LIRSym : public NoCopy {
 public:
-    enum class LIRSymKind {
+    enum class LIRSymKind : bool {
         FUNC,
         VAR,
     };
@@ -50,7 +50,8 @@ public:
               Location loc, 
               sema::sym::VarSymbol *sym, 
               bool is_param)
-        : LIRSym(LIRSymKind::VAR, mangled, name, loc), sym(sym), is_param(is_param) {}
+        : LIRSym(LIRSymKind::VAR, std::move(mangled), std::move(name), loc),
+        sym(sym), is_param(is_param) {}
 
     // The type of the variable.
     sema::sym::VarSymbol *sym;
@@ -66,7 +67,8 @@ public:
                std::string name,
                Location loc, 
                sema::sym::FuncSymbol *symbol)
-        : LIRSym(LIRSymKind::FUNC, mangled, name, loc), symbol(symbol) {}
+        : LIRSym(LIRSymKind::FUNC, std::move(mangled), std::move(name), loc),
+        symbol(symbol) {}
 
     sema::sym::FuncSymbol *symbol;
 

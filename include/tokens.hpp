@@ -1,10 +1,14 @@
+#pragma once
+
 #ifndef ECC_TOKENS_H
 #define ECC_TOKENS_H
 
 #include <cstdint>
 
-namespace ecc::tokens {
 
+namespace ecc::tokens {
+    
+using namespace ecc;
 // All semantically relevant tokens in EnlightenedC.
 
 enum class BinaryOp : uint8_t  {
@@ -78,6 +82,18 @@ enum class PrimType : uint8_t {
     F64,
     BOOL,
 };
+
+std::string binop_to_string(BinaryOp op);
+
+std::string unop_to_string(UnaryOp op);
+
+std::string assignop_to_string(AssignOp op);
+
+std::string postfixop_to_string(PostfixOp op);
+
+std::string infixop_to_string(InfixOp op);
+
+std::string primitive_to_string(PrimType pr);
 
 }; // namespace ecc::tokens
 

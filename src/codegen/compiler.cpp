@@ -6,7 +6,7 @@ using namespace ecc::codegen;
 using namespace ecc::codegen::lir;
 
 LLVMSynthesizer::LLVMSynthesizer(lir::LIRSymbolMap& syms, LLVMUnit& llvm)
-    : syms(syms), ctxt(llvm.ctx()), mod(llvm.mod()), irb(llvm.irb()) {
+    : symsref(syms), ctxtref(llvm.ctx()), modref(llvm.mod()), irbref(llvm.irb()) {
 }
 
 void LLVMSynthesizer::compile(ProgramLIR& prog) {

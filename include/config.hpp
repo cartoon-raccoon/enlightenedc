@@ -15,21 +15,21 @@ using namespace util;
 
 class ArgError : public EccError {
 public:
-    ArgError(std::string msg) : EccError(ErrorSource::NONE, msg) {}
+    ArgError(std::string msg) : EccError(ErrorSource::NONE, std::move(msg)) {}
 
-    virtual std::string to_string() override {
+    std::string to_string() override {
         return EccError::what();
     }
 };
 
 class ArgParseError : public ArgError {
 public:
-    ArgParseError(std::string msg) : ArgError(msg) {}
+    ArgParseError(std::string msg) : ArgError(std::move(msg)) {}
 };
 
 class InvalidArgError : public ArgError {
 public:
-    InvalidArgError(std::string arg) : ArgError("unrecognized argument"), arg(arg) {}
+    InvalidArgError(std::string arg) : ArgError("unrecognized argument"), arg(std::move(arg)) {}
 
     std::string arg;
 
@@ -81,7 +81,7 @@ public:
 
     // The internal data structures to print.
     // If selected, the process stops at the compilation step.
-    enum class ToPrint {
+    enum class ToPrint : uint8_t {
         AST = 0,
         // Emit the compiled MIR.
         MIR = 1,
@@ -89,12 +89,12 @@ public:
         LIR = 2,
     };
 
-    Optional<Vec<ToPrint>> to_print = {};
+    Optional<Vec<ToPrint>> to_print;
 
     /*
     The format to use for compilation output.
     */
-    enum class CompilationOutput {
+    enum class CompilationOutput : uint8_t {
         // The default.
         ASM,
         // Use LLVM for assembler and object files.
@@ -117,7 +117,7 @@ private:
             }
         };
 
-        Optional<std::string> arg = {};
+        Optional<std::string> arg;
 
     public:
         operator bool() const { return arg.has_value(); }
@@ -173,12 +173,12 @@ private:
     std::map<std::string, ArgAction> long_args;
 
     template<typename F>
-    void add_short_arg(std::string arg, F&& f) {
+    void add_short_arg(std::string arg, F&& f) { // NOLINT
         short_args[arg] = std::forward<F>(f);
     }
 
     template<typename F>
-    void add_long_arg(std::string arg, F&& f) {
+    void add_long_arg(std::string arg, F&& f) { // NOLINT
         long_args[arg] = std::forward<F>(f);
     }
 

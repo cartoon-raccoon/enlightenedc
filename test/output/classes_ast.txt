@@ -6,294 +6,304 @@ LLVM: LLVMUnit created
 parsing file input/classes.HC
 printing AST for file input/classes.HC
 Program @ <input/classes.HC:1.1> 
-| TypeDeclaration @ <input/classes.HC:1.1-4.2> 
-| | ClassSpecifier:  Point: @ <input/classes.HC:1.154-4.1> 
-| | | ClassDeclaration @ <input/classes.HC:2.5-11> 
-| | | | PrimitiveSpecifier: i32 @ <input/classes.HC:2.5-8> 
-| | | | ClassDeclarator @ <input/classes.HC:2.10> 
-| | | | | Declarator @ <input/classes.HC:2.10> 
-| | | | | | IdentifierDeclarator: x @ <input/classes.HC:2.10> 
-| | | ClassDeclaration @ <input/classes.HC:3.5-11> 
-| | | | PrimitiveSpecifier: i32 @ <input/classes.HC:3.5-8> 
-| | | | ClassDeclarator @ <input/classes.HC:3.10> 
-| | | | | Declarator @ <input/classes.HC:3.10> 
-| | | | | | IdentifierDeclarator: y @ <input/classes.HC:3.10> 
-| | StorageClassSpecifier: public @ <input/classes.HC:1.1-152> 
-| TypeDeclaration @ <input/classes.HC:6.1-9.2> 
-| | UnionSpecifier:  Data @ <input/classes.HC:6.1-9.1> 
+| TypeDeclaration @ <input/classes.HC:1.1-159> 
+| | ClassSpecifier:  Opaque: @ <input/classes.HC:1.1-158> 
+| VariableDeclaration @ <input/classes.HC:3.1-19> 
+| | TypeIdentifier: Opaque @ <input/classes.HC:3.1-6> 
+| | InitDeclarator @ <input/classes.HC:3.8-18> 
+| | | Declarator @ <input/classes.HC:3.8-18> 
+| | | | Pointer @ <input/classes.HC:3.8> 
+| | | | IdentifierDeclarator: opaque_ptr @ <input/classes.HC:3.8-18> 
+| TypeDeclaration @ <input/classes.HC:5.1-8.2> 
+| | ClassSpecifier:  Point: @ <input/classes.HC:5.8-8.1> 
+| | | ClassDeclaration @ <input/classes.HC:6.5-11> 
+| | | | PrimitiveSpecifier: i32 @ <input/classes.HC:6.5-8> 
+| | | | ClassDeclarator @ <input/classes.HC:6.10> 
+| | | | | Declarator @ <input/classes.HC:6.10> 
+| | | | | | IdentifierDeclarator: x @ <input/classes.HC:6.10> 
 | | | ClassDeclaration @ <input/classes.HC:7.5-11> 
-| | | | PrimitiveSpecifier: u32 @ <input/classes.HC:7.5-8> 
+| | | | PrimitiveSpecifier: i32 @ <input/classes.HC:7.5-8> 
 | | | | ClassDeclarator @ <input/classes.HC:7.10> 
 | | | | | Declarator @ <input/classes.HC:7.10> 
-| | | | | | IdentifierDeclarator: i @ <input/classes.HC:7.10> 
-| | | ClassDeclaration @ <input/classes.HC:8.5-11> 
-| | | | PrimitiveSpecifier: f64 @ <input/classes.HC:8.5-8> 
-| | | | ClassDeclarator @ <input/classes.HC:8.10> 
-| | | | | Declarator @ <input/classes.HC:8.10> 
-| | | | | | IdentifierDeclarator: f @ <input/classes.HC:8.10> 
-| TypeDeclaration @ <input/classes.HC:11.1-13.2> 
-| | UnionSpecifier:  U8 @ <input/classes.HC:11.8-13.1> 
-| | | ClassDeclaration @ <input/classes.HC:12.5-14> 
-| | | | PrimitiveSpecifier: u8 @ <input/classes.HC:12.5-7> 
-| | | | ClassDeclarator @ <input/classes.HC:12.9-13> 
-| | | | | Declarator @ <input/classes.HC:12.9-13> 
-| | | | | | ArrayDeclarator @ <input/classes.HC:12.9-13> 
-| | | | | | | IdentifierDeclarator: u8 @ <input/classes.HC:12.9-10> 
-| | | | | | | ConstExpression:  @ <input/classes.HC:12.9-12> 
-| | | | | | | | Literal: 1 @ <input/classes.HC:12.9-12> 
-| | StorageClassSpecifier: public @ <input/classes.HC:11.1-6> 
-| TypeDeclaration @ <input/classes.HC:15.1-18.2> 
-| | UnionSpecifier:  U16 @ <input/classes.HC:15.8-18.1> 
-| | | ClassDeclaration @ <input/classes.HC:16.5-13> 
-| | | | TypeIdentifier: U8 @ <input/classes.HC:16.5-6> 
-| | | | ClassDeclarator @ <input/classes.HC:16.8-12> 
-| | | | | Declarator @ <input/classes.HC:16.8-12> 
-| | | | | | ArrayDeclarator @ <input/classes.HC:16.8-12> 
-| | | | | | | IdentifierDeclarator: u8 @ <input/classes.HC:16.8-9> 
-| | | | | | | ConstExpression:  @ <input/classes.HC:16.8-11> 
-| | | | | | | | Literal: 2 @ <input/classes.HC:16.8-11> 
-| | | ClassDeclaration @ <input/classes.HC:17.5-16> 
-| | | | PrimitiveSpecifier: u16 @ <input/classes.HC:17.5-8> 
-| | | | ClassDeclarator @ <input/classes.HC:17.10-15> 
-| | | | | Declarator @ <input/classes.HC:17.10-15> 
-| | | | | | ArrayDeclarator @ <input/classes.HC:17.10-15> 
-| | | | | | | IdentifierDeclarator: u16 @ <input/classes.HC:17.10-12> 
-| | | | | | | ConstExpression:  @ <input/classes.HC:17.10-14> 
-| | | | | | | | Literal: 1 @ <input/classes.HC:17.10-14> 
+| | | | | | IdentifierDeclarator: y @ <input/classes.HC:7.10> 
+| | StorageClassSpecifier: public @ <input/classes.HC:5.1-6> 
+| TypeDeclaration @ <input/classes.HC:10.1-13.2> 
+| | UnionSpecifier:  Data @ <input/classes.HC:10.1-13.1> 
+| | | ClassDeclaration @ <input/classes.HC:11.5-11> 
+| | | | PrimitiveSpecifier: u32 @ <input/classes.HC:11.5-8> 
+| | | | ClassDeclarator @ <input/classes.HC:11.10> 
+| | | | | Declarator @ <input/classes.HC:11.10> 
+| | | | | | IdentifierDeclarator: i @ <input/classes.HC:11.10> 
+| | | ClassDeclaration @ <input/classes.HC:12.5-11> 
+| | | | PrimitiveSpecifier: f64 @ <input/classes.HC:12.5-8> 
+| | | | ClassDeclarator @ <input/classes.HC:12.10> 
+| | | | | Declarator @ <input/classes.HC:12.10> 
+| | | | | | IdentifierDeclarator: f @ <input/classes.HC:12.10> 
+| TypeDeclaration @ <input/classes.HC:15.1-17.2> 
+| | UnionSpecifier:  U8 @ <input/classes.HC:15.8-17.1> 
+| | | ClassDeclaration @ <input/classes.HC:16.5-14> 
+| | | | PrimitiveSpecifier: u8 @ <input/classes.HC:16.5-7> 
+| | | | ClassDeclarator @ <input/classes.HC:16.9-13> 
+| | | | | Declarator @ <input/classes.HC:16.9-13> 
+| | | | | | ArrayDeclarator @ <input/classes.HC:16.9-13> 
+| | | | | | | IdentifierDeclarator: u8 @ <input/classes.HC:16.9-10> 
+| | | | | | | ConstExpression:  @ <input/classes.HC:16.9-12> 
+| | | | | | | | 1 @ <input/classes.HC:16.9-12> 
 | | StorageClassSpecifier: public @ <input/classes.HC:15.1-6> 
-| TypeDeclaration @ <input/classes.HC:20.1-24.2> 
-| | UnionSpecifier:  U32 @ <input/classes.HC:20.8-24.1> 
-| | | ClassDeclaration @ <input/classes.HC:21.5-13> 
-| | | | TypeIdentifier: U8 @ <input/classes.HC:21.5-6> 
-| | | | ClassDeclarator @ <input/classes.HC:21.8-12> 
-| | | | | Declarator @ <input/classes.HC:21.8-12> 
-| | | | | | ArrayDeclarator @ <input/classes.HC:21.8-12> 
-| | | | | | | IdentifierDeclarator: u8 @ <input/classes.HC:21.8-9> 
-| | | | | | | ConstExpression:  @ <input/classes.HC:21.8-11> 
-| | | | | | | | Literal: 4 @ <input/classes.HC:21.8-11> 
-| | | ClassDeclaration @ <input/classes.HC:22.5-15> 
-| | | | TypeIdentifier: U16 @ <input/classes.HC:22.5-7> 
-| | | | ClassDeclarator @ <input/classes.HC:22.9-14> 
-| | | | | Declarator @ <input/classes.HC:22.9-14> 
-| | | | | | ArrayDeclarator @ <input/classes.HC:22.9-14> 
-| | | | | | | IdentifierDeclarator: u16 @ <input/classes.HC:22.9-11> 
-| | | | | | | ConstExpression:  @ <input/classes.HC:22.9-13> 
-| | | | | | | | Literal: 2 @ <input/classes.HC:22.9-13> 
-| | | ClassDeclaration @ <input/classes.HC:23.5-16> 
-| | | | PrimitiveSpecifier: u32 @ <input/classes.HC:23.5-8> 
-| | | | ClassDeclarator @ <input/classes.HC:23.10-15> 
-| | | | | Declarator @ <input/classes.HC:23.10-15> 
-| | | | | | ArrayDeclarator @ <input/classes.HC:23.10-15> 
-| | | | | | | IdentifierDeclarator: u32 @ <input/classes.HC:23.10-12> 
-| | | | | | | ConstExpression:  @ <input/classes.HC:23.10-14> 
-| | | | | | | | Literal: 1 @ <input/classes.HC:23.10-14> 
-| | StorageClassSpecifier: public @ <input/classes.HC:20.1-6> 
-| TypeDeclaration @ <input/classes.HC:26.1-31.2> 
-| | UnionSpecifier:  U64 @ <input/classes.HC:26.8-31.1> 
-| | | ClassDeclaration @ <input/classes.HC:27.5-13> 
-| | | | TypeIdentifier: U8 @ <input/classes.HC:27.5-6> 
-| | | | ClassDeclarator @ <input/classes.HC:27.8-12> 
-| | | | | Declarator @ <input/classes.HC:27.8-12> 
-| | | | | | ArrayDeclarator @ <input/classes.HC:27.8-12> 
-| | | | | | | IdentifierDeclarator: u8 @ <input/classes.HC:27.8-9> 
-| | | | | | | ConstExpression:  @ <input/classes.HC:27.8-11> 
-| | | | | | | | Literal: 8 @ <input/classes.HC:27.8-11> 
-| | | ClassDeclaration @ <input/classes.HC:28.5-15> 
-| | | | TypeIdentifier: U16 @ <input/classes.HC:28.5-7> 
-| | | | ClassDeclarator @ <input/classes.HC:28.9-14> 
-| | | | | Declarator @ <input/classes.HC:28.9-14> 
-| | | | | | ArrayDeclarator @ <input/classes.HC:28.9-14> 
-| | | | | | | IdentifierDeclarator: u16 @ <input/classes.HC:28.9-11> 
-| | | | | | | ConstExpression:  @ <input/classes.HC:28.9-13> 
-| | | | | | | | Literal: 4 @ <input/classes.HC:28.9-13> 
-| | | ClassDeclaration @ <input/classes.HC:29.5-15> 
-| | | | TypeIdentifier: U32 @ <input/classes.HC:29.5-7> 
-| | | | ClassDeclarator @ <input/classes.HC:29.9-14> 
-| | | | | Declarator @ <input/classes.HC:29.9-14> 
-| | | | | | ArrayDeclarator @ <input/classes.HC:29.9-14> 
-| | | | | | | IdentifierDeclarator: u32 @ <input/classes.HC:29.9-11> 
-| | | | | | | ConstExpression:  @ <input/classes.HC:29.9-13> 
-| | | | | | | | Literal: 2 @ <input/classes.HC:29.9-13> 
-| | | ClassDeclaration @ <input/classes.HC:30.5-16> 
-| | | | PrimitiveSpecifier: u64 @ <input/classes.HC:30.5-8> 
-| | | | ClassDeclarator @ <input/classes.HC:30.10-15> 
-| | | | | Declarator @ <input/classes.HC:30.10-15> 
-| | | | | | ArrayDeclarator @ <input/classes.HC:30.10-15> 
-| | | | | | | IdentifierDeclarator: u64 @ <input/classes.HC:30.10-12> 
-| | | | | | | ConstExpression:  @ <input/classes.HC:30.10-14> 
-| | | | | | | | Literal: 1 @ <input/classes.HC:30.10-14> 
-| | StorageClassSpecifier: public @ <input/classes.HC:26.1-6> 
-| TypeDeclaration @ <input/classes.HC:33.1-37.2> 
-| | EnumSpecifier: Color @ <input/classes.HC:33.1-37.1> 
-| | | Enumerator: RED @ <input/classes.HC:34.5-7> 
-| | | Enumerator: GREEN @ <input/classes.HC:35.5-13> 
-| | | | ConstExpression:  @ <input/classes.HC:35.13> 
-| | | | | Literal: 5 @ <input/classes.HC:35.13> 
-| | | Enumerator: BLUE @ <input/classes.HC:36.5-8> 
-| TypeDeclaration @ <input/classes.HC:39.1-41.2> 
-| | ClassSpecifier:  Animal: @ <input/classes.HC:39.1-41.1> 
-| | | ClassDeclaration @ <input/classes.HC:40.5-13> 
-| | | | PrimitiveSpecifier: i32 @ <input/classes.HC:40.5-8> 
-| | | | ClassDeclarator @ <input/classes.HC:40.10-12> 
-| | | | | Declarator @ <input/classes.HC:40.10-12> 
-| | | | | | IdentifierDeclarator: age @ <input/classes.HC:40.10-12> 
+| TypeDeclaration @ <input/classes.HC:19.1-22.2> 
+| | UnionSpecifier:  U16 @ <input/classes.HC:19.8-22.1> 
+| | | ClassDeclaration @ <input/classes.HC:20.5-13> 
+| | | | TypeIdentifier: U8 @ <input/classes.HC:20.5-6> 
+| | | | ClassDeclarator @ <input/classes.HC:20.8-12> 
+| | | | | Declarator @ <input/classes.HC:20.8-12> 
+| | | | | | ArrayDeclarator @ <input/classes.HC:20.8-12> 
+| | | | | | | IdentifierDeclarator: u8 @ <input/classes.HC:20.8-9> 
+| | | | | | | ConstExpression:  @ <input/classes.HC:20.8-11> 
+| | | | | | | | 2 @ <input/classes.HC:20.8-11> 
+| | | ClassDeclaration @ <input/classes.HC:21.5-16> 
+| | | | PrimitiveSpecifier: u16 @ <input/classes.HC:21.5-8> 
+| | | | ClassDeclarator @ <input/classes.HC:21.10-15> 
+| | | | | Declarator @ <input/classes.HC:21.10-15> 
+| | | | | | ArrayDeclarator @ <input/classes.HC:21.10-15> 
+| | | | | | | IdentifierDeclarator: u16 @ <input/classes.HC:21.10-12> 
+| | | | | | | ConstExpression:  @ <input/classes.HC:21.10-14> 
+| | | | | | | | 1 @ <input/classes.HC:21.10-14> 
+| | StorageClassSpecifier: public @ <input/classes.HC:19.1-6> 
+| TypeDeclaration @ <input/classes.HC:24.1-28.2> 
+| | UnionSpecifier:  U32 @ <input/classes.HC:24.8-28.1> 
+| | | ClassDeclaration @ <input/classes.HC:25.5-13> 
+| | | | TypeIdentifier: U8 @ <input/classes.HC:25.5-6> 
+| | | | ClassDeclarator @ <input/classes.HC:25.8-12> 
+| | | | | Declarator @ <input/classes.HC:25.8-12> 
+| | | | | | ArrayDeclarator @ <input/classes.HC:25.8-12> 
+| | | | | | | IdentifierDeclarator: u8 @ <input/classes.HC:25.8-9> 
+| | | | | | | ConstExpression:  @ <input/classes.HC:25.8-11> 
+| | | | | | | | 4 @ <input/classes.HC:25.8-11> 
+| | | ClassDeclaration @ <input/classes.HC:26.5-15> 
+| | | | TypeIdentifier: U16 @ <input/classes.HC:26.5-7> 
+| | | | ClassDeclarator @ <input/classes.HC:26.9-14> 
+| | | | | Declarator @ <input/classes.HC:26.9-14> 
+| | | | | | ArrayDeclarator @ <input/classes.HC:26.9-14> 
+| | | | | | | IdentifierDeclarator: u16 @ <input/classes.HC:26.9-11> 
+| | | | | | | ConstExpression:  @ <input/classes.HC:26.9-13> 
+| | | | | | | | 2 @ <input/classes.HC:26.9-13> 
+| | | ClassDeclaration @ <input/classes.HC:27.5-16> 
+| | | | PrimitiveSpecifier: u32 @ <input/classes.HC:27.5-8> 
+| | | | ClassDeclarator @ <input/classes.HC:27.10-15> 
+| | | | | Declarator @ <input/classes.HC:27.10-15> 
+| | | | | | ArrayDeclarator @ <input/classes.HC:27.10-15> 
+| | | | | | | IdentifierDeclarator: u32 @ <input/classes.HC:27.10-12> 
+| | | | | | | ConstExpression:  @ <input/classes.HC:27.10-14> 
+| | | | | | | | 1 @ <input/classes.HC:27.10-14> 
+| | StorageClassSpecifier: public @ <input/classes.HC:24.1-6> 
+| TypeDeclaration @ <input/classes.HC:30.1-35.2> 
+| | UnionSpecifier:  U64 @ <input/classes.HC:30.8-35.1> 
+| | | ClassDeclaration @ <input/classes.HC:31.5-13> 
+| | | | TypeIdentifier: U8 @ <input/classes.HC:31.5-6> 
+| | | | ClassDeclarator @ <input/classes.HC:31.8-12> 
+| | | | | Declarator @ <input/classes.HC:31.8-12> 
+| | | | | | ArrayDeclarator @ <input/classes.HC:31.8-12> 
+| | | | | | | IdentifierDeclarator: u8 @ <input/classes.HC:31.8-9> 
+| | | | | | | ConstExpression:  @ <input/classes.HC:31.8-11> 
+| | | | | | | | 8 @ <input/classes.HC:31.8-11> 
+| | | ClassDeclaration @ <input/classes.HC:32.5-15> 
+| | | | TypeIdentifier: U16 @ <input/classes.HC:32.5-7> 
+| | | | ClassDeclarator @ <input/classes.HC:32.9-14> 
+| | | | | Declarator @ <input/classes.HC:32.9-14> 
+| | | | | | ArrayDeclarator @ <input/classes.HC:32.9-14> 
+| | | | | | | IdentifierDeclarator: u16 @ <input/classes.HC:32.9-11> 
+| | | | | | | ConstExpression:  @ <input/classes.HC:32.9-13> 
+| | | | | | | | 4 @ <input/classes.HC:32.9-13> 
+| | | ClassDeclaration @ <input/classes.HC:33.5-15> 
+| | | | TypeIdentifier: U32 @ <input/classes.HC:33.5-7> 
+| | | | ClassDeclarator @ <input/classes.HC:33.9-14> 
+| | | | | Declarator @ <input/classes.HC:33.9-14> 
+| | | | | | ArrayDeclarator @ <input/classes.HC:33.9-14> 
+| | | | | | | IdentifierDeclarator: u32 @ <input/classes.HC:33.9-11> 
+| | | | | | | ConstExpression:  @ <input/classes.HC:33.9-13> 
+| | | | | | | | 2 @ <input/classes.HC:33.9-13> 
+| | | ClassDeclaration @ <input/classes.HC:34.5-16> 
+| | | | PrimitiveSpecifier: u64 @ <input/classes.HC:34.5-8> 
+| | | | ClassDeclarator @ <input/classes.HC:34.10-15> 
+| | | | | Declarator @ <input/classes.HC:34.10-15> 
+| | | | | | ArrayDeclarator @ <input/classes.HC:34.10-15> 
+| | | | | | | IdentifierDeclarator: u64 @ <input/classes.HC:34.10-12> 
+| | | | | | | ConstExpression:  @ <input/classes.HC:34.10-14> 
+| | | | | | | | 1 @ <input/classes.HC:34.10-14> 
+| | StorageClassSpecifier: public @ <input/classes.HC:30.1-6> 
+| TypeDeclaration @ <input/classes.HC:37.1-41.2> 
+| | EnumSpecifier: Color @ <input/classes.HC:37.1-41.1> 
+| | | Enumerator: RED @ <input/classes.HC:38.5-7> 
+| | | Enumerator: GREEN @ <input/classes.HC:39.5-13> 
+| | | | ConstExpression:  @ <input/classes.HC:39.13> 
+| | | | | 5 @ <input/classes.HC:39.13> 
+| | | Enumerator: BLUE @ <input/classes.HC:40.5-8> 
 | TypeDeclaration @ <input/classes.HC:43.1-45.2> 
-| | ClassSpecifier:  Dog:Animal @ <input/classes.HC:43.1-45.1> 
-| | | ClassDeclaration @ <input/classes.HC:44.5-20> 
-| | | | EnumSpecifier: Color @ <input/classes.HC:44.5-14> 
-| | | | ClassDeclarator @ <input/classes.HC:44.16-19> 
-| | | | | Declarator @ <input/classes.HC:44.16-19> 
-| | | | | | IdentifierDeclarator: coat @ <input/classes.HC:44.16-19> 
-| TypeDeclaration @ <input/classes.HC:47.1-13> 
-| | EnumSpecifier: Forward @ <input/classes.HC:47.1-12> 
-| TypeDeclaration @ <input/classes.HC:49.1-53.2> 
-| | ClassSpecifier:  Flags: @ <input/classes.HC:49.1-53.1> 
-| | | ClassDeclaration @ <input/classes.HC:50.5-14> 
-| | | | PrimitiveSpecifier: u8 @ <input/classes.HC:50.5-7> 
-| | | | ClassDeclarator @ <input/classes.HC:50.9-13> 
-| | | | | Declarator @ <input/classes.HC:50.9> 
-| | | | | | IdentifierDeclarator: a @ <input/classes.HC:50.9> 
-| | | | | ConstExpression:  @ <input/classes.HC:50.13> 
-| | | | | | Literal: 1 @ <input/classes.HC:50.13> 
-| | | ClassDeclaration @ <input/classes.HC:51.5-14> 
-| | | | PrimitiveSpecifier: u8 @ <input/classes.HC:51.5-7> 
-| | | | ClassDeclarator @ <input/classes.HC:51.9-13> 
-| | | | | Declarator @ <input/classes.HC:51.9> 
-| | | | | | IdentifierDeclarator: b @ <input/classes.HC:51.9> 
-| | | | | ConstExpression:  @ <input/classes.HC:51.13> 
-| | | | | | Literal: 2 @ <input/classes.HC:51.13> 
-| | | ClassDeclaration @ <input/classes.HC:52.5-12> 
-| | | | PrimitiveSpecifier: u8 @ <input/classes.HC:52.5-7> 
-| | | | ClassDeclarator @ <input/classes.HC:52.9-11> 
-| | | | | ConstExpression:  @ <input/classes.HC:52.11> 
-| | | | | | Literal: 5 @ <input/classes.HC:52.11> 
-| TypeDeclaration @ <input/classes.HC:55.1-61.2> 
-| | ClassSpecifier:  Value: @ <input/classes.HC:55.1-61.1> 
-| | | ClassDeclaration @ <input/classes.HC:56.3-12> 
-| | | | PrimitiveSpecifier: i32 @ <input/classes.HC:56.3-6> 
-| | | | ClassDeclarator @ <input/classes.HC:56.8-11> 
-| | | | | Declarator @ <input/classes.HC:56.8-11> 
-| | | | | | IdentifierDeclarator: type @ <input/classes.HC:56.8-11> 
-| | | ClassDeclaration @ <input/classes.HC:57.3-60.6> 
-| | | | UnionSpecifier:  @ <input/classes.HC:57.3-60.3> 
-| | | | | ClassDeclaration @ <input/classes.HC:58.5-11> 
-| | | | | | PrimitiveSpecifier: f64 @ <input/classes.HC:58.5-8> 
-| | | | | | ClassDeclarator @ <input/classes.HC:58.10> 
-| | | | | | | Declarator @ <input/classes.HC:58.10> 
-| | | | | | | | IdentifierDeclarator: f @ <input/classes.HC:58.10> 
-| | | | | ClassDeclaration @ <input/classes.HC:59.5-11> 
-| | | | | | PrimitiveSpecifier: u8 @ <input/classes.HC:59.5-7> 
-| | | | | | ClassDeclarator @ <input/classes.HC:59.9-10> 
-| | | | | | | Declarator @ <input/classes.HC:59.9-10> 
-| | | | | | | | IdentifierDeclarator: ch @ <input/classes.HC:59.9-10> 
-| | | | ClassDeclarator @ <input/classes.HC:60.5> 
-| | | | | Declarator @ <input/classes.HC:60.5> 
-| | | | | | IdentifierDeclarator: u @ <input/classes.HC:60.5> 
-| TypeDeclaration @ <input/classes.HC:63.1-65.2> 
-| | ClassSpecifier:  VTable: @ <input/classes.HC:63.1-65.1> 
-| | | ClassDeclaration @ <input/classes.HC:64.5-36> 
-| | | | VoidSpecifier @ <input/classes.HC:64.5-8> 
-| | | | ClassDeclarator @ <input/classes.HC:64.10-35> 
-| | | | | Declarator @ <input/classes.HC:64.10-35> 
-| | | | | | FunctionDeclarator @ <input/classes.HC:64.10-35> 
-| | | | | | | ParenDeclarator @ <input/classes.HC:64.10-22> 
-| | | | | | | | Declarator @ <input/classes.HC:64.10-21> 
-| | | | | | | | | Pointer @ <input/classes.HC:64.10-11> 
-| | | | | | | | | IdentifierDeclarator: dispatcher @ <input/classes.HC:64.10-21> 
-| | | | | | | ParameterDeclaration @ <input/classes.HC:64.24-34> 
-| | | | | | | | PrimitiveSpecifier: u64 @ <input/classes.HC:64.24-28> 
-| | | | | | | | Declarator @ <input/classes.HC:64.30-34> 
-| | | | | | | | | IdentifierDeclarator: count @ <input/classes.HC:64.30-34> 
-| VariableDeclaration @ <input/classes.HC:67.1-16> 
-| | ClassSpecifier:  Value: @ <input/classes.HC:67.1-11> 
-| | InitDeclarator @ <input/classes.HC:67.13-15> 
-| | | Declarator @ <input/classes.HC:67.13-15> 
-| | | | IdentifierDeclarator: val @ <input/classes.HC:67.13-15> 
-| ExpressionStatement @ <input/classes.HC:69.1-15> 
-| | AssignmentExpression: = @ <input/classes.HC:69.1-14> 
-| | | MemberAccess: .ch @ <input/classes.HC:69.1-9> 
-| | | | MemberAccess: ->u @ <input/classes.HC:69.1-6> 
-| | | | | IdentifierExpression: val @ <input/classes.HC:69.1-3> 
-| | | Literal: 23 @ <input/classes.HC:69.13-14> 
-| VariableDeclaration @ <input/classes.HC:71.1-20> 
-| | ClassSpecifier:  VTable: @ <input/classes.HC:71.1-12> 
-| | InitDeclarator @ <input/classes.HC:71.14-19> 
-| | | Declarator @ <input/classes.HC:71.14-19> 
-| | | | IdentifierDeclarator: vtable @ <input/classes.HC:71.14-19> 
-| ExpressionStatement @ <input/classes.HC:73.1-23> 
-| | CallExpression @ <input/classes.HC:73.1-22> 
-| | | MemberAccess: ->dispatcher @ <input/classes.HC:73.1-18> 
-| | | | IdentifierExpression: vtable @ <input/classes.HC:73.1-6> 
-| | | Literal: 69 @ <input/classes.HC:73.1-21> 
+| | ClassSpecifier:  Animal: @ <input/classes.HC:43.1-45.1> 
+| | | ClassDeclaration @ <input/classes.HC:44.5-13> 
+| | | | PrimitiveSpecifier: i32 @ <input/classes.HC:44.5-8> 
+| | | | ClassDeclarator @ <input/classes.HC:44.10-12> 
+| | | | | Declarator @ <input/classes.HC:44.10-12> 
+| | | | | | IdentifierDeclarator: age @ <input/classes.HC:44.10-12> 
+| TypeDeclaration @ <input/classes.HC:47.1-49.2> 
+| | ClassSpecifier:  Dog:Animal @ <input/classes.HC:47.1-49.1> 
+| | | ClassDeclaration @ <input/classes.HC:48.5-20> 
+| | | | EnumSpecifier: Color @ <input/classes.HC:48.5-14> 
+| | | | ClassDeclarator @ <input/classes.HC:48.16-19> 
+| | | | | Declarator @ <input/classes.HC:48.16-19> 
+| | | | | | IdentifierDeclarator: coat @ <input/classes.HC:48.16-19> 
+| TypeDeclaration @ <input/classes.HC:51.1-13> 
+| | EnumSpecifier: Forward @ <input/classes.HC:51.1-12> 
+| TypeDeclaration @ <input/classes.HC:53.1-57.2> 
+| | ClassSpecifier:  Flags: @ <input/classes.HC:53.1-57.1> 
+| | | ClassDeclaration @ <input/classes.HC:54.5-14> 
+| | | | PrimitiveSpecifier: u8 @ <input/classes.HC:54.5-7> 
+| | | | ClassDeclarator @ <input/classes.HC:54.9-13> 
+| | | | | Declarator @ <input/classes.HC:54.9> 
+| | | | | | IdentifierDeclarator: a @ <input/classes.HC:54.9> 
+| | | | | ConstExpression:  @ <input/classes.HC:54.13> 
+| | | | | | 1 @ <input/classes.HC:54.13> 
+| | | ClassDeclaration @ <input/classes.HC:55.5-14> 
+| | | | PrimitiveSpecifier: u8 @ <input/classes.HC:55.5-7> 
+| | | | ClassDeclarator @ <input/classes.HC:55.9-13> 
+| | | | | Declarator @ <input/classes.HC:55.9> 
+| | | | | | IdentifierDeclarator: b @ <input/classes.HC:55.9> 
+| | | | | ConstExpression:  @ <input/classes.HC:55.13> 
+| | | | | | 2 @ <input/classes.HC:55.13> 
+| | | ClassDeclaration @ <input/classes.HC:56.5-12> 
+| | | | PrimitiveSpecifier: u8 @ <input/classes.HC:56.5-7> 
+| | | | ClassDeclarator @ <input/classes.HC:56.9-11> 
+| | | | | ConstExpression:  @ <input/classes.HC:56.11> 
+| | | | | | 5 @ <input/classes.HC:56.11> 
+| TypeDeclaration @ <input/classes.HC:59.1-65.2> 
+| | ClassSpecifier:  Value: @ <input/classes.HC:59.1-65.1> 
+| | | ClassDeclaration @ <input/classes.HC:60.3-12> 
+| | | | PrimitiveSpecifier: i32 @ <input/classes.HC:60.3-6> 
+| | | | ClassDeclarator @ <input/classes.HC:60.8-11> 
+| | | | | Declarator @ <input/classes.HC:60.8-11> 
+| | | | | | IdentifierDeclarator: type @ <input/classes.HC:60.8-11> 
+| | | ClassDeclaration @ <input/classes.HC:61.3-64.6> 
+| | | | UnionSpecifier:  @ <input/classes.HC:61.3-64.3> 
+| | | | | ClassDeclaration @ <input/classes.HC:62.5-11> 
+| | | | | | PrimitiveSpecifier: f64 @ <input/classes.HC:62.5-8> 
+| | | | | | ClassDeclarator @ <input/classes.HC:62.10> 
+| | | | | | | Declarator @ <input/classes.HC:62.10> 
+| | | | | | | | IdentifierDeclarator: f @ <input/classes.HC:62.10> 
+| | | | | ClassDeclaration @ <input/classes.HC:63.5-11> 
+| | | | | | PrimitiveSpecifier: u8 @ <input/classes.HC:63.5-7> 
+| | | | | | ClassDeclarator @ <input/classes.HC:63.9-10> 
+| | | | | | | Declarator @ <input/classes.HC:63.9-10> 
+| | | | | | | | IdentifierDeclarator: ch @ <input/classes.HC:63.9-10> 
+| | | | ClassDeclarator @ <input/classes.HC:64.5> 
+| | | | | Declarator @ <input/classes.HC:64.5> 
+| | | | | | IdentifierDeclarator: u @ <input/classes.HC:64.5> 
+| TypeDeclaration @ <input/classes.HC:67.1-69.2> 
+| | ClassSpecifier:  VTable: @ <input/classes.HC:67.1-69.1> 
+| | | ClassDeclaration @ <input/classes.HC:68.5-36> 
+| | | | VoidSpecifier @ <input/classes.HC:68.5-8> 
+| | | | ClassDeclarator @ <input/classes.HC:68.10-35> 
+| | | | | Declarator @ <input/classes.HC:68.10-35> 
+| | | | | | FunctionDeclarator @ <input/classes.HC:68.10-35> 
+| | | | | | | ParenDeclarator @ <input/classes.HC:68.10-22> 
+| | | | | | | | Declarator @ <input/classes.HC:68.10-21> 
+| | | | | | | | | Pointer @ <input/classes.HC:68.10-11> 
+| | | | | | | | | IdentifierDeclarator: dispatcher @ <input/classes.HC:68.10-21> 
+| | | | | | | ParameterDeclaration @ <input/classes.HC:68.24-34> 
+| | | | | | | | PrimitiveSpecifier: u64 @ <input/classes.HC:68.24-28> 
+| | | | | | | | Declarator @ <input/classes.HC:68.30-34> 
+| | | | | | | | | IdentifierDeclarator: count @ <input/classes.HC:68.30-34> 
+| VariableDeclaration @ <input/classes.HC:71.1-16> 
+| | ClassSpecifier:  Value: @ <input/classes.HC:71.1-11> 
+| | InitDeclarator @ <input/classes.HC:71.13-15> 
+| | | Declarator @ <input/classes.HC:71.13-15> 
+| | | | IdentifierDeclarator: val @ <input/classes.HC:71.13-15> 
+| ExpressionStatement @ <input/classes.HC:73.1-15> 
+| | AssignmentExpression: = @ <input/classes.HC:73.1-14> 
+| | | MemberAccess: .ch @ <input/classes.HC:73.1-9> 
+| | | | MemberAccess: ->u @ <input/classes.HC:73.1-6> 
+| | | | | IdentifierExpression: val @ <input/classes.HC:73.1-3> 
+| | | 23 @ <input/classes.HC:73.13-14> 
+| VariableDeclaration @ <input/classes.HC:75.1-20> 
+| | ClassSpecifier:  VTable: @ <input/classes.HC:75.1-12> 
+| | InitDeclarator @ <input/classes.HC:75.14-19> 
+| | | Declarator @ <input/classes.HC:75.14-19> 
+| | | | IdentifierDeclarator: vtable @ <input/classes.HC:75.14-19> 
+| ExpressionStatement @ <input/classes.HC:77.1-23> 
+| | CallExpression @ <input/classes.HC:77.1-22> 
+| | | MemberAccess: ->dispatcher @ <input/classes.HC:77.1-18> 
+| | | | IdentifierExpression: vtable @ <input/classes.HC:77.1-6> 
+| | | 69 @ <input/classes.HC:77.1-21> 
 running backend for file input/classes.HC
 Checking semantics for input/classes.HC:1.1
 Synthesizing MIR for input/classes.HC:1.1
 Node {
     visiting Program node: input/classes.HC:1.1
     Node {
-        visiting TypeDeclaration node: input/classes.HC:1.1-4.2
-        parsing declaration specifier list for node at input/classes.HC:1.1-4.2
+        visiting TypeDeclaration node: input/classes.HC:1.1-159
+        parsing declaration specifier list for node at input/classes.HC:1.1-159
         Node {
-            visiting ClassSpecifier node: input/classes.HC:1.154-4.1
-TypeContext: class type 'Point' on scope 0x55d8d0662600
+            visiting ClassSpecifier node: input/classes.HC:1.1-158
+TypeContext: class type 'Opaque' on scope 0x555ecdff2990
+TypeContext: inserting type class_Opaque_0
+            class has name, inserting typesymbol if needed
+SymbolTable: looking up typesymbol Opaque in current scope
+SymbolTable: inserting typesymbol with name "Opaque"
+        }
+        finished parsing specifiers for node input/classes.HC:1.1-159
+    }
+    Node {
+        visiting VariableDeclaration node: input/classes.HC:3.1-19
+        parsing declaration specifier list for node at input/classes.HC:3.1-19
+        Node {
+            visiting TypeIdentifier node: input/classes.HC:3.1-6
+SymbolTable: looking up typesymbol Opaque
+        }
+        finished parsing specifiers for node input/classes.HC:3.1-19
+        Node {
+            visiting InitDeclarator node: input/classes.HC:3.8-18
+            Node {
+                Node {
+                    visiting IdentifierDeclarator node: input/classes.HC:3.8-18
+                }
+                Node {
+                    visiting Pointer node: input/classes.HC:3.8
+                }
+            }
+TypeBuilder: finalizing type
+TypeContext: pointer with base 0x555ecdff2c70
+        }
+SymbolTable: inserting varsymbol with name "opaque_ptr"
+    }
+    Node {
+        visiting TypeDeclaration node: input/classes.HC:5.1-8.2
+        parsing declaration specifier list for node at input/classes.HC:5.1-8.2
+        Node {
+            visiting ClassSpecifier node: input/classes.HC:5.8-8.1
+TypeContext: class type 'Point' on scope 0x555ecdff2990
+TypeContext: inserting type class_Point_0
             class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol Point in current scope
 SymbolTable: inserting typesymbol with name "Point"
             Node {
-                visiting ClassDeclaration node: input/classes.HC:2.5-11
-                parsing declaration specifier list for node at input/classes.HC:2.5-11
+                visiting ClassDeclaration node: input/classes.HC:6.5-11
+                parsing declaration specifier list for node at input/classes.HC:6.5-11
                 Node {
-                    visiting PrimitiveSpecifier node: input/classes.HC:2.5-8
+                    visiting PrimitiveSpecifier node: input/classes.HC:6.5-8
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node input/classes.HC:2.5-11
-                parsing ClassDeclaration for ClassType 0x55d8d0662b90
+                finished parsing specifiers for node input/classes.HC:6.5-11
+                parsing ClassDeclaration for ClassType 0x555ecdff36b0
                 Node {
-                    visiting ClassDeclarator node: input/classes.HC:2.10
+                    visiting ClassDeclarator node: input/classes.HC:6.10
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/classes.HC:2.10
+                            visiting IdentifierDeclarator node: input/classes.HC:6.10
                         }
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name x type 0x55d8d0662990
+ClassType: adding member with name x type 0x555ecdff2850
             }
-            Node {
-                visiting ClassDeclaration node: input/classes.HC:3.5-11
-                parsing declaration specifier list for node at input/classes.HC:3.5-11
-                Node {
-                    visiting PrimitiveSpecifier node: input/classes.HC:3.5-8
-TypeContext: getting primitive type
-                }
-                finished parsing specifiers for node input/classes.HC:3.5-11
-                parsing ClassDeclaration for ClassType 0x55d8d0662b90
-                Node {
-                    visiting ClassDeclarator node: input/classes.HC:3.10
-                    Node {
-                        Node {
-                            visiting IdentifierDeclarator node: input/classes.HC:3.10
-                        }
-                    }
-                }
-TypeBuilder: finalizing type
-ClassType: adding member with name y type 0x55d8d0662990
-            }
-        }
-        Node {
-            visiting StorageClassSpecifier node: input/classes.HC:1.1-152
-        }
-        finished parsing specifiers for node input/classes.HC:1.1-4.2
-    }
-    Node {
-        visiting TypeDeclaration node: input/classes.HC:6.1-9.2
-        parsing declaration specifier list for node at input/classes.HC:6.1-9.2
-        Node {
-            visiting UnionSpecifier node input/classes.HC:6.1-9.1
-TypeContext: union type 'Data' on scope 0x55d8d0662600
-            union has name, inserting typesymbol if needed
-SymbolTable: looking up typesymbol Data in current scope
-SymbolTable: inserting typesymbol with name "Data"
             Node {
                 visiting ClassDeclaration node: input/classes.HC:7.5-11
                 parsing declaration specifier list for node at input/classes.HC:7.5-11
@@ -302,7 +312,7 @@ SymbolTable: inserting typesymbol with name "Data"
 TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node input/classes.HC:7.5-11
-                parsing ClassDeclaration for UnionType 0x55d8d0663510
+                parsing ClassDeclaration for ClassType 0x555ecdff36b0
                 Node {
                     visiting ClassDeclarator node: input/classes.HC:7.10
                     Node {
@@ -312,411 +322,452 @@ TypeContext: getting primitive type
                     }
                 }
 TypeBuilder: finalizing type
-UnionType: adding member with name i type 0x55d8d06628d0
+ClassType: adding member with name y type 0x555ecdff2850
             }
+        }
+        Node {
+            visiting StorageClassSpecifier node: input/classes.HC:5.1-6
+        }
+        finished parsing specifiers for node input/classes.HC:5.1-8.2
+    }
+    Node {
+        visiting TypeDeclaration node: input/classes.HC:10.1-13.2
+        parsing declaration specifier list for node at input/classes.HC:10.1-13.2
+        Node {
+            visiting UnionSpecifier node input/classes.HC:10.1-13.1
+TypeContext: union type 'Data' on scope 0x555ecdff2990
+TypeContext: inserting type union_Data_0
+            union has name, inserting typesymbol if needed
+SymbolTable: looking up typesymbol Data in current scope
+SymbolTable: inserting typesymbol with name "Data"
             Node {
-                visiting ClassDeclaration node: input/classes.HC:8.5-11
-                parsing declaration specifier list for node at input/classes.HC:8.5-11
+                visiting ClassDeclaration node: input/classes.HC:11.5-11
+                parsing declaration specifier list for node at input/classes.HC:11.5-11
                 Node {
-                    visiting PrimitiveSpecifier node: input/classes.HC:8.5-8
+                    visiting PrimitiveSpecifier node: input/classes.HC:11.5-8
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node input/classes.HC:8.5-11
-                parsing ClassDeclaration for UnionType 0x55d8d0663510
+                finished parsing specifiers for node input/classes.HC:11.5-11
+                parsing ClassDeclaration for UnionType 0x555ecdff3960
                 Node {
-                    visiting ClassDeclarator node: input/classes.HC:8.10
+                    visiting ClassDeclarator node: input/classes.HC:11.10
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/classes.HC:8.10
+                            visiting IdentifierDeclarator node: input/classes.HC:11.10
                         }
                     }
                 }
 TypeBuilder: finalizing type
-UnionType: adding member with name f type 0x55d8d06629f0
+UnionType: adding member with name i type 0x555ecdff2750
+            }
+            Node {
+                visiting ClassDeclaration node: input/classes.HC:12.5-11
+                parsing declaration specifier list for node at input/classes.HC:12.5-11
+                Node {
+                    visiting PrimitiveSpecifier node: input/classes.HC:12.5-8
+TypeContext: getting primitive type
+                }
+                finished parsing specifiers for node input/classes.HC:12.5-11
+                parsing ClassDeclaration for UnionType 0x555ecdff3960
+                Node {
+                    visiting ClassDeclarator node: input/classes.HC:12.10
+                    Node {
+                        Node {
+                            visiting IdentifierDeclarator node: input/classes.HC:12.10
+                        }
+                    }
+                }
+TypeBuilder: finalizing type
+UnionType: adding member with name f type 0x555ecdff28d0
             }
         }
-        finished parsing specifiers for node input/classes.HC:6.1-9.2
+        finished parsing specifiers for node input/classes.HC:10.1-13.2
     }
     Node {
-        visiting TypeDeclaration node: input/classes.HC:11.1-13.2
-        parsing declaration specifier list for node at input/classes.HC:11.1-13.2
+        visiting TypeDeclaration node: input/classes.HC:15.1-17.2
+        parsing declaration specifier list for node at input/classes.HC:15.1-17.2
         Node {
-            visiting UnionSpecifier node input/classes.HC:11.8-13.1
-TypeContext: union type 'U8' on scope 0x55d8d0662600
+            visiting UnionSpecifier node input/classes.HC:15.8-17.1
+TypeContext: union type 'U8' on scope 0x555ecdff2990
+TypeContext: inserting type union_U8_0
             union has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol U8 in current scope
 SymbolTable: inserting typesymbol with name "U8"
 TypeContext: getting primitive type
             Node {
-                visiting ClassDeclaration node: input/classes.HC:12.5-14
-                parsing declaration specifier list for node at input/classes.HC:12.5-14
+                visiting ClassDeclaration node: input/classes.HC:16.5-14
+                parsing declaration specifier list for node at input/classes.HC:16.5-14
                 Node {
-                    visiting PrimitiveSpecifier node: input/classes.HC:12.5-7
+                    visiting PrimitiveSpecifier node: input/classes.HC:16.5-7
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node input/classes.HC:12.5-14
-                parsing ClassDeclaration for UnionType 0x55d8d06637d0
+                finished parsing specifiers for node input/classes.HC:16.5-14
+                parsing ClassDeclaration for UnionType 0x555ecdff3c50
                 Node {
-                    visiting ClassDeclarator node: input/classes.HC:12.9-13
+                    visiting ClassDeclarator node: input/classes.HC:16.9-13
                     Node {
                         Node {
-                            visiting ArrayDeclarator node: input/classes.HC:12.9-13
+                            visiting ArrayDeclarator node: input/classes.HC:16.9-13
                             Node {
-                                visiting IdentifierDeclarator node: input/classes.HC:12.9-10
+                                visiting IdentifierDeclarator node: input/classes.HC:16.9-10
                             }
                             array declarator has size, checking for compile time computability
                             Node {
-                                visiting ConstExpression node: input/classes.HC:12.9-12
+                                visiting ConstExpression node: input/classes.HC:16.9-12
                                 Node {
-                                    visiting LiteralExpression node: input/classes.HC:12.9-12
+                                    visiting LiteralExpression node: input/classes.HC:16.9-12
                                 }
                             }
                         }
                     }
                 }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55d8d0662870, size 1
-UnionType: adding member with name u8 type 0x55d8d066fe20
-            }
-        }
-        Node {
-            visiting StorageClassSpecifier node: input/classes.HC:11.1-6
-        }
-        finished parsing specifiers for node input/classes.HC:11.1-13.2
-    }
-    Node {
-        visiting TypeDeclaration node: input/classes.HC:15.1-18.2
-        parsing declaration specifier list for node at input/classes.HC:15.1-18.2
-        Node {
-            visiting UnionSpecifier node input/classes.HC:15.8-18.1
-TypeContext: union type 'U16' on scope 0x55d8d0662600
-            union has name, inserting typesymbol if needed
-SymbolTable: looking up typesymbol U16 in current scope
-SymbolTable: inserting typesymbol with name "U16"
-TypeContext: getting primitive type
-            Node {
-                visiting ClassDeclaration node: input/classes.HC:16.5-13
-                parsing declaration specifier list for node at input/classes.HC:16.5-13
-                Node {
-                    visiting TypeIdentifier node: input/classes.HC:16.5-6
-SymbolTable: looking up typesymbol U8
-                }
-                finished parsing specifiers for node input/classes.HC:16.5-13
-                parsing ClassDeclaration for UnionType 0x55d8d0663ae0
-                Node {
-                    visiting ClassDeclarator node: input/classes.HC:16.8-12
-                    Node {
-                        Node {
-                            visiting ArrayDeclarator node: input/classes.HC:16.8-12
-                            Node {
-                                visiting IdentifierDeclarator node: input/classes.HC:16.8-9
-                            }
-                            array declarator has size, checking for compile time computability
-                            Node {
-                                visiting ConstExpression node: input/classes.HC:16.8-11
-                                Node {
-                                    visiting LiteralExpression node: input/classes.HC:16.8-11
-                                }
-                            }
-                        }
-                    }
-                }
-TypeBuilder: finalizing type
-TypeContext: array type with base 0x55d8d06637d0, size 2
-UnionType: adding member with name u8 type 0x55d8d066d640
-            }
-            Node {
-                visiting ClassDeclaration node: input/classes.HC:17.5-16
-                parsing declaration specifier list for node at input/classes.HC:17.5-16
-                Node {
-                    visiting PrimitiveSpecifier node: input/classes.HC:17.5-8
-TypeContext: getting primitive type
-                }
-                finished parsing specifiers for node input/classes.HC:17.5-16
-                parsing ClassDeclaration for UnionType 0x55d8d0663ae0
-                Node {
-                    visiting ClassDeclarator node: input/classes.HC:17.10-15
-                    Node {
-                        Node {
-                            visiting ArrayDeclarator node: input/classes.HC:17.10-15
-                            Node {
-                                visiting IdentifierDeclarator node: input/classes.HC:17.10-12
-                            }
-                            array declarator has size, checking for compile time computability
-                            Node {
-                                visiting ConstExpression node: input/classes.HC:17.10-14
-                                Node {
-                                    visiting LiteralExpression node: input/classes.HC:17.10-14
-                                }
-                            }
-                        }
-                    }
-                }
-TypeBuilder: finalizing type
-TypeContext: array type with base 0x55d8d06628a0, size 1
-UnionType: adding member with name u16 type 0x55d8d06701a0
+TypeContext: array type with base 0x555ecdff26d0, size 1
+UnionType: adding member with name u8 type 0x555ece000030
             }
         }
         Node {
             visiting StorageClassSpecifier node: input/classes.HC:15.1-6
         }
-        finished parsing specifiers for node input/classes.HC:15.1-18.2
+        finished parsing specifiers for node input/classes.HC:15.1-17.2
     }
     Node {
-        visiting TypeDeclaration node: input/classes.HC:20.1-24.2
-        parsing declaration specifier list for node at input/classes.HC:20.1-24.2
+        visiting TypeDeclaration node: input/classes.HC:19.1-22.2
+        parsing declaration specifier list for node at input/classes.HC:19.1-22.2
         Node {
-            visiting UnionSpecifier node input/classes.HC:20.8-24.1
-TypeContext: union type 'U32' on scope 0x55d8d0662600
+            visiting UnionSpecifier node input/classes.HC:19.8-22.1
+TypeContext: union type 'U16' on scope 0x555ecdff2990
+TypeContext: inserting type union_U16_0
+            union has name, inserting typesymbol if needed
+SymbolTable: looking up typesymbol U16 in current scope
+SymbolTable: inserting typesymbol with name "U16"
+TypeContext: getting primitive type
+            Node {
+                visiting ClassDeclaration node: input/classes.HC:20.5-13
+                parsing declaration specifier list for node at input/classes.HC:20.5-13
+                Node {
+                    visiting TypeIdentifier node: input/classes.HC:20.5-6
+SymbolTable: looking up typesymbol U8
+                }
+                finished parsing specifiers for node input/classes.HC:20.5-13
+                parsing ClassDeclaration for UnionType 0x555ecdff3f60
+                Node {
+                    visiting ClassDeclarator node: input/classes.HC:20.8-12
+                    Node {
+                        Node {
+                            visiting ArrayDeclarator node: input/classes.HC:20.8-12
+                            Node {
+                                visiting IdentifierDeclarator node: input/classes.HC:20.8-9
+                            }
+                            array declarator has size, checking for compile time computability
+                            Node {
+                                visiting ConstExpression node: input/classes.HC:20.8-11
+                                Node {
+                                    visiting LiteralExpression node: input/classes.HC:20.8-11
+                                }
+                            }
+                        }
+                    }
+                }
+TypeBuilder: finalizing type
+TypeContext: array type with base 0x555ecdff3c50, size 2
+UnionType: adding member with name u8 type 0x555ece000f70
+            }
+            Node {
+                visiting ClassDeclaration node: input/classes.HC:21.5-16
+                parsing declaration specifier list for node at input/classes.HC:21.5-16
+                Node {
+                    visiting PrimitiveSpecifier node: input/classes.HC:21.5-8
+TypeContext: getting primitive type
+                }
+                finished parsing specifiers for node input/classes.HC:21.5-16
+                parsing ClassDeclaration for UnionType 0x555ecdff3f60
+                Node {
+                    visiting ClassDeclarator node: input/classes.HC:21.10-15
+                    Node {
+                        Node {
+                            visiting ArrayDeclarator node: input/classes.HC:21.10-15
+                            Node {
+                                visiting IdentifierDeclarator node: input/classes.HC:21.10-12
+                            }
+                            array declarator has size, checking for compile time computability
+                            Node {
+                                visiting ConstExpression node: input/classes.HC:21.10-14
+                                Node {
+                                    visiting LiteralExpression node: input/classes.HC:21.10-14
+                                }
+                            }
+                        }
+                    }
+                }
+TypeBuilder: finalizing type
+TypeContext: array type with base 0x555ecdff2710, size 1
+UnionType: adding member with name u16 type 0x555ece000770
+            }
+        }
+        Node {
+            visiting StorageClassSpecifier node: input/classes.HC:19.1-6
+        }
+        finished parsing specifiers for node input/classes.HC:19.1-22.2
+    }
+    Node {
+        visiting TypeDeclaration node: input/classes.HC:24.1-28.2
+        parsing declaration specifier list for node at input/classes.HC:24.1-28.2
+        Node {
+            visiting UnionSpecifier node input/classes.HC:24.8-28.1
+TypeContext: union type 'U32' on scope 0x555ecdff2990
+TypeContext: inserting type union_U32_0
             union has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol U32 in current scope
 SymbolTable: inserting typesymbol with name "U32"
 TypeContext: getting primitive type
             Node {
-                visiting ClassDeclaration node: input/classes.HC:21.5-13
-                parsing declaration specifier list for node at input/classes.HC:21.5-13
+                visiting ClassDeclaration node: input/classes.HC:25.5-13
+                parsing declaration specifier list for node at input/classes.HC:25.5-13
                 Node {
-                    visiting TypeIdentifier node: input/classes.HC:21.5-6
+                    visiting TypeIdentifier node: input/classes.HC:25.5-6
 SymbolTable: looking up typesymbol U8
                 }
-                finished parsing specifiers for node input/classes.HC:21.5-13
-                parsing ClassDeclaration for UnionType 0x55d8d0663eb0
+                finished parsing specifiers for node input/classes.HC:25.5-13
+                parsing ClassDeclaration for UnionType 0x555ecdff4350
                 Node {
-                    visiting ClassDeclarator node: input/classes.HC:21.8-12
+                    visiting ClassDeclarator node: input/classes.HC:25.8-12
                     Node {
                         Node {
-                            visiting ArrayDeclarator node: input/classes.HC:21.8-12
+                            visiting ArrayDeclarator node: input/classes.HC:25.8-12
                             Node {
-                                visiting IdentifierDeclarator node: input/classes.HC:21.8-9
+                                visiting IdentifierDeclarator node: input/classes.HC:25.8-9
                             }
                             array declarator has size, checking for compile time computability
                             Node {
-                                visiting ConstExpression node: input/classes.HC:21.8-11
+                                visiting ConstExpression node: input/classes.HC:25.8-11
                                 Node {
-                                    visiting LiteralExpression node: input/classes.HC:21.8-11
+                                    visiting LiteralExpression node: input/classes.HC:25.8-11
                                 }
                             }
                         }
                     }
                 }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55d8d06637d0, size 4
-UnionType: adding member with name u8 type 0x55d8d0670ab0
+TypeContext: array type with base 0x555ecdff3c50, size 4
+UnionType: adding member with name u8 type 0x555ecdffcd40
             }
             Node {
-                visiting ClassDeclaration node: input/classes.HC:22.5-15
-                parsing declaration specifier list for node at input/classes.HC:22.5-15
+                visiting ClassDeclaration node: input/classes.HC:26.5-15
+                parsing declaration specifier list for node at input/classes.HC:26.5-15
                 Node {
-                    visiting TypeIdentifier node: input/classes.HC:22.5-7
+                    visiting TypeIdentifier node: input/classes.HC:26.5-7
 SymbolTable: looking up typesymbol U16
                 }
-                finished parsing specifiers for node input/classes.HC:22.5-15
-                parsing ClassDeclaration for UnionType 0x55d8d0663eb0
+                finished parsing specifiers for node input/classes.HC:26.5-15
+                parsing ClassDeclaration for UnionType 0x555ecdff4350
                 Node {
-                    visiting ClassDeclarator node: input/classes.HC:22.9-14
+                    visiting ClassDeclarator node: input/classes.HC:26.9-14
                     Node {
                         Node {
-                            visiting ArrayDeclarator node: input/classes.HC:22.9-14
+                            visiting ArrayDeclarator node: input/classes.HC:26.9-14
                             Node {
-                                visiting IdentifierDeclarator node: input/classes.HC:22.9-11
+                                visiting IdentifierDeclarator node: input/classes.HC:26.9-11
                             }
                             array declarator has size, checking for compile time computability
                             Node {
-                                visiting ConstExpression node: input/classes.HC:22.9-13
+                                visiting ConstExpression node: input/classes.HC:26.9-13
                                 Node {
-                                    visiting LiteralExpression node: input/classes.HC:22.9-13
+                                    visiting LiteralExpression node: input/classes.HC:26.9-13
                                 }
                             }
                         }
                     }
                 }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55d8d0663ae0, size 2
-UnionType: adding member with name u16 type 0x55d8d066ec60
+TypeContext: array type with base 0x555ecdff3f60, size 2
+UnionType: adding member with name u16 type 0x555ecdffd560
             }
             Node {
-                visiting ClassDeclaration node: input/classes.HC:23.5-16
-                parsing declaration specifier list for node at input/classes.HC:23.5-16
+                visiting ClassDeclaration node: input/classes.HC:27.5-16
+                parsing declaration specifier list for node at input/classes.HC:27.5-16
                 Node {
-                    visiting PrimitiveSpecifier node: input/classes.HC:23.5-8
+                    visiting PrimitiveSpecifier node: input/classes.HC:27.5-8
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node input/classes.HC:23.5-16
-                parsing ClassDeclaration for UnionType 0x55d8d0663eb0
+                finished parsing specifiers for node input/classes.HC:27.5-16
+                parsing ClassDeclaration for UnionType 0x555ecdff4350
                 Node {
-                    visiting ClassDeclarator node: input/classes.HC:23.10-15
+                    visiting ClassDeclarator node: input/classes.HC:27.10-15
                     Node {
                         Node {
-                            visiting ArrayDeclarator node: input/classes.HC:23.10-15
+                            visiting ArrayDeclarator node: input/classes.HC:27.10-15
                             Node {
-                                visiting IdentifierDeclarator node: input/classes.HC:23.10-12
+                                visiting IdentifierDeclarator node: input/classes.HC:27.10-12
                             }
                             array declarator has size, checking for compile time computability
                             Node {
-                                visiting ConstExpression node: input/classes.HC:23.10-14
+                                visiting ConstExpression node: input/classes.HC:27.10-14
                                 Node {
-                                    visiting LiteralExpression node: input/classes.HC:23.10-14
+                                    visiting LiteralExpression node: input/classes.HC:27.10-14
                                 }
                             }
                         }
                     }
                 }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55d8d06628d0, size 1
-UnionType: adding member with name u32 type 0x55d8d066d080
+TypeContext: array type with base 0x555ecdff2750, size 1
+UnionType: adding member with name u32 type 0x555ecdffe6a0
             }
         }
         Node {
-            visiting StorageClassSpecifier node: input/classes.HC:20.1-6
+            visiting StorageClassSpecifier node: input/classes.HC:24.1-6
         }
-        finished parsing specifiers for node input/classes.HC:20.1-24.2
+        finished parsing specifiers for node input/classes.HC:24.1-28.2
     }
     Node {
-        visiting TypeDeclaration node: input/classes.HC:26.1-31.2
-        parsing declaration specifier list for node at input/classes.HC:26.1-31.2
+        visiting TypeDeclaration node: input/classes.HC:30.1-35.2
+        parsing declaration specifier list for node at input/classes.HC:30.1-35.2
         Node {
-            visiting UnionSpecifier node input/classes.HC:26.8-31.1
-TypeContext: union type 'U64' on scope 0x55d8d0662600
+            visiting UnionSpecifier node input/classes.HC:30.8-35.1
+TypeContext: union type 'U64' on scope 0x555ecdff2990
+TypeContext: inserting type union_U64_0
             union has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol U64 in current scope
 SymbolTable: inserting typesymbol with name "U64"
 TypeContext: getting primitive type
             Node {
-                visiting ClassDeclaration node: input/classes.HC:27.5-13
-                parsing declaration specifier list for node at input/classes.HC:27.5-13
+                visiting ClassDeclaration node: input/classes.HC:31.5-13
+                parsing declaration specifier list for node at input/classes.HC:31.5-13
                 Node {
-                    visiting TypeIdentifier node: input/classes.HC:27.5-6
+                    visiting TypeIdentifier node: input/classes.HC:31.5-6
 SymbolTable: looking up typesymbol U8
                 }
-                finished parsing specifiers for node input/classes.HC:27.5-13
-                parsing ClassDeclaration for UnionType 0x55d8d06642b0
+                finished parsing specifiers for node input/classes.HC:31.5-13
+                parsing ClassDeclaration for UnionType 0x555ecdff4750
                 Node {
-                    visiting ClassDeclarator node: input/classes.HC:27.8-12
+                    visiting ClassDeclarator node: input/classes.HC:31.8-12
                     Node {
                         Node {
-                            visiting ArrayDeclarator node: input/classes.HC:27.8-12
+                            visiting ArrayDeclarator node: input/classes.HC:31.8-12
                             Node {
-                                visiting IdentifierDeclarator node: input/classes.HC:27.8-9
+                                visiting IdentifierDeclarator node: input/classes.HC:31.8-9
                             }
                             array declarator has size, checking for compile time computability
                             Node {
-                                visiting ConstExpression node: input/classes.HC:27.8-11
+                                visiting ConstExpression node: input/classes.HC:31.8-11
                                 Node {
-                                    visiting LiteralExpression node: input/classes.HC:27.8-11
+                                    visiting LiteralExpression node: input/classes.HC:31.8-11
                                 }
                             }
                         }
                     }
                 }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55d8d06637d0, size 8
-UnionType: adding member with name u8 type 0x55d8d066eba0
+TypeContext: array type with base 0x555ecdff3c50, size 8
+UnionType: adding member with name u8 type 0x555ecdfff080
             }
             Node {
-                visiting ClassDeclaration node: input/classes.HC:28.5-15
-                parsing declaration specifier list for node at input/classes.HC:28.5-15
+                visiting ClassDeclaration node: input/classes.HC:32.5-15
+                parsing declaration specifier list for node at input/classes.HC:32.5-15
                 Node {
-                    visiting TypeIdentifier node: input/classes.HC:28.5-7
+                    visiting TypeIdentifier node: input/classes.HC:32.5-7
 SymbolTable: looking up typesymbol U16
                 }
-                finished parsing specifiers for node input/classes.HC:28.5-15
-                parsing ClassDeclaration for UnionType 0x55d8d06642b0
+                finished parsing specifiers for node input/classes.HC:32.5-15
+                parsing ClassDeclaration for UnionType 0x555ecdff4750
                 Node {
-                    visiting ClassDeclarator node: input/classes.HC:28.9-14
+                    visiting ClassDeclarator node: input/classes.HC:32.9-14
                     Node {
                         Node {
-                            visiting ArrayDeclarator node: input/classes.HC:28.9-14
+                            visiting ArrayDeclarator node: input/classes.HC:32.9-14
                             Node {
-                                visiting IdentifierDeclarator node: input/classes.HC:28.9-11
+                                visiting IdentifierDeclarator node: input/classes.HC:32.9-11
                             }
                             array declarator has size, checking for compile time computability
                             Node {
-                                visiting ConstExpression node: input/classes.HC:28.9-13
+                                visiting ConstExpression node: input/classes.HC:32.9-13
                                 Node {
-                                    visiting LiteralExpression node: input/classes.HC:28.9-13
+                                    visiting LiteralExpression node: input/classes.HC:32.9-13
                                 }
                             }
                         }
                     }
                 }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55d8d0663ae0, size 4
-UnionType: adding member with name u16 type 0x55d8d066f8b0
+TypeContext: array type with base 0x555ecdff3f60, size 4
+UnionType: adding member with name u16 type 0x555ecdfffd70
             }
             Node {
-                visiting ClassDeclaration node: input/classes.HC:29.5-15
-                parsing declaration specifier list for node at input/classes.HC:29.5-15
+                visiting ClassDeclaration node: input/classes.HC:33.5-15
+                parsing declaration specifier list for node at input/classes.HC:33.5-15
                 Node {
-                    visiting TypeIdentifier node: input/classes.HC:29.5-7
+                    visiting TypeIdentifier node: input/classes.HC:33.5-7
 SymbolTable: looking up typesymbol U32
                 }
-                finished parsing specifiers for node input/classes.HC:29.5-15
-                parsing ClassDeclaration for UnionType 0x55d8d06642b0
+                finished parsing specifiers for node input/classes.HC:33.5-15
+                parsing ClassDeclaration for UnionType 0x555ecdff4750
                 Node {
-                    visiting ClassDeclarator node: input/classes.HC:29.9-14
+                    visiting ClassDeclarator node: input/classes.HC:33.9-14
                     Node {
                         Node {
-                            visiting ArrayDeclarator node: input/classes.HC:29.9-14
+                            visiting ArrayDeclarator node: input/classes.HC:33.9-14
                             Node {
-                                visiting IdentifierDeclarator node: input/classes.HC:29.9-11
+                                visiting IdentifierDeclarator node: input/classes.HC:33.9-11
                             }
                             array declarator has size, checking for compile time computability
                             Node {
-                                visiting ConstExpression node: input/classes.HC:29.9-13
+                                visiting ConstExpression node: input/classes.HC:33.9-13
                                 Node {
-                                    visiting LiteralExpression node: input/classes.HC:29.9-13
+                                    visiting LiteralExpression node: input/classes.HC:33.9-13
                                 }
                             }
                         }
                     }
                 }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55d8d0663eb0, size 2
-UnionType: adding member with name u32 type 0x55d8d066da60
+TypeContext: array type with base 0x555ecdff4350, size 2
+UnionType: adding member with name u32 type 0x555ecdffdf30
             }
             Node {
-                visiting ClassDeclaration node: input/classes.HC:30.5-16
-                parsing declaration specifier list for node at input/classes.HC:30.5-16
+                visiting ClassDeclaration node: input/classes.HC:34.5-16
+                parsing declaration specifier list for node at input/classes.HC:34.5-16
                 Node {
-                    visiting PrimitiveSpecifier node: input/classes.HC:30.5-8
+                    visiting PrimitiveSpecifier node: input/classes.HC:34.5-8
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node input/classes.HC:30.5-16
-                parsing ClassDeclaration for UnionType 0x55d8d06642b0
+                finished parsing specifiers for node input/classes.HC:34.5-16
+                parsing ClassDeclaration for UnionType 0x555ecdff4750
                 Node {
-                    visiting ClassDeclarator node: input/classes.HC:30.10-15
+                    visiting ClassDeclarator node: input/classes.HC:34.10-15
                     Node {
                         Node {
-                            visiting ArrayDeclarator node: input/classes.HC:30.10-15
+                            visiting ArrayDeclarator node: input/classes.HC:34.10-15
                             Node {
-                                visiting IdentifierDeclarator node: input/classes.HC:30.10-12
+                                visiting IdentifierDeclarator node: input/classes.HC:34.10-12
                             }
                             array declarator has size, checking for compile time computability
                             Node {
-                                visiting ConstExpression node: input/classes.HC:30.10-14
+                                visiting ConstExpression node: input/classes.HC:34.10-14
                                 Node {
-                                    visiting LiteralExpression node: input/classes.HC:30.10-14
+                                    visiting LiteralExpression node: input/classes.HC:34.10-14
                                 }
                             }
                         }
                     }
                 }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55d8d0662900, size 1
-UnionType: adding member with name u64 type 0x55d8d0671ad0
+TypeContext: array type with base 0x555ecdff2790, size 1
+UnionType: adding member with name u64 type 0x555ece001f90
             }
         }
         Node {
-            visiting StorageClassSpecifier node: input/classes.HC:26.1-6
+            visiting StorageClassSpecifier node: input/classes.HC:30.1-6
         }
-        finished parsing specifiers for node input/classes.HC:26.1-31.2
+        finished parsing specifiers for node input/classes.HC:30.1-35.2
     }
     Node {
-        visiting TypeDeclaration node: input/classes.HC:33.1-37.2
-        parsing declaration specifier list for node at input/classes.HC:33.1-37.2
+        visiting TypeDeclaration node: input/classes.HC:37.1-41.2
+        parsing declaration specifier list for node at input/classes.HC:37.1-41.2
         Node {
-            visiting EnumSpecifier node: input/classes.HC:33.1-37.1
-TypeContext: enum type 'Color' on scope 0x55d8d0662600
+            visiting EnumSpecifier node: input/classes.HC:37.1-41.1
+TypeContext: enum type 'Color' on scope 0x555ecdff2990
+TypeContext: inserting type enum_Color_0
             enum has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol Color in current scope
 SymbolTable: inserting typesymbol with name "Color"
@@ -727,9 +778,9 @@ SymbolTable: inserting varsymbol with name "RED"
             Node {
                 visiting Enumerator node with name GREEN
                 Node {
-                    visiting ConstExpression node: input/classes.HC:35.13
+                    visiting ConstExpression node: input/classes.HC:39.13
                     Node {
-                        visiting LiteralExpression node: input/classes.HC:35.13
+                        visiting LiteralExpression node: input/classes.HC:39.13
                     }
                 }
 SymbolTable: inserting varsymbol with name "GREEN"
@@ -739,289 +790,296 @@ SymbolTable: inserting varsymbol with name "GREEN"
 SymbolTable: inserting varsymbol with name "BLUE"
             }
         }
-        finished parsing specifiers for node input/classes.HC:33.1-37.2
-    }
-    Node {
-        visiting TypeDeclaration node: input/classes.HC:39.1-41.2
-        parsing declaration specifier list for node at input/classes.HC:39.1-41.2
-        Node {
-            visiting ClassSpecifier node: input/classes.HC:39.1-41.1
-TypeContext: class type 'Animal' on scope 0x55d8d0662600
-            class has name, inserting typesymbol if needed
-SymbolTable: looking up typesymbol Animal in current scope
-SymbolTable: inserting typesymbol with name "Animal"
-            Node {
-                visiting ClassDeclaration node: input/classes.HC:40.5-13
-                parsing declaration specifier list for node at input/classes.HC:40.5-13
-                Node {
-                    visiting PrimitiveSpecifier node: input/classes.HC:40.5-8
-TypeContext: getting primitive type
-                }
-                finished parsing specifiers for node input/classes.HC:40.5-13
-                parsing ClassDeclaration for ClassType 0x55d8d0664c70
-                Node {
-                    visiting ClassDeclarator node: input/classes.HC:40.10-12
-                    Node {
-                        Node {
-                            visiting IdentifierDeclarator node: input/classes.HC:40.10-12
-                        }
-                    }
-                }
-TypeBuilder: finalizing type
-ClassType: adding member with name age type 0x55d8d0662990
-            }
-        }
-        finished parsing specifiers for node input/classes.HC:39.1-41.2
+        finished parsing specifiers for node input/classes.HC:37.1-41.2
     }
     Node {
         visiting TypeDeclaration node: input/classes.HC:43.1-45.2
         parsing declaration specifier list for node at input/classes.HC:43.1-45.2
         Node {
             visiting ClassSpecifier node: input/classes.HC:43.1-45.1
-TypeContext: class type 'Dog' on scope 0x55d8d0662600
+TypeContext: class type 'Animal' on scope 0x555ecdff2990
+TypeContext: inserting type class_Animal_0
             class has name, inserting typesymbol if needed
-SymbolTable: looking up typesymbol Dog in current scope
-SymbolTable: inserting typesymbol with name "Dog"
+SymbolTable: looking up typesymbol Animal in current scope
+SymbolTable: inserting typesymbol with name "Animal"
             Node {
-                visiting ClassDeclaration node: input/classes.HC:44.5-20
-                parsing declaration specifier list for node at input/classes.HC:44.5-20
+                visiting ClassDeclaration node: input/classes.HC:44.5-13
+                parsing declaration specifier list for node at input/classes.HC:44.5-13
                 Node {
-                    visiting EnumSpecifier node: input/classes.HC:44.5-14
-TypeContext: enum type 'Color' on scope 0x55d8d0662600
-TypeContext: existing enum found
-                    enum has name, inserting typesymbol if needed
-SymbolTable: looking up typesymbol Color in current scope
+                    visiting PrimitiveSpecifier node: input/classes.HC:44.5-8
+TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node input/classes.HC:44.5-20
-                parsing ClassDeclaration for ClassType 0x55d8d0664f20
+                finished parsing specifiers for node input/classes.HC:44.5-13
+                parsing ClassDeclaration for ClassType 0x555ecdff51e0
                 Node {
-                    visiting ClassDeclarator node: input/classes.HC:44.16-19
+                    visiting ClassDeclarator node: input/classes.HC:44.10-12
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/classes.HC:44.16-19
+                            visiting IdentifierDeclarator node: input/classes.HC:44.10-12
                         }
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name coat type 0x55d8d0664760
+ClassType: adding member with name age type 0x555ecdff2850
             }
         }
         finished parsing specifiers for node input/classes.HC:43.1-45.2
     }
     Node {
-        visiting TypeDeclaration node: input/classes.HC:47.1-13
-        parsing declaration specifier list for node at input/classes.HC:47.1-13
+        visiting TypeDeclaration node: input/classes.HC:47.1-49.2
+        parsing declaration specifier list for node at input/classes.HC:47.1-49.2
         Node {
-            visiting EnumSpecifier node: input/classes.HC:47.1-12
-TypeContext: enum type 'Forward' on scope 0x55d8d0662600
+            visiting ClassSpecifier node: input/classes.HC:47.1-49.1
+TypeContext: class type 'Dog' on scope 0x555ecdff2990
+TypeContext: inserting type class_Dog_0
+            class has name, inserting typesymbol if needed
+SymbolTable: looking up typesymbol Dog in current scope
+SymbolTable: inserting typesymbol with name "Dog"
+            Node {
+                visiting ClassDeclaration node: input/classes.HC:48.5-20
+                parsing declaration specifier list for node at input/classes.HC:48.5-20
+                Node {
+                    visiting EnumSpecifier node: input/classes.HC:48.5-14
+TypeContext: enum type 'Color' on scope 0x555ecdff2990
+TypeContext: existing enum found
+                    enum has name, inserting typesymbol if needed
+SymbolTable: looking up typesymbol Color in current scope
+                }
+                finished parsing specifiers for node input/classes.HC:48.5-20
+                parsing ClassDeclaration for ClassType 0x555ecdff5490
+                Node {
+                    visiting ClassDeclarator node: input/classes.HC:48.16-19
+                    Node {
+                        Node {
+                            visiting IdentifierDeclarator node: input/classes.HC:48.16-19
+                        }
+                    }
+                }
+TypeBuilder: finalizing type
+ClassType: adding member with name coat type 0x555ecdff4d50
+            }
+        }
+        finished parsing specifiers for node input/classes.HC:47.1-49.2
+    }
+    Node {
+        visiting TypeDeclaration node: input/classes.HC:51.1-13
+        parsing declaration specifier list for node at input/classes.HC:51.1-13
+        Node {
+            visiting EnumSpecifier node: input/classes.HC:51.1-12
+TypeContext: enum type 'Forward' on scope 0x555ecdff2990
+TypeContext: inserting type enum_Forward_0
             enum has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol Forward in current scope
 SymbolTable: inserting typesymbol with name "Forward"
         }
-        finished parsing specifiers for node input/classes.HC:47.1-13
+        finished parsing specifiers for node input/classes.HC:51.1-13
     }
     Node {
-        visiting TypeDeclaration node: input/classes.HC:49.1-53.2
-        parsing declaration specifier list for node at input/classes.HC:49.1-53.2
+        visiting TypeDeclaration node: input/classes.HC:53.1-57.2
+        parsing declaration specifier list for node at input/classes.HC:53.1-57.2
         Node {
-            visiting ClassSpecifier node: input/classes.HC:49.1-53.1
-TypeContext: class type 'Flags' on scope 0x55d8d0662600
+            visiting ClassSpecifier node: input/classes.HC:53.1-57.1
+TypeContext: class type 'Flags' on scope 0x555ecdff2990
+TypeContext: inserting type class_Flags_0
             class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol Flags in current scope
 SymbolTable: inserting typesymbol with name "Flags"
             Node {
-                visiting ClassDeclaration node: input/classes.HC:50.5-14
-                parsing declaration specifier list for node at input/classes.HC:50.5-14
+                visiting ClassDeclaration node: input/classes.HC:54.5-14
+                parsing declaration specifier list for node at input/classes.HC:54.5-14
                 Node {
-                    visiting PrimitiveSpecifier node: input/classes.HC:50.5-7
+                    visiting PrimitiveSpecifier node: input/classes.HC:54.5-7
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node input/classes.HC:50.5-14
-                parsing ClassDeclaration for ClassType 0x55d8d0665320
+                finished parsing specifiers for node input/classes.HC:54.5-14
+                parsing ClassDeclaration for ClassType 0x555ecdff58a0
                 Node {
-                    visiting ClassDeclarator node: input/classes.HC:50.9-13
+                    visiting ClassDeclarator node: input/classes.HC:54.9-13
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/classes.HC:50.9
+                            visiting IdentifierDeclarator node: input/classes.HC:54.9
                         }
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name a type 0x55d8d0662870
+ClassType: adding member with name a type 0x555ecdff26d0
             }
             Node {
-                visiting ClassDeclaration node: input/classes.HC:51.5-14
-                parsing declaration specifier list for node at input/classes.HC:51.5-14
+                visiting ClassDeclaration node: input/classes.HC:55.5-14
+                parsing declaration specifier list for node at input/classes.HC:55.5-14
                 Node {
-                    visiting PrimitiveSpecifier node: input/classes.HC:51.5-7
+                    visiting PrimitiveSpecifier node: input/classes.HC:55.5-7
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node input/classes.HC:51.5-14
-                parsing ClassDeclaration for ClassType 0x55d8d0665320
+                finished parsing specifiers for node input/classes.HC:55.5-14
+                parsing ClassDeclaration for ClassType 0x555ecdff58a0
                 Node {
-                    visiting ClassDeclarator node: input/classes.HC:51.9-13
+                    visiting ClassDeclarator node: input/classes.HC:55.9-13
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/classes.HC:51.9
+                            visiting IdentifierDeclarator node: input/classes.HC:55.9
                         }
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name b type 0x55d8d0662870
+ClassType: adding member with name b type 0x555ecdff26d0
             }
             Node {
-                visiting ClassDeclaration node: input/classes.HC:52.5-12
-                parsing declaration specifier list for node at input/classes.HC:52.5-12
+                visiting ClassDeclaration node: input/classes.HC:56.5-12
+                parsing declaration specifier list for node at input/classes.HC:56.5-12
                 Node {
-                    visiting PrimitiveSpecifier node: input/classes.HC:52.5-7
+                    visiting PrimitiveSpecifier node: input/classes.HC:56.5-7
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node input/classes.HC:52.5-12
-                parsing ClassDeclaration for ClassType 0x55d8d0665320
+                finished parsing specifiers for node input/classes.HC:56.5-12
+                parsing ClassDeclaration for ClassType 0x555ecdff58a0
                 Node {
-                    visiting ClassDeclarator node: input/classes.HC:52.9-11
+                    visiting ClassDeclarator node: input/classes.HC:56.9-11
                 }
-ClassType: adding anonymous member with type 0x55d8d0662870
+ClassType: adding anonymous member with type 0x555ecdff26d0
             }
         }
-        finished parsing specifiers for node input/classes.HC:49.1-53.2
+        finished parsing specifiers for node input/classes.HC:53.1-57.2
     }
     Node {
-        visiting TypeDeclaration node: input/classes.HC:55.1-61.2
-        parsing declaration specifier list for node at input/classes.HC:55.1-61.2
+        visiting TypeDeclaration node: input/classes.HC:59.1-65.2
+        parsing declaration specifier list for node at input/classes.HC:59.1-65.2
         Node {
-            visiting ClassSpecifier node: input/classes.HC:55.1-61.1
-TypeContext: class type 'Value' on scope 0x55d8d0662600
+            visiting ClassSpecifier node: input/classes.HC:59.1-65.1
+TypeContext: class type 'Value' on scope 0x555ecdff2990
+TypeContext: inserting type class_Value_0
             class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol Value in current scope
 SymbolTable: inserting typesymbol with name "Value"
             Node {
-                visiting ClassDeclaration node: input/classes.HC:56.3-12
-                parsing declaration specifier list for node at input/classes.HC:56.3-12
+                visiting ClassDeclaration node: input/classes.HC:60.3-12
+                parsing declaration specifier list for node at input/classes.HC:60.3-12
                 Node {
-                    visiting PrimitiveSpecifier node: input/classes.HC:56.3-6
+                    visiting PrimitiveSpecifier node: input/classes.HC:60.3-6
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node input/classes.HC:56.3-12
-                parsing ClassDeclaration for ClassType 0x55d8d0665670
+                finished parsing specifiers for node input/classes.HC:60.3-12
+                parsing ClassDeclaration for ClassType 0x555ecdff5bf0
                 Node {
-                    visiting ClassDeclarator node: input/classes.HC:56.8-11
+                    visiting ClassDeclarator node: input/classes.HC:60.8-11
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/classes.HC:56.8-11
+                            visiting IdentifierDeclarator node: input/classes.HC:60.8-11
                         }
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name type type 0x55d8d0662990
+ClassType: adding member with name type type 0x555ecdff2850
             }
             Node {
-                visiting ClassDeclaration node: input/classes.HC:57.3-60.6
-                parsing declaration specifier list for node at input/classes.HC:57.3-60.6
+                visiting ClassDeclaration node: input/classes.HC:61.3-64.6
+                parsing declaration specifier list for node at input/classes.HC:61.3-64.6
                 Node {
-                    visiting UnionSpecifier node input/classes.HC:57.3-60.3
-TypeContext: anonymous union type on scope 0x55d8d0662600
+                    visiting UnionSpecifier node input/classes.HC:61.3-64.3
+TypeContext: anonymous union type on scope 0x555ecdff2990
+TypeContext: inserting type union_anon_0_0
                     Node {
-                        visiting ClassDeclaration node: input/classes.HC:58.5-11
-                        parsing declaration specifier list for node at input/classes.HC:58.5-11
+                        visiting ClassDeclaration node: input/classes.HC:62.5-11
+                        parsing declaration specifier list for node at input/classes.HC:62.5-11
                         Node {
-                            visiting PrimitiveSpecifier node: input/classes.HC:58.5-8
+                            visiting PrimitiveSpecifier node: input/classes.HC:62.5-8
 TypeContext: getting primitive type
                         }
-                        finished parsing specifiers for node input/classes.HC:58.5-11
-                        parsing ClassDeclaration for UnionType 0x55d8d06658b0
+                        finished parsing specifiers for node input/classes.HC:62.5-11
+                        parsing ClassDeclaration for UnionType 0x555ecdff5e30
                         Node {
-                            visiting ClassDeclarator node: input/classes.HC:58.10
+                            visiting ClassDeclarator node: input/classes.HC:62.10
                             Node {
                                 Node {
-                                    visiting IdentifierDeclarator node: input/classes.HC:58.10
+                                    visiting IdentifierDeclarator node: input/classes.HC:62.10
                                 }
                             }
                         }
 TypeBuilder: finalizing type
-UnionType: adding member with name f type 0x55d8d06629f0
+UnionType: adding member with name f type 0x555ecdff28d0
                     }
                     Node {
-                        visiting ClassDeclaration node: input/classes.HC:59.5-11
-                        parsing declaration specifier list for node at input/classes.HC:59.5-11
+                        visiting ClassDeclaration node: input/classes.HC:63.5-11
+                        parsing declaration specifier list for node at input/classes.HC:63.5-11
                         Node {
-                            visiting PrimitiveSpecifier node: input/classes.HC:59.5-7
+                            visiting PrimitiveSpecifier node: input/classes.HC:63.5-7
 TypeContext: getting primitive type
                         }
-                        finished parsing specifiers for node input/classes.HC:59.5-11
-                        parsing ClassDeclaration for UnionType 0x55d8d06658b0
+                        finished parsing specifiers for node input/classes.HC:63.5-11
+                        parsing ClassDeclaration for UnionType 0x555ecdff5e30
                         Node {
-                            visiting ClassDeclarator node: input/classes.HC:59.9-10
+                            visiting ClassDeclarator node: input/classes.HC:63.9-10
                             Node {
                                 Node {
-                                    visiting IdentifierDeclarator node: input/classes.HC:59.9-10
+                                    visiting IdentifierDeclarator node: input/classes.HC:63.9-10
                                 }
                             }
                         }
 TypeBuilder: finalizing type
-UnionType: adding member with name ch type 0x55d8d0662870
+UnionType: adding member with name ch type 0x555ecdff26d0
                     }
                 }
-                finished parsing specifiers for node input/classes.HC:57.3-60.6
-                parsing ClassDeclaration for ClassType 0x55d8d0665670
+                finished parsing specifiers for node input/classes.HC:61.3-64.6
+                parsing ClassDeclaration for ClassType 0x555ecdff5bf0
                 Node {
-                    visiting ClassDeclarator node: input/classes.HC:60.5
+                    visiting ClassDeclarator node: input/classes.HC:64.5
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/classes.HC:60.5
+                            visiting IdentifierDeclarator node: input/classes.HC:64.5
                         }
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name u type 0x55d8d06658b0
+ClassType: adding member with name u type 0x555ecdff5e30
             }
         }
-        finished parsing specifiers for node input/classes.HC:55.1-61.2
+        finished parsing specifiers for node input/classes.HC:59.1-65.2
     }
     Node {
-        visiting TypeDeclaration node: input/classes.HC:63.1-65.2
-        parsing declaration specifier list for node at input/classes.HC:63.1-65.2
+        visiting TypeDeclaration node: input/classes.HC:67.1-69.2
+        parsing declaration specifier list for node at input/classes.HC:67.1-69.2
         Node {
-            visiting ClassSpecifier node: input/classes.HC:63.1-65.1
-TypeContext: class type 'VTable' on scope 0x55d8d0662600
+            visiting ClassSpecifier node: input/classes.HC:67.1-69.1
+TypeContext: class type 'VTable' on scope 0x555ecdff2990
+TypeContext: inserting type class_VTable_0
             class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol VTable in current scope
 SymbolTable: inserting typesymbol with name "VTable"
             Node {
-                visiting ClassDeclaration node: input/classes.HC:64.5-36
-                parsing declaration specifier list for node at input/classes.HC:64.5-36
+                visiting ClassDeclaration node: input/classes.HC:68.5-36
+                parsing declaration specifier list for node at input/classes.HC:68.5-36
                 Node {
-                    visiting VoidSpecifier node: input/classes.HC:64.5-8
+                    visiting VoidSpecifier node: input/classes.HC:68.5-8
                 }
-                finished parsing specifiers for node input/classes.HC:64.5-36
-                parsing ClassDeclaration for ClassType 0x55d8d0665b70
+                finished parsing specifiers for node input/classes.HC:68.5-36
+                parsing ClassDeclaration for ClassType 0x555ecdff61e0
                 Node {
-                    visiting ClassDeclarator node: input/classes.HC:64.10-35
+                    visiting ClassDeclarator node: input/classes.HC:68.10-35
                     Node {
                         Node {
-                            visiting FunctionDeclarator node: input/classes.HC:64.10-35
+                            visiting FunctionDeclarator node: input/classes.HC:68.10-35
                             Node {
-                                visiting ParenDeclarator node: input/classes.HC:64.10-22
+                                visiting ParenDeclarator node: input/classes.HC:68.10-22
                                 Node {
                                     Node {
-                                        visiting IdentifierDeclarator node: input/classes.HC:64.10-21
+                                        visiting IdentifierDeclarator node: input/classes.HC:68.10-21
                                     }
                                     Node {
-                                        visiting Pointer node: input/classes.HC:64.10-11
+                                        visiting Pointer node: input/classes.HC:68.10-11
                                     }
                                 }
                             }
                             Node {
-                                visiting ParameterDeclarator node: input/classes.HC:64.24-34
-                                parsing declaration specifier list for node at input/classes.HC:64.24-34
+                                visiting ParameterDeclarator node: input/classes.HC:68.24-34
+                                parsing declaration specifier list for node at input/classes.HC:68.24-34
                                 Node {
-                                    visiting PrimitiveSpecifier node: input/classes.HC:64.24-28
+                                    visiting PrimitiveSpecifier node: input/classes.HC:68.24-28
 TypeContext: getting primitive type
                                 }
-                                finished parsing specifiers for node input/classes.HC:64.24-34
+                                finished parsing specifiers for node input/classes.HC:68.24-34
                                 Node {
                                     Node {
-                                        visiting IdentifierDeclarator node: input/classes.HC:64.30-34
+                                        visiting IdentifierDeclarator node: input/classes.HC:68.30-34
                                     }
                                 }
 TypeBuilder: finalizing type
@@ -1031,28 +1089,28 @@ TypeBuilder: finalizing type
                 }
 TypeBuilder: finalizing type
 TypeContext: getting function type
-TypeContext: pointer with base 0x55d8d0666090
-ClassType: adding member with name dispatcher type 0x55d8d0666160
+TypeContext: pointer with base 0x555ecdff6710
+ClassType: adding member with name dispatcher type 0x555ecdff6770
             }
         }
-        finished parsing specifiers for node input/classes.HC:63.1-65.2
+        finished parsing specifiers for node input/classes.HC:67.1-69.2
     }
     Node {
-        visiting VariableDeclaration node: input/classes.HC:67.1-16
-        parsing declaration specifier list for node at input/classes.HC:67.1-16
+        visiting VariableDeclaration node: input/classes.HC:71.1-16
+        parsing declaration specifier list for node at input/classes.HC:71.1-16
         Node {
-            visiting ClassSpecifier node: input/classes.HC:67.1-11
-TypeContext: class type 'Value' on scope 0x55d8d0662600
+            visiting ClassSpecifier node: input/classes.HC:71.1-11
+TypeContext: class type 'Value' on scope 0x555ecdff2990
 TypeContext: existing class found
             class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol Value in current scope
         }
-        finished parsing specifiers for node input/classes.HC:67.1-16
+        finished parsing specifiers for node input/classes.HC:71.1-16
         Node {
-            visiting InitDeclarator node: input/classes.HC:67.13-15
+            visiting InitDeclarator node: input/classes.HC:71.13-15
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/classes.HC:67.13-15
+                    visiting IdentifierDeclarator node: input/classes.HC:71.13-15
                 }
             }
 TypeBuilder: finalizing type
@@ -1060,44 +1118,161 @@ TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "val"
     }
     Node {
-        visiting ExpressionStatement node: input/classes.HC:69.1-15
+        visiting ExpressionStatement node: input/classes.HC:73.1-15
         Node {
-            visiting AssignmentExpression node: input/classes.HC:69.1-14
+            visiting AssignmentExpression node: input/classes.HC:73.1-14
             Node {
-                visiting MemberAccessExpression node: input/classes.HC:69.1-9
+                visiting MemberAccessExpression node: input/classes.HC:73.1-9
                 Node {
-                    visiting MemberAccessExpression node: input/classes.HC:69.1-6
+                    visiting MemberAccessExpression node: input/classes.HC:73.1-6
                     Node {
-                        visiting IdentifierExpression node: input/classes.HC:69.1-3
+                        visiting IdentifierExpression node: input/classes.HC:73.1-3
 SymbolTable: looking up varsymbol val
                     }
                 }
             }
             Node {
-                visiting LiteralExpression node: input/classes.HC:69.13-14
+                visiting LiteralExpression node: input/classes.HC:73.13-14
             }
         }
     }
     Node {
-        visiting VariableDeclaration node: input/classes.HC:71.1-20
-        parsing declaration specifier list for node at input/classes.HC:71.1-20
+        visiting VariableDeclaration node: input/classes.HC:75.1-20
+        parsing declaration specifier list for node at input/classes.HC:75.1-20
         Node {
-            visiting ClassSpecifier node: input/classes.HC:71.1-12
-TypeContext: class type 'VTable' on scope 0x55d8d0662600
+            visiting ClassSpecifier node: input/classes.HC:75.1-12
+TypeContext: class type 'VTable' on scope 0x555ecdff2990
 TypeContext: existing class found
             class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol VTable in current scope
         }
-        finished parsing specifiers for node input/classes.HC:71.1-20
+        finished parsing specifiers for node input/classes.HC:75.1-20
         Node {
-            visiting InitDeclarator node: input/classes.HC:71.14-19
+            visiting InitDeclarator node: input/classes.HC:75.14-19
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/classes.HC:71.14-19
+                    visiting IdentifierDeclarator node: input/classes.HC:75.14-19
                 }
             }
 TypeBuilder: finalizing type
         }
 SymbolTable: inserting varsymbol with name "vtable"
     }
-    No
+    Node {
+        visiting ExpressionStatement node: input/classes.HC:77.1-23
+        Node {
+            visiting CallExpression node: input/classes.HC:77.1-22
+            Node {
+                visiting MemberAccessExpression node: input/classes.HC:77.1-18
+                Node {
+                    visiting IdentifierExpression node: input/classes.HC:77.1-6
+SymbolTable: looking up varsymbol vtable
+                }
+            }
+            Node {
+                visiting LiteralExpression node: input/classes.HC:77.1-21
+            }
+        }
+    }
+}
+semantic checking complete
+--------- TYPE CONTEXT ---------
+
+Base Types:
+  class_VTable_0 : class { Void (U64i) * dispatcher; }
+  class_Point_0 : class { I32i x; I32i y; }
+  union_U8_0 : union: U8i  { U8i[1] u8; }
+  union_U16_0 : union: U16i  { U8[2] u8; U16i[1] u16; }
+  class_Flags_0 : class { U8i a; U8i b; U8i ; }
+  union_Data_0 : union { U32i i; F64i f; }
+  union_U64_0 : union: U64i  { U8[8] u8; U16[4] u16; U32[2] u32; U64i[1] u64; }
+  union_anon_0_0 : union { F64i f; U8i ch; }
+  enum_Color_0 : enum: U64i  { RED = 0, GREEN = 5, BLUE = 6 }
+  union_U32_0 : union: U32i  { U8[4] u8; U16[2] u16; U32i[1] u32; }
+  class_Value_0 : class { I32i type; union { F64i f; U8i ch; } u; }
+  class_Opaque_0 : class
+  enum_Forward_0 : enum: U64i 
+  class_Animal_0 : class { I32i age; }
+  class_Dog_0 : class { enum: U64i  { RED = 0, GREEN = 5, BLUE = 6 } coat; }
+
+Function Types:
+  function_6077225489085521 : Void (U64i)
+
+Pointer Types:
+  :Void (U64i) *
+  :Opaque *
+
+Array Types:
+ : U32[2] #1
+ : U32i[1] #1
+ : U64i[1] #1
+ : U16[2] #1
+ : U16[4] #1
+ : U8[4] #1
+ : U16i[1] #1
+ : U8[8] #1
+ : U8[2] #1
+ : U8i[1] #1
+
+
+--------- SYMBOL TABLE ---------
+
+Scope 0
+Physical Symbols:
+  val -> 0x555ecdff6810 : VarSymbol: val :: class { I32i type; union { F64i f; U8i ch; } u; }
+  BLUE -> 0x555ecdff50f0 : VarSymbol: BLUE :: enum: U64i  { RED = 0, GREEN = 5, BLUE = 6 }
+  GREEN -> 0x555ecdff5000 : VarSymbol: GREEN :: enum: U64i  { RED = 0, GREEN = 5, BLUE = 6 }
+  RED -> 0x555ecdff4ea0 : VarSymbol: RED :: enum: U64i  { RED = 0, GREEN = 5, BLUE = 6 }
+  vtable -> 0x555ecdff6b00 : VarSymbol: vtable :: class { Void (U64i) * dispatcher; }
+  opaque_ptr -> 0x555ecdfde670 : VarSymbol: opaque_ptr :: Opaque *
+
+Type Symbols:
+  VTable -> 0x555ecdff2d70 : TypeSymbol: VTable :: class { Void (U64i) * dispatcher; }
+  Point -> 0x555ecdff37b0 : TypeSymbol: Point :: class { I32i x; I32i y; }
+  Value -> 0x555ecdff5cf0 : TypeSymbol: Value :: class { I32i type; union { F64i f; U8i ch; } u; }
+  Data -> 0x555ecdff3a70 : TypeSymbol: Data :: union { U32i i; F64i f; }
+  Forward -> 0x555ecdff57f0 : TypeSymbol: Forward :: enum: U64i 
+  Opaque -> 0x555ecdff2de0 : TypeSymbol: Opaque :: class
+  U8 -> 0x555ecdff3d60 : TypeSymbol: U8 :: union: U8i  { U8i[1] u8; }
+  U16 -> 0x555ecdff4070 : TypeSymbol: U16 :: union: U16i  { U8[2] u8; U16i[1] u16; }
+  U32 -> 0x555ecdff4120 : TypeSymbol: U32 :: union: U32i  { U8[4] u8; U16[2] u16; U32i[1] u32; }
+  U64 -> 0x555ecdff44a0 : TypeSymbol: U64 :: union: U64i  { U8[8] u8; U16[4] u16; U32[2] u32; U64i[1] u64; }
+  Dog -> 0x555ecdff5590 : TypeSymbol: Dog :: class { enum: U64i  { RED = 0, GREEN = 5, BLUE = 6 } coat; }
+  Flags -> 0x555ecdff59a0 : TypeSymbol: Flags :: class { U8i a; U8i b; U8i ; }
+  Color -> 0x555ecdff48a0 : TypeSymbol: Color :: enum: U64i  { RED = 0, GREEN = 5, BLUE = 6 }
+  Animal -> 0x555ecdff4f90 : TypeSymbol: Animal :: class { I32i age; }
+-----------------------------------------------------------
+
+--------- MIR ---------
+
+ProgramMIR @ <1.1>
+| TypeDecl: Opaque @ <input/classes.HC:1.1-159>
+| VarDecl:  @ <input/classes.HC:3.1-19>
+| | | VarSymbol: opaque_ptr :: Opaque *
+| TypeDecl: Point @ <input/classes.HC:5.1-8.2>
+| TypeDecl: Data @ <input/classes.HC:10.1-13.2>
+| TypeDecl: U8 @ <input/classes.HC:15.1-17.2>
+| TypeDecl: U16 @ <input/classes.HC:19.1-22.2>
+| TypeDecl: U32 @ <input/classes.HC:24.1-28.2>
+| TypeDecl: U64 @ <input/classes.HC:30.1-35.2>
+| TypeDecl: Animal @ <input/classes.HC:43.1-45.2>
+| TypeDecl: Dog @ <input/classes.HC:47.1-49.2>
+| TypeDecl: Flags @ <input/classes.HC:53.1-57.2>
+| TypeDecl: Value @ <input/classes.HC:59.1-65.2>
+| TypeDecl: VTable @ <input/classes.HC:67.1-69.2>
+| VarDecl:  @ <input/classes.HC:71.1-16>
+| | | VarSymbol: val :: class { I32i type; union { F64i f; U8i ch; } u; }
+| ExprStmt @ <input/classes.HC:73.1-15>
+| | Assign: = @ <input/classes.HC:73.1-14>
+| | | Member: .ch @ <input/classes.HC:73.1-9>
+| | | | Member: .u @ <input/classes.HC:73.1-6>
+| | | | | Ident: val @ <input/classes.HC:73.1-3>
+| | | Literal: 23 @ <input/classes.HC:73.13-14>
+| VarDecl:  @ <input/classes.HC:75.1-20>
+| | | VarSymbol: vtable :: class { Void (U64i) * dispatcher; }
+| ExprStmt @ <input/classes.HC:77.1-23>
+| | Call @ <input/classes.HC:77.1-22>
+| | | Member: .dispatcher @ <input/classes.HC:77.1-18>
+| | | | Ident: vtable @ <input/classes.HC:77.1-6>
+| | | Literal: 69 @ <input/classes.HC:77.1-21>
+LLVM: Shutting down

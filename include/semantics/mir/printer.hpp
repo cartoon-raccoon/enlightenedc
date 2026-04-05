@@ -6,15 +6,14 @@
 
 #include "semantics/mir/mir.hpp"
 #include "semantics/mir/visitor.hpp"
-#include "tokens.hpp"
 
 namespace ecc::sema::mir {
 
 class MIRPrinter : public MIRVisitor {
   public:
-    int indent = 0;
+    size_t indent = 0;
 
-    void print_indent();
+    void print_indent() const;
 
     template <typename NodeType, typename... Children>
     void print_node(const std::string& name, NodeType& node,
@@ -22,7 +21,7 @@ class MIRPrinter : public MIRVisitor {
         print_indent();
         std::cout << name << " @ <" << node.loc << ">\n";
         indent++;
-        (children(), ...);
+        (std::forward<Children>(children)(), ...);
         indent--;
     }
 
@@ -61,14 +60,6 @@ class MIRPrinter : public MIRVisitor {
     void visit(SubscrExprMIR& node) override;
     void visit(PostfixExprMIR& node) override;
     void visit(SizeofExprMIR& node) override;
-
-  private:
-    std::string binop_to_string(tokens::BinaryOp op);
-    std::string unop_to_string(tokens::UnaryOp op);
-    std::string assignop_to_string(tokens::AssignOp op);
-    std::string postfixop_to_string(tokens::PostfixOp op);
-
-    std::string value_to_string(const exec::Value& val);
 };
 
 } // namespace ecc::sema::mir

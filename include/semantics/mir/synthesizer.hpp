@@ -265,11 +265,11 @@ protected:
 
 private:
     struct SpecifierInfo {
-        types::BaseType *type;
+        types::BaseType *type = nullptr;
         Optional<sym::TypeSymbol *> symbol;
-        bool is_public;
-        bool is_static;
-        bool is_const;
+        bool is_public = false;
+        bool is_static = false;
+        bool is_const  = false;
         sym::PhysicalSymbol::Linkage linkage = sym::PhysicalSymbol::Linkage::INTERNAL;
     };
 

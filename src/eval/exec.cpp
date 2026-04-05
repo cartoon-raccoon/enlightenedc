@@ -1,7 +1,5 @@
 #include "eval/exec.hpp"
 
-#include <variant>
-
 #include "eval/value.hpp"
 #include "semantics/mir/mir.hpp"
 #include "tokens.hpp"
@@ -107,9 +105,8 @@ Value Evaluator::eval(IdentExprMIR& expr) {
         return *varsym->value;
     } else {
         throw_eval_error("unable to resolve value of identifier", expr);
+        return (long) 0;
     }
-
-    return std::monostate{};
 }
 
 Value Evaluator::eval(LiteralExprMIR& expr) {

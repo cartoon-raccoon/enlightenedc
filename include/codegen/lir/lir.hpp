@@ -104,9 +104,9 @@ public:
     TerminalLIR(NodeKind kind) : StmtLIR(kind) {}
     TerminalLIR(Location loc, NodeKind kind) : StmtLIR(loc, kind) {}
 
-    virtual Vec<SwitchTarget *> pull_switch_targets() { return {}; }
+    Vec<SwitchTarget *> pull_switch_targets() override { return {}; }
 
-    virtual bool is_terminal() { return true; }
+    bool is_terminal() override { return true; }
 };
 
 class SwitchTarget : public StmtLIR {
@@ -114,7 +114,7 @@ public:
     SwitchTarget(Location loc, NodeKind kind)
         : StmtLIR(loc, kind) {}
 
-    virtual bool is_jump_target() { return true; }
+    bool is_jump_target() override { return true; }
 };
 
 class ExprLIR : public LIRNode {
@@ -132,7 +132,8 @@ public:
     FunctionLIR(Location loc, 
                 std::string mangled, 
                 std::string name)
-        : ProgItemLIR(loc, NodeKind::FUNC_LIR) {}
+        : ProgItemLIR(loc, NodeKind::FUNC_LIR),
+        mangled_name(std::move(mangled)), name(std::move(name)) {}
     
     std::string mangled_name;
     std::string name;
@@ -149,6 +150,7 @@ class VarDeclLIR : public DeclLIR {
 public:
     VarDeclLIR(Location loc, LIRVarSym *var)
         : DeclLIR(loc, NodeKind::VARDECL_LIR), var(var) {}
+    
     VarDeclLIR(LIRVarSym *var)
         : DeclLIR(NodeKind::VARDECL_LIR), var(var) {}
     
@@ -160,11 +162,12 @@ public:
 class GotoStmtLIR : public TerminalLIR {
 public:
     GotoStmtLIR(std::string mangled_target)
-        : TerminalLIR(NodeKind::GOTOSTMT_LIR), mangled_target(mangled_target) {}
+        : TerminalLIR(NodeKind::GOTOSTMT_LIR),
+        mangled_target(std::move(mangled_target)) {}
     
     GotoStmtLIR(Location loc, std::string mangled_target, std::string target)
         : TerminalLIR(loc, NodeKind::GOTOSTMT_LIR), 
-        mangled_target(mangled_target), target(target) {}
+        mangled_target(std::move(mangled_target)), target(target) {}
 
     // The mangled target name.
     std::string mangled_target;
@@ -216,7 +219,7 @@ class CaseStmtLIR : public SwitchTarget {
 public:
     CaseStmtLIR(Location loc, exec::Value case_value)
         : SwitchTarget(loc, NodeKind::CASESTMT_LIR), 
-        case_value(case_value) {}
+        case_value(std::move(case_value)) {}
     
     exec::Value case_value;
 
@@ -273,7 +276,7 @@ class LabelStmtLIR : public StmtLIR {
 public:
     LabelStmtLIR(Location loc, std::string mangled_label, std::string label)
         : StmtLIR(loc, NodeKind::LABELSTMT_LIR), 
-        mangled_label(mangled_label), label(label), body() {}
+        mangled_label(std::move(mangled_label)), label(std::move(label)) {}
     
     std::string mangled_label;
     std::string label;
@@ -289,7 +292,7 @@ public:
 class IfStmtLIR : public StmtLIR {
 public:
     IfStmtLIR(Location loc, Box<ExprLIR> condition)
-        : StmtLIR(loc, NodeKind::IFSTMT_LIR), then_br(), else_br() {}
+        : StmtLIR(loc, NodeKind::IFSTMT_LIR) {}
 
     Box<ExprLIR> condition;
     Vec<Box<StmtLIR>> then_br;
@@ -319,7 +322,7 @@ class PrintStmtLIR : public StmtLIR {
 public:
     PrintStmtLIR(Location loc, std::string format_string, Vec<Box<ExprLIR>> args)
         : StmtLIR(loc, NodeKind::PRINTSTMT_LIR), 
-        format_string(format_string),
+        format_string(std::move(format_string)),
         args(std::move(args)) {}
     
     std::string format_string;
@@ -416,7 +419,7 @@ public:
 class LiteralExprLIR : public ExprLIR {
 public:
     LiteralExprLIR(Location loc, exec::Value value, sema::types::Type *type)
-        : ExprLIR(loc, NodeKind::LITEXPR_LIR, type), value(value) {}
+        : ExprLIR(loc, NodeKind::LITEXPR_LIR, type), value(std::move(value)) {}
     
     exec::Value value;
 

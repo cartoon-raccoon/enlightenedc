@@ -15,13 +15,13 @@ using namespace ecc;
 class TypeSemError : public EccSemError {
 public:
     TypeSemError(std::string msg, Location err_loc)
-        : EccSemError(msg, err_loc) {}
+        : EccSemError(std::move(msg), err_loc) {}
 };
 
 class RecursiveTypeError : public TypeSemError {
 public:
     RecursiveTypeError(std::string name, Location err_loc)
-        : TypeSemError("recursive class member", err_loc), name(name) {}
+        : TypeSemError("recursive class member", err_loc), name(std::move(name)) {}
 
     std::string name;
 
@@ -37,7 +37,8 @@ public:
 class IncompleteTypeUseError : public TypeSemError {
 public:
     IncompleteTypeUseError(std::string name, Location err_loc)
-        : TypeSemError("use of incomplete type", err_loc), name(name) {}
+        : TypeSemError("use of incomplete type", err_loc), 
+        name(std::move(name)) {}
 
     std::string name;
 };
@@ -67,37 +68,46 @@ public:
 class EnumeratorAlrDecldError : public TypeSemError {
 public:
     EnumeratorAlrDecldError(std::string name, Location err_loc, Location def_loc)
-    : TypeSemError("enumerator name conflict", err_loc)
-    {
+        : TypeSemError("enumerator name conflict", err_loc), 
+        name(std::move(name)), def_loc(def_loc) {}
+
+    std::string name;
+    Location def_loc;
+
+    std::string to_string() override {
         std::stringstream ss;
         ss << EccError::what() << "\n" << "enumerator with name \'" << name << "\'" 
         << " previously defined at " << def_loc;
 
-        msg = ss.str();
+        return ss.str();
     }
 };
 
 class InvalidEnumUnderlyingError : public TypeSemError {
 public:
     InvalidEnumUnderlyingError(Location err_loc)
-    : TypeSemError("invalid enum underlying type", err_loc)
-    {
+        : TypeSemError("invalid enum underlying type", err_loc) {}
+    
+    std::string to_string() override {
         std::stringstream ss;
         ss << EccError::what() << "\n" << "underlying type of an enum must be an integer";
 
-        msg = ss.str();
+        return ss.str();
     }
 };
 
 class TypeDecldAsOtherError : public TypeSemError {
 public:
     TypeDecldAsOtherError(std::string err, Location err_loc, Location def_loc)
-    : TypeSemError(err, err_loc)
-    {
+    : TypeSemError(std::move(err), err_loc), def_loc(def_loc) {}
+
+    Location def_loc;
+    
+    std::string to_string() override {
         std::stringstream ss;
         ss << EccError::what() << "\n" << "type previously declared at " << def_loc;
 
-        msg = ss.str();
+        return ss.str();
     }
 };
 

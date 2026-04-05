@@ -15,8 +15,15 @@ Checks: >
   -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
   -cppcoreguidelines-special-member-functions,
   -cppcoreguidelines-non-private-member-variables-in-classes,
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+  -cppcoreguidelines-pro-type-union-access,
+  -cppcoreguidelines-avoid-goto,
   performance-*,
-  readability-*
+  readability-*,
+  -readability-redundant-access-specifiers,
+  -readability-identifier-length,
+  -readability-else-after-return,
+  -readability-convert-member-functions-to-static,
 
 WarningsAsErrors: 'false'
 HeaderFileExtensions:
@@ -234,7 +241,6 @@ CheckOptions:
   cppcoreguidelines-pro-bounds-avoid-unchecked-container-access.FixMode: none
   cppcoreguidelines-pro-bounds-constant-array-index.GslHeader: ''
   cppcoreguidelines-pro-bounds-constant-array-index.IncludeStyle: llvm
-  cppcoreguidelines-pro-bounds-pointer-arithmetic.AllowIncrementDecrementOperators: 'false'
   cppcoreguidelines-pro-type-const-cast.StrictMode: 'false'
   cppcoreguidelines-pro-type-member-init.IgnoreArrays: 'false'
   cppcoreguidelines-pro-type-member-init.UseAssignment: 'false'

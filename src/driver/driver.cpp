@@ -17,25 +17,25 @@ using namespace ecc::codegen;
 using namespace codegen::lir;
 
 TranslationUnitMIR::TranslationUnitMIR()
-    : symbols(std::make_unique<SymbolTable>()), mir(std::make_unique<ProgramMIR>()) {
+    : symbols(make_box<SymbolTable>()), mir(make_box<ProgramMIR>()) {
 }
 
 TranslationUnitLIR::TranslationUnitLIR()
-    : symbols(std::make_unique<LIRSymbolMap>()), lir(std::make_unique<ProgramLIR>()) {
+    : symbols(make_box<LIRSymbolMap>()), lir(make_box<ProgramLIR>()) {
 }
 
 TranslationUnit::TranslationUnit(std::string *filename, LLVMCore& llvmcore)
-    : filename(filename), llvm(), types(), ast_root(), prog_mir(), prog_lir() {
-    llvm     = std::make_unique<LLVMUnit>(*filename, llvmcore);
-    types    = std::make_unique<TypeContext>(*llvm);
-    ast_root = std::make_unique<Program>(filename);
-    prog_mir = std::make_unique<TranslationUnitMIR>();
-    prog_lir = std::make_unique<TranslationUnitLIR>();
+    : filename(filename) {
+    llvm     = make_box<LLVMUnit>(*filename, llvmcore);
+    types    = make_box<TypeContext>(*llvm);
+    ast_root = make_box<Program>(filename);
+    prog_mir = make_box<TranslationUnitMIR>();
+    prog_lir = make_box<TranslationUnitLIR>();
 }
 
-Driver::Driver(TranslationUnit& unit) : unit(unit), frontend(), backend() {
-    frontend = std::make_unique<frontend::Frontend>();
-    backend  = std::make_unique<driver::Backend>();
+Driver::Driver(TranslationUnit& unit) : unit(unit){
+    frontend = make_box<frontend::Frontend>();
+    backend  = make_box<driver::Backend>();
 }
 
 void Driver::run() {

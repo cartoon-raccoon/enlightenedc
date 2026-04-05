@@ -240,11 +240,15 @@ protected:
     Type(Kind kind, TypeContext& tyctxt) : kind(kind), tyctxt(tyctxt) {}
     codegen::LLVMType *llvm_type = nullptr;
 
+    TypeContext& ctxt() { return tyctxt; }
+
     friend class TypeContext;
-    TypeContext& tyctxt;
 
     // Whether the Type has been finalized.
     bool finalized = false;
+
+private:
+    Ref<TypeContext> tyctxt;
 };
 
 /*
@@ -493,7 +497,7 @@ protected:
         : UserType(decl_loc, Kind::CLASS, tyctxt, scope) {}
     /** Construct an empty class with a given name. */
     ClassType(Location decl_loc, std::string name, sema::sym::Scope *scope, TypeContext& tyctxt)
-        : UserType(decl_loc, Kind::CLASS, name, tyctxt, scope) {}
+        : UserType(decl_loc, Kind::CLASS, std::move(name), tyctxt, scope) {}
 
 private:
 };
@@ -784,15 +788,15 @@ protected:
 
 // A function parameter containing an optional name.
 struct FuncParam {
-    Type *type;
+    Type *type = nullptr;
     Optional<std::string> name;
     Location loc;
-    bool is_const;
+    bool is_const = false;
 };
 
 class FunctionType : public DerivedType {
 public:
-    struct FunctionSignature {
+    struct FunctionSignature { // NOLINT
         Type *returntype;
         Vec<Type *> params;
         bool variadic;
@@ -883,6 +887,8 @@ public:
 
     void set_base(BaseType *base);
 
+    TypeContext& ctxt() { return tyctxt; }
+
     Type *finalize();
     struct Ptr {
         bool is_const;
@@ -898,7 +904,7 @@ public:
 
     BaseType *base = nullptr;
 
-    TypeContext& ctxt;
+    
 
     std::stack<std::variant<Ptr, Arr, FnParams>> type_stack;
 
@@ -907,7 +913,10 @@ protected:
     friend class TypeContext;
     friend constexpr Box<TypeBuilder> std::make_unique<TypeBuilder>(TypeContext&);
 
-    TypeBuilder(TypeContext& ctxt) : ctxt(ctxt) {}
+    TypeBuilder(TypeContext& ctxt) : tyctxt(ctxt) {}
+
+private:
+    Ref<TypeContext> tyctxt;
 };
 
 /**
@@ -1040,12 +1049,14 @@ public:
     // Create a function type based on its signature.
     FunctionType *get_function(Location loc, Type *ret, Vec<Type *> params, bool variadic);
 
+    codegen::LLVMUnit& llvm() { return llvmref; }
+
     std::string to_string() const;
 
 private:
     int anonymous_ctr = 0;
 
-    codegen::LLVMUnit& llvm;
+    Ref<codegen::LLVMUnit> llvmref;
 
     // intern the primitive language-defined types directly in the context.
     Box<VoidType> voidt;
@@ -1063,9 +1074,9 @@ private:
 
     template<typename T>
     struct pair_hash {
-        std::size_t operator() (const std::pair<Type *, T> p) const {
-            auto h1 = std::hash<Type *>{}(p.first);
-            auto h2 = std::hash<T>{}(p.second);
+        std::size_t operator() (const std::pair<Type *, T> pair) const {
+            auto h1 = std::hash<Type *>{}(pair.first);
+            auto h2 = std::hash<T>{}(pair.second);
 
             return h1 ^ (h2 + BOOST_GOLDEN_RATIO + (h1 << HASH_SHL) + (h1 >> HASH_SHR));
         }
@@ -1097,12 +1108,14 @@ private:
         return ss.str();
     }
 
+    // Create and insert a named type.
     template <typename Ty>
     requires std::derived_from<Ty, UserType>
-    // Create and insert a named type.
-    Ty *make_insert_type(std::string mangled, sema::sym::Scope *scope, Box<Ty> type) {
+    Ty *insert_named_type(std::string mangled, sema::sym::Scope *scope, Box<Ty> type) {
+        dbprint("TypeContext: inserting type ", mangled);
 
         auto ret = type.get();
+
         if (type->get_name()) {
             for (auto const& [key, etype] : user_types) {
                     // if type has name and we find another type with the same name

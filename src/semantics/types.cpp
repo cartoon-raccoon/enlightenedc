@@ -30,7 +30,7 @@ size_t Type::alloc_size() {
         throw std::runtime_error("LLVM Type not initialized on type, cannot get size");
     }
 
-    const llvm::DataLayout& dl = tyctxt.llvm.mod().getDataLayout();
+    const llvm::DataLayout& dl = ctxt().llvm().mod().getDataLayout();
     return dl.getTypeAllocSize(llvm_type);
 }
 
@@ -119,7 +119,7 @@ void VoidType::finalize() {
     }
 
     dbprint("VoidType: finalizing");
-    llvm_type = llvm::Type::getVoidTy(tyctxt.llvm.ctx());
+    llvm_type = llvm::Type::getVoidTy(ctxt().llvm().ctx());
 
     finalized = true;
 }
@@ -236,26 +236,26 @@ void PrimitiveType::finalize() {
     case PrimType::U8:
     case PrimType::I8:
     case PrimType::BOOL: //? should bool be 1 bit?
-        llvm_type = llvm::Type::getInt8Ty(tyctxt.llvm.ctx());
+        llvm_type = llvm::Type::getInt8Ty(ctxt().llvm().ctx());
         break;
 
     case PrimType::U16:
     case PrimType::I16:
-        llvm_type = llvm::Type::getInt16Ty(tyctxt.llvm.ctx());
+        llvm_type = llvm::Type::getInt16Ty(ctxt().llvm().ctx());
         break;
 
     case PrimType::U32:
     case PrimType::I32:
-        llvm_type = llvm::Type::getInt32Ty(tyctxt.llvm.ctx());
+        llvm_type = llvm::Type::getInt32Ty(ctxt().llvm().ctx());
         break;
 
     case PrimType::U64:
     case PrimType::I64:
-        llvm_type = llvm::Type::getInt64Ty(tyctxt.llvm.ctx());
+        llvm_type = llvm::Type::getInt64Ty(ctxt().llvm().ctx());
         break;
 
     case PrimType::F64:
-        llvm_type = llvm::Type::getDoubleTy(tyctxt.llvm.ctx());
+        llvm_type = llvm::Type::getDoubleTy(ctxt().llvm().ctx());
         break;
     }
 
@@ -355,9 +355,9 @@ void ClassType::finalize() {
     }
 
     if (name) {
-        llvm_type = llvm::StructType::create(tyctxt.llvm.ctx(), args, *name);
+        llvm_type = llvm::StructType::create(ctxt().llvm().ctx(), args, *name);
     } else {
-        llvm_type = llvm::StructType::create(tyctxt.llvm.ctx(), args);
+        llvm_type = llvm::StructType::create(ctxt().llvm().ctx(), args);
     }
 
     finalized = true;
@@ -538,14 +538,14 @@ std::string UnionType::formal() {
 EnumType::EnumType(Location decl_loc, sema::sym::Scope *scope, TypeContext& tyctxt)
     : UserType(decl_loc, Kind::ENUM, tyctxt, scope),
       // default type for an enum with no declared underlying type is U64.
-      underlying(tyctxt.get_u64()) {
+      underlying(ctxt().get_u64()) {
 }
 
 EnumType::EnumType(Location decl_loc, std::string name, sema::sym::Scope *scope,
                    TypeContext& tyctxt)
     : UserType(decl_loc, Kind::ENUM, std::move(name), tyctxt, scope),
       // default type for an enum with no declared underlying type is U64.
-      underlying(tyctxt.get_u64()) {
+      underlying(ctxt().get_u64()) {
 }
 
 int64_t EnumType::add_enumerator(std::string enumerator, Location loc) {
@@ -682,7 +682,7 @@ void PointerType::finalize() {
         return;
     }
 
-    llvm_type = llvm::PointerType::get(tyctxt.llvm.ctx(), 0);
+    llvm_type = llvm::PointerType::get(ctxt().llvm().ctx(), 0);
     finalized = true;
 }
 
@@ -796,14 +796,14 @@ Type *TypeBuilder::finalize() {
         std::visit(match{[this, &curr](Arr& arr) mutable {
                              // Wrap the base in an array.
                              if (arr.size) {
-                                 curr = this->ctxt.get_array(curr, *arr.size);
+                                 curr = this->ctxt().get_array(curr, *arr.size);
                              } else {
-                                 curr = this->ctxt.get_array(curr);
+                                 curr = this->ctxt().get_array(curr);
                              }
                          },
                          [this, &curr](Ptr& ptr) mutable {
                              // Wrap the base in a pointer.
-                             curr = this->ctxt.get_pointer(curr, ptr.is_const);
+                             curr = this->ctxt().get_pointer(curr, ptr.is_const);
                          },
                          [this, &curr](FnParams& fn) mutable {
                              Vec<Type *> params;
@@ -813,8 +813,8 @@ Type *TypeBuilder::finalize() {
                                  params.push_back(param.type);
                              }
                              // Wrap the base as the return type in a function type.
-                             curr = this->ctxt.get_function(fn.loc, curr, std::move(params),
-                                                            fn.variadic);
+                             curr = this->ctxt().get_function(fn.loc, curr, std::move(params),
+                                                              fn.variadic);
                          }},
                    next_cstrctr);
 
@@ -830,7 +830,7 @@ Type *TypeBuilder::finalize() {
  */
 
 TypeContext::TypeContext(codegen::LLVMUnit& llvm)
-    : llvm(llvm), voidt(std::make_unique<VoidType>(*this)),
+    : llvmref(llvm), voidt(std::make_unique<VoidType>(*this)),
       u8(std::make_unique<PrimitiveType>(PrimType::U8, *this)),
       u16(std::make_unique<PrimitiveType>(PrimType::U16, *this)),
       u32(std::make_unique<PrimitiveType>(PrimType::U32, *this)),
@@ -893,7 +893,7 @@ ClassType *TypeContext::get_class(Location decl_loc, std::string& name, sym::Sco
     Box<ClassType> clsty = std::make_unique<ClassType>(decl_loc, name, scope, *this);
 
     // If no struct matching the name, make a new struct
-    return make_insert_type<ClassType>(mangled, scope, std::move(clsty));
+    return insert_named_type<ClassType>(mangled, scope, std::move(clsty));
 }
 
 ClassType *TypeContext::get_class(Location decl_loc, sym::Scope *scope) {
@@ -912,7 +912,7 @@ ClassType *TypeContext::get_class(Location decl_loc, sym::Scope *scope) {
 
     Box<ClassType> clsty = std::make_unique<ClassType>(decl_loc, scope, *this);
 
-    return make_insert_type<ClassType>(mangled, scope, std::move(clsty));
+    return insert_named_type<ClassType>(mangled, scope, std::move(clsty));
 }
 
 UnionType *TypeContext::get_union(Location decl_loc, std::string& name, sym::Scope *scope) {
@@ -927,7 +927,7 @@ UnionType *TypeContext::get_union(Location decl_loc, std::string& name, sym::Sco
     Box<UnionType> unnty = std::make_unique<UnionType>(decl_loc, name, scope, *this);
 
     // If no struct matching the name, make a new struct
-    return make_insert_type<UnionType>(mangled, scope, std::move(unnty));
+    return insert_named_type<UnionType>(mangled, scope, std::move(unnty));
 }
 
 UnionType *TypeContext::get_union(Location decl_loc, sym::Scope *scope) {
@@ -938,7 +938,7 @@ UnionType *TypeContext::get_union(Location decl_loc, sym::Scope *scope) {
 
     Box<UnionType> unnty = std::make_unique<UnionType>(decl_loc, scope, *this);
 
-    return make_insert_type<UnionType>(mangled, scope, std::move(unnty));
+    return insert_named_type<UnionType>(mangled, scope, std::move(unnty));
 }
 
 EnumType *TypeContext::get_enum(Location decl_loc, std::string& name, sym::Scope *scope) {
@@ -953,7 +953,7 @@ EnumType *TypeContext::get_enum(Location decl_loc, std::string& name, sym::Scope
     Box<EnumType> enmty = std::make_unique<EnumType>(decl_loc, name, scope, *this);
 
     // If no struct matching the name, make a new struct
-    return make_insert_type<EnumType>(mangled, scope, std::move(enmty));
+    return insert_named_type<EnumType>(mangled, scope, std::move(enmty));
 }
 
 EnumType *TypeContext::get_enum(Location decl_loc, sym::Scope *scope) {
@@ -964,7 +964,7 @@ EnumType *TypeContext::get_enum(Location decl_loc, sym::Scope *scope) {
 
     Box<EnumType> enmty = std::make_unique<EnumType>(decl_loc, scope, *this);
 
-    return make_insert_type<EnumType>(mangled, scope, std::move(enmty));
+    return insert_named_type<EnumType>(mangled, scope, std::move(enmty));
 }
 
 PointerType *TypeContext::get_pointer(Type *base, bool is_const) {

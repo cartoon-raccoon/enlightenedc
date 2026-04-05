@@ -27,13 +27,13 @@ Program @ <input/declarations.HC:1.1>
 | | | | IdentifierDeclarator: b @ <input/declarations.HC:2.16> 
 | | | Initializer:  @ <input/declarations.HC:2.20-22> 
 | | | | UnaryExpression: - @ <input/declarations.HC:2.20-22> 
-| | | | | Literal: 10 @ <input/declarations.HC:2.20-22> 
+| | | | | 10 @ <input/declarations.HC:2.20-22> 
 | | InitDeclarator @ <input/declarations.HC:2.25-28> 
 | | | Declarator @ <input/declarations.HC:2.25-28> 
 | | | | ArrayDeclarator @ <input/declarations.HC:2.25-28> 
 | | | | | IdentifierDeclarator: c @ <input/declarations.HC:2.25> 
 | | | | | ConstExpression:  @ <input/declarations.HC:2.25-27> 
-| | | | | | Literal: 4 @ <input/declarations.HC:2.25-27> 
+| | | | | | 4 @ <input/declarations.HC:2.25-27> 
 | VariableDeclaration @ <input/declarations.HC:3.1-20> 
 | | PrimitiveSpecifier: f64 @ <input/declarations.HC:3.8-11> 
 | | StorageClassSpecifier: extern @ <input/declarations.HC:3.1-6> 
@@ -48,14 +48,14 @@ Program @ <input/declarations.HC:1.1>
 | | | | ArrayDeclarator @ <input/declarations.HC:5.5-12> 
 | | | | | IdentifierDeclarator: bytes @ <input/declarations.HC:5.5-9> 
 | | | | | ConstExpression:  @ <input/declarations.HC:5.5-11> 
-| | | | | | Literal: 3 @ <input/declarations.HC:5.5-11> 
+| | | | | | 3 @ <input/declarations.HC:5.5-11> 
 | | | Initializer:  @ <input/declarations.HC:5.16-24> 
 | | | | Initializer:  @ <input/declarations.HC:5.16-17> 
-| | | | | Literal: 1 @ <input/declarations.HC:5.16-17> 
+| | | | | 1 @ <input/declarations.HC:5.16-17> 
 | | | | Initializer:  @ <input/declarations.HC:5.20> 
-| | | | | Literal: 2 @ <input/declarations.HC:5.20> 
+| | | | | 2 @ <input/declarations.HC:5.20> 
 | | | | Initializer:  @ <input/declarations.HC:5.23> 
-| | | | | Literal: 3 @ <input/declarations.HC:5.23> 
+| | | | | 3 @ <input/declarations.HC:5.23> 
 | VariableDeclaration @ <input/declarations.HC:6.1-24> 
 | | PrimitiveSpecifier: i32 @ <input/declarations.HC:6.1-4> 
 | | InitDeclarator @ <input/declarations.HC:6.6-23> 
@@ -63,12 +63,12 @@ Program @ <input/declarations.HC:1.1>
 | | | | ArrayDeclarator @ <input/declarations.HC:6.6-14> 
 | | | | | IdentifierDeclarator: matrix @ <input/declarations.HC:6.6-11> 
 | | | | | ConstExpression:  @ <input/declarations.HC:6.6-13> 
-| | | | | | Literal: 2 @ <input/declarations.HC:6.6-13> 
+| | | | | | 2 @ <input/declarations.HC:6.6-13> 
 | | | Initializer:  @ <input/declarations.HC:6.18-23> 
 | | | | Initializer:  @ <input/declarations.HC:6.18-19> 
-| | | | | Literal: 0 @ <input/declarations.HC:6.18-19> 
+| | | | | 0 @ <input/declarations.HC:6.18-19> 
 | | | | Initializer:  @ <input/declarations.HC:6.22> 
-| | | | | Literal: 1 @ <input/declarations.HC:6.22> 
+| | | | | 1 @ <input/declarations.HC:6.22> 
 running backend for file input/declarations.HC
 Checking semantics for input/declarations.HC:1.1
 Synthesizing MIR for input/declarations.HC:1.1
@@ -105,8 +105,8 @@ TypeContext: getting primitive type
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x55f68b1658d0
-TypeContext: pointer with base 0x55f68b1662d0
+TypeContext: pointer with base 0x55b3e0a13750
+TypeContext: pointer with base 0x55b3e0a143d0
         }
 SymbolTable: inserting varsymbol with name "ptrA"
     }
@@ -169,7 +169,7 @@ SymbolTable: inserting varsymbol with name "b"
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55f68b165960, size 4
+TypeContext: array type with base 0x55b3e0a13810, size 4
         }
 SymbolTable: inserting varsymbol with name "c"
     }
@@ -195,7 +195,7 @@ TypeContext: getting primitive type
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55f68b1659f0, no size
+TypeContext: array type with base 0x55b3e0a138d0, no size
         }
 SymbolTable: inserting varsymbol with name "table"
     }
@@ -225,10 +225,11 @@ TypeContext: getting primitive type
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55f68b165870, size 3
+TypeContext: array type with base 0x55b3e0a136d0, size 3
             Node {
                 visiting Initializer node: input/declarations.HC:5.16-24
                 visiting compound initializer
+                visiting arraytype compound initializer
                 Node {
                     visiting Initializer node: input/declarations.HC:5.16-17
                     visiting single initializer
@@ -280,10 +281,11 @@ TypeContext: getting primitive type
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55f68b165990, size 2
+TypeContext: array type with base 0x55b3e0a13850, size 2
             Node {
                 visiting Initializer node: input/declarations.HC:6.18-23
                 visiting compound initializer
+                visiting arraytype compound initializer
                 Node {
                     visiting Initializer node: input/declarations.HC:6.18-19
                     visiting single initializer
@@ -303,19 +305,6 @@ TypeContext: array type with base 0x55f68b165990, size 2
 SymbolTable: inserting varsymbol with name "matrix"
     }
 }
-TypeContext: finalizing primitives
-VoidType: finalizing
-PrimitiveType: finalizing U8i
-PrimitiveType: finalizing U16i
-PrimitiveType: finalizing U32i
-PrimitiveType: finalizing U64i
-PrimitiveType: finalizing I8i
-PrimitiveType: finalizing I16i
-PrimitiveType: finalizing I32i
-PrimitiveType: finalizing I64i
-PrimitiveType: finalizing F64i
-PrimitiveType: finalizing Bool
-TypeContext: finalizing user types
 semantic checking complete
 --------- TYPE CONTEXT ---------
 
@@ -328,27 +317,23 @@ Pointer Types:
   :U32i * const
 
 Array Types:
- : I32i[2]
- : U8i[3]
- : F64i[]
- : I16i[4]
+ : I32i[2] #1
+ : U8i[3] #1
+ : F64i[] #1
+ : I16i[4] #1
 
 
 --------- SYMBOL TABLE ---------
 
 Scope 0
 Physical Symbols:
-  bytes -> 0x55f68b166fe0 : VarSymbol: bytes :: U8i[3]
-  table -> 0x55f68b166af0 : VarSymbol: table :: F64i[] extern
-  c -> 0x55f68b1668f0 : VarSymbol: c :: I16i[4] static
-  b -> 0x55f68b166710 : VarSymbol: b :: I16i static
-  matrix -> 0x55f68b167400 : VarSymbol: matrix :: I32i[2]
-  a -> 0x55f68b1664f0 : VarSymbol: a :: I16i static
-  ptrA -> 0x55f68b151670 : VarSymbol: ptrAconst  :: U32i * const * public
-
-Type Symbols:
-
-Label Symbols:
+  bytes -> 0x55b3e0a150e0 : VarSymbol: bytes :: U8i[3]
+  table -> 0x55b3e0a14bf0 : VarSymbol: table :: F64i[] extern
+  c -> 0x55b3e0a149f0 : VarSymbol: c :: I16i[4] static
+  b -> 0x55b3e0a14810 : VarSymbol: b :: I16i static
+  matrix -> 0x55b3e0a15500 : VarSymbol: matrix :: I32i[2]
+  a -> 0x55b3e0a145f0 : VarSymbol: a :: I16i static
+  ptrA -> 0x55b3e09ff670 : VarSymbol: ptrAconst  :: U32i * const * public
 -----------------------------------------------------------
 
 --------- MIR ---------

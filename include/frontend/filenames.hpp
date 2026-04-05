@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef ECC_FILENAMES_H
 #define ECC_FILENAMES_H
 
@@ -11,7 +13,7 @@ A class for managing filenames.
 */
 class FilenamePool {
 public:
-    const std::string *intern(const char* s);
+    const std::string *intern(const char* str);
 private:
     std::unordered_set<std::string> pool;
 };

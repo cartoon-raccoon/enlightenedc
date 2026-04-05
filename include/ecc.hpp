@@ -1,6 +1,9 @@
-#include <memory>
-#ifndef ECC_H
+#pragma once
 
+#ifndef ECC_H
+#define ECC_H
+
+#include <memory>
 #include <string>
 
 #include "codegen/llvm.hpp"

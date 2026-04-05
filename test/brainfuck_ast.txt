@@ -31,7 +31,7 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | | | ArrayDeclarator @ <test/brainfuck.HC:12.10-17> 
 | | | | | | | IdentifierDeclarator: data @ <test/brainfuck.HC:12.10-13> 
 | | | | | | | ConstExpression:  @ <test/brainfuck.HC:12.10-16> 
-| | | | | | | | Literal: 32 @ <test/brainfuck.HC:12.10-16> 
+| | | | | | | | 32 @ <test/brainfuck.HC:12.10-16> 
 | VariableDeclaration @ <test/brainfuck.HC:15.1-26> 
 | | TypeIdentifier: Stack @ <test/brainfuck.HC:15.1-5> 
 | | InitDeclarator @ <test/brainfuck.HC:15.7-25> 
@@ -39,9 +39,9 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | IdentifierDeclarator: nesting @ <test/brainfuck.HC:15.7-13> 
 | | | Initializer:  @ <test/brainfuck.HC:15.17-25> 
 | | | | Initializer:  @ <test/brainfuck.HC:15.19-20> 
-| | | | | Literal: 32 @ <test/brainfuck.HC:15.19-20> 
+| | | | | 32 @ <test/brainfuck.HC:15.19-20> 
 | | | | Initializer:  @ <test/brainfuck.HC:15.23> 
-| | | | | Literal: 0 @ <test/brainfuck.HC:15.23> 
+| | | | | 0 @ <test/brainfuck.HC:15.23> 
 | Function @ <test/brainfuck.HC:17.1-28.1> 
 | | VoidSpecifier @ <test/brainfuck.HC:17.1-2> 
 | | Declarator @ <test/brainfuck.HC:17.4-23> 
@@ -55,14 +55,14 @@ Program @ <test/brainfuck.HC:1.1>
 | | | IfStatement @ <test/brainfuck.HC:19.5-25> 
 | | | | BinaryExpression: < @ <test/brainfuck.HC:19.8-16> 
 | | | | | IdentifierExpression: item @ <test/brainfuck.HC:19.8-12> 
-| | | | | Literal: 0 @ <test/brainfuck.HC:19.16> 
+| | | | | 0 @ <test/brainfuck.HC:19.16> 
 | | | | ReturnStatement @ <test/brainfuck.HC:19.19-25> 
 | | | IfStatement @ <test/brainfuck.HC:21.5-24.5> 
 | | | | BinaryExpression: > @ <test/brainfuck.HC:21.8-37> 
 | | | | | BinaryExpression: + @ <test/brainfuck.HC:21.8-23> 
 | | | | | | MemberAccess: .len @ <test/brainfuck.HC:21.8-19> 
 | | | | | | | IdentifierExpression: nesting @ <test/brainfuck.HC:21.8-15> 
-| | | | | | Literal: 1 @ <test/brainfuck.HC:21.23> 
+| | | | | | 1 @ <test/brainfuck.HC:21.23> 
 | | | | | MemberAccess: .cap @ <test/brainfuck.HC:21.27-37> 
 | | | | | | IdentifierExpression: nesting @ <test/brainfuck.HC:21.27-33> 
 | | | | CompoundStatement @ <test/brainfuck.HC:21.40-24.5> 
@@ -89,10 +89,10 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | BinaryExpression: <= @ <test/brainfuck.HC:31.8-24> 
 | | | | | MemberAccess: .len @ <test/brainfuck.HC:31.8-19> 
 | | | | | | IdentifierExpression: nesting @ <test/brainfuck.HC:31.8-15> 
-| | | | | Literal: 0 @ <test/brainfuck.HC:31.24> 
+| | | | | 0 @ <test/brainfuck.HC:31.24> 
 | | | | ReturnStatement @ <test/brainfuck.HC:32.9-18> 
 | | | | | UnaryExpression: - @ <test/brainfuck.HC:32.16-17> 
-| | | | | | Literal: 1 @ <test/brainfuck.HC:32.16-17> 
+| | | | | | 1 @ <test/brainfuck.HC:32.16-17> 
 | | | ReturnStatement @ <test/brainfuck.HC:34.5-41> 
 | | | | ArraySubscriptExpression @ <test/brainfuck.HC:34.12-40> 
 | | | | | MemberAccess: .data @ <test/brainfuck.HC:34.12-23> 
@@ -100,7 +100,7 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | | BinaryExpression: - @ <test/brainfuck.HC:34.12-39> 
 | | | | | | MemberAccess: .len @ <test/brainfuck.HC:34.12-35> 
 | | | | | | | IdentifierExpression: nesting @ <test/brainfuck.HC:34.12-31> 
-| | | | | | Literal: 1 @ <test/brainfuck.HC:34.39> 
+| | | | | | 1 @ <test/brainfuck.HC:34.39> 
 | Function @ <test/brainfuck.HC:37.1-44.1> 
 | | PrimitiveSpecifier: i32 @ <test/brainfuck.HC:37.1-4> 
 | | Declarator @ <test/brainfuck.HC:37.6-15> 
@@ -111,10 +111,10 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | BinaryExpression: <= @ <test/brainfuck.HC:38.8-24> 
 | | | | | MemberAccess: .len @ <test/brainfuck.HC:38.8-19> 
 | | | | | | IdentifierExpression: nesting @ <test/brainfuck.HC:38.8-15> 
-| | | | | Literal: 0 @ <test/brainfuck.HC:38.24> 
+| | | | | 0 @ <test/brainfuck.HC:38.24> 
 | | | | ReturnStatement @ <test/brainfuck.HC:38.27-36> 
 | | | | | UnaryExpression: - @ <test/brainfuck.HC:38.34-35> 
-| | | | | | Literal: 1 @ <test/brainfuck.HC:38.34-35> 
+| | | | | | 1 @ <test/brainfuck.HC:38.34-35> 
 | | | VariableDeclaration @ <test/brainfuck.HC:40.5-45> 
 | | | | PrimitiveSpecifier: i32 @ <test/brainfuck.HC:40.5-8> 
 | | | | InitDeclarator @ <test/brainfuck.HC:40.10-44> 
@@ -127,7 +127,7 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | | | | BinaryExpression: - @ <test/brainfuck.HC:40.16-43> 
 | | | | | | | | MemberAccess: .len @ <test/brainfuck.HC:40.16-39> 
 | | | | | | | | | IdentifierExpression: nesting @ <test/brainfuck.HC:40.16-35> 
-| | | | | | | | Literal: 1 @ <test/brainfuck.HC:40.43> 
+| | | | | | | | 1 @ <test/brainfuck.HC:40.43> 
 | | | ExpressionStatement @ <test/brainfuck.HC:41.5-18> 
 | | | | PostfixExpression: -- @ <test/brainfuck.HC:41.5-17> 
 | | | | | MemberAccess: .len @ <test/brainfuck.HC:41.5-15> 
@@ -141,21 +141,21 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | ArrayDeclarator @ <test/brainfuck.HC:47.5-14> 
 | | | | | IdentifierDeclarator: code @ <test/brainfuck.HC:47.5-8> 
 | | | | | ConstExpression:  @ <test/brainfuck.HC:47.5-13> 
-| | | | | | Literal: 1024 @ <test/brainfuck.HC:47.5-13> 
+| | | | | | 1024 @ <test/brainfuck.HC:47.5-13> 
 | VariableDeclaration @ <test/brainfuck.HC:48.1-16> 
 | | PrimitiveSpecifier: i32 @ <test/brainfuck.HC:48.1-4> 
 | | InitDeclarator @ <test/brainfuck.HC:48.6-15> 
 | | | Declarator @ <test/brainfuck.HC:48.6-11> 
 | | | | IdentifierDeclarator: insptr @ <test/brainfuck.HC:48.6-11> 
 | | | Initializer:  @ <test/brainfuck.HC:48.15> 
-| | | | Literal: 0 @ <test/brainfuck.HC:48.15> 
+| | | | 0 @ <test/brainfuck.HC:48.15> 
 | VariableDeclaration @ <test/brainfuck.HC:49.1-21> 
 | | PrimitiveSpecifier: i32 @ <test/brainfuck.HC:49.1-4> 
 | | InitDeclarator @ <test/brainfuck.HC:49.6-20> 
 | | | Declarator @ <test/brainfuck.HC:49.6-13> 
 | | | | IdentifierDeclarator: codesize @ <test/brainfuck.HC:49.6-13> 
 | | | Initializer:  @ <test/brainfuck.HC:49.17-20> 
-| | | | Literal: 1024 @ <test/brainfuck.HC:49.17-20> 
+| | | | 1024 @ <test/brainfuck.HC:49.17-20> 
 | VariableDeclaration @ <test/brainfuck.HC:52.1-16> 
 | | PrimitiveSpecifier: u8 @ <test/brainfuck.HC:52.1-3> 
 | | InitDeclarator @ <test/brainfuck.HC:52.5-15> 
@@ -163,22 +163,22 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | ArrayDeclarator @ <test/brainfuck.HC:52.5-15> 
 | | | | | IdentifierDeclarator: data @ <test/brainfuck.HC:52.5-8> 
 | | | | | ConstExpression:  @ <test/brainfuck.HC:52.5-14> 
-| | | | | | Literal: 30000 @ <test/brainfuck.HC:52.5-14> 
+| | | | | | 30000 @ <test/brainfuck.HC:52.5-14> 
 | VariableDeclaration @ <test/brainfuck.HC:53.1-17> 
 | | PrimitiveSpecifier: i32 @ <test/brainfuck.HC:53.1-4> 
 | | InitDeclarator @ <test/brainfuck.HC:53.6-16> 
 | | | Declarator @ <test/brainfuck.HC:53.6-12> 
 | | | | IdentifierDeclarator: dataptr @ <test/brainfuck.HC:53.6-12> 
 | | | Initializer:  @ <test/brainfuck.HC:53.16> 
-| | | | Literal: 0 @ <test/brainfuck.HC:53.16> 
+| | | | 0 @ <test/brainfuck.HC:53.16> 
 | TypeDeclaration @ <test/brainfuck.HC:55.1-40> 
 | | EnumSpecifier: ErrType @ <test/brainfuck.HC:55.1-39> 
 | | | Enumerator: SYSTEM @ <test/brainfuck.HC:55.14-24> 
 | | | | ConstExpression:  @ <test/brainfuck.HC:55.24> 
-| | | | | Literal: 1 @ <test/brainfuck.HC:55.24> 
+| | | | | 1 @ <test/brainfuck.HC:55.24> 
 | | | Enumerator: BAD_CODE @ <test/brainfuck.HC:55.27-38> 
 | | | | ConstExpression:  @ <test/brainfuck.HC:55.38> 
-| | | | | Literal: 2 @ <test/brainfuck.HC:55.38> 
+| | | | | 2 @ <test/brainfuck.HC:55.38> 
 | Function @ <test/brainfuck.HC:56.1-63.1> 
 | | VoidSpecifier @ <test/brainfuck.HC:56.1-2> 
 | | Declarator @ <test/brainfuck.HC:56.4-41> 
@@ -218,24 +218,24 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | ArrayDeclarator @ <test/brainfuck.HC:65.5-18> 
 | | | | | IdentifierDeclarator: valid_chars @ <test/brainfuck.HC:65.5-15> 
 | | | | | ConstExpression:  @ <test/brainfuck.HC:65.5-17> 
-| | | | | | Literal: 8 @ <test/brainfuck.HC:65.5-17> 
+| | | | | | 8 @ <test/brainfuck.HC:65.5-17> 
 | | | Initializer:  @ <test/brainfuck.HC:65.22-61> 
 | | | | Initializer:  @ <test/brainfuck.HC:65.22-25> 
-| | | | | Literal: 62 @ <test/brainfuck.HC:65.22-25> 
+| | | | | > @ <test/brainfuck.HC:65.22-25> 
 | | | | Initializer:  @ <test/brainfuck.HC:65.28-30> 
-| | | | | Literal: 60 @ <test/brainfuck.HC:65.28-30> 
+| | | | | < @ <test/brainfuck.HC:65.28-30> 
 | | | | Initializer:  @ <test/brainfuck.HC:65.33-35> 
-| | | | | Literal: 43 @ <test/brainfuck.HC:65.33-35> 
+| | | | | + @ <test/brainfuck.HC:65.33-35> 
 | | | | Initializer:  @ <test/brainfuck.HC:65.38-40> 
-| | | | | Literal: 45 @ <test/brainfuck.HC:65.38-40> 
+| | | | | - @ <test/brainfuck.HC:65.38-40> 
 | | | | Initializer:  @ <test/brainfuck.HC:65.43-45> 
-| | | | | Literal: 44 @ <test/brainfuck.HC:65.43-45> 
+| | | | | , @ <test/brainfuck.HC:65.43-45> 
 | | | | Initializer:  @ <test/brainfuck.HC:65.48-50> 
-| | | | | Literal: 46 @ <test/brainfuck.HC:65.48-50> 
+| | | | | . @ <test/brainfuck.HC:65.48-50> 
 | | | | Initializer:  @ <test/brainfuck.HC:65.53-55> 
-| | | | | Literal: 91 @ <test/brainfuck.HC:65.53-55> 
+| | | | | [ @ <test/brainfuck.HC:65.53-55> 
 | | | | Initializer:  @ <test/brainfuck.HC:65.58-60> 
-| | | | | Literal: 93 @ <test/brainfuck.HC:65.58-60> 
+| | | | | ] @ <test/brainfuck.HC:65.58-60> 
 | Function @ <test/brainfuck.HC:66.1-74.1> 
 | | PrimitiveSpecifier: bool @ <test/brainfuck.HC:66.1-4> 
 | | Declarator @ <test/brainfuck.HC:66.6-19> 
@@ -252,11 +252,11 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | | Declarator @ <test/brainfuck.HC:67.10> 
 | | | | | | IdentifierDeclarator: i @ <test/brainfuck.HC:67.10> 
 | | | | | Initializer:  @ <test/brainfuck.HC:67.14> 
-| | | | | | Literal: 0 @ <test/brainfuck.HC:67.14> 
+| | | | | | 0 @ <test/brainfuck.HC:67.14> 
 | | | WhileStatement @ <test/brainfuck.HC:68.5-71.5> 
 | | | | BinaryExpression: < @ <test/brainfuck.HC:68.11-16> 
 | | | | | IdentifierExpression: i @ <test/brainfuck.HC:68.11-12> 
-| | | | | Literal: 8 @ <test/brainfuck.HC:68.16> 
+| | | | | 8 @ <test/brainfuck.HC:68.16> 
 | | | | CompoundStatement @ <test/brainfuck.HC:68.19-71.5> 
 | | | | | IfStatement @ <test/brainfuck.HC:69.9-42> 
 | | | | | | BinaryExpression: == @ <test/brainfuck.HC:69.12-31> 
@@ -265,12 +265,12 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | | | | | IdentifierExpression: valid_chars @ <test/brainfuck.HC:69.18-28> 
 | | | | | | | | IdentifierExpression: i @ <test/brainfuck.HC:69.18-30> 
 | | | | | | ReturnStatement @ <test/brainfuck.HC:69.34-42> 
-| | | | | | | Literal: 1 @ <test/brainfuck.HC:69.41> 
+| | | | | | | 1 @ <test/brainfuck.HC:69.41> 
 | | | | | ExpressionStatement @ <test/brainfuck.HC:70.9-12> 
 | | | | | | PostfixExpression: ++ @ <test/brainfuck.HC:70.9-11> 
 | | | | | | | IdentifierExpression: i @ <test/brainfuck.HC:70.9> 
 | | | ReturnStatement @ <test/brainfuck.HC:73.5-13> 
-| | | | Literal: 0 @ <test/brainfuck.HC:73.12> 
+| | | | 0 @ <test/brainfuck.HC:73.12> 
 | Function @ <test/brainfuck.HC:77.1-95.1> 
 | | VoidSpecifier @ <test/brainfuck.HC:77.1-2> 
 | | Declarator @ <test/brainfuck.HC:77.4-21> 
@@ -288,20 +288,20 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | | Declarator @ <test/brainfuck.HC:78.10> 
 | | | | | | IdentifierDeclarator: n @ <test/brainfuck.HC:78.10> 
 | | | | | Initializer:  @ <test/brainfuck.HC:78.14> 
-| | | | | | Literal: 0 @ <test/brainfuck.HC:78.14> 
+| | | | | | 0 @ <test/brainfuck.HC:78.14> 
 | | | VariableDeclaration @ <test/brainfuck.HC:79.5-15> 
 | | | | PrimitiveSpecifier: i32 @ <test/brainfuck.HC:79.5-8> 
 | | | | InitDeclarator @ <test/brainfuck.HC:79.10-14> 
 | | | | | Declarator @ <test/brainfuck.HC:79.10> 
 | | | | | | IdentifierDeclarator: i @ <test/brainfuck.HC:79.10> 
 | | | | | Initializer:  @ <test/brainfuck.HC:79.14> 
-| | | | | | Literal: 0 @ <test/brainfuck.HC:79.14> 
+| | | | | | 0 @ <test/brainfuck.HC:79.14> 
 | | | WhileStatement @ <test/brainfuck.HC:81.5-91.5> 
 | | | | BinaryExpression: != @ <test/brainfuck.HC:81.11-25> 
 | | | | | ArraySubscriptExpression @ <test/brainfuck.HC:81.11-17> 
 | | | | | | IdentifierExpression: src @ <test/brainfuck.HC:81.11-14> 
 | | | | | | IdentifierExpression: i @ <test/brainfuck.HC:81.11-16> 
-| | | | | Literal: 0 @ <test/brainfuck.HC:81.22-25> 
+| | | | |   @ <test/brainfuck.HC:81.22-25> 
 | | | | CompoundStatement @ <test/brainfuck.HC:81.28-91.5> 
 | | | | | IfStatement @ <test/brainfuck.HC:82.9-84.9> 
 | | | | | | CallExpression @ <test/brainfuck.HC:82.12-27> 
@@ -323,7 +323,7 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | | | BinaryExpression: == @ <test/brainfuck.HC:86.12-29> 
 | | | | | | | BinaryExpression: + @ <test/brainfuck.HC:86.12-17> 
 | | | | | | | | IdentifierExpression: n @ <test/brainfuck.HC:86.12-13> 
-| | | | | | | | Literal: 1 @ <test/brainfuck.HC:86.17> 
+| | | | | | | | 1 @ <test/brainfuck.HC:86.17> 
 | | | | | | | IdentifierExpression: codesize @ <test/brainfuck.HC:86.22-29> 
 | | | | | | CompoundStatement @ <test/brainfuck.HC:86.32-89.9> 
 | | | | | | | ExpressionStatement @ <test/brainfuck.HC:87.13-42> 
@@ -340,7 +340,7 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | | ArraySubscriptExpression @ <test/brainfuck.HC:93.5-11> 
 | | | | | | IdentifierExpression: code @ <test/brainfuck.HC:93.5-8> 
 | | | | | | IdentifierExpression: n @ <test/brainfuck.HC:93.5-10> 
-| | | | | Literal: 0 @ <test/brainfuck.HC:93.15-18> 
+| | | | |   @ <test/brainfuck.HC:93.15-18> 
 | | | PrintStatement: "got code: (" @ <test/brainfuck.HC:94.5-31> 
 | | | | IdentifierExpression: code @ <test/brainfuck.HC:94.20-23> 
 | | | | String: )
@@ -364,14 +364,14 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | | ArraySubscriptExpression @ <test/brainfuck.HC:100.11-23> 
 | | | | | | IdentifierExpression: code @ <test/brainfuck.HC:100.11-15> 
 | | | | | | IdentifierExpression: insptr @ <test/brainfuck.HC:100.11-22> 
-| | | | | Literal: 0 @ <test/brainfuck.HC:100.28-31> 
+| | | | |   @ <test/brainfuck.HC:100.28-31> 
 | | | | CompoundStatement @ <test/brainfuck.HC:100.34-117.5> 
 | | | | | IfStatement @ <test/brainfuck.HC:101.9-109.9> 
 | | | | | | BinaryExpression: == @ <test/brainfuck.HC:101.12-31> 
 | | | | | | | ArraySubscriptExpression @ <test/brainfuck.HC:101.12-24> 
 | | | | | | | | IdentifierExpression: code @ <test/brainfuck.HC:101.12-16> 
 | | | | | | | | IdentifierExpression: insptr @ <test/brainfuck.HC:101.12-23> 
-| | | | | | | Literal: 91 @ <test/brainfuck.HC:101.29-31> 
+| | | | | | | [ @ <test/brainfuck.HC:101.29-31> 
 | | | | | | CompoundStatement @ <test/brainfuck.HC:101.34-103.9> 
 | | | | | | | ExpressionStatement @ <test/brainfuck.HC:102.13-22> 
 | | | | | | | | PostfixExpression: ++ @ <test/brainfuck.HC:102.13-21> 
@@ -381,7 +381,7 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | | | | | ArraySubscriptExpression @ <test/brainfuck.HC:103.19-31> 
 | | | | | | | | | IdentifierExpression: code @ <test/brainfuck.HC:103.19-23> 
 | | | | | | | | | IdentifierExpression: insptr @ <test/brainfuck.HC:103.19-30> 
-| | | | | | | | Literal: 93 @ <test/brainfuck.HC:103.36-38> 
+| | | | | | | | ] @ <test/brainfuck.HC:103.36-38> 
 | | | | | | | CompoundStatement @ <test/brainfuck.HC:103.41-109.9> 
 | | | | | | | | ExpressionStatement @ <test/brainfuck.HC:104.13-22> 
 | | | | | | | | | PostfixExpression: -- @ <test/brainfuck.HC:104.13-21> 
@@ -429,12 +429,12 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | | | ArraySubscriptExpression @ <test/brainfuck.HC:123.17-28> 
 | | | | | | | IdentifierExpression: code @ <test/brainfuck.HC:123.17-20> 
 | | | | | | | IdentifierExpression: insptr @ <test/brainfuck.HC:123.17-27> 
-| | | | | Literal: 0 @ <test/brainfuck.HC:123.34-37> 
+| | | | |   @ <test/brainfuck.HC:123.34-37> 
 | | | | CompoundStatement @ <test/brainfuck.HC:123.40-200.5> 
 | | | | | IfStatement @ <test/brainfuck.HC:124.9-127.9> 
 | | | | | | BinaryExpression: < @ <test/brainfuck.HC:124.12-22> 
 | | | | | | | IdentifierExpression: insptr @ <test/brainfuck.HC:124.12-18> 
-| | | | | | | Literal: 0 @ <test/brainfuck.HC:124.22> 
+| | | | | | | 0 @ <test/brainfuck.HC:124.22> 
 | | | | | | CompoundStatement @ <test/brainfuck.HC:124.25-127.9> 
 | | | | | | | ExpressionStatement @ <test/brainfuck.HC:125.13-62> 
 | | | | | | | | CallExpression @ <test/brainfuck.HC:125.13-61> 
@@ -445,7 +445,7 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | | IfStatement @ <test/brainfuck.HC:129.9-132.9> 
 | | | | | | BinaryExpression: < @ <test/brainfuck.HC:129.12-23> 
 | | | | | | | IdentifierExpression: dataptr @ <test/brainfuck.HC:129.12-19> 
-| | | | | | | Literal: 0 @ <test/brainfuck.HC:129.23> 
+| | | | | | | 0 @ <test/brainfuck.HC:129.23> 
 | | | | | | CompoundStatement @ <test/brainfuck.HC:129.26-132.9> 
 | | | | | | | ExpressionStatement @ <test/brainfuck.HC:130.13-55> 
 | | | | | | | | CallExpression @ <test/brainfuck.HC:130.13-54> 
@@ -462,21 +462,21 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | | | CompoundStatement @ <test/brainfuck.HC:134.20-192.9> 
 | | | | | | | CaseStatement:  @ <test/brainfuck.HC:136.13-137.26> 
 | | | | | | | | ConstExpression:  @ <test/brainfuck.HC:136.18-20> 
-| | | | | | | | | Literal: 62 @ <test/brainfuck.HC:136.18-20> 
+| | | | | | | | | > @ <test/brainfuck.HC:136.18-20> 
 | | | | | | | | ExpressionStatement @ <test/brainfuck.HC:137.17-26> 
 | | | | | | | | | PostfixExpression: ++ @ <test/brainfuck.HC:137.17-25> 
 | | | | | | | | | | IdentifierExpression: dataptr @ <test/brainfuck.HC:137.17-23> 
 | | | | | | | BreakStatement @ <test/brainfuck.HC:138.17-22> 
 | | | | | | | CaseStatement:  @ <test/brainfuck.HC:141.13-142.26> 
 | | | | | | | | ConstExpression:  @ <test/brainfuck.HC:141.18-20> 
-| | | | | | | | | Literal: 60 @ <test/brainfuck.HC:141.18-20> 
+| | | | | | | | | < @ <test/brainfuck.HC:141.18-20> 
 | | | | | | | | ExpressionStatement @ <test/brainfuck.HC:142.17-26> 
 | | | | | | | | | PostfixExpression: -- @ <test/brainfuck.HC:142.17-25> 
 | | | | | | | | | | IdentifierExpression: dataptr @ <test/brainfuck.HC:142.17-23> 
 | | | | | | | BreakStatement @ <test/brainfuck.HC:143.17-22> 
 | | | | | | | CaseStatement:  @ <test/brainfuck.HC:146.13-147.32> 
 | | | | | | | | ConstExpression:  @ <test/brainfuck.HC:146.18-20> 
-| | | | | | | | | Literal: 43 @ <test/brainfuck.HC:146.18-20> 
+| | | | | | | | | + @ <test/brainfuck.HC:146.18-20> 
 | | | | | | | | ExpressionStatement @ <test/brainfuck.HC:147.17-32> 
 | | | | | | | | | PostfixExpression: ++ @ <test/brainfuck.HC:147.17-31> 
 | | | | | | | | | | ArraySubscriptExpression @ <test/brainfuck.HC:147.17-29> 
@@ -485,7 +485,7 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | | | | BreakStatement @ <test/brainfuck.HC:148.17-22> 
 | | | | | | | CaseStatement:  @ <test/brainfuck.HC:151.13-152.32> 
 | | | | | | | | ConstExpression:  @ <test/brainfuck.HC:151.18-20> 
-| | | | | | | | | Literal: 45 @ <test/brainfuck.HC:151.18-20> 
+| | | | | | | | | - @ <test/brainfuck.HC:151.18-20> 
 | | | | | | | | ExpressionStatement @ <test/brainfuck.HC:152.17-32> 
 | | | | | | | | | PostfixExpression: -- @ <test/brainfuck.HC:152.17-31> 
 | | | | | | | | | | ArraySubscriptExpression @ <test/brainfuck.HC:152.17-29> 
@@ -494,17 +494,17 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | | | | BreakStatement @ <test/brainfuck.HC:153.17-22> 
 | | | | | | | CaseStatement:  @ <test/brainfuck.HC:155.13-156.34> 
 | | | | | | | | ConstExpression:  @ <test/brainfuck.HC:155.18-20> 
-| | | | | | | | | Literal: 44 @ <test/brainfuck.HC:155.18-20> 
+| | | | | | | | | , @ <test/brainfuck.HC:155.18-20> 
 | | | | | | | | ExpressionStatement @ <test/brainfuck.HC:156.17-34> 
 | | | | | | | | | AssignmentExpression: = @ <test/brainfuck.HC:156.17-33> 
 | | | | | | | | | | ArraySubscriptExpression @ <test/brainfuck.HC:156.17-29> 
 | | | | | | | | | | | IdentifierExpression: data @ <test/brainfuck.HC:156.17-20> 
 | | | | | | | | | | | IdentifierExpression: dataptr @ <test/brainfuck.HC:156.17-28> 
-| | | | | | | | | | Literal: 0 @ <test/brainfuck.HC:156.33> 
+| | | | | | | | | | 0 @ <test/brainfuck.HC:156.33> 
 | | | | | | | BreakStatement @ <test/brainfuck.HC:157.17-22> 
 | | | | | | | CaseStatement:  @ <test/brainfuck.HC:159.13-160.30> 
 | | | | | | | | ConstExpression:  @ <test/brainfuck.HC:159.18-20> 
-| | | | | | | | | Literal: 46 @ <test/brainfuck.HC:159.18-20> 
+| | | | | | | | | . @ <test/brainfuck.HC:159.18-20> 
 | | | | | | | | ExpressionStatement @ <test/brainfuck.HC:160.17-30> 
 | | | | | | | | | ArraySubscriptExpression @ <test/brainfuck.HC:160.17-29> 
 | | | | | | | | | | IdentifierExpression: data @ <test/brainfuck.HC:160.17-20> 
@@ -512,13 +512,13 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | | | | BreakStatement @ <test/brainfuck.HC:161.17-22> 
 | | | | | | | CaseStatement:  @ <test/brainfuck.HC:165.13-172.17> 
 | | | | | | | | ConstExpression:  @ <test/brainfuck.HC:165.18-20> 
-| | | | | | | | | Literal: 91 @ <test/brainfuck.HC:165.18-20> 
+| | | | | | | | | [ @ <test/brainfuck.HC:165.18-20> 
 | | | | | | | | IfStatement @ <test/brainfuck.HC:166.17-172.17> 
 | | | | | | | | | BinaryExpression: == @ <test/brainfuck.HC:166.20-38> 
 | | | | | | | | | | ArraySubscriptExpression @ <test/brainfuck.HC:166.20-33> 
 | | | | | | | | | | | IdentifierExpression: data @ <test/brainfuck.HC:166.20-24> 
 | | | | | | | | | | | IdentifierExpression: dataptr @ <test/brainfuck.HC:166.20-32> 
-| | | | | | | | | | Literal: 0 @ <test/brainfuck.HC:166.38> 
+| | | | | | | | | | 0 @ <test/brainfuck.HC:166.38> 
 | | | | | | | | | CompoundStatement @ <test/brainfuck.HC:166.41-169.17> 
 | | | | | | | | | | ExpressionStatement @ <test/brainfuck.HC:168.21-34> 
 | | | | | | | | | | | CallExpression @ <test/brainfuck.HC:168.21-33> 
@@ -531,7 +531,7 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | | | | BreakStatement @ <test/brainfuck.HC:173.17-22> 
 | | | | | | | CaseStatement:  @ <test/brainfuck.HC:177.13-191.13> 
 | | | | | | | | ConstExpression:  @ <test/brainfuck.HC:177.18-20> 
-| | | | | | | | | Literal: 93 @ <test/brainfuck.HC:177.18-20> 
+| | | | | | | | | ] @ <test/brainfuck.HC:177.18-20> 
 | | | | | | | | CompoundStatement @ <test/brainfuck.HC:177.23-191.13> 
 | | | | | | | | | VariableDeclaration @ <test/brainfuck.HC:178.17-43> 
 | | | | | | | | | | PrimitiveSpecifier: i32 @ <test/brainfuck.HC:178.17-20> 
@@ -544,7 +544,7 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | | | | | | IfStatement @ <test/brainfuck.HC:180.17-183.17> 
 | | | | | | | | | | BinaryExpression: < @ <test/brainfuck.HC:180.20-31> 
 | | | | | | | | | | | IdentifierExpression: opening @ <test/brainfuck.HC:180.20-27> 
-| | | | | | | | | | | Literal: 0 @ <test/brainfuck.HC:180.31> 
+| | | | | | | | | | | 0 @ <test/brainfuck.HC:180.31> 
 | | | | | | | | | | CompoundStatement @ <test/brainfuck.HC:180.34-183.17> 
 | | | | | | | | | | | ExpressionStatement @ <test/brainfuck.HC:181.21-64> 
 | | | | | | | | | | | | CallExpression @ <test/brainfuck.HC:181.21-63> 
@@ -557,7 +557,7 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | | | | | | | | ArraySubscriptExpression @ <test/brainfuck.HC:185.20-33> 
 | | | | | | | | | | | | IdentifierExpression: data @ <test/brainfuck.HC:185.20-24> 
 | | | | | | | | | | | | IdentifierExpression: dataptr @ <test/brainfuck.HC:185.20-32> 
-| | | | | | | | | | | Literal: 0 @ <test/brainfuck.HC:185.38> 
+| | | | | | | | | | | 0 @ <test/brainfuck.HC:185.38> 
 | | | | | | | | | | CompoundStatement @ <test/brainfuck.HC:185.41-187.17> 
 | | | | | | | | | | | ExpressionStatement @ <test/brainfuck.HC:186.21-37> 
 | | | | | | | | | | | | AssignmentExpression: = @ <test/brainfuck.HC:186.21-36> 
@@ -575,7 +575,7 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | | | BinaryExpression: == @ <test/brainfuck.HC:197.12-34> 
 | | | | | | | BinaryExpression: + @ <test/brainfuck.HC:197.12-22> 
 | | | | | | | | IdentifierExpression: insptr @ <test/brainfuck.HC:197.12-18> 
-| | | | | | | | Literal: 1 @ <test/brainfuck.HC:197.22> 
+| | | | | | | | 1 @ <test/brainfuck.HC:197.22> 
 | | | | | | | IdentifierExpression: codesize @ <test/brainfuck.HC:197.27-34> 
 | | | | | | CompoundStatement @ <test/brainfuck.HC:197.37-199.9> 
 | | | | | | | ReturnStatement @ <test/brainfuck.HC:198.13-19> 
@@ -591,18 +591,18 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | | Declarator @ <test/brainfuck.HC:204.10> 
 | | | | | | IdentifierDeclarator: i @ <test/brainfuck.HC:204.10> 
 | | | | | Initializer:  @ <test/brainfuck.HC:204.14> 
-| | | | | | Literal: 0 @ <test/brainfuck.HC:204.14> 
+| | | | | | 0 @ <test/brainfuck.HC:204.14> 
 | | | WhileStatement @ <test/brainfuck.HC:206.5-209.5> 
 | | | | BinaryExpression: < @ <test/brainfuck.HC:206.11-20> 
 | | | | | IdentifierExpression: i @ <test/brainfuck.HC:206.11-12> 
-| | | | | Literal: 30000 @ <test/brainfuck.HC:206.16-20> 
+| | | | | 30000 @ <test/brainfuck.HC:206.16-20> 
 | | | | CompoundStatement @ <test/brainfuck.HC:206.23-209.5> 
 | | | | | ExpressionStatement @ <test/brainfuck.HC:207.9-20> 
 | | | | | | AssignmentExpression: = @ <test/brainfuck.HC:207.9-19> 
 | | | | | | | ArraySubscriptExpression @ <test/brainfuck.HC:207.9-15> 
 | | | | | | | | IdentifierExpression: data @ <test/brainfuck.HC:207.9-12> 
 | | | | | | | | IdentifierExpression: i @ <test/brainfuck.HC:207.9-14> 
-| | | | | | | Literal: 0 @ <test/brainfuck.HC:207.19> 
+| | | | | | | 0 @ <test/brainfuck.HC:207.19> 
 | | | | | ExpressionStatement @ <test/brainfuck.HC:208.9-12> 
 | | | | | | PostfixExpression: ++ @ <test/brainfuck.HC:208.9-11> 
 | | | | | | | IdentifierExpression: i @ <test/brainfuck.HC:208.9> 
@@ -610,7 +610,7 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | AssignmentExpression: = @ <test/brainfuck.HC:211.5-19> 
 | | | | | MemberAccess: .len @ <test/brainfuck.HC:211.5-15> 
 | | | | | | IdentifierExpression: nesting @ <test/brainfuck.HC:211.5-11> 
-| | | | | Literal: 0 @ <test/brainfuck.HC:211.19> 
+| | | | | 0 @ <test/brainfuck.HC:211.19> 
 | Function @ <test/brainfuck.HC:214.1-216.1> 
 | | VoidSpecifier @ <test/brainfuck.HC:214.1-2> 
 | | Declarator @ <test/brainfuck.HC:214.4-27> 
@@ -650,7 +650,7 @@ Program @ <test/brainfuck.HC:1.1>
 | | | | CallExpression @ <test/brainfuck.HC:225.5-13> 
 | | | | | IdentifierExpression: Execute @ <test/brainfuck.HC:225.5-11> 
 | | | ReturnStatement @ <test/brainfuck.HC:227.5-13> 
-| | | | Literal: 0 @ <test/brainfuck.HC:227.12> 
+| | | | 0 @ <test/brainfuck.HC:227.12> 
 | ExpressionStatement @ <test/brainfuck.HC:230.1-7> 
 | | CallExpression @ <test/brainfuck.HC:230.1-6> 
 | | | IdentifierExpression: Main @ <test/brainfuck.HC:230.1-4> 
@@ -686,7 +686,8 @@ SymbolTable: inserting varsymbol with name "Execute"
         parsing declaration specifier list for node at test/brainfuck.HC:9.1-13.2
         Node {
             visiting ClassSpecifier node: test/brainfuck.HC:9.1-13.1
-TypeContext: class type 'Stack' on scope 0x55dee384b8f0
+TypeContext: class type 'Stack' on scope 0x5624ba8b5990
+TypeContext: inserting type class_Stack_0
             class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol Stack in current scope
 SymbolTable: inserting typesymbol with name "Stack"
@@ -698,7 +699,7 @@ SymbolTable: inserting typesymbol with name "Stack"
 TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node test/brainfuck.HC:10.5-13
-                parsing ClassDeclaration for ClassType 0x55dee3864a70
+                parsing ClassDeclaration for ClassType 0x5624ba8cea20
                 Node {
                     visiting ClassDeclarator node: test/brainfuck.HC:10.10-12
                     Node {
@@ -708,7 +709,7 @@ TypeContext: getting primitive type
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name cap type 0x55dee384b7f0
+ClassType: adding member with name cap type 0x5624ba8b5850
             }
             Node {
                 visiting ClassDeclaration node: test/brainfuck.HC:11.5-13
@@ -718,7 +719,7 @@ ClassType: adding member with name cap type 0x55dee384b7f0
 TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node test/brainfuck.HC:11.5-13
-                parsing ClassDeclaration for ClassType 0x55dee3864a70
+                parsing ClassDeclaration for ClassType 0x5624ba8cea20
                 Node {
                     visiting ClassDeclarator node: test/brainfuck.HC:11.10-12
                     Node {
@@ -728,7 +729,7 @@ TypeContext: getting primitive type
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name len type 0x55dee384b7f0
+ClassType: adding member with name len type 0x5624ba8b5850
             }
             Node {
                 visiting ClassDeclaration node: test/brainfuck.HC:12.5-18
@@ -738,7 +739,7 @@ ClassType: adding member with name len type 0x55dee384b7f0
 TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node test/brainfuck.HC:12.5-18
-                parsing ClassDeclaration for ClassType 0x55dee3864a70
+                parsing ClassDeclaration for ClassType 0x5624ba8cea20
                 Node {
                     visiting ClassDeclarator node: test/brainfuck.HC:12.10-17
                     Node {
@@ -758,8 +759,8 @@ TypeContext: getting primitive type
                     }
                 }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55dee384b7f0, size 32
-ClassType: adding member with name data type 0x55dee3856630
+TypeContext: array type with base 0x5624ba8b5850, size 32
+ClassType: adding member with name data type 0x5624ba8c0690
             }
         }
         finished parsing specifiers for node test/brainfuck.HC:9.1-13.2
@@ -840,7 +841,7 @@ SymbolTable: pushing scope 1
 SymbolTable: entering scope 1
             visiting CompoundStatement node: test/brainfuck.HC:17.25-28.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 1 with symbol 0x55dee380c3d0 name "StackPush"
+SymbolTable: associating current scope 1 with symbol 0x5624ba8763d0 name "StackPush"
 SymbolTable: inserting varsymbol with name "item"
             Node {
                 visiting IfStatement node: test/brainfuck.HC:19.5-25
@@ -960,7 +961,7 @@ SymbolTable: pushing scope 3
 SymbolTable: entering scope 3
             visiting CompoundStatement node: test/brainfuck.HC:30.18-35.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 3 with symbol 0x55dee380c610 name "StackPeek"
+SymbolTable: associating current scope 3 with symbol 0x5624ba876610 name "StackPeek"
             Node {
                 visiting IfStatement node: test/brainfuck.HC:31.5-32.18
                 Node {
@@ -1040,7 +1041,7 @@ SymbolTable: pushing scope 4
 SymbolTable: entering scope 4
             visiting CompoundStatement node: test/brainfuck.HC:37.17-44.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 4 with symbol 0x55dee380b920 name "StackPop"
+SymbolTable: associating current scope 4 with symbol 0x5624ba875920 name "StackPop"
             Node {
                 visiting IfStatement node: test/brainfuck.HC:38.5-36
                 Node {
@@ -1161,7 +1162,7 @@ TypeContext: getting primitive type
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55dee384b6d0, size 1024
+TypeContext: array type with base 0x5624ba8b56d0, size 1024
         }
 SymbolTable: inserting varsymbol with name "code"
     }
@@ -1243,7 +1244,7 @@ TypeContext: getting primitive type
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55dee384b6d0, size 30000
+TypeContext: array type with base 0x5624ba8b56d0, size 30000
         }
 SymbolTable: inserting varsymbol with name "data"
     }
@@ -1278,7 +1279,8 @@ SymbolTable: inserting varsymbol with name "dataptr"
         parsing declaration specifier list for node at test/brainfuck.HC:55.1-40
         Node {
             visiting EnumSpecifier node: test/brainfuck.HC:55.1-39
-TypeContext: enum type 'ErrType' on scope 0x55dee384b8f0
+TypeContext: enum type 'ErrType' on scope 0x5624ba8b5990
+TypeContext: inserting type enum_ErrType_0
             enum has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol ErrType in current scope
 SymbolTable: inserting typesymbol with name "ErrType"
@@ -1335,14 +1337,14 @@ TypeContext: getting primitive type
                         }
                     }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x55dee384b6d0
+TypeContext: pointer with base 0x5624ba8b56d0
                 }
                 Node {
                     visiting ParameterDeclarator node: test/brainfuck.HC:56.21-40
                     parsing declaration specifier list for node at test/brainfuck.HC:56.21-40
                     Node {
                         visiting EnumSpecifier node: test/brainfuck.HC:56.21-32
-TypeContext: enum type 'ErrType' on scope 0x55dee384b8f0
+TypeContext: enum type 'ErrType' on scope 0x5624ba8b5990
 TypeContext: existing enum found
                         enum has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol ErrType in current scope
@@ -1365,7 +1367,7 @@ SymbolTable: pushing scope 5
 SymbolTable: entering scope 5
             visiting CompoundStatement node: test/brainfuck.HC:56.43-63.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 5 with symbol 0x55dee380bda0 name "Die"
+SymbolTable: associating current scope 5 with symbol 0x5624ba875da0 name "Die"
 SymbolTable: inserting varsymbol with name "errmsg"
 SymbolTable: inserting varsymbol with name "errcode"
             Node {
@@ -1455,7 +1457,7 @@ TypeContext: getting primitive type
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55dee384b6d0, size 8
+TypeContext: array type with base 0x5624ba8b56d0, size 8
             Node {
                 visiting Initializer node: test/brainfuck.HC:65.22-61
                 visiting compound initializer
@@ -1559,7 +1561,7 @@ SymbolTable: pushing scope 8
 SymbolTable: entering scope 8
             visiting CompoundStatement node: test/brainfuck.HC:66.21-74.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 8 with symbol 0x55dee380bfe0 name "IsValid"
+SymbolTable: associating current scope 8 with symbol 0x5624ba875fe0 name "IsValid"
 SymbolTable: inserting varsymbol with name "c"
             Node {
                 visiting VariableDeclaration node: test/brainfuck.HC:67.5-15
@@ -1685,7 +1687,7 @@ TypeContext: getting primitive type
                         }
                     }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x55dee384b6d0
+TypeContext: pointer with base 0x5624ba8b56d0
                 }
             }
         }
@@ -1697,7 +1699,7 @@ SymbolTable: pushing scope 11
 SymbolTable: entering scope 11
             visiting CompoundStatement node: test/brainfuck.HC:77.23-95.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 11 with symbol 0x55dee380d1b0 name "ReadCode"
+SymbolTable: associating current scope 11 with symbol 0x5624ba8771b0 name "ReadCode"
 SymbolTable: inserting varsymbol with name "src"
             Node {
                 visiting VariableDeclaration node: test/brainfuck.HC:78.5-15
@@ -1953,7 +1955,7 @@ SymbolTable: pushing scope 16
 SymbolTable: entering scope 16
             visiting CompoundStatement node: test/brainfuck.HC:98.18-118.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 16 with symbol 0x55dee380d2d0 name "JumpToAfter"
+SymbolTable: associating current scope 16 with symbol 0x5624ba8772d0 name "JumpToAfter"
             Node {
                 visiting VariableDeclaration node: test/brainfuck.HC:99.5-31
                 parsing declaration specifier list for node at test/brainfuck.HC:99.5-31
@@ -2205,7 +2207,7 @@ SymbolTable: pushing scope 23
 SymbolTable: entering scope 23
             visiting CompoundStatement node: test/brainfuck.HC:120.14-201.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 23 with symbol 0x55dee380d3f0 name "Execute"
+SymbolTable: associating current scope 23 with symbol 0x5624ba8773f0 name "Execute"
             Node {
                 visiting VariableDeclaration node: test/brainfuck.HC:122.5-10
                 parsing declaration specifier list for node at test/brainfuck.HC:122.5-10
@@ -2806,7 +2808,7 @@ SymbolTable: pushing scope 36
 SymbolTable: entering scope 36
             visiting CompoundStatement node: test/brainfuck.HC:203.17-212.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 36 with symbol 0x55dee380bb60 name "Initialize"
+SymbolTable: associating current scope 36 with symbol 0x5624ba875b60 name "Initialize"
             Node {
                 visiting VariableDeclaration node: test/brainfuck.HC:204.5-15
                 parsing declaration specifier list for node at test/brainfuck.HC:204.5-15
@@ -2934,7 +2936,7 @@ TypeContext: getting primitive type
                         }
                     }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x55dee384b6d0
+TypeContext: pointer with base 0x5624ba8b56d0
                 }
             }
         }
@@ -2947,7 +2949,7 @@ SymbolTable: pushing scope 39
 SymbolTable: entering scope 39
             visiting CompoundStatement node: test/brainfuck.HC:214.29-216.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 39 with symbol 0x55dee3869f80 name "PrintUsage"
+SymbolTable: associating current scope 39 with symbol 0x5624ba8d4070 name "PrintUsage"
 SymbolTable: inserting varsymbol with name "argname"
             Node {
                 visiting PrintStatement node: test/brainfuck.HC:215.5-45
@@ -2987,7 +2989,7 @@ SymbolTable: pushing scope 40
 SymbolTable: entering scope 40
             visiting CompoundStatement node: test/brainfuck.HC:218.13-228.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 40 with symbol 0x55dee386b230 name "Main"
+SymbolTable: associating current scope 40 with symbol 0x5624ba8d5300 name "Main"
             Node {
                 visiting ExpressionStatement node: test/brainfuck.HC:220.5-17
                 Node {
@@ -3018,7 +3020,7 @@ TypeContext: getting primitive type
                         }
                     }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55dee384b6d0, no size
+TypeContext: array type with base 0x5624ba8b56d0, no size
                     Node {
                         visiting Initializer node: test/brainfuck.HC:222.21-186
                         visiting single initializer
@@ -3084,12 +3086,12 @@ Base Types:
   class_Stack_0 : class { I32i cap; I32i len; I32i[32] data; }
 
 Function Types:
-  function_6111974556427953 : Void (U8i *)
-  function_6111974556419625 : Bool (U8i)
-  function_389211309335772228 : Void (U8i *, enum: U64i  { SYSTEM = 1, BAD_CODE = 2 })
-  function_94415788226544 : I32i ()
-  function_6111974556414449 : Void (I32i)
-  function_94415788226208 : Void ()
+  function_6090167268986641 : Void (U8i *)
+  function_6090167268979677 : Bool (U8i)
+  function_395155401501557132 : Void (U8i *, enum: U64i  { SYSTEM = 1, BAD_CODE = 2 })
+  function_94715748505680 : I32i ()
+  function_6090167268940049 : Void (I32i)
+  function_94715748505248 : Void ()
 
 Pointer Types:
   :U8i *
@@ -3106,34 +3108,34 @@ Array Types:
 
 Scope 0
 Physical Symbols:
-  PrintUsage -> 0x55dee3869f80 : FuncSymbol: PrintUsage :: Void (U8i *)
-  JumpToAfter -> 0x55dee380d2d0 : FuncSymbol: JumpToAfter :: Void ()
-  valid_chars -> 0x55dee3851750 : VarSymbol: valid_chars :: U8i[8]
-  Initialize -> 0x55dee380bb60 : FuncSymbol: Initialize :: Void ()
-  Execute -> 0x55dee380d3f0 : FuncSymbol: Execute :: Void ()
-  Main -> 0x55dee386b230 : FuncSymbol: Main :: I32i ()
-  StackPush -> 0x55dee380c3d0 : FuncSymbol: StackPush :: Void (I32i)
-  StackPop -> 0x55dee380b920 : FuncSymbol: StackPop :: I32i ()
-  SYSTEM -> 0x55dee384fd90 : VarSymbol: SYSTEM :: enum: U64i  { SYSTEM = 1, BAD_CODE = 2 }
-  StackPeek -> 0x55dee380c610 : FuncSymbol: StackPeek :: I32i ()
-  nesting -> 0x55dee3837670 : VarSymbol: nesting :: class { I32i cap; I32i len; I32i[32] data; }
-  code -> 0x55dee384f270 : VarSymbol: code :: U8i[1024]
-  data -> 0x55dee384f830 : VarSymbol: data :: U8i[30000]
-  insptr -> 0x55dee384f460 : VarSymbol: insptr :: I32i
-  ReadCode -> 0x55dee380d1b0 : FuncSymbol: ReadCode :: Void (U8i *)
-  IsValid -> 0x55dee380bfe0 : FuncSymbol: IsValid :: Bool (U8i)
-  Die -> 0x55dee380bda0 : FuncSymbol: Die :: Void (U8i *, enum: U64i  { SYSTEM = 1, BAD_CODE = 2 })
-  codesize -> 0x55dee384f670 : VarSymbol: codesize :: I32i
-  dataptr -> 0x55dee384fa40 : VarSymbol: dataptr :: I32i
-  BAD_CODE -> 0x55dee384fef0 : VarSymbol: BAD_CODE :: enum: U64i  { SYSTEM = 1, BAD_CODE = 2 }
+  PrintUsage -> 0x5624ba8d4070 : FuncSymbol: PrintUsage :: Void (U8i *)
+  JumpToAfter -> 0x5624ba8772d0 : FuncSymbol: JumpToAfter :: Void ()
+  valid_chars -> 0x5624ba8bb8f0 : VarSymbol: valid_chars :: U8i[8]
+  Initialize -> 0x5624ba875b60 : FuncSymbol: Initialize :: Void ()
+  Execute -> 0x5624ba8773f0 : FuncSymbol: Execute :: Void ()
+  Main -> 0x5624ba8d5300 : FuncSymbol: Main :: I32i ()
+  StackPush -> 0x5624ba8763d0 : FuncSymbol: StackPush :: Void (I32i)
+  StackPop -> 0x5624ba875920 : FuncSymbol: StackPop :: I32i ()
+  SYSTEM -> 0x5624ba8b9f30 : VarSymbol: SYSTEM :: enum: U64i  { SYSTEM = 1, BAD_CODE = 2 }
+  StackPeek -> 0x5624ba876610 : FuncSymbol: StackPeek :: I32i ()
+  nesting -> 0x5624ba8b6a20 : VarSymbol: nesting :: class { I32i cap; I32i len; I32i[32] data; }
+  code -> 0x5624ba8b9400 : VarSymbol: code :: U8i[1024]
+  data -> 0x5624ba8b99c0 : VarSymbol: data :: U8i[30000]
+  insptr -> 0x5624ba8b95f0 : VarSymbol: insptr :: I32i
+  ReadCode -> 0x5624ba8771b0 : FuncSymbol: ReadCode :: Void (U8i *)
+  IsValid -> 0x5624ba875fe0 : FuncSymbol: IsValid :: Bool (U8i)
+  Die -> 0x5624ba875da0 : FuncSymbol: Die :: Void (U8i *, enum: U64i  { SYSTEM = 1, BAD_CODE = 2 })
+  codesize -> 0x5624ba8b9800 : VarSymbol: codesize :: I32i
+  dataptr -> 0x5624ba8b9bd0 : VarSymbol: dataptr :: I32i
+  BAD_CODE -> 0x5624ba8ba090 : VarSymbol: BAD_CODE :: enum: U64i  { SYSTEM = 1, BAD_CODE = 2 }
 
 Type Symbols:
-  ErrType -> 0x55dee384fc50 : TypeSymbol: ErrType :: enum: U64i  { SYSTEM = 1, BAD_CODE = 2 }
-  Stack -> 0x55dee384c440 : TypeSymbol: Stack :: class { I32i cap; I32i len; I32i[32] data; }
+  ErrType -> 0x5624ba8b9df0 : TypeSymbol: ErrType :: enum: U64i  { SYSTEM = 1, BAD_CODE = 2 }
+  Stack -> 0x5624ba8b64a0 : TypeSymbol: Stack :: class { I32i cap; I32i len; I32i[32] data; }
 -----------------------------------------------------------
   Scope 1: FuncSymbol: StackPush :: Void (I32i)
   Physical Symbols:
-    item -> 0x55dee384cde0 : VarSymbol: item :: I32i
+    item -> 0x5624ba8b6ef0 : VarSymbol: item :: I32i
 -----------------------------------------------------------
     Scope 2
 -----------------------------------------------------------
@@ -3141,12 +3143,12 @@ Type Symbols:
 -----------------------------------------------------------
   Scope 4: FuncSymbol: StackPop :: I32i ()
   Physical Symbols:
-    ret -> 0x55dee384ed90 : VarSymbol: ret :: I32i
+    ret -> 0x5624ba8b8f20 : VarSymbol: ret :: I32i
 -----------------------------------------------------------
   Scope 5: FuncSymbol: Die :: Void (U8i *, enum: U64i  { SYSTEM = 1, BAD_CODE = 2 })
   Physical Symbols:
-    errcode -> 0x55dee3850410 : VarSymbol: errcode :: enum: U64i  { SYSTEM = 1, BAD_CODE = 2 }
-    errmsg -> 0x55dee3850340 : VarSymbol: errmsg :: U8i *
+    errcode -> 0x5624ba8ba5b0 : VarSymbol: errcode :: enum: U64i  { SYSTEM = 1, BAD_CODE = 2 }
+    errmsg -> 0x5624ba8ba4e0 : VarSymbol: errmsg :: U8i *
 -----------------------------------------------------------
     Scope 6
 -----------------------------------------------------------
@@ -3154,8 +3156,8 @@ Type Symbols:
 -----------------------------------------------------------
   Scope 8: FuncSymbol: IsValid :: Bool (U8i)
   Physical Symbols:
-    i -> 0x55dee3851f10 : VarSymbol: i :: I32i
-    c -> 0x55dee3851bf0 : VarSymbol: c :: U8i
+    i -> 0x5624ba8bc0b0 : VarSymbol: i :: I32i
+    c -> 0x5624ba8bbdb0 : VarSymbol: c :: U8i
 -----------------------------------------------------------
     Scope 9
 -----------------------------------------------------------
@@ -3163,9 +3165,9 @@ Type Symbols:
 -----------------------------------------------------------
   Scope 11: FuncSymbol: ReadCode :: Void (U8i *)
   Physical Symbols:
-    i -> 0x55dee38530c0 : VarSymbol: i :: I32i
-    n -> 0x55dee3852e70 : VarSymbol: n :: I32i
-    src -> 0x55dee3852af0 : VarSymbol: src :: U8i *
+    i -> 0x5624ba8bd260 : VarSymbol: i :: I32i
+    n -> 0x5624ba8bd010 : VarSymbol: n :: I32i
+    src -> 0x5624ba8bcc90 : VarSymbol: src :: U8i *
 -----------------------------------------------------------
     Scope 12
 -----------------------------------------------------------
@@ -3177,7 +3179,7 @@ Type Symbols:
 -----------------------------------------------------------
   Scope 16: FuncSymbol: JumpToAfter :: Void ()
   Physical Symbols:
-    current -> 0x55dee3854ae0 : VarSymbol: current :: I32i
+    current -> 0x5624ba8bec80 : VarSymbol: current :: I32i
 -----------------------------------------------------------
     Scope 17
 -----------------------------------------------------------
@@ -3193,7 +3195,7 @@ Type Symbols:
 -----------------------------------------------------------
   Scope 23: FuncSymbol: Execute :: Void ()
   Physical Symbols:
-    c -> 0x55dee3864060 : VarSymbol: c :: U8i
+    c -> 0x5624ba8ce090 : VarSymbol: c :: U8i
 -----------------------------------------------------------
     Scope 24
 -----------------------------------------------------------
@@ -3211,7 +3213,7 @@ Type Symbols:
 -----------------------------------------------------------
           Scope 31
           Physical Symbols:
-            opening -> 0x55dee3868790 : VarSymbol: opening :: I32i
+            opening -> 0x5624ba8d2880 : VarSymbol: opening :: I32i
 -----------------------------------------------------------
             Scope 32
 -----------------------------------------------------------
@@ -3223,7 +3225,7 @@ Type Symbols:
 -----------------------------------------------------------
   Scope 36: FuncSymbol: Initialize :: Void ()
   Physical Symbols:
-    i -> 0x55dee386a0d0 : VarSymbol: i :: I32i
+    i -> 0x5624ba8d41c0 : VarSymbol: i :: I32i
 -----------------------------------------------------------
     Scope 37
 -----------------------------------------------------------
@@ -3231,11 +3233,11 @@ Type Symbols:
 -----------------------------------------------------------
   Scope 39: FuncSymbol: PrintUsage :: Void (U8i *)
   Physical Symbols:
-    argname -> 0x55dee386ada0 : VarSymbol: argname :: U8i *
+    argname -> 0x5624ba8d4e90 : VarSymbol: argname :: U8i *
 -----------------------------------------------------------
   Scope 40: FuncSymbol: Main :: I32i ()
   Physical Symbols:
-    program -> 0x55dee386b6e0 : VarSymbol: program :: U8i[]
+    program -> 0x5624ba8d57b0 : VarSymbol: program :: U8i[]
 -----------------------------------------------------------
 
 --------- MIR ---------
@@ -3367,21 +3369,21 @@ ProgramMIR @ <1.1>
 | | | VarSymbol: valid_chars :: U8i[8]
 | | | Initializer @ <test/brainfuck.HC:65.22-61>
 | | | | Initializer @ <test/brainfuck.HC:65.22-25>
-| | | | | Literal: 62 @ <test/brainfuck.HC:65.22-25>
+| | | | | Literal: > @ <test/brainfuck.HC:65.22-25>
 | | | | Initializer @ <test/brainfuck.HC:65.28-30>
-| | | | | Literal: 60 @ <test/brainfuck.HC:65.28-30>
+| | | | | Literal: < @ <test/brainfuck.HC:65.28-30>
 | | | | Initializer @ <test/brainfuck.HC:65.33-35>
-| | | | | Literal: 43 @ <test/brainfuck.HC:65.33-35>
+| | | | | Literal: + @ <test/brainfuck.HC:65.33-35>
 | | | | Initializer @ <test/brainfuck.HC:65.38-40>
-| | | | | Literal: 45 @ <test/brainfuck.HC:65.38-40>
+| | | | | Literal: - @ <test/brainfuck.HC:65.38-40>
 | | | | Initializer @ <test/brainfuck.HC:65.43-45>
-| | | | | Literal: 44 @ <test/brainfuck.HC:65.43-45>
+| | | | | Literal: , @ <test/brainfuck.HC:65.43-45>
 | | | | Initializer @ <test/brainfuck.HC:65.48-50>
-| | | | | Literal: 46 @ <test/brainfuck.HC:65.48-50>
+| | | | | Literal: . @ <test/brainfuck.HC:65.48-50>
 | | | | Initializer @ <test/brainfuck.HC:65.53-55>
-| | | | | Literal: 91 @ <test/brainfuck.HC:65.53-55>
+| | | | | Literal: [ @ <test/brainfuck.HC:65.53-55>
 | | | | Initializer @ <test/brainfuck.HC:65.58-60>
-| | | | | Literal: 93 @ <test/brainfuck.HC:65.58-60>
+| | | | | Literal: ] @ <test/brainfuck.HC:65.58-60>
 | FunctionMIR: IsValid @ <test/brainfuck.HC:66.1-74.1>
     type: Bool (U8i)
 | | CompoundStmtMIR @ <test/brainfuck.HC:66.21-74.1>
@@ -3423,7 +3425,7 @@ ProgramMIR @ <1.1>
 | | | | | Subscript @ <test/brainfuck.HC:81.11-17>
 | | | | | | Ident: src @ <test/brainfuck.HC:81.11-14>
 | | | | | | Ident: i @ <test/brainfuck.HC:81.11-16>
-| | | | | Literal: 0 @ <test/brainfuck.HC:81.22-25>
+| | | | | Literal:   @ <test/brainfuck.HC:81.22-25>
 | | | | CompoundStmtMIR @ <test/brainfuck.HC:81.28-91.5>
 | | | | | IfStmt @ <test/brainfuck.HC:82.9-84.9>
 | | | | | | Call @ <test/brainfuck.HC:82.12-27>
@@ -3451,7 +3453,7 @@ ProgramMIR @ <1.1>
 | | | | | | | ExprStmt @ <test/brainfuck.HC:87.13-42>
 | | | | | | | | Call @ <test/brainfuck.HC:87.13-41>
 | | | | | | | | | Ident: Die @ <test/brainfuck.HC:87.13-15>
-| | | | | | | | | Literal: "code too large" @ <test/brainfuck.HC:87.13-32>
+| | | | | | | | | Literal: code too large @ <test/brainfuck.HC:87.13-32>
 | | | | | | | | | Ident: SYSTEM @ <test/brainfuck.HC:87.35-40>
 | | | | | | | Return @ <test/brainfuck.HC:88.13-19>
 | | | | | ExprStmt @ <test/brainfuck.HC:90.9-12>
@@ -3462,11 +3464,11 @@ ProgramMIR @ <1.1>
 | | | | | Subscript @ <test/brainfuck.HC:93.5-11>
 | | | | | | Ident: code @ <test/brainfuck.HC:93.5-8>
 | | | | | | Ident: n @ <test/brainfuck.HC:93.5-10>
-| | | | | Literal: 0 @ <test/brainfuck.HC:93.15-18>
+| | | | | Literal:   @ <test/brainfuck.HC:93.15-18>
 | | | Print: "got code: (" @ <test/brainfuck.HC:94.5-31>
 | | | | Ident: code @ <test/brainfuck.HC:94.20-23>
-| | | | Literal: ")
-" @ <test/brainfuck.HC:94.26-30>
+| | | | Literal: )
+ @ <test/brainfuck.HC:94.26-30>
 | FunctionMIR: JumpToAfter @ <test/brainfuck.HC:98.1-118.1>
     type: Void ()
 | | CompoundStmtMIR @ <test/brainfuck.HC:98.18-118.1>
@@ -3480,14 +3482,14 @@ ProgramMIR @ <1.1>
 | | | | | Subscript @ <test/brainfuck.HC:100.11-23>
 | | | | | | Ident: code @ <test/brainfuck.HC:100.11-15>
 | | | | | | Ident: insptr @ <test/brainfuck.HC:100.11-22>
-| | | | | Literal: 0 @ <test/brainfuck.HC:100.28-31>
+| | | | | Literal:   @ <test/brainfuck.HC:100.28-31>
 | | | | CompoundStmtMIR @ <test/brainfuck.HC:100.34-117.5>
 | | | | | IfStmt @ <test/brainfuck.HC:101.9-109.9>
 | | | | | | Binary: == @ <test/brainfuck.HC:101.12-31>
 | | | | | | | Subscript @ <test/brainfuck.HC:101.12-24>
 | | | | | | | | Ident: code @ <test/brainfuck.HC:101.12-16>
 | | | | | | | | Ident: insptr @ <test/brainfuck.HC:101.12-23>
-| | | | | | | Literal: 91 @ <test/brainfuck.HC:101.29-31>
+| | | | | | | Literal: [ @ <test/brainfuck.HC:101.29-31>
 | | | | | | CompoundStmtMIR @ <test/brainfuck.HC:101.34-103.9>
 | | | | | | | ExprStmt @ <test/brainfuck.HC:102.13-22>
 | | | | | | | | Postfix: ++ @ <test/brainfuck.HC:102.13-21>
@@ -3497,7 +3499,7 @@ ProgramMIR @ <1.1>
 | | | | | | | | Subscript @ <test/brainfuck.HC:103.19-31>
 | | | | | | | | | Ident: code @ <test/brainfuck.HC:103.19-23>
 | | | | | | | | | Ident: insptr @ <test/brainfuck.HC:103.19-30>
-| | | | | | | | Literal: 93 @ <test/brainfuck.HC:103.36-38>
+| | | | | | | | Literal: ] @ <test/brainfuck.HC:103.36-38>
 | | | | | | | CompoundStmtMIR @ <test/brainfuck.HC:103.41-109.9>
 | | | | | | | | ExprStmt @ <test/brainfuck.HC:104.13-22>
 | | | | | | | | | Postfix: -- @ <test/brainfuck.HC:104.13-21>
@@ -3521,7 +3523,7 @@ ProgramMIR @ <1.1>
 | | | | | | | ExprStmt @ <test/brainfuck.HC:112.13-70>
 | | | | | | | | Call @ <test/brainfuck.HC:112.13-69>
 | | | | | | | | | Ident: Die @ <test/brainfuck.HC:112.13-15>
-| | | | | | | | | Literal: "malformed code, missing matching bracket" @ <test/brainfuck.HC:112.13-58>
+| | | | | | | | | Literal: malformed code, missing matching bracket @ <test/brainfuck.HC:112.13-58>
 | | | | | | | | | Ident: BAD_CODE @ <test/brainfuck.HC:112.61-68>
 | | | | | | | Return @ <test/brainfuck.HC:113.13-19>
 | | | | | ExprStmt @ <test/brainfuck.HC:116.9-17>
@@ -3539,7 +3541,7 @@ ProgramMIR @ <1.1>
 | | | | | | Subscript @ <test/brainfuck.HC:123.17-28>
 | | | | | | | Ident: code @ <test/brainfuck.HC:123.17-20>
 | | | | | | | Ident: insptr @ <test/brainfuck.HC:123.17-27>
-| | | | | Literal: 0 @ <test/brainfuck.HC:123.34-37>
+| | | | | Literal:   @ <test/brainfuck.HC:123.34-37>
 | | | | CompoundStmtMIR @ <test/brainfuck.HC:123.40-200.5>
 | | | | | IfStmt @ <test/brainfuck.HC:124.9-127.9>
 | | | | | | Binary: < @ <test/brainfuck.HC:124.12-22>
@@ -3549,7 +3551,7 @@ ProgramMIR @ <1.1>
 | | | | | | | ExprStmt @ <test/brainfuck.HC:125.13-62>
 | | | | | | | | Call @ <test/brainfuck.HC:125.13-61>
 | | | | | | | | | Ident: Die @ <test/brainfuck.HC:125.13-15>
-| | | | | | | | | Literal: "instruction pointer went below 0" @ <test/brainfuck.HC:125.13-50>
+| | | | | | | | | Literal: instruction pointer went below 0 @ <test/brainfuck.HC:125.13-50>
 | | | | | | | | | Ident: BAD_CODE @ <test/brainfuck.HC:125.53-60>
 | | | | | | | Return @ <test/brainfuck.HC:126.13-19>
 | | | | | IfStmt @ <test/brainfuck.HC:129.9-132.9>
@@ -3560,33 +3562,33 @@ ProgramMIR @ <1.1>
 | | | | | | | ExprStmt @ <test/brainfuck.HC:130.13-55>
 | | | | | | | | Call @ <test/brainfuck.HC:130.13-54>
 | | | | | | | | | Ident: Die @ <test/brainfuck.HC:130.13-15>
-| | | | | | | | | Literal: "data pointer went below 0" @ <test/brainfuck.HC:130.13-43>
+| | | | | | | | | Literal: data pointer went below 0 @ <test/brainfuck.HC:130.13-43>
 | | | | | | | | | Ident: BAD_CODE @ <test/brainfuck.HC:130.46-53>
 | | | | | | | Return @ <test/brainfuck.HC:131.13-19>
 | | | | | Print: "got code: (" @ <test/brainfuck.HC:133.9-35>
 | | | | | | Ident: code @ <test/brainfuck.HC:133.24-27>
-| | | | | | Literal: ")
-" @ <test/brainfuck.HC:133.30-34>
+| | | | | | Literal: )
+ @ <test/brainfuck.HC:133.30-34>
 | | | | | SwitchStmt @ <test/brainfuck.HC:134.9-192.9>
 | | | | | | Ident: c @ <test/brainfuck.HC:134.16-17>
 | | | | | | CompoundStmtMIR @ <test/brainfuck.HC:134.20-192.9>
 | | | | | | | Case:  @ <test/brainfuck.HC:136.13-137.26>
 | | | | | | | | Const:  @ <test/brainfuck.HC:136.18-20>
-| | | | | | | | | Literal: 62 @ <test/brainfuck.HC:136.18-20>
+| | | | | | | | | Literal: > @ <test/brainfuck.HC:136.18-20>
 | | | | | | | | ExprStmt @ <test/brainfuck.HC:137.17-26>
 | | | | | | | | | Postfix: ++ @ <test/brainfuck.HC:137.17-25>
 | | | | | | | | | | Ident: dataptr @ <test/brainfuck.HC:137.17-23>
 | | | | | | | Break @ <test/brainfuck.HC:138.17-22>
 | | | | | | | Case:  @ <test/brainfuck.HC:141.13-142.26>
 | | | | | | | | Const:  @ <test/brainfuck.HC:141.18-20>
-| | | | | | | | | Literal: 60 @ <test/brainfuck.HC:141.18-20>
+| | | | | | | | | Literal: < @ <test/brainfuck.HC:141.18-20>
 | | | | | | | | ExprStmt @ <test/brainfuck.HC:142.17-26>
 | | | | | | | | | Postfix: -- @ <test/brainfuck.HC:142.17-25>
 | | | | | | | | | | Ident: dataptr @ <test/brainfuck.HC:142.17-23>
 | | | | | | | Break @ <test/brainfuck.HC:143.17-22>
 | | | | | | | Case:  @ <test/brainfuck.HC:146.13-147.32>
 | | | | | | | | Const:  @ <test/brainfuck.HC:146.18-20>
-| | | | | | | | | Literal: 43 @ <test/brainfuck.HC:146.18-20>
+| | | | | | | | | Literal: + @ <test/brainfuck.HC:146.18-20>
 | | | | | | | | ExprStmt @ <test/brainfuck.HC:147.17-32>
 | | | | | | | | | Postfix: ++ @ <test/brainfuck.HC:147.17-31>
 | | | | | | | | | | Subscript @ <test/brainfuck.HC:147.17-29>
@@ -3595,7 +3597,7 @@ ProgramMIR @ <1.1>
 | | | | | | | Break @ <test/brainfuck.HC:148.17-22>
 | | | | | | | Case:  @ <test/brainfuck.HC:151.13-152.32>
 | | | | | | | | Const:  @ <test/brainfuck.HC:151.18-20>
-| | | | | | | | | Literal: 45 @ <test/brainfuck.HC:151.18-20>
+| | | | | | | | | Literal: - @ <test/brainfuck.HC:151.18-20>
 | | | | | | | | ExprStmt @ <test/brainfuck.HC:152.17-32>
 | | | | | | | | | Postfix: -- @ <test/brainfuck.HC:152.17-31>
 | | | | | | | | | | Subscript @ <test/brainfuck.HC:152.17-29>
@@ -3604,7 +3606,7 @@ ProgramMIR @ <1.1>
 | | | | | | | Break @ <test/brainfuck.HC:153.17-22>
 | | | | | | | Case:  @ <test/brainfuck.HC:155.13-156.34>
 | | | | | | | | Const:  @ <test/brainfuck.HC:155.18-20>
-| | | | | | | | | Literal: 44 @ <test/brainfuck.HC:155.18-20>
+| | | | | | | | | Literal: , @ <test/brainfuck.HC:155.18-20>
 | | | | | | | | ExprStmt @ <test/brainfuck.HC:156.17-34>
 | | | | | | | | | Assign: = @ <test/brainfuck.HC:156.17-33>
 | | | | | | | | | | Subscript @ <test/brainfuck.HC:156.17-29>
@@ -3614,7 +3616,7 @@ ProgramMIR @ <1.1>
 | | | | | | | Break @ <test/brainfuck.HC:157.17-22>
 | | | | | | | Case:  @ <test/brainfuck.HC:159.13-160.30>
 | | | | | | | | Const:  @ <test/brainfuck.HC:159.18-20>
-| | | | | | | | | Literal: 46 @ <test/brainfuck.HC:159.18-20>
+| | | | | | | | | Literal: . @ <test/brainfuck.HC:159.18-20>
 | | | | | | | | ExprStmt @ <test/brainfuck.HC:160.17-30>
 | | | | | | | | | Subscript @ <test/brainfuck.HC:160.17-29>
 | | | | | | | | | | Ident: data @ <test/brainfuck.HC:160.17-20>
@@ -3622,7 +3624,7 @@ ProgramMIR @ <1.1>
 | | | | | | | Break @ <test/brainfuck.HC:161.17-22>
 | | | | | | | Case:  @ <test/brainfuck.HC:165.13-172.17>
 | | | | | | | | Const:  @ <test/brainfuck.HC:165.18-20>
-| | | | | | | | | Literal: 91 @ <test/brainfuck.HC:165.18-20>
+| | | | | | | | | Literal: [ @ <test/brainfuck.HC:165.18-20>
 | | | | | | | | IfStmt @ <test/brainfuck.HC:166.17-172.17>
 | | | | | | | | | Binary: == @ <test/brainfuck.HC:166.20-38>
 | | | | | | | | | | Subscript @ <test/brainfuck.HC:166.20-33>
@@ -3641,7 +3643,7 @@ ProgramMIR @ <1.1>
 | | | | | | | Break @ <test/brainfuck.HC:173.17-22>
 | | | | | | | Case:  @ <test/brainfuck.HC:177.13-191.13>
 | | | | | | | | Const:  @ <test/brainfuck.HC:177.18-20>
-| | | | | | | | | Literal: 93 @ <test/brainfuck.HC:177.18-20>
+| | | | | | | | | Literal: ] @ <test/brainfuck.HC:177.18-20>
 | | | | | | | | CompoundStmtMIR @ <test/brainfuck.HC:177.23-191.13>
 | | | | | | | | | VarDecl:  @ <test/brainfuck.HC:178.17-43>
 | | | | | | | | | | | VarSymbol: opening :: I32i
@@ -3656,7 +3658,7 @@ ProgramMIR @ <1.1>
 | | | | | | | | | | | ExprStmt @ <test/brainfuck.HC:181.21-64>
 | | | | | | | | | | | | Call @ <test/brainfuck.HC:181.21-63>
 | | | | | | | | | | | | | Ident: Die @ <test/brainfuck.HC:181.21-23>
-| | | | | | | | | | | | | Literal: "mismatched closing bracket" @ <test/brainfuck.HC:181.21-52>
+| | | | | | | | | | | | | Literal: mismatched closing bracket @ <test/brainfuck.HC:181.21-52>
 | | | | | | | | | | | | | Ident: BAD_CODE @ <test/brainfuck.HC:181.55-62>
 | | | | | | | | | | | Return @ <test/brainfuck.HC:182.21-27>
 | | | | | | | | | IfStmt @ <test/brainfuck.HC:185.17-190.17>
@@ -3717,7 +3719,7 @@ ProgramMIR @ <1.1>
 | | CompoundStmtMIR @ <test/brainfuck.HC:214.29-216.1>
 | | | Print: "usage: " @ <test/brainfuck.HC:215.5-45>
 | | | | Ident: argname @ <test/brainfuck.HC:215.16-22>
-| | | | Literal: " [-m MEMSIZE] CODE" @ <test/brainfuck.HC:215.25-44>
+| | | | Literal:  [-m MEMSIZE] CODE @ <test/brainfuck.HC:215.25-44>
 | FunctionMIR: Main @ <test/brainfuck.HC:218.1-228.1>
     type: I32i ()
 | | CompoundStmtMIR @ <test/brainfuck.HC:218.13-228.1>
@@ -3727,7 +3729,7 @@ ProgramMIR @ <1.1>
 | | | VarDecl:  @ <test/brainfuck.HC:222.5-187>
 | | | | | VarSymbol: program :: U8i[]
 | | | | | Initializer @ <test/brainfuck.HC:222.21-186>
-| | | | | | Literal: ">++++++++[<+++++++++>-]<.>++++[<+++++++>-]<+.+++++++..+++.>>++++++[<+++++++>-]<++.------------.>++++++[<+++++++++>-]<+.<.+++.------.--------.>>>++++[<++++++++>-]<+." @ <test/brainfuck.HC:222.21-186>
+| | | | | | Literal: >++++++++[<+++++++++>-]<.>++++[<+++++++>-]<+.+++++++..+++.>>++++++[<+++++++>-]<++.------------.>++++++[<+++++++++>-]<+.<.+++.------.--------.>>>++++[<++++++++>-]<+. @ <test/brainfuck.HC:222.21-186>
 | | | ExprStmt @ <test/brainfuck.HC:224.5-22>
 | | | | Call @ <test/brainfuck.HC:224.5-21>
 | | | | | Ident: ReadCode @ <test/brainfuck.HC:224.5-12>

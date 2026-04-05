@@ -1051,6 +1051,10 @@ public:
     void add_item(std::unique_ptr<ProgramItem> item);
 };
 
+std::string storage_to_string(StorageClassSpecifier::SpecType ty);
+
+std::string qualifier_to_string(TypeQualifier::QualType qual);
+
 
 } // namespace ecc::ast
 

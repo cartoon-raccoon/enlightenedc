@@ -8,7 +8,6 @@
 
 #include "ast/ast.hpp"
 #include "ast/visitor.hpp"
-#include "tokens.hpp"
 
 
 namespace ecc::ast {
@@ -77,7 +76,7 @@ public:
     void visit(PostfixExpression& node) override;
     void visit(SizeofExpression& node) override;
 
-    void print_indent();
+    void print_indent() const;
 
     template <typename NodeType, typename... Children>
     requires std::derived_from<NodeType, ASTNode>
@@ -88,24 +87,7 @@ public:
         indent++;
         (std::forward<Children>(children)(), ...);
         indent--;
-}
-
-private:
-    std::string binop_to_string(tokens::BinaryOp op);
-
-    std::string unop_to_string(tokens::UnaryOp op);
-
-    std::string assignop_to_string(tokens::AssignOp op);
-
-    std::string postfixop_to_string(tokens::PostfixOp op);
-
-    std::string infixop_to_string(tokens::InfixOp op);
-
-    std::string primitive_to_string(tokens::PrimType pr);
-
-    std::string storage_to_string(StorageClassSpecifier::SpecType ty);
-
-    std::string qualifier_to_string(TypeQualifier::QualType qual);
+    }
 };
 
 } // namespace ecc::ast

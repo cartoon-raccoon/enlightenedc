@@ -1,9 +1,14 @@
+#pragma once
+
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/Module.h>
 #ifndef ECC_COMPILER_H
 #define ECC_COMPILER_H
 
 #include "codegen/lir/lir.hpp"
 #include "codegen/lir/visitor.hpp"
 #include "codegen/llvm.hpp"
+#include "util.hpp"
 #include <llvm/IR/IRBuilder.h>
 
 using namespace ecc;
@@ -14,18 +19,20 @@ namespace ecc::codegen {
 LLVM IR generation functionality.
 */
 
-// todo: use LLVM DataLayout to handle alignment
-
 class LLVMSynthesizer : public lir::LIRVisitor {
+    Ref<llvm::LLVMContext> ctxtref;
+    Ref<llvm::Module> modref;
+    Ref<llvm::IRBuilder<>> irbref;
+
+    Ref<lir::LIRSymbolMap> symsref;
+
+protected:
+    llvm::LLVMContext& ctxt() { return ctxtref; }
+    llvm::Module& mod() { return modref; }
+    llvm::IRBuilder<>& irb() { return irbref; }
+
 public:
     LLVMSynthesizer(lir::LIRSymbolMap& syms, LLVMUnit& llvm);
-    ~LLVMSynthesizer() = default;
-
-    llvm::LLVMContext& ctxt;
-    llvm::Module& mod;
-    llvm::IRBuilder<>& irb;
-
-    lir::LIRSymbolMap& syms;
 
     void compile(lir::ProgramLIR& prog);
 

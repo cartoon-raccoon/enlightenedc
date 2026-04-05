@@ -1,163 +1,163 @@
 Initializing LLVM
 LLVM initialized
-running pipeline on file test/input/control.HC
-LLVM: Creating LLVMUnit with module name 'test/input/control.HC'
+running pipeline on file input/control.HC
+LLVM: Creating LLVMUnit with module name 'input/control.HC'
 LLVM: LLVMUnit created
-parsing file test/input/control.HC
-printing AST for file test/input/control.HC
-Program @ <test/input/control.HC:1.1> 
-| VariableDeclaration @ <test/input/control.HC:1.1-167> 
-| | PrimitiveSpecifier: i64 @ <test/input/control.HC:1.1-160> 
-| | InitDeclarator @ <test/input/control.HC:1.162-166> 
-| | | Declarator @ <test/input/control.HC:1.162> 
-| | | | IdentifierDeclarator: n @ <test/input/control.HC:1.162> 
-| | | Initializer:  @ <test/input/control.HC:1.166> 
-| | | | Literal: 0 @ <test/input/control.HC:1.166> 
-| LabeledStatement: start @ <test/input/control.HC:3.1-10.1> 
-| | IfStatement @ <test/input/control.HC:4.1-10.1> 
-| | | BinaryExpression: < @ <test/input/control.HC:4.4-10> 
-| | | | IdentifierExpression: n @ <test/input/control.HC:4.4-5> 
-| | | | Literal: 10 @ <test/input/control.HC:4.9-10> 
-| | | CompoundStatement @ <test/input/control.HC:4.13-6.1> 
-| | | | ExpressionStatement @ <test/input/control.HC:5.5-8> 
-| | | | | PostfixExpression: ++ @ <test/input/control.HC:5.5-7> 
-| | | | | | IdentifierExpression: n @ <test/input/control.HC:5.5> 
-| | | IfStatement @ <test/input/control.HC:6.8-10.1> 
-| | | | BinaryExpression: > @ <test/input/control.HC:6.11-17> 
-| | | | | IdentifierExpression: n @ <test/input/control.HC:6.11-12> 
-| | | | | Literal: 11 @ <test/input/control.HC:6.16-17> 
-| | | | CompoundStatement @ <test/input/control.HC:6.20-8.1> 
-| | | | | ExpressionStatement @ <test/input/control.HC:7.5-8> 
-| | | | | | PostfixExpression: -- @ <test/input/control.HC:7.5-7> 
-| | | | | | | IdentifierExpression: n @ <test/input/control.HC:7.5> 
-| | | | CompoundStatement @ <test/input/control.HC:8.8-10.1> 
-| | | | | ExpressionStatement @ <test/input/control.HC:9.5-11> 
-| | | | | | AssignmentExpression: += @ <test/input/control.HC:9.5-10> 
-| | | | | | | IdentifierExpression: n @ <test/input/control.HC:9.5> 
-| | | | | | | Literal: 2 @ <test/input/control.HC:9.10> 
-| SwitchStatement @ <test/input/control.HC:12.1-21.1> 
-| | IdentifierExpression: n @ <test/input/control.HC:12.8-9> 
-| | CompoundStatement @ <test/input/control.HC:12.12-21.1> 
-| | | CaseStatement:  @ <test/input/control.HC:13.5-14.14> 
-| | | | ConstExpression:  @ <test/input/control.HC:13.10> 
-| | | | | Literal: 1 @ <test/input/control.HC:13.10> 
-| | | | BreakStatement @ <test/input/control.HC:14.9-14> 
-| | | CaseRangeStatement:  @ <test/input/control.HC:15.5-16.15> 
-| | | | ConstExpression:  @ <test/input/control.HC:15.10> 
-| | | | | Literal: 2 @ <test/input/control.HC:15.10> 
-| | | | ConstExpression:  @ <test/input/control.HC:15.16> 
-| | | | | Literal: 5 @ <test/input/control.HC:15.16> 
-| | | | ExpressionStatement @ <test/input/control.HC:16.9-15> 
-| | | | | AssignmentExpression: += @ <test/input/control.HC:16.9-14> 
-| | | | | | IdentifierExpression: n @ <test/input/control.HC:16.9> 
-| | | | | | Literal: 2 @ <test/input/control.HC:16.14> 
-| | | VariableDeclaration @ <test/input/control.HC:17.9-19> 
-| | | | PrimitiveSpecifier: u32 @ <test/input/control.HC:17.9-12> 
-| | | | InitDeclarator @ <test/input/control.HC:17.14-18> 
-| | | | | Declarator @ <test/input/control.HC:17.14> 
-| | | | | | IdentifierDeclarator: i @ <test/input/control.HC:17.14> 
-| | | | | Initializer:  @ <test/input/control.HC:17.18> 
-| | | | | | Literal: 0 @ <test/input/control.HC:17.18> 
-| | | BreakStatement @ <test/input/control.HC:18.9-14> 
-| | | DefaultStatement:  @ <test/input/control.HC:19.5-20.19> 
-| | | | GotoStatement: start @ <test/input/control.HC:20.9-19> 
-| WhileStatement @ <test/input/control.HC:23.1-24.8> 
-| | BinaryExpression: > @ <test/input/control.HC:23.7-12> 
-| | | IdentifierExpression: n @ <test/input/control.HC:23.7-8> 
-| | | Literal: 0 @ <test/input/control.HC:23.12> 
-| | ExpressionStatement @ <test/input/control.HC:24.5-8> 
-| | | PostfixExpression: -- @ <test/input/control.HC:24.5-7> 
-| | | | IdentifierExpression: n @ <test/input/control.HC:24.5> 
-| DoWhileStatement @ <test/input/control.HC:26.1-28.16> 
-| | CompoundStatement @ <test/input/control.HC:26.4-28.1> 
-| | | ExpressionStatement @ <test/input/control.HC:27.5-8> 
-| | | | PostfixExpression: ++ @ <test/input/control.HC:27.5-7> 
-| | | | | IdentifierExpression: n @ <test/input/control.HC:27.5> 
-| | BinaryExpression: < @ <test/input/control.HC:28.9-14> 
-| | | IdentifierExpression: n @ <test/input/control.HC:28.9-10> 
-| | | Literal: 3 @ <test/input/control.HC:28.14> 
-| ForStatement @ <test/input/control.HC:30.1-37> 
-| | VariableDeclaration @ <test/input/control.HC:30.5-15> 
-| | | PrimitiveSpecifier: u32 @ <test/input/control.HC:30.5-9> 
-| | | InitDeclarator @ <test/input/control.HC:30.11-15> 
-| | | | Declarator @ <test/input/control.HC:30.11> 
-| | | | | IdentifierDeclarator: n @ <test/input/control.HC:30.11> 
-| | | | Initializer:  @ <test/input/control.HC:30.15> 
-| | | | | Literal: 0 @ <test/input/control.HC:30.15> 
-| | BinaryExpression: < @ <test/input/control.HC:30.18-22> 
-| | | IdentifierExpression: n @ <test/input/control.HC:30.18> 
-| | | Literal: 5 @ <test/input/control.HC:30.22> 
-| | PostfixExpression: ++ @ <test/input/control.HC:30.25-27> 
-| | | IdentifierExpression: n @ <test/input/control.HC:30.25> 
-| | PrintStatement: "hello" @ <test/input/control.HC:30.30-37> 
-| ForStatement @ <test/input/control.HC:32.1-27> 
-| | PrintStatement: "looping forever" @ <test/input/control.HC:32.10-27> 
-| ForStatement @ <test/input/control.HC:34.1-32> 
-| | AssignmentExpression: = @ <test/input/control.HC:34.5-10> 
-| | | IdentifierExpression: n @ <test/input/control.HC:34.5-6> 
-| | | Literal: 0 @ <test/input/control.HC:34.10> 
-| | BinaryExpression: < @ <test/input/control.HC:34.13-17> 
-| | | IdentifierExpression: n @ <test/input/control.HC:34.13> 
-| | | Literal: 5 @ <test/input/control.HC:34.17> 
-| | PostfixExpression: ++ @ <test/input/control.HC:34.20-22> 
-| | | IdentifierExpression: n @ <test/input/control.HC:34.20> 
-| | PrintStatement: "hello" @ <test/input/control.HC:34.25-32> 
-running backend for file test/input/control.HC
-Checking semantics for test/input/control.HC:1.1
-Synthesizing MIR for test/input/control.HC:1.1
+parsing file input/control.HC
+printing AST for file input/control.HC
+Program @ <input/control.HC:1.1> 
+| VariableDeclaration @ <input/control.HC:1.1-157> 
+| | PrimitiveSpecifier: i64 @ <input/control.HC:1.1-150> 
+| | InitDeclarator @ <input/control.HC:1.152-156> 
+| | | Declarator @ <input/control.HC:1.152> 
+| | | | IdentifierDeclarator: n @ <input/control.HC:1.152> 
+| | | Initializer:  @ <input/control.HC:1.156> 
+| | | | 0 @ <input/control.HC:1.156> 
+| LabeledStatement: start @ <input/control.HC:3.1-10.1> 
+| | IfStatement @ <input/control.HC:4.1-10.1> 
+| | | BinaryExpression: < @ <input/control.HC:4.4-10> 
+| | | | IdentifierExpression: n @ <input/control.HC:4.4-5> 
+| | | | 10 @ <input/control.HC:4.9-10> 
+| | | CompoundStatement @ <input/control.HC:4.13-6.1> 
+| | | | ExpressionStatement @ <input/control.HC:5.5-8> 
+| | | | | PostfixExpression: ++ @ <input/control.HC:5.5-7> 
+| | | | | | IdentifierExpression: n @ <input/control.HC:5.5> 
+| | | IfStatement @ <input/control.HC:6.8-10.1> 
+| | | | BinaryExpression: > @ <input/control.HC:6.11-17> 
+| | | | | IdentifierExpression: n @ <input/control.HC:6.11-12> 
+| | | | | 11 @ <input/control.HC:6.16-17> 
+| | | | CompoundStatement @ <input/control.HC:6.20-8.1> 
+| | | | | ExpressionStatement @ <input/control.HC:7.5-8> 
+| | | | | | PostfixExpression: -- @ <input/control.HC:7.5-7> 
+| | | | | | | IdentifierExpression: n @ <input/control.HC:7.5> 
+| | | | CompoundStatement @ <input/control.HC:8.8-10.1> 
+| | | | | ExpressionStatement @ <input/control.HC:9.5-11> 
+| | | | | | AssignmentExpression: += @ <input/control.HC:9.5-10> 
+| | | | | | | IdentifierExpression: n @ <input/control.HC:9.5> 
+| | | | | | | 2 @ <input/control.HC:9.10> 
+| SwitchStatement @ <input/control.HC:12.1-21.1> 
+| | IdentifierExpression: n @ <input/control.HC:12.8-9> 
+| | CompoundStatement @ <input/control.HC:12.12-21.1> 
+| | | CaseStatement:  @ <input/control.HC:13.5-14.14> 
+| | | | ConstExpression:  @ <input/control.HC:13.10> 
+| | | | | 1 @ <input/control.HC:13.10> 
+| | | | BreakStatement @ <input/control.HC:14.9-14> 
+| | | CaseRangeStatement:  @ <input/control.HC:15.5-16.15> 
+| | | | ConstExpression:  @ <input/control.HC:15.10> 
+| | | | | 2 @ <input/control.HC:15.10> 
+| | | | ConstExpression:  @ <input/control.HC:15.16> 
+| | | | | 5 @ <input/control.HC:15.16> 
+| | | | ExpressionStatement @ <input/control.HC:16.9-15> 
+| | | | | AssignmentExpression: += @ <input/control.HC:16.9-14> 
+| | | | | | IdentifierExpression: n @ <input/control.HC:16.9> 
+| | | | | | 2 @ <input/control.HC:16.14> 
+| | | VariableDeclaration @ <input/control.HC:17.9-19> 
+| | | | PrimitiveSpecifier: u32 @ <input/control.HC:17.9-12> 
+| | | | InitDeclarator @ <input/control.HC:17.14-18> 
+| | | | | Declarator @ <input/control.HC:17.14> 
+| | | | | | IdentifierDeclarator: i @ <input/control.HC:17.14> 
+| | | | | Initializer:  @ <input/control.HC:17.18> 
+| | | | | | 0 @ <input/control.HC:17.18> 
+| | | BreakStatement @ <input/control.HC:18.9-14> 
+| | | DefaultStatement:  @ <input/control.HC:19.5-20.19> 
+| | | | GotoStatement: start @ <input/control.HC:20.9-19> 
+| WhileStatement @ <input/control.HC:23.1-24.8> 
+| | BinaryExpression: > @ <input/control.HC:23.7-12> 
+| | | IdentifierExpression: n @ <input/control.HC:23.7-8> 
+| | | 0 @ <input/control.HC:23.12> 
+| | ExpressionStatement @ <input/control.HC:24.5-8> 
+| | | PostfixExpression: -- @ <input/control.HC:24.5-7> 
+| | | | IdentifierExpression: n @ <input/control.HC:24.5> 
+| DoWhileStatement @ <input/control.HC:26.1-28.16> 
+| | CompoundStatement @ <input/control.HC:26.4-28.1> 
+| | | ExpressionStatement @ <input/control.HC:27.5-8> 
+| | | | PostfixExpression: ++ @ <input/control.HC:27.5-7> 
+| | | | | IdentifierExpression: n @ <input/control.HC:27.5> 
+| | BinaryExpression: < @ <input/control.HC:28.9-14> 
+| | | IdentifierExpression: n @ <input/control.HC:28.9-10> 
+| | | 3 @ <input/control.HC:28.14> 
+| ForStatement @ <input/control.HC:30.1-37> 
+| | VariableDeclaration @ <input/control.HC:30.5-15> 
+| | | PrimitiveSpecifier: u32 @ <input/control.HC:30.5-9> 
+| | | InitDeclarator @ <input/control.HC:30.11-15> 
+| | | | Declarator @ <input/control.HC:30.11> 
+| | | | | IdentifierDeclarator: n @ <input/control.HC:30.11> 
+| | | | Initializer:  @ <input/control.HC:30.15> 
+| | | | | 0 @ <input/control.HC:30.15> 
+| | BinaryExpression: < @ <input/control.HC:30.18-22> 
+| | | IdentifierExpression: n @ <input/control.HC:30.18> 
+| | | 5 @ <input/control.HC:30.22> 
+| | PostfixExpression: ++ @ <input/control.HC:30.25-27> 
+| | | IdentifierExpression: n @ <input/control.HC:30.25> 
+| | PrintStatement: "hello" @ <input/control.HC:30.30-37> 
+| ForStatement @ <input/control.HC:32.1-27> 
+| | PrintStatement: "looping forever" @ <input/control.HC:32.10-27> 
+| ForStatement @ <input/control.HC:34.1-32> 
+| | AssignmentExpression: = @ <input/control.HC:34.5-10> 
+| | | IdentifierExpression: n @ <input/control.HC:34.5-6> 
+| | | 0 @ <input/control.HC:34.10> 
+| | BinaryExpression: < @ <input/control.HC:34.13-17> 
+| | | IdentifierExpression: n @ <input/control.HC:34.13> 
+| | | 5 @ <input/control.HC:34.17> 
+| | PostfixExpression: ++ @ <input/control.HC:34.20-22> 
+| | | IdentifierExpression: n @ <input/control.HC:34.20> 
+| | PrintStatement: "hello" @ <input/control.HC:34.25-32> 
+running backend for file input/control.HC
+Checking semantics for input/control.HC:1.1
+Synthesizing MIR for input/control.HC:1.1
 Node {
-    visiting Program node: test/input/control.HC:1.1
+    visiting Program node: input/control.HC:1.1
     Node {
-        visiting VariableDeclaration node: test/input/control.HC:1.1-167
-        parsing declaration specifier list for node at test/input/control.HC:1.1-167
+        visiting VariableDeclaration node: input/control.HC:1.1-157
+        parsing declaration specifier list for node at input/control.HC:1.1-157
         Node {
-            visiting PrimitiveSpecifier node: test/input/control.HC:1.1-160
+            visiting PrimitiveSpecifier node: input/control.HC:1.1-150
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node test/input/control.HC:1.1-167
+        finished parsing specifiers for node input/control.HC:1.1-157
         Node {
-            visiting InitDeclarator node: test/input/control.HC:1.162-166
+            visiting InitDeclarator node: input/control.HC:1.152-156
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: test/input/control.HC:1.162
+                    visiting IdentifierDeclarator node: input/control.HC:1.152
                 }
             }
 TypeBuilder: finalizing type
             Node {
-                visiting Initializer node: test/input/control.HC:1.166
+                visiting Initializer node: input/control.HC:1.156
                 visiting single initializer
                 Node {
-                    visiting LiteralExpression node: test/input/control.HC:1.166
+                    visiting LiteralExpression node: input/control.HC:1.156
                 }
             }
         }
 SymbolTable: inserting varsymbol with name "n"
     }
     Node {
-        visiting LabeledStatement node: test/input/control.HC:3.1-10.1
+        visiting LabeledStatement node: input/control.HC:3.1-10.1
 SymbolTable: inserting labelsymbol with name "start"
         Node {
-            visiting IfStatement node: test/input/control.HC:4.1-10.1
+            visiting IfStatement node: input/control.HC:4.1-10.1
             Node {
-                visiting BinaryExpression node: test/input/control.HC:4.4-10
+                visiting BinaryExpression node: input/control.HC:4.4-10
                 Node {
-                    visiting IdentifierExpression node: test/input/control.HC:4.4-5
+                    visiting IdentifierExpression node: input/control.HC:4.4-5
 SymbolTable: looking up varsymbol n
                 }
                 Node {
-                    visiting LiteralExpression node: test/input/control.HC:4.9-10
+                    visiting LiteralExpression node: input/control.HC:4.9-10
                 }
             }
             Node {
 SymbolTable: pushing scope 1
 SymbolTable: entering scope 1
-                visiting CompoundStatement node: test/input/control.HC:4.13-6.1
+                visiting CompoundStatement node: input/control.HC:4.13-6.1
                 Node {
-                    visiting ExpressionStatement node: test/input/control.HC:5.5-8
+                    visiting ExpressionStatement node: input/control.HC:5.5-8
                     Node {
-                        visiting PostfixExpression node: test/input/control.HC:5.5-7
+                        visiting PostfixExpression node: input/control.HC:5.5-7
                         Node {
-                            visiting IdentifierExpression node: test/input/control.HC:5.5
+                            visiting IdentifierExpression node: input/control.HC:5.5
 SymbolTable: looking up varsymbol n
                         }
                     }
@@ -165,27 +165,27 @@ SymbolTable: looking up varsymbol n
 SymbolTable: exiting scope to 0
             }
             Node {
-                visiting IfStatement node: test/input/control.HC:6.8-10.1
+                visiting IfStatement node: input/control.HC:6.8-10.1
                 Node {
-                    visiting BinaryExpression node: test/input/control.HC:6.11-17
+                    visiting BinaryExpression node: input/control.HC:6.11-17
                     Node {
-                        visiting IdentifierExpression node: test/input/control.HC:6.11-12
+                        visiting IdentifierExpression node: input/control.HC:6.11-12
 SymbolTable: looking up varsymbol n
                     }
                     Node {
-                        visiting LiteralExpression node: test/input/control.HC:6.16-17
+                        visiting LiteralExpression node: input/control.HC:6.16-17
                     }
                 }
                 Node {
 SymbolTable: pushing scope 2
 SymbolTable: entering scope 2
-                    visiting CompoundStatement node: test/input/control.HC:6.20-8.1
+                    visiting CompoundStatement node: input/control.HC:6.20-8.1
                     Node {
-                        visiting ExpressionStatement node: test/input/control.HC:7.5-8
+                        visiting ExpressionStatement node: input/control.HC:7.5-8
                         Node {
-                            visiting PostfixExpression node: test/input/control.HC:7.5-7
+                            visiting PostfixExpression node: input/control.HC:7.5-7
                             Node {
-                                visiting IdentifierExpression node: test/input/control.HC:7.5
+                                visiting IdentifierExpression node: input/control.HC:7.5
 SymbolTable: looking up varsymbol n
                             }
                         }
@@ -195,17 +195,17 @@ SymbolTable: exiting scope to 0
                 Node {
 SymbolTable: pushing scope 3
 SymbolTable: entering scope 3
-                    visiting CompoundStatement node: test/input/control.HC:8.8-10.1
+                    visiting CompoundStatement node: input/control.HC:8.8-10.1
                     Node {
-                        visiting ExpressionStatement node: test/input/control.HC:9.5-11
+                        visiting ExpressionStatement node: input/control.HC:9.5-11
                         Node {
-                            visiting AssignmentExpression node: test/input/control.HC:9.5-10
+                            visiting AssignmentExpression node: input/control.HC:9.5-10
                             Node {
-                                visiting IdentifierExpression node: test/input/control.HC:9.5
+                                visiting IdentifierExpression node: input/control.HC:9.5
 SymbolTable: looking up varsymbol n
                             }
                             Node {
-                                visiting LiteralExpression node: test/input/control.HC:9.10
+                                visiting LiteralExpression node: input/control.HC:9.10
                             }
                         }
                     }
@@ -215,88 +215,88 @@ SymbolTable: exiting scope to 0
         }
     }
     Node {
-        visiting SwitchStatement node: test/input/control.HC:12.1-21.1
+        visiting SwitchStatement node: input/control.HC:12.1-21.1
         Node {
-            visiting IdentifierExpression node: test/input/control.HC:12.8-9
+            visiting IdentifierExpression node: input/control.HC:12.8-9
 SymbolTable: looking up varsymbol n
         }
         Node {
 SymbolTable: pushing scope 4
 SymbolTable: entering scope 4
-            visiting CompoundStatement node: test/input/control.HC:12.12-21.1
+            visiting CompoundStatement node: input/control.HC:12.12-21.1
             Node {
-                visiting CaseStatement node: test/input/control.HC:13.5-14.14
+                visiting CaseStatement node: input/control.HC:13.5-14.14
                 Node {
-                    visiting ConstExpression node: test/input/control.HC:13.10
+                    visiting ConstExpression node: input/control.HC:13.10
                     Node {
-                        visiting LiteralExpression node: test/input/control.HC:13.10
+                        visiting LiteralExpression node: input/control.HC:13.10
                     }
                 }
                 Node {
-                    visiting BreakStatement node: test/input/control.HC:14.9-14
+                    visiting BreakStatement node: input/control.HC:14.9-14
                 }
             }
             Node {
-                visiting CaseRangeStatement node: test/input/control.HC:15.5-16.15
+                visiting CaseRangeStatement node: input/control.HC:15.5-16.15
                 Node {
-                    visiting ConstExpression node: test/input/control.HC:15.10
+                    visiting ConstExpression node: input/control.HC:15.10
                     Node {
-                        visiting LiteralExpression node: test/input/control.HC:15.10
+                        visiting LiteralExpression node: input/control.HC:15.10
                     }
                 }
                 Node {
-                    visiting ConstExpression node: test/input/control.HC:15.16
+                    visiting ConstExpression node: input/control.HC:15.16
                     Node {
-                        visiting LiteralExpression node: test/input/control.HC:15.16
+                        visiting LiteralExpression node: input/control.HC:15.16
                     }
                 }
                 Node {
-                    visiting ExpressionStatement node: test/input/control.HC:16.9-15
+                    visiting ExpressionStatement node: input/control.HC:16.9-15
                     Node {
-                        visiting AssignmentExpression node: test/input/control.HC:16.9-14
+                        visiting AssignmentExpression node: input/control.HC:16.9-14
                         Node {
-                            visiting IdentifierExpression node: test/input/control.HC:16.9
+                            visiting IdentifierExpression node: input/control.HC:16.9
 SymbolTable: looking up varsymbol n
                         }
                         Node {
-                            visiting LiteralExpression node: test/input/control.HC:16.14
+                            visiting LiteralExpression node: input/control.HC:16.14
                         }
                     }
                 }
             }
             Node {
-                visiting VariableDeclaration node: test/input/control.HC:17.9-19
-                parsing declaration specifier list for node at test/input/control.HC:17.9-19
+                visiting VariableDeclaration node: input/control.HC:17.9-19
+                parsing declaration specifier list for node at input/control.HC:17.9-19
                 Node {
-                    visiting PrimitiveSpecifier node: test/input/control.HC:17.9-12
+                    visiting PrimitiveSpecifier node: input/control.HC:17.9-12
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node test/input/control.HC:17.9-19
+                finished parsing specifiers for node input/control.HC:17.9-19
                 Node {
-                    visiting InitDeclarator node: test/input/control.HC:17.14-18
+                    visiting InitDeclarator node: input/control.HC:17.14-18
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: test/input/control.HC:17.14
+                            visiting IdentifierDeclarator node: input/control.HC:17.14
                         }
                     }
 TypeBuilder: finalizing type
                     Node {
-                        visiting Initializer node: test/input/control.HC:17.18
+                        visiting Initializer node: input/control.HC:17.18
                         visiting single initializer
                         Node {
-                            visiting LiteralExpression node: test/input/control.HC:17.18
+                            visiting LiteralExpression node: input/control.HC:17.18
                         }
                     }
                 }
 SymbolTable: inserting varsymbol with name "i"
             }
             Node {
-                visiting BreakStatement node: test/input/control.HC:18.9-14
+                visiting BreakStatement node: input/control.HC:18.9-14
             }
             Node {
-                visiting DefaultStatement node: test/input/control.HC:19.5-20.19
+                visiting DefaultStatement node: input/control.HC:19.5-20.19
                 Node {
-                    visiting GotoStatement node: test/input/control.HC:20.9-19
+                    visiting GotoStatement node: input/control.HC:20.9-19
                 }
             }
 SymbolTable: exiting scope to 0
@@ -305,23 +305,23 @@ SymbolTable: exiting scope to 0
     Node {
 SymbolTable: pushing scope 5
 SymbolTable: entering scope 5
-        visiting WhileStatement node: test/input/control.HC:23.1-24.8
+        visiting WhileStatement node: input/control.HC:23.1-24.8
         Node {
-            visiting BinaryExpression node: test/input/control.HC:23.7-12
+            visiting BinaryExpression node: input/control.HC:23.7-12
             Node {
-                visiting IdentifierExpression node: test/input/control.HC:23.7-8
+                visiting IdentifierExpression node: input/control.HC:23.7-8
 SymbolTable: looking up varsymbol n
             }
             Node {
-                visiting LiteralExpression node: test/input/control.HC:23.12
+                visiting LiteralExpression node: input/control.HC:23.12
             }
         }
         Node {
-            visiting ExpressionStatement node: test/input/control.HC:24.5-8
+            visiting ExpressionStatement node: input/control.HC:24.5-8
             Node {
-                visiting PostfixExpression node: test/input/control.HC:24.5-7
+                visiting PostfixExpression node: input/control.HC:24.5-7
                 Node {
-                    visiting IdentifierExpression node: test/input/control.HC:24.5
+                    visiting IdentifierExpression node: input/control.HC:24.5
 SymbolTable: looking up varsymbol n
                 }
             }
@@ -331,27 +331,27 @@ SymbolTable: exiting scope to 0
     Node {
 SymbolTable: pushing scope 6
 SymbolTable: entering scope 6
-        visiting DoWhileStatement node: test/input/control.HC:26.1-28.16
+        visiting DoWhileStatement node: input/control.HC:26.1-28.16
         Node {
-            visiting BinaryExpression node: test/input/control.HC:28.9-14
+            visiting BinaryExpression node: input/control.HC:28.9-14
             Node {
-                visiting IdentifierExpression node: test/input/control.HC:28.9-10
+                visiting IdentifierExpression node: input/control.HC:28.9-10
 SymbolTable: looking up varsymbol n
             }
             Node {
-                visiting LiteralExpression node: test/input/control.HC:28.14
+                visiting LiteralExpression node: input/control.HC:28.14
             }
         }
         Node {
 SymbolTable: pushing scope 7
 SymbolTable: entering scope 7
-            visiting CompoundStatement node: test/input/control.HC:26.4-28.1
+            visiting CompoundStatement node: input/control.HC:26.4-28.1
             Node {
-                visiting ExpressionStatement node: test/input/control.HC:27.5-8
+                visiting ExpressionStatement node: input/control.HC:27.5-8
                 Node {
-                    visiting PostfixExpression node: test/input/control.HC:27.5-7
+                    visiting PostfixExpression node: input/control.HC:27.5-7
                     Node {
-                        visiting IdentifierExpression node: test/input/control.HC:27.5
+                        visiting IdentifierExpression node: input/control.HC:27.5
 SymbolTable: looking up varsymbol n
                     }
                 }
@@ -363,50 +363,50 @@ SymbolTable: exiting scope to 0
     Node {
 SymbolTable: pushing scope 8
 SymbolTable: entering scope 8
-        visiting ForStatement node: test/input/control.HC:30.1-37
+        visiting ForStatement node: input/control.HC:30.1-37
         Node {
-            visiting PrintStatement node: test/input/control.HC:30.30-37
+            visiting PrintStatement node: input/control.HC:30.30-37
         }
         Node {
-            visiting VariableDeclaration node: test/input/control.HC:30.5-15
-            parsing declaration specifier list for node at test/input/control.HC:30.5-15
+            visiting VariableDeclaration node: input/control.HC:30.5-15
+            parsing declaration specifier list for node at input/control.HC:30.5-15
             Node {
-                visiting PrimitiveSpecifier node: test/input/control.HC:30.5-9
+                visiting PrimitiveSpecifier node: input/control.HC:30.5-9
 TypeContext: getting primitive type
             }
-            finished parsing specifiers for node test/input/control.HC:30.5-15
+            finished parsing specifiers for node input/control.HC:30.5-15
             Node {
-                visiting InitDeclarator node: test/input/control.HC:30.11-15
+                visiting InitDeclarator node: input/control.HC:30.11-15
                 Node {
                     Node {
-                        visiting IdentifierDeclarator node: test/input/control.HC:30.11
+                        visiting IdentifierDeclarator node: input/control.HC:30.11
                     }
                 }
 TypeBuilder: finalizing type
                 Node {
-                    visiting Initializer node: test/input/control.HC:30.15
+                    visiting Initializer node: input/control.HC:30.15
                     visiting single initializer
                     Node {
-                        visiting LiteralExpression node: test/input/control.HC:30.15
+                        visiting LiteralExpression node: input/control.HC:30.15
                     }
                 }
             }
 SymbolTable: inserting varsymbol with name "n"
         }
         Node {
-            visiting BinaryExpression node: test/input/control.HC:30.18-22
+            visiting BinaryExpression node: input/control.HC:30.18-22
             Node {
-                visiting IdentifierExpression node: test/input/control.HC:30.18
+                visiting IdentifierExpression node: input/control.HC:30.18
 SymbolTable: looking up varsymbol n
             }
             Node {
-                visiting LiteralExpression node: test/input/control.HC:30.22
+                visiting LiteralExpression node: input/control.HC:30.22
             }
         }
         Node {
-            visiting PostfixExpression node: test/input/control.HC:30.25-27
+            visiting PostfixExpression node: input/control.HC:30.25-27
             Node {
-                visiting IdentifierExpression node: test/input/control.HC:30.25
+                visiting IdentifierExpression node: input/control.HC:30.25
 SymbolTable: looking up varsymbol n
             }
         }
@@ -415,43 +415,43 @@ SymbolTable: exiting scope to 0
     Node {
 SymbolTable: pushing scope 9
 SymbolTable: entering scope 9
-        visiting ForStatement node: test/input/control.HC:32.1-27
+        visiting ForStatement node: input/control.HC:32.1-27
         Node {
-            visiting PrintStatement node: test/input/control.HC:32.10-27
+            visiting PrintStatement node: input/control.HC:32.10-27
         }
 SymbolTable: exiting scope to 0
     }
     Node {
 SymbolTable: pushing scope 10
 SymbolTable: entering scope 10
-        visiting ForStatement node: test/input/control.HC:34.1-32
+        visiting ForStatement node: input/control.HC:34.1-32
         Node {
-            visiting PrintStatement node: test/input/control.HC:34.25-32
+            visiting PrintStatement node: input/control.HC:34.25-32
         }
         Node {
-            visiting AssignmentExpression node: test/input/control.HC:34.5-10
+            visiting AssignmentExpression node: input/control.HC:34.5-10
             Node {
-                visiting IdentifierExpression node: test/input/control.HC:34.5-6
+                visiting IdentifierExpression node: input/control.HC:34.5-6
 SymbolTable: looking up varsymbol n
             }
             Node {
-                visiting LiteralExpression node: test/input/control.HC:34.10
+                visiting LiteralExpression node: input/control.HC:34.10
             }
         }
         Node {
-            visiting BinaryExpression node: test/input/control.HC:34.13-17
+            visiting BinaryExpression node: input/control.HC:34.13-17
             Node {
-                visiting IdentifierExpression node: test/input/control.HC:34.13
+                visiting IdentifierExpression node: input/control.HC:34.13
 SymbolTable: looking up varsymbol n
             }
             Node {
-                visiting LiteralExpression node: test/input/control.HC:34.17
+                visiting LiteralExpression node: input/control.HC:34.17
             }
         }
         Node {
-            visiting PostfixExpression node: test/input/control.HC:34.20-22
+            visiting PostfixExpression node: input/control.HC:34.20-22
             Node {
-                visiting IdentifierExpression node: test/input/control.HC:34.20
+                visiting IdentifierExpression node: input/control.HC:34.20
 SymbolTable: looking up varsymbol n
             }
         }
@@ -474,10 +474,10 @@ Array Types:
 
 Scope 0
 Physical Symbols:
-  n -> 0x561f78234670 : VarSymbol: n :: I64i
+  n -> 0x5609a9aa6670 : VarSymbol: n :: I64i
 
 Label Symbols:
-  start -> 0x561f78249400 : LabelSymbol: start
+  start -> 0x5609a9abb4a0 : LabelSymbol: start
 -----------------------------------------------------------
   Scope 1
 -----------------------------------------------------------
@@ -487,7 +487,7 @@ Label Symbols:
 -----------------------------------------------------------
   Scope 4
   Physical Symbols:
-    i -> 0x561f7824a6f0 : VarSymbol: i :: U32i
+    i -> 0x5609a9abc790 : VarSymbol: i :: U32i
 -----------------------------------------------------------
   Scope 5
 -----------------------------------------------------------
@@ -497,7 +497,7 @@ Label Symbols:
 -----------------------------------------------------------
   Scope 8
   Physical Symbols:
-    n -> 0x561f7824b6f0 : VarSymbol: n :: U32i
+    n -> 0x5609a9abd790 : VarSymbol: n :: U32i
 -----------------------------------------------------------
   Scope 9
 -----------------------------------------------------------
@@ -507,94 +507,94 @@ Label Symbols:
 --------- MIR ---------
 
 ProgramMIR @ <1.1>
-| VarDecl:  @ <test/input/control.HC:1.1-167>
+| VarDecl:  @ <input/control.HC:1.1-157>
 | | | VarSymbol: n :: I64i
-| | | Initializer @ <test/input/control.HC:1.166>
-| | | | Literal: 0 @ <test/input/control.HC:1.166>
-| Label: start @ <test/input/control.HC:3.1-10.1>
-| | IfStmt @ <test/input/control.HC:4.1-10.1>
-| | | Binary: < @ <test/input/control.HC:4.4-10>
-| | | | Ident: n @ <test/input/control.HC:4.4-5>
-| | | | Literal: 10 @ <test/input/control.HC:4.9-10>
-| | | CompoundStmtMIR @ <test/input/control.HC:4.13-6.1>
-| | | | ExprStmt @ <test/input/control.HC:5.5-8>
-| | | | | Postfix: ++ @ <test/input/control.HC:5.5-7>
-| | | | | | Ident: n @ <test/input/control.HC:5.5>
-| | | IfStmt @ <test/input/control.HC:6.8-10.1>
-| | | | Binary: > @ <test/input/control.HC:6.11-17>
-| | | | | Ident: n @ <test/input/control.HC:6.11-12>
-| | | | | Literal: 11 @ <test/input/control.HC:6.16-17>
-| | | | CompoundStmtMIR @ <test/input/control.HC:6.20-8.1>
-| | | | | ExprStmt @ <test/input/control.HC:7.5-8>
-| | | | | | Postfix: -- @ <test/input/control.HC:7.5-7>
-| | | | | | | Ident: n @ <test/input/control.HC:7.5>
-| | | | CompoundStmtMIR @ <test/input/control.HC:8.8-10.1>
-| | | | | ExprStmt @ <test/input/control.HC:9.5-11>
-| | | | | | Assign: += @ <test/input/control.HC:9.5-10>
-| | | | | | | Ident: n @ <test/input/control.HC:9.5>
-| | | | | | | Literal: 2 @ <test/input/control.HC:9.10>
-| SwitchStmt @ <test/input/control.HC:12.1-21.1>
-| | Ident: n @ <test/input/control.HC:12.8-9>
-| | CompoundStmtMIR @ <test/input/control.HC:12.12-21.1>
-| | | Case:  @ <test/input/control.HC:13.5-14.14>
-| | | | Const:  @ <test/input/control.HC:13.10>
-| | | | | Literal: 1 @ <test/input/control.HC:13.10>
-| | | | Break @ <test/input/control.HC:14.9-14>
-| | | CaseRange:  @ <test/input/control.HC:15.5-16.15>
-| | | | Const:  @ <test/input/control.HC:15.10>
-| | | | | Literal: 2 @ <test/input/control.HC:15.10>
-| | | | Const:  @ <test/input/control.HC:15.16>
-| | | | | Literal: 5 @ <test/input/control.HC:15.16>
-| | | | ExprStmt @ <test/input/control.HC:16.9-15>
-| | | | | Assign: += @ <test/input/control.HC:16.9-14>
-| | | | | | Ident: n @ <test/input/control.HC:16.9>
-| | | | | | Literal: 2 @ <test/input/control.HC:16.14>
-| | | VarDecl:  @ <test/input/control.HC:17.9-19>
+| | | Initializer @ <input/control.HC:1.156>
+| | | | Literal: 0 @ <input/control.HC:1.156>
+| Label: start @ <input/control.HC:3.1-10.1>
+| | IfStmt @ <input/control.HC:4.1-10.1>
+| | | Binary: < @ <input/control.HC:4.4-10>
+| | | | Ident: n @ <input/control.HC:4.4-5>
+| | | | Literal: 10 @ <input/control.HC:4.9-10>
+| | | CompoundStmtMIR @ <input/control.HC:4.13-6.1>
+| | | | ExprStmt @ <input/control.HC:5.5-8>
+| | | | | Postfix: ++ @ <input/control.HC:5.5-7>
+| | | | | | Ident: n @ <input/control.HC:5.5>
+| | | IfStmt @ <input/control.HC:6.8-10.1>
+| | | | Binary: > @ <input/control.HC:6.11-17>
+| | | | | Ident: n @ <input/control.HC:6.11-12>
+| | | | | Literal: 11 @ <input/control.HC:6.16-17>
+| | | | CompoundStmtMIR @ <input/control.HC:6.20-8.1>
+| | | | | ExprStmt @ <input/control.HC:7.5-8>
+| | | | | | Postfix: -- @ <input/control.HC:7.5-7>
+| | | | | | | Ident: n @ <input/control.HC:7.5>
+| | | | CompoundStmtMIR @ <input/control.HC:8.8-10.1>
+| | | | | ExprStmt @ <input/control.HC:9.5-11>
+| | | | | | Assign: += @ <input/control.HC:9.5-10>
+| | | | | | | Ident: n @ <input/control.HC:9.5>
+| | | | | | | Literal: 2 @ <input/control.HC:9.10>
+| SwitchStmt @ <input/control.HC:12.1-21.1>
+| | Ident: n @ <input/control.HC:12.8-9>
+| | CompoundStmtMIR @ <input/control.HC:12.12-21.1>
+| | | Case:  @ <input/control.HC:13.5-14.14>
+| | | | Const:  @ <input/control.HC:13.10>
+| | | | | Literal: 1 @ <input/control.HC:13.10>
+| | | | Break @ <input/control.HC:14.9-14>
+| | | CaseRange:  @ <input/control.HC:15.5-16.15>
+| | | | Const:  @ <input/control.HC:15.10>
+| | | | | Literal: 2 @ <input/control.HC:15.10>
+| | | | Const:  @ <input/control.HC:15.16>
+| | | | | Literal: 5 @ <input/control.HC:15.16>
+| | | | ExprStmt @ <input/control.HC:16.9-15>
+| | | | | Assign: += @ <input/control.HC:16.9-14>
+| | | | | | Ident: n @ <input/control.HC:16.9>
+| | | | | | Literal: 2 @ <input/control.HC:16.14>
+| | | VarDecl:  @ <input/control.HC:17.9-19>
 | | | | | VarSymbol: i :: U32i
-| | | | | Initializer @ <test/input/control.HC:17.18>
-| | | | | | Literal: 0 @ <test/input/control.HC:17.18>
-| | | Break @ <test/input/control.HC:18.9-14>
-| | | DefaultStmt @ <test/input/control.HC:19.5-20.19>
-| | | | Goto: start @ <test/input/control.HC:20.9-19>
-| LoopStmt @ <test/input/control.HC:23.1-24.8>
-| | Binary: > @ <test/input/control.HC:23.7-12>
-| | | Ident: n @ <test/input/control.HC:23.7-8>
-| | | Literal: 0 @ <test/input/control.HC:23.12>
-| | ExprStmt @ <test/input/control.HC:24.5-8>
-| | | Postfix: -- @ <test/input/control.HC:24.5-7>
-| | | | Ident: n @ <test/input/control.HC:24.5>
-| LoopStmt (do-while) @ <test/input/control.HC:26.1-28.16>
-| | Binary: < @ <test/input/control.HC:28.9-14>
-| | | Ident: n @ <test/input/control.HC:28.9-10>
-| | | Literal: 3 @ <test/input/control.HC:28.14>
-| | CompoundStmtMIR @ <test/input/control.HC:26.4-28.1>
-| | | ExprStmt @ <test/input/control.HC:27.5-8>
-| | | | Postfix: ++ @ <test/input/control.HC:27.5-7>
-| | | | | Ident: n @ <test/input/control.HC:27.5>
-| LoopStmt @ <test/input/control.HC:30.1-37>
-| | VarDecl:  @ <test/input/control.HC:30.5-15>
+| | | | | Initializer @ <input/control.HC:17.18>
+| | | | | | Literal: 0 @ <input/control.HC:17.18>
+| | | Break @ <input/control.HC:18.9-14>
+| | | DefaultStmt @ <input/control.HC:19.5-20.19>
+| | | | Goto: start @ <input/control.HC:20.9-19>
+| LoopStmt @ <input/control.HC:23.1-24.8>
+| | Binary: > @ <input/control.HC:23.7-12>
+| | | Ident: n @ <input/control.HC:23.7-8>
+| | | Literal: 0 @ <input/control.HC:23.12>
+| | ExprStmt @ <input/control.HC:24.5-8>
+| | | Postfix: -- @ <input/control.HC:24.5-7>
+| | | | Ident: n @ <input/control.HC:24.5>
+| LoopStmt (do-while) @ <input/control.HC:26.1-28.16>
+| | Binary: < @ <input/control.HC:28.9-14>
+| | | Ident: n @ <input/control.HC:28.9-10>
+| | | Literal: 3 @ <input/control.HC:28.14>
+| | CompoundStmtMIR @ <input/control.HC:26.4-28.1>
+| | | ExprStmt @ <input/control.HC:27.5-8>
+| | | | Postfix: ++ @ <input/control.HC:27.5-7>
+| | | | | Ident: n @ <input/control.HC:27.5>
+| LoopStmt @ <input/control.HC:30.1-37>
+| | VarDecl:  @ <input/control.HC:30.5-15>
 | | | | VarSymbol: n :: U32i
-| | | | Initializer @ <test/input/control.HC:30.15>
-| | | | | Literal: 0 @ <test/input/control.HC:30.15>
-| | Binary: < @ <test/input/control.HC:30.18-22>
-| | | Ident: n @ <test/input/control.HC:30.18>
-| | | Literal: 5 @ <test/input/control.HC:30.22>
-| | ExprStmt @ <test/input/control.HC:30.25-27>
-| | | Postfix: ++ @ <test/input/control.HC:30.25-27>
-| | | | Ident: n @ <test/input/control.HC:30.25>
-| | Print: "hello" @ <test/input/control.HC:30.30-37>
-| LoopStmt @ <test/input/control.HC:32.1-27>
-| | Print: "looping forever" @ <test/input/control.HC:32.10-27>
-| LoopStmt @ <test/input/control.HC:34.1-32>
-| | ExprStmt @ <test/input/control.HC:34.5-10>
-| | | Assign: = @ <test/input/control.HC:34.5-10>
-| | | | Ident: n @ <test/input/control.HC:34.5-6>
-| | | | Literal: 0 @ <test/input/control.HC:34.10>
-| | Binary: < @ <test/input/control.HC:34.13-17>
-| | | Ident: n @ <test/input/control.HC:34.13>
-| | | Literal: 5 @ <test/input/control.HC:34.17>
-| | ExprStmt @ <test/input/control.HC:34.20-22>
-| | | Postfix: ++ @ <test/input/control.HC:34.20-22>
-| | | | Ident: n @ <test/input/control.HC:34.20>
-| | Print: "hello" @ <test/input/control.HC:34.25-32>
+| | | | Initializer @ <input/control.HC:30.15>
+| | | | | Literal: 0 @ <input/control.HC:30.15>
+| | Binary: < @ <input/control.HC:30.18-22>
+| | | Ident: n @ <input/control.HC:30.18>
+| | | Literal: 5 @ <input/control.HC:30.22>
+| | ExprStmt @ <input/control.HC:30.25-27>
+| | | Postfix: ++ @ <input/control.HC:30.25-27>
+| | | | Ident: n @ <input/control.HC:30.25>
+| | Print: "hello" @ <input/control.HC:30.30-37>
+| LoopStmt @ <input/control.HC:32.1-27>
+| | Print: "looping forever" @ <input/control.HC:32.10-27>
+| LoopStmt @ <input/control.HC:34.1-32>
+| | ExprStmt @ <input/control.HC:34.5-10>
+| | | Assign: = @ <input/control.HC:34.5-10>
+| | | | Ident: n @ <input/control.HC:34.5-6>
+| | | | Literal: 0 @ <input/control.HC:34.10>
+| | Binary: < @ <input/control.HC:34.13-17>
+| | | Ident: n @ <input/control.HC:34.13>
+| | | Literal: 5 @ <input/control.HC:34.17>
+| | ExprStmt @ <input/control.HC:34.20-22>
+| | | Postfix: ++ @ <input/control.HC:34.20-22>
+| | | | Ident: n @ <input/control.HC:34.20>
+| | Print: "hello" @ <input/control.HC:34.25-32>
 LLVM: Shutting down

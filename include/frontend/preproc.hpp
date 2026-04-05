@@ -33,7 +33,7 @@ public:
     // Throws error if `cpp` terminated unusually for whatever reason.
     void close();
 
-    ~Preprocessor();
+    ~Preprocessor() override;
 };
 
 } // namespace ecc::frontend

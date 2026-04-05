@@ -38,7 +38,7 @@ The abstract symbol class.
 class Symbol {
 public:
     // The kind of symbol.
-    enum Kind {
+    enum Kind : uint8_t {
         VAR, // This symbol references a variable.
         FUNC, // This symbol references a function definition.
         TYPE, // This symbol references a declared type.
@@ -46,10 +46,10 @@ public:
     };
 
     Symbol(Kind kind, std::string name, Scope *scope)
-        : kind(kind), name(name), scope(scope) {}
+        : kind(kind), name(std::move(name)), scope(scope) {}
 
     Symbol(Kind kind, Location loc, std::string name, Scope *scope)
-        : kind(kind), name(name), loc(loc), scope(scope) {}
+        : kind(kind), name(std::move(name)), loc(loc), scope(scope) {}
 
     Kind kind;
 
@@ -85,12 +85,14 @@ public:
 // (e.g. a variable or function).
 class PhysicalSymbol : public Symbol {
 public:
-    PhysicalSymbol(Kind kind, std::string name, Scope *scope) : Symbol(kind, name, scope) {}
+    PhysicalSymbol(Kind kind, std::string name, Scope *scope)
+        : Symbol(kind, std::move(name), scope) {}
 
-    PhysicalSymbol(Kind kind, Location loc, std::string name, Scope *scope) : Symbol(kind, name, scope) {}
+    PhysicalSymbol(Kind kind, Location loc, std::string name, Scope *scope)
+        : Symbol(kind, std::move(name), scope) {}
 
     // The linkage of the symbol.
-    enum class Linkage {
+    enum class Linkage : uint8_t {
         // The symbol is only visible within the current translation unit.
         INTERNAL,
         // The symbol is visible to other translation units, and should be linked to if referenced.
@@ -112,9 +114,11 @@ public:
 // (e.g. a label or type declaration).
 class AbstractSymbol : public Symbol {
 public:
-    AbstractSymbol(Kind kind, std::string name, Scope *scope) : Symbol(kind, name, scope) {}
+    AbstractSymbol(Kind kind, std::string name, Scope *scope)
+        : Symbol(kind, std::move(name), scope) {}
 
-    AbstractSymbol(Kind kind, Location loc, std::string name, Scope *scope) : Symbol(kind, name, scope) {}
+    AbstractSymbol(Kind kind, Location loc, std::string name, Scope *scope)
+        : Symbol(kind, std::move(name), scope) {}
 
     AbstractSymbol *as_abstract() override { return this; }
 
@@ -127,10 +131,10 @@ A symbol representing a variable declaration.
 class VarSymbol : public PhysicalSymbol {
 public:
     VarSymbol(Location loc, std::string name, Scope *scope, types::Type *type) 
-        : PhysicalSymbol(Symbol::Kind::VAR, loc, name, scope), type(type) {}
+        : PhysicalSymbol(Symbol::Kind::VAR, loc, std::move(name), scope), type(type) {}
 
     VarSymbol(Location loc, std::string name, Scope *scope, types::Type *type, exec::Value value) 
-        : PhysicalSymbol(Symbol::Kind::VAR, loc, name, scope), type(type), value(value) {}
+        : PhysicalSymbol(Symbol::Kind::VAR, loc, std::move(name), scope), type(type), value(value) {}
 
     /// The type of the symbol.
     types::Type *type;
@@ -165,7 +169,7 @@ public:
                Scope *scope,
                types::FunctionType *signature, 
                Vec<VarSymbol *> parameters)
-        : PhysicalSymbol(Symbol::Kind::FUNC, loc, name, scope), 
+        : PhysicalSymbol(Symbol::Kind::FUNC, loc, std::move(name), scope), 
         signature(signature),
         parameters(std::move(parameters)) {}
 
@@ -193,7 +197,7 @@ A symbol representing a type declaration (class, union, enum).
 class TypeSymbol : public AbstractSymbol {
 public:
     TypeSymbol(Location loc, std::string name, Scope *scope, types::BaseType* type)
-        : AbstractSymbol(Symbol::Kind::TYPE, loc, name, scope), type(type) {}
+        : AbstractSymbol(Symbol::Kind::TYPE, loc, std::move(name), scope), type(type) {}
 
     types::BaseType *type;
 
@@ -210,7 +214,7 @@ A symbol representing a label (for use by goto).
 class LabelSymbol : public AbstractSymbol {
 public:
     LabelSymbol(Location loc, std::string name, Scope *scope)
-        : AbstractSymbol(Symbol::Kind::LABEL, loc, name, scope) {}
+        : AbstractSymbol(Symbol::Kind::LABEL, loc, std::move(name), scope) {}
 
     std::string to_string() const override;
 
@@ -290,7 +294,7 @@ public:
     void reset_from(Scope *scope);
 
     // Reset the current scope to the first index.
-    void reset_current();
+    void reset_current() const;
 
     // Clear the entire SymbolTable.
     void clear();
@@ -298,24 +302,24 @@ public:
     /**
     Lookup a symbol by name. Returns null of no symbol exists.
     */
-    Symbol *lookup(std::string& sym, bool current = false);
+    Symbol *lookup(std::string& sym, bool current = false) const;
 
     /**
     Lookup a symbol by name from Scope `from`. Returns null if no symbol exists.
     */
-    Symbol *lookup(std::string& sym, Scope *from, bool current = false);
+    Symbol *lookup(std::string& sym, Scope *from, bool current = false) const;
 
-    VarSymbol *lookup_var(std::string& sym, bool current = false);
+    VarSymbol *lookup_var(std::string& sym, bool current = false) const;
 
-    VarSymbol *lookup_var(std::string& sym, Scope *from, bool current = false);
+    VarSymbol *lookup_var(std::string& sym, Scope *from, bool current = false) const;
 
-    FuncSymbol *lookup_func(std::string& sym, bool current = false);
+    FuncSymbol *lookup_func(std::string& sym, bool current = false) const;
 
-    FuncSymbol *lookup_func(std::string& sym, Scope *from, bool current = false);
+    FuncSymbol *lookup_func(std::string& sym, Scope *from, bool current = false) const;
 
-    TypeSymbol *lookup_type(std::string& sym, bool current = false);
+    TypeSymbol *lookup_type(std::string& sym, bool current = false) const;
 
-    TypeSymbol *lookup_type(std::string& sym, Scope *from, bool current = false);
+    TypeSymbol *lookup_type(std::string& sym, Scope *from, bool current = false) const;
 
     /*
     Look up a label from Scope `from`, up to the first function scope.
@@ -324,7 +328,7 @@ public:
     `lookup_label` only recurses outwards until a function boundary.
     This is because labels are scoped to function scope specifically.
     */
-    LabelSymbol *lookup_label(std::string& sym, bool current = false);
+    LabelSymbol *lookup_label(std::string& sym, bool current = false) const;
 
     /*
     Look up a label up to the first function scope.
@@ -333,24 +337,24 @@ public:
     `lookup_label` only recurses outwards until a function boundary.
     This is because labels are scoped to function scope specifically.
     */
-    LabelSymbol *lookup_label(std::string& sym, Scope *from, bool current = false);
+    LabelSymbol *lookup_label(std::string& sym, Scope *from, bool current = false) const;
 
     // Associate the current scope with the given FuncSymbol `sym`.
     // If current scope is already tied to a symbol, replaces it
     // with the new one depending on value of `override`.
-    void tie_current_to(FuncSymbol *sym, bool override = false);
+    void tie_current_to(FuncSymbol *sym, bool override = false) const;
 
     // Add a new symbol to the current scope.
     // Returns a pointer to the inserted symbol for further use.
     // If a symbol with the same name already exists in the current scope,
     // It throws a Location where the symbol was previously defined.
-    VarSymbol *insert(std::string name, Box<VarSymbol> sym);
+    VarSymbol *insert(std::string& name, Box<VarSymbol> sym) const;
 
-    FuncSymbol *insert(std::string name, Box<FuncSymbol> sym);
+    FuncSymbol *insert(std::string& name, Box<FuncSymbol> sym) const;
 
-    TypeSymbol *insert(std::string name, Box<TypeSymbol> sym);
+    TypeSymbol *insert(std::string& name, Box<TypeSymbol> sym) const;
 
-    LabelSymbol *insert(std::string name, Box<LabelSymbol> sym);
+    LabelSymbol *insert(std::string& name, Box<LabelSymbol> sym) const;
 
 
     std::string to_string() const;

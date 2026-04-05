@@ -226,14 +226,14 @@ void MIRSynthesizer::do_visit(Function& node) {
             match{[&builder, &curr](TypeBuilder::Arr& arr) mutable {
                       // Wrap the base in an array.
                       if (arr.size) {
-                          curr = builder->ty_bldr.ctxt.get_array(curr, *arr.size);
+                          curr = builder->ty_bldr.ctxt().get_array(curr, *arr.size);
                       } else {
-                          curr = builder->ty_bldr.ctxt.get_array(curr);
+                          curr = builder->ty_bldr.ctxt().get_array(curr);
                       }
                   },
                   [&builder, &curr](TypeBuilder::Ptr& ptr) mutable {
                       // Wrap the base in a pointer.
-                      curr = builder->ty_bldr.ctxt.get_pointer(curr, ptr.is_const);
+                      curr = builder->ty_bldr.ctxt().get_pointer(curr, ptr.is_const);
                   },
                   [&builder, &curr, &last_func_params, this](TypeBuilder::FnParams& fn) mutable {
                       // map out the identifiers.
@@ -245,8 +245,8 @@ void MIRSynthesizer::do_visit(Function& node) {
 
                       last_func_params = std::move(fn.params);
                       // Wrap the base as the return type in a function type.
-                      curr = builder->ty_bldr.ctxt.get_function(fn.loc, curr, std::move(params),
-                                                                fn.variadic);
+                      curr = builder->ty_bldr.ctxt().get_function(fn.loc, curr, std::move(params),
+                                                                  fn.variadic);
                   }},
             next_cstrctr);
 
@@ -447,7 +447,8 @@ void MIRSynthesizer::do_visit(ArrayDeclarator& node) {
         dv_call(std::monostate{}, *node.size);
         Box<ExprMIR> arr_size_expr = take_last_result<Box<ExprMIR>>();
         // if we have a size for the array, evaluate it
-        exec::Value val;
+        exec::Value val((long) 0);
+
         exec::Evaluator evalr(syms, types);
         val = arr_size_expr->eval(evalr);
 
@@ -660,13 +661,16 @@ void MIRSynthesizer::do_visit(Enumerator& node) {
         throw UnableToContinue();
     }
 
-    exec::Value value;
+    exec::Value value((long) 0);
     if (node.value) {
         dv_call(std::monostate{}, *node.value);
         Box<ExprMIR> value_expr = take_last_result<Box<ExprMIR>>();
         exec::Evaluator evalr(syms, types);
+
         value              = value_expr->eval(evalr);
+
         Optional<long> val = value.value_as<long>();
+
         if (val) {
             enm->add_enumerator(node.name, *val, node.loc);
         } else {
@@ -1471,7 +1475,7 @@ void MIRSynthesizer::do_visit(ConstExpression& node) {
 void MIRSynthesizer::do_visit(LiteralExpression& node) {
     bsv_dbprint("visiting LiteralExpression node: ", node.loc);
 
-    exec::Value val;
+    exec::Value val((long) 0);
     switch (node.kind) {
     case LiteralExpression::INT:
         val = (long)node.value.i_val;

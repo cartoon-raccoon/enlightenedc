@@ -12,21 +12,21 @@ Program @ <input/expressions.HC:1.1>
 | | | Declarator @ <input/expressions.HC:1.160> 
 | | | | IdentifierDeclarator: x @ <input/expressions.HC:1.160> 
 | | | Initializer:  @ <input/expressions.HC:1.164> 
-| | | | Literal: 0 @ <input/expressions.HC:1.164> 
+| | | | 0 @ <input/expressions.HC:1.164> 
 | VariableDeclaration @ <input/expressions.HC:2.1-11> 
 | | PrimitiveSpecifier: u32 @ <input/expressions.HC:2.1-4> 
 | | InitDeclarator @ <input/expressions.HC:2.6-10> 
 | | | Declarator @ <input/expressions.HC:2.6> 
 | | | | IdentifierDeclarator: a @ <input/expressions.HC:2.6> 
 | | | Initializer:  @ <input/expressions.HC:2.10> 
-| | | | Literal: 1 @ <input/expressions.HC:2.10> 
+| | | | 1 @ <input/expressions.HC:2.10> 
 | VariableDeclaration @ <input/expressions.HC:3.1-11> 
 | | PrimitiveSpecifier: u32 @ <input/expressions.HC:3.1-4> 
 | | InitDeclarator @ <input/expressions.HC:3.6-10> 
 | | | Declarator @ <input/expressions.HC:3.6> 
 | | | | IdentifierDeclarator: b @ <input/expressions.HC:3.6> 
 | | | Initializer:  @ <input/expressions.HC:3.10> 
-| | | | Literal: 2 @ <input/expressions.HC:3.10> 
+| | | | 2 @ <input/expressions.HC:3.10> 
 | ExpressionStatement @ <input/expressions.HC:4.1-26> 
 | | AssignmentExpression: = @ <input/expressions.HC:4.1-25> 
 | | | IdentifierExpression: x @ <input/expressions.HC:4.1> 
@@ -35,31 +35,31 @@ Program @ <input/expressions.HC:1.1>
 | | | | | IdentifierExpression: a @ <input/expressions.HC:4.5> 
 | | | | | BinaryExpression: * @ <input/expressions.HC:4.9-13> 
 | | | | | | IdentifierExpression: b @ <input/expressions.HC:4.9> 
-| | | | | | Literal: 3 @ <input/expressions.HC:4.13> 
+| | | | | | 3 @ <input/expressions.HC:4.13> 
 | | | | BinaryExpression: % @ <input/expressions.HC:4.17-25> 
 | | | | | BinaryExpression: / @ <input/expressions.HC:4.17-21> 
-| | | | | | Literal: 4 @ <input/expressions.HC:4.17> 
-| | | | | | Literal: 2 @ <input/expressions.HC:4.21> 
-| | | | | Literal: 5 @ <input/expressions.HC:4.25> 
+| | | | | | 4 @ <input/expressions.HC:4.17> 
+| | | | | | 2 @ <input/expressions.HC:4.21> 
+| | | | | 5 @ <input/expressions.HC:4.25> 
 | ExpressionStatement @ <input/expressions.HC:5.1-8> 
 | | AssignmentExpression: <<= @ <input/expressions.HC:5.1-7> 
 | | | IdentifierExpression: x @ <input/expressions.HC:5.1> 
-| | | Literal: 2 @ <input/expressions.HC:5.7> 
+| | | 2 @ <input/expressions.HC:5.7> 
 | ExpressionStatement @ <input/expressions.HC:6.1-15> 
 | | AssignmentExpression: |= @ <input/expressions.HC:6.1-14> 
 | | | IdentifierExpression: x @ <input/expressions.HC:6.1> 
 | | | BinaryExpression: ^ @ <input/expressions.HC:6.6-14> 
-| | | | Literal: 1 @ <input/expressions.HC:6.6> 
+| | | | 1 @ <input/expressions.HC:6.6> 
 | | | | BinaryExpression: & @ <input/expressions.HC:6.10-14> 
-| | | | | Literal: 3 @ <input/expressions.HC:6.10> 
-| | | | | Literal: 7 @ <input/expressions.HC:6.14> 
+| | | | | 3 @ <input/expressions.HC:6.10> 
+| | | | | 7 @ <input/expressions.HC:6.14> 
 | ExpressionStatement @ <input/expressions.HC:8.1-14> 
 | | AssignmentExpression: = @ <input/expressions.HC:8.1-13> 
 | | | IdentifierExpression: a @ <input/expressions.HC:8.1> 
 | | | ConditionalExpression @ <input/expressions.HC:8.5-13> 
-| | | | Literal: 2 @ <input/expressions.HC:8.5> 
-| | | | Literal: 1 @ <input/expressions.HC:8.9> 
-| | | | Literal: 5 @ <input/expressions.HC:8.13> 
+| | | | 2 @ <input/expressions.HC:8.5> 
+| | | | 1 @ <input/expressions.HC:8.9> 
+| | | | 5 @ <input/expressions.HC:8.13> 
 | ExpressionStatement @ <input/expressions.HC:9.1-20> 
 | | AssignmentExpression: = @ <input/expressions.HC:9.1-19> 
 | | | IdentifierExpression: x @ <input/expressions.HC:9.1> 
@@ -85,7 +85,7 @@ Program @ <input/expressions.HC:1.1>
 | | | | | IdentifierExpression: a @ <input/expressions.HC:11.12> 
 | | | | | TypeName @ <input/expressions.HC:11.5-9> 
 | | | | | | PrimitiveSpecifier: u32 @ <input/expressions.HC:11.5-9> 
-| | | | Literal: 2 @ <input/expressions.HC:11.16> 
+| | | | 2 @ <input/expressions.HC:11.16> 
 | ExpressionStatement @ <input/expressions.HC:12.1-13> 
 | | AssignmentExpression: = @ <input/expressions.HC:12.1-12> 
 | | | IdentifierExpression: x @ <input/expressions.HC:12.1> 
@@ -451,7 +451,7 @@ TypeContext: getting primitive type
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x55c3c3c07870
+TypeContext: pointer with base 0x561131e4e6d0
         }
 SymbolTable: inserting varsymbol with name "s"
     }
@@ -555,19 +555,6 @@ SymbolTable: looking up varsymbol x
         }
     }
 }
-TypeContext: finalizing primitives
-VoidType: finalizing
-PrimitiveType: finalizing U8i
-PrimitiveType: finalizing U16i
-PrimitiveType: finalizing U32i
-PrimitiveType: finalizing U64i
-PrimitiveType: finalizing I8i
-PrimitiveType: finalizing I16i
-PrimitiveType: finalizing I32i
-PrimitiveType: finalizing I64i
-PrimitiveType: finalizing F64i
-PrimitiveType: finalizing Bool
-TypeContext: finalizing user types
 semantic checking complete
 --------- TYPE CONTEXT ---------
 
@@ -585,14 +572,10 @@ Array Types:
 
 Scope 0
 Physical Symbols:
-  s -> 0x55c3c3c0a070 : VarSymbol: s :: U8i *
-  b -> 0x55c3c3c08740 : VarSymbol: b :: U32i
-  a -> 0x55c3c3c08510 : VarSymbol: a :: U32i
-  x -> 0x55c3c3bf3670 : VarSymbol: x :: U32i
-
-Type Symbols:
-
-Label Symbols:
+  s -> 0x561131e51150 : VarSymbol: s :: U8i *
+  b -> 0x561131e4f840 : VarSymbol: b :: U32i
+  a -> 0x561131e4f610 : VarSymbol: a :: U32i
+  x -> 0x561131e3a670 : VarSymbol: x :: U32i
 -----------------------------------------------------------
 
 --------- MIR ---------
@@ -677,7 +660,7 @@ ProgramMIR @ <1.1>
 | ExprStmt @ <input/expressions.HC:15.1-13>
 | | Assign: = @ <input/expressions.HC:15.1-12>
 | | | Ident: s @ <input/expressions.HC:15.1>
-| | | Literal: "hello!" @ <input/expressions.HC:15.5-12>
+| | | Literal: hello! @ <input/expressions.HC:15.5-12>
 | ExprStmt @ <input/expressions.HC:17.1-4>
 | | Unary: ++ @ <input/expressions.HC:17.1-3>
 | | | Ident: x @ <input/expressions.HC:17.1-3>

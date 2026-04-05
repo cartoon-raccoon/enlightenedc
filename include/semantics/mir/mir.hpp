@@ -34,7 +34,7 @@ A simpler version of the AST, mapping symbols directly to types.
 */
 class MIRNode : public NoCopy {
 public:
-    enum class NodeKind {
+    enum class NodeKind : uint8_t {
         PROG_MIR,
         FUNC_MIR,
         INIT_MIR,
@@ -86,8 +86,6 @@ public:
 class ProgItemMIR : public MIRNode {
 public:
     ProgItemMIR(Location loc, NodeKind kind) : MIRNode(loc, kind) {}
-
-    virtual void accept(MIRVisitor& visitor) = 0;
 };
 
 class ExprMIR : public MIRNode {
@@ -113,21 +111,17 @@ public:
 
     virtual bool is_subscriptable() { return type->is_subscriptable(); }
 
-    virtual void accept(MIRVisitor& visitor) = 0;
-
     virtual exec::Value eval(exec::Evaluator& ev) = 0;
 };
 
 class DeclMIR : public ProgItemMIR {
 public:
     DeclMIR(Location loc, NodeKind kind) : ProgItemMIR(loc, kind) {}
-    virtual void accept(MIRVisitor& visitor) = 0;
 };
 
 class StmtMIR : public ProgItemMIR {
 public:
     StmtMIR(Location loc, NodeKind kind) : ProgItemMIR(loc, kind) {}
-    virtual void accept(MIRVisitor& visitor) = 0;
 };
 
 class InitializerMIR : public MIRNode {
@@ -175,7 +169,7 @@ public:
 class CompoundStmtMIR : public StmtMIR {
 public:
     CompoundStmtMIR(Location loc)
-        : StmtMIR(loc, NodeKind::CMPDSTMT_MIR), items() {}
+        : StmtMIR(loc, NodeKind::CMPDSTMT_MIR) {}
     
     CompoundStmtMIR(Location loc, Vec<Box<ProgItemMIR>> items)
         : StmtMIR(loc, NodeKind::CMPDSTMT_MIR), items(std::move(items)) {}
@@ -197,7 +191,7 @@ public:
     
     Optional<Box<ExprMIR>> expr;
 
-    bool is_empty() { return !expr.has_value(); }
+    bool is_empty() const { return !expr.has_value(); }
 
     void accept(MIRVisitor& visitor) override;
 };
@@ -270,11 +264,11 @@ class PrintStmtMIR : public StmtMIR {
 public:
     PrintStmtMIR(Location loc, std::string format_string)
         : StmtMIR(loc, NodeKind::PRINTSTMT_MIR), 
-        format_string(format_string) {}
+        format_string(std::move(format_string)) {}
 
     PrintStmtMIR(Location loc, std::string format_string, Vec<Box<ExprMIR>> arguments)
         : StmtMIR(loc, NodeKind::PRINTSTMT_MIR), 
-        format_string(format_string), arguments(std::move(arguments)) {}
+        format_string(std::move(format_string)), arguments(std::move(arguments)) {}
     
     std::string format_string;
     Vec<Box<ExprMIR>> arguments;
@@ -362,7 +356,7 @@ public:
     Optional<Box<StmtMIR>> step;
     // The actual body of the loop.
     Box<StmtMIR> body;
-    bool is_dowhile;
+    bool is_dowhile = false;
 
     void accept(MIRVisitor& visitor) override;
 };
@@ -370,7 +364,7 @@ public:
 class GotoStmtMIR : public StmtMIR {
 public:
     GotoStmtMIR(Location loc, std::string target)
-        : StmtMIR(loc, NodeKind::GOTOSTMT_MIR), target(target) {}
+        : StmtMIR(loc, NodeKind::GOTOSTMT_MIR), target(std::move(target)) {}
     
     /*
     Since goto's can occur before their label is declared, do not resolve the
@@ -558,7 +552,7 @@ public:
 class LiteralExprMIR : public ExprMIR {
 public:
     LiteralExprMIR(Location loc, sema::sym::Scope *scope, exec::Value value)
-        : ExprMIR(loc, NodeKind::LITEXPR_MIR, scope), value(value) {}
+        : ExprMIR(loc, NodeKind::LITEXPR_MIR, scope), value(std::move(value)) {}
 
     exec::Value value;
 
@@ -605,7 +599,7 @@ public:
                      sema::sym::Scope *scope,
                      Box<ExprMIR> object, std::string member, bool is_arrow)
         : ExprMIR(loc, NodeKind::MEMACCEXPR_MIR, scope), 
-        object(std::move(object)), member(member), is_arrow(is_arrow) {}
+        object(std::move(object)), member(std::move(member)), is_arrow(is_arrow) {}
     
     Box<ExprMIR> object;
     std::string member;
