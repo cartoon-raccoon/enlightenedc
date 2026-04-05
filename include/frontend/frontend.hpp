@@ -7,7 +7,7 @@
 #include "util.hpp"
 
 namespace ecc::driver {
-    struct TranslationUnit;
+struct TranslationUnit;
 }
 
 namespace ecc::frontend {
@@ -21,8 +21,7 @@ returning the completed ASTNode when done.
 
 class ParseError : public EccError {
 public:
-    ParseError(std::string err, Location loc)
-        : EccError(ErrorSource::PARSE, err, loc) {}
+    ParseError(std::string err, Location loc) : EccError(ErrorSource::PARSE, err, loc) {}
 };
 
 // The object driving the Frontend's functionality.
@@ -35,7 +34,6 @@ public:
     // Run the frontend on file `f`. Returns 0 on success.
     void run(driver::TranslationUnit& unit);
 };
-
 
 } // namespace ecc::frontend
 

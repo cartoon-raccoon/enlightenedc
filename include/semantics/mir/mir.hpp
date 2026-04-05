@@ -4,12 +4,11 @@
 #include <variant>
 
 #include "eval/evaluator.hpp"
-#include "semantics/types.hpp"
-#include "semantics/symbols.hpp"
 #include "eval/value.hpp"
-#include "util.hpp"
+#include "semantics/symbols.hpp"
+#include "semantics/types.hpp"
 #include "tokens.hpp"
-
+#include "util.hpp"
 
 using namespace ecc;
 using namespace util;
@@ -130,7 +129,7 @@ public:
         : MIRNode(loc, NodeKind::INIT_MIR), initializer(std::move(expr)) {}
     InitializerMIR(Location loc, Vec<Box<InitializerMIR>> initializers)
         : MIRNode(loc, NodeKind::INIT_MIR), initializer(std::move(initializers)) {}
-    
+
     std::variant<Box<ExprMIR>, Vec<Box<InitializerMIR>>> initializer;
 
     /**
@@ -147,7 +146,7 @@ class TypeDeclMIR : public DeclMIR {
 public:
     TypeDeclMIR(Location loc, sema::sym::TypeSymbol *sym)
         : DeclMIR(loc, NodeKind::TYPEDEC_MIR), sym(sym) {}
-    
+
     sema::sym::TypeSymbol *sym;
 
     void accept(MIRVisitor& visitor) override;
@@ -161,9 +160,8 @@ public:
         Optional<Box<InitializerMIR>> initializer;
     };
 
-    VarDeclMIR(Location loc)
-        : DeclMIR(loc, NodeKind::VARDEC_MIR) {}
-    
+    VarDeclMIR(Location loc) : DeclMIR(loc, NodeKind::VARDEC_MIR) {}
+
     Vec<VarDecl> decls;
 
     void add_decl(sema::sym::VarSymbol *sym);
@@ -175,12 +173,11 @@ public:
 
 class CompoundStmtMIR : public StmtMIR {
 public:
-    CompoundStmtMIR(Location loc)
-        : StmtMIR(loc, NodeKind::CMPDSTMT_MIR) {}
-    
+    CompoundStmtMIR(Location loc) : StmtMIR(loc, NodeKind::CMPDSTMT_MIR) {}
+
     CompoundStmtMIR(Location loc, Vec<Box<ProgItemMIR>> items)
         : StmtMIR(loc, NodeKind::CMPDSTMT_MIR), items(std::move(items)) {}
-    
+
     Vec<Box<ProgItemMIR>> items;
 
     void add_item(Box<ProgItemMIR> item);
@@ -192,10 +189,9 @@ class ExprStmtMIR : public StmtMIR {
 public:
     ExprStmtMIR(Location loc, Box<ExprMIR> expr)
         : StmtMIR(loc, NodeKind::EXPRSTMT_MIR), expr(std::move(expr)) {}
-    
-    ExprStmtMIR(Location loc)
-        : StmtMIR(loc, NodeKind::EXPRSTMT_MIR) {}
-    
+
+    ExprStmtMIR(Location loc) : StmtMIR(loc, NodeKind::EXPRSTMT_MIR) {}
+
     Optional<Box<ExprMIR>> expr;
 
     bool is_empty() const { return !expr.has_value(); }
@@ -206,9 +202,9 @@ public:
 class SwitchStmtMIR : public StmtMIR {
 public:
     SwitchStmtMIR(Location loc, Box<ExprMIR> condition, Box<StmtMIR> body)
-        : StmtMIR(loc, NodeKind::SWITCHSTMT_MIR), 
-        condition(std::move(condition)), body(std::move(body)) {}
-    
+        : StmtMIR(loc, NodeKind::SWITCHSTMT_MIR), condition(std::move(condition)),
+          body(std::move(body)) {}
+
     Box<ExprMIR> condition;
     Box<StmtMIR> body;
 
@@ -218,9 +214,8 @@ public:
 class CaseStmtMIR : public StmtMIR {
 public:
     CaseStmtMIR(Location loc, Box<ExprMIR> case_expr, Box<StmtMIR> stmt)
-        : StmtMIR(loc, NodeKind::CASESTMT_MIR), 
-        case_expr(std::move(case_expr)),
-        stmt(std::move(stmt)) {}
+        : StmtMIR(loc, NodeKind::CASESTMT_MIR), case_expr(std::move(case_expr)),
+          stmt(std::move(stmt)) {}
 
     Box<ExprMIR> case_expr;
     Box<StmtMIR> stmt;
@@ -230,14 +225,10 @@ public:
 
 class CaseRangeStmtMIR : public StmtMIR {
 public:
-    CaseRangeStmtMIR(Location loc, 
-                     Box<ExprMIR> case_start, 
-                     Box<ExprMIR> case_end,
+    CaseRangeStmtMIR(Location loc, Box<ExprMIR> case_start, Box<ExprMIR> case_end,
                      Box<StmtMIR> stmt)
-        : StmtMIR(loc, NodeKind::CASERGSTMT_MIR), 
-        case_start(std::move(case_start)), 
-        case_end(std::move(case_end)),
-        stmt(std::move(stmt)) {}
+        : StmtMIR(loc, NodeKind::CASERGSTMT_MIR), case_start(std::move(case_start)),
+          case_end(std::move(case_end)), stmt(std::move(stmt)) {}
 
     Box<ExprMIR> case_start;
     Box<ExprMIR> case_end;
@@ -250,7 +241,7 @@ class DefaultStmtMIR : public StmtMIR {
 public:
     DefaultStmtMIR(Location loc, Box<StmtMIR> stmt)
         : StmtMIR(loc, NodeKind::DEFSTMT_MIR), stmt(std::move(stmt)) {}
-    
+
     Box<StmtMIR> stmt;
 
     void accept(MIRVisitor& visitor) override;
@@ -270,13 +261,12 @@ public:
 class PrintStmtMIR : public StmtMIR {
 public:
     PrintStmtMIR(Location loc, std::string format_string)
-        : StmtMIR(loc, NodeKind::PRINTSTMT_MIR), 
-        format_string(std::move(format_string)) {}
+        : StmtMIR(loc, NodeKind::PRINTSTMT_MIR), format_string(std::move(format_string)) {}
 
     PrintStmtMIR(Location loc, std::string format_string, Vec<Box<ExprMIR>> arguments)
-        : StmtMIR(loc, NodeKind::PRINTSTMT_MIR), 
-        format_string(std::move(format_string)), arguments(std::move(arguments)) {}
-    
+        : StmtMIR(loc, NodeKind::PRINTSTMT_MIR), format_string(std::move(format_string)),
+          arguments(std::move(arguments)) {}
+
     std::string format_string;
     Vec<Box<ExprMIR>> arguments;
 
@@ -285,28 +275,20 @@ public:
 
 class IfStmtMIR : public StmtMIR {
 public:
-    IfStmtMIR(Location loc, 
-              Box<ExprMIR> condition, Box<StmtMIR> then_branch, 
+    IfStmtMIR(Location loc, Box<ExprMIR> condition, Box<StmtMIR> then_branch,
               Box<StmtMIR> else_branch)
-        : StmtMIR(loc, NodeKind::IFSTMT_MIR), 
-        condition(std::move(condition)), 
-        then_branch(std::move(then_branch)),
-        else_branch(std::move(else_branch)) {}
+        : StmtMIR(loc, NodeKind::IFSTMT_MIR), condition(std::move(condition)),
+          then_branch(std::move(then_branch)), else_branch(std::move(else_branch)) {}
 
-    IfStmtMIR(Location loc, 
-              Box<ExprMIR> condition, Box<StmtMIR> then_branch, 
+    IfStmtMIR(Location loc, Box<ExprMIR> condition, Box<StmtMIR> then_branch,
               Optional<Box<StmtMIR>> else_branch)
-        : StmtMIR(loc, NodeKind::IFSTMT_MIR), 
-        condition(std::move(condition)), 
-        then_branch(std::move(then_branch)),
-        else_branch(std::move(else_branch)) {}
+        : StmtMIR(loc, NodeKind::IFSTMT_MIR), condition(std::move(condition)),
+          then_branch(std::move(then_branch)), else_branch(std::move(else_branch)) {}
 
-    IfStmtMIR(Location loc, 
-              Box<ExprMIR> condition, Box<StmtMIR> then_branch)
-        : StmtMIR(loc, NodeKind::IFSTMT_MIR), 
-        condition(std::move(condition)), 
-        then_branch(std::move(then_branch)) {}
-    
+    IfStmtMIR(Location loc, Box<ExprMIR> condition, Box<StmtMIR> then_branch)
+        : StmtMIR(loc, NodeKind::IFSTMT_MIR), condition(std::move(condition)),
+          then_branch(std::move(then_branch)) {}
+
     Box<ExprMIR> condition;
     Box<StmtMIR> then_branch;
     Optional<Box<StmtMIR>> else_branch;
@@ -319,31 +301,18 @@ A basic loop that all loops expand into.
 */
 class LoopStmtMIR : public StmtMIR {
 public:
-    LoopStmtMIR(Location loc, Box<StmtMIR> body) 
-        : StmtMIR(loc, NodeKind::LOOPSTMT_MIR),
-        body(std::move(body)) {}
+    LoopStmtMIR(Location loc, Box<StmtMIR> body)
+        : StmtMIR(loc, NodeKind::LOOPSTMT_MIR), body(std::move(body)) {}
 
-    LoopStmtMIR(Location loc, 
-                Optional<Box<ProgItemMIR>> init,
-                Optional<Box<ExprMIR>> condition, 
-                Optional<Box<StmtMIR>> step,
-                Box<StmtMIR> body,
-                bool is_dowhile)
-        : StmtMIR(loc, NodeKind::LOOPSTMT_MIR),
-        init(std::move(init)),
-        condition(std::move(condition)),
-        step(std::move(step)),
-        body(std::move(body)),
-        is_dowhile(is_dowhile) {}
-    
-    LoopStmtMIR(Location loc, 
-                Box<ExprMIR> condition, 
-                Box<StmtMIR> body,
-                bool is_dowhile)
-        : StmtMIR(loc, NodeKind::LOOPSTMT_MIR),
-        condition(std::move(condition)),
-        body(std::move(body)),
-        is_dowhile(is_dowhile) {}
+    LoopStmtMIR(Location loc, Optional<Box<ProgItemMIR>> init, Optional<Box<ExprMIR>> condition,
+                Optional<Box<StmtMIR>> step, Box<StmtMIR> body, bool is_dowhile)
+        : StmtMIR(loc, NodeKind::LOOPSTMT_MIR), init(std::move(init)),
+          condition(std::move(condition)), step(std::move(step)), body(std::move(body)),
+          is_dowhile(is_dowhile) {}
+
+    LoopStmtMIR(Location loc, Box<ExprMIR> condition, Box<StmtMIR> body, bool is_dowhile)
+        : StmtMIR(loc, NodeKind::LOOPSTMT_MIR), condition(std::move(condition)),
+          body(std::move(body)), is_dowhile(is_dowhile) {}
 
     /*
     Initialization code at the start of the loop.
@@ -372,7 +341,7 @@ class GotoStmtMIR : public StmtMIR {
 public:
     GotoStmtMIR(Location loc, std::string target)
         : StmtMIR(loc, NodeKind::GOTOSTMT_MIR), target(std::move(target)) {}
-    
+
     /*
     Since goto's can occur before their label is declared, do not resolve the
     label now, resolve it at validation, after the entire symbol table is complete.
@@ -390,25 +359,24 @@ public:
 class BreakStmtMIR : public StmtMIR {
 public:
     BreakStmtMIR(Location loc) : StmtMIR(loc, NodeKind::BREAKSTMT_MIR) {}
-    
+
     void accept(MIRVisitor& visitor) override;
 };
 
 class ContStmtMIR : public StmtMIR {
 public:
     ContStmtMIR(Location loc) : StmtMIR(loc, NodeKind::CONTSTMT_MIR) {}
-    
+
     void accept(MIRVisitor& visitor) override;
 };
 
 class ReturnStmtMIR : public StmtMIR {
 public:
-    ReturnStmtMIR(Location loc)
-        : StmtMIR(loc, NodeKind::RETSTMT_MIR) {}
+    ReturnStmtMIR(Location loc) : StmtMIR(loc, NodeKind::RETSTMT_MIR) {}
 
     ReturnStmtMIR(Location loc, Box<ExprMIR> ret_expr)
         : StmtMIR(loc, NodeKind::RETSTMT_MIR), ret_expr(std::move(ret_expr)) {}
-    
+
     Optional<Box<ExprMIR>> ret_expr;
 
     void accept(MIRVisitor& visitor) override;
@@ -416,14 +384,11 @@ public:
 
 class BinaryExprMIR : public ExprMIR {
 public:
-    BinaryExprMIR(Location loc, 
-                  sema::sym::Scope *scope,
-                  Box<ExprMIR> left, Box<ExprMIR> right, 
+    BinaryExprMIR(Location loc, sema::sym::Scope *scope, Box<ExprMIR> left, Box<ExprMIR> right,
                   tokens::BinaryOp op)
-        : ExprMIR(loc, NodeKind::BINEXPR_MIR, scope), 
-        left(std::move(left)), right(std::move(right)), 
-        op(op) {}
-    
+        : ExprMIR(loc, NodeKind::BINEXPR_MIR, scope), left(std::move(left)),
+          right(std::move(right)), op(op) {}
+
     Box<ExprMIR> left;
     Box<ExprMIR> right;
     tokens::BinaryOp op;
@@ -439,12 +404,9 @@ public:
 
 class UnaryExprMIR : public ExprMIR {
 public:
-    UnaryExprMIR(Location loc,
-                 sema::sym::Scope *scope, 
-                 Box<ExprMIR> operand, 
-                 tokens::UnaryOp op)
+    UnaryExprMIR(Location loc, sema::sym::Scope *scope, Box<ExprMIR> operand, tokens::UnaryOp op)
         : ExprMIR(loc, NodeKind::UNEXPR_MIR, scope), operand(std::move(operand)), op(op) {}
-    
+
     Box<ExprMIR> operand;
     tokens::UnaryOp op;
 
@@ -459,13 +421,10 @@ public:
 
 class CastExprMIR : public ExprMIR {
 public:
-    CastExprMIR(Location loc, 
-                sema::sym::Scope *scope, 
-                sema::types::Type *target, 
+    CastExprMIR(Location loc, sema::sym::Scope *scope, sema::types::Type *target,
                 Box<ExprMIR> inner)
-        : ExprMIR(loc, NodeKind::CASTEXPR_MIR, scope), 
-        target(target), inner(std::move(inner)) {}
-    
+        : ExprMIR(loc, NodeKind::CASTEXPR_MIR, scope), target(target), inner(std::move(inner)) {}
+
     sema::types::Type *target;
     Box<ExprMIR> inner;
 
@@ -480,13 +439,10 @@ public:
 
 class AssignExprMIR : public ExprMIR {
 public:
-    AssignExprMIR(Location loc,
-                  sema::sym::Scope *scope, 
-                  Box<ExprMIR> left, Box<ExprMIR> right, 
+    AssignExprMIR(Location loc, sema::sym::Scope *scope, Box<ExprMIR> left, Box<ExprMIR> right,
                   tokens::AssignOp op)
-        : ExprMIR(loc, NodeKind::ASSGNEXPR_MIR, scope), 
-        left(std::move(left)), right(std::move(right)), 
-        op(op) {}
+        : ExprMIR(loc, NodeKind::ASSGNEXPR_MIR, scope), left(std::move(left)),
+          right(std::move(right)), op(op) {}
 
     Box<ExprMIR> left;
     Box<ExprMIR> right;
@@ -499,15 +455,10 @@ public:
 
 class CondExprMIR : public ExprMIR {
 public:
-    CondExprMIR(Location loc,
-                sema::sym::Scope *scope, 
-                Box<ExprMIR> condition,
-                Box<ExprMIR> true_expr,
-                Box<ExprMIR> false_expr)
-        : ExprMIR(loc, NodeKind::CONDEXPR_MIR, scope), 
-        condition(std::move(condition)),
-        true_expr(std::move(true_expr)),
-        false_expr(std::move(false_expr)) {}
+    CondExprMIR(Location loc, sema::sym::Scope *scope, Box<ExprMIR> condition,
+                Box<ExprMIR> true_expr, Box<ExprMIR> false_expr)
+        : ExprMIR(loc, NodeKind::CONDEXPR_MIR, scope), condition(std::move(condition)),
+          true_expr(std::move(true_expr)), false_expr(std::move(false_expr)) {}
 
     Box<ExprMIR> condition;
     Box<ExprMIR> true_expr;
@@ -522,9 +473,7 @@ public:
 
 class IdentExprMIR : public ExprMIR {
 public:
-    IdentExprMIR(Location loc,
-                 sema::sym::Scope *scope, 
-                 sema::sym::PhysicalSymbol *ident)
+    IdentExprMIR(Location loc, sema::sym::Scope *scope, sema::sym::PhysicalSymbol *ident)
         : ExprMIR(loc, NodeKind::IDENTEXPR_MIR, scope), ident(ident) {}
 
     sema::sym::PhysicalSymbol *ident;
@@ -546,7 +495,7 @@ class ConstExprMIR : public ExprMIR {
 public:
     ConstExprMIR(Location loc, sema::sym::Scope *scope, Box<ExprMIR> inner)
         : ExprMIR(loc, NodeKind::CONSTEXPR_MIR, scope), inner(std::move(inner)) {}
-    
+
     Box<ExprMIR> inner;
 
     NodeKind get_kind() override { return inner->get_kind(); }
@@ -578,19 +527,12 @@ public:
 
 class CallExprMIR : public ExprMIR {
 public:
-    CallExprMIR(Location loc, 
-                sema::sym::Scope *scope, 
-                Box<ExprMIR> callee)
-        : ExprMIR(loc, NodeKind::CALLEXPR_MIR, scope), 
-        callee(std::move(callee)) {}
+    CallExprMIR(Location loc, sema::sym::Scope *scope, Box<ExprMIR> callee)
+        : ExprMIR(loc, NodeKind::CALLEXPR_MIR, scope), callee(std::move(callee)) {}
 
-    CallExprMIR(Location loc, 
-                sema::sym::Scope *scope, 
-                Box<ExprMIR> callee, 
-                Vec<Box<ExprMIR>> args)
-        : ExprMIR(loc, NodeKind::CALLEXPR_MIR, scope), 
-        callee(std::move(callee)), 
-        args(std::move(args)) {}
+    CallExprMIR(Location loc, sema::sym::Scope *scope, Box<ExprMIR> callee, Vec<Box<ExprMIR>> args)
+        : ExprMIR(loc, NodeKind::CALLEXPR_MIR, scope), callee(std::move(callee)),
+          args(std::move(args)) {}
 
     Box<ExprMIR> callee;
     Vec<Box<ExprMIR>> args;
@@ -602,12 +544,11 @@ public:
 
 class MemberAccExprMIR : public ExprMIR {
 public:
-    MemberAccExprMIR(Location loc, 
-                     sema::sym::Scope *scope,
-                     Box<ExprMIR> object, std::string member, bool is_arrow)
-        : ExprMIR(loc, NodeKind::MEMACCEXPR_MIR, scope), 
-        object(std::move(object)), member(std::move(member)), is_arrow(is_arrow) {}
-    
+    MemberAccExprMIR(Location loc, sema::sym::Scope *scope, Box<ExprMIR> object, std::string member,
+                     bool is_arrow)
+        : ExprMIR(loc, NodeKind::MEMACCEXPR_MIR, scope), object(std::move(object)),
+          member(std::move(member)), is_arrow(is_arrow) {}
+
     Box<ExprMIR> object;
     std::string member;
     bool is_arrow;
@@ -621,11 +562,9 @@ public:
 
 class SubscrExprMIR : public ExprMIR {
 public:
-    SubscrExprMIR(Location loc, 
-                  sema::sym::Scope *scope,
-                  Box<ExprMIR> array, Box<ExprMIR> index)
-        : ExprMIR(loc, NodeKind::SUBSCREXPR_MIR, scope), 
-        array(std::move(array)), index(std::move(index)) {}
+    SubscrExprMIR(Location loc, sema::sym::Scope *scope, Box<ExprMIR> array, Box<ExprMIR> index)
+        : ExprMIR(loc, NodeKind::SUBSCREXPR_MIR, scope), array(std::move(array)),
+          index(std::move(index)) {}
 
     Box<ExprMIR> array;
     Box<ExprMIR> index;
@@ -639,11 +578,9 @@ public:
 
 class PostfixExprMIR : public ExprMIR {
 public:
-    PostfixExprMIR(Location loc,
-                   sema::sym::Scope *scope,
-                   Box<ExprMIR> operand, tokens::PostfixOp op)
-        : ExprMIR(loc, NodeKind::PFIXEXPR_MIR, scope), 
-        operand(std::move(operand)), op(op) {}
+    PostfixExprMIR(Location loc, sema::sym::Scope *scope, Box<ExprMIR> operand,
+                   tokens::PostfixOp op)
+        : ExprMIR(loc, NodeKind::PFIXEXPR_MIR, scope), operand(std::move(operand)), op(op) {}
 
     Box<ExprMIR> operand;
     tokens::PostfixOp op;
@@ -665,7 +602,7 @@ public:
 
     SizeofExprMIR(Location loc, sema::sym::Scope *scope, Box<ExprMIR> target)
         : ExprMIR(loc, NodeKind::SIZEEXPR_MIR, scope), operand(std::move(target)) {}
-    
+
     SizeofOperand operand;
 
     void accept(MIRVisitor& visitor) override;
@@ -675,13 +612,10 @@ public:
 
 class FunctionMIR : public ProgItemMIR {
 public:
-    FunctionMIR(Location loc,
-                sema::sym::FuncSymbol *sym,
-                sema::sym::Scope *scope,
+    FunctionMIR(Location loc, sema::sym::FuncSymbol *sym, sema::sym::Scope *scope,
                 Box<CompoundStmtMIR> body)
-        : ProgItemMIR(loc, NodeKind::FUNC_MIR),
-        sym(sym), scope(scope), body(std::move(body)) {}
-    
+        : ProgItemMIR(loc, NodeKind::FUNC_MIR), sym(sym), scope(scope), body(std::move(body)) {}
+
     // The symbol associated with the function.
     // This contains the name and signature.
     sema::sym::FuncSymbol *sym;
@@ -699,7 +633,7 @@ public:
 
     ProgramMIR(Vec<Box<ProgItemMIR>> items)
         : MIRNode(NodeKind::PROG_MIR), items(std::move(items)) {}
-    
+
     Vec<Box<ProgItemMIR>> items;
 
     void add_item(Box<ProgItemMIR> item);
@@ -707,6 +641,6 @@ public:
     void accept(MIRVisitor& visitor) override;
 };
 
-}
+} // namespace ecc::sema::mir
 
 #endif

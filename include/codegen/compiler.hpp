@@ -5,11 +5,12 @@
 #ifndef ECC_COMPILER_H
 #define ECC_COMPILER_H
 
+#include <llvm/IR/IRBuilder.h>
+
 #include "codegen/lir/lir.hpp"
 #include "codegen/lir/visitor.hpp"
 #include "codegen/llvm.hpp"
 #include "util.hpp"
-#include <llvm/IR/IRBuilder.h>
 
 using namespace ecc;
 using namespace util;
@@ -39,9 +40,9 @@ public:
     // Visitor method overrides
     void visit(lir::ProgramLIR& node) override;
     void visit(lir::FunctionLIR& node) override;
-    
+
     void visit(lir::VarDeclLIR& node) override;
-    
+
     void visit(lir::ExprStmtLIR& node) override;
     void visit(lir::GotoStmtLIR& node) override;
     void visit(lir::SwitchStmtLIR& node) override;
@@ -54,7 +55,7 @@ public:
     void visit(lir::LabelDeclLIR& node) override;
     void visit(lir::PrintStmtLIR& node) override;
     void visit(lir::ReturnStmtLIR& node) override;
-    
+
     void visit(lir::BinaryExprLIR& node) override;
     void visit(lir::UnaryExprLIR& node) override;
     void visit(lir::CastExprLIR& node) override;
@@ -65,7 +66,7 @@ public:
     void visit(lir::CallExprLIR& node) override;
     void visit(lir::MemberAccExprLIR& node) override;
     void visit(lir::SubscrExprLIR& node) override;
-    void visit(lir::PostfixExprLIR& node) override;    
+    void visit(lir::PostfixExprLIR& node) override;
 };
 
 } // namespace ecc::codegen

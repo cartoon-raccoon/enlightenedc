@@ -19,9 +19,9 @@ The EnlightenedC Compiler main driver class.
 */
 class Ecc {
 public:
-    Ecc(int argc, char **argv) 
+    Ecc(int argc, char **argv)
         : config(std::make_unique<Config>(argc, argv)),
-        llvm(std::make_unique<codegen::LLVMCore>()) {}
+          llvm(std::make_unique<codegen::LLVMCore>()) {}
 
     Box<Config> config;
     Box<codegen::LLVMCore> llvm;
@@ -37,7 +37,6 @@ public:
     int run();
 };
 
-
-}
+} // namespace ecc
 
 #endif

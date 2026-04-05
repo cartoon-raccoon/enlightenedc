@@ -3,15 +3,15 @@
 #ifndef ECC_LIR_SYNTH_H
 #define ECC_LIR_SYNTH_H
 
-#include <stack>
 #include <queue>
+#include <stack>
 #include <variant>
 
-#include "semantics/semantics.hpp"
-#include "semantics/symbols.hpp"
-#include "semantics/mir/mir.hpp"
 #include "codegen/lir/lir.hpp"
 #include "codegen/lir/symbols.hpp"
+#include "semantics/mir/mir.hpp"
+#include "semantics/semantics.hpp"
+#include "semantics/symbols.hpp"
 #include "util.hpp"
 
 using namespace ecc;
@@ -22,12 +22,9 @@ namespace ecc::codegen::lir {
 class LIRSynthesizer : public sema::BaseMIRSemaVisitor, public NoMove {
 public:
     LIRSynthesizer(ProgramLIR& prog_lir, LIRSymbolMap& symbolmap)
-        : sema::BaseMIRSemaVisitor(State::READ), 
-        symbolmap(symbolmap), prog_lir(prog_lir) {} 
+        : sema::BaseMIRSemaVisitor(State::READ), symbolmap(symbolmap), prog_lir(prog_lir) {}
 
-    using LIRSynthItem = std::variant<
-        Box<FunctionLIR>, Box<VarDeclLIR>, Box<ProgItemLIR>
-    >;
+    using LIRSynthItem = std::variant<Box<FunctionLIR>, Box<VarDeclLIR>, Box<ProgItemLIR>>;
 
     LIRSymbolMap& symbolmap;
 
@@ -54,7 +51,7 @@ protected:
 
     void do_visit(sema::mir::ProgramMIR& node) override;
     void do_visit(sema::mir::FunctionMIR& node) override;
-    
+
     void do_visit(sema::mir::InitializerMIR& node) override;
     void do_visit(sema::mir::TypeDeclMIR& node) override;
     void do_visit(sema::mir::VarDeclMIR& node) override;
@@ -90,12 +87,12 @@ protected:
 
 private:
     Box<ExprLIR> last_expr;
-    
+
     std::queue<LIRSynthItem> current_q;
     std::stack<std::queue<LIRSynthItem>> queue_stack;
     std::stack<LIRFuncSym *> func_stack;
 };
 
-}
+} // namespace ecc::codegen::lir
 
 #endif

@@ -1,13 +1,13 @@
 #ifndef ECC_CONFIG_H
 #define ECC_CONFIG_H
 
-#include <map>
 #include <functional>
+#include <map>
 #include <sstream>
 #include <string>
 
-#include "util.hpp"
 #include "error.hpp"
+#include "util.hpp"
 
 namespace ecc {
 
@@ -17,9 +17,7 @@ class ArgError : public EccError {
 public:
     ArgError(std::string msg) : EccError(ErrorSource::NONE, std::move(msg)) {}
 
-    std::string to_string() override {
-        return EccError::what();
-    }
+    std::string to_string() override { return EccError::what(); }
 };
 
 class ArgParseError : public ArgError {
@@ -43,7 +41,7 @@ public:
 class Config {
 public:
     Config(int argc, char *argv[]);
-    
+
     // The list of input files.
     Vec<std::string> input_files;
     // The list of arguments to pass to the preprocessor.
@@ -116,26 +114,23 @@ private:
 
     void parse_long_arg(std::string& arg, ArgVIterator& iter);
 
-    using ArgAction = std::function<void (Config&, ArgVIterator&)>;
+    using ArgAction = std::function<void(Config&, ArgVIterator&)>;
 
     std::map<std::string, ArgAction> short_args;
 
     std::map<std::string, ArgAction> long_args;
 
-    template<typename F>
-    void add_short_arg(std::string arg, F&& f) { // NOLINT
+    template <typename F> void add_short_arg(std::string arg, F&& f) { // NOLINT
         short_args[arg] = std::forward<F>(f);
     }
 
-    template<typename F>
-    void add_long_arg(std::string arg, F&& f) { // NOLINT
+    template <typename F> void add_long_arg(std::string arg, F&& f) { // NOLINT
         long_args[arg] = std::forward<F>(f);
     }
 
     void add_args();
-
 };
 
-}
+} // namespace ecc
 
 #endif

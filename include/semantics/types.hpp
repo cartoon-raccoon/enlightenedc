@@ -4,12 +4,12 @@
 #define ECC_TYPES_H
 
 #include <cassert>
+#include <concepts>
 #include <cstddef>
 #include <memory>
+#include <sstream>
 #include <stack>
 #include <string>
-#include <sstream>
-#include <concepts>
 #include <type_traits>
 #include <unordered_map>
 #include <utility>
@@ -23,7 +23,7 @@
 Forward declaration of Scope from symbols
 */
 namespace ecc::sema::sym {
-    class Scope;
+class Scope;
 }
 
 /**
@@ -56,17 +56,18 @@ class TypeContext;
 A handle to a Type object, ensuring that the internal Type * can never be null.
 */
 template <typename Ty>
-requires std::derived_from<Ty, Type>
+    requires std::derived_from<Ty, Type>
 class TypeHandle : public NoMove {
-    static_assert(std::is_base_of_v<Type, Ty>, "Ty must be a Type" );
+    static_assert(std::is_base_of_v<Type, Ty>, "Ty must be a Type");
 
     Ty *ptr;
     TypeContext& tyctxt;
-    
+
     TypeHandle(Ty *ptr, TypeContext& tyctxt) : ptr(ptr), tyctxt(tyctxt) {
         assert(ptr != nullptr && "tried to create TypeHandle from null Type pointer");
     }
     friend class TypeContext;
+
 public:
     static Optional<TypeHandle<Ty>> create(Ty *ptr);
 
@@ -77,7 +78,7 @@ public:
     an empty optional is returned.
     */
     template <typename Dst>
-    requires std::derived_from<Ty, Type>
+        requires std::derived_from<Ty, Type>
     Optional<TypeHandle<Dst>> as() noexcept {
         Dst *targ = dynamic_cast<Dst *>(ptr);
         if (!targ) {
@@ -87,11 +88,9 @@ public:
         return TypeHandle(targ, tyctxt);
     }
 
-    template <typename Dst>
-    TypeHandle(const TypeHandle<Dst>& dst) : ptr(dst.ptr) {}
+    template <typename Dst> TypeHandle(const TypeHandle<Dst>& dst) : ptr(dst.ptr) {}
 
-    template<typename Other>
-    bool operator==(const TypeHandle<Other>& other) {
+    template <typename Other> bool operator==(const TypeHandle<Other>& other) {
         return ptr == other.ptr;
     }
 
@@ -106,8 +105,9 @@ EnlightenedC uses an interning type system that stores singletons of each type e
 in compilation of the translation unit. Derived types hold pointers to their base types,
 making checking type equality as easy as a pointer comparison.
 
-In order to enforce the type equality = pointer equality property, Types cannot be created externally.
-They are instead created and managed by a `TypeContext`, and are retrieved using its `get_*` methods.
+In order to enforce the type equality = pointer equality property, Types cannot be created
+externally. They are instead created and managed by a `TypeContext`, and are retrieved using its
+`get_*` methods.
 
 Type size and member alignment is calculated at compile time, using LLVM's `DataLayout` class.
 */
@@ -140,7 +140,7 @@ public:
 
     virtual bool is_basetype() { return false; }
 
-    virtual bool is_usertype() { return false; } 
+    virtual bool is_usertype() { return false; }
 
     virtual bool is_derivedtype() { return false; }
 
@@ -162,7 +162,7 @@ public:
     it is to be used for types that are not equal, but might be able to be
     coerced into the other.
     */
-    virtual bool is_compatible_with(Type * dst) {
+    virtual bool is_compatible_with(Type *dst) {
         // by default, types cannot be coerced and require explicit casting.
         return false;
     }
@@ -279,7 +279,6 @@ class UserType : public BaseType {
     bool complete = false;
 
 public:
-
     /**
     Validate that the type of a prospective member is valid to be added,
     */
@@ -299,7 +298,10 @@ public:
     /**
     Set the location where the type was defined and mark it as complete.
     */
-    void finish(Location loc) { def_loc = loc; complete = true; }
+    void finish(Location loc) {
+        def_loc  = loc;
+        complete = true;
+    }
 
     // The scope where the type was declared.
     sema::sym::Scope *scope;
@@ -310,11 +312,13 @@ public:
     Location decl_loc;
     /** The location that the type was defined. */
     Location def_loc;
+
 protected:
-    UserType(Location decl_loc, Kind kind, TypeContext& tyctxt, sema::sym::Scope *scope) 
+    UserType(Location decl_loc, Kind kind, TypeContext& tyctxt, sema::sym::Scope *scope)
         : BaseType(kind, tyctxt), scope(scope), decl_loc(decl_loc) {}
 
-    UserType(Location decl_loc, Kind kind, std::string name, TypeContext& tyctxt, sema::sym::Scope *scope) 
+    UserType(Location decl_loc, Kind kind, std::string name, TypeContext& tyctxt,
+             sema::sym::Scope *scope)
         : BaseType(kind, tyctxt), name(name), scope(scope), decl_loc(decl_loc) {}
 };
 
@@ -332,12 +336,12 @@ public:
 
     bool is_derivedtype() override { return true; }
 
-    //virtual std::string construct_str(std::string& base);
+    // virtual std::string construct_str(std::string& base);
 
     Type *base;
 
 protected:
-    DerivedType(Kind kind, TypeContext& tyctxt, Type *base) : Type(kind, tyctxt), base(base) {} 
+    DerivedType(Kind kind, TypeContext& tyctxt, Type *base) : Type(kind, tyctxt), base(base) {}
 };
 
 /**
@@ -350,6 +354,7 @@ public:
     void finalize() override;
 
     std::string to_string() const override { return "Void"; }
+
 protected:
     friend class TypeContext;
 
@@ -375,7 +380,6 @@ Zero-sized types (U0, I0) cannot be implicitly converted to other types.
 */
 class PrimitiveType : public BaseType {
 public:
-
     tokens::PrimType primkind;
 
     bool is_compatible_with(Type *from) override;
@@ -422,8 +426,8 @@ public:
 protected:
     friend class TypeContext;
 
-    friend constexpr Box<PrimitiveType> 
-        std::make_unique<PrimitiveType>(tokens::PrimType&&, TypeContext&);
+    friend constexpr Box<PrimitiveType> std::make_unique<PrimitiveType>(tokens::PrimType&&,
+                                                                        TypeContext&);
 
     PrimitiveType(tokens::PrimType kind, TypeContext& tyctxt)
         : BaseType(Type::Kind::PRIMITIVE, tyctxt), primkind(kind) {}
@@ -438,11 +442,9 @@ public:
         Optional<std::string> name;
         Type *ty;
         Location loc;
-        
-        ClassTypeMember(Type *ty, Location loc)
-            : ty(ty), loc(loc) {}
-        ClassTypeMember(std::string name, Type *ty, Location loc)
-            : name(name), ty(ty), loc(loc) {}
+
+        ClassTypeMember(Type *ty, Location loc) : ty(ty), loc(loc) {}
+        ClassTypeMember(std::string name, Type *ty, Location loc) : name(name), ty(ty), loc(loc) {}
         ClassTypeMember(Optional<std::string> name, Type *ty, Location loc)
             : name(std::move(name)), ty(ty), loc(loc) {}
     };
@@ -485,12 +487,10 @@ public:
 protected:
     friend class TypeContext;
 
-    friend constexpr Box<ClassType>
-        std::make_unique<ClassType>(
-            Location&, sema::sym::Scope *&, TypeContext&);
-    friend constexpr Box<ClassType>
-        std::make_unique<ClassType>(
-            Location&, std::string&, sema::sym::Scope *&, TypeContext&);
+    friend constexpr Box<ClassType> std::make_unique<ClassType>(Location&, sema::sym::Scope *&,
+                                                                TypeContext&);
+    friend constexpr Box<ClassType> std::make_unique<ClassType>(Location&, std::string&,
+                                                                sema::sym::Scope *&, TypeContext&);
 
     /** Construct an anonymous empty class. */
     ClassType(Location decl_loc, sema::sym::Scope *scope, TypeContext& tyctxt)
@@ -537,10 +537,8 @@ public:
         Type *ty;
         Location loc;
 
-        UnionTypeMember(Type *ty, Location loc)
-            : ty(ty), loc(loc) {}
-        UnionTypeMember(std::string name, Type *ty, Location loc)
-            : name(name), ty(ty), loc(loc) {}
+        UnionTypeMember(Type *ty, Location loc) : ty(ty), loc(loc) {}
+        UnionTypeMember(std::string name, Type *ty, Location loc) : name(name), ty(ty), loc(loc) {}
         UnionTypeMember(Optional<std::string> name, Type *ty, Location loc)
             : name(std::move(name)), ty(ty), loc(loc) {}
     };
@@ -578,19 +576,16 @@ public:
 protected:
     friend class TypeContext;
 
-    friend constexpr Box<UnionType> 
-        std::make_unique<UnionType>(
-            Location&, sema::sym::Scope *&, TypeContext&);
-    friend constexpr Box<UnionType> 
-        std::make_unique<UnionType>(
-            Location&, std::string&, sema::sym::Scope *&, TypeContext&);
+    friend constexpr Box<UnionType> std::make_unique<UnionType>(Location&, sema::sym::Scope *&,
+                                                                TypeContext&);
+    friend constexpr Box<UnionType> std::make_unique<UnionType>(Location&, std::string&,
+                                                                sema::sym::Scope *&, TypeContext&);
 
     UnionType(Location decl_loc, sema::sym::Scope *scope, TypeContext& tyctxt)
         : UserType(decl_loc, Kind::UNION, tyctxt, scope) {}
     UnionType(Location decl_loc, std::string name, sema::sym::Scope *scope, TypeContext& tyctxt)
         : UserType(decl_loc, Kind::UNION, std::move(name), tyctxt, scope) {}
 };
-
 
 /*
 An enumerated type (e.g. `enum State { DONE, PENDING }`).
@@ -624,7 +619,7 @@ public:
     /** Create an enumerator with a provided value. */
     int64_t add_enumerator(std::string enumerator, int64_t value, Location loc);
 
-    // Check if an enum already contains an enumerator. 
+    // Check if an enum already contains an enumerator.
     EnumTypeMember *find(std::string& name);
 
     // Find enumerator at the specified index.
@@ -647,16 +642,15 @@ public:
 protected:
     friend class TypeContext;
 
-    friend constexpr Box<EnumType>
-        std::make_unique<EnumType>( Location&, sema::sym::Scope *&, TypeContext&);
-    friend constexpr Box<EnumType>
-        std::make_unique<EnumType>(Location&, std::string& name, sema::sym::Scope *&, TypeContext&);
-    
+    friend constexpr Box<EnumType> std::make_unique<EnumType>(Location&, sema::sym::Scope *&,
+                                                              TypeContext&);
+    friend constexpr Box<EnumType> std::make_unique<EnumType>(Location&, std::string& name,
+                                                              sema::sym::Scope *&, TypeContext&);
+
     EnumType(Location decl_loc, sema::sym::Scope *scope, TypeContext& tyctxt);
 
     EnumType(Location decl_loc, std::string name, sema::sym::Scope *scope, TypeContext& tyctxt);
 };
-
 
 /**
 A pointer type (U8 *, I32 **, etc.)
@@ -703,11 +697,10 @@ protected:
     friend class TypeBuilder;
 
     friend constexpr Box<PointerType> std::make_unique<PointerType>(Type *&, bool&, TypeContext&);
-    
+
     PointerType(Type *base, bool is_const, TypeContext& tyctxt)
         : DerivedType(Kind::POINTER, tyctxt, base), is_const(is_const) {}
 };
-
 
 /**
 A sized array type (U8 [4], U32 [6], etc.).
@@ -747,21 +740,18 @@ public:
     void finalize() override;
 
     std::string to_string() const override;
-    
+
 protected:
     friend class TypeContext;
 
-    friend constexpr Box<ArrayType>
-        std::make_unique<ArrayType>(Type *&, uint64_t&, TypeContext&);
+    friend constexpr Box<ArrayType> std::make_unique<ArrayType>(Type *&, uint64_t&, TypeContext&);
 
-    friend constexpr Box<ArrayType>
-        std::make_unique<ArrayType>(Type *&, TypeContext&);
+    friend constexpr Box<ArrayType> std::make_unique<ArrayType>(Type *&, TypeContext&);
 
     ArrayType(Type *base, uint64_t size, TypeContext& tyctxt)
         : DerivedType(Kind::ARRAY, tyctxt, base), arr_size(size) {}
 
-    ArrayType(Type *base, TypeContext& tyctxt)
-        : DerivedType(Kind::ARRAY, tyctxt, base) {}
+    ArrayType(Type *base, TypeContext& tyctxt) : DerivedType(Kind::ARRAY, tyctxt, base) {}
 
     /*
     Ref counter for basic ref counting instance management.
@@ -769,11 +759,11 @@ protected:
     In HolyC, arrays can be created unsized and have their size inferred later,
     or they can be decayed into pointers. However, in order to do this, a valid
     unsized ArrayType has to be created. If this ArrayType later gets converted
-    into a sized array or decayed into a pointer, a new ArrayType or PointerType instance 
+    into a sized array or decayed into a pointer, a new ArrayType or PointerType instance
     is created, leaving the unsized array, which may not have any references
     (i.e. symbols that point to it). This causes problems if we bulk finalize arrays,
     since arrays cannot be finalized if they do not have a size.
-    
+
     Therefore, we implement a basic reference counting scheme to track
     the number of references a given ArrayType instance holds, and delete it if there
     are no more references to it. This guarantees that if we attempt to finalize an
@@ -802,7 +792,7 @@ public:
         bool variadic;
 
         // Test if two function signatures are the same.
-        bool operator== (FunctionSignature& other) {
+        bool operator==(FunctionSignature& other) {
             // Test return type
             if (other.returntype != returntype) {
                 return false;
@@ -855,8 +845,7 @@ protected:
     friend class TypeContext;
     friend class TypeBuilder;
 
-    friend constexpr Box<FunctionType>
-        std::make_unique<FunctionType>(Type *&, TypeContext&);
+    friend constexpr Box<FunctionType> std::make_unique<FunctionType>(Type *&, TypeContext&);
 
     FunctionType(Type *base, TypeContext& tyctxt)
         : DerivedType(Type::Kind::FUNCTION, tyctxt, base) {}
@@ -904,12 +893,9 @@ public:
 
     BaseType *base = nullptr;
 
-    
-
     std::stack<std::variant<Ptr, Arr, FnParams>> type_stack;
 
 protected:
-
     friend class TypeContext;
     friend constexpr Box<TypeBuilder> std::make_unique<TypeBuilder>(TypeContext&);
 
@@ -950,7 +936,7 @@ public:
 
     TypeContext(codegen::LLVMUnit&);
 
-    TypeContext(const TypeContext&) = delete;
+    TypeContext(const TypeContext&)            = delete;
     TypeContext& operator=(const TypeContext&) = delete;
 
     TypeBuilder builder();
@@ -962,31 +948,31 @@ public:
     PrimitiveType *get_primitive(tokens::PrimType kind);
 
     /** Return a pointer to the U8 Type object. */
-    PrimitiveType *get_u8()   { return u8.get();    }
+    PrimitiveType *get_u8() { return u8.get(); }
 
     /** Return a pointer to the U16 Type object. */
-    PrimitiveType *get_u16()  { return u16.get();   }
+    PrimitiveType *get_u16() { return u16.get(); }
 
     /** Return a pointer to the U32 Type object. */
-    PrimitiveType *get_u32()  { return u32.get();   }
+    PrimitiveType *get_u32() { return u32.get(); }
 
     /** Return a pointer to the U64 Type object. */
-    PrimitiveType *get_u64()  { return u64.get();   }
+    PrimitiveType *get_u64() { return u64.get(); }
 
     /** Return a pointer to the I8 Type object. */
-    PrimitiveType *get_i8()   { return i8.get();    }
+    PrimitiveType *get_i8() { return i8.get(); }
 
     /** Return a pointer to the I16 Type object. */
-    PrimitiveType *get_i16()  { return i16.get();   }
+    PrimitiveType *get_i16() { return i16.get(); }
 
     /** Return a pointer to the I32 Type object. */
-    PrimitiveType *get_i32()  { return i32.get();   }
+    PrimitiveType *get_i32() { return i32.get(); }
 
     /** Return a pointer to the I64 Type object. */
-    PrimitiveType *get_i64()  { return i64.get();   }
+    PrimitiveType *get_i64() { return i64.get(); }
 
     /** Return a pointer to the F64 Type object. */
-    PrimitiveType *get_f64()  { return f64.get();   }
+    PrimitiveType *get_f64() { return f64.get(); }
 
     /** Return a pointer to the Bool Type object. */
     PrimitiveType *get_bool() { return boolt.get(); }
@@ -1071,10 +1057,8 @@ private:
     Box<PrimitiveType> f64;
     Box<PrimitiveType> boolt;
 
-
-    template<typename T>
-    struct pair_hash {
-        std::size_t operator() (const std::pair<Type *, T> pair) const {
+    template <typename T> struct pair_hash {
+        std::size_t operator()(const std::pair<Type *, T> pair) const {
             auto h1 = std::hash<Type *>{}(pair.first);
             auto h2 = std::hash<T>{}(pair.second);
 
@@ -1082,7 +1066,7 @@ private:
         }
     };
 
-    using ArrayKey = std::pair<Type *, Optional<uint64_t>>;
+    using ArrayKey   = std::pair<Type *, Optional<uint64_t>>;
     using PointerKey = std::pair<Type *, bool>;
 
     // The map of record types (i.e. structs, unions, enums).
@@ -1099,7 +1083,7 @@ private:
 
     // Generate a mangled, unique name for a type incorporating its associated scope.
     template <typename T>
-    requires std::derived_from<T, UserType>
+        requires std::derived_from<T, UserType>
     std::string mangle(std::string name, uint64_t scopeid) {
         std::stringstream ss;
 
@@ -1110,7 +1094,7 @@ private:
 
     // Create and insert a named type.
     template <typename Ty>
-    requires std::derived_from<Ty, UserType>
+        requires std::derived_from<Ty, UserType>
     Ty *insert_named_type(std::string mangled, sema::sym::Scope *scope, Box<Ty> type) {
         dbprint("TypeContext: inserting type ", mangled);
 
@@ -1118,7 +1102,7 @@ private:
 
         if (type->get_name()) {
             for (auto const& [key, etype] : user_types) {
-                    // if type has name and we find another type with the same name
+                // if type has name and we find another type with the same name
                 if (*type->get_name() == etype->get_name()) {
                     // if the scopes match
                     if (scope == etype->scope) {
@@ -1138,6 +1122,6 @@ private:
     void deallocate_unsized_array(Type *base);
 }; // class TypeContext
 
-}
+} // namespace ecc::sema::types
 
 #endif

@@ -45,13 +45,10 @@ The representation of a physical variable (memory location) in the LIR.
 */
 class LIRVarSym : public LIRSym {
 public:
-    LIRVarSym(std::string mangled, 
-              std::string name, 
-              Location loc, 
-              sema::sym::VarSymbol *sym, 
+    LIRVarSym(std::string mangled, std::string name, Location loc, sema::sym::VarSymbol *sym,
               bool is_param)
-        : LIRSym(LIRSymKind::VAR, std::move(mangled), std::move(name), loc),
-        sym(sym), is_param(is_param) {}
+        : LIRSym(LIRSymKind::VAR, std::move(mangled), std::move(name), loc), sym(sym),
+          is_param(is_param) {}
 
     // The type of the variable.
     sema::sym::VarSymbol *sym;
@@ -63,12 +60,8 @@ public:
 
 class LIRFuncSym : public LIRSym {
 public:
-    LIRFuncSym(std::string mangled, 
-               std::string name,
-               Location loc, 
-               sema::sym::FuncSymbol *symbol)
-        : LIRSym(LIRSymKind::FUNC, std::move(mangled), std::move(name), loc),
-        symbol(symbol) {}
+    LIRFuncSym(std::string mangled, std::string name, Location loc, sema::sym::FuncSymbol *symbol)
+        : LIRSym(LIRSymKind::FUNC, std::move(mangled), std::move(name), loc), symbol(symbol) {}
 
     sema::sym::FuncSymbol *symbol;
 
@@ -80,9 +73,7 @@ public:
 
     LIRVarSym *lookup(sema::sym::VarSymbol *sym);
 
-    LIRVarSym * operator[] (sema::sym::VarSymbol *sym) {
-        return lookup(sym);
-    }
+    LIRVarSym *operator[](sema::sym::VarSymbol *sym) { return lookup(sym); }
 
     LIRFuncSym *as_funcsym() override { return this; }
 };
@@ -105,6 +96,6 @@ private:
     std::unordered_map<sema::sym::VarSymbol *, Box<LIRVarSym>> globals;
 };
 
-}
+} // namespace ecc::codegen::lir
 
 #endif

@@ -61,11 +61,8 @@ public:
 
 class BasicBlock {
 public:
-    using BlockElement = std::variant<
-        Box<lir::VarDeclLIR>,
-        Box<lir::ExprStmtLIR>,
-        Box<lir::PrintStmtLIR>
-    >;
+    using BlockElement =
+        std::variant<Box<lir::VarDeclLIR>, Box<lir::ExprStmtLIR>, Box<lir::PrintStmtLIR>>;
 
     bool has_terminator() { return term != nullptr; }
 
@@ -87,7 +84,7 @@ private:
 };
 
 class ProgramCFG {
-public: 
+public:
 };
 
 } // end namespace ecc::codegen::cfg

@@ -9,10 +9,10 @@
 #include <variant>
 
 #include "ast/ast.hpp"
-#include "semantics/types.hpp"
-#include "semantics/symbols.hpp"
-#include "semantics/semantics.hpp"
 #include "semantics/mir/mir.hpp"
+#include "semantics/semantics.hpp"
+#include "semantics/symbols.hpp"
+#include "semantics/types.hpp"
 #include "util.hpp"
 
 namespace ecc::sema {
@@ -28,7 +28,7 @@ struct DeclaratorBuilder {
 
 // A struct for returning types and their associated names from a TypeSpecifier.
 template <typename Ty>
-requires std::derived_from<Ty, typename types::Type>
+    requires std::derived_from<Ty, typename types::Type>
 struct TypeSpecRet {
     Optional<sym::TypeSymbol *> symbol;
     Ty *type;
@@ -50,8 +50,7 @@ struct InitializerRet {
 };
 
 // The result of visiting a compound statement from a function.
-using CmpdStmtFromFuncRes = 
-    std::pair<Box<sema::mir::CompoundStmtMIR>, sema::sym::Scope *>;
+using CmpdStmtFromFuncRes = std::pair<Box<sema::mir::CompoundStmtMIR>, sema::sym::Scope *>;
 
 /*
 The result of visiting an AST node.
@@ -66,13 +65,8 @@ using ElabResult = std::variant<
     // For building up declarators.
     Box<DeclaratorBuilder>,
     // The result of visiting a type specifier node.
-    TypeSpecRet<types::ClassType>,
-    TypeSpecRet<types::UnionType>,
-    TypeSpecRet<types::EnumType>,
-    types::VoidType *,
-    types::PrimitiveType *,
-    types::PointerType *,
-    types::Type *,
+    TypeSpecRet<types::ClassType>, TypeSpecRet<types::UnionType>, TypeSpecRet<types::EnumType>,
+    types::VoidType *, types::PrimitiveType *, types::PointerType *, types::Type *,
     sym::TypeSymbol *,
     // The result of visiting a ParameterDeclaration node.
     types::FuncParam,
@@ -81,8 +75,7 @@ using ElabResult = std::variant<
     // The result of visiting a StorageClassSpecifier node.
     ast::StorageClassSpecifier::SpecType,
 
-    Box<sema::mir::ProgItemMIR>,
-    Box<sema::mir::FunctionMIR>,
+    Box<sema::mir::ProgItemMIR>, Box<sema::mir::FunctionMIR>,
     // The return type of visiting a CompoundStatement node from a Function node.
     CmpdStmtFromFuncRes,
     /*
@@ -90,23 +83,17 @@ using ElabResult = std::variant<
     We do not use the specific types, as we cannot match on those when returning,
     due to how std::variant's visit and get_if functions work.
     */
-    Box<sema::mir::DeclMIR>,
-    Box<sema::mir::StmtMIR>,
-    Box<sema::mir::ExprMIR>,
+    Box<sema::mir::DeclMIR>, Box<sema::mir::StmtMIR>, Box<sema::mir::ExprMIR>,
     Box<sema::mir::InitializerMIR>,
     // The return type of visiting an InitDeclarator.
     InitDecltrRet,
     // The return type of visiting an Initializer.
-    InitializerRet
->;
+    InitializerRet>;
 
-
-using CmpdStmtDoVisitParam = Optional<
-    std::pair<
-        sym::FuncSymbol *, // The function symbol to tie this compound statement to.
-        Vec<Box<sym::VarSymbol>> // The new symbols to add to the new scope.
-    >
->;
+using CmpdStmtDoVisitParam =
+    Optional<std::pair<sym::FuncSymbol *, // The function symbol to tie this compound statement to.
+                       Vec<Box<sym::VarSymbol>> // The new symbols to add to the new scope.
+                       >>;
 
 /*
 Any parameters to be passed to a do_visit call (through accept).
@@ -115,18 +102,12 @@ using ElabVisitParam = std::variant<
     // The base variant, when the do_visit call does not take parameters.
     std::monostate,
     // A simple string, for anything.
-    std::string,
-    DeclaratorBuilder *,
+    std::string, DeclaratorBuilder *,
     // For passing a function's information into the compound statement.
     CmpdStmtDoVisitParam,
     // For passing types for population.
-    types::ClassType *,
-    types::UnionType *,
-    types::EnumType *,
-    types::PrimitiveType *,
-    types::BaseType *,
-    types::Type *
->;
+    types::ClassType *, types::UnionType *, types::EnumType *, types::PrimitiveType *,
+    types::BaseType *, types::Type *>;
 
 /**
 The class that lowers the AST to MIR, populating the TypeContext and SymbolTable.
@@ -134,8 +115,8 @@ The class that lowers the AST to MIR, populating the TypeContext and SymbolTable
 class MIRSynthesizer : public BaseASTSemaVisitor, public NoMove {
 public:
     MIRSynthesizer(sym::SymbolTable& syms, types::TypeContext& types, mir::ProgramMIR& mir)
-        : BaseASTSemaVisitor(BaseSemanticVisitor::State::WRITE),
-        prog_mir(mir), types(types), syms(syms) {}
+        : BaseASTSemaVisitor(BaseSemanticVisitor::State::WRITE), prog_mir(mir), types(types),
+          syms(syms) {}
 
     types::TypeContext& types;
 
@@ -155,9 +136,9 @@ protected:
     The result of the last visit(ast::) call. This is essentially the `return` value,
     placed here since visit calls cannot directly return values.
     */
-    ElabResult last_result = std::monostate {};
+    ElabResult last_result = std::monostate{};
 
-    ElabVisitParam dovisit_param = std::monostate {};
+    ElabVisitParam dovisit_param = std::monostate{};
 
     ScopeGuard<ast::ASTNode> enter_scope(sym::FuncSymbol *assoc = nullptr) override {
         return ScopeGuard<ast::ASTNode>(state, syms, assoc);
@@ -166,39 +147,41 @@ protected:
     Takes the result of the last visit call, replacing it with `std::monostate`.
     */
     template <typename T>
-    requires VariantMember<T, ElabResult>
+        requires VariantMember<T, ElabResult>
     T take_last_result() {
         T ret;
         try {
-            ret = std::move(std::get<T>(last_result));
+            ret         = std::move(std::get<T>(last_result));
             last_result = std::monostate();
 
         } catch (std::bad_variant_access e) {
-            throw std::runtime_error("got wrong type for take_last_result: " + std::string(e.what()));
+            throw std::runtime_error("got wrong type for take_last_result: " +
+                                     std::string(e.what()));
         }
 
         return std::move(ret);
     }
 
-    template<typename T>
-    requires VariantMember<T, ElabVisitParam>
+    template <typename T>
+        requires VariantMember<T, ElabVisitParam>
     T take_dovisit_param() {
         T ret;
         try {
-            ret = std::move(std::get<T>(dovisit_param));
+            ret           = std::move(std::get<T>(dovisit_param));
             dovisit_param = std::monostate();
 
         } catch (std::bad_variant_access e) {
-            throw std::runtime_error("got wrong type for take_dovisit_param: " + std::string(e.what()));
+            throw std::runtime_error("got wrong type for take_dovisit_param: " +
+                                     std::string(e.what()));
         }
 
         return std::move(ret);
     }
 
-    template<typename E, typename ... Args>
-    requires std::derived_from<E, EccSemError>
-    void add_error(Args ... args) {
-        Box<EccSemError> err = std::make_unique<E>(args ...);
+    template <typename E, typename... Args>
+        requires std::derived_from<E, EccSemError>
+    void add_error(Args... args) {
+        Box<EccSemError> err = std::make_unique<E>(args...);
         errors.push_back(std::move(err));
     }
 
@@ -267,15 +250,15 @@ private:
     struct SpecifierInfo {
         types::BaseType *type = nullptr;
         Optional<sym::TypeSymbol *> symbol;
-        bool is_public = false;
-        bool is_static = false;
-        bool is_const  = false;
+        bool is_public                       = false;
+        bool is_static                       = false;
+        bool is_const                        = false;
         sym::PhysicalSymbol::Linkage linkage = sym::PhysicalSymbol::Linkage::INTERNAL;
     };
 
     Box<SpecifierInfo> parse_speclist(Vec<Box<ast::DeclarationSpecifier>>&, Location);
 };
 
-}
+} // namespace ecc::sema
 
 #endif

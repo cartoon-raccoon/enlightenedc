@@ -9,12 +9,10 @@
 #include "ast/ast.hpp"
 #include "ast/visitor.hpp"
 
-
 namespace ecc::ast {
 
 class ASTPrinter : public ASTVisitor {
 public:
-
     int indent = 0;
 
     void visit(Program& node) override;
@@ -79,9 +77,8 @@ public:
     void print_indent() const;
 
     template <typename NodeType, typename... Children>
-    requires std::derived_from<NodeType, ASTNode>
-    void print_node(const std::string& name, NodeType& node,
-                    Children&&... children) {
+        requires std::derived_from<NodeType, ASTNode>
+    void print_node(const std::string& name, NodeType& node, Children&&...children) {
         print_indent();
         std::cout << name << " @ <" << node.loc << "> " << "\n";
         indent++;

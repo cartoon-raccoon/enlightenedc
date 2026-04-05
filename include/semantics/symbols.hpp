@@ -1,14 +1,16 @@
+#pragma once
+
 #ifndef ECC_SYMBOLS_H
 #define ECC_SYMBOLS_H
 
-#include "ast/ast.hpp"
-#include "semantics/types.hpp"
-#include "eval/value.hpp"
-#include "util.hpp"
-
 #include <cstdint>
-#include <unordered_map>
 #include <memory>
+#include <unordered_map>
+
+#include "ast/ast.hpp"
+#include "eval/value.hpp"
+#include "semantics/types.hpp"
+#include "util.hpp"
 
 namespace ecc::sema::sym {
 /*
@@ -39,9 +41,9 @@ class Symbol {
 public:
     // The kind of symbol.
     enum Kind : uint8_t {
-        VAR, // This symbol references a variable.
-        FUNC, // This symbol references a function definition.
-        TYPE, // This symbol references a declared type.
+        VAR,   // This symbol references a variable.
+        FUNC,  // This symbol references a function definition.
+        TYPE,  // This symbol references a declared type.
         LABEL, // This symbol references a label.
     };
 
@@ -69,7 +71,7 @@ public:
 
     virtual bool is_abstract() { return true; };
 
-    virtual std::string to_string() const  = 0;
+    virtual std::string to_string() const = 0;
 
     virtual std::string mangle() const = 0;
 
@@ -95,9 +97,12 @@ public:
     enum class Linkage : uint8_t {
         // The symbol is only visible within the current translation unit.
         INTERNAL,
-        // The symbol is visible to other translation units, and should be linked to if referenced.
+        // The symbol is visible to other translation units, and should be linked to if
+        // referenced.
         EXTERNAL,
-        // The symbol is visible to other translation units, and should be linked to if referenced, with C linkage.
+        // The symbol is visible to other translation units, and should be linked to if
+        // referenced,
+        // with C linkage.
         EXTERNC
     } linkage = Linkage::INTERNAL;
 
@@ -130,11 +135,12 @@ A symbol representing a variable declaration.
 */
 class VarSymbol : public PhysicalSymbol {
 public:
-    VarSymbol(Location loc, std::string name, Scope *scope, types::Type *type) 
+    VarSymbol(Location loc, std::string name, Scope *scope, types::Type *type)
         : PhysicalSymbol(Symbol::Kind::VAR, loc, std::move(name), scope), type(type) {}
 
-    VarSymbol(Location loc, std::string name, Scope *scope, types::Type *type, eval::Value value) 
-        : PhysicalSymbol(Symbol::Kind::VAR, loc, std::move(name), scope), type(type), value(value) {}
+    VarSymbol(Location loc, std::string name, Scope *scope, types::Type *type, eval::Value value)
+        : PhysicalSymbol(Symbol::Kind::VAR, loc, std::move(name), scope), type(type), value(value) {
+    }
 
     /// The type of the symbol.
     types::Type *type;
@@ -159,19 +165,15 @@ public:
 };
 
 /*
-A symbol representing a function declaration 
+A symbol representing a function declaration
 (function pointers and externally linked functions are handled by VarSymbol).
 */
 class FuncSymbol : public PhysicalSymbol {
 public:
-    FuncSymbol(Location loc, 
-               std::string name,
-               Scope *scope,
-               types::FunctionType *signature, 
+    FuncSymbol(Location loc, std::string name, Scope *scope, types::FunctionType *signature,
                Vec<VarSymbol *> parameters)
-        : PhysicalSymbol(Symbol::Kind::FUNC, loc, std::move(name), scope), 
-        signature(signature),
-        parameters(std::move(parameters)) {}
+        : PhysicalSymbol(Symbol::Kind::FUNC, loc, std::move(name), scope), signature(signature),
+          parameters(std::move(parameters)) {}
 
     // The function signature.
     types::FunctionType *signature;
@@ -196,7 +198,7 @@ A symbol representing a type declaration (class, union, enum).
 */
 class TypeSymbol : public AbstractSymbol {
 public:
-    TypeSymbol(Location loc, std::string name, Scope *scope, types::BaseType* type)
+    TypeSymbol(Location loc, std::string name, Scope *scope, types::BaseType *type)
         : AbstractSymbol(Symbol::Kind::TYPE, loc, std::move(name), scope), type(type) {}
 
     types::BaseType *type;
@@ -230,8 +232,7 @@ A scope stores symbols inside a translation unit.
 */
 class Scope {
 public:
-    Scope(FuncSymbol *assoc, Scope *outer, uint64_t id)
-        : outer(outer), assoc(assoc), id(id) {}
+    Scope(FuncSymbol *assoc, Scope *outer, uint64_t id) : outer(outer), assoc(assoc), id(id) {}
 
     // the outer scope enclosing the inner scope.
     Scope *outer;
@@ -252,7 +253,6 @@ public:
     std::string to_string() const;
 
 private:
-
     friend class SymbolTable;
 
     // The index of the next nested scope to enter.
@@ -356,11 +356,9 @@ public:
 
     LabelSymbol *insert(std::string& name, Box<LabelSymbol> sym) const;
 
-
     std::string to_string() const;
-
 };
 
-}
+} // namespace ecc::sema::sym
 
 #endif

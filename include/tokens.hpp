@@ -5,43 +5,42 @@
 
 #include <cstdint>
 
-
 namespace ecc::tokens {
-    
+
 using namespace ecc;
 // All semantically relevant tokens in EnlightenedC.
 
-enum class BinaryOp : uint8_t  {
-    OROR,     // ||
-    ANDAND,   // &&
-    OR,       // |
-    XOR,      // ^
-    AND,      // &
-    EQ,       // ==
-    NE,       // !=
-    LT,       // <
-    GT,       // >
-    LE,       // <=
-    GE,       // >=
-    LSHIFT,   // <<
-    RSHIFT,   // >>
-    PLUS,     // +
-    MINUS,    // -
-    MUL,      // *
-    DIV,      // /
-    MOD,      // %
-    BINCOMMA  // ,
+enum class BinaryOp : uint8_t {
+    OROR,    // ||
+    ANDAND,  // &&
+    OR,      // |
+    XOR,     // ^
+    AND,     // &
+    EQ,      // ==
+    NE,      // !=
+    LT,      // <
+    GT,      // >
+    LE,      // <=
+    GE,      // >=
+    LSHIFT,  // <<
+    RSHIFT,  // >>
+    PLUS,    // +
+    MINUS,   // -
+    MUL,     // *
+    DIV,     // /
+    MOD,     // %
+    BINCOMMA // ,
 };
 
 enum class UnaryOp : uint8_t {
-    INC,      // ++<symbol>
-    DEC,      // --<symbol>
-    REF,      // &
-    DEREF,    // *
-    POS,      // +
-    NEG,      // -
-    TILDE,    // ~
-    NOT,      // !
+    INC,   // ++<symbol>
+    DEC,   // --<symbol>
+    REF,   // &
+    DEREF, // *
+    POS,   // +
+    NEG,   // -
+    TILDE, // ~
+    NOT,   // !
 };
 
 enum class AssignOp : uint8_t {
@@ -59,8 +58,8 @@ enum class AssignOp : uint8_t {
 };
 
 enum class PostfixOp : uint8_t {
-    POSTINC,  // <symbol>++
-    POSTDEC,  // <symbol>--
+    POSTINC, // <symbol>++
+    POSTDEC, // <symbol>--
 };
 
 enum class InfixOp : uint8_t {

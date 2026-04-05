@@ -10,14 +10,13 @@
 namespace ecc::sema::mir {
 
 class MIRPrinter : public MIRVisitor {
-  public:
+public:
     size_t indent = 0;
 
     void print_indent() const;
 
     template <typename NodeType, typename... Children>
-    void print_node(const std::string& name, NodeType& node,
-                    Children&&... children) {
+    void print_node(const std::string& name, NodeType& node, Children&&...children) {
         print_indent();
         std::cout << name << " @ <" << node.loc << ">\n";
         indent++;

@@ -11,6 +11,5 @@ ValueRange::ValueRange(Value start, Value end) {
     // ranges are inclusive, so our end should be end + 1
     this->finish = *end.value_as<long>() + 1;
 
-    
     this->curr = this->start;
 }

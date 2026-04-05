@@ -5,10 +5,10 @@
 
 #include <variant>
 
+#include "semantics/mir/mir.hpp"
 #include "semantics/semantics.hpp"
 #include "semantics/symbols.hpp"
 #include "semantics/types.hpp"
-#include "semantics/mir/mir.hpp"
 
 using namespace ecc;
 using namespace util;
@@ -30,10 +30,10 @@ public:
 
     void eval_initializer(types::Type *type, mir::InitializerMIR& init);
 
-    template<typename E, typename ... Args>
-    requires std::derived_from<E, EccSemError>
-    void add_error(Args ... args) {
-        Box<EccSemError> err = std::make_unique<E>(args ...);
+    template <typename E, typename... Args>
+        requires std::derived_from<E, EccSemError>
+    void add_error(Args... args) {
+        Box<EccSemError> err = std::make_unique<E>(args...);
         errors.push_back(std::move(err));
     }
 
@@ -79,16 +79,15 @@ private:
 
     void visit_single_vardecl(sym::VarSymbol *varsym, mir::InitializerMIR& init);
 
-    void eval_initializer_rec(
-        Vec<Accessor>& path, types::Type *type, mir::InitializerMIR& init);
+    void eval_initializer_rec(Vec<Accessor>& path, types::Type *type, mir::InitializerMIR& init);
 
-    void eval_initializer_rec(
-        Vec<Accessor>& path, types::ClassType *cls, Vec<Box<mir::InitializerMIR>>& init);
+    void eval_initializer_rec(Vec<Accessor>& path, types::ClassType *cls,
+                              Vec<Box<mir::InitializerMIR>>& init);
 
-    void eval_initializer_rec(
-        Vec<Accessor>& path, types::ArrayType *arr, Vec<Box<mir::InitializerMIR>>& init);
+    void eval_initializer_rec(Vec<Accessor>& path, types::ArrayType *arr,
+                              Vec<Box<mir::InitializerMIR>>& init);
 };
 
-}
+} // namespace ecc::sema
 
 #endif

@@ -9,12 +9,11 @@ A simple class that drives the backend of the compilation pipeline.
 */
 class Backend {
 public:
-
     Backend() {}
 
     void run(TranslationUnit& unit);
 };
 
-}
+} // namespace ecc::driver
 
 #endif

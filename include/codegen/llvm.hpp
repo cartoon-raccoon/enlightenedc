@@ -16,8 +16,8 @@
 #include <llvm/IR/Verifier.h>
 #include <llvm/MC/TargetRegistry.h>
 #include <llvm/Support/FileSystem.h>
-#include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/ManagedStatic.h>
+#include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Target/TargetMachine.h>
 #include <llvm/Target/TargetOptions.h>
@@ -39,6 +39,7 @@ class LLVMCore {
     llvm::Triple target_triple;
     const llvm::Target *target;
     llvm::TargetMachine *target_machine;
+
 public:
     LLVMCore();
     ~LLVMCore();
@@ -63,9 +64,8 @@ public:
     llvm::LLVMContext& ctx() { return *context; }
     llvm::Module& mod() { return *llvmmod; }
     llvm::IRBuilder<>& irb() { return *irbuilder; }
-
 };
 
-}
+} // namespace ecc::codegen
 
 #endif

@@ -173,4 +173,4 @@ Value ConstEvaluator::eval(SizeofExprMIR& expr) {
     throw_eval_error("invalid sizeof operand", expr); // fixme
 }
 
-} // namespace ecc::exec
+} // namespace ecc::eval

@@ -13,20 +13,17 @@ using namespace ecc;
 
 class InvalidCaseError : public EccSemError {
 public:
-    InvalidCaseError(Location err_loc)
-    : EccSemError("case not in switch", err_loc) {}
+    InvalidCaseError(Location err_loc) : EccSemError("case not in switch", err_loc) {}
 };
 
 class InvalidBreakError : public EccSemError {
 public:
-    InvalidBreakError(Location err_loc)
-    : EccSemError("break not in switch or loop", err_loc) {}
+    InvalidBreakError(Location err_loc) : EccSemError("break not in switch or loop", err_loc) {}
 };
 
 class InvalidContError : public EccSemError {
 public:
-    InvalidContError(Location err_loc)
-        : EccSemError("continue not in loop", err_loc) {}
+    InvalidContError(Location err_loc) : EccSemError("continue not in loop", err_loc) {}
 };
 
 class InvalidCallExprError : public EccSemError {
@@ -54,8 +51,7 @@ public:
 
     std::string to_string() override {
         std::stringstream ss;
-        ss << EccSemError::to_string() 
-           << "\ntype \'" << name << "\' is not declared\n";
+        ss << EccSemError::to_string() << "\ntype \'" << name << "\' is not declared\n";
 
         return ss.str();
     }
@@ -70,8 +66,7 @@ public:
 
     std::string to_string() override {
         std::stringstream ss;
-        ss << EccSemError::to_string() 
-           << "\nidentifier \'" << name << "\' is not declared\n";
+        ss << EccSemError::to_string() << "\nidentifier \'" << name << "\' is not declared\n";
 
         return ss.str();
     }
@@ -86,25 +81,23 @@ public:
 
     std::string to_string() override {
         std::stringstream ss;
-        ss << EccSemError::to_string() 
-           << "\nidentifier \'" << name << "\' must reference a function or variable";
+        ss << EccSemError::to_string() << "\nidentifier \'" << name
+           << "\' must reference a function or variable";
 
         return ss.str();
     }
 };
 
-
-
 class TypeAlrDefinedError : public EccSemError {
 public:
-    TypeAlrDefinedError(std::string err, Location err_loc, Location def_loc) 
+    TypeAlrDefinedError(std::string err, Location err_loc, Location def_loc)
         : EccSemError(std::move(err), err_loc), def_loc(def_loc) {}
 
     Location def_loc;
 
     std::string to_string() override {
         std::stringstream ss;
-        ss << EccSemError::to_string() << "\n" 
+        ss << EccSemError::to_string() << "\n"
            << "type previously defined at <" << def_loc << ">";
 
         return ss.str();
@@ -120,13 +113,13 @@ public:
 
     std::string to_string() override {
         std::stringstream ss;
-        ss << EccSemError::to_string() << "\n" 
+        ss << EccSemError::to_string() << "\n"
            << "symbol previously declared at <" << def_loc << ">";
 
         return ss.str();
     }
 };
 
-}
+} // namespace ecc::sema
 
 #endif

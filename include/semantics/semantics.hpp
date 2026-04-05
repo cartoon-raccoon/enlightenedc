@@ -1,12 +1,12 @@
 #ifndef ECC_SEMANTICS_H
 #define ECC_SEMANTICS_H
 
-#include "ast/visitor.hpp"
 #include "ast/ast.hpp"
-#include "semantics/symbols.hpp"
-#include "semantics/types.hpp"
+#include "ast/visitor.hpp"
 #include "semantics/mir/mir.hpp"
 #include "semantics/mir/visitor.hpp"
+#include "semantics/symbols.hpp"
+#include "semantics/types.hpp"
 #include "util.hpp"
 
 namespace ecc::sema {
@@ -24,18 +24,14 @@ validation (e.g. no invalid struct member accesses).
 using namespace ecc;
 using namespace util;
 
-template <typename Node>
-class NodeGuard;
+template <typename Node> class NodeGuard;
 class BaseASTSemaVisitor;
 class BaseMIRSemaVisitor;
 
-template <typename Node>
-class ScopeGuard;
-template <typename Node>
-class NodeGuard;
+template <typename Node> class ScopeGuard;
+template <typename Node> class NodeGuard;
 
-template <typename Node>
-class BaseSemanticVisitor {
+template <typename Node> class BaseSemanticVisitor {
 public:
     /*
     The state of the BaseSemanticVisitor.
@@ -51,15 +47,11 @@ public:
     // Tracks the outer nodes that the current node rests in.
     Vec<Node *> ctxt_stack;
 
-    Node *imm_ctxt() {
-        return ctxt_stack.back();
-    }
+    Node *imm_ctxt() { return ctxt_stack.back(); }
 
     virtual ScopeGuard<Node> enter_scope(sym::FuncSymbol *assoc = nullptr) = 0;
 
-    virtual NodeGuard<Node> enter_node(Node *node) {
-        return NodeGuard(*this, node);
-    }
+    virtual NodeGuard<Node> enter_node(Node *node) { return NodeGuard(*this, node); }
 
 #ifndef NDEBUG
 #include <sstream>
@@ -70,26 +62,23 @@ public:
 
     void dec_indent() { indent -= 2; }
 
-    template <typename ...Args>
-    void bsv_dbprint(Args ...args) {
+    template <typename... Args> void bsv_dbprint(Args... args) {
         std::stringstream ss;
 
         for (int i = 0; i < indent; i++) {
             ss << "  ";
         }
 
-        dbprint(ss.str(), args ...);
+        dbprint(ss.str(), args...);
     }
 #else
-    template <typename ...Args>
-    void bsv_dbprint(Args ...args) {}
+    template <typename... Args> void bsv_dbprint(Args... args) {}
 #endif
 
     BaseSemanticVisitor(State state) {}
 
     virtual ~BaseSemanticVisitor() = default;
 }; // class BaseSemanticVisitor
-
 
 /*
 An RAII wrapper for automatically pushing and popping scopes on a symbol table.
@@ -100,14 +89,15 @@ The ScopeGuard pushes a new scope into the symbol table.
 When the destructor is called, the ScopeGuard automatically pops the scope from its
 stored symbol table reference.
 */
-template <typename Node>
-class ScopeGuard : public NoCopy {
+template <typename Node> class ScopeGuard : public NoCopy {
 public:
     friend class BaseASTSemaVisitor;
     friend class BaseMIRSemaVisitor;
     friend class NodeGuard<Node>;
 
-    ScopeGuard(BaseSemanticVisitor<Node>::State state, sym::SymbolTable& syms, sym::FuncSymbol *assoc) : st(syms) {
+    ScopeGuard(BaseSemanticVisitor<Node>::State state, sym::SymbolTable& syms,
+               sym::FuncSymbol *assoc)
+        : st(syms) {
         if (state == BaseSemanticVisitor<Node>::State::READ) {
             st.get().enter_scope();
         } else {
@@ -118,19 +108,15 @@ public:
     // Allow the ScopeGuard to be moved.
     ScopeGuard(ScopeGuard&& other) noexcept : st(other.st) {}
 
-    ~ScopeGuard() {
-        st.get().pop_scope();
-    }
+    ~ScopeGuard() { st.get().pop_scope(); }
 
     // Prevent deep copies of the ScopeGuard.
-    ScopeGuard(const ScopeGuard&) = delete;
+    ScopeGuard(const ScopeGuard&)            = delete;
     ScopeGuard& operator=(const ScopeGuard&) = delete;
-    
+
 private:
     Ref<sym::SymbolTable> st;
 }; // class ScopeGuard
-
-
 
 /*
 An RAII wrapper for automatically managing node contexts.
@@ -138,14 +124,13 @@ An RAII wrapper for automatically managing node contexts.
 When a NodeGuard is created, it pushes an associated ASTNode onto the
 context. When it is destroyed, it pops the top node from the context.
 */
-template <typename Node>
-class NodeGuard : public NoCopy {
+template <typename Node> class NodeGuard : public NoCopy {
 public:
     friend class BaseASTSemaVisitor;
     friend class BaseMIRSemaVisitor;
     friend class ScopeGuard<Node>;
 
-    NodeGuard(const NodeGuard&) = delete;
+    NodeGuard(const NodeGuard&)            = delete;
     NodeGuard& operator=(const NodeGuard&) = delete;
 
 #ifndef NDEBUG
@@ -157,12 +142,12 @@ public:
     If `true` is passed, a new scopeguard will be created as well, that will be
     destroyed in the NodeGuard's destructor.
     */
-    NodeGuard(BaseSemanticVisitor<Node>& bsv, Node *node) 
-    : 
+    NodeGuard(BaseSemanticVisitor<Node>& bsv, Node *node)
+        :
 #ifndef NDEBUG
-    bsv(bsv), 
+          bsv(bsv),
 #endif
-    context(bsv.ctxt_stack) {
+          context(bsv.ctxt_stack) {
 #ifndef NDEBUG
         bsv.bsv_dbprint("Node {");
         bsv.inc_indent();
@@ -183,8 +168,6 @@ private:
     Optional<ScopeGuard<Node>> scope_guard;
 }; // class NodeGuard
 
-
-
 /*
 The base semantic walker class that handles scoping and AST walking.
 
@@ -203,9 +186,7 @@ of BaseSemanticVisitor, after all scope management has been handled.
 */
 class BaseASTSemaVisitor : public ast::ASTVisitor, public BaseSemanticVisitor<ast::ASTNode> {
 public:
-
-    BaseASTSemaVisitor(State state)
-    : BaseSemanticVisitor(state) {}
+    BaseASTSemaVisitor(State state) : BaseSemanticVisitor(state) {}
 
     /// \brief Checks if there is `kind` in the context, and if so, how many layers up.
     /// Returns -1 if there is no `kind` in the context.
@@ -336,12 +317,9 @@ protected:
     void visit(ast::SizeofExpression& node) override;
 }; // class BaseASTSemaVisitor
 
-
 class BaseMIRSemaVisitor : public mir::MIRVisitor, public BaseSemanticVisitor<mir::MIRNode> {
 public:
-
-    BaseMIRSemaVisitor(State state)
-        : BaseSemanticVisitor(state) {}
+    BaseMIRSemaVisitor(State state) : BaseSemanticVisitor(state) {}
 
     /// \brief Checks if there is `kind` in the context, and if so, how many layers up.
     /// Returns -1 if there is no `kind` in the context.
@@ -351,7 +329,7 @@ public:
 
     virtual void do_visit(mir::ProgramMIR& node);
     virtual void do_visit(mir::FunctionMIR& node);
-    
+
     virtual void do_visit(mir::InitializerMIR& node);
     virtual void do_visit(mir::TypeDeclMIR& node);
     virtual void do_visit(mir::VarDeclMIR& node);
@@ -390,7 +368,7 @@ protected:
 
     void visit(mir::ProgramMIR& node) override;
     void visit(mir::FunctionMIR& node) override;
-    
+
     void visit(mir::InitializerMIR& node) override;
     void visit(mir::TypeDeclMIR& node) override;
     void visit(mir::VarDeclMIR& node) override;
@@ -434,9 +412,8 @@ The parent class that owns the symbol table and type context.
 */
 class SemanticChecker : public NoMove {
 public:
-    SemanticChecker(sym::SymbolTable& symbols, types::TypeContext& types) :
-    symbols(symbols),
-    types(types) {}
+    SemanticChecker(sym::SymbolTable& symbols, types::TypeContext& types)
+        : symbols(symbols), types(types) {}
 
     sym::SymbolTable& symbols;
     types::TypeContext& types;
@@ -444,8 +421,6 @@ public:
     void check_semantics(ast::Program& prog, mir::ProgramMIR& mir);
 };
 
-
-
-}
+} // namespace ecc::sema
 
 #endif

@@ -4,14 +4,14 @@
 #include <string>
 
 #include "ast/ast.hpp"
-#include "frontend/frontend.hpp"
-#include "driver/backend.hpp"
-#include "semantics/mir/mir.hpp"
-#include "semantics/types.hpp"
-#include "semantics/symbols.hpp"
 #include "codegen/lir/lir.hpp"
 #include "codegen/lir/symbols.hpp"
 #include "codegen/llvm.hpp"
+#include "driver/backend.hpp"
+#include "frontend/frontend.hpp"
+#include "semantics/mir/mir.hpp"
+#include "semantics/symbols.hpp"
+#include "semantics/types.hpp"
 #include "util.hpp"
 
 using namespace ecc;
@@ -65,7 +65,6 @@ public:
 // A class for driving the compilation process for a single translation unit.
 class Driver {
 public:
-
     TranslationUnit& unit;
     Box<frontend::Frontend> frontend;
     Box<driver::Backend> backend;
@@ -76,6 +75,6 @@ public:
     void run();
 };
 
-}
+} // namespace ecc::driver
 
 #endif

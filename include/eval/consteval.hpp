@@ -10,20 +10,20 @@
 #include "util.hpp"
 
 namespace ecc::sema::mir {
-    class ConstExprMIR;
-    class BinaryExprMIR;
-    class CastExprMIR;
-    class UnaryExprMIR;
-    class AssignExprMIR;
-    class CondExprMIR;
-    class IdentExprMIR;
-    class LiteralExprMIR;
-    class CallExprMIR;
-    class MemberAccExprMIR;
-    class SubscrExprMIR;
-    class PostfixExprMIR;
-    class SizeofExprMIR;
-}
+class ConstExprMIR;
+class BinaryExprMIR;
+class CastExprMIR;
+class UnaryExprMIR;
+class AssignExprMIR;
+class CondExprMIR;
+class IdentExprMIR;
+class LiteralExprMIR;
+class CallExprMIR;
+class MemberAccExprMIR;
+class SubscrExprMIR;
+class PostfixExprMIR;
+class SizeofExprMIR;
+} // namespace ecc::sema::mir
 
 namespace ecc::eval {
 /*
@@ -38,11 +38,11 @@ A MIR walker for evaluating expressions at compile time.
 class ConstEvaluator : public ExprEvaluator {
 public:
     ConstEvaluator(sema::sym::SymbolTable& symtable, sema::types::TypeContext& typectxt)
-    : typectxt(typectxt), symtable(symtable) {}
+        : typectxt(typectxt), symtable(symtable) {}
 
     Ref<sema::types::TypeContext> typectxt;
     Ref<sema::sym::SymbolTable> symtable;
-    
+
     Value eval(sema::mir::ConstExprMIR& expr) override;
 
     Value eval(sema::mir::BinaryExprMIR& expr) override;
@@ -70,7 +70,6 @@ public:
     Value eval(sema::mir::SizeofExprMIR& expr) override;
 };
 
-
-}
+} // namespace ecc::eval
 
 #endif

@@ -38,23 +38,23 @@ public:
 };
 
 class Config::ArgVIterator {
-        // Start from the second arg, since the first arg is the command.
-        int argc, idx = 1;
-        char **argv;
-        
-    public:
-        ArgVIterator(int argc, char **argv) : argc(argc), argv(argv) {}
+    // Start from the second arg, since the first arg is the command.
+    int argc, idx = 1;
+    char **argv;
 
-        Arg next() {
-            if (idx >= argc) {
-                return {};
-            } else {
-                std::string_view ret(argv[idx]);
-                idx++;
-                return ret;
-            }
+public:
+    ArgVIterator(int argc, char **argv) : argc(argc), argv(argv) {}
+
+    Arg next() {
+        if (idx >= argc) {
+            return {};
+        } else {
+            std::string_view ret(argv[idx]);
+            idx++;
+            return ret;
         }
-    };
+    }
+};
 
 Config::Config(int argc, char *argv[]) {
     add_args();
@@ -62,13 +62,13 @@ Config::Config(int argc, char *argv[]) {
 }
 
 void Config::parse_args(int argc, char *argv[]) {
-    // ArgVIterator args(argc, argv);
+    ArgVIterator args(argc, argv);
 
-    // Arg curr_arg = args.next();
-    // while (curr_arg) {
-    //     parse_single_arg(curr_arg, args);
-    //     curr_arg = args.next();
-    // }
+    Arg curr_arg = args.next();
+    while (curr_arg) {
+        parse_single_arg(curr_arg, args);
+        curr_arg = args.next();
+    }
 }
 
 void Config::parse_single_arg(Arg& arg, ArgVIterator& iter) {

@@ -58,6 +58,7 @@ file(GLOB_RECURSE SEMANTICS_SRC "${SRC_DIR}/semantics/*.cpp")
 file(GLOB_RECURSE CODEGEN_SRC "${SRC_DIR}/codegen/*.cpp")
 file(GLOB_RECURSE EVAL_SRC "${SRC_DIR}/eval/*.cpp")
 file(GLOB         ECC_SRC "${SRC_DIR}/*.cpp")
+file(GLOB_RECURSE HEADERS "${INCLUDE_DIR}/*.hpp")
 
 # All the files we wrote ourselves.
 list(APPEND ALL_WRITTEN_FILES 
@@ -99,7 +100,7 @@ endif()
 find_program(CLANG_FORMAT_EXE NAMES "clang-format")
 if(CLANG_FORMAT_EXE)
     add_custom_target(format
-        COMMAND ${CLANG_FORMAT_EXE} -i ${ALL_WRITTEN_FILES}
+        COMMAND ${CLANG_FORMAT_EXE} -i ${ALL_WRITTEN_FILES} ${HEADERS}
         COMMENT "Format code with clang-format"
     )
 else()

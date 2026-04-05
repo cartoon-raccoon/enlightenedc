@@ -117,7 +117,7 @@ void Validator::do_visit(SwitchStmtMIR& node) {
     node.body->accept(*this);
 
     // iterate over all the case statements
-    // 
+    //
 }
 
 void Validator::do_visit(CaseStmtMIR& node) {

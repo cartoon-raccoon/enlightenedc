@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef ECC_AST_H
 #define ECC_AST_H
 
@@ -22,7 +24,6 @@ class ASTVisitor;
 // that inherits from this main superclass.
 class ASTNode : public NoCopy {
 public:
-
     util::Location loc;
 
     enum NodeKind : uint8_t {
@@ -98,13 +99,13 @@ Abstract class denoting a program item: declaration, statement, or function defi
 */
 class ProgramItem : public ASTNode {
 public:
-    ProgramItem(NodeKind kind, Location loc) : ASTNode(kind, loc)  {}
+    ProgramItem(NodeKind kind, Location loc) : ASTNode(kind, loc) {}
 };
 
 // The abstract Expression class that all expressions inherit from.
 class Expression : public ASTNode {
 public:
-    Expression(NodeKind kind, Location loc) : ASTNode(kind, loc)  {}
+    Expression(NodeKind kind, Location loc) : ASTNode(kind, loc) {}
 };
 
 /*
@@ -116,8 +117,7 @@ compile time, and any expression that is not cannot be.
 class ConstExpression : public Expression {
 public:
     ConstExpression(Box<Expression> expr)
-        : Expression(CONST_EXPR, expr->loc),
-        inner(std::move(expr)) {}
+        : Expression(CONST_EXPR, expr->loc), inner(std::move(expr)) {}
 
     Box<Expression> inner;
 
@@ -131,7 +131,7 @@ The Declaration abstract class that all declarations inherit from.
 */
 class Declaration : public ProgramItem {
 public:
-    Declaration(NodeKind kind, Location loc) : ProgramItem(kind, loc)  {}
+    Declaration(NodeKind kind, Location loc) : ProgramItem(kind, loc) {}
 };
 
 /*
@@ -139,15 +139,14 @@ Abstract class denoting a storage class or type specifier, or a type qualifier.
 */
 class DeclarationSpecifier : public ASTNode {
 public:
-    DeclarationSpecifier(NodeKind kind, Location loc) : ASTNode(kind, loc)  {}
+    DeclarationSpecifier(NodeKind kind, Location loc) : ASTNode(kind, loc) {}
 };
 
 class TypeQualifier : public DeclarationSpecifier {
 public:
     enum QualType : uint8_t { CONST };
 
-    TypeQualifier(Location loc, QualType qual)
-        : DeclarationSpecifier(TYPE_QUAL, loc), qual(qual) {}
+    TypeQualifier(Location loc, QualType qual) : DeclarationSpecifier(TYPE_QUAL, loc), qual(qual) {}
 
     QualType qual;
 
@@ -169,11 +168,8 @@ public:
 
 class Pointer : public ASTNode {
 public:
-    Pointer(Location loc, Vec<Box<TypeQualifier>> qualifiers,
-            Optional<Box<Pointer>> nested)
-        : ASTNode(POINTER, loc), 
-        qualifiers(std::move(qualifiers)), 
-        nested(std::move(nested)) {}
+    Pointer(Location loc, Vec<Box<TypeQualifier>> qualifiers, Optional<Box<Pointer>> nested)
+        : ASTNode(POINTER, loc), qualifiers(std::move(qualifiers)), nested(std::move(nested)) {}
 
     Vec<Box<TypeQualifier>> qualifiers;
     Optional<Box<Pointer>> nested;
@@ -186,7 +182,7 @@ A non-pointer declarator abstract class.
 */
 class DirectDeclarator : public ASTNode {
 public:
-    DirectDeclarator(NodeKind kind, Location loc) : ASTNode(kind, loc)  {}
+    DirectDeclarator(NodeKind kind, Location loc) : ASTNode(kind, loc) {}
 };
 
 /*
@@ -213,11 +209,8 @@ A general declarator containing a DirectDeclarator and an optional Pointer.
 */
 class Declarator : public ASTNode {
 public:
-    Declarator(Location loc, Optional<Box<Pointer>> pointer,
-               Optional<Box<DirectDeclarator>> direct)
-        : ASTNode(DECLARATOR, loc), 
-        pointer(std::move(pointer)), 
-        direct(std::move(direct)) {}
+    Declarator(Location loc, Optional<Box<Pointer>> pointer, Optional<Box<DirectDeclarator>> direct)
+        : ASTNode(DECLARATOR, loc), pointer(std::move(pointer)), direct(std::move(direct)) {}
 
     Optional<Box<Pointer>> pointer;
     Optional<Box<DirectDeclarator>> direct;
@@ -226,15 +219,13 @@ public:
 };
 
 /*
-A declarator creating one or more new variables, with optional initializers. 
+A declarator creating one or more new variables, with optional initializers.
 */
 class InitDeclarator : public ASTNode {
 public:
-    InitDeclarator(Location loc, Box<Declarator> declarator,
-                   Optional<Box<Initializer>> initializer)
-        : ASTNode(INIT_DECLTR, loc),
-        declarator(std::move(declarator)),
-        initializer(std::move(initializer)) {}
+    InitDeclarator(Location loc, Box<Declarator> declarator, Optional<Box<Initializer>> initializer)
+        : ASTNode(INIT_DECLTR, loc), declarator(std::move(declarator)),
+          initializer(std::move(initializer)) {}
 
     Box<Declarator> declarator;
     Optional<Box<Initializer>> initializer;
@@ -247,14 +238,11 @@ A declaration of a single function parameter.
 */
 class ParameterDeclaration : public Declaration {
 public:
-    ParameterDeclaration(Location loc,
-                         Vec<Box<DeclarationSpecifier>> specifiers,
+    ParameterDeclaration(Location loc, Vec<Box<DeclarationSpecifier>> specifiers,
                          Optional<Box<Declarator>> declarator,
                          Optional<Box<Expression>> default_value)
-        : Declaration(PARAM_DECL, loc),
-        specifiers(std::move(specifiers)), 
-        declarator(std::move(declarator)),
-        default_value(std::move(default_value)) {}
+        : Declaration(PARAM_DECL, loc), specifiers(std::move(specifiers)),
+          declarator(std::move(declarator)), default_value(std::move(default_value)) {}
 
     Vec<Box<DeclarationSpecifier>> specifiers;
     Optional<Box<Declarator>> declarator;
@@ -269,8 +257,7 @@ A Declaration of a type (i.e. a declaration of only specifiers, no InitDeclarato
 class TypeDeclaration : public Declaration {
 public:
     TypeDeclaration(Location loc, Vec<Box<DeclarationSpecifier>> specifiers)
-        : Declaration(TYPE_DECL, loc),
-        specifiers(std::move(specifiers)) {}
+        : Declaration(TYPE_DECL, loc), specifiers(std::move(specifiers)) {}
 
     Vec<Box<DeclarationSpecifier>> specifiers;
 
@@ -282,12 +269,10 @@ A variable declaration (e.g. `U32 x = 5;`, `class Flags {U16 x; bool y} = {3, tr
 */
 class VariableDeclaration : public Declaration {
 public:
-    VariableDeclaration(Location loc,
-                        Vec<Box<DeclarationSpecifier>> specifiers,
+    VariableDeclaration(Location loc, Vec<Box<DeclarationSpecifier>> specifiers,
                         Vec<Box<InitDeclarator>> declarators)
-        : Declaration(VAR_DECL, loc),
-        specifiers(std::move(specifiers)),
-        declarators(std::move(declarators)) {}
+        : Declaration(VAR_DECL, loc), specifiers(std::move(specifiers)),
+          declarators(std::move(declarators)) {}
 
     Vec<Box<DeclarationSpecifier>> specifiers;
     Vec<Box<InitDeclarator>> declarators;
@@ -299,9 +284,8 @@ class IdentifierDeclarator : public DirectDeclarator {
 public:
     std::string name;
 
-    IdentifierDeclarator(Location loc, std::string n) 
-        : DirectDeclarator(IDENT_DECLTR, loc),
-        name(std::move(n)) {}
+    IdentifierDeclarator(Location loc, std::string n)
+        : DirectDeclarator(IDENT_DECLTR, loc), name(std::move(n)) {}
 
     void accept(ASTVisitor& visitor) override;
 };
@@ -328,8 +312,7 @@ of `arr` in the former is `U32`.
 class ParenDeclarator : public DirectDeclarator {
 public:
     ParenDeclarator(Location loc, Box<Declarator> decl)
-        : DirectDeclarator(PAREN_DECLTR, loc),
-        inner(std::move(decl)) {}
+        : DirectDeclarator(PAREN_DECLTR, loc), inner(std::move(decl)) {}
 
     Box<Declarator> inner;
 
@@ -338,12 +321,8 @@ public:
 
 class ArrayDeclarator : public DirectDeclarator {
 public:
-    ArrayDeclarator(Location loc,
-                    Box<DirectDeclarator> base,
-                    Optional<Box<ConstExpression>> size)
-        : DirectDeclarator(ARR_DECLTR, loc),
-        base(std::move(base)), 
-        size(std::move(size)) {}
+    ArrayDeclarator(Location loc, Box<DirectDeclarator> base, Optional<Box<ConstExpression>> size)
+        : DirectDeclarator(ARR_DECLTR, loc), base(std::move(base)), size(std::move(size)) {}
 
     Box<DirectDeclarator> base;
     Optional<Box<ConstExpression>> size;
@@ -353,14 +332,10 @@ public:
 
 class FunctionDeclarator : public DirectDeclarator {
 public:
-    FunctionDeclarator(Location loc,
-                       Box<DirectDeclarator> base,
-                       Vec<Box<ParameterDeclaration>> params,
-                       bool is_variadic)
-        : DirectDeclarator(FUNC_DECLTR, loc),
-        base(std::move(base)),
-        parameters(std::move(params)),
-        is_variadic(is_variadic) {}
+    FunctionDeclarator(Location loc, Box<DirectDeclarator> base,
+                       Vec<Box<ParameterDeclaration>> params, bool is_variadic)
+        : DirectDeclarator(FUNC_DECLTR, loc), base(std::move(base)), parameters(std::move(params)),
+          is_variadic(is_variadic) {}
 
     Box<DirectDeclarator> base;
     Vec<Box<ParameterDeclaration>> parameters;
@@ -374,12 +349,10 @@ A declarator representing a member of a class.
 */
 class ClassDeclarator : public ASTNode {
 public:
-    ClassDeclarator(Location loc,
-                    Optional<Box<Declarator>> declarator,
+    ClassDeclarator(Location loc, Optional<Box<Declarator>> declarator,
                     Optional<Box<Expression>> bit_width)
-        : ASTNode(CLASS_DECLTR, loc),
-        declarator(std::move(declarator)),
-        bit_width(std::move(bit_width)) {}
+        : ASTNode(CLASS_DECLTR, loc), declarator(std::move(declarator)),
+          bit_width(std::move(bit_width)) {}
 
     Optional<Box<Declarator>> declarator;
     Optional<Box<Expression>> bit_width;
@@ -393,12 +366,10 @@ one or more ClassDeclarators.
 */
 class ClassDeclaration : public Declaration {
 public:
-    ClassDeclaration(Location loc,
-                     Vec<Box<DeclarationSpecifier>> specifiers,
+    ClassDeclaration(Location loc, Vec<Box<DeclarationSpecifier>> specifiers,
                      Vec<Box<ClassDeclarator>> declarators)
-        : Declaration(CLASS_DECL, loc),
-        specifiers(std::move(specifiers)),
-        declarators(std::move(declarators)) {}
+        : Declaration(CLASS_DECL, loc), specifiers(std::move(specifiers)),
+          declarators(std::move(declarators)) {}
 
     Vec<Box<DeclarationSpecifier>> specifiers;
     Vec<Box<ClassDeclarator>> declarators;
@@ -412,15 +383,13 @@ or some user-defined compound type.
 */
 class TypeSpecifier : public DeclarationSpecifier {
 public:
-    TypeSpecifier(NodeKind kind, Location loc)
-    : DeclarationSpecifier(kind, loc) {}
+    TypeSpecifier(NodeKind kind, Location loc) : DeclarationSpecifier(kind, loc) {}
 };
 
 class PrimitiveSpecifier : public TypeSpecifier {
 public:
-
     PrimitiveSpecifier(Location loc, tokens::PrimType pkind)
-    : TypeSpecifier(PRIM_SPEC, loc), pkind(pkind) {}
+        : TypeSpecifier(PRIM_SPEC, loc), pkind(pkind) {}
 
     tokens::PrimType pkind;
 
@@ -429,14 +398,10 @@ public:
 
 class ClassSpecifier : public TypeSpecifier {
 public:
-    ClassSpecifier(Location loc,
-                   Optional<std::string> name,
-                   Optional<Vec<std::string>> parents,
+    ClassSpecifier(Location loc, Optional<std::string> name, Optional<Vec<std::string>> parents,
                    Optional<Vec<Box<ClassDeclaration>>> declarations)
-        : TypeSpecifier(CLASS_SPEC, loc),
-        name(std::move(name)),
-        parents(std::move(parents)),
-        declarations(std::move(declarations)) {}
+        : TypeSpecifier(CLASS_SPEC, loc), name(std::move(name)), parents(std::move(parents)),
+          declarations(std::move(declarations)) {}
 
     Optional<std::string> name;
     // Identifiers of parent classes.
@@ -449,14 +414,10 @@ public:
 
 class UnionSpecifier : public TypeSpecifier {
 public:
-    UnionSpecifier(Location loc,
-                   Optional<std::string> name,
-                   Optional<tokens::PrimType> type_rep,
+    UnionSpecifier(Location loc, Optional<std::string> name, Optional<tokens::PrimType> type_rep,
                    Optional<Vec<Box<ClassDeclaration>>> declarations)
-        : TypeSpecifier(UNION_SPEC, loc),
-        name(std::move(name)),
-        type_rep(type_rep),
-        declarations(std::move(declarations)) {}
+        : TypeSpecifier(UNION_SPEC, loc), name(std::move(name)), type_rep(type_rep),
+          declarations(std::move(declarations)) {}
 
     Optional<std::string> name;
 
@@ -472,11 +433,8 @@ A declaration of an enumerator within an enum.
 */
 class Enumerator : public ASTNode {
 public:
-    Enumerator(Location loc,
-               std::string name, Optional<Box<ConstExpression>> value)
-        : ASTNode(ENUMERATOR, loc),
-        name(std::move(name)),
-        value(std::move(value)) {}
+    Enumerator(Location loc, std::string name, Optional<Box<ConstExpression>> value)
+        : ASTNode(ENUMERATOR, loc), name(std::move(name)), value(std::move(value)) {}
 
     std::string name;
     Optional<Box<ConstExpression>> value;
@@ -484,27 +442,20 @@ public:
     void accept(ASTVisitor& visitor) override;
 };
 
-
 /*
 A node denoting an enum and its contained variants.
 */
 class EnumSpecifier : public TypeSpecifier {
 public:
-    EnumSpecifier(Location loc,
-                  Optional<std::string> name,
+    EnumSpecifier(Location loc, Optional<std::string> name,
                   Optional<Vec<Box<Enumerator>>> enumerators)
-        : TypeSpecifier(ENUM_SPEC, loc),
-        name(std::move(name)),
-        enumerators(std::move(enumerators)) {}
-    
-    EnumSpecifier(Location loc,
-                  Optional<std::string> name,
-                  Optional<Vec<Box<Enumerator>>> enumerators,
-                  tokens::PrimType underlying)
-        : TypeSpecifier(ENUM_SPEC, loc),
-        name(std::move(name)),
-        enumerators(std::move(enumerators)),
-        underlying(underlying) {}
+        : TypeSpecifier(ENUM_SPEC, loc), name(std::move(name)),
+          enumerators(std::move(enumerators)) {}
+
+    EnumSpecifier(Location loc, Optional<std::string> name,
+                  Optional<Vec<Box<Enumerator>>> enumerators, tokens::PrimType underlying)
+        : TypeSpecifier(ENUM_SPEC, loc), name(std::move(name)), enumerators(std::move(enumerators)),
+          underlying(underlying) {}
 
     Optional<std::string> name;
     Optional<Vec<Box<Enumerator>>> enumerators;
@@ -545,10 +496,8 @@ public:
 // A block of mixed declarations and statements, surrounded by braces.
 class CompoundStatement : public Statement {
 public:
-    CompoundStatement(Location loc,
-                      Vec<Box<ProgramItem>> items)
-        : Statement(COMP_STMT, loc),
-        items(std::move(items)) {}
+    CompoundStatement(Location loc, Vec<Box<ProgramItem>> items)
+        : Statement(COMP_STMT, loc), items(std::move(items)) {}
 
     Vec<Box<ProgramItem>> items;
 
@@ -557,10 +506,8 @@ public:
 
 class ExpressionStatement : public Statement {
 public:
-    ExpressionStatement(Location loc,
-                        Optional<Box<Expression>> expression)
-        : Statement(EXPR_STMT, loc),
-        expression(std::move(expression)) {}
+    ExpressionStatement(Location loc, Optional<Box<Expression>> expression)
+        : Statement(EXPR_STMT, loc), expression(std::move(expression)) {}
 
     Optional<Box<Expression>> expression;
 
@@ -569,12 +516,9 @@ public:
 
 class CaseStatement : public Statement {
 public:
-    CaseStatement(Location loc,
-                  Box<ConstExpression> case_expr,
-                  Box<Statement> statement)
-        : Statement(CASE_STMT, loc),
-        case_expr(std::move(case_expr)),
-        statement(std::move(statement)) {}
+    CaseStatement(Location loc, Box<ConstExpression> case_expr, Box<Statement> statement)
+        : Statement(CASE_STMT, loc), case_expr(std::move(case_expr)),
+          statement(std::move(statement)) {}
 
     Box<ConstExpression> case_expr;
     Box<Statement> statement;
@@ -584,14 +528,10 @@ public:
 
 class CaseRangeStatement : public Statement {
 public:
-    CaseRangeStatement(Location loc,
-                       Box<ConstExpression> range_start,
-                       Box<ConstExpression> range_end,
-                       Box<Statement> statement)
-        : Statement(CASE_RG_STMT, loc),
-        range_start(std::move(range_start)),
-        range_end(std::move(range_end)),
-        statement(std::move(statement)) {}
+    CaseRangeStatement(Location loc, Box<ConstExpression> range_start,
+                       Box<ConstExpression> range_end, Box<Statement> statement)
+        : Statement(CASE_RG_STMT, loc), range_start(std::move(range_start)),
+          range_end(std::move(range_end)), statement(std::move(statement)) {}
 
     Box<ConstExpression> range_start;
     Box<ConstExpression> range_end;
@@ -602,10 +542,8 @@ public:
 
 class DefaultStatement : public Statement {
 public:
-    DefaultStatement(Location loc,
-                     Box<Statement> statement)
-        : Statement(DEF_STMT, loc),
-        statement(std::move(statement)) {}
+    DefaultStatement(Location loc, Box<Statement> statement)
+        : Statement(DEF_STMT, loc), statement(std::move(statement)) {}
 
     Box<Statement> statement;
 
@@ -614,12 +552,8 @@ public:
 
 class LabeledStatement : public Statement {
 public:
-    LabeledStatement(Location loc,
-                     std::string label,
-                     Box<Statement> statement)
-        : Statement(LABEL_STMT, loc),
-        label(std::move(label)), 
-        statement(std::move(statement)) {}
+    LabeledStatement(Location loc, std::string label, Box<Statement> statement)
+        : Statement(LABEL_STMT, loc), label(std::move(label)), statement(std::move(statement)) {}
 
     std::string label;
     Box<Statement> statement;
@@ -627,15 +561,11 @@ public:
     void accept(ASTVisitor& visitor) override;
 };
 
-
 class PrintStatement : public Statement {
 public:
-    PrintStatement(Location loc,
-                   std::string format_string,
-                   Vec<Box<Expression>> arguments)
-        : Statement(PRINT_STMT, loc),
-        format_string(std::move(format_string)),
-        arguments(std::move(arguments)) {}
+    PrintStatement(Location loc, std::string format_string, Vec<Box<Expression>> arguments)
+        : Statement(PRINT_STMT, loc), format_string(std::move(format_string)),
+          arguments(std::move(arguments)) {}
 
     std::string format_string;
     Vec<Box<Expression>> arguments;
@@ -645,14 +575,10 @@ public:
 
 class IfStatement : public Statement {
 public:
-    IfStatement(Location loc,
-                Box<Expression> condition,
-                Box<Statement> then_branch,
+    IfStatement(Location loc, Box<Expression> condition, Box<Statement> then_branch,
                 Optional<Box<Statement>> else_branch)
-        : Statement(IF_STMT, loc),
-        condition(std::move(condition)),
-        then_branch(std::move(then_branch)),
-        else_branch(std::move(else_branch)) {}
+        : Statement(IF_STMT, loc), condition(std::move(condition)),
+          then_branch(std::move(then_branch)), else_branch(std::move(else_branch)) {}
 
     Box<Expression> condition;
     Box<Statement> then_branch;
@@ -663,12 +589,8 @@ public:
 
 class SwitchStatement : public Statement {
 public:
-    SwitchStatement(Location loc,
-                    Box<Expression> condition, 
-                    Box<Statement> body)
-        : Statement(SWITCH_STMT, loc),
-        condition(std::move(condition)), 
-        body(std::move(body)) {}
+    SwitchStatement(Location loc, Box<Expression> condition, Box<Statement> body)
+        : Statement(SWITCH_STMT, loc), condition(std::move(condition)), body(std::move(body)) {}
 
     Box<Expression> condition;
     Box<Statement> body;
@@ -678,12 +600,8 @@ public:
 
 class WhileStatement : public Statement {
 public:
-    WhileStatement(Location loc,
-                   Box<Expression> condition, 
-                   Box<Statement> body)
-        : Statement(WHILE_STMT, loc),
-        condition(std::move(condition)), 
-        body(std::move(body)) {}
+    WhileStatement(Location loc, Box<Expression> condition, Box<Statement> body)
+        : Statement(WHILE_STMT, loc), condition(std::move(condition)), body(std::move(body)) {}
 
     Box<Expression> condition;
     Box<Statement> body;
@@ -693,12 +611,8 @@ public:
 
 class DoWhileStatement : public Statement {
 public:
-    DoWhileStatement(Location loc,
-                     Box<Statement> body, 
-                     Box<Expression> condition)
-        : Statement(DO_WHILE_STMT, loc),
-        body(std::move(body)), 
-        condition(std::move(condition)) {}
+    DoWhileStatement(Location loc, Box<Statement> body, Box<Expression> condition)
+        : Statement(DO_WHILE_STMT, loc), body(std::move(body)), condition(std::move(condition)) {}
 
     Box<Statement> body;
     Box<Expression> condition;
@@ -710,16 +624,10 @@ class ForStatement : public Statement {
 public:
     using ForInit = std::variant<Box<Expression>, Box<VariableDeclaration>>;
 
-    ForStatement(Location loc,
-                 Optional<ForInit> init,
-                 Optional<Box<Expression>> condition,
-                 Optional<Box<Expression>> increment, 
-                 Box<Statement> body)
-        : Statement(FOR_STMT, loc),
-        init(std::move(init)),
-        condition(std::move(condition)),
-        increment(std::move(increment)), 
-        body(std::move(body)) {}
+    ForStatement(Location loc, Optional<ForInit> init, Optional<Box<Expression>> condition,
+                 Optional<Box<Expression>> increment, Box<Statement> body)
+        : Statement(FOR_STMT, loc), init(std::move(init)), condition(std::move(condition)),
+          increment(std::move(increment)), body(std::move(body)) {}
 
     Optional<ForInit> init;
     Optional<Box<Expression>> condition;
@@ -736,9 +644,8 @@ public:
 
 class GotoStatement : public JumpStatement {
 public:
-    GotoStatement(Location loc, std::string target_label) 
-        : JumpStatement(GOTO_STMT, loc),
-        target_label(std::move(target_label)) {}
+    GotoStatement(Location loc, std::string target_label)
+        : JumpStatement(GOTO_STMT, loc), target_label(std::move(target_label)) {}
 
     std::string target_label;
 
@@ -761,10 +668,8 @@ public:
 
 class ReturnStatement : public JumpStatement {
 public:
-    ReturnStatement(Location loc,
-                    Optional<Box<Expression>> return_value)
-        : JumpStatement(RET_STMT, loc),
-        return_value(std::move(return_value)) {}
+    ReturnStatement(Location loc, Optional<Box<Expression>> return_value)
+        : JumpStatement(RET_STMT, loc), return_value(std::move(return_value)) {}
 
     Optional<Box<Expression>> return_value;
 
@@ -773,13 +678,10 @@ public:
 
 class TypeName : public ASTNode {
 public:
-    TypeName(Location loc,
-             Vec<Box<DeclarationSpecifier>> specifiers,
+    TypeName(Location loc, Vec<Box<DeclarationSpecifier>> specifiers,
              Optional<Box<Declarator>> declarator)
-        : ASTNode(TYPE_NAME, loc),
-        specifiers(std::move(specifiers)), 
-        declarator(std::move(declarator)) {
-    }
+        : ASTNode(TYPE_NAME, loc), specifiers(std::move(specifiers)),
+          declarator(std::move(declarator)) {}
 
     Vec<Box<DeclarationSpecifier>> specifiers;
     Optional<Box<Declarator>> declarator;
@@ -791,16 +693,8 @@ public:
 
 class BinaryExpression : public Expression {
 public:
-    BinaryExpression(
-        Location loc,
-        Box<Expression> left,
-        Box<Expression> right,
-        tokens::BinaryOp op
-    )
-        : Expression(BIN_EXPR, loc),
-        left(std::move(left)), 
-        right(std::move(right)), 
-        op(op) {}
+    BinaryExpression(Location loc, Box<Expression> left, Box<Expression> right, tokens::BinaryOp op)
+        : Expression(BIN_EXPR, loc), left(std::move(left)), right(std::move(right)), op(op) {}
 
     Box<Expression> left;
     Box<Expression> right;
@@ -811,12 +705,8 @@ public:
 
 class CastExpression : public Expression {
 public:
-    CastExpression(Location loc,
-                   Box<Expression> inner,
-                   Box<TypeName> type_name)
-        : Expression(CAST_EXPR, loc),
-        inner(std::move(inner)),
-        type_name(std::move(type_name)) {}
+    CastExpression(Location loc, Box<Expression> inner, Box<TypeName> type_name)
+        : Expression(CAST_EXPR, loc), inner(std::move(inner)), type_name(std::move(type_name)) {}
 
     Box<Expression> inner;
     Box<TypeName> type_name;
@@ -826,12 +716,8 @@ public:
 
 class UnaryExpression : public Expression {
 public:
-    UnaryExpression(Location loc,
-                    Box<Expression> operand, 
-                    tokens::UnaryOp op)
-        : Expression(UN_EXPR, loc),
-        operand(std::move(operand)),
-        op(op) {}
+    UnaryExpression(Location loc, Box<Expression> operand, tokens::UnaryOp op)
+        : Expression(UN_EXPR, loc), operand(std::move(operand)), op(op) {}
 
     Box<Expression> operand;
     tokens::UnaryOp op;
@@ -841,14 +727,9 @@ public:
 
 class AssignmentExpression : public Expression {
 public:
-    AssignmentExpression(Location loc,
-                         Box<Expression> left, 
-                         Box<Expression> right,
+    AssignmentExpression(Location loc, Box<Expression> left, Box<Expression> right,
                          tokens::AssignOp op)
-        : Expression(ASSGN_EXPR, loc),
-        left(std::move(left)), 
-        right(std::move(right)),
-        op(op) {}
+        : Expression(ASSGN_EXPR, loc), left(std::move(left)), right(std::move(right)), op(op) {}
 
     Box<Expression> left;
     Box<Expression> right;
@@ -859,14 +740,10 @@ public:
 
 class ConditionalExpression : public Expression {
 public:
-    ConditionalExpression(Location loc,
-                          Box<Expression> condition, 
-                          Box<Expression> true_expr,
+    ConditionalExpression(Location loc, Box<Expression> condition, Box<Expression> true_expr,
                           Box<Expression> false_expr)
-        : Expression(COND_EXPR, loc),
-        condition(std::move(condition)), 
-        true_expr(std::move(true_expr)),
-        false_expr(std::move(false_expr)) {}
+        : Expression(COND_EXPR, loc), condition(std::move(condition)),
+          true_expr(std::move(true_expr)), false_expr(std::move(false_expr)) {}
 
     Box<Expression> condition;
     Box<Expression> true_expr;
@@ -877,9 +754,8 @@ public:
 
 class IdentifierExpression : public Expression {
 public:
-    IdentifierExpression(Location loc, std::string name) 
-        : Expression(IDENT_EXPR, loc),
-        name(std::move(name)) {}
+    IdentifierExpression(Location loc, std::string name)
+        : Expression(IDENT_EXPR, loc), name(std::move(name)) {}
 
     std::string name;
 
@@ -897,12 +773,8 @@ public:
         bool b_val;
     };
 
-    LiteralExpression(Location loc, 
-                      LiteralKind kind, 
-                      Value value)
-        : Expression(LIT_EXPR, loc),
-        kind(kind), 
-        value(value) {}
+    LiteralExpression(Location loc, LiteralKind kind, Value value)
+        : Expression(LIT_EXPR, loc), kind(kind), value(value) {}
 
     LiteralKind kind;
     Value value;
@@ -912,10 +784,8 @@ public:
 
 class StringExpression : public Expression {
 public:
-    StringExpression(Location loc,
-                     std::string value)
-        : Expression(STR_EXPR, loc),
-        value(std::move(value)) {}
+    StringExpression(Location loc, std::string value)
+        : Expression(STR_EXPR, loc), value(std::move(value)) {}
 
     std::string value;
 
@@ -924,12 +794,8 @@ public:
 
 class CallExpression : public Expression {
 public:
-    CallExpression(Location loc,
-                   Box<Expression> callee, 
-                   Vec<Box<Expression>> arguments)
-        : Expression(CALL_EXPR, loc),
-        callee(std::move(callee)),
-        arguments(std::move(arguments)) {}
+    CallExpression(Location loc, Box<Expression> callee, Vec<Box<Expression>> arguments)
+        : Expression(CALL_EXPR, loc), callee(std::move(callee)), arguments(std::move(arguments)) {}
 
     Box<Expression> callee;
     Vec<Box<Expression>> arguments;
@@ -939,14 +805,9 @@ public:
 
 class MemberAccessExpression : public Expression {
 public:
-    MemberAccessExpression(Location loc,
-                           Box<Expression> object,
-                           std::string member,
-                           bool is_arrow)
-        : Expression(ACCESS_EXPR, loc),
-        object(std::move(object)), 
-        member(std::move(member)),
-        is_arrow(is_arrow) {}
+    MemberAccessExpression(Location loc, Box<Expression> object, std::string member, bool is_arrow)
+        : Expression(ACCESS_EXPR, loc), object(std::move(object)), member(std::move(member)),
+          is_arrow(is_arrow) {}
 
     Box<Expression> object;
     std::string member;
@@ -957,12 +818,8 @@ public:
 
 class ArraySubscriptExpression : public Expression {
 public:
-    ArraySubscriptExpression(Location loc,
-                             Box<Expression> array, 
-                             Box<Expression> index)
-        : Expression(SUBSCR_EXPR, loc),
-        array(std::move(array)), 
-        index(std::move(index)) {}
+    ArraySubscriptExpression(Location loc, Box<Expression> array, Box<Expression> index)
+        : Expression(SUBSCR_EXPR, loc), array(std::move(array)), index(std::move(index)) {}
 
     Box<Expression> array;
     Box<Expression> index;
@@ -972,12 +829,8 @@ public:
 
 class PostfixExpression : public Expression {
 public:
-    PostfixExpression(Location loc,
-                      Box<Expression> operand,
-                      tokens::PostfixOp op)
-        : Expression(POSTF_EXPR, loc),
-        operand(std::move(operand)),
-        op(op) {}
+    PostfixExpression(Location loc, Box<Expression> operand, tokens::PostfixOp op)
+        : Expression(POSTF_EXPR, loc), operand(std::move(operand)), op(op) {}
 
     Box<Expression> operand;
     tokens::PostfixOp op;
@@ -987,12 +840,11 @@ public:
 
 class SizeofExpression : public Expression {
 public:
-
     SizeofExpression(Location loc, Box<Expression> expr)
-    : Expression(SIZEOF_EXPR, loc), operand(std::move(expr)) {}
+        : Expression(SIZEOF_EXPR, loc), operand(std::move(expr)) {}
 
     SizeofExpression(Location loc, Box<TypeName> type)
-    : Expression(SIZEOF_EXPR, loc), operand(std::move(type)) {}
+        : Expression(SIZEOF_EXPR, loc), operand(std::move(type)) {}
 
     std::variant<Box<Expression>, Box<TypeName>> operand;
 
@@ -1001,21 +853,13 @@ public:
 
 class Function : public ProgramItem {
 public:
-    Function(Location loc, 
-             Vec<Box<DeclarationSpecifier>> decl_spec_list,
-             Box<Declarator> declarator, 
-             Box<CompoundStatement> body)
-        : ProgramItem(FUNC, loc),
-        decl_spec_list(std::move(decl_spec_list)),
-        declarator(std::move(declarator)), body(std::move(body)) {}
+    Function(Location loc, Vec<Box<DeclarationSpecifier>> decl_spec_list,
+             Box<Declarator> declarator, Box<CompoundStatement> body)
+        : ProgramItem(FUNC, loc), decl_spec_list(std::move(decl_spec_list)),
+          declarator(std::move(declarator)), body(std::move(body)) {}
 
-    Function(Location loc,
-             Box<Declarator> declarator,
-             Box<CompoundStatement> body)
-        : ProgramItem(FUNC, loc),
-        declarator(std::move(declarator)), 
-        body(std::move(body)) {
-    }
+    Function(Location loc, Box<Declarator> declarator, Box<CompoundStatement> body)
+        : ProgramItem(FUNC, loc), declarator(std::move(declarator)), body(std::move(body)) {}
 
     /*
     Any possible specifiers (e.g. public, int, etc.)
@@ -1036,7 +880,7 @@ The toplevel Program class.
 */
 class Program : public ASTNode {
 public:
-    Program(std::string *filename) : ASTNode(PROG, Location(filename))  {}
+    Program(std::string *filename) : ASTNode(PROG, Location(filename)) {}
 
     // Program items.
     std::vector<std::unique_ptr<ProgramItem>> items;
@@ -1050,7 +894,6 @@ public:
 std::string storage_to_string(StorageClassSpecifier::SpecType ty);
 
 std::string qualifier_to_string(TypeQualifier::QualType qual);
-
 
 } // namespace ecc::ast
 

@@ -6,10 +6,10 @@
 #include <cstddef>
 #include <string>
 
-#include "semantics/types.hpp"
 #include "codegen/lir/symbols.hpp"
-#include "tokens.hpp"
 #include "eval/value.hpp"
+#include "semantics/types.hpp"
+#include "tokens.hpp"
 #include "util.hpp"
 
 using namespace ecc;
@@ -69,17 +69,14 @@ public:
 
 class VarDeclLIR : public LIRNode {
 public:
-    VarDeclLIR(Location loc, LIRVarSym *var)
-        : LIRNode(loc, NodeKind::VARDECL_LIR), var(var) {}
-    
-    VarDeclLIR(LIRVarSym *var)
-        : LIRNode(NodeKind::VARDECL_LIR), var(var) {}
-    
+    VarDeclLIR(Location loc, LIRVarSym *var) : LIRNode(loc, NodeKind::VARDECL_LIR), var(var) {}
+
+    VarDeclLIR(LIRVarSym *var) : LIRNode(NodeKind::VARDECL_LIR), var(var) {}
+
     LIRVarSym *var;
 
     void accept(LIRVisitor& visitor) override;
 };
-
 
 class ProgItemLIR : public LIRNode {
 public:
@@ -111,7 +108,7 @@ public:
 };
 
 /*
-*/
+ */
 class TerminalLIR : public StmtLIR {
 public:
     TerminalLIR(NodeKind kind) : StmtLIR(kind) {}
@@ -124,28 +121,24 @@ public:
 
 class SwitchTarget : public LabelLIR {
 public:
-    SwitchTarget(Location loc, NodeKind kind)
-        : LabelLIR(loc, kind) {}
+    SwitchTarget(Location loc, NodeKind kind) : LabelLIR(loc, kind) {}
 };
 
 class ExprLIR : public LIRNode {
 public:
-    ExprLIR(NodeKind kind, sema::types::Type *type) : 
-        LIRNode(kind), type(type) {}
-    ExprLIR(Location loc, NodeKind kind, sema::types::Type *type) : 
-        LIRNode(loc, kind), type(type) {}
+    ExprLIR(NodeKind kind, sema::types::Type *type) : LIRNode(kind), type(type) {}
+    ExprLIR(Location loc, NodeKind kind, sema::types::Type *type)
+        : LIRNode(loc, kind), type(type) {}
 
     sema::types::Type *type;
 };
 
 class FunctionLIR : public LIRNode {
 public:
-    FunctionLIR(Location loc, 
-                std::string mangled, 
-                std::string name)
-        : LIRNode(loc, NodeKind::FUNC_LIR),
-        mangled_name(std::move(mangled)), name(std::move(name)) {}
-    
+    FunctionLIR(Location loc, std::string mangled, std::string name)
+        : LIRNode(loc, NodeKind::FUNC_LIR), mangled_name(std::move(mangled)),
+          name(std::move(name)) {}
+
     std::string mangled_name;
     std::string name;
 
@@ -158,12 +151,11 @@ public:
 class GotoStmtLIR : public TerminalLIR {
 public:
     GotoStmtLIR(std::string mangled_target)
-        : TerminalLIR(NodeKind::GOTOSTMT_LIR),
-        mangled_target(std::move(mangled_target)) {}
-    
+        : TerminalLIR(NodeKind::GOTOSTMT_LIR), mangled_target(std::move(mangled_target)) {}
+
     GotoStmtLIR(Location loc, std::string mangled_target, std::string target)
-        : TerminalLIR(loc, NodeKind::GOTOSTMT_LIR), 
-        mangled_target(std::move(mangled_target)), target(target) {}
+        : TerminalLIR(loc, NodeKind::GOTOSTMT_LIR), mangled_target(std::move(mangled_target)),
+          target(target) {}
 
     // The mangled target name.
     std::string mangled_target;
@@ -179,11 +171,9 @@ public:
 class ReturnStmtLIR : public TerminalLIR {
 public:
     ReturnStmtLIR(Location loc, Box<ExprLIR> ret_value)
-        : TerminalLIR(loc, NodeKind::RETSTMT_LIR), 
-        ret_value(std::move(ret_value)) {}
+        : TerminalLIR(loc, NodeKind::RETSTMT_LIR), ret_value(std::move(ret_value)) {}
 
-    ReturnStmtLIR(Location loc)
-        : TerminalLIR(loc, NodeKind::RETSTMT_LIR) {}
+    ReturnStmtLIR(Location loc) : TerminalLIR(loc, NodeKind::RETSTMT_LIR) {}
 
     Optional<Box<ExprLIR>> ret_value;
 
@@ -198,9 +188,8 @@ public:
 class SwitchStmtLIR : public TerminalLIR {
 public:
     SwitchStmtLIR(Location loc, Box<ExprLIR> condition)
-        : TerminalLIR(loc, NodeKind::SWITCHSTMT_LIR),
-        condition(std::move(condition)) {}
-    
+        : TerminalLIR(loc, NodeKind::SWITCHSTMT_LIR), condition(std::move(condition)) {}
+
     Box<ExprLIR> condition;
     Vec<Box<ProgItemLIR>> body;
 
@@ -214,9 +203,8 @@ public:
 class CaseLIR : public SwitchTarget {
 public:
     CaseLIR(Location loc, eval::Value case_value)
-        : SwitchTarget(loc, NodeKind::CASEDECL_LIR), 
-        case_value(std::move(case_value)) {}
-    
+        : SwitchTarget(loc, NodeKind::CASEDECL_LIR), case_value(std::move(case_value)) {}
+
     eval::Value case_value;
 
     void accept(LIRVisitor& visitor) override;
@@ -224,8 +212,7 @@ public:
 
 class DefaultLIR : public SwitchTarget {
 public:
-    DefaultLIR(Location loc)
-        : SwitchTarget(loc, NodeKind::DEFDECL_LIR) {}
+    DefaultLIR(Location loc) : SwitchTarget(loc, NodeKind::DEFDECL_LIR) {}
 
     void accept(LIRVisitor& visitor) override;
 };
@@ -233,9 +220,9 @@ public:
 class LabelDeclLIR : public LabelLIR {
 public:
     LabelDeclLIR(Location loc, std::string mangled_label, std::string label)
-        : LabelLIR(loc, NodeKind::LABDECL_LIR), 
-        mangled_label(std::move(mangled_label)), label(std::move(label)) {}
-    
+        : LabelLIR(loc, NodeKind::LABDECL_LIR), mangled_label(std::move(mangled_label)),
+          label(std::move(label)) {}
+
     std::string mangled_label;
     std::string label;
 
@@ -264,7 +251,7 @@ class ExprStmtLIR : public StmtLIR {
 public:
     ExprStmtLIR(Location loc, Box<ExprLIR> expr)
         : StmtLIR(loc, NodeKind::EXPRSTMT_LIR), expr(std::move(expr)) {}
-    
+
     Box<ExprLIR> expr;
 
     Vec<SwitchTarget *> pull_switch_targets() override { return {}; };
@@ -272,11 +259,9 @@ public:
     void accept(LIRVisitor& visitor) override;
 };
 
-
 class IfStmtLIR : public TerminalLIR {
 public:
-    IfStmtLIR(Location loc, Box<ExprLIR> condition)
-        : TerminalLIR(loc, NodeKind::IFSTMT_LIR) {}
+    IfStmtLIR(Location loc, Box<ExprLIR> condition) : TerminalLIR(loc, NodeKind::IFSTMT_LIR) {}
 
     Box<ExprLIR> condition;
     Vec<Box<ProgItemLIR>> then_br;
@@ -289,8 +274,7 @@ public:
 
 class LoopStmtLIR : public StmtLIR {
 public:
-    LoopStmtLIR(Location loc)
-        : StmtLIR(loc, NodeKind::LOOPSTMT_LIR) {}
+    LoopStmtLIR(Location loc) : StmtLIR(loc, NodeKind::LOOPSTMT_LIR) {}
 
     Optional<Vec<Box<ProgItemLIR>>> init;
 
@@ -299,7 +283,7 @@ public:
     Optional<Vec<Box<ProgItemLIR>>> step;
 
     Vec<Box<ProgItemLIR>> body;
-    
+
     bool is_dowhile = false;
 
     Vec<SwitchTarget *> pull_switch_targets() override;
@@ -310,10 +294,9 @@ public:
 class PrintStmtLIR : public StmtLIR {
 public:
     PrintStmtLIR(Location loc, std::string format_string, Vec<Box<ExprLIR>> args)
-        : StmtLIR(loc, NodeKind::PRINTSTMT_LIR), 
-        format_string(std::move(format_string)),
-        args(std::move(args)) {}
-    
+        : StmtLIR(loc, NodeKind::PRINTSTMT_LIR), format_string(std::move(format_string)),
+          args(std::move(args)) {}
+
     std::string format_string;
     Vec<Box<ExprLIR>> args;
 
@@ -324,13 +307,10 @@ public:
 
 class BinaryExprLIR : public ExprLIR {
 public:
-    BinaryExprLIR(Location loc,
-                  sema::types::Type *type,
-                  Box<ExprLIR> left, 
-                  Box<ExprLIR> right, 
+    BinaryExprLIR(Location loc, sema::types::Type *type, Box<ExprLIR> left, Box<ExprLIR> right,
                   tokens::BinaryOp op)
-        : ExprLIR(loc, NodeKind::BINEXPR_LIR, type),
-        left(std::move(left)), right(std::move(right)), op(op) {}
+        : ExprLIR(loc, NodeKind::BINEXPR_LIR, type), left(std::move(left)), right(std::move(right)),
+          op(op) {}
 
     Box<ExprLIR> left;
     Box<ExprLIR> right;
@@ -341,13 +321,9 @@ public:
 
 class UnaryExprLIR : public ExprLIR {
 public:
-    UnaryExprLIR(Location loc,
-                 sema::types::Type *type, 
-                 Box<ExprLIR> operand, 
-                 tokens::UnaryOp op)
-        : ExprLIR(loc, NodeKind::UNEXPR_LIR, type), 
-        operand(std::move(operand)), op(op) {}
-    
+    UnaryExprLIR(Location loc, sema::types::Type *type, Box<ExprLIR> operand, tokens::UnaryOp op)
+        : ExprLIR(loc, NodeKind::UNEXPR_LIR, type), operand(std::move(operand)), op(op) {}
+
     Box<ExprLIR> operand;
     tokens::UnaryOp op;
 
@@ -356,14 +332,10 @@ public:
 
 class CastExprLIR : public ExprLIR {
 public:
-    CastExprLIR(Location loc,
-                sema::types::Type *type,
-                Box<ExprLIR> inner, 
+    CastExprLIR(Location loc, sema::types::Type *type, Box<ExprLIR> inner,
                 sema::types::Type *target)
-        : ExprLIR(loc, NodeKind::CASTEXPR_LIR, type), 
-        target(target),
-        inner(std::move(inner)) {}
-    
+        : ExprLIR(loc, NodeKind::CASTEXPR_LIR, type), target(target), inner(std::move(inner)) {}
+
     sema::types::Type *target;
     Box<ExprLIR> inner;
 
@@ -372,13 +344,11 @@ public:
 
 class AssignExprLIR : public ExprLIR {
 public:
-    AssignExprLIR(Location loc,
-                  sema::types::Type *type,
-                  Box<ExprLIR> left, Box<ExprLIR> right, 
+    AssignExprLIR(Location loc, sema::types::Type *type, Box<ExprLIR> left, Box<ExprLIR> right,
                   tokens::AssignOp op)
-        : ExprLIR(loc, NodeKind::ASSIGNEXPR_LIR, type), 
-        left(std::move(left)), right(std::move(right)), op(op) {}
-    
+        : ExprLIR(loc, NodeKind::ASSIGNEXPR_LIR, type), left(std::move(left)),
+          right(std::move(right)), op(op) {}
+
     Box<ExprLIR> left;
     Box<ExprLIR> right;
     tokens::AssignOp op;
@@ -409,7 +379,7 @@ class LiteralExprLIR : public ExprLIR {
 public:
     LiteralExprLIR(Location loc, eval::Value value, sema::types::Type *type)
         : ExprLIR(loc, NodeKind::LITEXPR_LIR, type), value(std::move(value)) {}
-    
+
     eval::Value value;
 
     void accept(LIRVisitor& visitor) override;
@@ -440,7 +410,6 @@ public:
 
 class PostfixExprLIR : public ExprLIR {
 public:
-
     Box<ExprLIR> operand;
     tokens::PostfixOp op;
 
@@ -449,9 +418,8 @@ public:
 
 class ProgramLIR : public LIRNode {
 public:
-    ProgramLIR()
-        : LIRNode(NodeKind::PROG_LIR) {}
-    
+    ProgramLIR() : LIRNode(NodeKind::PROG_LIR) {}
+
     Vec<Box<FunctionLIR>> functions;
     /*
     In HolyC, statements can be declared in the global scope, and they will be executed
@@ -470,6 +438,6 @@ public:
     void accept(LIRVisitor& visitor) override;
 };
 
-}
+} // namespace ecc::codegen::lir
 
 #endif

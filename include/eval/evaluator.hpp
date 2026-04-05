@@ -6,20 +6,20 @@
 #include "eval/value.hpp"
 
 namespace ecc::sema::mir {
-    class ConstExprMIR;
-    class BinaryExprMIR;
-    class CastExprMIR;
-    class UnaryExprMIR;
-    class AssignExprMIR;
-    class CondExprMIR;
-    class IdentExprMIR;
-    class LiteralExprMIR;
-    class CallExprMIR;
-    class MemberAccExprMIR;
-    class SubscrExprMIR;
-    class PostfixExprMIR;
-    class SizeofExprMIR;
-}
+class ConstExprMIR;
+class BinaryExprMIR;
+class CastExprMIR;
+class UnaryExprMIR;
+class AssignExprMIR;
+class CondExprMIR;
+class IdentExprMIR;
+class LiteralExprMIR;
+class CallExprMIR;
+class MemberAccExprMIR;
+class SubscrExprMIR;
+class PostfixExprMIR;
+class SizeofExprMIR;
+} // namespace ecc::sema::mir
 
 namespace ecc::eval {
 
@@ -57,7 +57,6 @@ public:
     virtual Value eval(sema::mir::SizeofExprMIR& expr) = 0;
 };
 
-
-}
+} // namespace ecc::eval
 
 #endif

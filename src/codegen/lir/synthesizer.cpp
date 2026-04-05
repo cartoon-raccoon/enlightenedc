@@ -229,15 +229,12 @@ void LIRSynthesizer::do_visit(SwitchStmtMIR& node) {
 
 void LIRSynthesizer::do_visit(CaseStmtMIR& node) {
     // todo
-    
+
     node.stmt->accept(*this);
 }
 
 void LIRSynthesizer::do_visit(CaseRangeStmtMIR& node) {
     // todo
-
-    
-
 
     node.stmt->accept(*this);
 }

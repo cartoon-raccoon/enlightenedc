@@ -4,8 +4,8 @@
 #define ECC_ERROR_H
 
 #include <exception>
-#include <string>
 #include <sstream>
+#include <string>
 
 #include "util.hpp"
 
@@ -24,13 +24,11 @@ enum class ErrorSource : uint8_t {
 class EccError : public std::exception {
 public:
     EccError(ErrorSource src, std::string err, Location loc)
-        : src(src) ,msg(std::move(err)), loc(loc) {}
+        : src(src), msg(std::move(err)), loc(loc) {}
 
-    EccError(ErrorSource src, std::string err)
-        : src(src) ,msg(std::move(err)) {}
+    EccError(ErrorSource src, std::string err) : src(src), msg(std::move(err)) {}
 
-    EccError(std::string err, Location loc)
-        : msg(std::move(err)), loc(loc) {}
+    EccError(std::string err, Location loc) : msg(std::move(err)), loc(loc) {}
 
     EccError(std::string err) : msg(std::move(err)) {}
 
@@ -44,12 +42,10 @@ public:
         }
     }
 
-    const char *what() const throw() override {
-        return msg.c_str();
-    }
+    const char *what() const throw() override { return msg.c_str(); }
 
     virtual std::string to_string() {
-        
+
         std::stringstream ss;
         if (loc) {
             ss << "error <" << *loc << ">: ";
@@ -67,15 +63,12 @@ class UnableToContinue : public EccError {
 public:
     UnableToContinue() : EccError("unable to continue") {}
 
-    std::string to_string() override {
-        return "";
-    }
+    std::string to_string() override { return ""; }
 };
 
 class EccSemError : public EccError {
 public:
-    EccSemError(std::string msg)
-        : EccError(ErrorSource::SEMANTIC, std::move(msg)) {}
+    EccSemError(std::string msg) : EccError(ErrorSource::SEMANTIC, std::move(msg)) {}
     EccSemError(std::string msg, Location err_loc)
         : EccError(ErrorSource::SEMANTIC, std::move(msg), err_loc) {}
 
@@ -86,6 +79,6 @@ public:
     }
 };
 
-}
+} // namespace ecc
 
 #endif
