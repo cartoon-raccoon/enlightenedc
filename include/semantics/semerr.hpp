@@ -11,8 +11,6 @@
 namespace ecc::sema {
 using namespace ecc;
 
-
-
 class InvalidCaseError : public EccSemError {
 public:
     InvalidCaseError(Location err_loc)
@@ -57,7 +55,7 @@ public:
     std::string to_string() override {
         std::stringstream ss;
         ss << EccSemError::to_string() 
-           << "type \'" << name << "\' is not declared\n";
+           << "\ntype \'" << name << "\' is not declared\n";
 
         return ss.str();
     }
@@ -72,8 +70,8 @@ public:
 
     std::string to_string() override {
         std::stringstream ss;
-        ss << EccError::what() 
-           << "identifier \'" << name << "\' is not declared\n";
+        ss << EccSemError::to_string() 
+           << "\nidentifier \'" << name << "\' is not declared\n";
 
         return ss.str();
     }
@@ -88,8 +86,8 @@ public:
 
     std::string to_string() override {
         std::stringstream ss;
-        ss << EccError::what() << "\n" 
-           << "identifier \'" << name << "\' must reference a function or variable";
+        ss << EccSemError::to_string() 
+           << "\nidentifier \'" << name << "\' must reference a function or variable";
 
         return ss.str();
     }
@@ -106,7 +104,8 @@ public:
 
     std::string to_string() override {
         std::stringstream ss;
-        ss << EccError::what() << "\n" << "type previously defined at " << def_loc;
+        ss << EccSemError::to_string() << "\n" 
+           << "type previously defined at <" << def_loc << ">";
 
         return ss.str();
     }
@@ -121,7 +120,8 @@ public:
 
     std::string to_string() override {
         std::stringstream ss;
-        ss << EccError::what() << "\n" << "symbol previously declared at " << def_loc;
+        ss << EccSemError::to_string() << "\n" 
+           << "symbol previously declared at <" << def_loc << ">";
 
         return ss.str();
     }

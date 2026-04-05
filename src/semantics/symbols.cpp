@@ -251,7 +251,6 @@ LabelSymbol *SymbolTable::lookup_label(std::string& sym, Scope *from, bool curre
     while (!(my_current->label_symbols.contains(sym))) {
         // if already at function scope, return null
         if (my_current->assoc) {
-            assert(my_current == global.get());
             dbprint("SymbolTable: symbol \'", sym, "\' not found in function scope");
             return nullptr;
         }

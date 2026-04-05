@@ -1,4 +1,4 @@
-#include "eval/exec.hpp"
+#include "eval/consteval.hpp"
 
 #include "eval/value.hpp"
 #include "semantics/mir/mir.hpp"
@@ -9,7 +9,7 @@ using namespace ecc::sema::sym;
 using namespace ecc::sema::types;
 using namespace ecc::sema::mir;
 
-namespace ecc::exec {
+namespace ecc::eval {
 
 /* Helper function to throw an error if an expression can't be evaluated.
  */
@@ -19,11 +19,11 @@ inline void throw_eval_error(const std::string& msg, const ExprMIR& expr) {
 
 /* The Evaluator class evaluates AST expressions at compile time.
  */
-Value Evaluator::eval(ConstExprMIR& expr) {
+Value ConstEvaluator::eval(ConstExprMIR& expr) {
     return expr.inner->eval(*this);
 }
 
-Value Evaluator::eval(BinaryExprMIR& expr) {
+Value ConstEvaluator::eval(BinaryExprMIR& expr) {
     Value left  = expr.left->eval(*this);
     Value right = expr.right->eval(*this);
 
@@ -52,13 +52,13 @@ Value Evaluator::eval(BinaryExprMIR& expr) {
     throw_eval_error("Unsupported binary operation", expr);
 }
 
-Value Evaluator::eval(CastExprMIR& expr) {
+Value ConstEvaluator::eval(CastExprMIR& expr) {
     Value val = expr.inner->eval(*this);
 
     return val; // todo
 }
 
-Value Evaluator::eval(UnaryExprMIR& expr) {
+Value ConstEvaluator::eval(UnaryExprMIR& expr) {
     Value operand = expr.operand->eval(*this);
 
     switch (expr.op) {
@@ -85,17 +85,17 @@ Value Evaluator::eval(UnaryExprMIR& expr) {
     throw_eval_error("unsupported unary expression", expr);
 }
 
-Value Evaluator::eval(AssignExprMIR& expr) {
+Value ConstEvaluator::eval(AssignExprMIR& expr) {
     throw_eval_error("assignment expressions cannot be evaluated at compile time", expr);
 }
 
-Value Evaluator::eval(CondExprMIR& expr) {
+Value ConstEvaluator::eval(CondExprMIR& expr) {
     Value condition = expr.condition->eval(*this);
 
     return condition ? expr.true_expr->eval(*this) : expr.false_expr->eval(*this);
 }
 
-Value Evaluator::eval(IdentExprMIR& expr) {
+Value ConstEvaluator::eval(IdentExprMIR& expr) {
     // attempt to resolve symbol to VarSymbol
     VarSymbol *varsym = expr.ident->as_varsym();
     if (!varsym) {
@@ -109,23 +109,23 @@ Value Evaluator::eval(IdentExprMIR& expr) {
     }
 }
 
-Value Evaluator::eval(LiteralExprMIR& expr) {
+Value ConstEvaluator::eval(LiteralExprMIR& expr) {
     return expr.value;
 }
 
-Value Evaluator::eval(CallExprMIR& expr) {
+Value ConstEvaluator::eval(CallExprMIR& expr) {
     throw_eval_error("function calls cannot be evaluated at compile time", expr);
 }
 
-Value Evaluator::eval(MemberAccExprMIR& expr) {
+Value ConstEvaluator::eval(MemberAccExprMIR& expr) {
     throw_eval_error("compile-time member access evaluation is not currently supported", expr);
 }
 
-Value Evaluator::eval(SubscrExprMIR& expr) {
+Value ConstEvaluator::eval(SubscrExprMIR& expr) {
     throw_eval_error("compile-time array subscript evaluation is not currently supported", expr);
 }
 
-Value Evaluator::eval(PostfixExprMIR& expr) {
+Value ConstEvaluator::eval(PostfixExprMIR& expr) {
     Value value = expr.operand->eval(*this);
 
     if (expr.op == ecc::tokens::PostfixOp::POSTINC) {
@@ -143,7 +143,7 @@ Value Evaluator::eval(PostfixExprMIR& expr) {
     throw_eval_error("Invalid postfix expression", expr);
 }
 
-Value Evaluator::eval(SizeofExprMIR& expr) {
+Value ConstEvaluator::eval(SizeofExprMIR& expr) {
     throw_eval_error("invalid sizeof operand", expr);
 }
 

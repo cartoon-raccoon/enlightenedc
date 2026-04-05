@@ -289,7 +289,7 @@ void ASTPrinter::visit(EnumSpecifier& node) {
                    (node.underlying ? " " + primitive_to_string(*node.underlying) : ""),
                node, [&] {
                    if (node.enumerators) {
-                       for (auto& e : node.enumerators.value()) 
+                       for (auto& e : node.enumerators.value())
                            e->accept(*this);
                    }
                });

@@ -7,7 +7,7 @@
 
 #include "ast/ast.hpp"
 #include "error.hpp"
-#include "eval/exec.hpp"
+#include "eval/consteval.hpp"
 #include "eval/value.hpp"
 #include "semantics/mir/mir.hpp"
 #include "semantics/semerr.hpp"
@@ -446,11 +446,18 @@ void MIRSynthesizer::do_visit(ArrayDeclarator& node) {
         bsv_dbprint("array declarator has size, checking for compile time computability");
         dv_call(std::monostate{}, *node.size);
         Box<ExprMIR> arr_size_expr = take_last_result<Box<ExprMIR>>();
-        // if we have a size for the array, evaluate it
-        exec::Value val((long) 0);
 
-        exec::Evaluator evalr(syms, types);
-        val = arr_size_expr->eval(evalr);
+        // if we have a size for the array, evaluate it
+        eval::Value val;
+        eval::ConstEvaluator evalr(syms, types);
+
+        try {
+            val = arr_size_expr->eval(evalr);
+        } catch (eval::InvalidCompileTimeEval& e) {
+            e.add_loc(node.loc);
+            add_error<eval::InvalidCompileTimeEval>(e);
+            throw UnableToContinue();
+        }
 
         // if we were able to parse it as a u64, great
         if (auto maybe_size = val.value_as<long>()) {
@@ -661,13 +668,18 @@ void MIRSynthesizer::do_visit(Enumerator& node) {
         throw UnableToContinue();
     }
 
-    exec::Value value((long) 0);
+    eval::Value value;
     if (node.value) {
         dv_call(std::monostate{}, *node.value);
         Box<ExprMIR> value_expr = take_last_result<Box<ExprMIR>>();
-        exec::Evaluator evalr(syms, types);
+        eval::ConstEvaluator evalr(syms, types);
 
-        value              = value_expr->eval(evalr);
+        try {
+            value = value_expr->eval(evalr);
+        } catch (eval::InvalidCompileTimeEval& e) {
+            e.add_loc(node.loc);
+            add_error<eval::InvalidCompileTimeEval>(e);
+        }
 
         Optional<long> val = value.value_as<long>();
 
@@ -1475,7 +1487,7 @@ void MIRSynthesizer::do_visit(ConstExpression& node) {
 void MIRSynthesizer::do_visit(LiteralExpression& node) {
     bsv_dbprint("visiting LiteralExpression node: ", node.loc);
 
-    exec::Value val((long) 0);
+    eval::Value val;
     switch (node.kind) {
     case LiteralExpression::INT:
         val = (long)node.value.i_val;

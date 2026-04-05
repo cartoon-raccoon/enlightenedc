@@ -4,18 +4,22 @@
 #include <format>
 #include <variant>
 #include <string>
+
 #include "util.hpp"
 #include "error.hpp"
 
 using namespace ecc;
 using namespace ecc::util;
 
-namespace ecc::exec {
+namespace ecc::eval {
 
-class InvalidCompileTimeEval : public EccError {
+class InvalidCompileTimeEval : public EccSemError {
 public:
+    InvalidCompileTimeEval(std::string msg)
+        : EccSemError(std::move(msg)) {}
+    
     InvalidCompileTimeEval(std::string msg, Location loc)
-    : EccError(std::move(msg), loc) {}
+        : EccSemError(std::move(msg), loc) {}
 };
 
 class Value {
@@ -28,6 +32,7 @@ public:
         std::string
     >;
 
+    Value() : inner((long) 0) {}
     Value(char v) : inner(v) {}
     Value(long v) : inner(v) {}
     Value(double v) : inner(v) {}
@@ -89,8 +94,7 @@ public:
                                                std::is_same_v<B, bool>)) {
                     return Value((long)a | (long)b);
                 } else {
-                    throw InvalidCompileTimeEval("Invalid types for bitwise OR",
-                                                 Location{});
+                    throw InvalidCompileTimeEval("Invalid types for bitwise OR");
                 }
             }},
             inner, rhs.inner);
@@ -112,7 +116,7 @@ public:
                     return Value((long)a ^ (long)b);
                 } else {
                     throw InvalidCompileTimeEval(
-                        "Invalid types for bitwise XOR", Location{});
+                        "Invalid types for bitwise XOR");
                 }
             }},
             inner, rhs.inner);
@@ -134,7 +138,7 @@ public:
                     return Value((long)a & (long)b);
                 } else {
                     throw InvalidCompileTimeEval(
-                        "Invalid types for bitwise AND", Location{});
+                        "Invalid types for bitwise AND");
                 }
             }},
             inner, rhs.inner);
@@ -155,7 +159,7 @@ public:
                            return Value(a == b);
                        },
                        [](auto&&, auto&&) -> Value {
-                           throw EccError("Invalid types for addition");
+                           throw InvalidCompileTimeEval("Invalid types for addition");
                        }},
             inner, rhs.inner);
     }
@@ -190,7 +194,7 @@ public:
                            return Value(a < b);
                        },
                        [](auto&&, auto&&) -> Value {
-                           throw EccError("Invalid types for addition");
+                           throw InvalidCompileTimeEval("Invalid types for addition");
                        }},
             inner, rhs.inner);
     }
@@ -209,7 +213,7 @@ public:
                            return Value(a > b);
                        },
                        [](auto&&, auto&&) -> Value {
-                           throw EccError("Invalid types for addition");
+                           throw InvalidCompileTimeEval("Invalid types for addition");
                        }},
             inner, rhs.inner);
     }
@@ -228,7 +232,7 @@ public:
                            return Value(a + b);
                        },
                        [](auto&&, auto&&) -> Value {
-                           throw EccError("Invalid types for addition");
+                           throw InvalidCompileTimeEval("Invalid types for addition");
                        }},
             inner, rhs.inner);
     }
@@ -244,7 +248,7 @@ public:
                        [](double a, long b) { return Value(a - (double)b); },
                        [](double a, char b) { return Value(a - (double)b); },
                        [](auto&&, auto&&) -> Value {
-                           throw EccError("Invalid types for subtraction");
+                           throw InvalidCompileTimeEval("Invalid types for subtraction");
                        }},
             inner, rhs.inner);
     }
@@ -260,7 +264,7 @@ public:
                        [](double a, long b) { return Value(a * (double)b); },
                        [](double a, char b) { return Value(a * (double)b); },
                        [](auto&&, auto&&) -> Value {
-                           throw EccError("Invalid types for multiplication");
+                           throw InvalidCompileTimeEval("Invalid types for multiplication");
                        }},
             inner, rhs.inner);
     }
@@ -276,7 +280,7 @@ public:
                        [](double a, long b) { return Value(a / (double)b); },
                        [](double a, char b) { return Value(a / (double)b); },
                        [](auto&&, auto&&) -> Value {
-                           throw EccError("Invalid types for division");
+                           throw InvalidCompileTimeEval("Invalid types for division");
                        }},
             inner, rhs.inner);
     }

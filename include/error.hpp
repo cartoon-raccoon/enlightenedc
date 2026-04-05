@@ -38,6 +38,12 @@ public:
     std::string msg;
     Optional<Location> loc;
 
+    void add_loc(Location loc) {
+        if (!this->loc) {
+            this->loc = loc;
+        }
+    }
+
     const char *what() const throw() override {
         return msg.c_str();
     }
@@ -68,12 +74,14 @@ public:
 
 class EccSemError : public EccError {
 public:
+    EccSemError(std::string msg)
+        : EccError(ErrorSource::SEMANTIC, std::move(msg)) {}
     EccSemError(std::string msg, Location err_loc)
         : EccError(ErrorSource::SEMANTIC, std::move(msg), err_loc) {}
 
     std::string to_string() override {
         std::stringstream ss;
-        ss << "error <" << *loc << ">: " << msg << "\n";
+        ss << "error <" << *loc << ">: " << msg;
         return ss.str();
     }
 };

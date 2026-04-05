@@ -19,10 +19,11 @@ std::string VarSymbol::to_string() const {
     if (is_const)
         ss << "const ";
 
-    if (type)
+    if (type) {
         ss << " :: " << type->to_string();
-    else
+    } else {
         ss << " :: <nulltype>";
+    }
 
     if (linkage == PhysicalSymbol::Linkage::EXTERNAL)
         ss << " extern";
@@ -44,10 +45,11 @@ std::string FuncSymbol::to_string() const {
 
     ss << "FuncSymbol: " << name;
 
-    if (signature)
+    if (signature) {
         ss << " :: " << signature->to_string();
-    else
+    } else {
         ss << " :: <nullsig>";
+    }
 
     if (is_static)
         ss << " static";
@@ -63,10 +65,11 @@ std::string TypeSymbol::to_string() const {
 
     ss << "TypeSymbol: " << name;
 
-    if (type)
+    if (type) {
         ss << " :: " << type->to_string();
-    else
+    } else {
         ss << " :: <nulltype>";
+    }
 
     return ss.str();
 }
@@ -236,10 +239,11 @@ std::string ArrayType::to_string() const {
 std::string FunctionType::to_string() const {
     std::stringstream ss;
 
-    if (signature.returntype)
+    if (signature.returntype) {
         ss << signature.returntype->to_string();
-    else
+    } else {
         ss << "<nullret>";
+    }
 
     ss << " (";
 
@@ -250,10 +254,11 @@ std::string FunctionType::to_string() const {
             ss << ", ";
         first = false;
 
-        if (p)
+        if (p) {
             ss << p->to_string();
-        else
+        } else {
             ss << "<null>";
+        }
     }
 
     if (signature.variadic) {

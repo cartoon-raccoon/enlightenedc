@@ -2,6 +2,7 @@
 Checks: >
   clang-diagnostic-*,
   bugprone-*,
+  -bugprone-implicit-widening-of-multiplication-result,
   clang-analyzer-*,
   -clang-analyzer-osx*,
   -clang-analyzer-optin.osx*,

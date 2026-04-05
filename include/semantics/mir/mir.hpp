@@ -3,7 +3,7 @@
 
 #include <variant>
 
-#include "eval/exec.hpp"
+#include "eval/evaluator.hpp"
 #include "semantics/types.hpp"
 #include "semantics/symbols.hpp"
 #include "eval/value.hpp"
@@ -111,7 +111,7 @@ public:
 
     virtual bool is_subscriptable() { return type->is_subscriptable(); }
 
-    virtual exec::Value eval(exec::Evaluator& ev) = 0;
+    virtual eval::Value eval(eval::ExprEvaluator& ev) = 0;
 };
 
 class DeclMIR : public ProgItemMIR {
@@ -427,7 +427,7 @@ public:
 
     void accept(MIRVisitor& visitor) override;
 
-    exec::Value eval(exec::Evaluator& ev) override;
+    eval::Value eval(eval::ExprEvaluator& ev) override;
 };
 
 class UnaryExprMIR : public ExprMIR {
@@ -447,7 +447,7 @@ public:
 
     void accept(MIRVisitor& visitor) override;
 
-    exec::Value eval(exec::Evaluator& ev) override;
+    eval::Value eval(eval::ExprEvaluator& ev) override;
 };
 
 class CastExprMIR : public ExprMIR {
@@ -468,7 +468,7 @@ public:
 
     void accept(MIRVisitor& visitor) override;
 
-    exec::Value eval(exec::Evaluator& ev) override;
+    eval::Value eval(eval::ExprEvaluator& ev) override;
 };
 
 class AssignExprMIR : public ExprMIR {
@@ -487,7 +487,7 @@ public:
 
     void accept(MIRVisitor& visitor) override;
 
-    exec::Value eval(exec::Evaluator& ev) override;
+    eval::Value eval(eval::ExprEvaluator& ev) override;
 };
 
 class CondExprMIR : public ExprMIR {
@@ -510,7 +510,7 @@ public:
 
     void accept(MIRVisitor& visitor) override;
 
-    exec::Value eval(exec::Evaluator& ev) override;
+    eval::Value eval(eval::ExprEvaluator& ev) override;
 };
 
 class IdentExprMIR : public ExprMIR {
@@ -532,7 +532,7 @@ public:
 
     void accept(MIRVisitor& visitor) override;
 
-    exec::Value eval(exec::Evaluator& ev) override;
+    eval::Value eval(eval::ExprEvaluator& ev) override;
 };
 
 class ConstExprMIR : public ExprMIR {
@@ -546,15 +546,15 @@ public:
 
     void accept(MIRVisitor& visitor) override;
 
-    exec::Value eval(exec::Evaluator& ev) override;
+    eval::Value eval(eval::ExprEvaluator& ev) override;
 };
 
 class LiteralExprMIR : public ExprMIR {
 public:
-    LiteralExprMIR(Location loc, sema::sym::Scope *scope, exec::Value value)
+    LiteralExprMIR(Location loc, sema::sym::Scope *scope, eval::Value value)
         : ExprMIR(loc, NodeKind::LITEXPR_MIR, scope), value(std::move(value)) {}
 
-    exec::Value value;
+    eval::Value value;
 
     bool is_assignable() override { return false; }
 
@@ -566,7 +566,7 @@ public:
 
     void accept(MIRVisitor& visitor) override;
 
-    exec::Value eval(exec::Evaluator& ev) override;
+    eval::Value eval(eval::ExprEvaluator& ev) override;
 };
 
 class CallExprMIR : public ExprMIR {
@@ -590,7 +590,7 @@ public:
 
     void accept(MIRVisitor& visitor) override;
 
-    exec::Value eval(exec::Evaluator& ev) override;
+    eval::Value eval(eval::ExprEvaluator& ev) override;
 };
 
 class MemberAccExprMIR : public ExprMIR {
@@ -609,7 +609,7 @@ public:
 
     void accept(MIRVisitor& visitor) override;
 
-    exec::Value eval(exec::Evaluator& ev) override;
+    eval::Value eval(eval::ExprEvaluator& ev) override;
 };
 
 class SubscrExprMIR : public ExprMIR {
@@ -627,7 +627,7 @@ public:
 
     void accept(MIRVisitor& visitor) override;
 
-    exec::Value eval(exec::Evaluator& ev) override;
+    eval::Value eval(eval::ExprEvaluator& ev) override;
 };
 
 class PostfixExprMIR : public ExprMIR {
@@ -643,7 +643,7 @@ public:
 
     void accept(MIRVisitor& visitor) override;
 
-    exec::Value eval(exec::Evaluator& ev) override;
+    eval::Value eval(eval::ExprEvaluator& ev) override;
 };
 
 class SizeofExprMIR : public ExprMIR {
@@ -663,7 +663,7 @@ public:
 
     void accept(MIRVisitor& visitor) override;
 
-    exec::Value eval(exec::Evaluator& ev) override;
+    eval::Value eval(eval::ExprEvaluator& ev) override;
 };
 
 class FunctionMIR : public ProgItemMIR {

@@ -11,10 +11,6 @@
 using namespace ecc;
 using namespace ecc::util;
 
-namespace ecc::exec {
-    class Evaluator;
-}
-
 /* Class definitions of AST nodes and subclasses. */
 namespace ecc::ast {
 

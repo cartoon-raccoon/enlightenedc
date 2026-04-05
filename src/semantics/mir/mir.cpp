@@ -1,6 +1,6 @@
 #include "semantics/mir/mir.hpp"
 
-#include "eval/exec.hpp"
+#include "eval/consteval.hpp"
 #include "semantics/mir/visitor.hpp"
 
 using namespace sema::mir;
@@ -135,55 +135,55 @@ void SizeofExprMIR::accept(MIRVisitor& visitor) {
     visitor.visit(*this);
 }
 
-exec::Value BinaryExprMIR::eval(exec::Evaluator& ev) {
+eval::Value BinaryExprMIR::eval(eval::ExprEvaluator& ev) {
     return ev.eval(*this);
 }
 
-exec::Value UnaryExprMIR::eval(exec::Evaluator& ev) {
+eval::Value UnaryExprMIR::eval(eval::ExprEvaluator& ev) {
     return ev.eval(*this);
 }
 
-exec::Value CastExprMIR::eval(exec::Evaluator& ev) {
+eval::Value CastExprMIR::eval(eval::ExprEvaluator& ev) {
     return ev.eval(*this);
 }
 
-exec::Value AssignExprMIR::eval(exec::Evaluator& ev) {
+eval::Value AssignExprMIR::eval(eval::ExprEvaluator& ev) {
     return ev.eval(*this);
 }
 
-exec::Value CondExprMIR::eval(exec::Evaluator& ev) {
+eval::Value CondExprMIR::eval(eval::ExprEvaluator& ev) {
     return ev.eval(*this);
 }
 
-exec::Value IdentExprMIR::eval(exec::Evaluator& ev) {
+eval::Value IdentExprMIR::eval(eval::ExprEvaluator& ev) {
     return ev.eval(*this);
 }
 
-exec::Value ConstExprMIR::eval(exec::Evaluator& ev) {
+eval::Value ConstExprMIR::eval(eval::ExprEvaluator& ev) {
     return ev.eval(*this);
 }
 
-exec::Value LiteralExprMIR::eval(exec::Evaluator& ev) {
+eval::Value LiteralExprMIR::eval(eval::ExprEvaluator& ev) {
     return ev.eval(*this);
 }
 
-exec::Value CallExprMIR::eval(exec::Evaluator& ev) {
+eval::Value CallExprMIR::eval(eval::ExprEvaluator& ev) {
     return ev.eval(*this);
 }
 
-exec::Value MemberAccExprMIR::eval(exec::Evaluator& ev) {
+eval::Value MemberAccExprMIR::eval(eval::ExprEvaluator& ev) {
     return ev.eval(*this);
 }
 
-exec::Value SubscrExprMIR::eval(exec::Evaluator& ev) {
+eval::Value SubscrExprMIR::eval(eval::ExprEvaluator& ev) {
     return ev.eval(*this);
 }
 
-exec::Value PostfixExprMIR::eval(exec::Evaluator& ev) {
+eval::Value PostfixExprMIR::eval(eval::ExprEvaluator& ev) {
     return ev.eval(*this);
 }
 
-exec::Value SizeofExprMIR::eval(exec::Evaluator& ev) {
+eval::Value SizeofExprMIR::eval(eval::ExprEvaluator& ev) {
     return ev.eval(*this);
 }
 

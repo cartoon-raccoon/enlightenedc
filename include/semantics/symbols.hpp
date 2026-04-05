@@ -133,14 +133,14 @@ public:
     VarSymbol(Location loc, std::string name, Scope *scope, types::Type *type) 
         : PhysicalSymbol(Symbol::Kind::VAR, loc, std::move(name), scope), type(type) {}
 
-    VarSymbol(Location loc, std::string name, Scope *scope, types::Type *type, exec::Value value) 
+    VarSymbol(Location loc, std::string name, Scope *scope, types::Type *type, eval::Value value) 
         : PhysicalSymbol(Symbol::Kind::VAR, loc, std::move(name), scope), type(type), value(value) {}
 
     /// The type of the symbol.
     types::Type *type;
 
     // The value of the Symbol, if defined.
-    Optional<exec::Value> value;
+    Optional<eval::Value> value;
 
     /// If the symbol is const.
     bool is_const = false;
