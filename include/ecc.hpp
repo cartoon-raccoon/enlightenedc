@@ -20,10 +20,10 @@ The EnlightenedC Compiler main driver class.
 class Ecc {
 public:
     Ecc(int argc, char **argv) 
-        : config(std::make_unique<EccConfig>(argc, argv)),
+        : config(std::make_unique<Config>(argc, argv)),
         llvm(std::make_unique<codegen::LLVMCore>()) {}
 
-    Box<EccConfig> config;
+    Box<Config> config;
     Box<codegen::LLVMCore> llvm;
 
     /*

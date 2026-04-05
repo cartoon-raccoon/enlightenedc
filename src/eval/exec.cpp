@@ -105,7 +105,7 @@ Value Evaluator::eval(IdentExprMIR& expr) {
         return *varsym->value;
     } else {
         throw_eval_error("unable to resolve value of identifier", expr);
-        return (long) 0;
+        return (long)0;
     }
 }
 

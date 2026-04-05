@@ -40,9 +40,9 @@ public:
     }
 };
 
-class EccConfig {
+class Config {
 public:
-    EccConfig(int argc, char *argv[]);
+    Config(int argc, char *argv[]);
     
     // The list of input files.
     Vec<std::string> input_files;
@@ -108,57 +108,7 @@ public:
 private:
     class ArgVIterator;
 
-    class Arg {
-        friend class EccConfig::ArgVIterator;
-        Arg() {}
-        Arg(std::string_view arg) : arg(arg) {
-            if (arg.size() < 2) {
-                // todo: throw InvalidArgError
-            }
-        };
-
-        Optional<std::string> arg;
-
-    public:
-        operator bool() const { return arg.has_value(); }
-
-        std::string& operator*() { return *arg; }
-
-        std::string& operator->() { return *arg; }
-
-        bool is_short_opt() {
-            if (!arg)
-                return false;
-            return (*arg)[0] == '-' && (*arg)[1] != '-';
-        }
-
-        bool is_long_opt() {
-            if (!arg)
-                return false;
-            return arg->starts_with("--");
-        }
-
-        bool is_arg() { return !is_long_opt() && !is_short_opt(); }
-    };
-
-    class ArgVIterator {
-        // Start from the second arg, since the first arg is the command.
-        int argc, idx = 1;
-        char **argv;
-        
-    public:
-        ArgVIterator(int argc, char **argv) : argc(argc), argv(argv) {}
-
-        Arg next() {
-            if (idx >= argc) {
-                return {};
-            } else {
-                std::string_view ret(argv[idx]);
-                idx++;
-                return ret;
-            }
-        }
-    };
+    class Arg;
 
     void parse_single_arg(Arg& arg, ArgVIterator& iter);
 
@@ -166,7 +116,7 @@ private:
 
     void parse_long_arg(std::string& arg, ArgVIterator& iter);
 
-    using ArgAction = std::function<void (EccConfig&, ArgVIterator&)>;
+    using ArgAction = std::function<void (Config&, ArgVIterator&)>;
 
     std::map<std::string, ArgAction> short_args;
 

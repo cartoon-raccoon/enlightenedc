@@ -24,8 +24,7 @@ TranslationUnitLIR::TranslationUnitLIR()
     : symbols(make_box<LIRSymbolMap>()), lir(make_box<ProgramLIR>()) {
 }
 
-TranslationUnit::TranslationUnit(std::string *filename, LLVMCore& llvmcore)
-    : filename(filename) {
+TranslationUnit::TranslationUnit(std::string *filename, LLVMCore& llvmcore) : filename(filename) {
     llvm     = make_box<LLVMUnit>(*filename, llvmcore);
     types    = make_box<TypeContext>(*llvm);
     ast_root = make_box<Program>(filename);
@@ -33,7 +32,7 @@ TranslationUnit::TranslationUnit(std::string *filename, LLVMCore& llvmcore)
     prog_lir = make_box<TranslationUnitLIR>();
 }
 
-Driver::Driver(TranslationUnit& unit) : unit(unit){
+Driver::Driver(TranslationUnit& unit) : unit(unit) {
     frontend = make_box<frontend::Frontend>();
     backend  = make_box<driver::Backend>();
 }

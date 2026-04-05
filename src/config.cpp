@@ -4,22 +4,74 @@
 
 using namespace ecc;
 
-EccConfig::EccConfig(int argc, char *argv[]) {
+class Config::Arg {
+    friend class Config::ArgVIterator;
+    Arg() {}
+    Arg(std::string_view arg) : arg(arg) {
+        if (arg.size() < 2) {
+            // todo: throw InvalidArgError
+        }
+    };
+
+    Optional<std::string> arg;
+
+public:
+    operator bool() const { return arg.has_value(); }
+
+    std::string& operator*() { return *arg; }
+
+    std::string& operator->() { return *arg; }
+
+    bool is_short_opt() {
+        if (!arg)
+            return false;
+        return (*arg)[0] == '-' && (*arg)[1] != '-';
+    }
+
+    bool is_long_opt() {
+        if (!arg)
+            return false;
+        return arg->starts_with("--");
+    }
+
+    bool is_arg() { return !is_long_opt() && !is_short_opt(); }
+};
+
+class Config::ArgVIterator {
+        // Start from the second arg, since the first arg is the command.
+        int argc, idx = 1;
+        char **argv;
+        
+    public:
+        ArgVIterator(int argc, char **argv) : argc(argc), argv(argv) {}
+
+        Arg next() {
+            if (idx >= argc) {
+                return {};
+            } else {
+                std::string_view ret(argv[idx]);
+                idx++;
+                return ret;
+            }
+        }
+    };
+
+Config::Config(int argc, char *argv[]) {
     add_args();
     parse_args(argc, argv);
 }
 
-void EccConfig::parse_args(int argc, char *argv[]) {
-    ArgVIterator args(argc, argv);
+void Config::parse_args(int argc, char *argv[]) {
+    // ArgVIterator args(argc, argv);
 
-    Arg curr_arg = args.next();
-    while (curr_arg) {
-        parse_single_arg(curr_arg, args);
-        curr_arg = args.next();
-    }
+    // Arg curr_arg = args.next();
+    // while (curr_arg) {
+    //     parse_single_arg(curr_arg, args);
+    //     curr_arg = args.next();
+    // }
 }
 
-void EccConfig::parse_single_arg(Arg& arg, ArgVIterator& iter) {
+void Config::parse_single_arg(Arg& arg, ArgVIterator& iter) {
     if (arg.is_arg()) {
         // Any non-option argument is treated as an input file
         input_files.emplace_back(*arg);
@@ -38,7 +90,7 @@ void EccConfig::parse_single_arg(Arg& arg, ArgVIterator& iter) {
     }
 }
 
-void EccConfig::parse_short_arg(std::string& arg, ArgVIterator& iter) {
+void Config::parse_short_arg(std::string& arg, ArgVIterator& iter) {
     auto it = short_args.find(arg);
     if (it != short_args.end()) {
         it->second(*this, iter);
@@ -48,7 +100,7 @@ void EccConfig::parse_short_arg(std::string& arg, ArgVIterator& iter) {
     }
 }
 
-void EccConfig::parse_long_arg(std::string& arg, ArgVIterator& iter) {
+void Config::parse_long_arg(std::string& arg, ArgVIterator& iter) {
     auto it = long_args.find(arg);
     if (it != long_args.end()) {
         it->second(*this, iter);
@@ -57,24 +109,24 @@ void EccConfig::parse_long_arg(std::string& arg, ArgVIterator& iter) {
     }
 }
 
-void EccConfig::add_args() {
-    add_short_arg("E", [](EccConfig& cfg, ArgVIterator& iter) {
+void Config::add_args() {
+    add_short_arg("E", [](Config& cfg, ArgVIterator& iter) {
         // todo: add check that stop_at was not previously set
         cfg.stop_at = StopAt::PREPROCESS;
     });
-    add_short_arg("S", [](EccConfig& cfg, ArgVIterator& iter) { cfg.stop_at = StopAt::COMPILE; });
-    add_short_arg("c", [](EccConfig& cfg, ArgVIterator& iter) { cfg.stop_at = StopAt::ASSEMBLE; });
-    add_short_arg("emit-llvm", [](EccConfig& cfg, ArgVIterator& iter) {
+    add_short_arg("S", [](Config& cfg, ArgVIterator& iter) { cfg.stop_at = StopAt::COMPILE; });
+    add_short_arg("c", [](Config& cfg, ArgVIterator& iter) { cfg.stop_at = StopAt::ASSEMBLE; });
+    add_short_arg("emit-llvm", [](Config& cfg, ArgVIterator& iter) {
         // todo: check that stop_at is compatible
         cfg.comp_output = CompilationOutput::LLVM;
     });
-    add_short_arg("dump-ast", [](EccConfig& cfg, ArgVIterator& iter) {
+    add_short_arg("dump-ast", [](Config& cfg, ArgVIterator& iter) {
 
     });
-    add_short_arg("dump-mir", [](EccConfig& cfg, ArgVIterator& iter) {
+    add_short_arg("dump-mir", [](Config& cfg, ArgVIterator& iter) {
 
     });
-    add_short_arg("dump-lir", [](EccConfig& cfg, ArgVIterator& iter) {
+    add_short_arg("dump-lir", [](Config& cfg, ArgVIterator& iter) {
 
     });
 }
