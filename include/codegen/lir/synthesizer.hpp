@@ -25,7 +25,9 @@ public:
         : sema::BaseMIRSemaVisitor(State::READ), 
         symbolmap(symbolmap), prog_lir(prog_lir) {} 
 
-    using LIRSynthItem = std::variant<Box<FunctionLIR>, Box<DeclLIR>, Box<StmtLIR>>;
+    using LIRSynthItem = std::variant<
+        Box<FunctionLIR>, Box<VarDeclLIR>, Box<ProgItemLIR>
+    >;
 
     LIRSymbolMap& symbolmap;
 

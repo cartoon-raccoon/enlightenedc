@@ -133,6 +133,13 @@ public:
     
     std::variant<Box<ExprMIR>, Vec<Box<InitializerMIR>>> initializer;
 
+    /**
+    Check if an initializer is entirely literal expressions.
+
+    An array initializer that is all literals can be optimized.
+    */
+    bool is_all_literals();
+
     void accept(MIRVisitor& visitor) override;
 };
 

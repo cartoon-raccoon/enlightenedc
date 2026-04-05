@@ -44,6 +44,26 @@ Value ConstEvaluator::eval(BinaryExprMIR& expr) {
         return left / right;
         break;
 
+    case ecc::tokens::BinaryOp::EQ:
+        return left == right;
+        break;
+
+    case ecc::tokens::BinaryOp::OROR:
+        return left || right;
+        break;
+
+    case ecc::tokens::BinaryOp::ANDAND:
+        return left && right;
+        break;
+
+    case ecc::tokens::BinaryOp::OR:
+        return left | right;
+        break;
+
+    case ecc::tokens::BinaryOp::AND:
+        return left & right;
+        break;
+
     default:
         throw_eval_error("Unsupported binary operator", expr);
         break;
@@ -74,8 +94,13 @@ Value ConstEvaluator::eval(UnaryExprMIR& expr) {
         return !operand;
         break;
 
+    case ecc::tokens::UnaryOp::NEG:
+        return -operand;
+        break;
+
     case ecc::tokens::UnaryOp::TILDE:
         return ~operand;
+        break;
 
     default:
         throw_eval_error("unsupported unary operator", expr);
@@ -104,8 +129,7 @@ Value ConstEvaluator::eval(IdentExprMIR& expr) {
     if (varsym->value) {
         return *varsym->value;
     } else {
-        throw_eval_error("unable to resolve value of identifier", expr);
-        return (long)0;
+        throw InvalidCompileTimeEval("unable to resolve value of identifier", expr.loc);
     }
 }
 
@@ -140,11 +164,13 @@ Value ConstEvaluator::eval(PostfixExprMIR& expr) {
         throw_eval_error("Postfix decrement requires an integer", expr);
     }
 
-    throw_eval_error("Invalid postfix expression", expr);
+    throw_eval_error("unsupported postfix operator", expr);
 }
 
 Value ConstEvaluator::eval(SizeofExprMIR& expr) {
-    throw_eval_error("invalid sizeof operand", expr);
+    // match on inner
+    // if type is function, return pointer instead
+    throw_eval_error("invalid sizeof operand", expr); // fixme
 }
 
 } // namespace ecc::exec

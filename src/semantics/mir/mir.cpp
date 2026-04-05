@@ -1,4 +1,6 @@
 #include "semantics/mir/mir.hpp"
+#include <algorithm>
+#include <variant>
 
 #include "eval/consteval.hpp"
 #include "semantics/mir/visitor.hpp"
@@ -193,6 +195,19 @@ void CompoundStmtMIR::add_item(Box<ProgItemMIR> item) {
 
 void ProgramMIR::add_item(Box<ProgItemMIR> item) {
     items.push_back(std::move(item));
+}
+
+bool InitializerMIR::is_all_literals() {
+    return std::visit(match {
+        [] (Box<ExprMIR>& expr) {
+            return expr->kind == MIRNode::NodeKind::LITEXPR_MIR;
+        },
+        [] (Vec<Box<InitializerMIR>>& init) {
+            return std::all_of(
+                init.cbegin(), init.cend(), 
+                [](const Box<InitializerMIR>& init) {return init->is_all_literals();});
+        }
+    }, initializer);
 }
 
 void VarDeclMIR::add_decl(VarSymbol *sym) {

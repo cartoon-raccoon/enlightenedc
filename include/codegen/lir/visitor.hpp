@@ -14,16 +14,16 @@ public:
     
     virtual void visit(VarDeclLIR& node) = 0;
     
+    virtual void visit(LabelDeclLIR& node) = 0;
+    virtual void visit(CaseLIR& node) = 0;
+    virtual void visit(DefaultLIR& node) = 0;
     virtual void visit(ExprStmtLIR& node) = 0;
     virtual void visit(GotoStmtLIR& node) = 0;
     virtual void visit(SwitchStmtLIR& node) = 0;
     virtual void visit(BreakStmtLIR& node) = 0;
     virtual void visit(ContStmtLIR& node) = 0;
     virtual void visit(IfStmtLIR& node) = 0;
-    virtual void visit(CaseStmtLIR& node) = 0;
-    virtual void visit(DefaultStmtLIR& node) = 0;
     virtual void visit(LoopStmtLIR& node) = 0;
-    virtual void visit(LabelStmtLIR& node) = 0;
     virtual void visit(PrintStmtLIR& node) = 0;
     virtual void visit(ReturnStmtLIR& node) = 0;
     

@@ -48,10 +48,10 @@ public:
     void visit(lir::BreakStmtLIR& node) override;
     void visit(lir::ContStmtLIR& node) override;
     void visit(lir::IfStmtLIR& node) override;
-    void visit(lir::CaseStmtLIR& node) override;
-    void visit(lir::DefaultStmtLIR& node) override;
+    void visit(lir::CaseLIR& node) override;
+    void visit(lir::DefaultLIR& node) override;
     void visit(lir::LoopStmtLIR& node) override;
-    void visit(lir::LabelStmtLIR& node) override;
+    void visit(lir::LabelDeclLIR& node) override;
     void visit(lir::PrintStmtLIR& node) override;
     void visit(lir::ReturnStmtLIR& node) override;
     

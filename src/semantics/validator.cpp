@@ -115,6 +115,9 @@ void Validator::do_visit(SwitchStmtMIR& node) {
     node.condition->accept(*this);
     // todo: check validity of condition (e.g. classes are not valid)
     node.body->accept(*this);
+
+    // iterate over all the case statements
+    // 
 }
 
 void Validator::do_visit(CaseStmtMIR& node) {
@@ -133,6 +136,7 @@ void Validator::do_visit(CaseRangeStmtMIR& node) {
         throw InvalidCaseError(node.loc);
     }
 
+    // check that the start and end form a valid range
     node.case_start->accept(*this);
     node.case_end->accept(*this);
     node.stmt->accept(*this);

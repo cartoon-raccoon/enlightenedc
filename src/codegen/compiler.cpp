@@ -42,16 +42,16 @@ void LLVMSynthesizer::visit(ContStmtLIR& node) {
 void LLVMSynthesizer::visit(IfStmtLIR& node) {
 }
 
-void LLVMSynthesizer::visit(CaseStmtLIR& node) {
+void LLVMSynthesizer::visit(CaseLIR& node) {
 }
 
-void LLVMSynthesizer::visit(DefaultStmtLIR& node) {
+void LLVMSynthesizer::visit(DefaultLIR& node) {
 }
 
 void LLVMSynthesizer::visit(LoopStmtLIR& node) {
 }
 
-void LLVMSynthesizer::visit(LabelStmtLIR& node) {
+void LLVMSynthesizer::visit(LabelDeclLIR& node) {
 }
 
 void LLVMSynthesizer::visit(PrintStmtLIR& node) {

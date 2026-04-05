@@ -18,7 +18,7 @@ using namespace util;
 namespace ecc::codegen::lir {
 
 class LIRVisitor;
-class DeclLIR;
+class LabelLIR;
 class StmtLIR;
 class FunctionLIR;
 class SwitchTarget;
@@ -29,13 +29,14 @@ public:
         PROG_LIR,
         FUNC_LIR,
         VARDECL_LIR,
+        LABDECL_LIR,
         GOTOSTMT_LIR,
         RETSTMT_LIR,
         SWITCHSTMT_LIR,
         BREAKSTMT_LIR,
         CONTSTMT_LIR,
-        CASESTMT_LIR,
-        DEFSTMT_LIR,
+        CASEDECL_LIR,
+        DEFDECL_LIR,
         EXPRSTMT_LIR,
         IFSTMT_LIR,
         LOOPSTMT_LIR,
@@ -66,22 +67,35 @@ public:
     virtual void accept(LIRVisitor& visitor) = 0;
 };
 
+class VarDeclLIR : public LIRNode {
+public:
+    VarDeclLIR(Location loc, LIRVarSym *var)
+        : LIRNode(loc, NodeKind::VARDECL_LIR), var(var) {}
+    
+    VarDeclLIR(LIRVarSym *var)
+        : LIRNode(NodeKind::VARDECL_LIR), var(var) {}
+    
+    LIRVarSym *var;
+
+    void accept(LIRVisitor& visitor) override;
+};
+
+
 class ProgItemLIR : public LIRNode {
 public:
     ProgItemLIR(NodeKind kind) : LIRNode(kind) {}
     ProgItemLIR(Location loc, NodeKind kind) : LIRNode(loc, kind) {}
 
-    virtual DeclLIR *as_decl() { return nullptr; }
+    virtual LabelLIR *as_decl() { return nullptr; }
     virtual StmtLIR *as_stmt() { return nullptr; }
-    virtual FunctionLIR *as_func() { return nullptr; }
 };
 
-class DeclLIR : public ProgItemLIR {
+class LabelLIR : public ProgItemLIR {
 public:
-    DeclLIR(NodeKind kind) : ProgItemLIR(kind) {}
-    DeclLIR(Location loc, NodeKind kind) : ProgItemLIR(loc, kind) {}
+    LabelLIR(NodeKind kind) : ProgItemLIR(kind) {}
+    LabelLIR(Location loc, NodeKind kind) : ProgItemLIR(loc, kind) {}
 
-    DeclLIR *as_decl() override { return this; }
+    LabelLIR *as_decl() override { return this; }
 };
 
 class StmtLIR : public ProgItemLIR {
@@ -94,7 +108,6 @@ public:
     virtual Vec<SwitchTarget *> pull_switch_targets() = 0;
 
     virtual bool is_terminal() { return false; }
-    virtual bool is_jump_target() { return false; }
 };
 
 /*
@@ -109,12 +122,10 @@ public:
     bool is_terminal() override { return true; }
 };
 
-class SwitchTarget : public StmtLIR {
+class SwitchTarget : public LabelLIR {
 public:
     SwitchTarget(Location loc, NodeKind kind)
-        : StmtLIR(loc, kind) {}
-
-    bool is_jump_target() override { return true; }
+        : LabelLIR(loc, kind) {}
 };
 
 class ExprLIR : public LIRNode {
@@ -127,34 +138,19 @@ public:
     sema::types::Type *type;
 };
 
-class FunctionLIR : public ProgItemLIR {
+class FunctionLIR : public LIRNode {
 public:
     FunctionLIR(Location loc, 
                 std::string mangled, 
                 std::string name)
-        : ProgItemLIR(loc, NodeKind::FUNC_LIR),
+        : LIRNode(loc, NodeKind::FUNC_LIR),
         mangled_name(std::move(mangled)), name(std::move(name)) {}
     
     std::string mangled_name;
     std::string name;
 
-    Vec<Box<DeclLIR>> locals;
-    Vec<Box<StmtLIR>> body;
-
-    FunctionLIR *as_func() override { return this; }
-
-    void accept(LIRVisitor& visitor) override;
-};
-
-class VarDeclLIR : public DeclLIR {
-public:
-    VarDeclLIR(Location loc, LIRVarSym *var)
-        : DeclLIR(loc, NodeKind::VARDECL_LIR), var(var) {}
-    
-    VarDeclLIR(LIRVarSym *var)
-        : DeclLIR(NodeKind::VARDECL_LIR), var(var) {}
-    
-    LIRVarSym *var;
+    Vec<Box<VarDeclLIR>> locals;
+    Vec<Box<ProgItemLIR>> body;
 
     void accept(LIRVisitor& visitor) override;
 };
@@ -206,7 +202,7 @@ public:
         condition(std::move(condition)) {}
     
     Box<ExprLIR> condition;
-    Vec<Box<StmtLIR>> body;
+    Vec<Box<ProgItemLIR>> body;
 
     Vec<SwitchTarget *> targets;
 
@@ -215,29 +211,33 @@ public:
     void accept(LIRVisitor& visitor) override;
 };
 
-class CaseStmtLIR : public SwitchTarget {
+class CaseLIR : public SwitchTarget {
 public:
-    CaseStmtLIR(Location loc, exec::Value case_value)
-        : SwitchTarget(loc, NodeKind::CASESTMT_LIR), 
+    CaseLIR(Location loc, eval::Value case_value)
+        : SwitchTarget(loc, NodeKind::CASEDECL_LIR), 
         case_value(std::move(case_value)) {}
     
-    exec::Value case_value;
-
-    Vec<Box<StmtLIR>> body;
-
-    Vec<SwitchTarget *> pull_switch_targets() override;
+    eval::Value case_value;
 
     void accept(LIRVisitor& visitor) override;
 };
 
-class DefaultStmtLIR : public SwitchTarget {
+class DefaultLIR : public SwitchTarget {
 public:
-    DefaultStmtLIR(Location loc)
-        : SwitchTarget(loc, NodeKind::DEFSTMT_LIR) {}
-    
-    Vec<Box<StmtLIR>> body;
+    DefaultLIR(Location loc)
+        : SwitchTarget(loc, NodeKind::DEFDECL_LIR) {}
 
-    Vec<SwitchTarget *> pull_switch_targets() override;
+    void accept(LIRVisitor& visitor) override;
+};
+
+class LabelDeclLIR : public LabelLIR {
+public:
+    LabelDeclLIR(Location loc, std::string mangled_label, std::string label)
+        : LabelLIR(loc, NodeKind::LABDECL_LIR), 
+        mangled_label(std::move(mangled_label)), label(std::move(label)) {}
+    
+    std::string mangled_label;
+    std::string label;
 
     void accept(LIRVisitor& visitor) override;
 };
@@ -272,31 +272,15 @@ public:
     void accept(LIRVisitor& visitor) override;
 };
 
-class LabelStmtLIR : public StmtLIR {
-public:
-    LabelStmtLIR(Location loc, std::string mangled_label, std::string label)
-        : StmtLIR(loc, NodeKind::LABELSTMT_LIR), 
-        mangled_label(std::move(mangled_label)), label(std::move(label)) {}
-    
-    std::string mangled_label;
-    std::string label;
 
-    Vec<Box<StmtLIR>> body;
-
-    Vec<SwitchTarget *> pull_switch_targets() override;
-
-    void accept(LIRVisitor& visitor) override;
-};
-
-
-class IfStmtLIR : public StmtLIR {
+class IfStmtLIR : public TerminalLIR {
 public:
     IfStmtLIR(Location loc, Box<ExprLIR> condition)
-        : StmtLIR(loc, NodeKind::IFSTMT_LIR) {}
+        : TerminalLIR(loc, NodeKind::IFSTMT_LIR) {}
 
     Box<ExprLIR> condition;
-    Vec<Box<StmtLIR>> then_br;
-    Optional<Vec<Box<StmtLIR>>> else_br;
+    Vec<Box<ProgItemLIR>> then_br;
+    Optional<Vec<Box<ProgItemLIR>>> else_br;
 
     Vec<SwitchTarget *> pull_switch_targets() override;
 
@@ -308,10 +292,15 @@ public:
     LoopStmtLIR(Location loc)
         : StmtLIR(loc, NodeKind::LOOPSTMT_LIR) {}
 
-    Optional<Vec<Box<StmtLIR>>> init;
+    Optional<Vec<Box<ProgItemLIR>>> init;
+
     Optional<Box<ExprLIR>> condition;
-    Optional<Vec<Box<StmtLIR>>> step;
-    Vec<Box<StmtLIR>> body;
+
+    Optional<Vec<Box<ProgItemLIR>>> step;
+
+    Vec<Box<ProgItemLIR>> body;
+    
+    bool is_dowhile = false;
 
     Vec<SwitchTarget *> pull_switch_targets() override;
 
@@ -418,10 +407,10 @@ public:
 
 class LiteralExprLIR : public ExprLIR {
 public:
-    LiteralExprLIR(Location loc, exec::Value value, sema::types::Type *type)
+    LiteralExprLIR(Location loc, eval::Value value, sema::types::Type *type)
         : ExprLIR(loc, NodeKind::LITEXPR_LIR, type), value(std::move(value)) {}
     
-    exec::Value value;
+    eval::Value value;
 
     void accept(LIRVisitor& visitor) override;
 };
@@ -475,8 +464,8 @@ public:
     Additionally, since we will be inserting an implicit main() but all variables declared
     outside a function are global, we also need to separate out declarations.
     */
-    Vec<Box<DeclLIR>> globals;
-    Vec<Box<StmtLIR>> statements;
+    Vec<Box<VarDeclLIR>> globals;
+    Vec<Box<ProgItemLIR>> progitems;
 
     void accept(LIRVisitor& visitor) override;
 };

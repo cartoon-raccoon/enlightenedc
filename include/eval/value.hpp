@@ -1,7 +1,9 @@
 #ifndef ECC_VALUE_H
 #define ECC_VALUE_H
 
+#include <cstddef>
 #include <format>
+#include <iterator>
 #include <variant>
 #include <string>
 
@@ -20,6 +22,12 @@ public:
     
     InvalidCompileTimeEval(std::string msg, Location loc)
         : EccSemError(std::move(msg), loc) {}
+};
+
+class InvalidValueRange : public EccSemError {
+public:
+    InvalidValueRange(std::string msg)
+        : EccSemError(std::move(msg)) {}
 };
 
 class Value {
@@ -368,7 +376,53 @@ public:
     std::string to_string() {
         return std::visit([this] (const auto& v) { return std::format("{}", v); }, inner);
     }
+}; // end class Value
+
+class ValueRange {
+public:
+    ValueRange(Value start, Value end);
+
+    class ValueRangeIter {
+        long val;
+        ValueRange *range;
+    public:
+        using difference_type = std::ptrdiff_t;
+        using value_type = long;
+
+        ValueRangeIter(long val, ValueRange *range) : val(val), range(range) {}
+
+        long operator*() const { return val; }
+
+        ValueRangeIter& operator++(int) {
+            range->curr++;
+            return *this;
+        }
+
+        ValueRangeIter& operator++() {
+            range->curr++;
+            return *this;
+        }
+
+        bool operator==(ValueRangeIter& other) const {
+            return val == other.val;
+        }
+    };
+
+    ValueRangeIter begin() {
+        return ValueRangeIter(start, this);
+    }
+
+    ValueRangeIter end() {
+        return ValueRangeIter(finish, this);
+    }
+
+
+private:
+    long start, finish;
+    long curr;
 };
+
+static_assert(std::input_iterator<ValueRange::ValueRangeIter>);
 
 }
 
