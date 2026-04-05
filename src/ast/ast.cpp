@@ -61,6 +61,7 @@ DO_ACCEPT(ArrayDeclarator, ASTVisitor)
 DO_ACCEPT(FunctionDeclarator, ASTVisitor)
 DO_ACCEPT(ClassSpecifier, ASTVisitor)
 DO_ACCEPT(UnionSpecifier, ASTVisitor)
+DO_ACCEPT(EnumSpecifier, ASTVisitor)
 
 void Program::add_item(std::unique_ptr<ProgramItem> item) {
     items.push_back(std::move(item));
