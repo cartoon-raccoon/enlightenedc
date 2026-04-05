@@ -1,228 +1,66 @@
 #include "ast/ast.hpp"
 
 #include "ast/visitor.hpp"
+#include "util.hpp"
 
 using namespace ecc::ast;
 
-void Program::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
+DO_ACCEPT(Program, ASTVisitor)
+DO_ACCEPT(Function, ASTVisitor)
+DO_ACCEPT(TypeDeclaration, ASTVisitor)
+DO_ACCEPT(VariableDeclaration, ASTVisitor)
+DO_ACCEPT(ParameterDeclaration, ASTVisitor)
+DO_ACCEPT(InitDeclarator, ASTVisitor)
+DO_ACCEPT(Pointer, ASTVisitor)
+DO_ACCEPT(ClassDeclarator, ASTVisitor)
+DO_ACCEPT(ClassDeclaration, ASTVisitor)
+DO_ACCEPT(Enumerator, ASTVisitor)
+DO_ACCEPT(StorageClassSpecifier, ASTVisitor)
+DO_ACCEPT(TypeQualifier, ASTVisitor)
+DO_ACCEPT(TypeIdentifier, ASTVisitor)
+DO_ACCEPT(VoidSpecifier, ASTVisitor)
+DO_ACCEPT(PrimitiveSpecifier, ASTVisitor)
+DO_ACCEPT(Initializer, ASTVisitor)
+DO_ACCEPT(TypeName, ASTVisitor)
 
-void Function::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
+DO_ACCEPT(CompoundStatement, ASTVisitor)
+DO_ACCEPT(ExpressionStatement, ASTVisitor)
+DO_ACCEPT(CaseStatement, ASTVisitor)
+DO_ACCEPT(CaseRangeStatement, ASTVisitor)
+DO_ACCEPT(DefaultStatement, ASTVisitor)
+DO_ACCEPT(LabeledStatement, ASTVisitor)
+DO_ACCEPT(PrintStatement, ASTVisitor)
+DO_ACCEPT(IfStatement, ASTVisitor)
+DO_ACCEPT(SwitchStatement, ASTVisitor)
+DO_ACCEPT(WhileStatement, ASTVisitor)
+DO_ACCEPT(DoWhileStatement, ASTVisitor)
+DO_ACCEPT(ForStatement, ASTVisitor)
+DO_ACCEPT(GotoStatement, ASTVisitor)
+DO_ACCEPT(BreakStatement, ASTVisitor)
+DO_ACCEPT(ContinueStatement, ASTVisitor)
+DO_ACCEPT(ReturnStatement, ASTVisitor)
 
-void TypeDeclaration::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void VariableDeclaration::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void ParameterDeclaration::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void InitDeclarator::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void Pointer::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void ClassDeclarator::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void ClassDeclaration::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void Enumerator::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void StorageClassSpecifier::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void TypeQualifier::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void EnumSpecifier::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void TypeIdentifier::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void VoidSpecifier::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void PrimitiveSpecifier::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void Initializer::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void TypeName::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void CompoundStatement::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void ExpressionStatement::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void CaseStatement::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void CaseRangeStatement::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void DefaultStatement::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void LabeledStatement::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void PrintStatement::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void IfStatement::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void SwitchStatement::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void WhileStatement::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void DoWhileStatement::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void ForStatement::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void GotoStatement::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void BreakStatement::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void ContinueStatement::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void ReturnStatement::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void BinaryExpression::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void CastExpression::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void UnaryExpression::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void AssignmentExpression::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void ConditionalExpression::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void IdentifierExpression::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void ConstExpression::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void LiteralExpression::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void StringExpression::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void CallExpression::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void MemberAccessExpression::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void ArraySubscriptExpression::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void PostfixExpression::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void SizeofExpression::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void Declarator::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void IdentifierDeclarator::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void ParenDeclarator::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void ArrayDeclarator::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void FunctionDeclarator::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void ClassSpecifier::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void UnionSpecifier::accept(ASTVisitor& visitor) {
-    visitor.visit(*this);
-}
+DO_ACCEPT(BinaryExpression, ASTVisitor)
+DO_ACCEPT(CastExpression, ASTVisitor)
+DO_ACCEPT(UnaryExpression, ASTVisitor)
+DO_ACCEPT(AssignmentExpression, ASTVisitor)
+DO_ACCEPT(ConditionalExpression, ASTVisitor)
+DO_ACCEPT(IdentifierExpression, ASTVisitor)
+DO_ACCEPT(ConstExpression, ASTVisitor)
+DO_ACCEPT(LiteralExpression, ASTVisitor)
+DO_ACCEPT(StringExpression, ASTVisitor)
+DO_ACCEPT(CallExpression, ASTVisitor)
+DO_ACCEPT(MemberAccessExpression, ASTVisitor)
+DO_ACCEPT(ArraySubscriptExpression, ASTVisitor)
+DO_ACCEPT(PostfixExpression, ASTVisitor)
+DO_ACCEPT(SizeofExpression, ASTVisitor)
+DO_ACCEPT(Declarator, ASTVisitor)
+DO_ACCEPT(IdentifierDeclarator, ASTVisitor)
+DO_ACCEPT(ParenDeclarator, ASTVisitor)
+DO_ACCEPT(ArrayDeclarator, ASTVisitor)
+DO_ACCEPT(FunctionDeclarator, ASTVisitor)
+DO_ACCEPT(ClassSpecifier, ASTVisitor)
+DO_ACCEPT(UnionSpecifier, ASTVisitor)
 
 void Program::add_item(std::unique_ptr<ProgramItem> item) {
     items.push_back(std::move(item));

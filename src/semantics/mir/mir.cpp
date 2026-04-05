@@ -1,193 +1,67 @@
 #include "semantics/mir/mir.hpp"
+
 #include <algorithm>
 #include <variant>
 
 #include "eval/consteval.hpp"
 #include "semantics/mir/visitor.hpp"
+#include "util.hpp"
+
+#define DO_EVAL(mirty, evalr)            \
+    eval::Value mirty::eval(evalr& ev) { \
+        return ev.eval(*this);           \
+    }
 
 using namespace sema::mir;
 using namespace sema::sym;
 using namespace tokens;
 
-void ProgramMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
+DO_ACCEPT(ProgramMIR, MIRVisitor)
+DO_ACCEPT(FunctionMIR, MIRVisitor)
+DO_ACCEPT(InitializerMIR, MIRVisitor)
+DO_ACCEPT(TypeDeclMIR, MIRVisitor)
+DO_ACCEPT(VarDeclMIR, MIRVisitor)
+DO_ACCEPT(CompoundStmtMIR, MIRVisitor)
+DO_ACCEPT(ExprStmtMIR, MIRVisitor)
+DO_ACCEPT(SwitchStmtMIR, MIRVisitor)
+DO_ACCEPT(CaseStmtMIR, MIRVisitor)
+DO_ACCEPT(CaseRangeStmtMIR, MIRVisitor)
+DO_ACCEPT(DefaultStmtMIR, MIRVisitor)
+DO_ACCEPT(LabeledStmtMIR, MIRVisitor)
+DO_ACCEPT(PrintStmtMIR, MIRVisitor)
+DO_ACCEPT(IfStmtMIR, MIRVisitor)
+DO_ACCEPT(LoopStmtMIR, MIRVisitor)
+DO_ACCEPT(GotoStmtMIR, MIRVisitor)
+DO_ACCEPT(BreakStmtMIR, MIRVisitor)
+DO_ACCEPT(ContStmtMIR, MIRVisitor)
+DO_ACCEPT(ReturnStmtMIR, MIRVisitor)
+DO_ACCEPT(BinaryExprMIR, MIRVisitor)
+DO_ACCEPT(UnaryExprMIR, MIRVisitor)
+DO_ACCEPT(CastExprMIR, MIRVisitor)
+DO_ACCEPT(AssignExprMIR, MIRVisitor)
+DO_ACCEPT(CondExprMIR, MIRVisitor)
+DO_ACCEPT(IdentExprMIR, MIRVisitor)
+DO_ACCEPT(ConstExprMIR, MIRVisitor)
+DO_ACCEPT(LiteralExprMIR, MIRVisitor)
+DO_ACCEPT(CallExprMIR, MIRVisitor)
+DO_ACCEPT(MemberAccExprMIR, MIRVisitor)
+DO_ACCEPT(SubscrExprMIR, MIRVisitor)
+DO_ACCEPT(PostfixExprMIR, MIRVisitor)
+DO_ACCEPT(SizeofExprMIR, MIRVisitor)
 
-void FunctionMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void InitializerMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void TypeDeclMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void VarDeclMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void CompoundStmtMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void ExprStmtMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void SwitchStmtMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void CaseStmtMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void CaseRangeStmtMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void DefaultStmtMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void LabeledStmtMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void PrintStmtMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void IfStmtMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void LoopStmtMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void GotoStmtMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void BreakStmtMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void ContStmtMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void ReturnStmtMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void BinaryExprMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void UnaryExprMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void CastExprMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void AssignExprMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void CondExprMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void IdentExprMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void ConstExprMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void LiteralExprMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void CallExprMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void MemberAccExprMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void SubscrExprMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void PostfixExprMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-void SizeofExprMIR::accept(MIRVisitor& visitor) {
-    visitor.visit(*this);
-}
-
-eval::Value BinaryExprMIR::eval(eval::ExprEvaluator& ev) {
-    return ev.eval(*this);
-}
-
-eval::Value UnaryExprMIR::eval(eval::ExprEvaluator& ev) {
-    return ev.eval(*this);
-}
-
-eval::Value CastExprMIR::eval(eval::ExprEvaluator& ev) {
-    return ev.eval(*this);
-}
-
-eval::Value AssignExprMIR::eval(eval::ExprEvaluator& ev) {
-    return ev.eval(*this);
-}
-
-eval::Value CondExprMIR::eval(eval::ExprEvaluator& ev) {
-    return ev.eval(*this);
-}
-
-eval::Value IdentExprMIR::eval(eval::ExprEvaluator& ev) {
-    return ev.eval(*this);
-}
-
-eval::Value ConstExprMIR::eval(eval::ExprEvaluator& ev) {
-    return ev.eval(*this);
-}
-
-eval::Value LiteralExprMIR::eval(eval::ExprEvaluator& ev) {
-    return ev.eval(*this);
-}
-
-eval::Value CallExprMIR::eval(eval::ExprEvaluator& ev) {
-    return ev.eval(*this);
-}
-
-eval::Value MemberAccExprMIR::eval(eval::ExprEvaluator& ev) {
-    return ev.eval(*this);
-}
-
-eval::Value SubscrExprMIR::eval(eval::ExprEvaluator& ev) {
-    return ev.eval(*this);
-}
-
-eval::Value PostfixExprMIR::eval(eval::ExprEvaluator& ev) {
-    return ev.eval(*this);
-}
-
-eval::Value SizeofExprMIR::eval(eval::ExprEvaluator& ev) {
-    return ev.eval(*this);
-}
+DO_EVAL(BinaryExprMIR, eval::ExprEvaluator)
+DO_EVAL(UnaryExprMIR, eval::ExprEvaluator)
+DO_EVAL(CastExprMIR, eval::ExprEvaluator)
+DO_EVAL(AssignExprMIR, eval::ExprEvaluator)
+DO_EVAL(CondExprMIR, eval::ExprEvaluator)
+DO_EVAL(IdentExprMIR, eval::ExprEvaluator)
+DO_EVAL(ConstExprMIR, eval::ExprEvaluator)
+DO_EVAL(LiteralExprMIR, eval::ExprEvaluator)
+DO_EVAL(CallExprMIR, eval::ExprEvaluator)
+DO_EVAL(MemberAccExprMIR, eval::ExprEvaluator)
+DO_EVAL(SubscrExprMIR, eval::ExprEvaluator)
+DO_EVAL(PostfixExprMIR, eval::ExprEvaluator)
+DO_EVAL(SizeofExprMIR, eval::ExprEvaluator)
 
 void CompoundStmtMIR::add_item(Box<ProgItemMIR> item) {
     items.push_back(std::move(item));
@@ -198,16 +72,14 @@ void ProgramMIR::add_item(Box<ProgItemMIR> item) {
 }
 
 bool InitializerMIR::is_all_literals() {
-    return std::visit(match {
-        [] (Box<ExprMIR>& expr) {
-            return expr->kind == MIRNode::NodeKind::LITEXPR_MIR;
-        },
-        [] (Vec<Box<InitializerMIR>>& init) {
-            return std::all_of(
-                init.cbegin(), init.cend(), 
-                [](const Box<InitializerMIR>& init) {return init->is_all_literals();});
-        }
-    }, initializer);
+    return std::visit(
+        match{[](Box<ExprMIR>& expr) { return expr->kind == MIRNode::NodeKind::LITEXPR_MIR; },
+              [](Vec<Box<InitializerMIR>>& init) {
+                  return std::all_of(
+                      init.cbegin(), init.cend(),
+                      [](const Box<InitializerMIR>& init) { return init->is_all_literals(); });
+              }},
+        initializer);
 }
 
 void VarDeclMIR::add_decl(VarSymbol *sym) {
