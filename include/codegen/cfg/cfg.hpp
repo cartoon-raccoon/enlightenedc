@@ -4,7 +4,6 @@
 #define ECC_CFG_H
 
 #include <utility>
-#include <variant>
 
 #include "codegen/lir/lir.hpp"
 #include "eval/value.hpp"
@@ -61,16 +60,21 @@ public:
 
 class BasicBlock {
 public:
-    using BlockElement =
-        std::variant<Box<lir::VarDeclLIR>, Box<lir::ExprStmtLIR>, Box<lir::PrintStmtLIR>>;
 
     bool has_terminator() { return term != nullptr; }
 
+    void add_element(Box<lir::NonTerminalLIR> elem) {
+        elements.push_back(std::move(elem));
+    }
+
 private:
     bool is_entry;
+    bool is_part_of_loop;
+    
+    Optional<std::string> label;
 
     Vec<BasicBlock *> incoming;
-    Vec<BlockElement> elements;
+    Vec<Box<lir::NonTerminalLIR>> elements;
 
     Box<Terminator> term = nullptr;
 };
