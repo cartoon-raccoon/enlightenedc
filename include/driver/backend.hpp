@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef ECC_BACKEND_H
 #define ECC_BACKEND_H
 namespace ecc::driver {

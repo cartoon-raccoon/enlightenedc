@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef ECC_PREPROC_H
 #define ECC_PREPROC_H
 

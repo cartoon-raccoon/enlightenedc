@@ -22,6 +22,7 @@ class LabelLIR;
 class StmtLIR;
 class FunctionLIR;
 class SwitchTarget;
+class ProgItemLIRStream;
 
 class LIRNode : public NoCopy {
 public:
@@ -85,6 +86,8 @@ public:
 
     virtual LabelLIR *as_decl() { return nullptr; }
     virtual StmtLIR *as_stmt() { return nullptr; }
+
+    virtual Box<ProgItemLIRStream> progitem_stream();
 };
 
 class LabelLIR : public ProgItemLIR {
@@ -97,26 +100,49 @@ public:
 
 class StmtLIR : public ProgItemLIR {
 public:
-    StmtLIR(NodeKind kind) : ProgItemLIR(kind) {}
-    StmtLIR(Location loc, NodeKind kind) : ProgItemLIR(loc, kind) {}
+    enum class StmtKind : uint8_t {
+        // A terminal statement ends a 
+        TERMINAL,
+        NONTERMINAL,
+        LOOP,
+    };
+
+    StmtLIR(NodeKind kind, StmtKind stkind)
+        : ProgItemLIR(kind), stkind(stkind) {}
+    StmtLIR(Location loc, NodeKind kind, StmtKind stkind)
+        : ProgItemLIR(loc, kind), stkind(stkind) {}
+
+    StmtKind stkind;
 
     StmtLIR *as_stmt() override { return this; }
 
     virtual Vec<SwitchTarget *> pull_switch_targets() = 0;
 
-    virtual bool is_terminal() { return false; }
+    virtual bool is_terminal() { return stkind == StmtKind::TERMINAL; }
 };
 
 /*
+A LIR node that terminates a CFG block. Such nodes include If, Continue, Switch, etc.
  */
 class TerminalLIR : public StmtLIR {
 public:
-    TerminalLIR(NodeKind kind) : StmtLIR(kind) {}
-    TerminalLIR(Location loc, NodeKind kind) : StmtLIR(loc, kind) {}
+    TerminalLIR(NodeKind kind) : StmtLIR(kind, StmtKind::TERMINAL) {}
+    TerminalLIR(Location loc, NodeKind kind) : StmtLIR(loc, kind, StmtKind::TERMINAL) {}
 
     Vec<SwitchTarget *> pull_switch_targets() override { return {}; }
 
     bool is_terminal() override { return true; }
+};
+
+/*
+A LIR node that does not terminate a CFG block.
+*/
+class NonTerminalLIR : public StmtLIR {
+public:
+    NonTerminalLIR(NodeKind kind) : StmtLIR(kind, StmtKind::NONTERMINAL) {}
+    NonTerminalLIR(Location loc, NodeKind kind) : StmtLIR(loc, kind, StmtKind::NONTERMINAL) {}
+
+    bool is_terminal() override { return false; }
 };
 
 class SwitchTarget : public LabelLIR {
@@ -247,10 +273,10 @@ public:
     void accept(LIRVisitor& visitor) override;
 };
 
-class ExprStmtLIR : public StmtLIR {
+class ExprStmtLIR : public NonTerminalLIR {
 public:
     ExprStmtLIR(Location loc, Box<ExprLIR> expr)
-        : StmtLIR(loc, NodeKind::EXPRSTMT_LIR), expr(std::move(expr)) {}
+        : NonTerminalLIR(loc, NodeKind::EXPRSTMT_LIR), expr(std::move(expr)) {}
 
     Box<ExprLIR> expr;
 
@@ -274,7 +300,7 @@ public:
 
 class LoopStmtLIR : public StmtLIR {
 public:
-    LoopStmtLIR(Location loc) : StmtLIR(loc, NodeKind::LOOPSTMT_LIR) {}
+    LoopStmtLIR(Location loc) : StmtLIR(loc, NodeKind::LOOPSTMT_LIR, StmtKind::LOOP) {}
 
     Optional<Vec<Box<ProgItemLIR>>> init;
 
@@ -291,10 +317,10 @@ public:
     void accept(LIRVisitor& visitor) override;
 };
 
-class PrintStmtLIR : public StmtLIR {
+class PrintStmtLIR : public NonTerminalLIR {
 public:
     PrintStmtLIR(Location loc, std::string format_string, Vec<Box<ExprLIR>> args)
-        : StmtLIR(loc, NodeKind::PRINTSTMT_LIR), format_string(std::move(format_string)),
+        : NonTerminalLIR(loc, NodeKind::PRINTSTMT_LIR), format_string(std::move(format_string)),
           args(std::move(args)) {}
 
     std::string format_string;
@@ -358,6 +384,13 @@ public:
 
 class CondExprLIR : public ExprLIR {
 public:
+    CondExprLIR(Location loc, sema::types::Type *type, 
+                Box<ExprLIR> cond, Box<ExprLIR> true_val, Box<ExprLIR> false_val)
+        : ExprLIR(loc, NodeKind::CONDEXPR_LIR, type),
+        condition(std::move(cond)),
+        true_value(std::move(true_val)),
+        false_value(std::move(false_val)) {}
+    
     Box<ExprLIR> condition;
     Box<ExprLIR> true_value;
     Box<ExprLIR> false_value;
@@ -388,7 +421,7 @@ public:
 class CallExprLIR : public ExprLIR {
 public:
     Box<ExprLIR> callee;
-    Vec<ExprLIR> args;
+    Vec<Box<ExprLIR>> args;
 
     void accept(LIRVisitor& visit) override;
 };
@@ -405,6 +438,7 @@ class SubscrExprLIR : public ExprLIR {
 public:
     Box<ExprLIR> array;
     Box<ExprLIR> index;
+
     void accept(LIRVisitor& visitor) override;
 };
 

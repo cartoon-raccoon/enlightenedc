@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef ECC_LIR_VISITOR_H
 #define ECC_LIR_VISITOR_H
 

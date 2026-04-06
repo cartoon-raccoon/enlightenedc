@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef ECC_SEMPRINTER_H
 #define ECC_SEMPRINTER_H
 

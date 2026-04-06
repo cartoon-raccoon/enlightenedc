@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef ECC_LLVM_H
 #define ECC_LLVM_H
 

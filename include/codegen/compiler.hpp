@@ -1,11 +1,11 @@
 #pragma once
 
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/Module.h>
 #ifndef ECC_COMPILER_H
 #define ECC_COMPILER_H
 
 #include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/Module.h>
 
 #include "codegen/lir/lir.hpp"
 #include "codegen/lir/visitor.hpp"

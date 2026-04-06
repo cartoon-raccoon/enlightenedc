@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef ECC_CONFIG_H
 #define ECC_CONFIG_H
 

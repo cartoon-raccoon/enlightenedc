@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef ECC_DRIVER_H
 #define ECC_DRIVER_H
 

@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef ECC_AST_VISITOR_H
 #define ECC_AST_VISITOR_H
 

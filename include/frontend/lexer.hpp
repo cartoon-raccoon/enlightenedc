@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef ECC_LEXER_H
 #define ECC_LEXER_H
 

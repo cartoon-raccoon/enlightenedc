@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef ECC_CONSTEVAL_H
 #define ECC_CONSTEVAL_H
 

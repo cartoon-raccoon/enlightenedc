@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef ECC_MIR_H
 #define ECC_MIR_H
 

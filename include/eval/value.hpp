@@ -358,6 +358,8 @@ public:
         }
 
         bool operator==(ValueRangeIter& other) const { return val == other.val; }
+
+        bool operator!=(ValueRangeIter& other) const { return !(*this == other); }
     };
 
     ValueRangeIter begin() { return ValueRangeIter(start, this); }

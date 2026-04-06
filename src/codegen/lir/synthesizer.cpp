@@ -541,12 +541,32 @@ void LIRSynthesizer::do_visit(UnaryExprMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(CastExprMIR& node) {
+    node.inner->accept(*this);
+
+    Box<ExprLIR> inner = std::move(last_expr);
+
+    Box<ExprLIR> expr =
+        std::make_unique<CastExprLIR>(node.loc, node.type, std::move(inner), node.target);
+
+    last_expr = std::move(expr);
 }
 
 void LIRSynthesizer::do_visit(AssignExprMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(CondExprMIR& node) {
+    node.condition->accept(*this);
+    Box<ExprLIR> condition = std::move(last_expr);
+    node.true_expr->accept(*this);
+    Box<ExprLIR> true_val = std::move(last_expr);
+    node.false_expr->accept(*this);
+    Box<ExprLIR> false_val = std::move(last_expr);
+
+    Box<ExprLIR> expr =
+        std::make_unique<CondExprLIR>(
+            node.loc, node.type, std::move(condition), std::move(true_val), std::move(false_val));
+
+    last_expr = std::move(expr);
 }
 
 void LIRSynthesizer::do_visit(IdentExprMIR& node) {
