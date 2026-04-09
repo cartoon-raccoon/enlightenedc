@@ -348,7 +348,7 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
             sym->is_const  = specinfo->is_const;
             sym->linkage   = specinfo->linkage;
 
-            if (sym->is_external() && syms.current != syms.global.get()) {
+            if (sym->is_external() && syms.current != syms.global()) {
                 add_error<EccSemError>("extern variable declaration must be at global scope",
                                        declarator->loc);
                 throw UnableToContinue();

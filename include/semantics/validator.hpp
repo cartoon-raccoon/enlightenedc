@@ -26,7 +26,7 @@ public:
     Vec<Box<EccSemError>> errors;
 
     types::TypeContext& types;
-    sym::SymbolTable& syms;
+    sym::SymbolTableWalker syms;
 
     void eval_initializer(types::Type *type, mir::InitializerMIR& init);
 

@@ -312,6 +312,8 @@ static void print_scope(std::stringstream& ss, Scope *scope, int depth) {
     ss << indent << "Scope " << scope->id;
     if (scope->assoc) {
         ss << ": " << scope->assoc->to_string();
+    } else {
+        ss << ": Compound Statement";
     }
     ss << "\n";
 

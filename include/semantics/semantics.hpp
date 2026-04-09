@@ -97,7 +97,7 @@ public:
     friend class BaseMIRSemaVisitor;
     friend class NodeGuard<Node>;
 
-    ScopeGuard(BaseSemanticVisitor<Node>::State state, sym::SymbolTable& syms,
+    ScopeGuard(BaseSemanticVisitor<Node>::State state, sym::SymbolTableWalker& syms,
                sym::FuncSymbol *assoc)
         : st(syms) {
         if (state == BaseSemanticVisitor<Node>::State::READ) {
@@ -117,7 +117,7 @@ public:
     ScopeGuard& operator=(const ScopeGuard&) = delete;
 
 private:
-    Ref<sym::SymbolTable> st;
+    Ref<sym::SymbolTableWalker> st;
 }; // class ScopeGuard
 
 /*

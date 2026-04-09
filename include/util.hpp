@@ -30,12 +30,21 @@ template <typename T, typename... Args> void dbprint(T msg, Args&&...args) {
         visitor.visit(*this);                            \
     }
 
+#define VISIT_NO_IMPL(_node) /* NOLINT */ \
+    void visit(_node& node) override { /*NOLINT */ \
+        throw std::runtime_error( \
+            "visit() was not implemented for the current visitable node"); \
+    }
+
 constexpr std::size_t BOOST_GOLDEN_RATIO = 0x9e3779b9;
 constexpr std::size_t HASH_SHL           = 6;
 constexpr std::size_t HASH_SHR           = 2;
 
 namespace ecc::util {
 
+/**
+An exception class to indicate that a region of code is currently unimplemented.
+*/
 class Todo : std::exception {
 public:
     std::string location;
@@ -51,6 +60,9 @@ public:
     const char *what() const noexcept override { return location.c_str(); }
 };
 
+/**
+A function to mark a block of code as unimplemented, and to be implemented in the future.
+*/
 constexpr void todo() {
     throw Todo(std::source_location::current());
 }
@@ -235,6 +247,55 @@ struct is_variant_member<T, std::variant<Types...>>
 // Concept to check if a type T is a member of a std::variant,
 template <typename T, typename Variant>
 concept VariantMember = is_variant_member<T, Variant>::value;
+
+/**
+A counter that keeps increasing.
+*/
+template <typename I>
+requires std::is_integral_v<I>
+class MonotonicCtr {
+    I val;
+public:
+    MonotonicCtr(I val) : val(val) {}
+    MonotonicCtr(const MonotonicCtr<I>& c) : val(c.val) {}
+
+    I value() const {
+        return val;
+    }
+
+    void inc() {
+        val++;
+    }
+
+    I operator*() {
+        return val;
+    }
+
+    I operator++() {
+        return val++;
+    }
+
+    I operator++(int) {
+        return ++val;
+    }
+
+    bool operator== (const MonotonicCtr<I>& other) {
+        return val == other.val;
+    }
+
+    bool operator== (const I& other) {
+        return val == other;
+    }
+
+    bool operator< (const MonotonicCtr<I>& other) {
+        return val < other.val;
+    }
+
+    bool operator> (const I& other) {
+        return val < other;
+    }
+
+};
 
 class NoCopy { // NOLINT(cppcoreguidelines-special-member-functions)
 public:

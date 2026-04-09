@@ -39,11 +39,11 @@ A MIR walker for evaluating expressions at compile time.
 */
 class ConstEvaluator : public ExprEvaluator {
 public:
-    ConstEvaluator(sema::sym::SymbolTable& symtable, sema::types::TypeContext& typectxt)
+    ConstEvaluator(sema::sym::SymbolTableWalker& symtable, sema::types::TypeContext& typectxt)
         : typectxt(typectxt), symtable(symtable) {}
 
     Ref<sema::types::TypeContext> typectxt;
-    Ref<sema::sym::SymbolTable> symtable;
+    Ref<sema::sym::SymbolTableWalker> symtable;
 
     Value eval(sema::mir::ConstExprMIR& expr) override;
 

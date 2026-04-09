@@ -10,25 +10,45 @@ using namespace ecc::sema::types;
 
 std::string VarSymbol::mangle() const {
     std::stringstream ss;
-    ss << "var_" << name << "_" << "s" << scope->id;
+    if (is_global) {
+        ss << name;
+    } else {
+        ss << name << "_" << "s" << scope->id;
+    }
     return ss.str();
 }
 
 std::string FuncSymbol::mangle() const {
     std::stringstream ss;
-    ss << "func_" << name << "_" << "s" << scope->id;
+    if (is_global) {
+        ss << name;
+    } else {
+        ss << name << "_" << "s" << scope->id;
+    }
     return ss.str();
 }
 
 std::string TypeSymbol::mangle() const {
     std::stringstream ss;
-    ss << "type_" << name << "_" << "s" << scope->id;
+    if (is_global) {
+        ss << name;
+    } else {
+        ss << name << "_" << "s" << scope->id;
+    }
     return ss.str();
 }
 
 std::string LabelSymbol::mangle() const {
     std::stringstream ss;
-    ss << "label_" << name << "_" << "s" << scope->id;
+    if (is_global) {
+        ss << "global_" << name;
+    } else {
+        if (scope->assoc) {
+            ss << scope->assoc->mangle() << "_" << name;
+        } else {
+            ss << name << "_" << scope->id;
+        }
+    }
     return ss.str();
 }
 
@@ -38,13 +58,18 @@ Box<VarSymbol> FuncSymbol::as_funcptr(TypeContext& tctxt, bool is_const) {
     return std::make_unique<VarSymbol>(loc, name, scope, ptrtype);
 }
 
-void SymbolTable::push_scope(FuncSymbol *assoc) {
+void SymbolTable::clear() {
+    // todo
+}
+
+void SymbolTableWalker::push_scope(FuncSymbol *assoc) {
     /*
     Create a new scope, push it onto the current one, replace current scope with
     the new one
     */
 
-    Box<Scope> newscope = std::make_unique<Scope>(assoc, current, next_id);
+
+    Box<Scope> newscope = std::make_unique<Scope>(assoc, current, *next_id, next_scope_idx);
     next_id++;
 
     dbprint("SymbolTable: pushing scope ", newscope->id);
@@ -53,105 +78,66 @@ void SymbolTable::push_scope(FuncSymbol *assoc) {
     enter_scope();
 }
 
-void SymbolTable::enter_scope() {
+void SymbolTableWalker::enter_scope() {
     // If there are no scopes left to enter
     if (current->nested.empty()) {
         throw std::runtime_error("tried to enter nonexistent nested scope");
     }
 
-    if (current->nested_idx >= current->nested.size()) {
+    if (next_scope_idx >= current->nested.size()) {
         throw std::runtime_error("no more nested scopes left to enter in current scope");
     }
 
-    Scope *new_current = current->nested[current->nested_idx].get();
+    Scope *new_current = current->nested[next_scope_idx].get();
+    next_scope_idx++;
     dbprint("SymbolTable: entering scope ", new_current->id);
+
+    prev_scope_idxs.push(next_scope_idx);
+    next_scope_idx = 0;
 
     current = new_current;
 }
 
-void SymbolTable::pop_scope() {
-    if (current != global.get()) {
+void SymbolTableWalker::pop_scope() {
+    if (current != st.get().global.get()) {
         if (current->outer) {
             dbprint("SymbolTable: exiting scope to ", current->outer->id);
             current = current->outer;
-            current->nested_idx++;
+
+            next_scope_idx = prev_scope_idxs.top();
+            prev_scope_idxs.pop();
         } else {
             throw std::runtime_error("tried to exit global scope");
         }
     }
 }
 
-void SymbolTable::reset() {
-    reset_from(global.get());
-
-    current = global.get();
+void SymbolTableWalker::reset() {
+    current = global();
 }
 
-void SymbolTable::reset_from(Scope *scope) {
-    scope->nested_idx = 0;
-    for (auto& scope : scope->nested) {
-        reset_from(scope.get());
-    }
-}
-
-void SymbolTable::reset_current() const {
-    current->nested_idx = 0;
-}
-
-void SymbolTable::clear() {
-    // todo
-}
-
-// Lookup a symbol by name. Returns null if no symbol exists.
-Symbol *SymbolTable::lookup(std::string& sym, bool current_only) const {
-    return lookup(sym, current, current_only);
-}
-
-VarSymbol *SymbolTable::lookup_var(std::string& sym, bool current_only) const {
-    return lookup_var(sym, current, current_only);
-}
-
-FuncSymbol *SymbolTable::lookup_func(std::string& sym, bool current_only) const {
-    return lookup_func(sym, current, current_only);
-}
-
-TypeSymbol *SymbolTable::lookup_type(std::string& sym, bool current_only) const {
-    return lookup_type(sym, current, current_only);
-}
-
-/*
-Look up a label up to the first function scope.
-
-Unlike other lookup functions, which continue on to global scope,
-`lookup_label` only recurses outwards until a function boundary.
-This is because labels are scoped to function scope specifically.
-*/
-LabelSymbol *SymbolTable::lookup_label(std::string& sym, bool current_only) const {
-    return lookup_label(sym, current, current_only);
-}
-
-Symbol *SymbolTable::lookup(std::string& sym, Scope *from, bool current_only) const {
-    VarSymbol *maybe_var = lookup_var(sym, from, current_only);
+Symbol *SymbolTableWalker::lookup(std::string& sym, bool current_only) const {
+    VarSymbol *maybe_var = lookup_var(sym, current_only);
     if (maybe_var)
         return maybe_var;
 
-    FuncSymbol *maybe_func = lookup_func(sym, from, current_only);
+    FuncSymbol *maybe_func = lookup_func(sym, current_only);
     if (maybe_func)
         return maybe_func;
 
-    TypeSymbol *maybe_type = lookup_type(sym, from, current_only);
+    TypeSymbol *maybe_type = lookup_type(sym, current_only);
     if (maybe_type)
         return maybe_type;
 
-    LabelSymbol *maybe_label = lookup_label(sym, from, current_only);
+    LabelSymbol *maybe_label = lookup_label(sym, current_only);
     if (maybe_label)
         return maybe_label;
 
     return nullptr;
 }
 
-VarSymbol *SymbolTable::lookup_var(std::string& sym, Scope *from, bool current_only) const {
-    Scope *my_current = from;
+VarSymbol *SymbolTableWalker::lookup_var(std::string& sym, bool current_only) const {
+    Scope *my_current = current;
     if (current_only) {
         dbprint("SymbolTable: looking up varsymbol ", sym, " in current scope");
         if (my_current->phys_symbols.contains(sym)) {
@@ -167,7 +153,7 @@ VarSymbol *SymbolTable::lookup_var(std::string& sym, Scope *from, bool current_o
     while (!(my_current->phys_symbols.contains(sym))) {
         // if already global, return null
         if (my_current->outer == nullptr) {
-            assert(my_current == global.get());
+            assert(my_current == global());
             dbprint("SymbolTable: symbol \'", sym, "\' not found");
             return nullptr;
         }
@@ -179,8 +165,8 @@ VarSymbol *SymbolTable::lookup_var(std::string& sym, Scope *from, bool current_o
     return my_current->phys_symbols.find(sym)->second->as_varsym();
 }
 
-FuncSymbol *SymbolTable::lookup_func(std::string& sym, Scope *from, bool current_only) const {
-    Scope *my_current = from;
+FuncSymbol *SymbolTableWalker::lookup_func(std::string& sym, bool current_only) const {
+    Scope *my_current = current;
     if (current_only) {
         dbprint("SymbolTable: looking up funcsymbol ", sym, " in current scope");
         if (my_current->phys_symbols.contains(sym)) {
@@ -195,7 +181,7 @@ FuncSymbol *SymbolTable::lookup_func(std::string& sym, Scope *from, bool current
     while (!(my_current->phys_symbols.contains(sym))) {
         // if already global, return null
         if (my_current->outer == nullptr) {
-            assert(my_current == global.get());
+            assert(my_current == global());
             dbprint("SymbolTable: symbol \'", sym, "\' not found");
             return nullptr;
         }
@@ -207,8 +193,8 @@ FuncSymbol *SymbolTable::lookup_func(std::string& sym, Scope *from, bool current
     return my_current->phys_symbols.find(sym)->second->as_funcsym();
 }
 
-TypeSymbol *SymbolTable::lookup_type(std::string& sym, Scope *from, bool current_only) const {
-    Scope *my_current = from;
+TypeSymbol *SymbolTableWalker::lookup_type(std::string& sym, bool current_only) const {
+    Scope *my_current = current;
     if (current_only) {
         dbprint("SymbolTable: looking up typesymbol ", sym, " in current scope");
         if (my_current->type_symbols.contains(sym)) {
@@ -223,7 +209,7 @@ TypeSymbol *SymbolTable::lookup_type(std::string& sym, Scope *from, bool current
     while (!(my_current->type_symbols.contains(sym))) {
         // if already global, return null
         if (my_current->outer == nullptr) {
-            assert(my_current == global.get());
+            assert(my_current == global());
             dbprint("SymbolTable: symbol \'", sym, "\' not found");
             return nullptr;
         }
@@ -235,8 +221,13 @@ TypeSymbol *SymbolTable::lookup_type(std::string& sym, Scope *from, bool current
     return my_current->type_symbols.find(sym)->second.get();
 }
 
-LabelSymbol *SymbolTable::lookup_label(std::string& sym, Scope *from, bool current_only) const {
-    Scope *my_current = from;
+LabelSymbol *SymbolTableWalker::lookup_label(std::string& sym, bool current_only) const {
+    Scope *my_current = current;
+
+    if (current == global()) {
+        current_only = true;
+    }
+
     if (current_only) {
         dbprint("SymbolTable: looking up labelsymbol ", sym, " in current scope");
         if (my_current->label_symbols.contains(sym)) {
@@ -262,7 +253,7 @@ LabelSymbol *SymbolTable::lookup_label(std::string& sym, Scope *from, bool curre
     return my_current->label_symbols.find(sym)->second.get();
 }
 
-void SymbolTable::tie_current_to(FuncSymbol *sym, bool override) const {
+void SymbolTableWalker::tie_current_to(FuncSymbol *sym, bool override) const {
     dbprint("SymbolTable: associating current scope ", current->id, " with symbol ", sym,
             " name \"", sym->name, "\"");
     if (current->assoc != nullptr) {
@@ -274,20 +265,23 @@ void SymbolTable::tie_current_to(FuncSymbol *sym, bool override) const {
     }
 }
 
-VarSymbol *SymbolTable::insert(std::string& name, Box<VarSymbol> sym) const {
+VarSymbol *SymbolTableWalker::insert(std::string& name, Box<VarSymbol> sym) const {
     dbprint("SymbolTable: inserting varsymbol with name \"", name, "\"");
     if (current->phys_symbols.contains(name)) {
         dbprint("SymbolTable: varsymbol with name ", name, " already exists");
         Symbol *existing = current->phys_symbols.find(name)->second.get();
         throw existing;
     }
+    if (current == global()) {
+        sym->is_global = true;
+    }
     VarSymbol *ret = sym.get();
-    current->phys_symbols.insert({name, std::move(sym)});
+    current->phys_symbols.insert_or_assign(name, std::move(sym));
 
     return ret;
 }
 
-FuncSymbol *SymbolTable::insert(std::string& name, Box<FuncSymbol> sym) const {
+FuncSymbol *SymbolTableWalker::insert(std::string& name, Box<FuncSymbol> sym) const {
     dbprint("SymbolTable: inserting funcsymbol with name \"", name, "\"");
     if (current->phys_symbols.contains(name)) {
         dbprint("SymbolTable: symbol with name ", name, " already exists");
@@ -313,34 +307,45 @@ FuncSymbol *SymbolTable::insert(std::string& name, Box<FuncSymbol> sym) const {
         throw (Symbol *)existing;
     }
 insert:
+    if (current == global()) {
+        sym->is_global = true;
+    }
     FuncSymbol *ret = sym.get();
     current->phys_symbols.insert_or_assign(name, std::move(sym));
 
     return ret;
 }
 
-TypeSymbol *SymbolTable::insert(std::string& name, Box<TypeSymbol> sym) const {
+TypeSymbol *SymbolTableWalker::insert(std::string& name, Box<TypeSymbol> sym) const {
     dbprint("SymbolTable: inserting typesymbol with name \"", name, "\"");
     if (current->type_symbols.contains(name)) {
         dbprint("SymbolTable: typesymbol with name ", name, " already exists");
         Symbol *existing = current->type_symbols.find(name)->second.get();
         throw existing;
     }
+
+    if (current == global()) {
+        sym->is_global = true;
+    }
     TypeSymbol *ret = sym.get();
-    current->type_symbols.insert({name, std::move(sym)});
+    current->type_symbols.insert_or_assign(name, std::move(sym));
 
     return ret;
 }
 
-LabelSymbol *SymbolTable::insert(std::string& name, Box<LabelSymbol> sym) const {
+LabelSymbol *SymbolTableWalker::insert(std::string& name, Box<LabelSymbol> sym) const {
     dbprint("SymbolTable: inserting labelsymbol with name \"", name, "\"");
     if (current->label_symbols.contains(name)) {
         dbprint("SymbolTable: labelsymbol with name ", name, " already exists");
         Symbol *existing = current->label_symbols.find(name)->second.get();
         throw existing;
     }
+
+    if (current == global()) {
+        sym->is_global = true;
+    }
     LabelSymbol *ret = sym.get();
-    current->label_symbols.insert({name, std::move(sym)});
+    current->label_symbols.insert_or_assign(name, std::move(sym));
 
     return ret;
 }

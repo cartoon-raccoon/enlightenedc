@@ -120,7 +120,7 @@ public:
 
     types::TypeContext& types;
 
-    sym::SymbolTable& syms;
+    sym::SymbolTableWalker syms;
 
     mir::ProgramMIR& prog_mir;
 

@@ -1049,8 +1049,6 @@ void SemanticChecker::check_semantics(Program& prog, ProgramMIR& mir) {
         throw UnableToContinue();
     }
 
-    symbols.reset();
-
     Validator validator(symbols, types);
     // validator.validate(mir);
 

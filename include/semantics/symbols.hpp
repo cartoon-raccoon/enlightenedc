@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <memory>
 #include <unordered_map>
+#include <stack>
 
 #include "ast/ast.hpp"
 #include "eval/value.hpp"
@@ -33,6 +34,7 @@ class FuncSymbol;
 class TypeSymbol;
 class LabelSymbol;
 class Scope;
+class SymbolTableWalker;
 
 /*
 The abstract symbol class.
@@ -64,8 +66,12 @@ public:
 
     /// If the symbol is public.
     bool is_public = false;
+
     /// If the symbol is static.
     bool is_static = false;
+
+    /// If the symbol is global.
+    bool is_global = false;
 
     virtual ~Symbol() = default;
 
@@ -232,7 +238,11 @@ A scope stores symbols inside a translation unit.
 */
 class Scope {
 public:
-    Scope(FuncSymbol *assoc, Scope *outer, uint64_t id) : outer(outer), assoc(assoc), id(id) {}
+    Scope(FuncSymbol *assoc, Scope *outer, uint64_t id, int idx_in_nested)
+        : outer(outer), assoc(assoc), id(id), idx_in_nested(idx_in_nested) {}
+
+    Scope(FuncSymbol *assoc, Scope *outer, uint64_t id)
+        : outer(outer), assoc(assoc), id(id) {}
 
     // the outer scope enclosing the inner scope.
     Scope *outer;
@@ -250,13 +260,18 @@ public:
 
     uint64_t id;
 
+    bool is_global() const {
+        return idx_in_nested < 0;
+    }
+
     std::string to_string() const;
 
 private:
     friend class SymbolTable;
+    friend class SymbolTableWalker;
 
     // The index of the next nested scope to enter.
-    int nested_idx = 0;
+    int idx_in_nested = -1;
 };
 
 /*
@@ -264,15 +279,41 @@ The symbol table, storing all symbols in a given translation unit.
 */
 class SymbolTable {
 public:
-    SymbolTable() : global(std::make_unique<Scope>(nullptr, nullptr, 0)), current(global.get()) {}
+    SymbolTable() : global(std::make_unique<Scope>(nullptr, nullptr, 0)) {}
 
     // The global scope.
     Box<Scope> global;
-    // The current scope.
+
+    // Clear the entire SymbolTable.
+    void clear();
+
+    std::string to_string() const;
+};
+
+/**
+A Walker for the Symbol Table.
+*/
+class SymbolTableWalker {
+    Ref<SymbolTable> st;
+
+public:
+    SymbolTableWalker(SymbolTable& st)
+        : st(st), current(st.global.get()) {}
+
+    SymbolTableWalker(const SymbolTableWalker& stw)
+        : st(stw.st), 
+        current(stw.current), 
+        next_id(stw.next_id),
+        next_scope_idx(stw.next_scope_idx),
+        prev_scope_idxs(stw.prev_scope_idxs) {}
+
+    SymbolTableWalker(const SymbolTable&& stw) = delete; // fixme: implement
+
     Scope *current;
 
-    // The ID to assign to the next scope.
-    uint64_t next_id = 1;
+    Scope *global() const {
+        return st.get().global.get();
+    }
 
     // Create and enter a new scope.
     void push_scope(FuncSymbol *assoc = nullptr);
@@ -290,36 +331,16 @@ public:
     // Reset the current scope to the global scope and first index.
     void reset();
 
-    // Reset the given scope and all nested scopes.
-    void reset_from(Scope *scope);
-
-    // Reset the current scope to the first index.
-    void reset_current() const;
-
-    // Clear the entire SymbolTable.
-    void clear();
-
     /**
     Lookup a symbol by name. Returns null of no symbol exists.
     */
     Symbol *lookup(std::string& sym, bool current = false) const;
 
-    /**
-    Lookup a symbol by name from Scope `from`. Returns null if no symbol exists.
-    */
-    Symbol *lookup(std::string& sym, Scope *from, bool current = false) const;
-
     VarSymbol *lookup_var(std::string& sym, bool current = false) const;
-
-    VarSymbol *lookup_var(std::string& sym, Scope *from, bool current = false) const;
 
     FuncSymbol *lookup_func(std::string& sym, bool current = false) const;
 
-    FuncSymbol *lookup_func(std::string& sym, Scope *from, bool current = false) const;
-
     TypeSymbol *lookup_type(std::string& sym, bool current = false) const;
-
-    TypeSymbol *lookup_type(std::string& sym, Scope *from, bool current = false) const;
 
     /*
     Look up a label from Scope `from`, up to the first function scope.
@@ -329,15 +350,6 @@ public:
     This is because labels are scoped to function scope specifically.
     */
     LabelSymbol *lookup_label(std::string& sym, bool current = false) const;
-
-    /*
-    Look up a label up to the first function scope.
-
-    Unlike other lookup functions, which continue on to global scope,
-    `lookup_label` only recurses outwards until a function boundary.
-    This is because labels are scoped to function scope specifically.
-    */
-    LabelSymbol *lookup_label(std::string& sym, Scope *from, bool current = false) const;
 
     // Associate the current scope with the given FuncSymbol `sym`.
     // If current scope is already tied to a symbol, replaces it
@@ -356,7 +368,13 @@ public:
 
     LabelSymbol *insert(std::string& name, Box<LabelSymbol> sym) const;
 
-    std::string to_string() const;
+private:
+    // The ID to assign to the next scope.
+    MonotonicCtr<uint64_t> next_id = 1;
+
+    int next_scope_idx = 0;
+
+    std::stack<int> prev_scope_idxs;
 };
 
 } // namespace ecc::sema::sym
