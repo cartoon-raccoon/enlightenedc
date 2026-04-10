@@ -403,7 +403,9 @@ public:
 
     void accept(MIRVisitor& visitor) override;
 
-    bool is_const_foldable() override { return left->is_const_foldable() && right->is_const_foldable(); }
+    bool is_const_foldable() override {
+        return left->is_const_foldable() && right->is_const_foldable();
+    }
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
 };
@@ -419,7 +421,7 @@ public:
     bool is_assignable() override { return is_lvalue(); }
 
     bool is_lvalue() override { return op == tokens::UnaryOp::DEREF; };
-    
+
     bool is_const_foldable() override { return operand->is_const_foldable(); }
 
     void accept(MIRVisitor& visitor) override;
@@ -439,7 +441,7 @@ public:
     bool is_assignable() override { return false; }
 
     bool is_lvalue() override { return false; }
-    
+
     bool is_const_foldable() override { return inner->is_const_foldable(); }
 
     void accept(MIRVisitor& visitor) override;
@@ -457,7 +459,7 @@ public:
     Box<ExprMIR> left;
     Box<ExprMIR> right;
     tokens::AssignOp op;
-    
+
     bool is_const_foldable() override { return false; }
 
     void accept(MIRVisitor& visitor) override;
@@ -478,14 +480,12 @@ public:
 
     bool is_lvalue() override { return false; }
 
-    bool is_const_foldable() override { 
-        return condition->is_const_foldable() &&
-               true_expr->is_const_foldable() &&
-               false_expr->is_const_foldable(); 
+    bool is_const_foldable() override {
+        return condition->is_const_foldable() && true_expr->is_const_foldable() &&
+               false_expr->is_const_foldable();
     }
 
     void accept(MIRVisitor& visitor) override;
-
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
 };
@@ -546,7 +546,6 @@ public:
     bool is_const_foldable() override { return true; }
 
     void accept(MIRVisitor& visitor) override;
-
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
 };

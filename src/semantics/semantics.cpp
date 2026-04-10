@@ -6,6 +6,7 @@
 #include "ast/ast.hpp"
 #include "error.hpp"
 #include "semantics/mir/mir.hpp"
+#include "semantics/mir/optimizations/constfold.hpp"
 #include "semantics/mir/synthesizer.hpp"
 #include "semantics/typeerr.hpp"
 #include "semantics/validator.hpp"
@@ -14,6 +15,7 @@
 using namespace ecc::ast;
 using namespace ecc::sema;
 using namespace mir;
+using namespace ecc::opti;
 
 int BaseASTSemaVisitor::in_node(ASTNode::NodeKind kind) {
     int ret = 0;
@@ -1048,6 +1050,10 @@ void SemanticChecker::check_semantics(Program& prog, ProgramMIR& mir) {
         }
         throw UnableToContinue();
     }
+
+    // perform constant folding
+    ConstantFolder constfold(symbols, types);
+    mir.accept(constfold);
 
     Validator validator(symbols, types);
     // validator.validate(mir);

@@ -553,9 +553,8 @@ void LIRSynthesizer::do_visit(CondExprMIR& node) {
     node.false_expr->accept(*this);
     Box<ExprLIR> false_val = std::move(last_expr);
 
-    Box<ExprLIR> expr =
-        std::make_unique<CondExprLIR>(
-            node.loc, node.type, std::move(condition), std::move(true_val), std::move(false_val));
+    Box<ExprLIR> expr = std::make_unique<CondExprLIR>(node.loc, node.type, std::move(condition),
+                                                      std::move(true_val), std::move(false_val));
 
     last_expr = std::move(expr);
 }

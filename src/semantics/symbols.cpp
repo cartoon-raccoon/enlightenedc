@@ -68,7 +68,6 @@ void SymbolTableWalker::push_scope(FuncSymbol *assoc) {
     the new one
     */
 
-
     Box<Scope> newscope = std::make_unique<Scope>(assoc, current, *next_id, next_scope_idx);
     next_id++;
 

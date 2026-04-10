@@ -30,10 +30,9 @@ template <typename T, typename... Args> void dbprint(T msg, Args&&...args) {
         visitor.visit(*this);                            \
     }
 
-#define VISIT_NO_IMPL(_node) /* NOLINT */ \
-    void visit(_node& node) override { /*NOLINT */ \
-        throw std::runtime_error( \
-            "visit() was not implemented for the current visitable node"); \
+#define VISIT_NO_IMPL(_node)           /* NOLINT */                                             \
+    void visit(_node& node) override { /*NOLINT */                                              \
+        throw std::runtime_error("visit() was not implemented for the current visitable node"); \
     }
 
 constexpr std::size_t BOOST_GOLDEN_RATIO = 0x9e3779b9;
@@ -252,49 +251,31 @@ concept VariantMember = is_variant_member<T, Variant>::value;
 A counter that keeps increasing.
 */
 template <typename I>
-requires std::is_integral_v<I>
+    requires std::is_integral_v<I>
 class MonotonicCtr {
     I val;
+
 public:
     MonotonicCtr(I val) : val(val) {}
     MonotonicCtr(const MonotonicCtr<I>& c) : val(c.val) {}
 
-    I value() const {
-        return val;
-    }
+    I value() const { return val; }
 
-    void inc() {
-        val++;
-    }
+    void inc() { val++; }
 
-    I operator*() {
-        return val;
-    }
+    I operator*() { return val; }
 
-    I operator++() {
-        return val++;
-    }
+    I operator++() { return val++; }
 
-    I operator++(int) {
-        return ++val;
-    }
+    I operator++(int) { return ++val; }
 
-    bool operator== (const MonotonicCtr<I>& other) {
-        return val == other.val;
-    }
+    bool operator==(const MonotonicCtr<I>& other) { return val == other.val; }
 
-    bool operator== (const I& other) {
-        return val == other;
-    }
+    bool operator==(const I& other) { return val == other; }
 
-    bool operator< (const MonotonicCtr<I>& other) {
-        return val < other.val;
-    }
+    bool operator<(const MonotonicCtr<I>& other) { return val < other.val; }
 
-    bool operator> (const I& other) {
-        return val < other;
-    }
-
+    bool operator>(const I& other) { return val < other; }
 };
 
 class NoCopy { // NOLINT(cppcoreguidelines-special-member-functions)

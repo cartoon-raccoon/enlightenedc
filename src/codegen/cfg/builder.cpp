@@ -1,5 +1,6 @@
-#include "codegen/cfg/cfg.hpp"
 #include "codegen/cfg/builder.hpp"
+
+#include "codegen/cfg/cfg.hpp"
 #include "codegen/lir/lir.hpp"
 
 using namespace codegen::lir;
@@ -20,11 +21,9 @@ NestedStmtInfo *CFGBuilder::find_info(NestedStmtFilter& filter) {
 }
 
 void CFGBuilder::visit(ProgramLIR& node) {
-
 }
 
 void CFGBuilder::visit(FunctionLIR& node) {
-
 }
 
 void CFGBuilder::visit(LabelDeclLIR& node) {
@@ -64,7 +63,6 @@ void CFGBuilder::visit(ExprStmtLIR& node) {
     */
 
     if (current_block->has_terminator()) {
-
     }
     current_block->add_element(&node);
 }
@@ -77,7 +75,6 @@ void CFGBuilder::visit(PrintStmtLIR& node) {
     2. insert
     */
     if (current_block->has_terminator()) {
-        
     }
     current_block->add_element(&node);
 }
@@ -142,7 +139,7 @@ void CFGBuilder::visit(IfStmtLIR& node) {
     /*
     1. create if terminator `t`; terminate current block with it
     2. create new block (outside of function) as merge block
-    3. create new block as then block; 
+    3. create new block as then block;
     4. create IfStmtInfo and push it to the infostack
     5. iterate over items in then_br; accept each
     6. if there is an else node, repeat 3-5 for else_br
@@ -169,6 +166,4 @@ void CFGBuilder::visit(LoopStmtLIR& node) {
 }
 
 void CFGBuilder::visit(ReturnStmtLIR& node) {
-
 }
-

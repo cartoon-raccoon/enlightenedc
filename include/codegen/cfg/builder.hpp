@@ -3,9 +3,9 @@
 #ifndef ECC_CFG_BUILDER_H
 #define ECC_CFG_BUILDER_H
 
+#include "codegen/cfg/cfg.hpp"
 #include "codegen/lir/lir.hpp"
 #include "codegen/lir/visitor.hpp"
-#include "codegen/cfg/cfg.hpp"
 #include "util.hpp"
 
 using namespace ecc;
@@ -28,8 +28,7 @@ public:
         LOOP,
     };
 
-    NestedStmtInfo(Kind kind, BasicBlock *merge)
-        : kind(kind), merge(merge) {}
+    NestedStmtInfo(Kind kind, BasicBlock *merge) : kind(kind), merge(merge) {}
     virtual ~NestedStmtInfo() = default;
 
     Kind kind;
@@ -75,13 +74,13 @@ Class that builds
 class CFGBuilder : public lir::LIRVisitor {
 public:
     CFGBuilder(ProgramCFG& prog_cfg) : prog_cfg(prog_cfg) {}
-    
+
     void build_cfg(lir::ProgramLIR& prog);
-    
+
 protected:
     BasicBlock *current_block = nullptr;
 
-    using NestedStmtFilter = std::function<bool (NestedStmtInfo *)>;
+    using NestedStmtFilter = std::function<bool(NestedStmtInfo *)>;
 
     NestedStmtInfo *find_info(NestedStmtFilter& filter);
 
@@ -121,6 +120,6 @@ private:
     MonotonicCtr<uint64_t> ctr = 1;
 };
 
-}
+} // namespace ecc::codegen::cfg
 
 #endif

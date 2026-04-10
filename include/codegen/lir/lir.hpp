@@ -86,7 +86,7 @@ public:
     virtual LabelLIR *as_decl() { return nullptr; }
     virtual StmtLIR *as_stmt() { return nullptr; }
 
-    //virtual Box<ProgItemLIRStream> progitem_stream();
+    // virtual Box<ProgItemLIRStream> progitem_stream();
 };
 
 class LabelLIR : public ProgItemLIR {
@@ -100,13 +100,12 @@ public:
 class StmtLIR : public ProgItemLIR {
 public:
     enum class StmtKind : uint8_t {
-        // A terminal statement ends a 
+        // A terminal statement ends a
         TERMINAL,
         NONTERMINAL,
     };
 
-    StmtLIR(NodeKind kind, StmtKind stkind)
-        : ProgItemLIR(kind), stkind(stkind) {}
+    StmtLIR(NodeKind kind, StmtKind stkind) : ProgItemLIR(kind), stkind(stkind) {}
     StmtLIR(Location loc, NodeKind kind, StmtKind stkind)
         : ProgItemLIR(loc, kind), stkind(stkind) {}
 
@@ -151,8 +150,8 @@ public:
 class FunctionLIR : public LIRNode {
 public:
     FunctionLIR(Location loc, std::string mangled, std::string name, LIRFuncSym *func)
-        : LIRNode(loc, NodeKind::FUNC_LIR), mangled_name(std::move(mangled)),
-          name(std::move(name)), lirsym(func) {}
+        : LIRNode(loc, NodeKind::FUNC_LIR), mangled_name(std::move(mangled)), name(std::move(name)),
+          lirsym(func) {}
 
     std::string mangled_name;
     std::string name;
@@ -358,13 +357,11 @@ public:
 
 class CondExprLIR : public ExprLIR {
 public:
-    CondExprLIR(Location loc, sema::types::Type *type, 
-                Box<ExprLIR> cond, Box<ExprLIR> true_val, Box<ExprLIR> false_val)
-        : ExprLIR(loc, NodeKind::CONDEXPR_LIR, type),
-        condition(std::move(cond)),
-        true_value(std::move(true_val)),
-        false_value(std::move(false_val)) {}
-    
+    CondExprLIR(Location loc, sema::types::Type *type, Box<ExprLIR> cond, Box<ExprLIR> true_val,
+                Box<ExprLIR> false_val)
+        : ExprLIR(loc, NodeKind::CONDEXPR_LIR, type), condition(std::move(cond)),
+          true_value(std::move(true_val)), false_value(std::move(false_val)) {}
+
     Box<ExprLIR> condition;
     Box<ExprLIR> true_value;
     Box<ExprLIR> false_value;

@@ -29,8 +29,7 @@ public:
         SWITCH,
     };
 
-    Terminator(Kind kind, BasicBlock *terminating) 
-        : kind(kind), terminating_blk(terminating) {}
+    Terminator(Kind kind, BasicBlock *terminating) : kind(kind), terminating_blk(terminating) {}
     virtual ~Terminator() = default;
 
     Kind kind;
@@ -72,8 +71,7 @@ public:
 
 class SwitchCase {
 public:
-    SwitchCase(eval::Value val, BasicBlock *blk)
-        : case_val(std::move(val)), blk(blk) {}
+    SwitchCase(eval::Value val, BasicBlock *blk) : case_val(std::move(val)), blk(blk) {}
 
     SwitchCase(BasicBlock *blk) : blk(blk) {}
 
@@ -87,17 +85,11 @@ class Switch : public Terminator {
 public:
     Switch(BasicBlock *termng) : Terminator(Kind::SWITCH, termng) {}
 
-    void add_case(eval::Value val, BasicBlock *blk) {
-        cases.emplace_back(std::move(val), blk);
-    }
+    void add_case(eval::Value val, BasicBlock *blk) { cases.emplace_back(std::move(val), blk); }
 
-    void add_default(BasicBlock *blk) {
-        cases.emplace_back(blk);
-    }
+    void add_default(BasicBlock *blk) { cases.emplace_back(blk); }
 
-    size_t num_cases() const {
-        return cases.size();
-    }
+    size_t num_cases() const { return cases.size(); }
 
     Vec<SwitchCase> cases;
 
@@ -110,19 +102,14 @@ public:
 
     static Box<BasicBlock> entry(std::string& func_name);
 
-    void set_terminator(Box<Terminator> term) {
-        term = std::move(term);
-    }
+    void set_terminator(Box<Terminator> term) { term = std::move(term); }
 
     bool has_terminator() { return term != nullptr; }
 
-    void add_element(lir::NonTerminalLIR *elem) {
-        elements.push_back(elem);
-    }
+    void add_element(lir::NonTerminalLIR *elem) { elements.push_back(elem); }
 
 private:
-
-    bool is_entry = false;
+    bool is_entry        = false;
     bool is_part_of_loop = false;
 
     std::string label;
@@ -141,9 +128,7 @@ public:
 
     BasicBlock *create_block(std::string& label);
 
-    void append_block(Box<BasicBlock> block) {
-        blocks.push_back(std::move(block));
-    }
+    void append_block(Box<BasicBlock> block) { blocks.push_back(std::move(block)); }
 
     BasicBlock *lookup_block();
 
