@@ -142,7 +142,7 @@ void Validator::do_visit(CaseRangeStmtMIR& node) {
     node.stmt->accept(*this);
 }
 
-void Validator::do_visit(DefaultStmtMIR& node) {
+void Validator::do_visit(DefaultStmtMIR& node) { // done
     // check that we are in switch
     if (in_node(MIRNode::NodeKind::SWITCHSTMT_MIR) < 0) {
         throw InvalidCaseError(node.loc);
@@ -168,7 +168,7 @@ void Validator::do_visit(GotoStmtMIR& node) {
     // check to make sure the label is in (function) scope
 }
 
-void Validator::do_visit(BreakStmtMIR& node) {
+void Validator::do_visit(BreakStmtMIR& node) { // done
     // check that we are in a loop or switch
     if (in_node(MIRNode::NodeKind::SWITCHSTMT_MIR) < 0 ||
         in_node(MIRNode::NodeKind::LOOPSTMT_MIR) < 0) {
@@ -176,7 +176,7 @@ void Validator::do_visit(BreakStmtMIR& node) {
     }
 }
 
-void Validator::do_visit(ContStmtMIR& node) {
+void Validator::do_visit(ContStmtMIR& node) { // done
     // check that we are in a loop
     if (in_node(MIRNode::NodeKind::LOOPSTMT_MIR) < 0) {
         throw InvalidContError(node.loc);
@@ -197,7 +197,7 @@ void Validator::do_visit(ReturnStmtMIR& node) {
     if (!func) {
     }
 
-    // check return types
+    // todo: check return types
 }
 
 void Validator::do_visit(BinaryExprMIR& node) {

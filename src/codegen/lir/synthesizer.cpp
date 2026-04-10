@@ -91,7 +91,7 @@ void LIRSynthesizer::do_visit(FunctionMIR& node) {
 
     node.body->accept(*this);
 
-    Box<FunctionLIR> this_func = make_box<FunctionLIR>(node.loc, mangled, name);
+    Box<FunctionLIR> this_func = make_box<FunctionLIR>(node.loc, mangled, name, funcptr);
 
     Vec<Box<FunctionLIR>> functions;
 
@@ -196,15 +196,6 @@ void LIRSynthesizer::do_visit(SwitchStmtMIR& node) {
                            decls.push_back(std::move(decl));
                        },
                        [&this_stmt](Box<ProgItemLIR>& item) {
-                           // pull any switch targets we might have and insert
-
-                           StmtLIR *stmt = item->as_stmt();
-                           if (stmt) {
-                               Vec<SwitchTarget *> targets = stmt->pull_switch_targets();
-                               this_stmt->targets.insert(this_stmt->targets.end(), targets.begin(),
-                                                         targets.end());
-                           }
-
                            // push the stmt into our body
                            this_stmt->body.push_back(std::move(item));
                        },
