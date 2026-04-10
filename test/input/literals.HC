@@ -10,4 +10,5 @@ U8i ch = 'A';
 U8i nl = '\n';
 U8i qt = '\"';
 
-"Values:\n", a, b, c, d, f1, f2;
+"%d %d %d %d\n", a, b, c, d;
+"%f %f\n", f1, f2;

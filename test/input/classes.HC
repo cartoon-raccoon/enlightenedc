@@ -74,4 +74,6 @@ val->u.ch = 23;
 
 class VTable vtable;
 
+"%d\n", val->u.ch;
+
 vtable->dispatcher(69);

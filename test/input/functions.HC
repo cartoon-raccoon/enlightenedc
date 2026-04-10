@@ -41,6 +41,8 @@ Point *compute_point(class Point *p, I32i dx, I32i dy) {
 
 compute(10, 4, "this", true);
 
+"%d\n", compute(2,3);
+
 Void noop() {
     return;
 }

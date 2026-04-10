@@ -18,7 +18,7 @@
 #include <iostream>
 
 template <typename... Args> void dbprint(Args&&...args) {
-    (std::cout << ... << std::forward<Args>(args)) << "\n";
+    (std::cerr << ... << std::forward<Args>(args)) << "\n";
 }
 #else
 template <typename T, typename... Args> void dbprint(T msg, Args&&...args) {

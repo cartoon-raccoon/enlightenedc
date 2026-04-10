@@ -31,5 +31,10 @@ I32i run() {
     n.value = 5;
     p->value++;
 
-    return apply(square, n.value);
+    I32i result = apply(square, n.value);
+    "%d\n", result; // expect 36
+
+    return result;
 }
+
+run();
