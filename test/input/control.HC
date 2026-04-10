@@ -9,11 +9,15 @@ if (n < 10) {
     n += 2;
 }
 
+"%d\n", n;
+
 switch (n) {
     case 1:
+        "case1\n";
         break;
     case 2 ... 5:
         n += 2;
+        "%d\n", n;
         U32i i = 0;
         break;
     default:
@@ -23,12 +27,19 @@ switch (n) {
 while (n > 0)
     n--;
 
+"%d\n", n;
+
 do {
     n++;
 } while (n < 3);
 
-for (U32i n = 0; n < 5; n++) "hello";
+"%d\n", n;
 
-for (;;) "looping forever";
+for (U32i n = 0; n < 3; n++) "%d\n", n;
 
-for (n = 0; n < 5; n++) "hello";
+for (;;) {
+    "loop_once\n";
+    break;
+}
+
+for (n = 0; n < 3; n++) "%d\n", n;
