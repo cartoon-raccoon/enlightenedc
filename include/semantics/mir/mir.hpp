@@ -481,8 +481,9 @@ public:
     bool is_lvalue() override { return false; }
 
     bool is_const_foldable() override {
-        return condition->is_const_foldable() && true_expr->is_const_foldable() &&
-               false_expr->is_const_foldable();
+        // if condition is const_foldable, we can eliminate one branch
+        // so even if both branches are not const foldable, we can still optimize
+        return condition->is_const_foldable();
     }
 
     void accept(MIRVisitor& visitor) override;
