@@ -222,33 +222,32 @@ void MIRSynthesizer::do_visit(Function& node) {
 
     while (!builder->ty_bldr.type_stack.empty()) {
         auto next_cstrctr = builder->ty_bldr.type_stack.top();
-        std::visit(
-            match{[&](TypeBuilder::Arr& arr) mutable {
-                      // Wrap the base in an array.
-                      if (arr.size) {
-                          curr = builder->ty_bldr.ctxt().get_array(curr, *arr.size);
-                      } else {
-                          curr = builder->ty_bldr.ctxt().get_array(curr);
-                      }
-                  },
-                  [&](TypeBuilder::Ptr& ptr) mutable {
-                      // Wrap the base in a pointer.
-                      curr = builder->ty_bldr.ctxt().get_pointer(curr, ptr.is_const);
-                  },
-                  [&](TypeBuilder::FnParams& fn) mutable {
-                      // map out the identifiers.
-                      Vec<Type *> params;
-                      params.reserve(fn.params.size());
-                      for (auto& param : fn.params) {
-                          params.push_back(param.type);
-                      }
+        std::visit(match{[&](TypeBuilder::Arr& arr) mutable {
+                             // Wrap the base in an array.
+                             if (arr.size) {
+                                 curr = builder->ty_bldr.ctxt().get_array(curr, *arr.size);
+                             } else {
+                                 curr = builder->ty_bldr.ctxt().get_array(curr);
+                             }
+                         },
+                         [&](TypeBuilder::Ptr& ptr) mutable {
+                             // Wrap the base in a pointer.
+                             curr = builder->ty_bldr.ctxt().get_pointer(curr, ptr.is_const);
+                         },
+                         [&](TypeBuilder::FnParams& fn) mutable {
+                             // map out the identifiers.
+                             Vec<Type *> params;
+                             params.reserve(fn.params.size());
+                             for (auto& param : fn.params) {
+                                 params.push_back(param.type);
+                             }
 
-                      last_func_params = std::move(fn.params);
-                      // Wrap the base as the return type in a function type.
-                      curr = builder->ty_bldr.ctxt().get_function(fn.loc, curr, std::move(params),
-                                                                  fn.variadic);
-                  }},
-            next_cstrctr);
+                             last_func_params = std::move(fn.params);
+                             // Wrap the base as the return type in a function type.
+                             curr = builder->ty_bldr.ctxt().get_function(
+                                 fn.loc, curr, std::move(params), fn.variadic);
+                         }},
+                   next_cstrctr);
 
         // Pop the stack to the next constructor
         builder->ty_bldr.type_stack.pop();
@@ -1078,18 +1077,15 @@ void MIRSynthesizer::do_visit(CompoundStatement& node) {
     for (auto& item : node.items) {
         dv_call(std::monostate{}, item);
         std::visit(
-            match{
-                [&](Box<DeclMIR>& decl) mutable { progitems.push_back(std::move(decl)); },
-                [&](Box<StmtMIR>& stmt) mutable { progitems.push_back(std::move(stmt)); },
-                [&](Box<FunctionMIR>& func) mutable {
-                    progitems.push_back(std::move(func));
-                },
-                [](std::monostate& mono) {
-                    // ignore and continue
-                },
-                [](auto& err) {
-                    throw std::runtime_error("unexpected type while parsing program items");
-                }},
+            match{[&](Box<DeclMIR>& decl) mutable { progitems.push_back(std::move(decl)); },
+                  [&](Box<StmtMIR>& stmt) mutable { progitems.push_back(std::move(stmt)); },
+                  [&](Box<FunctionMIR>& func) mutable { progitems.push_back(std::move(func)); },
+                  [](std::monostate& mono) {
+                      // ignore and continue
+                  },
+                  [](auto& err) {
+                      throw std::runtime_error("unexpected type while parsing program items");
+                  }},
             last_result);
         last_result = std::monostate{};
     }

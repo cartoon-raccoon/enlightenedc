@@ -7,7 +7,7 @@ using namespace ecc::eval;
 using namespace ecc::sema::mir;
 
 Box<LiteralExprMIR> ConstantFolder::eval_and_expr(Box<ExprMIR>& expr, Location loc) {
-    
+
     if (expr->kind == MIRNode::NodeKind::CONDEXPR_MIR) {
         // todo: implement checking for cond exprs
         // cast expr to CondExprMIR, eliminate branch
@@ -62,7 +62,7 @@ void ConstantFolder::do_visit(CastExprMIR& node) {
 
 void ConstantFolder::do_visit(CondExprMIR& node) {
     // fixme:
-    // if condition is foldable, but children are not, it can be still be 
+    // if condition is foldable, but children are not, it can be still be
     // optimized by returning the branch that gets chosen every time
     if (node.condition->is_const_foldable()) {
         node.condition = eval_and_expr(node.condition, node.condition->loc);

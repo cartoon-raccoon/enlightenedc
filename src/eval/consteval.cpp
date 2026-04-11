@@ -26,7 +26,7 @@ Value ConstEvaluator::eval(ConstExprMIR& expr) {
 Value ConstEvaluator::eval(BinaryExprMIR& expr) {
     using namespace ecc::tokens;
 
-    Value left = expr.left->eval(*this);
+    Value left  = expr.left->eval(*this);
     Value right = expr.right->eval(*this);
 
     switch (expr.op) {
@@ -64,7 +64,7 @@ Value ConstEvaluator::eval(BinaryExprMIR& expr) {
     case BinaryOp::XOR:
         return left ^ right;
     case BinaryOp::LSHIFT: // todo
-    
+
     case BinaryOp::RSHIFT:
         todo();
     case BinaryOp::BINCOMMA:
@@ -76,11 +76,11 @@ Value ConstEvaluator::eval(BinaryExprMIR& expr) {
 }
 
 Value ConstEvaluator::eval(CastExprMIR& expr) {
-    Value val = expr.inner->eval(*this);
-    auto* target = expr.target;
-    
+    Value val    = expr.inner->eval(*this);
+    auto *target = expr.target;
+
     using namespace ecc::sema::types;
-    if (auto* prim = target->as_primitive()) {
+    if (auto *prim = target->as_primitive()) {
         switch (prim->primkind) {
         case ecc::tokens::PrimType::BOOL:
             return Value(static_cast<bool>(val));
@@ -154,8 +154,7 @@ Value ConstEvaluator::eval(UnaryExprMIR& expr) {
 
     case UnaryOp::REF:
     case UnaryOp::DEREF:
-        throw_eval_error(
-            "Pointer operations not allowed in constant expressions", expr);
+        throw_eval_error("Pointer operations not allowed in constant expressions", expr);
 
     default:
         throw_eval_error("unsupported unary operator", expr);
@@ -225,37 +224,34 @@ Value ConstEvaluator::eval(PostfixExprMIR& expr) {
 Value ConstEvaluator::eval(SizeofExprMIR& expr) {
     using namespace sema::types;
 
-    Type* target_type = nullptr;
+    Type *target_type = nullptr;
 
-    std::visit(
-        util::match{
-            [&](Box<ExprMIR>& e) {
-                if (!e->type) {
-                    throw_eval_error("sizeof expression has no type", expr);
-                }
+    std::visit(util::match{[&](Box<ExprMIR>& e) {
+                               if (!e->type) {
+                                   throw_eval_error("sizeof expression has no type", expr);
+                               }
 
-                target_type = e->type;
-                if (target_type->is_function()) {
-                    target_type = 
-                        typectxt.get().get_pointer(target_type, false);
-                }
-            },
+                               target_type = e->type;
+                               if (target_type->is_function()) {
+                                   target_type = typectxt.get().get_pointer(target_type, false);
+                               }
+                           },
 
-            [&](Type* t) {
-                if (!t) {
-                    throw_eval_error("sizeof received null type", expr);
-                }
+                           [&](Type *t) {
+                               if (!t) {
+                                   throw_eval_error("sizeof received null type", expr);
+                               }
 
-                if (t->is_function()) {
-                    throw_eval_error(
-                        "sizeof cannot be applied to function types", expr);
-                }
+                               if (t->is_function()) {
+                                   throw_eval_error("sizeof cannot be applied to function types",
+                                                    expr);
+                               }
 
-                target_type = t;
-            }
+                               target_type = t;
+                           }
 
-        },
-        expr.operand);
+               },
+               expr.operand);
 
     if (!target_type) {
         throw_eval_error("invalid sizeof operand", expr);
