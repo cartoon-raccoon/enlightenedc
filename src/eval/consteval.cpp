@@ -24,58 +24,141 @@ Value ConstEvaluator::eval(ConstExprMIR& expr) {
 }
 
 Value ConstEvaluator::eval(BinaryExprMIR& expr) {
-    Value left  = expr.left->eval(*this);
-    Value right = expr.right->eval(*this);
+    using namespace ecc::tokens;
 
     switch (expr.op) {
-    case ecc::tokens::BinaryOp::PLUS:
-        return left + right;
-        break;
 
-    case ecc::tokens::BinaryOp::MINUS:
-        return left - right;
-        break;
+    case BinaryOp::OROR: {
+        Value left = expr.left->eval(*this);
+        if (left)
+            return Value(true);
+        return Value(static_cast<bool>(expr.right->eval(*this)));
+    }
 
-    case ecc::tokens::BinaryOp::MUL:
-        return left * right;
-        break;
-
-    case ecc::tokens::BinaryOp::DIV:
-        return left / right;
-        break;
-
-    case ecc::tokens::BinaryOp::EQ:
-        return left == right;
-        break;
-
-    case ecc::tokens::BinaryOp::OROR:
-        return left || right;
-        break;
-
-    case ecc::tokens::BinaryOp::ANDAND:
-        return left && right;
-        break;
-
-    case ecc::tokens::BinaryOp::OR:
-        return left | right;
-        break;
-
-    case ecc::tokens::BinaryOp::AND:
-        return left & right;
-        break;
+    case BinaryOp::ANDAND: {
+        Value left = expr.left->eval(*this);
+        if (!left)
+            return Value(false);
+        return Value(static_cast<bool>(expr.right->eval(*this)));
+    }
 
     default:
-        throw_eval_error("Unsupported binary operator", expr);
         break;
     }
 
-    throw_eval_error("Unsupported binary operation", expr);
+    Value left = expr.left->eval(*this);
+    Value right = expr.right->eval(*this);
+
+    switch (expr.op) {
+    case BinaryOp::PLUS:
+        return left + right;
+    case BinaryOp::MINUS:
+        return left - right;
+    case BinaryOp::MUL:
+        return left * right;
+    case BinaryOp::DIV:
+        return left / right;
+
+    case BinaryOp::MOD: {
+        if (left.is<long>() && right.is<long>()) {
+            return Value(std::get<long>(left.inner) %
+                         std::get<long>(right.inner));
+        }
+        throw_eval_error("Modulo requires integer operands", expr);
+    }
+
+    case BinaryOp::EQ:
+        return left == right;
+    case BinaryOp::NE:
+        return left != right;
+
+    case BinaryOp::LT:
+        return left < right;
+    case BinaryOp::GT:
+        return left > right;
+    case BinaryOp::LE:
+        return left <= right;
+    case BinaryOp::GE:
+        return left >= right;
+
+    case BinaryOp::OR:
+        return left | right;
+    case BinaryOp::AND:
+        return left & right;
+    case BinaryOp::XOR:
+        return left ^ right;
+
+    case BinaryOp::LSHIFT: {
+        if (left.is<long>() && right.is<long>()) {
+            return Value(std::get<long>(left.inner)
+                         << std::get<long>(right.inner));
+        }
+        throw_eval_error("Shift requires integer operands", expr);
+    }
+
+    case BinaryOp::RSHIFT: {
+        if (left.is<long>() && right.is<long>()) {
+            return Value(std::get<long>(left.inner) >>
+                         std::get<long>(right.inner));
+        }
+        throw_eval_error("Shift requires integer operands", expr);
+    }
+
+    case BinaryOp::BINCOMMA:
+        return right;
+
+    default:
+        throw_eval_error("Unsupported binary operator", expr);
+    }
 }
 
 Value ConstEvaluator::eval(CastExprMIR& expr) {
     Value val = expr.inner->eval(*this);
+    auto* target = expr.target;
+    
+    using namespace ecc::sema::types;
+    if (auto* prim = target->as_primitive()) {
+        switch (prim->primkind) {
+        case ecc::tokens::PrimType::BOOL:
+            return Value(static_cast<bool>(val));
 
-    return val; // todo
+        case ecc::tokens::PrimType::F64: {
+            if (val.is<double>())
+                return val;
+            if (val.is<long>())
+                return Value((double)*val.value_as<long>());
+            if (val.is<char>())
+                return Value((double)*val.value_as<char>());
+            if (val.is<bool>())
+                return Value((double)*val.value_as<bool>());
+            break;
+        }
+
+        default: {
+            if (val.is<long>())
+                return val;
+            if (val.is<char>())
+                return Value((long)*val.value_as<char>());
+            if (val.is<bool>())
+                return Value((long)*val.value_as<bool>());
+            if (val.is<double>())
+                return Value((long)*val.value_as<double>());
+            break;
+        }
+        }
+
+        throw_eval_error("Invalid primitive cast", expr);
+    }
+
+    if (target->as_enum()) {
+        if (val.is<long>())
+            return val;
+        if (val.is<char>())
+            return Value((long)*val.value_as<char>());
+        throw_eval_error("Invalid enum cast", expr);
+    }
+
+    throw_eval_error("Unsupported cast in constant expression", expr);
 }
 
 Value ConstEvaluator::eval(UnaryExprMIR& expr) {
@@ -101,6 +184,14 @@ Value ConstEvaluator::eval(UnaryExprMIR& expr) {
     case ecc::tokens::UnaryOp::TILDE:
         return ~operand;
         break;
+
+    case UnaryOp::POS:
+        return operand;
+
+    case UnaryOp::REF:
+    case UnaryOp::DEREF:
+        throw_eval_error(
+            "Pointer operations not allowed in constant expressions", expr);
 
     default:
         throw_eval_error("unsupported unary operator", expr);
@@ -168,9 +259,47 @@ Value ConstEvaluator::eval(PostfixExprMIR& expr) {
 }
 
 Value ConstEvaluator::eval(SizeofExprMIR& expr) {
-    // match on inner
-    // if type is function, return pointer instead
-    throw_eval_error("invalid sizeof operand", expr); // fixme
+    using namespace sema::types;
+
+    Type* target_type = nullptr;
+
+    std::visit(
+        util::match{
+            [&](Box<ExprMIR>& e) {
+                if (!e->type) {
+                    throw_eval_error("sizeof expression has no type", expr);
+                }
+
+                target_type = e->type;
+                if (target_type->is_function()) {
+                    target_type = 
+                        target_type->ctxt().get_pointer(target_type, false);
+                }
+            },
+
+            [&](Type* t) {
+                if (!t) {
+                    throw_eval_error("sizeof received null type", expr);
+                }
+
+                if (t->is_function()) {
+                    throw_eval_error(
+                        "sizeof cannot be applied to function types", expr);
+                }
+
+                target_type = t;
+            }
+
+        },
+        expr.operand);
+
+    if (!target_type) {
+        throw_eval_error("invalid sizeof operand", expr);
+    }
+
+    size_t size = target_type->alloc_size();
+
+    return Value((long)size);
 }
 
 } // namespace ecc::eval
