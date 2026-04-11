@@ -26,30 +26,15 @@ Value ConstEvaluator::eval(ConstExprMIR& expr) {
 Value ConstEvaluator::eval(BinaryExprMIR& expr) {
     using namespace ecc::tokens;
 
-    switch (expr.op) {
-
-    case BinaryOp::OROR: {
-        Value left = expr.left->eval(*this);
-        if (left)
-            return Value(true);
-        return Value(static_cast<bool>(expr.right->eval(*this)));
-    }
-
-    case BinaryOp::ANDAND: {
-        Value left = expr.left->eval(*this);
-        if (!left)
-            return Value(false);
-        return Value(static_cast<bool>(expr.right->eval(*this)));
-    }
-
-    default:
-        break;
-    }
-
     Value left = expr.left->eval(*this);
     Value right = expr.right->eval(*this);
 
     switch (expr.op) {
+
+    case BinaryOp::OROR:
+        return left || right;
+    case BinaryOp::ANDAND:
+        return left && right;
     case BinaryOp::PLUS:
         return left + right;
     case BinaryOp::MINUS:
@@ -58,20 +43,12 @@ Value ConstEvaluator::eval(BinaryExprMIR& expr) {
         return left * right;
     case BinaryOp::DIV:
         return left / right;
-
-    case BinaryOp::MOD: {
-        if (left.is<long>() && right.is<long>()) {
-            return Value(std::get<long>(left.inner) %
-                         std::get<long>(right.inner));
-        }
-        throw_eval_error("Modulo requires integer operands", expr);
-    }
-
+    case BinaryOp::MOD:
+        todo();
     case BinaryOp::EQ:
         return left == right;
     case BinaryOp::NE:
         return left != right;
-
     case BinaryOp::LT:
         return left < right;
     case BinaryOp::GT:
@@ -80,35 +57,21 @@ Value ConstEvaluator::eval(BinaryExprMIR& expr) {
         return left <= right;
     case BinaryOp::GE:
         return left >= right;
-
     case BinaryOp::OR:
         return left | right;
     case BinaryOp::AND:
         return left & right;
     case BinaryOp::XOR:
         return left ^ right;
-
-    case BinaryOp::LSHIFT: {
-        if (left.is<long>() && right.is<long>()) {
-            return Value(std::get<long>(left.inner)
-                         << std::get<long>(right.inner));
-        }
-        throw_eval_error("Shift requires integer operands", expr);
-    }
-
-    case BinaryOp::RSHIFT: {
-        if (left.is<long>() && right.is<long>()) {
-            return Value(std::get<long>(left.inner) >>
-                         std::get<long>(right.inner));
-        }
-        throw_eval_error("Shift requires integer operands", expr);
-    }
-
+    case BinaryOp::LSHIFT: // todo
+    
+    case BinaryOp::RSHIFT:
+        todo();
     case BinaryOp::BINCOMMA:
         return right;
 
     default:
-        throw_eval_error("Unsupported binary operator", expr);
+        throw InvalidCompileTimeEval("unsupported binary operator", expr.loc);
     }
 }
 
@@ -162,22 +125,23 @@ Value ConstEvaluator::eval(CastExprMIR& expr) {
 }
 
 Value ConstEvaluator::eval(UnaryExprMIR& expr) {
+    using namespace ecc::tokens;
     Value operand = expr.operand->eval(*this);
 
     switch (expr.op) {
-    case ecc::tokens::UnaryOp::INC:
+    case UnaryOp::INC:
         return ++operand;
         break;
 
-    case ecc::tokens::UnaryOp::DEC:
+    case UnaryOp::DEC:
         return --operand;
         break;
 
-    case ecc::tokens::UnaryOp::NOT:
+    case UnaryOp::NOT:
         return !operand;
         break;
 
-    case ecc::tokens::UnaryOp::NEG:
+    case UnaryOp::NEG:
         return -operand;
         break;
 
@@ -273,7 +237,7 @@ Value ConstEvaluator::eval(SizeofExprMIR& expr) {
                 target_type = e->type;
                 if (target_type->is_function()) {
                     target_type = 
-                        target_type->ctxt().get_pointer(target_type, false);
+                        typectxt.get().get_pointer(target_type, false);
                 }
             },
 

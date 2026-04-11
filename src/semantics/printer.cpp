@@ -114,7 +114,9 @@ std::string ClassType::to_string() const {
 
     ss << "class";
 
-    if (is_complete()) {
+    if (name) {
+        ss << " " << *name;
+    } else if (is_complete()) {
         ss << " { ";
 
         bool first = true;
@@ -140,11 +142,15 @@ std::string UnionType::to_string() const {
 
     ss << "union";
 
+    if (name) {
+        ss << " " << *name;
+    }
+
     if (type_rep) {
         ss << ": " << (*type_rep)->to_string() << " ";
     }
 
-    if (is_complete()) {
+    if (is_complete() && !name) {
         ss << " { ";
 
         bool first = true;
@@ -170,11 +176,15 @@ std::string EnumType::to_string() const {
 
     ss << "enum";
 
+    if (name) {
+        ss << " " << *name;
+    }
+
     if (underlying) {
         ss << ": " << (*underlying).to_string() << " ";
     }
 
-    if (is_complete()) {
+    if (is_complete() && !name) {
         ss << " { ";
 
         bool first = true;

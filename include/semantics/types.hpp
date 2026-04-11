@@ -167,6 +167,13 @@ public:
         return false;
     }
 
+    /**
+    Check if a type can be cast into `this`, explicitly or not.
+    */
+    virtual bool can_cast_into(Type *dst) {
+        return false;
+    }
+
     virtual VoidType *as_void() { return nullptr; }
 
     // Cast this type to a PrimitiveType *.

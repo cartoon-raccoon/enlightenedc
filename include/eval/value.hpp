@@ -31,6 +31,7 @@ public:
 
 class Value {
 public:
+    // fixme: create system closer to HolyC's type system and implicit cast rules
     using ValueType = std::variant<char, long, double, bool, std::string>;
 
     Value() : inner((long)0) {}
