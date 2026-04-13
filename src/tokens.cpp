@@ -156,7 +156,7 @@ bool unaryop_is_const_foldable(UnaryOp op) {
     case UnaryOp::REF:
     case UnaryOp::DEREF:
         return false;
-    
+
     case UnaryOp::POS:
     case UnaryOp::NEG:
     case UnaryOp::TILDE:
@@ -166,7 +166,7 @@ bool unaryop_is_const_foldable(UnaryOp op) {
 }
 
 PrimTypeRank pr_rank(PrimType pr) {
-    using P = PrimType;
+    using P  = PrimType;
     using PR = PrimTypeRank;
 
     switch (pr) {
@@ -193,20 +193,22 @@ PrimType pr_promote(PrimType lhs, PrimType rhs) {
     PrimTypeRank lhs_rank = pr_rank(lhs);
     PrimTypeRank rhs_rank = pr_rank(rhs);
     if (lhs_rank >= rhs_rank) {
-        PrimType ret = lhs_rank >= PrimTypeRank::INT32 ?
-            lhs : pr_from_rank(PrimTypeRank::INT32, pr_is_signed(lhs));
+        PrimType ret = lhs_rank >= PrimTypeRank::INT32
+                           ? lhs
+                           : pr_from_rank(PrimTypeRank::INT32, pr_is_signed(lhs));
 
         return ret;
     } else {
-        PrimType ret = rhs_rank >= PrimTypeRank::INT32 ?
-            rhs : pr_from_rank(PrimTypeRank::INT32, pr_is_signed(rhs));
+        PrimType ret = rhs_rank >= PrimTypeRank::INT32
+                           ? rhs
+                           : pr_from_rank(PrimTypeRank::INT32, pr_is_signed(rhs));
 
         return ret;
     }
 }
 
 PrimType pr_from_rank(PrimTypeRank rank, bool is_signed) {
-    using P = PrimType;
+    using P  = PrimType;
     using PR = PrimTypeRank;
 
     switch (rank) {
@@ -254,7 +256,7 @@ bool pr_is_bool(PrimType pr) {
 }
 
 bool pr_is_signed(PrimType pr) {
-        switch (pr) {
+    switch (pr) {
     case PrimType::U8:
     case PrimType::U16:
     case PrimType::U32:

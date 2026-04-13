@@ -218,8 +218,7 @@ public:
 class CaseStmtMIR : public StmtMIR {
 public:
     CaseStmtMIR(Location loc, eval::Value& case_val, Box<StmtMIR> stmt)
-        : StmtMIR(loc, NodeKind::CASESTMT_MIR), case_val(case_val),
-          stmt(std::move(stmt)) {}
+        : StmtMIR(loc, NodeKind::CASESTMT_MIR), case_val(case_val), stmt(std::move(stmt)) {}
 
     eval::Value case_val;
     Box<StmtMIR> stmt;
@@ -231,8 +230,8 @@ class CaseRangeStmtMIR : public StmtMIR {
 public:
     CaseRangeStmtMIR(Location loc, eval::Value& case_start, eval::Value& case_end,
                      Box<StmtMIR> stmt)
-        : StmtMIR(loc, NodeKind::CASERGSTMT_MIR), case_start(case_start),
-          case_end(case_end), stmt(std::move(stmt)) {}
+        : StmtMIR(loc, NodeKind::CASERGSTMT_MIR), case_start(case_start), case_end(case_end),
+          stmt(std::move(stmt)) {}
 
     eval::Value case_start;
     eval::Value case_end;
@@ -422,8 +421,8 @@ public:
 
     bool is_lvalue() override { return op == tokens::UnaryOp::DEREF; };
 
-    bool is_const_foldable() override { 
-        return operand->is_const_foldable() && tokens::unaryop_is_const_foldable(op); 
+    bool is_const_foldable() override {
+        return operand->is_const_foldable() && tokens::unaryop_is_const_foldable(op);
     }
 
     void accept(MIRVisitor& visitor) override;

@@ -1,4 +1,5 @@
 #include "eval/consteval.hpp"
+
 #include <stdexcept>
 
 #include "eval/value.hpp"
@@ -162,7 +163,7 @@ Value ConstEvaluator::eval(IdentExprMIR& expr) {
     // the only identifiers allowed in compile time evaluation are enumerators
     if (varsym->get_type()->is_enum()) {
         EnumType *enmty = varsym->get_type()->as_enum();
-        auto *mem = enmty->find(varsym->name);
+        auto *mem       = enmty->find(varsym->name);
         if (!mem) {
             throw InvalidCompileTimeEval("could not resolve symbol", expr.loc);
         } else {
@@ -202,37 +203,38 @@ Value ConstEvaluator::eval(SizeofExprMIR& expr) {
 
     Type *target_type = nullptr;
 
-    std::visit(util::match{[&](Box<ExprMIR>& e) {
-                               // only accept ident expressions
-                               if (e->kind != MIRNode::NodeKind::IDENTEXPR_MIR) {
-                                   throw InvalidCompileTimeEval("invalid expression argument to sizeof", e->loc);
-                               }
+    std::visit(
+        util::match{[&](Box<ExprMIR>& e) {
+                        // only accept ident expressions
+                        if (e->kind != MIRNode::NodeKind::IDENTEXPR_MIR) {
+                            throw InvalidCompileTimeEval("invalid expression argument to sizeof",
+                                                         e->loc);
+                        }
 
-                               IdentExprMIR *identexpr = dynamic_cast<IdentExprMIR *>(e.get());
-                               if (!identexpr) {
-                                   throw std::runtime_error("could not cast ExprMIR to IdentExprMIR");
-                               }
-                               target_type = identexpr->ident->get_type();
-                               if (target_type->is_function()) {
-                                   target_type = typectxt.get().get_pointer(target_type, false);
-                               }
-                           },
+                        IdentExprMIR *identexpr = dynamic_cast<IdentExprMIR *>(e.get());
+                        if (!identexpr) {
+                            throw std::runtime_error("could not cast ExprMIR to IdentExprMIR");
+                        }
+                        target_type = identexpr->ident->get_type();
+                        if (target_type->is_function()) {
+                            target_type = typectxt.get().get_pointer(target_type, false);
+                        }
+                    },
 
-                           [&](Type *t) {
-                               if (!t) {
-                                   throw_eval_error("sizeof received null type", expr);
-                               }
+                    [&](Type *t) {
+                        if (!t) {
+                            throw_eval_error("sizeof received null type", expr);
+                        }
 
-                               if (t->is_function()) {
-                                   throw_eval_error("sizeof cannot be applied to function types",
-                                                    expr);
-                               }
+                        if (t->is_function()) {
+                            throw_eval_error("sizeof cannot be applied to function types", expr);
+                        }
 
-                               target_type = t;
-                           }
+                        target_type = t;
+                    }
 
-               },
-               expr.operand);
+        },
+        expr.operand);
 
     if (!target_type) {
         throw_eval_error("invalid sizeof operand", expr);

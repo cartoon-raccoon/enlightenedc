@@ -82,14 +82,12 @@ void MIRPrinter::visit(SwitchStmtMIR& node) {
 }
 
 void MIRPrinter::visit(CaseStmtMIR& node) {
-    print_node(
-        "Case: " + node.case_val.to_string(), node, [&] { node.stmt->accept(*this); });
+    print_node("Case: " + node.case_val.to_string(), node, [&] { node.stmt->accept(*this); });
 }
 
 void MIRPrinter::visit(CaseRangeStmtMIR& node) {
-    print_node(
-        "CaseRange: " + node.case_start.to_string() + "..." + node.case_end.to_string(), 
-        node, [&] { node.stmt->accept(*this); });
+    print_node("CaseRange: " + node.case_start.to_string() + "..." + node.case_end.to_string(),
+               node, [&] { node.stmt->accept(*this); });
 }
 
 void MIRPrinter::visit(DefaultStmtMIR& node) {
@@ -186,14 +184,9 @@ void MIRPrinter::visit(IdentExprMIR& node) {
 
 void MIRPrinter::visit(LiteralExprMIR& node) {
     print_node("Literal: ", node, [&] {
-        std::visit(match{
-            [&](eval::Value& val) {
-                std::cout << val.to_string();
-            },
-            [&](std::string& s) {
-                std::cout << s;
-            }
-        }, node.value);
+        std::visit(match{[&](eval::Value& val) { std::cout << val.to_string(); },
+                         [&](std::string& s) { std::cout << s; }},
+                   node.value);
     });
 }
 

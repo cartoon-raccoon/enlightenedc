@@ -453,7 +453,7 @@ void MIRSynthesizer::do_visit(ArrayDeclarator& node) {
         }
 
         size = size_val.cast<uint64_t>();
-        
+
     } else {
         // fixme: context check here for if size is optional?
     }
@@ -1148,8 +1148,7 @@ void MIRSynthesizer::do_visit(CaseStatement& node) {
     dv_call(std::monostate{}, node.statement);
     Box<StmtMIR> stmt = take_last_result<Box<StmtMIR>>();
 
-    Box<StmtMIR> casestmt =
-        std::make_unique<CaseStmtMIR>(node.loc, case_val, std::move(stmt));
+    Box<StmtMIR> casestmt = std::make_unique<CaseStmtMIR>(node.loc, case_val, std::move(stmt));
 
     dv_return(casestmt);
 }
@@ -1166,8 +1165,8 @@ void MIRSynthesizer::do_visit(CaseRangeStatement& node) {
     dv_call(std::monostate{}, node.statement);
     Box<StmtMIR> stmt = take_last_result<Box<StmtMIR>>();
 
-    Box<StmtMIR> casestmt = std::make_unique<CaseRangeStmtMIR>(
-        node.loc, case_start, case_end, std::move(stmt));
+    Box<StmtMIR> casestmt =
+        std::make_unique<CaseRangeStmtMIR>(node.loc, case_start, case_end, std::move(stmt));
 
     dv_return(casestmt);
 }

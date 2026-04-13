@@ -83,8 +83,8 @@ enum class PrimType : uint8_t {
 };
 
 enum class PrimTypeRank : uint8_t {
-    BOOL = 1,
-    INT8 = 2,
+    BOOL  = 1,
+    INT8  = 2,
     INT16 = 3,
     INT32 = 4,
     INT64 = 5,

@@ -35,7 +35,6 @@ template <typename T, typename... Args> void dbprint(T msg, Args&&...args) {
         throw std::runtime_error("visit() was not implemented for the current visitable node"); \
     }
 
-
 #define todo() throw Todo(std::source_location::current()) // NOLINT
 
 constexpr std::size_t BOOST_GOLDEN_RATIO = 0x9e3779b9;
