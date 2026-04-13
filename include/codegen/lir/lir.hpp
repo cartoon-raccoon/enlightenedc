@@ -213,8 +213,8 @@ public:
 
 class CaseLIR : public LabelLIR {
 public:
-    CaseLIR(Location loc, eval::Value case_value)
-        : LabelLIR(loc, NodeKind::CASEDECL_LIR), case_value(std::move(case_value)) {}
+    CaseLIR(Location loc, eval::Value& case_value)
+        : LabelLIR(loc, NodeKind::CASEDECL_LIR), case_value(case_value) {}
 
     eval::Value case_value;
 
@@ -381,8 +381,8 @@ public:
 
 class LiteralExprLIR : public ExprLIR {
 public:
-    LiteralExprLIR(Location loc, eval::Value value, sema::types::Type *type)
-        : ExprLIR(loc, NodeKind::LITEXPR_LIR, type), value(std::move(value)) {}
+    LiteralExprLIR(Location loc, eval::Value value, sema::types::Type *type) // NOLINT
+        : ExprLIR(loc, NodeKind::LITEXPR_LIR, type), value(value) {}
 
     eval::Value value;
 

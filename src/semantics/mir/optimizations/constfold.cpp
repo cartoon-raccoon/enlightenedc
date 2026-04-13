@@ -19,6 +19,10 @@ Box<LiteralExprMIR> ConstantFolder::eval_and_expr(Box<ExprMIR>& expr, Location l
     return std::move(new_expr);
 }
 
+void ConstantFolder::do_visit(sema::mir::InitializerMIR& node) {
+    // todo
+}
+
 void ConstantFolder::do_visit(ExprStmtMIR& node) {
     if (!node.expr)
         return;
@@ -80,21 +84,5 @@ void ConstantFolder::do_visit(CondExprMIR& node) {
         node.false_expr = eval_and_expr(node.false_expr, node.false_expr->loc);
     } else {
         node.false_expr->accept(*this);
-    }
-}
-
-void ConstantFolder::do_visit(ConstExprMIR& node) {
-    if (node.inner->is_const_foldable()) {
-        node.inner = eval_and_expr(node.inner, node.inner->loc);
-    } else {
-        node.inner->accept(*this);
-    }
-}
-
-void ConstantFolder::do_visit(PostfixExprMIR& node) {
-    if (node.operand->is_const_foldable()) {
-        node.operand = eval_and_expr(node.operand, node.operand->loc);
-    } else {
-        node.operand->accept(*this);
     }
 }

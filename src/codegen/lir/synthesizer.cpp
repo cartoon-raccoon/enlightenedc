@@ -570,9 +570,6 @@ void LIRSynthesizer::do_visit(IdentExprMIR& node) {
     last_expr = std::move(identexpr);
 }
 
-void LIRSynthesizer::do_visit(ConstExprMIR& node) {
-}
-
 void LIRSynthesizer::do_visit(LiteralExprMIR& node) {
 }
 
@@ -597,7 +594,7 @@ void LIRSynthesizer::do_visit(SizeofExprMIR& node) {
                          [](Type *& type) mutable { return type->alloc_size(); }},
                    node.operand);
 
-    Box<ExprLIR> ret = std::make_unique<LiteralExprLIR>(node.loc, (long)size, node.type);
+    Box<ExprLIR> ret = std::make_unique<LiteralExprLIR>(node.loc, size, node.type);
 
     last_expr = std::move(ret);
 }

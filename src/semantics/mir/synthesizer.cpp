@@ -34,6 +34,7 @@ using namespace ecc::sema::types;
 using namespace ecc::sema::sym;
 using namespace ecc::sema::mir;
 using namespace ecc::tokens;
+using namespace ecc::eval;
 
 void MIRSynthesizer::generate_mir(Program& prog) {
     prog.accept(*this);
@@ -444,31 +445,15 @@ void MIRSynthesizer::do_visit(ArrayDeclarator& node) {
     if (node.size) {
         bsv_dbprint("array declarator has size, checking for compile time computability");
         dv_call(std::monostate{}, *node.size);
-        Box<ExprMIR> arr_size_expr = take_last_result<Box<ExprMIR>>();
+        Value size_val = take_last_result<Value>();
 
-        // if we have a size for the array, evaluate it
-        eval::Value val;
-        eval::ConstEvaluator evalr(syms, types);
-
-        try {
-            val = arr_size_expr->eval(evalr);
-        } catch (eval::InvalidCompileTimeEval& e) {
-            e.add_loc(node.loc);
-            add_error<eval::InvalidCompileTimeEval>(e);
+        if (size_val < 0) {
+            add_error<EccSemError>("array size cannot be a negative value", (*node.size)->loc);
             throw UnableToContinue();
         }
 
-        // if we were able to parse it as a u64, great
-        if (auto maybe_size = val.value_as<long>()) {
-            if (*maybe_size < 0) {
-                add_error<EccSemError>("array size cannot be a negative number", (*node.size)->loc);
-            }
-            size = *maybe_size;
-        } else {
-            // otherwise, the expression could not resolve, throw error
-            // (do NOT coerce to unsized)
-            add_error<EccSemError>("could not evaluate size expression to U64", node.loc);
-        }
+        size = size_val.cast<uint64_t>();
+        
     } else {
         // fixme: context check here for if size is optional?
     }
@@ -667,26 +652,14 @@ void MIRSynthesizer::do_visit(Enumerator& node) {
         throw UnableToContinue();
     }
 
-    eval::Value value;
+    Value value;
     if (node.value) {
         dv_call(std::monostate{}, *node.value);
-        Box<ExprMIR> value_expr = take_last_result<Box<ExprMIR>>();
-        eval::ConstEvaluator evalr(syms, types);
+        value = take_last_result<Value>();
 
-        try {
-            value = value_expr->eval(evalr);
-        } catch (eval::InvalidCompileTimeEval& e) {
-            e.add_loc(node.loc);
-            add_error<eval::InvalidCompileTimeEval>(e);
-        }
+        int64_t val = value.cast<int64_t>();
 
-        Optional<long> val = value.value_as<long>();
-
-        if (val) {
-            enm->add_enumerator(node.name, *val, node.loc);
-        } else {
-            add_error<EccSemError>("invalid enumerator value", node.loc);
-        }
+        enm->add_enumerator(node.name, val, node.loc);
     } else {
         value = enm->add_enumerator(node.name, node.loc);
     }
@@ -1120,7 +1093,7 @@ void MIRSynthesizer::do_visit(ExpressionStatement& node) {
             if (!litexpr) {
                 throw std::runtime_error("could not cast LITEXPR_MIR to LiteralExprMIR");
             }
-            if (auto *str = std::get_if<std::string>(&litexpr->value.inner)) {
+            if (auto *str = std::get_if<std::string>(&litexpr->value)) {
                 bsv_dbprint(
                     "found string literal inside ExpressionStatement, emitting PrintStmtMIR");
                 std::string format_string = std::move(*str);
@@ -1170,13 +1143,13 @@ void MIRSynthesizer::do_visit(ExpressionStatement& node) {
 void MIRSynthesizer::do_visit(CaseStatement& node) {
     bsv_dbprint("visiting CaseStatement node: ", node.loc);
     dv_call(std::monostate{}, node.case_expr);
-    Box<ExprMIR> case_expr = take_last_result<Box<ExprMIR>>();
+    Value case_val = take_last_result<Value>();
 
     dv_call(std::monostate{}, node.statement);
     Box<StmtMIR> stmt = take_last_result<Box<StmtMIR>>();
 
     Box<StmtMIR> casestmt =
-        std::make_unique<CaseStmtMIR>(node.loc, std::move(case_expr), std::move(stmt));
+        std::make_unique<CaseStmtMIR>(node.loc, case_val, std::move(stmt));
 
     dv_return(casestmt);
 }
@@ -1185,16 +1158,16 @@ void MIRSynthesizer::do_visit(CaseRangeStatement& node) {
     bsv_dbprint("visiting CaseRangeStatement node: ", node.loc);
 
     dv_call(std::monostate{}, node.range_start);
-    Box<ExprMIR> case_start = take_last_result<Box<ExprMIR>>();
+    Value case_start = take_last_result<Value>();
 
     dv_call(std::monostate{}, node.range_end);
-    Box<ExprMIR> case_end = take_last_result<Box<ExprMIR>>();
+    Value case_end = take_last_result<Value>();
 
     dv_call(std::monostate{}, node.statement);
     Box<StmtMIR> stmt = take_last_result<Box<StmtMIR>>();
 
     Box<StmtMIR> casestmt = std::make_unique<CaseRangeStmtMIR>(
-        node.loc, std::move(case_start), std::move(case_end), std::move(stmt));
+        node.loc, case_start, case_end, std::move(stmt));
 
     dv_return(casestmt);
 }
@@ -1475,18 +1448,25 @@ void MIRSynthesizer::do_visit(ConstExpression& node) {
     dv_call(std::monostate{}, node.inner);
     Box<ExprMIR> inner = take_last_result<Box<ExprMIR>>();
 
-    Box<ExprMIR> expr = std::make_unique<ConstExprMIR>(node.loc, syms.current, std::move(inner));
+    ConstEvaluator evalr(syms, types);
+    Value res;
+    try {
+        res = inner->eval(evalr);
+    } catch (InvalidCompileTimeEval& e) {
+        add_error<InvalidCompileTimeEval>(e);
+        throw UnableToContinue();
+    }
 
-    dv_return(expr);
+    dv_return(res);
 }
 
 void MIRSynthesizer::do_visit(LiteralExpression& node) {
     bsv_dbprint("visiting LiteralExpression node: ", node.loc);
 
-    eval::Value val;
+    Value val;
     switch (node.kind) {
     case LiteralExpression::INT:
-        val = (long)node.value.i_val;
+        val = node.value.i_val;
         break;
 
     case LiteralExpression::FLOAT:

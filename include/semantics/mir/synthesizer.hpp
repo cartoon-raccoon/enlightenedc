@@ -62,6 +62,8 @@ using ElabResult = std::variant<
     std::monostate,
     // A simple string, for string literals, identifiers, etc.
     std::string,
+    // The result of evaluating a ConstExpression.
+    eval::Value,
     // For building up declarators.
     Box<DeclaratorBuilder>,
     // The result of visiting a type specifier node.

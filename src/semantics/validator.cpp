@@ -125,8 +125,6 @@ void Validator::do_visit(CaseStmtMIR& node) {
     if (!in_node(MIRNode::NodeKind::SWITCHSTMT_MIR)) {
         throw InvalidCaseError(node.loc);
     }
-
-    node.case_expr->accept(*this);
     node.stmt->accept(*this);
 }
 
@@ -137,8 +135,6 @@ void Validator::do_visit(CaseRangeStmtMIR& node) {
     }
 
     // check that the start and end form a valid range
-    node.case_start->accept(*this);
-    node.case_end->accept(*this);
     node.stmt->accept(*this);
 }
 
@@ -249,35 +245,12 @@ void Validator::do_visit(IdentExprMIR& node) {
     node.type = node.ident->get_type();
 }
 
-void Validator::do_visit(ConstExprMIR& node) {
-    node.inner->accept(*this);
-
-    node.type = node.inner->type;
-}
-
 void Validator::do_visit(LiteralExprMIR& node) {
-    std::visit(match{[&node, this](char val) mutable { node.type = types.get_i8(); },
-                     [&node, this](long val) mutable {
-                         /*
-                         Select the type to use based on value
-                         */
-                         if (val <= *types.get_i32()->int_max()) {
-                             // Attempt to default to I32
-                             node.type = types.get_i32();
-                         } else if (val <= *types.get_i64()->int_max()) {
-                             // If cannot fit, try I64
-                             node.type = types.get_i64();
-                         } else {
-                             // If all else fails, use U64
-                             node.type = types.get_u64();
-                         }
-                     },
-                     [&node, this](double val) mutable { node.type = types.get_f64(); },
-                     [&node, this](bool val) mutable { node.type = types.get_bool(); },
-                     [&node, this](std::string& val) mutable {
-                         node.type = types.get_pointer(types.get_i8(), true);
-                     }},
-               node.value.inner);
+    if (auto *val = std::get_if<eval::Value>(&node.value)) {
+        // todo
+    } else if (auto *str = std::get_if<std::string>(&node.value)) {
+        node.type = types.get_pointer(types.get_i8(), true);
+    }
 }
 
 void Validator::do_visit(CallExprMIR& node) {

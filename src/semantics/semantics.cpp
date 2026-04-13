@@ -505,7 +505,6 @@ DO_VISIT(BaseMIRSemaVisitor, mir::CastExprMIR);
 DO_VISIT(BaseMIRSemaVisitor, mir::AssignExprMIR);
 DO_VISIT(BaseMIRSemaVisitor, mir::CondExprMIR);
 DO_VISIT(BaseMIRSemaVisitor, mir::IdentExprMIR);
-DO_VISIT(BaseMIRSemaVisitor, mir::ConstExprMIR);
 DO_VISIT(BaseMIRSemaVisitor, mir::LiteralExprMIR);
 DO_VISIT(BaseMIRSemaVisitor, mir::CallExprMIR);
 DO_VISIT(BaseMIRSemaVisitor, mir::MemberAccExprMIR);
@@ -565,13 +564,10 @@ void BaseMIRSemaVisitor::do_visit(mir::SwitchStmtMIR& node) {
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::CaseStmtMIR& node) {
-    node.case_expr->accept(*this);
     node.stmt->accept(*this);
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::CaseRangeStmtMIR& node) {
-    node.case_start->accept(*this);
-    node.case_end->accept(*this);
     node.stmt->accept(*this);
 }
 
@@ -653,10 +649,6 @@ void BaseMIRSemaVisitor::do_visit(mir::CondExprMIR& node) {
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::IdentExprMIR& node) { /* terminal node */
-}
-
-void BaseMIRSemaVisitor::do_visit(mir::ConstExprMIR& node) {
-    node.inner->accept(*this);
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::LiteralExprMIR& node) { /* terminal node */

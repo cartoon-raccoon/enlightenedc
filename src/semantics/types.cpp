@@ -9,6 +9,7 @@
 #include "codegen/llvm.hpp"
 #include "semantics/symbols.hpp"
 #include "semantics/typeerr.hpp"
+#include "tokens.hpp"
 #include "util.hpp"
 
 using namespace ecc::sema::types;
@@ -128,49 +129,19 @@ void VoidType::finalize() {
  * PRIMITIVE TYPE METHODS
  */
 bool PrimitiveType::is_integer() const {
-    // We maintain strict integral definitions for determining whether
-    // this type is an integer: it cannot be Bool or Float, and it has to be sized.
-    switch (primkind) {
-    case PrimType::U8:
-    case PrimType::U16:
-    case PrimType::U32:
-    case PrimType::U64:
-    case PrimType::I8:
-    case PrimType::I16:
-    case PrimType::I32:
-    case PrimType::I64:
-        return true;
-
-    case PrimType::F64:
-    case PrimType::BOOL:
-        return false;
-    }
+    return pr_is_integer(primkind);
 }
 
 bool PrimitiveType::is_signed() const {
-    switch (primkind) {
-    case PrimType::U8:
-    case PrimType::U16:
-    case PrimType::U32:
-    case PrimType::U64:
-    case PrimType::BOOL:
-        return false;
-
-    case PrimType::I8:
-    case PrimType::I16:
-    case PrimType::I32:
-    case PrimType::I64:
-    case PrimType::F64:
-        return true;
-    }
+    return pr_is_signed(primkind);
 }
 
 bool PrimitiveType::is_float() const {
-    return primkind == PrimType::F64;
+    return pr_is_float(primkind);
 }
 
 bool PrimitiveType::is_bool() const {
-    return primkind == PrimType::BOOL;
+    return pr_is_bool(primkind);
 }
 
 bool PrimitiveType::is_compatible_with(Type *from) {

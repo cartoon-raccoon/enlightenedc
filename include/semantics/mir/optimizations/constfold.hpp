@@ -32,13 +32,12 @@ protected:
 
     Box<sema::mir::LiteralExprMIR> eval_and_expr(Box<sema::mir::ExprMIR>&, Location);
 
+    void do_visit(sema::mir::InitializerMIR& node) override;
     void do_visit(sema::mir::ExprStmtMIR& node) override;
     void do_visit(sema::mir::BinaryExprMIR& node) override;
     void do_visit(sema::mir::UnaryExprMIR& node) override;
     void do_visit(sema::mir::CastExprMIR& node) override;
     void do_visit(sema::mir::CondExprMIR& node) override;
-    void do_visit(sema::mir::ConstExprMIR& node) override;
-    void do_visit(sema::mir::PostfixExprMIR& node) override;
 };
 
 } // namespace ecc::opti

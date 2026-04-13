@@ -71,7 +71,7 @@ public:
 
 class SwitchCase {
 public:
-    SwitchCase(eval::Value val, BasicBlock *blk) : case_val(std::move(val)), blk(blk) {}
+    SwitchCase(eval::Value val, BasicBlock *blk) : case_val(val), blk(blk) {}
 
     SwitchCase(BasicBlock *blk) : blk(blk) {}
 
@@ -85,7 +85,7 @@ class Switch : public Terminator {
 public:
     Switch(BasicBlock *termng) : Terminator(Kind::SWITCH, termng) {}
 
-    void add_case(eval::Value val, BasicBlock *blk) { cases.emplace_back(std::move(val), blk); }
+    void add_case(eval::Value& val, BasicBlock *blk) { cases.emplace_back(val, blk); }
 
     void add_default(BasicBlock *blk) { cases.emplace_back(blk); }
 

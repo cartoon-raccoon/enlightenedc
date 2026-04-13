@@ -77,7 +77,6 @@ protected:
     void do_visit(sema::mir::AssignExprMIR& node) override;
     void do_visit(sema::mir::CondExprMIR& node) override;
     void do_visit(sema::mir::IdentExprMIR& node) override;
-    void do_visit(sema::mir::ConstExprMIR& node) override;
     void do_visit(sema::mir::LiteralExprMIR& node) override;
     void do_visit(sema::mir::CallExprMIR& node) override;
     void do_visit(sema::mir::MemberAccExprMIR& node) override;

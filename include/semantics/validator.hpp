@@ -66,7 +66,6 @@ protected:
     void do_visit(mir::AssignExprMIR& node) final;
     void do_visit(mir::CondExprMIR& node) final;
     void do_visit(mir::IdentExprMIR& node) final;
-    void do_visit(mir::ConstExprMIR& node) final;
     void do_visit(mir::LiteralExprMIR& node) final;
     void do_visit(mir::CallExprMIR& node) final;
     void do_visit(mir::MemberAccExprMIR& node) final;

@@ -1,13 +1,8 @@
 #pragma once
 
+#include "tokens.hpp"
 #ifndef ECC_VALUE_H
 #define ECC_VALUE_H
-
-#include <cstddef>
-#include <format>
-#include <iterator>
-#include <string>
-#include <variant>
 
 #include "error.hpp"
 #include "util.hpp"
@@ -29,25 +24,84 @@ public:
     InvalidValueRange(std::string msg) : EccSemError(std::move(msg)) {}
 };
 
+/*
+A value of a primitive type.
+*/
 class Value {
 public:
     // fixme: create system closer to HolyC's type system and implicit cast rules
-    using ValueType = std::variant<char, long, double, bool, std::string>;
+    using ValueType = std::variant<
+        int8_t, 
+        int16_t,
+        int32_t,
+        int64_t,
+        uint8_t,
+        uint16_t,
+        uint32_t,
+        uint64_t,
+        double, 
+        bool
+    >;
 
-    Value() : inner((long)0) {}
-    Value(char v) : inner(v) {}
-    Value(long v) : inner(v) {}
-    Value(double v) : inner(v) {}
-    Value(bool v) : inner(v) {}
-    Value(std::string v) : inner(v) {}
+    Value() : inner((int32_t) 0), primtype(tokens::PrimType::I32) {}
+
+    Value(int8_t v) : inner(v), primtype(tokens::PrimType::I8) {}
+
+    Value(int16_t v) : inner(v), primtype(tokens::PrimType::I16) {}
+
+    Value(int32_t v) : inner(v), primtype(tokens::PrimType::I32) {}
+
+    Value(int64_t v) : inner(v), primtype(tokens::PrimType::I64) {}
+
+    Value(uint8_t v) : inner(v), primtype(tokens::PrimType::U8) {}
+
+    Value(uint16_t v) : inner(v), primtype(tokens::PrimType::U16) {}
+
+    Value(uint32_t v) : inner(v), primtype(tokens::PrimType::U32) {}
+
+    Value(uint64_t v) : inner(v), primtype(tokens::PrimType::U64) {}
+
+    Value(double v) : inner(v), primtype(tokens::PrimType::F64) {}
+
+    Value(bool v) : inner(v), primtype(tokens::PrimType::BOOL) {}
+
+    Value(const Value& other) : inner(other.inner), primtype(other.primtype) {}
+
+    Value& operator=(const Value& other) {
+        inner = other.inner;
+        primtype = other.primtype;
+        return *this;
+    }
 
     ValueType inner;
+
+    tokens::PrimType primtype;
+
+    bool is_integer() const {
+        return tokens::pr_is_integer(primtype);
+    }
+
+    bool is_float() const {
+        return tokens::pr_is_float(primtype);
+    }
+
+    bool is_bool() const {
+        return tokens::pr_is_bool(primtype);
+    }
+
+    bool is_signed() const {
+        return tokens::pr_is_signed(primtype);
+    }
+
+    tokens::PrimTypeRank pr_rank() const {
+        return tokens::pr_rank(primtype);
+    }
 
     template <typename T>
         requires VariantMember<T, ValueType>
     Optional<T> value_as() {
-        if (auto *v = std::get_if<T>(&inner)) {
-            return *v;
+        if (auto *val = std::get_if<T>(&inner)) {
+            return *val;
         } else {
             return std::nullopt;
         }
@@ -55,276 +109,122 @@ public:
 
     template <typename T>
         requires VariantMember<T, ValueType>
+    T cast() const {
+        return std::visit(match{
+            [](auto& v) { return static_cast<T>(v); }
+        }, inner);
+    }
+
+    Value pr_cast(tokens::PrimType pr) const;
+    
+    /// Promote a pair of Values to a compatible 
+    static Pair<Value, Value> promote(const Value& lhs, const Value& rhs);
+
+    template <typename T>
+        requires VariantMember<T, ValueType>
     bool is() {
         return std::holds_alternative<T>(inner);
     }
 
-    operator bool() const {
-        return std::visit(match{[](char v) { return v != 0; }, [](long v) { return v != 0; },
-                                [](double v) { return v != 0.0; }, [](bool v) { return v; },
-                                [](const std::string& v) { return !v.empty(); }},
-                          inner);
-    }
+    operator bool() const;
 
+    // We don't need to overload logical OR or AND, since bool() handles that for us.
+
+    // Dereference operator: get the inner type
     ValueType operator*() const { return inner; }
 
-    Value operator||(const Value& rhs) const {
-        return Value(static_cast<bool>(*this) || static_cast<bool>(rhs));
-    }
-
-    Value operator&&(const Value& rhs) const {
-        return Value(static_cast<bool>(*this) && static_cast<bool>(rhs));
-    }
-
     // Binary bitwise OR
-    Value operator|(const Value& rhs) {
-        return std::visit(match{[](auto& a, auto& b) -> Value {
-                              using A = std::decay_t<decltype(a)>;
-                              using B = std::decay_t<decltype(b)>;
+    template <typename T>
+    Value operator|(const T& rhs) const { return *this | Value(rhs); }
 
-                              if constexpr ((std::is_same_v<A, char> || std::is_same_v<A, long> ||
-                                             std::is_same_v<A, bool>) &&
-                                            (std::is_same_v<B, char> || std::is_same_v<B, long> ||
-                                             std::is_same_v<B, bool>)) {
-                                  return Value((long)a | (long)b);
-                              } else {
-                                  throw InvalidCompileTimeEval("Invalid types for bitwise OR");
-                              }
-                          }},
-                          inner, rhs.inner);
-    }
+    Value operator|(const Value& rhs) const;
 
     // Binary bitwise XOR
-    Value operator^(const Value& rhs) {
-        return std::visit(match{[](auto& a, auto& b) -> Value {
-                              using A = std::decay_t<decltype(a)>;
-                              using B = std::decay_t<decltype(b)>;
+    template <typename T>
+    Value operator^(const T& rhs) const { return *this ^ Value(rhs); }
 
-                              if constexpr ((std::is_same_v<A, char> || std::is_same_v<A, long> ||
-                                             std::is_same_v<A, bool>) &&
-                                            (std::is_same_v<B, char> || std::is_same_v<B, long> ||
-                                             std::is_same_v<B, bool>)) {
-                                  return Value((long)a ^ (long)b);
-                              } else {
-                                  throw InvalidCompileTimeEval("Invalid types for bitwise XOR");
-                              }
-                          }},
-                          inner, rhs.inner);
-    }
+    Value operator^(const Value& rhs) const;
 
     // Binary bitwise AND
-    Value operator&(const Value& rhs) {
-        return std::visit(match{[](auto& a, auto& b) -> Value {
-                              using A = std::decay_t<decltype(a)>;
-                              using B = std::decay_t<decltype(b)>;
+    template <typename T>
+    Value operator&(const T& rhs) const { return *this & Value(rhs); }
 
-                              if constexpr ((std::is_same_v<A, char> || std::is_same_v<A, long> ||
-                                             std::is_same_v<A, bool>) &&
-                                            (std::is_same_v<B, char> || std::is_same_v<B, long> ||
-                                             std::is_same_v<B, bool>)) {
-                                  return Value((long)a & (long)b);
-                              } else {
-                                  throw InvalidCompileTimeEval("Invalid types for bitwise AND");
-                              }
-                          }},
-                          inner, rhs.inner);
-    }
+    Value operator&(const Value& rhs) const;
 
     // Binary EQ
-    Value operator==(const Value& rhs) {
-        return std::visit(
-            match{[](long a, long b) { return Value(a == b); },
-                  [](char a, long b) { return Value(a == b); },
-                  [](long a, char b) { return Value(a == b); },
-                  [](double a, double b) { return Value(a == b); },
-                  [](long a, double b) { return Value((double)a == b); },
-                  [](char a, double b) { return Value((double)a == b); },
-                  [](double a, long b) { return Value(a == (double)b); },
-                  [](double a, char b) { return Value(a == (double)b); },
-                  [](const std::string& a, const std::string& b) { return Value(a == b); },
-                  [](auto&&, auto&&) -> Value {
-                      throw InvalidCompileTimeEval("Invalid types for addition");
-                  }},
-            inner, rhs.inner);
-    }
+    template <typename T>
+    Value operator==(const T& rhs) const { return *this == Value(rhs); }
+
+    Value operator==(const Value& rhs) const;
 
     // Binary NEQ
-    Value operator!=(const Value& rhs) { return !(*this == rhs); }
+    template <typename T>
+    Value operator!=(const T& rhs) const { return *this != Value(rhs); }
+
+    Value operator!=(const Value& rhs) const { return !(*this == rhs); }
 
     // Binary LEQ
-    Value operator<=(const Value& rhs) { return !(*this > rhs); }
+    template <typename T>
+    Value operator<=(const T& rhs) const { return *this <= Value(rhs); }
+
+    Value operator<=(const Value& rhs) const { return !(*this > rhs); }
 
     // Binary GEQ
-    Value operator>=(const Value& rhs) { return !(*this < rhs); }
+    template <typename T>
+    Value operator>=(const T& rhs) const { return *this >= Value(rhs); }
 
-    // Binary LT
-    Value operator<(const Value& rhs) {
-        return std::visit(
-            match{[](long a, long b) { return Value(a < b); },
-                  [](char a, long b) { return Value(a < b); },
-                  [](long a, char b) { return Value(a < b); },
-                  [](double a, double b) { return Value(a < b); },
-                  [](long a, double b) { return Value((double)a < b); },
-                  [](char a, double b) { return Value((double)a < b); },
-                  [](double a, long b) { return Value(a < (double)b); },
-                  [](double a, char b) { return Value(a < (double)b); },
-                  [](const std::string& a, const std::string& b) { return Value(a < b); },
-                  [](auto&&, auto&&) -> Value {
-                      throw InvalidCompileTimeEval("Invalid types for addition");
-                  }},
-            inner, rhs.inner);
-    }
+    Value operator>=(const Value& rhs) const { return !(*this < rhs); }
 
-    Value operator>(const Value& rhs) {
-        return std::visit(
-            match{[](long a, long b) { return Value(a > b); },
-                  [](char a, long b) { return Value(a > b); },
-                  [](long a, char b) { return Value(a > b); },
-                  [](double a, double b) { return Value(a > b); },
-                  [](long a, double b) { return Value((double)a > b); },
-                  [](char a, double b) { return Value((double)a > b); },
-                  [](double a, long b) { return Value(a > (double)b); },
-                  [](double a, char b) { return Value(a > (double)b); },
-                  [](const std::string& a, const std::string& b) { return Value(a > b); },
-                  [](auto&&, auto&&) -> Value {
-                      throw InvalidCompileTimeEval("Invalid types for addition");
-                  }},
-            inner, rhs.inner);
-    }
+    // Logical LT
+    template <typename T>
+    Value operator<(const T& rhs) const { return *this < Value(rhs); }
 
-    Value operator+(const Value& rhs) {
-        return std::visit(
-            match{[](long a, long b) { return Value(a + b); },
-                  [](char a, long b) { return Value(a + b); },
-                  [](long a, char b) { return Value(a + b); },
-                  [](double a, double b) { return Value(a + b); },
-                  [](long a, double b) { return Value((double)a + b); },
-                  [](char a, double b) { return Value((double)a + b); },
-                  [](double a, long b) { return Value(a + (double)b); },
-                  [](double a, char b) { return Value(a + (double)b); },
-                  [](const std::string& a, const std::string& b) { return Value(a + b); },
-                  [](auto&&, auto&&) -> Value {
-                      throw InvalidCompileTimeEval("Invalid types for addition");
-                  }},
-            inner, rhs.inner);
-    }
+    Value operator<(const Value& rhs) const;
 
-    Value operator-(const Value& rhs) {
-        return std::visit(match{[](long a, long b) { return Value(a - b); },
-                                [](char a, long b) { return Value(a - b); },
-                                [](long a, char b) { return Value(a - b); },
-                                [](double a, double b) { return Value(a - b); },
-                                [](long a, double b) { return Value((double)a - b); },
-                                [](char a, double b) { return Value((double)a - b); },
-                                [](double a, long b) { return Value(a - (double)b); },
-                                [](double a, char b) { return Value(a - (double)b); },
-                                [](auto&&, auto&&) -> Value {
-                                    throw InvalidCompileTimeEval("Invalid types for subtraction");
-                                }},
-                          inner, rhs.inner);
-    }
+    // Logical GT
+    template <typename T>
+    Value operator>(const T& rhs) const { return *this > Value(rhs); }
 
-    Value operator*(const Value& rhs) {
-        return std::visit(match{[](long a, long b) { return Value(a * b); },
-                                [](char a, long b) { return Value(a * b); },
-                                [](long a, char b) { return Value(a * b); },
-                                [](double a, double b) { return Value(a * b); },
-                                [](long a, double b) { return Value((double)a * b); },
-                                [](char a, double b) { return Value((double)a * b); },
-                                [](double a, long b) { return Value(a * (double)b); },
-                                [](double a, char b) { return Value(a * (double)b); },
-                                [](auto&&, auto&&) -> Value {
-                                    throw InvalidCompileTimeEval(
-                                        "Invalid types for multiplication");
-                                }},
-                          inner, rhs.inner);
-    }
+    Value operator>(const Value& rhs) const;
 
-    Value operator/(const Value& rhs) {
-        return std::visit(match{[](long a, long b) { return Value(a / b); },
-                                [](char a, long b) { return Value(a / b); },
-                                [](long a, char b) { return Value(a / b); },
-                                [](double a, double b) { return Value(a / b); },
-                                [](long a, double b) { return Value((double)a / b); },
-                                [](char a, double b) { return Value((double)a / b); },
-                                [](double a, long b) { return Value(a / (double)b); },
-                                [](double a, char b) { return Value(a / (double)b); },
-                                [](auto&&, auto&&) -> Value {
-                                    throw InvalidCompileTimeEval("Invalid types for division");
-                                }},
-                          inner, rhs.inner);
-    }
+    // Binary ADD
+    template <typename T>
+    Value operator+(const T& rhs) const { return *this + Value(rhs); }
+
+    Value operator+(const Value& rhs) const;
+
+    // Binary SUB
+    template <typename T>
+    Value operator-(const T& rhs) const { return *this - Value(rhs); }
+
+    Value operator-(const Value& rhs) const;
+
+    // Binary MUL
+    template <typename T>
+    Value operator*(const T& rhs) const { return *this * Value(rhs); }
+
+    Value operator*(const Value& rhs) const;
+
+    // Binary DIV
+    template <typename T>
+    Value operator/(const T& rhs) const { return *this / Value(rhs); }
+
+    Value operator/(const Value& rhs) const;
 
     // Unary logical NOT
-    Value operator!() const { return Value(!static_cast<bool>(*this)); }
+    Value operator!() const { return !*this; }
 
-    /*
-    Unary bitwise NOT
-    */
-    Value operator~() {
-        return std::visit(match{[](auto& v) -> Value {
-                              using T = std::decay_t<decltype(v)>;
-
-                              if constexpr (std::is_same_v<T, char> || std::is_same_v<T, long> ||
-                                            std::is_same_v<T, bool>) {
-                                  return Value(~(long)v);
-                              } else {
-                                  throw InvalidCompileTimeEval("Invalid type for bitwise NOT",
-                                                               Location{});
-                              }
-                          }},
-                          inner);
-    }
+    // Unary bitwise NOT
+    Value operator~() const;
 
     // Unary NEG
-    Value operator-() {
-        return std::visit(
-            match{[](long v) { return Value(-v); }, [](char v) { return Value(-(long)v); },
-                  [](double v) { return Value(-v); },
-                  [](auto&&) -> Value {
-                      throw InvalidCompileTimeEval("Invalid type for unary minus", Location{});
-                  }},
-            inner);
+    Value operator-() const {
+        todo();
     }
 
-    // Prefix INC
-    Value operator++() {
-        return std::visit(match{[this](long& v) -> Value { return Value(++v); },
-                                [this](char& v) -> Value { return Value(++v); },
-                                [this](double& v) -> Value { return Value(++v); },
-                                [](auto&) -> Value {
-                                    throw InvalidCompileTimeEval("Invalid type for prefix ++",
-                                                                 Location{});
-                                }},
-                          inner);
-    }
-
-    // Prefix DEC
-    Value operator--() {
-        return std::visit(match{[this](long& v) -> Value { return Value(--v); },
-                                [this](char& v) -> Value { return Value(--v); },
-                                [this](double& v) -> Value { return Value(--v); },
-                                [](auto&) -> Value {
-                                    throw InvalidCompileTimeEval("Invalid type for prefix --",
-                                                                 Location{});
-                                }},
-                          inner);
-    }
-
-    /*
-    For postfix declarators, this should return nothing,
-    since the return value is the one before the side-effect
-    (the actual value increment/decrement).
-    */
-
-    // Postfix INC
-    Value operator++(int) {
-        throw InvalidCompileTimeEval("Postfix ++ not allowed in constant expressions", Location{});
-    }
-
-    // Postfix DEC
-    Value operator--(int) {
-        throw InvalidCompileTimeEval("Postfix -- not allowed in constant expressions", Location{});
+    // Unary POS
+    Value operator+() const {
+        todo();
     }
 
     std::string to_string() {
@@ -334,27 +234,27 @@ public:
 
 class ValueRange {
 public:
-    ValueRange(Value start, Value end);
+    ValueRange(Value& start, Value& end);
 
     class ValueRangeIter {
-        long val;
+        Value val;
         ValueRange *range;
 
     public:
         using difference_type = std::ptrdiff_t;
-        using value_type      = long;
+        using value_type      = Value;
 
-        ValueRangeIter(long val, ValueRange *range) : val(val), range(range) {}
+        ValueRangeIter(Value& val, ValueRange *range) : val(val), range(range) {}
 
-        long operator*() const { return val; }
+        Value operator*() const { return val; }
 
         ValueRangeIter& operator++(int) {
-            range->curr++;
+            range->curr = range->curr + 1;
             return *this;
         }
 
         ValueRangeIter& operator++() {
-            range->curr++;
+            range->curr = range->curr + 1;
             return *this;
         }
 
@@ -368,8 +268,8 @@ public:
     ValueRangeIter end() { return ValueRangeIter(finish, this); }
 
 private:
-    long start, finish;
-    long curr;
+    Value start, finish;
+    Value curr;
 };
 
 static_assert(std::input_iterator<ValueRange::ValueRangeIter>);

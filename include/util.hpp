@@ -35,6 +35,9 @@ template <typename T, typename... Args> void dbprint(T msg, Args&&...args) {
         throw std::runtime_error("visit() was not implemented for the current visitable node"); \
     }
 
+
+#define todo() throw Todo(std::source_location::current()) // NOLINT
+
 constexpr std::size_t BOOST_GOLDEN_RATIO = 0x9e3779b9;
 constexpr std::size_t HASH_SHL           = 6;
 constexpr std::size_t HASH_SHR           = 2;
@@ -59,13 +62,6 @@ public:
     const char *what() const noexcept override { return location.c_str(); }
 };
 
-/**
-A function to mark a block of code as unimplemented, and to be implemented in the future.
-*/
-constexpr void todo() {
-    throw Todo(std::source_location::current());
-}
-
 template <typename T> using Box = std::unique_ptr<T>;
 
 template <typename T, typename... Args>
@@ -78,6 +74,8 @@ template <typename T> using Vec = std::vector<T>;
 template <typename T> using Optional = std::optional<T>;
 
 template <typename T> using Ref = std::reference_wrapper<T>;
+
+template <typename T1, typename T2> using Pair = std::pair<T1, T2>;
 
 // Overloaded template class for Rust-style pattern matching on variants.
 template <class... Ts> struct match : Ts... {

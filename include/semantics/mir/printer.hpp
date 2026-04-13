@@ -54,7 +54,6 @@ public:
     void visit(AssignExprMIR& node) override;
     void visit(CondExprMIR& node) override;
     void visit(IdentExprMIR& node) override;
-    void visit(ConstExprMIR& node) override;
     void visit(LiteralExprMIR& node) override;
     void visit(CallExprMIR& node) override;
     void visit(MemberAccExprMIR& node) override;

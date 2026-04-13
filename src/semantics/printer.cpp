@@ -83,30 +83,7 @@ std::string LabelSymbol::to_string() const {
 }
 
 std::string PrimitiveType::to_string() const {
-    switch (primkind) {
-    case PrimType::U8:
-        return "U8i";
-    case PrimType::U16:
-        return "U16i";
-    case PrimType::U32:
-        return "U32i";
-    case PrimType::U64:
-        return "U64i";
-    case PrimType::I8:
-        return "I8i";
-    case PrimType::I16:
-        return "I16i";
-    case PrimType::I32:
-        return "I32i";
-    case PrimType::I64:
-        return "I64i";
-    case PrimType::F64:
-        return "F64i";
-    case PrimType::BOOL:
-        return "Bool";
-    }
-
-    return "<primitive>";
+    return tokens::primitive_to_string(primkind);
 }
 
 std::string ClassType::to_string() const {

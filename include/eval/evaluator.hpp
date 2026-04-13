@@ -6,7 +6,6 @@
 #include "eval/value.hpp"
 
 namespace ecc::sema::mir {
-class ConstExprMIR;
 class BinaryExprMIR;
 class CastExprMIR;
 class UnaryExprMIR;
@@ -29,8 +28,6 @@ An abstract class for evaluating expressions.
 class ExprEvaluator {
 public:
     virtual ~ExprEvaluator() = default;
-
-    virtual Value eval(sema::mir::ConstExprMIR& expr) = 0;
 
     virtual Value eval(sema::mir::BinaryExprMIR& expr) = 0;
 
