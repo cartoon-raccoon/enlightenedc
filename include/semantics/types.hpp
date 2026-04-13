@@ -228,6 +228,8 @@ public:
     */
     virtual void finalize() = 0;
 
+    virtual Type *effective_type() { return this; };
+
     codegen::LLVMType *get_llvmtype();
 
     virtual std::string to_string() const { return "()"; }
@@ -570,6 +572,14 @@ public:
 
     void finalize() override;
 
+    Type *effective_type() override {
+        if (type_rep) {
+            return *type_rep;
+        } else {
+            return this;
+        }
+    }
+
     std::string to_string() const override;
 
     Optional<std::string> get_name() override { return name; }
@@ -635,6 +645,8 @@ public:
     EnumType *as_enum() override { return this; }
 
     void finalize() override;
+
+    Type *effective_type() override { return underlying; }
 
     std::string to_string() const override;
 
