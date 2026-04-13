@@ -151,6 +151,23 @@ public:
 
     Value operator&(const Value& rhs) const;
 
+    // Binary bitshift left
+    template <typename T>
+    Value operator<<(const T& rhs) const { return *this << Value(rhs); }
+
+    Value operator<<(const Value& rhs) const;
+
+    // Binary bitshift right
+    template <typename T>
+    Value operator>>(const T& rhs) const { return *this >> Value(rhs); }
+
+    Value operator>>(const Value& rhs) const;
+
+    template <typename T>
+    Value operator%(const T& rhs) const { return *this % Value(rhs); }
+
+    Value operator%(const Value& rhs) const;
+
     // Binary EQ
     template <typename T>
     Value operator==(const T& rhs) const { return *this == Value(rhs); }
@@ -218,14 +235,10 @@ public:
     Value operator~() const;
 
     // Unary NEG
-    Value operator-() const {
-        todo();
-    }
+    Value operator-() const;
 
     // Unary POS
-    Value operator+() const {
-        todo();
-    }
+    Value operator+() const;
 
     std::string to_string() {
         return std::visit([this](const auto& v) { return std::format("{}", v); }, inner);

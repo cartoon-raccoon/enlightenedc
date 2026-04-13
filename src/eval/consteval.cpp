@@ -40,7 +40,7 @@ Value ConstEvaluator::eval(BinaryExprMIR& expr) {
     case BinaryOp::DIV:
         return left / right;
     case BinaryOp::MOD:
-        todo();
+        return left % right;
     case BinaryOp::EQ:
         return left == right;
     case BinaryOp::NE:
@@ -59,10 +59,10 @@ Value ConstEvaluator::eval(BinaryExprMIR& expr) {
         return left & right;
     case BinaryOp::XOR:
         return left ^ right;
-    case BinaryOp::LSHIFT: // todo
-
+    case BinaryOp::LSHIFT:
+        return left << right;
     case BinaryOp::RSHIFT:
-        todo();
+        return left >> right;
     default:
         throw InvalidCompileTimeEval("unsupported binary operator", expr.loc);
     }

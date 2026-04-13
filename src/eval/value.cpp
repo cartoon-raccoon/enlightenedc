@@ -1,4 +1,5 @@
 #include "eval/value.hpp"
+#include <stdexcept>
 #include "tokens.hpp"
 
 using namespace ecc::eval;
@@ -48,57 +49,313 @@ Pair<Value, Value> Value::promote(const Value& lhs, const Value& rhs) {
 }
 
 Value Value::operator|(const Value& rhs) const {
+    if (is_float() || rhs.is_float()) {
+        // fixme: better error handling
+        throw InvalidCompileTimeEval("invalid value types for bitwise OR");
+    }
     auto pr = promote(*this, rhs);
-    todo();
+    return std::visit(match{
+        [](int8_t l, int8_t r)   -> Value { return Value(l | r); },
+        [](int16_t l, int16_t r) -> Value { return Value(l | r); },
+        [](int32_t l, int32_t r) -> Value { return Value(l | r); },
+        [](int64_t l, int64_t r) -> Value { return Value(l | r); },
+        [](uint8_t l, uint8_t r) -> Value { return Value(l | r); },
+        [](uint16_t l, uint16_t r) -> Value { return Value(l | r); },
+        [](uint32_t l, uint32_t r) -> Value { return Value(l | r); },
+        [](uint64_t l, uint64_t r) -> Value { return Value(l | r); },
+        [](bool l, bool r) -> Value { return Value(l | r); },
+        [](auto&& l, auto&& r) -> Value { 
+            throw std::runtime_error("unexpected type pair while evaluating value"); 
+        },
+    }, pr.first.inner, pr.second.inner);
 }
 
 Value Value::operator^(const Value& rhs) const {
+    if (is_float() || rhs.is_float()) {
+        throw InvalidCompileTimeEval("invalid value types for bitwise XOR");
+    }
     auto pr = promote(*this, rhs);
-    todo();
+    return std::visit(match{
+        [](int8_t l, int8_t r)   -> Value { return Value(l ^ r); },
+        [](int16_t l, int16_t r) -> Value { return Value(l ^ r); },
+        [](int32_t l, int32_t r) -> Value { return Value(l ^ r); },
+        [](int64_t l, int64_t r) -> Value { return Value(l ^ r); },
+        [](uint8_t l, uint8_t r) -> Value { return Value(l ^ r); },
+        [](uint16_t l, uint16_t r) -> Value { return Value(l ^ r); },
+        [](uint32_t l, uint32_t r) -> Value { return Value(l ^ r); },
+        [](uint64_t l, uint64_t r) -> Value { return Value(l ^ r); },
+        [](bool l, bool r) -> Value { return Value(l ^ r); },
+        [](auto&& l, auto&& r) -> Value { 
+            throw std::runtime_error("unexpected type pair while evaluating value"); 
+        },
+    }, pr.first.inner, pr.second.inner);
 }
 
 Value Value::operator&(const Value& rhs) const {
+    if (is_float() || rhs.is_float()) {
+        throw InvalidCompileTimeEval("invalid value types for bitwise AND");
+    }
     auto pr = promote(*this, rhs);
-    todo();
+    return std::visit(match{
+        [](int8_t l, int8_t r)   -> Value { return Value(l & r); },
+        [](int16_t l, int16_t r) -> Value { return Value(l & r); },
+        [](int32_t l, int32_t r) -> Value { return Value(l & r); },
+        [](int64_t l, int64_t r) -> Value { return Value(l & r); },
+        [](uint8_t l, uint8_t r) -> Value { return Value(l & r); },
+        [](uint16_t l, uint16_t r) -> Value { return Value(l & r); },
+        [](uint32_t l, uint32_t r) -> Value { return Value(l & r); },
+        [](uint64_t l, uint64_t r) -> Value { return Value(l & r); },
+        [](bool l, bool r) -> Value { return Value(l & r); },
+        [](auto&& l, auto&& r) -> Value { 
+            throw std::runtime_error("unexpected type pair while evaluating value"); 
+        },
+    }, pr.first.inner, pr.second.inner);
+}
+
+Value Value::operator<<(const Value& rhs) const {
+    if (is_float() || rhs.is_float()) {
+        throw InvalidCompileTimeEval("invalid value types for bitshift left");
+    }
+    auto pr = promote(*this, rhs);
+    return std::visit(match{
+        [](int8_t l, int8_t r)   -> Value { return Value(l << r); },
+        [](int16_t l, int16_t r) -> Value { return Value(l << r); },
+        [](int32_t l, int32_t r) -> Value { return Value(l << r); },
+        [](int64_t l, int64_t r) -> Value { return Value(l << r); },
+        [](uint8_t l, uint8_t r) -> Value { return Value(l << r); },
+        [](uint16_t l, uint16_t r) -> Value { return Value(l << r); },
+        [](uint32_t l, uint32_t r) -> Value { return Value(l << r); },
+        [](uint64_t l, uint64_t r) -> Value { return Value(l << r); },
+        [](bool l, bool r) -> Value { return Value(l << r); },
+        [](auto&& l, auto&& r) -> Value { 
+            throw std::runtime_error("unexpected type pair while evaluating value"); 
+        },
+    }, pr.first.inner, pr.second.inner);
+}
+
+Value Value::operator>>(const Value& rhs) const {
+    if (is_float() || rhs.is_float()) {
+        throw InvalidCompileTimeEval("invalid value types for bitshift right");
+    }
+    auto pr = promote(*this, rhs);
+    return std::visit(match{
+        [](int8_t l, int8_t r)   -> Value { return Value(l >> r); },
+        [](int16_t l, int16_t r) -> Value { return Value(l >> r); },
+        [](int32_t l, int32_t r) -> Value { return Value(l >> r); },
+        [](int64_t l, int64_t r) -> Value { return Value(l >> r); },
+        [](uint8_t l, uint8_t r) -> Value { return Value(l >> r); },
+        [](uint16_t l, uint16_t r) -> Value { return Value(l >> r); },
+        [](uint32_t l, uint32_t r) -> Value { return Value(l >> r); },
+        [](uint64_t l, uint64_t r) -> Value { return Value(l >> r); },
+        [](bool l, bool r) -> Value { return Value(l >> r); },
+        [](auto&& l, auto&& r) -> Value { 
+            throw std::runtime_error("unexpected type pair while evaluating value"); 
+        },
+    }, pr.first.inner, pr.second.inner);
+}
+
+Value Value::operator%(const Value& rhs) const {
+    if (is_float() || rhs.is_float()) {
+        throw InvalidCompileTimeEval("invalid value types for MOD");
+    }
+    auto pr = promote(*this, rhs);
+    return std::visit(match{
+        [](int8_t l, int8_t r)   -> Value { return Value(l % r); },
+        [](int16_t l, int16_t r) -> Value { return Value(l % r); },
+        [](int32_t l, int32_t r) -> Value { return Value(l % r); },
+        [](int64_t l, int64_t r) -> Value { return Value(l % r); },
+        [](uint8_t l, uint8_t r) -> Value { return Value(l % r); },
+        [](uint16_t l, uint16_t r) -> Value { return Value(l % r); },
+        [](uint32_t l, uint32_t r) -> Value { return Value(l % r); },
+        [](uint64_t l, uint64_t r) -> Value { return Value(l % r); },
+        [](bool l, bool r) -> Value { return Value(l % r); },
+        [](auto&& l, auto&& r) -> Value { 
+            throw std::runtime_error("unexpected type pair while evaluating value"); 
+        },
+    }, pr.first.inner, pr.second.inner);
 }
 
 Value Value::operator==(const Value& rhs) const {
     auto pr = promote(*this, rhs);
-    todo();
+    return std::visit(match{
+        [](int8_t l, int8_t r)   -> Value { return Value(l == r); },
+        [](int16_t l, int16_t r) -> Value { return Value(l == r); },
+        [](int32_t l, int32_t r) -> Value { return Value(l == r); },
+        [](int64_t l, int64_t r) -> Value { return Value(l == r); },
+        [](uint8_t l, uint8_t r) -> Value { return Value(l == r); },
+        [](uint16_t l, uint16_t r) -> Value { return Value(l == r); },
+        [](uint32_t l, uint32_t r) -> Value { return Value(l == r); },
+        [](uint64_t l, uint64_t r) -> Value { return Value(l == r); },
+        [](double l, double r) -> Value { return Value(l == r); },
+        [](bool l, bool r) -> Value { return Value(l == r); },
+        [](auto&& l, auto&& r) -> Value { 
+            throw std::runtime_error("unexpected type pair while evaluating value"); 
+        },
+    }, pr.first.inner, pr.second.inner);
 }
 
 Value Value::operator<(const Value& rhs) const {
     auto pr = promote(*this, rhs);
-    todo();
+    return std::visit(match{
+        [](int8_t l, int8_t r)   -> Value { return Value(l < r); },
+        [](int16_t l, int16_t r) -> Value { return Value(l < r); },
+        [](int32_t l, int32_t r) -> Value { return Value(l < r); },
+        [](int64_t l, int64_t r) -> Value { return Value(l < r); },
+        [](uint8_t l, uint8_t r) -> Value { return Value(l < r); },
+        [](uint16_t l, uint16_t r) -> Value { return Value(l < r); },
+        [](uint32_t l, uint32_t r) -> Value { return Value(l < r); },
+        [](uint64_t l, uint64_t r) -> Value { return Value(l < r); },
+        [](double l, double r) -> Value { return Value(l < r); },
+        [](bool l, bool r) -> Value { return Value(l < r); },
+        [](auto&& l, auto&& r) -> Value { 
+            throw std::runtime_error("unexpected type pair while evaluating value"); 
+        },
+    }, pr.first.inner, pr.second.inner);
 }
 
 Value Value::operator>(const Value& rhs) const {
     auto pr = promote(*this, rhs);
-    todo();
+    return std::visit(match{
+        [](int8_t l, int8_t r)   -> Value { return Value(l > r); },
+        [](int16_t l, int16_t r) -> Value { return Value(l > r); },
+        [](int32_t l, int32_t r) -> Value { return Value(l > r); },
+        [](int64_t l, int64_t r) -> Value { return Value(l > r); },
+        [](uint8_t l, uint8_t r) -> Value { return Value(l > r); },
+        [](uint16_t l, uint16_t r) -> Value { return Value(l > r); },
+        [](uint32_t l, uint32_t r) -> Value { return Value(l > r); },
+        [](uint64_t l, uint64_t r) -> Value { return Value(l > r); },
+        [](double l, double r) -> Value { return Value(l > r); },
+        [](bool l, bool r) -> Value { return Value(l > r); },
+        [](auto&& l, auto&& r) -> Value { 
+            throw std::runtime_error("unexpected type pair while evaluating value"); 
+        },
+    }, pr.first.inner, pr.second.inner);
 }
 
 Value Value::operator+(const Value& rhs) const {
     auto pr = promote(*this, rhs);
-    todo();
+    return std::visit(match{
+        [](int8_t l, int8_t r)   -> Value { return Value(l + r); },
+        [](int16_t l, int16_t r) -> Value { return Value(l + r); },
+        [](int32_t l, int32_t r) -> Value { return Value(l + r); },
+        [](int64_t l, int64_t r) -> Value { return Value(l + r); },
+        [](uint8_t l, uint8_t r) -> Value { return Value(l + r); },
+        [](uint16_t l, uint16_t r) -> Value { return Value(l + r); },
+        [](uint32_t l, uint32_t r) -> Value { return Value(l + r); },
+        [](uint64_t l, uint64_t r) -> Value { return Value(l + r); },
+        [](double l, double r) -> Value { return Value(l + r); },
+        [](bool l, bool r) -> Value { return Value(l + r); },
+        [](auto&& l, auto&& r) -> Value { 
+            throw std::runtime_error("unexpected type pair while evaluating value"); 
+        },
+    }, pr.first.inner, pr.second.inner);
 }
 
 Value Value::operator-(const Value& rhs) const {
     auto pr = promote(*this, rhs);
-    todo();
+    return std::visit(match{
+        [](int8_t l, int8_t r)   -> Value { return Value(l - r); },
+        [](int16_t l, int16_t r) -> Value { return Value(l - r); },
+        [](int32_t l, int32_t r) -> Value { return Value(l - r); },
+        [](int64_t l, int64_t r) -> Value { return Value(l - r); },
+        [](uint8_t l, uint8_t r) -> Value { return Value(l - r); },
+        [](uint16_t l, uint16_t r) -> Value { return Value(l - r); },
+        [](uint32_t l, uint32_t r) -> Value { return Value(l - r); },
+        [](uint64_t l, uint64_t r) -> Value { return Value(l - r); },
+        [](double l, double r) -> Value { return Value(l - r); },
+        [](bool l, bool r) -> Value { return Value(l - r); },
+        [](auto&& l, auto&& r) -> Value { 
+            throw std::runtime_error("unexpected type pair while evaluating value"); 
+        },
+    }, pr.first.inner, pr.second.inner);
 }
 
 Value Value::operator*(const Value& rhs) const {
     auto pr = promote(*this, rhs);
-    todo();
+    return std::visit(match{
+        [](int8_t l, int8_t r)   -> Value { return Value(l * r); },
+        [](int16_t l, int16_t r) -> Value { return Value(l * r); },
+        [](int32_t l, int32_t r) -> Value { return Value(l * r); },
+        [](int64_t l, int64_t r) -> Value { return Value(l * r); },
+        [](uint8_t l, uint8_t r) -> Value { return Value(l * r); },
+        [](uint16_t l, uint16_t r) -> Value { return Value(l * r); },
+        [](uint32_t l, uint32_t r) -> Value { return Value(l * r); },
+        [](uint64_t l, uint64_t r) -> Value { return Value(l * r); },
+        [](double l, double r) -> Value { return Value(l * r); },
+        [](bool l, bool r) -> Value { return Value(l * r); },
+        [](auto&& l, auto&& r) -> Value { 
+            throw std::runtime_error("unexpected type pair while evaluating value"); 
+        },
+    }, pr.first.inner, pr.second.inner);
 }
 
 Value Value::operator/(const Value& rhs) const {
     auto pr = promote(*this, rhs);
-    todo();
+    if (rhs == 0) {
+        throw InvalidCompileTimeEval("divide by zero");
+    }
+    return std::visit(match{
+        [](int8_t l, int8_t r)   -> Value { return Value(l / r); },
+        [](int16_t l, int16_t r) -> Value { return Value(l / r); },
+        [](int32_t l, int32_t r) -> Value { return Value(l / r); },
+        [](int64_t l, int64_t r) -> Value { return Value(l / r); },
+        [](uint8_t l, uint8_t r) -> Value { return Value(l / r); },
+        [](uint16_t l, uint16_t r) -> Value { return Value(l / r); },
+        [](uint32_t l, uint32_t r) -> Value { return Value(l / r); },
+        [](uint64_t l, uint64_t r) -> Value { return Value(l / r); },
+        [](double l, double r) -> Value { return Value(l / r); },
+        [](bool l, bool r) -> Value { return Value(l / r); },
+        [](auto&& l, auto&& r) -> Value { 
+            throw std::runtime_error("unexpected type pair while evaluating value"); 
+        },
+    }, pr.first.inner, pr.second.inner);
 }
 
 Value Value::operator~() const {
-    todo();
+    return std::visit(match{
+        [](int8_t v) { return Value(~v); },
+        [](int16_t v) { return Value(~v); },
+        [](int32_t v) { return Value(~v); },
+        [](int64_t v) { return Value(~v); },
+        [](uint8_t v) { return Value(~v); },
+        [](uint16_t v) { return Value(~v); },
+        [](uint32_t v) { return Value(~v); },
+        [](uint64_t v) { return Value(~v); },
+        [](bool v) { return Value(~v); },
+        [](double v) -> Value {
+            throw InvalidCompileTimeEval("invalid value type for bitwise NOT");
+        }
+    }, inner);
+}
+
+Value Value::operator-() const {
+    return std::visit(match{
+        [](int8_t v) { return Value(-v); },
+        [](int16_t v) { return Value(-v); },
+        [](int32_t v) { return Value(-v); },
+        [](int64_t v) { return Value(-v); },
+        [](uint8_t v) { return Value(-v); },
+        [](uint16_t v) { return Value(-v); },
+        [](uint32_t v) { return Value(-v); },
+        [](uint64_t v) { return Value(-v); },
+        [](double v) { return Value(-v); },
+        [](bool v) { return Value(-v); },
+    }, inner);
+}
+
+Value Value::operator+() const {
+    return std::visit(match{
+        [](int8_t v) { return Value(+v); },
+        [](int16_t v) { return Value(+v); },
+        [](int32_t v) { return Value(+v); },
+        [](int64_t v) { return Value(+v); },
+        [](uint8_t v) { return Value(+v); },
+        [](uint16_t v) { return Value(+v); },
+        [](uint32_t v) { return Value(+v); },
+        [](uint64_t v) { return Value(+v); },
+        [](double v) { return Value(+v); },
+        [](bool v) { return Value(+v); },
+    }, inner);
 }
 
 Value::operator bool() const  {

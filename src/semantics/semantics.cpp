@@ -6,7 +6,6 @@
 #include "ast/ast.hpp"
 #include "error.hpp"
 #include "semantics/mir/mir.hpp"
-#include "semantics/mir/optimizations/constfold.hpp"
 #include "semantics/mir/synthesizer.hpp"
 #include "semantics/typeerr.hpp"
 #include "semantics/validator.hpp"
@@ -15,7 +14,6 @@
 using namespace ecc::ast;
 using namespace ecc::sema;
 using namespace mir;
-using namespace ecc::opti;
 
 #define DO_VISIT(visitor, nodety)       /*NOLINT*/ \
     void visitor::visit(nodety& node) { /*NOLINT*/ \
@@ -720,8 +718,4 @@ void SemanticChecker::check_semantics(Program& prog, ProgramMIR& mir) {
 
     // // We finalize array types after validation because the validator infers array size.
     // types.finalize_arrays();
-
-    // perform constant folding
-    ConstantFolder constfold(symbols, types);
-    mir.accept(constfold);
 }
