@@ -32,9 +32,9 @@ public:
     Each file is one translation unit in Ecc. That is, one AST is produced for each file,
     and thus one LLVM Module per file.
     */
-    void run_pipeline(std::string *filename);
+    void run_pipeline(std::string *filename) const;
 
-    int run();
+    int run() const;
 };
 
 } // namespace ecc
