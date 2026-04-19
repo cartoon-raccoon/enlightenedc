@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include "tokens.hpp"
 #ifndef ECC_VALUE_H
 #define ECC_VALUE_H
@@ -29,9 +30,8 @@ A value of a primitive type.
 */
 class Value {
 public:
-    // fixme: create system closer to HolyC's type system and implicit cast rules
     using ValueType = std::variant<int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t, uint32_t,
-                                   uint64_t, double, bool>;
+                                   uint64_t, float, double, bool>;
 
     Value() : inner((int32_t)0), primtype(tokens::PrimType::I32) {}
 
@@ -51,11 +51,35 @@ public:
 
     Value(uint64_t v) : inner(v), primtype(tokens::PrimType::U64) {}
 
+    Value(float v) : inner(v), primtype(tokens::PrimType::F32) {}
+
     Value(double v) : inner(v), primtype(tokens::PrimType::F64) {}
 
     Value(bool v) : inner(v), primtype(tokens::PrimType::BOOL) {}
 
     Value(const Value& other) : inner(other.inner), primtype(other.primtype) {}
+
+    static Value from_literal(uint64_t lit) {
+        if (lit <= INT32_MAX) {
+            return Value((int32_t) lit);
+        } else if (lit <= INT64_MAX) {
+            return Value((int64_t) lit);
+        } else {
+            return Value(lit);
+        }
+    }
+
+    static Value from_literal(double lit) {
+        return Value(lit);
+    }
+    
+    static Value from_literal(char lit) {
+        return Value((int8_t) lit);
+    }
+
+    static Value from_literal(bool lit) {
+        return Value(lit);
+    }
 
     Value& operator=(const Value& other) {
         inner    = other.inner;

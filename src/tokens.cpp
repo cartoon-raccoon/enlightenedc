@@ -141,6 +141,8 @@ std::string primitive_to_string(PrimType prim) {
         return "i32";
     case P::I64:
         return "i64";
+    case P::F32:
+        return "f32";
     case P::F64:
         return "f64";
     case P::BOOL:
@@ -184,17 +186,20 @@ PrimTypeRank pr_rank(PrimType pr) {
     case P::U64:
     case P::I64:
         return PR::INT64;
+    case P::F32:
     case P::F64:
-        return PR::FLOAT;
+        return PR::FLT64;
     }
 }
 
 PrimType pr_promote(PrimType lhs, PrimType rhs) {
     PrimTypeRank lhs_rank = pr_rank(lhs);
     PrimTypeRank rhs_rank = pr_rank(rhs);
+    // Take the higher of the two ranks, tie-breaking to the left
     if (lhs_rank >= rhs_rank) {
         PrimType ret = lhs_rank >= PrimTypeRank::INT32
-                           ? lhs
+                           ? lhs // if lhs_rank is already that of a 4-byte integer or higher, use it
+                           // otherwise, promote it to a 4-byte integer, preserving signedness
                            : pr_from_rank(PrimTypeRank::INT32, pr_is_signed(lhs));
 
         return ret;
@@ -222,7 +227,9 @@ PrimType pr_from_rank(PrimTypeRank rank, bool is_signed) {
         return is_signed ? P::I32 : P::U32;
     case PR::INT64:
         return is_signed ? P::I64 : P::U64;
-    case PR::FLOAT:
+    case PR::FLT32:
+        return P::F32;
+    case PR::FLT64:
         return P::F64;
     }
 }
@@ -241,6 +248,7 @@ bool pr_is_integer(PrimType pr) {
     case PrimType::I64:
         return true;
 
+    case PrimType::F32:
     case PrimType::F64:
     case PrimType::BOOL:
         return false;
@@ -248,7 +256,7 @@ bool pr_is_integer(PrimType pr) {
 }
 
 bool pr_is_float(PrimType pr) {
-    return pr == PrimType::F64;
+    return pr == PrimType::F64 && pr == PrimType::F32;
 }
 
 bool pr_is_bool(PrimType pr) {
@@ -268,6 +276,7 @@ bool pr_is_signed(PrimType pr) {
     case PrimType::I16:
     case PrimType::I32:
     case PrimType::I64:
+    case PrimType::F32:
     case PrimType::F64:
         return true;
     }

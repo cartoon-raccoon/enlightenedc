@@ -71,10 +71,7 @@ Value ConstEvaluator::eval(BinaryExprMIR& expr) {
 
 Value ConstEvaluator::eval(CastExprMIR& expr) {
     Value val    = expr.inner->eval(*this);
-    Type *target = expr.target;
-    if (target->is_enum()) {
-        target = target->as_enum()->underlying;
-    }
+    Type *target = expr.target->effective_type();
 
     using namespace ecc::sema::types;
     using namespace ecc::tokens;
@@ -96,6 +93,8 @@ Value ConstEvaluator::eval(CastExprMIR& expr) {
             return val.cast<int32_t>();
         case PrimType::I64:
             return val.cast<int64_t>();
+        case PrimType::F32:
+            return val.cast<float>();
         case PrimType::F64:
             return val.cast<double>();
         case PrimType::BOOL:

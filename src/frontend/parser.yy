@@ -95,6 +95,7 @@ static ecc::frontend::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
     I16      "I16i" 
     I32      "I32i"
     I64      "I64i"
+    F32      "F32i"
     F64      "F64i"
     BOOL     "Bool"
     SIZEOF   "sizeof"
@@ -391,6 +392,7 @@ primitive_type:
     | I16 { $$ = std::make_unique<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::I16); }
     | I32 { $$ = std::make_unique<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::I32); }
     | I64 { $$ = std::make_unique<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::I64); }
+    | F32 { $$ = std::make_unique<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::F32); }
     | F64 { $$ = std::make_unique<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::F64); }
     | BOOL { $$ = std::make_unique<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::BOOL); }
 ;

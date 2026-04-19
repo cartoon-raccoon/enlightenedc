@@ -39,6 +39,9 @@ Value Value::pr_cast(PrimType pr) const {
     case P::I64:
         return cast<int64_t>();
 
+    case P::F32:
+        return cast<float>();
+
     case P::F64:
         return cast<double>();
     }
@@ -47,7 +50,10 @@ Value Value::pr_cast(PrimType pr) const {
 Pair<Value, Value> Value::promote(const Value& lhs, const Value& rhs) {
     PrimType promoted = pr_promote(lhs.primtype, rhs.primtype);
 
-    return {lhs.pr_cast(promoted), rhs.pr_cast(promoted)};
+    Value ret_lhs = lhs.primtype == promoted ? lhs : lhs.pr_cast(promoted);
+    Value ret_rhs = rhs.primtype == promoted ? rhs : rhs.pr_cast(promoted);
+
+    return {ret_lhs, ret_rhs};
 }
 
 Value Value::operator|(const Value& rhs) const {
@@ -200,6 +206,7 @@ Value Value::operator==(const Value& rhs) const {
                           [](uint16_t l, uint16_t r) -> Value { return Value(l == r); },
                           [](uint32_t l, uint32_t r) -> Value { return Value(l == r); },
                           [](uint64_t l, uint64_t r) -> Value { return Value(l == r); },
+                          [](float l, float r) -> Value { return Value(l == r); },
                           [](double l, double r) -> Value { return Value(l == r); },
                           [](bool l, bool r) -> Value { return Value(l == r); },
                           [](auto&& l, auto&& r) -> Value {
@@ -221,6 +228,7 @@ Value Value::operator<(const Value& rhs) const {
                           [](uint16_t l, uint16_t r) -> Value { return Value(l < r); },
                           [](uint32_t l, uint32_t r) -> Value { return Value(l < r); },
                           [](uint64_t l, uint64_t r) -> Value { return Value(l < r); },
+                          [](float l, float r) -> Value { return Value(l < r); },
                           [](double l, double r) -> Value { return Value(l < r); },
                           [](bool l, bool r) -> Value { return Value(l < r); },
                           [](auto&& l, auto&& r) -> Value {
@@ -242,6 +250,7 @@ Value Value::operator>(const Value& rhs) const {
                           [](uint16_t l, uint16_t r) -> Value { return Value(l > r); },
                           [](uint32_t l, uint32_t r) -> Value { return Value(l > r); },
                           [](uint64_t l, uint64_t r) -> Value { return Value(l > r); },
+                          [](float l, float r) -> Value { return Value(l > r); },
                           [](double l, double r) -> Value { return Value(l > r); },
                           [](bool l, bool r) -> Value { return Value(l > r); },
                           [](auto&& l, auto&& r) -> Value {
@@ -263,6 +272,7 @@ Value Value::operator+(const Value& rhs) const {
                           [](uint16_t l, uint16_t r) -> Value { return Value(l + r); },
                           [](uint32_t l, uint32_t r) -> Value { return Value(l + r); },
                           [](uint64_t l, uint64_t r) -> Value { return Value(l + r); },
+                          [](float l, float r) -> Value { return Value(l + r); },
                           [](double l, double r) -> Value { return Value(l + r); },
                           [](bool l, bool r) -> Value { return Value(l + r); },
                           [](auto&& l, auto&& r) -> Value {
@@ -284,7 +294,7 @@ Value Value::operator-(const Value& rhs) const {
                           [](uint16_t l, uint16_t r) -> Value { return Value(l - r); },
                           [](uint32_t l, uint32_t r) -> Value { return Value(l - r); },
                           [](uint64_t l, uint64_t r) -> Value { return Value(l - r); },
-                          [](double l, double r) -> Value { return Value(l - r); },
+                          [](float l, float r) -> Value { return Value(l - r); },
                           [](bool l, bool r) -> Value { return Value(l - r); },
                           [](auto&& l, auto&& r) -> Value {
                               throw std::runtime_error(
@@ -305,6 +315,7 @@ Value Value::operator*(const Value& rhs) const {
                           [](uint16_t l, uint16_t r) -> Value { return Value(l * r); },
                           [](uint32_t l, uint32_t r) -> Value { return Value(l * r); },
                           [](uint64_t l, uint64_t r) -> Value { return Value(l * r); },
+                          [](float l, float r) -> Value { return Value(l * r); },
                           [](double l, double r) -> Value { return Value(l * r); },
                           [](bool l, bool r) -> Value { return Value(l * r); },
                           [](auto&& l, auto&& r) -> Value {
@@ -329,6 +340,7 @@ Value Value::operator/(const Value& rhs) const {
                           [](uint16_t l, uint16_t r) -> Value { return Value(l / r); },
                           [](uint32_t l, uint32_t r) -> Value { return Value(l / r); },
                           [](uint64_t l, uint64_t r) -> Value { return Value(l / r); },
+                          [](float l, float r) -> Value { return Value(l / r); },
                           [](double l, double r) -> Value { return Value(l / r); },
                           [](bool l, bool r) -> Value { return Value(l / r); },
                           [](auto&& l, auto&& r) -> Value {
@@ -346,7 +358,7 @@ Value Value::operator~() const {
               [](uint8_t v) { return Value(~v); }, [](uint16_t v) { return Value(~v); },
               [](uint32_t v) { return Value(~v); }, [](uint64_t v) { return Value(~v); },
               [](bool v) { return Value(~v); },
-              [](double v) -> Value {
+              [](auto&& v) -> Value {
                   throw InvalidCompileTimeEval("invalid value type for bitwise NOT");
               }},
         inner);
@@ -362,6 +374,7 @@ Value Value::operator-() const {
                           [](uint16_t v) { return Value(-v); },
                           [](uint32_t v) { return Value(-v); },
                           [](uint64_t v) { return Value(-v); },
+                          [](float v) { return Value(-v); },
                           [](double v) { return Value(-v); },
                           [](bool v) { return Value(-v); },
                       },
@@ -378,6 +391,7 @@ Value Value::operator+() const {
                           [](uint16_t v) { return Value(+v); },
                           [](uint32_t v) { return Value(+v); },
                           [](uint64_t v) { return Value(+v); },
+                          [](float v) { return Value(+v); },
                           [](double v) { return Value(+v); },
                           [](bool v) { return Value(+v); },
                       },
@@ -389,6 +403,7 @@ Value::operator bool() const {
                             [](int32_t v) { return v != 0; }, [](int64_t v) { return v != 0; },
                             [](uint8_t v) { return v != 0; }, [](uint16_t v) { return v != 0; },
                             [](uint32_t v) { return v != 0; }, [](uint64_t v) { return v != 0; },
+                            [](float v) { return v != 0.0; },
                             [](double v) { return v != 0.0; }, [](bool v) { return v; }},
                       inner);
 }

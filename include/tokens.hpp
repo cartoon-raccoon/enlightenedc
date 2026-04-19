@@ -4,6 +4,7 @@
 #define ECC_TOKENS_H
 
 #include <cstdint>
+#include <string>
 
 namespace ecc::tokens {
 
@@ -78,6 +79,7 @@ enum class PrimType : uint8_t {
     I16,
     I32,
     I64,
+    F32,
     F64,
     BOOL,
 };
@@ -88,7 +90,8 @@ enum class PrimTypeRank : uint8_t {
     INT16 = 3,
     INT32 = 4,
     INT64 = 5,
-    FLOAT = 7,
+    FLT32 = 6,
+    FLT64 = 7,
 };
 
 std::string binop_to_string(BinaryOp op);

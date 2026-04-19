@@ -186,6 +186,7 @@ Optional<uint64_t> PrimitiveType::int_max() const {
         return INT32_MAX;
     case PrimType::I64:
         return INT64_MAX;
+    case PrimType::F32:
     case PrimType::F64:
         return {};
     }
@@ -225,6 +226,10 @@ void PrimitiveType::finalize() {
         llvm_type = llvm::Type::getInt64Ty(ctxt().llvm().ctx());
         break;
 
+    case PrimType::F32:
+        llvm_type = llvm::Type::getFloatTy(ctxt().llvm().ctx());
+        break;
+
     case PrimType::F64:
         llvm_type = llvm::Type::getDoubleTy(ctxt().llvm().ctx());
         break;
@@ -253,6 +258,8 @@ std::string PrimitiveType::formal() {
         return "I64";
     case PrimType::BOOL:
         return "Bool";
+    case PrimType::F32:
+        return "F32";
     case PrimType::F64:
         return "F64";
     }
@@ -508,15 +515,15 @@ std::string UnionType::formal() {
 
 EnumType::EnumType(Location decl_loc, sema::sym::Scope *scope, TypeContext& tyctxt)
     : UserType(decl_loc, Kind::ENUM, tyctxt, scope),
-      // default type for an enum with no declared underlying type is U64.
-      underlying(ctxt().get_u64()) {
+      // default type for an enum with no declared underlying type is I32.
+      underlying(ctxt().get_i32()) {
 }
 
 EnumType::EnumType(Location decl_loc, std::string name, sema::sym::Scope *scope,
                    TypeContext& tyctxt)
     : UserType(decl_loc, Kind::ENUM, std::move(name), tyctxt, scope),
-      // default type for an enum with no declared underlying type is U64.
-      underlying(ctxt().get_u64()) {
+      // default type for an enum with no declared underlying type is I32.
+      underlying(ctxt().get_i32()) {
 }
 
 int64_t EnumType::add_enumerator(std::string enumerator, Location loc) {
@@ -657,6 +664,10 @@ void PointerType::finalize() {
     finalized = true;
 }
 
+Type *PointerType::effective_type() {
+    return ctxt().get_pointer(base->effective_type(), is_const);
+}
+
 /*
  * ARRAY TYPE METHODS
  */
@@ -705,6 +716,12 @@ void ArrayType::finalize() {
     finalized = true;
 }
 
+Type *ArrayType::effective_type() {
+    return arr_size ? 
+        ctxt().get_array(base->effective_type(), *arr_size) :
+        ctxt().get_array(base->effective_type());
+}
+
 /*
  * FUNCTION TYPE METHODS
  */
@@ -731,6 +748,14 @@ void FunctionType::finalize() {
         dbprint("FunctionType: already finalized, skipping");
         return;
     }
+    todo();
+}
+
+Type *FunctionType::effective_type() {
+    if (eff_ty) {
+        return eff_ty;
+    }
+
     todo();
 }
 
@@ -810,6 +835,7 @@ TypeContext::TypeContext(codegen::LLVMUnit& llvm)
       i16(std::make_unique<PrimitiveType>(PrimType::I16, *this)),
       i32(std::make_unique<PrimitiveType>(PrimType::I32, *this)),
       i64(std::make_unique<PrimitiveType>(PrimType::I64, *this)),
+      f32(std::make_unique<PrimitiveType>(PrimType::F32, *this)),
       f64(std::make_unique<PrimitiveType>(PrimType::F64, *this)),
       boolt(std::make_unique<PrimitiveType>(PrimType::BOOL, *this)) {
 }
@@ -841,15 +867,21 @@ PrimitiveType *TypeContext::get_primitive(PrimType pkind) {
         return i32.get();
     case PrimType::I64:
         return i64.get();
+    case PrimType::F32:
+        return f32.get();
     case PrimType::F64:
         return f64.get();
     case PrimType::BOOL:
         return boolt.get();
-    default:
-        return nullptr;
     }
 
     std::unreachable();
+}
+
+Pair<PrimitiveType *, PrimitiveType *> TypeContext::promote(PrimType p1, PrimType p2) {
+    PrimType promoted = tokens::pr_promote(p1, p2);
+
+    return {get_primitive(promoted), get_primitive(promoted)};
 }
 
 ClassType *TypeContext::get_class(Location decl_loc, std::string& name, sym::Scope *scope) {
