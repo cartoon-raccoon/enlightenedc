@@ -339,6 +339,10 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
         VarSymbol *symptr  = nullptr;
         if (ret.name) {
             // initialize our symbol and its pointer
+            if (ret.type->is_void()) {
+                add_error<EccSemError>("variable cannot have type Void or U0", declarator->loc);
+                throw UnableToContinue();
+            }
             sym = std::make_unique<VarSymbol>(declarator->loc, *ret.name, syms.current, ret.type);
             symptr = sym.get();
 
@@ -362,9 +366,7 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
 
         // sym should be valid, since to get here builder's name had to exist
         if (!symptr) {
-            add_error<EccSemError>("unexpected null pointer when parsing variable declarator",
-                                   declarator->loc);
-            throw UnableToContinue();
+            throw std::runtime_error("unexpected null pointer when parsing variable declarator");
         }
 
         // extract the initializer mir
@@ -1465,19 +1467,19 @@ void MIRSynthesizer::do_visit(LiteralExpression& node) {
     Value val;
     switch (node.kind) {
     case LiteralExpression::INT:
-        val = node.value.i_val;
+        val = Value::from_literal(node.value.i_val);
         break;
 
     case LiteralExpression::FLOAT:
-        val = node.value.f_val;
+        val = Value::from_literal(node.value.f_val);
         break;
 
     case LiteralExpression::CHAR:
-        val = node.value.c_val;
+        val = Value::from_literal(node.value.c_val);
         break;
 
     case LiteralExpression::BOOL:
-        val = node.value.b_val;
+        val = Value::from_literal(node.value.b_val);
         break;
     }
 

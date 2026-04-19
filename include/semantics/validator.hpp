@@ -19,16 +19,13 @@ namespace ecc::sema {
 The class that performs type-checking and semantic validation.
 */
 class Validator : public BaseMIRSemaVisitor, public NoMove {
+    Ref<types::TypeContext> types;
+    sym::SymbolTableWalker syms;
 public:
     Validator(sym::SymbolTable& syms, types::TypeContext& types)
         : BaseMIRSemaVisitor(State::READ), types(types), syms(syms) {}
 
     Vec<Box<EccSemError>> errors;
-
-    types::TypeContext& types;
-    sym::SymbolTableWalker syms;
-
-    void eval_initializer(types::Type *type, mir::InitializerMIR& init);
 
     template <typename E, typename... Args>
         requires std::derived_from<E, EccSemError>
@@ -43,6 +40,8 @@ protected:
     ScopeGuard<mir::MIRNode> enter_scope(sym::FuncSymbol *assoc = nullptr) override {
         return ScopeGuard<mir::MIRNode>(state, syms, assoc);
     }
+
+    void eval_initializer(types::Type *type, mir::InitializerMIR& init);
 
     void do_visit(mir::InitializerMIR& node) final;
     void do_visit(mir::VarDeclMIR& node) final;
@@ -80,10 +79,10 @@ private:
 
     void eval_initializer_rec(Vec<Accessor>& path, types::Type *type, mir::InitializerMIR& init);
 
-    void eval_initializer_rec(Vec<Accessor>& path, types::ClassType *cls,
+    void eval_initializer_rec_cls(Vec<Accessor>& path, types::ClassType *cls,
                               Vec<Box<mir::InitializerMIR>>& init);
 
-    void eval_initializer_rec(Vec<Accessor>& path, types::ArrayType *arr,
+    void eval_initializer_rec_arr(Vec<Accessor>& path, types::ArrayType *arr,
                               Vec<Box<mir::InitializerMIR>>& init);
 };
 
