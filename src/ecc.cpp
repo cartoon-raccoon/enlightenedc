@@ -27,6 +27,11 @@ int Ecc::run() {
     return 0;
 }
 
+void Ecc::print_error(EccError& err) {
+    // fixme: better error printing
+    std::cerr << err.to_string() << "\n";
+}
+
 void Ecc::run_pipeline(std::string *filename) {
     dbprint("running pipeline on file ", *filename);
 

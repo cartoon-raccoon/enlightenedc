@@ -266,7 +266,8 @@ public:
 
 class IfStmtLIR : public TerminalLIR {
 public:
-    IfStmtLIR(Location loc, Box<ExprLIR> condition) : TerminalLIR(loc, NodeKind::IFSTMT_LIR) {}
+    IfStmtLIR(Location loc, Box<ExprLIR> condition)
+        : TerminalLIR(loc, NodeKind::IFSTMT_LIR), condition(std::move(condition)) {}
 
     Box<ExprLIR> condition;
     Vec<Box<ProgItemLIR>> then_br;

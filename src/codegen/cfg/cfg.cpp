@@ -1,4 +1,5 @@
 #include "codegen/cfg/cfg.hpp"
+#include "util.hpp"
 
 using namespace codegen::cfg;
 
@@ -16,4 +17,12 @@ BasicBlock *FunctionCFG::create_block(std::string& label) {
     blocks.push_back(std::move(blk));
 
     return ret;
+}
+
+BasicBlock *FunctionCFG::lookup_block() {
+    todo();
+}
+
+FunctionCFG *ProgramCFG::add_function() {
+    todo();
 }

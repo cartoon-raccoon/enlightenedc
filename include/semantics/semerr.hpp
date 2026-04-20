@@ -7,6 +7,7 @@
 
 #include "error.hpp"
 #include "util.hpp"
+#include "semantics/types.hpp"
 
 namespace ecc::sema {
 using namespace ecc;
@@ -26,12 +27,55 @@ public:
     InvalidContError(Location err_loc) : EccSemError("continue not in loop", err_loc) {}
 };
 
+class InvalidReturnError : public EccSemError {
+public:
+    InvalidReturnError(Location err_loc) : EccSemError("return statement not in function", err_loc) {}
+};
+
 class InvalidCallExprError : public EccSemError {
 public:
-    InvalidCallExprError(std::string ident, Location err_loc)
-        : EccSemError("invalid function call", err_loc), ident(std::move(ident)) {}
+    InvalidCallExprError(types::Type *type, Location err_loc)
+        : EccSemError("invalid call expression", err_loc), typestr(type->formal()) {}
 
-    std::string ident;
+    std::string typestr;
+
+    std::string elab() override {
+        std::stringstream ss;
+        ss << typestr << " is not callable";
+
+        return ss.str();
+    }
+};
+
+class InvalidConditionError : public EccSemError {
+public:
+    InvalidConditionError(types::Type *type, Location err_loc)
+        : EccSemError("invalid condition", err_loc), typestr(type->formal()) {}
+
+    std::string typestr;
+
+    std::string elab() override {
+        std::stringstream ss;
+        ss << typestr << " cannot be used as a condition";
+
+        return ss.str();
+    }
+};
+
+class InvalidCoerceError : public EccSemError {
+public:
+    InvalidCoerceError(types::Type *from, types::Type *to, Location err_loc)
+        : EccSemError("invalid implicit cast", err_loc), 
+        from(from->formal()), to(to->formal()) {}
+
+    std::string from, to;
+
+    std::string elab() override {
+        std::stringstream ss;
+        ss << "cannot implicitly cast " << from << " to " << to;
+
+        return ss.str();
+    }
 };
 
 class InvalidInitializerError : public EccSemError {
@@ -49,9 +93,9 @@ public:
 
     std::string name;
 
-    std::string to_string() override {
+    std::string elab() override {
         std::stringstream ss;
-        ss << EccSemError::to_string() << "\ntype \'" << name << "\' is not declared\n";
+        ss << "type \'" << name << "\' is not declared\n";
 
         return ss.str();
     }
@@ -64,9 +108,9 @@ public:
 
     std::string name;
 
-    std::string to_string() override {
+    std::string elab() override {
         std::stringstream ss;
-        ss << EccSemError::to_string() << "\nidentifier \'" << name << "\' is not declared\n";
+        ss << "identifier \'" << name << "\' is not declared\n";
 
         return ss.str();
     }
@@ -79,9 +123,9 @@ public:
 
     std::string name;
 
-    std::string to_string() override {
+    std::string elab() override {
         std::stringstream ss;
-        ss << EccSemError::to_string() << "\nidentifier \'" << name
+        ss << "identifier \'" << name
            << "\' must reference a function or variable";
 
         return ss.str();
@@ -95,10 +139,9 @@ public:
 
     Location def_loc;
 
-    std::string to_string() override {
+    std::string elab() override {
         std::stringstream ss;
-        ss << EccSemError::to_string() << "\n"
-           << "type previously defined at <" << def_loc << ">";
+        ss << "type previously defined at <" << def_loc << ">";
 
         return ss.str();
     }
@@ -111,10 +154,9 @@ public:
 
     Location def_loc;
 
-    std::string to_string() override {
+    std::string elab() override {
         std::stringstream ss;
-        ss << EccSemError::to_string() << "\n"
-           << "symbol previously declared at <" << def_loc << ">";
+        ss << "symbol previously declared at <" << def_loc << ">";
 
         return ss.str();
     }

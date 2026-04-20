@@ -8,7 +8,6 @@
 #include "semantics/mir/mir.hpp"
 #include "semantics/mir/visitor.hpp"
 #include "semantics/symbols.hpp"
-#include "semantics/types.hpp"
 #include "util.hpp"
 
 namespace ecc::sema {
@@ -77,7 +76,12 @@ public:
     template <typename... Args> void bsv_dbprint(Args... args) {}
 #endif
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
+
     BaseSemanticVisitor(State state) {}
+
+#pragma clang diagnostic pop
 
     virtual ~BaseSemanticVisitor() = default;
 }; // class BaseSemanticVisitor
@@ -406,20 +410,6 @@ protected:
     // so that Elaborator and Validator only need to override needed ones.
 
 }; // class BaseMIRSemaVisitor
-
-/*
-The parent class that owns the symbol table and type context.
-*/
-class SemanticChecker : public NoMove {
-public:
-    SemanticChecker(sym::SymbolTable& symbols, types::TypeContext& types)
-        : symbols(symbols), types(types) {}
-
-    sym::SymbolTable& symbols;
-    types::TypeContext& types;
-
-    void check_semantics(ast::Program& prog, mir::ProgramMIR& mir);
-};
 
 } // namespace ecc::sema
 

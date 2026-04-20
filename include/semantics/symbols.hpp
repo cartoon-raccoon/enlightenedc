@@ -97,7 +97,7 @@ public:
         : Symbol(kind, std::move(name), scope) {}
 
     PhysicalSymbol(Kind kind, Location loc, std::string name, Scope *scope)
-        : Symbol(kind, std::move(name), scope) {}
+        : Symbol(kind, loc, std::move(name), scope) {}
 
     // The linkage of the symbol.
     enum class Linkage : uint8_t {
@@ -129,7 +129,7 @@ public:
         : Symbol(kind, std::move(name), scope) {}
 
     AbstractSymbol(Kind kind, Location loc, std::string name, Scope *scope)
-        : Symbol(kind, std::move(name), scope) {}
+        : Symbol(kind, loc, std::move(name), scope) {}
 
     AbstractSymbol *as_abstract() override { return this; }
 

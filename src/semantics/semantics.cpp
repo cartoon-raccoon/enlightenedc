@@ -4,12 +4,10 @@
 #include <memory>
 
 #include "ast/ast.hpp"
-#include "error.hpp"
 #include "semantics/mir/mir.hpp"
-#include "semantics/mir/synthesizer.hpp"
-#include "semantics/typeerr.hpp"
-#include "semantics/validator.hpp"
 #include "util.hpp"
+
+#pragma clang diagnostic ignored "-Wunused-parameter"
 
 using namespace ecc::ast;
 using namespace ecc::sema;
@@ -678,44 +676,4 @@ void BaseMIRSemaVisitor::do_visit(mir::SizeofExprMIR& node) {
                          /* terminal node */
                      }},
                node.operand);
-}
-
-void SemanticChecker::check_semantics(Program& prog, ProgramMIR& mir) {
-    dbprint("Checking semantics for ", prog.loc);
-
-    MIRSynthesizer mirsynthesizer(symbols, types, mir);
-    try {
-        dbprint("Synthesizing MIR for ", prog.loc);
-        mirsynthesizer.generate_mir(prog);
-    } catch (UnableToContinue e) {
-        for (auto& err : mirsynthesizer.errors) {
-            std::cerr << err->to_string() << "\n";
-        }
-        throw e;
-    } catch (TypeSemError& e) { // fixme: handle errors at call site
-        for (auto& err : mirsynthesizer.errors) {
-            std::cerr << err->to_string() << "\n";
-        }
-        throw UnableToContinue();
-    }
-    if (!mirsynthesizer.errors.empty()) {
-        for (auto& err : mirsynthesizer.errors) {
-            std::cerr << err->to_string() << "\n";
-        }
-        throw UnableToContinue();
-    }
-
-    Validator validator(symbols, types);
-    // fixme: uncomment after validate is complete
-    // validator.validate(mir);
-
-    // if (!validator.errors.empty()) {
-    //     for (auto& err : validator.errors) {
-    //         std::cerr << err->to_string() << "\n";
-    //     }
-    //     throw UnableToContinue();
-    // }
-
-    // // We finalize array types after validation because the validator infers array size.
-    // types.finalize_arrays();
 }

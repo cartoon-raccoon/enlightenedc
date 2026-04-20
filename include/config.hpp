@@ -5,6 +5,7 @@
 
 #include <functional>
 #include <map>
+#include <set>
 #include <sstream>
 #include <string>
 
@@ -56,7 +57,7 @@ public:
     // Whether to enable verbose messages.
     bool verbose = false;
 
-    /*
+    /**
     The phase of compilation at which to stop.
     */
     enum class StopAt : uint8_t {
@@ -64,20 +65,23 @@ public:
         PREPROCESS = 0,
         // Parse the preprocessed text.
         PARSE = 1,
-        // Validate the parsed test.
-        VALIDATE = 2,
-        // Compile the files, emitting assembly by default. Other output formats
-        // (e.g. LLVM IR) can be specified.
-        COMPILE = 3,
-        // Assemble the files into a single object file.
-        ASSEMBLE = 4,
-        // Link the produced object files.
-        LINK = 5,
+        // Generate the MIR.
+        GEN_MIR = 2,
+        /** Stop after validating the generated MIR */
+        VALIDATE = 3,
+        /** Generate the LIR. */
+        GEN_LIR = 4,
+        /** Compile the files, emitting assembly by default. Other output formats (e.g. LLVM IR) can be specified. */
+        COMPILE = 5,
+        /** Assemble each source file into an object file. */
+        ASSEMBLE = 6,
+        /** Link the produced object files. */
+        LINK = 7,
+        /** Do not stop at any step, run to completion. */
+        NOSTOP = 8,
     };
 
-    // The stage at compilation to stop at.
-    // If empty, the process proceeds to completion.
-    Optional<StopAt> stop_at;
+    StopAt stop_at = StopAt::NOSTOP;
 
     // The internal data structures to print.
     // If selected, the process stops at the compilation step.
@@ -89,7 +93,7 @@ public:
         LIR = 2,
     };
 
-    Optional<Vec<ToPrint>> to_print;
+    std::set<ToPrint> to_print;
 
     /*
     The format to use for compilation output.

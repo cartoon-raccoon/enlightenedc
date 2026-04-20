@@ -1,5 +1,4 @@
 #pragma once
-#pragma clang diagnostic ignored "-Wunused-parameter"
 
 #ifndef ECC_TYPES_H
 #define ECC_TYPES_H
@@ -156,18 +155,21 @@ public:
     */
     virtual size_t alloc_size();
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
+
     /**
     Check if a type can be implicitly coerced into `dst` without a cast,
     i.e. the compiler will insert a cast expression to handle it.
 
     Note that this relationship is not symmetric; if `this` is compatible
-    with `other`, this does not mean `other` is compatible with `this`.
+    with `dst`, this does not mean `dst` is compatible with `this`.
 
     This function will return false if `this` and `dst` are exactly the same;
     it is to be used for types that are not equal, but might be able to be
     coerced into the other.
     */
-    virtual bool is_compatible_with(Type *dst) {
+    virtual bool coercable_to(Type *dst) {
         // by default, types cannot be coerced and require explicit casting.
         return false;
     }
@@ -175,7 +177,9 @@ public:
     /**
     Check if a type can be cast into `dst`, explicitly or not.
     */
-    virtual bool can_cast_into(Type *dst) { return false; }
+    virtual bool castable_to(Type *dst) { return coercable_to(dst); }
+
+#pragma clang diagnostic pop
 
     /**
     Cast this type to a VoidType *.
@@ -248,6 +252,11 @@ public:
     Only arrays and pointers should be subscriptable.
     */
     virtual bool is_subscriptable() { return false; };
+
+    /**
+    Whether the type can be used as a condition (e.g. in a loop or if statement).
+    */
+    virtual bool is_boolable() { return false; }
 
     /**
     Whether the type is a scalar type
@@ -439,7 +448,7 @@ class PrimitiveType : public BaseType {
 public:
     tokens::PrimType primkind;
 
-    bool is_compatible_with(Type *from) override;
+    bool coercable_to(Type *from) override;
 
     // Whether this Primitive type can be represented as an integer.
     // Returns true for all primitive types except F64 and Bool.
@@ -469,6 +478,8 @@ public:
     Optional<double> flt_max() const;
 
     PrimitiveType *as_primitive() override { return this; }
+
+    bool is_boolable() override { return true; }
 
     bool is_scalar() override { return true; }
 
@@ -539,7 +550,7 @@ public:
 
     std::string formal() override;
 
-    static std::string base() { return "class_"; }
+    static std::string base() { return "class"; }
 
 protected:
     friend class TypeContext;
@@ -606,7 +617,7 @@ public:
 
     bool is_fully_defined() override;
 
-    bool is_compatible_with(Type *dst) override;
+    bool coercable_to(Type *dst) override;
 
     void add_member(std::string name, Type *type, Location loc);
 
@@ -619,6 +630,16 @@ public:
     size_t num_members() const { return members.size(); }
 
     UnionType *as_union() override { return this; }
+
+    bool is_boolable() override {
+        // this if-statement is basically equivalent to
+        // type_rep.has_value(), but we do this for more expressiveness.
+        if (type_rep) {
+            return (*type_rep)->is_boolable(); // should always return true
+        } else {
+            return false;
+        }
+    }
 
     void finalize() override;
 
@@ -637,7 +658,7 @@ public:
 
     std::string formal() override;
 
-    static std::string base() { return "union_"; }
+    static std::string base() { return "union"; }
 
 protected:
     friend class TypeContext;
@@ -691,9 +712,11 @@ public:
     // Find enumerator at the specified index.
     EnumTypeMember *find(size_t idx);
 
-    bool is_compatible_with(Type *dst) override;
+    bool coercable_to(Type *dst) override;
 
     EnumType *as_enum() override { return this; }
+
+    bool is_boolable() override { return underlying->is_boolable(); } // should always return true
 
     void finalize() override;
 
@@ -750,11 +773,13 @@ public:
 
     bool is_callable() override;
 
-    bool is_compatible_with(Type *from) override;
+    bool coercable_to(Type *dst) override;
 
     bool is_scalar() override { return true; };
 
     bool is_integral() override { return false; };
+
+    bool is_boolable() override { return true; }
 
     void finalize() override;
 
@@ -805,7 +830,7 @@ public:
 
     bool is_subscriptable() override { return true; }
 
-    bool is_compatible_with(Type *from) override;
+    bool coercable_to(Type *dst) override;
 
     void finalize() override;
 

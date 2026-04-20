@@ -21,6 +21,9 @@ enum class ErrorSource : uint8_t {
     LLVM,
 };
 
+/**
+The main error class for Ecc.
+*/
 class EccError : public std::exception {
 public:
     EccError(ErrorSource src, std::string err, Location loc)
@@ -44,6 +47,8 @@ public:
 
     const char *what() const throw() override { return msg.c_str(); }
 
+    virtual std::string elab() { return ""; }
+
     virtual std::string to_string() {
 
         std::stringstream ss;
@@ -54,6 +59,11 @@ public:
         }
 
         ss << msg;
+
+        auto elaboration = elab();
+        if (!elaboration.empty()) {
+            ss << "\n" << elaboration;
+        }
 
         return ss.str();
     }

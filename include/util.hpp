@@ -1,5 +1,4 @@
 #pragma once
-#pragma clang diagnostic ignored "-Wunused-parameter"
 
 #ifndef ECC_UTIL_H
 #define ECC_UTIL_H

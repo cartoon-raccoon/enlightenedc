@@ -15,8 +15,9 @@
 using namespace ecc;
 using namespace util;
 
-namespace ecc::sema::mir {
 /*
+\namespace ecc::sema::mir
+
 Middle representation functionality.
 
 The Middle Intermediate Representation, or MIR for short, is a simpler tree-based
@@ -27,10 +28,11 @@ objects in the SymbolTable, and Expressions are directly tagged with Types.
 The MIR is where most semantic validation steps are performed, such as typechecking
 and some desugaring.
 */
+namespace ecc::sema::mir {
 
 class MIRVisitor;
 
-/*
+/**
 A simpler version of the AST, mapping symbols directly to types.
 */
 class MIRNode : public NoCopy {
@@ -94,10 +96,21 @@ public:
     ExprMIR(Location loc, NodeKind kind, sema::sym::Scope *scope)
         : MIRNode(loc, kind), scope(scope) {}
     ExprMIR(Location loc, NodeKind kind, sema::sym::Scope *scope, sema::types::Type *type)
-        : MIRNode(loc, kind), scope(scope), type(type) {}
+        : MIRNode(loc, kind), scope(scope), eff_type(type) {}
 
     sema::sym::Scope *scope = nullptr;
-    sema::types::Type *type = nullptr;
+
+    /**
+    The actual type associated with the expression, populated at validation.
+    */
+    sema::types::Type *act_type = nullptr;
+
+    /**
+    The effective type associated with the expression, populated at validation.
+
+    This is usually the type returned by `act_type->effective_type()`.
+    */
+    sema::types::Type *eff_type = nullptr;
 
     // Whether this expression can be assigned to,
     virtual bool is_assignable() { return false; }
@@ -105,14 +118,19 @@ public:
     // Whether this expression can be called as a function.
     // By default, if the type of the expression is callable, then
     // the expression is callable.
-    virtual bool is_callable() { return type->is_callable(); }
+    virtual bool is_callable() { return eff_type->is_callable(); }
 
     // Whether this expression is valid on the left side of an assign expression.
     virtual bool is_lvalue() { return false; }
 
-    virtual bool is_subscriptable() { return type->is_subscriptable(); }
+    virtual bool is_subscriptable() { return eff_type->is_subscriptable(); }
 
     virtual bool is_const_foldable() = 0;
+
+    void set_type(sema::types::Type *type) {
+        act_type = type;
+        eff_type = act_type->effective_type();
+    }
 
     virtual eval::Value eval(eval::ExprEvaluator& ev) = 0;
 };
@@ -326,6 +344,8 @@ public:
     Optional<Box<ProgItemMIR>> init;
     /*
     The condition needed for the loop to continue.
+
+    Can be missing (in the case of a for loop with no condition).
     */
     Optional<Box<ExprMIR>> condition;
     /*
@@ -501,13 +521,13 @@ public:
 
     bool is_assignable() override { return is_lvalue(); }
 
-    bool is_callable() override { return type->is_callable(); }
+    bool is_callable() override { return eff_type->is_callable(); }
 
     bool is_lvalue() override { return ident->kind == sema::sym::Symbol::Kind::VAR; }
 
-    bool is_subscriptable() override { return type->is_subscriptable(); }
+    bool is_subscriptable() override { return eff_type->is_subscriptable(); }
 
-    bool is_const_foldable() override { return type->is_enum(); }
+    bool is_const_foldable() override { return eff_type->is_enum(); }
 
     void accept(MIRVisitor& visitor) override;
 

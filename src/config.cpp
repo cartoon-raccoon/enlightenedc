@@ -110,23 +110,45 @@ void Config::parse_long_arg(std::string& arg, ArgVIterator& iter) {
 }
 
 void Config::add_args() {
-    add_short_arg("E", [](Config& cfg, ArgVIterator& iter) {
+    add_short_arg("E", [](Config& cfg, ArgVIterator&) {
         // todo: add check that stop_at was not previously set
         cfg.stop_at = StopAt::PREPROCESS;
     });
-    add_short_arg("S", [](Config& cfg, ArgVIterator& iter) { cfg.stop_at = StopAt::COMPILE; });
-    add_short_arg("c", [](Config& cfg, ArgVIterator& iter) { cfg.stop_at = StopAt::ASSEMBLE; });
-    add_short_arg("emit-llvm", [](Config& cfg, ArgVIterator& iter) {
-        // todo: check that stop_at is compatible
+    add_short_arg("S", [](Config& cfg, ArgVIterator&) { cfg.stop_at = StopAt::COMPILE; });
+    add_short_arg("c", [](Config& cfg, ArgVIterator&) { cfg.stop_at = StopAt::ASSEMBLE; });
+    add_short_arg("emit-llvm", [](Config& cfg, ArgVIterator&) {
+        if (cfg.stop_at < StopAt::COMPILE) {
+            throw ArgParseError("invalid '-emit-llvm': stopping before compilation stage");
+        }
         cfg.comp_output = CompilationOutput::LLVM;
     });
-    add_short_arg("dump-ast", [](Config& cfg, ArgVIterator& iter) {
-
+    add_short_arg("dump-ast", [](Config& cfg, ArgVIterator&) {
+        if (cfg.to_print.contains(ToPrint::AST)) {
+            throw ArgParseError("duplicate option: dump-ast");
+        }
+        cfg.to_print.insert(ToPrint::AST);
+        cfg.stop_at = StopAt::PARSE;
     });
-    add_short_arg("dump-mir", [](Config& cfg, ArgVIterator& iter) {
-
+    add_short_arg("dump-mir", [](Config& cfg, ArgVIterator&) {
+        if (cfg.to_print.contains(ToPrint::MIR)) {
+            throw ArgParseError("duplicate option: dump-mir");
+        }
+        cfg.to_print.insert(ToPrint::MIR);
+        cfg.stop_at = StopAt::VALIDATE;
     });
-    add_short_arg("dump-lir", [](Config& cfg, ArgVIterator& iter) {
-
+    add_short_arg("validate", [](Config& cfg, ArgVIterator&) {
+        if (cfg.stop_at < StopAt::GEN_MIR) {
+            throw ArgParseError("invalid '-validate': stopping before MIR generation");
+        }
+        if (cfg.stop_at < StopAt::VALIDATE) { // NOLINT
+            cfg.stop_at = StopAt::VALIDATE;
+        }
+    });
+    add_short_arg("dump-lir", [](Config& cfg, ArgVIterator&) {
+        if (cfg.to_print.contains(ToPrint::LIR)) {
+            throw ArgParseError("duplicate option: dump-lir");
+        }
+        cfg.to_print.insert(ToPrint::LIR);
+        cfg.stop_at = StopAt::GEN_LIR;
     });
 }

@@ -20,16 +20,10 @@ public:
 class RecursiveTypeError : public TypeSemError {
 public:
     RecursiveTypeError(std::string name, Location err_loc)
-        : TypeSemError("recursive class member", err_loc), name(std::move(name)) {}
+        : TypeSemError(std::format("recursive class member: {}", name), err_loc) {}
 
-    std::string name;
-
-    std::string to_string() override {
-        std::stringstream ss;
-        ss << EccSemError::to_string() << ": " << name
-           << "self-referential class members must be behind a pointer\n";
-
-        return ss.str();
+    std::string elab() override {
+        return "self-referential class members must be behind a pointer";
     }
 };
 
@@ -44,6 +38,10 @@ public:
 class InvalidVoidError : public TypeSemError {
 public:
     InvalidVoidError(Location err_loc) : TypeSemError("invalid void", err_loc) {}
+
+    std::string elab() override {
+        return "variables cannot be void";
+    }
 };
 
 class UnsizedArrInUserTypeError : public TypeSemError {
@@ -51,7 +49,9 @@ public:
     UnsizedArrInUserTypeError(Location err_loc)
         : TypeSemError("unsized array in class or union", err_loc) {}
 
-    // array members of classes or unions must have declared sizes
+    std::string elab() override {
+        return "array members of classes or unions must have declared sizes";
+    }
 };
 
 class InvalidReturnTypeError : public TypeSemError {
@@ -59,7 +59,9 @@ public:
     InvalidReturnTypeError(Location err_loc)
         : TypeSemError("invalid return type for function", err_loc) {}
 
-    // functions cannot return arrays or other functions
+    std::string elab() override {
+        return "functions cannot return arrays or other functions";
+    }
 };
 
 class EnumeratorAlrDecldError : public TypeSemError {
@@ -71,11 +73,10 @@ public:
     std::string name;
     Location def_loc;
 
-    std::string to_string() override {
+    std::string elab() override {
         std::stringstream ss;
-        ss << EccError::what() << "\n"
-           << "enumerator with name \'" << name << "\'"
-           << " previously defined at " << def_loc;
+        ss << "enumerator with name \'" << name
+           << "\' previously defined at <" << def_loc << ">";
 
         return ss.str();
     }
@@ -86,11 +87,8 @@ public:
     InvalidEnumUnderlyingError(Location err_loc)
         : TypeSemError("invalid enum underlying type", err_loc) {}
 
-    std::string to_string() override {
-        std::stringstream ss;
-        ss << EccError::what() << "\n" << "underlying type of an enum must be an integer";
-
-        return ss.str();
+    std::string elab() override {
+        return "underlying type of an enum must be an integer";
     }
 };
 
@@ -101,9 +99,9 @@ public:
 
     Location def_loc;
 
-    std::string to_string() override {
+    std::string elab() override {
         std::stringstream ss;
-        ss << EccError::what() << "\n" << "type previously declared at " << def_loc;
+        ss << "type previously declared at <" << def_loc << ">";
 
         return ss.str();
     }

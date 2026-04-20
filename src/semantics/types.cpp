@@ -144,7 +144,7 @@ bool PrimitiveType::is_bool() const {
     return pr_is_bool(primkind);
 }
 
-bool PrimitiveType::is_compatible_with(Type *from) {
+bool PrimitiveType::coercable_to(Type *from) {
     // Only primitive types allowed
     if (from->kind != Type::Kind::PRIMITIVE) {
         return false;
@@ -379,7 +379,7 @@ ClassType::ClassTypeMember *ClassType::index(size_t idx) {
 }
 
 std::string ClassType::formal() {
-    return name ? base() + *name : "class_anon";
+    return name ? base() +  " " + *name : to_string();
 }
 
 /*
@@ -421,10 +421,10 @@ bool UnionType::is_fully_defined() {
     return ret;
 }
 
-bool UnionType::is_compatible_with(Type *dst) {
+bool UnionType::coercable_to(Type *dst) {
     // If there is an underlying type representative, check that
     if (type_rep) {
-        return (*type_rep)->is_compatible_with(dst);
+        return (*type_rep)->coercable_to(dst);
     }
 
     // Otherwise, unions are incompatible with anything
@@ -506,7 +506,7 @@ void UnionType::finalize() {
 }
 
 std::string UnionType::formal() {
-    return name ? base() + *name : "union_anon";
+    return name ? base() + " " + *name : to_string();
 }
 
 /*
@@ -567,16 +567,14 @@ EnumType::EnumTypeMember *EnumType::find(std::string& name) {
 }
 
 EnumType::EnumTypeMember *EnumType::find(size_t idx) {
-    for (auto& member : enumerators) {
-        if (name == member->name)
-            return member.get();
-    }
+    if (idx >= enumerators.size())
+        return nullptr;
 
-    return nullptr;
+    return enumerators[idx].get();
 }
 
-bool EnumType::is_compatible_with(Type *dst) {
-    if (Type::is_compatible_with(dst))
+bool EnumType::coercable_to(Type *dst) {
+    if (Type::coercable_to(dst))
         return true;
 
     if (!dst->is_primitive()) {
@@ -638,11 +636,11 @@ bool PointerType::is_callable() {
     return nesting_lvl() == 1 && base->is_function();
 }
 
-bool PointerType::is_compatible_with(Type *from) {
-    if (Type::is_compatible_with(from))
+bool PointerType::coercable_to(Type *dst) {
+    if (Type::coercable_to(dst))
         return true;
 
-    PointerType *ptr = from->as_pointer();
+    PointerType *ptr = dst->as_pointer();
     if (!ptr)
         return false;
 
@@ -651,7 +649,7 @@ bool PointerType::is_compatible_with(Type *from) {
     Type *dst_base = ptr->true_base();
 
     return my_nesting == 1 && ds_nesting == 1 ? base == dst_base || dst_base->is_void()
-                                              : from == this;
+                                              : false;
 }
 
 void PointerType::finalize() {
@@ -678,18 +676,18 @@ bool ArrayType::is_fully_sized() {
                             : arr_size.has_value();
 }
 
-bool ArrayType::is_compatible_with(Type *from) {
-    switch (from->kind) {
+bool ArrayType::coercable_to(Type *dst) {
+    switch (dst->kind) {
 
     // if the other is an array, enforce strict equality
     case Kind::ARRAY: {
-        return this == from;
+        return false;
     }
 
     // if pointer, make sure bases match
     case Kind::POINTER: {
-        PointerType *ptr = from->as_pointer();
-        return base == ptr->base;
+        PointerType *dst_ptr = dst->as_pointer();
+        return base->coercable_to(dst_ptr);
     }
 
     default:
