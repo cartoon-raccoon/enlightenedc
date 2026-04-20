@@ -102,7 +102,7 @@ public:
 
     static Box<BasicBlock> entry(std::string& func_name);
 
-    void set_terminator(Box<Terminator> term) { term = std::move(term); }
+    void set_terminator(Box<Terminator> term) { this->term = std::move(term); }
 
     bool has_terminator() { return term != nullptr; }
 

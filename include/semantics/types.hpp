@@ -1,4 +1,5 @@
 #pragma once
+#pragma clang diagnostic ignored "-Wunused-parameter"
 
 #ifndef ECC_TYPES_H
 #define ECC_TYPES_H
@@ -27,6 +28,8 @@ class Scope;
 }
 
 /**
+\namespace ecc::sema::types
+
 The type system implementation for EnlightenedC.
 
 Ecc uses an interning type system, where a TypeContext manages internal type
@@ -76,6 +79,8 @@ public:
 
     If the internal TypeHandle cannot be dynamically cast to the requested type,
     an empty optional is returned.
+
+    @return The cast TypeHandle, nullopt if the cast failed.
     */
     template <typename Dst>
         requires std::derived_from<Ty, Type>
@@ -151,7 +156,7 @@ public:
     */
     virtual size_t alloc_size();
 
-    /*
+    /**
     Check if a type can be implicitly coerced into `dst` without a cast,
     i.e. the compiler will insert a cast expression to handle it.
 
@@ -168,66 +173,106 @@ public:
     }
 
     /**
-    Check if a type can be cast into `this`, explicitly or not.
+    Check if a type can be cast into `dst`, explicitly or not.
     */
     virtual bool can_cast_into(Type *dst) { return false; }
 
+    /**
+    Cast this type to a VoidType *.
+    Returns null if the underlying type is not a VoidType.
+    */
     virtual VoidType *as_void() { return nullptr; }
 
-    // Cast this type to a PrimitiveType *.
-    // Returns null if the underlying type is not a PrimitiveType.
+    /**
+    Cast this type to a PrimitiveType *.
+    Returns null if the underlying type is not a PrimitiveType.
+    */
     virtual PrimitiveType *as_primitive() { return nullptr; }
 
+    /**
+    Cast this type to a UserType *.
+    Returns null if the underlying type is not a UserType.
+    */
     virtual UserType *as_usertype() { return nullptr; }
 
-    // Cast this type to a ClassType *.
-    // Returns null if the underlying type is not a ClassType.
+    /**
+    Cast this type to a ClassType *.
+    Returns null if the underlying type is not a ClassType.
+    */
     virtual ClassType *as_class() { return nullptr; }
 
-    // Cast this type to a UnionType *.
-    // Returns null if the underlying type is not a ClassType.
+    /**
+    Cast this type to a UnionType *.
+    Returns null if the underlying type is not a UnionType.
+    */
     virtual UnionType *as_union() { return nullptr; }
 
-    // Cast this type to an EnumType *.
-    // Returns null if the underlying type is not a ClassType.
+    /**
+    Cast this type to an EnumType *.
+    Returns null if the underlying type is not an EnumType.
+    */
     virtual EnumType *as_enum() { return nullptr; }
 
+    /**
+    Cast this type to a DerivedType *.
+    Returns null if the underlying type is not a DerivedType.
+    */
     virtual DerivedType *as_derivedtype() { return nullptr; }
 
-    // Cast this type to a PointerType *.
-    // Returns null if the underlying type is not a ClassType.
+    /**
+    Cast this type to a PointerType *.
+    Returns null if the underlying type is not a PointerType.
+    */
     virtual PointerType *as_pointer() { return nullptr; }
 
-    // Cast this type to an ArrayType *.
-    // Returns null if the underlying type is not a ClassType.
+    /**
+    Cast this type to a ArrayType *.
+    Returns null if the underlying type is not a ArrayType.
+    */
     virtual ArrayType *as_array() { return nullptr; }
 
-    // Cast this type to a FunctionType *.
-    // Returns null if the underlying type is not a ClassType.
+    /**
+    Cast this type to a FunctionType *.
+    Returns null if the underlying type is not a FunctionType.
+    */
     virtual FunctionType *as_function() { return nullptr; }
 
-    // Whether the type is callable.
-    // Only functions and function pointers should be callable.
+    /**
+    Whether the type is callable.
+    Only functions and function pointers should be callable.
+    */
     virtual bool is_callable() { return false; };
 
-    // Whether the type is subscriptable/indexable.
-    // Only arrays and pointers should be subscriptable.
+    /**
+    Whether the type is subscriptable/indexable.
+    Only arrays and pointers should be subscriptable.
+    */
     virtual bool is_subscriptable() { return false; };
 
-    // Whether the type is a scalar type
-    // e.g. U8, F64, pointers, bools, enums.
+    /**
+    Whether the type is a scalar type
+    (e.g. U8, F64, pointers, bools, enums).
+    */
     virtual bool is_scalar() { return false; }
 
-    // Whether the type is strictly an integer type.
+    /** Whether the type is strictly an integer type. */
     virtual bool is_integral() { return false; }
 
-    /*
+    /**
     Finalize the type with LLVM, creating the equivalent LLVM type.
+
     Before this function has been called on a type, calling `size()` will
     produce undefined results.
     */
     virtual void finalize() = 0;
 
+    /**
+    Get the effective type of this Type object.
+
+    The effective type of a Type is the type by which it is (by default) handled
+    in memory. For example, a union with an I32 type rep has I32 as its underlying
+    type, and an enum's effective type is its underlying type, which is I32 by default.
+    */
     virtual Type *effective_type() { return this; };
 
     codegen::LLVMType *get_llvmtype();
@@ -236,7 +281,7 @@ public:
 
     virtual Optional<std::string> get_name() { return {}; };
 
-    // Returns the formal name of the type.
+    /** Returns the formal name of the type. */
     virtual std::string formal() { return "()"; }
 
     Type& operator=(const Type other) = delete;
@@ -258,7 +303,7 @@ private:
     Ref<TypeContext> tyctxt;
 };
 
-/*
+/**
 An abstract class representing a type that does not depend on a base type
 (i.e. it is not a type constructor). These include the primitive types,
 classes, unions, and enums.
@@ -271,7 +316,7 @@ protected:
     BaseType(Kind kind, TypeContext& tyctxt) : Type(kind, tyctxt) {}
 };
 
-/*
+/**
 An abstract class representing a type that is constructed from BaseTypes,
 or is user-defined. These are the unions, classes, and enums.
 */
@@ -310,9 +355,10 @@ public:
         complete = true;
     }
 
-    // The scope where the type was declared.
+    /** The scope where the type was declared. */
     sema::sym::Scope *scope;
 
+    /** The optional name of the type. */
     Optional<std::string> name;
 
     /** The location that the type was declared. */
@@ -326,12 +372,14 @@ protected:
 
     UserType(Location decl_loc, Kind kind, std::string name, TypeContext& tyctxt,
              sema::sym::Scope *scope)
-        : BaseType(kind, tyctxt), name(name), scope(scope), decl_loc(decl_loc) {}
+        : BaseType(kind, tyctxt), scope(scope), name(name), decl_loc(decl_loc) {}
 };
 
-/*
+/**
 An abstract class representing a type constructor whose final type
-relies on a base type. For example, a pointer relies on the type that
+relies on a base type.
+
+For example, a pointer relies on the type that
 it points to, in order for its full type to be known.
 
 In EnlightenedC, functions are considered derived types; their base
@@ -359,6 +407,8 @@ public:
     VoidType *as_void() override { return this; }
 
     void finalize() override;
+
+    std::string formal() override { return "Void"; }
 
     std::string to_string() const override { return "Void"; }
 
@@ -440,7 +490,7 @@ protected:
         : BaseType(Type::Kind::PRIMITIVE, tyctxt), primkind(kind) {}
 };
 
-/*
+/**
 The ClassType in EnlightenedC.
 */
 class ClassType : public UserType {
@@ -461,7 +511,7 @@ public:
     */
     Vec<Box<ClassTypeMember>> members;
 
-    /*
+    /**
     Whether the class is fully defined,
 
     Unlike `complete`, which only marks whether this class has had all its members added,
@@ -475,7 +525,7 @@ public:
 
     ClassTypeMember *find(std::string& name);
 
-    ClassTypeMember *index(int idx);
+    ClassTypeMember *index(size_t idx);
 
     size_t num_members() const { return members.size(); }
 
@@ -509,8 +559,8 @@ protected:
 private:
 };
 
-/*
-The union type.
+/**
+\brief The union type.
 
 The union type can exist as each of its members, just not at the same time.
 Accessing a union's members essentially performs a bitcast to reinterpret the
@@ -525,7 +575,7 @@ keyword, e.g. `U64i union U64`.
 The above example is used to alias the `U64i` intrinsic type and allow the
 programmer to access individual bytes within a U64i value. It is defined as:
 
-```
+```holyc
 U64i union U64 {
     U8i  u8[8];
     U16i u16[4];
@@ -574,7 +624,8 @@ public:
 
     Type *effective_type() override {
         if (type_rep) {
-            return *type_rep;
+            // recursively call effective type, since type rep might also be another union
+            return (*type_rep)->effective_type();
         } else {
             return this;
         }
@@ -602,8 +653,8 @@ protected:
         : UserType(decl_loc, Kind::UNION, std::move(name), tyctxt, scope) {}
 };
 
-/*
-An enumerated type (e.g. `enum State { DONE, PENDING }`).
+/**
+\brief An enumerated type (e.g. `enum State { DONE, PENDING }`).
 
 ## Compatibility
 
@@ -825,7 +876,7 @@ public:
             }
 
             // Test the type of each param
-            for (int i = 0; i < params.size(); i++) {
+            for (size_t i = 0; i < params.size(); i++) {
                 if (params[i] != other.params[i]) {
                     return false;
                 }
@@ -876,7 +927,7 @@ protected:
     FunctionType *eff_ty = nullptr;
 };
 
-/*
+/**
 A constructor type used for building up a type whose base type is not yet resolved.
 
 The standard order of type construction is to derive the base type first,
@@ -931,6 +982,8 @@ private:
 };
 
 /**
+A class to track all types within a translation unit.
+
 A TypeContext tracks all types that exist within a given translation unit.
 It provides methods to retrieve and create types as the AST is walked.
 

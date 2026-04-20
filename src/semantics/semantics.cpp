@@ -673,8 +673,8 @@ void BaseMIRSemaVisitor::do_visit(mir::PostfixExprMIR& node) {
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::SizeofExprMIR& node) {
-    std::visit(match{[this](Box<ExprMIR>& expr) { expr->accept(*this); },
-                     [this](types::Type *& type) {
+    std::visit(match{[&](Box<ExprMIR>& expr) { expr->accept(*this); },
+                     [&](types::Type *& type) {
                          /* terminal node */
                      }},
                node.operand);

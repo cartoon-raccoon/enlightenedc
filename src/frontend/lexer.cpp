@@ -1,13 +1,16 @@
 #include "frontend/lexer.hpp"
 
+#include "frontend/filenames.hpp"
+
 using namespace ecc::frontend;
 
 constexpr size_t FILENAME_BUF_SIZE = 2048;
 
 // Use the standard yyFlexLexer constructor.
-Lexer::Lexer(std::istream *in, std::string *filename, std::set<std::string>& typedefs)
-    : yyFlexLexer(in), typedefs(typedefs) {
-    const std::string *main_file = filenames.intern(filename->c_str());
+Lexer::Lexer(std::istream *in, std::string *filename, std::set<std::string>& typedefs,
+             FilenamePool& filenames)
+    : yyFlexLexer(in), typedefs(typedefs), filenames(filenames) {
+    const std::string *main_file = this->filenames.get().intern(filename->c_str());
     loc.begin.filename           = main_file;
     loc.end.filename             = main_file;
 }
@@ -22,7 +25,7 @@ void Lexer::handle_linemarker(const char *yytext) {
     if (sscanf(yytext, "# %d \"%[^\"]\"%n", &line_num, filename_buf, &chars_read) >= 2) {
 
         // 1. Intern the string to get a stable pointer
-        const std::string *new_file_ptr = filenames.intern(filename_buf);
+        const std::string *new_file_ptr = filenames.get().intern(filename_buf);
 
         // 2. Look for the first flag (if any)
         // We only really care about the first flag for filename tracking

@@ -1,4 +1,5 @@
 #pragma once
+#pragma clang diagnostic ignored "-Wunused-parameter"
 
 #ifndef ECC_UTIL_H
 #define ECC_UTIL_H
@@ -108,7 +109,7 @@ public:
     const std::string *filename;
 
     Point(const std::string *filename, int col, int line)
-        : filename(filename), column(col), line(line) {}
+        : column(col), line(line), filename(filename) {}
 
     /// Construct an empty Point (no filename, starts at 1:1).
     Point() : column(1), line(1), filename(nullptr) {}
@@ -145,7 +146,7 @@ private:
 */
 template <typename T>
 std::basic_ostream<T>& operator<<(std::basic_ostream<T>& ostr, const Point& pos) {
-    if (pos.filename && pos.filename->length() != 0)
+    if (pos.filename && pos.filename->empty())
         ostr << *pos.filename << ':';
     return ostr << pos.line << '.' << pos.column;
 }
@@ -155,7 +156,9 @@ public:
     Point begin;
     Point end;
 
-    /// Construct a Location from two points.
+    /**
+    Construct a Location from two points.
+    */
     Location(Point start, Point end) : begin(start), end(end) {}
 
     /// Construct a zero-width location from a Point.

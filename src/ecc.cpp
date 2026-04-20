@@ -9,7 +9,7 @@
 
 using namespace ecc;
 
-int Ecc::run() const {
+int Ecc::run() {
     try {
         if (config->input_files.empty()) {
             throw EccError("no input files provided");
@@ -27,11 +27,11 @@ int Ecc::run() const {
     return 0;
 }
 
-void Ecc::run_pipeline(std::string *filename) const {
+void Ecc::run_pipeline(std::string *filename) {
     dbprint("running pipeline on file ", *filename);
 
     driver::TranslationUnit unit(filename, *llvm);
     driver::Driver driver(unit);
 
-    driver.run();
+    driver.run(*this);
 }

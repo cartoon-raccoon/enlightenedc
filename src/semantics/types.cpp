@@ -371,7 +371,7 @@ ClassType::ClassTypeMember *ClassType::find(std::string& name) {
     return nullptr;
 }
 
-ClassType::ClassTypeMember *ClassType::index(int idx) {
+ClassType::ClassTypeMember *ClassType::index(size_t idx) {
     if (idx >= num_members()) {
         return nullptr;
     }

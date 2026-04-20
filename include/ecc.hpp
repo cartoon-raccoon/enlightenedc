@@ -8,6 +8,7 @@
 
 #include "codegen/llvm.hpp"
 #include "config.hpp"
+#include "frontend/filenames.hpp"
 #include "util.hpp"
 
 using namespace ecc::util;
@@ -25,6 +26,7 @@ public:
 
     Box<Config> config;
     Box<codegen::LLVMCore> llvm;
+    frontend::FilenamePool filenames;
 
     /*
     Run the compilation pipeline on a single input file.
@@ -32,9 +34,9 @@ public:
     Each file is one translation unit in Ecc. That is, one AST is produced for each file,
     and thus one LLVM Module per file.
     */
-    void run_pipeline(std::string *filename) const;
+    void run_pipeline(std::string *filename);
 
-    int run() const;
+    int run();
 };
 
 } // namespace ecc

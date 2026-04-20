@@ -6,7 +6,7 @@ Box<BasicBlock> BasicBlock::entry(std::string& func_name) {
     auto ret      = std::make_unique<BasicBlock>(func_name);
     ret->is_entry = true;
 
-    return std::move(ret);
+    return ret;
 }
 
 BasicBlock *FunctionCFG::create_block(std::string& label) {

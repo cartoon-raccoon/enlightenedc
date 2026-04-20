@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ecc.hpp"
 #ifndef ECC_DRIVER_H
 #define ECC_DRIVER_H
 
@@ -74,7 +75,7 @@ public:
     Driver(TranslationUnit& unit);
     ~Driver() = default;
 
-    void run();
+    void run(Ecc& ecc);
 };
 
 } // namespace ecc::driver

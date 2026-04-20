@@ -37,7 +37,7 @@ Driver::Driver(TranslationUnit& unit) : unit(unit) {
     backend  = make_box<driver::Backend>();
 }
 
-void Driver::run() {
-    frontend->run(unit);
-    backend->run(unit);
+void Driver::run(Ecc& ecc) {
+    frontend->run(ecc, unit);
+    backend->run(ecc, unit);
 }

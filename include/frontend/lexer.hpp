@@ -1,5 +1,6 @@
 #pragma once
 
+#include "frontend/filenames.hpp"
 #ifndef ECC_LEXER_H
 #define ECC_LEXER_H
 
@@ -10,22 +11,21 @@
 
 #include <set>
 
-#include "frontend/filenames.hpp"
 #include "parser.hpp"
 #include "util.hpp"
 
 namespace ecc::frontend {
 
-extern frontend::FilenamePool filenames;
-
 class Lexer : public yyFlexLexer {
-public:
-    // Use the standard yyFlexLexer constructor.
-    Lexer(std::istream *in, std::string *filename, std::set<std::string>& typedefs);
-
     Location loc;
 
-    std::set<std::string>& typedefs;
+    Ref<std::set<std::string>> typedefs;
+    Ref<FilenamePool> filenames;
+
+public:
+    // Use the standard yyFlexLexer constructor.
+    Lexer(std::istream *in, std::string *filename, std::set<std::string>& typedefs,
+          FilenamePool& filenames);
 
     // Override the yyFlexLexer constructor.
     Parser::symbol_type get_next_token();

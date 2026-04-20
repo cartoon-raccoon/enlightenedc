@@ -11,14 +11,14 @@
 
 using namespace ecc::frontend;
 
-void Frontend::run(driver::TranslationUnit& unit) {
+void Frontend::run(Ecc& ecc, driver::TranslationUnit& unit) {
     dbprint("parsing file ", *unit.filename);
     Preprocessor preproc(unit.filename);
 
     // bodge for lexer hack
     std::set<std::string> typedefs{};
 
-    Lexer lexer(&preproc, unit.filename, typedefs);
+    Lexer lexer(&preproc, unit.filename, typedefs, ecc.filenames);
     Parser parser(lexer, *unit.ast_root, typedefs);
 
     try {

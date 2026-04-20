@@ -28,7 +28,7 @@ LIRSynthesizer::LIRSynthItem LIRSynthesizer::consume() {
     auto ret = std::move(current_q.front());
     current_q.pop();
 
-    return std::move(ret);
+    return ret;
 }
 
 void LIRSynthesizer::push_queue() {

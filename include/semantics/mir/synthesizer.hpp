@@ -117,8 +117,8 @@ The class that lowers the AST to MIR, populating the TypeContext and SymbolTable
 class MIRSynthesizer : public BaseASTSemaVisitor, public NoMove {
 public:
     MIRSynthesizer(sym::SymbolTable& syms, types::TypeContext& types, mir::ProgramMIR& mir)
-        : BaseASTSemaVisitor(BaseSemanticVisitor::State::WRITE), prog_mir(mir), types(types),
-          syms(syms) {}
+        : BaseASTSemaVisitor(BaseSemanticVisitor::State::WRITE), types(types), syms(syms),
+          prog_mir(mir) {}
 
     types::TypeContext& types;
 
@@ -161,7 +161,7 @@ protected:
                                      std::string(e.what()));
         }
 
-        return std::move(ret);
+        return ret;
     }
 
     template <typename T>
@@ -177,7 +177,7 @@ protected:
                                      std::string(e.what()));
         }
 
-        return std::move(ret);
+        return ret;
     }
 
     template <typename E, typename... Args>

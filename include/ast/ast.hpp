@@ -85,7 +85,7 @@ public:
         PROG,
     } kind;
 
-    ASTNode(NodeKind kind, Location loc) : kind(kind), loc(loc) {}
+    ASTNode(NodeKind kind, Location loc) : loc(loc), kind(kind) {}
     virtual ~ASTNode() = default;
 
     // Accept an AST visitor.

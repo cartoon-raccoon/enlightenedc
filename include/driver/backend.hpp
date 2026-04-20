@@ -2,6 +2,8 @@
 
 #ifndef ECC_BACKEND_H
 #define ECC_BACKEND_H
+
+#include "ecc.hpp"
 namespace ecc::driver {
 
 class TranslationUnit;
@@ -13,7 +15,7 @@ class Backend {
 public:
     Backend() {}
 
-    void run(TranslationUnit& unit);
+    void run(Ecc& ecc, TranslationUnit& unit);
 };
 
 } // namespace ecc::driver

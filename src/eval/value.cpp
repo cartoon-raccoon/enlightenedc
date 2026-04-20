@@ -72,7 +72,7 @@ Value Value::operator|(const Value& rhs) const {
                           [](uint32_t l, uint32_t r) -> Value { return Value(l | r); },
                           [](uint64_t l, uint64_t r) -> Value { return Value(l | r); },
                           [](bool l, bool r) -> Value { return Value(l | r); },
-                          [](auto&& l, auto&& r) -> Value {
+                          [](auto&&, auto&&) -> Value {
                               throw std::runtime_error(
                                   "unexpected type pair while evaluating value");
                           },
@@ -95,7 +95,7 @@ Value Value::operator^(const Value& rhs) const {
                           [](uint32_t l, uint32_t r) -> Value { return Value(l ^ r); },
                           [](uint64_t l, uint64_t r) -> Value { return Value(l ^ r); },
                           [](bool l, bool r) -> Value { return Value(l ^ r); },
-                          [](auto&& l, auto&& r) -> Value {
+                          [](auto&&, auto&&) -> Value {
                               throw std::runtime_error(
                                   "unexpected type pair while evaluating value");
                           },
@@ -118,7 +118,7 @@ Value Value::operator&(const Value& rhs) const {
                           [](uint32_t l, uint32_t r) -> Value { return Value(l & r); },
                           [](uint64_t l, uint64_t r) -> Value { return Value(l & r); },
                           [](bool l, bool r) -> Value { return Value(l & r); },
-                          [](auto&& l, auto&& r) -> Value {
+                          [](auto&&, auto&&) -> Value {
                               throw std::runtime_error(
                                   "unexpected type pair while evaluating value");
                           },
@@ -141,7 +141,7 @@ Value Value::operator<<(const Value& rhs) const {
                           [](uint32_t l, uint32_t r) -> Value { return Value(l << r); },
                           [](uint64_t l, uint64_t r) -> Value { return Value(l << r); },
                           [](bool l, bool r) -> Value { return Value(l << r); },
-                          [](auto&& l, auto&& r) -> Value {
+                          [](auto&&, auto&&) -> Value {
                               throw std::runtime_error(
                                   "unexpected type pair while evaluating value");
                           },
@@ -164,7 +164,7 @@ Value Value::operator>>(const Value& rhs) const {
                           [](uint32_t l, uint32_t r) -> Value { return Value(l >> r); },
                           [](uint64_t l, uint64_t r) -> Value { return Value(l >> r); },
                           [](bool l, bool r) -> Value { return Value(l >> r); },
-                          [](auto&& l, auto&& r) -> Value {
+                          [](auto&&, auto&&) -> Value {
                               throw std::runtime_error(
                                   "unexpected type pair while evaluating value");
                           },
@@ -187,7 +187,7 @@ Value Value::operator%(const Value& rhs) const {
                           [](uint32_t l, uint32_t r) -> Value { return Value(l % r); },
                           [](uint64_t l, uint64_t r) -> Value { return Value(l % r); },
                           [](bool l, bool r) -> Value { return Value(l % r); },
-                          [](auto&& l, auto&& r) -> Value {
+                          [](auto&&, auto&&) -> Value {
                               throw std::runtime_error(
                                   "unexpected type pair while evaluating value");
                           },
@@ -209,7 +209,7 @@ Value Value::operator==(const Value& rhs) const {
                           [](float l, float r) -> Value { return Value(l == r); },
                           [](double l, double r) -> Value { return Value(l == r); },
                           [](bool l, bool r) -> Value { return Value(l == r); },
-                          [](auto&& l, auto&& r) -> Value {
+                          [](auto&&, auto&&) -> Value {
                               throw std::runtime_error(
                                   "unexpected type pair while evaluating value");
                           },
@@ -231,7 +231,7 @@ Value Value::operator<(const Value& rhs) const {
                           [](float l, float r) -> Value { return Value(l < r); },
                           [](double l, double r) -> Value { return Value(l < r); },
                           [](bool l, bool r) -> Value { return Value(l < r); },
-                          [](auto&& l, auto&& r) -> Value {
+                          [](auto&&, auto&&) -> Value {
                               throw std::runtime_error(
                                   "unexpected type pair while evaluating value");
                           },
@@ -253,7 +253,7 @@ Value Value::operator>(const Value& rhs) const {
                           [](float l, float r) -> Value { return Value(l > r); },
                           [](double l, double r) -> Value { return Value(l > r); },
                           [](bool l, bool r) -> Value { return Value(l > r); },
-                          [](auto&& l, auto&& r) -> Value {
+                          [](auto&&, auto&&) -> Value {
                               throw std::runtime_error(
                                   "unexpected type pair while evaluating value");
                           },
@@ -275,7 +275,7 @@ Value Value::operator+(const Value& rhs) const {
                           [](float l, float r) -> Value { return Value(l + r); },
                           [](double l, double r) -> Value { return Value(l + r); },
                           [](bool l, bool r) -> Value { return Value(l + r); },
-                          [](auto&& l, auto&& r) -> Value {
+                          [](auto&&, auto&&) -> Value {
                               throw std::runtime_error(
                                   "unexpected type pair while evaluating value");
                           },
@@ -296,7 +296,7 @@ Value Value::operator-(const Value& rhs) const {
                           [](uint64_t l, uint64_t r) -> Value { return Value(l - r); },
                           [](float l, float r) -> Value { return Value(l - r); },
                           [](bool l, bool r) -> Value { return Value(l - r); },
-                          [](auto&& l, auto&& r) -> Value {
+                          [](auto&&, auto&&) -> Value {
                               throw std::runtime_error(
                                   "unexpected type pair while evaluating value");
                           },
@@ -318,7 +318,7 @@ Value Value::operator*(const Value& rhs) const {
                           [](float l, float r) -> Value { return Value(l * r); },
                           [](double l, double r) -> Value { return Value(l * r); },
                           [](bool l, bool r) -> Value { return Value(l * r); },
-                          [](auto&& l, auto&& r) -> Value {
+                          [](auto&&, auto&&) -> Value {
                               throw std::runtime_error(
                                   "unexpected type pair while evaluating value");
                           },
@@ -343,12 +343,26 @@ Value Value::operator/(const Value& rhs) const {
                           [](float l, float r) -> Value { return Value(l / r); },
                           [](double l, double r) -> Value { return Value(l / r); },
                           [](bool l, bool r) -> Value { return Value(l / r); },
-                          [](auto&& l, auto&& r) -> Value {
+                          [](auto&&, auto&&) -> Value {
                               throw std::runtime_error(
                                   "unexpected type pair while evaluating value");
                           },
                       },
                       pr.first.inner, pr.second.inner);
+}
+
+Value Value::operator!() const {
+    return std::visit(
+        match{[](int8_t v) { return Value(!v); }, [](int16_t v) { return Value(!v); },
+              [](int32_t v) { return Value(!v); }, [](int64_t v) { return Value(!v); },
+              [](uint8_t v) { return Value(!v); }, [](uint16_t v) { return Value(!v); },
+              [](uint32_t v) { return Value(!v); }, [](uint64_t v) { return Value(!v); },
+              [](float v) { return Value(!(bool)v); }, [](double v) { return Value(!(bool)v); },
+              [](bool v) { return Value(!v); },
+              [](auto&&) -> Value {
+                  throw InvalidCompileTimeEval("invalid value type for logical NOT");
+              }},
+        inner);
 }
 
 Value Value::operator~() const {
@@ -357,8 +371,8 @@ Value Value::operator~() const {
               [](int32_t v) { return Value(~v); }, [](int64_t v) { return Value(~v); },
               [](uint8_t v) { return Value(~v); }, [](uint16_t v) { return Value(~v); },
               [](uint32_t v) { return Value(~v); }, [](uint64_t v) { return Value(~v); },
-              [](bool v) { return Value(~v); },
-              [](auto&& v) -> Value {
+              [](bool v) { return Value(!v); },
+              [](auto&&) -> Value {
                   throw InvalidCompileTimeEval("invalid value type for bitwise NOT");
               }},
         inner);

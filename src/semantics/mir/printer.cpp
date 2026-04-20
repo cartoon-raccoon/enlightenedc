@@ -10,7 +10,7 @@ using namespace ecc::sema::types;
 using namespace ecc::tokens;
 
 void MIRPrinter::print_indent() const {
-    for (int i = 0; i < indent; ++i)
+    for (size_t i = 0; i < indent; ++i)
         std::cout << "| ";
 }
 

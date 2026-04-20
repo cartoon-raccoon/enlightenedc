@@ -13,7 +13,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # Use Clang as our default compiler, we are an LLVM project after all. :)
 set(CMAKE_C_COMPILER clang)
 set(CMAKE_CXX_COMPILER clang++)
-add_compile_options("-O2") # -Wall -Wextra
+add_compile_options("-O2")
 
 set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
 set(INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include")
@@ -83,6 +83,11 @@ list(APPEND ALL_SOURCE_FILES
     ${ALL_WRITTEN_FILES}
     ${BISON_parser_OUTPUTS} 
     ${FLEX_scanner_OUTPUTS}
+)
+
+set_source_files_properties(${ALL_WRITTEN_FILES} 
+    PROPERTIES 
+    COMPILE_OPTIONS "-Wall;-Wextra;-Wpedantic"
 )
 
 # 5. Create our final targets

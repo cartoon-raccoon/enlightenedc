@@ -2,14 +2,7 @@
 
 #include <string>
 
-namespace ecc::frontend {
-
-// global variable containing all the filenames involved in this invocation of ecc.
-// This is the global source that all location objects rely on, and therefore
-// must last the entire length of the program.
-FilenamePool filenames;
-
-} // namespace ecc::frontend
+namespace ecc::frontend {} // namespace ecc::frontend
 
 using namespace ecc::frontend;
 

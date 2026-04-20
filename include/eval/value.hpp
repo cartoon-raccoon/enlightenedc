@@ -210,7 +210,7 @@ public:
     Value operator/(const Value& rhs) const;
 
     // Unary logical NOT
-    Value operator!() const { return !*this; }
+    Value operator!() const;
 
     // Unary bitwise NOT
     Value operator~() const;
@@ -222,7 +222,7 @@ public:
     Value operator+() const;
 
     std::string to_string() {
-        return std::visit([this](const auto& v) { return std::format("{}", v); }, inner);
+        return std::visit([&](const auto& v) { return std::format("{}", v); }, inner);
     }
 }; // end class Value
 

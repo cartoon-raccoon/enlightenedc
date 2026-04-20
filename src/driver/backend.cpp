@@ -1,6 +1,7 @@
 #include "driver/backend.hpp"
 
 #include "driver/driver.hpp"
+#include "ecc.hpp"
 #include "semantics/mir/printer.hpp"
 #include "semantics/printer.hpp"
 #include "semantics/semantics.hpp"
@@ -11,7 +12,7 @@ using namespace ecc::sema;
 using namespace ecc::frontend;
 using namespace mir;
 
-void Backend::run(driver::TranslationUnit& unit) {
+void Backend::run(Ecc& ecc, driver::TranslationUnit& unit) {
     dbprint("running backend for file ", *unit.filename);
     SemanticChecker semantic_checker(*unit.prog_mir->symbols, *unit.types);
 

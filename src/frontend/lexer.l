@@ -210,7 +210,7 @@ static std::string decode_string_literal(char* text, size_t len) {
 
 [_a-zA-Z][_a-zA-Z0-9]* { /* Identifiers */
     std::string identifier(yytext);
-    if (typedefs.contains(identifier)) {
+    if (typedefs.get().contains(identifier)) {
         return ecc::frontend::Parser::make_TYPE_IDENTIFIER(yytext, loc);
     } else {
         return ecc::frontend::Parser::make_IDENTIFIER(yytext, loc);

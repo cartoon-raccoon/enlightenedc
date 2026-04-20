@@ -16,7 +16,7 @@ Box<LiteralExprMIR> ConstantFolder::eval_and_expr(Box<ExprMIR>& expr, Location l
     Value val     = expr->eval(evalr);
     auto new_expr = std::make_unique<LiteralExprMIR>(loc, syms.current, std::move(val));
 
-    return std::move(new_expr);
+    return new_expr;
 }
 
 void ConstantFolder::do_visit(sema::mir::InitializerMIR& node) {

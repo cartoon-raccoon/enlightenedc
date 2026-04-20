@@ -257,7 +257,7 @@ bool pr_is_integer(PrimType pr) {
 }
 
 bool pr_is_float(PrimType pr) {
-    return pr == PrimType::F64 && pr == PrimType::F32;
+    return pr == PrimType::F64 || pr == PrimType::F32;
 }
 
 bool pr_is_bool(PrimType pr) {

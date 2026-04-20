@@ -363,9 +363,9 @@ private:
     // The ID to assign to the next scope.
     MonotonicCtr<uint64_t> next_id = 1;
 
-    int next_scope_idx = 0;
+    size_t next_scope_idx = 0;
 
-    std::stack<int> prev_scope_idxs;
+    std::stack<size_t> prev_scope_idxs;
 };
 
 } // namespace ecc::sema::sym
