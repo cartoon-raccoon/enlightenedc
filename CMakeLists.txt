@@ -63,6 +63,7 @@ file(GLOB_RECURSE SEMANTICS_SRC "${SRC_DIR}/semantics/*.cpp")
 file(GLOB_RECURSE CODEGEN_SRC "${SRC_DIR}/codegen/*.cpp")
 file(GLOB_RECURSE EVAL_SRC "${SRC_DIR}/eval/*.cpp")
 file(GLOB         ECC_SRC "${SRC_DIR}/*.cpp")
+
 file(GLOB_RECURSE HEADERS "${INCLUDE_DIR}/*.hpp")
 
 # All the files we wrote ourselves.
@@ -84,14 +85,40 @@ list(APPEND ALL_SOURCE_FILES
     ${FLEX_scanner_OUTPUTS}
 )
 
-# 5. Create our target executable
-add_executable(ecc ${ALL_SOURCE_FILES})
+# 5. Create our final targets
+
+# Create a static library that holds all our core functionality
+add_library(libecc STATIC ${ALL_SOURCE_FILES})
+set_target_properties(libecc PROPERTIES
+    PREFIX ""
+    OUTPUT_NAME "libecc"
+    SUFFIX ".a"
+)
+
+# Create an executable from our main.cpp driver
+add_executable(ecc "${SRC_DIR}/main.cpp")
 
 # 6. Setup include paths
-target_include_directories(ecc PRIVATE ${SRC_DIR} ${BISON_OUTPUT_DIR})
+target_include_directories(libecc PRIVATE ${SRC_DIR} ${BISON_OUTPUT_DIR})
+target_include_directories(libecc PUBLIC ${INCLUDE_DIR})
 target_include_directories(ecc PUBLIC ${INCLUDE_DIR})
 
-# 7. Set clang-tidy and clang-format
+# 7. Link our targets and their dependencies
+llvm_map_components_to_libnames(llvm_libs
+    core
+    executionengine
+    orcjit
+    native
+    support
+)
+
+message(STATUS "LLVM libraries: ${LLVM_LIBRARY_DIRS}")
+# Link LLVM to our library target
+target_link_libraries(libecc PRIVATE LLVM)
+# Link our library target to our executable
+target_link_libraries(ecc PRIVATE libecc)
+
+# 8. Set clang-tidy and clang-format
 find_program(CLANG_TIDY_EXE NAMES "clang-tidy")
 if(CLANG_TIDY_EXE)
     if (ENABLE_CLANG_TIDY)
@@ -112,7 +139,7 @@ else()
     message(WARNING "clang-format not found, `format` target is unavailable")
 endif()
 
-# 8. Add precompiled headers
+# 9. Add precompiled headers
 target_precompile_headers(ecc PRIVATE 
     <vector> 
     <string>
@@ -141,14 +168,4 @@ target_precompile_headers(ecc PRIVATE
     <llvm/TargetParser/Host.h>
 )
 
-# 9. Link LLVM libraries
-llvm_map_components_to_libnames(llvm_libs
-    core
-    executionengine
-    orcjit
-    native
-    support
-)
-
-message(STATUS "LLVM libraries: ${LLVM_LIBRARY_DIRS}")
-target_link_libraries(ecc PRIVATE LLVM)
+# todo: integrate tests
