@@ -1,4 +1,4 @@
-#include "semantics/mir/optimizations/constfold.hpp"
+#include "semantics/mir/passes/constfold.hpp"
 
 #include "semantics/mir/mir.hpp"
 
