@@ -30,11 +30,12 @@ template <typename T, typename... Args> void dbprint(T msg, Args&&...args) {
         visitor.visit(*this);                            \
     }
 
-#define VISIT_NO_IMPL(_node) /* NOLINT */ \
-    void visit(_node& node) override { /*NOLINT */ \
-        throw std::runtime_error( \
-            "visit() was not implemented for the current visitable node"); \
+#define VISIT_NO_IMPL(_node)           /* NOLINT */                                             \
+    void visit(_node& node) override { /*NOLINT */                                              \
+        throw std::runtime_error("visit() was not implemented for the current visitable node"); \
     }
+
+#define todo() throw Todo(std::source_location::current()) // NOLINT
 
 constexpr std::size_t BOOST_GOLDEN_RATIO = 0x9e3779b9;
 constexpr std::size_t HASH_SHL           = 6;
@@ -60,13 +61,6 @@ public:
     const char *what() const noexcept override { return location.c_str(); }
 };
 
-/**
-A function to mark a block of code as unimplemented, and to be implemented in the future.
-*/
-constexpr void todo() {
-    throw Todo(std::source_location::current());
-}
-
 template <typename T> using Box = std::unique_ptr<T>;
 
 template <typename T, typename... Args>
@@ -79,6 +73,8 @@ template <typename T> using Vec = std::vector<T>;
 template <typename T> using Optional = std::optional<T>;
 
 template <typename T> using Ref = std::reference_wrapper<T>;
+
+template <typename T1, typename T2> using Pair = std::pair<T1, T2>;
 
 // Overloaded template class for Rust-style pattern matching on variants.
 template <class... Ts> struct match : Ts... {
@@ -252,49 +248,31 @@ concept VariantMember = is_variant_member<T, Variant>::value;
 A counter that keeps increasing.
 */
 template <typename I>
-requires std::is_integral_v<I>
+    requires std::is_integral_v<I>
 class MonotonicCtr {
     I val;
+
 public:
     MonotonicCtr(I val) : val(val) {}
     MonotonicCtr(const MonotonicCtr<I>& c) : val(c.val) {}
 
-    I value() const {
-        return val;
-    }
+    I value() const { return val; }
 
-    void inc() {
-        val++;
-    }
+    void inc() { val++; }
 
-    I operator*() {
-        return val;
-    }
+    I operator*() { return val; }
 
-    I operator++() {
-        return val++;
-    }
+    I operator++() { return val++; }
 
-    I operator++(int) {
-        return ++val;
-    }
+    I operator++(int) { return ++val; }
 
-    bool operator== (const MonotonicCtr<I>& other) {
-        return val == other.val;
-    }
+    bool operator==(const MonotonicCtr<I>& other) { return val == other.val; }
 
-    bool operator== (const I& other) {
-        return val == other;
-    }
+    bool operator==(const I& other) { return val == other; }
 
-    bool operator< (const MonotonicCtr<I>& other) {
-        return val < other.val;
-    }
+    bool operator<(const MonotonicCtr<I>& other) { return val < other.val; }
 
-    bool operator> (const I& other) {
-        return val < other;
-    }
-
+    bool operator>(const I& other) { return val < other; }
 };
 
 class NoCopy { // NOLINT(cppcoreguidelines-special-member-functions)

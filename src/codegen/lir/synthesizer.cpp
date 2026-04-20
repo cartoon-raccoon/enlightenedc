@@ -91,7 +91,7 @@ void LIRSynthesizer::do_visit(FunctionMIR& node) {
 
     node.body->accept(*this);
 
-    Box<FunctionLIR> this_func = make_box<FunctionLIR>(node.loc, mangled, name);
+    Box<FunctionLIR> this_func = make_box<FunctionLIR>(node.loc, mangled, name, funcptr);
 
     Vec<Box<FunctionLIR>> functions;
 
@@ -196,15 +196,6 @@ void LIRSynthesizer::do_visit(SwitchStmtMIR& node) {
                            decls.push_back(std::move(decl));
                        },
                        [&this_stmt](Box<ProgItemLIR>& item) {
-                           // pull any switch targets we might have and insert
-
-                           StmtLIR *stmt = item->as_stmt();
-                           if (stmt) {
-                               Vec<SwitchTarget *> targets = stmt->pull_switch_targets();
-                               this_stmt->targets.insert(this_stmt->targets.end(), targets.begin(),
-                                                         targets.end());
-                           }
-
                            // push the stmt into our body
                            this_stmt->body.push_back(std::move(item));
                        },
@@ -562,9 +553,8 @@ void LIRSynthesizer::do_visit(CondExprMIR& node) {
     node.false_expr->accept(*this);
     Box<ExprLIR> false_val = std::move(last_expr);
 
-    Box<ExprLIR> expr =
-        std::make_unique<CondExprLIR>(
-            node.loc, node.type, std::move(condition), std::move(true_val), std::move(false_val));
+    Box<ExprLIR> expr = std::make_unique<CondExprLIR>(node.loc, node.type, std::move(condition),
+                                                      std::move(true_val), std::move(false_val));
 
     last_expr = std::move(expr);
 }
@@ -578,9 +568,6 @@ void LIRSynthesizer::do_visit(IdentExprMIR& node) {
     Box<ExprLIR> identexpr = std::make_unique<IdentExprLIR>(node.loc, sym, node.type);
 
     last_expr = std::move(identexpr);
-}
-
-void LIRSynthesizer::do_visit(ConstExprMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(LiteralExprMIR& node) {
@@ -607,7 +594,7 @@ void LIRSynthesizer::do_visit(SizeofExprMIR& node) {
                          [](Type *& type) mutable { return type->alloc_size(); }},
                    node.operand);
 
-    Box<ExprLIR> ret = std::make_unique<LiteralExprLIR>(node.loc, (long)size, node.type);
+    Box<ExprLIR> ret = std::make_unique<LiteralExprLIR>(node.loc, size, node.type);
 
     last_expr = std::move(ret);
 }

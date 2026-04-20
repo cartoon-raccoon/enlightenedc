@@ -4,6 +4,7 @@
 #define ECC_TOKENS_H
 
 #include <cstdint>
+#include <string>
 
 namespace ecc::tokens {
 
@@ -78,8 +79,19 @@ enum class PrimType : uint8_t {
     I16,
     I32,
     I64,
+    F32,
     F64,
     BOOL,
+};
+
+enum class PrimTypeRank : uint8_t {
+    BOOL  = 1,
+    INT8  = 2,
+    INT16 = 3,
+    INT32 = 4,
+    INT64 = 5,
+    FLT32 = 6,
+    FLT64 = 7,
 };
 
 std::string binop_to_string(BinaryOp op);
@@ -93,6 +105,26 @@ std::string postfixop_to_string(PostfixOp op);
 std::string infixop_to_string(InfixOp op);
 
 std::string primitive_to_string(PrimType pr);
+
+bool unaryop_is_const_foldable(UnaryOp op);
+
+PrimTypeRank pr_rank(PrimType pr);
+
+bool pr_is_integer(PrimType pr);
+
+bool pr_is_float(PrimType pr);
+
+bool pr_is_bool(PrimType pr);
+
+bool pr_is_signed(PrimType pr);
+
+PrimType pr_from_rank(PrimTypeRank rank, bool is_signed);
+
+/// Promote the LHS and RHS of some binary expression to suitable types.
+///
+/// This is the source of truth for all primitive type promotion in
+/// binary expressions.
+PrimType pr_promote(PrimType lhs, PrimType rhs);
 
 }; // namespace ecc::tokens
 

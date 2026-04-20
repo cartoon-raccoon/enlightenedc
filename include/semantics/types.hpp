@@ -167,6 +167,11 @@ public:
         return false;
     }
 
+    /**
+    Check if a type can be cast into `this`, explicitly or not.
+    */
+    virtual bool can_cast_into(Type *dst) { return false; }
+
     virtual VoidType *as_void() { return nullptr; }
 
     // Cast this type to a PrimitiveType *.
@@ -222,6 +227,8 @@ public:
     produce undefined results.
     */
     virtual void finalize() = 0;
+
+    virtual Type *effective_type() { return this; };
 
     codegen::LLVMType *get_llvmtype();
 
@@ -565,6 +572,14 @@ public:
 
     void finalize() override;
 
+    Type *effective_type() override {
+        if (type_rep) {
+            return *type_rep;
+        } else {
+            return this;
+        }
+    }
+
     std::string to_string() const override;
 
     Optional<std::string> get_name() override { return name; }
@@ -631,6 +646,8 @@ public:
 
     void finalize() override;
 
+    Type *effective_type() override { return underlying; }
+
     std::string to_string() const override;
 
     Optional<std::string> get_name() override { return name; }
@@ -690,6 +707,8 @@ public:
 
     void finalize() override;
 
+    Type *effective_type() override;
+
     std::string to_string() const override;
 
 protected:
@@ -738,6 +757,8 @@ public:
     bool is_compatible_with(Type *from) override;
 
     void finalize() override;
+
+    Type *effective_type() override;
 
     std::string to_string() const override;
 
@@ -837,6 +858,8 @@ public:
 
     void finalize() override;
 
+    Type *effective_type() override;
+
     std::string to_string() const override;
 
     static std::string base() { return "function_"; }
@@ -849,6 +872,8 @@ protected:
 
     FunctionType(Type *base, TypeContext& tyctxt)
         : DerivedType(Type::Kind::FUNCTION, tyctxt, base) {}
+
+    FunctionType *eff_ty = nullptr;
 };
 
 /*
@@ -971,11 +996,16 @@ public:
     /** Return a pointer to the I64 Type object. */
     PrimitiveType *get_i64() { return i64.get(); }
 
+    /** Return a pointer to the F32 Type object. */
+    PrimitiveType *get_f32() { return f32.get(); }
+
     /** Return a pointer to the F64 Type object. */
     PrimitiveType *get_f64() { return f64.get(); }
 
     /** Return a pointer to the Bool Type object. */
     PrimitiveType *get_bool() { return boolt.get(); }
+
+    Pair<PrimitiveType *, PrimitiveType *> promote(tokens::PrimType p1, tokens::PrimType p2);
 
     /**
     Create or retrieve a class with the name `name`.
@@ -1054,6 +1084,7 @@ private:
     Box<PrimitiveType> i16;
     Box<PrimitiveType> i32;
     Box<PrimitiveType> i64;
+    Box<PrimitiveType> f32;
     Box<PrimitiveType> f64;
     Box<PrimitiveType> boolt;
 

@@ -112,6 +112,8 @@ public:
 
     virtual bool is_subscriptable() { return type->is_subscriptable(); }
 
+    virtual bool is_const_foldable() = 0;
+
     virtual eval::Value eval(eval::ExprEvaluator& ev) = 0;
 };
 
@@ -215,11 +217,10 @@ public:
 
 class CaseStmtMIR : public StmtMIR {
 public:
-    CaseStmtMIR(Location loc, Box<ExprMIR> case_expr, Box<StmtMIR> stmt)
-        : StmtMIR(loc, NodeKind::CASESTMT_MIR), case_expr(std::move(case_expr)),
-          stmt(std::move(stmt)) {}
+    CaseStmtMIR(Location loc, eval::Value& case_val, Box<StmtMIR> stmt)
+        : StmtMIR(loc, NodeKind::CASESTMT_MIR), case_val(case_val), stmt(std::move(stmt)) {}
 
-    Box<ExprMIR> case_expr;
+    eval::Value case_val;
     Box<StmtMIR> stmt;
 
     void accept(MIRVisitor& visitor) override;
@@ -227,13 +228,13 @@ public:
 
 class CaseRangeStmtMIR : public StmtMIR {
 public:
-    CaseRangeStmtMIR(Location loc, Box<ExprMIR> case_start, Box<ExprMIR> case_end,
+    CaseRangeStmtMIR(Location loc, eval::Value& case_start, eval::Value& case_end,
                      Box<StmtMIR> stmt)
-        : StmtMIR(loc, NodeKind::CASERGSTMT_MIR), case_start(std::move(case_start)),
-          case_end(std::move(case_end)), stmt(std::move(stmt)) {}
+        : StmtMIR(loc, NodeKind::CASERGSTMT_MIR), case_start(case_start), case_end(case_end),
+          stmt(std::move(stmt)) {}
 
-    Box<ExprMIR> case_start;
-    Box<ExprMIR> case_end;
+    eval::Value case_start;
+    eval::Value case_end;
     Box<StmtMIR> stmt;
 
     void accept(MIRVisitor& visitor) override;
@@ -401,6 +402,10 @@ public:
 
     void accept(MIRVisitor& visitor) override;
 
+    bool is_const_foldable() override {
+        return left->is_const_foldable() && right->is_const_foldable();
+    }
+
     eval::Value eval(eval::ExprEvaluator& ev) override;
 };
 
@@ -415,6 +420,10 @@ public:
     bool is_assignable() override { return is_lvalue(); }
 
     bool is_lvalue() override { return op == tokens::UnaryOp::DEREF; };
+
+    bool is_const_foldable() override {
+        return operand->is_const_foldable() && tokens::unaryop_is_const_foldable(op);
+    }
 
     void accept(MIRVisitor& visitor) override;
 
@@ -434,6 +443,8 @@ public:
 
     bool is_lvalue() override { return false; }
 
+    bool is_const_foldable() override { return inner->is_const_foldable(); }
+
     void accept(MIRVisitor& visitor) override;
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
@@ -449,6 +460,8 @@ public:
     Box<ExprMIR> left;
     Box<ExprMIR> right;
     tokens::AssignOp op;
+
+    bool is_const_foldable() override { return false; }
 
     void accept(MIRVisitor& visitor) override;
 
@@ -467,6 +480,12 @@ public:
     Box<ExprMIR> false_expr;
 
     bool is_lvalue() override { return false; }
+
+    bool is_const_foldable() override {
+        // if condition is const_foldable, we can eliminate one branch
+        // so even if both branches are not const foldable, we can still optimize
+        return condition->is_const_foldable();
+    }
 
     void accept(MIRVisitor& visitor) override;
 
@@ -488,19 +507,7 @@ public:
 
     bool is_subscriptable() override { return type->is_subscriptable(); }
 
-    void accept(MIRVisitor& visitor) override;
-
-    eval::Value eval(eval::ExprEvaluator& ev) override;
-};
-
-class ConstExprMIR : public ExprMIR {
-public:
-    ConstExprMIR(Location loc, sema::sym::Scope *scope, Box<ExprMIR> inner)
-        : ExprMIR(loc, NodeKind::CONSTEXPR_MIR, scope), inner(std::move(inner)) {}
-
-    Box<ExprMIR> inner;
-
-    NodeKind get_kind() override { return inner->get_kind(); }
+    bool is_const_foldable() override { return type->is_enum(); }
 
     void accept(MIRVisitor& visitor) override;
 
@@ -510,9 +517,14 @@ public:
 class LiteralExprMIR : public ExprMIR {
 public:
     LiteralExprMIR(Location loc, sema::sym::Scope *scope, eval::Value value)
-        : ExprMIR(loc, NodeKind::LITEXPR_MIR, scope), value(std::move(value)) {}
+        : ExprMIR(loc, NodeKind::LITEXPR_MIR, scope), value(value) {}
 
-    eval::Value value;
+    LiteralExprMIR(Location loc, sema::sym::Scope *scope, std::string value)
+        : ExprMIR(loc, NodeKind::LITEXPR_MIR, scope), value(value) {}
+
+    using LitValueMIR = std::variant<eval::Value, std::string>;
+
+    LitValueMIR value;
 
     bool is_assignable() override { return false; }
 
@@ -521,6 +533,8 @@ public:
     bool is_lvalue() override { return false; }
 
     bool is_subscriptable() override { return false; }
+
+    bool is_const_foldable() override { return true; }
 
     void accept(MIRVisitor& visitor) override;
 
@@ -538,6 +552,8 @@ public:
 
     Box<ExprMIR> callee;
     Vec<Box<ExprMIR>> args;
+
+    bool is_const_foldable() override { return false; }
 
     void accept(MIRVisitor& visitor) override;
 
@@ -557,6 +573,8 @@ public:
 
     bool is_lvalue() override { return true; }
 
+    bool is_const_foldable() override { return false; }
+
     void accept(MIRVisitor& visitor) override;
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
@@ -573,6 +591,8 @@ public:
 
     bool is_lvalue() override { return true; }
 
+    bool is_const_foldable() override { return false; }
+
     void accept(MIRVisitor& visitor) override;
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
@@ -586,6 +606,8 @@ public:
 
     Box<ExprMIR> operand;
     tokens::PostfixOp op;
+
+    bool is_const_foldable() override { return false; }
 
     void accept(MIRVisitor& visitor) override;
 
@@ -606,6 +628,8 @@ public:
         : ExprMIR(loc, NodeKind::SIZEEXPR_MIR, scope), operand(std::move(target)) {}
 
     SizeofOperand operand;
+
+    bool is_const_foldable() override { return true; }
 
     void accept(MIRVisitor& visitor) override;
 

@@ -34,6 +34,7 @@ using namespace ecc::sema::types;
 using namespace ecc::sema::sym;
 using namespace ecc::sema::mir;
 using namespace ecc::tokens;
+using namespace ecc::eval;
 
 void MIRSynthesizer::generate_mir(Program& prog) {
     prog.accept(*this);
@@ -152,13 +153,13 @@ void MIRSynthesizer::do_visit(Program& node) {
     for (auto& item : node.items) {
         dv_call(std::monostate{}, item);
         std::visit(
-            match{[this](Box<DeclMIR>& decl) mutable { prog_mir.add_item(std::move(decl)); },
-                  [this](Box<StmtMIR>& stmt) mutable { prog_mir.add_item(std::move(stmt)); },
-                  [this](Box<FunctionMIR>& func) mutable { prog_mir.add_item(std::move(func)); },
-                  [](std::monostate& mono) {
+            match{[&](Box<DeclMIR>& decl) mutable { prog_mir.add_item(std::move(decl)); },
+                  [&](Box<StmtMIR>& stmt) mutable { prog_mir.add_item(std::move(stmt)); },
+                  [&](Box<FunctionMIR>& func) mutable { prog_mir.add_item(std::move(func)); },
+                  [&](std::monostate& mono) {
                       // ignore and continue
                   },
-                  [](auto& err) {
+                  [&](auto& err) {
                       throw std::runtime_error("unexpected item while parsing programitems");
                   }},
             last_result);
@@ -222,33 +223,32 @@ void MIRSynthesizer::do_visit(Function& node) {
 
     while (!builder->ty_bldr.type_stack.empty()) {
         auto next_cstrctr = builder->ty_bldr.type_stack.top();
-        std::visit(
-            match{[&builder, &curr](TypeBuilder::Arr& arr) mutable {
-                      // Wrap the base in an array.
-                      if (arr.size) {
-                          curr = builder->ty_bldr.ctxt().get_array(curr, *arr.size);
-                      } else {
-                          curr = builder->ty_bldr.ctxt().get_array(curr);
-                      }
-                  },
-                  [&builder, &curr](TypeBuilder::Ptr& ptr) mutable {
-                      // Wrap the base in a pointer.
-                      curr = builder->ty_bldr.ctxt().get_pointer(curr, ptr.is_const);
-                  },
-                  [&builder, &curr, &last_func_params, this](TypeBuilder::FnParams& fn) mutable {
-                      // map out the identifiers.
-                      Vec<Type *> params;
-                      params.reserve(fn.params.size());
-                      for (auto& param : fn.params) {
-                          params.push_back(param.type);
-                      }
+        std::visit(match{[&](TypeBuilder::Arr& arr) mutable {
+                             // Wrap the base in an array.
+                             if (arr.size) {
+                                 curr = builder->ty_bldr.ctxt().get_array(curr, *arr.size);
+                             } else {
+                                 curr = builder->ty_bldr.ctxt().get_array(curr);
+                             }
+                         },
+                         [&](TypeBuilder::Ptr& ptr) mutable {
+                             // Wrap the base in a pointer.
+                             curr = builder->ty_bldr.ctxt().get_pointer(curr, ptr.is_const);
+                         },
+                         [&](TypeBuilder::FnParams& fn) mutable {
+                             // map out the identifiers.
+                             Vec<Type *> params;
+                             params.reserve(fn.params.size());
+                             for (auto& param : fn.params) {
+                                 params.push_back(param.type);
+                             }
 
-                      last_func_params = std::move(fn.params);
-                      // Wrap the base as the return type in a function type.
-                      curr = builder->ty_bldr.ctxt().get_function(fn.loc, curr, std::move(params),
-                                                                  fn.variadic);
-                  }},
-            next_cstrctr);
+                             last_func_params = std::move(fn.params);
+                             // Wrap the base as the return type in a function type.
+                             curr = builder->ty_bldr.ctxt().get_function(
+                                 fn.loc, curr, std::move(params), fn.variadic);
+                         }},
+                   next_cstrctr);
 
         // Pop the stack to the next constructor
         builder->ty_bldr.type_stack.pop();
@@ -339,6 +339,10 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
         VarSymbol *symptr  = nullptr;
         if (ret.name) {
             // initialize our symbol and its pointer
+            if (ret.type->is_void()) {
+                add_error<EccSemError>("variable cannot have type Void or U0", declarator->loc);
+                throw UnableToContinue();
+            }
             sym = std::make_unique<VarSymbol>(declarator->loc, *ret.name, syms.current, ret.type);
             symptr = sym.get();
 
@@ -362,9 +366,7 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
 
         // sym should be valid, since to get here builder's name had to exist
         if (!symptr) {
-            add_error<EccSemError>("unexpected null pointer when parsing variable declarator",
-                                   declarator->loc);
-            throw UnableToContinue();
+            throw std::runtime_error("unexpected null pointer when parsing variable declarator");
         }
 
         // extract the initializer mir
@@ -445,31 +447,15 @@ void MIRSynthesizer::do_visit(ArrayDeclarator& node) {
     if (node.size) {
         bsv_dbprint("array declarator has size, checking for compile time computability");
         dv_call(std::monostate{}, *node.size);
-        Box<ExprMIR> arr_size_expr = take_last_result<Box<ExprMIR>>();
+        Value size_val = take_last_result<Value>();
 
-        // if we have a size for the array, evaluate it
-        eval::Value val;
-        eval::ConstEvaluator evalr(syms, types);
-
-        try {
-            val = arr_size_expr->eval(evalr);
-        } catch (eval::InvalidCompileTimeEval& e) {
-            e.add_loc(node.loc);
-            add_error<eval::InvalidCompileTimeEval>(e);
+        if (size_val < 0) {
+            add_error<EccSemError>("array size cannot be a negative value", (*node.size)->loc);
             throw UnableToContinue();
         }
 
-        // if we were able to parse it as a u64, great
-        if (auto maybe_size = val.value_as<long>()) {
-            if (*maybe_size < 0) {
-                add_error<EccSemError>("array size cannot be a negative number", (*node.size)->loc);
-            }
-            size = *maybe_size;
-        } else {
-            // otherwise, the expression could not resolve, throw error
-            // (do NOT coerce to unsized)
-            add_error<EccSemError>("could not evaluate size expression to U64", node.loc);
-        }
+        size = size_val.cast<uint64_t>();
+
     } else {
         // fixme: context check here for if size is optional?
     }
@@ -668,26 +654,14 @@ void MIRSynthesizer::do_visit(Enumerator& node) {
         throw UnableToContinue();
     }
 
-    eval::Value value;
+    Value value;
     if (node.value) {
         dv_call(std::monostate{}, *node.value);
-        Box<ExprMIR> value_expr = take_last_result<Box<ExprMIR>>();
-        eval::ConstEvaluator evalr(syms, types);
+        value = take_last_result<Value>();
 
-        try {
-            value = value_expr->eval(evalr);
-        } catch (eval::InvalidCompileTimeEval& e) {
-            e.add_loc(node.loc);
-            add_error<eval::InvalidCompileTimeEval>(e);
-        }
+        int64_t val = value.cast<int64_t>();
 
-        Optional<long> val = value.value_as<long>();
-
-        if (val) {
-            enm->add_enumerator(node.name, *val, node.loc);
-        } else {
-            add_error<EccSemError>("invalid enumerator value", node.loc);
-        }
+        enm->add_enumerator(node.name, val, node.loc);
     } else {
         value = enm->add_enumerator(node.name, node.loc);
     }
@@ -817,13 +791,13 @@ void MIRSynthesizer::do_visit(ClassDeclaration& node) {
 
     std::visit(
         match{// ClassType case
-              [&specinfo, &node, this](ClassType *cls) {
+              [&](ClassType *cls) {
                   bsv_dbprint("parsing ClassDeclaration for ClassType ", cls);
                   for (auto& decltr : node.declarators) {
                       dv_call(std::monostate{}, decltr);
                       try {
                           std::visit(
-                              match{[&cls, &specinfo, &decltr](Box<DeclaratorBuilder>& builder) {
+                              match{[&](Box<DeclaratorBuilder>& builder) {
                                         builder->ty_bldr.set_base(specinfo->type);
                                         Type *finaltype = builder->ty_bldr.finalize();
 
@@ -833,11 +807,11 @@ void MIRSynthesizer::do_visit(ClassDeclaration& node) {
                                             cls->add_member(finaltype, decltr->loc);
                                         }
                                     },
-                                    [&cls, &specinfo, &decltr](std::monostate& mono) {
+                                    [&](std::monostate& mono) {
                                         // no declarator, use the base type
                                         cls->add_member(specinfo->type, decltr->loc);
                                     },
-                                    [](auto& err) {
+                                    [&](auto& err) {
                                         throw std::runtime_error(
                                             "unexpected last_result when parsing ClassDeclaration");
                                     }},
@@ -858,7 +832,7 @@ void MIRSynthesizer::do_visit(ClassDeclaration& node) {
                       dv_call(std::monostate{}, decltr);
                       try {
                           std::visit(
-                              match{[&unn, &specinfo, &decltr](Box<DeclaratorBuilder>& builder) {
+                              match{[&](Box<DeclaratorBuilder>& builder) {
                                         builder->ty_bldr.set_base(specinfo->type);
                                         Type *finaltype = builder->ty_bldr.finalize();
 
@@ -868,11 +842,11 @@ void MIRSynthesizer::do_visit(ClassDeclaration& node) {
                                             unn->add_member(finaltype, decltr->loc);
                                         }
                                     },
-                                    [&unn, &specinfo, &decltr](std::monostate& mono) {
+                                    [&](std::monostate& mono) {
                                         // no declarator, use the base type
                                         unn->add_member(specinfo->type, decltr->loc);
                                     },
-                                    [](auto& err) {
+                                    [&](auto& err) {
                                         throw std::runtime_error(
                                             "unexpected last_result when parsing UnionDeclaration");
                                     }},
@@ -916,7 +890,7 @@ void MIRSynthesizer::do_visit(Initializer& node) { // NOLINT
 
     std::visit(
         match{// Base case: single expression
-              [this, loc](Box<Expression>& expr) {
+              [&](Box<Expression>& expr) {
                   bsv_dbprint("visiting single initializer");
                   dv_call(std::monostate{}, expr);
                   Box<ExprMIR> exprmir = take_last_result<Box<ExprMIR>>();
@@ -926,7 +900,7 @@ void MIRSynthesizer::do_visit(Initializer& node) { // NOLINT
                   dv_return(ret);
               },
               // Recursive case: sub-initializer
-              [this, loc, type, &node](Vec<Box<Initializer>>& inits) {
+              [&](Vec<Box<Initializer>>& inits) {
                   bsv_dbprint("visiting compound initializer");
 
                   Vec<Box<InitializerMIR>> init_mirs{};
@@ -1045,11 +1019,11 @@ void MIRSynthesizer::do_visit(CompoundStatement& node) {
     // Since do_visit on this node can be called outside of functions,
     // having the param not be of the expected type is valid,
     // we just don't use it.
-    std::visit(match{[&add_symbols](CmpdStmtDoVisitParam& param) mutable {
+    std::visit(match{[&](CmpdStmtDoVisitParam& param) mutable {
                          // dbprint("CmpdStmtDoVisitParams found");
                          add_symbols = std::move(param);
                      },
-                     [&add_symbols](auto& nothing) mutable {
+                     [&](auto& nothing) mutable {
                          // dbprint("No params found");
                          add_symbols = {};
                      }},
@@ -1078,18 +1052,15 @@ void MIRSynthesizer::do_visit(CompoundStatement& node) {
     for (auto& item : node.items) {
         dv_call(std::monostate{}, item);
         std::visit(
-            match{
-                [&progitems](Box<DeclMIR>& decl) mutable { progitems.push_back(std::move(decl)); },
-                [&progitems](Box<StmtMIR>& stmt) mutable { progitems.push_back(std::move(stmt)); },
-                [&progitems](Box<FunctionMIR>& func) mutable {
-                    progitems.push_back(std::move(func));
-                },
-                [](std::monostate& mono) {
-                    // ignore and continue
-                },
-                [](auto& err) {
-                    throw std::runtime_error("unexpected type while parsing program items");
-                }},
+            match{[&](Box<DeclMIR>& decl) mutable { progitems.push_back(std::move(decl)); },
+                  [&](Box<StmtMIR>& stmt) mutable { progitems.push_back(std::move(stmt)); },
+                  [&](Box<FunctionMIR>& func) mutable { progitems.push_back(std::move(func)); },
+                  [](std::monostate& mono) {
+                      // ignore and continue
+                  },
+                  [](auto& err) {
+                      throw std::runtime_error("unexpected type while parsing program items");
+                  }},
             last_result);
         last_result = std::monostate{};
     }
@@ -1124,7 +1095,7 @@ void MIRSynthesizer::do_visit(ExpressionStatement& node) {
             if (!litexpr) {
                 throw std::runtime_error("could not cast LITEXPR_MIR to LiteralExprMIR");
             }
-            if (auto *str = std::get_if<std::string>(&litexpr->value.inner)) {
+            if (auto *str = std::get_if<std::string>(&litexpr->value)) {
                 bsv_dbprint(
                     "found string literal inside ExpressionStatement, emitting PrintStmtMIR");
                 std::string format_string = std::move(*str);
@@ -1174,13 +1145,12 @@ void MIRSynthesizer::do_visit(ExpressionStatement& node) {
 void MIRSynthesizer::do_visit(CaseStatement& node) {
     bsv_dbprint("visiting CaseStatement node: ", node.loc);
     dv_call(std::monostate{}, node.case_expr);
-    Box<ExprMIR> case_expr = take_last_result<Box<ExprMIR>>();
+    Value case_val = take_last_result<Value>();
 
     dv_call(std::monostate{}, node.statement);
     Box<StmtMIR> stmt = take_last_result<Box<StmtMIR>>();
 
-    Box<StmtMIR> casestmt =
-        std::make_unique<CaseStmtMIR>(node.loc, std::move(case_expr), std::move(stmt));
+    Box<StmtMIR> casestmt = std::make_unique<CaseStmtMIR>(node.loc, case_val, std::move(stmt));
 
     dv_return(casestmt);
 }
@@ -1189,16 +1159,16 @@ void MIRSynthesizer::do_visit(CaseRangeStatement& node) {
     bsv_dbprint("visiting CaseRangeStatement node: ", node.loc);
 
     dv_call(std::monostate{}, node.range_start);
-    Box<ExprMIR> case_start = take_last_result<Box<ExprMIR>>();
+    Value case_start = take_last_result<Value>();
 
     dv_call(std::monostate{}, node.range_end);
-    Box<ExprMIR> case_end = take_last_result<Box<ExprMIR>>();
+    Value case_end = take_last_result<Value>();
 
     dv_call(std::monostate{}, node.statement);
     Box<StmtMIR> stmt = take_last_result<Box<StmtMIR>>();
 
-    Box<StmtMIR> casestmt = std::make_unique<CaseRangeStmtMIR>(
-        node.loc, std::move(case_start), std::move(case_end), std::move(stmt));
+    Box<StmtMIR> casestmt =
+        std::make_unique<CaseRangeStmtMIR>(node.loc, case_start, case_end, std::move(stmt));
 
     dv_return(casestmt);
 }
@@ -1316,7 +1286,7 @@ void MIRSynthesizer::do_visit(ForStatement& node) {
     Box<LoopStmtMIR> loop = std::make_unique<LoopStmtMIR>(node.loc, std::move(body));
 
     if (node.init.has_value()) {
-        std::visit(match{[this, &loop](Box<Expression>& expr) {
+        std::visit(match{[&](Box<Expression>& expr) {
                              dv_call(std::monostate{}, expr);
                              Box<ExprMIR> exprmir = take_last_result<Box<ExprMIR>>();
                              Box<ExprStmtMIR> exprstmt =
@@ -1324,7 +1294,7 @@ void MIRSynthesizer::do_visit(ForStatement& node) {
 
                              loop->init = std::move(exprstmt);
                          },
-                         [this, &loop](Box<VariableDeclaration>& decl) {
+                         [&](Box<VariableDeclaration>& decl) {
                              dv_call(std::monostate{}, decl);
                              Box<DeclMIR> declmir = take_last_result<Box<DeclMIR>>();
                              loop->init           = std::move(declmir);
@@ -1479,30 +1449,37 @@ void MIRSynthesizer::do_visit(ConstExpression& node) {
     dv_call(std::monostate{}, node.inner);
     Box<ExprMIR> inner = take_last_result<Box<ExprMIR>>();
 
-    Box<ExprMIR> expr = std::make_unique<ConstExprMIR>(node.loc, syms.current, std::move(inner));
+    ConstEvaluator evalr(syms, types);
+    Value res;
+    try {
+        res = inner->eval(evalr);
+    } catch (InvalidCompileTimeEval& e) {
+        add_error<InvalidCompileTimeEval>(e);
+        throw UnableToContinue();
+    }
 
-    dv_return(expr);
+    dv_return(res);
 }
 
 void MIRSynthesizer::do_visit(LiteralExpression& node) {
     bsv_dbprint("visiting LiteralExpression node: ", node.loc);
 
-    eval::Value val;
+    Value val;
     switch (node.kind) {
     case LiteralExpression::INT:
-        val = (long)node.value.i_val;
+        val = Value::from_literal(node.value.i_val);
         break;
 
     case LiteralExpression::FLOAT:
-        val = node.value.f_val;
+        val = Value::from_literal(node.value.f_val);
         break;
 
     case LiteralExpression::CHAR:
-        val = node.value.c_val;
+        val = Value::from_literal(node.value.c_val);
         break;
 
     case LiteralExpression::BOOL:
-        val = node.value.b_val;
+        val = Value::from_literal(node.value.b_val);
         break;
     }
 
@@ -1580,14 +1557,14 @@ void MIRSynthesizer::do_visit(SizeofExpression& node) {
     bsv_dbprint("visiting SizeofExpression node: ", node.loc);
 
     Box<SizeofExprMIR> sizexpr = std::make_unique<SizeofExprMIR>(node.loc, syms.current);
-    std::visit(match{[this, &sizexpr](Box<Expression>& expr) mutable {
+    std::visit(match{[&](Box<Expression>& expr) mutable {
                          // this might be a literal expression, so we defer
                          // resolution of the actual type to validation.
                          dv_call(std::monostate{}, expr);
                          Box<ExprMIR> target = take_last_result<Box<ExprMIR>>();
                          sizexpr->operand    = std::move(target);
                      },
-                     [this, &sizexpr](Box<TypeName>& typen) mutable {
+                     [&](Box<TypeName>& typen) mutable {
                          dv_call(std::monostate{}, typen);
                          Type *target     = take_last_result<Type *>();
                          sizexpr->operand = target;

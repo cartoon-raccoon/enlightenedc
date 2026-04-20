@@ -12,7 +12,6 @@
 #include "util.hpp"
 
 namespace ecc::sema::mir {
-class ConstExprMIR;
 class BinaryExprMIR;
 class CastExprMIR;
 class UnaryExprMIR;
@@ -44,8 +43,6 @@ public:
 
     Ref<sema::types::TypeContext> typectxt;
     Ref<sema::sym::SymbolTableWalker> symtable;
-
-    Value eval(sema::mir::ConstExprMIR& expr) override;
 
     Value eval(sema::mir::BinaryExprMIR& expr) override;
 

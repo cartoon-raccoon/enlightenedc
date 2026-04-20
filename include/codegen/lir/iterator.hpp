@@ -16,11 +16,11 @@ public:
     };
 
     ProgItemLIRIter begin() { return ProgItemLIRIter(); }
+
 private:
     ProgItemLIR *prog_item;
 };
 
-
-}
+} // namespace ecc::codegen::lir
 
 #endif

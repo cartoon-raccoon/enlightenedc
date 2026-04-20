@@ -5,8 +5,8 @@
 
 #include <cstdint>
 #include <memory>
-#include <unordered_map>
 #include <stack>
+#include <unordered_map>
 
 #include "ast/ast.hpp"
 #include "eval/value.hpp"
@@ -241,8 +241,7 @@ public:
     Scope(FuncSymbol *assoc, Scope *outer, uint64_t id, int idx_in_nested)
         : outer(outer), assoc(assoc), id(id), idx_in_nested(idx_in_nested) {}
 
-    Scope(FuncSymbol *assoc, Scope *outer, uint64_t id)
-        : outer(outer), assoc(assoc), id(id) {}
+    Scope(FuncSymbol *assoc, Scope *outer, uint64_t id) : outer(outer), assoc(assoc), id(id) {}
 
     // the outer scope enclosing the inner scope.
     Scope *outer;
@@ -260,9 +259,7 @@ public:
 
     uint64_t id;
 
-    bool is_global() const {
-        return idx_in_nested < 0;
-    }
+    bool is_global() const { return idx_in_nested < 0; }
 
     std::string to_string() const;
 
@@ -297,23 +294,17 @@ class SymbolTableWalker {
     Ref<SymbolTable> st;
 
 public:
-    SymbolTableWalker(SymbolTable& st)
-        : st(st), current(st.global.get()) {}
+    SymbolTableWalker(SymbolTable& st) : st(st), current(st.global.get()) {}
 
     SymbolTableWalker(const SymbolTableWalker& stw)
-        : st(stw.st), 
-        current(stw.current), 
-        next_id(stw.next_id),
-        next_scope_idx(stw.next_scope_idx),
-        prev_scope_idxs(stw.prev_scope_idxs) {}
+        : st(stw.st), current(stw.current), next_id(stw.next_id),
+          next_scope_idx(stw.next_scope_idx), prev_scope_idxs(stw.prev_scope_idxs) {}
 
     SymbolTableWalker(const SymbolTable&& stw) = delete; // fixme: implement
 
     Scope *current;
 
-    Scope *global() const {
-        return st.get().global.get();
-    }
+    Scope *global() const { return st.get().global.get(); }
 
     // Create and enter a new scope.
     void push_scope(FuncSymbol *assoc = nullptr);

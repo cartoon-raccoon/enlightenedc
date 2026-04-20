@@ -15,6 +15,19 @@ using namespace ecc::ast;
 using namespace ecc::sema;
 using namespace mir;
 
+#define DO_VISIT(visitor, nodety)       /*NOLINT*/ \
+    void visitor::visit(nodety& node) { /*NOLINT*/ \
+        auto guard = enter_node(&node);            \
+        do_visit(node);                            \
+    }
+
+#define DO_SCOPED_VISIT(visitor, nodety) /*NOLINT*/ \
+    void visitor::visit(nodety& node) {  /*NOLINT*/ \
+        auto guard  = enter_node(&node);            \
+        auto sguard = enter_scope();                \
+        do_visit(node);                             \
+    }
+
 int BaseASTSemaVisitor::in_node(ASTNode::NodeKind kind) {
     int ret = 0;
     for (auto i = ctxt_stack.rbegin(); i != ctxt_stack.rend(); i++) {
@@ -50,292 +63,73 @@ MIRNode *BaseMIRSemaVisitor::get_context(MIRNode::NodeKind kind) {
  * VISIT METHODS
  */
 
-void BaseASTSemaVisitor::visit(Program& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
+DO_VISIT(BaseASTSemaVisitor, Program);
+DO_VISIT(BaseASTSemaVisitor, Function);
+DO_VISIT(BaseASTSemaVisitor, TypeDeclaration);
+DO_VISIT(BaseASTSemaVisitor, VariableDeclaration);
+DO_VISIT(BaseASTSemaVisitor, ParameterDeclaration);
+DO_VISIT(BaseASTSemaVisitor, Declarator);
+DO_VISIT(BaseASTSemaVisitor, ParenDeclarator);
+DO_VISIT(BaseASTSemaVisitor, ArrayDeclarator);
+DO_VISIT(BaseASTSemaVisitor, FunctionDeclarator);
+DO_VISIT(BaseASTSemaVisitor, InitDeclarator);
+DO_VISIT(BaseASTSemaVisitor, Pointer);
+DO_VISIT(BaseASTSemaVisitor, ClassDeclarator);
+DO_VISIT(BaseASTSemaVisitor, ClassDeclaration);
+DO_VISIT(BaseASTSemaVisitor, Enumerator);
+DO_VISIT(BaseASTSemaVisitor, StorageClassSpecifier);
+DO_VISIT(BaseASTSemaVisitor, TypeIdentifier);
+DO_VISIT(BaseASTSemaVisitor, VoidSpecifier);
+DO_VISIT(BaseASTSemaVisitor, PrimitiveSpecifier);
+DO_VISIT(BaseASTSemaVisitor, TypeQualifier);
 
-void BaseASTSemaVisitor::visit(Function& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
+// no enter scope here, enumerators are scoped to the scope in which
+// their corresponding enum is declared.
+DO_VISIT(BaseASTSemaVisitor, EnumSpecifier);
 
-void BaseASTSemaVisitor::visit(TypeDeclaration& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
+// any nested derived types have to be scoped within this specifier.
+DO_VISIT(BaseASTSemaVisitor, ClassSpecifier);
 
-void BaseASTSemaVisitor::visit(VariableDeclaration& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
+// any nested derived types have to be scoped within this specifier.
+DO_VISIT(BaseASTSemaVisitor, UnionSpecifier);
+DO_VISIT(BaseASTSemaVisitor, Initializer);
+DO_VISIT(BaseASTSemaVisitor, TypeName);
+DO_VISIT(BaseASTSemaVisitor, IdentifierDeclarator);
 
-void BaseASTSemaVisitor::visit(ParameterDeclaration& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
+// compound statements should introduce a new scope.
+DO_SCOPED_VISIT(BaseASTSemaVisitor, CompoundStatement);
+DO_VISIT(BaseASTSemaVisitor, ExpressionStatement);
+DO_VISIT(BaseASTSemaVisitor, CaseStatement);
+DO_VISIT(BaseASTSemaVisitor, CaseRangeStatement);
+DO_VISIT(BaseASTSemaVisitor, DefaultStatement);
+DO_VISIT(BaseASTSemaVisitor, LabeledStatement);
+DO_VISIT(BaseASTSemaVisitor, PrintStatement);
+DO_VISIT(BaseASTSemaVisitor, IfStatement);
+DO_VISIT(BaseASTSemaVisitor, SwitchStatement);
+DO_SCOPED_VISIT(BaseASTSemaVisitor, WhileStatement);
+DO_SCOPED_VISIT(BaseASTSemaVisitor, DoWhileStatement);
 
-void BaseASTSemaVisitor::visit(Declarator& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(ParenDeclarator& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(ArrayDeclarator& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(FunctionDeclarator& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(InitDeclarator& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(Pointer& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(ClassDeclarator& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(ClassDeclaration& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(Enumerator& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(StorageClassSpecifier& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(TypeIdentifier& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(VoidSpecifier& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(PrimitiveSpecifier& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(TypeQualifier& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(EnumSpecifier& node) {
-    // no enter scope here, enumerators are scoped to the scope in which
-    // their corresponding enum is declared.
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(ClassSpecifier& node) {
-    // any nested derived types have to be scoped within this specifier.
-    auto nguard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(UnionSpecifier& node) {
-    // any nested derived types have to be scoped within this specifier.
-    auto nguard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(Initializer& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(TypeName& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(IdentifierDeclarator& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(CompoundStatement& node) {
-    // compound statements should introduce a new scope.
-    auto nguard = enter_node(&node);
-    auto sguard = enter_scope();
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(ExpressionStatement& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(CaseStatement& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(CaseRangeStatement& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(DefaultStatement& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(LabeledStatement& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(PrintStatement& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(IfStatement& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(SwitchStatement& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(WhileStatement& node) {
-    auto guard  = enter_node(&node);
-    auto sguard = enter_scope();
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(DoWhileStatement& node) {
-    auto guard  = enter_node(&node);
-    auto sguard = enter_scope();
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(ForStatement& node) {
-    // for loops introduce a new scope since the init portion
-    // of the loop might declare a new variable.
-    auto nguard = enter_node(&node);
-    auto sguard = enter_scope();
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(GotoStatement& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(BreakStatement& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(ContinueStatement& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(ReturnStatement& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(BinaryExpression& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(CastExpression& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(UnaryExpression& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(AssignmentExpression& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(ConditionalExpression& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(IdentifierExpression& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(ConstExpression& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(LiteralExpression& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(StringExpression& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(CallExpression& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(MemberAccessExpression& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(ArraySubscriptExpression& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(PostfixExpression& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseASTSemaVisitor::visit(SizeofExpression& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
+// for loops introduce a new scope since the init portion
+// of the loop might declare a new variable.
+DO_SCOPED_VISIT(BaseASTSemaVisitor, ForStatement);
+DO_VISIT(BaseASTSemaVisitor, GotoStatement);
+DO_VISIT(BaseASTSemaVisitor, BreakStatement);
+DO_VISIT(BaseASTSemaVisitor, ContinueStatement);
+DO_VISIT(BaseASTSemaVisitor, ReturnStatement);
+DO_VISIT(BaseASTSemaVisitor, BinaryExpression);
+DO_VISIT(BaseASTSemaVisitor, CastExpression);
+DO_VISIT(BaseASTSemaVisitor, UnaryExpression);
+DO_VISIT(BaseASTSemaVisitor, AssignmentExpression);
+DO_VISIT(BaseASTSemaVisitor, ConditionalExpression);
+DO_VISIT(BaseASTSemaVisitor, IdentifierExpression);
+DO_VISIT(BaseASTSemaVisitor, ConstExpression);
+DO_VISIT(BaseASTSemaVisitor, LiteralExpression);
+DO_VISIT(BaseASTSemaVisitor, StringExpression);
+DO_VISIT(BaseASTSemaVisitor, CallExpression);
+DO_VISIT(BaseASTSemaVisitor, MemberAccessExpression);
+DO_VISIT(BaseASTSemaVisitor, ArraySubscriptExpression);
+DO_VISIT(BaseASTSemaVisitor, PostfixExpression);
+DO_VISIT(BaseASTSemaVisitor, SizeofExpression);
 /*
  * DO_VISIT methods
  */
@@ -684,168 +478,37 @@ void BaseASTSemaVisitor::do_visit(SizeofExpression& node) {
  * BaseMIRSemaVisitor METHODS
  */
 
-void BaseMIRSemaVisitor::visit(mir::ProgramMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::FunctionMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::InitializerMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::TypeDeclMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::VarDeclMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::CompoundStmtMIR& node) {
-    auto guard  = enter_node(&node);
-    auto sguard = enter_scope();
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::ExprStmtMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::SwitchStmtMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::CaseStmtMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::CaseRangeStmtMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::DefaultStmtMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::LabeledStmtMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::PrintStmtMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::IfStmtMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::LoopStmtMIR& node) {
-    auto guard  = enter_node(&node);
-    auto sguard = enter_scope();
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::GotoStmtMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::BreakStmtMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::ContStmtMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::ReturnStmtMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::BinaryExprMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::UnaryExprMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::CastExprMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::AssignExprMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::CondExprMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::IdentExprMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::ConstExprMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::LiteralExprMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::CallExprMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::MemberAccExprMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::SubscrExprMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::PostfixExprMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
-void BaseMIRSemaVisitor::visit(mir::SizeofExprMIR& node) {
-    auto guard = enter_node(&node);
-    do_visit(node);
-}
-
+DO_VISIT(BaseMIRSemaVisitor, mir::ProgramMIR);
+DO_VISIT(BaseMIRSemaVisitor, mir::FunctionMIR);
+DO_VISIT(BaseMIRSemaVisitor, mir::InitializerMIR);
+DO_VISIT(BaseMIRSemaVisitor, mir::TypeDeclMIR);
+DO_VISIT(BaseMIRSemaVisitor, mir::VarDeclMIR);
+DO_SCOPED_VISIT(BaseMIRSemaVisitor, mir::CompoundStmtMIR);
+DO_VISIT(BaseMIRSemaVisitor, mir::ExprStmtMIR);
+DO_VISIT(BaseMIRSemaVisitor, mir::SwitchStmtMIR);
+DO_VISIT(BaseMIRSemaVisitor, mir::CaseStmtMIR);
+DO_VISIT(BaseMIRSemaVisitor, mir::CaseRangeStmtMIR);
+DO_VISIT(BaseMIRSemaVisitor, mir::DefaultStmtMIR);
+DO_VISIT(BaseMIRSemaVisitor, mir::LabeledStmtMIR);
+DO_VISIT(BaseMIRSemaVisitor, mir::PrintStmtMIR);
+DO_VISIT(BaseMIRSemaVisitor, mir::IfStmtMIR);
+DO_SCOPED_VISIT(BaseMIRSemaVisitor, mir::LoopStmtMIR);
+DO_VISIT(BaseMIRSemaVisitor, mir::GotoStmtMIR);
+DO_VISIT(BaseMIRSemaVisitor, mir::BreakStmtMIR);
+DO_VISIT(BaseMIRSemaVisitor, mir::ContStmtMIR);
+DO_VISIT(BaseMIRSemaVisitor, mir::ReturnStmtMIR);
+DO_VISIT(BaseMIRSemaVisitor, mir::BinaryExprMIR);
+DO_VISIT(BaseMIRSemaVisitor, mir::UnaryExprMIR);
+DO_VISIT(BaseMIRSemaVisitor, mir::CastExprMIR);
+DO_VISIT(BaseMIRSemaVisitor, mir::AssignExprMIR);
+DO_VISIT(BaseMIRSemaVisitor, mir::CondExprMIR);
+DO_VISIT(BaseMIRSemaVisitor, mir::IdentExprMIR);
+DO_VISIT(BaseMIRSemaVisitor, mir::LiteralExprMIR);
+DO_VISIT(BaseMIRSemaVisitor, mir::CallExprMIR);
+DO_VISIT(BaseMIRSemaVisitor, mir::MemberAccExprMIR);
+DO_VISIT(BaseMIRSemaVisitor, mir::SubscrExprMIR);
+DO_VISIT(BaseMIRSemaVisitor, mir::PostfixExprMIR);
+DO_VISIT(BaseMIRSemaVisitor, mir::SizeofExprMIR);
 /*
  * DO_VISIT METHODS
  */
@@ -899,13 +562,10 @@ void BaseMIRSemaVisitor::do_visit(mir::SwitchStmtMIR& node) {
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::CaseStmtMIR& node) {
-    node.case_expr->accept(*this);
     node.stmt->accept(*this);
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::CaseRangeStmtMIR& node) {
-    node.case_start->accept(*this);
-    node.case_end->accept(*this);
     node.stmt->accept(*this);
 }
 
@@ -989,10 +649,6 @@ void BaseMIRSemaVisitor::do_visit(mir::CondExprMIR& node) {
 void BaseMIRSemaVisitor::do_visit(mir::IdentExprMIR& node) { /* terminal node */
 }
 
-void BaseMIRSemaVisitor::do_visit(mir::ConstExprMIR& node) {
-    node.inner->accept(*this);
-}
-
 void BaseMIRSemaVisitor::do_visit(mir::LiteralExprMIR& node) { /* terminal node */
 }
 
@@ -1050,6 +706,7 @@ void SemanticChecker::check_semantics(Program& prog, ProgramMIR& mir) {
     }
 
     Validator validator(symbols, types);
+    // fixme: uncomment after validate is complete
     // validator.validate(mir);
 
     // if (!validator.errors.empty()) {

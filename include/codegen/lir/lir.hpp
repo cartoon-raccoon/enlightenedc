@@ -21,7 +21,6 @@ class LIRVisitor;
 class LabelLIR;
 class StmtLIR;
 class FunctionLIR;
-class SwitchTarget;
 class ProgItemLIRStream;
 
 class LIRNode : public NoCopy {
@@ -70,11 +69,11 @@ public:
 
 class VarDeclLIR : public LIRNode {
 public:
-    VarDeclLIR(Location loc, LIRVarSym *var) : LIRNode(loc, NodeKind::VARDECL_LIR), var(var) {}
+    VarDeclLIR(Location loc, LIRVarSym *var) : LIRNode(loc, NodeKind::VARDECL_LIR), lirsym(var) {}
 
-    VarDeclLIR(LIRVarSym *var) : LIRNode(NodeKind::VARDECL_LIR), var(var) {}
+    VarDeclLIR(LIRVarSym *var) : LIRNode(NodeKind::VARDECL_LIR), lirsym(var) {}
 
-    LIRVarSym *var;
+    LIRVarSym *lirsym;
 
     void accept(LIRVisitor& visitor) override;
 };
@@ -87,7 +86,7 @@ public:
     virtual LabelLIR *as_decl() { return nullptr; }
     virtual StmtLIR *as_stmt() { return nullptr; }
 
-    virtual Box<ProgItemLIRStream> progitem_stream();
+    // virtual Box<ProgItemLIRStream> progitem_stream();
 };
 
 class LabelLIR : public ProgItemLIR {
@@ -101,22 +100,18 @@ public:
 class StmtLIR : public ProgItemLIR {
 public:
     enum class StmtKind : uint8_t {
-        // A terminal statement ends a 
+        // A terminal statement ends a
         TERMINAL,
         NONTERMINAL,
-        LOOP,
     };
 
-    StmtLIR(NodeKind kind, StmtKind stkind)
-        : ProgItemLIR(kind), stkind(stkind) {}
+    StmtLIR(NodeKind kind, StmtKind stkind) : ProgItemLIR(kind), stkind(stkind) {}
     StmtLIR(Location loc, NodeKind kind, StmtKind stkind)
         : ProgItemLIR(loc, kind), stkind(stkind) {}
 
     StmtKind stkind;
 
     StmtLIR *as_stmt() override { return this; }
-
-    virtual Vec<SwitchTarget *> pull_switch_targets() = 0;
 
     virtual bool is_terminal() { return stkind == StmtKind::TERMINAL; }
 };
@@ -128,8 +123,6 @@ class TerminalLIR : public StmtLIR {
 public:
     TerminalLIR(NodeKind kind) : StmtLIR(kind, StmtKind::TERMINAL) {}
     TerminalLIR(Location loc, NodeKind kind) : StmtLIR(loc, kind, StmtKind::TERMINAL) {}
-
-    Vec<SwitchTarget *> pull_switch_targets() override { return {}; }
 
     bool is_terminal() override { return true; }
 };
@@ -145,11 +138,6 @@ public:
     bool is_terminal() override { return false; }
 };
 
-class SwitchTarget : public LabelLIR {
-public:
-    SwitchTarget(Location loc, NodeKind kind) : LabelLIR(loc, kind) {}
-};
-
 class ExprLIR : public LIRNode {
 public:
     ExprLIR(NodeKind kind, sema::types::Type *type) : LIRNode(kind), type(type) {}
@@ -161,12 +149,14 @@ public:
 
 class FunctionLIR : public LIRNode {
 public:
-    FunctionLIR(Location loc, std::string mangled, std::string name)
-        : LIRNode(loc, NodeKind::FUNC_LIR), mangled_name(std::move(mangled)),
-          name(std::move(name)) {}
+    FunctionLIR(Location loc, std::string mangled, std::string name, LIRFuncSym *func)
+        : LIRNode(loc, NodeKind::FUNC_LIR), mangled_name(std::move(mangled)), name(std::move(name)),
+          lirsym(func) {}
 
     std::string mangled_name;
     std::string name;
+
+    LIRFuncSym *lirsym;
 
     Vec<Box<VarDeclLIR>> locals;
     Vec<Box<ProgItemLIR>> body;
@@ -203,9 +193,6 @@ public:
 
     Optional<Box<ExprLIR>> ret_value;
 
-    // No terminal is a switch target.
-    Vec<SwitchTarget *> pull_switch_targets() override { return {}; }
-
     bool is_terminal() override { return true; }
 
     void accept(LIRVisitor& visitor) override;
@@ -219,26 +206,24 @@ public:
     Box<ExprLIR> condition;
     Vec<Box<ProgItemLIR>> body;
 
-    Vec<SwitchTarget *> targets;
-
     bool is_terminal() override { return true; }
 
     void accept(LIRVisitor& visitor) override;
 };
 
-class CaseLIR : public SwitchTarget {
+class CaseLIR : public LabelLIR {
 public:
-    CaseLIR(Location loc, eval::Value case_value)
-        : SwitchTarget(loc, NodeKind::CASEDECL_LIR), case_value(std::move(case_value)) {}
+    CaseLIR(Location loc, eval::Value& case_value)
+        : LabelLIR(loc, NodeKind::CASEDECL_LIR), case_value(case_value) {}
 
     eval::Value case_value;
 
     void accept(LIRVisitor& visitor) override;
 };
 
-class DefaultLIR : public SwitchTarget {
+class DefaultLIR : public LabelLIR {
 public:
-    DefaultLIR(Location loc) : SwitchTarget(loc, NodeKind::DEFDECL_LIR) {}
+    DefaultLIR(Location loc) : LabelLIR(loc, NodeKind::DEFDECL_LIR) {}
 
     void accept(LIRVisitor& visitor) override;
 };
@@ -259,16 +244,12 @@ class BreakStmtLIR : public TerminalLIR {
 public:
     BreakStmtLIR(Location loc) : TerminalLIR(loc, NodeKind::BREAKSTMT_LIR) {}
 
-    Vec<SwitchTarget *> pull_switch_targets() override { return {}; }
-
     void accept(LIRVisitor& visitor) override;
 };
 
 class ContStmtLIR : public TerminalLIR {
 public:
     ContStmtLIR(Location loc) : TerminalLIR(loc, NodeKind::CONTSTMT_LIR) {}
-
-    Vec<SwitchTarget *> pull_switch_targets() override { return {}; }
 
     void accept(LIRVisitor& visitor) override;
 };
@@ -279,8 +260,6 @@ public:
         : NonTerminalLIR(loc, NodeKind::EXPRSTMT_LIR), expr(std::move(expr)) {}
 
     Box<ExprLIR> expr;
-
-    Vec<SwitchTarget *> pull_switch_targets() override { return {}; };
 
     void accept(LIRVisitor& visitor) override;
 };
@@ -293,14 +272,12 @@ public:
     Vec<Box<ProgItemLIR>> then_br;
     Optional<Vec<Box<ProgItemLIR>>> else_br;
 
-    Vec<SwitchTarget *> pull_switch_targets() override;
-
     void accept(LIRVisitor& visitor) override;
 };
 
-class LoopStmtLIR : public StmtLIR {
+class LoopStmtLIR : public TerminalLIR {
 public:
-    LoopStmtLIR(Location loc) : StmtLIR(loc, NodeKind::LOOPSTMT_LIR, StmtKind::LOOP) {}
+    LoopStmtLIR(Location loc) : TerminalLIR(loc, NodeKind::LOOPSTMT_LIR) {}
 
     Optional<Vec<Box<ProgItemLIR>>> init;
 
@@ -311,8 +288,6 @@ public:
     Vec<Box<ProgItemLIR>> body;
 
     bool is_dowhile = false;
-
-    Vec<SwitchTarget *> pull_switch_targets() override;
 
     void accept(LIRVisitor& visitor) override;
 };
@@ -325,8 +300,6 @@ public:
 
     std::string format_string;
     Vec<Box<ExprLIR>> args;
-
-    Vec<SwitchTarget *> pull_switch_targets() override { return {}; };
 
     void accept(LIRVisitor& visitor) override;
 };
@@ -384,13 +357,11 @@ public:
 
 class CondExprLIR : public ExprLIR {
 public:
-    CondExprLIR(Location loc, sema::types::Type *type, 
-                Box<ExprLIR> cond, Box<ExprLIR> true_val, Box<ExprLIR> false_val)
-        : ExprLIR(loc, NodeKind::CONDEXPR_LIR, type),
-        condition(std::move(cond)),
-        true_value(std::move(true_val)),
-        false_value(std::move(false_val)) {}
-    
+    CondExprLIR(Location loc, sema::types::Type *type, Box<ExprLIR> cond, Box<ExprLIR> true_val,
+                Box<ExprLIR> false_val)
+        : ExprLIR(loc, NodeKind::CONDEXPR_LIR, type), condition(std::move(cond)),
+          true_value(std::move(true_val)), false_value(std::move(false_val)) {}
+
     Box<ExprLIR> condition;
     Box<ExprLIR> true_value;
     Box<ExprLIR> false_value;
@@ -410,8 +381,8 @@ public:
 
 class LiteralExprLIR : public ExprLIR {
 public:
-    LiteralExprLIR(Location loc, eval::Value value, sema::types::Type *type)
-        : ExprLIR(loc, NodeKind::LITEXPR_LIR, type), value(std::move(value)) {}
+    LiteralExprLIR(Location loc, eval::Value value, sema::types::Type *type) // NOLINT
+        : ExprLIR(loc, NodeKind::LITEXPR_LIR, type), value(value) {}
 
     eval::Value value;
 
