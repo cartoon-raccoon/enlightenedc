@@ -9,3 +9,10 @@ InlayHints:
   BlockEnd: true
 Documentation:
   CommentFormat: Doxygen
+
+---
+
+If:
+  PathMatch: .*/backend.cpp
+Diagnostics:
+  UnusedIncludes: None
