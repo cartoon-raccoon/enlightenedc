@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+
 #include "tokens.hpp"
 #ifndef ECC_VALUE_H
 #define ECC_VALUE_H
@@ -61,25 +62,19 @@ public:
 
     static Value from_literal(uint64_t lit) {
         if (lit <= INT32_MAX) {
-            return Value((int32_t) lit);
+            return Value((int32_t)lit);
         } else if (lit <= INT64_MAX) {
-            return Value((int64_t) lit);
+            return Value((int64_t)lit);
         } else {
             return Value(lit);
         }
     }
 
-    static Value from_literal(double lit) {
-        return Value(lit);
-    }
-    
-    static Value from_literal(char lit) {
-        return Value((int8_t) lit);
-    }
+    static Value from_literal(double lit) { return Value(lit); }
 
-    static Value from_literal(bool lit) {
-        return Value(lit);
-    }
+    static Value from_literal(char lit) { return Value((int8_t)lit); }
+
+    static Value from_literal(bool lit) { return Value(lit); }
 
     Value& operator=(const Value& other) {
         inner    = other.inner;

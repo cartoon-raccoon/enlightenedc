@@ -717,9 +717,8 @@ void ArrayType::finalize() {
 }
 
 Type *ArrayType::effective_type() {
-    return arr_size ? 
-        ctxt().get_array(base->effective_type(), *arr_size) :
-        ctxt().get_array(base->effective_type());
+    return arr_size ? ctxt().get_array(base->effective_type(), *arr_size)
+                    : ctxt().get_array(base->effective_type());
 }
 
 /*

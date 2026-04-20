@@ -403,8 +403,8 @@ Value::operator bool() const {
                             [](int32_t v) { return v != 0; }, [](int64_t v) { return v != 0; },
                             [](uint8_t v) { return v != 0; }, [](uint16_t v) { return v != 0; },
                             [](uint32_t v) { return v != 0; }, [](uint64_t v) { return v != 0; },
-                            [](float v) { return v != 0.0; },
-                            [](double v) { return v != 0.0; }, [](bool v) { return v; }},
+                            [](float v) { return v != 0.0; }, [](double v) { return v != 0.0; },
+                            [](bool v) { return v; }},
                       inner);
 }
 

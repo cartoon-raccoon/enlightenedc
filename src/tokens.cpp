@@ -197,10 +197,11 @@ PrimType pr_promote(PrimType lhs, PrimType rhs) {
     PrimTypeRank rhs_rank = pr_rank(rhs);
     // Take the higher of the two ranks, tie-breaking to the left
     if (lhs_rank >= rhs_rank) {
-        PrimType ret = lhs_rank >= PrimTypeRank::INT32
-                           ? lhs // if lhs_rank is already that of a 4-byte integer or higher, use it
-                           // otherwise, promote it to a 4-byte integer, preserving signedness
-                           : pr_from_rank(PrimTypeRank::INT32, pr_is_signed(lhs));
+        PrimType ret =
+            lhs_rank >= PrimTypeRank::INT32
+                ? lhs // if lhs_rank is already that of a 4-byte integer or higher, use it
+                // otherwise, promote it to a 4-byte integer, preserving signedness
+                : pr_from_rank(PrimTypeRank::INT32, pr_is_signed(lhs));
 
         return ret;
     } else {

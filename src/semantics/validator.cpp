@@ -65,14 +65,14 @@ void Validator::eval_initializer_rec(Vec<Accessor>& path, types::Type *type, Ini
 }
 
 void Validator::eval_initializer_rec_cls(Vec<Accessor>& path, ClassType *cls,
-                                     Vec<Box<InitializerMIR>>& init) {
+                                         Vec<Box<InitializerMIR>>& init) {
     assert(cls && "cls was null while evaluating initializer");
 
     // todo
 }
 
 void Validator::eval_initializer_rec_arr(Vec<Accessor>& path, ArrayType *arr,
-                                     Vec<Box<InitializerMIR>>& init) {
+                                         Vec<Box<InitializerMIR>>& init) {
     assert(arr && "arr was null while evaluating initializer");
 
     // todo
