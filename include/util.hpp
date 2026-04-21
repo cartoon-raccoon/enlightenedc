@@ -17,11 +17,13 @@
 #ifndef NDEBUG
 #include <iostream>
 
-template <typename... Args> void dbprint(Args&&...args) {
+template <typename... Args>
+void dbprint(Args&&...args) {
     (std::cerr << ... << std::forward<Args>(args)) << "\n";
 }
 #else
-template <typename T, typename... Args> void dbprint(T msg, Args&&...args) {
+template <typename T, typename... Args>
+void dbprint(T msg, Args&&...args) {
 }
 #endif
 
@@ -61,7 +63,8 @@ public:
     const char *what() const noexcept override { return location.c_str(); }
 };
 
-template <typename T> using Box = std::unique_ptr<T>;
+template <typename T>
+using Box = std::unique_ptr<T>;
 
 template <typename T, typename... Args>
 auto make_box(Args&&...args) -> decltype(std::make_unique<T>(std::forward<Args>(args)...)) {
@@ -71,35 +74,43 @@ auto make_box(Args&&...args) -> decltype(std::make_unique<T>(std::forward<Args>(
 /**
 A convenient type alias for `std::vector`.
 */
-template <typename T> using Vec = std::vector<T>;
+template <typename T>
+using Vec = std::vector<T>;
 
 /**
 A convenient type alias for `std::span`.
 */
-template <typename T> using Span = std::span<T>;
+template <typename T>
+using Span = std::span<T>;
 
 /**
 A convenient type alias for `std::optional`.
 */
-template <typename T> using Optional = std::optional<T>;
+template <typename T>
+using Optional = std::optional<T>;
 
 /**
 A convenient type alias for `std::reference_wrapper`.
 */
-template <typename T> using Ref = std::reference_wrapper<T>;
+template <typename T>
+using Ref = std::reference_wrapper<T>;
 
 /**
 A convenient type alias for `std::pair`.
 */
-template <typename T1, typename T2> using Pair = std::pair<T1, T2>;
+template <typename T1, typename T2>
+using Pair = std::pair<T1, T2>;
 
 // Overloaded template class for Rust-style pattern matching on variants.
-template <class... Ts> struct match : Ts... {
+template <class... Ts>
+struct match : Ts... {
     using Ts::operator()...;
 };
-template <class... Ts> match(Ts...) -> match<Ts...>;
+template <class... Ts>
+match(Ts...) -> match<Ts...>;
 
-template <typename... Types> struct VarHash {
+template <typename... Types>
+struct VarHash {
     // Helper to combine an individual seed with a new value
     void hash_combine(std::size_t& seed, const auto& val) const {
         std::hash<std::decay_t<decltype(val)>> hasher;
@@ -253,7 +264,8 @@ std::basic_ostream<T>& operator<<(std::basic_ostream<T>& ostr, const Location& l
 }
 
 // Helper to check if T is in the list of Types...
-template <typename T, typename Variant> struct is_variant_member;
+template <typename T, typename Variant>
+struct is_variant_member;
 
 template <typename T, typename... Types>
 struct is_variant_member<T, std::variant<Types...>>
@@ -317,14 +329,16 @@ public:
 // Injecting hash specializations into std namespace
 namespace std {
 
-template <> struct hash<ecc::util::Point> {
+template <>
+struct hash<ecc::util::Point> {
     size_t operator()(const ecc::util::Point& pt) {
         ecc::util::VarHash<std::string, int, int> hasher;
         return hasher(*pt.filename, pt.line, pt.column);
     }
 };
 
-template <> struct hash<ecc::util::Location> {
+template <>
+struct hash<ecc::util::Location> {
     size_t operator()(const ecc::util::Location& loc) {
         ecc::util::VarHash<ecc::util::Point, ecc::util::Point> hasher;
         return hasher(loc.begin, loc.end);

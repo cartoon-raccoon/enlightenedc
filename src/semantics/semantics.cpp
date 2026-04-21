@@ -291,20 +291,20 @@ void BaseASTSemaVisitor::do_visit(PrimitiveSpecifier& node) { /* terminal node *
 }
 
 void BaseASTSemaVisitor::do_visit(Initializer& node) {
-    std::visit(match{[&](Box<Expression>& expr) { expr->accept(*this); },
-                     [&](Box<Initializer::Member>& mem) {
-                        mem->initializer->accept(*this);
-                     },
-                     [&](Box<Initializer::Index>& idx) {
-                        idx->idx->accept(*this);
-                        idx->initializer->accept(*this);
-                     },
-                     [&](Vec<Box<Initializer>>& inits) {
-                         for (auto& init : inits) {
-                             init->accept(*this);
-                         }
-                     }},
-               node.initializer);
+    std::visit(
+        match{
+            [&](Box<Expression>& expr) { expr->accept(*this); },
+            [&](Box<Initializer::Member>& mem) { mem->initializer->accept(*this); },
+            [&](Box<Initializer::Index>& idx) {
+                idx->idx->accept(*this);
+                idx->initializer->accept(*this);
+            },
+            [&](Vec<Box<Initializer>>& inits) {
+                for (auto& init : inits) {
+                    init->accept(*this);
+                }
+            }},
+        node.initializer);
 }
 
 void BaseASTSemaVisitor::do_visit(TypeName& node) {
@@ -383,9 +383,11 @@ void BaseASTSemaVisitor::do_visit(DoWhileStatement& node) {
 
 void BaseASTSemaVisitor::do_visit(ForStatement& node) {
     if (node.init.has_value()) {
-        std::visit(match{[this](Box<Expression>& expr) { expr->accept(*this); },
-                         [this](Box<VariableDeclaration>& decl) { decl->accept(*this); }},
-                   *node.init);
+        std::visit(
+            match{
+                [this](Box<Expression>& expr) { expr->accept(*this); },
+                [this](Box<VariableDeclaration>& decl) { decl->accept(*this); }},
+            *node.init);
     }
 
     if (node.condition.has_value()) {
@@ -474,9 +476,11 @@ void BaseASTSemaVisitor::do_visit(PostfixExpression& node) {
 }
 
 void BaseASTSemaVisitor::do_visit(SizeofExpression& node) {
-    std::visit(match{[this](Box<Expression>& expr) { expr->accept(*this); },
-                     [this](Box<TypeName>& typen) { typen->accept(*this); }},
-               node.operand);
+    std::visit(
+        match{
+            [this](Box<Expression>& expr) { expr->accept(*this); },
+            [this](Box<TypeName>& typen) { typen->accept(*this); }},
+        node.operand);
 }
 
 /*
@@ -529,19 +533,17 @@ void BaseMIRSemaVisitor::do_visit(mir::FunctionMIR& node) {
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::InitializerMIR& node) {
-    std::visit(match{[&](Box<ExprMIR>& expr) { expr->accept(*this); },
-                     [&](Box<InitializerMIR::Member>& mem) {
-                         mem->initializer->accept(*this);
-                     },
-                     [&](Box<InitializerMIR::Index>& idx) {
-                         idx->initializer->accept(*this);
-                     },
-                     [&](Vec<Box<InitializerMIR>>& inits) {
-                         for (auto& init : inits) {
-                             init->accept(*this);
-                         }
-                     }},
-               node.initializer);
+    std::visit(
+        match{
+            [&](Box<ExprMIR>& expr) { expr->accept(*this); },
+            [&](Box<InitializerMIR::Member>& mem) { mem->initializer->accept(*this); },
+            [&](Box<InitializerMIR::Index>& idx) { idx->initializer->accept(*this); },
+            [&](Vec<Box<InitializerMIR>>& inits) {
+                for (auto& init : inits) {
+                    init->accept(*this);
+                }
+            }},
+        node.initializer);
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::TypeDeclMIR& node) { /* terminal node */
@@ -684,9 +686,11 @@ void BaseMIRSemaVisitor::do_visit(mir::PostfixExprMIR& node) {
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::SizeofExprMIR& node) {
-    std::visit(match{[&](Box<ExprMIR>& expr) { expr->accept(*this); },
-                     [&](types::Type *& type) {
-                         /* terminal node */
-                     }},
-               node.operand);
+    std::visit(
+        match{
+            [&](Box<ExprMIR>& expr) { expr->accept(*this); },
+            [&](types::Type *& type) {
+                /* terminal node */
+            }},
+        node.operand);
 }

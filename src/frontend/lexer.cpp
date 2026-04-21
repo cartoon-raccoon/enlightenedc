@@ -7,8 +7,9 @@ using namespace ecc::frontend;
 constexpr size_t FILENAME_BUF_SIZE = 2048;
 
 // Use the standard yyFlexLexer constructor.
-Lexer::Lexer(std::istream *in, std::string *filename, std::set<std::string>& typedefs,
-             FilenamePool& filenames)
+Lexer::Lexer(
+    std::istream *in, std::string *filename, std::set<std::string>& typedefs,
+    FilenamePool& filenames)
     : yyFlexLexer(in), typedefs(typedefs), filenames(filenames) {
     const std::string *main_file = this->filenames.get().intern(filename->c_str());
     loc.begin.filename           = main_file;

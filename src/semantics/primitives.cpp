@@ -46,8 +46,8 @@ PrimTypeRank pr_rank(PrimType pr) {
 PrimType pr_promote(PrimType lhs, PrimType rhs) {
     PrimTypeRank lhs_rank = pr_rank(lhs);
     PrimTypeRank rhs_rank = pr_rank(rhs);
-    bool lhs_signed = pr_is_signed(lhs);
-    bool rhs_signed = pr_is_signed(rhs);
+    bool lhs_signed       = pr_is_signed(lhs);
+    bool rhs_signed       = pr_is_signed(rhs);
 
     // Use signed only if both are signed.
     bool use_signed = lhs_signed && rhs_signed;
@@ -62,9 +62,8 @@ PrimType pr_promote(PrimType lhs, PrimType rhs) {
 
         return ret;
     } else {
-        PrimType ret = rhs_rank >= PrimTypeRank::INT32
-                           ? rhs
-                           : pr_from_rank(PrimTypeRank::INT32, use_signed);
+        PrimType ret =
+            rhs_rank >= PrimTypeRank::INT32 ? rhs : pr_from_rank(PrimTypeRank::INT32, use_signed);
 
         return ret;
     }
@@ -140,4 +139,4 @@ bool pr_is_signed(PrimType pr) {
     }
 }
 
-}
+} // namespace ecc::sema::prim

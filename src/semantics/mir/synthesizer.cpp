@@ -165,15 +165,16 @@ void MIRSynthesizer::do_visit(Program& node) {
     for (auto& item : node.items) {
         dv_call_noparam(item);
         std::visit(
-            match{[&](Box<DeclMIR>& decl) mutable { prog_mir.add_item(std::move(decl)); },
-                  [&](Box<StmtMIR>& stmt) mutable { prog_mir.add_item(std::move(stmt)); },
-                  [&](Box<FunctionMIR>& func) mutable { prog_mir.add_item(std::move(func)); },
-                  [&](std::monostate&) {
-                      // ignore and continue
-                  },
-                  [&](auto&) {
-                      throw std::runtime_error("unexpected item while parsing programitems");
-                  }},
+            match{
+                [&](Box<DeclMIR>& decl) mutable { prog_mir.add_item(std::move(decl)); },
+                [&](Box<StmtMIR>& stmt) mutable { prog_mir.add_item(std::move(stmt)); },
+                [&](Box<FunctionMIR>& func) mutable { prog_mir.add_item(std::move(func)); },
+                [&](std::monostate&) {
+                    // ignore and continue
+                },
+                [&](auto&) {
+                    throw std::runtime_error("unexpected item while parsing programitems");
+                }},
             last_result);
         last_result = std::monostate{};
     }
@@ -212,13 +213,13 @@ void MIRSynthesizer::do_visit(Function& node) {
     BaseType *return_base = specinfo->type;
 
     if (!node.declarator->direct) {
-        add_error<EccSemError>("function declaration but missing direct declarator",
-                               node.declarator->loc);
+        add_error<EccSemError>(
+            "function declaration but missing direct declarator", node.declarator->loc);
         throw UnableToContinue();
     }
     if (node.declarator->direct.value()->kind != ASTNode::FUNC_DECLTR) {
-        add_error<EccSemError>("function declaration but declarator is not function",
-                               node.declarator->loc);
+        add_error<EccSemError>(
+            "function declaration but declarator is not function", node.declarator->loc);
         throw UnableToContinue();
     }
 
@@ -235,32 +236,34 @@ void MIRSynthesizer::do_visit(Function& node) {
 
     while (!builder->ty_bldr.type_stack.empty()) {
         auto next_cstrctr = builder->ty_bldr.type_stack.top();
-        std::visit(match{[&](TypeBuilder::Arr& arr) mutable {
-                             // Wrap the base in an array.
-                             if (arr.size) {
-                                 curr = builder->ty_bldr.ctxt().get_array(curr, *arr.size);
-                             } else {
-                                 curr = builder->ty_bldr.ctxt().get_array(curr);
-                             }
-                         },
-                         [&](TypeBuilder::Ptr& ptr) mutable {
-                             // Wrap the base in a pointer.
-                             curr = builder->ty_bldr.ctxt().get_pointer(curr, ptr.is_const);
-                         },
-                         [&](TypeBuilder::FnParams& fn) mutable {
-                             // map out the identifiers.
-                             Vec<Type *> params;
-                             params.reserve(fn.params.size());
-                             for (auto& param : fn.params) {
-                                 params.push_back(param.type);
-                             }
+        std::visit(
+            match{
+                [&](TypeBuilder::Arr& arr) mutable {
+                    // Wrap the base in an array.
+                    if (arr.size) {
+                        curr = builder->ty_bldr.ctxt().get_array(curr, *arr.size);
+                    } else {
+                        curr = builder->ty_bldr.ctxt().get_array(curr);
+                    }
+                },
+                [&](TypeBuilder::Ptr& ptr) mutable {
+                    // Wrap the base in a pointer.
+                    curr = builder->ty_bldr.ctxt().get_pointer(curr, ptr.is_const);
+                },
+                [&](TypeBuilder::FnParams& fn) mutable {
+                    // map out the identifiers.
+                    Vec<Type *> params;
+                    params.reserve(fn.params.size());
+                    for (auto& param : fn.params) {
+                        params.push_back(param.type);
+                    }
 
-                             last_func_params = std::move(fn.params);
-                             // Wrap the base as the return type in a function type.
-                             curr = builder->ty_bldr.ctxt().get_function(
-                                 fn.loc, curr, std::move(params), fn.variadic);
-                         }},
-                   next_cstrctr);
+                    last_func_params = std::move(fn.params);
+                    // Wrap the base as the return type in a function type.
+                    curr = builder->ty_bldr.ctxt().get_function(
+                        fn.loc, curr, std::move(params), fn.variadic);
+                }},
+            next_cstrctr);
 
         // Pop the stack to the next constructor
         builder->ty_bldr.type_stack.pop();
@@ -294,9 +297,9 @@ void MIRSynthesizer::do_visit(Function& node) {
         paramsym_ptrs.push_back(sym.get());
     }
 
-    Box<FuncSymbol> symbol = std::make_unique<FuncSymbol>(node.loc, *builder->name, syms.current,
-                                                          functype, std::move(paramsym_ptrs));
-    FuncSymbol *sym_ptr    = symbol.get();
+    Box<FuncSymbol> symbol = std::make_unique<FuncSymbol>(
+        node.loc, *builder->name, syms.current, functype, std::move(paramsym_ptrs));
+    FuncSymbol *sym_ptr = symbol.get();
     try {
         sym_ptr = syms.insert(*builder->name, std::move(symbol));
     } catch (Symbol *previous) {
@@ -365,8 +368,8 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
             sym->linkage   = specinfo->linkage;
 
             if (sym->is_external() && syms.current != syms.global()) {
-                add_error<EccSemError>("extern variable declaration must be at global scope",
-                                       declarator->loc);
+                add_error<EccSemError>(
+                    "extern variable declaration must be at global scope", declarator->loc);
                 throw UnableToContinue();
             }
 
@@ -615,8 +618,8 @@ void MIRSynthesizer::do_visit(EnumSpecifier& node) {
             enm = types.get_enum(node.loc, syms.current);
         }
     } catch (UserType *prev_def) {
-        add_error<TypeDecldAsOtherError>("enum already declared as another type", node.loc,
-                                         prev_def->decl_loc);
+        add_error<TypeDecldAsOtherError>(
+            "enum already declared as another type", node.loc, prev_def->decl_loc);
         throw UnableToContinue();
     }
 
@@ -681,8 +684,8 @@ void MIRSynthesizer::do_visit(Enumerator& node) {
         value = enm->add_enumerator(node.name, node.loc);
     }
 
-    syms.insert(node.name,
-                std::make_unique<VarSymbol>(node.loc, node.name, syms.current, enm, value));
+    syms.insert(
+        node.name, std::make_unique<VarSymbol>(node.loc, node.name, syms.current, enm, value));
 
     dv_return_void();
 }
@@ -697,8 +700,8 @@ void MIRSynthesizer::do_visit(ClassSpecifier& node) {
             cls = types.get_class(node.loc, syms.current);
         }
     } catch (UserType *prev_def) {
-        add_error<TypeDecldAsOtherError>("class already declared as another type", node.loc,
-                                         prev_def->decl_loc);
+        add_error<TypeDecldAsOtherError>(
+            "class already declared as another type", node.loc, prev_def->decl_loc);
         throw UnableToContinue();
     }
 
@@ -728,7 +731,7 @@ void MIRSynthesizer::do_visit(ClassSpecifier& node) {
 
         // class is defined here, populate its members and mark it complete
         for (auto& decl : *node.declarations) {
-            dv_call((RecordType *) cls, decl);
+            dv_call((RecordType *)cls, decl);
         }
 
         cls->finish(node.loc);
@@ -747,8 +750,8 @@ void MIRSynthesizer::do_visit(UnionSpecifier& node) {
             unn = types.get_union(node.loc, syms.current);
         }
     } catch (UserType *prev_def) {
-        add_error<TypeDecldAsOtherError>("union already declared as another type", node.loc,
-                                         prev_def->decl_loc);
+        add_error<TypeDecldAsOtherError>(
+            "union already declared as another type", node.loc, prev_def->decl_loc);
         throw UnableToContinue();
     }
 
@@ -785,7 +788,7 @@ void MIRSynthesizer::do_visit(UnionSpecifier& node) {
         }
         // union is defined here, populate its members and mark it complete
         for (auto& decl : *node.declarations) {
-            dv_call((RecordType *) unn, decl);
+            dv_call((RecordType *)unn, decl);
         }
 
         unn->finish(node.loc);
@@ -811,7 +814,8 @@ void MIRSynthesizer::do_visit(ClassDeclaration& node) {
         dv_call_noparam(decltr);
         try {
             std::visit(
-                match{[&](Box<DeclaratorBuilder>& builder) {
+                match{
+                    [&](Box<DeclaratorBuilder>& builder) {
                         builder->ty_bldr.set_base(specinfo->type);
                         Type *finaltype = builder->ty_bldr.finalize();
 
@@ -861,132 +865,133 @@ void MIRSynthesizer::do_visit(Initializer& node) { // NOLINT
     Location loc = node.loc;
 
     std::visit(
-        match{// Base case: single expression
-              [&](Box<Expression>& expr) {
-                  bsv_dbprint("visiting single initializer");
-                  dv_call_noparam(expr);
-                  Box<ExprMIR> exprmir = take_last_result<Box<ExprMIR>>();
-                  Box<InitializerMIR> init =
-                      std::make_unique<InitializerMIR>(loc, std::move(exprmir));
-                  InitializerRet ret = {{}, std::move(init)};
-                  dv_return(ret);
-              },
-              [&](Box<Initializer::Member>& mem) {
-                  bsv_dbprint("visiting member designated initializer");
-                  dv_call(type, mem->initializer);
+        match{
+            // Base case: single expression
+            [&](Box<Expression>& expr) {
+                bsv_dbprint("visiting single initializer");
+                dv_call_noparam(expr);
+                Box<ExprMIR> exprmir = take_last_result<Box<ExprMIR>>();
+                Box<InitializerMIR> init =
+                    std::make_unique<InitializerMIR>(loc, std::move(exprmir));
+                InitializerRet ret = {{}, std::move(init)};
+                dv_return(ret);
+            },
+            [&](Box<Initializer::Member>& mem) {
+                bsv_dbprint("visiting member designated initializer");
+                dv_call(type, mem->initializer);
 
-                  auto initmir = take_last_result<InitializerRet>();
+                auto initmir = take_last_result<InitializerRet>();
 
-                  Box<InitializerMIR> init =
-                      std::make_unique<InitializerMIR>(loc, mem->member, std::move(initmir.init_mir));
+                Box<InitializerMIR> init =
+                    std::make_unique<InitializerMIR>(loc, mem->member, std::move(initmir.init_mir));
 
-                  InitializerRet ret = {initmir.new_type, std::move(init)};
-                  dv_return(ret);
-              },
-              [&](Box<Initializer::Index>& idx) {
-                  bsv_dbprint("visiting index designated initializer");
+                InitializerRet ret = {initmir.new_type, std::move(init)};
+                dv_return(ret);
+            },
+            [&](Box<Initializer::Index>& idx) {
+                bsv_dbprint("visiting index designated initializer");
 
-                  dv_call_noparam(idx->idx);
+                dv_call_noparam(idx->idx);
 
-                  Value new_idx = take_last_result<Value>();
+                Value new_idx = take_last_result<Value>();
 
-                  dv_call(type, idx->initializer);
+                dv_call(type, idx->initializer);
 
-                  auto initmir = take_last_result<InitializerRet>();
+                auto initmir = take_last_result<InitializerRet>();
 
-                  Box<InitializerMIR> init =
-                      std::make_unique<InitializerMIR>(loc, new_idx, std::move(initmir.init_mir));
+                Box<InitializerMIR> init =
+                    std::make_unique<InitializerMIR>(loc, new_idx, std::move(initmir.init_mir));
 
-                  InitializerRet ret = {initmir.new_type, std::move(init)};
-                  dv_return(ret);
-              },
-              // Recursive case: sub-initializer
-              [&](Vec<Box<Initializer>>& inits) {
-                  bsv_dbprint("visiting compound initializer");
+                InitializerRet ret = {initmir.new_type, std::move(init)};
+                dv_return(ret);
+            },
+            // Recursive case: sub-initializer
+            [&](Vec<Box<Initializer>>& inits) {
+                bsv_dbprint("visiting compound initializer");
 
-                  Vec<Box<InitializerMIR>> init_mirs{};
-                  InitializerRet ret{{}, nullptr};
+                Vec<Box<InitializerMIR>> init_mirs{};
+                InitializerRet ret{{}, nullptr};
 
-                  switch (type->kind) {
-                  case Type::Kind::ARRAY: {
-                      bsv_dbprint("visiting arraytype compound initializer");
-                      ArrayType *arrtype = type->as_array();
-                      // if there are any subarrays, this is the one pointing to the largest one
-                      ArrayType *max_subarray = nullptr;
+                switch (type->kind) {
+                case Type::Kind::ARRAY: {
+                    bsv_dbprint("visiting arraytype compound initializer");
+                    ArrayType *arrtype = type->as_array();
+                    // if there are any subarrays, this is the one pointing to the largest one
+                    ArrayType *max_subarray = nullptr;
 
-                      for (auto& init : inits) {
-                          // visit each initializer and take the return value
-                          dv_call(arrtype->base, init);
-                          auto initmir = take_last_result<InitializerRet>();
+                    for (auto& init : inits) {
+                        // visit each initializer and take the return value
+                        dv_call(arrtype->base, init);
+                        auto initmir = take_last_result<InitializerRet>();
 
-                          /*
-                          If there is a new array type reported by an initializer, we need to
-                          propagate that up to our array type.
+                        /*
+                        If there is a new array type reported by an initializer, we need to
+                        propagate that up to our array type.
 
-                          Since sub-array initializers can vary in size (unused spaces remain
-                          deinitialized), we take the largest sub-initializer that we encounter.
-                          */
-                          if (initmir.new_type) {
-                              // if we already have a max array set
-                              if (max_subarray) {
-                                  // if the new array is larger than the current max size
-                                  if ((*initmir.new_type)->arr_size > max_subarray->arr_size) {
-                                      max_subarray = *initmir.new_type;
-                                  }
-                              } else {
-                                  // else, just set our array
-                                  max_subarray = *initmir.new_type;
-                              }
-                          }
-                          init_mirs.push_back(std::move(initmir.init_mir));
-                      }
+                        Since sub-array initializers can vary in size (unused spaces remain
+                        deinitialized), we take the largest sub-initializer that we encounter.
+                        */
+                        if (initmir.new_type) {
+                            // if we already have a max array set
+                            if (max_subarray) {
+                                // if the new array is larger than the current max size
+                                if ((*initmir.new_type)->arr_size > max_subarray->arr_size) {
+                                    max_subarray = *initmir.new_type;
+                                }
+                            } else {
+                                // else, just set our array
+                                max_subarray = *initmir.new_type;
+                            }
+                        }
+                        init_mirs.push_back(std::move(initmir.init_mir));
+                    }
 
-                      if (!arrtype->arr_size) {
-                          // if no size
-                          bsv_dbprint("array has no size, inferring from size of initializer");
-                          if (max_subarray) {
-                              // if max_subarray was set, use that as our base
-                              arrtype = types.set_array_size(max_subarray, inits.size());
-                          } else {
-                              // otherwise, use our current base
-                              arrtype = types.set_array_size(arrtype->base, inits.size());
-                          }
-                          ret.new_type = arrtype;
-                      }
-                  } break; // end case ARRAY
+                    if (!arrtype->arr_size) {
+                        // if no size
+                        bsv_dbprint("array has no size, inferring from size of initializer");
+                        if (max_subarray) {
+                            // if max_subarray was set, use that as our base
+                            arrtype = types.set_array_size(max_subarray, inits.size());
+                        } else {
+                            // otherwise, use our current base
+                            arrtype = types.set_array_size(arrtype->base, inits.size());
+                        }
+                        ret.new_type = arrtype;
+                    }
+                } break; // end case ARRAY
 
-                  case Type::Kind::CLASS: {
-                      bsv_dbprint("visiting classtype compound initializer");
-                      ClassType *clstype = type->as_class();
+                case Type::Kind::CLASS: {
+                    bsv_dbprint("visiting classtype compound initializer");
+                    ClassType *clstype = type->as_class();
 
-                      for (auto&& [idx, init] : std::views::enumerate(inits)) {
-                          auto *mem  = clstype->find(idx);
-                          if (!mem)
-                              continue;
+                    for (auto&& [idx, init] : std::views::enumerate(inits)) {
+                        auto *mem = clstype->find(idx);
+                        if (!mem)
+                            continue;
 
-                          dv_call(mem->ty, init);
-                          auto initmir = take_last_result<InitializerRet>();
-                          // ignore new array type here, since arrays in classes must have declared
-                          // size
-                          init_mirs.push_back(std::move(initmir.init_mir));
-                      }
-                  } break; // end case CLASS
+                        dv_call(mem->ty, init);
+                        auto initmir = take_last_result<InitializerRet>();
+                        // ignore new array type here, since arrays in classes must have declared
+                        // size
+                        init_mirs.push_back(std::move(initmir.init_mir));
+                    }
+                } break; // end case CLASS
 
-                  default: {
-                      add_error<InvalidInitializerError>(
-                          // fixme: better error
-                          "cannot initialize a variable that is not class or array with compound "
-                          "initializer",
-                          node.loc);
-                      throw UnableToContinue();
-                  }
-                  }
+                default: {
+                    add_error<InvalidInitializerError>(
+                        // fixme: better error
+                        "cannot initialize a variable that is not class or array with compound "
+                        "initializer",
+                        node.loc);
+                    throw UnableToContinue();
+                }
+                }
 
-                  Box<InitializerMIR> fullinit =
-                      std::make_unique<InitializerMIR>(loc, std::move(init_mirs));
-                  ret.init_mir = std::move(fullinit);
-                  dv_return(ret);
-              }},
+                Box<InitializerMIR> fullinit =
+                    std::make_unique<InitializerMIR>(loc, std::move(init_mirs));
+                ret.init_mir = std::move(fullinit);
+                dv_return(ret);
+            }},
         node.initializer);
 }
 
@@ -1019,15 +1024,17 @@ void MIRSynthesizer::do_visit(CompoundStatement& node) {
     // Since do_visit on this node can be called outside of functions,
     // having the param not be of the expected type is valid,
     // we just don't use it.
-    std::visit(match{[&](CmpdStmtDoVisitParam& param) mutable {
-                         // dbprint("CmpdStmtDoVisitParams found");
-                         add_symbols = std::move(param);
-                     },
-                     [&](auto&) mutable {
-                         // dbprint("No params found");
-                         add_symbols = {};
-                     }},
-               dovisit_param);
+    std::visit(
+        match{
+            [&](CmpdStmtDoVisitParam& param) mutable {
+                // dbprint("CmpdStmtDoVisitParams found");
+                add_symbols = std::move(param);
+            },
+            [&](auto&) mutable {
+                // dbprint("No params found");
+                add_symbols = {};
+            }},
+        dovisit_param);
 
     // Reset dovisit_param to monostate
     dovisit_param = std::monostate{};
@@ -1052,15 +1059,16 @@ void MIRSynthesizer::do_visit(CompoundStatement& node) {
     for (auto& item : node.items) {
         dv_call_noparam(item);
         std::visit(
-            match{[&](Box<DeclMIR>& decl) mutable { progitems.push_back(std::move(decl)); },
-                  [&](Box<StmtMIR>& stmt) mutable { progitems.push_back(std::move(stmt)); },
-                  [&](Box<FunctionMIR>& func) mutable { progitems.push_back(std::move(func)); },
-                  [](std::monostate&) {
-                      // ignore and continue
-                  },
-                  [](auto&) {
-                      throw std::runtime_error("unexpected type while parsing program items");
-                  }},
+            match{
+                [&](Box<DeclMIR>& decl) mutable { progitems.push_back(std::move(decl)); },
+                [&](Box<StmtMIR>& stmt) mutable { progitems.push_back(std::move(stmt)); },
+                [&](Box<FunctionMIR>& func) mutable { progitems.push_back(std::move(func)); },
+                [](std::monostate&) {
+                    // ignore and continue
+                },
+                [](auto&) {
+                    throw std::runtime_error("unexpected type while parsing program items");
+                }},
             last_result);
         last_result = std::monostate{};
     }
@@ -1123,8 +1131,8 @@ void MIRSynthesizer::do_visit(ExpressionStatement& node) {
                     bsv_dbprint(
                         "found identexpr of type function with no params, emitting CallExprMIR");
                     Vec<Box<ExprMIR>> empty_args{};
-                    expr = std::make_unique<CallExprMIR>(node.loc, syms.current, std::move(expr),
-                                                         std::move(empty_args));
+                    expr = std::make_unique<CallExprMIR>(
+                        node.loc, syms.current, std::move(expr), std::move(empty_args));
                 }
             }
             break;
@@ -1228,8 +1236,8 @@ void MIRSynthesizer::do_visit(IfStatement& node) {
         else_br = take_last_result<Box<StmtMIR>>();
     }
 
-    Box<StmtMIR> ifstmt = std::make_unique<IfStmtMIR>(node.loc, std::move(cond), std::move(then_br),
-                                                      std::move(else_br));
+    Box<StmtMIR> ifstmt = std::make_unique<IfStmtMIR>(
+        node.loc, std::move(cond), std::move(then_br), std::move(else_br));
 
     dv_return(ifstmt);
 }
@@ -1286,20 +1294,22 @@ void MIRSynthesizer::do_visit(ForStatement& node) {
     Box<LoopStmtMIR> loop = std::make_unique<LoopStmtMIR>(node.loc, std::move(body));
 
     if (node.init.has_value()) {
-        std::visit(match{[&](Box<Expression>& expr) {
-                             dv_call_noparam(expr);
-                             Box<ExprMIR> exprmir = take_last_result<Box<ExprMIR>>();
-                             Box<ExprStmtMIR> exprstmt =
-                                 std::make_unique<ExprStmtMIR>(expr->loc, std::move(exprmir));
+        std::visit(
+            match{
+                [&](Box<Expression>& expr) {
+                    dv_call_noparam(expr);
+                    Box<ExprMIR> exprmir = take_last_result<Box<ExprMIR>>();
+                    Box<ExprStmtMIR> exprstmt =
+                        std::make_unique<ExprStmtMIR>(expr->loc, std::move(exprmir));
 
-                             loop->init = std::move(exprstmt);
-                         },
-                         [&](Box<VariableDeclaration>& decl) {
-                             dv_call_noparam(decl);
-                             Box<DeclMIR> declmir = take_last_result<Box<DeclMIR>>();
-                             loop->init           = std::move(declmir);
-                         }},
-                   *node.init);
+                    loop->init = std::move(exprstmt);
+                },
+                [&](Box<VariableDeclaration>& decl) {
+                    dv_call_noparam(decl);
+                    Box<DeclMIR> declmir = take_last_result<Box<DeclMIR>>();
+                    loop->init           = std::move(declmir);
+                }},
+            *node.init);
     }
 
     if (node.condition.has_value()) {
@@ -1365,8 +1375,8 @@ void MIRSynthesizer::do_visit(BinaryExpression& node) {
     dv_call_noparam(node.right);
     Box<ExprMIR> right = take_last_result<Box<ExprMIR>>();
 
-    Box<ExprMIR> expr = std::make_unique<BinaryExprMIR>(node.loc, syms.current, std::move(left),
-                                                        std::move(right), node.op);
+    Box<ExprMIR> expr = std::make_unique<BinaryExprMIR>(
+        node.loc, syms.current, std::move(left), std::move(right), node.op);
 
     dv_return(expr);
 }
@@ -1402,8 +1412,8 @@ void MIRSynthesizer::do_visit(AssignmentExpression& node) {
     dv_call_noparam(node.right);
     Box<ExprMIR> right = take_last_result<Box<ExprMIR>>();
 
-    Box<ExprMIR> expr = std::make_unique<AssignExprMIR>(node.loc, syms.current, std::move(left),
-                                                        std::move(right), node.op);
+    Box<ExprMIR> expr = std::make_unique<AssignExprMIR>(
+        node.loc, syms.current, std::move(left), std::move(right), node.op);
 
     dv_return(expr);
 }
@@ -1417,8 +1427,8 @@ void MIRSynthesizer::do_visit(ConditionalExpression& node) {
     dv_call_noparam(node.false_expr);
     Box<ExprMIR> false_expr = take_last_result<Box<ExprMIR>>();
 
-    Box<ExprMIR> expr = std::make_unique<CondExprMIR>(node.loc, syms.current, std::move(condition),
-                                                      std::move(true_expr), std::move(false_expr));
+    Box<ExprMIR> expr = std::make_unique<CondExprMIR>(
+        node.loc, syms.current, std::move(condition), std::move(true_expr), std::move(false_expr));
 
     dv_return(expr);
 }
@@ -1561,19 +1571,21 @@ void MIRSynthesizer::do_visit(SizeofExpression& node) {
     bsv_dbprint("visiting SizeofExpression node: ", node.loc);
 
     Box<SizeofExprMIR> sizexpr = std::make_unique<SizeofExprMIR>(node.loc, syms.current);
-    std::visit(match{[&](Box<Expression>& expr) mutable {
-                         // this might be a literal expression, so we defer
-                         // resolution of the actual type to validation.
-                         dv_call_noparam(expr);
-                         Box<ExprMIR> target = take_last_result<Box<ExprMIR>>();
-                         sizexpr->operand    = std::move(target);
-                     },
-                     [&](Box<TypeName>& typen) mutable {
-                         dv_call_noparam(typen);
-                         Type *target     = take_last_result<Type *>();
-                         sizexpr->operand = target;
-                     }},
-               node.operand);
+    std::visit(
+        match{
+            [&](Box<Expression>& expr) mutable {
+                // this might be a literal expression, so we defer
+                // resolution of the actual type to validation.
+                dv_call_noparam(expr);
+                Box<ExprMIR> target = take_last_result<Box<ExprMIR>>();
+                sizexpr->operand    = std::move(target);
+            },
+            [&](Box<TypeName>& typen) mutable {
+                dv_call_noparam(typen);
+                Type *target     = take_last_result<Type *>();
+                sizexpr->operand = target;
+            }},
+        node.operand);
 
     Box<ExprMIR> expr = std::move(sizexpr);
     dv_return(expr);

@@ -244,8 +244,8 @@ std::string PrimitiveType::formal() {
 }
 
 /*
-* RECORD TYPE METHODS
-*/
+ * RECORD TYPE METHODS
+ */
 
 void RecordType::validate_member_type(Type *type, Optional<std::string> name, Location loc) {
     if (type == this) {
@@ -405,7 +405,7 @@ void ClassType::finalize() {
 }
 
 std::string ClassType::formal() {
-    return name ? base() +  " " + *name : to_string();
+    return name ? base() + " " + *name : to_string();
 }
 
 /*
@@ -511,8 +511,8 @@ EnumType::EnumType(Location decl_loc, sema::sym::Scope *scope, TypeContext& tyct
       underlying(ctxt().get_i32()) {
 }
 
-EnumType::EnumType(Location decl_loc, std::string name, sema::sym::Scope *scope,
-                   TypeContext& tyctxt)
+EnumType::EnumType(
+    Location decl_loc, std::string name, sema::sym::Scope *scope, TypeContext& tyctxt)
     : UserType(decl_loc, Kind::ENUM, std::move(name), tyctxt, scope),
       // default type for an enum with no declared underlying type is I32.
       underlying(ctxt().get_i32()) {
@@ -640,8 +640,7 @@ bool PointerType::coercable_to(Type *dst) {
     int ds_nesting = ptr->nesting_lvl();
     Type *dst_base = ptr->true_base();
 
-    return my_nesting == 1 && ds_nesting == 1 ? base == dst_base || dst_base->is_void()
-                                              : false;
+    return my_nesting == 1 && ds_nesting == 1 ? base == dst_base || dst_base->is_void() : false;
 }
 
 void PointerType::finalize() {
@@ -782,30 +781,31 @@ Type *TypeBuilder::finalize() {
     Type *curr = base;
     while (!type_stack.empty()) {
         auto next_cstrctr = type_stack.top();
-        std::visit(match{[this, &curr](Arr& arr) mutable {
-                             // Wrap the base in an array.
-                             if (arr.size) {
-                                 curr = this->ctxt().get_array(curr, *arr.size);
-                             } else {
-                                 curr = this->ctxt().get_array(curr);
-                             }
-                         },
-                         [this, &curr](Ptr& ptr) mutable {
-                             // Wrap the base in a pointer.
-                             curr = this->ctxt().get_pointer(curr, ptr.is_const);
-                         },
-                         [this, &curr](FnParams& fn) mutable {
-                             Vec<Type *> params;
-                             // map out the identifiers.
-                             params.reserve(fn.params.size());
-                             for (auto& param : fn.params) {
-                                 params.push_back(param.type);
-                             }
-                             // Wrap the base as the return type in a function type.
-                             curr = this->ctxt().get_function(fn.loc, curr, std::move(params),
-                                                              fn.variadic);
-                         }},
-                   next_cstrctr);
+        std::visit(
+            match{
+                [this, &curr](Arr& arr) mutable {
+                    // Wrap the base in an array.
+                    if (arr.size) {
+                        curr = this->ctxt().get_array(curr, *arr.size);
+                    } else {
+                        curr = this->ctxt().get_array(curr);
+                    }
+                },
+                [this, &curr](Ptr& ptr) mutable {
+                    // Wrap the base in a pointer.
+                    curr = this->ctxt().get_pointer(curr, ptr.is_const);
+                },
+                [this, &curr](FnParams& fn) mutable {
+                    Vec<Type *> params;
+                    // map out the identifiers.
+                    params.reserve(fn.params.size());
+                    for (auto& param : fn.params) {
+                        params.push_back(param.type);
+                    }
+                    // Wrap the base as the return type in a function type.
+                    curr = this->ctxt().get_function(fn.loc, curr, std::move(params), fn.variadic);
+                }},
+            next_cstrctr);
 
         // Pop the stack to the next constructor
         type_stack.pop();
@@ -1055,8 +1055,8 @@ ArrayType *TypeContext::set_array_size(Type *base, uint64_t size) {
     return get_array(base, size);
 }
 
-FunctionType *TypeContext::get_function(Location loc, Type *returntype, Vec<Type *> params,
-                                        bool variadic) {
+FunctionType *
+TypeContext::get_function(Location loc, Type *returntype, Vec<Type *> params, bool variadic) {
     /*
     Function types do not need to be scope-aware, since their names are purely symbolic, and
     have no bearing on type equality. If a pointer to a function that was declared in a non-global

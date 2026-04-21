@@ -40,16 +40,14 @@ class InvalidVoidError : public TypeSemError {
 public:
     InvalidVoidError(Location err_loc) : TypeSemError("invalid void", err_loc) {}
 
-    std::string elab() override {
-        return "variables cannot be void";
-    }
+    std::string elab() override { return "variables cannot be void"; }
 };
 
 class InvalidMemberError : public TypeSemError {
 public:
     InvalidMemberError(types::ClassType *cls, std::string member, Location err_loc)
-        : TypeSemError("invalid class member", err_loc),
-        type(cls->formal()), member(std::move(member)) {}
+        : TypeSemError("invalid class member", err_loc), type(cls->formal()),
+          member(std::move(member)) {}
 
     std::string type;
     std::string member;
@@ -77,9 +75,7 @@ public:
     InvalidReturnTypeError(Location err_loc)
         : TypeSemError("invalid return type for function", err_loc) {}
 
-    std::string elab() override {
-        return "functions cannot return arrays or other functions";
-    }
+    std::string elab() override { return "functions cannot return arrays or other functions"; }
 };
 
 class EnumeratorAlrDecldError : public TypeSemError {
@@ -93,8 +89,7 @@ public:
 
     std::string elab() override {
         std::stringstream ss;
-        ss << "enumerator with name \'" << name
-           << "\' previously defined at <" << def_loc << ">";
+        ss << "enumerator with name \'" << name << "\' previously defined at <" << def_loc << ">";
 
         return ss.str();
     }
@@ -105,9 +100,7 @@ public:
     InvalidEnumUnderlyingError(Location err_loc)
         : TypeSemError("invalid enum underlying type", err_loc) {}
 
-    std::string elab() override {
-        return "underlying type of an enum must be an integer";
-    }
+    std::string elab() override { return "underlying type of an enum must be an integer"; }
 };
 
 class TypeDecldAsOtherError : public TypeSemError {

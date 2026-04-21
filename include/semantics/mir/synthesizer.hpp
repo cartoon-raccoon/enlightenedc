@@ -92,10 +92,10 @@ using ElabResult = std::variant<
     // The return type of visiting an Initializer.
     InitializerRet>;
 
-using CmpdStmtDoVisitParam =
-    Optional<std::pair<sym::FuncSymbol *, // The function symbol to tie this compound statement to.
-                       Vec<Box<sym::VarSymbol>> // The new symbols to add to the new scope.
-                       >>;
+using CmpdStmtDoVisitParam = Optional<std::pair<
+    sym::FuncSymbol *,       // The function symbol to tie this compound statement to.
+    Vec<Box<sym::VarSymbol>> // The new symbols to add to the new scope.
+    >>;
 
 /*
 Any parameters to be passed to a do_visit call (through accept).
@@ -108,8 +108,8 @@ using ElabVisitParam = std::variant<
     // For passing a function's information into the compound statement.
     CmpdStmtDoVisitParam,
     // For passing types for population.
-    types::RecordType *, types::EnumType *, types::PrimitiveType *,
-    types::BaseType *, types::Type *>;
+    types::RecordType *, types::EnumType *, types::PrimitiveType *, types::BaseType *,
+    types::Type *>;
 
 /**
 The class that lowers the AST to MIR, populating the TypeContext and SymbolTable.
@@ -157,8 +157,8 @@ protected:
             last_result = std::monostate();
 
         } catch (std::bad_variant_access e) {
-            throw std::runtime_error("got wrong type for take_last_result: " +
-                                     std::string(e.what()));
+            throw std::runtime_error(
+                "got wrong type for take_last_result: " + std::string(e.what()));
         }
 
         return ret;
@@ -173,8 +173,8 @@ protected:
             dovisit_param = std::monostate();
 
         } catch (std::bad_variant_access e) {
-            throw std::runtime_error("got wrong type for take_dovisit_param: " +
-                                     std::string(e.what()));
+            throw std::runtime_error(
+                "got wrong type for take_dovisit_param: " + std::string(e.what()));
         }
 
         return ret;

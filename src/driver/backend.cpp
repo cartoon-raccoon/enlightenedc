@@ -5,8 +5,8 @@
 #include "semantics/mir/printer.hpp"
 #include "semantics/mir/synthesizer.hpp"
 #include "semantics/printer.hpp"
-#include "semantics/typeerr.hpp"
 #include "semantics/semantics.hpp"
+#include "semantics/typeerr.hpp"
 #include "semantics/validator.hpp"
 #include "util.hpp"
 
@@ -25,8 +25,8 @@ void Backend::run(Ecc& ecc, driver::TranslationUnit& unit) {
     }
 
     SymbolTable& symbols = *unit.prog_mir->symbols;
-    TypeContext& types = *unit.types;
-    ProgramMIR& mir = *unit.prog_mir->mir;
+    TypeContext& types   = *unit.types;
+    ProgramMIR& mir      = *unit.prog_mir->mir;
 
     MIRSynthesizer mirsynthesizer(symbols, types, mir);
     try {

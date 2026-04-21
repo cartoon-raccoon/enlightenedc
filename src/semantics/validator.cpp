@@ -26,70 +26,69 @@ void Validator::eval_initializer(types::Type *type, InitializerMIR& init) {
 void Validator::eval_initializer_rec(Vec<Accessor>& path, types::Type *type, InitializerMIR& init) {
     bsv_dbprint("Validator: eval_initializer");
     std::visit(
-        match{/*
-              Base case. If evaluates to a single expression, perform type comparison.
-              */
-              [&](Box<ExprMIR>& expr) mutable {
-                  bsv_dbprint("Validator: matched on single expression");
-                  expr->accept(*this);
-                  if (type != expr->eff_type) {
-                      bsv_dbprint("types are not equal, checking compatibility");
-                      if (type->coercable_to(expr->eff_type)) {
+        match{
+            /*
+            Base case. If evaluates to a single expression, perform type comparison.
+            */
+            [&](Box<ExprMIR>& expr) mutable {
+                bsv_dbprint("Validator: matched on single expression");
+                expr->accept(*this);
+                if (type != expr->eff_type) {
+                    bsv_dbprint("types are not equal, checking compatibility");
+                    if (type->coercable_to(expr->eff_type)) {
 
-                      } else {
-                          add_error<InvalidCoerceError>(type, expr->eff_type, expr->loc);
-                      }
-                      if (type->is_array()) {
-                          // the only time an array should match here is if we're assigning a string
-                          // literal
-                      }
-                  }
-              },
-              [&](Box<InitializerMIR::Member>& mem) {
-                  // member validation was done in the previous call
-                  eval_initializer_rec(path, type, *mem->initializer);
-              },
-              [&](Box<InitializerMIR::Index>& idx) {
-                  // index validation was done in the previous call
-                  eval_initializer_rec(path, type, *idx->initializer);
-              },
-              /*
-              Recursive case. If there is a list of initializers, this has to be a class or array.
-              */
-              [&](Vec<Box<InitializerMIR>>& inner) mutable {
-                  switch (type->kind) {
-                  case Type::Kind::CLASS:
-                      eval_initializer_rec_cls(path, type->as_class(), inner);
-                      break;
+                    } else {
+                        add_error<InvalidCoerceError>(type, expr->eff_type, expr->loc);
+                    }
+                    if (type->is_array()) {
+                        // the only time an array should match here is if we're assigning a string
+                        // literal
+                    }
+                }
+            },
+            [&](Box<InitializerMIR::Member>& mem) {
+                // member validation was done in the previous call
+                eval_initializer_rec(path, type, *mem->initializer);
+            },
+            [&](Box<InitializerMIR::Index>& idx) {
+                // index validation was done in the previous call
+                eval_initializer_rec(path, type, *idx->initializer);
+            },
+            /*
+            Recursive case. If there is a list of initializers, this has to be a class or array.
+            */
+            [&](Vec<Box<InitializerMIR>>& inner) mutable {
+                switch (type->kind) {
+                case Type::Kind::CLASS:
+                    eval_initializer_rec_cls(path, type->as_class(), inner);
+                    break;
 
-                  case Type::Kind::ARRAY:
-                      eval_initializer_rec_arr(path, type->as_array(), inner);
-                      break;
+                case Type::Kind::ARRAY:
+                    eval_initializer_rec_arr(path, type->as_array(), inner);
+                    break;
 
-                  default:
-                      // todo: throw error
-                  }
-              }},
+                default:
+                    // todo: throw error
+                }
+            }},
         init.initializer);
 }
 
-void Validator::eval_initializer_rec_cls(Vec<Accessor>& path, ClassType *cls,
-                                         Vec<Box<InitializerMIR>>& inits) {
+void Validator::eval_initializer_rec_cls(
+    Vec<Accessor>& path, ClassType *cls, Vec<Box<InitializerMIR>>& inits) {
     assert(cls && "cls was null while evaluating initializer");
 
     for (auto&& [idx, init] : std::views::enumerate(inits)) {
-
     }
 
     // todo
 }
 
-void Validator::eval_initializer_rec_arr(Vec<Accessor>& path, ArrayType *arr,
-                                         Vec<Box<InitializerMIR>>& inits) {
+void Validator::eval_initializer_rec_arr(
+    Vec<Accessor>& path, ArrayType *arr, Vec<Box<InitializerMIR>>& inits) {
     assert(arr && "arr was null while evaluating initializer");
 
     for (auto&& [idx, init] : std::views::enumerate(inits)) {
-
     }
 
     // todo
@@ -149,8 +148,8 @@ void Validator::do_visit(CaseStmtMIR& node) {
 
     // guaranteed to be non-null since we already checked that we are in a switch node,
     // so if the dynamic cast fails, something went very wrong.
-    SwitchStmtMIR *parent = dynamic_cast<SwitchStmtMIR *>(
-        get_context(MIRNode::NodeKind::SWITCHSTMT_MIR));
+    SwitchStmtMIR *parent =
+        dynamic_cast<SwitchStmtMIR *>(get_context(MIRNode::NodeKind::SWITCHSTMT_MIR));
 
     assert(parent && "could not get parent switch statement");
     // todo: check validity of case value
@@ -310,7 +309,7 @@ void Validator::do_visit(CastExprMIR& node) {
     bsv_dbprint("Validator: visiting CastExprMIR node");
     node.inner->accept(*this);
     assert(node.target);
-    
+
     if (!node.inner->eff_type->castable_to(node.target)) {
         // todo: throw error, unable to cast
     }
@@ -339,7 +338,7 @@ void Validator::do_visit(CondExprMIR& node) {
     node.true_expr->accept(*this);
     node.false_expr->accept(*this);
 
-    Type *true_type = node.true_expr->eff_type;
+    Type *true_type  = node.true_expr->eff_type;
     Type *false_type = node.false_expr->eff_type;
 
     if (true_type != false_type) {
@@ -440,20 +439,22 @@ void Validator::do_visit(PostfixExprMIR& node) {
 void Validator::do_visit(SizeofExprMIR& node) { // done
     bsv_dbprint("Validator: visiting SizeofExprMIR node");
 
-    std::visit(match{
-        [&](Box<ExprMIR>& expr) {
-            expr->accept(*this);
-            if (expr->act_type->is_function()) {
-                auto *prop_type = expr->act_type->as_function()->decay();
-                expr->set_type(prop_type);
-            }
-        },
-        [&](Type *type) {
-            if (type->is_function()) {
-                add_error<InvalidTypeError>("sizeof operand cannot be a function", type, node.loc);
-            }
-        }
-    }, node.operand);
+    std::visit(
+        match{
+            [&](Box<ExprMIR>& expr) {
+                expr->accept(*this);
+                if (expr->act_type->is_function()) {
+                    auto *prop_type = expr->act_type->as_function()->decay();
+                    expr->set_type(prop_type);
+                }
+            },
+            [&](Type *type) {
+                if (type->is_function()) {
+                    add_error<InvalidTypeError>(
+                        "sizeof operand cannot be a function", type, node.loc);
+                }
+            }},
+        node.operand);
 
     node.set_type(types.get().get_u64());
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <ostream>
 
 #ifndef ECC_VALUE_H
 #define ECC_VALUE_H
@@ -32,8 +33,9 @@ A value of a primitive type.
 */
 class Value {
 public:
-    using ValueType = std::variant<int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t, uint32_t,
-                                   uint64_t, float, double, bool>;
+    using ValueType = std::variant<
+        int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t, float, double,
+        bool>;
 
     Value() : inner((int32_t)0), primtype(tokens::PrimType::I32) {}
 
@@ -84,7 +86,7 @@ public:
     }
 
     Value& operator=(Value&& other) noexcept {
-        inner = other.inner;
+        inner    = other.inner;
         primtype = other.primtype;
         return *this;
     }
@@ -138,81 +140,129 @@ public:
     ValueType operator*() const { return inner; }
 
     // Binary bitwise OR
-    template <typename T> Value operator|(const T& rhs) const { return *this | Value(rhs); }
+    template <typename T>
+    Value operator|(const T& rhs) const {
+        return *this | Value(rhs);
+    }
 
     Value operator|(const Value& rhs) const;
 
     // Binary bitwise XOR
-    template <typename T> Value operator^(const T& rhs) const { return *this ^ Value(rhs); }
+    template <typename T>
+    Value operator^(const T& rhs) const {
+        return *this ^ Value(rhs);
+    }
 
     Value operator^(const Value& rhs) const;
 
     // Binary bitwise AND
-    template <typename T> Value operator&(const T& rhs) const { return *this & Value(rhs); }
+    template <typename T>
+    Value operator&(const T& rhs) const {
+        return *this & Value(rhs);
+    }
 
     Value operator&(const Value& rhs) const;
 
     // Binary bitshift left
-    template <typename T> Value operator<<(const T& rhs) const { return *this << Value(rhs); }
+    template <typename T>
+    Value operator<<(const T& rhs) const {
+        return *this << Value(rhs);
+    }
 
     Value operator<<(const Value& rhs) const;
 
     // Binary bitshift right
-    template <typename T> Value operator>>(const T& rhs) const { return *this >> Value(rhs); }
+    template <typename T>
+    Value operator>>(const T& rhs) const {
+        return *this >> Value(rhs);
+    }
 
     Value operator>>(const Value& rhs) const;
 
-    template <typename T> Value operator%(const T& rhs) const { return *this % Value(rhs); }
+    template <typename T>
+    Value operator%(const T& rhs) const {
+        return *this % Value(rhs);
+    }
 
     Value operator%(const Value& rhs) const;
 
     // Binary EQ
-    template <typename T> Value operator==(const T& rhs) const { return *this == Value(rhs); }
+    template <typename T>
+    Value operator==(const T& rhs) const {
+        return *this == Value(rhs);
+    }
 
     Value operator==(const Value& rhs) const;
 
     // Binary NEQ
-    template <typename T> Value operator!=(const T& rhs) const { return *this != Value(rhs); }
+    template <typename T>
+    Value operator!=(const T& rhs) const {
+        return *this != Value(rhs);
+    }
 
     Value operator!=(const Value& rhs) const { return !(*this == rhs); }
 
     // Binary LEQ
-    template <typename T> Value operator<=(const T& rhs) const { return *this <= Value(rhs); }
+    template <typename T>
+    Value operator<=(const T& rhs) const {
+        return *this <= Value(rhs);
+    }
 
     Value operator<=(const Value& rhs) const { return !(*this > rhs); }
 
     // Binary GEQ
-    template <typename T> Value operator>=(const T& rhs) const { return *this >= Value(rhs); }
+    template <typename T>
+    Value operator>=(const T& rhs) const {
+        return *this >= Value(rhs);
+    }
 
     Value operator>=(const Value& rhs) const { return !(*this < rhs); }
 
     // Logical LT
-    template <typename T> Value operator<(const T& rhs) const { return *this < Value(rhs); }
+    template <typename T>
+    Value operator<(const T& rhs) const {
+        return *this < Value(rhs);
+    }
 
     Value operator<(const Value& rhs) const;
 
     // Logical GT
-    template <typename T> Value operator>(const T& rhs) const { return *this > Value(rhs); }
+    template <typename T>
+    Value operator>(const T& rhs) const {
+        return *this > Value(rhs);
+    }
 
     Value operator>(const Value& rhs) const;
 
     // Binary ADD
-    template <typename T> Value operator+(const T& rhs) const { return *this + Value(rhs); }
+    template <typename T>
+    Value operator+(const T& rhs) const {
+        return *this + Value(rhs);
+    }
 
     Value operator+(const Value& rhs) const;
 
     // Binary SUB
-    template <typename T> Value operator-(const T& rhs) const { return *this - Value(rhs); }
+    template <typename T>
+    Value operator-(const T& rhs) const {
+        return *this - Value(rhs);
+    }
 
     Value operator-(const Value& rhs) const;
 
     // Binary MUL
-    template <typename T> Value operator*(const T& rhs) const { return *this * Value(rhs); }
+    template <typename T>
+    Value operator*(const T& rhs) const {
+        return *this * Value(rhs);
+    }
 
     Value operator*(const Value& rhs) const;
 
     // Binary DIV
-    template <typename T> Value operator/(const T& rhs) const { return *this / Value(rhs); }
+    template <typename T>
+    Value operator/(const T& rhs) const {
+        return *this / Value(rhs);
+    }
 
     Value operator/(const Value& rhs) const;
 
@@ -228,10 +278,15 @@ public:
     // Unary POS
     Value operator+() const;
 
-    std::string to_string() {
+    std::string to_string() const {
         return std::visit([&](const auto& v) { return std::format("{}", v); }, inner);
     }
 }; // end class Value
+
+template <typename T>
+std::basic_ostream<T>& operator<<(std::basic_ostream<T>& ostr, const Value& val) {
+    return ostr << val.to_string();
+}
 
 class ValueRange {
 public:
@@ -250,12 +305,14 @@ public:
         Value operator*() const { return val; }
 
         ValueRangeIter& operator++(int) {
+            val         = range->curr;
             range->curr = range->curr + 1;
             return *this;
         }
 
         ValueRangeIter& operator++() {
             range->curr = range->curr + 1;
+            val         = range->curr;
             return *this;
         }
 

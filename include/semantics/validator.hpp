@@ -80,11 +80,11 @@ private:
 
     void eval_initializer_rec(Vec<Accessor>& path, types::Type *type, mir::InitializerMIR& init);
 
-    void eval_initializer_rec_cls(Vec<Accessor>& path, types::ClassType *cls,
-                                  Vec<Box<mir::InitializerMIR>>& init);
+    void eval_initializer_rec_cls(
+        Vec<Accessor>& path, types::ClassType *cls, Vec<Box<mir::InitializerMIR>>& init);
 
-    void eval_initializer_rec_arr(Vec<Accessor>& path, types::ArrayType *arr,
-                                  Vec<Box<mir::InitializerMIR>>& init);
+    void eval_initializer_rec_arr(
+        Vec<Accessor>& path, types::ArrayType *arr, Vec<Box<mir::InitializerMIR>>& init);
 };
 
 } // namespace ecc::sema

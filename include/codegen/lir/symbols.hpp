@@ -45,8 +45,9 @@ The representation of a physical variable (memory location) in the LIR.
 */
 class LIRVarSym : public LIRSym {
 public:
-    LIRVarSym(std::string mangled, std::string name, Location loc, sema::sym::VarSymbol *sym,
-              bool is_param)
+    LIRVarSym(
+        std::string mangled, std::string name, Location loc, sema::sym::VarSymbol *sym,
+        bool is_param)
         : LIRSym(LIRSymKind::VAR, std::move(mangled), std::move(name), loc), sym(sym),
           is_param(is_param) {}
 

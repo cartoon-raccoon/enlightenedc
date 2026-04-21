@@ -24,8 +24,9 @@ class Lexer : public yyFlexLexer {
 
 public:
     // Use the standard yyFlexLexer constructor.
-    Lexer(std::istream *in, std::string *filename, std::set<std::string>& typedefs,
-          FilenamePool& filenames);
+    Lexer(
+        std::istream *in, std::string *filename, std::set<std::string>& typedefs,
+        FilenamePool& filenames);
 
     // Override the yyFlexLexer constructor.
     Parser::symbol_type get_next_token();

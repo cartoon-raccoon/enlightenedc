@@ -25,14 +25,18 @@ validation (e.g. no invalid struct member accesses).
 using namespace ecc;
 using namespace util;
 
-template <typename Node> class NodeGuard;
+template <typename Node>
+class NodeGuard;
 class BaseASTSemaVisitor;
 class BaseMIRSemaVisitor;
 
-template <typename Node> class ScopeGuard;
-template <typename Node> class NodeGuard;
+template <typename Node>
+class ScopeGuard;
+template <typename Node>
+class NodeGuard;
 
-template <typename Node> class BaseSemanticVisitor {
+template <typename Node>
+class BaseSemanticVisitor {
 public:
     /*
     The state of the BaseSemanticVisitor.
@@ -63,7 +67,8 @@ public:
 
     void dec_indent() { indent -= 2; }
 
-    template <typename... Args> void bsv_dbprint(Args... args) {
+    template <typename... Args>
+    void bsv_dbprint(Args... args) {
         std::stringstream ss;
 
         for (int i = 0; i < indent; i++) {
@@ -73,7 +78,8 @@ public:
         dbprint(ss.str(), args...);
     }
 #else
-    template <typename... Args> void bsv_dbprint(Args... args) {}
+    template <typename... Args>
+    void bsv_dbprint(Args... args) {}
 #endif
 
 #pragma clang diagnostic push
@@ -95,14 +101,16 @@ The ScopeGuard pushes a new scope into the symbol table.
 When the destructor is called, the ScopeGuard automatically pops the scope from its
 stored symbol table reference.
 */
-template <typename Node> class ScopeGuard : public NoCopy {
+template <typename Node>
+class ScopeGuard : public NoCopy {
 public:
     friend class BaseASTSemaVisitor;
     friend class BaseMIRSemaVisitor;
     friend class NodeGuard<Node>;
 
-    ScopeGuard(BaseSemanticVisitor<Node>::State state, sym::SymbolTableWalker& syms,
-               sym::FuncSymbol *assoc)
+    ScopeGuard(
+        BaseSemanticVisitor<Node>::State state, sym::SymbolTableWalker& syms,
+        sym::FuncSymbol *assoc)
         : st(syms) {
         if (state == BaseSemanticVisitor<Node>::State::READ) {
             st.get().enter_scope();
@@ -130,7 +138,8 @@ An RAII wrapper for automatically managing node contexts.
 When a NodeGuard is created, it pushes an associated ASTNode onto the
 context. When it is destroyed, it pops the top node from the context.
 */
-template <typename Node> class NodeGuard : public NoCopy {
+template <typename Node>
+class NodeGuard : public NoCopy {
 public:
     friend class BaseASTSemaVisitor;
     friend class BaseMIRSemaVisitor;

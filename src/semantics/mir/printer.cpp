@@ -51,21 +51,23 @@ void MIRPrinter::visit(VarDeclMIR& node) {
 
 void MIRPrinter::visit(InitializerMIR& node) {
     print_node("Initializer", node, [&] {
-        std::visit(match{[&](Box<ExprMIR>& expr) { expr->accept(*this); },
-                        [&](Box<InitializerMIR::Member>& mem) {
-                            std::cout << "." << mem->member << ": ";
-                            mem->initializer->accept(*this);
-                        },
-                        [&](Box<InitializerMIR::Index>& idx) {
-                            std::cout << "[" << idx->idx.to_string() << "]: ";
-                            idx->initializer->accept(*this);
-                        },
-                        [&](Vec<Box<InitializerMIR>>& inits) {
-                            for (auto& init : inits) {
-                                init->accept(*this);
-                            }
-                        }},
-                node.initializer);
+        std::visit(
+            match{
+                [&](Box<ExprMIR>& expr) { expr->accept(*this); },
+                [&](Box<InitializerMIR::Member>& mem) {
+                    std::cout << "." << mem->member << ": ";
+                    mem->initializer->accept(*this);
+                },
+                [&](Box<InitializerMIR::Index>& idx) {
+                    std::cout << "[" << idx->idx.to_string() << "]: ";
+                    idx->initializer->accept(*this);
+                },
+                [&](Vec<Box<InitializerMIR>>& inits) {
+                    for (auto& init : inits) {
+                        init->accept(*this);
+                    }
+                }},
+            node.initializer);
     });
 }
 
@@ -95,8 +97,9 @@ void MIRPrinter::visit(CaseStmtMIR& node) {
 }
 
 void MIRPrinter::visit(CaseRangeStmtMIR& node) {
-    print_node("CaseRange: " + node.case_start.to_string() + "..." + node.case_end.to_string(),
-               node, [&] { node.stmt->accept(*this); });
+    print_node(
+        "CaseRange: " + node.case_start.to_string() + "..." + node.case_end.to_string(), node,
+        [&] { node.stmt->accept(*this); });
 }
 
 void MIRPrinter::visit(DefaultStmtMIR& node) {
@@ -193,9 +196,11 @@ void MIRPrinter::visit(IdentExprMIR& node) {
 
 void MIRPrinter::visit(LiteralExprMIR& node) {
     print_node("Literal: ", node, [&] {
-        std::visit(match{[&](eval::Value& val) { std::cout << val.to_string(); },
-                         [&](std::string& s) { std::cout << s; }},
-                   node.value);
+        std::visit(
+            match{
+                [&](eval::Value& val) { std::cout << val.to_string(); },
+                [&](std::string& s) { std::cout << s; }},
+            node.value);
     });
 }
 
@@ -218,14 +223,16 @@ void MIRPrinter::visit(SubscrExprMIR& node) {
 }
 
 void MIRPrinter::visit(PostfixExprMIR& node) {
-    print_node("Postfix: " + postfixop_to_string(node.op), node,
-               [&] { node.operand->accept(*this); });
+    print_node(
+        "Postfix: " + postfixop_to_string(node.op), node, [&] { node.operand->accept(*this); });
 }
 
 void MIRPrinter::visit(SizeofExprMIR& node) {
     print_node("Sizeof: ", node, [&] {
-        std::visit(match{[this](Box<ExprMIR>& expr) { expr->accept(*this); },
-                         [](Type *& type) { std::cout << type->to_string() << '\n'; }},
-                   node.operand);
+        std::visit(
+            match{
+                [this](Box<ExprMIR>& expr) { expr->accept(*this); },
+                [](Type *& type) { std::cout << type->to_string() << '\n'; }},
+            node.operand);
     });
 }

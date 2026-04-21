@@ -66,6 +66,6 @@ type. We do this with type promotion.
 */
 PrimType pr_promote(PrimType lhs, PrimType rhs);
 
-}
+} // namespace ecc::sema::prim
 
 #endif

@@ -307,8 +307,9 @@ public:
 
 class BinaryExprLIR : public ExprLIR {
 public:
-    BinaryExprLIR(Location loc, sema::types::Type *type, Box<ExprLIR> left, Box<ExprLIR> right,
-                  tokens::BinaryOp op)
+    BinaryExprLIR(
+        Location loc, sema::types::Type *type, Box<ExprLIR> left, Box<ExprLIR> right,
+        tokens::BinaryOp op)
         : ExprLIR(loc, NodeKind::BINEXPR_LIR, type), left(std::move(left)), right(std::move(right)),
           op(op) {}
 
@@ -332,8 +333,8 @@ public:
 
 class CastExprLIR : public ExprLIR {
 public:
-    CastExprLIR(Location loc, sema::types::Type *type, Box<ExprLIR> inner,
-                sema::types::Type *target)
+    CastExprLIR(
+        Location loc, sema::types::Type *type, Box<ExprLIR> inner, sema::types::Type *target)
         : ExprLIR(loc, NodeKind::CASTEXPR_LIR, type), target(target), inner(std::move(inner)) {}
 
     sema::types::Type *target;
@@ -344,8 +345,9 @@ public:
 
 class AssignExprLIR : public ExprLIR {
 public:
-    AssignExprLIR(Location loc, sema::types::Type *type, Box<ExprLIR> left, Box<ExprLIR> right,
-                  tokens::AssignOp op)
+    AssignExprLIR(
+        Location loc, sema::types::Type *type, Box<ExprLIR> left, Box<ExprLIR> right,
+        tokens::AssignOp op)
         : ExprLIR(loc, NodeKind::ASSIGNEXPR_LIR, type), left(std::move(left)),
           right(std::move(right)), op(op) {}
 
@@ -358,8 +360,9 @@ public:
 
 class CondExprLIR : public ExprLIR {
 public:
-    CondExprLIR(Location loc, sema::types::Type *type, Box<ExprLIR> cond, Box<ExprLIR> true_val,
-                Box<ExprLIR> false_val)
+    CondExprLIR(
+        Location loc, sema::types::Type *type, Box<ExprLIR> cond, Box<ExprLIR> true_val,
+        Box<ExprLIR> false_val)
         : ExprLIR(loc, NodeKind::CONDEXPR_LIR, type), condition(std::move(cond)),
           true_value(std::move(true_val)), false_value(std::move(false_val)) {}
 

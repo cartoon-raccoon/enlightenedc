@@ -93,9 +93,11 @@ public:
         return TypeHandle(targ, tyctxt);
     }
 
-    template <typename Dst> TypeHandle(const TypeHandle<Dst>& dst) : ptr(dst.ptr) {}
+    template <typename Dst>
+    TypeHandle(const TypeHandle<Dst>& dst) : ptr(dst.ptr) {}
 
-    template <typename Other> bool operator==(const TypeHandle<Other>& other) {
+    template <typename Other>
+    bool operator==(const TypeHandle<Other>& other) {
         return ptr == other.ptr;
     }
 
@@ -146,7 +148,7 @@ public:
     virtual bool is_basetype() { return false; }
 
     virtual bool is_usertype() { return false; }
-    
+
     virtual bool is_recordtype() { return false; }
 
     virtual bool is_derivedtype() { return false; }
@@ -349,7 +351,6 @@ class UserType : public BaseType {
     bool complete = false;
 
 public:
-
     UserType *as_usertype() override { return this; }
 
     bool is_complete() const { return complete; }
@@ -384,8 +385,9 @@ protected:
     UserType(Location decl_loc, Kind kind, TypeContext& tyctxt, sema::sym::Scope *scope)
         : BaseType(kind, tyctxt), scope(scope), decl_loc(decl_loc) {}
 
-    UserType(Location decl_loc, Kind kind, std::string name, TypeContext& tyctxt,
-             sema::sym::Scope *scope)
+    UserType(
+        Location decl_loc, Kind kind, std::string name, TypeContext& tyctxt,
+        sema::sym::Scope *scope)
         : BaseType(kind, tyctxt), scope(scope), name(name), decl_loc(decl_loc) {}
 };
 
@@ -436,8 +438,9 @@ protected:
     RecordType(Location decl_loc, Kind kind, TypeContext& tyctxt, sema::sym::Scope *scope)
         : UserType(decl_loc, kind, tyctxt, scope) {}
 
-    RecordType(Location decl_loc, Kind kind, std::string name, TypeContext& tyctxt,
-             sema::sym::Scope *scope)
+    RecordType(
+        Location decl_loc, Kind kind, std::string name, TypeContext& tyctxt,
+        sema::sym::Scope *scope)
         : UserType(decl_loc, kind, std::move(name), tyctxt, scope) {}
 };
 
@@ -558,8 +561,8 @@ public:
 protected:
     friend class TypeContext;
 
-    friend constexpr Box<PrimitiveType> std::make_unique<PrimitiveType>(tokens::PrimType&&,
-                                                                        TypeContext&);
+    friend constexpr Box<PrimitiveType>
+    std::make_unique<PrimitiveType>(tokens::PrimType&&, TypeContext&);
 
     PrimitiveType(tokens::PrimType kind, TypeContext& tyctxt)
         : BaseType(Type::Kind::PRIMITIVE, tyctxt), primkind(kind) {}
@@ -570,7 +573,6 @@ The ClassType in EnlightenedC.
 */
 class ClassType : public RecordType {
 public:
-
     /**
     Whether the class is fully defined.
 
@@ -594,10 +596,10 @@ public:
 protected:
     friend class TypeContext;
 
-    friend constexpr Box<ClassType> std::make_unique<ClassType>(Location&, sema::sym::Scope *&,
-                                                                TypeContext&);
-    friend constexpr Box<ClassType> std::make_unique<ClassType>(Location&, std::string&,
-                                                                sema::sym::Scope *&, TypeContext&);
+    friend constexpr Box<ClassType>
+    std::make_unique<ClassType>(Location&, sema::sym::Scope *&, TypeContext&);
+    friend constexpr Box<ClassType>
+    std::make_unique<ClassType>(Location&, std::string&, sema::sym::Scope *&, TypeContext&);
 
     /** Construct an anonymous empty class. */
     ClassType(Location decl_loc, sema::sym::Scope *scope, TypeContext& tyctxt)
@@ -639,7 +641,6 @@ and can be accessed as if it were one.
 */
 class UnionType : public RecordType {
 public:
-
     Optional<PrimitiveType *> type_rep;
 
     bool is_fully_defined() override;
@@ -680,10 +681,10 @@ public:
 protected:
     friend class TypeContext;
 
-    friend constexpr Box<UnionType> std::make_unique<UnionType>(Location&, sema::sym::Scope *&,
-                                                                TypeContext&);
-    friend constexpr Box<UnionType> std::make_unique<UnionType>(Location&, std::string&,
-                                                                sema::sym::Scope *&, TypeContext&);
+    friend constexpr Box<UnionType>
+    std::make_unique<UnionType>(Location&, sema::sym::Scope *&, TypeContext&);
+    friend constexpr Box<UnionType>
+    std::make_unique<UnionType>(Location&, std::string&, sema::sym::Scope *&, TypeContext&);
 
     UnionType(Location decl_loc, sema::sym::Scope *scope, TypeContext& tyctxt)
         : RecordType(decl_loc, Kind::UNION, tyctxt, scope) {}
@@ -750,10 +751,10 @@ public:
 protected:
     friend class TypeContext;
 
-    friend constexpr Box<EnumType> std::make_unique<EnumType>(Location&, sema::sym::Scope *&,
-                                                              TypeContext&);
-    friend constexpr Box<EnumType> std::make_unique<EnumType>(Location&, std::string& name,
-                                                              sema::sym::Scope *&, TypeContext&);
+    friend constexpr Box<EnumType>
+    std::make_unique<EnumType>(Location&, sema::sym::Scope *&, TypeContext&);
+    friend constexpr Box<EnumType>
+    std::make_unique<EnumType>(Location&, std::string& name, sema::sym::Scope *&, TypeContext&);
 
     EnumType(Location decl_loc, sema::sym::Scope *scope, TypeContext& tyctxt);
 
@@ -860,7 +861,7 @@ public:
     Type *effective_type() override;
 
     std::string to_string() const override;
-    
+
     std::string formal() override;
 
 protected:
@@ -1191,7 +1192,8 @@ private:
     Box<PrimitiveType> f64;
     Box<PrimitiveType> boolt;
 
-    template <typename T> struct pair_hash {
+    template <typename T>
+    struct pair_hash {
         std::size_t operator()(const std::pair<Type *, T> pair) const {
             auto h1 = std::hash<Type *>{}(pair.first);
             auto h2 = std::hash<T>{}(pair.second);

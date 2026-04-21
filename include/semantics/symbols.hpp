@@ -176,8 +176,9 @@ A symbol representing a function declaration
 */
 class FuncSymbol : public PhysicalSymbol {
 public:
-    FuncSymbol(Location loc, std::string name, Scope *scope, types::FunctionType *signature,
-               Vec<VarSymbol *> parameters)
+    FuncSymbol(
+        Location loc, std::string name, Scope *scope, types::FunctionType *signature,
+        Vec<VarSymbol *> parameters)
         : PhysicalSymbol(Symbol::Kind::FUNC, loc, std::move(name), scope), signature(signature),
           parameters(std::move(parameters)) {}
 

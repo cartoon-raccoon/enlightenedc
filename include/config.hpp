@@ -71,7 +71,8 @@ public:
         VALIDATE = 3,
         /** Generate the LIR. */
         GEN_LIR = 4,
-        /** Compile the files, emitting assembly by default. Other output formats (e.g. LLVM IR) can be specified. */
+        /** Compile the files, emitting assembly by default. Other output formats (e.g. LLVM IR) can
+           be specified. */
         COMPILE = 5,
         /** Assemble each source file into an object file. */
         ASSEMBLE = 6,
@@ -126,11 +127,13 @@ private:
 
     std::map<std::string, ArgAction> long_args;
 
-    template <typename F> void add_short_arg(std::string arg, F&& f) { // NOLINT
+    template <typename F>
+    void add_short_arg(std::string arg, F&& f) { // NOLINT
         short_args[arg] = std::forward<F>(f);
     }
 
-    template <typename F> void add_long_arg(std::string arg, F&& f) { // NOLINT
+    template <typename F>
+    void add_long_arg(std::string arg, F&& f) { // NOLINT
         long_args[arg] = std::forward<F>(f);
     }
 

@@ -6,8 +6,8 @@
 #include <sstream>
 
 #include "error.hpp"
-#include "util.hpp"
 #include "semantics/types.hpp"
+#include "util.hpp"
 
 namespace ecc::sema {
 using namespace ecc;
@@ -29,7 +29,8 @@ public:
 
 class InvalidReturnError : public EccSemError {
 public:
-    InvalidReturnError(Location err_loc) : EccSemError("return statement not in function", err_loc) {}
+    InvalidReturnError(Location err_loc)
+        : EccSemError("return statement not in function", err_loc) {}
 };
 
 class InvalidCallExprError : public EccSemError {
@@ -65,8 +66,7 @@ public:
 class InvalidCoerceError : public EccSemError {
 public:
     InvalidCoerceError(types::Type *from, types::Type *to, Location err_loc)
-        : EccSemError("invalid implicit cast", err_loc), 
-        from(from->formal()), to(to->formal()) {}
+        : EccSemError("invalid implicit cast", err_loc), from(from->formal()), to(to->formal()) {}
 
     std::string from, to;
 
@@ -85,9 +85,7 @@ public:
 
     std::string err;
 
-    std::string elab() override {
-        return err;
-    }
+    std::string elab() override { return err; }
 };
 
 class InvalidTypeError : public EccSemError {
@@ -97,9 +95,7 @@ public:
 
     std::string err;
 
-    std::string elab() override {
-        return err;
-    }
+    std::string elab() override { return err; }
 };
 
 class TypeNotDefinedError : public EccSemError {
@@ -141,8 +137,7 @@ public:
 
     std::string elab() override {
         std::stringstream ss;
-        ss << "identifier \'" << name
-           << "\' must reference a function or variable";
+        ss << "identifier \'" << name << "\' must reference a function or variable";
 
         return ss.str();
     }
