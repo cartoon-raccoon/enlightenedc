@@ -7,12 +7,14 @@
 #include <variant>
 
 #include "codegen/llvm.hpp"
+#include "semantics/primitives.hpp"
 #include "semantics/symbols.hpp"
 #include "semantics/typeerr.hpp"
 #include "tokens.hpp"
 #include "util.hpp"
 
 using namespace ecc::sema::types;
+using namespace ecc::sema::prim;
 using namespace ecc::tokens;
 using namespace ecc::codegen;
 
@@ -75,37 +77,6 @@ LLVMType *Type::get_llvmtype() {
 
     assert(llvm_type);
     return llvm_type;
-}
-
-void UserType::validate_member_type(Type *type, Optional<std::string> name, Location loc) {
-    if (type == this) {
-        // check for recursion without indirection
-
-        // member is guaranteed to have name, as anonymous types cannot be re-referenced
-        throw RecursiveTypeError(*name, loc);
-    }
-
-    if (type->is_usertype()) {
-        // if member is usertype, check for completeness
-        UserType *uty = type->as_usertype();
-        if (!uty->is_complete()) {
-            throw IncompleteTypeUseError(*uty->name, uty->decl_loc);
-        }
-    } else if (type->is_void()) {
-        // check if type is void
-        throw InvalidVoidError(loc);
-    } else if (type->is_array()) {
-        // if type is array:
-        ArrayType *arrayty = type->as_array();
-        if (arrayty->base == this) {
-            // check for recursive errors with arrays as well
-            throw RecursiveTypeError(*name, loc);
-        }
-        if (!arrayty->arr_size) {
-            // check that array is sized
-            throw UnsizedArrInUserTypeError(loc);
-        }
-    }
 }
 
 /*
@@ -193,7 +164,14 @@ Optional<uint64_t> PrimitiveType::int_max() const {
 }
 
 Optional<double> PrimitiveType::flt_max() const {
-    return primkind == PrimType::F64 ? DBL_MAX : Optional<double>{};
+    switch (primkind) {
+    case PrimType::F32:
+        return FLT_MAX;
+    case PrimType::F64:
+        return DBL_MAX;
+    default:
+        return {};
+    }
 }
 
 void PrimitiveType::finalize() {
@@ -263,6 +241,91 @@ std::string PrimitiveType::formal() {
     case PrimType::F64:
         return "F64";
     }
+}
+
+/*
+* RECORD TYPE METHODS
+*/
+
+void RecordType::validate_member_type(Type *type, Optional<std::string> name, Location loc) {
+    if (type == this) {
+        // check for recursion without indirection
+
+        // member is guaranteed to have name, as anonymous types cannot be re-referenced
+        throw RecursiveTypeError(*name, loc);
+    }
+
+    if (type->is_usertype()) {
+        // if member is usertype, check for completeness
+        UserType *uty = type->as_usertype();
+        if (!uty->is_complete()) {
+            throw IncompleteTypeUseError(*uty->name, uty->decl_loc);
+        }
+    } else if (type->is_void()) {
+        // check if type is void
+        throw InvalidVoidError(loc);
+    } else if (type->is_array()) {
+        // if type is array:
+        ArrayType *arrayty = type->as_array();
+        if (arrayty->base == this) {
+            // check for recursive errors with arrays as well
+            throw RecursiveTypeError(*name, loc);
+        }
+        if (!arrayty->arr_size) {
+            // check that array is sized
+            throw UnsizedArrInUserTypeError(loc);
+        }
+    }
+}
+
+void RecordType::add_member(std::string name, Type *type, Location loc) {
+    dbprint("ClassType: adding member with name ", name, " type ", type);
+
+    validate_member_type(type, name, loc);
+
+    Box<TypeMember> member = std::make_unique<TypeMember>(name, type, loc);
+    members.push_back(std::move(member));
+}
+
+void RecordType::add_member(Type *type, Location loc) {
+    dbprint("ClassType: adding anonymous member with type ", type);
+
+    validate_member_type(type, {}, loc);
+
+    Box<TypeMember> member = std::make_unique<TypeMember>(type, loc);
+    members.push_back(std::move(member));
+}
+
+RecordType::TypeMember *RecordType::find(std::string& name) {
+    for (auto& mem : members) {
+        if (mem->name) {
+            // if the member has a name, check if match
+            // if match, return; else short circuit and continue
+            if (*mem->name == name) {
+                return mem.get();
+            } else {
+                continue;
+            }
+        } else if (mem->ty->is_recordtype()) {
+            // if anonymous member is a class, recursively search in it
+            // if we find something, return it
+            auto *clsty = mem->ty->as_recordtype();
+            assert(clsty);
+            auto *maybe_mem = clsty->find(name);
+            if (maybe_mem) {
+                return maybe_mem;
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+RecordType::TypeMember *RecordType::find(size_t idx) {
+    if (idx >= num_members()) {
+        return nullptr;
+    }
+    return members[idx].get();
 }
 
 /*
@@ -341,43 +404,6 @@ void ClassType::finalize() {
     finalized = true;
 }
 
-void ClassType::add_member(std::string name, Type *type, Location loc) {
-    dbprint("ClassType: adding member with name ", name, " type ", type);
-
-    validate_member_type(type, name, loc);
-
-    Box<ClassTypeMember> member = std::make_unique<ClassTypeMember>(name, type, loc);
-    members.push_back(std::move(member));
-}
-
-void ClassType::add_member(Type *type, Location loc) {
-    dbprint("ClassType: adding anonymous member with type ", type);
-
-    validate_member_type(type, {}, loc);
-
-    Box<ClassTypeMember> member = std::make_unique<ClassTypeMember>(type, loc);
-    members.push_back(std::move(member));
-}
-
-ClassType::ClassTypeMember *ClassType::find(std::string& name) {
-    for (auto& mem : members) {
-        if (mem->name) {
-            if (mem->name == name) {
-                return mem.get();
-            }
-        }
-    }
-
-    return nullptr;
-}
-
-ClassType::ClassTypeMember *ClassType::index(size_t idx) {
-    if (idx >= num_members()) {
-        return nullptr;
-    }
-    return members[idx].get();
-}
-
 std::string ClassType::formal() {
     return name ? base() +  " " + *name : to_string();
 }
@@ -429,40 +455,6 @@ bool UnionType::coercable_to(Type *dst) {
 
     // Otherwise, unions are incompatible with anything
     return false;
-}
-
-void UnionType::add_member(std::string name, Type *type, Location loc) {
-    dbprint("UnionType: adding member with name ", name, " type ", type);
-
-    validate_member_type(type, name, loc);
-
-    Box<UnionTypeMember> member = std::make_unique<UnionTypeMember>(name, type, loc);
-    members.push_back(std::move(member));
-}
-
-void UnionType::add_member(Type *type, Location loc) {
-    dbprint("UnionType: adding anonymous member with type ", type);
-
-    validate_member_type(type, {}, loc);
-
-    Box<UnionTypeMember> member = std::make_unique<UnionTypeMember>(type, loc);
-    members.push_back(std::move(member));
-}
-
-UnionType::UnionTypeMember *UnionType::find(std::string& name) {
-    for (auto& mem : members) {
-        if (mem->name) {
-            if (mem->name == name) {
-                return mem.get();
-            }
-        }
-    }
-
-    return nullptr;
-}
-
-UnionType::UnionTypeMember *UnionType::index(int idx) {
-    return members[idx].get();
 }
 
 void UnionType::finalize() {
@@ -600,7 +592,7 @@ void EnumType::finalize() {
 }
 
 std::string EnumType::formal() {
-    return name ? base() + *name : "enum_anon";
+    return name ? base() + " " + *name : to_string();
 }
 
 /*
@@ -662,6 +654,10 @@ void PointerType::finalize() {
     finalized = true;
 }
 
+Type *PointerType::decay() {
+    return ctxt().get_u64();
+}
+
 Type *PointerType::effective_type() {
     return ctxt().get_pointer(base->effective_type(), is_const);
 }
@@ -714,6 +710,10 @@ void ArrayType::finalize() {
     finalized = true;
 }
 
+Type *ArrayType::decay() {
+    return ctxt().get_pointer(base, false);
+}
+
 Type *ArrayType::effective_type() {
     return arr_size ? ctxt().get_array(base->effective_type(), *arr_size)
                     : ctxt().get_array(base->effective_type());
@@ -748,12 +748,8 @@ void FunctionType::finalize() {
     todo();
 }
 
-Type *FunctionType::effective_type() {
-    if (eff_ty) {
-        return eff_ty;
-    }
-
-    todo();
+Type *FunctionType::decay() {
+    return ctxt().get_pointer(this, true);
 }
 
 void TypeBuilder::add_array(uint64_t size) {
@@ -876,7 +872,7 @@ PrimitiveType *TypeContext::get_primitive(PrimType pkind) {
 }
 
 Pair<PrimitiveType *, PrimitiveType *> TypeContext::promote(PrimType p1, PrimType p2) {
-    PrimType promoted = tokens::pr_promote(p1, p2);
+    PrimType promoted = pr_promote(p1, p2);
 
     return {get_primitive(promoted), get_primitive(promoted)};
 }

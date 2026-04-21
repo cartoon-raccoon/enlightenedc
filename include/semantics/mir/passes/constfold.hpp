@@ -17,7 +17,7 @@ using namespace util;
 class ConstantFolder : public sema::BaseMIRSemaVisitor, public NoMove {
 public:
     ConstantFolder(sema::sym::SymbolTable& symt, sema::types::TypeContext& types)
-        : sema::BaseMIRSemaVisitor(State::WRITE), syms(symt), types(types), evalr(syms, types) {}
+        : sema::BaseMIRSemaVisitor(State::READ), syms(symt), types(types), evalr(syms, types) {}
 
 private:
     sema::sym::SymbolTableWalker syms;
@@ -27,7 +27,7 @@ private:
 protected:
     sema::ScopeGuard<sema::mir::MIRNode>
     enter_scope(sema::sym::FuncSymbol *assoc = nullptr) override {
-        return sema::ScopeGuard<sema::mir::MIRNode>(state, syms, assoc);
+        return sema::ScopeGuard<sema::mir::MIRNode>(State::READ, syms, assoc);
     }
 
     Box<sema::mir::LiteralExprMIR> eval_and_expr(Box<sema::mir::ExprMIR>&, Location);

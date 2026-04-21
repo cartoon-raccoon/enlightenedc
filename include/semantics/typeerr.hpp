@@ -1,5 +1,6 @@
 #pragma once
 
+#include "semantics/types.hpp"
 #ifndef ECC_TYPE_ERR_H
 #define ECC_TYPE_ERR_H
 
@@ -41,6 +42,23 @@ public:
 
     std::string elab() override {
         return "variables cannot be void";
+    }
+};
+
+class InvalidMemberError : public TypeSemError {
+public:
+    InvalidMemberError(types::ClassType *cls, std::string member, Location err_loc)
+        : TypeSemError("invalid class member", err_loc),
+        type(cls->formal()), member(std::move(member)) {}
+
+    std::string type;
+    std::string member;
+
+    std::string elab() override {
+        std::stringstream ss;
+        ss << "no member named \'" << member << "\' in class " << type;
+
+        return ss.str();
     }
 };
 

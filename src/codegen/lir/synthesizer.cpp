@@ -185,7 +185,7 @@ void LIRSynthesizer::do_visit(ExprStmtMIR& node) {
 void LIRSynthesizer::do_visit(SwitchStmtMIR& node) {
     push_queue();
 
-    node.condition->accept(*this);
+    node.control_val->accept(*this);
     Box<ExprLIR> condition = std::move(last_expr);
 
     Vec<Box<FunctionLIR>> functions;

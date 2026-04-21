@@ -7,6 +7,7 @@
 
 #include "eval/evaluator.hpp"
 #include "eval/value.hpp"
+#include "semantics/primitives.hpp"
 #include "semantics/symbols.hpp"
 #include "semantics/types.hpp"
 #include "tokens.hpp"
@@ -147,12 +148,33 @@ public:
 
 class InitializerMIR : public MIRNode {
 public:
+    struct Member {
+        std::string member;
+        Box<InitializerMIR> initializer;
+    };
+
+    struct Index {
+        eval::Value idx;
+        Box<InitializerMIR> initializer;
+    };
+
+    using InitMIRType = std::variant<Box<ExprMIR>, Box<Member>, Box<Index>, Vec<Box<InitializerMIR>>>;
+
     InitializerMIR(Location loc, Box<ExprMIR> expr)
         : MIRNode(loc, NodeKind::INIT_MIR), initializer(std::move(expr)) {}
+
+    InitializerMIR(Location loc, std::string mem, Box<InitializerMIR> init)
+        : MIRNode(loc, NodeKind::INIT_MIR), 
+        initializer(std::make_unique<Member>(std::move(mem), std::move(init))) {}
+
+    InitializerMIR(Location loc, eval::Value& idx, Box<InitializerMIR> init)
+        : MIRNode(loc, NodeKind::INIT_MIR), 
+        initializer(std::make_unique<Index>(idx, std::move(init))) {}
+
     InitializerMIR(Location loc, Vec<Box<InitializerMIR>> initializers)
         : MIRNode(loc, NodeKind::INIT_MIR), initializer(std::move(initializers)) {}
 
-    std::variant<Box<ExprMIR>, Vec<Box<InitializerMIR>>> initializer;
+    InitMIRType initializer;
 
     /**
     Check if an initializer is entirely literal expressions.
@@ -224,10 +246,10 @@ public:
 class SwitchStmtMIR : public StmtMIR {
 public:
     SwitchStmtMIR(Location loc, Box<ExprMIR> condition, Box<StmtMIR> body)
-        : StmtMIR(loc, NodeKind::SWITCHSTMT_MIR), condition(std::move(condition)),
+        : StmtMIR(loc, NodeKind::SWITCHSTMT_MIR), control_val(std::move(condition)),
           body(std::move(body)) {}
 
-    Box<ExprMIR> condition;
+    Box<ExprMIR> control_val;
     Box<StmtMIR> body;
 
     void accept(MIRVisitor& visitor) override;
@@ -442,7 +464,7 @@ public:
     bool is_lvalue() override { return op == tokens::UnaryOp::DEREF; };
 
     bool is_const_foldable() override {
-        return operand->is_const_foldable() && tokens::unaryop_is_const_foldable(op);
+        return operand->is_const_foldable() && sema::prim::unaryop_is_const_foldable(op);
     }
 
     void accept(MIRVisitor& visitor) override;

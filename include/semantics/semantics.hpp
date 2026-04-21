@@ -158,11 +158,11 @@ public:
         bsv.bsv_dbprint("Node {");
         bsv.inc_indent();
 #endif
-        context.push_back(node);
+        context.get().push_back(node);
     }
 
     ~NodeGuard() {
-        context.pop_back();
+        context.get().pop_back();
 #ifndef NDEBUG
         bsv.dec_indent();
         bsv.bsv_dbprint("}");
@@ -170,7 +170,7 @@ public:
     }
 
 private:
-    Vec<Node *>& context;
+    Ref<Vec<Node *>> context;
     Optional<ScopeGuard<Node>> scope_guard;
 }; // class NodeGuard
 

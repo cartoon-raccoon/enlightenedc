@@ -193,13 +193,38 @@ whereas primitive type variables use the Box<Expression> variant.
 */
 class Initializer : public ASTNode {
 public:
+    struct Member {
+        std::string member;
+        Box<Initializer> initializer;
+    };
+
+    struct Index {
+        Box<ConstExpression> idx;
+        Box<Initializer> initializer;
+    };
+
+    using InitVariant = std::variant<
+        Box<Expression>,
+        Box<Member>,
+        Box<Index>,
+        Vec<Box<Initializer>>
+    >;
+
     Initializer(Location loc, Box<Expression> expr)
         : ASTNode(INITIALIZER, loc), initializer(std::move(expr)) {}
+
+    Initializer(Location loc, std::string mem, Box<Initializer> init)
+        : ASTNode(INITIALIZER, loc), initializer(
+            std::make_unique<Member>(std::move(mem), std::move(init))) {}
+
+    Initializer(Location loc, Box<ConstExpression> idx, Box<Initializer> init)
+        : ASTNode(INITIALIZER, loc), initializer(
+            std::make_unique<Index>(std::move(idx), std::move(init))) {}
 
     Initializer(Location loc, Vec<Box<Initializer>> list)
         : ASTNode(INITIALIZER, loc), initializer(std::move(list)) {}
 
-    std::variant<Box<Expression>, Vec<Box<Initializer>>> initializer;
+    InitVariant initializer;
 
     void accept(ASTVisitor& visitor) override;
 };

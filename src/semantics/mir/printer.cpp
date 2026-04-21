@@ -51,12 +51,21 @@ void MIRPrinter::visit(VarDeclMIR& node) {
 
 void MIRPrinter::visit(InitializerMIR& node) {
     print_node("Initializer", node, [&] {
-        if (auto *e = std::get_if<Box<ExprMIR>>(&node.initializer)) {
-            (*e)->accept(*this);
-        } else {
-            for (auto& init : std::get<Vec<Box<InitializerMIR>>>(node.initializer))
-                init->accept(*this);
-        }
+        std::visit(match{[&](Box<ExprMIR>& expr) { expr->accept(*this); },
+                        [&](Box<InitializerMIR::Member>& mem) {
+                            std::cout << "." << mem->member << ": ";
+                            mem->initializer->accept(*this);
+                        },
+                        [&](Box<InitializerMIR::Index>& idx) {
+                            std::cout << "[" << idx->idx.to_string() << "]: ";
+                            idx->initializer->accept(*this);
+                        },
+                        [&](Vec<Box<InitializerMIR>>& inits) {
+                            for (auto& init : inits) {
+                                init->accept(*this);
+                            }
+                        }},
+                node.initializer);
     });
 }
 
@@ -77,7 +86,7 @@ void MIRPrinter::visit(ExprStmtMIR& node) {
 
 void MIRPrinter::visit(SwitchStmtMIR& node) {
     print_node(
-        "SwitchStmt", node, [&] { node.condition->accept(*this); },
+        "SwitchStmt", node, [&] { node.control_val->accept(*this); },
         [&] { node.body->accept(*this); });
 }
 

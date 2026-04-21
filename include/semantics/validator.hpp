@@ -39,7 +39,7 @@ public:
 
 protected:
     ScopeGuard<mir::MIRNode> enter_scope(sym::FuncSymbol *assoc = nullptr) override {
-        return ScopeGuard<mir::MIRNode>(state, syms, assoc);
+        return ScopeGuard<mir::MIRNode>(State::READ, syms, assoc);
     }
 
     void eval_initializer(types::Type *type, mir::InitializerMIR& init);
@@ -74,7 +74,7 @@ protected:
     void do_visit(mir::SizeofExprMIR& node) final;
 
 private:
-    using Accessor = std::variant<std::string, uint64_t>;
+    using Accessor = std::variant<std::string, size_t>;
 
     void visit_single_vardecl(sym::VarSymbol *varsym, mir::InitializerMIR& init);
 

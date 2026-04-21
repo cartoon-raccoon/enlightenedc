@@ -14,7 +14,7 @@ using namespace ecc;
 
 class InvalidCaseError : public EccSemError {
 public:
-    InvalidCaseError(Location err_loc) : EccSemError("case not in switch", err_loc) {}
+    InvalidCaseError(Location err_loc) : EccSemError("case label not in switch", err_loc) {}
 };
 
 class InvalidBreakError : public EccSemError {
@@ -84,6 +84,22 @@ public:
         : EccSemError("invalid initializer", err_loc), err(std::move(err)) {}
 
     std::string err;
+
+    std::string elab() override {
+        return err;
+    }
+};
+
+class InvalidTypeError : public EccSemError {
+public:
+    InvalidTypeError(std::string err, types::Type *type, Location err_loc)
+        : EccSemError("invalid type: " + type->formal(), err_loc), err(std::move(err)) {}
+
+    std::string err;
+
+    std::string elab() override {
+        return err;
+    }
 };
 
 class TypeNotDefinedError : public EccSemError {

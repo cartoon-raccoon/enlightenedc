@@ -208,14 +208,14 @@ static ecc::frontend::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 %type <Vec<Box<ClassDeclaration>>> member_declaration_list
 %type <Box<ClassDeclaration>> class_declaration
 %type <Vec<Box<ClassDeclarator>>> class_declarator_list
-%type <Box<ClassDeclarator>> class_declarator
+%type <Box<ClassDeclarator>> member_declarator
 %type <Vec<Box<Enumerator>>> enumerator_list
 %type <Box<Enumerator>> enumerator
 %type <Vec<std::string>> class_parent_list
 %type <std::string> class_parent
 
 %type <Box<TypeName>> type_name
-%type <Box<Initializer>> initializer
+%type <Box<Initializer>> initializer designated_initializer
 %type <Vec<Box<Initializer>>> initializer_list
 
 %type <Box<CompoundStatement>> compound_statement
@@ -230,6 +230,7 @@ static ecc::frontend::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 %type <Box<Expression>> relational_expression shift_expression additive_expression
 %type <Box<Expression>> multiplicative_expression
 %type <Box<LiteralExpression>> constant
+%type <std::string> string_literal
 %type <Box<ConstExpression>> constant_expression
 %type <Vec<Box<Expression>>> argument_expression_list
 %type <Optional<ForStatement::ForInit>> for_init_opt
@@ -457,12 +458,12 @@ specifier_qualifier_list:
 ;
 
 class_declarator_list:
-    class_declarator {
+    member_declarator {
         Vec<Box<ClassDeclarator>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
-    | class_declarator_list COMMA class_declarator {
+    | class_declarator_list COMMA member_declarator {
         $1.push_back(std::move($3));
         $$ = std::move($1);
     }
@@ -471,7 +472,7 @@ class_declarator_list:
     }
 ;
 
-class_declarator:
+member_declarator:
     declarator {
         $$ = std::make_unique<ClassDeclarator>(@1, std::move($1), std::nullopt);
     }
@@ -565,7 +566,7 @@ logical_or_expression:
     | logical_or_expression OROR logical_and_expression {
         $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::OROR);
     }
-    ;
+;
 
 logical_and_expression:
     inclusive_or_expression {
@@ -574,7 +575,7 @@ logical_and_expression:
     | logical_and_expression ANDAND inclusive_or_expression {
         $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::ANDAND);
     }
-    ;
+;
 
 inclusive_or_expression:
     exclusive_or_expression {
@@ -583,7 +584,7 @@ inclusive_or_expression:
     | inclusive_or_expression OR exclusive_or_expression {
         $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::OR);
     }
-    ;
+;
 
 exclusive_or_expression:
     and_expression {
@@ -592,7 +593,7 @@ exclusive_or_expression:
     | exclusive_or_expression XOR and_expression {
         $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::XOR);
     }
-    ;
+;
 
 and_expression:
     equality_expression {
@@ -601,7 +602,7 @@ and_expression:
     | and_expression AND equality_expression {
         $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::AND);
     }
-    ;
+;
 
 equality_expression:
     relational_expression {
@@ -613,7 +614,7 @@ equality_expression:
     | equality_expression NE relational_expression {
         $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::NE);
     }
-    ;
+;
 
 relational_expression:
     shift_expression {
@@ -631,7 +632,7 @@ relational_expression:
     | relational_expression GE shift_expression {
         $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::GE);
     }
-    ;
+;
 
 shift_expression:
     additive_expression {
@@ -643,7 +644,7 @@ shift_expression:
     | shift_expression RSHIFT additive_expression {
         $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::RSHIFT);
     }
-    ;
+;
 
 additive_expression:
     multiplicative_expression {
@@ -655,7 +656,7 @@ additive_expression:
     | additive_expression MINUS multiplicative_expression {
         $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::MINUS);
     }
-    ;
+;
 
 multiplicative_expression:
     cast_expression {
@@ -676,7 +677,7 @@ cast_expression:
     unary_expression {
         $$ = std::move($1);
     }
-    | LPAREN type_name RPAREN unary_expression { // casting in enlightenedc is prefix because postfix is too hard.
+    | LPAREN type_name RPAREN cast_expression { // casting in enlightenedc is prefix because postfix is too hard.
         $$ = std::make_unique<CastExpression>(@$, std::move($4), std::move($2));
     }
 ;
@@ -736,8 +737,8 @@ primary_expression:
     | constant {
         $$ = std::move($1);
     }
-    | STRING_LITERAL {
-        $$ = std::make_unique<StringExpression>(@1, $1);
+    | string_literal {
+        $$ = std::make_unique<StringExpression>(@$, $1);
     }
     | LPAREN expression RPAREN {
         $2->loc = @$;
@@ -760,6 +761,15 @@ constant:
     }
     | FALSE {
         $$ = std::make_unique<LiteralExpression>(@1, LiteralExpression::BOOL, LiteralExpression::Value(false));
+    }
+;
+
+string_literal:
+    STRING_LITERAL {
+        $$ = std::move($1);
+    }
+    | string_literal STRING_LITERAL {
+        $$ = std::move($1) + std::move($2);
     }
 ;
 
@@ -1012,13 +1022,31 @@ initializer:
     | LBRACE initializer_list COMMA RBRACE { $$ = std::make_unique<Initializer>(@$, std::move($2)); }
 ;
 
+designated_initializer:
+    DOT IDENTIFIER ASSIGN initializer {
+        $$ = std::make_unique<Initializer>(@$, $2, std::move($4));
+    }
+    | LBRACKET constant_expression RBRACKET ASSIGN initializer {
+        $$ = std::make_unique<Initializer>(@$, std::move($2), std::move($5));
+    }
+;
+
 initializer_list:
     initializer {
         Vec<Box<Initializer>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
+    | designated_initializer {
+        Vec<Box<Initializer>> list;
+        list.push_back(std::move($1));
+        $$ = std::move(list);
+    }
     | initializer_list COMMA initializer {
+        $1.push_back(std::move($3));
+        $$ = std::move($1);
+    }
+    | initializer_list COMMA designated_initializer {
         $1.push_back(std::move($3));
         $$ = std::move($1);
     }
@@ -1048,10 +1076,10 @@ statement:
 ;
 
 print_statement:
-    STRING_LITERAL SEMI {
+    string_literal SEMI {
         $$ = std::make_unique<PrintStatement>(@$, std::move($1), Vec<Box<Expression>>{});
     }
-    | STRING_LITERAL COMMA argument_expression_list SEMI {
+    | string_literal COMMA argument_expression_list SEMI {
         $$ = std::make_unique<PrintStatement>(@$, std::move($1), std::move($3));
     }
 ;

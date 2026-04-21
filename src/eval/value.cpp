@@ -48,7 +48,7 @@ Value Value::pr_cast(PrimType pr) const {
 }
 
 Pair<Value, Value> Value::promote(const Value& lhs, const Value& rhs) {
-    PrimType promoted = pr_promote(lhs.primtype, rhs.primtype);
+    PrimType promoted = sema::prim::pr_promote(lhs.primtype, rhs.primtype);
 
     Value ret_lhs = lhs.primtype == promoted ? lhs : lhs.pr_cast(promoted);
     Value ret_rhs = rhs.primtype == promoted ? rhs : rhs.pr_cast(promoted);

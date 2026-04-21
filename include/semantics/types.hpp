@@ -44,6 +44,7 @@ class Type;
 class BaseType;
 class VoidType;
 class UserType;
+class RecordType;
 class DerivedType;
 class PrimitiveType;
 class ClassType;
@@ -145,6 +146,8 @@ public:
     virtual bool is_basetype() { return false; }
 
     virtual bool is_usertype() { return false; }
+    
+    virtual bool is_recordtype() { return false; }
 
     virtual bool is_derivedtype() { return false; }
 
@@ -198,6 +201,12 @@ public:
     Returns null if the underlying type is not a UserType.
     */
     virtual UserType *as_usertype() { return nullptr; }
+
+    /**
+    Cast this type to a RecordType *.
+    Returns null if the underlying type is not a RecordType.
+    */
+    virtual RecordType *as_recordtype() { return nullptr; }
 
     /**
     Cast this type to a ClassType *.
@@ -340,10 +349,6 @@ class UserType : public BaseType {
     bool complete = false;
 
 public:
-    /**
-    Validate that the type of a prospective member is valid to be added,
-    */
-    virtual void validate_member_type(Type *type, Optional<std::string> name, Location loc);
 
     UserType *as_usertype() override { return this; }
 
@@ -385,6 +390,58 @@ protected:
 };
 
 /**
+An abstract UserType with members that can be accessed using the dot (`.`)
+or arrow (`->`) operators.
+*/
+class RecordType : public UserType {
+public:
+    struct TypeMember {
+        Optional<std::string> name;
+        Type *ty;
+        Location loc;
+
+        TypeMember(Type *ty, Location loc) : ty(ty), loc(loc) {}
+        TypeMember(std::string name, Type *ty, Location loc) : name(name), ty(ty), loc(loc) {}
+        TypeMember(Optional<std::string> name, Type *ty, Location loc)
+            : name(std::move(name)), ty(ty), loc(loc) {}
+    };
+
+    Vec<Box<TypeMember>> members;
+
+    /**
+    Validate that the type of a prospective member is valid to be added,
+    */
+    virtual void validate_member_type(Type *type, Optional<std::string> name, Location loc);
+
+    void add_member(std::string name, Type *type, Location loc);
+
+    void add_member(Type *type, Location loc);
+
+    /**
+    Get the index path to a member.
+    */
+    Vec<size_t> index(std::string& name);
+
+    TypeMember *find(std::string& name);
+
+    TypeMember *find(size_t idx);
+
+    size_t num_members() const { return members.size(); }
+
+    RecordType *as_recordtype() override { return this; }
+
+    bool is_recordtype() override { return true; }
+
+protected:
+    RecordType(Location decl_loc, Kind kind, TypeContext& tyctxt, sema::sym::Scope *scope)
+        : UserType(decl_loc, kind, tyctxt, scope) {}
+
+    RecordType(Location decl_loc, Kind kind, std::string name, TypeContext& tyctxt,
+             sema::sym::Scope *scope)
+        : UserType(decl_loc, kind, std::move(name), tyctxt, scope) {}
+};
+
+/**
 An abstract class representing a type constructor whose final type
 relies on a base type.
 
@@ -403,6 +460,13 @@ public:
     // virtual std::string construct_str(std::string& base);
 
     Type *base;
+
+    /**
+    Decay the derived type an underlying type corresponding to how it is handled in memory.
+
+    For example, pointers should decay to U64, arrays should decay to a pointer to the base.
+    */
+    virtual Type *decay() = 0;
 
 protected:
     DerivedType(Kind kind, TypeContext& tyctxt, Type *base) : Type(kind, tyctxt), base(base) {}
@@ -504,41 +568,16 @@ protected:
 /**
 The ClassType in EnlightenedC.
 */
-class ClassType : public UserType {
+class ClassType : public RecordType {
 public:
-    struct ClassTypeMember {
-        Optional<std::string> name;
-        Type *ty;
-        Location loc;
-
-        ClassTypeMember(Type *ty, Location loc) : ty(ty), loc(loc) {}
-        ClassTypeMember(std::string name, Type *ty, Location loc) : name(name), ty(ty), loc(loc) {}
-        ClassTypeMember(Optional<std::string> name, Type *ty, Location loc)
-            : name(std::move(name)), ty(ty), loc(loc) {}
-    };
 
     /**
-    The members of the class.
-    */
-    Vec<Box<ClassTypeMember>> members;
-
-    /**
-    Whether the class is fully defined,
+    Whether the class is fully defined.
 
     Unlike `complete`, which only marks whether this class has had all its members added,
     this recursively checks whether any of the class members, if a UserType, is fully defined.
     */
     bool is_fully_defined() override;
-
-    void add_member(std::string name, Type *type, Location loc);
-
-    void add_member(Type *type, Location loc);
-
-    ClassTypeMember *find(std::string& name);
-
-    ClassTypeMember *index(size_t idx);
-
-    size_t num_members() const { return members.size(); }
 
     ClassType *as_class() override { return this; }
 
@@ -562,10 +601,10 @@ protected:
 
     /** Construct an anonymous empty class. */
     ClassType(Location decl_loc, sema::sym::Scope *scope, TypeContext& tyctxt)
-        : UserType(decl_loc, Kind::CLASS, tyctxt, scope) {}
+        : RecordType(decl_loc, Kind::CLASS, tyctxt, scope) {}
     /** Construct an empty class with a given name. */
     ClassType(Location decl_loc, std::string name, sema::sym::Scope *scope, TypeContext& tyctxt)
-        : UserType(decl_loc, Kind::CLASS, std::move(name), tyctxt, scope) {}
+        : RecordType(decl_loc, Kind::CLASS, std::move(name), tyctxt, scope) {}
 
 private:
 };
@@ -598,36 +637,14 @@ U64i union U64 {
 Then some member expression like `unn->u8` treats the U64i as an array of 8 bytes,
 and can be accessed as if it were one.
 */
-class UnionType : public UserType {
+class UnionType : public RecordType {
 public:
-    struct UnionTypeMember {
-        Optional<std::string> name;
-        Type *ty;
-        Location loc;
-
-        UnionTypeMember(Type *ty, Location loc) : ty(ty), loc(loc) {}
-        UnionTypeMember(std::string name, Type *ty, Location loc) : name(name), ty(ty), loc(loc) {}
-        UnionTypeMember(Optional<std::string> name, Type *ty, Location loc)
-            : name(std::move(name)), ty(ty), loc(loc) {}
-    };
-
-    Vec<Box<UnionTypeMember>> members;
 
     Optional<PrimitiveType *> type_rep;
 
     bool is_fully_defined() override;
 
     bool coercable_to(Type *dst) override;
-
-    void add_member(std::string name, Type *type, Location loc);
-
-    void add_member(Type *type, Location loc);
-
-    UnionTypeMember *find(std::string& name);
-
-    UnionTypeMember *index(int idx);
-
-    size_t num_members() const { return members.size(); }
 
     UnionType *as_union() override { return this; }
 
@@ -669,9 +686,9 @@ protected:
                                                                 sema::sym::Scope *&, TypeContext&);
 
     UnionType(Location decl_loc, sema::sym::Scope *scope, TypeContext& tyctxt)
-        : UserType(decl_loc, Kind::UNION, tyctxt, scope) {}
+        : RecordType(decl_loc, Kind::UNION, tyctxt, scope) {}
     UnionType(Location decl_loc, std::string name, sema::sym::Scope *scope, TypeContext& tyctxt)
-        : UserType(decl_loc, Kind::UNION, std::move(name), tyctxt, scope) {}
+        : RecordType(decl_loc, Kind::UNION, std::move(name), tyctxt, scope) {}
 };
 
 /**
@@ -728,7 +745,7 @@ public:
 
     std::string formal() override;
 
-    static std::string base() { return "enum_"; }
+    static std::string base() { return "enum"; }
 
 protected:
     friend class TypeContext;
@@ -783,9 +800,13 @@ public:
 
     void finalize() override;
 
+    Type *decay() override;
+
     Type *effective_type() override;
 
     std::string to_string() const override;
+
+    std::string formal() override;
 
 protected:
     friend class TypeContext;
@@ -798,7 +819,7 @@ protected:
 };
 
 /**
-A sized array type (U8 [4], U32 [6], etc.).
+A sized array type (`U8 [4]`, `U32 [6]`, etc.).
 
 ## Compatibility
 
@@ -834,9 +855,13 @@ public:
 
     void finalize() override;
 
+    Type *decay() override;
+
     Type *effective_type() override;
 
     std::string to_string() const override;
+    
+    std::string formal() override;
 
 protected:
     friend class TypeContext;
@@ -920,7 +945,7 @@ public:
 
     Type *returntype() const { return signature.returntype; }
 
-    Vec<Type *>& params() { return signature.params; }
+    Span<Type *> params() { return signature.params; }
 
     size_t num_params() const { return signature.params.size(); }
 
@@ -934,9 +959,11 @@ public:
 
     void finalize() override;
 
-    Type *effective_type() override;
+    Type *decay() override;
 
     std::string to_string() const override;
+
+    std::string formal() override;
 
     static std::string base() { return "function_"; }
 
@@ -948,8 +975,6 @@ protected:
 
     FunctionType(Type *base, TypeContext& tyctxt)
         : DerivedType(Type::Kind::FUNCTION, tyctxt, base) {}
-
-    FunctionType *eff_ty = nullptr;
 };
 
 /**

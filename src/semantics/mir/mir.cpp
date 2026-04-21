@@ -72,6 +72,8 @@ void ProgramMIR::add_item(Box<ProgItemMIR> item) {
 bool InitializerMIR::is_all_literals() {
     return std::visit(
         match{[](Box<ExprMIR>& expr) { return expr->kind == MIRNode::NodeKind::LITEXPR_MIR; },
+              [](Box<InitializerMIR::Member>& mem) { return mem->initializer->is_all_literals(); },
+              [](Box<InitializerMIR::Index>& idx) { return idx->initializer->is_all_literals(); },
               [](Vec<Box<InitializerMIR>>& init) {
                   return std::all_of(
                       init.cbegin(), init.cend(),

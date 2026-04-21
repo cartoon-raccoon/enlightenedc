@@ -68,12 +68,29 @@ auto make_box(Args&&...args) -> decltype(std::make_unique<T>(std::forward<Args>(
     return std::make_unique<T>(std::forward<Args>(args)...);
 }
 
+/**
+A convenient type alias for `std::vector`.
+*/
 template <typename T> using Vec = std::vector<T>;
 
+/**
+A convenient type alias for `std::span`.
+*/
+template <typename T> using Span = std::span<T>;
+
+/**
+A convenient type alias for `std::optional`.
+*/
 template <typename T> using Optional = std::optional<T>;
 
+/**
+A convenient type alias for `std::reference_wrapper`.
+*/
 template <typename T> using Ref = std::reference_wrapper<T>;
 
+/**
+A convenient type alias for `std::pair`.
+*/
 template <typename T1, typename T2> using Pair = std::pair<T1, T2>;
 
 // Overloaded template class for Rust-style pattern matching on variants.
@@ -210,9 +227,9 @@ public:
         return false; // todo
     }
 
-    Location operator&(Location& rhs) const {
-        return Location{}; // todo
-    }
+    // Location operator&(Location& rhs) const {
+    //     return Location{}; // todo
+    // }
 };
 
 /** \brief Intercept output stream redirection.

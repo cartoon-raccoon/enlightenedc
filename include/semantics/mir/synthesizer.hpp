@@ -108,7 +108,7 @@ using ElabVisitParam = std::variant<
     // For passing a function's information into the compound statement.
     CmpdStmtDoVisitParam,
     // For passing types for population.
-    types::ClassType *, types::UnionType *, types::EnumType *, types::PrimitiveType *,
+    types::RecordType *, types::EnumType *, types::PrimitiveType *,
     types::BaseType *, types::Type *>;
 
 /**
@@ -143,7 +143,7 @@ protected:
     ElabVisitParam dovisit_param = std::monostate{};
 
     ScopeGuard<ast::ASTNode> enter_scope(sym::FuncSymbol *assoc = nullptr) override {
-        return ScopeGuard<ast::ASTNode>(state, syms, assoc);
+        return ScopeGuard<ast::ASTNode>(BaseSemanticVisitor::State::WRITE, syms, assoc);
     }
     /*
     Takes the result of the last visit call, replacing it with `std::monostate`.

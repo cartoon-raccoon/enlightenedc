@@ -728,7 +728,7 @@ void MIRSynthesizer::do_visit(ClassSpecifier& node) {
 
         // class is defined here, populate its members and mark it complete
         for (auto& decl : *node.declarations) {
-            dv_call(cls, decl);
+            dv_call((RecordType *) cls, decl);
         }
 
         cls->finish(node.loc);
@@ -785,7 +785,7 @@ void MIRSynthesizer::do_visit(UnionSpecifier& node) {
         }
         // union is defined here, populate its members and mark it complete
         for (auto& decl : *node.declarations) {
-            dv_call(unn, decl);
+            dv_call((RecordType *) unn, decl);
         }
 
         unn->finish(node.loc);
@@ -798,89 +798,45 @@ void MIRSynthesizer::do_visit(ClassDeclaration& node) {
     bsv_dbprint("visiting ClassDeclaration node: ", node.loc);
 
     // save our current param, as it may get clobbered while parsing specifiers
-    ElabVisitParam param        = std::move(dovisit_param);
+    RecordType *recordty        = take_dovisit_param<RecordType *>();
     Box<SpecifierInfo> specinfo = parse_speclist(node.specifiers, node.loc);
 
-    // restore our current param
-    dovisit_param = std::move(param);
+    if (recordty->is_class()) {
+        bsv_dbprint("parsing ClassDeclaration for ClassType ", recordty);
+    } else if (recordty->is_union()) {
+        bsv_dbprint("parsing ClassDeclaration for UnionType ", recordty);
+    }
 
-    std::visit(
-        match{// ClassType case
-              [&](ClassType *cls) {
-                  bsv_dbprint("parsing ClassDeclaration for ClassType ", cls);
-                  for (auto& decltr : node.declarators) {
-                      dv_call_noparam(decltr);
-                      try {
-                          std::visit(
-                              match{[&](Box<DeclaratorBuilder>& builder) {
-                                        builder->ty_bldr.set_base(specinfo->type);
-                                        Type *finaltype = builder->ty_bldr.finalize();
+    for (auto& decltr : node.declarators) {
+        dv_call_noparam(decltr);
+        try {
+            std::visit(
+                match{[&](Box<DeclaratorBuilder>& builder) {
+                        builder->ty_bldr.set_base(specinfo->type);
+                        Type *finaltype = builder->ty_bldr.finalize();
 
-                                        if (builder->name) {
-                                            cls->add_member(*builder->name, finaltype, decltr->loc);
-                                        } else {
-                                            cls->add_member(finaltype, decltr->loc);
-                                        }
-                                    },
-                                    [&](std::monostate&) {
-                                        // no declarator, use the base type
-                                        cls->add_member(specinfo->type, decltr->loc);
-                                    },
-                                    [&](auto&) {
-                                        throw std::runtime_error(
-                                            "unexpected last_result when parsing ClassDeclaration");
-                                    }},
-                              last_result);
+                        if (builder->name) {
+                            recordty->add_member(*builder->name, finaltype, decltr->loc);
+                        } else {
+                            recordty->add_member(finaltype, decltr->loc);
+                        }
+                    },
+                    [&](std::monostate&) {
+                        // no declarator, use the base type
+                        recordty->add_member(specinfo->type, decltr->loc);
+                    },
+                    [&](auto&) {
+                        throw std::runtime_error(
+                            "unexpected last_result when parsing ClassDeclaration");
+                    }},
+                last_result);
 
-                          last_result = std::monostate{};
-                      } catch (TypeSemError& e) {
-                          add_error<TypeSemError>(e);
-                          throw UnableToContinue();
-                      }
-                  }
-              },
-
-              // UnionType case
-              [&specinfo, &node, this](UnionType *unn) {
-                  bsv_dbprint("parsing ClassDeclaration for UnionType ", unn);
-                  for (auto& decltr : node.declarators) {
-                      dv_call_noparam(decltr);
-                      try {
-                          std::visit(
-                              match{[&](Box<DeclaratorBuilder>& builder) {
-                                        builder->ty_bldr.set_base(specinfo->type);
-                                        Type *finaltype = builder->ty_bldr.finalize();
-
-                                        if (builder->name) {
-                                            unn->add_member(*builder->name, finaltype, decltr->loc);
-                                        } else {
-                                            unn->add_member(finaltype, decltr->loc);
-                                        }
-                                    },
-                                    [&](std::monostate&) {
-                                        // no declarator, use the base type
-                                        unn->add_member(specinfo->type, decltr->loc);
-                                    },
-                                    [&](auto&) {
-                                        throw std::runtime_error(
-                                            "unexpected last_result when parsing UnionDeclaration");
-                                    }},
-                              last_result);
-
-                          last_result = std::monostate{};
-                      } catch (TypeSemError& e) {
-                          add_error<TypeSemError>(e);
-                          throw UnableToContinue();
-                      }
-                  }
-              },
-
-              [&node, this](auto& err) {
-                  bsv_dbprint(typeid(err).name(), " ", node.loc);
-                  throw std::runtime_error(
-                      "unexpected dovisit param when parsing ClassDeclaration");
-              }},
-        param);
+            last_result = std::monostate{};
+        } catch (TypeSemError& e) {
+            add_error<TypeSemError>(e);
+            throw UnableToContinue();
+        }
+    }
 
     dv_return_void();
 }
@@ -913,6 +869,35 @@ void MIRSynthesizer::do_visit(Initializer& node) { // NOLINT
                   Box<InitializerMIR> init =
                       std::make_unique<InitializerMIR>(loc, std::move(exprmir));
                   InitializerRet ret = {{}, std::move(init)};
+                  dv_return(ret);
+              },
+              [&](Box<Initializer::Member>& mem) {
+                  bsv_dbprint("visiting member designated initializer");
+                  dv_call(type, mem->initializer);
+
+                  auto initmir = take_last_result<InitializerRet>();
+
+                  Box<InitializerMIR> init =
+                      std::make_unique<InitializerMIR>(loc, mem->member, std::move(initmir.init_mir));
+
+                  InitializerRet ret = {initmir.new_type, std::move(init)};
+                  dv_return(ret);
+              },
+              [&](Box<Initializer::Index>& idx) {
+                  bsv_dbprint("visiting index designated initializer");
+
+                  dv_call_noparam(idx->idx);
+
+                  Value new_idx = take_last_result<Value>();
+
+                  dv_call(type, idx->initializer);
+
+                  auto initmir = take_last_result<InitializerRet>();
+
+                  Box<InitializerMIR> init =
+                      std::make_unique<InitializerMIR>(loc, new_idx, std::move(initmir.init_mir));
+
+                  InitializerRet ret = {initmir.new_type, std::move(init)};
                   dv_return(ret);
               },
               // Recursive case: sub-initializer
@@ -974,9 +959,8 @@ void MIRSynthesizer::do_visit(Initializer& node) { // NOLINT
                       bsv_dbprint("visiting classtype compound initializer");
                       ClassType *clstype = type->as_class();
 
-                      for (size_t i = 0; i < inits.size(); i++) {
-                          auto& init                      = inits[i];
-                          ClassType::ClassTypeMember *mem = clstype->index(i);
+                      for (auto&& [idx, init] : std::views::enumerate(inits)) {
+                          auto *mem  = clstype->find(idx);
                           if (!mem)
                               continue;
 
@@ -1483,18 +1467,22 @@ void MIRSynthesizer::do_visit(LiteralExpression& node) {
     Value val;
     switch (node.kind) {
     case LiteralExpression::INT:
+        bsv_dbprint("found integer");
         val = Value::from_literal(node.value.i_val);
         break;
 
     case LiteralExpression::FLOAT:
+        bsv_dbprint("found float");
         val = Value::from_literal(node.value.f_val);
         break;
 
     case LiteralExpression::CHAR:
+        bsv_dbprint("found char");
         val = Value::from_literal(node.value.c_val);
         break;
 
     case LiteralExpression::BOOL:
+        bsv_dbprint("found bool");
         val = Value::from_literal(node.value.b_val);
         break;
     }

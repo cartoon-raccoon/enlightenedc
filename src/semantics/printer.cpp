@@ -20,7 +20,7 @@ std::string VarSymbol::to_string() const {
         ss << "const ";
 
     if (type) {
-        ss << " :: " << type->to_string();
+        ss << " :: " << type->formal();
     } else {
         ss << " :: <nulltype>";
     }
@@ -93,7 +93,9 @@ std::string ClassType::to_string() const {
 
     if (name) {
         ss << " " << *name;
-    } else if (is_complete()) {
+    }
+
+    if (is_complete()) {
         ss << " { ";
 
         bool first = true;
@@ -109,6 +111,8 @@ std::string ClassType::to_string() const {
             ss << "; ";
 
         ss << "}";
+    } else {
+        ss << "[INCOMPLETE]";
     }
 
     return ss.str();
@@ -127,7 +131,7 @@ std::string UnionType::to_string() const {
         ss << ": " << (*type_rep)->to_string() << " ";
     }
 
-    if (is_complete() && !name) {
+    if (is_complete()) {
         ss << " { ";
 
         bool first = true;
@@ -143,6 +147,8 @@ std::string UnionType::to_string() const {
             ss << "; ";
 
         ss << "}";
+    } else {
+        ss << "[INCOMPLETE]";
     }
 
     return ss.str();
@@ -161,7 +167,7 @@ std::string EnumType::to_string() const {
         ss << ": " << (*underlying).to_string() << " ";
     }
 
-    if (is_complete() && !name) {
+    if (is_complete()) {
         ss << " { ";
 
         bool first = true;
@@ -174,6 +180,8 @@ std::string EnumType::to_string() const {
         }
 
         ss << " }";
+    } else {
+        ss << "[INCOMPLETE]";
     }
 
     return ss.str();
@@ -188,6 +196,23 @@ std::string PointerType::to_string() const {
         } else {
             ss << base->to_string();
         }
+    } else {
+        ss << "<null>";
+    }
+
+    ss << " *";
+
+    if (is_const)
+        ss << " const";
+
+    return ss.str();
+}
+
+std::string PointerType::formal() {
+    std::stringstream ss;
+
+    if (base) {
+        ss << base->formal();
     } else {
         ss << "<null>";
     }
@@ -223,14 +248,30 @@ std::string ArrayType::to_string() const {
     return ss.str();
 }
 
+std::string ArrayType::formal() {
+    std::stringstream ss;
+
+    if (base) {
+        ss << base->formal();
+    } else {
+        ss << "<null>";
+    }
+
+    ss << "[";
+
+    if (arr_size)
+        ss << *arr_size;
+
+    ss << "]";
+
+    return ss.str();
+}
+
 std::string FunctionType::to_string() const {
     std::stringstream ss;
 
-    if (signature.returntype) {
-        ss << signature.returntype->to_string();
-    } else {
-        ss << "<nullret>";
-    }
+    assert(signature.returntype);
+    ss << signature.returntype->to_string();
 
     ss << " (";
 
@@ -241,11 +282,38 @@ std::string FunctionType::to_string() const {
             ss << ", ";
         first = false;
 
-        if (p) {
-            ss << p->to_string();
-        } else {
-            ss << "<null>";
-        }
+        assert(p);
+        ss << p->to_string();
+    }
+
+    if (signature.variadic) {
+        if (!first)
+            ss << ", ";
+        ss << "...";
+    }
+
+    ss << ")";
+
+    return ss.str();
+}
+
+std::string FunctionType::formal() {
+    std::stringstream ss;
+
+    assert(signature.returntype);
+    ss << signature.returntype->formal();
+
+    ss << " (";
+
+    bool first = true;
+
+    for (auto *p : signature.params) {
+        if (!first)
+            ss << ", ";
+        first = false;
+
+        assert(p);
+        ss << p->formal();
     }
 
     if (signature.variadic) {
@@ -307,7 +375,7 @@ static void print_scope(std::stringstream& ss, Scope *scope, int depth) {
     if (!scope->phys_symbols.empty()) {
         ss << indent << "Physical Symbols:\n";
         for (auto const& [name, sym] : scope->phys_symbols) {
-            ss << indent << "  " << name << " -> " << sym.get() << " : " << sym->to_string()
+            ss << indent << "  " << name << " <" << sym.get() << "> : " << sym->to_string()
                << "\n";
         }
     }
@@ -315,7 +383,7 @@ static void print_scope(std::stringstream& ss, Scope *scope, int depth) {
     if (!scope->type_symbols.empty()) {
         ss << "\n" << indent << "Type Symbols:\n";
         for (auto const& [name, sym] : scope->type_symbols) {
-            ss << indent << "  " << name << " -> " << sym.get() << " : " << sym->to_string()
+            ss << indent << "  " << name << " <" << sym.get() << "> : " << sym->to_string()
                << "\n";
         }
     }
@@ -323,7 +391,7 @@ static void print_scope(std::stringstream& ss, Scope *scope, int depth) {
     if (!scope->label_symbols.empty()) {
         ss << "\n" << indent << "Label Symbols:\n";
         for (auto const& [name, sym] : scope->label_symbols) {
-            ss << indent << "  " << name << " -> " << sym.get() << " : " << sym->to_string()
+            ss << indent << "  " << name << " <" << sym.get() << "> : " << sym->to_string()
                << "\n";
         }
     }

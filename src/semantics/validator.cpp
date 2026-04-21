@@ -45,6 +45,14 @@ void Validator::eval_initializer_rec(Vec<Accessor>& path, types::Type *type, Ini
                       }
                   }
               },
+              [&](Box<InitializerMIR::Member>& mem) {
+                  // member validation was done in the previous call
+                  eval_initializer_rec(path, type, *mem->initializer);
+              },
+              [&](Box<InitializerMIR::Index>& idx) {
+                  // index validation was done in the previous call
+                  eval_initializer_rec(path, type, *idx->initializer);
+              },
               /*
               Recursive case. If there is a list of initializers, this has to be a class or array.
               */
@@ -66,15 +74,23 @@ void Validator::eval_initializer_rec(Vec<Accessor>& path, types::Type *type, Ini
 }
 
 void Validator::eval_initializer_rec_cls(Vec<Accessor>& path, ClassType *cls,
-                                         Vec<Box<InitializerMIR>>& init) {
+                                         Vec<Box<InitializerMIR>>& inits) {
     assert(cls && "cls was null while evaluating initializer");
+
+    for (auto&& [idx, init] : std::views::enumerate(inits)) {
+
+    }
 
     // todo
 }
 
 void Validator::eval_initializer_rec_arr(Vec<Accessor>& path, ArrayType *arr,
-                                         Vec<Box<InitializerMIR>>& init) {
+                                         Vec<Box<InitializerMIR>>& inits) {
     assert(arr && "arr was null while evaluating initializer");
+
+    for (auto&& [idx, init] : std::views::enumerate(inits)) {
+
+    }
 
     // todo
 }
@@ -117,20 +133,28 @@ void Validator::do_visit(ExprStmtMIR& node) { // done
 
 void Validator::do_visit(SwitchStmtMIR& node) {
     bsv_dbprint("Validator: visiting SwitchStmtMIR node");
-    node.condition->accept(*this);
-    // todo: check validity of condition (e.g. classes are not valid)
-    node.body->accept(*this);
+    node.control_val->accept(*this);
+    // todo: check validity of control expression (e.g. classes are not valid)
 
-    // todo: iterate over all the case statements to make sure they are all valid
-    //
+    node.body->accept(*this);
 }
 
 void Validator::do_visit(CaseStmtMIR& node) {
     bsv_dbprint("Validator: visiting CaseStmtMIR node");
     // check that we are in switch
     if (in_node(MIRNode::NodeKind::SWITCHSTMT_MIR) < 0) {
-        throw InvalidCaseError(node.loc);
+        add_error<InvalidCaseError>(node.loc);
+        throw UnableToContinue();
     }
+
+    // guaranteed to be non-null since we already checked that we are in a switch node,
+    // so if the dynamic cast fails, something went very wrong.
+    SwitchStmtMIR *parent = dynamic_cast<SwitchStmtMIR *>(
+        get_context(MIRNode::NodeKind::SWITCHSTMT_MIR));
+
+    assert(parent && "could not get parent switch statement");
+    // todo: check validity of case value
+
     node.stmt->accept(*this);
 }
 
@@ -138,7 +162,7 @@ void Validator::do_visit(CaseRangeStmtMIR& node) {
     bsv_dbprint("Validator: visiting CaseRangeStmtMIR node");
     // check that we are in switch
     if (in_node(MIRNode::NodeKind::SWITCHSTMT_MIR) < 0) {
-        throw InvalidCaseError(node.loc);
+        add_error<InvalidCaseError>(node.loc);
     }
 
     // todo: check that the start and end form a valid range
@@ -149,7 +173,7 @@ void Validator::do_visit(DefaultStmtMIR& node) { // done
     bsv_dbprint("Validator: visiting DefaultStmtMIR node");
     // check that we are in switch
     if (in_node(MIRNode::NodeKind::SWITCHSTMT_MIR) < 0) {
-        throw InvalidCaseError(node.loc);
+        add_error<InvalidCaseError>(node.loc);
     }
     node.stmt->accept(*this);
 }
@@ -364,6 +388,7 @@ void Validator::do_visit(CallExprMIR& node) {
 }
 
 void Validator::do_visit(MemberAccExprMIR& node) {
+    bsv_dbprint("Validator: visiting MemberAccExprMIR node");
     node.object->accept(*this);
 
     if (!node.object->act_type->is_class() || !node.object->act_type->is_union()) {
@@ -378,6 +403,7 @@ void Validator::do_visit(MemberAccExprMIR& node) {
 }
 
 void Validator::do_visit(SubscrExprMIR& node) {
+    bsv_dbprint("Validator: visiting SubscrExprMIR node");
     node.array->accept(*this);
     node.index->accept(*this);
 
@@ -398,6 +424,7 @@ void Validator::do_visit(SubscrExprMIR& node) {
 }
 
 void Validator::do_visit(PostfixExprMIR& node) {
+    bsv_dbprint("Validator: visiting PostfixMIR node");
     node.operand->accept(*this);
     if (!node.operand->is_assignable()) {
         // todo: throw error
@@ -410,10 +437,23 @@ void Validator::do_visit(PostfixExprMIR& node) {
     node.set_type(node.operand->act_type);
 }
 
-void Validator::do_visit(SizeofExprMIR& node) {
-    // todo: if is expr, check if the expr is a function
-    // if it is, replace the node's operand with a function pointer type.
-    // if operand is type, if function, throw error
+void Validator::do_visit(SizeofExprMIR& node) { // done
+    bsv_dbprint("Validator: visiting SizeofExprMIR node");
+
+    std::visit(match{
+        [&](Box<ExprMIR>& expr) {
+            expr->accept(*this);
+            if (expr->act_type->is_function()) {
+                auto *prop_type = expr->act_type->as_function()->decay();
+                expr->set_type(prop_type);
+            }
+        },
+        [&](Type *type) {
+            if (type->is_function()) {
+                add_error<InvalidTypeError>("sizeof operand cannot be a function", type, node.loc);
+            }
+        }
+    }, node.operand);
 
     node.set_type(types.get().get_u64());
 }

@@ -325,13 +325,22 @@ void ASTPrinter::visit(UnionSpecifier& node) {
 
 void ASTPrinter::visit(Initializer& node) {
     print_node("Initializer: ", node, [&] {
-        if (auto *init = std::get_if<Box<Expression>>(&node.initializer)) {
-            (*init)->accept(*this);
-        } else if (auto *init = std::get_if<Vec<Box<Initializer>>>(&node.initializer)) {
-            for (auto& init : *init) {
-                init->accept(*this);
+        std::visit(match{
+            [&](Box<Expression>& expr) { expr->accept(*this); },
+            [&](Box<Initializer::Member>& mem) {
+                std::cout << "." << mem->member << ":";
+                mem->initializer->accept(*this);
+            },
+            [&](Box<Initializer::Index>& idx) {
+                idx->idx->accept(*this);
+                idx->initializer->accept(*this);
+            },
+            [&](Vec<Box<Initializer>>& inits) {
+                for (auto& init : inits) {
+                    init->accept(*this);
+                }
             }
-        }
+        }, node.initializer);
     });
 }
 

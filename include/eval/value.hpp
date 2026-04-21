@@ -2,11 +2,12 @@
 
 #include <cstdint>
 
-#include "tokens.hpp"
 #ifndef ECC_VALUE_H
 #define ECC_VALUE_H
 
 #include "error.hpp"
+#include "semantics/primitives.hpp"
+#include "tokens.hpp"
 #include "util.hpp"
 
 using namespace ecc;
@@ -82,19 +83,25 @@ public:
         return *this;
     }
 
+    Value& operator=(Value&& other) noexcept {
+        inner = other.inner;
+        primtype = other.primtype;
+        return *this;
+    }
+
     ValueType inner;
 
     tokens::PrimType primtype;
 
-    bool is_integer() const { return tokens::pr_is_integer(primtype); }
+    bool is_integer() const { return sema::prim::pr_is_integer(primtype); }
 
-    bool is_float() const { return tokens::pr_is_float(primtype); }
+    bool is_float() const { return sema::prim::pr_is_float(primtype); }
 
-    bool is_bool() const { return tokens::pr_is_bool(primtype); }
+    bool is_bool() const { return sema::prim::pr_is_bool(primtype); }
 
-    bool is_signed() const { return tokens::pr_is_signed(primtype); }
+    bool is_signed() const { return sema::prim::pr_is_signed(primtype); }
 
-    tokens::PrimTypeRank pr_rank() const { return tokens::pr_rank(primtype); }
+    sema::prim::PrimTypeRank pr_rank() const { return sema::prim::pr_rank(primtype); }
 
     template <typename T>
         requires VariantMember<T, ValueType>
