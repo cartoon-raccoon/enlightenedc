@@ -1,254 +1,396 @@
 Initializing LLVM
 LLVM initialized
-running pipeline on file input/declarations.HC
-LLVM: Creating LLVMUnit with module name 'input/declarations.HC'
+running pipeline on file test/input/declarations.HC
+LLVM: Creating LLVMUnit with module name 'test/input/declarations.HC'
 LLVM: LLVMUnit created
-parsing file input/declarations.HC
-printing AST for file input/declarations.HC
-Program @ <input/declarations.HC:1.1> 
-| VariableDeclaration @ <input/declarations.HC:1.1-188> 
-| | PrimitiveSpecifier: u32 @ <input/declarations.HC:1.170-173> 
-| | TypeQualifier: const @ <input/declarations.HC:1.164-168> 
-| | StorageClassSpecifier: public @ <input/declarations.HC:1.1-162> 
-| | InitDeclarator @ <input/declarations.HC:1.175-187> 
-| | | Declarator @ <input/declarations.HC:1.175-187> 
-| | | | Pointer @ <input/declarations.HC:1.175-183> 
-| | | | | TypeQualifier: const @ <input/declarations.HC:1.177-181> 
-| | | | | Pointer @ <input/declarations.HC:1.183> 
-| | | | IdentifierDeclarator: ptrA @ <input/declarations.HC:1.183-187> 
-| VariableDeclaration @ <input/declarations.HC:2.1-29> 
-| | PrimitiveSpecifier: i16 @ <input/declarations.HC:2.8-11> 
-| | StorageClassSpecifier: static @ <input/declarations.HC:2.1-6> 
-| | InitDeclarator @ <input/declarations.HC:2.13> 
-| | | Declarator @ <input/declarations.HC:2.13> 
-| | | | IdentifierDeclarator: a @ <input/declarations.HC:2.13> 
-| | InitDeclarator @ <input/declarations.HC:2.16-22> 
-| | | Declarator @ <input/declarations.HC:2.16> 
-| | | | IdentifierDeclarator: b @ <input/declarations.HC:2.16> 
-| | | Initializer:  @ <input/declarations.HC:2.20-22> 
-| | | | UnaryExpression: - @ <input/declarations.HC:2.20-22> 
-| | | | | 10 @ <input/declarations.HC:2.20-22> 
-| | InitDeclarator @ <input/declarations.HC:2.25-28> 
-| | | Declarator @ <input/declarations.HC:2.25-28> 
-| | | | ArrayDeclarator @ <input/declarations.HC:2.25-28> 
-| | | | | IdentifierDeclarator: c @ <input/declarations.HC:2.25> 
-| | | | | ConstExpression:  @ <input/declarations.HC:2.25-27> 
-| | | | | | 4 @ <input/declarations.HC:2.25-27> 
-| VariableDeclaration @ <input/declarations.HC:3.1-20> 
-| | PrimitiveSpecifier: f64 @ <input/declarations.HC:3.8-11> 
-| | StorageClassSpecifier: extern @ <input/declarations.HC:3.1-6> 
-| | InitDeclarator @ <input/declarations.HC:3.13-19> 
-| | | Declarator @ <input/declarations.HC:3.13-19> 
-| | | | ArrayDeclarator @ <input/declarations.HC:3.13-19> 
-| | | | | IdentifierDeclarator: table @ <input/declarations.HC:3.13-17> 
-| VariableDeclaration @ <input/declarations.HC:5.1-25> 
-| | PrimitiveSpecifier: u8 @ <input/declarations.HC:5.1-3> 
-| | InitDeclarator @ <input/declarations.HC:5.5-24> 
-| | | Declarator @ <input/declarations.HC:5.5-12> 
-| | | | ArrayDeclarator @ <input/declarations.HC:5.5-12> 
-| | | | | IdentifierDeclarator: bytes @ <input/declarations.HC:5.5-9> 
-| | | | | ConstExpression:  @ <input/declarations.HC:5.5-11> 
-| | | | | | 3 @ <input/declarations.HC:5.5-11> 
-| | | Initializer:  @ <input/declarations.HC:5.16-24> 
-| | | | Initializer:  @ <input/declarations.HC:5.16-17> 
-| | | | | 1 @ <input/declarations.HC:5.16-17> 
-| | | | Initializer:  @ <input/declarations.HC:5.20> 
-| | | | | 2 @ <input/declarations.HC:5.20> 
-| | | | Initializer:  @ <input/declarations.HC:5.23> 
-| | | | | 3 @ <input/declarations.HC:5.23> 
-| VariableDeclaration @ <input/declarations.HC:6.1-24> 
-| | PrimitiveSpecifier: i32 @ <input/declarations.HC:6.1-4> 
-| | InitDeclarator @ <input/declarations.HC:6.6-23> 
-| | | Declarator @ <input/declarations.HC:6.6-14> 
-| | | | ArrayDeclarator @ <input/declarations.HC:6.6-14> 
-| | | | | IdentifierDeclarator: matrix @ <input/declarations.HC:6.6-11> 
-| | | | | ConstExpression:  @ <input/declarations.HC:6.6-13> 
-| | | | | | 2 @ <input/declarations.HC:6.6-13> 
-| | | Initializer:  @ <input/declarations.HC:6.18-23> 
-| | | | Initializer:  @ <input/declarations.HC:6.18-19> 
-| | | | | 0 @ <input/declarations.HC:6.18-19> 
-| | | | Initializer:  @ <input/declarations.HC:6.22> 
-| | | | | 1 @ <input/declarations.HC:6.22> 
-running backend for file input/declarations.HC
-Checking semantics for input/declarations.HC:1.1
-Synthesizing MIR for input/declarations.HC:1.1
+parsing file test/input/declarations.HC
+printing AST for file test/input/declarations.HC
+Program @ <1.1> 
+| VariableDeclaration @ <1.1-198> 
+| | PrimitiveSpecifier: u32 @ <1.180-183> 
+| | TypeQualifier: const @ <1.174-178> 
+| | StorageClassSpecifier: public @ <1.1-172> 
+| | InitDeclarator @ <1.185-197> 
+| | | Declarator @ <1.185-197> 
+| | | | Pointer @ <1.185-193> 
+| | | | | TypeQualifier: const @ <1.187-191> 
+| | | | | Pointer @ <1.193> 
+| | | | IdentifierDeclarator: ptrA @ <1.193-197> 
+| VariableDeclaration @ <2.1-29> 
+| | PrimitiveSpecifier: i16 @ <2.8-11> 
+| | StorageClassSpecifier: static @ <2.1-6> 
+| | InitDeclarator @ <2.13> 
+| | | Declarator @ <2.13> 
+| | | | IdentifierDeclarator: a @ <2.13> 
+| | InitDeclarator @ <2.16-22> 
+| | | Declarator @ <2.16> 
+| | | | IdentifierDeclarator: b @ <2.16> 
+| | | Initializer:  @ <2.20-22> 
+| | | | UnaryExpression: - @ <2.20-22> 
+| | | | | 10 @ <2.20-22> 
+| | InitDeclarator @ <2.25-28> 
+| | | Declarator @ <2.25-28> 
+| | | | ArrayDeclarator @ <2.25-28> 
+| | | | | IdentifierDeclarator: c @ <2.25> 
+| | | | | ConstExpression:  @ <2.25-27> 
+| | | | | | 4 @ <2.25-27> 
+| VariableDeclaration @ <3.1-20> 
+| | PrimitiveSpecifier: f64 @ <3.8-11> 
+| | StorageClassSpecifier: extern @ <3.1-6> 
+| | InitDeclarator @ <3.13-19> 
+| | | Declarator @ <3.13-19> 
+| | | | ArrayDeclarator @ <3.13-19> 
+| | | | | IdentifierDeclarator: table @ <3.13-17> 
+| TypeDeclaration @ <5.1-7.2> 
+| | ClassSpecifier:  Point: @ <5.1-7.1> 
+| | | ClassDeclaration @ <6.5-14> 
+| | | | PrimitiveSpecifier: u32 @ <6.5-8> 
+| | | | ClassDeclarator @ <6.10> 
+| | | | | Declarator @ <6.10> 
+| | | | | | IdentifierDeclarator: x @ <6.10> 
+| | | | ClassDeclarator @ <6.13> 
+| | | | | Declarator @ <6.13> 
+| | | | | | IdentifierDeclarator: y @ <6.13> 
+| VariableDeclaration @ <9.1-30> 
+| | TypeIdentifier: Point @ <9.1-5> 
+| | InitDeclarator @ <9.7-29> 
+| | | Declarator @ <9.7-8> 
+| | | | IdentifierDeclarator: pt @ <9.7-8> 
+| | | Initializer:  @ <9.12-29> 
+| | | | Initializer:  @ <9.14-19> 
+.x:| | | | | Initializer:  @ <9.19> 
+| | | | | | 4 @ <9.19> 
+| | | | Initializer:  @ <9.22-27> 
+.y:| | | | | Initializer:  @ <9.27> 
+| | | | | | 3 @ <9.27> 
+| VariableDeclaration @ <11.1-25> 
+| | PrimitiveSpecifier: u8 @ <11.1-3> 
+| | InitDeclarator @ <11.5-24> 
+| | | Declarator @ <11.5-12> 
+| | | | ArrayDeclarator @ <11.5-12> 
+| | | | | IdentifierDeclarator: bytes @ <11.5-9> 
+| | | | | ConstExpression:  @ <11.5-11> 
+| | | | | | 3 @ <11.5-11> 
+| | | Initializer:  @ <11.16-24> 
+| | | | Initializer:  @ <11.16-23> 
+| | | | | ConstExpression:  @ <11.16-18> 
+| | | | | | 4 @ <11.16-18> 
+| | | | | Initializer:  @ <11.23> 
+| | | | | | 4 @ <11.23> 
+| VariableDeclaration @ <12.1-24> 
+| | PrimitiveSpecifier: i32 @ <12.1-4> 
+| | InitDeclarator @ <12.6-23> 
+| | | Declarator @ <12.6-14> 
+| | | | ArrayDeclarator @ <12.6-14> 
+| | | | | IdentifierDeclarator: matrix @ <12.6-11> 
+| | | | | ConstExpression:  @ <12.6-13> 
+| | | | | | 2 @ <12.6-13> 
+| | | Initializer:  @ <12.18-23> 
+| | | | Initializer:  @ <12.18-19> 
+| | | | | 0 @ <12.18-19> 
+| | | | Initializer:  @ <12.22> 
+| | | | | 1 @ <12.22> 
+| PrintStatement: "%d
+" @ <14.1-17> 
+| | ArraySubscriptExpression @ <14.9-16> 
+| | | IdentifierExpression: bytes @ <14.9-13> 
+| | | 0 @ <14.9-15> 
+| PrintStatement: "%d
+" @ <15.1-17> 
+| | ArraySubscriptExpression @ <15.9-16> 
+| | | IdentifierExpression: bytes @ <15.9-13> 
+| | | 1 @ <15.9-15> 
+| PrintStatement: "%d
+" @ <16.1-17> 
+| | ArraySubscriptExpression @ <16.9-16> 
+| | | IdentifierExpression: bytes @ <16.9-13> 
+| | | 2 @ <16.9-15> 
+running backend for file test/input/declarations.HC
+Synthesizing MIR for 1.1
 Node {
-    visiting Program node: input/declarations.HC:1.1
+    visiting Program node: 1.1
     Node {
-        visiting VariableDeclaration node: input/declarations.HC:1.1-188
-        parsing declaration specifier list for node at input/declarations.HC:1.1-188
+        visiting VariableDeclaration node: 1.1-198
+        parsing declaration specifier list for node at 1.1-198
         Node {
-            visiting PrimitiveSpecifier node: input/declarations.HC:1.170-173
+            visiting PrimitiveSpecifier node: 1.180-183
 TypeContext: getting primitive type
         }
         Node {
-            visiting TypeQualifier node: input/declarations.HC:1.164-168
+            visiting TypeQualifier node: 1.174-178
         }
         Node {
-            visiting StorageClassSpecifier node: input/declarations.HC:1.1-162
+            visiting StorageClassSpecifier node: 1.1-172
         }
-        finished parsing specifiers for node input/declarations.HC:1.1-188
+        finished parsing specifiers for node 1.1-198
         Node {
-            visiting InitDeclarator node: input/declarations.HC:1.175-187
+            visiting InitDeclarator node: 1.185-197
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/declarations.HC:1.183-187
+                    visiting IdentifierDeclarator node: 1.193-197
                 }
                 Node {
-                    visiting Pointer node: input/declarations.HC:1.175-183
+                    visiting Pointer node: 1.185-193
                     Node {
-                        visiting TypeQualifier node: input/declarations.HC:1.177-181
+                        visiting TypeQualifier node: 1.187-191
                     }
                     Node {
-                        visiting Pointer node: input/declarations.HC:1.183
+                        visiting Pointer node: 1.193
                     }
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x55b3e0a13750
-TypeContext: pointer with base 0x55b3e0a143d0
+TypeContext: pointer with base 0x55c405302800
+TypeContext: pointer with base 0x55c405303670
         }
 SymbolTable: inserting varsymbol with name "ptrA"
     }
     Node {
-        visiting VariableDeclaration node: input/declarations.HC:2.1-29
-        parsing declaration specifier list for node at input/declarations.HC:2.1-29
+        visiting VariableDeclaration node: 2.1-29
+        parsing declaration specifier list for node at 2.1-29
         Node {
-            visiting PrimitiveSpecifier node: input/declarations.HC:2.8-11
+            visiting PrimitiveSpecifier node: 2.8-11
 TypeContext: getting primitive type
         }
         Node {
-            visiting StorageClassSpecifier node: input/declarations.HC:2.1-6
+            visiting StorageClassSpecifier node: 2.1-6
         }
-        finished parsing specifiers for node input/declarations.HC:2.1-29
+        finished parsing specifiers for node 2.1-29
         Node {
-            visiting InitDeclarator node: input/declarations.HC:2.13
+            visiting InitDeclarator node: 2.13
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/declarations.HC:2.13
+                    visiting IdentifierDeclarator node: 2.13
                 }
             }
 TypeBuilder: finalizing type
         }
 SymbolTable: inserting varsymbol with name "a"
         Node {
-            visiting InitDeclarator node: input/declarations.HC:2.16-22
+            visiting InitDeclarator node: 2.16-22
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/declarations.HC:2.16
+                    visiting IdentifierDeclarator node: 2.16
                 }
             }
 TypeBuilder: finalizing type
             Node {
-                visiting Initializer node: input/declarations.HC:2.20-22
+                visiting Initializer node: 2.20-22
                 visiting single initializer
                 Node {
-                    visiting UnaryExpression node: input/declarations.HC:2.20-22
+                    visiting UnaryExpression node: 2.20-22
                     Node {
-                        visiting LiteralExpression node: input/declarations.HC:2.20-22
+                        visiting LiteralExpression node: 2.20-22
+                        found integer
+constructing Value from literal 10
+constructing 32-bit integer
                     }
                 }
             }
         }
 SymbolTable: inserting varsymbol with name "b"
         Node {
-            visiting InitDeclarator node: input/declarations.HC:2.25-28
+            visiting InitDeclarator node: 2.25-28
             Node {
                 Node {
-                    visiting ArrayDeclarator node: input/declarations.HC:2.25-28
+                    visiting ArrayDeclarator node: 2.25-28
                     Node {
-                        visiting IdentifierDeclarator node: input/declarations.HC:2.25
+                        visiting IdentifierDeclarator node: 2.25
                     }
                     array declarator has size, checking for compile time computability
                     Node {
-                        visiting ConstExpression node: input/declarations.HC:2.25-27
+                        visiting ConstExpression node: 2.25-27
                         Node {
-                            visiting LiteralExpression node: input/declarations.HC:2.25-27
+                            visiting LiteralExpression node: 2.25-27
+                            found integer
+constructing Value from literal 4
+constructing 32-bit integer
                         }
                     }
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55b3e0a13810, size 4
+TypeContext: array type with base 0x55c4053028c0, size 4
         }
 SymbolTable: inserting varsymbol with name "c"
     }
     Node {
-        visiting VariableDeclaration node: input/declarations.HC:3.1-20
-        parsing declaration specifier list for node at input/declarations.HC:3.1-20
+        visiting VariableDeclaration node: 3.1-20
+        parsing declaration specifier list for node at 3.1-20
         Node {
-            visiting PrimitiveSpecifier node: input/declarations.HC:3.8-11
+            visiting PrimitiveSpecifier node: 3.8-11
 TypeContext: getting primitive type
         }
         Node {
-            visiting StorageClassSpecifier node: input/declarations.HC:3.1-6
+            visiting StorageClassSpecifier node: 3.1-6
         }
-        finished parsing specifiers for node input/declarations.HC:3.1-20
+        finished parsing specifiers for node 3.1-20
         Node {
-            visiting InitDeclarator node: input/declarations.HC:3.13-19
+            visiting InitDeclarator node: 3.13-19
             Node {
                 Node {
-                    visiting ArrayDeclarator node: input/declarations.HC:3.13-19
+                    visiting ArrayDeclarator node: 3.13-19
                     Node {
-                        visiting IdentifierDeclarator node: input/declarations.HC:3.13-17
+                        visiting IdentifierDeclarator node: 3.13-17
                     }
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55b3e0a138d0, no size
+TypeContext: array type with base 0x55c4053029c0, no size
         }
 SymbolTable: inserting varsymbol with name "table"
     }
     Node {
-        visiting VariableDeclaration node: input/declarations.HC:5.1-25
-        parsing declaration specifier list for node at input/declarations.HC:5.1-25
+        visiting TypeDeclaration node: 5.1-7.2
+        parsing declaration specifier list for node at 5.1-7.2
         Node {
-            visiting PrimitiveSpecifier node: input/declarations.HC:5.1-3
+            visiting ClassSpecifier node: 5.1-7.1
+TypeContext: class type 'Point' on scope 0x55c405302a80
+TypeContext: inserting type classPoint_0
+            class has name, inserting typesymbol if needed
+SymbolTable: looking up typesymbol Point in current scope
+SymbolTable: inserting typesymbol with name "Point"
+            Node {
+                visiting ClassDeclaration node: 6.5-14
+                parsing declaration specifier list for node at 6.5-14
+                Node {
+                    visiting PrimitiveSpecifier node: 6.5-8
 TypeContext: getting primitive type
+                }
+                finished parsing specifiers for node 6.5-14
+                parsing ClassDeclaration for ClassType 0x55c405304070
+                Node {
+                    visiting ClassDeclarator node: 6.10
+                    Node {
+                        Node {
+                            visiting IdentifierDeclarator node: 6.10
+                        }
+                    }
+                }
+TypeBuilder: finalizing type
+ClassType: adding member with name x type 0x55c405302800
+                Node {
+                    visiting ClassDeclarator node: 6.13
+                    Node {
+                        Node {
+                            visiting IdentifierDeclarator node: 6.13
+                        }
+                    }
+                }
+TypeBuilder: finalizing type
+ClassType: adding member with name y type 0x55c405302800
+            }
         }
-        finished parsing specifiers for node input/declarations.HC:5.1-25
+        finished parsing specifiers for node 5.1-7.2
+    }
+    Node {
+        visiting VariableDeclaration node: 9.1-30
+        parsing declaration specifier list for node at 9.1-30
         Node {
-            visiting InitDeclarator node: input/declarations.HC:5.5-24
+            visiting TypeIdentifier node: 9.1-5
+SymbolTable: looking up typesymbol Point
+        }
+        finished parsing specifiers for node 9.1-30
+        Node {
+            visiting InitDeclarator node: 9.7-29
             Node {
                 Node {
-                    visiting ArrayDeclarator node: input/declarations.HC:5.5-12
+                    visiting IdentifierDeclarator node: 9.7-8
+                }
+            }
+TypeBuilder: finalizing type
+            Node {
+                visiting Initializer node: 9.12-29
+                visiting compound initializer
+                visiting classtype compound initializer
+                Node {
+                    visiting Initializer node: 9.14-19
+                    visiting member designated initializer
                     Node {
-                        visiting IdentifierDeclarator node: input/declarations.HC:5.5-9
+                        visiting Initializer node: 9.19
+                        visiting single initializer
+                        Node {
+                            visiting LiteralExpression node: 9.19
+                            found integer
+constructing Value from literal 4
+constructing 32-bit integer
+                        }
+                    }
+                }
+                Node {
+                    visiting Initializer node: 9.22-27
+                    visiting member designated initializer
+                    Node {
+                        visiting Initializer node: 9.27
+                        visiting single initializer
+                        Node {
+                            visiting LiteralExpression node: 9.27
+                            found integer
+constructing Value from literal 3
+constructing 32-bit integer
+                        }
+                    }
+                }
+            }
+        }
+SymbolTable: inserting varsymbol with name "pt"
+    }
+    Node {
+        visiting VariableDeclaration node: 11.1-25
+        parsing declaration specifier list for node at 11.1-25
+        Node {
+            visiting PrimitiveSpecifier node: 11.1-3
+TypeContext: getting primitive type
+        }
+        finished parsing specifiers for node 11.1-25
+        Node {
+            visiting InitDeclarator node: 11.5-24
+            Node {
+                Node {
+                    visiting ArrayDeclarator node: 11.5-12
+                    Node {
+                        visiting IdentifierDeclarator node: 11.5-9
                     }
                     array declarator has size, checking for compile time computability
                     Node {
-                        visiting ConstExpression node: input/declarations.HC:5.5-11
+                        visiting ConstExpression node: 11.5-11
                         Node {
-                            visiting LiteralExpression node: input/declarations.HC:5.5-11
+                            visiting LiteralExpression node: 11.5-11
+                            found integer
+constructing Value from literal 3
+constructing 32-bit integer
                         }
                     }
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55b3e0a136d0, size 3
+TypeContext: array type with base 0x55c405302780, size 3
             Node {
-                visiting Initializer node: input/declarations.HC:5.16-24
+                visiting Initializer node: 11.16-24
                 visiting compound initializer
                 visiting arraytype compound initializer
                 Node {
-                    visiting Initializer node: input/declarations.HC:5.16-17
-                    visiting single initializer
+                    visiting Initializer node: 11.16-23
+                    visiting index designated initializer
                     Node {
-                        visiting LiteralExpression node: input/declarations.HC:5.16-17
+                        visiting ConstExpression node: 11.16-18
+                        Node {
+                            visiting LiteralExpression node: 11.16-18
+                            found integer
+constructing Value from literal 4
+constructing 32-bit integer
+                        }
                     }
-                }
-                Node {
-                    visiting Initializer node: input/declarations.HC:5.20
-                    visiting single initializer
+                    taking value
                     Node {
-                        visiting LiteralExpression node: input/declarations.HC:5.20
-                    }
-                }
-                Node {
-                    visiting Initializer node: input/declarations.HC:5.23
-                    visiting single initializer
-                    Node {
-                        visiting LiteralExpression node: input/declarations.HC:5.23
+                        visiting Initializer node: 11.23
+                        visiting single initializer
+                        Node {
+                            visiting LiteralExpression node: 11.23
+                            found integer
+constructing Value from literal 4
+constructing 32-bit integer
+                        }
                     }
                 }
             }
@@ -256,114 +398,197 @@ TypeContext: array type with base 0x55b3e0a136d0, size 3
 SymbolTable: inserting varsymbol with name "bytes"
     }
     Node {
-        visiting VariableDeclaration node: input/declarations.HC:6.1-24
-        parsing declaration specifier list for node at input/declarations.HC:6.1-24
+        visiting VariableDeclaration node: 12.1-24
+        parsing declaration specifier list for node at 12.1-24
         Node {
-            visiting PrimitiveSpecifier node: input/declarations.HC:6.1-4
+            visiting PrimitiveSpecifier node: 12.1-4
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/declarations.HC:6.1-24
+        finished parsing specifiers for node 12.1-24
         Node {
-            visiting InitDeclarator node: input/declarations.HC:6.6-23
+            visiting InitDeclarator node: 12.6-23
             Node {
                 Node {
-                    visiting ArrayDeclarator node: input/declarations.HC:6.6-14
+                    visiting ArrayDeclarator node: 12.6-14
                     Node {
-                        visiting IdentifierDeclarator node: input/declarations.HC:6.6-11
+                        visiting IdentifierDeclarator node: 12.6-11
                     }
                     array declarator has size, checking for compile time computability
                     Node {
-                        visiting ConstExpression node: input/declarations.HC:6.6-13
+                        visiting ConstExpression node: 12.6-13
                         Node {
-                            visiting LiteralExpression node: input/declarations.HC:6.6-13
+                            visiting LiteralExpression node: 12.6-13
+                            found integer
+constructing Value from literal 2
+constructing 32-bit integer
                         }
                     }
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55b3e0a13850, size 2
+TypeContext: array type with base 0x55c405302900, size 2
             Node {
-                visiting Initializer node: input/declarations.HC:6.18-23
+                visiting Initializer node: 12.18-23
                 visiting compound initializer
                 visiting arraytype compound initializer
                 Node {
-                    visiting Initializer node: input/declarations.HC:6.18-19
+                    visiting Initializer node: 12.18-19
                     visiting single initializer
                     Node {
-                        visiting LiteralExpression node: input/declarations.HC:6.18-19
+                        visiting LiteralExpression node: 12.18-19
+                        found integer
+constructing Value from literal 0
+constructing 32-bit integer
                     }
                 }
                 Node {
-                    visiting Initializer node: input/declarations.HC:6.22
+                    visiting Initializer node: 12.22
                     visiting single initializer
                     Node {
-                        visiting LiteralExpression node: input/declarations.HC:6.22
+                        visiting LiteralExpression node: 12.22
+                        found integer
+constructing Value from literal 1
+constructing 32-bit integer
                     }
                 }
             }
         }
 SymbolTable: inserting varsymbol with name "matrix"
     }
+    Node {
+        visiting PrintStatement node: 14.1-17
+        Node {
+            visiting ArraySubscriptExpression node: 14.9-16
+            Node {
+                visiting IdentifierExpression node: 14.9-13
+SymbolTable: looking up varsymbol bytes
+            }
+            Node {
+                visiting LiteralExpression node: 14.9-15
+                found integer
+constructing Value from literal 0
+constructing 32-bit integer
+            }
+        }
+    }
+    Node {
+        visiting PrintStatement node: 15.1-17
+        Node {
+            visiting ArraySubscriptExpression node: 15.9-16
+            Node {
+                visiting IdentifierExpression node: 15.9-13
+SymbolTable: looking up varsymbol bytes
+            }
+            Node {
+                visiting LiteralExpression node: 15.9-15
+                found integer
+constructing Value from literal 1
+constructing 32-bit integer
+            }
+        }
+    }
+    Node {
+        visiting PrintStatement node: 16.1-17
+        Node {
+            visiting ArraySubscriptExpression node: 16.9-16
+            Node {
+                visiting IdentifierExpression node: 16.9-13
+SymbolTable: looking up varsymbol bytes
+            }
+            Node {
+                visiting LiteralExpression node: 16.9-15
+                found integer
+constructing Value from literal 2
+constructing 32-bit integer
+            }
+        }
+    }
 }
-semantic checking complete
 --------- TYPE CONTEXT ---------
 
 Base Types:
+  classPoint_0 : class Point { u32 x; u32 y; }
 
 Function Types:
 
 Pointer Types:
-  :U32i * const *
-  :U32i * const
+  :u32 * const *
+  :u32 * const
 
 Array Types:
- : I32i[2] #1
- : U8i[3] #1
- : F64i[] #1
- : I16i[4] #1
+ : i32[2] #1
+ : u8[3] #1
+ : f64[] #1
+ : i16[4] #1
 
 
 --------- SYMBOL TABLE ---------
 
-Scope 0
+Scope 0: Compound Statement
 Physical Symbols:
-  bytes -> 0x55b3e0a150e0 : VarSymbol: bytes :: U8i[3]
-  table -> 0x55b3e0a14bf0 : VarSymbol: table :: F64i[] extern
-  c -> 0x55b3e0a149f0 : VarSymbol: c :: I16i[4] static
-  b -> 0x55b3e0a14810 : VarSymbol: b :: I16i static
-  matrix -> 0x55b3e0a15500 : VarSymbol: matrix :: I32i[2]
-  a -> 0x55b3e0a145f0 : VarSymbol: a :: I16i static
-  ptrA -> 0x55b3e09ff670 : VarSymbol: ptrAconst  :: U32i * const * public
+  bytes <0x55c405304b50> : VarSymbol: bytes :: U8[3]
+  pt <0x55c4053047d0> : VarSymbol: pt :: class Point
+  table <0x55c405303f90> : VarSymbol: table :: F64[] extern
+  c <0x55c405303da0> : VarSymbol: c :: I16[4] static
+  b <0x55c405303b50> : VarSymbol: b :: I16 static
+  matrix <0x55c405305040> : VarSymbol: matrix :: I32[2]
+  a <0x55c405303930> : VarSymbol: a :: I16 static
+  ptrA <0x55c405303760> : VarSymbol: ptrAconst  :: U32 * const * public
+
+Type Symbols:
+  Point <0x55c4053041e0> : TypeSymbol: Point :: class Point { u32 x; u32 y; }
 -----------------------------------------------------------
 
 --------- MIR ---------
 
 ProgramMIR @ <1.1>
-| VarDecl:  @ <input/declarations.HC:1.1-188>
-| | | VarSymbol: ptrAconst  :: U32i * const * public
-| VarDecl:  @ <input/declarations.HC:2.1-29>
-| | | VarSymbol: a :: I16i static
-| | | VarSymbol: b :: I16i static
-| | | Initializer @ <input/declarations.HC:2.20-22>
-| | | | Unary: - @ <input/declarations.HC:2.20-22>
-| | | | | Literal: 10 @ <input/declarations.HC:2.20-22>
-| | | VarSymbol: c :: I16i[4] static
-| VarDecl:  @ <input/declarations.HC:3.1-20>
-| | | VarSymbol: table :: F64i[] extern
-| VarDecl:  @ <input/declarations.HC:5.1-25>
-| | | VarSymbol: bytes :: U8i[3]
-| | | Initializer @ <input/declarations.HC:5.16-24>
-| | | | Initializer @ <input/declarations.HC:5.16-17>
-| | | | | Literal: 1 @ <input/declarations.HC:5.16-17>
-| | | | Initializer @ <input/declarations.HC:5.20>
-| | | | | Literal: 2 @ <input/declarations.HC:5.20>
-| | | | Initializer @ <input/declarations.HC:5.23>
-| | | | | Literal: 3 @ <input/declarations.HC:5.23>
-| VarDecl:  @ <input/declarations.HC:6.1-24>
-| | | VarSymbol: matrix :: I32i[2]
-| | | Initializer @ <input/declarations.HC:6.18-23>
-| | | | Initializer @ <input/declarations.HC:6.18-19>
-| | | | | Literal: 0 @ <input/declarations.HC:6.18-19>
-| | | | Initializer @ <input/declarations.HC:6.22>
-| | | | | Literal: 1 @ <input/declarations.HC:6.22>
-LLVM: Shutting down
+| VarDecl:  @ <1.1-198>
+| | | VarSymbol: ptrAconst  :: U32 * const * public
+| VarDecl:  @ <2.1-29>
+| | | VarSymbol: a :: I16 static
+| | | VarSymbol: b :: I16 static
+| | | Initializer @ <2.20-22>
+| | | | Unary: - @ <2.20-22>
+| | | | | Literal:  @ <2.20-22>
+10| | | VarSymbol: c :: I16[4] static
+| VarDecl:  @ <3.1-20>
+| | | VarSymbol: table :: F64[] extern
+| TypeDecl: Point @ <5.1-7.2>
+| VarDecl:  @ <9.1-30>
+| | | VarSymbol: pt :: class Point
+| | | Initializer @ <9.12-29>
+| | | | Initializer @ <9.14-19>
+.x: | | | | | Initializer @ <9.19>
+| | | | | | Literal:  @ <9.19>
+4| | | | Initializer @ <9.22-27>
+.y: | | | | | Initializer @ <9.27>
+| | | | | | Literal:  @ <9.27>
+3| VarDecl:  @ <11.1-25>
+| | | VarSymbol: bytes :: U8[3]
+| | | Initializer @ <11.16-24>
+| | | | Initializer @ <11.16-23>
+[4]: | | | | | Initializer @ <11.23>
+| | | | | | Literal:  @ <11.23>
+4| VarDecl:  @ <12.1-24>
+| | | VarSymbol: matrix :: I32[2]
+| | | Initializer @ <12.18-23>
+| | | | Initializer @ <12.18-19>
+| | | | | Literal:  @ <12.18-19>
+0| | | | Initializer @ <12.22>
+| | | | | Literal:  @ <12.22>
+1| Print: "%d
+" @ <14.1-17>
+| | Subscript @ <14.9-16>
+| | | Ident: bytes @ <14.9-13>
+| | | Literal:  @ <14.9-15>
+0| Print: "%d
+" @ <15.1-17>
+| | Subscript @ <15.9-16>
+| | | Ident: bytes @ <15.9-13>
+| | | Literal:  @ <15.9-15>
+1| Print: "%d
+" @ <16.1-17>
+| | Subscript @ <16.9-16>
+| | | Ident: bytes @ <16.9-13>
+| | | Literal:  @ <16.9-15>
+2LLVM: Shutting down
