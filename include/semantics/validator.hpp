@@ -42,10 +42,13 @@ protected:
         return ScopeGuard<mir::MIRNode>(State::READ, syms, assoc);
     }
 
+    Box<mir::CastExprMIR> cast(types::Type *target, Box<mir::ExprMIR> expr);
+
     void eval_initializer(types::Type *type, mir::InitializerMIR& init);
 
     void do_visit(mir::InitializerMIR& node) final;
     void do_visit(mir::VarDeclMIR& node) final;
+    void do_visit(mir::TypeDeclMIR& node) final;
 
     void do_visit(mir::ExprStmtMIR& node) final;
     void do_visit(mir::SwitchStmtMIR& node) final;
@@ -78,13 +81,17 @@ private:
 
     void visit_single_vardecl(sym::VarSymbol *varsym, mir::InitializerMIR& init);
 
-    void eval_initializer_rec(Vec<Accessor>& path, types::Type *type, mir::InitializerMIR& init);
+    void
+    eval_initializer_rec(types::AccessorPath& path, types::Type *type, mir::InitializerMIR& init);
+
+    void
+    eval_initializer_expr(types::Type *type, Box<mir::ExprMIR>& expr, mir::InitializerMIR& init);
 
     void eval_initializer_rec_cls(
-        Vec<Accessor>& path, types::ClassType *cls, Vec<Box<mir::InitializerMIR>>& init);
+        types::AccessorPath& path, types::ClassType *cls, Vec<Box<mir::InitializerMIR>>& init);
 
     void eval_initializer_rec_arr(
-        Vec<Accessor>& path, types::ArrayType *arr, Vec<Box<mir::InitializerMIR>>& init);
+        types::AccessorPath& path, types::ArrayType *arr, Vec<Box<mir::InitializerMIR>>& init);
 };
 
 } // namespace ecc::sema

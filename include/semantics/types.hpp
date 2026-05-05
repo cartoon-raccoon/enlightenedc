@@ -1,11 +1,14 @@
 #pragma once
 
+#include <algorithm>
+#include <initializer_list>
 #ifndef ECC_TYPES_H
 #define ECC_TYPES_H
 
 #include <cassert>
 #include <concepts>
 #include <cstddef>
+#include <iterator>
 #include <memory>
 #include <sstream>
 #include <stack>
@@ -391,6 +394,167 @@ protected:
         : BaseType(kind, tyctxt), scope(scope), name(name), decl_loc(decl_loc) {}
 };
 
+using MemberAcc    = std::string;
+using IndexAcc     = size_t;
+using AccessorNode = std::variant<MemberAcc, IndexAcc>;
+
+/**
+A class for accessing a member of a RecordType.
+
+RecordType members can be accessed either by an index or a member.
+*/
+class Accessor {
+public:
+    Accessor(AccessorNode accessor) : accessor(std::move(accessor)) {}
+    Accessor(const Accessor& acc) : accessor(acc.accessor) {}
+    Accessor(Accessor&& acc) noexcept
+        : accessor(std::move(acc.accessor)), idx(acc.idx), prev(acc.prev), next(acc.next) {
+
+        acc.idx  = 0;
+        acc.prev = nullptr;
+        acc.next = nullptr;
+    }
+
+    bool operator==(const Accessor& other) const {
+        return accessor == other.accessor && idx == other.idx;
+    }
+
+    AccessorNode accessor;
+
+    size_t idx = 0;
+
+    bool is_member() const { return std::holds_alternative<MemberAcc>(accessor); }
+
+    bool is_index() const { return std::holds_alternative<IndexAcc>(accessor); }
+
+private:
+    friend class AccessorPath;
+    friend class AccessorPathItem;
+    friend class RecordType;
+
+    Accessor *prev = nullptr;
+    Accessor *next = nullptr;
+};
+
+/**
+An iterator for iterating over the nodes within an accessor path.
+*/
+class AccessorPathItem {
+    Accessor *curr;
+
+public:
+    using difference_type = std::ptrdiff_t;
+    using value_type      = Accessor;
+    using pointer         = Accessor *;
+    using reference       = Accessor&;
+
+    AccessorPathItem() : curr(nullptr) {}
+
+    AccessorPathItem(Accessor *elem) : curr(elem) {}
+
+    Accessor& operator*() const { return *curr; }
+
+    AccessorPathItem& operator++() { // ++x
+        if (curr) {
+            curr = curr->next;
+        }
+        return *this;
+    }
+
+    AccessorPathItem operator++(int) { // x++
+        AccessorPathItem tmp = *this;
+        if (curr)
+            curr = curr->next;
+        return tmp;
+    }
+
+    AccessorPathItem& operator--() { // --x
+        if (curr) {
+            curr = curr->prev;
+        }
+        return *this;
+    }
+
+    AccessorPathItem operator--(int) { // x--
+        AccessorPathItem tmp = *this;
+        if (curr)
+            curr = curr->prev;
+        return tmp;
+    }
+
+    bool operator==(const AccessorPathItem& other) const { return curr == other.curr; }
+
+    bool operator!=(const AccessorPathItem& other) const { return curr != other.curr; }
+};
+
+static_assert(std::bidirectional_iterator<AccessorPathItem>);
+
+class AccessorPath {
+public:
+    AccessorPath() {};
+
+    AccessorPath(std::initializer_list<AccessorNode>);
+
+    AccessorPath(AccessorPath&& path) noexcept
+        : nodes(std::move(path.nodes)), first_elem(path.first_elem), last_elem(path.last_elem) {
+        path.first_elem = nullptr;
+        path.last_elem  = nullptr;
+    }
+
+    ~AccessorPath() = default;
+
+    Accessor& operator[](size_t idx) const;
+
+    bool operator==(const AccessorPath& other) const;
+
+    void push(const AccessorNode& node);
+
+    void push(const std::string& mem);
+
+    void push(size_t idx);
+
+    /**
+    Extend the accessor path with another accessor path.
+    */
+    void extend(AccessorPath& path);
+
+    /**
+    Extend the accessor path with an accessor and all its subsequent accessors.
+    */
+    void extend(Accessor& acc);
+
+    bool is_all_indices() {
+        return std::all_of(begin(), end(), [](Accessor& acc) { return acc.is_index(); });
+    }
+
+    bool is_all_members() {
+        return std::all_of(begin(), end(), [](Accessor& acc) { return acc.is_member(); });
+    }
+
+    size_t size() const { return nodes.size(); }
+
+    bool empty() { return nodes.empty(); }
+
+    Accessor& first() { return *first_elem; }
+
+    Accessor& last() { return *last_elem; }
+
+    AccessorPathItem begin() { return AccessorPathItem(first_elem); }
+
+    AccessorPathItem end() { return AccessorPathItem(last_elem); }
+
+private:
+    void push(Box<Accessor> acc);
+
+    Vec<Box<Accessor>> nodes;
+
+    Accessor *first_elem = nullptr;
+    Accessor *last_elem  = nullptr;
+};
+
+class NamedMembersIter;
+class AnonMembersIter;
+
 /**
 An abstract UserType with members that can be accessed using the dot (`.`)
 or arrow (`->`) operators.
@@ -401,32 +565,69 @@ public:
         Optional<std::string> name;
         Type *ty;
         Location loc;
+        size_t idx;
 
-        TypeMember(Type *ty, Location loc) : ty(ty), loc(loc) {}
-        TypeMember(std::string name, Type *ty, Location loc) : name(name), ty(ty), loc(loc) {}
-        TypeMember(Optional<std::string> name, Type *ty, Location loc)
-            : name(std::move(name)), ty(ty), loc(loc) {}
+        TypeMember(Type *ty, Location loc, size_t idx) : ty(ty), loc(loc), idx(idx) {}
+        TypeMember(std::string name, Type *ty, Location loc, size_t idx)
+            : name(name), ty(ty), loc(loc), idx(idx) {}
+        TypeMember(Optional<std::string> name, Type *ty, Location loc, size_t idx)
+            : name(std::move(name)), ty(ty), loc(loc), idx(idx) {}
     };
 
     Vec<Box<TypeMember>> members;
 
     /**
-    Validate that the type of a prospective member is valid to be added,
+    Validate that a member can be added.
+
+    It performs the following:
+
+    1. Ensures there is no non-indirected type recursion.
+    2. Ensures there is no pre-existing member with the same name.
+    3. If the member type is a usertype, ensures the type is complete.
+    4. Ensures the type is not Void.
+    5. If the type is an array, checks again for recursive definitions without indirection,
+    and ensures the array is sized.
     */
-    virtual void validate_member_type(Type *type, Optional<std::string> name, Location loc);
+    virtual void validate_new_member(Type *type, Optional<std::string> name, Location loc);
 
     void add_member(std::string name, Type *type, Location loc);
 
     void add_member(Type *type, Location loc);
 
-    /**
-    Get the index path to a member.
-    */
-    Vec<size_t> index(std::string& name);
+    auto named_members() {
+        return members | std::ranges::views::filter(
+                             [](Box<TypeMember>& mem) { return mem->name.has_value(); });
+    }
 
+    auto anon_members() {
+        return members | std::ranges::views::filter(
+                             [](Box<TypeMember>& mem) { return !(mem->name.has_value()); });
+    }
+
+    /**
+    Get the index path to a member, returning an empty path if the member does not exist.
+
+    The return accessor path will always be entirely indexes.
+    */
+    AccessorPath index(std::string& name);
+
+    /**
+    Find a TypeMember by name, searching recursively in anonymous members if needed.
+    */
     TypeMember *find(std::string& name);
 
+    TypeMember *find_imm(std::string& name);
+
     TypeMember *find(size_t idx);
+
+    TypeMember *find(Accessor& acc);
+
+    TypeMember *find_by_path(AccessorPath& path);
+
+    /**
+    Converts a mixed accessor path into an accessor path of entirely indexes.
+    */
+    AccessorPath indexify(AccessorPath& path);
 
     size_t num_members() const { return members.size(); }
 
@@ -442,6 +643,18 @@ protected:
         Location decl_loc, Kind kind, std::string name, TypeContext& tyctxt,
         sema::sym::Scope *scope)
         : UserType(decl_loc, kind, std::move(name), tyctxt, scope) {}
+};
+
+class NamedMembersIter {
+    std::span<Box<RecordType::TypeMember>> members_view;
+
+public:
+};
+
+class AnonMembersIter {
+    std::span<Box<RecordType::TypeMember>> members_view;
+
+public:
 };
 
 /**
@@ -715,6 +928,8 @@ public:
     Vec<Box<EnumTypeMember>> enumerators;
 
     PrimitiveType *underlying;
+
+    size_t num_enumerators() const { return enumerators.size(); }
 
     bool is_fully_defined() override { return is_complete(); }
 

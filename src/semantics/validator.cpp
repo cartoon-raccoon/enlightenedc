@@ -6,6 +6,7 @@
 #include "error.hpp"
 #include "semantics/mir/mir.hpp"
 #include "semantics/semerr.hpp"
+#include "semantics/typeerr.hpp"
 #include "semantics/types.hpp"
 #include "util.hpp"
 
@@ -18,12 +19,16 @@ void Validator::validate(ProgramMIR& progmir) {
     progmir.accept(*this);
 }
 
+Box<CastExprMIR> Validator::cast(Type *target, Box<mir::ExprMIR> expr) {
+    return make_box<CastExprMIR>(expr->loc, expr->scope, target, std::move(expr));
+}
+
 void Validator::eval_initializer(types::Type *type, InitializerMIR& init) {
-    Vec<Accessor> path{};
+    AccessorPath path;
     eval_initializer_rec(path, type, init);
 }
 
-void Validator::eval_initializer_rec(Vec<Accessor>& path, types::Type *type, InitializerMIR& init) {
+void Validator::eval_initializer_rec(AccessorPath& path, types::Type *type, InitializerMIR& init) {
     bsv_dbprint("Validator: eval_initializer");
     std::visit(
         match{
@@ -32,27 +37,7 @@ void Validator::eval_initializer_rec(Vec<Accessor>& path, types::Type *type, Ini
             */
             [&](Box<ExprMIR>& expr) mutable {
                 bsv_dbprint("Validator: matched on single expression");
-                expr->accept(*this);
-                if (type != expr->eff_type) {
-                    bsv_dbprint("types are not equal, checking compatibility");
-                    if (type->coercable_to(expr->eff_type)) {
-
-                    } else {
-                        add_error<InvalidCoerceError>(type, expr->eff_type, expr->loc);
-                    }
-                    if (type->is_array()) {
-                        // the only time an array should match here is if we're assigning a string
-                        // literal
-                    }
-                }
-            },
-            [&](Box<InitializerMIR::Member>& mem) {
-                // member validation was done in the previous call
-                eval_initializer_rec(path, type, *mem->initializer);
-            },
-            [&](Box<InitializerMIR::Index>& idx) {
-                // index validation was done in the previous call
-                eval_initializer_rec(path, type, *idx->initializer);
+                eval_initializer_expr(type, expr, init);
             },
             /*
             Recursive case. If there is a list of initializers, this has to be a class or array.
@@ -70,25 +55,82 @@ void Validator::eval_initializer_rec(Vec<Accessor>& path, types::Type *type, Ini
                 default:
                     // todo: throw error
                 }
+            },
+            /*
+            Designated initializers are handled within their respective recursive calls (see
+            recursive case above).
+
+            They are guaranteed not to occur here, since they only occur within compound
+            initializers, and is enforced syntactically.
+            */
+            [&](auto&) {
+                throw std::runtime_error(
+                    "encountered variant other than ExprMIR and Vec<Box<InitializerMIR>>");
             }},
         init.initializer);
 }
 
+void Validator::eval_initializer_expr(Type *type, Box<ExprMIR>& expr, InitializerMIR& init) {
+    expr->accept(*this);
+    if (type != expr->eff_type) {
+        bsv_dbprint("types are not equal, checking compatibility");
+        if (type->coercable_to(expr->eff_type)) {
+            init.initializer = cast(expr->eff_type, std::move(expr));
+        } else {
+            add_error<InvalidCoerceError>(type, expr->eff_type, expr->loc);
+        }
+        if (type->is_array()) {
+            // the only time an array should match here is if we're assigning a string
+            // literal
+        }
+    }
+}
+
 void Validator::eval_initializer_rec_cls(
-    Vec<Accessor>& path, ClassType *cls, Vec<Box<InitializerMIR>>& inits) {
+    types::AccessorPath& path, ClassType *cls, Vec<Box<InitializerMIR>>& inits) {
     assert(cls && "cls was null while evaluating initializer");
 
     for (auto&& [idx, init] : std::views::enumerate(inits)) {
+        std::visit(
+            match{
+                [&](Box<ExprMIR>& expr) {
+
+                },
+                [&](Box<InitializerMIR::Member>& mem) {
+
+                },
+                [&](Box<InitializerMIR::Index>& idx) {
+                    // todo: throw error
+                },
+                [&](Vec<Box<InitializerMIR>>& inits) {
+
+                }},
+            init->initializer);
     }
 
     // todo
 }
 
 void Validator::eval_initializer_rec_arr(
-    Vec<Accessor>& path, ArrayType *arr, Vec<Box<InitializerMIR>>& inits) {
+    types::AccessorPath& path, ArrayType *arr, Vec<Box<InitializerMIR>>& inits) {
     assert(arr && "arr was null while evaluating initializer");
 
     for (auto&& [idx, init] : std::views::enumerate(inits)) {
+        std::visit(
+            match{
+                [&](Box<ExprMIR>& expr) {
+
+                },
+                [&](Box<InitializerMIR::Member>& mem) {
+                    // todo: throw error
+                },
+                [&](Box<InitializerMIR::Index>& idx) {
+
+                },
+                [&](Vec<Box<InitializerMIR>>& inits) {
+
+                }},
+            init->initializer);
     }
 
     // todo
@@ -120,6 +162,15 @@ void Validator::do_visit(VarDeclMIR& node) {
         if (decl.initializer) {
             visit_single_vardecl(decl.sym, **decl.initializer);
         }
+    }
+}
+
+void Validator::do_visit(TypeDeclMIR& node) { // done
+    bsv_dbprint("Validator: visiting TypeDeclMIR node");
+    try {
+        node.sym->type->finalize();
+    } catch (TypeSemError& e) {
+        add_error<TypeSemError>(e);
     }
 }
 
@@ -256,17 +307,18 @@ void Validator::do_visit(ReturnStmtMIR& node) {
         throw UnableToContinue();
     }
 
-    if (node.ret_expr) {
-        (*node.ret_expr)->accept(*this);
-    }
-
     if (!node.ret_expr)
         return;
 
     FunctionMIR *func = dynamic_cast<FunctionMIR *>(get_context(MIRNode::NodeKind::FUNC_MIR));
     assert(func && "unable to get FunctionMIR");
 
-    // todo: check return types
+    if (node.ret_expr) {
+        (*node.ret_expr)->accept(*this);
+        // todo: check return type
+        if ((*node.ret_expr)->act_type /* == func.returntype */) {
+        }
+    }
 }
 
 void Validator::do_visit(BinaryExprMIR& node) {

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 #include "semantics/types.hpp"
 #ifndef ECC_TYPE_ERR_H
 #define ECC_TYPE_ERR_H
@@ -49,12 +51,53 @@ public:
         : TypeSemError("invalid class member", err_loc), type(cls->formal()),
           member(std::move(member)) {}
 
-    std::string type;
-    std::string member;
+    std::string type, member;
 
     std::string elab() override {
         std::stringstream ss;
         ss << "no member named \'" << member << "\' in class " << type;
+
+        return ss.str();
+    }
+};
+
+class MemberNameCollision : public TypeSemError {
+public:
+    MemberNameCollision(Location err_loc, std::string member_name, Location def_loc)
+        : TypeSemError(std::format("member already exists: {}", member_name), err_loc),
+          member_name(std::move(member_name)), def_loc(def_loc) {}
+
+    std::string member_name;
+    Location def_loc;
+
+    std::string elab() override {
+        std::stringstream ss;
+        ss << "member previously defined at <" << def_loc << ">";
+
+        return ss.str();
+    }
+};
+
+/**
+An error for when a UnionType contains a member that is larger than the type representative.
+*/
+class UnionTypeRepSizeOverflow : public TypeSemError {
+public:
+    UnionTypeRepSizeOverflow(
+        Location err_loc, Location member_loc, types::Type *member_type, size_t max_size,
+        size_t err_size)
+        : TypeSemError("member larger than union type representative", err_loc),
+          member_loc(member_loc), member_type(member_type->formal()), max_size(max_size),
+          err_size(err_size) {}
+
+    Location member_loc;
+    std::string member_type;
+    size_t max_size, err_size;
+
+    std::string elab() override {
+        std::stringstream ss;
+        ss << "type representative has size " << ", found member of type " << member_type
+           << " with size " << err_size;
 
         return ss.str();
     }
@@ -76,6 +119,23 @@ public:
         : TypeSemError("invalid return type for function", err_loc) {}
 
     std::string elab() override { return "functions cannot return arrays or other functions"; }
+};
+
+class EnumeratorCountOverflow : public TypeSemError {
+public:
+    EnumeratorCountOverflow(Location err_loc, uint64_t max_ct, uint64_t enumerator_ct)
+        : TypeSemError("more enumerators than maximum size of enum", err_loc), max_ct(max_ct),
+          enumerator_ct(enumerator_ct) {}
+
+    uint64_t max_ct, enumerator_ct;
+
+    std::string elab() override {
+        std::stringstream ss;
+
+        ss << "enum can have maximum " << max_ct << " enumerators, but contains " << enumerator_ct;
+
+        return ss.str();
+    }
 };
 
 class EnumeratorAlrDecldError : public TypeSemError {

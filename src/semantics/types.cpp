@@ -1,6 +1,7 @@
 #include "semantics/types.hpp"
 
 #include <cfloat>
+#include <initializer_list>
 #include <memory>
 #include <stdexcept>
 #include <utility>
@@ -244,15 +245,110 @@ std::string PrimitiveType::formal() {
 }
 
 /*
+ * ACCESSOR METHODS
+ */
+
+AccessorPath::AccessorPath(std::initializer_list<AccessorNode> nodes) {
+    for (const auto& node : nodes) {
+        push(node);
+    }
+}
+
+Accessor& AccessorPath::operator[](size_t idx) const {
+    Accessor *curr_acc = first_elem;
+    size_t curr_idx    = 0;
+    while (curr_idx != idx) {
+        if (curr_acc) {
+            curr_acc = curr_acc->next;
+            curr_idx++;
+        } else {
+            throw std::out_of_range("specified index for AccessorPath out of range");
+        }
+    }
+
+    assert(curr_acc->idx == curr_idx);
+
+    return *curr_acc;
+}
+
+bool AccessorPath::operator==(const AccessorPath& other) const {
+    if (size() != other.size())
+        return false;
+
+    for (size_t i = 0; i < size(); ++i) {
+        Accessor& mine   = (*this)[i];
+        Accessor& theirs = other[i];
+        if (mine != theirs)
+            return false;
+    }
+
+    return true;
+}
+
+void AccessorPath::push(Box<Accessor> acc) {
+    if (size() == 0) {
+        acc->idx  = 0;
+        acc->next = acc->prev = nullptr;
+        first_elem = last_elem = acc.get();
+    } else {
+        acc->idx        = size();
+        last_elem->next = acc.get();
+        acc->prev       = last_elem;
+        last_elem       = acc.get();
+    }
+    nodes.push_back(std::move(acc));
+}
+
+void AccessorPath::push(const AccessorNode& node) {
+    std::visit(
+        match{
+            [&](const MemberAcc& mem) { push(mem); },
+            [&](const IndexAcc idx) { push(idx); },
+        },
+        node);
+}
+
+void AccessorPath::push(const std::string& mem) {
+    Box<Accessor> acc = make_box<Accessor>(mem);
+    push(std::move(acc));
+}
+
+void AccessorPath::push(size_t idx) {
+    Box<Accessor> acc = make_box<Accessor>(idx);
+    push(std::move(acc));
+}
+
+void AccessorPath::extend(AccessorPath& path) {
+    for (auto& acc : path) {
+        push(make_box<Accessor>(acc));
+    }
+}
+
+void AccessorPath::extend(Accessor& acc) {
+    Accessor *curr = &acc;
+    while (curr) {
+        push(make_box<Accessor>(*curr));
+        curr = curr->next;
+    }
+}
+
+/*
  * RECORD TYPE METHODS
  */
 
-void RecordType::validate_member_type(Type *type, Optional<std::string> name, Location loc) {
+void RecordType::validate_new_member(Type *type, Optional<std::string> name, Location loc) {
     if (type == this) {
         // check for recursion without indirection
 
         // member is guaranteed to have name, as anonymous types cannot be re-referenced
         throw RecursiveTypeError(*name, loc);
+    }
+
+    if (name) {
+        // search recursively, not just immediate
+        if (TypeMember *member = find(*name)) {
+            throw MemberNameCollision(loc, *name, member->loc);
+        }
     }
 
     if (type->is_usertype()) {
@@ -281,19 +377,52 @@ void RecordType::validate_member_type(Type *type, Optional<std::string> name, Lo
 void RecordType::add_member(std::string name, Type *type, Location loc) {
     dbprint("ClassType: adding member with name ", name, " type ", type);
 
-    validate_member_type(type, name, loc);
+    validate_new_member(type, name, loc);
 
-    Box<TypeMember> member = std::make_unique<TypeMember>(name, type, loc);
+    Box<TypeMember> member = std::make_unique<TypeMember>(name, type, loc, members.size());
     members.push_back(std::move(member));
 }
 
 void RecordType::add_member(Type *type, Location loc) {
     dbprint("ClassType: adding anonymous member with type ", type);
 
-    validate_member_type(type, {}, loc);
+    validate_new_member(type, {}, loc);
 
-    Box<TypeMember> member = std::make_unique<TypeMember>(type, loc);
+    Box<TypeMember> member = std::make_unique<TypeMember>(type, loc, members.size());
     members.push_back(std::move(member));
+}
+
+AccessorPath RecordType::index(std::string& name) {
+    AccessorPath path;
+
+    if (!find(name))
+        return path;
+
+    // Try to find the name non-recursively
+    TypeMember *maybe = find_imm(name);
+    if (maybe) {
+        // If found, push the index
+        path.push(maybe->idx);
+    } else {
+        // If not found, check the anonymous members
+
+        // For each anonymous member
+        for (auto& mem : anon_members()) {
+            // Cast the member as a record type, skipping if unable
+            RecordType *mem_rec = mem->ty->as_recordtype();
+            if (!mem_rec)
+                continue;
+            // If the type doesn't contain the member at all
+            if (!mem_rec->find(name))
+                continue;
+
+            auto rec_path = mem_rec->index(name);
+            path.extend(rec_path);
+            break;
+        }
+    }
+
+    return path;
 }
 
 RecordType::TypeMember *RecordType::find(std::string& name) {
@@ -321,11 +450,50 @@ RecordType::TypeMember *RecordType::find(std::string& name) {
     return nullptr;
 }
 
+RecordType::TypeMember *RecordType::find_imm(std::string& name) {
+    for (auto& mem : named_members()) {
+        if (*mem->name == name) {
+            return mem.get();
+        }
+    }
+
+    return nullptr;
+}
+
 RecordType::TypeMember *RecordType::find(size_t idx) {
     if (idx >= num_members()) {
         return nullptr;
     }
     return members[idx].get();
+}
+
+RecordType::TypeMember *RecordType::find(Accessor& acc) {
+    return std::visit(
+        match{[&](MemberAcc& mem) { return find(mem); }, [&](IndexAcc idx) { return find(idx); }},
+        acc.accessor);
+}
+
+RecordType::TypeMember *RecordType::find_by_path(AccessorPath& path) {
+    TypeMember *curr    = nullptr;
+    RecordType *curr_ty = this;
+
+    for (auto& acc : path) {
+        curr = curr_ty->find(acc);
+        if (!curr)
+            break;
+
+        if (!(curr->ty->is_recordtype()) && acc.next) {
+            // if the current type member is not a record type, but we still have
+            // accessors remaining, return null
+            return nullptr;
+        } else {
+            // otherwise, set curr_ty to
+            curr_ty = curr->ty->as_recordtype();
+            assert(curr_ty);
+        }
+    }
+
+    return curr;
 }
 
 /*
@@ -487,11 +655,26 @@ void UnionType::finalize() {
         // since type_rep is primitive, it is guaranteed to be finalized
         llvm_type = (*type_rep)->get_llvmtype();
 
-        // todo: validate that no members are larger than type rep
-        todo();
+        size_t type_rep_size = (*type_rep)->alloc_size();
+
+        // validate that no members are larger than type rep
+        for (auto& member : members) {
+            size_t mem_size = member->ty->alloc_size();
+            if (mem_size > type_rep_size) {
+                throw UnionTypeRepSizeOverflow(
+                    def_loc, member->loc, member->ty, type_rep_size, mem_size);
+            }
+        }
     } else {
-        // todo: get largest member and set that as llvm_type
-        todo();
+        // get largest member for the size
+        auto largest = std::max(members.begin(), members.end(), [](auto s1, auto s2) {
+            return (*s1)->ty->alloc_size() < (*s2)->ty->alloc_size();
+        });
+
+        size_t size = (*largest)->ty->alloc_size();
+
+        // set llvm_type as an array of unsigned bytes with size equal to largest member
+        llvm_type = llvm::ArrayType::get(ctxt().u8->get_llvmtype(), size);
     }
 
     finalized = true;
@@ -586,7 +769,11 @@ void EnumType::finalize() {
     underlying->finalize();
     llvm_type = underlying->get_llvmtype();
 
-    // todo: check # of enumerators <= max value of underlying
+    // check # of enumerators <= max value of underlying
+    auto max_enum_ct = *underlying->int_max();
+    if (max_enum_ct < num_enumerators()) {
+        throw EnumeratorCountOverflow(def_loc, max_enum_ct, num_enumerators());
+    }
 
     finalized = true;
 }
