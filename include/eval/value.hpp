@@ -292,45 +292,38 @@ class ValueRange {
 public:
     ValueRange(Value& start, Value& end);
 
-    class ValueRangeIter {
-        Value val;
-        ValueRange *range;
+    class ValueRangeItem {
+        Value curr;
 
     public:
         using difference_type = std::ptrdiff_t;
         using value_type      = Value;
 
-        ValueRangeIter(Value& val, ValueRange *range) : val(val), range(range) {}
+        ValueRangeItem(Value val) : curr(val) {} // NOLINT
 
-        Value operator*() const { return val; }
+        Value operator*() const { return curr; }
 
-        ValueRangeIter& operator++(int) {
-            val         = range->curr;
-            range->curr = range->curr + 1;
+        ValueRangeItem operator++(int) { return ValueRangeItem(curr + 1); }
+
+        ValueRangeItem& operator++() {
+            curr = curr + 1;
             return *this;
         }
 
-        ValueRangeIter& operator++() {
-            range->curr = range->curr + 1;
-            val         = range->curr;
-            return *this;
-        }
+        bool operator==(const ValueRangeItem& other) const { return curr == other.curr; }
 
-        bool operator==(ValueRangeIter& other) const { return val == other.val; }
+        bool operator!=(const ValueRangeItem& other) const { return !(*this == other); }
+    }; // end class ValueRangeItem
 
-        bool operator!=(ValueRangeIter& other) const { return !(*this == other); }
-    };
+    ValueRangeItem begin() { return ValueRangeItem(start); }
 
-    ValueRangeIter begin() { return ValueRangeIter(start, this); }
-
-    ValueRangeIter end() { return ValueRangeIter(finish, this); }
+    ValueRangeItem end() { return ValueRangeItem(finish); }
 
 private:
     Value start, finish;
-    Value curr;
 };
 
-static_assert(std::input_iterator<ValueRange::ValueRangeIter>);
+static_assert(std::input_iterator<ValueRange::ValueRangeItem>);
 
 } // namespace ecc::eval
 

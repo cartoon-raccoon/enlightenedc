@@ -442,6 +442,4 @@ ValueRange::ValueRange(Value& start, Value& end) {
     this->start = promoted.first;
     // ranges are inclusive, so our end should be end + 1
     this->finish = promoted.second + 1;
-
-    this->curr = this->start;
 }
