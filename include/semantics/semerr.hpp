@@ -7,7 +7,7 @@
 
 #include "error.hpp"
 #include "semantics/types.hpp"
-#include "util.hpp"
+#include "location.hpp"
 
 namespace ecc::sema {
 using namespace ecc;

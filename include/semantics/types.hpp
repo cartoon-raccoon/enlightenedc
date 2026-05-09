@@ -21,6 +21,7 @@
 #include "codegen/llvm.hpp"
 #include "tokens.hpp"
 #include "util.hpp"
+#include "location.hpp"
 
 /*
 Forward declaration of Scope from symbols
@@ -41,7 +42,7 @@ equivalent to a single pointer comparison (with the exception of arrays; see bel
 namespace ecc::sema::types {
 
 using namespace util;
-using namespace ecc;
+using namespace location;
 
 class Type;
 class BaseType;

@@ -12,6 +12,7 @@
 #include "eval/value.hpp"
 #include "semantics/types.hpp"
 #include "util.hpp"
+#include "location.hpp"
 
 namespace ecc::sema::sym {
 /*
@@ -26,6 +27,7 @@ corresponding Symbol objects, within Scope objects.
 
 using namespace ecc;
 using namespace util;
+using namespace location;
 
 class PhysicalSymbol;
 class AbstractSymbol;

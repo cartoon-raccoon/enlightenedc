@@ -12,9 +12,11 @@
 #include "semantics/types.hpp"
 #include "tokens.hpp"
 #include "util.hpp"
+#include "location.hpp"
 
 using namespace ecc;
 using namespace util;
+using namespace location;
 
 /*
 \namespace ecc::sema::mir

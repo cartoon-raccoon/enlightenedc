@@ -5,13 +5,14 @@
 
 #include <utility>
 #include <variant>
-#include <vector>
 
 #include "tokens.hpp"
 #include "util.hpp"
+#include "location.hpp"
 
 using namespace ecc;
 using namespace ecc::util;
+using namespace ecc::location;
 
 /* Class definitions of AST nodes and subclasses. */
 namespace ecc::ast {
@@ -24,7 +25,7 @@ class ASTVisitor;
 // that inherits from this main superclass.
 class ASTNode : public NoCopy {
 public:
-    util::Location loc;
+    Location loc;
 
     enum NodeKind : uint8_t {
         TYPE_QUAL,

@@ -9,7 +9,7 @@
 %define api.parser.class {Parser}
 %define api.value.type variant
 %define api.token.constructor
-%define api.location.type {ecc::util::Location}
+%define api.location.type {ecc::location::Location}
 // temp to debug
 %define parse.trace
 // todo: create custom error messages

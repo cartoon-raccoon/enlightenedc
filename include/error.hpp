@@ -7,9 +7,11 @@
 #include <sstream>
 #include <string>
 
+#include "location.hpp"
 #include "util.hpp"
 
 using namespace ecc::util;
+using namespace ecc::location;
 namespace ecc {
 
 enum class ErrorSource : uint8_t {

@@ -9,11 +9,12 @@
 #include <sstream>
 
 #include "error.hpp"
-#include "util.hpp"
+#include "location.hpp"
 
 namespace ecc::sema {
 
 using namespace ecc;
+using namespace location;
 
 class TypeSemError : public EccSemError {
 public:
