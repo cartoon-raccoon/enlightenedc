@@ -66,16 +66,7 @@ public:
     Point end;
 
     /**
-    Construct a Location from two points.#include <exception>
-#include <functional>
-#include <memory>
-#include <optional>
-#include <source_location>
-#include <sstream>
-#include <type_traits>
-#include <utility>
-#include <variant>
-#include <vector>
+    Construct a Location from two points.
     */
     Location(Point start, Point end) : begin(start), end(end) {}
 
@@ -154,7 +145,7 @@ std::basic_ostream<T>& operator<<(std::basic_ostream<T>& ostr, const Location& l
     return ostr;
 }
 
-} // namespace
+} // namespace ecc::location
 
 // Injecting hash specializations into std namespace
 namespace std {

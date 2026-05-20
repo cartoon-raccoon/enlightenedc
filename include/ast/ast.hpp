@@ -6,9 +6,9 @@
 #include <utility>
 #include <variant>
 
+#include "location.hpp"
 #include "tokens.hpp"
 #include "util.hpp"
-#include "location.hpp"
 
 using namespace ecc;
 using namespace ecc::util;

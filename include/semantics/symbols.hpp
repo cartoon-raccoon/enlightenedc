@@ -10,9 +10,9 @@
 
 #include "ast/ast.hpp"
 #include "eval/value.hpp"
+#include "location.hpp"
 #include "semantics/types.hpp"
 #include "util.hpp"
-#include "location.hpp"
 
 namespace ecc::sema::sym {
 /*

@@ -7,12 +7,12 @@
 
 #include "eval/evaluator.hpp"
 #include "eval/value.hpp"
+#include "location.hpp"
 #include "semantics/primitives.hpp"
 #include "semantics/symbols.hpp"
 #include "semantics/types.hpp"
 #include "tokens.hpp"
 #include "util.hpp"
-#include "location.hpp"
 
 using namespace ecc;
 using namespace util;

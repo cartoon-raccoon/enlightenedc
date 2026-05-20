@@ -6,8 +6,8 @@
 #include <sstream>
 
 #include "error.hpp"
-#include "semantics/types.hpp"
 #include "location.hpp"
+#include "semantics/types.hpp"
 
 namespace ecc::sema {
 using namespace ecc;
