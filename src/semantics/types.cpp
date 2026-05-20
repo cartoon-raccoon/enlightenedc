@@ -1,7 +1,6 @@
 #include "semantics/types.hpp"
 
 #include <cfloat>
-#include <initializer_list>
 #include <memory>
 #include <stdexcept>
 #include <utility>
@@ -248,90 +247,6 @@ std::string PrimitiveType::formal() {
  * ACCESSOR METHODS
  */
 
-AccessorPath::AccessorPath(std::initializer_list<AccessorNode> nodes) {
-    for (const auto& node : nodes) {
-        push(node);
-    }
-}
-
-Accessor& AccessorPath::operator[](size_t idx) const {
-    Accessor *curr_acc = first_elem;
-    size_t curr_idx    = 0;
-    while (curr_idx != idx) {
-        if (curr_acc) {
-            curr_acc = curr_acc->next;
-            curr_idx++;
-        } else {
-            throw std::out_of_range("specified index for AccessorPath out of range");
-        }
-    }
-
-    assert(curr_acc->idx == curr_idx);
-
-    return *curr_acc;
-}
-
-bool AccessorPath::operator==(const AccessorPath& other) const {
-    if (size() != other.size())
-        return false;
-
-    for (size_t i = 0; i < size(); ++i) {
-        Accessor& mine   = (*this)[i];
-        Accessor& theirs = other[i];
-        if (mine != theirs)
-            return false;
-    }
-
-    return true;
-}
-
-void AccessorPath::push(Box<Accessor> acc) {
-    if (size() == 0) {
-        acc->idx  = 0;
-        acc->next = acc->prev = nullptr;
-        first_elem = last_elem = acc.get();
-    } else {
-        acc->idx        = size();
-        last_elem->next = acc.get();
-        acc->prev       = last_elem;
-        last_elem       = acc.get();
-    }
-    nodes.push_back(std::move(acc));
-}
-
-void AccessorPath::push(const AccessorNode& node) {
-    std::visit(
-        match{
-            [&](const MemberAcc& mem) { push(mem); },
-            [&](const IndexAcc idx) { push(idx); },
-        },
-        node);
-}
-
-void AccessorPath::push(const std::string& mem) {
-    Box<Accessor> acc = make_box<Accessor>(mem);
-    push(std::move(acc));
-}
-
-void AccessorPath::push(size_t idx) {
-    Box<Accessor> acc = make_box<Accessor>(idx);
-    push(std::move(acc));
-}
-
-void AccessorPath::extend(AccessorPath& path) {
-    for (auto& acc : path) {
-        push(make_box<Accessor>(acc));
-    }
-}
-
-void AccessorPath::extend(Accessor& acc) {
-    Accessor *curr = &acc;
-    while (curr) {
-        push(make_box<Accessor>(*curr));
-        curr = curr->next;
-    }
-}
-
 /*
  * RECORD TYPE METHODS
  */
@@ -402,7 +317,7 @@ AccessorPath RecordType::index(std::string& name) {
     TypeMember *maybe = find_imm(name);
     if (maybe) {
         // If found, push the index
-        path.push(maybe->idx);
+        path.push_back(maybe->idx);
     } else {
         // If not found, check the anonymous members
 
@@ -482,7 +397,7 @@ RecordType::TypeMember *RecordType::find_by_path(AccessorPath& path) {
         if (!curr)
             break;
 
-        if (!(curr->ty->is_recordtype()) && acc.next) {
+        if (!(curr->ty->is_recordtype()) && acc.next()) {
             // if the current type member is not a record type, but we still have
             // accessors remaining, return null
             return nullptr;

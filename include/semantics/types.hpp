@@ -1,14 +1,12 @@
 #pragma once
 
-#include <algorithm>
-#include <initializer_list>
 #ifndef ECC_TYPES_H
 #define ECC_TYPES_H
 
+#include <algorithm>
 #include <cassert>
 #include <concepts>
 #include <cstddef>
-#include <iterator>
 #include <memory>
 #include <sstream>
 #include <stack>
@@ -19,9 +17,10 @@
 #include <variant>
 
 #include "codegen/llvm.hpp"
+#include "ds/linkedlist.hpp"
+#include "location.hpp"
 #include "tokens.hpp"
 #include "util.hpp"
-#include "location.hpp"
 
 /*
 Forward declaration of Scope from symbols
@@ -404,157 +403,39 @@ A class for accessing a member of a RecordType.
 
 RecordType members can be accessed either by an index or a member.
 */
-class Accessor {
+class Accessor : public ds::LinkedListNode<Accessor> {
 public:
     Accessor(AccessorNode accessor) : accessor(std::move(accessor)) {}
-    Accessor(const Accessor& acc) : accessor(acc.accessor) {}
+    
+    Accessor(size_t idx) : accessor(idx) {}
+
+    Accessor(std::string member) : accessor(std::move(member)) {}
+    
     Accessor(Accessor&& acc) noexcept
-        : accessor(std::move(acc.accessor)), idx(acc.idx), prev(acc.prev), next(acc.next) {
-
-        acc.idx  = 0;
-        acc.prev = nullptr;
-        acc.next = nullptr;
-    }
-
-    bool operator==(const Accessor& other) const {
-        return accessor == other.accessor && idx == other.idx;
-    }
+        : accessor(std::move(acc.accessor)) {}
 
     AccessorNode accessor;
-
-    size_t idx = 0;
 
     bool is_member() const { return std::holds_alternative<MemberAcc>(accessor); }
 
     bool is_index() const { return std::holds_alternative<IndexAcc>(accessor); }
 
-private:
-    friend class AccessorPath;
-    friend class AccessorPathItem;
-    friend class RecordType;
-
-    Accessor *prev = nullptr;
-    Accessor *next = nullptr;
+    bool operator==(const Accessor& other) const {
+        return accessor == other.accessor;
+    }
 };
 
-/**
-An iterator for iterating over the nodes within an accessor path.
-*/
-class AccessorPathItem {
-    Accessor *curr;
-
+class AccessorPath : public ds::LinkedList<Accessor> {
 public:
-    using difference_type = std::ptrdiff_t;
-    using value_type      = Accessor;
-    using pointer         = Accessor *;
-    using reference       = Accessor&;
-
-    AccessorPathItem() : curr(nullptr) {}
-
-    AccessorPathItem(Accessor *elem) : curr(elem) {}
-
-    Accessor& operator*() const { return *curr; }
-
-    AccessorPathItem& operator++() { // ++x
-        if (curr) {
-            curr = curr->next;
-        }
-        return *this;
-    }
-
-    AccessorPathItem operator++(int) { // x++
-        AccessorPathItem tmp = *this;
-        if (curr)
-            curr = curr->next;
-        return tmp;
-    }
-
-    AccessorPathItem& operator--() { // --x
-        if (curr) {
-            curr = curr->prev;
-        }
-        return *this;
-    }
-
-    AccessorPathItem operator--(int) { // x--
-        AccessorPathItem tmp = *this;
-        if (curr)
-            curr = curr->prev;
-        return tmp;
-    }
-
-    bool operator==(const AccessorPathItem& other) const { return curr == other.curr; }
-
-    bool operator!=(const AccessorPathItem& other) const { return curr != other.curr; }
-};
-
-static_assert(std::bidirectional_iterator<AccessorPathItem>);
-
-class AccessorPath {
-public:
-    AccessorPath() {};
-
-    AccessorPath(std::initializer_list<AccessorNode>);
-
-    AccessorPath(AccessorPath&& path) noexcept
-        : nodes(std::move(path.nodes)), first_elem(path.first_elem), last_elem(path.last_elem) {
-        path.first_elem = nullptr;
-        path.last_elem  = nullptr;
-    }
 
     ~AccessorPath() = default;
 
-    Accessor& operator[](size_t idx) const;
-
     bool operator==(const AccessorPath& other) const;
-
-    void push(const AccessorNode& node);
-
-    void push(const std::string& mem);
-
-    void push(size_t idx);
-
-    /**
-    Extend the accessor path with another accessor path.
-    */
-    void extend(AccessorPath& path);
-
-    /**
-    Extend the accessor path with an accessor and all its subsequent accessors.
-    */
-    void extend(Accessor& acc);
-
-    bool is_all_indices() {
-        return std::all_of(begin(), end(), [](Accessor& acc) { return acc.is_index(); });
-    }
 
     bool is_all_members() {
         return std::all_of(begin(), end(), [](Accessor& acc) { return acc.is_member(); });
     }
-
-    size_t size() const { return nodes.size(); }
-
-    bool empty() { return nodes.empty(); }
-
-    Accessor& first() { return *first_elem; }
-
-    Accessor& last() { return *last_elem; }
-
-    AccessorPathItem begin() { return AccessorPathItem(first_elem); }
-
-    AccessorPathItem end() { return AccessorPathItem(last_elem); }
-
-private:
-    void push(Box<Accessor> acc);
-
-    Vec<Box<Accessor>> nodes;
-
-    Accessor *first_elem = nullptr;
-    Accessor *last_elem  = nullptr;
 };
-
-class NamedMembersIter;
-class AnonMembersIter;
 
 /**
 An abstract UserType with members that can be accessed using the dot (`.`)
