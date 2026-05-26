@@ -1,5 +1,6 @@
 #pragma once
 
+#include <compare>
 #ifndef ECC_UTIL_H
 #define ECC_UTIL_H
 
@@ -152,7 +153,9 @@ public:
 
     I value() const { return val; }
 
-    void inc() { val++; }
+    I inc() { return val++; }
+
+    I add(I n) { return val += n; }
 
     I operator*() { return val; }
 
@@ -160,13 +163,15 @@ public:
 
     I operator++(int) { return ++val; }
 
-    bool operator==(const MonotonicCtr<I>& other) { return val == other.val; }
+    I operator +(I n) const { return val + n; }
 
-    bool operator==(const I& other) { return val == other; }
+    I operator -(I n) const { return val - n; }
 
-    bool operator<(const MonotonicCtr<I>& other) { return val < other.val; }
+    I operator +=(I n) { return add(n); }
 
-    bool operator>(const I& other) { return val < other; }
+    std::strong_ordering operator<=>(const MonotonicCtr<I>& other) { return val <=> other.val; }
+
+    std::strong_ordering operator<=>(const I& other) { return val <=> other; }
 };
 
 class NoCopy { // NOLINT(cppcoreguidelines-special-member-functions)
