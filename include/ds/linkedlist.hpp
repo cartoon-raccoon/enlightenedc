@@ -15,7 +15,7 @@ namespace ecc::ds {
 
 /**
  * A node in an intrusive doubly-linked list.
- * 
+ *
  * Users of this API should use CRTP with the linked list node.
  */
 template <typename Node>
@@ -43,7 +43,9 @@ public:
 
     template <typename N>
         requires std::derived_from<N, LinkedListNode<N>>
-    Node& as() { return static_cast<Node&>(*this); }
+    Node& as() {
+        return static_cast<Node&>(*this);
+    }
 };
 
 /**
@@ -310,28 +312,28 @@ public:
 private:
     void push_back(Box<LinkedListNode<T>> item) {
         if (size() == 0) {
-            item->idx  = 0;
+            item->idx       = 0;
             item->next_node = item->prev_node = nullptr;
             first_elem = last_elem = item.get();
         } else {
-            item->idx       = size();
+            item->idx            = size();
             last_elem->next_node = item.get();
             item->prev_node      = last_elem;
-            last_elem       = item.get();
+            last_elem            = item.get();
         }
         nodes.push_back(std::move(item));
     }
 
     void push_front(Box<LinkedListNode<T>> item) {
         if (size() == 0) {
-            item->idx  = 0;
+            item->idx       = 0;
             item->next_node = item->prev_node = nullptr;
             first_elem = last_elem = item.get();
         } else {
-            item->idx        = 0;
+            item->idx             = 0;
             first_elem->prev_node = item.get();
             item->next_node       = first_elem;
-            first_elem       = item.get();
+            first_elem            = item.get();
         }
         nodes.push_back(std::move(item));
     }
@@ -357,7 +359,7 @@ private:
 
             assert(curr_acc->idx == curr_idx);
 
-            item->idx      = idx;
+            item->idx           = idx;
             item->prev_node     = curr_acc->prev_node;
             item->next_node     = curr_acc;
             curr_acc->prev_node = item.get();

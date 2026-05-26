@@ -406,13 +406,12 @@ RecordType members can be accessed either by an index or a member.
 class Accessor : public ds::LinkedListNode<Accessor> {
 public:
     Accessor(AccessorNode accessor) : accessor(std::move(accessor)) {}
-    
+
     Accessor(size_t idx) : accessor(idx) {}
 
     Accessor(std::string member) : accessor(std::move(member)) {}
-    
-    Accessor(Accessor&& acc) noexcept
-        : accessor(std::move(acc.accessor)) {}
+
+    Accessor(Accessor&& acc) noexcept : accessor(std::move(acc.accessor)) {}
 
     AccessorNode accessor;
 
@@ -420,14 +419,11 @@ public:
 
     bool is_index() const { return std::holds_alternative<IndexAcc>(accessor); }
 
-    bool operator==(const Accessor& other) const {
-        return accessor == other.accessor;
-    }
+    bool operator==(const Accessor& other) const { return accessor == other.accessor; }
 };
 
 class AccessorPath : public ds::LinkedList<Accessor> {
 public:
-
     ~AccessorPath() = default;
 
     bool operator==(const AccessorPath& other) const;
