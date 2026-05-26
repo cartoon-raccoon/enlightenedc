@@ -20,7 +20,9 @@ void Validator::validate(ProgramMIR& progmir) {
 }
 
 Box<CastExprMIR> Validator::cast(Type *target, Box<mir::ExprMIR> expr) {
-    return make_box<CastExprMIR>(expr->loc, expr->scope, target, std::move(expr));
+    auto newexpr = make_box<CastExprMIR>(expr->loc, expr->scope, target, std::move(expr));
+    newexpr->set_type(target);
+    return newexpr;
 }
 
 void Validator::eval_initializer(types::Type *type, InitializerMIR& init) {
@@ -90,50 +92,78 @@ void Validator::eval_initializer_rec_cls(
     types::AccessorPath& path, ClassType *cls, Vec<Box<InitializerMIR>>& inits) {
     assert(cls && "cls was null while evaluating initializer");
 
+    size_t non_desigd_idx = 0;
     for (auto&& [idx, init] : std::views::enumerate(inits)) {
         std::visit(
             match{
                 [&](Box<ExprMIR>& expr) {
-
+                    path.push_back(non_desigd_idx);
+                    non_desigd_idx++;
+                    RecordType::TypeMember *mem = cls->find_by_path(path);
+                    if (!mem) {
+                        // todo: throw error
+                    }
+                    eval_initializer_expr(mem->ty, expr, *init);
                 },
                 [&](Box<InitializerMIR::Member>& mem) {
-
+                    path.push_back(mem->member);
+                    RecordType::TypeMember *member = cls->find_by_path(path);
+                    if (!member) {
+                        // todo: throw error
+                    }
+                    eval_initializer_rec(path, member->ty, *mem->initializer);
                 },
                 [&](Box<InitializerMIR::Index>& idx) {
-                    // todo: throw error
+                    add_error<InvalidInitializerError>(
+                        "index designators are not allowed in class initializers",
+                        idx->initializer->loc);
+                    throw UnableToContinue();
                 },
-                [&](Vec<Box<InitializerMIR>>& inits) {
-
+                [&](Vec<Box<InitializerMIR>>&) {
+                    path.push_back(non_desigd_idx);
+                    non_desigd_idx++;
+                    RecordType::TypeMember *mem = cls->find_by_path(path);
+                    if (!mem) {
+                        // todo: throw error
+                    }
+                    eval_initializer_rec(path, mem->ty, *init);
                 }},
             init->initializer);
     }
-
-    // todo
 }
 
 void Validator::eval_initializer_rec_arr(
     types::AccessorPath& path, ArrayType *arr, Vec<Box<InitializerMIR>>& inits) {
     assert(arr && "arr was null while evaluating initializer");
 
+    size_t non_desigd_idx = 0;
     for (auto&& [idx, init] : std::views::enumerate(inits)) {
         std::visit(
             match{
-                [&](Box<ExprMIR>& expr) {
-
-                },
+                [&](Box<ExprMIR>& expr) { eval_initializer_expr(arr->base, expr, *init); },
                 [&](Box<InitializerMIR::Member>& mem) {
-                    // todo: throw error
+                    add_error<InvalidInitializerError>(
+                        "member designators are not allowed in array initializers",
+                        mem->initializer->loc);
+                    throw UnableToContinue();
                 },
                 [&](Box<InitializerMIR::Index>& idx) {
+                    if (!idx->idx.is_integer()) {
+                        add_error<InvalidInitializerError>(
+                            "array index designated initializer must be an integer constant",
+                            idx->initializer->loc);
+                        throw UnableToContinue();
+                    }
 
+                    eval_initializer_rec(path, arr->base, *idx->initializer);
                 },
-                [&](Vec<Box<InitializerMIR>>& inits) {
-
+                [&](Vec<Box<InitializerMIR>>&) {
+                    path.push_back(non_desigd_idx);
+                    non_desigd_idx++;
+                    eval_initializer_rec(path, arr->base, *init);
                 }},
             init->initializer);
     }
-
-    // todo
 }
 
 void Validator::visit_single_vardecl(sym::VarSymbol *varsym, InitializerMIR& init) {
@@ -395,13 +425,16 @@ void Validator::do_visit(CondExprMIR& node) {
 
     if (true_type != false_type) {
         if (false_type->coercable_to(true_type)) {
-            // todo: implicit cast false to true, set type
+            node.false_expr = cast(true_type, std::move(node.false_expr));
         } else if (true_type->coercable_to(false_type)) {
-            // todo: implicit cast true to false, set type
+            node.true_expr = cast(false_type, std::move(node.true_expr));
         } else {
             add_error<InvalidCoerceError>(true_type, false_type, node.condition->loc);
         }
     }
+
+    assert(node.true_expr->act_type == node.false_expr->act_type);
+    node.set_type(node.true_expr->act_type);
 }
 
 void Validator::do_visit(IdentExprMIR& node) { // done
