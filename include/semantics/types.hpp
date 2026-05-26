@@ -63,11 +63,11 @@ A handle to a Type object, ensuring that the internal Type * can never be null.
 */
 template <typename Ty>
     requires std::derived_from<Ty, Type>
-class TypeHandle : public NoMove {
+class TypeHandle {
     static_assert(std::is_base_of_v<Type, Ty>, "Ty must be a Type");
 
     Ty *ptr;
-    TypeContext& tyctxt;
+    Ref<TypeContext> tyctxt;
 
     TypeHandle(Ty *ptr, TypeContext& tyctxt) : ptr(ptr), tyctxt(tyctxt) {
         assert(ptr != nullptr && "tried to create TypeHandle from null Type pointer");
@@ -97,7 +97,7 @@ public:
     }
 
     template <typename Dst>
-    TypeHandle(const TypeHandle<Dst>& dst) : ptr(dst.ptr) {}
+    TypeHandle(const TypeHandle<Dst>& dst) : ptr(dst.ptr), tyctxt(dst.tyctxt) {}
 
     template <typename Other>
     bool operator==(const TypeHandle<Other>& other) {
@@ -494,6 +494,9 @@ public:
     */
     TypeMember *find(std::string& name);
 
+    /**
+    Find a TypeMember by name, searching only in the immediate members.
+    */
     TypeMember *find_imm(std::string& name);
 
     TypeMember *find(size_t idx);
@@ -504,10 +507,22 @@ public:
 
     /**
     Converts a mixed accessor path into an accessor path of entirely indexes.
+
+    LLVM can only access struct members by index, so this is necessary to generate
+    correct code for member access.
     */
     AccessorPath indexify(AccessorPath& path);
 
     size_t num_members() const { return members.size(); }
+
+    /**
+    Check if the record type contains a specific type, either as a member, 
+    or through another record type, *without indirection* (hence the "directly").
+
+    Does not pass through indirection, so if the record type contains a pointer to a type,
+    that does not count as containing the type itself.
+    */
+    bool directly_contains(Type *ty) const;
 
     RecordType *as_recordtype() override { return this; }
 
@@ -521,18 +536,6 @@ protected:
         Location decl_loc, Kind kind, std::string name, TypeContext& tyctxt,
         sema::sym::Scope *scope)
         : UserType(decl_loc, kind, std::move(name), tyctxt, scope) {}
-};
-
-class NamedMembersIter {
-    std::span<Box<RecordType::TypeMember>> members_view;
-
-public:
-};
-
-class AnonMembersIter {
-    std::span<Box<RecordType::TypeMember>> members_view;
-
-public:
 };
 
 /**

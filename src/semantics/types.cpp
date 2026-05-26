@@ -252,8 +252,8 @@ std::string PrimitiveType::formal() {
  */
 
 void RecordType::validate_new_member(Type *type, Optional<std::string> name, Location loc) {
-    if (type == this) {
-        // check for recursion without indirection
+    if (directly_contains(type)) {
+        // check for recursion without indirection.
 
         // member is guaranteed to have name, as anonymous types cannot be re-referenced
         throw RecursiveTypeError(*name, loc);
@@ -409,6 +409,53 @@ RecordType::TypeMember *RecordType::find_by_path(AccessorPath& path) {
     }
 
     return curr;
+}
+
+AccessorPath RecordType::indexify(AccessorPath& path) {
+    AccessorPath idx_path;
+
+    TypeMember *curr    = nullptr;
+    RecordType *curr_ty = this;
+
+    for (auto& acc : path) {
+        curr = curr_ty->find(acc);
+        if (!curr) {
+            // if we fail to find an accessor in the path, return an empty path
+            return {};
+        }
+
+        idx_path.push_back(curr->idx);
+
+        if (acc.next()) {
+            // if we have more accessors, we need to make sure the current type is a record type
+            if (!curr->ty->is_recordtype()) {
+                // if it's not a record type, we can't index into it, so return an empty path
+                return {};
+            } else {
+                curr_ty = curr->ty->as_recordtype();
+                assert(curr_ty);
+            }
+        }
+    }
+
+    return idx_path;
+}
+
+bool RecordType::directly_contains(Type *ty) const {
+    for (const auto& mem : members) {
+        if (mem->ty == ty)
+            return true;
+        if (mem->ty->is_recordtype()) {
+            RecordType *rec = mem->ty->as_recordtype();
+            if (rec->directly_contains(ty))
+                return true;
+        } else if (mem->ty->is_array()) {
+            ArrayType *arr = mem->ty->as_array();
+            if (arr->base == ty)
+                return true;
+        }
+    }
+    return false;
 }
 
 /*
