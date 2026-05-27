@@ -2,6 +2,9 @@
 
 An LLVM-powered compiler and REPL for HolyC, the implementation language of TempleOS, created by Terry A. Davis.
 
+EnlightenedC is a dialect of HolyC that aims to adapt HolyC for production environments. It genuinely provides a
+good middle ground between the simplicity of C and the complexity of HolyC, and should be used more.
+
 ## Features
 
 - Powered by LLVM, so it can compile to any architecture.
@@ -56,3 +59,8 @@ $ ./ecc source.ec
 ```
 
 To run the EnlightenedC environment in REPL mode, simply run the `ecc` executable without any arguments.
+
+## Use of AI
+
+As evidenced by the presence of a CLAUDE.md file, AI is used to aid in development. However, it cannot
+make changes without being explicitly being asked to, and should never make commits (only humans are allowed to).
