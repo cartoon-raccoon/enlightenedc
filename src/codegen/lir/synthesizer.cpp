@@ -71,9 +71,15 @@ void LIRSynthesizer::do_visit(ProgramMIR& node) {
         LIRSynthItem item = consume();
         std::visit(
             match{
-                [this](Box<FunctionLIR>& func) { prog_lir.get().functions.push_back(std::move(func)); },
-                [this](Box<VarDeclLIR>& decl) { prog_lir.get().globals.push_back(std::move(decl)); },
-                [this](Box<ProgItemLIR>& item) { prog_lir.get().progitems.push_back(std::move(item)); },
+                [this](Box<FunctionLIR>& func) {
+                    prog_lir.get().functions.push_back(std::move(func));
+                },
+                [this](Box<VarDeclLIR>& decl) {
+                    prog_lir.get().globals.push_back(std::move(decl));
+                },
+                [this](Box<ProgItemLIR>& item) {
+                    prog_lir.get().progitems.push_back(std::move(item));
+                },
             },
             item);
     }
@@ -605,21 +611,69 @@ void LIRSynthesizer::do_visit(IdentExprMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(LiteralExprMIR& node) {
+    std::visit(
+        match{
+            [&](eval::Value& val) {
+                Box<ExprLIR> literal =
+                    std::make_unique<LiteralExprLIR>(node.loc, val, node.eff_type);
+                last_expr = std::move(literal);
+            },
+            [&](std::string&) {
+                // todo: figure out how to handle string literals in the LIR, since we
+                // don't want to embed them directly into the IR
+                todo();
+            }},
+        node.value);
 }
 
 void LIRSynthesizer::do_visit(CallExprMIR& node) {
+    node.callee->accept(*this);
+    Box<ExprLIR> callee = std::move(last_expr);
+
+    Vec<Box<ExprLIR>> args;
+
+    for (auto& arg : node.args) {
+        arg->accept(*this);
+        args.push_back(std::move(last_expr));
+    }
+
+    Box<ExprLIR> callexpr =
+        std::make_unique<CallExprLIR>(node.loc, std::move(callee), std::move(args), node.eff_type);
+
+    last_expr = std::move(callexpr);
 }
 
 void LIRSynthesizer::do_visit(MemberAccExprMIR& node) {
     // Desugar into a member index instead of by name
     // Account for anonymous member accesses
     // If arrow, desugar into a deref expression
+    node.object->accept(*this);
+    Box<ExprLIR> object = std::move(last_expr);
+
+    // todo
 }
 
 void LIRSynthesizer::do_visit(SubscrExprMIR& node) {
+    node.array->accept(*this);
+    Box<ExprLIR> array = std::move(last_expr);
+
+    node.index->accept(*this);
+    Box<ExprLIR> index = std::move(last_expr);
+
+    Box<ExprLIR> subscript = std::make_unique<SubscrExprLIR>(
+        node.loc, std::move(array), std::move(index), node.eff_type);
+
+    last_expr = std::move(subscript);
 }
 
 void LIRSynthesizer::do_visit(PostfixExprMIR& node) {
+    node.operand->accept(*this);
+    Box<ExprLIR> operand = std::move(last_expr);
+
+    Box<ExprLIR> postfix =
+        std::make_unique<PostfixExprLIR>(node.loc, std::move(operand), node.op, node.eff_type);
+
+    last_expr = std::move(postfix);
 }
 
 void LIRSynthesizer::do_visit(SizeofExprMIR& node) {
