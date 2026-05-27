@@ -155,7 +155,8 @@ public:
     MonotonicCtr(const MonotonicCtr<I>& c) : val(c.val) {}
 
     MonotonicCtr(MonotonicCtr<I>&& c) noexcept : val(c.val) {
-        c.val = 0; // reset the moved-from counter to 0, since it's monotonic and should never decrease.
+        c.val = 0;
+        // reset the moved-from counter to 0, since it's monotonic and should never decrease.
     }
 
     I value() const { return val; }

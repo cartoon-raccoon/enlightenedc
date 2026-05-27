@@ -1,4 +1,5 @@
 #include "semantics/primitives.hpp"
+
 #include "tokens.hpp"
 
 namespace ecc::sema::prim {
@@ -142,9 +143,9 @@ bool pr_is_signed(PrimType pr) {
 
 bool pr_check_binary_op(BinaryOp op, PrimType lhs, PrimType rhs) {
     auto promoted = pr_promote(lhs, rhs);
-    lhs = promoted;
-    rhs = promoted;
-    
+    lhs           = promoted;
+    rhs           = promoted;
+
     switch (op) {
     case BinaryOp::PLUS:
     case BinaryOp::MINUS:
@@ -171,15 +172,14 @@ bool pr_check_binary_op(BinaryOp op, PrimType lhs, PrimType rhs) {
     case BinaryOp::GT:
     case BinaryOp::LE:
     case BinaryOp::GE:
-        return (pr_is_integer(lhs) || pr_is_float(lhs)) &&
-               (pr_is_integer(rhs) || pr_is_float(rhs));
+        return (pr_is_integer(lhs) || pr_is_float(lhs)) && (pr_is_integer(rhs) || pr_is_float(rhs));
     default:
-        // for any operators we don't explicitly check, just return true and let the codegen handle it.
-        // OROR and ANDAND implicitly convert their operands to bool, which all primitive types can do.
-        // BINCOMMA is used to sequencing operations, and does not require any specific type.
+        // for any operators we don't explicitly check, just return true and let the codegen handle
+        // it. OROR and ANDAND implicitly convert their operands to bool, which all primitive types
+        // can do. BINCOMMA is used to sequencing operations, and does not require any specific
+        // type.
         return true;
     }
 }
-
 
 } // namespace ecc::sema::prim

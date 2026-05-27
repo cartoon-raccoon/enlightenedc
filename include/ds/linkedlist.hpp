@@ -192,13 +192,9 @@ public:
         insert(std::move(node), idx);
     }
 
-    void pop_back() {
-        remove(nodes.size() - 1);
-    }
+    void pop_back() { remove(nodes.size() - 1); }
 
-    void pop_front() {
-        remove(0);
-    }
+    void pop_front() { remove(0); }
 
     void remove(size_t idx) {
         LinkedListNode<T>& to_remove = at(idx);

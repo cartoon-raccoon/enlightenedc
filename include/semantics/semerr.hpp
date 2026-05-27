@@ -64,9 +64,11 @@ public:
 };
 
 class InvalidBinaryOpError : public EccSemError {
-public:   
-    InvalidBinaryOpError(std::string err,tokens::BinaryOp op, types::Type *lhs, types::Type *rhs, Location err_loc)
-        : EccSemError(std::format("invalid binary operator: {}", err), err_loc), op(op), lhsstr(lhs->formal()), rhsstr(rhs->formal()) {}
+public:
+    InvalidBinaryOpError(
+        std::string err, tokens::BinaryOp op, types::Type *lhs, types::Type *rhs, Location err_loc)
+        : EccSemError(std::format("invalid binary operator: {}", err), err_loc), op(op),
+          lhsstr(lhs->formal()), rhsstr(rhs->formal()) {}
 
     tokens::BinaryOp op;
     std::string lhsstr, rhsstr;
@@ -83,7 +85,8 @@ public:
 class InvalidUnaryOpError : public EccSemError {
 public:
     InvalidUnaryOpError(std::string err, tokens::UnaryOp op, types::Type *operand, Location err_loc)
-        : EccSemError(std::format("invalid unary operator: {}", err), err_loc), op(op), operandstr(operand->formal()) {}
+        : EccSemError(std::format("invalid unary operator: {}", err), err_loc), op(op),
+          operandstr(operand->formal()) {}
 
     tokens::UnaryOp op;
     std::string operandstr;

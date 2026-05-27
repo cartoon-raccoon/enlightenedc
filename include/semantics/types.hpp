@@ -518,7 +518,7 @@ public:
     size_t num_members() const { return members.size(); }
 
     /**
-    Check if the record type contains a specific type, either as a member, 
+    Check if the record type contains a specific type, either as a member,
     or through another record type, *without indirection* (hence the "directly").
 
     Does not pass through indirection, so if the record type contains a pointer to a type,
@@ -1161,9 +1161,11 @@ public:
 
     TypeContext(codegen::LLVMUnit&);
 
-    // already enforced by NoCopy, but explicitly delete copy constructor and assignment operator for clarity.
-    TypeContext(const TypeContext&)            = delete;
-    // also delete move constructor and move assignment operator for completeness, even though they are already deleted by NoMove.
+    // already enforced by NoCopy, but explicitly delete copy constructor and assignment operator
+    // for clarity.
+    TypeContext(const TypeContext&) = delete;
+    // also delete move constructor and move assignment operator for completeness, even though they
+    // are already deleted by NoMove.
     TypeContext& operator=(const TypeContext&) = delete;
 
     /** Return a type builder for creating new derived types. */
