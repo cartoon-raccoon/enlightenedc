@@ -3,8 +3,11 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 DO NOT COMMIT DIRECTLY. Commits should only be made by a HUMAN BEING, and must be vetted first.
+
 Do not directly edit the file structure without explicitly stating what is about to be done, and
 asking for confirmation.
+
+Do not prompt to update code if not explicitly asked to agentically edit a file.
 
 ## What This Is
 
