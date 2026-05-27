@@ -48,7 +48,7 @@ bool LIRSynthesizer::curr_is_empty() {
 
 LIRVarSym *LIRSynthesizer::insert_varsym(VarSymbol *sym, Box<LIRVarSym> var) {
     if (func_stack.empty()) {
-        return symbolmap.insert_global(sym, std::move(var));
+        return symbolmap.get().insert_global(sym, std::move(var));
     } else {
         return func_stack.top()->insert(sym, std::move(var));
     }
@@ -71,9 +71,9 @@ void LIRSynthesizer::do_visit(ProgramMIR& node) {
         LIRSynthItem item = consume();
         std::visit(
             match{
-                [this](Box<FunctionLIR>& func) { prog_lir.functions.push_back(std::move(func)); },
-                [this](Box<VarDeclLIR>& decl) { prog_lir.globals.push_back(std::move(decl)); },
-                [this](Box<ProgItemLIR>& item) { prog_lir.progitems.push_back(std::move(item)); },
+                [this](Box<FunctionLIR>& func) { prog_lir.get().functions.push_back(std::move(func)); },
+                [this](Box<VarDeclLIR>& decl) { prog_lir.get().globals.push_back(std::move(decl)); },
+                [this](Box<ProgItemLIR>& item) { prog_lir.get().progitems.push_back(std::move(item)); },
             },
             item);
     }
@@ -89,7 +89,7 @@ void LIRSynthesizer::do_visit(FunctionMIR& node) {
 
     Box<LIRFuncSym> func = std::make_unique<LIRFuncSym>(mangled, name, node.loc, node.sym);
 
-    LIRFuncSym *funcptr = symbolmap.add_function(sym, std::move(func));
+    LIRFuncSym *funcptr = symbolmap.get().add_function(sym, std::move(func));
 
     func_stack.push(funcptr);
 
@@ -594,7 +594,7 @@ void LIRSynthesizer::do_visit(CondExprMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(IdentExprMIR& node) {
-    LIRSym *sym = symbolmap.lookup(node.ident);
+    LIRSym *sym = symbolmap.get().lookup(node.ident);
     if (!sym) {
         // todo: throw exception
     }

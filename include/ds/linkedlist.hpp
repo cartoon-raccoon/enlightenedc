@@ -192,6 +192,14 @@ public:
         insert(std::move(node), idx);
     }
 
+    void pop_back() {
+        remove(nodes.size() - 1);
+    }
+
+    void pop_front() {
+        remove(0);
+    }
+
     void remove(size_t idx) {
         LinkedListNode<T>& to_remove = at(idx);
 
@@ -307,7 +315,7 @@ public:
 
     LinkedListIter<T> begin() const { return LinkedListIter<T>(first_elem); }
 
-    LinkedListIter<T> end() const { return LinkedListIter<T>(last_elem); }
+    LinkedListIter<T> end() const { return LinkedListIter<T>(nullptr); }
 
 private:
     void push_back(Box<LinkedListNode<T>> item) {

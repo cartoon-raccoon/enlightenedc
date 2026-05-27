@@ -8,6 +8,7 @@
 #include "semantics/semerr.hpp"
 #include "semantics/typeerr.hpp"
 #include "semantics/types.hpp"
+#include "tokens.hpp"
 #include "util.hpp"
 
 using namespace sema;
@@ -76,8 +77,8 @@ void Validator::eval_initializer_expr(Type *type, Box<ExprMIR>& expr, Initialize
     expr->accept(*this);
     if (type != expr->eff_type) {
         bsv_dbprint("types are not equal, checking compatibility");
-        if (type->coercable_to(expr->eff_type)) {
-            init.initializer = cast(expr->eff_type, std::move(expr));
+        if (expr->eff_type->coercible_to(type)) {
+            init.initializer = cast(type, std::move(expr));
         } else {
             add_error<InvalidCoerceError>(type, expr->eff_type, expr->loc);
         }
@@ -104,6 +105,7 @@ void Validator::eval_initializer_rec_cls(
                         // todo: throw error
                     }
                     eval_initializer_expr(mem->ty, expr, *init);
+                    path.pop_back();
                 },
                 [&](Box<InitializerMIR::Member>& mem) {
                     path.push_back(mem->member);
@@ -127,6 +129,7 @@ void Validator::eval_initializer_rec_cls(
                         // todo: throw error
                     }
                     eval_initializer_rec(path, mem->ty, *init);
+                    path.pop_back();
                 }},
             init->initializer);
     }
@@ -161,6 +164,7 @@ void Validator::eval_initializer_rec_arr(
                     path.push_back(non_desigd_idx);
                     non_desigd_idx++;
                     eval_initializer_rec(path, arr->base, *init);
+                    path.pop_back();
                 }},
             init->initializer);
     }
@@ -243,6 +247,7 @@ void Validator::do_visit(CaseRangeStmtMIR& node) {
     // check that we are in switch
     if (in_node(MIRNode::NodeKind::SWITCHSTMT_MIR) < 0) {
         add_error<InvalidCaseError>(node.loc);
+        throw UnableToContinue();
     }
 
     // todo: check that the start and end form a valid range
@@ -316,7 +321,7 @@ void Validator::do_visit(GotoStmtMIR& node) {
 void Validator::do_visit(BreakStmtMIR& node) { // done
     bsv_dbprint("Validator: visiting BreakStmtMIR node");
     // check that we are in a loop or switch
-    if (in_node(MIRNode::NodeKind::SWITCHSTMT_MIR) < 0 ||
+    if (in_node(MIRNode::NodeKind::SWITCHSTMT_MIR) < 0 &&
         in_node(MIRNode::NodeKind::LOOPSTMT_MIR) < 0) {
         add_error<InvalidBreakError>(node.loc);
     }
@@ -360,31 +365,110 @@ void Validator::do_visit(BinaryExprMIR& node) {
 
     if (!(node.left->eff_type->is_primitive() && node.right->eff_type->is_primitive())) {
         if (node.left->eff_type->is_pointer() || node.right->eff_type->is_pointer()) {
-            // todo: pointer arithmetic
+            // todo: check pointer arithmetic
+
+            node.set_type(node.left->eff_type->is_pointer() ? node.left->act_type : node.right->act_type);
         } else {
-            // todo: throw error and unable to continue
+            add_error<InvalidBinaryOpError>("operator not applicable to these types", node.op, 
+                node.left->act_type, node.right->act_type, node.loc);
+            throw UnableToContinue();
         }
+    } else {
+
+        PrimitiveType *left_type = node.left->eff_type->as_primitive();
+        assert(left_type);
+        PrimitiveType *right_type = node.right->eff_type->as_primitive();
+        assert(right_type);
+    
+        if (!prim::pr_check_binary_op(node.op, left_type->primkind, right_type->primkind)) {
+            add_error<InvalidBinaryOpError>("operator not applicable to these types", node.op, left_type, right_type, node.loc);
+        }
+    
+        node.set_type(node.left->act_type);
     }
 
-    PrimitiveType *left_type = node.left->eff_type->as_primitive();
-    assert(left_type);
-    PrimitiveType *right_type = node.right->eff_type->as_primitive();
-    assert(right_type);
-
-    auto promoted = types.get().promote(left_type->primkind, right_type->primkind);
-
-    // todo: check operator compatibility, set type
 }
 
 void Validator::do_visit(UnaryExprMIR& node) {
     bsv_dbprint("Validator: visiting UnaryExprMIR node");
     node.operand->accept(*this);
 
-    if (!node.operand->eff_type->is_primitive()) {
-        // todo: throw error and unable to continue
-    }
+    switch (node.op) {
+    case UnaryOp::INC:
+    case UnaryOp::DEC: {
+        if (!node.operand->eff_type->is_primitive()) {
+            add_error<InvalidUnaryOpError>("operand must be a primitive type", node.op, node.operand->eff_type, node.loc);
+            throw UnableToContinue();
+        }
+        PrimitiveType *primtype = node.operand->eff_type->as_primitive();
 
-    // todo: check operator compatibility, set type
+        assert(node.act_type == nullptr && node.eff_type == nullptr);
+        if (!node.operand->is_lvalue()) {
+            add_error<InvalidUnaryOpError>("operand is not assignable", node.op, node.operand->eff_type, node.loc);
+        } else if (!primtype->is_integer()) {
+            add_error<InvalidUnaryOpError>("operand is not an integer", node.op, node.operand->eff_type, node.loc);
+        } else {
+            node.set_type(node.operand->act_type);
+        }
+    }
+    break;
+
+    case UnaryOp::REF: {
+        if (!node.operand->is_lvalue()) {
+            add_error<InvalidUnaryOpError>("operand is not an lvalue", node.op, node.operand->eff_type, node.loc);
+        }
+        node.set_type(types.get().get_pointer(node.operand->act_type, false));
+    }
+    break;
+
+    case UnaryOp::DEREF: {
+        if (!node.operand->act_type->is_pointer()) {
+            add_error<InvalidUnaryOpError>("operand is not a pointer", node.op, node.operand->eff_type, node.loc);
+        } else {
+            node.set_type(node.operand->act_type->as_pointer()->base);
+        }
+
+    }
+    break;
+
+    case UnaryOp::POS:
+    case UnaryOp::NEG: {
+        if (!node.operand->eff_type->is_primitive()) {
+            add_error<InvalidUnaryOpError>("operand must be a primitive type", node.op, node.operand->eff_type, node.loc);
+            throw UnableToContinue();
+        }
+        PrimitiveType *primtype = node.operand->eff_type->as_primitive();
+
+        if (!primtype->is_signed()) {
+            // todo: warning, unary plus and minus on unsigned type is allowed but might cause unintended behavior
+        }
+        node.set_type(node.operand->act_type);
+    }
+    break;
+
+    case UnaryOp::TILDE: {
+        if (!node.operand->eff_type->is_primitive()) {
+            add_error<InvalidUnaryOpError>("operand must be a primitive type", node.op, node.operand->eff_type, node.loc);
+            throw UnableToContinue();
+        }
+        PrimitiveType *primtype = node.operand->eff_type->as_primitive();
+        if (!primtype->is_integer()) {
+            add_error<InvalidUnaryOpError>("operand is not an integer", node.op, node.operand->eff_type, node.loc);
+        } else {
+            node.set_type(node.operand->act_type);
+        }
+    }
+    break;
+
+    case UnaryOp::NOT: {
+        if (!node.operand->eff_type->is_primitive()) {
+            add_error<InvalidUnaryOpError>("operand must be a primitive type", node.op, node.operand->eff_type, node.loc);
+            throw UnableToContinue();
+        }
+        node.set_type(node.operand->act_type);
+    }
+    break;
+    }
 }
 
 void Validator::do_visit(CastExprMIR& node) {
@@ -409,9 +493,26 @@ void Validator::do_visit(AssignExprMIR& node) {
     }
 
     // todo: check operator compatibility, set type
+    switch (node.op) {
+    case AssignOp::ASSIGN: {
+
+    }
+    break;
+
+    case AssignOp::MULEQ:
+    case AssignOp::DIVEQ:
+    case AssignOp::MODEQ:
+    case AssignOp::PLUSEQ:
+    case AssignOp::MINUSEQ:
+    case AssignOp::LSHIFTEQ:
+    case AssignOp::RSHIFTEQ:
+    case AssignOp::ANDEQ:
+    case AssignOp::XOREQ:
+    case AssignOp::OREQ:
+    }
 }
 
-void Validator::do_visit(CondExprMIR& node) {
+void Validator::do_visit(CondExprMIR& node) { // done
     bsv_dbprint("Validator: visiting CondExprMIR node");
     node.condition->accept(*this);
     if (!node.condition->eff_type->is_boolable()) {
@@ -424,9 +525,9 @@ void Validator::do_visit(CondExprMIR& node) {
     Type *false_type = node.false_expr->eff_type;
 
     if (true_type != false_type) {
-        if (false_type->coercable_to(true_type)) {
+        if (false_type->coercible_to(true_type)) {
             node.false_expr = cast(true_type, std::move(node.false_expr));
-        } else if (true_type->coercable_to(false_type)) {
+        } else if (true_type->coercible_to(false_type)) {
             node.true_expr = cast(false_type, std::move(node.true_expr));
         } else {
             add_error<InvalidCoerceError>(true_type, false_type, node.condition->loc);
@@ -475,8 +576,9 @@ void Validator::do_visit(MemberAccExprMIR& node) {
     bsv_dbprint("Validator: visiting MemberAccExprMIR node");
     node.object->accept(*this);
 
-    if (!node.object->act_type->is_class() || !node.object->act_type->is_union()) {
-        // todo: throw error
+    if (!node.object->act_type->is_recordtype()) {
+        // if the object is not a record type, it cannot be operated on
+        // todo: add error
     }
 
     if (node.is_arrow) {
@@ -502,20 +604,34 @@ void Validator::do_visit(SubscrExprMIR& node) {
     // todo: check that array and index are compatible
 
     ArrayType *arrtype = node.array->act_type->as_array();
-    assert(arrtype);
+    PointerType *ptrtype = node.array->act_type->as_pointer();
+    if (!arrtype && !ptrtype) {
+        // todo: add error, subscript operator can only be applied to arrays and pointers
+        throw UnableToContinue();
+    }
 
-    node.set_type(arrtype->base);
+    if (arrtype) {
+        node.set_type(arrtype->base);
+    } else {
+        node.set_type(ptrtype->base);
+    }
 }
 
 void Validator::do_visit(PostfixExprMIR& node) {
     bsv_dbprint("Validator: visiting PostfixMIR node");
     node.operand->accept(*this);
-    if (!node.operand->is_assignable()) {
-        // todo: throw error
+    if (!node.operand->is_lvalue()) {
+        // todo: add error
     }
 
     if (!node.operand->eff_type->is_primitive()) {
-        // todo: throw error
+        // todo: add error
+        throw UnableToContinue();
+    }
+
+    PrimitiveType *primtype = node.operand->eff_type->as_primitive();
+    if (primtype->is_bool()) {
+        //? should this be a warning or a hard error?
     }
 
     node.set_type(node.operand->act_type);

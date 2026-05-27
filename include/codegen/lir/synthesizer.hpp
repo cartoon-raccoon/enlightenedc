@@ -26,9 +26,9 @@ public:
 
     using LIRSynthItem = std::variant<Box<FunctionLIR>, Box<VarDeclLIR>, Box<ProgItemLIR>>;
 
-    LIRSymbolMap& symbolmap;
+    Ref<LIRSymbolMap> symbolmap;
 
-    ProgramLIR& prog_lir;
+    Ref<ProgramLIR> prog_lir;
 
     void generate_lir(sema::mir::ProgramMIR& prog);
 
@@ -87,6 +87,35 @@ protected:
 private:
     Box<ExprLIR> last_expr;
 
+    /*
+    The queue streaming system for LIRSynthesizer, which performs hoisting of function and
+    variable declarations to the correct scope and ensures correct ordering of emitted LIR.
+
+    When synthesizing LIR for a MIR node, we may encounter sub-nodes which will need to be
+    hoisted to a higher scope once LIR is generated (e.g. nested function definitions, variable
+    declarations (which must be at the top of the function, i.e. function-level scope)). To
+    handle this, we maintain a stack of queues tracking the current nesting level. The `current_q`
+    variable is the nesting level we are currently in.
+
+    `current_q` accumulates emitted LIR items as we synthesize a MIR node. Once we finish
+    synthesizing the MIR node, we flush the current queue into the queue at the top of the stack
+    and pop the next queue from the stack to be the new current queue. This pushes all items
+    into it, effectively hoisting the nested items to the next lower level. This continues up the
+    nesting hierarchy until we reach the global level, at which point we emit all items in the
+    current queue to the ProgramLIR.
+
+    While draining the current queue, we also perform sorting of program items. Functions are sent
+    to the next queue, variable declarations are sent to the next queue, and other statements are
+    emitted in order. At the function level, functions are again emitted to the next queue, variable
+    declarations are sent to locals, and other statements are emitted in order.
+
+    This also ensures correct ordering of emitted LIR at the scope level. For example, in a
+    function body, if we encounter a variable declaration after some statements, the variable
+    declaration will be emitted before those statements in the final LIR. More importantly, if
+    we encounter a nested function definition, it will be emitted separately from any other
+    items in the same scope, so we don't accidentally emit a function definition in the middle
+    of another function's body.
+    */
     std::queue<LIRSynthItem> current_q;
     std::stack<std::queue<LIRSynthItem>> queue_stack;
     std::stack<LIRFuncSym *> func_stack;

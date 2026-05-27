@@ -36,7 +36,9 @@ The type system implementation for EnlightenedC.
 
 Ecc uses an interning type system, where a TypeContext manages internal type
 objects, and hands out pointers to them. This makes checking for type equality
-equivalent to a single pointer comparison (with the exception of arrays; see below).
+equivalent to a single pointer comparison. Note that pointers to unsized ArrayType
+instances are transient — they may be invalidated when `set_array_size` or
+`decay_array` is called on them.
 */
 namespace ecc::sema::types {
 
@@ -177,7 +179,7 @@ public:
     it is to be used for types that are not equal, but might be able to be
     coerced into the other.
     */
-    virtual bool coercable_to(Type *dst) {
+    virtual bool coercible_to(Type *dst) {
         // by default, types cannot be coerced and require explicit casting.
         return false;
     }
@@ -185,7 +187,7 @@ public:
     /**
     Check if a type can be cast into `dst`, explicitly or not.
     */
-    virtual bool castable_to(Type *dst) { return coercable_to(dst); }
+    virtual bool castable_to(Type *dst) { return coercible_to(dst); }
 
 #pragma clang diagnostic pop
 
@@ -598,18 +600,16 @@ derived types should resolve to a primitive type.
 
 ## Compatibility
 
-Any non-zero-sized PrimitiveType a can implicitly resolve to another
-PrimitiveType b if `b.size() >= a.size()`, regardless of signedness.
+Any PrimitiveType a can be implicitly coerced to another PrimitiveType b
+if `b.size() >= a.size()`, regardless of signedness.
 
-Floats are not compatible with any other primitive type.
-
-Zero-sized types (U0, I0) cannot be implicitly converted to other types.
+Floats are not coercible to or from any other primitive type.
 */
 class PrimitiveType : public BaseType {
 public:
     tokens::PrimType primkind;
 
-    bool coercable_to(Type *from) override;
+    bool coercible_to(Type *from) override;
 
     // Whether this Primitive type can be represented as an integer.
     // Returns true for all primitive types except F64 and Bool.
@@ -739,7 +739,7 @@ public:
 
     bool is_fully_defined() override;
 
-    bool coercable_to(Type *dst) override;
+    bool coercible_to(Type *dst) override;
 
     UnionType *as_union() override { return this; }
 
@@ -826,7 +826,7 @@ public:
     // Find enumerator at the specified index.
     EnumTypeMember *find(size_t idx);
 
-    bool coercable_to(Type *dst) override;
+    bool coercible_to(Type *dst) override;
 
     EnumType *as_enum() override { return this; }
 
@@ -864,8 +864,8 @@ A pointer type (U8 *, I32 **, etc.)
 
 A pointer `ptr` is only compatible with another pointer `other` if:
 
-the base type of `other` is a void type (U0 or U0), and
-the level of nesting is the same (i.e. U8 ** is compatible with U0 **, but not U0 ***).
+the base type of `other` is `VoidType`, and
+the level of nesting is the same (i.e. U8 ** is compatible with Void **, but not Void ***).
 
 Pointers can be subscripted like arrays, the compiler will treat the subscript as pointer
 arithmetic. However, pointers cannot be converted to sized arrays.
@@ -887,7 +887,7 @@ public:
 
     bool is_callable() override;
 
-    bool coercable_to(Type *dst) override;
+    bool coercible_to(Type *dst) override;
 
     bool is_scalar() override { return true; };
 
@@ -948,7 +948,7 @@ public:
 
     bool is_subscriptable() override { return true; }
 
-    bool coercable_to(Type *dst) override;
+    bool coercible_to(Type *dst) override;
 
     void finalize() override;
 
@@ -1147,7 +1147,7 @@ are assigned generated names.
 The TypeContext stores keys to types as mangled names, incorporating the kind of type
 (class, union, enum), name of the type (if any), and the scope it is declared in.
 */
-class TypeContext {
+class TypeContext : public NoMove, public NoCopy {
 public:
     friend class Type;
     friend class VoidType;
@@ -1161,9 +1161,12 @@ public:
 
     TypeContext(codegen::LLVMUnit&);
 
+    // already enforced by NoCopy, but explicitly delete copy constructor and assignment operator for clarity.
     TypeContext(const TypeContext&)            = delete;
+    // also delete move constructor and move assignment operator for completeness, even though they are already deleted by NoMove.
     TypeContext& operator=(const TypeContext&) = delete;
 
+    /** Return a type builder for creating new derived types. */
     TypeBuilder builder();
 
     /** Return a pointer to the Void Type object. */
@@ -1276,17 +1279,7 @@ private:
 
     // intern the primitive language-defined types directly in the context.
     Box<VoidType> voidt;
-    Box<PrimitiveType> u8;
-    Box<PrimitiveType> u16;
-    Box<PrimitiveType> u32;
-    Box<PrimitiveType> u64;
-    Box<PrimitiveType> i8;
-    Box<PrimitiveType> i16;
-    Box<PrimitiveType> i32;
-    Box<PrimitiveType> i64;
-    Box<PrimitiveType> f32;
-    Box<PrimitiveType> f64;
-    Box<PrimitiveType> boolt;
+    Box<PrimitiveType> u8, u16, u32, u64, i8, i16, i32, i64, f32, f64, boolt;
 
     template <typename T>
     struct pair_hash {

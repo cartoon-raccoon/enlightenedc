@@ -63,6 +63,40 @@ public:
     }
 };
 
+class InvalidBinaryOpError : public EccSemError {
+public:   
+    InvalidBinaryOpError(std::string err,tokens::BinaryOp op, types::Type *lhs, types::Type *rhs, Location err_loc)
+        : EccSemError(std::format("invalid binary operator: {}", err), err_loc), op(op), lhsstr(lhs->formal()), rhsstr(rhs->formal()) {}
+
+    tokens::BinaryOp op;
+    std::string lhsstr, rhsstr;
+
+    std::string elab() override {
+        std::stringstream ss;
+        ss << "operator \'" << tokens::binop_to_string(op) << "\' cannot be applied to types "
+           << lhsstr << " and " << rhsstr;
+
+        return ss.str();
+    }
+};
+
+class InvalidUnaryOpError : public EccSemError {
+public:
+    InvalidUnaryOpError(std::string err, tokens::UnaryOp op, types::Type *operand, Location err_loc)
+        : EccSemError(std::format("invalid unary operator: {}", err), err_loc), op(op), operandstr(operand->formal()) {}
+
+    tokens::UnaryOp op;
+    std::string operandstr;
+
+    std::string elab() override {
+        std::stringstream ss;
+        ss << "operator \'" << tokens::unop_to_string(op) << "\' cannot be applied to type "
+           << operandstr;
+
+        return ss.str();
+    }
+};
+
 class InvalidCoerceError : public EccSemError {
 public:
     InvalidCoerceError(types::Type *from, types::Type *to, Location err_loc)

@@ -148,8 +148,15 @@ class MonotonicCtr {
     I val;
 
 public:
+    MonotonicCtr<I>() : val(0) {}
+
     MonotonicCtr(I val) : val(val) {}
+
     MonotonicCtr(const MonotonicCtr<I>& c) : val(c.val) {}
+
+    MonotonicCtr(MonotonicCtr<I>&& c) noexcept : val(c.val) {
+        c.val = 0; // reset the moved-from counter to 0, since it's monotonic and should never decrease.
+    }
 
     I value() const { return val; }
 
@@ -159,15 +166,15 @@ public:
 
     I operator*() { return val; }
 
-    I operator++() { return val++; }
+    I operator++() { return ++val; }
 
-    I operator++(int) { return ++val; }
+    I operator++(int) { return val++; }
 
-    I operator +(I n) const { return val + n; }
+    I operator+(I n) const { return val + n; }
 
-    I operator -(I n) const { return val - n; }
+    I operator-(I n) const { return val - n; }
 
-    I operator +=(I n) { return add(n); }
+    I operator+=(I n) { return add(n); }
 
     std::strong_ordering operator<=>(const MonotonicCtr<I>& other) { return val <=> other.val; }
 

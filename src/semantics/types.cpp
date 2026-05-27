@@ -115,7 +115,7 @@ bool PrimitiveType::is_bool() const {
     return pr_is_bool(primkind);
 }
 
-bool PrimitiveType::coercable_to(Type *from) {
+bool PrimitiveType::coercible_to(Type *from) {
     // Only primitive types allowed
     if (from->kind != Type::Kind::PRIMITIVE) {
         return false;
@@ -577,10 +577,10 @@ bool UnionType::is_fully_defined() {
     return ret;
 }
 
-bool UnionType::coercable_to(Type *dst) {
+bool UnionType::coercible_to(Type *dst) {
     // If there is an underlying type representative, check that
     if (type_rep) {
-        return (*type_rep)->coercable_to(dst);
+        return (*type_rep)->coercible_to(dst);
     }
 
     // Otherwise, unions are incompatible with anything
@@ -710,8 +710,8 @@ EnumType::EnumTypeMember *EnumType::find(size_t idx) {
     return enumerators[idx].get();
 }
 
-bool EnumType::coercable_to(Type *dst) {
-    if (Type::coercable_to(dst))
+bool EnumType::coercible_to(Type *dst) {
+    if (Type::coercible_to(dst))
         return true;
 
     if (!dst->is_primitive()) {
@@ -777,8 +777,8 @@ bool PointerType::is_callable() {
     return nesting_lvl() == 1 && base->is_function();
 }
 
-bool PointerType::coercable_to(Type *dst) {
-    if (Type::coercable_to(dst))
+bool PointerType::coercible_to(Type *dst) {
+    if (Type::coercible_to(dst))
         return true;
 
     PointerType *ptr = dst->as_pointer();
@@ -820,7 +820,7 @@ bool ArrayType::is_fully_sized() {
                             : arr_size.has_value();
 }
 
-bool ArrayType::coercable_to(Type *dst) {
+bool ArrayType::coercible_to(Type *dst) {
     switch (dst->kind) {
 
     // if the other is an array, enforce strict equality
@@ -831,7 +831,7 @@ bool ArrayType::coercable_to(Type *dst) {
     // if pointer, make sure bases match
     case Kind::POINTER: {
         PointerType *dst_ptr = dst->as_pointer();
-        return base->coercable_to(dst_ptr);
+        return base->coercible_to(dst_ptr);
     }
 
     default:

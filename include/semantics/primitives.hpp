@@ -66,6 +66,8 @@ type. We do this with type promotion.
 */
 PrimType pr_promote(PrimType lhs, PrimType rhs);
 
+bool pr_check_binary_op(BinaryOp op, PrimType lhs, PrimType rhs);
+
 } // namespace ecc::sema::prim
 
 #endif
