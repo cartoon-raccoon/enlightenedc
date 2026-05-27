@@ -367,10 +367,12 @@ void Validator::do_visit(BinaryExprMIR& node) {
         if (node.left->eff_type->is_pointer() || node.right->eff_type->is_pointer()) {
             // todo: check pointer arithmetic
 
-            node.set_type(node.left->eff_type->is_pointer() ? node.left->act_type : node.right->act_type);
+            node.set_type(
+                node.left->eff_type->is_pointer() ? node.left->act_type : node.right->act_type);
         } else {
-            add_error<InvalidBinaryOpError>("operator not applicable to these types", node.op, 
-                node.left->act_type, node.right->act_type, node.loc);
+            add_error<InvalidBinaryOpError>(
+                "operator not applicable to these types", node.op, node.left->act_type,
+                node.right->act_type, node.loc);
             throw UnableToContinue();
         }
     } else {
@@ -379,14 +381,14 @@ void Validator::do_visit(BinaryExprMIR& node) {
         assert(left_type);
         PrimitiveType *right_type = node.right->eff_type->as_primitive();
         assert(right_type);
-    
+
         if (!prim::pr_check_binary_op(node.op, left_type->primkind, right_type->primkind)) {
-            add_error<InvalidBinaryOpError>("operator not applicable to these types", node.op, left_type, right_type, node.loc);
+            add_error<InvalidBinaryOpError>(
+                "operator not applicable to these types", node.op, left_type, right_type, node.loc);
         }
-    
+
         node.set_type(node.left->act_type);
     }
-
 }
 
 void Validator::do_visit(UnaryExprMIR& node) {
@@ -397,77 +399,81 @@ void Validator::do_visit(UnaryExprMIR& node) {
     case UnaryOp::INC:
     case UnaryOp::DEC: {
         if (!node.operand->eff_type->is_primitive()) {
-            add_error<InvalidUnaryOpError>("operand must be a primitive type", node.op, node.operand->eff_type, node.loc);
+            add_error<InvalidUnaryOpError>(
+                "operand must be a primitive type", node.op, node.operand->eff_type, node.loc);
             throw UnableToContinue();
         }
         PrimitiveType *primtype = node.operand->eff_type->as_primitive();
 
         assert(node.act_type == nullptr && node.eff_type == nullptr);
         if (!node.operand->is_lvalue()) {
-            add_error<InvalidUnaryOpError>("operand is not assignable", node.op, node.operand->eff_type, node.loc);
+            add_error<InvalidUnaryOpError>(
+                "operand is not assignable", node.op, node.operand->eff_type, node.loc);
         } else if (!primtype->is_integer()) {
-            add_error<InvalidUnaryOpError>("operand is not an integer", node.op, node.operand->eff_type, node.loc);
+            add_error<InvalidUnaryOpError>(
+                "operand is not an integer", node.op, node.operand->eff_type, node.loc);
         } else {
             node.set_type(node.operand->act_type);
         }
-    }
-    break;
+    } break;
 
     case UnaryOp::REF: {
         if (!node.operand->is_lvalue()) {
-            add_error<InvalidUnaryOpError>("operand is not an lvalue", node.op, node.operand->eff_type, node.loc);
+            add_error<InvalidUnaryOpError>(
+                "operand is not an lvalue", node.op, node.operand->eff_type, node.loc);
         }
         node.set_type(types.get().get_pointer(node.operand->act_type, false));
-    }
-    break;
+    } break;
 
     case UnaryOp::DEREF: {
         if (!node.operand->act_type->is_pointer()) {
-            add_error<InvalidUnaryOpError>("operand is not a pointer", node.op, node.operand->eff_type, node.loc);
+            add_error<InvalidUnaryOpError>(
+                "operand is not a pointer", node.op, node.operand->eff_type, node.loc);
         } else {
             node.set_type(node.operand->act_type->as_pointer()->base);
         }
 
-    }
-    break;
+    } break;
 
     case UnaryOp::POS:
     case UnaryOp::NEG: {
         if (!node.operand->eff_type->is_primitive()) {
-            add_error<InvalidUnaryOpError>("operand must be a primitive type", node.op, node.operand->eff_type, node.loc);
+            add_error<InvalidUnaryOpError>(
+                "operand must be a primitive type", node.op, node.operand->eff_type, node.loc);
             throw UnableToContinue();
         }
         PrimitiveType *primtype = node.operand->eff_type->as_primitive();
 
         if (!primtype->is_signed()) {
-            // todo: warning, unary plus and minus on unsigned type is allowed but might cause unintended behavior
+            // todo: warning, unary plus and minus on unsigned type is allowed but might cause
+            // unintended behavior
         }
         node.set_type(node.operand->act_type);
-    }
-    break;
+    } break;
 
     case UnaryOp::TILDE: {
         if (!node.operand->eff_type->is_primitive()) {
-            add_error<InvalidUnaryOpError>("operand must be a primitive type", node.op, node.operand->eff_type, node.loc);
+            add_error<InvalidUnaryOpError>(
+                "operand must be a primitive type", node.op, node.operand->eff_type, node.loc);
             throw UnableToContinue();
         }
         PrimitiveType *primtype = node.operand->eff_type->as_primitive();
         if (!primtype->is_integer()) {
-            add_error<InvalidUnaryOpError>("operand is not an integer", node.op, node.operand->eff_type, node.loc);
+            add_error<InvalidUnaryOpError>(
+                "operand is not an integer", node.op, node.operand->eff_type, node.loc);
         } else {
             node.set_type(node.operand->act_type);
         }
-    }
-    break;
+    } break;
 
     case UnaryOp::NOT: {
         if (!node.operand->eff_type->is_primitive()) {
-            add_error<InvalidUnaryOpError>("operand must be a primitive type", node.op, node.operand->eff_type, node.loc);
+            add_error<InvalidUnaryOpError>(
+                "operand must be a primitive type", node.op, node.operand->eff_type, node.loc);
             throw UnableToContinue();
         }
         node.set_type(node.operand->act_type);
-    }
-    break;
+    } break;
     }
 }
 
@@ -496,8 +502,7 @@ void Validator::do_visit(AssignExprMIR& node) {
     switch (node.op) {
     case AssignOp::ASSIGN: {
 
-    }
-    break;
+    } break;
 
     case AssignOp::MULEQ:
     case AssignOp::DIVEQ:
@@ -576,16 +581,34 @@ void Validator::do_visit(MemberAccExprMIR& node) {
     bsv_dbprint("Validator: visiting MemberAccExprMIR node");
     node.object->accept(*this);
 
-    if (!node.object->act_type->is_recordtype()) {
-        // if the object is not a record type, it cannot be operated on
-        // todo: add error
-    }
+    ClassType *cls = nullptr;
 
     if (node.is_arrow) {
-        // todo: dereference it
+        if (!node.object->act_type->is_pointer() &&
+            !node.object->act_type->as_pointer()->base->is_recordtype()) {
+            // add_error<InvalidMemberAccessError>(node.object->eff_type, node.object->loc);
+            throw UnableToContinue();
+        }
+
+        cls = node.object->act_type->as_pointer()->base->as_class();
+    } else {
+        if (!node.object->act_type->is_recordtype()) {
+            // add_error<InvalidMemberAccessError>(node.object->eff_type, node.object->loc);
+            throw UnableToContinue();
+        }
+        cls = node.object->act_type->as_class();
     }
 
-    // todo: set type
+    assert(cls && "class was null while validating member access expression");
+    auto *member = cls->find(node.member);
+
+    if (!member) {
+        // add_error<InvalidMemberAccessError>(node.member, cls, node.object->eff_type,
+        // node.object->loc);
+        throw UnableToContinue();
+    }
+
+    node.set_type(member->ty);
 }
 
 void Validator::do_visit(SubscrExprMIR& node) {
@@ -601,14 +624,26 @@ void Validator::do_visit(SubscrExprMIR& node) {
     While we can support this, for now we only support the first case (arr[index]).
     */
 
-    // todo: check that array and index are compatible
+    // add (eventually): commutativity of subscript operator, i.e. arr[index] == index[arr]
 
-    ArrayType *arrtype = node.array->act_type->as_array();
+    ArrayType *arrtype   = node.array->act_type->as_array();
     PointerType *ptrtype = node.array->act_type->as_pointer();
     if (!arrtype && !ptrtype) {
         // todo: add error, subscript operator can only be applied to arrays and pointers
         throw UnableToContinue();
     }
+
+    if (node.index->eff_type->is_primitive()) {
+        PrimitiveType *indtype = node.index->eff_type->as_primitive();
+        if (!indtype->is_integer()) {
+            // todo: add error, array index must be an integer
+            throw UnableToContinue();
+        }
+    }
+
+    // add: if index has a value, check that it's within bounds if array size is known
+    // this should just be a warning, since out of bounds access is technically still
+    // defined behavior in C (though we can choose to make it an error if we want)
 
     if (arrtype) {
         node.set_type(arrtype->base);
