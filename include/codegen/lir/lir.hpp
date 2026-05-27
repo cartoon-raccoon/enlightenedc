@@ -395,6 +395,10 @@ public:
 
 class CallExprLIR : public ExprLIR {
 public:
+    CallExprLIR(Location loc, Box<ExprLIR> callee, Vec<Box<ExprLIR>> args, sema::types::Type *type)
+        : ExprLIR(loc, NodeKind::CALLEXPR_LIR, type), callee(std::move(callee)),
+          args(std::move(args)) {}
+
     Box<ExprLIR> callee;
     Vec<Box<ExprLIR>> args;
 
@@ -403,6 +407,10 @@ public:
 
 class MemberAccExprLIR : public ExprLIR {
 public:
+    MemberAccExprLIR(Location loc, Box<ExprLIR> object, size_t member_idx, sema::types::Type *type)
+        : ExprLIR(loc, NodeKind::MEMACCEXPR_LIR, type), object(std::move(object)),
+          member_idx(member_idx) {}
+
     Box<ExprLIR> object;
     size_t member_idx;
 
@@ -411,6 +419,10 @@ public:
 
 class SubscrExprLIR : public ExprLIR {
 public:
+    SubscrExprLIR(Location loc, Box<ExprLIR> array, Box<ExprLIR> index, sema::types::Type *type)
+        : ExprLIR(loc, NodeKind::SUBSCREXPR_LIR, type), array(std::move(array)),
+          index(std::move(index)) {}
+
     Box<ExprLIR> array;
     Box<ExprLIR> index;
 
@@ -419,6 +431,10 @@ public:
 
 class PostfixExprLIR : public ExprLIR {
 public:
+    PostfixExprLIR(
+        Location loc, Box<ExprLIR> operand, tokens::PostfixOp op, sema::types::Type *type)
+        : ExprLIR(loc, NodeKind::PFIXEXPR_LIR, type), operand(std::move(operand)), op(op) {}
+
     Box<ExprLIR> operand;
     tokens::PostfixOp op;
 
