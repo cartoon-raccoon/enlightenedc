@@ -1,10 +1,10 @@
 #pragma once
 
-#include <cstdint>
-#include <ostream>
-
 #ifndef ECC_VALUE_H
 #define ECC_VALUE_H
+
+#include <cstdint>
+#include <ostream>
 
 #include "error.hpp"
 #include "semantics/primitives.hpp"
