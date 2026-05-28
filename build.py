@@ -41,7 +41,7 @@ def cmd_build(args: argparse.Namespace) -> None:
     jobs = str(args.parallel if args.parallel else nproc())
     cmd_args = ["cmake", "--build", BUILD_DIR, "--parallel", jobs]
     if args.release:
-        cmd_args.extend(["--config" "Release"])
+        cmd_args.extend(["--config", "Release"])
     run(*cmd_args)
 
 
