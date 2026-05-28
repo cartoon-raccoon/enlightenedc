@@ -2,6 +2,7 @@
 
 #include "driver/driver.hpp"
 #include "ecc.hpp"
+#include "error.hpp"
 #include "semantics/mir/printer.hpp"
 #include "semantics/mir/synthesizer.hpp"
 #include "semantics/printer.hpp"
@@ -32,18 +33,22 @@ void Backend::run(Ecc& ecc, driver::TranslationUnit& unit) {
     try {
         dbprint("Synthesizing MIR for ", unit.ast_root->loc);
         mirsynthesizer.generate_mir(*unit.ast_root);
-    } catch (UnableToContinue e) {
+    } catch (UnableToContinue& e) {
         for (auto& err : mirsynthesizer.errors) {
             ecc.print_error(*err);
         }
         throw e;
-    } catch (TypeSemError& e) { // fixme: handle errors at call site
+    } catch (TypeSemError& e) {
+        // fixme: handle errors at call site
+        // we already have infrastructure to catch TypeSemErrors at call site, but
+        // this is just to catch any that might escape.
         for (auto& err : mirsynthesizer.errors) {
             ecc.print_error(*err);
         }
         throw UnableToContinue();
     }
-    if (!mirsynthesizer.errors.empty()) {
+
+    if (!mirsynthesizer.errors.empty() || mirsynthesizer.found_errors) {
         for (auto& err : mirsynthesizer.errors) {
             ecc.print_error(*err);
         }
@@ -55,26 +60,32 @@ void Backend::run(Ecc& ecc, driver::TranslationUnit& unit) {
     }
 
     Validator validator(symbols, types);
-    // fixme: uncomment after validate is complete
-    // validator.validate(mir);
 
-    // if (!validator.errors.empty()) {
-    //     for (auto& err : validator.errors) {
-    //         std::cerr << err->to_string() << "\n";
-    //     }
-    //     throw UnableToContinue();
-    // }
+    try {
+        validator.validate(mir);
+    } catch (UnableToContinue& e) {
+        for (auto& err : validator.errors) {
+            ecc.print_error(*err);
+        }
+        throw e;
+    }
 
-    // // We finalize array types after validation because the validator infers array size.
-    // types.finalize_arrays();
+    if (!validator.errors.empty() || validator.found_errors) {
+        for (auto& err : validator.errors) {
+            ecc.print_error(*err);
+        }
+        throw UnableToContinue();
+    }
+
+    //* any MIR past this point can be counted as correct and validated.
+
+    // do not perform bulk finalization, finalization should be only on demand.
 
     dbprint(*unit.types);
     dbprint(*unit.prog_mir->symbols);
     dbprint("--------- MIR ---------\n");
     MIRPrinter printer;
     unit.prog_mir->mir->accept(printer);
-
-    // todo: types->finalize_all()
 
     // todo: synthesize LIR
 }
