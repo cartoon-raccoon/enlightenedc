@@ -1,20 +1,39 @@
 # EnlightenedC
 
-An LLVM-powered compiler and REPL for HolyC, the implementation language of TempleOS, created by Terry A. Davis.
+An LLVM-powered compiler and REPL for HolyC, the implementation language of TempleOS,
+created by Terry A. Davis.
 
-EnlightenedC is a dialect of HolyC that aims to adapt HolyC for production environments. HolyC genuinely
-provides a good middle ground between the simplicity of C and the complexity of C++, and should be
-used more.
+EnlightenedC is a dialect of HolyC that aims to adapt HolyC for production environments, while
+still remaining true to the spirit of the language as a systems programming language.
+HolyC genuinely provides a good middle ground between the simplicity of C and the complexity
+of C++, and should be used more.
 
 ## Features
+
+*Note that these are planned features, that may not be fully implemented yet.*
 
 - Powered by LLVM, so it can compile to any architecture.
 - Adds new code features to the original HolyC language to make the programming experience easier
 - Operates as both an AOT compiler and JIT REPL, mirroring the original use of HolyC in TempleOS.
 
+### Improvements Over HolyC
+
+It is important to state immediately that *EnlightenedC is incompatible with HolyC*. There are
+language features in this dialect that a HolyC compiler would outright reject. That being said,
+there are some additions that would be expected of any production-ready compiler:
+
+- Full type checking and semantic validation
+- Removal of the single inheritance limit present in HolyC
+- Addition of `Void` as a keyword type
+- Addition of bitfields on classes
+- Addition of a single-precision 32-bit float `F32`, absent in HolyC
+- Addition of `break` and `continue` as control flow keywords
+- Support for `extern "C"` syntax, for linking in C functions
+
 ## Documentation
 
-Documentation is currently missing, but will be written once the compiler is complete.
+Documentation is currently missing, but will be written once an MVP exists. The code is
+well-documented in comments (for the most part), so you can read that for the time being.
 
 ## Building
 
@@ -24,7 +43,8 @@ The project has the following dependencies:
 - Bison (>= v3.8)
 - LLVM (>= v21.1)
 - CMake (>= v3.20)
-- Googletest/RapidCheck, but that is pulled in at build time.
+- Googletest/RapidCheck for testing, but that is pulled in at build time.
+  Ideal to still have it installed as a system package.
 
 To build this project, you can use the `build.py` script:
 
@@ -40,8 +60,9 @@ $ ./build.py -r
 You can specify the level of parallelism you want using `-p/--parallel`:
 
 ```bash
-$ ./build.py -p `nproc`
-# runs the build script with your preferred level of parallelism (in this case nproc.)
+$ ./build.py -p 4
+# runs the build script with your preferred level of parallelism (in this case 4.)
+# running without this argument fully parallelizes the build, using all cores.
 ```
 
 To clean the build directory, run:
