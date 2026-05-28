@@ -1,34 +1,6 @@
-#include <gtest/gtest.h>
+#include "ts_st_fixture.hpp"
 
-#include "codegen/llvm.hpp"
-#include "semantics/types.hpp"
-
-using namespace ecc;
-using namespace codegen;
-using namespace sema;
-using namespace sema::types;
-using namespace tokens;
-
-class TestTypeSystem : public testing::Test {
-protected:
-    const std::string TEST_NAME = "TypeSystemTest";
-
-    LLVMCore llvm_core;
-    LLVMUnit llvm_unit;
-
-    TypeContext tctxt;
-
-    PrimitiveType *prim1, *prim2, *prim3, *prim4;
-
-    TestTypeSystem() : llvm_unit(TEST_NAME, llvm_core), tctxt(llvm_unit)  {
-        prim1 = tctxt.get_primitive(PrimType::F32);
-        prim2 = tctxt.get_primitive(PrimType::F32);
-        prim3 = tctxt.get_primitive(PrimType::I64);
-        prim4 = tctxt.get_primitive(PrimType::BOOL);
-    }
-};
-
-TEST_F(TestTypeSystem, TestPrimTypeEquality) {
+TEST_F(TypeSysAndSymTabTestFixture, TestPrimTypeEquality) {
 
     EXPECT_EQ(prim1, prim2)
         << "prim1 and prim2 are F32, should be equal";
@@ -42,7 +14,7 @@ TEST_F(TestTypeSystem, TestPrimTypeEquality) {
     EXPECT_TRUE(prim4->is_primitive());
 }
 
-TEST_F(TestTypeSystem, TestAllocBeforeAndAfterFinalize) {
+TEST_F(TypeSysAndSymTabTestFixture, TestAllocBeforeAndAfterFinalize) {
 
     EXPECT_NO_THROW(prim1->alloc_size()) 
         << "calling alloc_size before finalize threw";
