@@ -1,18 +1,21 @@
 cmake_minimum_required(VERSION 3.20)
-project(enlightenedc
-    VERSION 0.0.1
-    LANGUAGES CXX
-    DESCRIPTION "An LLVM-powered HolyC compiler"
-)
 
-# 1. Setting various requirements and variables
-
+# Set various flags before we define the project.
 set(CMAKE_EXPORT_COMPILE_COMMANDS True)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 # Use Clang as our default compiler, we are an LLVM project after all. :)
-set(CMAKE_C_COMPILER clang)
-set(CMAKE_CXX_COMPILER clang++)
+find_program(CLANG_C_COMPILER NAMES clang REQUIRED)
+find_program(CLANG_CXX_COMPILER NAMES clang++ REQUIRED)
+set(CMAKE_C_COMPILER ${CLANG_C_COMPILER})
+set(CMAKE_CXX_COMPILER ${CLANG_CXX_COMPILER})
+
+# Declare our project and set project-specific variables
+project(enlightenedc
+    VERSION 0.0.1
+    LANGUAGES C CXX
+    DESCRIPTION "An LLVM-powered HolyC compiler"
+)
 add_compile_options("-O2")
 
 set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
@@ -35,8 +38,9 @@ add_definitions(${LLVM_DEFINITIONS_LIST})
 # Pull in our testing frameworks
 include(FetchContent)
 FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+    googletest
+    URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 )
 
 set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
@@ -49,7 +53,6 @@ FetchContent_Declare(
 set(RC_ENABLE_GTEST ON CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(googletest rapidcheck)
-
 
 # Define Flex/Bison targets
 
@@ -109,7 +112,7 @@ set_source_files_properties(${ALL_WRITTEN_FILES}
     COMPILE_OPTIONS "-Wall;-Wextra;-Wpedantic"
 )
 
-# 5. Create our final targets
+# Create our final targets
 
 # Create a static library that holds all our core functionality
 add_library(libecc STATIC ${ALL_SOURCE_FILES})
@@ -122,7 +125,7 @@ set_target_properties(libecc PROPERTIES
 # Create an executable from our main.cpp driver
 add_executable(ecc "${SRC_DIR}/main.cpp")
 
-# 6. Setup include paths
+# Setup include paths
 target_include_directories(libecc PRIVATE ${SRC_DIR} ${BISON_OUTPUT_DIR})
 target_include_directories(libecc PUBLIC ${INCLUDE_DIR})
 target_include_directories(ecc PUBLIC ${INCLUDE_DIR})
@@ -142,7 +145,7 @@ target_link_libraries(libecc PRIVATE LLVM)
 # Link our library target to our executable
 target_link_libraries(ecc PRIVATE libecc)
 
-# 8. Set clang-tidy and clang-format
+# Set clang-tidy and clang-format
 find_program(CLANG_TIDY_EXE NAMES "clang-tidy")
 if(CLANG_TIDY_EXE)
     if (ENABLE_CLANG_TIDY)
@@ -163,13 +166,21 @@ else()
     message(WARNING "clang-format not found, `format` target is unavailable")
 endif()
 
-# 9. Add precompiled headers
-target_precompile_headers(ecc PRIVATE 
-    <vector> 
-    <string>
+# Add precompiled headers
+target_precompile_headers(ecc PRIVATE
+    <algorithm>
+    <cassert>
+    <concepts>
+    <cstdint>
     <memory>
+    <stack>
+    <string>
+    <sstream>
+    <type_traits>
     <unordered_map>
+    <utility>
     <variant>
+    <vector> 
     <llvm/ADT/APFloat.h>
     <llvm/ADT/STLExtras.h>
     <llvm/IR/BasicBlock.h>
