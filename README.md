@@ -26,17 +26,29 @@ The project has the following dependencies:
 - CMake (>= v3.20)
 - Googletest/RapidCheck, but that is pulled in at build time.
 
-To build this project, you can use the `build.sh` script:
+To build this project, you can use the `build.py` script:
 
 ```bash
-# running build.sh without arguments builds the entire project.
-$ ./build.sh
+# running build.py without arguments builds the entire project,
+# parallelizing using nproc.
+$ ./build.py
+
+# running build.py with -r builds for release.
+$ ./build.py -r
+```
+
+You can specify the level of parallelism you want using `-p/--parallel`:
+
+```bash
+$ ./build.py -p `nproc`
+# runs the build script with your preferred level of parallelism (in this case nproc.)
 ```
 
 To clean the build directory, run:
 
 ```bash
-$ ./build.sh clean
+$ ./build.py clean
+# runs cmake --target clean.
 ```
 
 If `CMakeLists.txt` has changed, you'll need to nuke the entire build directory:
@@ -44,13 +56,14 @@ If `CMakeLists.txt` has changed, you'll need to nuke the entire build directory:
 ```bash
 $ rm -rf build/*
 # OR
-$ ./build.sh nuke
+$ ./build.py nuke
 ```
 
 You can also format the code using the command:
 
 ```bash
 $ ./build.sh format
+# runs the format target.
 ```
 
 ## Running
@@ -62,6 +75,7 @@ To compile a source file into an executable, run:
 
 ```bash
 $ ./ecc source.ec
+# compiles the file source.ec.
 ```
 
 To run the EnlightenedC environment in REPL mode, simply run the `ecc` executable without any arguments.
