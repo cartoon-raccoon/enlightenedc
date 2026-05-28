@@ -25,6 +25,10 @@ enum class ErrorSource : uint8_t {
 
 /**
 The main error class for Ecc.
+
+The error reporting model for Ecc revolves around a two-tiered message system.
+Errors return a toplevel error message, and an optional elaboration, as well as
+an optional location for the elaboration.
 */
 class EccError : public std::exception {
 public:
@@ -51,6 +55,14 @@ public:
 
     virtual std::string elab() { return ""; }
 
+    virtual Optional<Location> elab_loc() { return {}; }
+
+    /**
+    A virtual function to concatenate both the main message and the elaboration.
+
+    Error reporting will directly use elab(), and elab_loc() in the future to
+    do proper error reporting with carets and colours.
+    */
     virtual std::string to_string() {
 
         std::stringstream ss;

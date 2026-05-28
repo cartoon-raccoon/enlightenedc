@@ -76,6 +76,10 @@ public:
 
         return ss.str();
     }
+
+    Optional<Location> elab_loc() override {
+        return def_loc;
+    }
 };
 
 /**
@@ -100,6 +104,10 @@ public:
            << " with size " << err_size;
 
         return ss.str();
+    }
+
+    Optional<Location> elab_loc() override {
+        return member_loc;
     }
 };
 
@@ -153,6 +161,10 @@ public:
 
         return ss.str();
     }
+
+    Optional<Location> elab_loc() override {
+        return def_loc;
+    }
 };
 
 class InvalidEnumUnderlyingError : public TypeSemError {
@@ -175,6 +187,10 @@ public:
         ss << "type previously declared at <" << def_loc << ">";
 
         return ss.str();
+    }
+
+    Optional<Location> elab_loc() override {
+        return def_loc;
     }
 };
 

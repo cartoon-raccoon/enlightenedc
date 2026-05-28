@@ -275,6 +275,10 @@ public:
 
         return ss.str();
     }
+
+    Optional<Location> elab_loc() override {
+        return def_loc;
+    }
 };
 
 class SymbolAlrDecldError : public EccSemError {
@@ -289,6 +293,10 @@ public:
         ss << "symbol previously declared at <" << def_loc << ">";
 
         return ss.str();
+    }
+
+    Optional<Location> elab_loc() override {
+        return def_loc;
     }
 };
 
