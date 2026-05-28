@@ -1,15 +1,14 @@
 #pragma once
 
-#include <cstdint>
-
-#include "semantics/types.hpp"
 #ifndef ECC_TYPE_ERR_H
 #define ECC_TYPE_ERR_H
 
+#include <cstdint>
 #include <sstream>
 
 #include "error.hpp"
 #include "location.hpp"
+#include "semantics/types.hpp"
 
 namespace ecc::sema {
 
@@ -97,7 +96,7 @@ public:
 
     std::string elab() override {
         std::stringstream ss;
-        ss << "type representative has size " << ", found member of type " << member_type
+        ss << "type representative has size " << max_size << ", found member of type " << member_type
            << " with size " << err_size;
 
         return ss.str();

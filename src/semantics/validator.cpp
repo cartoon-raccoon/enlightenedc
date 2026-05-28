@@ -56,7 +56,9 @@ void Validator::eval_initializer_rec(AccessorPath& path, types::Type *type, Init
                     break;
 
                 default:
-                    // todo: throw error
+                    add_error<InvalidInitializerError>(
+                        "compound initializer cannot be used with scalar type", init.loc);
+                    throw UnableToContinue();
                 }
             },
             /*
@@ -102,7 +104,9 @@ void Validator::eval_initializer_rec_cls(
                     non_desigd_idx++;
                     RecordType::TypeMember *mem = cls->find_by_path(path);
                     if (!mem) {
-                        // todo: throw error
+                        add_error<InvalidInitializerError>(
+                            "excess elements in class initializer", init->loc);
+                        throw UnableToContinue();
                     }
                     eval_initializer_expr(mem->ty, expr, *init);
                     path.pop_back();
@@ -111,7 +115,9 @@ void Validator::eval_initializer_rec_cls(
                     path.push_back(mem->member);
                     RecordType::TypeMember *member = cls->find_by_path(path);
                     if (!member) {
-                        // todo: throw error
+                        add_error<InvalidInitializerError>(
+                            std::format("no member '{}' in class", mem->member), init->loc);
+                        throw UnableToContinue();
                     }
                     eval_initializer_rec(path, member->ty, *mem->initializer);
                 },
@@ -126,7 +132,9 @@ void Validator::eval_initializer_rec_cls(
                     non_desigd_idx++;
                     RecordType::TypeMember *mem = cls->find_by_path(path);
                     if (!mem) {
-                        // todo: throw error
+                        add_error<InvalidInitializerError>(
+                            "excess elements in class initializer", init->loc);
+                        throw UnableToContinue();
                     }
                     eval_initializer_rec(path, mem->ty, *init);
                     path.pop_back();
@@ -189,7 +197,8 @@ void Validator::do_visit(VarDeclMIR& node) {
     bsv_dbprint("Validator: visiting VarDeclMIR node");
 
     if (in_node(MIRNode::NodeKind::SWITCHSTMT_MIR) == 1) {
-        // todo: throw error (cannot declare variable directly in switch)
+        add_error<InvalidDeclError>(
+            "cannot declare variable directly in switch statement", node.loc);
     }
 
     for (auto& decl : node.decls) {
@@ -219,6 +228,8 @@ void Validator::do_visit(SwitchStmtMIR& node) {
     bsv_dbprint("Validator: visiting SwitchStmtMIR node");
     node.control_val->accept(*this);
     // todo: check validity of control expression (e.g. classes are not valid)
+
+    
 
     node.body->accept(*this);
 }
@@ -314,7 +325,7 @@ void Validator::do_visit(GotoStmtMIR& node) {
     if (label) {
         node.target_sym = label;
     } else {
-        // todo: throw error
+        add_error<LabelNotDefinedError>(node.target, node.loc);
     }
 }
 
@@ -483,7 +494,7 @@ void Validator::do_visit(CastExprMIR& node) {
     assert(node.target);
 
     if (!node.inner->eff_type->castable_to(node.target)) {
-        // todo: throw error, unable to cast
+        add_error<InvalidCastError>(node.inner->eff_type, node.target, node.loc);
     }
 
     node.set_type(node.target);
@@ -495,7 +506,7 @@ void Validator::do_visit(AssignExprMIR& node) {
     node.right->accept(*this);
 
     if (!node.left->is_assignable()) {
-        // todo: throw error
+        add_error<InvalidAssignError>("left-hand side of assignment is not assignable", node.loc);
     }
 
     // todo: check operator compatibility, set type
@@ -629,14 +640,17 @@ void Validator::do_visit(SubscrExprMIR& node) {
     ArrayType *arrtype   = node.array->act_type->as_array();
     PointerType *ptrtype = node.array->act_type->as_pointer();
     if (!arrtype && !ptrtype) {
-        // todo: add error, subscript operator can only be applied to arrays and pointers
+        add_error<InvalidSubscrExprError>(
+            "subscript operator can only be applied to arrays and pointers",
+            node.array->act_type, node.array->loc);
         throw UnableToContinue();
     }
 
     if (node.index->eff_type->is_primitive()) {
         PrimitiveType *indtype = node.index->eff_type->as_primitive();
         if (!indtype->is_integer()) {
-            // todo: add error, array index must be an integer
+            add_error<InvalidSubscrExprError>(
+                "array index must be an integer", node.index->eff_type, node.index->loc);
             throw UnableToContinue();
         }
     }
@@ -656,11 +670,13 @@ void Validator::do_visit(PostfixExprMIR& node) {
     bsv_dbprint("Validator: visiting PostfixMIR node");
     node.operand->accept(*this);
     if (!node.operand->is_lvalue()) {
-        // todo: add error
+        add_error<InvalidPostfixExprError>(
+            "operand is not a valid lvalue", node.op, node.operand->eff_type, node.loc);
     }
 
     if (!node.operand->eff_type->is_primitive()) {
-        // todo: add error
+        add_error<InvalidPostfixExprError>(
+            "operand must be a primitive type", node.op, node.operand->eff_type, node.loc);
         throw UnableToContinue();
     }
 

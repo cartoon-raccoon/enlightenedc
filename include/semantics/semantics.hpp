@@ -54,6 +54,8 @@ public:
 
     Node *imm_ctxt() { return ctxt_stack.back(); }
 
+    bool found_errors = false;
+
     virtual ScopeGuard<Node> enter_scope(sym::FuncSymbol *assoc = nullptr) = 0;
 
     virtual NodeGuard<Node> enter_node(Node *node) { return NodeGuard(*this, node); }

@@ -8,6 +8,7 @@
 #include "error.hpp"
 #include "location.hpp"
 #include "semantics/types.hpp"
+#include "tokens.hpp"
 
 namespace ecc::sema {
 using namespace ecc;
@@ -100,6 +101,39 @@ public:
     }
 };
 
+class InvalidSubscrExprError : public EccSemError {
+public:
+    InvalidSubscrExprError(std::string err, types::Type *type, Location err_loc)
+        : EccSemError("invalid subscript expression", err_loc), err(std::move(err)),
+          typestr(type->formal()) {}
+
+    std::string err, typestr;
+
+    std::string elab() override {
+        std::stringstream ss;
+        ss << err << ": " << typestr;
+        return ss.str();
+    }
+};
+
+class InvalidPostfixExprError : public EccSemError {
+public:
+    InvalidPostfixExprError(
+        std::string err, tokens::PostfixOp op, types::Type *type, Location err_loc)
+        : EccSemError(std::format("invalid postfix expression: {}", err), err_loc), op(op),
+          typestr(type->formal()) {}
+
+    tokens::PostfixOp op;
+    std::string typestr;
+
+    std::string elab() override {
+        std::stringstream ss;
+        ss << "operator \'" << tokens::postfixop_to_string(op) << "\' cannot be applied to type "
+           << typestr;
+        return ss.str();
+    }
+};
+
 class InvalidCoerceError : public EccSemError {
 public:
     InvalidCoerceError(types::Type *from, types::Type *to, Location err_loc)
@@ -178,6 +212,54 @@ public:
 
         return ss.str();
     }
+};
+
+class InvalidDeclError : public EccSemError {
+public:
+    InvalidDeclError(std::string err, Location err_loc)
+        : EccSemError("invalid declaration", err_loc), err(std::move(err)) {}
+
+    std::string err;
+
+    std::string elab() override { return err; }
+};
+
+class LabelNotDefinedError : public EccSemError {
+public:
+    LabelNotDefinedError(std::string name, Location err_loc)
+        : EccSemError("use of undefined label", err_loc), name(std::move(name)) {}
+
+    std::string name;
+
+    std::string elab() override {
+        std::stringstream ss;
+        ss << "label \'" << name << "\' is not defined";
+        return ss.str();
+    }
+};
+
+class InvalidCastError : public EccSemError {
+public:
+    InvalidCastError(types::Type *from, types::Type *to, Location err_loc)
+        : EccSemError("invalid cast", err_loc), from(from->formal()), to(to->formal()) {}
+
+    std::string from, to;
+
+    std::string elab() override {
+        std::stringstream ss;
+        ss << "cannot cast " << from << " to " << to;
+        return ss.str();
+    }
+};
+
+class InvalidAssignError : public EccSemError {
+public:
+    InvalidAssignError(std::string err, Location err_loc)
+        : EccSemError("invalid assignment", err_loc), err(std::move(err)) {}
+
+    std::string err;
+
+    std::string elab() override { return err; }
 };
 
 class TypeAlrDefinedError : public EccSemError {

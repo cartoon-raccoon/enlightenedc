@@ -26,6 +26,27 @@ using namespace mir;
         do_visit(node);                             \
     }
 
+#define DO_STMT_VISIT(visitor, nodety)  /*NOLINT*/ \
+    void visitor::visit(nodety& node) { /*NOLINT*/ \
+        auto guard = enter_node(&node);            \
+        try {                                      \
+            do_visit(node);                        \
+        } catch (UnableToContinue&) {              \
+            found_errors = true;                   \
+        }                                          \
+    }
+
+#define DO_STMT_SCOPED_VISIT(visitor, nodety) /*NOLINT*/ \
+    void visitor::visit(nodety& node) {       /*NOLINT*/ \
+        auto guard  = enter_node(&node);                 \
+        auto sguard = enter_scope();                     \
+        try {                                            \
+            do_visit(node);                              \
+        } catch (UnableToContinue&) {                    \
+            found_errors = true;                         \
+        }                                                \
+    }
+
 int BaseASTSemaVisitor::in_node(ASTNode::NodeKind kind) {
     int ret = 0;
     for (auto i = ctxt_stack.rbegin(); i != ctxt_stack.rend(); i++) {
@@ -84,36 +105,35 @@ DO_VISIT(BaseASTSemaVisitor, TypeQualifier);
 // no enter scope here, enumerators are scoped to the scope in which
 // their corresponding enum is declared.
 DO_VISIT(BaseASTSemaVisitor, EnumSpecifier);
-
-// any nested derived types have to be scoped within this specifier.
 DO_VISIT(BaseASTSemaVisitor, ClassSpecifier);
-
-// any nested derived types have to be scoped within this specifier.
 DO_VISIT(BaseASTSemaVisitor, UnionSpecifier);
 DO_VISIT(BaseASTSemaVisitor, Initializer);
 DO_VISIT(BaseASTSemaVisitor, TypeName);
 DO_VISIT(BaseASTSemaVisitor, IdentifierDeclarator);
 
 // compound statements should introduce a new scope.
-DO_SCOPED_VISIT(BaseASTSemaVisitor, CompoundStatement);
-DO_VISIT(BaseASTSemaVisitor, ExpressionStatement);
-DO_VISIT(BaseASTSemaVisitor, CaseStatement);
-DO_VISIT(BaseASTSemaVisitor, CaseRangeStatement);
-DO_VISIT(BaseASTSemaVisitor, DefaultStatement);
-DO_VISIT(BaseASTSemaVisitor, LabeledStatement);
-DO_VISIT(BaseASTSemaVisitor, PrintStatement);
-DO_VISIT(BaseASTSemaVisitor, IfStatement);
-DO_VISIT(BaseASTSemaVisitor, SwitchStatement);
-DO_SCOPED_VISIT(BaseASTSemaVisitor, WhileStatement);
-DO_SCOPED_VISIT(BaseASTSemaVisitor, DoWhileStatement);
-
+DO_STMT_SCOPED_VISIT(BaseASTSemaVisitor, CompoundStatement);
+DO_STMT_VISIT(BaseASTSemaVisitor, ExpressionStatement);
+DO_STMT_VISIT(BaseASTSemaVisitor, CaseStatement);
+DO_STMT_VISIT(BaseASTSemaVisitor, CaseRangeStatement);
+DO_STMT_VISIT(BaseASTSemaVisitor, DefaultStatement);
+DO_STMT_VISIT(BaseASTSemaVisitor, LabeledStatement);
+DO_STMT_VISIT(BaseASTSemaVisitor, PrintStatement);
+DO_STMT_VISIT(BaseASTSemaVisitor, IfStatement);
+DO_STMT_VISIT(BaseASTSemaVisitor, SwitchStatement);
+// loops are scoped because they canonicalize into a single LoopStmtMIR,
+// and for loop introduces a new scope, so they must all be scoped
+// to ensure correct replay of the scope tree when walking the symbol table.
+DO_STMT_SCOPED_VISIT(BaseASTSemaVisitor, WhileStatement);
+DO_STMT_SCOPED_VISIT(BaseASTSemaVisitor, DoWhileStatement);
 // for loops introduce a new scope since the init portion
 // of the loop might declare a new variable.
-DO_SCOPED_VISIT(BaseASTSemaVisitor, ForStatement);
-DO_VISIT(BaseASTSemaVisitor, GotoStatement);
-DO_VISIT(BaseASTSemaVisitor, BreakStatement);
-DO_VISIT(BaseASTSemaVisitor, ContinueStatement);
-DO_VISIT(BaseASTSemaVisitor, ReturnStatement);
+DO_STMT_SCOPED_VISIT(BaseASTSemaVisitor, ForStatement);
+DO_STMT_VISIT(BaseASTSemaVisitor, GotoStatement);
+DO_STMT_VISIT(BaseASTSemaVisitor, BreakStatement);
+DO_STMT_VISIT(BaseASTSemaVisitor, ContinueStatement);
+DO_STMT_VISIT(BaseASTSemaVisitor, ReturnStatement);
+
 DO_VISIT(BaseASTSemaVisitor, BinaryExpression);
 DO_VISIT(BaseASTSemaVisitor, CastExpression);
 DO_VISIT(BaseASTSemaVisitor, UnaryExpression);
@@ -492,20 +512,22 @@ DO_VISIT(BaseMIRSemaVisitor, mir::FunctionMIR);
 DO_VISIT(BaseMIRSemaVisitor, mir::InitializerMIR);
 DO_VISIT(BaseMIRSemaVisitor, mir::TypeDeclMIR);
 DO_VISIT(BaseMIRSemaVisitor, mir::VarDeclMIR);
-DO_SCOPED_VISIT(BaseMIRSemaVisitor, mir::CompoundStmtMIR);
-DO_VISIT(BaseMIRSemaVisitor, mir::ExprStmtMIR);
-DO_VISIT(BaseMIRSemaVisitor, mir::SwitchStmtMIR);
-DO_VISIT(BaseMIRSemaVisitor, mir::CaseStmtMIR);
-DO_VISIT(BaseMIRSemaVisitor, mir::CaseRangeStmtMIR);
-DO_VISIT(BaseMIRSemaVisitor, mir::DefaultStmtMIR);
-DO_VISIT(BaseMIRSemaVisitor, mir::LabeledStmtMIR);
-DO_VISIT(BaseMIRSemaVisitor, mir::PrintStmtMIR);
-DO_VISIT(BaseMIRSemaVisitor, mir::IfStmtMIR);
-DO_SCOPED_VISIT(BaseMIRSemaVisitor, mir::LoopStmtMIR);
-DO_VISIT(BaseMIRSemaVisitor, mir::GotoStmtMIR);
-DO_VISIT(BaseMIRSemaVisitor, mir::BreakStmtMIR);
-DO_VISIT(BaseMIRSemaVisitor, mir::ContStmtMIR);
-DO_VISIT(BaseMIRSemaVisitor, mir::ReturnStmtMIR);
+
+DO_STMT_SCOPED_VISIT(BaseMIRSemaVisitor, mir::CompoundStmtMIR);
+DO_STMT_VISIT(BaseMIRSemaVisitor, mir::ExprStmtMIR);
+DO_STMT_VISIT(BaseMIRSemaVisitor, mir::SwitchStmtMIR);
+DO_STMT_VISIT(BaseMIRSemaVisitor, mir::CaseStmtMIR);
+DO_STMT_VISIT(BaseMIRSemaVisitor, mir::CaseRangeStmtMIR);
+DO_STMT_VISIT(BaseMIRSemaVisitor, mir::DefaultStmtMIR);
+DO_STMT_VISIT(BaseMIRSemaVisitor, mir::LabeledStmtMIR);
+DO_STMT_VISIT(BaseMIRSemaVisitor, mir::PrintStmtMIR);
+DO_STMT_VISIT(BaseMIRSemaVisitor, mir::IfStmtMIR);
+DO_STMT_SCOPED_VISIT(BaseMIRSemaVisitor, mir::LoopStmtMIR);
+DO_STMT_VISIT(BaseMIRSemaVisitor, mir::GotoStmtMIR);
+DO_STMT_VISIT(BaseMIRSemaVisitor, mir::BreakStmtMIR);
+DO_STMT_VISIT(BaseMIRSemaVisitor, mir::ContStmtMIR);
+DO_STMT_VISIT(BaseMIRSemaVisitor, mir::ReturnStmtMIR);
+
 DO_VISIT(BaseMIRSemaVisitor, mir::BinaryExprMIR);
 DO_VISIT(BaseMIRSemaVisitor, mir::UnaryExprMIR);
 DO_VISIT(BaseMIRSemaVisitor, mir::CastExprMIR);
