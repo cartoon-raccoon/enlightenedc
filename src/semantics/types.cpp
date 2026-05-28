@@ -252,7 +252,7 @@ std::string PrimitiveType::formal() {
  */
 
 void RecordType::validate_new_member(Type *type, Optional<std::string> name, Location loc) {
-    if (directly_contains(type)) {
+    if (type == this) {
         // check for recursion without indirection.
 
         // member is guaranteed to have name, as anonymous types cannot be re-referenced
@@ -271,6 +271,12 @@ void RecordType::validate_new_member(Type *type, Optional<std::string> name, Loc
         UserType *uty = type->as_usertype();
         if (!uty->is_complete()) {
             throw IncompleteTypeUseError(*uty->name, uty->decl_loc);
+        }
+        // if the new member is recordtype and directly contains us, that's mutual recursion,
+        // also an error
+        RecordType *rectype = type->as_recordtype();
+        if (rectype && rectype->directly_contains(this)) {
+            throw RecursiveTypeError(*name, loc);
         }
     } else if (type->is_void()) {
         // check if type is void
