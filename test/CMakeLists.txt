@@ -1,2 +1,2 @@
-add_subdirectory(code)
+add_subdirectory(integration)
 add_subdirectory(unit)
