@@ -40,7 +40,7 @@ LLVMCore::~LLVMCore() {
     llvm::llvm_shutdown();
 }
 
-LLVMUnit::LLVMUnit(std::string& module_name, LLVMCore& llvmcore) {
+LLVMUnit::LLVMUnit(const std::string& module_name, LLVMCore& llvmcore) {
     dbprint("LLVM: Creating LLVMUnit with module name '", module_name, "'");
     context   = std::make_unique<llvm::LLVMContext>();
     llvmmod   = std::make_unique<llvm::Module>(module_name, *context);

@@ -38,7 +38,8 @@ Ecc uses an interning type system, where a TypeContext manages internal type
 objects, and hands out pointers to them. This makes checking for type equality
 equivalent to a single pointer comparison. Note that pointers to unsized ArrayType
 instances are transient — they may be invalidated when `set_array_size` or
-`decay_array` is called on them.
+`decay_array` is called on them, but ref-counting prevents accidental invalidations
+while in use.
 */
 namespace ecc::sema::types {
 
@@ -88,7 +89,7 @@ public:
     @return The cast TypeHandle, nullopt if the cast failed.
     */
     template <typename Dst>
-        requires std::derived_from<Ty, Type>
+        requires std::derived_from<Dst, Type>
     Optional<TypeHandle<Dst>> as() noexcept {
         Dst *targ = dynamic_cast<Dst *>(ptr);
         if (!targ) {
@@ -99,14 +100,29 @@ public:
     }
 
     template <typename Dst>
+        requires std::derived_from<Dst, Type>
     TypeHandle(const TypeHandle<Dst>& dst) : ptr(dst.ptr), tyctxt(dst.tyctxt) {}
 
-    template <typename Other>
-    bool operator==(const TypeHandle<Other>& other) {
+    /**
+    Compare against another TypeHandle.
+    */
+    template <typename OTy>
+        requires std::derived_from<OTy, Type>
+    bool operator==(const TypeHandle<OTy>& other) {
         return ptr == other.ptr;
     }
 
+    /**
+    Compare directly against another type pointer.
+    */
+    template <typename OTy>
+        requires std::derived_from<OTy, Type>
+    bool operator==(OTy * other) {
+        return ptr == other;
+    }
+
     Ty *operator->() const { return ptr; }
+    
     Ty& operator*() const { return *ptr; }
 };
 
@@ -172,8 +188,8 @@ public:
     Check if a type can be implicitly coerced into `dst` without a cast,
     i.e. the compiler will insert a cast expression to handle it.
 
-    Note that this relationship is not symmetric; if `this` is compatible
-    with `dst`, this does not mean `dst` is compatible with `this`.
+    Note that this relationship is not symmetric; if `this` is coercible to
+    `dst`, this does not mean `dst` is coercible to `this`.
 
     This function will return false if `this` and `dst` are exactly the same;
     it is to be used for types that are not equal, but might be able to be
@@ -791,7 +807,7 @@ protected:
 
 ## Compatibility
 
-An enum type is compatible with any integer primitive type, but not vice versa.
+An enum type is coercible to any integer primitive type, but not vice versa.
 The compiler will throw an error if the number of enum variants exceed the maximum
 value of the integer primitive to be cast to.
 */
@@ -862,10 +878,10 @@ A pointer type (U8 *, I32 **, etc.)
 
 ## Compatibility
 
-A pointer `ptr` is only compatible with another pointer `other` if:
+A pointer `ptr` is only coercible to another pointer `other` if:
 
 the base type of `other` is `VoidType`, and
-the level of nesting is the same (i.e. U8 ** is compatible with Void **, but not Void ***).
+the level of nesting is the same (i.e. U8 ** is coercible to Void **, but not Void ***).
 
 Pointers can be subscripted like arrays, the compiler will treat the subscript as pointer
 arithmetic. However, pointers cannot be converted to sized arrays.
@@ -920,11 +936,11 @@ A sized array type (`U8 [4]`, `U32 [6]`, etc.).
 
 ## Compatibility
 
-An array is compatible with a pointer of the same base through pointer decay.
+An array is coercible to a pointer of the same base through pointer decay.
 Similarly, pointers can be subscripted like an array, the compiler treats
 it as pointer arithmetic.
 
-A sized array is strictly only compatible with another array of the exact same base
+A sized array is strictly only coercible to another array of the exact same base
 and size.
 
 ## Semantics
