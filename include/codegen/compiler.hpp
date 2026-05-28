@@ -20,7 +20,7 @@ namespace ecc::codegen {
 LLVM IR generation functionality.
 */
 
-class LLVMSynthesizer : public lir::LIRVisitor {
+class LLVMSynthesizer : public lir::LIRVisitor, public NoMove {
     Ref<llvm::LLVMContext> ctxtref;
     Ref<llvm::Module> modref;
     Ref<llvm::IRBuilder<>> irbref;
