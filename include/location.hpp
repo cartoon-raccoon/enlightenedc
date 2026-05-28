@@ -20,6 +20,9 @@ public:
     Point(const std::string *filename, int col, int line)
         : column(col), line(line), filename(filename) {}
 
+    Point(const std::string *filename)
+        : column(1), line(1), filename(filename) {}
+
     /// Construct an empty Point (no filename, starts at 1:1).
     Point() : column(1), line(1), filename(nullptr) {}
 
@@ -74,7 +77,7 @@ public:
     Location(Point pt) : begin(pt), end(pt) {}
 
     /// Construct an empty location with a filename.
-    Location(std::string *filename) : begin(filename, 1, 1), end(filename, 1, 1) {}
+    Location(const std::string *const filename) : begin(Point(filename)), end(Point(filename)) {}
 
     /// Construct an empty location.
     Location() {}
