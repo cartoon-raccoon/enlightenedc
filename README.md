@@ -2,8 +2,9 @@
 
 An LLVM-powered compiler and REPL for HolyC, the implementation language of TempleOS, created by Terry A. Davis.
 
-EnlightenedC is a dialect of HolyC that aims to adapt HolyC for production environments. It genuinely provides a
-good middle ground between the simplicity of C and the complexity of HolyC, and should be used more.
+EnlightenedC is a dialect of HolyC that aims to adapt HolyC for production environments. HolyC genuinely
+provides a good middle ground between the simplicity of C and the complexity of C++, and should be
+used more.
 
 ## Features
 
@@ -23,28 +24,33 @@ The project has the following dependencies:
 - Bison (>= v3.8)
 - LLVM (>= v21.1)
 - CMake (>= v3.20)
+- Googletest/RapidCheck, but that is pulled in at build time.
 
-Run the following commands in the project root:
+To build this project, you can use the `build.sh` script:
 
 ```bash
-# generate the build files, using project root as source dir
-# and create a new `build` dir for the build
-$ cmake -S . -B build
-# run the build process, specifying the `build` dir
-# you can add optional parallelism
-$ cmake --build build --parallel <n>
+# running build.sh without arguments builds the entire project.
+$ ./build.sh
 ```
 
 To clean the build directory, run:
 
 ```bash
-$ cmake --build build --target clean
+$ ./build.sh clean
 ```
 
 If `CMakeLists.txt` has changed, you'll need to nuke the entire build directory:
 
 ```bash
 $ rm -rf build/*
+# OR
+$ ./build.sh nuke
+```
+
+You can also format the code using the command:
+
+```bash
+$ ./build.sh format
 ```
 
 ## Running
