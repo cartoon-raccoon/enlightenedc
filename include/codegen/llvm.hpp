@@ -58,7 +58,7 @@ class LLVMUnit {
     Box<llvm::IRBuilder<>> irbuilder;
 
 public:
-    LLVMUnit(std::string& module_name, LLVMCore& llvmcore);
+    LLVMUnit(const std::string& module_name, LLVMCore& llvmcore);
     ~LLVMUnit();
 
     friend class LLVMCore;
