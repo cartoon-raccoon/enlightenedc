@@ -79,6 +79,41 @@ LLVMType *Type::get_llvmtype() {
     return llvm_type;
 }
 
+size_t ConstType::alloc_size() {
+        if (!finalized) {
+            finalize();
+        }
+
+
+        return base->alloc_size();
+    }
+
+bool ConstType::coercible_to(Type *dst) {
+    if (!dst->is_const()) {
+        return false;
+    } else {
+        return base->coercible_to(dst);
+    }
+}
+
+void ConstType::finalize()  {
+    if (finalized) {
+        assert(llvm_type && "ConstType marked finalized but llvm_type is null");
+        dbprint("ConstType: already finalized, skipping");
+        return;
+    }
+
+    dbprint("VoidType: finalizing");
+
+    base->finalize();
+    llvm_type = base->get_llvmtype();
+    
+    finalized = true;
+    
+}
+
+Type *ConstType::effective_type() { return ctxt().get_const(base->effective_type()); }
+
 /*
  * VOID TYPE METHODS
  */
@@ -1312,6 +1347,20 @@ TypeContext::get_function(Location loc, Type *returntype, Vec<Type *> params, bo
     }
 
     function_types[name] = std::move(func);
+
+    return ret;
+}
+
+ConstType *TypeContext::get_const(Type *base) {
+    if (const_types.contains(base)) {
+        return const_types.find(base)->second.get();
+    }
+
+    auto to_insert = std::make_unique<ConstType>(base, *this);
+
+    ConstType *ret = to_insert.get();
+
+    const_types.insert_or_assign(base, std::move(to_insert));
 
     return ret;
 }

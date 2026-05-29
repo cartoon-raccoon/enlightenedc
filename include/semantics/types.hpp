@@ -174,6 +174,8 @@ public:
 
     virtual bool is_derivedtype() { return false; }
 
+    virtual bool is_const() { return false; }
+
     /**
     Get the size of the type as reported by LLVM.
 
@@ -298,6 +300,9 @@ public:
     /** Whether the type is strictly an integer type. */
     virtual bool is_integral() { return false; }
 
+    /** Get the bare type without any const qualifiers. */
+    virtual Type * unqual() { return this; }
+
     /**
     Finalize the type with LLVM, creating the equivalent LLVM type.
 
@@ -315,7 +320,7 @@ public:
     */
     virtual Type *effective_type() { return this; };
 
-    codegen::LLVMType *get_llvmtype();
+    virtual codegen::LLVMType *get_llvmtype();
 
     virtual std::string to_string() const { return "()"; }
 
@@ -617,6 +622,102 @@ public:
 
 protected:
     DerivedType(Kind kind, TypeContext& tyctxt, Type *base) : Type(kind, tyctxt), base(base) {}
+};
+
+/**
+A wrapper over a Type, marking it as const.
+
+This type is purely compositional, composing onto existing types. As such, most of Type's
+interface is just delegations to the underlying `base` type. There are compositions on
+`coercible_to` and `effective_type`, to block const-to-nonconst casting, and to wrap
+`base->effective_type()` in a ConstType wrapper, respectively.
+*/
+class ConstType : public Type {
+public:
+    Type *base;
+
+    Type *unqual() override { return base; }
+
+    /**
+    Delegates to `base`.
+    */
+    bool is_basetype() override { return base->is_basetype(); }
+
+    bool is_usertype() override { return base->is_usertype(); }
+
+    bool is_recordtype() override { return base->is_recordtype(); }
+
+    bool is_derivedtype() override { return base->is_derivedtype(); }
+
+    bool is_const() override { return true; }
+
+    size_t alloc_size() override;
+
+    /**
+    Checks if dst is const, delegating to `base->coercible_to()` if true,
+    returning false otherwise.
+    */
+    bool coercible_to(Type *dst) override;
+
+    /**
+    Delegates immediately to `base->castable_to(dst)`, since explicit casting removes const.
+    */
+    bool castable_to(Type *dst) override { return base->castable_to(dst); }
+
+    VoidType *as_void() override { return base->as_void();  }
+
+    PrimitiveType *as_primitive() override { return base->as_primitive();  }
+
+    UserType *as_usertype() override { return base->as_usertype();  }
+
+    RecordType *as_recordtype() override { return base->as_recordtype();  }
+
+    ClassType *as_class() override { return base->as_class();  }
+
+    UnionType *as_union() override { return base->as_union();  }
+
+    EnumType *as_enum() override { return base->as_enum();  }
+
+    DerivedType *as_derivedtype() override { return base->as_derivedtype();  }
+
+    PointerType *as_pointer() override { return base->as_pointer();  }
+
+    ArrayType *as_array() override { return base->as_array();  }
+
+    FunctionType *as_function() override { return base->as_function();  }
+
+    bool is_callable() override { return base->is_callable();  };
+
+    bool is_subscriptable() override { return base->is_subscriptable();  };
+
+    bool is_boolable() override { return base->is_boolable();  }
+
+    bool is_scalar() override { return base->is_scalar();  }
+
+    bool is_integral() override { return base->is_integral();  }
+
+    void finalize() override;
+    
+    /**
+    Wraps base->effective_type() in a ConstType.
+    */
+    Type *effective_type() override;
+
+    codegen::LLVMType *get_llvmtype() override { return base->get_llvmtype(); }
+
+    std::string to_string() const override { return "const " + base->to_string(); }
+
+    Optional<std::string> get_name() override { return base->get_name(); };
+
+    /** Returns the formal name of the type. */
+    std::string formal() override { return "const " + base->formal(); }
+
+protected:
+    friend class TypeContext;
+
+    friend constexpr Box<ConstType> std::make_unique<ConstType>(Type *&, TypeContext&);
+
+    ConstType(Type *base, TypeContext& tyctxt) : Type(base->kind, tyctxt), base(base) {}
 };
 
 /**
@@ -1398,6 +1499,11 @@ public:
     // Create a function type based on its signature.
     FunctionType *get_function(Location loc, Type *ret, Vec<Type *> params, bool variadic);
 
+    /**
+    Wrap a type in a ConstType wrapper.
+    */
+    ConstType *get_const(Type *base);
+
     codegen::LLVMUnit& llvm() { return llvmref; }
 
     std::string to_string() const;
@@ -1433,8 +1539,11 @@ private:
     // The map of pointer types, mapped by their base type.
     std::unordered_map<PointerKey, Box<PointerType>, pair_hash<bool>> pointers;
 
-    // The map of array types, mapped by their base type (todo: add size)
+    // The map of array types, mapped by their base type.
     std::unordered_map<ArrayKey, Box<ArrayType>, pair_hash<Optional<uint64_t>>> arrays;
+
+    // The map of const types mapped by their base type.
+    std::unordered_map<Type *, Box<ConstType>> const_types;
 
     // Generate a mangled, unique name for a type incorporating its associated scope.
     template <typename T>
