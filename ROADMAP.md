@@ -22,7 +22,8 @@ This document lays out the planned improvements and updates for the EnlightenedC
 - Implement various optimizations using CFG, etc.
   - Use CFG to report optimizations to the LIRSynthesizer
 - Implement a basic stdlib
-- Add try-catch
+- Add try-catch (LLVM unwinding)
+- Add operation chaining (a < b < c vs (a < b) < c)
 
 ## Long-Term
 
