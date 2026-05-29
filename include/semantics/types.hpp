@@ -117,12 +117,12 @@ public:
     */
     template <typename OTy>
         requires std::derived_from<OTy, Type>
-    bool operator==(OTy * other) {
+    bool operator==(OTy *other) {
         return ptr == other;
     }
 
     Ty *operator->() const { return ptr; }
-    
+
     Ty& operator*() const { return *ptr; }
 };
 
@@ -417,14 +417,12 @@ using AccessorNode = std::variant<MemberAcc, IndexAcc>;
 
 template <typename T>
 std::basic_ostream<T>& operator<<(std::basic_ostream<T>& ostr, AccessorNode& acc) {
-    std::visit(match {
-        [&](std::string& mem) {
-            ostr << mem;
+    std::visit(
+        match{
+            [&](std::string& mem) { ostr << mem; },
+            [&](size_t idx) { ostr << idx; },
         },
-        [&](size_t idx) {
-            ostr << idx;
-        },
-    }, acc);
+        acc);
 
     return ostr;
 }
@@ -728,7 +726,7 @@ protected:
 /**
 The ClassType in EnlightenedC.
 
-## Coercibility 
+## Coercibility
 
 Classes are completely invariant over all types, including parent classes.
 

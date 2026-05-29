@@ -276,9 +276,7 @@ public:
         return ss.str();
     }
 
-    Optional<Location> elab_loc() override {
-        return def_loc;
-    }
+    Optional<Location> elab_loc() override { return def_loc; }
 };
 
 class SymbolAlrDecldError : public EccSemError {
@@ -295,9 +293,7 @@ public:
         return ss.str();
     }
 
-    Optional<Location> elab_loc() override {
-        return def_loc;
-    }
+    Optional<Location> elab_loc() override { return def_loc; }
 };
 
 } // namespace ecc::sema

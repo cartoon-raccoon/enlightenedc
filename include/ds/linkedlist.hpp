@@ -27,7 +27,7 @@ class LinkedListNode {
         requires std::derived_from<T, LinkedListNode<T>>
     friend class LinkedListIter;
 
-    size_t idx                = 0;
+    size_t idx      = 0;
     Node *next_node = nullptr, *prev_node = nullptr;
 
 public:
@@ -212,9 +212,9 @@ public:
         }
 
         // Remove the node from the vector of nodes
-        auto it = std::find_if(
-            nodes.begin(), nodes.end(),
-            [&to_remove](const Box<N>& node) { return node.get() == &to_remove; });
+        auto it = std::find_if(nodes.begin(), nodes.end(), [&to_remove](const Box<N>& node) {
+            return node.get() == &to_remove;
+        });
 
         if (it != nodes.end()) {
             nodes.erase(it);
@@ -285,8 +285,8 @@ public:
      * Throws std::out_of_range if the index is out of bounds.
      */
     N& at(size_t idx) {
-        N *curr_acc = first_elem;
-        size_t curr_idx             = 0;
+        N *curr_acc     = first_elem;
+        size_t curr_idx = 0;
         while (curr_idx != idx) {
             if (curr_acc) {
                 curr_acc = curr_acc->next_node;
@@ -350,8 +350,8 @@ private:
         } else if (idx == 0) {
             push_front(item);
         } else {
-            N *curr_acc = first_elem;
-            size_t curr_idx             = 0;
+            N *curr_acc     = first_elem;
+            size_t curr_idx = 0;
             while (curr_idx != idx) {
                 if (curr_acc) {
                     curr_acc = curr_acc->next_node;

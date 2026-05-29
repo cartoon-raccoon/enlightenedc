@@ -77,9 +77,7 @@ public:
         return ss.str();
     }
 
-    Optional<Location> elab_loc() override {
-        return def_loc;
-    }
+    Optional<Location> elab_loc() override { return def_loc; }
 };
 
 /**
@@ -100,15 +98,13 @@ public:
 
     std::string elab() override {
         std::stringstream ss;
-        ss << "type representative has size " << max_size << ", found member of type " << member_type
-           << " with size " << err_size;
+        ss << "type representative has size " << max_size << ", found member of type "
+           << member_type << " with size " << err_size;
 
         return ss.str();
     }
 
-    Optional<Location> elab_loc() override {
-        return member_loc;
-    }
+    Optional<Location> elab_loc() override { return member_loc; }
 };
 
 class UnsizedArrInUserTypeError : public TypeSemError {
@@ -150,8 +146,7 @@ class EnumeratorValueOverflow : public TypeSemError {
 public:
     EnumeratorValueOverflow(Location err_loc, uint64_t max_value, int64_t provided)
         : TypeSemError("enumerator with value larger than underlying can hold", err_loc),
-          max_value(max_value),
-          provided_value(provided) {}
+          max_value(max_value), provided_value(provided) {}
 
     uint64_t max_value;
     int64_t provided_value;
@@ -181,9 +176,7 @@ public:
         return ss.str();
     }
 
-    Optional<Location> elab_loc() override {
-        return def_loc;
-    }
+    Optional<Location> elab_loc() override { return def_loc; }
 };
 
 class InvalidEnumUnderlyingError : public TypeSemError {
@@ -208,9 +201,7 @@ public:
         return ss.str();
     }
 
-    Optional<Location> elab_loc() override {
-        return def_loc;
-    }
+    Optional<Location> elab_loc() override { return def_loc; }
 };
 
 } // namespace ecc::sema

@@ -76,6 +76,8 @@ void Validator::eval_initializer_rec(AccessorPath& path, types::Type *type, Init
 }
 
 void Validator::eval_initializer_expr(Type *type, Box<ExprMIR>& expr, InitializerMIR& init) {
+    bsv_dbprint("Validator: eval_initializer_expr");
+
     expr->accept(*this);
     if (type != expr->eff_type) {
         bsv_dbprint("types are not equal, checking compatibility");
@@ -95,18 +97,27 @@ void Validator::eval_initializer_rec_cls(
     types::AccessorPath& path, ClassType *cls, Vec<Box<InitializerMIR>>& inits) {
     assert(cls && "cls was null while evaluating initializer");
 
+    bsv_dbprint("Validator: eval_initializer_rec_cls");
+
     size_t non_desigd_idx = 0;
     for (auto&& [idx, init] : std::views::enumerate(inits)) {
         std::visit(
             match{
                 [&](Box<ExprMIR>& expr) {
                     path.push_back(non_desigd_idx);
+                    bsv_dbprint(path);
+                    bsv_dbprint("checking non-desigd index ", non_desigd_idx);
                     non_desigd_idx++;
                     RecordType::TypeMember *mem = cls->find_by_path(path);
                     if (!mem) {
-                        add_error<InvalidInitializerError>(
-                            "excess elements in class initializer", init->loc);
-                        throw UnableToContinue();
+                        if (non_desigd_idx >= cls->num_members()) {
+                            add_error<InvalidInitializerError>(
+                                "excess elements in class initializer", init->loc);
+                            throw UnableToContinue();
+                        } else {
+                            throw std::runtime_error(
+                                "could not find member with valid non-desigd index");
+                        }
                     }
                     eval_initializer_expr(mem->ty, expr, *init);
                     path.pop_back();
@@ -146,6 +157,8 @@ void Validator::eval_initializer_rec_cls(
 void Validator::eval_initializer_rec_arr(
     types::AccessorPath& path, ArrayType *arr, Vec<Box<InitializerMIR>>& inits) {
     assert(arr && "arr was null while evaluating initializer");
+
+    bsv_dbprint("Validator: eval_initializer_rec_arr");
 
     size_t non_desigd_idx = 0;
     for (auto&& [idx, init] : std::views::enumerate(inits)) {
@@ -217,6 +230,10 @@ void Validator::do_visit(TypeDeclMIR& node) { // done
     }
 }
 
+/*
+ * STATEMENTS
+ */
+
 void Validator::do_visit(ExprStmtMIR& node) { // done
     bsv_dbprint("Validator: visiting ExprStmtMIR node");
     if (node.expr) {
@@ -228,8 +245,6 @@ void Validator::do_visit(SwitchStmtMIR& node) {
     bsv_dbprint("Validator: visiting SwitchStmtMIR node");
     node.control_val->accept(*this);
     // todo: check validity of control expression (e.g. classes are not valid)
-
-    
 
     node.body->accept(*this);
 }
@@ -367,6 +382,13 @@ void Validator::do_visit(ReturnStmtMIR& node) {
     }
 }
 
+/*
+* EXPRESSIONS
+
+Invariants: by the end of visiting an Expr node, we must be able to call set_type correctly.
+If this invariant cannot be enforced, immediately throw UnableToContinue.
+*/
+
 void Validator::do_visit(BinaryExprMIR& node) {
     bsv_dbprint("Validator: visiting BinaryExprMIR node");
     node.left->accept(*this);
@@ -398,6 +420,8 @@ void Validator::do_visit(BinaryExprMIR& node) {
                 "operator not applicable to these types", node.op, left_type, right_type, node.loc);
         }
 
+        // todo: add promotion and insert implicit casting logic
+
         node.set_type(node.left->act_type);
     }
 }
@@ -420,9 +444,11 @@ void Validator::do_visit(UnaryExprMIR& node) {
         if (!node.operand->is_lvalue()) {
             add_error<InvalidUnaryOpError>(
                 "operand is not assignable", node.op, node.operand->eff_type, node.loc);
+            throw UnableToContinue();
         } else if (!primtype->is_integer()) {
             add_error<InvalidUnaryOpError>(
                 "operand is not an integer", node.op, node.operand->eff_type, node.loc);
+            throw UnableToContinue();
         } else {
             node.set_type(node.operand->act_type);
         }
@@ -432,6 +458,7 @@ void Validator::do_visit(UnaryExprMIR& node) {
         if (!node.operand->is_lvalue()) {
             add_error<InvalidUnaryOpError>(
                 "operand is not an lvalue", node.op, node.operand->eff_type, node.loc);
+            throw UnableToContinue();
         }
         node.set_type(types.get().get_pointer(node.operand->act_type, false));
     } break;
@@ -440,6 +467,7 @@ void Validator::do_visit(UnaryExprMIR& node) {
         if (!node.operand->act_type->is_pointer()) {
             add_error<InvalidUnaryOpError>(
                 "operand is not a pointer", node.op, node.operand->eff_type, node.loc);
+            throw UnableToContinue();
         } else {
             node.set_type(node.operand->act_type->as_pointer()->base);
         }
@@ -568,6 +596,8 @@ void Validator::do_visit(LiteralExprMIR& node) { // done
         node.set_type(types.get().get_primitive(val->primtype));
     } else if (auto *_ = std::get_if<std::string>(&node.value)) {
         node.set_type(types.get().get_pointer(types.get().get_i8(), true));
+    } else {
+        // unreachable
     }
 
     assert(node.eff_type);
@@ -641,8 +671,8 @@ void Validator::do_visit(SubscrExprMIR& node) {
     PointerType *ptrtype = node.array->act_type->as_pointer();
     if (!arrtype && !ptrtype) {
         add_error<InvalidSubscrExprError>(
-            "subscript operator can only be applied to arrays and pointers",
-            node.array->act_type, node.array->loc);
+            "subscript operator can only be applied to arrays and pointers", node.array->act_type,
+            node.array->loc);
         throw UnableToContinue();
     }
 

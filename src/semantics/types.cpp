@@ -438,7 +438,6 @@ RecordType::TypeMember *RecordType::find_by_path(AccessorPath& path) {
                 assert(curr_ty);
             }
         }
-
     }
 
     return curr;
@@ -765,7 +764,7 @@ void EnumType::finalize() {
     if (!is_complete()) {
         throw TypeSemError("enum not fully defined", decl_loc);
     }
-    
+
     if (!underlying->is_integral()) {
         throw InvalidEnumUnderlyingError(def_loc);
     }
@@ -779,16 +778,15 @@ void EnumType::finalize() {
     }
 
     if (!enumerators.empty()) {
-        auto max_val = std::max_element(enumerators.begin(), enumerators.end(), 
-                                [&](auto& mem1, auto& mem2){
-                                    return mem1->value < mem2->value; }
-                                );
-    
+        auto max_val =
+            std::max_element(enumerators.begin(), enumerators.end(), [&](auto& mem1, auto& mem2) {
+                return mem1->value < mem2->value;
+            });
+
         if ((*max_val)->value < 0 || static_cast<uint64_t>((*max_val)->value) > max_enum_ct) {
             throw EnumeratorValueOverflow(def_loc, max_enum_ct, (*max_val)->value);
         }
     }
-
 
     finalized = true;
 }

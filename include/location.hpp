@@ -20,8 +20,7 @@ public:
     Point(const std::string *filename, int col, int line)
         : column(col), line(line), filename(filename) {}
 
-    Point(const std::string *filename)
-        : column(1), line(1), filename(filename) {}
+    Point(const std::string *filename) : column(1), line(1), filename(filename) {}
 
     /// Construct an empty Point (no filename, starts at 1:1).
     Point() : column(1), line(1), filename(nullptr) {}
