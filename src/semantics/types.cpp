@@ -983,7 +983,7 @@ void TypeBuilder::set_base(BaseType *base) {
     this->base = base;
 }
 
-Type *TypeBuilder::finalize() {
+Type *TypeBuilder::finalize(Optional<Ref<Vec<FuncParam>>> last_params) {
     if (!base) {
         throw std::runtime_error("TypeBuilder::finalize: cannot construct type from null base");
     }
@@ -995,7 +995,7 @@ Type *TypeBuilder::finalize() {
         auto next_cstrctr = type_stack.top();
         std::visit(
             match{
-                [this, &curr](Arr& arr) mutable {
+                [&](Arr& arr) mutable {
                     // Wrap the base in an array.
                     if (arr.size) {
                         curr = this->ctxt().get_array(curr, *arr.size);
@@ -1003,17 +1003,22 @@ Type *TypeBuilder::finalize() {
                         curr = this->ctxt().get_array(curr);
                     }
                 },
-                [this, &curr](Ptr& ptr) mutable {
+                [&](Ptr& ptr) mutable {
                     // Wrap the base in a pointer.
                     curr = this->ctxt().get_pointer(curr, ptr.is_const);
                 },
-                [this, &curr](FnParams& fn) mutable {
+                [&](FnParams& fn) mutable {
                     Vec<Type *> params;
                     // map out the identifiers.
                     params.reserve(fn.params.size());
                     for (auto& param : fn.params) {
                         params.push_back(param.type);
                     }
+
+                    if (last_params) {
+                        (*last_params).get() = std::move(fn.params);
+                    }
+
                     // Wrap the base as the return type in a function type.
                     curr = this->ctxt().get_function(fn.loc, curr, std::move(params), fn.variadic);
                 }},

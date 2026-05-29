@@ -232,42 +232,7 @@ void MIRSynthesizer::do_visit(Function& node) {
     Vec<FuncParam> last_func_params;
 
     // Extract the base type from our builder.
-    Type *curr = builder->ty_bldr.base;
-
-    while (!builder->ty_bldr.type_stack.empty()) {
-        auto next_cstrctr = builder->ty_bldr.type_stack.top();
-        std::visit(
-            match{
-                [&](TypeBuilder::Arr& arr) mutable {
-                    // Wrap the base in an array.
-                    if (arr.size) {
-                        curr = builder->ty_bldr.ctxt().get_array(curr, *arr.size);
-                    } else {
-                        curr = builder->ty_bldr.ctxt().get_array(curr);
-                    }
-                },
-                [&](TypeBuilder::Ptr& ptr) mutable {
-                    // Wrap the base in a pointer.
-                    curr = builder->ty_bldr.ctxt().get_pointer(curr, ptr.is_const);
-                },
-                [&](TypeBuilder::FnParams& fn) mutable {
-                    // map out the identifiers.
-                    Vec<Type *> params;
-                    params.reserve(fn.params.size());
-                    for (auto& param : fn.params) {
-                        params.push_back(param.type);
-                    }
-
-                    last_func_params = std::move(fn.params);
-                    // Wrap the base as the return type in a function type.
-                    curr = builder->ty_bldr.ctxt().get_function(
-                        fn.loc, curr, std::move(params), fn.variadic);
-                }},
-            next_cstrctr);
-
-        // Pop the stack to the next constructor
-        builder->ty_bldr.type_stack.pop();
-    }
+    Type *curr = builder->ty_bldr.finalize(last_func_params);
 
     FunctionType *functype = curr->as_function();
     if (!functype) {

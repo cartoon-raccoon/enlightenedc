@@ -1229,7 +1229,7 @@ public:
 
     TypeContext& ctxt() { return tyctxt; }
 
-    Type *finalize();
+    Type *finalize(Optional<Ref<Vec<FuncParam>>> params = {});
     struct Ptr {
         bool is_const;
     };
