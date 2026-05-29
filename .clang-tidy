@@ -4,6 +4,7 @@ Checks: >
   bugprone-*,
   -bugprone-implicit-widening-of-multiplication-result,
   -bugprone-empty-catch,
+  -bugprone-copy-constructor-init,
   clang-analyzer-*,
   -clang-analyzer-osx*,
   -clang-analyzer-optin.osx*,
