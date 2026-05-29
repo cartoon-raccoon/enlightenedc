@@ -28,7 +28,7 @@ class LinkedListNode {
     friend class LinkedListIter;
 
     size_t idx                = 0;
-    LinkedListNode *next_node = nullptr, *prev_node = nullptr;
+    Node *next_node = nullptr, *prev_node = nullptr;
 
 public:
     virtual ~LinkedListNode() = default;
@@ -37,9 +37,9 @@ public:
 
     size_t index() const { return idx; }
 
-    Node *next() { return static_cast<Node *>(next_node); }
+    Node *next() { return next_node; }
 
-    Node *prev() { return static_cast<Node *>(prev_node); }
+    Node *prev() { return prev_node; }
 
     template <typename N>
         requires std::derived_from<N, LinkedListNode<N>>
@@ -102,19 +102,19 @@ public:
 /**
  * An intrusive doubly-linked list implementation.
  */
-template <typename T>
-    requires std::derived_from<T, LinkedListNode<T>>
+template <typename N>
+    requires std::derived_from<N, LinkedListNode<N>>
 class LinkedList {
 public:
     LinkedList() {};
 
-    LinkedList(std::initializer_list<LinkedListNode<T>> init) {
+    LinkedList(std::initializer_list<N> init) {
         for (const auto& node : init) {
             push_back(node);
         }
     }
 
-    LinkedList(const LinkedList<T>& from) {
+    LinkedList(const LinkedList<N>& from) {
         for (const auto& node : from) {
             push_back(node);
         }
@@ -128,15 +128,15 @@ public:
 
     ~LinkedList() = default;
 
-    LinkedListNode<T>& operator[](size_t idx) const { return at(idx); }
+    N& operator[](size_t idx) const { return at(idx); }
 
-    bool operator==(const LinkedList<T>& other) const {
+    bool operator==(const LinkedList<N>& other) const {
         if (size() != other.size())
             return false;
 
         for (size_t i = 0; i < size(); ++i) {
-            LinkedListNode<T>& mine   = (*this)[i];
-            LinkedListNode<T>& theirs = other[i];
+            N& mine   = (*this)[i];
+            N& theirs = other[i];
             if (mine != theirs)
                 return false;
         }
@@ -147,8 +147,8 @@ public:
     /**
      * Append an element to the end of the list.
      */
-    void push_back(const T& item) {
-        Box<LinkedListNode<T>> node = make_box<LinkedListNode<T>>(item);
+    void push_back(const N& item) {
+        Box<N> node = make_box<N>(item);
 
         push_back(std::move(node));
     }
@@ -156,8 +156,8 @@ public:
     /**
      * Append an element to the end of the list.
      */
-    void push_back(T&& item) {
-        Box<LinkedListNode<T>> node = make_box<LinkedListNode<T>>(std::move(item));
+    void push_back(N&& item) {
+        Box<N> node = make_box<N>(std::move(item));
 
         push_back(std::move(node));
     }
@@ -165,14 +165,14 @@ public:
     /**
      * Prepend an element to the beginning of the list.
      */
-    void push_front(const T& item) {
-        auto node = make_box<LinkedListNode<T>>(item);
+    void push_front(const N& item) {
+        auto node = make_box<N>(item);
 
         push_front(std::move(node));
     }
 
-    void push_front(T&& item) {
-        auto node = make_box<LinkedListNode<T>>(std::move(item));
+    void push_front(N&& item) {
+        auto node = make_box<N>(std::move(item));
 
         push_front(std::move(node));
     }
@@ -180,14 +180,14 @@ public:
     /**
      * Insert an element at the specified index.
      */
-    void insert(const T& item, size_t idx) {
-        auto node = make_box<LinkedListNode<T>>(item);
+    void insert(const N& item, size_t idx) {
+        auto node = make_box<N>(item);
 
         insert(std::move(node), idx);
     }
 
-    void insert(T&& item, size_t idx) {
-        auto node = make_box<LinkedListNode<T>>(std::move(item));
+    void insert(N&& item, size_t idx) {
+        auto node = make_box<N>(std::move(item));
 
         insert(std::move(node), idx);
     }
@@ -197,7 +197,7 @@ public:
     void pop_front() { remove(0); }
 
     void remove(size_t idx) {
-        LinkedListNode<T>& to_remove = at(idx);
+        N& to_remove = at(idx);
 
         if (to_remove.prev_node) {
             to_remove.prev_node->next_node = to_remove.next_node;
@@ -214,7 +214,7 @@ public:
         // Remove the node from the vector of nodes
         auto it = std::find_if(
             nodes.begin(), nodes.end(),
-            [&to_remove](const Box<LinkedListNode<T>>& node) { return node.get() == &to_remove; });
+            [&to_remove](const Box<N>& node) { return node.get() == &to_remove; });
 
         if (it != nodes.end()) {
             nodes.erase(it);
@@ -229,13 +229,13 @@ public:
     /**
      * Prepend all elements from another linked list to this list.
      */
-    void prepend(LinkedListNode<T>& start) {
-        const LinkedListNode<T> *traveler = &start;
+    void prepend(N& start) {
+        const N *cur = &start;
 
-        while (traveler != nullptr) {
+        while (cur != nullptr) {
             // We create a new Box (unique_ptr) by copying the data
             // This hides the Box implementation from the caller
-            auto new_node = make_box<LinkedListNode<T>>(*traveler);
+            auto new_node = make_box<N>(*cur);
 
             // Reset pointers to maintain local list integrity
             new_node->next_node = nullptr;
@@ -246,7 +246,7 @@ public:
             }
 
             nodes.push_back(std::move(new_node));
-            traveler = traveler->next_node;
+            cur = cur->next_node;
         }
     }
 
@@ -258,13 +258,13 @@ public:
     /**
      * Extend this list with all elements from another linked list.
      */
-    void extend(LinkedListNode<T>& start) {
-        const LinkedListNode<T> *traveler = &start;
+    void extend(N& start) {
+        const N *traveler = &start;
 
         while (traveler != nullptr) {
             // We create a new Box (unique_ptr) by copying the data
             // This hides the Box implementation from the caller
-            auto new_node = make_box<LinkedListNode<T>>(*traveler);
+            auto new_node = make_box<N>(*traveler);
 
             // Reset pointers to maintain local list integrity
             new_node->next_node = nullptr;
@@ -284,8 +284,8 @@ public:
      *
      * Throws std::out_of_range if the index is out of bounds.
      */
-    LinkedListNode<T>& at(size_t idx) {
-        LinkedListNode<T> *curr_acc = first_elem;
+    N& at(size_t idx) {
+        N *curr_acc = first_elem;
         size_t curr_idx             = 0;
         while (curr_idx != idx) {
             if (curr_acc) {
@@ -305,16 +305,16 @@ public:
 
     bool empty() { return nodes.empty(); }
 
-    LinkedListNode<T>& first() const { return *first_elem; }
+    N& first() const { return *first_elem; }
 
-    LinkedListNode<T>& last() const { return *last_elem; }
+    N& last() const { return *last_elem; }
 
-    LinkedListIter<T> begin() const { return LinkedListIter<T>(first_elem); }
+    LinkedListIter<N> begin() const { return LinkedListIter<N>(first_elem); }
 
-    LinkedListIter<T> end() const { return LinkedListIter<T>(nullptr); }
+    LinkedListIter<N> end() const { return LinkedListIter<N>(nullptr); }
 
 private:
-    void push_back(Box<LinkedListNode<T>> item) {
+    void push_back(Box<N> item) {
         if (size() == 0) {
             item->idx       = 0;
             item->next_node = item->prev_node = nullptr;
@@ -328,7 +328,7 @@ private:
         nodes.push_back(std::move(item));
     }
 
-    void push_front(Box<LinkedListNode<T>> item) {
+    void push_front(Box<N> item) {
         if (size() == 0) {
             item->idx       = 0;
             item->next_node = item->prev_node = nullptr;
@@ -342,7 +342,7 @@ private:
         nodes.push_back(std::move(item));
     }
 
-    void insert(const Box<LinkedListNode<T>>& item, size_t idx) {
+    void insert(const Box<N>& item, size_t idx) {
         if (idx > size()) {
             throw std::out_of_range("specified index for LinkedList out of range");
         } else if (idx == size()) {
@@ -350,7 +350,7 @@ private:
         } else if (idx == 0) {
             push_front(item);
         } else {
-            LinkedListNode<T> *curr_acc = first_elem;
+            N *curr_acc = first_elem;
             size_t curr_idx             = 0;
             while (curr_idx != idx) {
                 if (curr_acc) {
@@ -376,10 +376,10 @@ private:
         }
     }
 
-    Vec<Box<LinkedListNode<T>>> nodes;
+    Vec<Box<N>> nodes;
 
-    LinkedListNode<T> *first_elem;
-    LinkedListNode<T> *last_elem;
+    N *first_elem;
+    N *last_elem;
 };
 
 } // end namespace ecc::ds
