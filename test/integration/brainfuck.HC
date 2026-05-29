@@ -62,7 +62,7 @@ U0 Die(U8i *errmsg, enum ErrType errcode) {
     return;
 }
 
-U8i valid_chars[8] = {'>', '<', '+', '-', ',', '.', '[', ']'};
+I8i valid_chars[8] = {'>', '<', '+', '-', ',', '.', '[', ']'};
 Bool IsValid(U8i c) {
     I32i i = 0;
     while (i < 8) {
@@ -191,7 +191,7 @@ U0 Execute() {
             } break;
         }
 
-        /* advance inclassion pointer */
+        /* advance instruction pointer */
         insptr++;
 
         if (insptr + 1 == codesize) {
@@ -219,7 +219,7 @@ I32i Main() {
 
     Initialize();
     // hello world
-    U8i program[] = ">++++++++[<+++++++++>-]<.>++++[<+++++++>-]<+.+++++++..+++.>>++++++[<+++++++>-]<++.------------.>++++++[<+++++++++>-]<+.<.+++.------.--------.>>>++++[<++++++++>-]<+.";
+    I8i program[] = ">++++++++[<+++++++++>-]<.>++++[<+++++++>-]<+.+++++++..+++.>>++++++[<+++++++>-]<++.------------.>++++++[<+++++++++>-]<+.<.+++.------.--------.>>>++++[<++++++++>-]<+.";
 
     ReadCode(program);
     Execute();

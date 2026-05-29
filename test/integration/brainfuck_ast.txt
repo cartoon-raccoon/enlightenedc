@@ -1,10 +1,10 @@
 Initializing LLVM
 LLVM initialized
-running pipeline on file test/brainfuck.HC
-LLVM: Creating LLVMUnit with module name 'test/brainfuck.HC'
+running pipeline on file test/integration/brainfuck.HC
+LLVM: Creating LLVMUnit with module name 'test/integration/brainfuck.HC'
 LLVM: LLVMUnit created
-parsing file test/brainfuck.HC
-printing AST for file test/brainfuck.HC
+parsing file test/integration/brainfuck.HC
+printing AST for file test/integration/brainfuck.HC
 Program @ <1.1> 
 | VariableDeclaration @ <6.1-13> 
 | | VoidSpecifier @ <6.1-2> 
@@ -212,7 +212,7 @@ Program @ <1.1>
 | | | | | | IdentifierExpression: errmsg @ <60.61-66> 
 | | | ReturnStatement @ <62.5-11> 
 | VariableDeclaration @ <65.1-62> 
-| | PrimitiveSpecifier: u8 @ <65.1-3> 
+| | PrimitiveSpecifier: i8 @ <65.1-3> 
 | | InitDeclarator @ <65.5-61> 
 | | | Declarator @ <65.5-18> 
 | | | | ArrayDeclarator @ <65.5-18> 
@@ -635,7 +635,7 @@ Program @ <1.1>
 | | | | CallExpression @ <220.5-16> 
 | | | | | IdentifierExpression: Initialize @ <220.5-14> 
 | | | VariableDeclaration @ <222.5-187> 
-| | | | PrimitiveSpecifier: u8 @ <222.5-7> 
+| | | | PrimitiveSpecifier: i8 @ <222.5-7> 
 | | | | InitDeclarator @ <222.9-186> 
 | | | | | Declarator @ <222.9-17> 
 | | | | | | ArrayDeclarator @ <222.9-17> 
@@ -654,7 +654,7 @@ Program @ <1.1>
 | ExpressionStatement @ <230.1-7> 
 | | CallExpression @ <230.1-6> 
 | | | IdentifierExpression: Main @ <230.1-4> 
-running backend for file test/brainfuck.HC
+running backend for file test/integration/brainfuck.HC
 Synthesizing MIR for 1.1
 Node {
     visiting Program node: 1.1
@@ -685,7 +685,7 @@ SymbolTable: inserting varsymbol with name "Execute"
         parsing declaration specifier list for node at 9.1-13.2
         Node {
             visiting ClassSpecifier node: 9.1-13.1
-TypeContext: class type 'Stack' on scope 0x55fb880eba50
+TypeContext: class type 'Stack' on scope 0x55cb843eaa80
 TypeContext: inserting type classStack_0
             class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol Stack in current scope
@@ -698,7 +698,7 @@ SymbolTable: inserting typesymbol with name "Stack"
 TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node 10.5-13
-                parsing ClassDeclaration for ClassType 0x55fb88105af0
+                parsing ClassDeclaration for ClassType 0x55cb84404b30
                 Node {
                     visiting ClassDeclarator node: 10.10-12
                     Node {
@@ -708,7 +708,8 @@ TypeContext: getting primitive type
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name cap type 0x55fb880eb8d0
+ClassType: adding member with name cap type 0x55cb843ea900
+RecordType: Looking for member with name cap
             }
             Node {
                 visiting ClassDeclaration node: 11.5-13
@@ -718,7 +719,7 @@ ClassType: adding member with name cap type 0x55fb880eb8d0
 TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node 11.5-13
-                parsing ClassDeclaration for ClassType 0x55fb88105af0
+                parsing ClassDeclaration for ClassType 0x55cb84404b30
                 Node {
                     visiting ClassDeclarator node: 11.10-12
                     Node {
@@ -728,7 +729,8 @@ TypeContext: getting primitive type
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name len type 0x55fb880eb8d0
+ClassType: adding member with name len type 0x55cb843ea900
+RecordType: Looking for member with name len
             }
             Node {
                 visiting ClassDeclaration node: 12.5-18
@@ -738,7 +740,7 @@ ClassType: adding member with name len type 0x55fb880eb8d0
 TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node 12.5-18
-                parsing ClassDeclaration for ClassType 0x55fb88105af0
+                parsing ClassDeclaration for ClassType 0x55cb84404b30
                 Node {
                     visiting ClassDeclarator node: 12.10-17
                     Node {
@@ -753,17 +755,15 @@ TypeContext: getting primitive type
                                 Node {
                                     visiting LiteralExpression node: 12.10-16
                                     found integer
-constructing Value from literal 32
-constructing 32-bit integer
                                 }
                             }
-converting Value to bool
                         }
                     }
                 }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55fb880eb8d0, size 32
-ClassType: adding member with name data type 0x55fb880f1cc0
+TypeContext: array type with base 0x55cb843ea900, size 32
+ClassType: adding member with name data type 0x55cb843f0cd0
+RecordType: Looking for member with name data
             }
         }
         finished parsing specifiers for node 9.1-13.2
@@ -788,24 +788,22 @@ TypeBuilder: finalizing type
                 visiting Initializer node: 15.17-25
                 visiting compound initializer
                 visiting classtype compound initializer
+RecordType: Looking for member with index 0
                 Node {
                     visiting Initializer node: 15.19-20
                     visiting single initializer
                     Node {
                         visiting LiteralExpression node: 15.19-20
                         found integer
-constructing Value from literal 32
-constructing 32-bit integer
                     }
                 }
+RecordType: Looking for member with index 1
                 Node {
                     visiting Initializer node: 15.23
                     visiting single initializer
                     Node {
                         visiting LiteralExpression node: 15.23
                         found integer
-constructing Value from literal 0
-constructing 32-bit integer
                     }
                 }
             }
@@ -850,7 +848,7 @@ SymbolTable: pushing scope 1
 SymbolTable: entering scope 1
             visiting CompoundStatement node: 17.25-28.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 1 with symbol 0x55fb880ad3d0 name "StackPush"
+SymbolTable: associating current scope 1 with symbol 0x55cb843ac3d0 name "StackPush"
 SymbolTable: inserting varsymbol with name "item"
             Node {
                 visiting IfStatement node: 19.5-25
@@ -863,8 +861,6 @@ SymbolTable: looking up varsymbol item
                     Node {
                         visiting LiteralExpression node: 19.16
                         found integer
-constructing Value from literal 0
-constructing 32-bit integer
                     }
                 }
                 Node {
@@ -887,8 +883,6 @@ SymbolTable: looking up varsymbol nesting
                         Node {
                             visiting LiteralExpression node: 21.23
                             found integer
-constructing Value from literal 1
-constructing 32-bit integer
                         }
                     }
                     Node {
@@ -976,7 +970,7 @@ SymbolTable: pushing scope 3
 SymbolTable: entering scope 3
             visiting CompoundStatement node: 30.18-35.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 3 with symbol 0x55fb880ad610 name "StackPeek"
+SymbolTable: associating current scope 3 with symbol 0x55cb843ac610 name "StackPeek"
             Node {
                 visiting IfStatement node: 31.5-32.18
                 Node {
@@ -991,8 +985,6 @@ SymbolTable: looking up varsymbol nesting
                     Node {
                         visiting LiteralExpression node: 31.24
                         found integer
-constructing Value from literal 0
-constructing 32-bit integer
                     }
                 }
                 Node {
@@ -1002,8 +994,6 @@ constructing 32-bit integer
                         Node {
                             visiting LiteralExpression node: 32.16-17
                             found integer
-constructing Value from literal 1
-constructing 32-bit integer
                         }
                     }
                 }
@@ -1031,8 +1021,6 @@ SymbolTable: looking up varsymbol nesting
                         Node {
                             visiting LiteralExpression node: 34.39
                             found integer
-constructing Value from literal 1
-constructing 32-bit integer
                         }
                     }
                 }
@@ -1065,7 +1053,7 @@ SymbolTable: pushing scope 4
 SymbolTable: entering scope 4
             visiting CompoundStatement node: 37.17-44.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 4 with symbol 0x55fb880ac920 name "StackPop"
+SymbolTable: associating current scope 4 with symbol 0x55cb843ab920 name "StackPop"
             Node {
                 visiting IfStatement node: 38.5-36
                 Node {
@@ -1080,8 +1068,6 @@ SymbolTable: looking up varsymbol nesting
                     Node {
                         visiting LiteralExpression node: 38.24
                         found integer
-constructing Value from literal 0
-constructing 32-bit integer
                     }
                 }
                 Node {
@@ -1091,8 +1077,6 @@ constructing 32-bit integer
                         Node {
                             visiting LiteralExpression node: 38.34-35
                             found integer
-constructing Value from literal 1
-constructing 32-bit integer
                         }
                     }
                 }
@@ -1137,8 +1121,6 @@ SymbolTable: looking up varsymbol nesting
                                 Node {
                                     visiting LiteralExpression node: 40.43
                                     found integer
-constructing Value from literal 1
-constructing 32-bit integer
                                 }
                             }
                         }
@@ -1191,15 +1173,12 @@ TypeContext: getting primitive type
                         Node {
                             visiting LiteralExpression node: 47.5-13
                             found integer
-constructing Value from literal 1024
-constructing 32-bit integer
                         }
                     }
-converting Value to bool
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55fb880eb750, size 1024
+TypeContext: array type with base 0x55cb843ea780, size 1024
         }
 SymbolTable: inserting varsymbol with name "code"
     }
@@ -1225,8 +1204,6 @@ TypeBuilder: finalizing type
                 Node {
                     visiting LiteralExpression node: 48.15
                     found integer
-constructing Value from literal 0
-constructing 32-bit integer
                 }
             }
         }
@@ -1254,8 +1231,6 @@ TypeBuilder: finalizing type
                 Node {
                     visiting LiteralExpression node: 49.17-20
                     found integer
-constructing Value from literal 1024
-constructing 32-bit integer
                 }
             }
         }
@@ -1283,15 +1258,12 @@ TypeContext: getting primitive type
                         Node {
                             visiting LiteralExpression node: 52.5-14
                             found integer
-constructing Value from literal 30000
-constructing 32-bit integer
                         }
                     }
-converting Value to bool
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55fb880eb750, size 30000
+TypeContext: array type with base 0x55cb843ea780, size 30000
         }
 SymbolTable: inserting varsymbol with name "data"
     }
@@ -1317,8 +1289,6 @@ TypeBuilder: finalizing type
                 Node {
                     visiting LiteralExpression node: 53.16
                     found integer
-constructing Value from literal 0
-constructing 32-bit integer
                 }
             }
         }
@@ -1329,7 +1299,7 @@ SymbolTable: inserting varsymbol with name "dataptr"
         parsing declaration specifier list for node at 55.1-40
         Node {
             visiting EnumSpecifier node: 55.1-39
-TypeContext: enum type 'ErrType' on scope 0x55fb880eba50
+TypeContext: enum type 'ErrType' on scope 0x55cb843eaa80
 TypeContext: inserting type enumErrType_0
             enum has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol ErrType in current scope
@@ -1341,8 +1311,6 @@ SymbolTable: inserting typesymbol with name "ErrType"
                     Node {
                         visiting LiteralExpression node: 55.24
                         found integer
-constructing Value from literal 1
-constructing 32-bit integer
                     }
                 }
 SymbolTable: inserting varsymbol with name "SYSTEM"
@@ -1354,8 +1322,6 @@ SymbolTable: inserting varsymbol with name "SYSTEM"
                     Node {
                         visiting LiteralExpression node: 55.38
                         found integer
-constructing Value from literal 2
-constructing 32-bit integer
                     }
                 }
 SymbolTable: inserting varsymbol with name "BAD_CODE"
@@ -1393,14 +1359,14 @@ TypeContext: getting primitive type
                         }
                     }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x55fb880eb750
+TypeContext: pointer with base 0x55cb843ea780
                 }
                 Node {
                     visiting ParameterDeclarator node: 56.21-40
                     parsing declaration specifier list for node at 56.21-40
                     Node {
                         visiting EnumSpecifier node: 56.21-32
-TypeContext: enum type 'ErrType' on scope 0x55fb880eba50
+TypeContext: enum type 'ErrType' on scope 0x55cb843eaa80
 TypeContext: existing enum found
                         enum has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol ErrType in current scope
@@ -1423,7 +1389,7 @@ SymbolTable: pushing scope 5
 SymbolTable: entering scope 5
             visiting CompoundStatement node: 56.43-63.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 5 with symbol 0x55fb880acda0 name "Die"
+SymbolTable: associating current scope 5 with symbol 0x55cb843abda0 name "Die"
 SymbolTable: inserting varsymbol with name "errmsg"
 SymbolTable: inserting varsymbol with name "errcode"
             Node {
@@ -1509,15 +1475,12 @@ TypeContext: getting primitive type
                         Node {
                             visiting LiteralExpression node: 65.5-17
                             found integer
-constructing Value from literal 8
-constructing 32-bit integer
                         }
                     }
-converting Value to bool
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55fb880eb750, size 8
+TypeContext: array type with base 0x55cb843ea880, size 8
             Node {
                 visiting Initializer node: 65.22-61
                 visiting compound initializer
@@ -1629,7 +1592,7 @@ SymbolTable: pushing scope 8
 SymbolTable: entering scope 8
             visiting CompoundStatement node: 66.21-74.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 8 with symbol 0x55fb880acfe0 name "IsValid"
+SymbolTable: associating current scope 8 with symbol 0x55cb843abfe0 name "IsValid"
 SymbolTable: inserting varsymbol with name "c"
             Node {
                 visiting VariableDeclaration node: 67.5-15
@@ -1653,8 +1616,6 @@ TypeBuilder: finalizing type
                         Node {
                             visiting LiteralExpression node: 67.14
                             found integer
-constructing Value from literal 0
-constructing 32-bit integer
                         }
                     }
                 }
@@ -1673,8 +1634,6 @@ SymbolTable: looking up varsymbol i
                     Node {
                         visiting LiteralExpression node: 68.16
                         found integer
-constructing Value from literal 8
-constructing 32-bit integer
                     }
                 }
                 Node {
@@ -1706,8 +1665,6 @@ SymbolTable: looking up varsymbol i
                             Node {
                                 visiting LiteralExpression node: 69.41
                                 found integer
-constructing Value from literal 1
-constructing 32-bit integer
                             }
                         }
                     }
@@ -1730,8 +1687,6 @@ SymbolTable: exiting scope to 8
                 Node {
                     visiting LiteralExpression node: 73.12
                     found integer
-constructing Value from literal 0
-constructing 32-bit integer
                 }
             }
 SymbolTable: exiting scope to 0
@@ -1767,7 +1722,7 @@ TypeContext: getting primitive type
                         }
                     }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x55fb880eb750
+TypeContext: pointer with base 0x55cb843ea780
                 }
             }
         }
@@ -1779,7 +1734,7 @@ SymbolTable: pushing scope 11
 SymbolTable: entering scope 11
             visiting CompoundStatement node: 77.23-95.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 11 with symbol 0x55fb880ae1b0 name "ReadCode"
+SymbolTable: associating current scope 11 with symbol 0x55cb843ad1b0 name "ReadCode"
 SymbolTable: inserting varsymbol with name "src"
             Node {
                 visiting VariableDeclaration node: 78.5-15
@@ -1803,8 +1758,6 @@ TypeBuilder: finalizing type
                         Node {
                             visiting LiteralExpression node: 78.14
                             found integer
-constructing Value from literal 0
-constructing 32-bit integer
                         }
                     }
                 }
@@ -1832,8 +1785,6 @@ TypeBuilder: finalizing type
                         Node {
                             visiting LiteralExpression node: 79.14
                             found integer
-constructing Value from literal 0
-constructing 32-bit integer
                         }
                     }
                 }
@@ -1937,8 +1888,6 @@ SymbolTable: looking up varsymbol n
                                 Node {
                                     visiting LiteralExpression node: 86.17
                                     found integer
-constructing Value from literal 1
-constructing 32-bit integer
                                 }
                             }
                             Node {
@@ -2046,7 +1995,7 @@ SymbolTable: pushing scope 16
 SymbolTable: entering scope 16
             visiting CompoundStatement node: 98.18-118.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 16 with symbol 0x55fb880ae2d0 name "JumpToAfter"
+SymbolTable: associating current scope 16 with symbol 0x55cb843ad2d0 name "JumpToAfter"
             Node {
                 visiting VariableDeclaration node: 99.5-31
                 parsing declaration specifier list for node at 99.5-31
@@ -2301,7 +2250,7 @@ SymbolTable: pushing scope 23
 SymbolTable: entering scope 23
             visiting CompoundStatement node: 120.14-201.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 23 with symbol 0x55fb880ae3f0 name "Execute"
+SymbolTable: associating current scope 23 with symbol 0x55cb843ad3f0 name "Execute"
             Node {
                 visiting VariableDeclaration node: 122.5-10
                 parsing declaration specifier list for node at 122.5-10
@@ -2365,8 +2314,6 @@ SymbolTable: looking up varsymbol insptr
                             Node {
                                 visiting LiteralExpression node: 124.22
                                 found integer
-constructing Value from literal 0
-constructing 32-bit integer
                             }
                         }
                         Node {
@@ -2408,8 +2355,6 @@ SymbolTable: looking up varsymbol dataptr
                             Node {
                                 visiting LiteralExpression node: 129.23
                                 found integer
-constructing Value from literal 0
-constructing 32-bit integer
                             }
                         }
                         Node {
@@ -2593,8 +2538,6 @@ SymbolTable: looking up varsymbol dataptr
                                         Node {
                                             visiting LiteralExpression node: 156.33
                                             found integer
-constructing Value from literal 0
-constructing 32-bit integer
                                         }
                                     }
                                 }
@@ -2656,8 +2599,6 @@ SymbolTable: looking up varsymbol dataptr
                                         Node {
                                             visiting LiteralExpression node: 166.38
                                             found integer
-constructing Value from literal 0
-constructing 32-bit integer
                                         }
                                     }
                                     Node {
@@ -2758,8 +2699,6 @@ SymbolTable: looking up varsymbol opening
                                             Node {
                                                 visiting LiteralExpression node: 180.31
                                                 found integer
-constructing Value from literal 0
-constructing 32-bit integer
                                             }
                                         }
                                         Node {
@@ -2808,8 +2747,6 @@ SymbolTable: looking up varsymbol dataptr
                                             Node {
                                                 visiting LiteralExpression node: 185.38
                                                 found integer
-constructing Value from literal 0
-constructing 32-bit integer
                                             }
                                         }
                                         Node {
@@ -2882,8 +2819,6 @@ SymbolTable: looking up varsymbol insptr
                                 Node {
                                     visiting LiteralExpression node: 197.22
                                     found integer
-constructing Value from literal 1
-constructing 32-bit integer
                                 }
                             }
                             Node {
@@ -2932,7 +2867,7 @@ SymbolTable: pushing scope 36
 SymbolTable: entering scope 36
             visiting CompoundStatement node: 203.17-212.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 36 with symbol 0x55fb880acb60 name "Initialize"
+SymbolTable: associating current scope 36 with symbol 0x55cb843abb60 name "Initialize"
             Node {
                 visiting VariableDeclaration node: 204.5-15
                 parsing declaration specifier list for node at 204.5-15
@@ -2955,8 +2890,6 @@ TypeBuilder: finalizing type
                         Node {
                             visiting LiteralExpression node: 204.14
                             found integer
-constructing Value from literal 0
-constructing 32-bit integer
                         }
                     }
                 }
@@ -2975,8 +2908,6 @@ SymbolTable: looking up varsymbol i
                     Node {
                         visiting LiteralExpression node: 206.16-20
                         found integer
-constructing Value from literal 30000
-constructing 32-bit integer
                     }
                 }
                 Node {
@@ -3001,8 +2932,6 @@ SymbolTable: looking up varsymbol i
                             Node {
                                 visiting LiteralExpression node: 207.19
                                 found integer
-constructing Value from literal 0
-constructing 32-bit integer
                             }
                         }
                     }
@@ -3034,8 +2963,6 @@ SymbolTable: looking up varsymbol nesting
                     Node {
                         visiting LiteralExpression node: 211.19
                         found integer
-constructing Value from literal 0
-constructing 32-bit integer
                     }
                 }
             }
@@ -3072,7 +2999,7 @@ TypeContext: getting primitive type
                         }
                     }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x55fb880eb750
+TypeContext: pointer with base 0x55cb843ea780
                 }
             }
         }
@@ -3085,7 +3012,7 @@ SymbolTable: pushing scope 39
 SymbolTable: entering scope 39
             visiting CompoundStatement node: 214.29-216.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 39 with symbol 0x55fb8810b8c0 name "PrintUsage"
+SymbolTable: associating current scope 39 with symbol 0x55cb8440a900 name "PrintUsage"
 SymbolTable: inserting varsymbol with name "argname"
             Node {
                 visiting PrintStatement node: 215.5-45
@@ -3125,7 +3052,7 @@ SymbolTable: pushing scope 40
 SymbolTable: entering scope 40
             visiting CompoundStatement node: 218.13-228.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 40 with symbol 0x55fb8810cbb0 name "Main"
+SymbolTable: associating current scope 40 with symbol 0x55cb8440bbf0 name "Main"
             Node {
                 visiting ExpressionStatement node: 220.5-17
                 Node {
@@ -3156,7 +3083,7 @@ TypeContext: getting primitive type
                         }
                     }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x55fb880eb750, no size
+TypeContext: array type with base 0x55cb843ea880, no size
                     Node {
                         visiting Initializer node: 222.21-186
                         visiting single initializer
@@ -3198,8 +3125,6 @@ SymbolTable: looking up funcsymbol Execute
                 Node {
                     visiting LiteralExpression node: 227.12
                     found integer
-constructing Value from literal 0
-constructing 32-bit integer
                 }
             }
 SymbolTable: exiting scope to 0
@@ -3217,6 +3142,1515 @@ SymbolTable: looking up funcsymbol Main
         }
     }
 }
+Node {
+    Node {
+        Validator: visiting VarDeclMIR node
+    }
+    Node {
+        Validator: visiting TypeDeclMIR node
+ClassType: finalizing class defined at 9.1-13.1
+ClassType: finalizing member declared at 10.10-12
+PrimitiveType: finalizing i32
+ClassType: finalizing member declared at 11.10-12
+PrimitiveType: i32 already finalized, skipping
+ClassType: finalizing member declared at 12.10-17
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for nesting
+        Validator: eval_initializer
+        Validator: eval_initializer_rec_cls
+        [0: #0]
+        checking non-desigd index 0
+RecordType: Looking for member with index 0
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        [1: #0]
+        checking non-desigd index 1
+RecordType: Looking for member with index 1
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+    }
+    Node {
+        Node {
+SymbolTable: entering scope 1
+            Node {
+                Validator: visiting IfStmtMIR node
+                Node {
+                    Validator: visiting BinaryExprMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                    Node {
+                        Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                    }
+                }
+                Node {
+                    Validator: visiting ReturnStmtMIR node
+                }
+            }
+            Node {
+                Validator: visiting IfStmtMIR node
+                Node {
+                    Validator: visiting BinaryExprMIR node
+                    Node {
+                        Validator: visiting BinaryExprMIR node
+                        Node {
+                            Validator: visiting MemberAccExprMIR node
+                            Node {
+                                Validator: visiting IdentExprMIR node
+                            }
+RecordType: Looking for member with name len
+                        }
+                        Node {
+                            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                        }
+                    }
+                    Node {
+                        Validator: visiting MemberAccExprMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+RecordType: Looking for member with name cap
+                    }
+                }
+                Node {
+SymbolTable: entering scope 2
+                    Node {
+                        Validator: visiting ReturnStmtMIR node
+                    }
+SymbolTable: exiting scope to 1
+                }
+            }
+            Node {
+                Validator: visiting ExprStmtMIR node
+                Node {
+                    Validator: visiting AssignExprMIR node
+                    Node {
+                        Validator: visiting SubscrExprMIR node
+                        Node {
+                            Validator: visiting MemberAccExprMIR node
+                            Node {
+                                Validator: visiting IdentExprMIR node
+                            }
+RecordType: Looking for member with name data
+TypeContext: array type with base 0x55cb843ea900, size 32
+                        }
+                        Node {
+                            Validator: visiting MemberAccExprMIR node
+                            Node {
+                                Validator: visiting IdentExprMIR node
+                            }
+RecordType: Looking for member with name len
+                        }
+                    }
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                }
+            }
+            Node {
+                Validator: visiting ExprStmtMIR node
+                Node {
+                    Validator: visiting PostfixMIR node
+                    Node {
+                        Validator: visiting MemberAccExprMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+RecordType: Looking for member with name len
+                    }
+                }
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+    Node {
+        Node {
+SymbolTable: entering scope 3
+            Node {
+                Validator: visiting IfStmtMIR node
+                Node {
+                    Validator: visiting BinaryExprMIR node
+                    Node {
+                        Validator: visiting MemberAccExprMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+RecordType: Looking for member with name len
+                    }
+                    Node {
+                        Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                    }
+                }
+                Node {
+                    Validator: visiting ReturnStmtMIR node
+                    Node {
+                        Validator: visiting UnaryExprMIR node
+                        Node {
+                            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                        }
+                    }
+                }
+            }
+            Node {
+                Validator: visiting ReturnStmtMIR node
+                Node {
+                    Validator: visiting SubscrExprMIR node
+                    Node {
+                        Validator: visiting MemberAccExprMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+RecordType: Looking for member with name data
+TypeContext: array type with base 0x55cb843ea900, size 32
+                    }
+                    Node {
+                        Validator: visiting BinaryExprMIR node
+                        Node {
+                            Validator: visiting MemberAccExprMIR node
+                            Node {
+                                Validator: visiting IdentExprMIR node
+                            }
+RecordType: Looking for member with name len
+                        }
+                        Node {
+                            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                        }
+                    }
+                }
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+    Node {
+        Node {
+SymbolTable: entering scope 4
+            Node {
+                Validator: visiting IfStmtMIR node
+                Node {
+                    Validator: visiting BinaryExprMIR node
+                    Node {
+                        Validator: visiting MemberAccExprMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+RecordType: Looking for member with name len
+                    }
+                    Node {
+                        Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                    }
+                }
+                Node {
+                    Validator: visiting ReturnStmtMIR node
+                    Node {
+                        Validator: visiting UnaryExprMIR node
+                        Node {
+                            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                        }
+                    }
+                }
+            }
+            Node {
+                Validator: visiting VarDeclMIR node
+                Validator: visiting single VarDecl for ret
+                Validator: eval_initializer
+                Validator: matched on single expression
+                Validator: eval_initializer_expr
+                Node {
+                    Validator: visiting SubscrExprMIR node
+                    Node {
+                        Validator: visiting MemberAccExprMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+RecordType: Looking for member with name data
+TypeContext: array type with base 0x55cb843ea900, size 32
+                    }
+                    Node {
+                        Validator: visiting BinaryExprMIR node
+                        Node {
+                            Validator: visiting MemberAccExprMIR node
+                            Node {
+                                Validator: visiting IdentExprMIR node
+                            }
+RecordType: Looking for member with name len
+                        }
+                        Node {
+                            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                        }
+                    }
+                }
+            }
+            Node {
+                Validator: visiting ExprStmtMIR node
+                Node {
+                    Validator: visiting PostfixMIR node
+                    Node {
+                        Validator: visiting MemberAccExprMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+RecordType: Looking for member with name len
+                    }
+                }
+            }
+            Node {
+                Validator: visiting ReturnStmtMIR node
+                Node {
+                    Validator: visiting IdentExprMIR node
+                }
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for insptr
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for codesize
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for dataptr
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+    }
+    Node {
+        Node {
+SymbolTable: entering scope 5
+            Node {
+                Validator: visiting IfStmtMIR node
+                Node {
+                    Validator: visiting BinaryExprMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                }
+                Node {
+SymbolTable: entering scope 6
+                    Node {
+                        Validator: visiting PrintStmtMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+TypeContext: pointer with base 0x55cb843ea780
+                        }
+                    }
+SymbolTable: exiting scope to 5
+                }
+                Node {
+SymbolTable: entering scope 7
+                    Node {
+                        Validator: visiting PrintStmtMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+                        Node {
+                            Validator: visiting SubscrExprMIR node
+                            Node {
+                                Validator: visiting IdentExprMIR node
+TypeContext: array type with base 0x55cb843ea780, size 1024
+                            }
+                            Node {
+                                Validator: visiting IdentExprMIR node
+                            }
+                        }
+                        Node {
+                            Validator: visiting IdentExprMIR node
+TypeContext: pointer with base 0x55cb843ea780
+                        }
+                    }
+SymbolTable: exiting scope to 5
+                }
+            }
+            Node {
+                Validator: visiting ReturnStmtMIR node
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for valid_chars
+        Validator: eval_initializer
+        Validator: eval_initializer_rec_arr
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+    }
+    Node {
+        Node {
+SymbolTable: entering scope 8
+            Node {
+                Validator: visiting VarDeclMIR node
+                Validator: visiting single VarDecl for i
+                Validator: eval_initializer
+                Validator: matched on single expression
+                Validator: eval_initializer_expr
+                Node {
+                    Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                }
+            }
+            Node {
+SymbolTable: entering scope 9
+                Validator: visiting LoopStmtMIR node
+                Node {
+                    Validator: visiting BinaryExprMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                    Node {
+                        Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                    }
+                }
+                Node {
+SymbolTable: entering scope 10
+                    Node {
+                        Validator: visiting IfStmtMIR node
+                        Node {
+                            Validator: visiting BinaryExprMIR node
+                            Node {
+                                Validator: visiting IdentExprMIR node
+                            }
+                            Node {
+                                Validator: visiting SubscrExprMIR node
+                                Node {
+                                    Validator: visiting IdentExprMIR node
+TypeContext: array type with base 0x55cb843ea880, size 8
+                                }
+                                Node {
+                                    Validator: visiting IdentExprMIR node
+                                }
+                            }
+                        }
+                        Node {
+                            Validator: visiting ReturnStmtMIR node
+                            Node {
+                                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                            }
+                        }
+                    }
+                    Node {
+                        Validator: visiting ExprStmtMIR node
+                        Node {
+                            Validator: visiting PostfixMIR node
+                            Node {
+                                Validator: visiting IdentExprMIR node
+                            }
+                        }
+                    }
+SymbolTable: exiting scope to 9
+                }
+SymbolTable: exiting scope to 8
+            }
+            Node {
+                Validator: visiting ReturnStmtMIR node
+                Node {
+                    Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                }
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+    Node {
+        Node {
+SymbolTable: entering scope 11
+            Node {
+                Validator: visiting VarDeclMIR node
+                Validator: visiting single VarDecl for n
+                Validator: eval_initializer
+                Validator: matched on single expression
+                Validator: eval_initializer_expr
+                Node {
+                    Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                }
+            }
+            Node {
+                Validator: visiting VarDeclMIR node
+                Validator: visiting single VarDecl for i
+                Validator: eval_initializer
+                Validator: matched on single expression
+                Validator: eval_initializer_expr
+                Node {
+                    Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                }
+            }
+            Node {
+SymbolTable: entering scope 12
+                Validator: visiting LoopStmtMIR node
+                Node {
+                    Validator: visiting BinaryExprMIR node
+                    Node {
+                        Validator: visiting SubscrExprMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+TypeContext: pointer with base 0x55cb843ea780
+                        }
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+                    }
+                    Node {
+                        Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                    }
+                }
+                Node {
+SymbolTable: entering scope 13
+                    Node {
+                        Validator: visiting IfStmtMIR node
+                        Node {
+                            Validator: visiting CallExprMIR node
+                            Node {
+                                Validator: visiting IdentExprMIR node
+                            }
+                            Node {
+                                Validator: visiting SubscrExprMIR node
+                                Node {
+                                    Validator: visiting IdentExprMIR node
+TypeContext: pointer with base 0x55cb843ea780
+                                }
+                                Node {
+                                    Validator: visiting IdentExprMIR node
+                                }
+                            }
+                        }
+                        Node {
+SymbolTable: entering scope 14
+                            Node {
+                                Validator: visiting ExprStmtMIR node
+                                Node {
+                                    Validator: visiting AssignExprMIR node
+                                    Node {
+                                        Validator: visiting SubscrExprMIR node
+                                        Node {
+                                            Validator: visiting IdentExprMIR node
+TypeContext: array type with base 0x55cb843ea780, size 1024
+                                        }
+                                        Node {
+                                            Validator: visiting PostfixMIR node
+                                            Node {
+                                                Validator: visiting IdentExprMIR node
+                                            }
+                                        }
+                                    }
+                                    Node {
+                                        Validator: visiting SubscrExprMIR node
+                                        Node {
+                                            Validator: visiting IdentExprMIR node
+TypeContext: pointer with base 0x55cb843ea780
+                                        }
+                                        Node {
+                                            Validator: visiting IdentExprMIR node
+                                        }
+                                    }
+PrimitiveType: finalizing u8
+                                }
+                            }
+SymbolTable: exiting scope to 13
+                        }
+                    }
+                    Node {
+                        Validator: visiting IfStmtMIR node
+                        Node {
+                            Validator: visiting BinaryExprMIR node
+                            Node {
+                                Validator: visiting BinaryExprMIR node
+                                Node {
+                                    Validator: visiting IdentExprMIR node
+                                }
+                                Node {
+                                    Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                                }
+                            }
+                            Node {
+                                Validator: visiting IdentExprMIR node
+                            }
+                        }
+                        Node {
+SymbolTable: entering scope 15
+                            Node {
+                                Validator: visiting ExprStmtMIR node
+                                Node {
+                                    Validator: visiting CallExprMIR node
+                                    Node {
+                                        Validator: visiting IdentExprMIR node
+                                    }
+                                    Node {
+                                        Validator: visiting LiteralExprMIR node
+TypeContext: pointer with base 0x55cb843ea880
+TypeContext: pointer with base 0x55cb843ea880
+                                    }
+                                    Node {
+                                        Validator: visiting IdentExprMIR node
+                                    }
+                                }
+                            }
+                            Node {
+                                Validator: visiting ReturnStmtMIR node
+                            }
+SymbolTable: exiting scope to 13
+                        }
+                    }
+                    Node {
+                        Validator: visiting ExprStmtMIR node
+                        Node {
+                            Validator: visiting PostfixMIR node
+                            Node {
+                                Validator: visiting IdentExprMIR node
+                            }
+                        }
+                    }
+SymbolTable: exiting scope to 12
+                }
+SymbolTable: exiting scope to 11
+            }
+            Node {
+                Validator: visiting ExprStmtMIR node
+                Node {
+                    Validator: visiting AssignExprMIR node
+                    Node {
+                        Validator: visiting SubscrExprMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+TypeContext: array type with base 0x55cb843ea780, size 1024
+                        }
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+                    }
+                    Node {
+                        Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                    }
+PrimitiveType: finalizing i8
+                }
+            }
+            Node {
+                Validator: visiting PrintStmtMIR node
+                Node {
+                    Validator: visiting IdentExprMIR node
+TypeContext: array type with base 0x55cb843ea780, size 1024
+                }
+                Node {
+                    Validator: visiting LiteralExprMIR node
+TypeContext: pointer with base 0x55cb843ea880
+TypeContext: pointer with base 0x55cb843ea880
+                }
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+    Node {
+        Node {
+SymbolTable: entering scope 16
+            Node {
+                Validator: visiting VarDeclMIR node
+                Validator: visiting single VarDecl for current
+                Validator: eval_initializer
+                Validator: matched on single expression
+                Validator: eval_initializer_expr
+                Node {
+                    Validator: visiting MemberAccExprMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+RecordType: Looking for member with name len
+                }
+            }
+            Node {
+SymbolTable: entering scope 17
+                Validator: visiting LoopStmtMIR node
+                Node {
+                    Validator: visiting BinaryExprMIR node
+                    Node {
+                        Validator: visiting SubscrExprMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+TypeContext: array type with base 0x55cb843ea780, size 1024
+                        }
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+                    }
+                    Node {
+                        Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                    }
+                }
+                Node {
+SymbolTable: entering scope 18
+                    Node {
+                        Validator: visiting IfStmtMIR node
+                        Node {
+                            Validator: visiting BinaryExprMIR node
+                            Node {
+                                Validator: visiting SubscrExprMIR node
+                                Node {
+                                    Validator: visiting IdentExprMIR node
+TypeContext: array type with base 0x55cb843ea780, size 1024
+                                }
+                                Node {
+                                    Validator: visiting IdentExprMIR node
+                                }
+                            }
+                            Node {
+                                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                            }
+                        }
+                        Node {
+SymbolTable: entering scope 19
+                            Node {
+                                Validator: visiting ExprStmtMIR node
+                                Node {
+                                    Validator: visiting PostfixMIR node
+                                    Node {
+                                        Validator: visiting IdentExprMIR node
+                                    }
+                                }
+                            }
+SymbolTable: exiting scope to 18
+                        }
+                        Node {
+                            Validator: visiting IfStmtMIR node
+                            Node {
+                                Validator: visiting BinaryExprMIR node
+                                Node {
+                                    Validator: visiting SubscrExprMIR node
+                                    Node {
+                                        Validator: visiting IdentExprMIR node
+TypeContext: array type with base 0x55cb843ea780, size 1024
+                                    }
+                                    Node {
+                                        Validator: visiting IdentExprMIR node
+                                    }
+                                }
+                                Node {
+                                    Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                                }
+                            }
+                            Node {
+SymbolTable: entering scope 20
+                                Node {
+                                    Validator: visiting ExprStmtMIR node
+                                    Node {
+                                        Validator: visiting PostfixMIR node
+                                        Node {
+                                            Validator: visiting IdentExprMIR node
+                                        }
+                                    }
+                                }
+                                Node {
+                                    Validator: visiting IfStmtMIR node
+                                    Node {
+                                        Validator: visiting BinaryExprMIR node
+                                        Node {
+                                            Validator: visiting IdentExprMIR node
+                                        }
+                                        Node {
+                                            Validator: visiting MemberAccExprMIR node
+                                            Node {
+                                                Validator: visiting IdentExprMIR node
+                                            }
+RecordType: Looking for member with name len
+                                        }
+                                    }
+                                    Node {
+SymbolTable: entering scope 21
+                                        Node {
+                                            Validator: visiting ExprStmtMIR node
+                                            Node {
+                                                Validator: visiting PostfixMIR node
+                                                Node {
+                                                    Validator: visiting IdentExprMIR node
+                                                }
+                                            }
+                                        }
+                                        Node {
+                                            Validator: visiting ReturnStmtMIR node
+                                        }
+SymbolTable: exiting scope to 20
+                                    }
+                                }
+SymbolTable: exiting scope to 18
+                            }
+                        }
+                    }
+                    Node {
+                        Validator: visiting IfStmtMIR node
+                        Node {
+                            Validator: visiting BinaryExprMIR node
+                            Node {
+                                Validator: visiting IdentExprMIR node
+                            }
+                            Node {
+                                Validator: visiting MemberAccExprMIR node
+                                Node {
+                                    Validator: visiting IdentExprMIR node
+                                }
+RecordType: Looking for member with name len
+                            }
+                        }
+                        Node {
+SymbolTable: entering scope 22
+                            Node {
+                                Validator: visiting ExprStmtMIR node
+                                Node {
+                                    Validator: visiting CallExprMIR node
+                                    Node {
+                                        Validator: visiting IdentExprMIR node
+                                    }
+                                    Node {
+                                        Validator: visiting LiteralExprMIR node
+TypeContext: pointer with base 0x55cb843ea880
+TypeContext: pointer with base 0x55cb843ea880
+                                    }
+                                    Node {
+                                        Validator: visiting IdentExprMIR node
+                                    }
+                                }
+                            }
+                            Node {
+                                Validator: visiting ReturnStmtMIR node
+                            }
+SymbolTable: exiting scope to 18
+                        }
+                    }
+                    Node {
+                        Validator: visiting ExprStmtMIR node
+                        Node {
+                            Validator: visiting PostfixMIR node
+                            Node {
+                                Validator: visiting IdentExprMIR node
+                            }
+                        }
+                    }
+SymbolTable: exiting scope to 17
+                }
+SymbolTable: exiting scope to 16
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+    Node {
+        Node {
+SymbolTable: entering scope 23
+            Node {
+                Validator: visiting VarDeclMIR node
+            }
+            Node {
+SymbolTable: entering scope 24
+                Validator: visiting LoopStmtMIR node
+                Node {
+                    Validator: visiting BinaryExprMIR node
+                    Node {
+                        Validator: visiting AssignExprMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+                        Node {
+                            Validator: visiting SubscrExprMIR node
+                            Node {
+                                Validator: visiting IdentExprMIR node
+TypeContext: array type with base 0x55cb843ea780, size 1024
+                            }
+                            Node {
+                                Validator: visiting IdentExprMIR node
+                            }
+                        }
+                    }
+                    Node {
+                        Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                    }
+                }
+                Node {
+SymbolTable: entering scope 25
+                    Node {
+                        Validator: visiting IfStmtMIR node
+                        Node {
+                            Validator: visiting BinaryExprMIR node
+                            Node {
+                                Validator: visiting IdentExprMIR node
+                            }
+                            Node {
+                                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                            }
+                        }
+                        Node {
+SymbolTable: entering scope 26
+                            Node {
+                                Validator: visiting ExprStmtMIR node
+                                Node {
+                                    Validator: visiting CallExprMIR node
+                                    Node {
+                                        Validator: visiting IdentExprMIR node
+                                    }
+                                    Node {
+                                        Validator: visiting LiteralExprMIR node
+TypeContext: pointer with base 0x55cb843ea880
+TypeContext: pointer with base 0x55cb843ea880
+                                    }
+                                    Node {
+                                        Validator: visiting IdentExprMIR node
+                                    }
+                                }
+                            }
+                            Node {
+                                Validator: visiting ReturnStmtMIR node
+                            }
+SymbolTable: exiting scope to 25
+                        }
+                    }
+                    Node {
+                        Validator: visiting IfStmtMIR node
+                        Node {
+                            Validator: visiting BinaryExprMIR node
+                            Node {
+                                Validator: visiting IdentExprMIR node
+                            }
+                            Node {
+                                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                            }
+                        }
+                        Node {
+SymbolTable: entering scope 27
+                            Node {
+                                Validator: visiting ExprStmtMIR node
+                                Node {
+                                    Validator: visiting CallExprMIR node
+                                    Node {
+                                        Validator: visiting IdentExprMIR node
+                                    }
+                                    Node {
+                                        Validator: visiting LiteralExprMIR node
+TypeContext: pointer with base 0x55cb843ea880
+TypeContext: pointer with base 0x55cb843ea880
+                                    }
+                                    Node {
+                                        Validator: visiting IdentExprMIR node
+                                    }
+                                }
+                            }
+                            Node {
+                                Validator: visiting ReturnStmtMIR node
+                            }
+SymbolTable: exiting scope to 25
+                        }
+                    }
+                    Node {
+                        Validator: visiting PrintStmtMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+TypeContext: array type with base 0x55cb843ea780, size 1024
+                        }
+                        Node {
+                            Validator: visiting LiteralExprMIR node
+TypeContext: pointer with base 0x55cb843ea880
+TypeContext: pointer with base 0x55cb843ea880
+                        }
+                    }
+                    Node {
+                        Validator: visiting SwitchStmtMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+                        Node {
+SymbolTable: entering scope 28
+                            Node {
+                                Validator: visiting CaseStmtMIR node
+                                Node {
+                                    Validator: visiting ExprStmtMIR node
+                                    Node {
+                                        Validator: visiting PostfixMIR node
+                                        Node {
+                                            Validator: visiting IdentExprMIR node
+                                        }
+                                    }
+                                }
+                            }
+                            Node {
+                                Validator: visiting BreakStmtMIR node
+                            }
+                            Node {
+                                Validator: visiting CaseStmtMIR node
+                                Node {
+                                    Validator: visiting ExprStmtMIR node
+                                    Node {
+                                        Validator: visiting PostfixMIR node
+                                        Node {
+                                            Validator: visiting IdentExprMIR node
+                                        }
+                                    }
+                                }
+                            }
+                            Node {
+                                Validator: visiting BreakStmtMIR node
+                            }
+                            Node {
+                                Validator: visiting CaseStmtMIR node
+                                Node {
+                                    Validator: visiting ExprStmtMIR node
+                                    Node {
+                                        Validator: visiting PostfixMIR node
+                                        Node {
+                                            Validator: visiting SubscrExprMIR node
+                                            Node {
+                                                Validator: visiting IdentExprMIR node
+TypeContext: array type with base 0x55cb843ea780, size 30000
+                                            }
+                                            Node {
+                                                Validator: visiting IdentExprMIR node
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            Node {
+                                Validator: visiting BreakStmtMIR node
+                            }
+                            Node {
+                                Validator: visiting CaseStmtMIR node
+                                Node {
+                                    Validator: visiting ExprStmtMIR node
+                                    Node {
+                                        Validator: visiting PostfixMIR node
+                                        Node {
+                                            Validator: visiting SubscrExprMIR node
+                                            Node {
+                                                Validator: visiting IdentExprMIR node
+TypeContext: array type with base 0x55cb843ea780, size 30000
+                                            }
+                                            Node {
+                                                Validator: visiting IdentExprMIR node
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            Node {
+                                Validator: visiting BreakStmtMIR node
+                            }
+                            Node {
+                                Validator: visiting CaseStmtMIR node
+                                Node {
+                                    Validator: visiting ExprStmtMIR node
+                                    Node {
+                                        Validator: visiting AssignExprMIR node
+                                        Node {
+                                            Validator: visiting SubscrExprMIR node
+                                            Node {
+                                                Validator: visiting IdentExprMIR node
+TypeContext: array type with base 0x55cb843ea780, size 30000
+                                            }
+                                            Node {
+                                                Validator: visiting IdentExprMIR node
+                                            }
+                                        }
+                                        Node {
+                                            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                                        }
+                                    }
+                                }
+                            }
+                            Node {
+                                Validator: visiting BreakStmtMIR node
+                            }
+                            Node {
+                                Validator: visiting CaseStmtMIR node
+                                Node {
+                                    Validator: visiting ExprStmtMIR node
+                                    Node {
+                                        Validator: visiting SubscrExprMIR node
+                                        Node {
+                                            Validator: visiting IdentExprMIR node
+TypeContext: array type with base 0x55cb843ea780, size 30000
+                                        }
+                                        Node {
+                                            Validator: visiting IdentExprMIR node
+                                        }
+                                    }
+                                }
+                            }
+                            Node {
+                                Validator: visiting BreakStmtMIR node
+                            }
+                            Node {
+                                Validator: visiting CaseStmtMIR node
+                                Node {
+                                    Validator: visiting IfStmtMIR node
+                                    Node {
+                                        Validator: visiting BinaryExprMIR node
+                                        Node {
+                                            Validator: visiting SubscrExprMIR node
+                                            Node {
+                                                Validator: visiting IdentExprMIR node
+TypeContext: array type with base 0x55cb843ea780, size 30000
+                                            }
+                                            Node {
+                                                Validator: visiting IdentExprMIR node
+                                            }
+                                        }
+                                        Node {
+                                            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                                        }
+                                    }
+                                    Node {
+SymbolTable: entering scope 29
+                                        Node {
+                                            Validator: visiting ExprStmtMIR node
+                                            Node {
+                                                Validator: visiting CallExprMIR node
+                                                Node {
+                                                    Validator: visiting IdentExprMIR node
+                                                }
+                                            }
+                                        }
+SymbolTable: exiting scope to 28
+                                    }
+                                    Node {
+SymbolTable: entering scope 30
+                                        Node {
+                                            Validator: visiting ExprStmtMIR node
+                                            Node {
+                                                Validator: visiting CallExprMIR node
+                                                Node {
+                                                    Validator: visiting IdentExprMIR node
+                                                }
+                                                Node {
+                                                    Validator: visiting IdentExprMIR node
+                                                }
+                                            }
+                                        }
+SymbolTable: exiting scope to 28
+                                    }
+                                }
+                            }
+                            Node {
+                                Validator: visiting BreakStmtMIR node
+                            }
+                            Node {
+                                Validator: visiting CaseStmtMIR node
+                                Node {
+SymbolTable: entering scope 31
+                                    Node {
+                                        Validator: visiting VarDeclMIR node
+                                        Validator: visiting single VarDecl for opening
+                                        Validator: eval_initializer
+                                        Validator: matched on single expression
+                                        Validator: eval_initializer_expr
+                                        Node {
+                                            Validator: visiting CallExprMIR node
+                                            Node {
+                                                Validator: visiting IdentExprMIR node
+                                            }
+                                        }
+                                    }
+                                    Node {
+                                        Validator: visiting IfStmtMIR node
+                                        Node {
+                                            Validator: visiting BinaryExprMIR node
+                                            Node {
+                                                Validator: visiting IdentExprMIR node
+                                            }
+                                            Node {
+                                                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                                            }
+                                        }
+                                        Node {
+SymbolTable: entering scope 32
+                                            Node {
+                                                Validator: visiting ExprStmtMIR node
+                                                Node {
+                                                    Validator: visiting CallExprMIR node
+                                                    Node {
+                                                        Validator: visiting IdentExprMIR node
+                                                    }
+                                                    Node {
+                                                        Validator: visiting LiteralExprMIR node
+TypeContext: pointer with base 0x55cb843ea880
+TypeContext: pointer with base 0x55cb843ea880
+                                                    }
+                                                    Node {
+                                                        Validator: visiting IdentExprMIR node
+                                                    }
+                                                }
+                                            }
+                                            Node {
+                                                Validator: visiting ReturnStmtMIR node
+                                            }
+SymbolTable: exiting scope to 31
+                                        }
+                                    }
+                                    Node {
+                                        Validator: visiting IfStmtMIR node
+                                        Node {
+                                            Validator: visiting BinaryExprMIR node
+                                            Node {
+                                                Validator: visiting SubscrExprMIR node
+                                                Node {
+                                                    Validator: visiting IdentExprMIR node
+TypeContext: array type with base 0x55cb843ea780, size 30000
+                                                }
+                                                Node {
+                                                    Validator: visiting IdentExprMIR node
+                                                }
+                                            }
+                                            Node {
+                                                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                                            }
+                                        }
+                                        Node {
+SymbolTable: entering scope 33
+                                            Node {
+                                                Validator: visiting ExprStmtMIR node
+                                                Node {
+                                                    Validator: visiting AssignExprMIR node
+                                                    Node {
+                                                        Validator: visiting IdentExprMIR node
+                                                    }
+                                                    Node {
+                                                        Validator: visiting IdentExprMIR node
+                                                    }
+                                                }
+                                            }
+SymbolTable: exiting scope to 31
+                                        }
+                                        Node {
+SymbolTable: entering scope 34
+                                            Node {
+                                                Validator: visiting ExprStmtMIR node
+                                                Node {
+                                                    Validator: visiting CallExprMIR node
+                                                    Node {
+                                                        Validator: visiting IdentExprMIR node
+                                                    }
+                                                }
+                                            }
+SymbolTable: exiting scope to 31
+                                        }
+                                    }
+SymbolTable: exiting scope to 28
+                                }
+                            }
+                            Node {
+                                Validator: visiting BreakStmtMIR node
+                            }
+SymbolTable: exiting scope to 25
+                        }
+                    }
+                    Node {
+                        Validator: visiting ExprStmtMIR node
+                        Node {
+                            Validator: visiting PostfixMIR node
+                            Node {
+                                Validator: visiting IdentExprMIR node
+                            }
+                        }
+                    }
+                    Node {
+                        Validator: visiting IfStmtMIR node
+                        Node {
+                            Validator: visiting BinaryExprMIR node
+                            Node {
+                                Validator: visiting BinaryExprMIR node
+                                Node {
+                                    Validator: visiting IdentExprMIR node
+                                }
+                                Node {
+                                    Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                                }
+                            }
+                            Node {
+                                Validator: visiting IdentExprMIR node
+                            }
+                        }
+                        Node {
+SymbolTable: entering scope 35
+                            Node {
+                                Validator: visiting ReturnStmtMIR node
+                            }
+SymbolTable: exiting scope to 25
+                        }
+                    }
+SymbolTable: exiting scope to 24
+                }
+SymbolTable: exiting scope to 23
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+    Node {
+        Node {
+SymbolTable: entering scope 36
+            Node {
+                Validator: visiting VarDeclMIR node
+                Validator: visiting single VarDecl for i
+                Validator: eval_initializer
+                Validator: matched on single expression
+                Validator: eval_initializer_expr
+                Node {
+                    Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                }
+            }
+            Node {
+SymbolTable: entering scope 37
+                Validator: visiting LoopStmtMIR node
+                Node {
+                    Validator: visiting BinaryExprMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                    Node {
+                        Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                    }
+                }
+                Node {
+SymbolTable: entering scope 38
+                    Node {
+                        Validator: visiting ExprStmtMIR node
+                        Node {
+                            Validator: visiting AssignExprMIR node
+                            Node {
+                                Validator: visiting SubscrExprMIR node
+                                Node {
+                                    Validator: visiting IdentExprMIR node
+TypeContext: array type with base 0x55cb843ea780, size 30000
+                                }
+                                Node {
+                                    Validator: visiting IdentExprMIR node
+                                }
+                            }
+                            Node {
+                                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                            }
+                        }
+                    }
+                    Node {
+                        Validator: visiting ExprStmtMIR node
+                        Node {
+                            Validator: visiting PostfixMIR node
+                            Node {
+                                Validator: visiting IdentExprMIR node
+                            }
+                        }
+                    }
+SymbolTable: exiting scope to 37
+                }
+SymbolTable: exiting scope to 36
+            }
+            Node {
+                Validator: visiting ExprStmtMIR node
+                Node {
+                    Validator: visiting AssignExprMIR node
+                    Node {
+                        Validator: visiting MemberAccExprMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+RecordType: Looking for member with name len
+                    }
+                    Node {
+                        Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                    }
+                }
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+    Node {
+        Node {
+SymbolTable: entering scope 39
+            Node {
+                Validator: visiting PrintStmtMIR node
+                Node {
+                    Validator: visiting IdentExprMIR node
+TypeContext: pointer with base 0x55cb843ea780
+                }
+                Node {
+                    Validator: visiting LiteralExprMIR node
+TypeContext: pointer with base 0x55cb843ea880
+TypeContext: pointer with base 0x55cb843ea880
+                }
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+    Node {
+        Node {
+SymbolTable: entering scope 40
+            Node {
+                Validator: visiting ExprStmtMIR node
+                Node {
+                    Validator: visiting CallExprMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                }
+            }
+            Node {
+                Validator: visiting VarDeclMIR node
+                Validator: visiting single VarDecl for program
+                Validator: eval_initializer
+                Validator: matched on single expression
+                Validator: eval_initializer_expr
+                Node {
+                    Validator: visiting LiteralExprMIR node
+TypeContext: pointer with base 0x55cb843ea880
+TypeContext: pointer with base 0x55cb843ea880
+                }
+                types are not equal, checking compatibility
+            }
+            Node {
+                Validator: visiting ExprStmtMIR node
+                Node {
+                    Validator: visiting CallExprMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                    Node {
+                        Validator: visiting IdentExprMIR node
+TypeContext: array type with base 0x55cb843ea880, no size
+TypeContext: found existing array, returning
+                    }
+                }
+            }
+            Node {
+                Validator: visiting ExprStmtMIR node
+                Node {
+                    Validator: visiting CallExprMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                }
+            }
+            Node {
+                Validator: visiting ReturnStmtMIR node
+                Node {
+                    Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                }
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting CallExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+        }
+    }
+}
+error <156.17-33>: invalid implicit cast
+cannot implicitly cast I32 to U8
+error <207.9-19>: invalid implicit cast
+cannot implicitly cast I32 to U8
+error <222.21-186>: invalid implicit cast
+cannot implicitly cast I8[] to I8 * const
 --------- TYPE CONTEXT ---------
 
 Base Types:
@@ -3224,56 +4658,57 @@ Base Types:
   classStack_0 : class Stack { i32 cap; i32 len; i32[32] data; }
 
 Function Types:
-  function_6121696410550385 : Void (u8 *)
-  function_6121696410397357 : bool (u8)
-  function_387327298760452340 : Void (u8 *, enum ErrType: i32  { SYSTEM = 1, BAD_CODE = 2 })
-  function_94538807818448 : i32 ()
-  function_6121696410541937 : Void (i32)
-  function_94538807818016 : Void ()
+  function_6064818478991421 : Void (u8 *)
+  function_6064818478834105 : bool (u8)
+  function_395534221409355189 : Void (u8 *, enum ErrType: i32  { SYSTEM = 1, BAD_CODE = 2 })
+  function_94332585421056 : i32 ()
+  function_6064818478974941 : Void (i32)
+  function_94332585420624 : Void ()
 
 Pointer Types:
+  :i8 * const
   :u8 *
 
 Array Types:
- : u8[8] #1
- : u8[] #1
- : u8[30000] #1
- : u8[1024] #1
- : i32[32] #1
+ : i8[8] #2
+ : u8[30000] #8
+ : u8[1024] #10
+ : i8[] #2
+ : i32[32] #4
 
 
 --------- SYMBOL TABLE ---------
 
 Scope 0: Compound Statement
 Physical Symbols:
-  PrintUsage <0x55fb8810b8c0> : FuncSymbol: PrintUsage :: Void (u8 *)
-  JumpToAfter <0x55fb880ae2d0> : FuncSymbol: JumpToAfter :: Void ()
-  valid_chars <0x55fb880f1fb0> : VarSymbol: valid_chars :: U8[8]
-  Initialize <0x55fb880acb60> : FuncSymbol: Initialize :: Void ()
-  Execute <0x55fb880ae3f0> : FuncSymbol: Execute :: Void ()
-  Main <0x55fb8810cbb0> : FuncSymbol: Main :: i32 ()
-  StackPush <0x55fb880ad3d0> : FuncSymbol: StackPush :: Void (i32)
-  StackPop <0x55fb880ac920> : FuncSymbol: StackPop :: i32 ()
-  SYSTEM <0x55fb880f04d0> : VarSymbol: SYSTEM :: enum ErrType
-  StackPeek <0x55fb880ad610> : FuncSymbol: StackPeek :: i32 ()
-  nesting <0x55fb880ece00> : VarSymbol: nesting :: class Stack
-  code <0x55fb880ef9c0> : VarSymbol: code :: U8[1024]
-  data <0x55fb880eff70> : VarSymbol: data :: U8[30000]
-  insptr <0x55fb880efba0> : VarSymbol: insptr :: I32
-  ReadCode <0x55fb880ae1b0> : FuncSymbol: ReadCode :: Void (u8 *)
-  IsValid <0x55fb880acfe0> : FuncSymbol: IsValid :: bool (u8)
-  Die <0x55fb880acda0> : FuncSymbol: Die :: Void (u8 *, enum ErrType: i32  { SYSTEM = 1, BAD_CODE = 2 })
-  codesize <0x55fb880efdb0> : VarSymbol: codesize :: I32
-  dataptr <0x55fb880f0170> : VarSymbol: dataptr :: I32
-  BAD_CODE <0x55fb880f05d0> : VarSymbol: BAD_CODE :: enum ErrType
+  PrintUsage <0x55cb8440a900> : FuncSymbol: PrintUsage :: Void (u8 *)
+  JumpToAfter <0x55cb843ad2d0> : FuncSymbol: JumpToAfter :: Void ()
+  valid_chars <0x55cb843f0fc0> : VarSymbol: valid_chars :: I8[8]
+  Initialize <0x55cb843abb60> : FuncSymbol: Initialize :: Void ()
+  Execute <0x55cb843ad3f0> : FuncSymbol: Execute :: Void ()
+  Main <0x55cb8440bbf0> : FuncSymbol: Main :: i32 ()
+  StackPush <0x55cb843ac3d0> : FuncSymbol: StackPush :: Void (i32)
+  StackPop <0x55cb843ab920> : FuncSymbol: StackPop :: i32 ()
+  SYSTEM <0x55cb843ef4e0> : VarSymbol: SYSTEM :: enum ErrType
+  StackPeek <0x55cb843ac610> : FuncSymbol: StackPeek :: i32 ()
+  nesting <0x55cb843ebe30> : VarSymbol: nesting :: class Stack
+  code <0x55cb843ee9d0> : VarSymbol: code :: U8[1024]
+  data <0x55cb843eef80> : VarSymbol: data :: U8[30000]
+  insptr <0x55cb843eebb0> : VarSymbol: insptr :: I32
+  ReadCode <0x55cb843ad1b0> : FuncSymbol: ReadCode :: Void (u8 *)
+  IsValid <0x55cb843abfe0> : FuncSymbol: IsValid :: bool (u8)
+  Die <0x55cb843abda0> : FuncSymbol: Die :: Void (u8 *, enum ErrType: i32  { SYSTEM = 1, BAD_CODE = 2 })
+  codesize <0x55cb843eedc0> : VarSymbol: codesize :: I32
+  dataptr <0x55cb843ef180> : VarSymbol: dataptr :: I32
+  BAD_CODE <0x55cb843ef5e0> : VarSymbol: BAD_CODE :: enum ErrType
 
 Type Symbols:
-  ErrType <0x55fb880f0380> : TypeSymbol: ErrType :: enum ErrType: i32  { SYSTEM = 1, BAD_CODE = 2 }
-  Stack <0x55fb880ec860> : TypeSymbol: Stack :: class Stack { i32 cap; i32 len; i32[32] data; }
+  ErrType <0x55cb843ef390> : TypeSymbol: ErrType :: enum ErrType: i32  { SYSTEM = 1, BAD_CODE = 2 }
+  Stack <0x55cb843eb890> : TypeSymbol: Stack :: class Stack { i32 cap; i32 len; i32[32] data; }
 -----------------------------------------------------------
   Scope 1: FuncSymbol: StackPush :: Void (i32)
   Physical Symbols:
-    item <0x55fb880ed2c0> : VarSymbol: item :: I32
+    item <0x55cb843ec2f0> : VarSymbol: item :: I32
 -----------------------------------------------------------
     Scope 2: Compound Statement
 -----------------------------------------------------------
@@ -3281,12 +4716,12 @@ Type Symbols:
 -----------------------------------------------------------
   Scope 4: FuncSymbol: StackPop :: i32 ()
   Physical Symbols:
-    ret <0x55fb880ef4f0> : VarSymbol: ret :: I32
+    ret <0x55cb843ee500> : VarSymbol: ret :: I32
 -----------------------------------------------------------
   Scope 5: FuncSymbol: Die :: Void (u8 *, enum ErrType: i32  { SYSTEM = 1, BAD_CODE = 2 })
   Physical Symbols:
-    errcode <0x55fb880f0b90> : VarSymbol: errcode :: enum ErrType
-    errmsg <0x55fb880f0ad0> : VarSymbol: errmsg :: U8 *
+    errcode <0x55cb843efba0> : VarSymbol: errcode :: enum ErrType
+    errmsg <0x55cb843efae0> : VarSymbol: errmsg :: U8 *
 -----------------------------------------------------------
     Scope 6: Compound Statement
 -----------------------------------------------------------
@@ -3294,8 +4729,8 @@ Type Symbols:
 -----------------------------------------------------------
   Scope 8: FuncSymbol: IsValid :: bool (u8)
   Physical Symbols:
-    i <0x55fb880f26f0> : VarSymbol: i :: I32
-    c <0x55fb880f2380> : VarSymbol: c :: U8
+    i <0x55cb843f1700> : VarSymbol: i :: I32
+    c <0x55cb843f1390> : VarSymbol: c :: U8
 -----------------------------------------------------------
     Scope 9: Compound Statement
 -----------------------------------------------------------
@@ -3303,9 +4738,9 @@ Type Symbols:
 -----------------------------------------------------------
   Scope 11: FuncSymbol: ReadCode :: Void (u8 *)
   Physical Symbols:
-    i <0x55fb880f3930> : VarSymbol: i :: I32
-    n <0x55fb880f36e0> : VarSymbol: n :: I32
-    src <0x55fb880f3360> : VarSymbol: src :: U8 *
+    i <0x55cb843f2940> : VarSymbol: i :: I32
+    n <0x55cb843f26f0> : VarSymbol: n :: I32
+    src <0x55cb843f2370> : VarSymbol: src :: U8 *
 -----------------------------------------------------------
     Scope 12: Compound Statement
 -----------------------------------------------------------
@@ -3317,7 +4752,7 @@ Type Symbols:
 -----------------------------------------------------------
   Scope 16: FuncSymbol: JumpToAfter :: Void ()
   Physical Symbols:
-    current <0x55fb880f5550> : VarSymbol: current :: I32
+    current <0x55cb843f4560> : VarSymbol: current :: I32
 -----------------------------------------------------------
     Scope 17: Compound Statement
 -----------------------------------------------------------
@@ -3333,7 +4768,7 @@ Type Symbols:
 -----------------------------------------------------------
   Scope 23: FuncSymbol: Execute :: Void ()
   Physical Symbols:
-    c <0x55fb880ec660> : VarSymbol: c :: U8
+    c <0x55cb843eb690> : VarSymbol: c :: U8
 -----------------------------------------------------------
     Scope 24: Compound Statement
 -----------------------------------------------------------
@@ -3351,7 +4786,7 @@ Type Symbols:
 -----------------------------------------------------------
           Scope 31: Compound Statement
           Physical Symbols:
-            opening <0x55fb8810a060> : VarSymbol: opening :: I32
+            opening <0x55cb844090a0> : VarSymbol: opening :: I32
 -----------------------------------------------------------
             Scope 32: Compound Statement
 -----------------------------------------------------------
@@ -3363,7 +4798,7 @@ Type Symbols:
 -----------------------------------------------------------
   Scope 36: FuncSymbol: Initialize :: Void ()
   Physical Symbols:
-    i <0x55fb8810ba20> : VarSymbol: i :: I32
+    i <0x55cb8440aa60> : VarSymbol: i :: I32
 -----------------------------------------------------------
     Scope 37: Compound Statement
 -----------------------------------------------------------
@@ -3371,11 +4806,11 @@ Type Symbols:
 -----------------------------------------------------------
   Scope 39: FuncSymbol: PrintUsage :: Void (u8 *)
   Physical Symbols:
-    argname <0x55fb8810c790> : VarSymbol: argname :: U8 *
+    argname <0x55cb8440b7d0> : VarSymbol: argname :: U8 *
 -----------------------------------------------------------
   Scope 40: FuncSymbol: Main :: i32 ()
   Physical Symbols:
-    program <0x55fb8810d0d0> : VarSymbol: program :: U8[]
+    program <0x55cb8440c110> : VarSymbol: program :: I8[]
 -----------------------------------------------------------
 
 --------- MIR ---------
@@ -3388,224 +4823,224 @@ ProgramMIR @ <1.1>
 | | | VarSymbol: nesting :: class Stack
 | | | Initializer @ <15.17-25>
 | | | | Initializer @ <15.19-20>
-| | | | | Literal:  @ <15.19-20>
+| | | | | Literal: :: I32 @ <15.19-20>
 32| | | | Initializer @ <15.23>
-| | | | | Literal:  @ <15.23>
+| | | | | Literal: :: I32 @ <15.23>
 0| FunctionMIR: StackPush @ <17.1-28.1>
     type: Void (i32)
 | | CompoundStmtMIR @ <17.25-28.1>
 | | | IfStmt @ <19.5-25>
-| | | | Binary: < @ <19.8-16>
-| | | | | Ident: item @ <19.8-12>
-| | | | | Literal:  @ <19.16>
+| | | | Binary: < :: I32 @ <19.8-16>
+| | | | | Ident: item :: I32 @ <19.8-12>
+| | | | | Literal: :: I32 @ <19.16>
 0| | | | Return @ <19.19-25>
 | | | IfStmt @ <21.5-24.5>
-| | | | Binary: > @ <21.8-37>
-| | | | | Binary: + @ <21.8-23>
-| | | | | | Member: .len @ <21.8-19>
-| | | | | | | Ident: nesting @ <21.8-15>
-| | | | | | Literal:  @ <21.23>
-1| | | | | Member: .cap @ <21.27-37>
-| | | | | | Ident: nesting @ <21.27-33>
+| | | | Binary: > :: I32 @ <21.8-37>
+| | | | | Binary: + :: I32 @ <21.8-23>
+| | | | | | Member: .len :: I32 @ <21.8-19>
+| | | | | | | Ident: nesting :: class Stack @ <21.8-15>
+| | | | | | Literal: :: I32 @ <21.23>
+1| | | | | Member: .cap :: I32 @ <21.27-37>
+| | | | | | Ident: nesting :: class Stack @ <21.27-33>
 | | | | CompoundStmtMIR @ <21.40-24.5>
 | | | | | Return @ <23.9-15>
 | | | ExprStmt @ <26.5-37>
-| | | | Assign: = @ <26.5-36>
-| | | | | Subscript @ <26.5-29>
-| | | | | | Member: .data @ <26.5-16>
-| | | | | | | Ident: nesting @ <26.5-11>
-| | | | | | Member: .len @ <26.5-28>
-| | | | | | | Ident: nesting @ <26.5-24>
-| | | | | Ident: item @ <26.33-36>
+| | | | Assign: = :: I32 @ <26.5-36>
+| | | | | Subscript :: I32 @ <26.5-29>
+| | | | | | Member: .data :: I32[32] @ <26.5-16>
+| | | | | | | Ident: nesting :: class Stack @ <26.5-11>
+| | | | | | Member: .len :: I32 @ <26.5-28>
+| | | | | | | Ident: nesting :: class Stack @ <26.5-24>
+| | | | | Ident: item :: I32 @ <26.33-36>
 | | | ExprStmt @ <27.5-18>
-| | | | Postfix: ++ @ <27.5-17>
-| | | | | Member: .len @ <27.5-15>
-| | | | | | Ident: nesting @ <27.5-11>
+| | | | Postfix: :: I32++ @ <27.5-17>
+| | | | | Member: .len :: I32 @ <27.5-15>
+| | | | | | Ident: nesting :: class Stack @ <27.5-11>
 | FunctionMIR: StackPeek @ <30.1-35.1>
     type: i32 ()
 | | CompoundStmtMIR @ <30.18-35.1>
 | | | IfStmt @ <31.5-32.18>
-| | | | Binary: <= @ <31.8-24>
-| | | | | Member: .len @ <31.8-19>
-| | | | | | Ident: nesting @ <31.8-15>
-| | | | | Literal:  @ <31.24>
+| | | | Binary: <= :: I32 @ <31.8-24>
+| | | | | Member: .len :: I32 @ <31.8-19>
+| | | | | | Ident: nesting :: class Stack @ <31.8-15>
+| | | | | Literal: :: I32 @ <31.24>
 0| | | | Return @ <32.9-18>
-| | | | | Unary: - @ <32.16-17>
-| | | | | | Literal:  @ <32.16-17>
+| | | | | Unary: - :: I32 @ <32.16-17>
+| | | | | | Literal: :: I32 @ <32.16-17>
 1| | | Return @ <34.5-41>
-| | | | Subscript @ <34.12-40>
-| | | | | Member: .data @ <34.12-23>
-| | | | | | Ident: nesting @ <34.12-18>
-| | | | | Binary: - @ <34.12-39>
-| | | | | | Member: .len @ <34.12-35>
-| | | | | | | Ident: nesting @ <34.12-31>
-| | | | | | Literal:  @ <34.39>
+| | | | Subscript :: I32 @ <34.12-40>
+| | | | | Member: .data :: I32[32] @ <34.12-23>
+| | | | | | Ident: nesting :: class Stack @ <34.12-18>
+| | | | | Binary: - :: I32 @ <34.12-39>
+| | | | | | Member: .len :: I32 @ <34.12-35>
+| | | | | | | Ident: nesting :: class Stack @ <34.12-31>
+| | | | | | Literal: :: I32 @ <34.39>
 1| FunctionMIR: StackPop @ <37.1-44.1>
     type: i32 ()
 | | CompoundStmtMIR @ <37.17-44.1>
 | | | IfStmt @ <38.5-36>
-| | | | Binary: <= @ <38.8-24>
-| | | | | Member: .len @ <38.8-19>
-| | | | | | Ident: nesting @ <38.8-15>
-| | | | | Literal:  @ <38.24>
+| | | | Binary: <= :: I32 @ <38.8-24>
+| | | | | Member: .len :: I32 @ <38.8-19>
+| | | | | | Ident: nesting :: class Stack @ <38.8-15>
+| | | | | Literal: :: I32 @ <38.24>
 0| | | | Return @ <38.27-36>
-| | | | | Unary: - @ <38.34-35>
-| | | | | | Literal:  @ <38.34-35>
+| | | | | Unary: - :: I32 @ <38.34-35>
+| | | | | | Literal: :: I32 @ <38.34-35>
 1| | | VarDecl:  @ <40.5-45>
 | | | | | VarSymbol: ret :: I32
 | | | | | Initializer @ <40.16-44>
-| | | | | | Subscript @ <40.16-44>
-| | | | | | | Member: .data @ <40.16-27>
-| | | | | | | | Ident: nesting @ <40.16-22>
-| | | | | | | Binary: - @ <40.16-43>
-| | | | | | | | Member: .len @ <40.16-39>
-| | | | | | | | | Ident: nesting @ <40.16-35>
-| | | | | | | | Literal:  @ <40.43>
+| | | | | | Subscript :: I32 @ <40.16-44>
+| | | | | | | Member: .data :: I32[32] @ <40.16-27>
+| | | | | | | | Ident: nesting :: class Stack @ <40.16-22>
+| | | | | | | Binary: - :: I32 @ <40.16-43>
+| | | | | | | | Member: .len :: I32 @ <40.16-39>
+| | | | | | | | | Ident: nesting :: class Stack @ <40.16-35>
+| | | | | | | | Literal: :: I32 @ <40.43>
 1| | | ExprStmt @ <41.5-18>
-| | | | Postfix: -- @ <41.5-17>
-| | | | | Member: .len @ <41.5-15>
-| | | | | | Ident: nesting @ <41.5-11>
+| | | | Postfix: :: I32-- @ <41.5-17>
+| | | | | Member: .len :: I32 @ <41.5-15>
+| | | | | | Ident: nesting :: class Stack @ <41.5-11>
 | | | Return @ <43.5-15>
-| | | | Ident: ret @ <43.12-14>
+| | | | Ident: ret :: I32 @ <43.12-14>
 | VarDecl:  @ <47.1-15>
 | | | VarSymbol: code :: U8[1024]
 | VarDecl:  @ <48.1-16>
 | | | VarSymbol: insptr :: I32
 | | | Initializer @ <48.15>
-| | | | Literal:  @ <48.15>
+| | | | Literal: :: I32 @ <48.15>
 0| VarDecl:  @ <49.1-21>
 | | | VarSymbol: codesize :: I32
 | | | Initializer @ <49.17-20>
-| | | | Literal:  @ <49.17-20>
+| | | | Literal: :: I32 @ <49.17-20>
 1024| VarDecl:  @ <52.1-16>
 | | | VarSymbol: data :: U8[30000]
 | VarDecl:  @ <53.1-17>
 | | | VarSymbol: dataptr :: I32
 | | | Initializer @ <53.16>
-| | | | Literal:  @ <53.16>
+| | | | Literal: :: I32 @ <53.16>
 0| FunctionMIR: Die @ <56.1-63.1>
     type: Void (u8 *, enum ErrType: i32  { SYSTEM = 1, BAD_CODE = 2 })
 | | CompoundStmtMIR @ <56.43-63.1>
 | | | IfStmt @ <57.5-61.5>
-| | | | Binary: == @ <57.8-25>
-| | | | | Ident: errcode @ <57.8-15>
-| | | | | Ident: SYSTEM @ <57.20-25>
+| | | | Binary: == :: I32 @ <57.8-25>
+| | | | | Ident: errcode :: enum ErrType @ <57.8-15>
+| | | | | Ident: SYSTEM :: enum ErrType @ <57.20-25>
 | | | | CompoundStmtMIR @ <57.28-59.5>
 | | | | | Print: "ERROR: %s
 " @ <58.9-30>
-| | | | | | Ident: errmsg @ <58.24-29>
+| | | | | | Ident: errmsg :: U8 * @ <58.24-29>
 | | | | CompoundStmtMIR @ <59.12-61.5>
 | | | | | Print: "ERROR@[Pos %d: '%c']: %s
 " @ <60.9-67>
-| | | | | | Ident: insptr @ <60.39-44>
-| | | | | | Subscript @ <60.47-58>
-| | | | | | | Ident: code @ <60.47-50>
-| | | | | | | Ident: insptr @ <60.47-57>
-| | | | | | Ident: errmsg @ <60.61-66>
+| | | | | | Ident: insptr :: I32 @ <60.39-44>
+| | | | | | Subscript :: U8 @ <60.47-58>
+| | | | | | | Ident: code :: U8[1024] @ <60.47-50>
+| | | | | | | Ident: insptr :: I32 @ <60.47-57>
+| | | | | | Ident: errmsg :: U8 * @ <60.61-66>
 | | | Return @ <62.5-11>
 | VarDecl:  @ <65.1-62>
-| | | VarSymbol: valid_chars :: U8[8]
+| | | VarSymbol: valid_chars :: I8[8]
 | | | Initializer @ <65.22-61>
 | | | | Initializer @ <65.22-25>
-| | | | | Literal:  @ <65.22-25>
+| | | | | Literal: :: I8 @ <65.22-25>
 62| | | | Initializer @ <65.28-30>
-| | | | | Literal:  @ <65.28-30>
+| | | | | Literal: :: I8 @ <65.28-30>
 60| | | | Initializer @ <65.33-35>
-| | | | | Literal:  @ <65.33-35>
+| | | | | Literal: :: I8 @ <65.33-35>
 43| | | | Initializer @ <65.38-40>
-| | | | | Literal:  @ <65.38-40>
+| | | | | Literal: :: I8 @ <65.38-40>
 45| | | | Initializer @ <65.43-45>
-| | | | | Literal:  @ <65.43-45>
+| | | | | Literal: :: I8 @ <65.43-45>
 44| | | | Initializer @ <65.48-50>
-| | | | | Literal:  @ <65.48-50>
+| | | | | Literal: :: I8 @ <65.48-50>
 46| | | | Initializer @ <65.53-55>
-| | | | | Literal:  @ <65.53-55>
+| | | | | Literal: :: I8 @ <65.53-55>
 91| | | | Initializer @ <65.58-60>
-| | | | | Literal:  @ <65.58-60>
+| | | | | Literal: :: I8 @ <65.58-60>
 93| FunctionMIR: IsValid @ <66.1-74.1>
     type: bool (u8)
 | | CompoundStmtMIR @ <66.21-74.1>
 | | | VarDecl:  @ <67.5-15>
 | | | | | VarSymbol: i :: I32
 | | | | | Initializer @ <67.14>
-| | | | | | Literal:  @ <67.14>
+| | | | | | Literal: :: I32 @ <67.14>
 0| | | LoopStmt @ <68.5-71.5>
-| | | | Binary: < @ <68.11-16>
-| | | | | Ident: i @ <68.11-12>
-| | | | | Literal:  @ <68.16>
+| | | | Binary: < :: I32 @ <68.11-16>
+| | | | | Ident: i :: I32 @ <68.11-12>
+| | | | | Literal: :: I32 @ <68.16>
 8| | | | CompoundStmtMIR @ <68.19-71.5>
 | | | | | IfStmt @ <69.9-42>
-| | | | | | Binary: == @ <69.12-31>
-| | | | | | | Ident: c @ <69.12-13>
-| | | | | | | Subscript @ <69.18-31>
-| | | | | | | | Ident: valid_chars @ <69.18-28>
-| | | | | | | | Ident: i @ <69.18-30>
+| | | | | | Binary: == :: U8 @ <69.12-31>
+| | | | | | | Ident: c :: U8 @ <69.12-13>
+| | | | | | | Subscript :: I8 @ <69.18-31>
+| | | | | | | | Ident: valid_chars :: I8[8] @ <69.18-28>
+| | | | | | | | Ident: i :: I32 @ <69.18-30>
 | | | | | | Return @ <69.34-42>
-| | | | | | | Literal:  @ <69.41>
+| | | | | | | Literal: :: I32 @ <69.41>
 1| | | | | ExprStmt @ <70.9-12>
-| | | | | | Postfix: ++ @ <70.9-11>
-| | | | | | | Ident: i @ <70.9>
+| | | | | | Postfix: :: I32++ @ <70.9-11>
+| | | | | | | Ident: i :: I32 @ <70.9>
 | | | Return @ <73.5-13>
-| | | | Literal:  @ <73.12>
+| | | | Literal: :: I32 @ <73.12>
 0| FunctionMIR: ReadCode @ <77.1-95.1>
     type: Void (u8 *)
 | | CompoundStmtMIR @ <77.23-95.1>
 | | | VarDecl:  @ <78.5-15>
 | | | | | VarSymbol: n :: I32
 | | | | | Initializer @ <78.14>
-| | | | | | Literal:  @ <78.14>
+| | | | | | Literal: :: I32 @ <78.14>
 0| | | VarDecl:  @ <79.5-15>
 | | | | | VarSymbol: i :: I32
 | | | | | Initializer @ <79.14>
-| | | | | | Literal:  @ <79.14>
+| | | | | | Literal: :: I32 @ <79.14>
 0| | | LoopStmt @ <81.5-91.5>
-| | | | Binary: != @ <81.11-25>
-| | | | | Subscript @ <81.11-17>
-| | | | | | Ident: src @ <81.11-14>
-| | | | | | Ident: i @ <81.11-16>
-| | | | | Literal:  @ <81.22-25>
+| | | | Binary: != :: U8 @ <81.11-25>
+| | | | | Subscript :: U8 @ <81.11-17>
+| | | | | | Ident: src :: U8 * @ <81.11-14>
+| | | | | | Ident: i :: I32 @ <81.11-16>
+| | | | | Literal: :: I8 @ <81.22-25>
 0| | | | CompoundStmtMIR @ <81.28-91.5>
 | | | | | IfStmt @ <82.9-84.9>
-| | | | | | Call @ <82.12-27>
-| | | | | | | Ident: IsValid @ <82.12-19>
-| | | | | | | Subscript @ <82.12-26>
-| | | | | | | | Ident: src @ <82.12-23>
-| | | | | | | | Ident: i @ <82.12-25>
+| | | | | | Call :: Bool @ <82.12-27>
+| | | | | | | Ident: IsValid :: Bool (U8) @ <82.12-19>
+| | | | | | | Subscript :: U8 @ <82.12-26>
+| | | | | | | | Ident: src :: U8 * @ <82.12-23>
+| | | | | | | | Ident: i :: I32 @ <82.12-25>
 | | | | | | CompoundStmtMIR @ <82.30-84.9>
 | | | | | | | ExprStmt @ <83.13-31>
-| | | | | | | | Assign: = @ <83.13-30>
-| | | | | | | | | Subscript @ <83.13-21>
-| | | | | | | | | | Ident: code @ <83.13-16>
-| | | | | | | | | | Postfix: ++ @ <83.13-20>
-| | | | | | | | | | | Ident: n @ <83.13-18>
-| | | | | | | | | Subscript @ <83.25-30>
-| | | | | | | | | | Ident: src @ <83.25-27>
-| | | | | | | | | | Ident: i @ <83.25-29>
+| | | | | | | | Assign: = :: U8 @ <83.13-30>
+| | | | | | | | | Subscript :: U8 @ <83.13-21>
+| | | | | | | | | | Ident: code :: U8[1024] @ <83.13-16>
+| | | | | | | | | | Postfix: :: I32++ @ <83.13-20>
+| | | | | | | | | | | Ident: n :: I32 @ <83.13-18>
+| | | | | | | | | Subscript :: U8 @ <83.25-30>
+| | | | | | | | | | Ident: src :: U8 * @ <83.25-27>
+| | | | | | | | | | Ident: i :: I32 @ <83.25-29>
 | | | | | IfStmt @ <86.9-89.9>
-| | | | | | Binary: == @ <86.12-29>
-| | | | | | | Binary: + @ <86.12-17>
-| | | | | | | | Ident: n @ <86.12-13>
-| | | | | | | | Literal:  @ <86.17>
-1| | | | | | | Ident: codesize @ <86.22-29>
+| | | | | | Binary: == :: I32 @ <86.12-29>
+| | | | | | | Binary: + :: I32 @ <86.12-17>
+| | | | | | | | Ident: n :: I32 @ <86.12-13>
+| | | | | | | | Literal: :: I32 @ <86.17>
+1| | | | | | | Ident: codesize :: I32 @ <86.22-29>
 | | | | | | CompoundStmtMIR @ <86.32-89.9>
 | | | | | | | ExprStmt @ <87.13-42>
-| | | | | | | | Call @ <87.13-41>
-| | | | | | | | | Ident: Die @ <87.13-15>
-| | | | | | | | | Literal:  @ <87.13-32>
-code too large| | | | | | | | | Ident: SYSTEM @ <87.35-40>
+| | | | | | | | Call :: Void @ <87.13-41>
+| | | | | | | | | Ident: Die :: Void (U8 *, enum ErrType) @ <87.13-15>
+| | | | | | | | | Literal: :: I8 * const @ <87.13-32>
+code too large| | | | | | | | | Ident: SYSTEM :: enum ErrType @ <87.35-40>
 | | | | | | | Return @ <88.13-19>
 | | | | | ExprStmt @ <90.9-12>
-| | | | | | Postfix: ++ @ <90.9-11>
-| | | | | | | Ident: i @ <90.9>
+| | | | | | Postfix: :: I32++ @ <90.9-11>
+| | | | | | | Ident: i :: I32 @ <90.9>
 | | | ExprStmt @ <93.5-19>
-| | | | Assign: = @ <93.5-18>
-| | | | | Subscript @ <93.5-11>
-| | | | | | Ident: code @ <93.5-8>
-| | | | | | Ident: n @ <93.5-10>
-| | | | | Literal:  @ <93.15-18>
+| | | | Assign: = :: U8 @ <93.5-18>
+| | | | | Subscript :: U8 @ <93.5-11>
+| | | | | | Ident: code :: U8[1024] @ <93.5-8>
+| | | | | | Ident: n :: I32 @ <93.5-10>
+| | | | | Literal: :: I8 @ <93.15-18>
 0| | | Print: "got code: (" @ <94.5-31>
-| | | | Ident: code @ <94.20-23>
-| | | | Literal:  @ <94.26-30>
+| | | | Ident: code :: U8[1024] @ <94.20-23>
+| | | | Literal: :: I8 * const @ <94.26-30>
 )
 | FunctionMIR: JumpToAfter @ <98.1-118.1>
     type: Void ()
@@ -3613,201 +5048,201 @@ code too large| | | | | | | | | Ident: SYSTEM @ <87.35-40>
 | | | VarDecl:  @ <99.5-31>
 | | | | | VarSymbol: current :: I32
 | | | | | Initializer @ <99.20-30>
-| | | | | | Member: .len @ <99.20-30>
-| | | | | | | Ident: nesting @ <99.20-26>
+| | | | | | Member: .len :: I32 @ <99.20-30>
+| | | | | | | Ident: nesting :: class Stack @ <99.20-26>
 | | | LoopStmt @ <100.5-117.5>
-| | | | Binary: != @ <100.11-31>
-| | | | | Subscript @ <100.11-23>
-| | | | | | Ident: code @ <100.11-15>
-| | | | | | Ident: insptr @ <100.11-22>
-| | | | | Literal:  @ <100.28-31>
+| | | | Binary: != :: U8 @ <100.11-31>
+| | | | | Subscript :: U8 @ <100.11-23>
+| | | | | | Ident: code :: U8[1024] @ <100.11-15>
+| | | | | | Ident: insptr :: I32 @ <100.11-22>
+| | | | | Literal: :: I8 @ <100.28-31>
 0| | | | CompoundStmtMIR @ <100.34-117.5>
 | | | | | IfStmt @ <101.9-109.9>
-| | | | | | Binary: == @ <101.12-31>
-| | | | | | | Subscript @ <101.12-24>
-| | | | | | | | Ident: code @ <101.12-16>
-| | | | | | | | Ident: insptr @ <101.12-23>
-| | | | | | | Literal:  @ <101.29-31>
+| | | | | | Binary: == :: U8 @ <101.12-31>
+| | | | | | | Subscript :: U8 @ <101.12-24>
+| | | | | | | | Ident: code :: U8[1024] @ <101.12-16>
+| | | | | | | | Ident: insptr :: I32 @ <101.12-23>
+| | | | | | | Literal: :: I8 @ <101.29-31>
 91| | | | | | CompoundStmtMIR @ <101.34-103.9>
 | | | | | | | ExprStmt @ <102.13-22>
-| | | | | | | | Postfix: ++ @ <102.13-21>
-| | | | | | | | | Ident: current @ <102.13-19>
+| | | | | | | | Postfix: :: I32++ @ <102.13-21>
+| | | | | | | | | Ident: current :: I32 @ <102.13-19>
 | | | | | | IfStmt @ <103.16-109.9>
-| | | | | | | Binary: == @ <103.19-38>
-| | | | | | | | Subscript @ <103.19-31>
-| | | | | | | | | Ident: code @ <103.19-23>
-| | | | | | | | | Ident: insptr @ <103.19-30>
-| | | | | | | | Literal:  @ <103.36-38>
+| | | | | | | Binary: == :: U8 @ <103.19-38>
+| | | | | | | | Subscript :: U8 @ <103.19-31>
+| | | | | | | | | Ident: code :: U8[1024] @ <103.19-23>
+| | | | | | | | | Ident: insptr :: I32 @ <103.19-30>
+| | | | | | | | Literal: :: I8 @ <103.36-38>
 93| | | | | | | CompoundStmtMIR @ <103.41-109.9>
 | | | | | | | | ExprStmt @ <104.13-22>
-| | | | | | | | | Postfix: -- @ <104.13-21>
-| | | | | | | | | | Ident: current @ <104.13-19>
+| | | | | | | | | Postfix: :: I32-- @ <104.13-21>
+| | | | | | | | | | Ident: current :: I32 @ <104.13-19>
 | | | | | | | | IfStmt @ <105.13-108.13>
-| | | | | | | | | Binary: == @ <105.16-38>
-| | | | | | | | | | Ident: current @ <105.16-23>
-| | | | | | | | | | Member: .len @ <105.28-38>
-| | | | | | | | | | | Ident: nesting @ <105.28-34>
+| | | | | | | | | Binary: == :: I32 @ <105.16-38>
+| | | | | | | | | | Ident: current :: I32 @ <105.16-23>
+| | | | | | | | | | Member: .len :: I32 @ <105.28-38>
+| | | | | | | | | | | Ident: nesting :: class Stack @ <105.28-34>
 | | | | | | | | | CompoundStmtMIR @ <105.41-108.13>
 | | | | | | | | | | ExprStmt @ <106.17-25>
-| | | | | | | | | | | Postfix: ++ @ <106.17-24>
-| | | | | | | | | | | | Ident: insptr @ <106.17-22>
+| | | | | | | | | | | Postfix: :: I32++ @ <106.17-24>
+| | | | | | | | | | | | Ident: insptr :: I32 @ <106.17-22>
 | | | | | | | | | | Return @ <107.17-23>
 | | | | | IfStmt @ <111.9-114.9>
-| | | | | | Binary: < @ <111.12-33>
-| | | | | | | Ident: current @ <111.12-19>
-| | | | | | | Member: .len @ <111.23-33>
-| | | | | | | | Ident: nesting @ <111.23-29>
+| | | | | | Binary: < :: I32 @ <111.12-33>
+| | | | | | | Ident: current :: I32 @ <111.12-19>
+| | | | | | | Member: .len :: I32 @ <111.23-33>
+| | | | | | | | Ident: nesting :: class Stack @ <111.23-29>
 | | | | | | CompoundStmtMIR @ <111.36-114.9>
 | | | | | | | ExprStmt @ <112.13-70>
-| | | | | | | | Call @ <112.13-69>
-| | | | | | | | | Ident: Die @ <112.13-15>
-| | | | | | | | | Literal:  @ <112.13-58>
-malformed code, missing matching bracket| | | | | | | | | Ident: BAD_CODE @ <112.61-68>
+| | | | | | | | Call :: Void @ <112.13-69>
+| | | | | | | | | Ident: Die :: Void (U8 *, enum ErrType) @ <112.13-15>
+| | | | | | | | | Literal: :: I8 * const @ <112.13-58>
+malformed code, missing matching bracket| | | | | | | | | Ident: BAD_CODE :: enum ErrType @ <112.61-68>
 | | | | | | | Return @ <113.13-19>
 | | | | | ExprStmt @ <116.9-17>
-| | | | | | Postfix: ++ @ <116.9-16>
-| | | | | | | Ident: insptr @ <116.9-14>
+| | | | | | Postfix: :: I32++ @ <116.9-16>
+| | | | | | | Ident: insptr :: I32 @ <116.9-14>
 | FunctionMIR: Execute @ <120.1-201.1>
     type: Void ()
 | | CompoundStmtMIR @ <120.14-201.1>
 | | | VarDecl:  @ <122.5-10>
 | | | | | VarSymbol: c :: U8
 | | | LoopStmt @ <123.5-200.5>
-| | | | Binary: != @ <123.11-37>
-| | | | | Assign: = @ <123.11-29>
-| | | | | | Ident: c @ <123.11-13>
-| | | | | | Subscript @ <123.17-28>
-| | | | | | | Ident: code @ <123.17-20>
-| | | | | | | Ident: insptr @ <123.17-27>
-| | | | | Literal:  @ <123.34-37>
+| | | | Binary: != :: U8 @ <123.11-37>
+| | | | | Assign: = :: U8 @ <123.11-29>
+| | | | | | Ident: c :: U8 @ <123.11-13>
+| | | | | | Subscript :: U8 @ <123.17-28>
+| | | | | | | Ident: code :: U8[1024] @ <123.17-20>
+| | | | | | | Ident: insptr :: I32 @ <123.17-27>
+| | | | | Literal: :: I8 @ <123.34-37>
 0| | | | CompoundStmtMIR @ <123.40-200.5>
 | | | | | IfStmt @ <124.9-127.9>
-| | | | | | Binary: < @ <124.12-22>
-| | | | | | | Ident: insptr @ <124.12-18>
-| | | | | | | Literal:  @ <124.22>
+| | | | | | Binary: < :: I32 @ <124.12-22>
+| | | | | | | Ident: insptr :: I32 @ <124.12-18>
+| | | | | | | Literal: :: I32 @ <124.22>
 0| | | | | | CompoundStmtMIR @ <124.25-127.9>
 | | | | | | | ExprStmt @ <125.13-62>
-| | | | | | | | Call @ <125.13-61>
-| | | | | | | | | Ident: Die @ <125.13-15>
-| | | | | | | | | Literal:  @ <125.13-50>
-instruction pointer went below 0| | | | | | | | | Ident: BAD_CODE @ <125.53-60>
+| | | | | | | | Call :: Void @ <125.13-61>
+| | | | | | | | | Ident: Die :: Void (U8 *, enum ErrType) @ <125.13-15>
+| | | | | | | | | Literal: :: I8 * const @ <125.13-50>
+instruction pointer went below 0| | | | | | | | | Ident: BAD_CODE :: enum ErrType @ <125.53-60>
 | | | | | | | Return @ <126.13-19>
 | | | | | IfStmt @ <129.9-132.9>
-| | | | | | Binary: < @ <129.12-23>
-| | | | | | | Ident: dataptr @ <129.12-19>
-| | | | | | | Literal:  @ <129.23>
+| | | | | | Binary: < :: I32 @ <129.12-23>
+| | | | | | | Ident: dataptr :: I32 @ <129.12-19>
+| | | | | | | Literal: :: I32 @ <129.23>
 0| | | | | | CompoundStmtMIR @ <129.26-132.9>
 | | | | | | | ExprStmt @ <130.13-55>
-| | | | | | | | Call @ <130.13-54>
-| | | | | | | | | Ident: Die @ <130.13-15>
-| | | | | | | | | Literal:  @ <130.13-43>
-data pointer went below 0| | | | | | | | | Ident: BAD_CODE @ <130.46-53>
+| | | | | | | | Call :: Void @ <130.13-54>
+| | | | | | | | | Ident: Die :: Void (U8 *, enum ErrType) @ <130.13-15>
+| | | | | | | | | Literal: :: I8 * const @ <130.13-43>
+data pointer went below 0| | | | | | | | | Ident: BAD_CODE :: enum ErrType @ <130.46-53>
 | | | | | | | Return @ <131.13-19>
 | | | | | Print: "got code: (" @ <133.9-35>
-| | | | | | Ident: code @ <133.24-27>
-| | | | | | Literal:  @ <133.30-34>
+| | | | | | Ident: code :: U8[1024] @ <133.24-27>
+| | | | | | Literal: :: I8 * const @ <133.30-34>
 )
 | | | | | SwitchStmt @ <134.9-192.9>
-| | | | | | Ident: c @ <134.16-17>
+| | | | | | Ident: c :: U8 @ <134.16-17>
 | | | | | | CompoundStmtMIR @ <134.20-192.9>
 | | | | | | | Case: 62 @ <136.13-137.26>
 | | | | | | | | ExprStmt @ <137.17-26>
-| | | | | | | | | Postfix: ++ @ <137.17-25>
-| | | | | | | | | | Ident: dataptr @ <137.17-23>
+| | | | | | | | | Postfix: :: I32++ @ <137.17-25>
+| | | | | | | | | | Ident: dataptr :: I32 @ <137.17-23>
 | | | | | | | Break @ <138.17-22>
 | | | | | | | Case: 60 @ <141.13-142.26>
 | | | | | | | | ExprStmt @ <142.17-26>
-| | | | | | | | | Postfix: -- @ <142.17-25>
-| | | | | | | | | | Ident: dataptr @ <142.17-23>
+| | | | | | | | | Postfix: :: I32-- @ <142.17-25>
+| | | | | | | | | | Ident: dataptr :: I32 @ <142.17-23>
 | | | | | | | Break @ <143.17-22>
 | | | | | | | Case: 43 @ <146.13-147.32>
 | | | | | | | | ExprStmt @ <147.17-32>
-| | | | | | | | | Postfix: ++ @ <147.17-31>
-| | | | | | | | | | Subscript @ <147.17-29>
-| | | | | | | | | | | Ident: data @ <147.17-20>
-| | | | | | | | | | | Ident: dataptr @ <147.17-28>
+| | | | | | | | | Postfix: :: U8++ @ <147.17-31>
+| | | | | | | | | | Subscript :: U8 @ <147.17-29>
+| | | | | | | | | | | Ident: data :: U8[30000] @ <147.17-20>
+| | | | | | | | | | | Ident: dataptr :: I32 @ <147.17-28>
 | | | | | | | Break @ <148.17-22>
 | | | | | | | Case: 45 @ <151.13-152.32>
 | | | | | | | | ExprStmt @ <152.17-32>
-| | | | | | | | | Postfix: -- @ <152.17-31>
-| | | | | | | | | | Subscript @ <152.17-29>
-| | | | | | | | | | | Ident: data @ <152.17-20>
-| | | | | | | | | | | Ident: dataptr @ <152.17-28>
+| | | | | | | | | Postfix: :: U8-- @ <152.17-31>
+| | | | | | | | | | Subscript :: U8 @ <152.17-29>
+| | | | | | | | | | | Ident: data :: U8[30000] @ <152.17-20>
+| | | | | | | | | | | Ident: dataptr :: I32 @ <152.17-28>
 | | | | | | | Break @ <153.17-22>
 | | | | | | | Case: 44 @ <155.13-156.34>
 | | | | | | | | ExprStmt @ <156.17-34>
-| | | | | | | | | Assign: = @ <156.17-33>
-| | | | | | | | | | Subscript @ <156.17-29>
-| | | | | | | | | | | Ident: data @ <156.17-20>
-| | | | | | | | | | | Ident: dataptr @ <156.17-28>
-| | | | | | | | | | Literal:  @ <156.33>
+| | | | | | | | | Assign: = :: U8 @ <156.17-33>
+| | | | | | | | | | Subscript :: U8 @ <156.17-29>
+| | | | | | | | | | | Ident: data :: U8[30000] @ <156.17-20>
+| | | | | | | | | | | Ident: dataptr :: I32 @ <156.17-28>
+| | | | | | | | | | Literal: :: I32 @ <156.33>
 0| | | | | | | Break @ <157.17-22>
 | | | | | | | Case: 46 @ <159.13-160.30>
 | | | | | | | | ExprStmt @ <160.17-30>
-| | | | | | | | | Subscript @ <160.17-29>
-| | | | | | | | | | Ident: data @ <160.17-20>
-| | | | | | | | | | Ident: dataptr @ <160.17-28>
+| | | | | | | | | Subscript :: U8 @ <160.17-29>
+| | | | | | | | | | Ident: data :: U8[30000] @ <160.17-20>
+| | | | | | | | | | Ident: dataptr :: I32 @ <160.17-28>
 | | | | | | | Break @ <161.17-22>
 | | | | | | | Case: 91 @ <165.13-172.17>
 | | | | | | | | IfStmt @ <166.17-172.17>
-| | | | | | | | | Binary: == @ <166.20-38>
-| | | | | | | | | | Subscript @ <166.20-33>
-| | | | | | | | | | | Ident: data @ <166.20-24>
-| | | | | | | | | | | Ident: dataptr @ <166.20-32>
-| | | | | | | | | | Literal:  @ <166.38>
+| | | | | | | | | Binary: == :: U8 @ <166.20-38>
+| | | | | | | | | | Subscript :: U8 @ <166.20-33>
+| | | | | | | | | | | Ident: data :: U8[30000] @ <166.20-24>
+| | | | | | | | | | | Ident: dataptr :: I32 @ <166.20-32>
+| | | | | | | | | | Literal: :: I32 @ <166.38>
 0| | | | | | | | | CompoundStmtMIR @ <166.41-169.17>
 | | | | | | | | | | ExprStmt @ <168.21-34>
-| | | | | | | | | | | Call @ <168.21-33>
-| | | | | | | | | | | | Ident: JumpToAfter @ <168.21-31>
+| | | | | | | | | | | Call :: Void @ <168.21-33>
+| | | | | | | | | | | | Ident: JumpToAfter :: Void () @ <168.21-31>
 | | | | | | | | | CompoundStmtMIR @ <169.24-172.17>
 | | | | | | | | | | ExprStmt @ <171.21-38>
-| | | | | | | | | | | Call @ <171.21-37>
-| | | | | | | | | | | | Ident: StackPush @ <171.21-29>
-| | | | | | | | | | | | Ident: insptr @ <171.21-36>
+| | | | | | | | | | | Call :: Void @ <171.21-37>
+| | | | | | | | | | | | Ident: StackPush :: Void (I32) @ <171.21-29>
+| | | | | | | | | | | | Ident: insptr :: I32 @ <171.21-36>
 | | | | | | | Break @ <173.17-22>
 | | | | | | | Case: 93 @ <177.13-191.13>
 | | | | | | | | CompoundStmtMIR @ <177.23-191.13>
 | | | | | | | | | VarDecl:  @ <178.17-43>
 | | | | | | | | | | | VarSymbol: opening :: I32
 | | | | | | | | | | | Initializer @ <178.32-42>
-| | | | | | | | | | | | Call @ <178.32-42>
-| | | | | | | | | | | | | Ident: StackPeek @ <178.32-40>
+| | | | | | | | | | | | Call :: I32 @ <178.32-42>
+| | | | | | | | | | | | | Ident: StackPeek :: I32 () @ <178.32-40>
 | | | | | | | | | IfStmt @ <180.17-183.17>
-| | | | | | | | | | Binary: < @ <180.20-31>
-| | | | | | | | | | | Ident: opening @ <180.20-27>
-| | | | | | | | | | | Literal:  @ <180.31>
+| | | | | | | | | | Binary: < :: I32 @ <180.20-31>
+| | | | | | | | | | | Ident: opening :: I32 @ <180.20-27>
+| | | | | | | | | | | Literal: :: I32 @ <180.31>
 0| | | | | | | | | | CompoundStmtMIR @ <180.34-183.17>
 | | | | | | | | | | | ExprStmt @ <181.21-64>
-| | | | | | | | | | | | Call @ <181.21-63>
-| | | | | | | | | | | | | Ident: Die @ <181.21-23>
-| | | | | | | | | | | | | Literal:  @ <181.21-52>
-mismatched closing bracket| | | | | | | | | | | | | Ident: BAD_CODE @ <181.55-62>
+| | | | | | | | | | | | Call :: Void @ <181.21-63>
+| | | | | | | | | | | | | Ident: Die :: Void (U8 *, enum ErrType) @ <181.21-23>
+| | | | | | | | | | | | | Literal: :: I8 * const @ <181.21-52>
+mismatched closing bracket| | | | | | | | | | | | | Ident: BAD_CODE :: enum ErrType @ <181.55-62>
 | | | | | | | | | | | Return @ <182.21-27>
 | | | | | | | | | IfStmt @ <185.17-190.17>
-| | | | | | | | | | Binary: != @ <185.20-38>
-| | | | | | | | | | | Subscript @ <185.20-33>
-| | | | | | | | | | | | Ident: data @ <185.20-24>
-| | | | | | | | | | | | Ident: dataptr @ <185.20-32>
-| | | | | | | | | | | Literal:  @ <185.38>
+| | | | | | | | | | Binary: != :: U8 @ <185.20-38>
+| | | | | | | | | | | Subscript :: U8 @ <185.20-33>
+| | | | | | | | | | | | Ident: data :: U8[30000] @ <185.20-24>
+| | | | | | | | | | | | Ident: dataptr :: I32 @ <185.20-32>
+| | | | | | | | | | | Literal: :: I32 @ <185.38>
 0| | | | | | | | | | CompoundStmtMIR @ <185.41-187.17>
 | | | | | | | | | | | ExprStmt @ <186.21-37>
-| | | | | | | | | | | | Assign: = @ <186.21-36>
-| | | | | | | | | | | | | Ident: insptr @ <186.21-26>
-| | | | | | | | | | | | | Ident: opening @ <186.30-36>
+| | | | | | | | | | | | Assign: = :: I32 @ <186.21-36>
+| | | | | | | | | | | | | Ident: insptr :: I32 @ <186.21-26>
+| | | | | | | | | | | | | Ident: opening :: I32 @ <186.30-36>
 | | | | | | | | | | CompoundStmtMIR @ <187.24-190.17>
 | | | | | | | | | | | ExprStmt @ <189.21-31>
-| | | | | | | | | | | | Call @ <189.21-30>
-| | | | | | | | | | | | | Ident: StackPop @ <189.21-28>
+| | | | | | | | | | | | Call :: I32 @ <189.21-30>
+| | | | | | | | | | | | | Ident: StackPop :: I32 () @ <189.21-28>
 | | | | | | | Break @ <191.15-20>
 | | | | | ExprStmt @ <195.9-17>
-| | | | | | Postfix: ++ @ <195.9-16>
-| | | | | | | Ident: insptr @ <195.9-14>
+| | | | | | Postfix: :: I32++ @ <195.9-16>
+| | | | | | | Ident: insptr :: I32 @ <195.9-14>
 | | | | | IfStmt @ <197.9-199.9>
-| | | | | | Binary: == @ <197.12-34>
-| | | | | | | Binary: + @ <197.12-22>
-| | | | | | | | Ident: insptr @ <197.12-18>
-| | | | | | | | Literal:  @ <197.22>
-1| | | | | | | Ident: codesize @ <197.27-34>
+| | | | | | Binary: == :: I32 @ <197.12-34>
+| | | | | | | Binary: + :: I32 @ <197.12-22>
+| | | | | | | | Ident: insptr :: I32 @ <197.12-18>
+| | | | | | | | Literal: :: I32 @ <197.22>
+1| | | | | | | Ident: codesize :: I32 @ <197.27-34>
 | | | | | | CompoundStmtMIR @ <197.37-199.9>
 | | | | | | | Return @ <198.13-19>
 | FunctionMIR: Initialize @ <203.1-212.1>
@@ -3816,52 +5251,52 @@ mismatched closing bracket| | | | | | | | | | | | | Ident: BAD_CODE @ <181.55-62
 | | | VarDecl:  @ <204.5-15>
 | | | | | VarSymbol: i :: I32
 | | | | | Initializer @ <204.14>
-| | | | | | Literal:  @ <204.14>
+| | | | | | Literal: :: I32 @ <204.14>
 0| | | LoopStmt @ <206.5-209.5>
-| | | | Binary: < @ <206.11-20>
-| | | | | Ident: i @ <206.11-12>
-| | | | | Literal:  @ <206.16-20>
+| | | | Binary: < :: I32 @ <206.11-20>
+| | | | | Ident: i :: I32 @ <206.11-12>
+| | | | | Literal: :: I32 @ <206.16-20>
 30000| | | | CompoundStmtMIR @ <206.23-209.5>
 | | | | | ExprStmt @ <207.9-20>
-| | | | | | Assign: = @ <207.9-19>
-| | | | | | | Subscript @ <207.9-15>
-| | | | | | | | Ident: data @ <207.9-12>
-| | | | | | | | Ident: i @ <207.9-14>
-| | | | | | | Literal:  @ <207.19>
+| | | | | | Assign: = :: U8 @ <207.9-19>
+| | | | | | | Subscript :: U8 @ <207.9-15>
+| | | | | | | | Ident: data :: U8[30000] @ <207.9-12>
+| | | | | | | | Ident: i :: I32 @ <207.9-14>
+| | | | | | | Literal: :: I32 @ <207.19>
 0| | | | | ExprStmt @ <208.9-12>
-| | | | | | Postfix: ++ @ <208.9-11>
-| | | | | | | Ident: i @ <208.9>
+| | | | | | Postfix: :: I32++ @ <208.9-11>
+| | | | | | | Ident: i :: I32 @ <208.9>
 | | | ExprStmt @ <211.5-20>
-| | | | Assign: = @ <211.5-19>
-| | | | | Member: .len @ <211.5-15>
-| | | | | | Ident: nesting @ <211.5-11>
-| | | | | Literal:  @ <211.19>
+| | | | Assign: = :: I32 @ <211.5-19>
+| | | | | Member: .len :: I32 @ <211.5-15>
+| | | | | | Ident: nesting :: class Stack @ <211.5-11>
+| | | | | Literal: :: I32 @ <211.19>
 0| FunctionMIR: PrintUsage @ <214.1-216.1>
     type: Void (u8 *)
 | | CompoundStmtMIR @ <214.29-216.1>
 | | | Print: "usage: " @ <215.5-45>
-| | | | Ident: argname @ <215.16-22>
-| | | | Literal:  @ <215.25-44>
+| | | | Ident: argname :: U8 * @ <215.16-22>
+| | | | Literal: :: I8 * const @ <215.25-44>
  [-m MEMSIZE] CODE| FunctionMIR: Main @ <218.1-228.1>
     type: i32 ()
 | | CompoundStmtMIR @ <218.13-228.1>
 | | | ExprStmt @ <220.5-17>
-| | | | Call @ <220.5-16>
-| | | | | Ident: Initialize @ <220.5-14>
+| | | | Call :: Void @ <220.5-16>
+| | | | | Ident: Initialize :: Void () @ <220.5-14>
 | | | VarDecl:  @ <222.5-187>
-| | | | | VarSymbol: program :: U8[]
+| | | | | VarSymbol: program :: I8[]
 | | | | | Initializer @ <222.21-186>
-| | | | | | Literal:  @ <222.21-186>
+| | | | | | Literal: :: I8 * const @ <222.21-186>
 >++++++++[<+++++++++>-]<.>++++[<+++++++>-]<+.+++++++..+++.>>++++++[<+++++++>-]<++.------------.>++++++[<+++++++++>-]<+.<.+++.------.--------.>>>++++[<++++++++>-]<+.| | | ExprStmt @ <224.5-22>
-| | | | Call @ <224.5-21>
-| | | | | Ident: ReadCode @ <224.5-12>
-| | | | | Ident: program @ <224.5-20>
+| | | | Call :: Void @ <224.5-21>
+| | | | | Ident: ReadCode :: Void (U8 *) @ <224.5-12>
+| | | | | Ident: program :: I8[] @ <224.5-20>
 | | | ExprStmt @ <225.5-14>
-| | | | Call @ <225.5-13>
-| | | | | Ident: Execute @ <225.5-11>
+| | | | Call :: Void @ <225.5-13>
+| | | | | Ident: Execute :: Void () @ <225.5-11>
 | | | Return @ <227.5-13>
-| | | | Literal:  @ <227.12>
+| | | | Literal: :: I32 @ <227.12>
 0| ExprStmt @ <230.1-7>
-| | Call @ <230.1-6>
-| | | Ident: Main @ <230.1-4>
+| | Call :: I32 @ <230.1-6>
+| | | Ident: Main :: I32 () @ <230.1-4>
 LLVM: Shutting down
