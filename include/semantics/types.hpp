@@ -191,9 +191,8 @@ public:
     Note that this relationship is not symmetric; if `this` is coercible to
     `dst`, this does not mean `dst` is coercible to `this`.
 
-    This function will return false if `this` and `dst` are exactly the same;
-    it is to be used for types that are not equal, but might be able to be
-    coerced into the other.
+    This function should return always return true if `this` and `dst` are
+    equal, but this should be filtered out by the caller in most cases.
     */
     virtual bool coercible_to(Type *dst) {
         // by default, types cannot be coerced and require explicit casting.
@@ -416,6 +415,20 @@ using MemberAcc    = std::string;
 using IndexAcc     = size_t;
 using AccessorNode = std::variant<MemberAcc, IndexAcc>;
 
+template <typename T>
+std::basic_ostream<T>& operator<<(std::basic_ostream<T>& ostr, AccessorNode& acc) {
+    std::visit(match {
+        [&](std::string& mem) {
+            ostr << mem;
+        },
+        [&](size_t idx) {
+            ostr << idx;
+        },
+    }, acc);
+
+    return ostr;
+}
+
 /**
 A class for accessing a member of a RecordType.
 
@@ -429,6 +442,8 @@ public:
 
     Accessor(std::string member) : accessor(std::move(member)) {}
 
+    Accessor(const Accessor& acc) : LinkedListNode<Accessor>(), accessor(acc.accessor) {}
+
     Accessor(Accessor&& acc) noexcept : accessor(std::move(acc.accessor)) {}
 
     AccessorNode accessor;
@@ -440,6 +455,13 @@ public:
     bool operator==(const Accessor& other) const { return accessor == other.accessor; }
 };
 
+template <typename T>
+std::basic_ostream<T>& operator<<(std::basic_ostream<T>& ostr, Accessor& acc) {
+    ostr << "[" << acc.accessor << ": #" << acc.index() << "]";
+
+    return ostr;
+}
+
 class AccessorPath : public ds::LinkedList<Accessor> {
 public:
     ~AccessorPath() = default;
@@ -450,6 +472,18 @@ public:
         return std::all_of(begin(), end(), [](Accessor& acc) { return acc.is_member(); });
     }
 };
+
+template <typename T>
+std::basic_ostream<T>& operator<<(std::basic_ostream<T>& ostr, AccessorPath& path) {
+    for (auto& node : path) {
+        ostr << node;
+        if (node.next()) {
+            ostr << " <- ";
+        }
+    }
+
+    return ostr;
+}
 
 /**
 An abstract UserType with members that can be accessed using the dot (`.`)
@@ -589,6 +623,8 @@ protected:
 
 /**
 The Void Type in EnlightenedC.
+
+Acts as a reification of the concept of Void, instead of using a nullptr.
 */
 class VoidType : public BaseType {
 public:
@@ -614,18 +650,29 @@ A primitive type (e.g. U8, U16, F64, etc.)
 Primitive types do not hold pointers to other Types, i.e. all
 derived types should resolve to a primitive type.
 
-## Compatibility
+## Coercibility
 
-Any PrimitiveType a can be implicitly coerced to another PrimitiveType b
-if `b.size() >= a.size()`, regardless of signedness.
+PrimitiveTypes can only coerce to other PrimitiveTypes.
 
-Floats are not coercible to or from any other primitive type.
+If the target is a bool, any source PrimitiveType is allowed.
+
+Integers can be coerced into floats, but not vice versa.
+
+Otherwise, a given PrimitiveType a can be implicitly coerced to another
+PrimitiveType b if `b.size() >= a.size()`, regardless of signedness.
+
+## Castability
+
+Any PrimitiveType a can be cast to another effective PrimitiveType b,
+or to a pointer of any base.
 */
 class PrimitiveType : public BaseType {
 public:
     tokens::PrimType primkind;
 
-    bool coercible_to(Type *from) override;
+    bool coercible_to(Type *dst) override;
+
+    bool castable_to(Type *dst) override;
 
     // Whether this Primitive type can be represented as an integer.
     // Returns true for all primitive types except F64 and Bool.
@@ -680,6 +727,15 @@ protected:
 
 /**
 The ClassType in EnlightenedC.
+
+## Coercibility 
+
+Classes are completely invariant over all types, including parent classes.
+
+## Castability
+
+Classes can be cast to parent classes. In the case of casting by value, the
+object is truncated (like in C++). The pointer case is handled by PointerType.
 */
 class ClassType : public RecordType {
 public:
@@ -691,7 +747,11 @@ public:
     */
     bool is_fully_defined() override;
 
+    // todo: add inheritance
+
     ClassType *as_class() override { return this; }
+
+    bool castable_to(Type *dst) override;
 
     void finalize() override;
 
@@ -748,6 +808,15 @@ U64i union U64 {
 
 Then some member expression like `unn->u8` treats the U64i as an array of 8 bytes,
 and can be accessed as if it were one.
+
+## Coercibility
+
+Type-represented unions follow the same coercibility rules as their representative,
+and all other unions are completely invariant.
+
+## Castability
+
+Same as coercing rules.
 */
 class UnionType : public RecordType {
 public:
@@ -803,13 +872,20 @@ protected:
 };
 
 /**
-\brief An enumerated type (e.g. `enum State { DONE, PENDING }`).
+An enumerated type (e.g. `enum State { DONE, PENDING }`).
 
-## Compatibility
+## Underlying Types
+All EnumTypes have an underlying integer type that represents them in memory. This defaults to I32,
+but can be set by the programmer. Non-integer types throw an error.
 
-An enum type is coercible to any integer primitive type, but not vice versa.
-The compiler will throw an error if the number of enum variants exceed the maximum
-value of the integer primitive to be cast to.
+## Coercibility
+
+An Enum type is follows the same coercibility rules as its underlying type.
+
+## Castability
+
+See coercibility rules for underlying. Any integer can be cast to an enum,
+that is handled by PrimitiveType's coercibility.
 */
 class EnumType : public UserType {
 public:
@@ -876,7 +952,7 @@ protected:
 /**
 A pointer type (U8 *, I32 **, etc.)
 
-## Compatibility
+## Coercibility
 
 A pointer `ptr` is only coercible to another pointer `other` if:
 
@@ -885,6 +961,11 @@ the level of nesting is the same (i.e. U8 ** is coercible to Void **, but not Vo
 
 Pointers can be subscripted like arrays, the compiler will treat the subscript as pointer
 arithmetic. However, pointers cannot be converted to sized arrays.
+
+## Castability
+
+In addition to coercible targets, Pointers can be cast into U64 and U64 only.
+Eventually, this target type will reflect the system address width.
 */
 class PointerType : public DerivedType {
 public:
@@ -934,14 +1015,17 @@ protected:
 /**
 A sized array type (`U8 [4]`, `U32 [6]`, etc.).
 
-## Compatibility
+## Coercibility
 
 An array is coercible to a pointer of the same base through pointer decay.
 Similarly, pointers can be subscripted like an array, the compiler treats
 it as pointer arithmetic.
 
-A sized array is strictly only coercible to another array of the exact same base
-and size.
+A sized array is not coercible to any other array (i.e. base and size have to match).
+
+## Castability
+
+Same as coercibility.
 
 ## Semantics
 
@@ -1019,6 +1103,20 @@ struct FuncParam {
     bool is_const = false;
 };
 
+/**
+A type representing a function signature in EnlightenedC.
+
+In EnlightenedC, a function's type is its signature, which is used for function pointers.
+
+## Coercibility
+
+Functions are not values like the other types, and so cannot be coerced or cast into anything.
+Function pointers follow the same rules as regular pointers.
+
+## Castability
+
+See above.
+*/
 class FunctionType : public DerivedType {
 public:
     struct FunctionSignature { // NOLINT
@@ -1051,7 +1149,7 @@ public:
 
     FunctionSignature signature;
 
-    size_t alloc_size() override;
+    size_t alloc_size() override; // override to immediately throw runtime error
 
     // Generate a hash based on the function signature.
     std::size_t hash_sig();

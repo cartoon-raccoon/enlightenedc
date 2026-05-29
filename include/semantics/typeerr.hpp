@@ -146,6 +146,25 @@ public:
     }
 };
 
+class EnumeratorValueOverflow : public TypeSemError {
+public:
+    EnumeratorValueOverflow(Location err_loc, uint64_t max_value, int64_t provided)
+        : TypeSemError("enumerator with value larger than underlying can hold", err_loc),
+          max_value(max_value),
+          provided_value(provided) {}
+
+    uint64_t max_value;
+    int64_t provided_value;
+
+    std::string elab() override {
+        std::stringstream ss;
+
+        ss << "enum can have maximum value " << max_value << ", but has value " << provided_value;
+
+        return ss.str();
+    }
+};
+
 class EnumeratorAlrDecldError : public TypeSemError {
 public:
     EnumeratorAlrDecldError(std::string name, Location err_loc, Location def_loc)

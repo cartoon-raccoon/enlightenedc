@@ -115,26 +115,47 @@ bool PrimitiveType::is_bool() const {
     return pr_is_bool(primkind);
 }
 
-bool PrimitiveType::coercible_to(Type *from) {
-    // Only primitive types allowed
-    if (from->kind != Type::Kind::PRIMITIVE) {
-        return false;
+bool PrimitiveType::coercible_to(Type *dst) {
+    // Only primitive types or enums allowed
+    PrimitiveType *new_dst;
+    if (!dst->is_primitive()) {
+        // check for enum
+        if (dst->is_enum()) {
+            new_dst = dst->as_enum()->underlying;
+        } else {
+            return false;
+        }
+    } else {
+        new_dst = dst->as_primitive();
     }
 
-    PrimitiveType *new_from = from->as_primitive();
-    if (is_bool()) {
-        // bool can be promoted to anything numeric
-        return new_from->is_integer() || new_from->is_float();
+    if (new_dst->is_bool()) {
+        // we can coerce to bool implicitly.
+        return is_integer() || is_float();
     }
 
     // If either is not an integer, return false
-    if (!this->is_integer() && !new_from->is_integer()) {
+    if (!this->is_integer() || !new_dst->is_integer()) {
         return false;
     }
 
     size_t my_size = this->alloc_size();
 
-    return 0 < my_size && my_size <= new_from->alloc_size();
+    return 0 < my_size && my_size <= new_dst->alloc_size();
+}
+
+bool PrimitiveType::castable_to(Type *dst) {
+    if (!dst->is_primitive() && !dst->is_pointer())
+        return false;
+
+    if (dst->is_pointer()) {
+        // fixme: switch this over to system size
+        return primkind == PrimType::U64;
+    } else {
+        // dst must be primitive here, all non-primitives were filtered out earlier
+        assert(dst->is_primitive());
+        return true;
+    }
 }
 
 Optional<uint64_t> PrimitiveType::int_max() const {
@@ -347,6 +368,8 @@ AccessorPath RecordType::index(std::string& name) {
 }
 
 RecordType::TypeMember *RecordType::find(std::string& name) {
+    dbprint("RecordType: Looking for member with name ", name);
+
     for (auto& mem : members) {
         if (mem->name) {
             // if the member has a name, check if match
@@ -382,6 +405,7 @@ RecordType::TypeMember *RecordType::find_imm(std::string& name) {
 }
 
 RecordType::TypeMember *RecordType::find(size_t idx) {
+    dbprint("RecordType: Looking for member with index ", idx);
     if (idx >= num_members()) {
         return nullptr;
     }
@@ -403,15 +427,18 @@ RecordType::TypeMember *RecordType::find_by_path(AccessorPath& path) {
         if (!curr)
             break;
 
-        if (!(curr->ty->is_recordtype()) && acc.next()) {
-            // if the current type member is not a record type, but we still have
-            // accessors remaining, return null
-            return nullptr;
-        } else {
-            // otherwise, set curr_ty to
-            curr_ty = curr->ty->as_recordtype();
-            assert(curr_ty);
+        if (acc.next()) {
+            if (!(curr->ty->is_recordtype())) {
+                // if the current type member is not a record type, but we still have
+                // accessors remaining, return null
+                return nullptr;
+            } else {
+                // otherwise, set curr_ty to
+                curr_ty = curr->ty->as_recordtype();
+                assert(curr_ty);
+            }
         }
+
     }
 
     return curr;
@@ -510,6 +537,11 @@ bool ClassType::is_fully_defined() {
     return ret;
 }
 
+bool ClassType::castable_to(Type *dst) { // NOLINT
+    // todo
+    return false;
+}
+
 void ClassType::finalize() {
     if (finalized) {
         assert(llvm_type && "ClassType marked finalize but llvm_type is null");
@@ -525,7 +557,7 @@ void ClassType::finalize() {
     Vec<LLVMType *> args;
     args.reserve(num_members());
     for (auto& member : members) {
-        dbprint("UnionType: finalizing member declared at ", member->loc);
+        dbprint("ClassType: finalizing member declared at ", member->loc);
         member->ty->finalize();
         assert(member->ty->get_llvmtype());
         args.push_back(member->ty->get_llvmtype());
@@ -633,7 +665,7 @@ void UnionType::finalize() {
                     def_loc, member->loc, member->ty, type_rep_size, mem_size);
             }
         }
-    } else {
+    } else if (!members.empty()) {
         // get largest member for the size
         auto largest = std::max(members.begin(), members.end(), [](auto s1, auto s2) {
             return (*s1)->ty->alloc_size() < (*s2)->ty->alloc_size();
@@ -643,6 +675,9 @@ void UnionType::finalize() {
 
         // set llvm_type as an array of unsigned bytes with size equal to largest member
         llvm_type = llvm::ArrayType::get(ctxt().u8->get_llvmtype(), size);
+    } else {
+        // set llvm_type as an empty array
+        llvm_type = llvm::ArrayType::get(ctxt().u8->get_llvmtype(), 0);
     }
 
     finalized = true;
@@ -717,15 +752,7 @@ EnumType::EnumTypeMember *EnumType::find(size_t idx) {
 }
 
 bool EnumType::coercible_to(Type *dst) {
-    if (Type::coercible_to(dst))
-        return true;
-
-    if (!dst->is_primitive()) {
-        return false;
-    }
-
-    PrimitiveType *prim = dst->as_primitive();
-    return prim->is_integer();
+    return underlying->coercible_to(dst);
 }
 
 void EnumType::finalize() {
@@ -734,7 +761,15 @@ void EnumType::finalize() {
         dbprint("EnumType: already finalized, skipping");
         return;
     }
-    underlying->finalize();
+
+    if (!is_complete()) {
+        throw TypeSemError("enum not fully defined", decl_loc);
+    }
+    
+    if (!underlying->is_integral()) {
+        throw InvalidEnumUnderlyingError(def_loc);
+    }
+
     llvm_type = underlying->get_llvmtype();
 
     // check # of enumerators <= max value of underlying
@@ -742,6 +777,18 @@ void EnumType::finalize() {
     if (max_enum_ct < num_enumerators()) {
         throw EnumeratorCountOverflow(def_loc, max_enum_ct, num_enumerators());
     }
+
+    if (!enumerators.empty()) {
+        auto max_val = std::max_element(enumerators.begin(), enumerators.end(), 
+                                [&](auto& mem1, auto& mem2){
+                                    return mem1->value < mem2->value; }
+                                );
+    
+        if ((*max_val)->value < 0 || static_cast<uint64_t>((*max_val)->value) > max_enum_ct) {
+            throw EnumeratorValueOverflow(def_loc, max_enum_ct, (*max_val)->value);
+        }
+    }
+
 
     finalized = true;
 }
@@ -804,6 +851,9 @@ void PointerType::finalize() {
         return;
     }
 
+    // do not finalize base here: pointers to forward-declared (incomplete) types
+    // are valid, and LLVM opaque pointers require no pointee type anyway.
+
     llvm_type = llvm::PointerType::get(ctxt().llvm().ctx(), 0);
     finalized = true;
 }
@@ -831,7 +881,7 @@ bool ArrayType::coercible_to(Type *dst) {
 
     // if the other is an array, enforce strict equality
     case Kind::ARRAY: {
-        return false;
+        return dst == this;
     }
 
     // if pointer, make sure bases match
@@ -853,12 +903,11 @@ void ArrayType::finalize() {
     }
 
     if (arr_size) {
-        base->finalize();
         llvm_type = llvm::ArrayType::get(base->get_llvmtype(), *arr_size);
         assert(llvm_type);
     } else {
         //? would this be a problem?
-        dbprint("ArrayType: no size, unable to finalize");
+        throw std::runtime_error("attempted to finalize unsized array");
     }
 
     finalized = true;
@@ -899,7 +948,17 @@ void FunctionType::finalize() {
         dbprint("FunctionType: already finalized, skipping");
         return;
     }
-    todo();
+
+    Vec<LLVMType *> params_llvms;
+    for (auto& param : signature.params) {
+        params_llvms.push_back(param->get_llvmtype());
+    }
+
+    LLVMType *return_llvm = signature.returntype->get_llvmtype();
+
+    llvm_type = llvm::FunctionType::get(return_llvm, params_llvms, signature.variadic);
+
+    finalized = true;
 }
 
 Type *FunctionType::decay() {
