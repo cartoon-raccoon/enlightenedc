@@ -259,6 +259,7 @@ public:
      * Extend this list with all elements from another linked list.
      */
     void extend(N& start) {
+        // fixme: this is identical to prepend
         const N *traveler = &start;
 
         while (traveler != nullptr) {

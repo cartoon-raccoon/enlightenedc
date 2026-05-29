@@ -131,6 +131,7 @@ void Validator::eval_initializer_rec_cls(
                         throw UnableToContinue();
                     }
                     eval_initializer_rec(path, member->ty, *mem->initializer);
+                    path.pop_back();
                 },
                 [&](Box<InitializerMIR::Index>& idx) {
                     add_error<InvalidInitializerError>(
@@ -244,12 +245,18 @@ void Validator::do_visit(ExprStmtMIR& node) { // done
 void Validator::do_visit(SwitchStmtMIR& node) {
     bsv_dbprint("Validator: visiting SwitchStmtMIR node");
     node.control_val->accept(*this);
-    // todo: check validity of control expression (e.g. classes are not valid)
+    // todo: check validity of control expression (e.g. classes and floats are not valid)
+
+    if (!node.control_val->eff_type->is_primitive()) {
+    }
+
+    if (!node.control_val->eff_type->as_primitive()->is_integer()) {
+    }
 
     node.body->accept(*this);
 }
 
-void Validator::do_visit(CaseStmtMIR& node) {
+void Validator::do_visit(CaseStmtMIR& node) { // done
     bsv_dbprint("Validator: visiting CaseStmtMIR node");
     // check that we are in switch
     if (in_node(MIRNode::NodeKind::SWITCHSTMT_MIR) < 0) {
@@ -263,12 +270,17 @@ void Validator::do_visit(CaseStmtMIR& node) {
         dynamic_cast<SwitchStmtMIR *>(get_context(MIRNode::NodeKind::SWITCHSTMT_MIR));
 
     assert(parent && "could not get parent switch statement");
-    // todo: check validity of case value
+
+    if (!node.case_val.is_integer()) {
+        add_error<InvalidCaseValueError>(node.case_val, node.loc);
+    }
 
     node.stmt->accept(*this);
 }
 
 void Validator::do_visit(CaseRangeStmtMIR& node) {
+    constexpr size_t CASE_RANGE_WARN_THRESHOLD = 20;
+
     bsv_dbprint("Validator: visiting CaseRangeStmtMIR node");
     // check that we are in switch
     if (in_node(MIRNode::NodeKind::SWITCHSTMT_MIR) < 0) {
@@ -276,7 +288,18 @@ void Validator::do_visit(CaseRangeStmtMIR& node) {
         throw UnableToContinue();
     }
 
-    // todo: check that the start and end form a valid range
+    if (!node.case_start.is_integer() || !node.case_end.is_integer()) {
+        add_error<InvalidCaseRangeError>(node.case_start, node.case_end, node.loc);
+    }
+
+    if (node.case_end <= node.case_start) {
+        add_error<InvertedCaseRangeError>(node.case_start, node.case_end, node.loc);
+    }
+
+    if (node.case_end - node.case_start > CASE_RANGE_WARN_THRESHOLD) {
+        // todo: warn about the size of the produced jump table
+    }
+
     node.stmt->accept(*this);
 }
 
@@ -422,7 +445,7 @@ void Validator::do_visit(BinaryExprMIR& node) {
 
         // todo: add promotion and insert implicit casting logic
 
-        node.set_type(node.left->act_type);
+        node.set_type(node.left->eff_type);
     }
 }
 
@@ -487,7 +510,7 @@ void Validator::do_visit(UnaryExprMIR& node) {
             // todo: warning, unary plus and minus on unsigned type is allowed but might cause
             // unintended behavior
         }
-        node.set_type(node.operand->act_type);
+        node.set_type(node.operand->eff_type);
     } break;
 
     case UnaryOp::TILDE: {
@@ -500,8 +523,9 @@ void Validator::do_visit(UnaryExprMIR& node) {
         if (!primtype->is_integer()) {
             add_error<InvalidUnaryOpError>(
                 "operand is not an integer", node.op, node.operand->eff_type, node.loc);
+            throw UnableToContinue();
         } else {
-            node.set_type(node.operand->act_type);
+            node.set_type(node.operand->eff_type);
         }
     } break;
 
@@ -535,25 +559,33 @@ void Validator::do_visit(AssignExprMIR& node) {
 
     if (!node.left->is_assignable()) {
         add_error<InvalidAssignError>("left-hand side of assignment is not assignable", node.loc);
+        throw UnableToContinue();
     }
 
-    // todo: check operator compatibility, set type
+    if (!node.right->eff_type->coercible_to(node.left->eff_type)) {
+        add_error<InvalidCoerceError>(node.right->act_type, node.left->act_type, node.loc);
+    }
+
     switch (node.op) {
-    case AssignOp::ASSIGN: {
-
-    } break;
-
+    case AssignOp::ASSIGN:
     case AssignOp::MULEQ:
     case AssignOp::DIVEQ:
     case AssignOp::MODEQ:
     case AssignOp::PLUSEQ:
     case AssignOp::MINUSEQ:
+        // we already checked coercibility earlier, so just break
+        break;
+
     case AssignOp::LSHIFTEQ:
     case AssignOp::RSHIFTEQ:
     case AssignOp::ANDEQ:
     case AssignOp::XOREQ:
-    case AssignOp::OREQ:
+    case AssignOp::OREQ: {
+        // todo: check coercibility, lhs is int
+    } break;
     }
+
+    node.set_type(node.left->act_type);
 }
 
 void Validator::do_visit(CondExprMIR& node) { // done
@@ -565,8 +597,8 @@ void Validator::do_visit(CondExprMIR& node) { // done
     node.true_expr->accept(*this);
     node.false_expr->accept(*this);
 
-    Type *true_type  = node.true_expr->eff_type;
-    Type *false_type = node.false_expr->eff_type;
+    Type *true_type  = node.true_expr->act_type;
+    Type *false_type = node.false_expr->act_type;
 
     if (true_type != false_type) {
         if (false_type->coercible_to(true_type)) {
@@ -575,6 +607,7 @@ void Validator::do_visit(CondExprMIR& node) { // done
             node.true_expr = cast(false_type, std::move(node.true_expr));
         } else {
             add_error<InvalidCoerceError>(true_type, false_type, node.condition->loc);
+            throw UnableToContinue();
         }
     }
 
@@ -610,12 +643,27 @@ void Validator::do_visit(CallExprMIR& node) {
     node.callee->accept(*this);
     if (!node.callee->is_callable()) {
         add_error<InvalidCallExprError>(node.callee->eff_type, node.callee->loc);
+        throw UnableToContinue();
     }
+
     for (auto& arg : node.args) {
         arg->accept(*this);
     }
 
-    // todo: check type of each argument matches parameters, set type
+    FunctionType *sig;
+    if (auto *ptr = node.callee->act_type->as_pointer()) {
+        auto *base = ptr->base;
+        assert(base->is_function());
+        sig = base->as_function();
+    } else if (node.callee->act_type->is_function()) {
+        sig = node.callee->act_type->as_function();
+    } else {
+        throw std::runtime_error("CallExprMIR callee returned callable but is not func or funcptr");
+    }
+
+    // todo: check parameters and ensure they match type in signature
+
+    node.set_type(sig->returntype());
 }
 
 void Validator::do_visit(MemberAccExprMIR& node) {
@@ -625,16 +673,16 @@ void Validator::do_visit(MemberAccExprMIR& node) {
     ClassType *cls = nullptr;
 
     if (node.is_arrow) {
-        if (!node.object->act_type->is_pointer() &&
+        if (!node.object->act_type->is_pointer() ||
             !node.object->act_type->as_pointer()->base->is_recordtype()) {
-            // add_error<InvalidMemberAccessError>(node.object->eff_type, node.object->loc);
+            add_error<InvalidMemberAccError>(node.object->eff_type, node.object->loc);
             throw UnableToContinue();
         }
 
         cls = node.object->act_type->as_pointer()->base->as_class();
     } else {
         if (!node.object->act_type->is_recordtype()) {
-            // add_error<InvalidMemberAccessError>(node.object->eff_type, node.object->loc);
+            add_error<InvalidMemberAccError>(node.object->eff_type, node.object->loc);
             throw UnableToContinue();
         }
         cls = node.object->act_type->as_class();
@@ -644,15 +692,14 @@ void Validator::do_visit(MemberAccExprMIR& node) {
     auto *member = cls->find(node.member);
 
     if (!member) {
-        // add_error<InvalidMemberAccessError>(node.member, cls, node.object->eff_type,
-        // node.object->loc);
+        add_error<NoSuchMemberError>(node.member, node.object->eff_type, node.object->loc);
         throw UnableToContinue();
     }
 
     node.set_type(member->ty);
 }
 
-void Validator::do_visit(SubscrExprMIR& node) {
+void Validator::do_visit(SubscrExprMIR& node) { // done
     bsv_dbprint("Validator: visiting SubscrExprMIR node");
     node.array->accept(*this);
     node.index->accept(*this);
@@ -676,13 +723,17 @@ void Validator::do_visit(SubscrExprMIR& node) {
         throw UnableToContinue();
     }
 
-    if (node.index->eff_type->is_primitive()) {
-        PrimitiveType *indtype = node.index->eff_type->as_primitive();
-        if (!indtype->is_integer()) {
-            add_error<InvalidSubscrExprError>(
-                "array index must be an integer", node.index->eff_type, node.index->loc);
-            throw UnableToContinue();
-        }
+    if (!node.index->eff_type->is_primitive()) {
+        add_error<InvalidSubscrExprError>(
+            "array index must be an integer", node.index->eff_type, node.index->loc);
+        throw UnableToContinue();
+    }
+
+    PrimitiveType *indtype = node.index->eff_type->as_primitive();
+    if (!indtype->is_integer()) {
+        add_error<InvalidSubscrExprError>(
+            "array index must be an integer", node.index->eff_type, node.index->loc);
+        throw UnableToContinue();
     }
 
     // add: if index has a value, check that it's within bounds if array size is known

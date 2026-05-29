@@ -549,11 +549,17 @@ public:
 
     sema::sym::PhysicalSymbol *ident;
 
-    bool is_assignable() override { return is_lvalue(); }
+    bool is_assignable() override {
+        // only non-array variables (not functions) are assignable.
+        return ident->is_var() && !ident->get_type()->is_array();
+    }
 
     bool is_callable() override { return eff_type->is_callable(); }
 
-    bool is_lvalue() override { return ident->kind == sema::sym::Symbol::Kind::VAR; }
+    bool is_lvalue() override {
+        // all physical symbols are lvalues.
+        return true;
+    }
 
     bool is_subscriptable() override { return eff_type->is_subscriptable(); }
 
@@ -622,7 +628,15 @@ public:
     std::string member;
     bool is_arrow;
 
-    bool is_lvalue() override { return true; }
+    bool is_lvalue() override {
+        if (!is_arrow) {
+            return object->is_lvalue();
+        } else {
+            return true;
+        }
+    }
+
+    bool is_assignable() override { return is_lvalue(); }
 
     bool is_const_foldable() override { return false; }
 
@@ -641,6 +655,8 @@ public:
     Box<ExprMIR> index;
 
     bool is_lvalue() override { return true; }
+
+    bool is_assignable() override { return true; }
 
     bool is_const_foldable() override { return false; }
 

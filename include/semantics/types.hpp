@@ -818,6 +818,9 @@ Same as coercing rules.
 */
 class UnionType : public RecordType {
 public:
+    /**
+    The union type representative.
+    */
     Optional<PrimitiveType *> type_rep;
 
     bool is_fully_defined() override;
@@ -1121,6 +1124,19 @@ public:
         Type *returntype;
         Vec<Type *> params;
         bool variadic;
+
+        FunctionSignature() = default; // NOLINT
+
+        FunctionSignature(Type *returntype, Vec<Type *> params, bool variadic)
+            : returntype(returntype), params(std::move(params)), variadic(variadic) {}
+
+        Type *param(size_t index) {
+            if (index >= params.size()) {
+                return nullptr;
+            }
+
+            return params[index];
+        }
 
         // Test if two function signatures are the same.
         bool operator==(FunctionSignature& other) {

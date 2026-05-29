@@ -6,6 +6,7 @@
 #include <sstream>
 
 #include "error.hpp"
+#include "eval/value.hpp"
 #include "location.hpp"
 #include "semantics/types.hpp"
 #include "tokens.hpp"
@@ -32,6 +33,38 @@ class InvalidReturnError : public EccSemError {
 public:
     InvalidReturnError(Location err_loc)
         : EccSemError("return statement not in function", err_loc) {}
+};
+
+class InvertedCaseRangeError : public EccSemError {
+public:
+    InvertedCaseRangeError(const eval::Value& start, const eval::Value& end, Location err_loc)
+        : EccSemError("invalid case range", err_loc), start(start), end(end) {}
+
+    eval::Value start, end;
+
+    std::string elab() override {
+        return "start value used in a case range label must be lesser than the end value";
+    }
+};
+
+class InvalidCaseRangeError : public EccSemError {
+public:
+    InvalidCaseRangeError(const eval::Value& start, const eval::Value& end, Location err_loc)
+        : EccSemError("invalid case range", err_loc), start(start), end(end) {}
+
+    eval::Value start, end;
+
+    std::string elab() override { return "values used in a case range label must be integers"; }
+};
+
+class InvalidCaseValueError : public EccSemError {
+public:
+    InvalidCaseValueError(const eval::Value& val, Location err_loc)
+        : EccSemError("invalid case value", err_loc), invalid_val(val) {}
+
+    eval::Value invalid_val;
+
+    std::string elab() override { return "values used in a case label must be integers"; }
 };
 
 class InvalidCallExprError : public EccSemError {
@@ -146,6 +179,31 @@ public:
         ss << "cannot implicitly cast " << from << " to " << to;
 
         return ss.str();
+    }
+};
+
+class InvalidMemberAccError : public EccSemError {
+public:
+    InvalidMemberAccError(types::Type *obj, Location err_loc)
+        : EccSemError("invalid member access on incompatible type", err_loc),
+          obj_type(obj->formal()) {}
+
+    std::string obj_type;
+
+    std::string elab() override {
+        return std::format("type `{}` cannot be used with the `.` or `->`", obj_type);
+    }
+};
+
+class NoSuchMemberError : public EccSemError {
+public:
+    NoSuchMemberError(std::string& member, types::Type *obj, Location err_loc)
+        : EccSemError("invalid member access", err_loc), member(member), obj_type(obj->formal()) {}
+
+    std::string member, obj_type;
+
+    std::string elab() override {
+        return std::format("no member `{}` on type {}", member, obj_type);
     }
 };
 

@@ -77,7 +77,13 @@ public:
 
     virtual ~Symbol() = default;
 
-    virtual bool is_abstract() { return true; };
+    virtual bool is_physical() { return false; };
+    virtual bool is_abstract() { return false; };
+
+    bool is_var() const { return kind == Kind::VAR; }
+    bool is_func() const { return kind == Kind::FUNC; }
+    bool is_type() const { return kind == Kind::TYPE; }
+    bool is_label() const { return kind == Kind::LABEL; }
 
     virtual std::string to_string() const = 0;
 
@@ -120,7 +126,7 @@ public:
 
     virtual types::Type *get_type() = 0;
 
-    bool is_abstract() override { return false; }
+    bool is_physical() override { return true; }
 };
 
 // A symbol that is abstract, and exists only for the purposes of the compiler.
