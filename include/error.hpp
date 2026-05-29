@@ -74,7 +74,7 @@ public:
 
         ss << msg;
 
-        auto elaboration = elab();
+        auto elaboration = this->elab();
         if (!elaboration.empty()) {
             ss << "\n" << elaboration;
         }
@@ -95,12 +95,6 @@ public:
     EccSemError(std::string msg) : EccError(ErrorSource::SEMANTIC, std::move(msg)) {}
     EccSemError(std::string msg, Location err_loc)
         : EccError(ErrorSource::SEMANTIC, std::move(msg), err_loc) {}
-
-    std::string to_string() override {
-        std::stringstream ss;
-        ss << "error <" << *loc << ">: " << msg;
-        return ss.str();
-    }
 };
 
 } // namespace ecc
