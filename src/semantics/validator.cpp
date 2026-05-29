@@ -563,7 +563,20 @@ void Validator::do_visit(AssignExprMIR& node) {
     }
 
     if (!node.right->eff_type->coercible_to(node.left->eff_type)) {
-        add_error<InvalidCoerceError>(node.right->act_type, node.left->act_type, node.loc);
+        if (node.right->kind != MIRNode::NodeKind::LITEXPR_MIR) {
+            // if not literal, add error
+            add_error<InvalidCoerceError>(node.right->act_type, node.left->act_type, node.loc);
+            // skip the rest of the check
+            goto done;
+        } else {
+            // 
+            LiteralExprMIR *expr = dynamic_cast<LiteralExprMIR *>(node.right.get());
+            assert(expr && "got non-literal expression on expression node with LITEXPR");
+
+            if (expr->is_string()) {
+                // todo: check that lhs is a pointer or array, allow const to non-const
+            }
+        }
     }
 
     switch (node.op) {
@@ -581,10 +594,25 @@ void Validator::do_visit(AssignExprMIR& node) {
     case AssignOp::ANDEQ:
     case AssignOp::XOREQ:
     case AssignOp::OREQ: {
-        // todo: check coercibility, lhs is int
+        if (auto *prim = node.left->eff_type->as_primitive()) {
+            if (!prim->is_integer()) {
+                // todo: add error, primitive but not integer
+            }
+        } else {
+            // todo: add error, not primitive
+        }
+
+        if (auto *prim = node.right->eff_type->as_primitive()) {
+            if (!prim->is_integer()) {
+                // todo: add error, primitive but not integer
+            }
+        } else {
+            // todo: add error, not primitive
+        }
     } break;
     }
 
+done:
     node.set_type(node.left->act_type);
 }
 

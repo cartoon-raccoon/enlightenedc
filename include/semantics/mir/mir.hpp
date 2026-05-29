@@ -590,7 +590,15 @@ public:
 
     bool is_subscriptable() override { return false; }
 
-    bool is_const_foldable() override { return true; }
+    bool is_const_foldable() override { return is_primitive(); }
+
+    bool is_primitive() const {
+        return std::holds_alternative<eval::Value>(value);
+    }
+
+    bool is_string() const {
+        return std::holds_alternative<std::string>(value);
+    }
 
     void accept(MIRVisitor& visitor) override;
 
