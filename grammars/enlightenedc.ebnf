@@ -1,153 +1,224 @@
-(* 
+(*
 The EBNF specifying the grammar of EnlightenedC.
-Translated from BNF from the following sources:
-[1] https://github.com/Ma11ock/holyc/blob/master/hc.bnf
-[2] https://cs.wmich.edu/~gupta/teaching/cs4850/sumII06/The%20syntax%20of%20C%20in%20Backus-Naur%20form.htm
-and modified to EnlightenedC specifications.
+Translated from the Bison grammar in src/frontend/parser.yy.
+
+Notation:
+  { x }   — zero or more repetitions of x
+  [ x ]   — x is optional
+  x+      — one or more repetitions of x (regex-style shorthand for x { x })
+  x | y   — alternation
+  "x"     — terminal token
 *)
 
-(* S0 version*)
+(* PROGRAM: *)
 
-(* PROGRAM AND TOPLEVEL DECLARATIONS: *)
+program = program-item*
 
-(* We use regex-style `+` to denote at least one repetition, so p = a+ is equivalent to p = a { a }. *)
-program = ( preprocessor-directive | function-definition | compound-statement )+
+program-item = function-definition
+             | declaration
+             | statement
 
-preprocessor-directive = "#define" identifier [ expression ]
-                       | "#include" string-constant
-                       | "#if" expression
-                       | "#ifdef" identifier
-                       | "#ifndef" identifier
-                       | "#elif" expression
-                       | "#else"
-                       | "#endif"
+(* FUNCTION DEFINITIONS: *)
 
-function-definition = [declaration-specifier-list] declarator [declaration-list] compound-statement
+function-definition = declaration-specifier-list declarator compound-statement
 
-declaration-list = declaration+
+(* DECLARATIONS: *)
 
-declaration = declaration-specifier-list [ init-declarator-list ] ";"
+declaration = declaration-specifier-list ";"
+            | declaration-specifier-list init-declarator-list ";"
 
-declaration-specifier-list = declaration-specifier+
+declaration-specifier-list = type-specifier
+                            | storage-class-specifier declaration-specifier-list
+                            | type-qualifier declaration-specifier-list
 
-declaration-specifier = storage-class-specifier | type-specifier | type-qualifier
+storage-class-specifier = "public"
+                        | "static"
+                        | "extern"
+                        | "extern" string-literal       (* extern "C" linkage *)
 
-(* reg, noreg, and _extern are not part of the enlightenedC spec. *)
-storage-class-specifier = "public" | "static" | "extern"
+type-specifier = "void"
+               | primitive-type
+               | type-identifier
+               | class-specifier
+               | union-specifier
+               | enum-specifier
 
-type-specifier = "U0i" | "U8i" | "U16i" | "U32i" | "U64i" 
-               | "I0i" | "I8i" | "I16i" | "I32i" | "I64i"
-               | "F64" | struct-or-union-specifier | enum-specifier
+primitive-type = "U8i" | "U16i" | "U32i" | "U64i"
+               | "I8i" | "I16i" | "I32i" | "I64i"
+               | "F32i" | "F64i"
+               | "Bool"
 
-struct-or-union-specifier = struct-or-union [ identifier ] [ "{" struct-declaration+ "}" ]
-
-struct-or-union = "struct" | "union"
-
-(* the semantics of volatile might be difficult to implement. *)
 type-qualifier = "const"
 
-init-declarator-list = init-declarator { "," init-declarator }
+type-qualifier-list = type-qualifier+
 
-init-declarator = declarator [ "=" initializer ]
-
-struct-declaration = { ( type-specifier | type-qualifier ) } (struct-declarator ";")+
-
-specifier-qualifier-list = specifier-qualifier-list = ( type-specifier | type-qualifier )+
-
-(* 
-HolyC does not contain bitfields, however, since we are inheriting C's struct syntax and semantics,
-we will include them, at least syntactically. They may or may not be implemented :')
+(*
+  A type-identifier is an ordinary identifier that has been previously declared
+  as a type name. The lexer distinguishes these from plain identifiers (lexer hack).
 *)
-struct-declarator = declarator [ ":" constant-expression ]
+type-identifier = TYPEDEF_NAME
+
+(* CLASS SPECIFIERS: *)
+
+class-specifier = "class" identifier ":" class-parent-list "{" member-declaration-list "}"
+                | "class" identifier "{" member-declaration-list "}"
+                | "class" "{" member-declaration-list "}"
+                | "class" identifier
+
+class-parent-list = class-parent { "," class-parent }
+
+class-parent = [ "class" ] identifier
+
+(* UNION SPECIFIERS: *)
+
+(*
+  The primitive-type prefix specifies a type representative for the union.
+  It is only permitted when a body follows; "primitive-type union name" without
+  braces is a syntax error.
+*)
+union-specifier = [ primitive-type ] "union" [ identifier ] "{" member-declaration-list "}"
+                | "union" identifier
+
+(* MEMBER DECLARATIONS (shared by class and union): *)
+
+member-declaration-list = class-declaration+
+
+class-declaration = specifier-qualifier-list class-declarator-list ";"
+
+specifier-qualifier-list = type-specifier
+                         | type-qualifier specifier-qualifier-list
+
+class-declarator-list = member-declarator { "," member-declarator } [ "," ]
+
+member-declarator = declarator [ ":" constant-expression ]
                   | ":" constant-expression
 
-enum-specifier = "enum" "{" enumerator-list "}"
-               | "enum" identifier "{" enumerator-list "}"
-               | "enum" identifier ";"
+(* ENUM SPECIFIERS: *)
 
-enumerator-list = enumerator { "," enumerator } 
+(*
+  The primitive-type prefix selects the underlying integer type.
+  It is only permitted when a body follows; "primitive-type enum name" without
+  braces is a syntax error.
+*)
+enum-specifier = [ primitive-type ] "enum" [ identifier ] "{" enumerator-list "}"
+               | "enum" identifier
+
+enumerator-list = enumerator { "," enumerator } [ "," ]
 
 enumerator = identifier [ "=" constant-expression ]
 
-(* in the og bnf referenced in constant but not defined, so idk*)
-enumeration-constant = identifier
+(* DECLARATORS: *)
 
 declarator = [ pointer ] direct-declarator
 
-direct-declarator = ( identifier | "(" declarator ")" ) { "[" [ constant-expression ] "]" 
-                                                        | "(" [ constant-expression
-                                                              | parameter-type-list
-                                                              | identifier+ ] ")" }
+pointer = "*" [ type-qualifier-list ] [ pointer ]
 
-pointer = { "*" [ type-qualifier+ ] } "*" [ type-qualifier+ ] ;
+direct-declarator = identifier
+                  | "(" declarator ")"
+                  | direct-declarator "[" "]"
+                  | direct-declarator "[" constant-expression "]"
+                  | direct-declarator "(" ")"
+                  | direct-declarator "(" parameter-type-list ")"
 
-(* probably removable if type-qualifier is only const*)
-type-qualifier-list = type-qualifier+
+abstract-declarator = pointer [ direct-abstract-declarator ]
+                    | direct-abstract-declarator
+
+direct-abstract-declarator = "(" abstract-declarator ")"
+                           | [ direct-abstract-declarator ] "[" "]"
+                           | [ direct-abstract-declarator ] "[" constant-expression "]"
+                           | [ direct-abstract-declarator ] "(" ")"
+                           | [ direct-abstract-declarator ] "(" parameter-type-list ")"
+
+(* PARAMETERS: *)
 
 parameter-type-list = parameter-list [ "," "..." ]
 
 parameter-list = parameter-declaration { "," parameter-declaration }
 
-parameter-declaration = declaration-specifier-list [ declarator [ "=" assignment-expression ] | abstract-declarator [ "=" assignment-expression ] ]
-
-identifier-list = identifier { "," identifier }
-
-initializer = assignment-expression
-    | "{" initializer-list [ "," ] "}"
-
-initializer-list = initializer { "," initializer }
+parameter-declaration = declaration-specifier-list
+                      | declaration-specifier-list declarator [ "=" assignment-expression ]
+                      | declaration-specifier-list abstract-declarator
 
 type-name = specifier-qualifier-list [ abstract-declarator ]
 
-abstract-declarator = pointer [ direct-abstract-declarator ] 
-    | direct-abstract-declarator
+(* INITIALIZERS: *)
 
-direct-abstract-declarator = "(" abstract-declarator ")"
-    | direct-abstract-declarator "[" [ constant-expression ] "]"
-    | direct-abstract-declarator "(" [ parameter-type-list ] ")"
-    | "[" [ constant-expression ] "]"
-    | "(" [ parameter-type-list ] ")"
+init-declarator-list = init-declarator { "," init-declarator }
+
+init-declarator = declarator [ "=" initializer ]
+
+initializer = assignment-expression
+            | "{" initializer-list [ "," ] "}"
+
+initializer-list = initializer-item { "," initializer-item } [ "," ]
+
+initializer-item = initializer
+                 | designated-initializer
+
+designated-initializer = "." identifier "=" initializer
+                       | "[" constant-expression "]" "=" initializer
+
+(* STATEMENTS: *)
 
 statement = labeled-statement
-    | expression-statement
-    | compound-statement
-    | selection-statement
-    | iteration-statement
-    | jump-statement
+          | expression-statement
+          | print-statement
+          | compound-statement
+          | selection-statement
+          | iteration-statement
+          | jump-statement
+
+compound-statement = "{" "}"
+                   | "{" stmt-or-decl-list "}"
+
+(* A compound statement body may freely interleave declarations, statements, and local functions. *)
+stmt-or-decl-list = ( function-definition | declaration | statement )+
 
 labeled-statement = identifier ":" statement
-                  | "case" constant-expression [ "..." constant-expression ] ":" statement
+                  | "case" constant-expression ":" statement
+                  | "case" constant-expression "..." constant-expression ":" statement
                   | "default" ":" statement
 
-expression-statement = [ expression ] ";"
+expression-statement = ";"
+                     | expression ";"
 
-compound-statement = "{" [ declaration-list ] [ statement-list ] "}"
-
-statement-list = statement+
+(*
+  A bare string literal followed by optional arguments is a print statement.
+  This is a HolyC-specific construct for formatted output.
+*)
+print-statement = string-literal ";"
+                | string-literal "," argument-expression-list ";"
 
 selection-statement = "if" "(" expression ")" statement
-    | "if" "(" expression ")" statement "else" statement
-    | "switch" "(" expression ")" statement
+                    | "if" "(" expression ")" statement "else" statement
+                    | "switch" "(" expression ")" statement
 
 iteration-statement = "while" "(" expression ")" statement
-    | "do" statement "while" "(" expression ")" ";"
-    | "for" "(" [ expression ] ";" [ expression ] ";" [ expression ] ")" statement
+                    | "do" statement "while" "(" expression ")" ";"
+                    | "for" "(" for-init-opt ";" [ expression ] ";" [ expression ] ")" statement
+
+(* The for-loop initializer may be a declaration, an expression, or absent. *)
+for-init-opt = declaration-specifier-list init-declarator-list
+             | expression
+             | ε
 
 jump-statement = "goto" identifier ";"
-    | "break" ";"
-    | "return" [ expression ] ";"
+               | "break" ";"
+               | "continue" ";"
+               | "return" ";"
+               | "return" expression ";"
 
-(* EXPRESSIONS AND CONSTANTS: *)
+(* EXPRESSIONS: *)
 
 expression = assignment-expression { "," assignment-expression }
 
-assignment-expression = unary-expression assignment-operator assignment-expression
-                        | conditional-expression
+assignment-expression = conditional-expression
+                      | unary-expression assignment-operator assignment-expression
 
 assignment-operator = "=" | "*=" | "/=" | "%=" | "+=" | "-="
                     | "<<=" | ">>=" | "&=" | "^=" | "|="
 
-conditional-expression = { logical-or-expression "?" expression ":" } logical-or-expression
+conditional-expression = logical-or-expression [ "?" expression ":" conditional-expression ]
 
 constant-expression = conditional-expression
 
@@ -163,7 +234,7 @@ and-expression = equality-expression { "&" equality-expression }
 
 equality-expression = relational-expression { ( "==" | "!=" ) relational-expression }
 
-relational-expression = shift-expression { ("<" | ">" | "<=" | ">=") shift-expression+ }
+relational-expression = shift-expression { ( "<" | ">" | "<=" | ">=" ) shift-expression }
 
 shift-expression = additive-expression { ( "<<" | ">>" ) additive-expression }
 
@@ -171,45 +242,50 @@ additive-expression = multiplicative-expression { ( "+" | "-" ) multiplicative-e
 
 multiplicative-expression = cast-expression { ( "*" | "/" | "%" ) cast-expression }
 
-(* Casting expresions in HolyC are postfix. *)
-cast-expression = unary-expression { "(" type-name ")" }
+(* Casts in EnlightenedC are prefix: "(type) expr", not postfix as in original HolyC. *)
+cast-expression = unary-expression
+                | "(" type-name ")" cast-expression
 
-unary-expression = ( "++" | "--" ) unary-expression
-                 | unary-operator cast-expression
-                 | sizeof "(" ( unary-operator | postfix-expression ) ")"
-                 | postfix-expression
+unary-expression = postfix-expression
+                 | "++" unary-expression
+                 | "--" unary-expression
+                 | unary-operator unary-expression
+                 | "sizeof" unary-expression
+                 | "sizeof" "(" type-name ")"
 
 unary-operator = "&" | "*" | "+" | "-" | "~" | "!"
 
-argument-expression = [ assignment-expression ]
-
-argument-list = argument-expression { "," argument-expression }
-
-postfix-expression = primary-expression { "[" expression "]" 
-                                        | "(" argument-list ")"
+postfix-expression = primary-expression { "[" expression "]"
                                         | "(" ")"
+                                        | "(" argument-expression-list ")"
                                         | "." identifier
                                         | "->" identifier
                                         | "++"
                                         | "--" }
 
 primary-expression = identifier
-                     | constant
-                     | string-constant
-                     | "(" expression ")"
+                   | constant
+                   | string-literal
+                   | "(" expression ")"
+
+argument-expression-list = assignment-expression { "," assignment-expression }
+
+(* Adjacent string literals are concatenated. *)
+string-literal = string-constant { string-constant }
 
 constant = integer-constant
-           | character-constant
-           | floating-constant
-           | enumeration-constant
+         | character-constant
+         | floating-constant
+         | "true"
+         | "false"
 
-(* Regular expressions are used for the remaining rules. *)
+(* TERMINALS (described with regular expressions): *)
 
-identifier = "[_a-zA-Z][\\w]*"
+identifier = "[_a-zA-Z]\w*"
 
-integer-constant = "-"? ( "0x" [0-9A-Fa-f]+ | "0" [0-7]* | [1-9][0-9]* )
+integer-constant = "0x" [0-9A-Fa-f]+ | "0" [0-7]* | [1-9][0-9]*
 
-floating-constant = "-"? [0-9]+ ("."[0-9]*)? ([eE][-+]?[0-9]+)?
+floating-constant = [0-9]+ ( "." [0-9]* )? ( [eE] [-+]? [0-9]+ )?
 
 character-constant = "'.{1,8}'"
 
