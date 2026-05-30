@@ -162,9 +162,6 @@ public:
     // The value of the Symbol, if defined.
     Optional<eval::Value> value;
 
-    /// If the symbol is const.
-    bool is_const = false;
-
     // Storage class information.
 
     bool is_funcparam = false;

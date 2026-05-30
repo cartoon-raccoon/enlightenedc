@@ -465,7 +465,7 @@ public:
     Box<ExprMIR> operand;
     tokens::UnaryOp op;
 
-    bool is_assignable() override { return is_lvalue(); }
+    bool is_assignable() override { return is_lvalue() && !act_type->is_const(); }
 
     bool is_lvalue() override { return op == tokens::UnaryOp::DEREF; };
 
@@ -550,8 +550,8 @@ public:
     sema::sym::PhysicalSymbol *ident;
 
     bool is_assignable() override {
-        // only non-array variables (not functions) are assignable.
-        return ident->is_var() && !ident->get_type()->is_array();
+        // only non-const, non-array variables (not functions) are assignable.
+        return ident->is_var() && ((!ident->get_type()->is_array()) && (!act_type->is_const()));
     }
 
     bool is_callable() override { return eff_type->is_callable(); }
@@ -644,7 +644,10 @@ public:
         }
     }
 
-    bool is_assignable() override { return is_lvalue(); }
+    bool is_assignable() override { 
+        // must be lvalue, and neither the object or member is const
+        return is_lvalue() && !(object->act_type->is_const() || act_type->is_const());
+    }
 
     bool is_const_foldable() override { return false; }
 
@@ -664,7 +667,7 @@ public:
 
     bool is_lvalue() override { return true; }
 
-    bool is_assignable() override { return true; }
+    bool is_assignable() override { return !act_type->is_const(); }
 
     bool is_const_foldable() override { return false; }
 

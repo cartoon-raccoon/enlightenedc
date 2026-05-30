@@ -81,14 +81,18 @@ void Validator::eval_initializer_expr(Type *type, Box<ExprMIR>& expr, Initialize
     expr->accept(*this);
     if (type != expr->eff_type) {
         bsv_dbprint("types are not equal, checking compatibility");
-        if (expr->eff_type->coercible_to(type)) {
+        if (expr->eff_type->unqual()->coercible_to(type)) {
             init.initializer = cast(type, std::move(expr));
         } else {
-            add_error<InvalidCoerceError>(type, expr->eff_type, expr->loc);
-        }
-        if (type->is_array()) {
-            // the only time an array should match here is if we're assigning a string
-            // literal
+            if (type->is_array()) {
+                assert(expr->kind == MIRNode::NodeKind::LITEXPR_MIR);
+                // the only time an array should match here is if we're assigning a string
+                // literal
+
+                // todo: allow U8[] to I8[] and vice versa, and const to nonconst implicitly
+            } else {
+                add_error<InvalidCoerceError>(type, expr->eff_type, expr->loc);
+            }
         }
     }
 }
@@ -483,7 +487,7 @@ void Validator::do_visit(UnaryExprMIR& node) {
                 "operand is not an lvalue", node.op, node.operand->eff_type, node.loc);
             throw UnableToContinue();
         }
-        node.set_type(types.get().get_pointer(node.operand->act_type, false));
+        node.set_type(types.get().get_pointer(node.operand->act_type));
     } break;
 
     case UnaryOp::DEREF: {
@@ -613,7 +617,7 @@ void Validator::do_visit(AssignExprMIR& node) {
     }
 
 done:
-    node.set_type(node.left->act_type);
+    node.set_type(node.left->act_type->unqual());
 }
 
 void Validator::do_visit(CondExprMIR& node) { // done
@@ -640,7 +644,7 @@ void Validator::do_visit(CondExprMIR& node) { // done
     }
 
     assert(node.true_expr->act_type == node.false_expr->act_type);
-    node.set_type(node.true_expr->act_type);
+    node.set_type(node.true_expr->act_type->unqual());
 }
 
 void Validator::do_visit(IdentExprMIR& node) { // done
@@ -656,7 +660,8 @@ void Validator::do_visit(LiteralExprMIR& node) { // done
     if (auto *val = std::get_if<eval::Value>(&node.value)) {
         node.set_type(types.get().get_primitive(val->primtype));
     } else if (auto *_ = std::get_if<std::string>(&node.value)) {
-        node.set_type(types.get().get_pointer(types.get().get_i8(), true));
+        node.set_type(
+            types.get().get_const(types.get().get_pointer(types.get().get_i8())));
     } else {
         // unreachable
     }
@@ -691,7 +696,7 @@ void Validator::do_visit(CallExprMIR& node) {
 
     // todo: check parameters and ensure they match type in signature
 
-    node.set_type(sig->returntype());
+    node.set_type(sig->returntype()->unqual());
 }
 
 void Validator::do_visit(MemberAccExprMIR& node) {
@@ -724,6 +729,7 @@ void Validator::do_visit(MemberAccExprMIR& node) {
         throw UnableToContinue();
     }
 
+    // todo: handle const propagation
     node.set_type(member->ty);
 }
 
@@ -768,17 +774,25 @@ void Validator::do_visit(SubscrExprMIR& node) { // done
     // this should just be a warning, since out of bounds access is technically still
     // defined behavior in C (though we can choose to make it an error if we want)
 
+    Type *exprty;
     if (arrtype) {
-        node.set_type(arrtype->base);
+        exprty = arrtype->base;
+        // calling as_x strips the const qualifier, so we need to add it back here.
+        if (node.array->act_type->is_const()) {
+            exprty = types.get().get_const(exprty);
+        }
     } else {
-        node.set_type(ptrtype->base);
+        // do not propagate const to pointee.
+        exprty = ptrtype->base;
     }
+
+    node.set_type(exprty);
 }
 
 void Validator::do_visit(PostfixExprMIR& node) {
     bsv_dbprint("Validator: visiting PostfixMIR node");
     node.operand->accept(*this);
-    if (!node.operand->is_lvalue()) {
+    if (!node.operand->is_assignable()) {
         add_error<InvalidPostfixExprError>(
             "operand is not a valid lvalue", node.op, node.operand->eff_type, node.loc);
     }
@@ -794,7 +808,7 @@ void Validator::do_visit(PostfixExprMIR& node) {
         //? should this be a warning or a hard error?
     }
 
-    node.set_type(node.operand->act_type);
+    node.set_type(node.operand->act_type->unqual());
 }
 
 void Validator::do_visit(SizeofExprMIR& node) { // done

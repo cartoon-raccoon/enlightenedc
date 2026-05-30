@@ -251,8 +251,9 @@ void MIRSynthesizer::do_visit(Function& node) {
         if (!param.name) {
             add_error<EccSemError>("parameter in function declaration has no name", param.loc);
         }
+        Type *sym_type = param.is_const ? types.get_const(param.type) : param.type;
         Box<VarSymbol> paramsym =
-            std::make_unique<VarSymbol>(param.loc, *param.name, syms.current, param.type);
+            std::make_unique<VarSymbol>(param.loc, *param.name, syms.current, sym_type);
         paramsym->is_funcparam = true;
         params.push_back(std::move(paramsym));
     }
@@ -323,13 +324,16 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
                 add_error<EccSemError>("variable cannot have type Void or U0", declarator->loc);
                 throw UnableToContinue();
             }
-            sym = std::make_unique<VarSymbol>(declarator->loc, *ret.name, syms.current, ret.type);
+            Type *symtype = ret.type;
+            if (specinfo->is_const) {
+                symtype = types.get_const(symtype);
+            }
+            sym = std::make_unique<VarSymbol>(declarator->loc, *ret.name, syms.current, symtype);
             symptr = sym.get();
 
             // populate other specifiers, and then insert into symbol table
             sym->is_public = specinfo->is_public;
             sym->is_static = specinfo->is_static;
-            sym->is_const  = specinfo->is_const;
             sym->linkage   = specinfo->linkage;
 
             if (sym->is_external() && syms.current != syms.global()) {
@@ -784,6 +788,10 @@ void MIRSynthesizer::do_visit(ClassDeclaration& node) {
                         builder->ty_bldr.set_base(specinfo->type);
                         Type *finaltype = builder->ty_bldr.finalize();
 
+                        if (specinfo->is_const) {
+                            finaltype = types.get_const(finaltype);
+                        }
+
                         if (builder->name) {
                             recordty->add_member(*builder->name, finaltype, decltr->loc);
                         } else {
@@ -792,7 +800,13 @@ void MIRSynthesizer::do_visit(ClassDeclaration& node) {
                     },
                     [&](std::monostate&) {
                         // no declarator, use the base type
-                        recordty->add_member(specinfo->type, decltr->loc);
+
+                        Type *to_add = specinfo->type;
+
+                        if (specinfo->is_const) {
+                            to_add = types.get_const(to_add);
+                        }
+                        recordty->add_member(to_add, decltr->loc);
                     },
                     [&](auto&) {
                         throw std::runtime_error(
@@ -972,9 +986,18 @@ void MIRSynthesizer::do_visit(TypeName& node) {
 
         Type *finaltype = builder->ty_bldr.finalize();
 
+        if (specinfo->is_const) {
+            finaltype = types.get_const(finaltype);
+        }
+
         dv_return(finaltype);
     } else {
-        dv_return(specinfo->type);
+
+        Type *ret = specinfo->type;
+        if (specinfo->is_const) {
+            ret = types.get_const(ret);
+        }
+        dv_return(ret);
     }
 }
 

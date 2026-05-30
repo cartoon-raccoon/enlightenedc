@@ -16,9 +16,6 @@ std::string VarSymbol::to_string() const {
 
     ss << "VarSymbol: " << name;
 
-    if (is_const)
-        ss << "const ";
-
     if (type) {
         ss << " :: " << type->formal();
     } else {
@@ -202,9 +199,6 @@ std::string PointerType::to_string() const {
 
     ss << " *";
 
-    if (is_const)
-        ss << " const";
-
     return ss.str();
 }
 
@@ -218,9 +212,6 @@ std::string PointerType::formal() {
     }
 
     ss << " *";
-
-    if (is_const)
-        ss << " const";
 
     return ss.str();
 }

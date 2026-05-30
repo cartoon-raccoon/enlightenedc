@@ -53,7 +53,11 @@ std::string LabelSymbol::mangle() const {
 }
 
 Box<VarSymbol> FuncSymbol::as_funcptr(TypeContext& tctxt, bool is_const) {
-    Type *ptrtype = tctxt.get_pointer(signature, is_const);
+    Type *ptrtype = tctxt.get_pointer(signature);
+
+    if (is_const) {
+        ptrtype = tctxt.get_const(ptrtype);
+    }
 
     return std::make_unique<VarSymbol>(loc, name, scope, ptrtype);
 }

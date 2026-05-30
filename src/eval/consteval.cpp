@@ -216,7 +216,7 @@ Value ConstEvaluator::eval(SizeofExprMIR& expr) {
                 }
                 target_type = identexpr->ident->get_type();
                 if (target_type->is_function()) {
-                    target_type = typectxt.get().get_pointer(target_type, false);
+                    target_type = typectxt.get().get_pointer(target_type);
                 }
             },
 

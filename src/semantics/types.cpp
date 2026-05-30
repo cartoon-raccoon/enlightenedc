@@ -92,7 +92,7 @@ bool ConstType::coercible_to(Type *dst) {
     if (!dst->is_const()) {
         return false;
     } else {
-        return base->coercible_to(dst);
+        return base->coercible_to(dst->unqual());
     }
 }
 
@@ -107,7 +107,7 @@ void ConstType::finalize()  {
 
     base->finalize();
     llvm_type = base->get_llvmtype();
-    
+
     finalized = true;
     
 }
@@ -875,7 +875,9 @@ bool PointerType::coercible_to(Type *dst) {
     int ds_nesting = ptr->nesting_lvl();
     Type *dst_base = ptr->true_base();
 
-    return my_nesting == 1 && ds_nesting == 1 ? base == dst_base || dst_base->is_void() : false;
+    return my_nesting == 1 && ds_nesting == 1 ? 
+        base == dst_base || dst_base->is_void() 
+        : false;
 }
 
 void PointerType::finalize() {
@@ -896,7 +898,7 @@ Type *PointerType::decay() {
 }
 
 Type *PointerType::effective_type() {
-    return ctxt().get_pointer(base->effective_type(), is_const);
+    return ctxt().get_pointer(base->effective_type());
 }
 
 /*
@@ -947,7 +949,7 @@ void ArrayType::finalize() {
 }
 
 Type *ArrayType::decay() {
-    return ctxt().get_pointer(base, false);
+    return ctxt().get_pointer(base);
 }
 
 Type *ArrayType::effective_type() {
@@ -995,7 +997,7 @@ void FunctionType::finalize() {
 }
 
 Type *FunctionType::decay() {
-    return ctxt().get_pointer(this, true);
+    return ctxt().get_pointer(this);
 }
 
 void TypeBuilder::add_array(uint64_t size) {
@@ -1040,14 +1042,17 @@ Type *TypeBuilder::finalize(Optional<Ref<Vec<FuncParam>>> last_params) {
                 },
                 [&](Ptr& ptr) mutable {
                     // Wrap the base in a pointer.
-                    curr = this->ctxt().get_pointer(curr, ptr.is_const);
+                    curr = this->ctxt().get_pointer(curr);
+                    if (ptr.is_const) {
+                        curr = this->ctxt().get_const(curr);
+                    }
                 },
                 [&](FnParams& fn) mutable {
                     Vec<Type *> params;
                     // map out the identifiers.
                     params.reserve(fn.params.size());
                     for (auto& param : fn.params) {
-                        params.push_back(param.type);
+                        params.push_back(param.type->unqual());
                     }
 
                     if (last_params) {
@@ -1215,10 +1220,10 @@ EnumType *TypeContext::get_enum(Location decl_loc, sym::Scope *scope) {
     return insert_named_type<EnumType>(mangled, scope, std::move(enmty));
 }
 
-PointerType *TypeContext::get_pointer(Type *base, bool is_const) {
+PointerType *TypeContext::get_pointer(Type *base) {
     dbprint("TypeContext: pointer with base ", base);
     // Check for base in our pointer store, if exists, return immediately
-    auto it = pointers.find({base, is_const});
+    auto it = pointers.find(base);
     if (it != pointers.end()) {
         return it->second.get();
     }
@@ -1227,12 +1232,10 @@ PointerType *TypeContext::get_pointer(Type *base, bool is_const) {
     // since base is a Type *, we can assume it has already been created.
 
     // If not found, create a new pointer.
-    Box<PointerType> ptr = std::make_unique<PointerType>(base, is_const, *this);
-
-    ptr->is_const = is_const;
+    Box<PointerType> ptr = std::make_unique<PointerType>(base, *this);
     auto *ret     = ptr.get();
 
-    pointers[{base, is_const}] = std::move(ptr);
+    pointers[base] = std::move(ptr);
 
     return ret;
 }
@@ -1244,7 +1247,7 @@ PointerType *TypeContext::decay_array(ArrayType *arr) {
     assert(it != arrays.end());
 
     // Create the pointer type
-    PointerType *ret = get_pointer(arr->base, false);
+    PointerType *ret = get_pointer(arr->base);
 
     // If the array we want to decay is unsized, deallocate it
     if (!arr->arr_size) {

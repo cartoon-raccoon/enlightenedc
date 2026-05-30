@@ -625,12 +625,12 @@ protected:
 };
 
 /**
-A wrapper over a Type, marking it as const.
+A transparent wrapper over a Type, marking it as const.
 
-This type is purely compositional, composing onto existing types. As such, most of Type's
-interface is just delegations to the underlying `base` type. There are compositions on
-`coercible_to` and `effective_type`, to block const-to-nonconst casting, and to wrap
-`base->effective_type()` in a ConstType wrapper, respectively.
+This type is purely compositional, composing onto existing types. As such, most of
+Type's interface on `ConstType` is just delegations to the underlying `base` type.
+There are compositions on `coercible_to` and `effective_type`, to block const-to-nonconst
+casting, and to wrap `base->effective_type()` in a ConstType wrapper, respectively.
 */
 class ConstType : public Type {
 public:
@@ -662,7 +662,7 @@ public:
     /**
     Delegates immediately to `base->castable_to(dst)`, since explicit casting removes const.
     */
-    bool castable_to(Type *dst) override { return base->castable_to(dst); }
+    bool castable_to(Type *dst) override { return base->castable_to(dst->unqual()); }
 
     VoidType *as_void() override { return base->as_void();  }
 
@@ -1058,7 +1058,7 @@ A pointer type (U8 *, I32 **, etc.)
 
 A pointer `ptr` is only coercible to another pointer `other` if:
 
-the base type of `other` is `VoidType`, and
+the base type of `other` is the same as `base` or `VoidType`, and
 the level of nesting is the same (i.e. U8 ** is coercible to Void **, but not Void ***).
 
 Pointers can be subscripted like arrays, the compiler will treat the subscript as pointer
@@ -1071,7 +1071,6 @@ Eventually, this target type will reflect the system address width.
 */
 class PointerType : public DerivedType {
 public:
-    bool is_const;
 
     // Returns the level of nesting the pointer has (i.e. how many *'s there are).
     int nesting_lvl();
@@ -1108,10 +1107,10 @@ protected:
     friend class TypeContext;
     friend class TypeBuilder;
 
-    friend constexpr Box<PointerType> std::make_unique<PointerType>(Type *&, bool&, TypeContext&);
+    friend constexpr Box<PointerType> std::make_unique<PointerType>(Type *&, TypeContext&);
 
-    PointerType(Type *base, bool is_const, TypeContext& tyctxt)
-        : DerivedType(Kind::POINTER, tyctxt, base), is_const(is_const) {}
+    PointerType(Type *base, TypeContext& tyctxt)
+        : DerivedType(Kind::POINTER, tyctxt, base) {}
 };
 
 /**
@@ -1478,7 +1477,7 @@ public:
     /**
     Create a pointer with the given `base` type.
     */
-    PointerType *get_pointer(Type *base, bool is_const);
+    PointerType *get_pointer(Type *base);
 
     /**
     Decay the provided array type to a corresponding pointer type.
@@ -1528,7 +1527,6 @@ private:
     };
 
     using ArrayKey   = std::pair<Type *, Optional<uint64_t>>;
-    using PointerKey = std::pair<Type *, bool>;
 
     // The map of record types (i.e. structs, unions, enums).
     std::unordered_map<std::string, Box<UserType>> user_types;
@@ -1537,7 +1535,7 @@ private:
     std::unordered_map<std::string, Box<FunctionType>> function_types;
 
     // The map of pointer types, mapped by their base type.
-    std::unordered_map<PointerKey, Box<PointerType>, pair_hash<bool>> pointers;
+    std::unordered_map<Type *, Box<PointerType>> pointers;
 
     // The map of array types, mapped by their base type.
     std::unordered_map<ArrayKey, Box<ArrayType>, pair_hash<Optional<uint64_t>>> arrays;
