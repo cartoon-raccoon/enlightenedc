@@ -205,7 +205,8 @@ void MIRSynthesizer::do_visit(Function& node) {
     Box<SpecifierInfo> specinfo = parse_speclist(node.decl_spec_list, node.loc);
     dovisit_param               = std::move(param);
 
-    if (specinfo->linkage != PhysicalSymbol::Linkage::INTERNAL) {
+    if (specinfo->linkage != PhysicalSymbol::Linkage::INTERNAL
+        || specinfo->linkage != PhysicalSymbol::Linkage::EXTERNC) {
         add_error<EccSemError>("externally linked functions cannot have a body", node.loc);
         throw UnableToContinue();
     }
@@ -266,6 +267,12 @@ void MIRSynthesizer::do_visit(Function& node) {
     Box<FuncSymbol> symbol = std::make_unique<FuncSymbol>(
         node.loc, *builder->name, syms.current, functype, std::move(paramsym_ptrs));
     FuncSymbol *sym_ptr = symbol.get();
+
+    // extern "C" function with body, default to Visibility::ExternC
+    if (specinfo->linkage == PhysicalSymbol::Linkage::EXTERNC) {
+        symbol->visibility = PhysicalSymbol::Visibility::EXTERNC;
+    }
+
     try {
         sym_ptr = syms.insert(*builder->name, std::move(symbol));
     } catch (Symbol *previous) {
@@ -331,9 +338,15 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
             sym = std::make_unique<VarSymbol>(declarator->loc, *ret.name, syms.current, symtype);
             symptr = sym.get();
 
+            if (specinfo->is_public && specinfo->is_static) {
+                add_error<EccSemError>("conflicting visibility specifiers", declarator->loc);
+            }
+
             // populate other specifiers, and then insert into symbol table
-            sym->is_public = specinfo->is_public;
-            sym->is_static = specinfo->is_static;
+            if (specinfo->is_public) {
+                sym->visibility = PhysicalSymbol::Visibility::PUBLIC;
+            }
+
             sym->linkage   = specinfo->linkage;
 
             if (sym->is_external() && syms.current != syms.global()) {

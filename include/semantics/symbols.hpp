@@ -66,12 +66,6 @@ public:
 
     Scope *scope;
 
-    /// If the symbol is public.
-    bool is_public = false;
-
-    /// If the symbol is static.
-    bool is_static = false;
-
     /// If the symbol is global.
     bool is_global = false;
 
@@ -109,16 +103,22 @@ public:
 
     // The linkage of the symbol.
     enum class Linkage : uint8_t {
-        // The symbol is only visible within the current translation unit.
+        // The symbol is defined within this translation unit.
         INTERNAL,
-        // The symbol is visible to other translation units, and should be linked to if
-        // referenced.
+        // The symbol is defined from another EnlightenedC object file.
         EXTERNAL,
-        // The symbol is visible to other translation units, and should be linked to if
-        // referenced,
-        // with C linkage.
-        EXTERNC
+        // The symbol is defined from another C object file, and so must follow cdecl.
+        EXTERNC,
     } linkage = Linkage::INTERNAL;
+
+    enum class Visibility : uint8_t {
+        // The symbol is only visible within this translation unit.
+        STATIC,
+        // The symbol is visible outside this translation unit.
+        PUBLIC,
+        // The symbol is visible outside this translation unit, with C linkage.
+        EXTERNC,
+    } visibility = Visibility::STATIC;
 
     bool is_external() const { return linkage != Linkage::INTERNAL; }
 
