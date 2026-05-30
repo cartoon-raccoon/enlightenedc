@@ -40,6 +40,7 @@ PrimTypeRank pr_rank(PrimType pr) {
     case P::I64:
         return PR::INT64;
     case P::F32:
+        return PR::FLT32;
     case P::F64:
         return PR::FLT64;
     }
