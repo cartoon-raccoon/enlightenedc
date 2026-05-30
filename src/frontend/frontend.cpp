@@ -39,8 +39,9 @@ void Frontend::run(Ecc& ecc, driver::TranslationUnit& unit) {
     }
     preproc.close();
 
-    // todo: hide this behind an if guard
-    dbprint("printing AST for file ", *unit.filename);
-    ast::ASTPrinter printer;
-    unit.ast_root->accept(printer);
+    if (ecc.config->to_print.contains(Config::ToPrint::AST)) {
+        dbprint("printing AST for file ", *unit.filename);
+        ast::ASTPrinter printer;
+        unit.ast_root->accept(printer);
+    }
 }
