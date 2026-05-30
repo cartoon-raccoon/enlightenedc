@@ -510,6 +510,8 @@ public:
     Box<ExprMIR> right;
     tokens::AssignOp op;
 
+    bool is_lvalue() override { return false; }
+
     bool is_const_foldable() override { return false; }
 
     void accept(MIRVisitor& visitor) override;

@@ -22,16 +22,13 @@ std::string VarSymbol::to_string() const {
         ss << " :: <nulltype>";
     }
 
-    if (linkage == PhysicalSymbol::Linkage::EXTERNAL)
+    if (linkage == Linkage::EXTERNAL)
         ss << " extern";
 
-    if (linkage == PhysicalSymbol::Linkage::EXTERNC)
+    if (linkage == Linkage::EXTERNC)
         ss << " extern C";
 
-    if (is_static)
-        ss << " static";
-
-    if (is_public)
+    if (visibility == Visibility::PUBLIC)
         ss << " public";
 
     return ss.str();
@@ -48,10 +45,10 @@ std::string FuncSymbol::to_string() const {
         ss << " :: <nullsig>";
     }
 
-    if (is_static)
-        ss << " static";
+    if (linkage == Linkage::EXTERNC)
+        ss << " extern C";
 
-    if (is_public)
+    if (visibility == Visibility::PUBLIC)
         ss << " public";
 
     return ss.str();

@@ -59,6 +59,7 @@ class EnumType;
 class PointerType;
 class ArrayType;
 class FunctionType;
+class ConstType;
 class TypeContext;
 
 /**
@@ -273,6 +274,12 @@ public:
     Returns null if the underlying type is not a FunctionType.
     */
     virtual FunctionType *as_function() { return nullptr; }
+
+    /**
+    Cast this type to a ConstType *.
+    Returns null if the underlying type is not a ConstType.
+    */
+    virtual ConstType *as_const() { return nullptr; }
 
     /**
     Whether the type is callable.
@@ -685,6 +692,8 @@ public:
     ArrayType *as_array() override { return base->as_array();  }
 
     FunctionType *as_function() override { return base->as_function();  }
+
+    ConstType *as_const() override { return this; }
 
     bool is_callable() override { return base->is_callable();  };
 

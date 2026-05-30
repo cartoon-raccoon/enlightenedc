@@ -449,7 +449,7 @@ void Validator::do_visit(BinaryExprMIR& node) {
 
         // todo: add promotion and insert implicit casting logic
 
-        node.set_type(node.left->eff_type);
+        node.set_type(node.left->eff_type->unqual());
     }
 }
 
@@ -459,7 +459,7 @@ void Validator::do_visit(UnaryExprMIR& node) {
 
     switch (node.op) {
     case UnaryOp::INC:
-    case UnaryOp::DEC: {
+    case UnaryOp::DEC: { // ++x, --x
         if (!node.operand->eff_type->is_primitive()) {
             add_error<InvalidUnaryOpError>(
                 "operand must be a primitive type", node.op, node.operand->eff_type, node.loc);
@@ -468,7 +468,7 @@ void Validator::do_visit(UnaryExprMIR& node) {
         PrimitiveType *primtype = node.operand->eff_type->as_primitive();
 
         assert(node.act_type == nullptr && node.eff_type == nullptr);
-        if (!node.operand->is_lvalue()) {
+        if (!node.operand->is_assignable()) {
             add_error<InvalidUnaryOpError>(
                 "operand is not assignable", node.op, node.operand->eff_type, node.loc);
             throw UnableToContinue();
@@ -477,11 +477,11 @@ void Validator::do_visit(UnaryExprMIR& node) {
                 "operand is not an integer", node.op, node.operand->eff_type, node.loc);
             throw UnableToContinue();
         } else {
-            node.set_type(node.operand->act_type);
+            node.set_type(node.operand->act_type->unqual());
         }
     } break;
 
-    case UnaryOp::REF: {
+    case UnaryOp::REF: { // &x
         if (!node.operand->is_lvalue()) {
             add_error<InvalidUnaryOpError>(
                 "operand is not an lvalue", node.op, node.operand->eff_type, node.loc);
@@ -490,7 +490,7 @@ void Validator::do_visit(UnaryExprMIR& node) {
         node.set_type(types.get().get_pointer(node.operand->act_type));
     } break;
 
-    case UnaryOp::DEREF: {
+    case UnaryOp::DEREF: { // *x
         if (!node.operand->act_type->is_pointer()) {
             add_error<InvalidUnaryOpError>(
                 "operand is not a pointer", node.op, node.operand->eff_type, node.loc);
@@ -502,7 +502,7 @@ void Validator::do_visit(UnaryExprMIR& node) {
     } break;
 
     case UnaryOp::POS:
-    case UnaryOp::NEG: {
+    case UnaryOp::NEG: { // +x. -x
         if (!node.operand->eff_type->is_primitive()) {
             add_error<InvalidUnaryOpError>(
                 "operand must be a primitive type", node.op, node.operand->eff_type, node.loc);
@@ -514,10 +514,10 @@ void Validator::do_visit(UnaryExprMIR& node) {
             // todo: warning, unary plus and minus on unsigned type is allowed but might cause
             // unintended behavior
         }
-        node.set_type(node.operand->eff_type);
+        node.set_type(node.operand->act_type->unqual());
     } break;
 
-    case UnaryOp::TILDE: {
+    case UnaryOp::TILDE: { // ~x (bitwise not)
         if (!node.operand->eff_type->is_primitive()) {
             add_error<InvalidUnaryOpError>(
                 "operand must be a primitive type", node.op, node.operand->eff_type, node.loc);
@@ -529,17 +529,17 @@ void Validator::do_visit(UnaryExprMIR& node) {
                 "operand is not an integer", node.op, node.operand->eff_type, node.loc);
             throw UnableToContinue();
         } else {
-            node.set_type(node.operand->eff_type);
+            node.set_type(node.operand->act_type->unqual());
         }
     } break;
 
-    case UnaryOp::NOT: {
+    case UnaryOp::NOT: { // !x (logical not)
         if (!node.operand->eff_type->is_primitive()) {
             add_error<InvalidUnaryOpError>(
                 "operand must be a primitive type", node.op, node.operand->eff_type, node.loc);
             throw UnableToContinue();
         }
-        node.set_type(node.operand->act_type);
+        node.set_type(node.operand->act_type->unqual());
     } break;
     }
 }
@@ -550,7 +550,7 @@ void Validator::do_visit(CastExprMIR& node) {
     assert(node.target);
 
     if (!node.inner->eff_type->castable_to(node.target)) {
-        add_error<InvalidCastError>(node.inner->eff_type, node.target, node.loc);
+        add_error<InvalidCastError>(node.inner->act_type, node.target, node.loc);
     }
 
     node.set_type(node.target);
@@ -695,6 +695,9 @@ void Validator::do_visit(CallExprMIR& node) {
     }
 
     // todo: check parameters and ensure they match type in signature
+    // for (auto&& [i, param] : std::views::enumerate(sig->params())) {
+
+    // }
 
     node.set_type(sig->returntype()->unqual());
 }
@@ -729,8 +732,21 @@ void Validator::do_visit(MemberAccExprMIR& node) {
         throw UnableToContinue();
     }
 
-    // todo: handle const propagation
-    node.set_type(member->ty);
+    if (!node.is_arrow) {
+        if (node.object->is_lvalue()) {
+            node.set_type(types.get().get_const(node.object->act_type));
+        } else {
+            node.set_type(node.object->act_type->unqual());
+        }
+    } else {
+        if (node.object->act_type->as_pointer()->base->is_const()) {
+            node.set_type(
+                types.get().get_const(node.object->act_type->as_pointer()->base)
+            );
+        } else {
+            node.set_type(node.object->act_type->as_pointer()->base);
+        }
+    }
 }
 
 void Validator::do_visit(SubscrExprMIR& node) { // done

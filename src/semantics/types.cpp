@@ -1355,6 +1355,14 @@ TypeContext::get_function(Location loc, Type *returntype, Vec<Type *> params, bo
 }
 
 ConstType *TypeContext::get_const(Type *base) {
+    // Guard to prevent double-wrapping of const
+    if (base->is_const()) {
+        ConstType *cnst = base->as_const();
+        assert(cnst && "type base returned is_const() = true but cannot be cast");
+        assert(const_types.contains(cnst->base));
+        return cnst;
+    }
+
     if (const_types.contains(base)) {
         return const_types.find(base)->second.get();
     }
