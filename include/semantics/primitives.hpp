@@ -6,6 +6,9 @@
 #include <cstdint>
 
 #include "tokens.hpp"
+#include "util.hpp"
+
+using namespace ecc::util;
 
 /**
 \namespace ecc::sema::prim
@@ -97,9 +100,20 @@ is identity over any PrimitiveType of where rank >= INT32.
 PrimType pr_single_promote(PrimType pr);
 
 /**
+A struct describing the resulting types involved in a binary expression.
+
+This struct contains the types that the operands will be promoted to, and
+the final type of the expression.
+*/
+struct PrimExprTypes {
+    Pair<PrimType, PrimType> operand_types;
+    PrimType expr_type;
+};
+
+/**
 Check PrimitiveType compatibility with the given operation `op`.
 */
-bool pr_check_binary_op(BinaryOp op, PrimType lhs, PrimType rhs);
+Optional<PrimExprTypes> pr_check_binary_op(BinaryOp op, PrimType lhs, PrimType rhs);
 
 } // namespace ecc::sema::prim
 

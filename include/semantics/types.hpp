@@ -1454,6 +1454,10 @@ public:
 
     Pair<PrimitiveType *, PrimitiveType *> promote(tokens::PrimType p1, tokens::PrimType p2);
 
+    Pair<PrimitiveType *, PrimitiveType *> promote(Pair<tokens::PrimType, tokens::PrimType> prims);
+
+    PrimitiveType *single_promote(tokens::PrimType pr);
+
     /**
     Create or retrieve a class with the name `name`.
 

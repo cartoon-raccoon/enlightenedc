@@ -1157,6 +1157,14 @@ Pair<PrimitiveType *, PrimitiveType *> TypeContext::promote(PrimType p1, PrimTyp
     return {get_primitive(promoted), get_primitive(promoted)};
 }
 
+Pair<PrimitiveType *, PrimitiveType *> TypeContext::promote(Pair<PrimType, PrimType> prims) {
+    return promote(prims.first, prims.second);
+}
+
+PrimitiveType *TypeContext::single_promote(PrimType pr) {
+    return get_primitive(pr_single_promote(pr));
+}
+
 ClassType *TypeContext::get_class(Location decl_loc, std::string& name, sym::Scope *scope) {
     dbprint("TypeContext: class type '", name, "' on scope ", scope);
     std::string mangled = mangle<ClassType>(name, scope->id);

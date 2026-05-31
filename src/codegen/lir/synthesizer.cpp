@@ -236,17 +236,20 @@ void LIRSynthesizer::do_visit(SwitchStmtMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(CaseStmtMIR& node) {
-    // todo
+
+    Box<ProgItemLIR> caselab = std::make_unique<CaseLIR>(node.loc, node.case_val);
+    emit(std::move(caselab));
 
     node.stmt->accept(*this);
 }
 
 void LIRSynthesizer::do_visit(CaseRangeStmtMIR& node) {
-    // todo
 
     ValueRange vrange(node.case_start, node.case_end);
 
     for (auto i : vrange) {
+        Box<ProgItemLIR> caselab = std::make_unique<CaseLIR>(node.loc, i);
+        emit(std::move(caselab));
     }
 
     node.stmt->accept(*this);

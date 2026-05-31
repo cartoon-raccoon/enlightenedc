@@ -180,15 +180,18 @@ bool pr_is_signed(PrimType pr) {
     }
 }
 
-bool pr_check_binary_op(BinaryOp op, PrimType lhs, PrimType rhs) {
+Optional<PrimExprTypes> pr_check_binary_op(BinaryOp op, PrimType lhs, PrimType rhs) {
     
     switch (op) {
     case BinaryOp::LSHIFT:
     case BinaryOp::RSHIFT: {
-
-        return pr_is_integer(lhs) && pr_is_integer(rhs);
+        // exception to promotion: if operation is a bitshift, we only promote the lhs
+        lhs = pr_single_promote(lhs);
+        if (pr_is_integer(lhs) && pr_is_integer(rhs)) {
+            return PrimExprTypes {{lhs, rhs}, lhs};
+        }
+        break;
     }
-
     case BinaryOp::PLUS:
     case BinaryOp::MINUS:
     case BinaryOp::MUL:
@@ -197,28 +200,35 @@ bool pr_check_binary_op(BinaryOp op, PrimType lhs, PrimType rhs) {
         auto promoted = pr_promote(lhs, rhs);
         lhs           = promoted;
         rhs           = promoted;
-        return (pr_is_integer(lhs) || pr_is_float(lhs)) && (pr_is_integer(rhs) || pr_is_float(rhs));
-    }
+        if ((pr_is_integer(lhs) || pr_is_float(lhs)) && (pr_is_integer(rhs) || pr_is_float(rhs))) {
+            return PrimExprTypes {{lhs, rhs}, lhs};
+        }
 
+        break;
+    }
     case BinaryOp::AND: // NOLINT
     case BinaryOp::OR:
     case BinaryOp::XOR: {
         auto promoted = pr_promote(lhs, rhs);
         lhs           = promoted;
         rhs           = promoted;
-        return pr_is_integer(lhs) && pr_is_integer(rhs);
+        if (pr_is_integer(lhs) && pr_is_integer(rhs)) {
+            return PrimExprTypes {{lhs, rhs}, lhs};
+        }
+
+        break;
     }
-
-
     case BinaryOp::EQ:
     case BinaryOp::NE: {
         auto promoted = pr_promote(lhs, rhs);
         lhs           = promoted;
         rhs           = promoted;
-        return (pr_is_integer(lhs) || pr_is_float(lhs) || pr_is_bool(lhs)) &&
-               (pr_is_integer(rhs) || pr_is_float(rhs) || pr_is_bool(rhs));
+        if ((pr_is_integer(lhs) || pr_is_float(lhs) || pr_is_bool(lhs)) &&
+            (pr_is_integer(rhs) || pr_is_float(rhs) || pr_is_bool(rhs))) {
+                   return PrimExprTypes {{lhs, rhs}, lhs};
+        }
+        break;
     }
-
     case BinaryOp::LT:
     case BinaryOp::GT:
     case BinaryOp::LE:
@@ -226,15 +236,23 @@ bool pr_check_binary_op(BinaryOp op, PrimType lhs, PrimType rhs) {
         auto promoted = pr_promote(lhs, rhs);
         lhs           = promoted;
         rhs           = promoted;
-        return (pr_is_integer(lhs) || pr_is_float(lhs)) && (pr_is_integer(rhs) || pr_is_float(rhs));
+        if ((pr_is_integer(lhs) || pr_is_float(lhs)) && (pr_is_integer(rhs) || pr_is_float(rhs))) {
+            return PrimExprTypes {{lhs, rhs}, lhs};
+        }
+        break;
     }
     default:
         // for any operators we don't explicitly check, just return true and let the codegen handle
         // it. OROR and ANDAND implicitly convert their operands to bool, which all primitive types
         // can do. BINCOMMA is used to sequencing operations, and does not require any specific
         // type.
-        return true;
+        auto promoted = pr_promote(lhs, rhs);
+        lhs           = promoted;
+        rhs           = promoted;
+        return PrimExprTypes {{lhs, rhs}, lhs};
     }
+
+    return {};
 }
 
 } // namespace ecc::sema::prim

@@ -155,7 +155,7 @@ void Validator::eval_initializer_expr(Type *type, Box<ExprMIR>& expr, Initialize
 
                 // todo: allow U8[] to I8[] and vice versa, and const to nonconst implicitly
             } else {
-                add_error<InvalidCoerceError>(type, expr->eff_type, expr->loc);
+                add_error<InvalidCoerceError>(expr->eff_type, type, expr->loc);
             }
         }
     }
@@ -518,14 +518,41 @@ void Validator::do_visit(BinaryExprMIR& node) {
         PrimitiveType *right_type = node.right->eff_type->as_primitive();
         assert(right_type);
 
-        if (!prim::pr_check_binary_op(node.op, left_type->primkind, right_type->primkind)) {
+        auto finaltype = prim::pr_check_binary_op(node.op, left_type->primkind, right_type->primkind);
+
+        if (!finaltype) {
             add_error<InvalidBinaryOpError>(
                 "operator not applicable to these types", node.op, left_type, right_type, node.loc);
+            throw UnableToContinue();
         }
 
-        // todo: add promotion and insert implicit casting logic
+        auto *p1 = types.get().get_primitive(finaltype->operand_types.first);
+        auto *p2 = types.get().get_primitive(finaltype->operand_types.second);
 
-        node.set_type(node.left->eff_type->unqual());
+        if (p1 != left_type) {
+            if (left_type->coercible_to(p1)) {
+                node.left = cast(p1, std::move(node.left));
+            } else {
+                add_error<InvalidCoerceError>(left_type, p1, node.left->loc);
+                throw UnableToContinue();
+            }
+        }
+
+        if (p2 != right_type) {
+            if (right_type->coercible_to(p2)) {
+                node.right = cast(p2, std::move(node.right));
+            } else {
+                add_error<InvalidCoerceError>(right_type, p2, node.right->loc);
+                throw UnableToContinue();
+            }
+        }
+
+        assert(node.left->eff_type == p1);
+        assert(node.right->eff_type == p2);
+
+        PrimitiveType *exprtype = types.get().get_primitive(finaltype->expr_type);
+
+        node.set_type(exprtype);
     }
 }
 
