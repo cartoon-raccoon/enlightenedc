@@ -1,4 +1,4 @@
-#include "ts_st_fixture.hpp"
+#include "typesys_symtab_fix.hpp"
 
 // Helper: build a FuncSymbol in the walker's current scope.
 static FuncSymbol *insert_func(

@@ -1,4 +1,4 @@
-#include "ts_st_fixture.hpp"
+#include "typesys_symtab_fix.hpp"
 
 // ConstType / get_const tests
 
