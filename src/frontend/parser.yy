@@ -865,7 +865,7 @@ parameter_declaration:
     | declaration_specifier_list declarator {
         $$ = std::make_unique<ParameterDeclaration>(@$, std::move($1), std::move($2), std::nullopt);
     }
-    | declaration_specifier_list declarator ASSIGN assignment_expression {
+    | declaration_specifier_list declarator ASSIGN constant_expression {
         $$ = std::make_unique<ParameterDeclaration>(@$, std::move($1), std::move($2), std::move($4));
     }
     | declaration_specifier_list abstract_declarator {

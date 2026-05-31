@@ -26,6 +26,70 @@ Box<CastExprMIR> Validator::cast(Type *target, Box<mir::ExprMIR> expr) {
     return newexpr;
 }
 
+
+void Validator::validate_print(std::string& format_str, Span<Box<mir::ExprMIR>> args) {
+    // todo
+    size_t arg_index = 0;
+    for (auto i = format_str.begin(); i != format_str.end(); ++i) {
+        // once we encounter a print specifier
+        if (*i == '%') {
+            // advance the iterator
+            ++i;
+            std::string fmt_spec;
+            fmt_spec += *i;
+
+            switch (*i) {
+            case 'd':
+            case 'i':
+            case 'u':
+            case 'o':
+            case 'x':
+            case 'X':
+                goto end;
+            case 'h': { // %h NOLINT
+                ++i;
+                switch (*i) {
+                case 'd': // %hd
+                case 'i': // %hi
+                case 'u': // %hu
+                    goto end;
+                default:
+                }
+            }
+            case 'l': { // %l
+                ++i;
+                switch (*i) {
+                case 'd': // %ld
+                case 'i': // %li
+                case 'u': // %lu
+                    goto end;
+                default:
+                }
+            }
+            case 'f':
+            case 'F':
+            case 'e':
+            case 'E':
+            case 'g':
+            case 'G':
+            case 'a':
+            case 'A':
+            case 'c':
+            case 's':
+            case 'p':
+            case 'n':
+            case '%':
+                goto end;
+            default:
+                break;
+            end:
+                arg_index++;
+                break;
+            }
+        }
+    }
+}
+
 void Validator::eval_initializer(types::Type *type, InitializerMIR& init) {
     AccessorPath path;
     eval_initializer_rec(path, type, init);
@@ -323,7 +387,7 @@ void Validator::do_visit(PrintStmtMIR& node) {
         arg->accept(*this);
     }
 
-    // todo: evaluate all arguments and check against format string
+    validate_print(node.format_string, node.arguments);
 }
 
 void Validator::do_visit(IfStmtMIR& node) { // done
@@ -401,10 +465,22 @@ void Validator::do_visit(ReturnStmtMIR& node) {
     FunctionMIR *func = dynamic_cast<FunctionMIR *>(get_context(MIRNode::NodeKind::FUNC_MIR));
     assert(func && "unable to get FunctionMIR");
 
+    FunctionType *sig = func->sym->signature;
+
     if (node.ret_expr) {
+        Type *returntype = sig->returntype()->unqual();
+        if (returntype->is_void()) {
+            // todo: add error: returning value from void function
+        }
+
         (*node.ret_expr)->accept(*this);
-        // todo: check return type
-        if ((*node.ret_expr)->act_type /* == func.returntype */) {
+
+        if ((*node.ret_expr)->act_type != returntype) {
+            if ((*node.ret_expr)->act_type->unqual()->coercible_to(returntype)) {
+                node.ret_expr = cast(returntype, std::move(*node.ret_expr));
+            } else {
+                // todo: add error, invalid coerce
+            }
         }
     }
 }
@@ -562,7 +638,7 @@ void Validator::do_visit(AssignExprMIR& node) {
     node.right->accept(*this);
 
     if (!node.left->is_assignable()) {
-        add_error<InvalidAssignError>("left-hand side of assignment is not assignable", node.loc);
+        add_error<InvalidAssignError>(node.left->act_type, node.loc);
         throw UnableToContinue();
     }
 
@@ -694,10 +770,29 @@ void Validator::do_visit(CallExprMIR& node) {
         throw std::runtime_error("CallExprMIR callee returned callable but is not func or funcptr");
     }
 
-    // todo: check parameters and ensure they match type in signature
-    // for (auto&& [i, param] : std::views::enumerate(sig->params())) {
+    if (node.args.size() > sig->num_params()) {
 
-    // }
+        add_error<TooManyArgsError>(node.loc, sig->num_params(), node.args.size());
+        throw UnableToContinue();
+
+    } else if (node.args.size() == sig->num_params()) {
+
+        for (auto&& [i, param] : std::views::enumerate(sig->params())) {
+            auto& param_ut = node.args[i];
+            if (param_ut->eff_type != param->effective_type()) {
+                if (param_ut->eff_type->coercible_to(param->effective_type())) {
+                    param_ut = cast(param->effective_type(), std::move(param_ut));
+                } else {
+                    // todo: add error, invalid coerce
+                }
+            }
+        }
+
+    } else if (node.args.size() < sig->num_params()) {
+        // todo: check that callee a FuncSymbol
+        // if callee is a pointer, reject (defaults do not propagate through pointers)
+        // check that call is not underspecified
+    }
 
     node.set_type(sig->returntype()->unqual());
 }
@@ -706,7 +801,7 @@ void Validator::do_visit(MemberAccExprMIR& node) {
     bsv_dbprint("Validator: visiting MemberAccExprMIR node");
     node.object->accept(*this);
 
-    ClassType *cls = nullptr;
+    RecordType *rec = nullptr;
 
     if (node.is_arrow) {
         if (!node.object->act_type->is_pointer() ||
@@ -715,17 +810,17 @@ void Validator::do_visit(MemberAccExprMIR& node) {
             throw UnableToContinue();
         }
 
-        cls = node.object->act_type->as_pointer()->base->as_class();
+        rec = node.object->act_type->as_pointer()->base->as_recordtype();
     } else {
         if (!node.object->act_type->is_recordtype()) {
             add_error<InvalidMemberAccError>(node.object->eff_type, node.object->loc);
             throw UnableToContinue();
         }
-        cls = node.object->act_type->as_class();
+        rec = node.object->act_type->as_recordtype();
     }
 
-    assert(cls && "class was null while validating member access expression");
-    auto *member = cls->find(node.member);
+    assert(rec && "class was null while validating member access expression");
+    RecordType::TypeMember *member = rec->find(node.member);
 
     if (!member) {
         add_error<NoSuchMemberError>(node.member, node.object->eff_type, node.object->loc);
@@ -733,18 +828,25 @@ void Validator::do_visit(MemberAccExprMIR& node) {
     }
 
     if (!node.is_arrow) {
+        // propagate const if object is lvalue
         if (node.object->is_lvalue()) {
-            node.set_type(types.get().get_const(node.object->act_type));
+            // check for const
+            if (node.object->act_type->is_const() || member->ty->is_const()) {
+                node.set_type(types.get().get_const(member->ty));
+            } else {
+                node.set_type(member->ty);
+            }
         } else {
-            node.set_type(node.object->act_type->unqual());
+            node.set_type(member->ty->unqual());
         }
     } else {
-        if (node.object->act_type->as_pointer()->base->is_const()) {
+        // check for const
+        if (node.object->act_type->as_pointer()->base->is_const() || member->ty->is_const()) {
             node.set_type(
-                types.get().get_const(node.object->act_type->as_pointer()->base)
+                types.get().get_const(member->ty)
             );
         } else {
-            node.set_type(node.object->act_type->as_pointer()->base);
+            node.set_type(member->ty);
         }
     }
 }
@@ -847,5 +949,5 @@ void Validator::do_visit(SizeofExprMIR& node) { // done
             }},
         node.operand);
 
-    node.set_type(types.get().get_u64());
+    node.set_type(types.get().get_size_type(false));
 }

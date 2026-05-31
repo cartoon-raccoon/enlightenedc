@@ -1,5 +1,6 @@
 #pragma once
 
+#include "util.hpp"
 #ifndef ECC_TYPECHECK_H
 #define ECC_TYPECHECK_H
 
@@ -92,6 +93,8 @@ private:
 
     void eval_initializer_rec_arr(
         types::AccessorPath& path, types::ArrayType *arr, Vec<Box<mir::InitializerMIR>>& init);
+
+    void validate_print(std::string& format_str, Span<Box<mir::ExprMIR>> args);
 };
 
 } // namespace ecc::sema

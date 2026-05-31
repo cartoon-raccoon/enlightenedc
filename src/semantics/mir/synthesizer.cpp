@@ -205,8 +205,7 @@ void MIRSynthesizer::do_visit(Function& node) {
     Box<SpecifierInfo> specinfo = parse_speclist(node.decl_spec_list, node.loc);
     dovisit_param               = std::move(param);
 
-    if (specinfo->linkage != PhysicalSymbol::Linkage::INTERNAL
-        || specinfo->linkage != PhysicalSymbol::Linkage::EXTERNC) {
+    if (specinfo->linkage == PhysicalSymbol::Linkage::EXTERNAL) {
         add_error<EccSemError>("externally linked functions cannot have a body", node.loc);
         throw UnableToContinue();
     }
@@ -245,16 +244,30 @@ void MIRSynthesizer::do_visit(Function& node) {
         throw UnableToContinue();
     }
 
-    dbprint("parsing params");
-
+    bsv_dbprint("MIRSynthesizer: parsing Function params");
+    bool found_default = false;
     Vec<Box<VarSymbol>> params;
     for (FuncParam& param : last_func_params) {
+
         if (!param.name) {
             add_error<EccSemError>("parameter in function declaration has no name", param.loc);
         }
+
         Type *sym_type = param.is_const ? types.get_const(param.type) : param.type;
-        Box<VarSymbol> paramsym =
-            std::make_unique<VarSymbol>(param.loc, *param.name, syms.current, sym_type);
+        Box<VarSymbol> paramsym;
+
+        if (param.value) {
+            found_default = true;
+            paramsym = std::make_unique<VarSymbol>(param.loc, *param.name, syms.current, sym_type, *param.value);
+        } else {
+            if (found_default) {
+                add_error<EccSemError>(
+                    "parameters without default values must be before all default ones", param.loc);
+            }
+            // just add without value and continue for now
+            paramsym = std::make_unique<VarSymbol>(param.loc, *param.name, syms.current, sym_type);
+        }
+            
         paramsym->is_funcparam = true;
         params.push_back(std::move(paramsym));
     }
@@ -500,17 +513,18 @@ void MIRSynthesizer::do_visit(ParameterDeclaration& node) {
 
         Type *final_type = builder->ty_bldr.finalize();
         if (builder->name) {
-            ret = {final_type, builder->name, node.loc, specinfo->is_const};
+            ret = {final_type, builder->name, node.loc, specinfo->is_const, {}};
         } else {
-            ret = {final_type, {}, node.loc, specinfo->is_const};
+            ret = {final_type, {}, node.loc, specinfo->is_const, {}};
         }
     } else {
-        ret = {specinfo->type, {}, node.loc};
+        ret = {specinfo->type, {}, node.loc, specinfo->is_const, {}};
     }
 
     if (node.default_value) {
-        // default value should only be present when parsing a declarator in a Function node
-        // fixme: ignoring default values for now, implement this
+        dv_call_noparam(*node.default_value);
+        Value def_val = take_last_result<Value>();
+        ret.value = def_val;
     }
 
     dv_return(ret);

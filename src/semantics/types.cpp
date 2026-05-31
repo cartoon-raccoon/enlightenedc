@@ -1128,6 +1128,29 @@ PrimitiveType *TypeContext::get_primitive(PrimType pkind) {
     std::unreachable();
 }
 
+constexpr size_t BITS8 = 8;
+constexpr size_t BITS16 = 16;
+constexpr size_t BITS32 = 32;
+constexpr size_t BITS64 = 64;
+
+PrimitiveType *TypeContext::get_size_type(bool is_signed) {
+    const llvm::DataLayout& dl = llvmref.get().mod().getDataLayout();
+    auto size = dl.getPointerSizeInBits();
+
+    switch (size) {
+    case BITS8:
+        return is_signed ? i8.get() : u8.get();
+    case BITS16:
+        return is_signed ? i16.get() : u16.get();
+    case BITS32:
+        return is_signed ? i32.get() : u32.get();
+    case BITS64:
+        return is_signed ? i64.get() : u64.get();
+    default:
+        return nullptr;
+    }
+}
+
 Pair<PrimitiveType *, PrimitiveType *> TypeContext::promote(PrimType p1, PrimType p2) {
     PrimType promoted = pr_promote(p1, p2);
 

@@ -35,6 +35,23 @@ public:
         : EccSemError("return statement not in function", err_loc) {}
 };
 
+class TooManyArgsError : public EccSemError {
+public:
+    TooManyArgsError(Location err_loc, size_t expected, size_t got)
+        : EccSemError("too many arguments to call expression", err_loc),
+        expected(expected), got(got) {}
+
+    size_t expected, got;
+
+    std::string elab() override {
+        std::stringstream ss;
+        ss << "expected " << expected << ", got " << got;
+
+        return ss.str();
+    }
+    
+};
+
 class InvertedCaseRangeError : public EccSemError {
 public:
     InvertedCaseRangeError(const eval::Value& start, const eval::Value& end, Location err_loc)
@@ -312,12 +329,18 @@ public:
 
 class InvalidAssignError : public EccSemError {
 public:
-    InvalidAssignError(std::string err, Location err_loc)
-        : EccSemError("invalid assignment", err_loc), err(std::move(err)) {}
+    InvalidAssignError(types::Type *expr_type, Location err_loc)
+        : EccSemError("invalid assignment", err_loc), 
+        expr_type(expr_type->formal()) {}
 
-    std::string err;
+    std::string expr_type;
 
-    std::string elab() override { return err; }
+    std::string elab() override {
+        std::stringstream ss;
+        ss << "cannot assign to expression of type " << expr_type;
+
+        return ss.str();
+    }
 };
 
 class TypeAlrDefinedError : public EccSemError {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "eval/value.hpp"
 #ifndef ECC_TYPES_H
 #define ECC_TYPES_H
 
@@ -1205,12 +1206,13 @@ protected:
     uint32_t ref_count = 1;
 };
 
-// A function parameter containing an optional name.
+// A function parameter containing an optional name and optional default value.
 struct FuncParam {
     Type *type = nullptr;
     Optional<std::string> name;
     Location loc;
     bool is_const = false;
+    Optional<eval::Value> value;
 };
 
 /**
@@ -1413,6 +1415,9 @@ public:
 
     /** Return a pointer to the PrimitiveType object with `kind`. */
     PrimitiveType *get_primitive(tokens::PrimType kind);
+
+    /** Return a pointer to the integer type sized to the machine pointer size. */
+    PrimitiveType *get_size_type(bool is_signed);
 
     /** Return a pointer to the U8 Type object. */
     PrimitiveType *get_u8() { return u8.get(); }

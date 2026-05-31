@@ -262,13 +262,13 @@ class ParameterDeclaration : public Declaration {
 public:
     ParameterDeclaration(
         Location loc, Vec<Box<DeclarationSpecifier>> specifiers,
-        Optional<Box<Declarator>> declarator, Optional<Box<Expression>> default_value)
+        Optional<Box<Declarator>> declarator, Optional<Box<ConstExpression>> default_value)
         : Declaration(PARAM_DECL, loc), specifiers(std::move(specifiers)),
           declarator(std::move(declarator)), default_value(std::move(default_value)) {}
 
     Vec<Box<DeclarationSpecifier>> specifiers;
     Optional<Box<Declarator>> declarator;
-    Optional<Box<Expression>> default_value;
+    Optional<Box<ConstExpression>> default_value;
 
     void accept(ASTVisitor& visitor) override;
 };
