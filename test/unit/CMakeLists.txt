@@ -9,7 +9,7 @@ set_target_properties(typesystemtest PROPERTIES LABELS unit)
 
 add_executable(
     symboltabletest
-    "${CMAKE_CURRENT_SOURCE_DIR}/typesystem_tests.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/symboltable_tests.cpp"
 )
 target_link_libraries(
     symboltabletest GTest::gtest_main libecc
@@ -17,7 +17,5 @@ target_link_libraries(
 set_target_properties(symboltabletest PROPERTIES LABELS unit)
 
 include(GoogleTest)
-gtest_discover_tests(
-    typesystemtest symboltabletest
-    PROPERTIES LABELS unit
-)
+gtest_discover_tests(typesystemtest PROPERTIES LABELS unit)
+gtest_discover_tests(symboltabletest PROPERTIES LABELS unit)

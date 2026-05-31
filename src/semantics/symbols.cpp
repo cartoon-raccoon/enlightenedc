@@ -249,6 +249,13 @@ LabelSymbol *SymbolTableWalker::lookup_label(std::string& sym, bool current_only
             return nullptr;
         }
 
+        // if already at global scope (outer is null), label does not exist
+        if (my_current->outer == nullptr) {
+            assert(my_current == global());
+            dbprint("SymbolTable: label \'", sym, "\' not found");
+            return nullptr;
+        }
+
         // move to outer
         my_current = my_current->outer;
     }
