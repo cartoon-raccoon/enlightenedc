@@ -17,21 +17,27 @@ EnlightenedC (`ecc`) is an LLVM-powered compiler for HolyC, the language of Temp
 
 Dependencies: Flex >= 2.6, Bison >= 3.8, LLVM >= 21.1, CMake >= 3.20, Clang/Clang++.
 
+There is a build script build.py in the project root. Use that to build the project.
+
 ```bash
 # Configure (first time or after CMakeLists.txt changes)
-cmake -S . -B build
+./build.py configure
 
 # Build (add --parallel N for speed)
-cmake --build build --parallel 4
+./build.py
+# OR
+./build.py build
 
 # Format all source files
-cmake --build build --target format
+./build.py format
 
 # Clean object files (keeps CMake config)
-cmake --build build --target clean
+./build.py clean
 
 # Full wipe (required after CMakeLists.txt changes)
-rm -rf build/*
+./build.py nuke
+# OR
+rm -rf build/
 ```
 
 The build produces `build/ecc` (executable) and `build/libecc.a` (static library). Flex/Bison generate `build/gen/lexer.cpp`, `build/gen/parser.cpp`, and `build/gen/parser.hpp`.
@@ -46,11 +52,18 @@ Debug builds emit verbose `dbprint()` output to stderr; release builds (`-DNDEBU
 # Compile a HolyC source file
 ./build/ecc source.HC
 
-# Run the test suite (from the test/ directory)
-cd test && python3 run_test.py
+# Run the integration test suite
+cd test/integration && python3 run_test.py
+
+# Run the unit tests (built with the project)
+./build/test/unit/ecc_unit_tests
 ```
 
-Tests in `test/` compile each `.HC` file in `test/input/`, capture debug output (AST, MIR dumps) to `test/output/`, and compare stdout of the resulting binary against `test/expected/`.
+Integration tests compile each `.HC` file in `test/integration/input/`, capture debug output (AST, MIR dumps) to `test/integration/output/`, and compare stdout of the resulting binary against `test/integration/expected/`.
+Currently the compiler doesn't produce any meaningful binary output, so tests are run individually and the
+compiler stdout is manually checked.
+
+Unit tests live in `test/unit/` and use GoogleTest. They cover the type system (`typesystem_tests.cpp`) and symbol table (`symboltable_tests.cpp`), using shared fixtures from `ts_st_fixture.hpp`.
 
 ## Architecture
 
@@ -78,7 +91,7 @@ The compiler is organized into a classic frontend/backend split, driven through 
 2. `Lexer` (Flex, `src/frontend/lexer.l`) — tokenizes the preprocessed output; uses a typedef set for the lexer hack (distinguishing type names from identifiers)
 3. `Parser` (Bison, `src/frontend/parser.yy`) — builds the AST into `ast::Program`
 
-The Bison grammar file is `src/frontend/parser.yy`; the BNF/EBNF specs live in `grammars/`. They are outdated at the moment, so do not rely on them. `src/frontend/parser.yy` is the main source of truth.
+The Bison grammar file is `src/frontend/parser.yy`; the BNF/EBNF specs live in `grammars/`. They are kept as a reference but may not be fully current — `src/frontend/parser.yy` is the source of truth.
 
 ### AST
 
@@ -89,7 +102,7 @@ All AST nodes inherit from `ast::ASTNode` (`include/ast/ast.hpp`). The visitor p
 `Backend::run()` (`src/driver/backend.cpp`) currently implements:
 
 1. **MIR Synthesis** — `MIRSynthesizer` (`src/semantics/mir/synthesizer.cpp`) walks the AST as a `BaseASTSemaVisitor` and produces the MIR tree. This is the most complete backend stage.
-2. **Validation** — `Validator` (`src/semantics/validator.cpp`) walks the MIR; currently disabled pending completion.
+2. **Validation** — `Validator` (`src/semantics/validator.cpp`) walks the MIR checking types, control flow, lvalue rules, and expression validity. Substantially implemented; some checks (return type matching, parameter arity, promotion/widening casts) are still in progress.
 3. LIR synthesis and LLVM codegen are stubbed.
 
 The compilation pipeline can be stopped at any phase via `Config::StopAt` (PREPROCESS, PARSE, GEN_MIR, VALIDATE, GEN_LIR, COMPILE, ASSEMBLE, LINK).
@@ -112,10 +125,19 @@ Both follow the same visitor pattern as the AST.
 - `TypeBuilder` handles cases where type constructors (arrays, pointers) are known before the base type.
 - `Type::finalize()` must be called before `alloc_size()` can be used; it creates the corresponding `llvm::Type *`.
 - Primitive types: U8/U16/U32/U64 (unsigned), I8/I16/I32/I64 (signed), F32/F64 (float), Bool.
+- `ConstType` is a transparent wrapper that marks a type as const. `const T` and `T` are distinct interned types; `unqual()` strips the wrapper. Const is not deeply embedded — `get_const(T)` composes with any other type.
 
 ### Symbol Table
 
 `SymbolTable` (`include/semantics/symbols.hpp`) is scope-based. `SymbolTableWalker` traverses scopes. `ScopeGuard` and `NodeGuard` (RAII wrappers in `include/semantics/semantics.hpp`) handle automatic scope push/pop during AST walking.
+
+### Compile-Time Evaluation
+
+`include/eval/` and `src/eval/` implement compile-time expression evaluation.
+
+- `eval::Value` (`include/eval/value.hpp`) — a typed `std::variant` over all primitive scalars (i8–u64, f32/f64, bool). Supports arithmetic and type-conversion operations.
+- `consteval` (`include/eval/consteval.hpp`) — evaluates `ConstExpression` AST nodes (e.g., for array sizes, enum values, initializers) to a `Value`.
+- `Evaluator` (`include/eval/evaluator.hpp`) — interface for evaluating MIR expressions; used by constant folding and the validator.
 
 ### Semantic Visitors
 
