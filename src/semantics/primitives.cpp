@@ -46,6 +46,33 @@ PrimTypeRank pr_rank(PrimType pr) {
     }
 }
 
+
+PrimType pr_unsigned(PrimType pr) {
+    using P = PrimType;
+
+    switch (pr) {
+    case P::BOOL:
+        return P::BOOL;
+    case P::U8:
+    case P::I8:
+        return P::U8;
+    case P::U16:
+    case P::I16:
+        return P::U16;
+    case P::U32:
+    case P::I32:
+        return P::U32;
+    case P::U64:
+    case P::I64:
+        return P::U64;
+    case P::F32:
+        return P::F32;
+    case P::F64:
+        return P::F64;
+    }
+}
+
+
 PrimType pr_promote(PrimType lhs, PrimType rhs) {
     PrimTypeRank lhs_rank = pr_rank(lhs);
     PrimTypeRank rhs_rank = pr_rank(rhs);
@@ -59,16 +86,27 @@ PrimType pr_promote(PrimType lhs, PrimType rhs) {
     if (lhs_rank >= rhs_rank) {
         PrimType ret =
             lhs_rank >= PrimTypeRank::INT32
-                ? lhs // if lhs_rank is already that of a 4-byte integer or higher, use it
+                // if lhs_rank is already that of a 4-byte integer or higher, use it
+                ? (use_signed ? lhs : pr_unsigned(lhs))
                 // otherwise, promote it to a 4-byte integer with precalculated signedness
                 : pr_from_rank(PrimTypeRank::INT32, use_signed);
 
         return ret;
     } else {
         PrimType ret =
-            rhs_rank >= PrimTypeRank::INT32 ? rhs : pr_from_rank(PrimTypeRank::INT32, use_signed);
+            rhs_rank >= PrimTypeRank::INT32
+                ? (use_signed ? rhs : pr_unsigned(rhs))
+                : pr_from_rank(PrimTypeRank::INT32, use_signed);
 
         return ret;
+    }
+}
+
+PrimType pr_single_promote(PrimType pr) {
+    if (pr_rank(pr) < PrimTypeRank::INT32) {
+        return pr_from_rank(PrimTypeRank::INT32, pr_is_signed((pr)));
+    } else {
+        return pr;
     }
 }
 
@@ -143,37 +181,53 @@ bool pr_is_signed(PrimType pr) {
 }
 
 bool pr_check_binary_op(BinaryOp op, PrimType lhs, PrimType rhs) {
-    auto promoted = pr_promote(lhs, rhs);
-    lhs           = promoted;
-    rhs           = promoted;
-
+    
     switch (op) {
+    case BinaryOp::LSHIFT:
+    case BinaryOp::RSHIFT: {
+
+        return pr_is_integer(lhs) && pr_is_integer(rhs);
+    }
+
     case BinaryOp::PLUS:
     case BinaryOp::MINUS:
     case BinaryOp::MUL:
     case BinaryOp::DIV:
-    case BinaryOp::MOD:
+    case BinaryOp::MOD: {
+        auto promoted = pr_promote(lhs, rhs);
+        lhs           = promoted;
+        rhs           = promoted;
         return (pr_is_integer(lhs) || pr_is_float(lhs)) && (pr_is_integer(rhs) || pr_is_float(rhs));
+    }
 
     case BinaryOp::AND: // NOLINT
     case BinaryOp::OR:
-    case BinaryOp::XOR:
+    case BinaryOp::XOR: {
+        auto promoted = pr_promote(lhs, rhs);
+        lhs           = promoted;
+        rhs           = promoted;
         return pr_is_integer(lhs) && pr_is_integer(rhs);
+    }
 
-    case BinaryOp::LSHIFT:
-    case BinaryOp::RSHIFT:
-        return pr_is_integer(lhs) && pr_is_integer(rhs);
 
     case BinaryOp::EQ:
-    case BinaryOp::NE:
+    case BinaryOp::NE: {
+        auto promoted = pr_promote(lhs, rhs);
+        lhs           = promoted;
+        rhs           = promoted;
         return (pr_is_integer(lhs) || pr_is_float(lhs) || pr_is_bool(lhs)) &&
                (pr_is_integer(rhs) || pr_is_float(rhs) || pr_is_bool(rhs));
+    }
 
     case BinaryOp::LT:
     case BinaryOp::GT:
     case BinaryOp::LE:
-    case BinaryOp::GE:
+    case BinaryOp::GE: {
+        auto promoted = pr_promote(lhs, rhs);
+        lhs           = promoted;
+        rhs           = promoted;
         return (pr_is_integer(lhs) || pr_is_float(lhs)) && (pr_is_integer(rhs) || pr_is_float(rhs));
+    }
     default:
         // for any operators we don't explicitly check, just return true and let the codegen handle
         // it. OROR and ANDAND implicitly convert their operands to bool, which all primitive types

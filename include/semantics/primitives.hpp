@@ -10,7 +10,14 @@
 /**
 \namespace ecc::sema::prim
 
-The source of truth for all operations involving primitive types.
+Primitive type algebra functionality.
+
+This namespace serves as source of truth for all operations involving primitive
+types, how primitive types relate to each other, and how they relate with operations.
+
+## Rank
+
+Each primitive type is assigned a rank, that affects how it is 
 */
 namespace ecc::sema::prim {
 
@@ -58,14 +65,40 @@ bool pr_is_signed(PrimType pr);
 PrimType pr_from_rank(PrimTypeRank rank, bool is_signed);
 
 /**
+Get the unsigned counterpart of `pr`.
+
+This is identity for all types that don't have an unsigned counterpart,
+namely Bool, F32, and F64.
+*/
+PrimType pr_unsigned(PrimType pr);
+
+/**
 Promote the LHS and RHS of some binary expression to suitable types.
 
 For binary expressions where the left and right hand sides are not
 the same type, we need some deterministic way to get them to the same
 type. We do this with type promotion.
+
+## Invariants
+- Type commutativity `promote(I16, U32) = promote(U32, I16)`.
+- Unsigned wins if both types differ in signedness, that is
+  `promote(U32, I32) = U32`.
+- Both types are promoted to at least I32, that is
+  `promote(I16, I8) = I32`.
 */
 PrimType pr_promote(PrimType lhs, PrimType rhs);
 
+/**
+Promote a single type to a minimum type in an expression.
+
+This just applies a floor of I32 rank, preserving signedness, hence it
+is identity over any PrimitiveType of where rank >= INT32.
+*/
+PrimType pr_single_promote(PrimType pr);
+
+/**
+Check PrimitiveType compatibility with the given operation `op`.
+*/
 bool pr_check_binary_op(BinaryOp op, PrimType lhs, PrimType rhs);
 
 } // namespace ecc::sema::prim
