@@ -24,6 +24,7 @@ This document lays out the planned improvements and updates for the EnlightenedC
 - Implement a basic stdlib
 - Add try-catch (LLVM unwinding)
 - Add operation chaining (a < b < c vs (a < b) < c)
+- Add inline assembly
 
 ## Long-Term
 

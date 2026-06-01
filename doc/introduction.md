@@ -37,6 +37,7 @@ HolyC introduced many unique features that EnlightenedC imports. Some of these i
 - Plain old data (POD) classes
 - Reinterpreting primitive types as arrays of bytes
 - Parentheses-less function calls
+- Default arguments in function calls
 - Built in printf
 - ...and many more.
 
@@ -72,3 +73,69 @@ Please see the [`compiler/`](compiler/1-contents.md) directory.
 ### Language Specification
 
 Please see the [`spec/`](spec/1-contents.md) directory.
+
+## Building
+
+The project has the following dependencies:
+
+- Flex (>= v2.6)
+- Bison (>= v3.8)
+- LLVM (>= v21.1)
+- CMake (>= v3.20)
+- Googletest/RapidCheck for testing, but that is pulled in at build time.
+  Ideal to still have it installed as a system package.
+
+To build this project, you can use the `build.py` script:
+
+```bash
+# running build.py without arguments builds the entire project,
+# parallelizing using nproc.
+$ ./build.py
+
+# running build.py with -r builds for release.
+$ ./build.py -r
+```
+
+You can specify the level of parallelism you want using `-p/--parallel`:
+
+```bash
+$ ./build.py -p 4
+# runs the build script with your preferred level of parallelism (in this case 4.)
+# running without this argument fully parallelizes the build, using all cores.
+```
+
+To clean the build directory, run:
+
+```bash
+$ ./build.py clean
+# runs cmake --target clean.
+```
+
+If `CMakeLists.txt` has changed, you'll need to nuke the entire build directory:
+
+```bash
+$ rm -rf build/*
+# OR
+$ ./build.py nuke
+```
+
+You can also format the code using the command:
+
+```bash
+$ ./build.sh format
+# runs the format target.
+```
+
+## Running
+
+The build process produces a single executable, `ecc`. This is both the compiler and the REPL, depending
+on the command-line arguments passed to it.
+
+To compile a source file into an executable, run:
+
+```bash
+$ ./ecc source.ec
+# compiles the file source.ec.
+```
+
+To run the EnlightenedC environment in REPL mode, simply run the `ecc` executable without any arguments.

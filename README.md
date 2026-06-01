@@ -32,8 +32,8 @@ there are some additions that would be expected of any production-ready compiler
 
 ## Documentation
 
-Documentation is currently missing, but will be written once an MVP exists. The code is
-well-documented in comments (for the most part), so you can read that for the time being.
+Documentation can be found in the [`doc`](doc/) directory, although it is sparse. It will be completed
+once the compiler produces a working MVP.
 
 ## Building
 
