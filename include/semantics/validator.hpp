@@ -20,7 +20,7 @@ namespace ecc::sema {
 The class that performs type-checking and semantic validation.
 */
 class Validator : public BaseMIRSemaVisitor, public NoMove {
-    Ref<types::TypeContext> types;
+    types::TypeContext& types;
     sym::SymbolTableWalker syms;
 
 public:

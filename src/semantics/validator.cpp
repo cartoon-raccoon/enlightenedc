@@ -124,6 +124,7 @@ void Validator::eval_initializer_rec(AccessorPath& path, types::Type *type, Init
                     break;
 
                 default:
+                    bsv_dbprint("error: compound initializer cannot be used with scalar type");
                     add_error<InvalidInitializerError>(
                         "compound initializer cannot be used with scalar type", init.loc);
                     throw UnableToContinue();
@@ -159,6 +160,7 @@ void Validator::eval_initializer_expr(Type *type, Box<ExprMIR>& expr, Initialize
 
                 // todo: allow U8[] to I8[] and vice versa, and const to nonconst implicitly
             } else {
+                bsv_dbprint("error: cannot coerce expression to initializer type");
                 add_error<InvalidCoerceError>(expr->eff_type, type, expr->loc);
             }
         }
@@ -183,6 +185,7 @@ void Validator::eval_initializer_rec_cls(
                     RecordType::TypeMember *mem = cls->find_by_path(path);
                     if (!mem) {
                         if (non_desigd_idx >= cls->num_members()) {
+                            bsv_dbprint("error: excess elements in class initializer");
                             add_error<InvalidInitializerError>(
                                 "excess elements in class initializer", init->loc);
                             throw UnableToContinue();
@@ -198,6 +201,7 @@ void Validator::eval_initializer_rec_cls(
                     path.push_back(mem->member);
                     RecordType::TypeMember *member = cls->find_by_path(path);
                     if (!member) {
+                        bsv_dbprint("error: no such member in class");
                         add_error<InvalidInitializerError>(
                             std::format("no member '{}' in class", mem->member), init->loc);
                         throw UnableToContinue();
@@ -206,6 +210,7 @@ void Validator::eval_initializer_rec_cls(
                     path.pop_back();
                 },
                 [&](Box<InitializerMIR::Index>& idx) {
+                    bsv_dbprint("error: index designators are not allowed in class initializers");
                     add_error<InvalidInitializerError>(
                         "index designators are not allowed in class initializers",
                         idx->initializer->loc);
@@ -216,6 +221,7 @@ void Validator::eval_initializer_rec_cls(
                     non_desigd_idx++;
                     RecordType::TypeMember *mem = cls->find_by_path(path);
                     if (!mem) {
+                        bsv_dbprint("error: excess elements in class initializer");
                         add_error<InvalidInitializerError>(
                             "excess elements in class initializer", init->loc);
                         throw UnableToContinue();
@@ -239,6 +245,7 @@ void Validator::eval_initializer_rec_arr(
             match{
                 [&](Box<ExprMIR>& expr) { eval_initializer_expr(arr->base, expr, *init); },
                 [&](Box<InitializerMIR::Member>& mem) {
+                    bsv_dbprint("error: member designators are not allowed in array initializers");
                     add_error<InvalidInitializerError>(
                         "member designators are not allowed in array initializers",
                         mem->initializer->loc);
@@ -246,6 +253,7 @@ void Validator::eval_initializer_rec_arr(
                 },
                 [&](Box<InitializerMIR::Index>& idx) {
                     if (!idx->idx.is_integer()) {
+                        bsv_dbprint("error: array index designated initializer must be an integer constant");
                         add_error<InvalidInitializerError>(
                             "array index designated initializer must be an integer constant",
                             idx->initializer->loc);
@@ -283,6 +291,7 @@ void Validator::do_visit(VarDeclMIR& node) {
     bsv_dbprint("Validator: visiting VarDeclMIR node");
 
     if (in_node(MIRNode::NodeKind::SWITCHSTMT_MIR) == 1) {
+        bsv_dbprint("error: cannot declare variable directly in switch statement");
         add_error<InvalidDeclError>(
             "cannot declare variable directly in switch statement", node.loc);
     }
@@ -299,6 +308,7 @@ void Validator::do_visit(TypeDeclMIR& node) { // done
     try {
         node.sym->type->finalize();
     } catch (TypeSemError& e) {
+        bsv_dbprint("error: type semantic error during finalization");
         add_error<TypeSemError>(e);
     }
 }
@@ -332,6 +342,7 @@ void Validator::do_visit(CaseStmtMIR& node) { // done
     bsv_dbprint("Validator: visiting CaseStmtMIR node");
     // check that we are in switch
     if (in_node(MIRNode::NodeKind::SWITCHSTMT_MIR) < 0) {
+        bsv_dbprint("error: case statement outside of switch");
         add_error<InvalidCaseError>(node.loc);
         throw UnableToContinue();
     }
@@ -344,6 +355,7 @@ void Validator::do_visit(CaseStmtMIR& node) { // done
     assert(parent && "could not get parent switch statement");
 
     if (!node.case_val.is_integer()) {
+        bsv_dbprint("error: invalid case value");
         add_error<InvalidCaseValueError>(node.case_val, node.loc);
     }
 
@@ -356,15 +368,18 @@ void Validator::do_visit(CaseRangeStmtMIR& node) {
     bsv_dbprint("Validator: visiting CaseRangeStmtMIR node");
     // check that we are in switch
     if (in_node(MIRNode::NodeKind::SWITCHSTMT_MIR) < 0) {
+        bsv_dbprint("error: case range statement outside of switch");
         add_error<InvalidCaseError>(node.loc);
         throw UnableToContinue();
     }
 
     if (!node.case_start.is_integer() || !node.case_end.is_integer()) {
+        bsv_dbprint("error: invalid case range values");
         add_error<InvalidCaseRangeError>(node.case_start, node.case_end, node.loc);
     }
 
     if (node.case_end <= node.case_start) {
+        bsv_dbprint("error: inverted case range");
         add_error<InvertedCaseRangeError>(node.case_start, node.case_end, node.loc);
     }
 
@@ -379,6 +394,7 @@ void Validator::do_visit(DefaultStmtMIR& node) { // done
     bsv_dbprint("Validator: visiting DefaultStmtMIR node");
     // check that we are in switch
     if (in_node(MIRNode::NodeKind::SWITCHSTMT_MIR) < 0) {
+        bsv_dbprint("error: default statement outside of switch");
         add_error<InvalidCaseError>(node.loc);
     }
     node.stmt->accept(*this);
@@ -398,6 +414,7 @@ void Validator::do_visit(IfStmtMIR& node) { // done
     bsv_dbprint("Validator: visiting IfStmtMIR node");
     node.condition->accept(*this);
     if (!node.condition->eff_type->is_boolable()) {
+        bsv_dbprint("error: if condition is not boolable");
         add_error<InvalidConditionError>(node.condition->eff_type, node.condition->loc);
     }
 
@@ -413,6 +430,7 @@ void Validator::do_visit(LoopStmtMIR& node) { // done
     if (node.condition) {
         (*node.condition)->accept(*this);
         if (!(*node.condition)->eff_type->is_boolable()) {
+            bsv_dbprint("error: loop condition is not boolable");
             add_error<InvalidConditionError>((*node.condition)->eff_type, (*node.condition)->loc);
         }
     }
@@ -435,6 +453,7 @@ void Validator::do_visit(GotoStmtMIR& node) {
     if (label) {
         node.target_sym = label;
     } else {
+        bsv_dbprint("error: label not defined");
         add_error<LabelNotDefinedError>(node.target, node.loc);
     }
 }
@@ -444,6 +463,7 @@ void Validator::do_visit(BreakStmtMIR& node) { // done
     // check that we are in a loop or switch
     if (in_node(MIRNode::NodeKind::SWITCHSTMT_MIR) < 0 &&
         in_node(MIRNode::NodeKind::LOOPSTMT_MIR) < 0) {
+        bsv_dbprint("error: break statement outside of loop or switch");
         add_error<InvalidBreakError>(node.loc);
     }
 }
@@ -452,6 +472,7 @@ void Validator::do_visit(ContStmtMIR& node) { // done
     bsv_dbprint("Validator: visiting ContStmtMIR node");
     // check that we are in a loop
     if (in_node(MIRNode::NodeKind::LOOPSTMT_MIR) < 0) {
+        bsv_dbprint("error: continue statement outside of loop");
         add_error<InvalidContError>(node.loc);
     }
 }
@@ -459,6 +480,7 @@ void Validator::do_visit(ContStmtMIR& node) { // done
 void Validator::do_visit(ReturnStmtMIR& node) {
     bsv_dbprint("Validator: visiting ReturnStmtMIR node");
     if (in_node(MIRNode::NodeKind::FUNC_MIR) < 0) {
+        bsv_dbprint("error: return statement outside of function");
         add_error<InvalidReturnError>(node.loc);
         throw UnableToContinue();
     }
@@ -473,11 +495,19 @@ void Validator::do_visit(ReturnStmtMIR& node) {
 
     if (node.ret_expr) {
         Type *returntype = sig->returntype()->unqual();
+
+
         if (returntype->is_void()) {
             // todo: add error: returning value from void function
         }
 
         (*node.ret_expr)->accept(*this);
+
+        if ((*node.ret_expr)->act_type->is_array()) {
+            node.ret_expr = cast(
+                types.decay_array_ref((*node.ret_expr)->act_type->as_array()), std::move(*node.ret_expr)
+            );
+        }
 
         if ((*node.ret_expr)->act_type != returntype) {
             if ((*node.ret_expr)->act_type->unqual()->coercible_to(returntype)) {
@@ -503,6 +533,14 @@ void Validator::do_visit(BinaryExprMIR& node) {
     assert(node.left->eff_type);
     assert(node.right->eff_type);
 
+    if (node.left->eff_type->is_array()) {
+        node.left = cast(types.decay_array_ref(node.left->eff_type->as_array()), std::move(node.left));
+    }
+
+    if (node.right->eff_type->is_array()) {
+        node.right = cast(types.decay_array_ref(node.right->eff_type->as_array()), std::move(node.right));
+    }
+
     if (!(node.left->eff_type->is_primitive() && node.right->eff_type->is_primitive())) {
         if (node.left->eff_type->is_pointer() || node.right->eff_type->is_pointer()) {
             // todo: check pointer arithmetic
@@ -510,6 +548,7 @@ void Validator::do_visit(BinaryExprMIR& node) {
             node.set_type(
                 node.left->eff_type->is_pointer() ? node.left->act_type : node.right->act_type);
         } else {
+            bsv_dbprint("error: operator not applicable to non-primitive non-pointer types");
             add_error<InvalidBinaryOpError>(
                 "operator not applicable to these types", node.op, node.left->act_type,
                 node.right->act_type, node.loc);
@@ -526,18 +565,20 @@ void Validator::do_visit(BinaryExprMIR& node) {
             prim::pr_check_binary_op(node.op, left_type->primkind, right_type->primkind);
 
         if (!finaltype) {
+            bsv_dbprint("error: operator not applicable to these primitive types");
             add_error<InvalidBinaryOpError>(
                 "operator not applicable to these types", node.op, left_type, right_type, node.loc);
             throw UnableToContinue();
         }
 
-        auto *p1 = types.get().get_primitive(finaltype->operand_types.first);
-        auto *p2 = types.get().get_primitive(finaltype->operand_types.second);
+        auto *p1 = types.get_primitive(finaltype->operand_types.first);
+        auto *p2 = types.get_primitive(finaltype->operand_types.second);
 
         if (p1 != left_type) {
             if (left_type->coercible_to(p1)) {
                 node.left = cast(p1, std::move(node.left));
             } else {
+                bsv_dbprint("error: cannot coerce left operand to required type");
                 add_error<InvalidCoerceError>(left_type, p1, node.left->loc);
                 throw UnableToContinue();
             }
@@ -547,6 +588,7 @@ void Validator::do_visit(BinaryExprMIR& node) {
             if (right_type->coercible_to(p2)) {
                 node.right = cast(p2, std::move(node.right));
             } else {
+                bsv_dbprint("error: cannot coerce right operand to required type");
                 add_error<InvalidCoerceError>(right_type, p2, node.right->loc);
                 throw UnableToContinue();
             }
@@ -555,7 +597,7 @@ void Validator::do_visit(BinaryExprMIR& node) {
         assert(node.left->eff_type == p1);
         assert(node.right->eff_type == p2);
 
-        PrimitiveType *exprtype = types.get().get_primitive(finaltype->expr_type);
+        PrimitiveType *exprtype = types.get_primitive(finaltype->expr_type);
 
         node.set_type(exprtype);
     }
@@ -571,6 +613,7 @@ void Validator::do_visit(UnaryExprMIR& node) {
     case UnaryOp::INC:
     case UnaryOp::DEC: { // ++x, --x
         if (!node.operand->eff_type->is_primitive()) {
+            bsv_dbprint("error: inc/dec operand must be a primitive type");
             add_error<InvalidUnaryOpError>(
                 "operand must be a primitive type", node.op, node.operand->eff_type, node.loc);
             throw UnableToContinue();
@@ -579,10 +622,12 @@ void Validator::do_visit(UnaryExprMIR& node) {
 
         assert(node.act_type == nullptr && node.eff_type == nullptr);
         if (!node.operand->is_assignable()) {
+            bsv_dbprint("error: inc/dec operand is not assignable");
             add_error<InvalidUnaryOpError>(
                 "operand is not assignable", node.op, node.operand->eff_type, node.loc);
             throw UnableToContinue();
         } else if (!primtype->is_integer()) {
+            bsv_dbprint("error: inc/dec operand is not an integer");
             add_error<InvalidUnaryOpError>(
                 "operand is not an integer", node.op, node.operand->eff_type, node.loc);
             throw UnableToContinue();
@@ -593,15 +638,23 @@ void Validator::do_visit(UnaryExprMIR& node) {
 
     case UnaryOp::REF: { // &x
         if (!node.operand->is_lvalue()) {
+            bsv_dbprint("error: address-of operand is not an lvalue");
             add_error<InvalidUnaryOpError>(
                 "operand is not an lvalue", node.op, node.operand->eff_type, node.loc);
             throw UnableToContinue();
         }
-        node.set_type(types.get().get_pointer(node.operand->act_type));
+        node.set_type(types.get_pointer(node.operand->act_type));
     } break;
 
     case UnaryOp::DEREF: { // *x
+        if (node.operand->act_type->is_array()) {
+            node.operand = cast(
+                types.decay_array_ref(node.operand->act_type->as_array()),
+                std::move(node.operand)
+            );
+        }
         if (!node.operand->act_type->is_pointer()) {
+            bsv_dbprint("error: dereference operand is not a pointer");
             add_error<InvalidUnaryOpError>(
                 "operand is not a pointer", node.op, node.operand->eff_type, node.loc);
             throw UnableToContinue();
@@ -614,6 +667,7 @@ void Validator::do_visit(UnaryExprMIR& node) {
     case UnaryOp::POS:
     case UnaryOp::NEG: { // +x. -x
         if (!node.operand->eff_type->is_primitive()) {
+            bsv_dbprint("error: unary +/- operand must be a primitive type");
             add_error<InvalidUnaryOpError>(
                 "operand must be a primitive type", node.op, node.operand->eff_type, node.loc);
             throw UnableToContinue();
@@ -629,12 +683,14 @@ void Validator::do_visit(UnaryExprMIR& node) {
 
     case UnaryOp::TILDE: { // ~x (bitwise not)
         if (!node.operand->eff_type->is_primitive()) {
+            bsv_dbprint("error: bitwise not operand must be a primitive type");
             add_error<InvalidUnaryOpError>(
                 "operand must be a primitive type", node.op, node.operand->eff_type, node.loc);
             throw UnableToContinue();
         }
         PrimitiveType *primtype = node.operand->eff_type->as_primitive();
         if (!primtype->is_integer()) {
+            bsv_dbprint("error: bitwise not operand is not an integer");
             add_error<InvalidUnaryOpError>(
                 "operand is not an integer", node.op, node.operand->eff_type, node.loc);
             throw UnableToContinue();
@@ -645,6 +701,7 @@ void Validator::do_visit(UnaryExprMIR& node) {
 
     case UnaryOp::NOT: { // !x (logical not)
         if (!node.operand->eff_type->is_primitive()) {
+            bsv_dbprint("error: logical not operand must be a primitive type");
             add_error<InvalidUnaryOpError>(
                 "operand must be a primitive type", node.op, node.operand->eff_type, node.loc);
             throw UnableToContinue();
@@ -662,6 +719,7 @@ void Validator::do_visit(CastExprMIR& node) {
     assert(node.target);
 
     if (!node.inner->eff_type->castable_to(node.target)) {
+        bsv_dbprint("error: invalid cast");
         add_error<InvalidCastError>(node.inner->act_type, node.target, node.loc);
     }
 
@@ -676,6 +734,7 @@ void Validator::do_visit(AssignExprMIR& node) {
     node.right->accept(*this);
 
     if (!node.left->is_assignable()) {
+        bsv_dbprint("error: left-hand side is not assignable");
         add_error<InvalidAssignError>(node.left->act_type, node.loc);
         throw UnableToContinue();
     }
@@ -683,6 +742,7 @@ void Validator::do_visit(AssignExprMIR& node) {
     if (!node.right->eff_type->coercible_to(node.left->eff_type)) {
         if (node.right->kind != MIRNode::NodeKind::LITEXPR_MIR) {
             // if not literal, add error
+            bsv_dbprint("error: cannot coerce right-hand side to left-hand side type");
             add_error<InvalidCoerceError>(node.right->act_type, node.left->act_type, node.loc);
             // skip the rest of the check
             goto done;
@@ -740,6 +800,7 @@ void Validator::do_visit(CondExprMIR& node) { // done
     bsv_dbprint("Validator: visiting CondExprMIR node");
     node.condition->accept(*this);
     if (!node.condition->eff_type->is_boolable()) {
+        bsv_dbprint("error: ternary condition is not boolable");
         add_error<InvalidConditionError>(node.condition->eff_type, node.condition->loc);
     }
     node.true_expr->accept(*this);
@@ -754,6 +815,7 @@ void Validator::do_visit(CondExprMIR& node) { // done
         } else if (true_type->coercible_to(false_type)) {
             node.true_expr = cast(false_type, std::move(node.true_expr));
         } else {
+            bsv_dbprint("error: cannot coerce ternary branches to a common type");
             add_error<InvalidCoerceError>(true_type, false_type, node.condition->loc);
             throw UnableToContinue();
         }
@@ -776,9 +838,9 @@ void Validator::do_visit(IdentExprMIR& node) { // done
 void Validator::do_visit(LiteralExprMIR& node) { // done
     bsv_dbprint("Validator: visiting LiteralExprMIR node");
     if (auto *val = std::get_if<eval::Value>(&node.value)) {
-        node.set_type(types.get().get_primitive(val->primtype));
+        node.set_type(types.get_primitive(val->primtype));
     } else if (auto *_ = std::get_if<std::string>(&node.value)) {
-        node.set_type(types.get().get_const(types.get().get_pointer(types.get().get_i8())));
+        node.set_type(types.get_const(types.get_pointer(types.get_i8())));
     } else {
         // unreachable
     }
@@ -792,6 +854,7 @@ void Validator::do_visit(CallExprMIR& node) {
     bsv_dbprint("Validator: visiting CallExprMIR node");
     node.callee->accept(*this);
     if (!node.callee->is_callable()) {
+        bsv_dbprint("error: callee is not callable");
         add_error<InvalidCallExprError>(node.callee->eff_type, node.callee->loc);
         throw UnableToContinue();
     }
@@ -813,6 +876,7 @@ void Validator::do_visit(CallExprMIR& node) {
 
     if (node.args.size() > sig->num_params()) {
 
+        bsv_dbprint("error: too many arguments in function call");
         add_error<TooManyArgsError>(node.loc, sig->num_params(), node.args.size());
         throw UnableToContinue();
 
@@ -825,9 +889,14 @@ void Validator::do_visit(CallExprMIR& node) {
             // Get the type of the param as declared
             auto *param_type = param->effective_type();
             if (arg_type != param_type) {
+                if (arg_type->is_array()) {
+                    arg = cast(types.decay_array_ref(arg_type->as_array()), std::move(arg));
+                    arg_type = arg->eff_type->unqual();
+                }
                 if (arg_type->coercible_to(param_type)) {
                     arg = cast(param_type, std::move(arg));
                 } else {
+                    bsv_dbprint("error: cannot coerce argument to parameter type");
                     add_error<InvalidCoerceError>(
                         arg->act_type->unqual(), param->effective_type(), arg->loc);
                 }
@@ -853,6 +922,7 @@ void Validator::do_visit(MemberAccExprMIR& node) {
 
     if (node.is_arrow) {
         if (!node.object->act_type->is_pointer()) {
+            bsv_dbprint("error: arrow member access object is not a pointer");
             add_error<InvalidMemberAccError>(
                 InvalidMemberAccError::Kind::ObjectIsNotPtr, node.object->eff_type,
                 node.object->loc);
@@ -860,6 +930,7 @@ void Validator::do_visit(MemberAccExprMIR& node) {
         }
 
         if (!node.object->act_type->as_pointer()->base->is_recordtype()) {
+            bsv_dbprint("error: arrow member access pointer base is not a class or union");
             add_error<InvalidMemberAccError>(
                 InvalidMemberAccError::Kind::IncompatibleObject, node.object->eff_type,
                 node.object->loc);
@@ -869,6 +940,7 @@ void Validator::do_visit(MemberAccExprMIR& node) {
         rec = node.object->act_type->as_pointer()->base->as_recordtype();
     } else {
         if (!node.object->act_type->is_recordtype()) {
+            bsv_dbprint("error: dot member access object is not a class or union");
             add_error<InvalidMemberAccError>(
                 InvalidMemberAccError::Kind::IncompatibleObject, node.object->eff_type,
                 node.object->loc);
@@ -881,6 +953,7 @@ void Validator::do_visit(MemberAccExprMIR& node) {
     RecordType::TypeMember *member = rec->find(node.member);
 
     if (!member) {
+        bsv_dbprint("error: no such member in class");
         add_error<NoSuchMemberError>(node.member, node.object->eff_type, node.object->loc);
         throw UnableToContinue();
     }
@@ -890,7 +963,7 @@ void Validator::do_visit(MemberAccExprMIR& node) {
         if (node.object->is_lvalue()) {
             // check for const
             if (node.object->act_type->is_const() || member->ty->is_const()) {
-                node.set_type(types.get().get_const(member->ty));
+                node.set_type(types.get_const(member->ty));
             } else {
                 node.set_type(member->ty);
             }
@@ -900,7 +973,7 @@ void Validator::do_visit(MemberAccExprMIR& node) {
     } else {
         // check for const
         if (node.object->act_type->as_pointer()->base->is_const() || member->ty->is_const()) {
-            node.set_type(types.get().get_const(member->ty));
+            node.set_type(types.get_const(member->ty));
         } else {
             node.set_type(member->ty);
         }
@@ -916,11 +989,13 @@ void Validator::do_visit(ReintExprMIR& node) {
 
     if (node.is_arrow) {
         if (!node.object->eff_type->is_pointer()) {
+            bsv_dbprint("error: reinterpret arrow object is not a pointer");
             add_error<InvalidReintExprError>(InvalidReintExprError::Kind::ObjIsNotPtr, node.loc);
             throw UnableToContinue();
         }
 
         if (!node.object->eff_type->as_pointer()->base->is_primitive()) {
+            bsv_dbprint("error: reinterpret arrow pointer base is not a primitive");
             add_error<InvalidReintExprError>(InvalidReintExprError::Kind::ObjIsNotPrim, node.loc);
             throw UnableToContinue();
         }
@@ -928,6 +1003,7 @@ void Validator::do_visit(ReintExprMIR& node) {
         objtype = node.object->eff_type->as_primitive();
     } else {
         if (!node.object->eff_type->is_primitive()) {
+            bsv_dbprint("error: reinterpret object is not a primitive");
             add_error<InvalidReintExprError>(InvalidReintExprError::Kind::ObjIsNotPrim, node.loc);
             throw UnableToContinue();
         }
@@ -944,18 +1020,19 @@ void Validator::do_visit(ReintExprMIR& node) {
     PrimType objprim = objtype->primkind;
 
     if (prim::pr_size(objprim) < prim::pr_size(node.target)) {
+        bsv_dbprint("error: reinterpret target type is larger than object type");
         add_error<InvalidReintExprError>(InvalidReintExprError::Kind::TargetSizeOverflow, node.loc);
         throw UnableToContinue();
     }
 
-    PrimitiveType *array_base = types.get().get_primitive(node.target);
+    PrimitiveType *array_base = types.get_primitive(node.target);
     size_t size               = prim::pr_size(objprim) / prim::pr_size(node.target);
-    ArrayType *node_ty        = types.get().get_array(array_base, size);
+    ArrayType *node_ty        = types.get_array(array_base, size);
 
     if (!node.is_arrow) {
         if (node.object->is_lvalue()) {
             if (node.object->eff_type->is_const()) {
-                node.set_type(types.get().get_const(node_ty));
+                node.set_type(types.get_const(node_ty));
             } else {
                 node.set_type(node_ty);
             }
@@ -964,7 +1041,7 @@ void Validator::do_visit(ReintExprMIR& node) {
         }
     } else {
         if (node.object->eff_type->as_pointer()->base->is_const()) {
-            node.set_type(types.get().get_const(node_ty));
+            node.set_type(types.get_const(node_ty));
         } else {
             node.set_type(node_ty);
         }
@@ -991,6 +1068,7 @@ void Validator::do_visit(SubscrExprMIR& node) { // done
     ArrayType *arrtype   = node.array->act_type->as_array();
     PointerType *ptrtype = node.array->act_type->as_pointer();
     if (!arrtype && !ptrtype) {
+        bsv_dbprint("error: subscript operator applied to non-array non-pointer");
         add_error<InvalidSubscrExprError>(
             "subscript operator can only be applied to arrays and pointers", node.array->act_type,
             node.array->loc);
@@ -998,6 +1076,7 @@ void Validator::do_visit(SubscrExprMIR& node) { // done
     }
 
     if (!node.index->eff_type->is_primitive()) {
+        bsv_dbprint("error: array index must be a primitive integer type");
         add_error<InvalidSubscrExprError>(
             "array index must be an integer", node.index->eff_type, node.index->loc);
         throw UnableToContinue();
@@ -1005,6 +1084,7 @@ void Validator::do_visit(SubscrExprMIR& node) { // done
 
     PrimitiveType *indtype = node.index->eff_type->as_primitive();
     if (!indtype->is_integer()) {
+        bsv_dbprint("error: array index must be an integer");
         add_error<InvalidSubscrExprError>(
             "array index must be an integer", node.index->eff_type, node.index->loc);
         throw UnableToContinue();
@@ -1019,7 +1099,7 @@ void Validator::do_visit(SubscrExprMIR& node) { // done
         exprty = arrtype->base;
         // calling as_x strips the const qualifier, so we need to add it back here.
         if (node.array->act_type->is_const()) {
-            exprty = types.get().get_const(exprty);
+            exprty = types.get_const(exprty);
         }
     } else {
         // do not propagate const to pointee.
@@ -1035,11 +1115,13 @@ void Validator::do_visit(PostfixExprMIR& node) {
     bsv_dbprint("Validator: visiting PostfixMIR node");
     node.operand->accept(*this);
     if (!node.operand->is_assignable()) {
+        bsv_dbprint("error: postfix operand is not a valid lvalue");
         add_error<InvalidPostfixExprError>(
             "operand is not a valid lvalue", node.op, node.operand->eff_type, node.loc);
     }
 
     if (!node.operand->eff_type->is_primitive()) {
+        bsv_dbprint("error: postfix operand must be a primitive type");
         add_error<InvalidPostfixExprError>(
             "operand must be a primitive type", node.op, node.operand->eff_type, node.loc);
         throw UnableToContinue();
@@ -1069,13 +1151,14 @@ void Validator::do_visit(SizeofExprMIR& node) { // done
             },
             [&](Type *type) {
                 if (type->is_function()) {
+                    bsv_dbprint("error: sizeof operand cannot be a function type");
                     add_error<InvalidTypeError>(
                         "sizeof operand cannot be a function", type, node.loc);
                 }
             }},
         node.operand);
 
-    node.set_type(types.get().get_size_type(false));
+    node.set_type(types.get_size_type(false));
 
     assert((node.act_type && node.eff_type) && "node type not set");
 }
