@@ -1,3 +1,3 @@
 # EnlightenedC Compiler Internals
 
-Under construction!
+This section of the documentation describes the internals of the EnlightenedC compiler.
