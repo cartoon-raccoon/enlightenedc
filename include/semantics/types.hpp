@@ -1450,10 +1450,19 @@ public:
     /** Return a pointer to the Bool Type object. */
     PrimitiveType *get_bool() { return boolt.get(); }
 
+    /**
+    Convenience method for promoting two PrimitiveTypes.
+    */
     Pair<PrimitiveType *, PrimitiveType *> promote(tokens::PrimType p1, tokens::PrimType p2);
 
+    /**
+    Convenience method for promoting two PrimitiveTypes, overloaded to accept a Pair.
+    */
     Pair<PrimitiveType *, PrimitiveType *> promote(Pair<tokens::PrimType, tokens::PrimType> prims);
 
+    /**
+    Convenience method to promote a single PrimType.
+    */
     PrimitiveType *single_promote(tokens::PrimType pr);
 
     /**
@@ -1497,8 +1506,15 @@ public:
 
     /**
     Decay the provided array type to a corresponding pointer type.
+
+    Note that this also deallocates the underlying array type, if the array is unsized.
     */
     PointerType *decay_array(ArrayType *arr);
+
+    /**
+    Decay the provided array type to a corresponding pointer type, without deallocation.
+    */
+    PointerType *decay_array_ref(ArrayType *arr);
 
     // Create or get an array with the given `base` type and specified size.
     ArrayType *get_array(Type *base, uint64_t size);

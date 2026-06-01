@@ -1270,13 +1270,7 @@ PointerType *TypeContext::get_pointer(Type *base) {
 }
 
 PointerType *TypeContext::decay_array(ArrayType *arr) {
-    ArrayKey key = {arr->base, arr->arr_size};
-
-    auto it = arrays.find(key);
-    assert(it != arrays.end());
-
-    // Create the pointer type
-    PointerType *ret = get_pointer(arr->base);
+    auto *ret = decay_array_ref(arr);
 
     // If the array we want to decay is unsized, deallocate it
     if (!arr->arr_size) {
@@ -1284,6 +1278,16 @@ PointerType *TypeContext::decay_array(ArrayType *arr) {
     }
 
     return ret;
+}
+
+PointerType *TypeContext::decay_array_ref(ArrayType *arr) {
+    ArrayKey key = {arr->base, arr->arr_size};
+
+    auto it = arrays.find(key);
+    assert(it != arrays.end());
+
+    // Create and return the pointer type
+    return get_pointer(arr->base);
 }
 
 ArrayType *TypeContext::get_array(Type *base, uint64_t size) {
