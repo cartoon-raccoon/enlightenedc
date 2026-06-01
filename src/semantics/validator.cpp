@@ -154,11 +154,14 @@ void Validator::eval_initializer_expr(Type *type, Box<ExprMIR>& expr, Initialize
             init.initializer = cast(type, std::move(expr));
         } else {
             if (type->is_array()) {
-                assert(expr->kind == MIRNode::NodeKind::LITEXPR_MIR);
-                // the only time an array should match here is if we're assigning a string
-                // literal
+                auto *litexpr = dynamic_cast<LiteralExprMIR *>(expr.get());
+                assert(litexpr && litexpr->is_string() && "expected string literal for array initializer");
 
-                // todo: allow U8[] to I8[] and vice versa, and const to nonconst implicitly
+                Type *arr_base = type->unqual()->as_array()->base->unqual();
+                if (arr_base != types.get_u8() && arr_base != types.get_i8()) {
+                    add_error<InvalidCoerceError>(expr->eff_type, type, expr->loc);
+                }
+
             } else {
                 bsv_dbprint("error: cannot coerce expression to initializer type");
                 add_error<InvalidCoerceError>(expr->eff_type, type, expr->loc);
@@ -481,7 +484,7 @@ void Validator::do_visit(ReturnStmtMIR& node) {
     bsv_dbprint("Validator: visiting ReturnStmtMIR node");
     if (in_node(MIRNode::NodeKind::FUNC_MIR) < 0) {
         bsv_dbprint("error: return statement outside of function");
-        add_error<InvalidReturnError>(node.loc);
+        add_error<InvalidReturnError>(InvalidReturnError::Kind::NotInFunction, node.loc);
         throw UnableToContinue();
     }
 
@@ -498,14 +501,16 @@ void Validator::do_visit(ReturnStmtMIR& node) {
 
 
         if (returntype->is_void()) {
-            // todo: add error: returning value from void function
+            bsv_dbprint("error: returning a value within a void function");
+            add_error<InvalidReturnError>(InvalidReturnError::Kind::RetValueFromVoid, node.loc);
+            throw UnableToContinue();
         }
 
         (*node.ret_expr)->accept(*this);
 
         if ((*node.ret_expr)->act_type->is_array()) {
             node.ret_expr = cast(
-                types.decay_array_ref((*node.ret_expr)->act_type->as_array()), std::move(*node.ret_expr)
+                (*node.ret_expr)->act_type->as_array()->decay(), std::move(*node.ret_expr)
             );
         }
 
@@ -513,7 +518,7 @@ void Validator::do_visit(ReturnStmtMIR& node) {
             if ((*node.ret_expr)->act_type->unqual()->coercible_to(returntype)) {
                 node.ret_expr = cast(returntype, std::move(*node.ret_expr));
             } else {
-                // todo: add error, invalid coerce
+                add_error<InvalidCoerceError>((*node.ret_expr)->act_type, returntype, node.loc);
             }
         }
     }
@@ -534,11 +539,11 @@ void Validator::do_visit(BinaryExprMIR& node) {
     assert(node.right->eff_type);
 
     if (node.left->eff_type->is_array()) {
-        node.left = cast(types.decay_array_ref(node.left->eff_type->as_array()), std::move(node.left));
+        node.left = cast(node.left->eff_type->as_array()->decay(), std::move(node.left));
     }
 
     if (node.right->eff_type->is_array()) {
-        node.right = cast(types.decay_array_ref(node.right->eff_type->as_array()), std::move(node.right));
+        node.right = cast(node.right->eff_type->as_array()->decay(), std::move(node.right));
     }
 
     if (!(node.left->eff_type->is_primitive() && node.right->eff_type->is_primitive())) {
@@ -651,7 +656,7 @@ void Validator::do_visit(UnaryExprMIR& node) {
     case UnaryOp::DEREF: { // *x
         if (node.operand->act_type->is_array()) {
             node.operand = cast(
-                types.decay_array_ref(node.operand->act_type->as_array()),
+                node.operand->act_type->as_array()->decay(),
                 std::move(node.operand)
             );
         }
@@ -741,20 +746,29 @@ void Validator::do_visit(AssignExprMIR& node) {
         throw UnableToContinue();
     }
 
-    if (!node.right->eff_type->coercible_to(node.left->eff_type)) {
-        if (node.right->kind != MIRNode::NodeKind::LITEXPR_MIR) {
-            // if not literal, add error
-            bsv_dbprint("error: cannot coerce right-hand side to left-hand side type");
-            add_error<InvalidCoerceError>(node.right->act_type, node.left->act_type, node.loc);
-            // skip the rest of the check
-            goto done;
-        } else {
-            //
-            LiteralExprMIR *expr = dynamic_cast<LiteralExprMIR *>(node.right.get());
-            assert(expr && "got non-literal expression on expression node with LITEXPR");
+    if (node.left->eff_type != node.right->eff_type) {
+        if (!node.right->eff_type->unqual()->coercible_to(node.left->eff_type)) {
+            if (node.right->kind != MIRNode::NodeKind::LITEXPR_MIR) {
+                // if not literal, add error
+                bsv_dbprint("error: cannot coerce right-hand side to left-hand side type");
+                add_error<InvalidCoerceError>(node.right->act_type, node.left->act_type, node.loc);
+                // skip the rest of the check
+                goto done;
+            } else {
+                //
+                LiteralExprMIR *expr = dynamic_cast<LiteralExprMIR *>(node.right.get());
+                assert(expr && "got non-literal expression on expression node with LITEXPR");
+    
+                if (expr->is_string()) {
+                    PointerType *lhs_ptr = node.left->eff_type->unqual()->as_pointer();
+                    if (!lhs_ptr || (lhs_ptr->base->unqual() != types.get_u8() &&
+                                    lhs_ptr->base->unqual() != types.get_i8())) {
+                        add_error<InvalidCoerceError>(node.right->act_type, node.left->act_type, node.loc);
+                        goto done;
+                    }
+                    node.right = cast(node.left->eff_type, std::move(node.right));
+                }
 
-            if (expr->is_string()) {
-                // todo: check that lhs is a pointer or array, allow const to non-const
             }
         }
     }
@@ -892,7 +906,7 @@ void Validator::do_visit(CallExprMIR& node) {
             auto *param_type = param->effective_type();
             if (arg_type != param_type) {
                 if (arg_type->is_array()) {
-                    arg = cast(types.decay_array_ref(arg_type->as_array()), std::move(arg));
+                    arg = cast(arg_type->as_array()->decay(), std::move(arg));
                     arg_type = arg->eff_type->unqual();
                 }
                 if (arg_type->coercible_to(param_type)) {
@@ -906,9 +920,11 @@ void Validator::do_visit(CallExprMIR& node) {
         }
 
     } else if (node.args.size() < sig->num_params()) {
-        // todo: check that callee a FuncSymbol
-        // if callee is a pointer, reject (defaults do not propagate through pointers)
-        // check that call is not underspecified
+        if (node.callee->kind != MIRNode::NodeKind::IDENTEXPR_MIR) {
+            // todo: add error, default arguments cannot be used through function pointers
+        }
+
+        // todo: check that the call is not underspecified
     }
 
     node.set_type(sig->returntype()->unqual());

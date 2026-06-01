@@ -31,8 +31,23 @@ public:
 
 class InvalidReturnError : public EccSemError {
 public:
-    InvalidReturnError(Location err_loc)
-        : EccSemError("return statement not in function", err_loc) {}
+    enum class Kind : uint8_t {
+        NotInFunction,
+        RetValueFromVoid,
+    };
+    InvalidReturnError(Kind kind, Location err_loc)
+        : EccSemError("invalid return statement", err_loc), kind(kind) {}
+    
+    Kind kind;
+
+    std::string elab() override {
+        switch (kind) {
+        case Kind::NotInFunction:
+            return "return statement not in function";
+        case Kind::RetValueFromVoid:
+            return "returning a value in a void function";
+        }
+    }
 };
 
 class TooManyArgsError : public EccSemError {
@@ -129,6 +144,31 @@ public:
            << lhsstr << " and " << rhsstr;
 
         return ss.str();
+    }
+};
+
+class InvalidPointerArithmetic : public EccSemError {
+public:
+    enum class Kind : uint8_t {
+        InvalidOperator,
+        InvalidPrimOperand,
+        IncompatiblePtrOperands,
+    };
+
+    InvalidPointerArithmetic(Kind kind, Location err_loc)
+        : EccSemError("invalid pointer arithmetic", err_loc), kind(kind) {}
+
+    Kind kind;
+
+    std::string elab() override {
+        switch (kind) {
+        case Kind::InvalidOperator:
+            return "pointer-to-pointer operations can only be subtraction";
+        case Kind::InvalidPrimOperand:
+            return "invalid primitive operand, operand must be an integer";
+        case Kind::IncompatiblePtrOperands:
+            return "pointer operands are incompatible";
+        }
     }
 };
 
