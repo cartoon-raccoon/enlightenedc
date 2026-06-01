@@ -890,7 +890,7 @@ void PointerType::finalize() {
 }
 
 Type *PointerType::decay() {
-    return ctxt().get_u64();
+    return ctxt().get_size_type(false);
 }
 
 Type *PointerType::effective_type() {
@@ -1186,7 +1186,7 @@ ClassType *TypeContext::get_class(Location decl_loc, sym::Scope *scope) {
     is not the same type as the named struct.
     */
     dbprint("TypeContext: anonymous class type on scope ", scope);
-    auto name = "anon_" + std::to_string(anonymous_ctr);
+    auto name = "anon_" + std::to_string(*anonymous_ctr);
     anonymous_ctr++;
     auto mangled = mangle<ClassType>(name, scope->id);
 
@@ -1212,7 +1212,7 @@ UnionType *TypeContext::get_union(Location decl_loc, std::string& name, sym::Sco
 
 UnionType *TypeContext::get_union(Location decl_loc, sym::Scope *scope) {
     dbprint("TypeContext: anonymous union type on scope ", scope);
-    auto name = "anon_" + std::to_string(anonymous_ctr);
+    auto name = "anon_" + std::to_string(*anonymous_ctr);
     anonymous_ctr++;
     auto mangled = mangle<UnionType>(name, scope->id);
 
@@ -1238,7 +1238,7 @@ EnumType *TypeContext::get_enum(Location decl_loc, std::string& name, sym::Scope
 
 EnumType *TypeContext::get_enum(Location decl_loc, sym::Scope *scope) {
     dbprint("TypeContext: anonymous enum type on scope ", scope);
-    auto name = "anon_" + std::to_string(anonymous_ctr);
+    auto name = "anon_" + std::to_string(*anonymous_ctr);
     anonymous_ctr++;
     auto mangled = mangle<EnumType>(name, scope->id);
 

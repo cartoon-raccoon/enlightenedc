@@ -660,7 +660,7 @@ public:
     ReintExprMIR(
         Location loc, sema::sym::Scope *scope, Box<ExprMIR> object, tokens::PrimType target,
         bool is_arrow)
-        : ExprMIR(loc, NodeKind::EXPRSTMT_MIR, scope), object(std::move(object)), target(target),
+        : ExprMIR(loc, NodeKind::REINTEXPR_MIR, scope), object(std::move(object)), target(target),
           is_arrow(is_arrow) {}
 
     Box<ExprMIR> object;

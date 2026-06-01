@@ -1,6 +1,5 @@
 #pragma once
 
-#include "eval/value.hpp"
 #ifndef ECC_TYPES_H
 #define ECC_TYPES_H
 
@@ -19,6 +18,7 @@
 
 #include "codegen/llvm.hpp"
 #include "ds/linkedlist.hpp"
+#include "eval/value.hpp"
 #include "location.hpp"
 #include "tokens.hpp"
 #include "util.hpp"
@@ -1540,7 +1540,7 @@ public:
     std::string to_string() const;
 
 private:
-    int anonymous_ctr = 0;
+    MonotonicCtr<uint64_t> anonymous_ctr = 0;
 
     Ref<codegen::LLVMUnit> llvmref;
 
