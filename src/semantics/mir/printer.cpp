@@ -225,7 +225,7 @@ void MIRPrinter::visit(MemberAccExprMIR& node) {
 
 void MIRPrinter::visit(ReintExprMIR& node) {
     print_node(
-        "Member: ." + primitive_to_string(node.target) + " :: " + node.act_type->formal(), node,
+        "Reint: ." + primitive_to_string(node.target) + " :: " + node.act_type->formal(), node,
         [&] { node.object->accept(*this); });
 }
 
