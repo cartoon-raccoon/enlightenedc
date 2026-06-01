@@ -4,8 +4,8 @@
 
 #include "codegen/lir/lir.hpp"
 #include "codegen/lir/symbols.hpp"
-#include "semantics/mir/mir.hpp"
 #include "semantics/symbols.hpp"
+#include "tokens.hpp"
 #include "util.hpp"
 
 using namespace codegen::lir;
@@ -547,7 +547,7 @@ void LIRSynthesizer::do_visit(BinaryExprMIR& node) {
     Box<ExprLIR> right = std::move(last_expr);
 
     Box<ExprLIR> expr = std::make_unique<BinaryExprLIR>(
-        node.loc, node.eff_type, std::move(left), std::move(right), node.op);
+        node.loc, node.act_type, std::move(left), std::move(right), node.op);
 
     last_expr = std::move(expr);
 }
@@ -557,7 +557,7 @@ void LIRSynthesizer::do_visit(UnaryExprMIR& node) {
     Box<ExprLIR> operand = std::move(last_expr);
 
     Box<ExprLIR> expr =
-        std::make_unique<UnaryExprLIR>(node.loc, node.eff_type, std::move(operand), node.op);
+        std::make_unique<UnaryExprLIR>(node.loc, node.act_type, std::move(operand), node.op);
 
     last_expr = std::move(expr);
 }
@@ -568,7 +568,7 @@ void LIRSynthesizer::do_visit(CastExprMIR& node) {
     Box<ExprLIR> inner = std::move(last_expr);
 
     Box<ExprLIR> expr =
-        std::make_unique<CastExprLIR>(node.loc, node.eff_type, std::move(inner), node.target);
+        std::make_unique<CastExprLIR>(node.loc, node.act_type, std::move(inner), node.target);
 
     last_expr = std::move(expr);
 }
@@ -583,7 +583,7 @@ void LIRSynthesizer::do_visit(AssignExprMIR& node) {
     Box<ExprLIR> right = std::move(last_expr);
 
     Box<ExprLIR> expr = std::make_unique<AssignExprLIR>(
-        node.loc, node.eff_type, std::move(left), std::move(right), node.op);
+        node.loc, node.act_type, std::move(left), std::move(right), node.op);
 
     last_expr = std::move(expr);
 }
@@ -597,7 +597,7 @@ void LIRSynthesizer::do_visit(CondExprMIR& node) {
     Box<ExprLIR> false_val = std::move(last_expr);
 
     Box<ExprLIR> expr = std::make_unique<CondExprLIR>(
-        node.loc, node.eff_type, std::move(condition), std::move(true_val), std::move(false_val));
+        node.loc, node.act_type, std::move(condition), std::move(true_val), std::move(false_val));
 
     last_expr = std::move(expr);
 }
@@ -608,25 +608,15 @@ void LIRSynthesizer::do_visit(IdentExprMIR& node) {
         // todo: throw exception
     }
 
-    Box<ExprLIR> identexpr = std::make_unique<IdentExprLIR>(node.loc, sym, node.eff_type);
+    Box<ExprLIR> identexpr = std::make_unique<IdentExprLIR>(node.loc, sym, node.act_type);
 
     last_expr = std::move(identexpr);
 }
 
 void LIRSynthesizer::do_visit(LiteralExprMIR& node) {
-    std::visit(
-        match{
-            [&](eval::Value& val) {
-                Box<ExprLIR> literal =
-                    std::make_unique<LiteralExprLIR>(node.loc, val, node.eff_type);
-                last_expr = std::move(literal);
-            },
-            [&](std::string&) {
-                // todo: figure out how to handle string literals in the LIR, since we
-                // don't want to embed them directly into the IR
-                todo();
-            }},
-        node.value);
+    Box<ExprLIR> litexpr = std::make_unique<LiteralExprLIR>(node.loc, node.value, node.act_type);
+
+    last_expr = std::move(litexpr);
 }
 
 void LIRSynthesizer::do_visit(CallExprMIR& node) {
@@ -641,7 +631,7 @@ void LIRSynthesizer::do_visit(CallExprMIR& node) {
     }
 
     Box<ExprLIR> callexpr =
-        std::make_unique<CallExprLIR>(node.loc, std::move(callee), std::move(args), node.eff_type);
+        std::make_unique<CallExprLIR>(node.loc, std::move(callee), std::move(args), node.act_type);
 
     last_expr = std::move(callexpr);
 }
@@ -653,7 +643,16 @@ void LIRSynthesizer::do_visit(MemberAccExprMIR& node) {
     node.object->accept(*this);
     Box<ExprLIR> object = std::move(last_expr);
 
+    if (node.is_arrow) {
+        PointerType *objtype = node.object->act_type->as_pointer();
+        assert(objtype);
+        object = std::make_unique<UnaryExprLIR>(
+            node.loc, objtype->base, std::move(object), tokens::UnaryOp::DEREF
+        );
+    }
+
     // todo
+    
 }
 
 void LIRSynthesizer::do_visit(ReintExprMIR& node) {
@@ -663,7 +662,19 @@ void LIRSynthesizer::do_visit(ReintExprMIR& node) {
     node.object->accept(*this);
     Box<ExprLIR> object = std::move(last_expr);
 
-    // todo
+    if (node.is_arrow) {
+        PointerType *objtype = node.object->act_type->as_pointer();
+        assert(objtype);
+        object = std::make_unique<UnaryExprLIR>(
+            node.loc, objtype->base, std::move(object), tokens::UnaryOp::DEREF
+        );
+    }
+
+    Box<ExprLIR> expr = std::make_unique<ReintExprLIR>(
+        node.loc, std::move(object), node.target, node.act_type
+    );
+
+    last_expr = std::move(expr);
 }
 
 void LIRSynthesizer::do_visit(SubscrExprMIR& node) {
@@ -674,7 +685,7 @@ void LIRSynthesizer::do_visit(SubscrExprMIR& node) {
     Box<ExprLIR> index = std::move(last_expr);
 
     Box<ExprLIR> subscript = std::make_unique<SubscrExprLIR>(
-        node.loc, std::move(array), std::move(index), node.eff_type);
+        node.loc, std::move(array), std::move(index), node.act_type);
 
     last_expr = std::move(subscript);
 }
@@ -684,7 +695,7 @@ void LIRSynthesizer::do_visit(PostfixExprMIR& node) {
     Box<ExprLIR> operand = std::move(last_expr);
 
     Box<ExprLIR> postfix =
-        std::make_unique<PostfixExprLIR>(node.loc, std::move(operand), node.op, node.eff_type);
+        std::make_unique<PostfixExprLIR>(node.loc, std::move(operand), node.op, node.act_type);
 
     last_expr = std::move(postfix);
 }
@@ -692,11 +703,11 @@ void LIRSynthesizer::do_visit(PostfixExprMIR& node) {
 void LIRSynthesizer::do_visit(SizeofExprMIR& node) {
     size_t size = std::visit(
         match{
-            [](Box<ExprMIR>& expr) mutable { return expr->eff_type->alloc_size(); },
+            [](Box<ExprMIR>& expr) mutable { return expr->act_type->alloc_size(); },
             [](Type *& type) mutable { return type->alloc_size(); }},
         node.operand);
 
-    Box<ExprLIR> ret = std::make_unique<LiteralExprLIR>(node.loc, size, node.eff_type);
+    Box<ExprLIR> ret = std::make_unique<LiteralExprLIR>(node.loc, Value(size), node.act_type);
 
     last_expr = std::move(ret);
 }

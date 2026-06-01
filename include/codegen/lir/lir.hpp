@@ -140,11 +140,13 @@ public:
 
 class ExprLIR : public LIRNode {
 public:
-    ExprLIR(NodeKind kind, sema::types::Type *type) : LIRNode(kind), type(type) {}
+    ExprLIR(NodeKind kind, sema::types::Type *type)
+        : LIRNode(kind), act_type(type), eff_type(type->effective_type()) {}
     ExprLIR(Location loc, NodeKind kind, sema::types::Type *type)
-        : LIRNode(loc, kind), type(type) {}
+        : LIRNode(loc, kind), act_type(type), eff_type(type->effective_type()) {}
 
-    sema::types::Type *type;
+    sema::types::Type *act_type;
+    sema::types::Type *eff_type;
 };
 
 class FunctionLIR : public LIRNode {
@@ -385,10 +387,19 @@ public:
 
 class LiteralExprLIR : public ExprLIR {
 public:
-    LiteralExprLIR(Location loc, eval::Value value, sema::types::Type *type) // NOLINT
+    using LitValueLIR = std::variant<eval::Value, std::string>;
+
+    LiteralExprLIR(Location loc, eval::Value value, sema::types::Type *type)
         : ExprLIR(loc, NodeKind::LITEXPR_LIR, type), value(value) {}
 
-    eval::Value value;
+    LiteralExprLIR(Location loc, std::string value, sema::types::Type *type)
+        : ExprLIR(loc, NodeKind::LITEXPR_LIR, type), value(std::move(value)) {}
+
+    LiteralExprLIR(Location loc, LitValueLIR value, sema::types::Type *type)
+        : ExprLIR(loc, NodeKind::LITEXPR_LIR, type), value(std::move(value)) {}
+
+
+    LitValueLIR value;
 
     void accept(LIRVisitor& visitor) override;
 };
