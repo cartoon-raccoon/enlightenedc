@@ -4,656 +4,6 @@ running pipeline on file test/integration/brainfuck.HC
 LLVM: Creating LLVMUnit with module name 'test/integration/brainfuck.HC'
 LLVM: LLVMUnit created
 parsing file test/integration/brainfuck.HC
-printing AST for file test/integration/brainfuck.HC
-Program @ <1.1> 
-| VariableDeclaration @ <6.1-13> 
-| | VoidSpecifier @ <6.1-2> 
-| | InitDeclarator @ <6.4-12> 
-| | | Declarator @ <6.4-12> 
-| | | | FunctionDeclarator @ <6.4-12> 
-| | | | | IdentifierDeclarator: Execute @ <6.4-10> 
-| TypeDeclaration @ <9.1-13.2> 
-| | ClassSpecifier:  Stack: @ <9.1-13.1> 
-| | | ClassDeclaration @ <10.5-13> 
-| | | | PrimitiveSpecifier: i32 @ <10.5-8> 
-| | | | ClassDeclarator @ <10.10-12> 
-| | | | | Declarator @ <10.10-12> 
-| | | | | | IdentifierDeclarator: cap @ <10.10-12> 
-| | | ClassDeclaration @ <11.5-13> 
-| | | | PrimitiveSpecifier: i32 @ <11.5-8> 
-| | | | ClassDeclarator @ <11.10-12> 
-| | | | | Declarator @ <11.10-12> 
-| | | | | | IdentifierDeclarator: len @ <11.10-12> 
-| | | ClassDeclaration @ <12.5-18> 
-| | | | PrimitiveSpecifier: i32 @ <12.5-8> 
-| | | | ClassDeclarator @ <12.10-17> 
-| | | | | Declarator @ <12.10-17> 
-| | | | | | ArrayDeclarator @ <12.10-17> 
-| | | | | | | IdentifierDeclarator: data @ <12.10-13> 
-| | | | | | | ConstExpression:  @ <12.10-16> 
-| | | | | | | | 32 @ <12.10-16> 
-| VariableDeclaration @ <15.1-26> 
-| | TypeIdentifier: Stack @ <15.1-5> 
-| | InitDeclarator @ <15.7-25> 
-| | | Declarator @ <15.7-13> 
-| | | | IdentifierDeclarator: nesting @ <15.7-13> 
-| | | Initializer:  @ <15.17-25> 
-| | | | Initializer:  @ <15.19-20> 
-| | | | | 32 @ <15.19-20> 
-| | | | Initializer:  @ <15.23> 
-| | | | | 0 @ <15.23> 
-| Function @ <17.1-28.1> 
-| | VoidSpecifier @ <17.1-2> 
-| | Declarator @ <17.4-23> 
-| | | FunctionDeclarator @ <17.4-23> 
-| | | | IdentifierDeclarator: StackPush @ <17.4-12> 
-| | | | ParameterDeclaration @ <17.4-22> 
-| | | | | PrimitiveSpecifier: i32 @ <17.4-17> 
-| | | | | Declarator @ <17.19-22> 
-| | | | | | IdentifierDeclarator: item @ <17.19-22> 
-| | CompoundStatement @ <17.25-28.1> 
-| | | IfStatement @ <19.5-25> 
-| | | | BinaryExpression: < @ <19.8-16> 
-| | | | | IdentifierExpression: item @ <19.8-12> 
-| | | | | 0 @ <19.16> 
-| | | | ReturnStatement @ <19.19-25> 
-| | | IfStatement @ <21.5-24.5> 
-| | | | BinaryExpression: > @ <21.8-37> 
-| | | | | BinaryExpression: + @ <21.8-23> 
-| | | | | | MemberAccess: .len @ <21.8-19> 
-| | | | | | | IdentifierExpression: nesting @ <21.8-15> 
-| | | | | | 1 @ <21.23> 
-| | | | | MemberAccess: .cap @ <21.27-37> 
-| | | | | | IdentifierExpression: nesting @ <21.27-33> 
-| | | | CompoundStatement @ <21.40-24.5> 
-| | | | | ReturnStatement @ <23.9-15> 
-| | | ExpressionStatement @ <26.5-37> 
-| | | | AssignmentExpression: = @ <26.5-36> 
-| | | | | ArraySubscriptExpression @ <26.5-29> 
-| | | | | | MemberAccess: .data @ <26.5-16> 
-| | | | | | | IdentifierExpression: nesting @ <26.5-11> 
-| | | | | | MemberAccess: .len @ <26.5-28> 
-| | | | | | | IdentifierExpression: nesting @ <26.5-24> 
-| | | | | IdentifierExpression: item @ <26.33-36> 
-| | | ExpressionStatement @ <27.5-18> 
-| | | | PostfixExpression: ++ @ <27.5-17> 
-| | | | | MemberAccess: .len @ <27.5-15> 
-| | | | | | IdentifierExpression: nesting @ <27.5-11> 
-| Function @ <30.1-35.1> 
-| | PrimitiveSpecifier: i32 @ <30.1-4> 
-| | Declarator @ <30.6-16> 
-| | | FunctionDeclarator @ <30.6-16> 
-| | | | IdentifierDeclarator: StackPeek @ <30.6-14> 
-| | CompoundStatement @ <30.18-35.1> 
-| | | IfStatement @ <31.5-32.18> 
-| | | | BinaryExpression: <= @ <31.8-24> 
-| | | | | MemberAccess: .len @ <31.8-19> 
-| | | | | | IdentifierExpression: nesting @ <31.8-15> 
-| | | | | 0 @ <31.24> 
-| | | | ReturnStatement @ <32.9-18> 
-| | | | | UnaryExpression: - @ <32.16-17> 
-| | | | | | 1 @ <32.16-17> 
-| | | ReturnStatement @ <34.5-41> 
-| | | | ArraySubscriptExpression @ <34.12-40> 
-| | | | | MemberAccess: .data @ <34.12-23> 
-| | | | | | IdentifierExpression: nesting @ <34.12-18> 
-| | | | | BinaryExpression: - @ <34.12-39> 
-| | | | | | MemberAccess: .len @ <34.12-35> 
-| | | | | | | IdentifierExpression: nesting @ <34.12-31> 
-| | | | | | 1 @ <34.39> 
-| Function @ <37.1-44.1> 
-| | PrimitiveSpecifier: i32 @ <37.1-4> 
-| | Declarator @ <37.6-15> 
-| | | FunctionDeclarator @ <37.6-15> 
-| | | | IdentifierDeclarator: StackPop @ <37.6-13> 
-| | CompoundStatement @ <37.17-44.1> 
-| | | IfStatement @ <38.5-36> 
-| | | | BinaryExpression: <= @ <38.8-24> 
-| | | | | MemberAccess: .len @ <38.8-19> 
-| | | | | | IdentifierExpression: nesting @ <38.8-15> 
-| | | | | 0 @ <38.24> 
-| | | | ReturnStatement @ <38.27-36> 
-| | | | | UnaryExpression: - @ <38.34-35> 
-| | | | | | 1 @ <38.34-35> 
-| | | VariableDeclaration @ <40.5-45> 
-| | | | PrimitiveSpecifier: i32 @ <40.5-8> 
-| | | | InitDeclarator @ <40.10-44> 
-| | | | | Declarator @ <40.10-12> 
-| | | | | | IdentifierDeclarator: ret @ <40.10-12> 
-| | | | | Initializer:  @ <40.16-44> 
-| | | | | | ArraySubscriptExpression @ <40.16-44> 
-| | | | | | | MemberAccess: .data @ <40.16-27> 
-| | | | | | | | IdentifierExpression: nesting @ <40.16-22> 
-| | | | | | | BinaryExpression: - @ <40.16-43> 
-| | | | | | | | MemberAccess: .len @ <40.16-39> 
-| | | | | | | | | IdentifierExpression: nesting @ <40.16-35> 
-| | | | | | | | 1 @ <40.43> 
-| | | ExpressionStatement @ <41.5-18> 
-| | | | PostfixExpression: -- @ <41.5-17> 
-| | | | | MemberAccess: .len @ <41.5-15> 
-| | | | | | IdentifierExpression: nesting @ <41.5-11> 
-| | | ReturnStatement @ <43.5-15> 
-| | | | IdentifierExpression: ret @ <43.12-14> 
-| VariableDeclaration @ <47.1-15> 
-| | PrimitiveSpecifier: u8 @ <47.1-3> 
-| | InitDeclarator @ <47.5-14> 
-| | | Declarator @ <47.5-14> 
-| | | | ArrayDeclarator @ <47.5-14> 
-| | | | | IdentifierDeclarator: code @ <47.5-8> 
-| | | | | ConstExpression:  @ <47.5-13> 
-| | | | | | 1024 @ <47.5-13> 
-| VariableDeclaration @ <48.1-16> 
-| | PrimitiveSpecifier: i32 @ <48.1-4> 
-| | InitDeclarator @ <48.6-15> 
-| | | Declarator @ <48.6-11> 
-| | | | IdentifierDeclarator: insptr @ <48.6-11> 
-| | | Initializer:  @ <48.15> 
-| | | | 0 @ <48.15> 
-| VariableDeclaration @ <49.1-21> 
-| | PrimitiveSpecifier: i32 @ <49.1-4> 
-| | InitDeclarator @ <49.6-20> 
-| | | Declarator @ <49.6-13> 
-| | | | IdentifierDeclarator: codesize @ <49.6-13> 
-| | | Initializer:  @ <49.17-20> 
-| | | | 1024 @ <49.17-20> 
-| VariableDeclaration @ <52.1-16> 
-| | PrimitiveSpecifier: u8 @ <52.1-3> 
-| | InitDeclarator @ <52.5-15> 
-| | | Declarator @ <52.5-15> 
-| | | | ArrayDeclarator @ <52.5-15> 
-| | | | | IdentifierDeclarator: data @ <52.5-8> 
-| | | | | ConstExpression:  @ <52.5-14> 
-| | | | | | 30000 @ <52.5-14> 
-| VariableDeclaration @ <53.1-17> 
-| | PrimitiveSpecifier: i32 @ <53.1-4> 
-| | InitDeclarator @ <53.6-16> 
-| | | Declarator @ <53.6-12> 
-| | | | IdentifierDeclarator: dataptr @ <53.6-12> 
-| | | Initializer:  @ <53.16> 
-| | | | 0 @ <53.16> 
-| TypeDeclaration @ <55.1-40> 
-| | EnumSpecifier: ErrType @ <55.1-39> 
-| | | Enumerator: SYSTEM @ <55.14-24> 
-| | | | ConstExpression:  @ <55.24> 
-| | | | | 1 @ <55.24> 
-| | | Enumerator: BAD_CODE @ <55.27-38> 
-| | | | ConstExpression:  @ <55.38> 
-| | | | | 2 @ <55.38> 
-| Function @ <56.1-63.1> 
-| | VoidSpecifier @ <56.1-2> 
-| | Declarator @ <56.4-41> 
-| | | FunctionDeclarator @ <56.4-41> 
-| | | | IdentifierDeclarator: Die @ <56.4-6> 
-| | | | ParameterDeclaration @ <56.4-18> 
-| | | | | PrimitiveSpecifier: u8 @ <56.4-10> 
-| | | | | Declarator @ <56.12-18> 
-| | | | | | Pointer @ <56.12> 
-| | | | | | IdentifierDeclarator: errmsg @ <56.12-18> 
-| | | | ParameterDeclaration @ <56.21-40> 
-| | | | | EnumSpecifier: ErrType @ <56.21-32> 
-| | | | | Declarator @ <56.34-40> 
-| | | | | | IdentifierDeclarator: errcode @ <56.34-40> 
-| | CompoundStatement @ <56.43-63.1> 
-| | | IfStatement @ <57.5-61.5> 
-| | | | BinaryExpression: == @ <57.8-25> 
-| | | | | IdentifierExpression: errcode @ <57.8-15> 
-| | | | | IdentifierExpression: SYSTEM @ <57.20-25> 
-| | | | CompoundStatement @ <57.28-59.5> 
-| | | | | PrintStatement: "ERROR: %s
-" @ <58.9-30> 
-| | | | | | IdentifierExpression: errmsg @ <58.24-29> 
-| | | | CompoundStatement @ <59.12-61.5> 
-| | | | | PrintStatement: "ERROR@[Pos %d: '%c']: %s
-" @ <60.9-67> 
-| | | | | | IdentifierExpression: insptr @ <60.39-44> 
-| | | | | | ArraySubscriptExpression @ <60.47-58> 
-| | | | | | | IdentifierExpression: code @ <60.47-50> 
-| | | | | | | IdentifierExpression: insptr @ <60.47-57> 
-| | | | | | IdentifierExpression: errmsg @ <60.61-66> 
-| | | ReturnStatement @ <62.5-11> 
-| VariableDeclaration @ <65.1-62> 
-| | PrimitiveSpecifier: i8 @ <65.1-3> 
-| | InitDeclarator @ <65.5-61> 
-| | | Declarator @ <65.5-18> 
-| | | | ArrayDeclarator @ <65.5-18> 
-| | | | | IdentifierDeclarator: valid_chars @ <65.5-15> 
-| | | | | ConstExpression:  @ <65.5-17> 
-| | | | | | 8 @ <65.5-17> 
-| | | Initializer:  @ <65.22-61> 
-| | | | Initializer:  @ <65.22-25> 
-| | | | | > @ <65.22-25> 
-| | | | Initializer:  @ <65.28-30> 
-| | | | | < @ <65.28-30> 
-| | | | Initializer:  @ <65.33-35> 
-| | | | | + @ <65.33-35> 
-| | | | Initializer:  @ <65.38-40> 
-| | | | | - @ <65.38-40> 
-| | | | Initializer:  @ <65.43-45> 
-| | | | | , @ <65.43-45> 
-| | | | Initializer:  @ <65.48-50> 
-| | | | | . @ <65.48-50> 
-| | | | Initializer:  @ <65.53-55> 
-| | | | | [ @ <65.53-55> 
-| | | | Initializer:  @ <65.58-60> 
-| | | | | ] @ <65.58-60> 
-| Function @ <66.1-74.1> 
-| | PrimitiveSpecifier: bool @ <66.1-4> 
-| | Declarator @ <66.6-19> 
-| | | FunctionDeclarator @ <66.6-19> 
-| | | | IdentifierDeclarator: IsValid @ <66.6-12> 
-| | | | ParameterDeclaration @ <66.6-18> 
-| | | | | PrimitiveSpecifier: u8 @ <66.6-16> 
-| | | | | Declarator @ <66.18> 
-| | | | | | IdentifierDeclarator: c @ <66.18> 
-| | CompoundStatement @ <66.21-74.1> 
-| | | VariableDeclaration @ <67.5-15> 
-| | | | PrimitiveSpecifier: i32 @ <67.5-8> 
-| | | | InitDeclarator @ <67.10-14> 
-| | | | | Declarator @ <67.10> 
-| | | | | | IdentifierDeclarator: i @ <67.10> 
-| | | | | Initializer:  @ <67.14> 
-| | | | | | 0 @ <67.14> 
-| | | WhileStatement @ <68.5-71.5> 
-| | | | BinaryExpression: < @ <68.11-16> 
-| | | | | IdentifierExpression: i @ <68.11-12> 
-| | | | | 8 @ <68.16> 
-| | | | CompoundStatement @ <68.19-71.5> 
-| | | | | IfStatement @ <69.9-42> 
-| | | | | | BinaryExpression: == @ <69.12-31> 
-| | | | | | | IdentifierExpression: c @ <69.12-13> 
-| | | | | | | ArraySubscriptExpression @ <69.18-31> 
-| | | | | | | | IdentifierExpression: valid_chars @ <69.18-28> 
-| | | | | | | | IdentifierExpression: i @ <69.18-30> 
-| | | | | | ReturnStatement @ <69.34-42> 
-| | | | | | | 1 @ <69.41> 
-| | | | | ExpressionStatement @ <70.9-12> 
-| | | | | | PostfixExpression: ++ @ <70.9-11> 
-| | | | | | | IdentifierExpression: i @ <70.9> 
-| | | ReturnStatement @ <73.5-13> 
-| | | | 0 @ <73.12> 
-| Function @ <77.1-95.1> 
-| | VoidSpecifier @ <77.1-2> 
-| | Declarator @ <77.4-21> 
-| | | FunctionDeclarator @ <77.4-21> 
-| | | | IdentifierDeclarator: ReadCode @ <77.4-11> 
-| | | | ParameterDeclaration @ <77.4-20> 
-| | | | | PrimitiveSpecifier: u8 @ <77.4-15> 
-| | | | | Declarator @ <77.17-20> 
-| | | | | | Pointer @ <77.17> 
-| | | | | | IdentifierDeclarator: src @ <77.17-20> 
-| | CompoundStatement @ <77.23-95.1> 
-| | | VariableDeclaration @ <78.5-15> 
-| | | | PrimitiveSpecifier: i32 @ <78.5-8> 
-| | | | InitDeclarator @ <78.10-14> 
-| | | | | Declarator @ <78.10> 
-| | | | | | IdentifierDeclarator: n @ <78.10> 
-| | | | | Initializer:  @ <78.14> 
-| | | | | | 0 @ <78.14> 
-| | | VariableDeclaration @ <79.5-15> 
-| | | | PrimitiveSpecifier: i32 @ <79.5-8> 
-| | | | InitDeclarator @ <79.10-14> 
-| | | | | Declarator @ <79.10> 
-| | | | | | IdentifierDeclarator: i @ <79.10> 
-| | | | | Initializer:  @ <79.14> 
-| | | | | | 0 @ <79.14> 
-| | | WhileStatement @ <81.5-91.5> 
-| | | | BinaryExpression: != @ <81.11-25> 
-| | | | | ArraySubscriptExpression @ <81.11-17> 
-| | | | | | IdentifierExpression: src @ <81.11-14> 
-| | | | | | IdentifierExpression: i @ <81.11-16> 
-| | | | |   @ <81.22-25> 
-| | | | CompoundStatement @ <81.28-91.5> 
-| | | | | IfStatement @ <82.9-84.9> 
-| | | | | | CallExpression @ <82.12-27> 
-| | | | | | | IdentifierExpression: IsValid @ <82.12-19> 
-| | | | | | | ArraySubscriptExpression @ <82.12-26> 
-| | | | | | | | IdentifierExpression: src @ <82.12-23> 
-| | | | | | | | IdentifierExpression: i @ <82.12-25> 
-| | | | | | CompoundStatement @ <82.30-84.9> 
-| | | | | | | ExpressionStatement @ <83.13-31> 
-| | | | | | | | AssignmentExpression: = @ <83.13-30> 
-| | | | | | | | | ArraySubscriptExpression @ <83.13-21> 
-| | | | | | | | | | IdentifierExpression: code @ <83.13-16> 
-| | | | | | | | | | PostfixExpression: ++ @ <83.13-20> 
-| | | | | | | | | | | IdentifierExpression: n @ <83.13-18> 
-| | | | | | | | | ArraySubscriptExpression @ <83.25-30> 
-| | | | | | | | | | IdentifierExpression: src @ <83.25-27> 
-| | | | | | | | | | IdentifierExpression: i @ <83.25-29> 
-| | | | | IfStatement @ <86.9-89.9> 
-| | | | | | BinaryExpression: == @ <86.12-29> 
-| | | | | | | BinaryExpression: + @ <86.12-17> 
-| | | | | | | | IdentifierExpression: n @ <86.12-13> 
-| | | | | | | | 1 @ <86.17> 
-| | | | | | | IdentifierExpression: codesize @ <86.22-29> 
-| | | | | | CompoundStatement @ <86.32-89.9> 
-| | | | | | | ExpressionStatement @ <87.13-42> 
-| | | | | | | | CallExpression @ <87.13-41> 
-| | | | | | | | | IdentifierExpression: Die @ <87.13-15> 
-| | | | | | | | | String: code too large @ <87.13-32> 
-| | | | | | | | | IdentifierExpression: SYSTEM @ <87.35-40> 
-| | | | | | | ReturnStatement @ <88.13-19> 
-| | | | | ExpressionStatement @ <90.9-12> 
-| | | | | | PostfixExpression: ++ @ <90.9-11> 
-| | | | | | | IdentifierExpression: i @ <90.9> 
-| | | ExpressionStatement @ <93.5-19> 
-| | | | AssignmentExpression: = @ <93.5-18> 
-| | | | | ArraySubscriptExpression @ <93.5-11> 
-| | | | | | IdentifierExpression: code @ <93.5-8> 
-| | | | | | IdentifierExpression: n @ <93.5-10> 
-| | | | |   @ <93.15-18> 
-| | | PrintStatement: "got code: (" @ <94.5-31> 
-| | | | IdentifierExpression: code @ <94.20-23> 
-| | | | String: )
- @ <94.26-30> 
-| Function @ <98.1-118.1> 
-| | VoidSpecifier @ <98.1-2> 
-| | Declarator @ <98.4-16> 
-| | | FunctionDeclarator @ <98.4-16> 
-| | | | IdentifierDeclarator: JumpToAfter @ <98.4-14> 
-| | CompoundStatement @ <98.18-118.1> 
-| | | VariableDeclaration @ <99.5-31> 
-| | | | PrimitiveSpecifier: i32 @ <99.5-8> 
-| | | | InitDeclarator @ <99.10-30> 
-| | | | | Declarator @ <99.10-16> 
-| | | | | | IdentifierDeclarator: current @ <99.10-16> 
-| | | | | Initializer:  @ <99.20-30> 
-| | | | | | MemberAccess: .len @ <99.20-30> 
-| | | | | | | IdentifierExpression: nesting @ <99.20-26> 
-| | | WhileStatement @ <100.5-117.5> 
-| | | | BinaryExpression: != @ <100.11-31> 
-| | | | | ArraySubscriptExpression @ <100.11-23> 
-| | | | | | IdentifierExpression: code @ <100.11-15> 
-| | | | | | IdentifierExpression: insptr @ <100.11-22> 
-| | | | |   @ <100.28-31> 
-| | | | CompoundStatement @ <100.34-117.5> 
-| | | | | IfStatement @ <101.9-109.9> 
-| | | | | | BinaryExpression: == @ <101.12-31> 
-| | | | | | | ArraySubscriptExpression @ <101.12-24> 
-| | | | | | | | IdentifierExpression: code @ <101.12-16> 
-| | | | | | | | IdentifierExpression: insptr @ <101.12-23> 
-| | | | | | | [ @ <101.29-31> 
-| | | | | | CompoundStatement @ <101.34-103.9> 
-| | | | | | | ExpressionStatement @ <102.13-22> 
-| | | | | | | | PostfixExpression: ++ @ <102.13-21> 
-| | | | | | | | | IdentifierExpression: current @ <102.13-19> 
-| | | | | | IfStatement @ <103.16-109.9> 
-| | | | | | | BinaryExpression: == @ <103.19-38> 
-| | | | | | | | ArraySubscriptExpression @ <103.19-31> 
-| | | | | | | | | IdentifierExpression: code @ <103.19-23> 
-| | | | | | | | | IdentifierExpression: insptr @ <103.19-30> 
-| | | | | | | | ] @ <103.36-38> 
-| | | | | | | CompoundStatement @ <103.41-109.9> 
-| | | | | | | | ExpressionStatement @ <104.13-22> 
-| | | | | | | | | PostfixExpression: -- @ <104.13-21> 
-| | | | | | | | | | IdentifierExpression: current @ <104.13-19> 
-| | | | | | | | IfStatement @ <105.13-108.13> 
-| | | | | | | | | BinaryExpression: == @ <105.16-38> 
-| | | | | | | | | | IdentifierExpression: current @ <105.16-23> 
-| | | | | | | | | | MemberAccess: .len @ <105.28-38> 
-| | | | | | | | | | | IdentifierExpression: nesting @ <105.28-34> 
-| | | | | | | | | CompoundStatement @ <105.41-108.13> 
-| | | | | | | | | | ExpressionStatement @ <106.17-25> 
-| | | | | | | | | | | PostfixExpression: ++ @ <106.17-24> 
-| | | | | | | | | | | | IdentifierExpression: insptr @ <106.17-22> 
-| | | | | | | | | | ReturnStatement @ <107.17-23> 
-| | | | | IfStatement @ <111.9-114.9> 
-| | | | | | BinaryExpression: < @ <111.12-33> 
-| | | | | | | IdentifierExpression: current @ <111.12-19> 
-| | | | | | | MemberAccess: .len @ <111.23-33> 
-| | | | | | | | IdentifierExpression: nesting @ <111.23-29> 
-| | | | | | CompoundStatement @ <111.36-114.9> 
-| | | | | | | ExpressionStatement @ <112.13-70> 
-| | | | | | | | CallExpression @ <112.13-69> 
-| | | | | | | | | IdentifierExpression: Die @ <112.13-15> 
-| | | | | | | | | String: malformed code, missing matching bracket @ <112.13-58> 
-| | | | | | | | | IdentifierExpression: BAD_CODE @ <112.61-68> 
-| | | | | | | ReturnStatement @ <113.13-19> 
-| | | | | ExpressionStatement @ <116.9-17> 
-| | | | | | PostfixExpression: ++ @ <116.9-16> 
-| | | | | | | IdentifierExpression: insptr @ <116.9-14> 
-| Function @ <120.1-201.1> 
-| | VoidSpecifier @ <120.1-2> 
-| | Declarator @ <120.4-12> 
-| | | FunctionDeclarator @ <120.4-12> 
-| | | | IdentifierDeclarator: Execute @ <120.4-10> 
-| | CompoundStatement @ <120.14-201.1> 
-| | | VariableDeclaration @ <122.5-10> 
-| | | | PrimitiveSpecifier: u8 @ <122.5-7> 
-| | | | InitDeclarator @ <122.9> 
-| | | | | Declarator @ <122.9> 
-| | | | | | IdentifierDeclarator: c @ <122.9> 
-| | | WhileStatement @ <123.5-200.5> 
-| | | | BinaryExpression: != @ <123.11-37> 
-| | | | | AssignmentExpression: = @ <123.11-29> 
-| | | | | | IdentifierExpression: c @ <123.11-13> 
-| | | | | | ArraySubscriptExpression @ <123.17-28> 
-| | | | | | | IdentifierExpression: code @ <123.17-20> 
-| | | | | | | IdentifierExpression: insptr @ <123.17-27> 
-| | | | |   @ <123.34-37> 
-| | | | CompoundStatement @ <123.40-200.5> 
-| | | | | IfStatement @ <124.9-127.9> 
-| | | | | | BinaryExpression: < @ <124.12-22> 
-| | | | | | | IdentifierExpression: insptr @ <124.12-18> 
-| | | | | | | 0 @ <124.22> 
-| | | | | | CompoundStatement @ <124.25-127.9> 
-| | | | | | | ExpressionStatement @ <125.13-62> 
-| | | | | | | | CallExpression @ <125.13-61> 
-| | | | | | | | | IdentifierExpression: Die @ <125.13-15> 
-| | | | | | | | | String: instruction pointer went below 0 @ <125.13-50> 
-| | | | | | | | | IdentifierExpression: BAD_CODE @ <125.53-60> 
-| | | | | | | ReturnStatement @ <126.13-19> 
-| | | | | IfStatement @ <129.9-132.9> 
-| | | | | | BinaryExpression: < @ <129.12-23> 
-| | | | | | | IdentifierExpression: dataptr @ <129.12-19> 
-| | | | | | | 0 @ <129.23> 
-| | | | | | CompoundStatement @ <129.26-132.9> 
-| | | | | | | ExpressionStatement @ <130.13-55> 
-| | | | | | | | CallExpression @ <130.13-54> 
-| | | | | | | | | IdentifierExpression: Die @ <130.13-15> 
-| | | | | | | | | String: data pointer went below 0 @ <130.13-43> 
-| | | | | | | | | IdentifierExpression: BAD_CODE @ <130.46-53> 
-| | | | | | | ReturnStatement @ <131.13-19> 
-| | | | | PrintStatement: "got code: (" @ <133.9-35> 
-| | | | | | IdentifierExpression: code @ <133.24-27> 
-| | | | | | String: )
- @ <133.30-34> 
-| | | | | SwitchStatement @ <134.9-192.9> 
-| | | | | | IdentifierExpression: c @ <134.16-17> 
-| | | | | | CompoundStatement @ <134.20-192.9> 
-| | | | | | | CaseStatement:  @ <136.13-137.26> 
-| | | | | | | | ConstExpression:  @ <136.18-20> 
-| | | | | | | | | > @ <136.18-20> 
-| | | | | | | | ExpressionStatement @ <137.17-26> 
-| | | | | | | | | PostfixExpression: ++ @ <137.17-25> 
-| | | | | | | | | | IdentifierExpression: dataptr @ <137.17-23> 
-| | | | | | | BreakStatement @ <138.17-22> 
-| | | | | | | CaseStatement:  @ <141.13-142.26> 
-| | | | | | | | ConstExpression:  @ <141.18-20> 
-| | | | | | | | | < @ <141.18-20> 
-| | | | | | | | ExpressionStatement @ <142.17-26> 
-| | | | | | | | | PostfixExpression: -- @ <142.17-25> 
-| | | | | | | | | | IdentifierExpression: dataptr @ <142.17-23> 
-| | | | | | | BreakStatement @ <143.17-22> 
-| | | | | | | CaseStatement:  @ <146.13-147.32> 
-| | | | | | | | ConstExpression:  @ <146.18-20> 
-| | | | | | | | | + @ <146.18-20> 
-| | | | | | | | ExpressionStatement @ <147.17-32> 
-| | | | | | | | | PostfixExpression: ++ @ <147.17-31> 
-| | | | | | | | | | ArraySubscriptExpression @ <147.17-29> 
-| | | | | | | | | | | IdentifierExpression: data @ <147.17-20> 
-| | | | | | | | | | | IdentifierExpression: dataptr @ <147.17-28> 
-| | | | | | | BreakStatement @ <148.17-22> 
-| | | | | | | CaseStatement:  @ <151.13-152.32> 
-| | | | | | | | ConstExpression:  @ <151.18-20> 
-| | | | | | | | | - @ <151.18-20> 
-| | | | | | | | ExpressionStatement @ <152.17-32> 
-| | | | | | | | | PostfixExpression: -- @ <152.17-31> 
-| | | | | | | | | | ArraySubscriptExpression @ <152.17-29> 
-| | | | | | | | | | | IdentifierExpression: data @ <152.17-20> 
-| | | | | | | | | | | IdentifierExpression: dataptr @ <152.17-28> 
-| | | | | | | BreakStatement @ <153.17-22> 
-| | | | | | | CaseStatement:  @ <155.13-156.34> 
-| | | | | | | | ConstExpression:  @ <155.18-20> 
-| | | | | | | | | , @ <155.18-20> 
-| | | | | | | | ExpressionStatement @ <156.17-34> 
-| | | | | | | | | AssignmentExpression: = @ <156.17-33> 
-| | | | | | | | | | ArraySubscriptExpression @ <156.17-29> 
-| | | | | | | | | | | IdentifierExpression: data @ <156.17-20> 
-| | | | | | | | | | | IdentifierExpression: dataptr @ <156.17-28> 
-| | | | | | | | | | 0 @ <156.33> 
-| | | | | | | BreakStatement @ <157.17-22> 
-| | | | | | | CaseStatement:  @ <159.13-160.30> 
-| | | | | | | | ConstExpression:  @ <159.18-20> 
-| | | | | | | | | . @ <159.18-20> 
-| | | | | | | | ExpressionStatement @ <160.17-30> 
-| | | | | | | | | ArraySubscriptExpression @ <160.17-29> 
-| | | | | | | | | | IdentifierExpression: data @ <160.17-20> 
-| | | | | | | | | | IdentifierExpression: dataptr @ <160.17-28> 
-| | | | | | | BreakStatement @ <161.17-22> 
-| | | | | | | CaseStatement:  @ <165.13-172.17> 
-| | | | | | | | ConstExpression:  @ <165.18-20> 
-| | | | | | | | | [ @ <165.18-20> 
-| | | | | | | | IfStatement @ <166.17-172.17> 
-| | | | | | | | | BinaryExpression: == @ <166.20-38> 
-| | | | | | | | | | ArraySubscriptExpression @ <166.20-33> 
-| | | | | | | | | | | IdentifierExpression: data @ <166.20-24> 
-| | | | | | | | | | | IdentifierExpression: dataptr @ <166.20-32> 
-| | | | | | | | | | 0 @ <166.38> 
-| | | | | | | | | CompoundStatement @ <166.41-169.17> 
-| | | | | | | | | | ExpressionStatement @ <168.21-34> 
-| | | | | | | | | | | CallExpression @ <168.21-33> 
-| | | | | | | | | | | | IdentifierExpression: JumpToAfter @ <168.21-31> 
-| | | | | | | | | CompoundStatement @ <169.24-172.17> 
-| | | | | | | | | | ExpressionStatement @ <171.21-38> 
-| | | | | | | | | | | CallExpression @ <171.21-37> 
-| | | | | | | | | | | | IdentifierExpression: StackPush @ <171.21-29> 
-| | | | | | | | | | | | IdentifierExpression: insptr @ <171.21-36> 
-| | | | | | | BreakStatement @ <173.17-22> 
-| | | | | | | CaseStatement:  @ <177.13-191.13> 
-| | | | | | | | ConstExpression:  @ <177.18-20> 
-| | | | | | | | | ] @ <177.18-20> 
-| | | | | | | | CompoundStatement @ <177.23-191.13> 
-| | | | | | | | | VariableDeclaration @ <178.17-43> 
-| | | | | | | | | | PrimitiveSpecifier: i32 @ <178.17-20> 
-| | | | | | | | | | InitDeclarator @ <178.22-42> 
-| | | | | | | | | | | Declarator @ <178.22-28> 
-| | | | | | | | | | | | IdentifierDeclarator: opening @ <178.22-28> 
-| | | | | | | | | | | Initializer:  @ <178.32-42> 
-| | | | | | | | | | | | CallExpression @ <178.32-42> 
-| | | | | | | | | | | | | IdentifierExpression: StackPeek @ <178.32-40> 
-| | | | | | | | | IfStatement @ <180.17-183.17> 
-| | | | | | | | | | BinaryExpression: < @ <180.20-31> 
-| | | | | | | | | | | IdentifierExpression: opening @ <180.20-27> 
-| | | | | | | | | | | 0 @ <180.31> 
-| | | | | | | | | | CompoundStatement @ <180.34-183.17> 
-| | | | | | | | | | | ExpressionStatement @ <181.21-64> 
-| | | | | | | | | | | | CallExpression @ <181.21-63> 
-| | | | | | | | | | | | | IdentifierExpression: Die @ <181.21-23> 
-| | | | | | | | | | | | | String: mismatched closing bracket @ <181.21-52> 
-| | | | | | | | | | | | | IdentifierExpression: BAD_CODE @ <181.55-62> 
-| | | | | | | | | | | ReturnStatement @ <182.21-27> 
-| | | | | | | | | IfStatement @ <185.17-190.17> 
-| | | | | | | | | | BinaryExpression: != @ <185.20-38> 
-| | | | | | | | | | | ArraySubscriptExpression @ <185.20-33> 
-| | | | | | | | | | | | IdentifierExpression: data @ <185.20-24> 
-| | | | | | | | | | | | IdentifierExpression: dataptr @ <185.20-32> 
-| | | | | | | | | | | 0 @ <185.38> 
-| | | | | | | | | | CompoundStatement @ <185.41-187.17> 
-| | | | | | | | | | | ExpressionStatement @ <186.21-37> 
-| | | | | | | | | | | | AssignmentExpression: = @ <186.21-36> 
-| | | | | | | | | | | | | IdentifierExpression: insptr @ <186.21-26> 
-| | | | | | | | | | | | | IdentifierExpression: opening @ <186.30-36> 
-| | | | | | | | | | CompoundStatement @ <187.24-190.17> 
-| | | | | | | | | | | ExpressionStatement @ <189.21-31> 
-| | | | | | | | | | | | CallExpression @ <189.21-30> 
-| | | | | | | | | | | | | IdentifierExpression: StackPop @ <189.21-28> 
-| | | | | | | BreakStatement @ <191.15-20> 
-| | | | | ExpressionStatement @ <195.9-17> 
-| | | | | | PostfixExpression: ++ @ <195.9-16> 
-| | | | | | | IdentifierExpression: insptr @ <195.9-14> 
-| | | | | IfStatement @ <197.9-199.9> 
-| | | | | | BinaryExpression: == @ <197.12-34> 
-| | | | | | | BinaryExpression: + @ <197.12-22> 
-| | | | | | | | IdentifierExpression: insptr @ <197.12-18> 
-| | | | | | | | 1 @ <197.22> 
-| | | | | | | IdentifierExpression: codesize @ <197.27-34> 
-| | | | | | CompoundStatement @ <197.37-199.9> 
-| | | | | | | ReturnStatement @ <198.13-19> 
-| Function @ <203.1-212.1> 
-| | VoidSpecifier @ <203.1-2> 
-| | Declarator @ <203.4-15> 
-| | | FunctionDeclarator @ <203.4-15> 
-| | | | IdentifierDeclarator: Initialize @ <203.4-13> 
-| | CompoundStatement @ <203.17-212.1> 
-| | | VariableDeclaration @ <204.5-15> 
-| | | | PrimitiveSpecifier: i32 @ <204.5-8> 
-| | | | InitDeclarator @ <204.10-14> 
-| | | | | Declarator @ <204.10> 
-| | | | | | IdentifierDeclarator: i @ <204.10> 
-| | | | | Initializer:  @ <204.14> 
-| | | | | | 0 @ <204.14> 
-| | | WhileStatement @ <206.5-209.5> 
-| | | | BinaryExpression: < @ <206.11-20> 
-| | | | | IdentifierExpression: i @ <206.11-12> 
-| | | | | 30000 @ <206.16-20> 
-| | | | CompoundStatement @ <206.23-209.5> 
-| | | | | ExpressionStatement @ <207.9-20> 
-| | | | | | AssignmentExpression: = @ <207.9-19> 
-| | | | | | | ArraySubscriptExpression @ <207.9-15> 
-| | | | | | | | IdentifierExpression: data @ <207.9-12> 
-| | | | | | | | IdentifierExpression: i @ <207.9-14> 
-| | | | | | | 0 @ <207.19> 
-| | | | | ExpressionStatement @ <208.9-12> 
-| | | | | | PostfixExpression: ++ @ <208.9-11> 
-| | | | | | | IdentifierExpression: i @ <208.9> 
-| | | ExpressionStatement @ <211.5-20> 
-| | | | AssignmentExpression: = @ <211.5-19> 
-| | | | | MemberAccess: .len @ <211.5-15> 
-| | | | | | IdentifierExpression: nesting @ <211.5-11> 
-| | | | | 0 @ <211.19> 
-| Function @ <214.1-216.1> 
-| | VoidSpecifier @ <214.1-2> 
-| | Declarator @ <214.4-27> 
-| | | FunctionDeclarator @ <214.4-27> 
-| | | | IdentifierDeclarator: PrintUsage @ <214.4-13> 
-| | | | ParameterDeclaration @ <214.4-26> 
-| | | | | PrimitiveSpecifier: u8 @ <214.4-17> 
-| | | | | Declarator @ <214.19-26> 
-| | | | | | Pointer @ <214.19> 
-| | | | | | IdentifierDeclarator: argname @ <214.19-26> 
-| | CompoundStatement @ <214.29-216.1> 
-| | | PrintStatement: "usage: " @ <215.5-45> 
-| | | | IdentifierExpression: argname @ <215.16-22> 
-| | | | String:  [-m MEMSIZE] CODE @ <215.25-44> 
-| Function @ <218.1-228.1> 
-| | PrimitiveSpecifier: i32 @ <218.1-4> 
-| | Declarator @ <218.6-11> 
-| | | FunctionDeclarator @ <218.6-11> 
-| | | | IdentifierDeclarator: Main @ <218.6-9> 
-| | CompoundStatement @ <218.13-228.1> 
-| | | ExpressionStatement @ <220.5-17> 
-| | | | CallExpression @ <220.5-16> 
-| | | | | IdentifierExpression: Initialize @ <220.5-14> 
-| | | VariableDeclaration @ <222.5-187> 
-| | | | PrimitiveSpecifier: i8 @ <222.5-7> 
-| | | | InitDeclarator @ <222.9-186> 
-| | | | | Declarator @ <222.9-17> 
-| | | | | | ArrayDeclarator @ <222.9-17> 
-| | | | | | | IdentifierDeclarator: program @ <222.9-15> 
-| | | | | Initializer:  @ <222.21-186> 
-| | | | | | String: >++++++++[<+++++++++>-]<.>++++[<+++++++>-]<+.+++++++..+++.>>++++++[<+++++++>-]<++.------------.>++++++[<+++++++++>-]<+.<.+++.------.--------.>>>++++[<++++++++>-]<+. @ <222.21-186> 
-| | | ExpressionStatement @ <224.5-22> 
-| | | | CallExpression @ <224.5-21> 
-| | | | | IdentifierExpression: ReadCode @ <224.5-12> 
-| | | | | IdentifierExpression: program @ <224.5-20> 
-| | | ExpressionStatement @ <225.5-14> 
-| | | | CallExpression @ <225.5-13> 
-| | | | | IdentifierExpression: Execute @ <225.5-11> 
-| | | ReturnStatement @ <227.5-13> 
-| | | | 0 @ <227.12> 
-| ExpressionStatement @ <230.1-7> 
-| | CallExpression @ <230.1-6> 
-| | | IdentifierExpression: Main @ <230.1-4> 
 running backend for file test/integration/brainfuck.HC
 Synthesizing MIR for 1.1
 Node {
@@ -685,7 +35,7 @@ SymbolTable: inserting varsymbol with name "Execute"
         parsing declaration specifier list for node at 9.1-13.2
         Node {
             visiting ClassSpecifier node: 9.1-13.1
-TypeContext: class type 'Stack' on scope 0x5606bf886ab0
+TypeContext: class type 'Stack' on scope 0x55917d695ab0
 TypeContext: inserting type classStack_0
             class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol Stack in current scope
@@ -698,7 +48,7 @@ SymbolTable: inserting typesymbol with name "Stack"
 TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node 10.5-13
-                parsing ClassDeclaration for ClassType 0x5606bf8a0b60
+                parsing ClassDeclaration for ClassType 0x55917d696930
                 Node {
                     visiting ClassDeclarator node: 10.10-12
                     Node {
@@ -708,7 +58,7 @@ TypeContext: getting primitive type
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name cap type 0x5606bf886930
+ClassType: adding member with name cap type 0x55917d695930
 RecordType: Looking for member with name cap
             }
             Node {
@@ -719,7 +69,7 @@ RecordType: Looking for member with name cap
 TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node 11.5-13
-                parsing ClassDeclaration for ClassType 0x5606bf8a0b60
+                parsing ClassDeclaration for ClassType 0x55917d696930
                 Node {
                     visiting ClassDeclarator node: 11.10-12
                     Node {
@@ -729,7 +79,7 @@ TypeContext: getting primitive type
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name len type 0x5606bf886930
+ClassType: adding member with name len type 0x55917d695930
 RecordType: Looking for member with name len
             }
             Node {
@@ -740,7 +90,7 @@ RecordType: Looking for member with name len
 TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node 12.5-18
-                parsing ClassDeclaration for ClassType 0x5606bf8a0b60
+                parsing ClassDeclaration for ClassType 0x55917d696930
                 Node {
                     visiting ClassDeclarator node: 12.10-17
                     Node {
@@ -761,8 +111,8 @@ TypeContext: getting primitive type
                     }
                 }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x5606bf886930, size 32
-ClassType: adding member with name data type 0x5606bf88cd00
+TypeContext: array type with base 0x55917d695930, size 32
+ClassType: adding member with name data type 0x55917d69bd00
 RecordType: Looking for member with name data
             }
         }
@@ -842,14 +192,14 @@ TypeBuilder: finalizing type
         }
 TypeBuilder: finalizing type
 TypeContext: getting function type
-parsing params
+        MIRSynthesizer: parsing Function params
 SymbolTable: inserting funcsymbol with name "StackPush"
         Node {
 SymbolTable: pushing scope 1
 SymbolTable: entering scope 1
             visiting CompoundStatement node: 17.25-28.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 1 with symbol 0x5606bf8483d0 name "StackPush"
+SymbolTable: associating current scope 1 with symbol 0x55917d6573d0 name "StackPush"
 SymbolTable: inserting varsymbol with name "item"
             Node {
                 visiting IfStatement node: 19.5-25
@@ -965,14 +315,14 @@ TypeContext: getting primitive type
         }
 TypeBuilder: finalizing type
 TypeContext: getting function type
-parsing params
+        MIRSynthesizer: parsing Function params
 SymbolTable: inserting funcsymbol with name "StackPeek"
         Node {
 SymbolTable: pushing scope 3
 SymbolTable: entering scope 3
             visiting CompoundStatement node: 30.18-35.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 3 with symbol 0x5606bf848610 name "StackPeek"
+SymbolTable: associating current scope 3 with symbol 0x55917d657610 name "StackPeek"
             Node {
                 visiting IfStatement node: 31.5-32.18
                 Node {
@@ -1049,14 +399,14 @@ TypeContext: getting primitive type
 TypeBuilder: finalizing type
 TypeContext: getting function type
 TypeContext: existing function type found
-parsing params
+        MIRSynthesizer: parsing Function params
 SymbolTable: inserting funcsymbol with name "StackPop"
         Node {
 SymbolTable: pushing scope 4
 SymbolTable: entering scope 4
             visiting CompoundStatement node: 37.17-44.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 4 with symbol 0x5606bf847920 name "StackPop"
+SymbolTable: associating current scope 4 with symbol 0x55917d656920 name "StackPop"
             Node {
                 visiting IfStatement node: 38.5-36
                 Node {
@@ -1181,7 +531,7 @@ TypeContext: getting primitive type
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x5606bf8867b0, size 1024
+TypeContext: array type with base 0x55917d6958b0, size 1024
         }
 SymbolTable: inserting varsymbol with name "code"
     }
@@ -1266,7 +616,7 @@ TypeContext: getting primitive type
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x5606bf8867b0, size 30000
+TypeContext: array type with base 0x55917d6958b0, size 30000
         }
 SymbolTable: inserting varsymbol with name "data"
     }
@@ -1302,7 +652,7 @@ SymbolTable: inserting varsymbol with name "dataptr"
         parsing declaration specifier list for node at 55.1-40
         Node {
             visiting EnumSpecifier node: 55.1-39
-TypeContext: enum type 'ErrType' on scope 0x5606bf886ab0
+TypeContext: enum type 'ErrType' on scope 0x55917d695ab0
 TypeContext: inserting type enumErrType_0
             enum has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol ErrType in current scope
@@ -1362,14 +712,14 @@ TypeContext: getting primitive type
                         }
                     }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x5606bf8867b0
+TypeContext: pointer with base 0x55917d6958b0
                 }
                 Node {
                     visiting ParameterDeclarator node: 56.21-40
                     parsing declaration specifier list for node at 56.21-40
                     Node {
                         visiting EnumSpecifier node: 56.21-32
-TypeContext: enum type 'ErrType' on scope 0x5606bf886ab0
+TypeContext: enum type 'ErrType' on scope 0x55917d695ab0
 TypeContext: existing enum found
                         enum has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol ErrType in current scope
@@ -1386,14 +736,14 @@ TypeBuilder: finalizing type
         }
 TypeBuilder: finalizing type
 TypeContext: getting function type
-parsing params
+        MIRSynthesizer: parsing Function params
 SymbolTable: inserting funcsymbol with name "Die"
         Node {
 SymbolTable: pushing scope 5
 SymbolTable: entering scope 5
             visiting CompoundStatement node: 56.43-63.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 5 with symbol 0x5606bf847da0 name "Die"
+SymbolTable: associating current scope 5 with symbol 0x55917d656da0 name "Die"
 SymbolTable: inserting varsymbol with name "errmsg"
 SymbolTable: inserting varsymbol with name "errcode"
             Node {
@@ -1484,7 +834,7 @@ TypeContext: getting primitive type
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x5606bf8868b0, size 8
+TypeContext: array type with base 0x55917d6958b0, size 8
             Node {
                 visiting Initializer node: 65.22-61
                 visiting compound initializer
@@ -1590,14 +940,14 @@ TypeBuilder: finalizing type
         }
 TypeBuilder: finalizing type
 TypeContext: getting function type
-parsing params
+        MIRSynthesizer: parsing Function params
 SymbolTable: inserting funcsymbol with name "IsValid"
         Node {
 SymbolTable: pushing scope 8
 SymbolTable: entering scope 8
             visiting CompoundStatement node: 66.21-74.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 8 with symbol 0x5606bf847fe0 name "IsValid"
+SymbolTable: associating current scope 8 with symbol 0x55917d656fe0 name "IsValid"
 SymbolTable: inserting varsymbol with name "c"
             Node {
                 visiting VariableDeclaration node: 67.5-15
@@ -1727,20 +1077,20 @@ TypeContext: getting primitive type
                         }
                     }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x5606bf8867b0
+TypeContext: pointer with base 0x55917d6958b0
                 }
             }
         }
 TypeBuilder: finalizing type
 TypeContext: getting function type
-parsing params
+        MIRSynthesizer: parsing Function params
 SymbolTable: inserting funcsymbol with name "ReadCode"
         Node {
 SymbolTable: pushing scope 11
 SymbolTable: entering scope 11
             visiting CompoundStatement node: 77.23-95.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 11 with symbol 0x5606bf8491b0 name "ReadCode"
+SymbolTable: associating current scope 11 with symbol 0x55917d6581b0 name "ReadCode"
 SymbolTable: inserting varsymbol with name "src"
             Node {
                 visiting VariableDeclaration node: 78.5-15
@@ -1995,14 +1345,14 @@ SymbolTable: exiting scope to 0
 TypeBuilder: finalizing type
 TypeContext: getting function type
 TypeContext: existing function type found
-parsing params
+        MIRSynthesizer: parsing Function params
 SymbolTable: inserting funcsymbol with name "JumpToAfter"
         Node {
 SymbolTable: pushing scope 16
 SymbolTable: entering scope 16
             visiting CompoundStatement node: 98.18-118.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 16 with symbol 0x5606bf8492d0 name "JumpToAfter"
+SymbolTable: associating current scope 16 with symbol 0x55917d6582d0 name "JumpToAfter"
             Node {
                 visiting VariableDeclaration node: 99.5-31
                 parsing declaration specifier list for node at 99.5-31
@@ -2248,7 +1598,7 @@ SymbolTable: exiting scope to 0
 TypeBuilder: finalizing type
 TypeContext: getting function type
 TypeContext: existing function type found
-parsing params
+        MIRSynthesizer: parsing Function params
 SymbolTable: inserting funcsymbol with name "Execute"
 SymbolTable: symbol with name Execute already exists
 SymbolTable: existing symbol has function type, checking for replaceability
@@ -2258,7 +1608,7 @@ SymbolTable: pushing scope 23
 SymbolTable: entering scope 23
             visiting CompoundStatement node: 120.14-201.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 23 with symbol 0x5606bf8493f0 name "Execute"
+SymbolTable: associating current scope 23 with symbol 0x55917d6583f0 name "Execute"
             Node {
                 visiting VariableDeclaration node: 122.5-10
                 parsing declaration specifier list for node at 122.5-10
@@ -2869,14 +2219,14 @@ SymbolTable: exiting scope to 0
 TypeBuilder: finalizing type
 TypeContext: getting function type
 TypeContext: existing function type found
-parsing params
+        MIRSynthesizer: parsing Function params
 SymbolTable: inserting funcsymbol with name "Initialize"
         Node {
 SymbolTable: pushing scope 36
 SymbolTable: entering scope 36
             visiting CompoundStatement node: 203.17-212.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 36 with symbol 0x5606bf847b60 name "Initialize"
+SymbolTable: associating current scope 36 with symbol 0x55917d656b60 name "Initialize"
             Node {
                 visiting VariableDeclaration node: 204.5-15
                 parsing declaration specifier list for node at 204.5-15
@@ -3008,21 +2358,21 @@ TypeContext: getting primitive type
                         }
                     }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x5606bf8867b0
+TypeContext: pointer with base 0x55917d6958b0
                 }
             }
         }
 TypeBuilder: finalizing type
 TypeContext: getting function type
 TypeContext: existing function type found
-parsing params
+        MIRSynthesizer: parsing Function params
 SymbolTable: inserting funcsymbol with name "PrintUsage"
         Node {
 SymbolTable: pushing scope 39
 SymbolTable: entering scope 39
             visiting CompoundStatement node: 214.29-216.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 39 with symbol 0x5606bf8a6920 name "PrintUsage"
+SymbolTable: associating current scope 39 with symbol 0x55917d6b4990 name "PrintUsage"
 SymbolTable: inserting varsymbol with name "argname"
             Node {
                 visiting PrintStatement node: 215.5-45
@@ -3056,14 +2406,14 @@ TypeContext: getting primitive type
 TypeBuilder: finalizing type
 TypeContext: getting function type
 TypeContext: existing function type found
-parsing params
+        MIRSynthesizer: parsing Function params
 SymbolTable: inserting funcsymbol with name "Main"
         Node {
 SymbolTable: pushing scope 40
 SymbolTable: entering scope 40
             visiting CompoundStatement node: 218.13-228.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 40 with symbol 0x5606bf8a7c10 name "Main"
+SymbolTable: associating current scope 40 with symbol 0x55917d6b5ca0 name "Main"
             Node {
                 visiting ExpressionStatement node: 220.5-17
                 Node {
@@ -3094,7 +2444,7 @@ TypeContext: getting primitive type
                         }
                     }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x5606bf8868b0, no size
+TypeContext: array type with base 0x55917d6958b0, no size
                     Node {
                         visiting Initializer node: 222.21-186
                         visiting single initializer
@@ -3202,6 +2552,9 @@ SymbolTable: entering scope 1
                         Validator: visiting LiteralExprMIR node
 TypeContext: getting primitive type
                     }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
                 }
                 Node {
                     Validator: visiting ReturnStmtMIR node
@@ -3224,6 +2577,9 @@ RecordType: Looking for member with name len
                             Validator: visiting LiteralExprMIR node
 TypeContext: getting primitive type
                         }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
                     }
                     Node {
                         Validator: visiting MemberAccExprMIR node
@@ -3232,6 +2588,9 @@ TypeContext: getting primitive type
                         }
 RecordType: Looking for member with name cap
                     }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
                 }
                 Node {
 SymbolTable: entering scope 2
@@ -3253,7 +2612,7 @@ SymbolTable: exiting scope to 1
                                 Validator: visiting IdentExprMIR node
                             }
 RecordType: Looking for member with name data
-TypeContext: array type with base 0x5606bf886930, size 32
+TypeContext: array type with base 0x55917d695930, size 32
                         }
                         Node {
                             Validator: visiting MemberAccExprMIR node
@@ -3302,6 +2661,9 @@ RecordType: Looking for member with name len
                         Validator: visiting LiteralExprMIR node
 TypeContext: getting primitive type
                     }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
                 }
                 Node {
                     Validator: visiting ReturnStmtMIR node
@@ -3324,7 +2686,7 @@ TypeContext: getting primitive type
                             Validator: visiting IdentExprMIR node
                         }
 RecordType: Looking for member with name data
-TypeContext: array type with base 0x5606bf886930, size 32
+TypeContext: array type with base 0x55917d695930, size 32
                     }
                     Node {
                         Validator: visiting BinaryExprMIR node
@@ -3339,6 +2701,9 @@ RecordType: Looking for member with name len
                             Validator: visiting LiteralExprMIR node
 TypeContext: getting primitive type
                         }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
                     }
                 }
             }
@@ -3363,6 +2728,9 @@ RecordType: Looking for member with name len
                         Validator: visiting LiteralExprMIR node
 TypeContext: getting primitive type
                     }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
                 }
                 Node {
                     Validator: visiting ReturnStmtMIR node
@@ -3389,7 +2757,7 @@ TypeContext: getting primitive type
                             Validator: visiting IdentExprMIR node
                         }
 RecordType: Looking for member with name data
-TypeContext: array type with base 0x5606bf886930, size 32
+TypeContext: array type with base 0x55917d695930, size 32
                     }
                     Node {
                         Validator: visiting BinaryExprMIR node
@@ -3404,6 +2772,9 @@ RecordType: Looking for member with name len
                             Validator: visiting LiteralExprMIR node
 TypeContext: getting primitive type
                         }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
                     }
                 }
             }
@@ -3481,6 +2852,9 @@ SymbolTable: entering scope 5
                     Node {
                         Validator: visiting IdentExprMIR node
                     }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
                 }
                 Node {
 SymbolTable: entering scope 6
@@ -3488,7 +2862,7 @@ SymbolTable: entering scope 6
                         Validator: visiting PrintStmtMIR node
                         Node {
                             Validator: visiting IdentExprMIR node
-TypeContext: pointer with base 0x5606bf8867b0
+TypeContext: pointer with base 0x55917d6958b0
                         }
                     }
 SymbolTable: exiting scope to 5
@@ -3504,7 +2878,7 @@ SymbolTable: entering scope 7
                             Validator: visiting SubscrExprMIR node
                             Node {
                                 Validator: visiting IdentExprMIR node
-TypeContext: array type with base 0x5606bf8867b0, size 1024
+TypeContext: array type with base 0x55917d6958b0, size 1024
                             }
                             Node {
                                 Validator: visiting IdentExprMIR node
@@ -3512,7 +2886,7 @@ TypeContext: array type with base 0x5606bf8867b0, size 1024
                         }
                         Node {
                             Validator: visiting IdentExprMIR node
-TypeContext: pointer with base 0x5606bf8867b0
+TypeContext: pointer with base 0x55917d6958b0
                         }
                     }
 SymbolTable: exiting scope to 5
@@ -3596,6 +2970,9 @@ SymbolTable: entering scope 9
                         Validator: visiting LiteralExprMIR node
 TypeContext: getting primitive type
                     }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
                 }
                 Node {
 SymbolTable: entering scope 10
@@ -3610,12 +2987,16 @@ SymbolTable: entering scope 10
                                 Validator: visiting SubscrExprMIR node
                                 Node {
                                     Validator: visiting IdentExprMIR node
-TypeContext: array type with base 0x5606bf8868b0, size 8
+TypeContext: array type with base 0x55917d6958b0, size 8
                                 }
                                 Node {
                                     Validator: visiting IdentExprMIR node
                                 }
                             }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+PrimitiveType: finalizing i8
+TypeContext: getting primitive type
                         }
                         Node {
                             Validator: visiting ReturnStmtMIR node
@@ -3682,7 +3063,7 @@ SymbolTable: entering scope 12
                         Validator: visiting SubscrExprMIR node
                         Node {
                             Validator: visiting IdentExprMIR node
-TypeContext: pointer with base 0x5606bf8867b0
+TypeContext: pointer with base 0x55917d6958b0
                         }
                         Node {
                             Validator: visiting IdentExprMIR node
@@ -3692,6 +3073,9 @@ TypeContext: pointer with base 0x5606bf8867b0
                         Validator: visiting LiteralExprMIR node
 TypeContext: getting primitive type
                     }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
                 }
                 Node {
 SymbolTable: entering scope 13
@@ -3706,7 +3090,7 @@ SymbolTable: entering scope 13
                                 Validator: visiting SubscrExprMIR node
                                 Node {
                                     Validator: visiting IdentExprMIR node
-TypeContext: pointer with base 0x5606bf8867b0
+TypeContext: pointer with base 0x55917d6958b0
                                 }
                                 Node {
                                     Validator: visiting IdentExprMIR node
@@ -3723,7 +3107,7 @@ SymbolTable: entering scope 14
                                         Validator: visiting SubscrExprMIR node
                                         Node {
                                             Validator: visiting IdentExprMIR node
-TypeContext: array type with base 0x5606bf8867b0, size 1024
+TypeContext: array type with base 0x55917d6958b0, size 1024
                                         }
                                         Node {
                                             Validator: visiting PostfixMIR node
@@ -3736,13 +3120,12 @@ TypeContext: array type with base 0x5606bf8867b0, size 1024
                                         Validator: visiting SubscrExprMIR node
                                         Node {
                                             Validator: visiting IdentExprMIR node
-TypeContext: pointer with base 0x5606bf8867b0
+TypeContext: pointer with base 0x55917d6958b0
                                         }
                                         Node {
                                             Validator: visiting IdentExprMIR node
                                         }
                                     }
-PrimitiveType: finalizing u8
                                 }
                             }
 SymbolTable: exiting scope to 13
@@ -3761,10 +3144,16 @@ SymbolTable: exiting scope to 13
                                     Validator: visiting LiteralExprMIR node
 TypeContext: getting primitive type
                                 }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
                             }
                             Node {
                                 Validator: visiting IdentExprMIR node
                             }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
                         }
                         Node {
 SymbolTable: entering scope 15
@@ -3777,12 +3166,13 @@ SymbolTable: entering scope 15
                                     }
                                     Node {
                                         Validator: visiting LiteralExprMIR node
-TypeContext: pointer with base 0x5606bf8868b0
-TypeContext: pointer with base 0x5606bf8868b0
+TypeContext: pointer with base 0x55917d6958b0
+TypeContext: pointer with base 0x55917d6958b0
                                     }
                                     Node {
                                         Validator: visiting IdentExprMIR node
                                     }
+TypeContext: pointer with base 0x55917d6958b0
                                 }
                             }
                             Node {
@@ -3812,7 +3202,7 @@ SymbolTable: exiting scope to 11
                         Validator: visiting SubscrExprMIR node
                         Node {
                             Validator: visiting IdentExprMIR node
-TypeContext: array type with base 0x5606bf8867b0, size 1024
+TypeContext: array type with base 0x55917d6958b0, size 1024
                         }
                         Node {
                             Validator: visiting IdentExprMIR node
@@ -3822,19 +3212,18 @@ TypeContext: array type with base 0x5606bf8867b0, size 1024
                         Validator: visiting LiteralExprMIR node
 TypeContext: getting primitive type
                     }
-PrimitiveType: finalizing i8
                 }
             }
             Node {
                 Validator: visiting PrintStmtMIR node
                 Node {
                     Validator: visiting IdentExprMIR node
-TypeContext: array type with base 0x5606bf8867b0, size 1024
+TypeContext: array type with base 0x55917d6958b0, size 1024
                 }
                 Node {
                     Validator: visiting LiteralExprMIR node
-TypeContext: pointer with base 0x5606bf8868b0
-TypeContext: pointer with base 0x5606bf8868b0
+TypeContext: pointer with base 0x55917d6958b0
+TypeContext: pointer with base 0x55917d6958b0
                 }
             }
 SymbolTable: exiting scope to 0
@@ -3866,7 +3255,7 @@ SymbolTable: entering scope 17
                         Validator: visiting SubscrExprMIR node
                         Node {
                             Validator: visiting IdentExprMIR node
-TypeContext: array type with base 0x5606bf8867b0, size 1024
+TypeContext: array type with base 0x55917d6958b0, size 1024
                         }
                         Node {
                             Validator: visiting IdentExprMIR node
@@ -3876,6 +3265,9 @@ TypeContext: array type with base 0x5606bf8867b0, size 1024
                         Validator: visiting LiteralExprMIR node
 TypeContext: getting primitive type
                     }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
                 }
                 Node {
 SymbolTable: entering scope 18
@@ -3887,7 +3279,7 @@ SymbolTable: entering scope 18
                                 Validator: visiting SubscrExprMIR node
                                 Node {
                                     Validator: visiting IdentExprMIR node
-TypeContext: array type with base 0x5606bf8867b0, size 1024
+TypeContext: array type with base 0x55917d6958b0, size 1024
                                 }
                                 Node {
                                     Validator: visiting IdentExprMIR node
@@ -3897,6 +3289,9 @@ TypeContext: array type with base 0x5606bf8867b0, size 1024
                                 Validator: visiting LiteralExprMIR node
 TypeContext: getting primitive type
                             }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
                         }
                         Node {
 SymbolTable: entering scope 19
@@ -3919,7 +3314,7 @@ SymbolTable: exiting scope to 18
                                     Validator: visiting SubscrExprMIR node
                                     Node {
                                         Validator: visiting IdentExprMIR node
-TypeContext: array type with base 0x5606bf8867b0, size 1024
+TypeContext: array type with base 0x55917d6958b0, size 1024
                                     }
                                     Node {
                                         Validator: visiting IdentExprMIR node
@@ -3929,6 +3324,9 @@ TypeContext: array type with base 0x5606bf8867b0, size 1024
                                     Validator: visiting LiteralExprMIR node
 TypeContext: getting primitive type
                                 }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
                             }
                             Node {
 SymbolTable: entering scope 20
@@ -3955,6 +3353,9 @@ SymbolTable: entering scope 20
                                             }
 RecordType: Looking for member with name len
                                         }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
                                     }
                                     Node {
 SymbolTable: entering scope 21
@@ -3991,6 +3392,9 @@ SymbolTable: exiting scope to 18
                                 }
 RecordType: Looking for member with name len
                             }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
                         }
                         Node {
 SymbolTable: entering scope 22
@@ -4003,12 +3407,13 @@ SymbolTable: entering scope 22
                                     }
                                     Node {
                                         Validator: visiting LiteralExprMIR node
-TypeContext: pointer with base 0x5606bf8868b0
-TypeContext: pointer with base 0x5606bf8868b0
+TypeContext: pointer with base 0x55917d6958b0
+TypeContext: pointer with base 0x55917d6958b0
                                     }
                                     Node {
                                         Validator: visiting IdentExprMIR node
                                     }
+TypeContext: pointer with base 0x55917d6958b0
                                 }
                             }
                             Node {
@@ -4053,7 +3458,7 @@ SymbolTable: entering scope 24
                             Validator: visiting SubscrExprMIR node
                             Node {
                                 Validator: visiting IdentExprMIR node
-TypeContext: array type with base 0x5606bf8867b0, size 1024
+TypeContext: array type with base 0x55917d6958b0, size 1024
                             }
                             Node {
                                 Validator: visiting IdentExprMIR node
@@ -4064,6 +3469,9 @@ TypeContext: array type with base 0x5606bf8867b0, size 1024
                         Validator: visiting LiteralExprMIR node
 TypeContext: getting primitive type
                     }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
                 }
                 Node {
 SymbolTable: entering scope 25
@@ -4078,6 +3486,9 @@ SymbolTable: entering scope 25
                                 Validator: visiting LiteralExprMIR node
 TypeContext: getting primitive type
                             }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
                         }
                         Node {
 SymbolTable: entering scope 26
@@ -4090,12 +3501,13 @@ SymbolTable: entering scope 26
                                     }
                                     Node {
                                         Validator: visiting LiteralExprMIR node
-TypeContext: pointer with base 0x5606bf8868b0
-TypeContext: pointer with base 0x5606bf8868b0
+TypeContext: pointer with base 0x55917d6958b0
+TypeContext: pointer with base 0x55917d6958b0
                                     }
                                     Node {
                                         Validator: visiting IdentExprMIR node
                                     }
+TypeContext: pointer with base 0x55917d6958b0
                                 }
                             }
                             Node {
@@ -4115,6 +3527,9 @@ SymbolTable: exiting scope to 25
                                 Validator: visiting LiteralExprMIR node
 TypeContext: getting primitive type
                             }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
                         }
                         Node {
 SymbolTable: entering scope 27
@@ -4127,12 +3542,13 @@ SymbolTable: entering scope 27
                                     }
                                     Node {
                                         Validator: visiting LiteralExprMIR node
-TypeContext: pointer with base 0x5606bf8868b0
-TypeContext: pointer with base 0x5606bf8868b0
+TypeContext: pointer with base 0x55917d6958b0
+TypeContext: pointer with base 0x55917d6958b0
                                     }
                                     Node {
                                         Validator: visiting IdentExprMIR node
                                     }
+TypeContext: pointer with base 0x55917d6958b0
                                 }
                             }
                             Node {
@@ -4145,12 +3561,12 @@ SymbolTable: exiting scope to 25
                         Validator: visiting PrintStmtMIR node
                         Node {
                             Validator: visiting IdentExprMIR node
-TypeContext: array type with base 0x5606bf8867b0, size 1024
+TypeContext: array type with base 0x55917d6958b0, size 1024
                         }
                         Node {
                             Validator: visiting LiteralExprMIR node
-TypeContext: pointer with base 0x5606bf8868b0
-TypeContext: pointer with base 0x5606bf8868b0
+TypeContext: pointer with base 0x55917d6958b0
+TypeContext: pointer with base 0x55917d6958b0
                         }
                     }
                     Node {
@@ -4200,7 +3616,7 @@ SymbolTable: entering scope 28
                                             Validator: visiting SubscrExprMIR node
                                             Node {
                                                 Validator: visiting IdentExprMIR node
-TypeContext: array type with base 0x5606bf8867b0, size 30000
+TypeContext: array type with base 0x55917d6958b0, size 30000
                                             }
                                             Node {
                                                 Validator: visiting IdentExprMIR node
@@ -4222,7 +3638,7 @@ TypeContext: array type with base 0x5606bf8867b0, size 30000
                                             Validator: visiting SubscrExprMIR node
                                             Node {
                                                 Validator: visiting IdentExprMIR node
-TypeContext: array type with base 0x5606bf8867b0, size 30000
+TypeContext: array type with base 0x55917d6958b0, size 30000
                                             }
                                             Node {
                                                 Validator: visiting IdentExprMIR node
@@ -4244,7 +3660,7 @@ TypeContext: array type with base 0x5606bf8867b0, size 30000
                                             Validator: visiting SubscrExprMIR node
                                             Node {
                                                 Validator: visiting IdentExprMIR node
-TypeContext: array type with base 0x5606bf8867b0, size 30000
+TypeContext: array type with base 0x55917d6958b0, size 30000
                                             }
                                             Node {
                                                 Validator: visiting IdentExprMIR node
@@ -4268,7 +3684,7 @@ TypeContext: getting primitive type
                                         Validator: visiting SubscrExprMIR node
                                         Node {
                                             Validator: visiting IdentExprMIR node
-TypeContext: array type with base 0x5606bf8867b0, size 30000
+TypeContext: array type with base 0x55917d6958b0, size 30000
                                         }
                                         Node {
                                             Validator: visiting IdentExprMIR node
@@ -4289,7 +3705,7 @@ TypeContext: array type with base 0x5606bf8867b0, size 30000
                                             Validator: visiting SubscrExprMIR node
                                             Node {
                                                 Validator: visiting IdentExprMIR node
-TypeContext: array type with base 0x5606bf8867b0, size 30000
+TypeContext: array type with base 0x55917d6958b0, size 30000
                                             }
                                             Node {
                                                 Validator: visiting IdentExprMIR node
@@ -4299,6 +3715,9 @@ TypeContext: array type with base 0x5606bf8867b0, size 30000
                                             Validator: visiting LiteralExprMIR node
 TypeContext: getting primitive type
                                         }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
                                     }
                                     Node {
 SymbolTable: entering scope 29
@@ -4362,6 +3781,9 @@ SymbolTable: entering scope 31
                                                 Validator: visiting LiteralExprMIR node
 TypeContext: getting primitive type
                                             }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
                                         }
                                         Node {
 SymbolTable: entering scope 32
@@ -4374,12 +3796,13 @@ SymbolTable: entering scope 32
                                                     }
                                                     Node {
                                                         Validator: visiting LiteralExprMIR node
-TypeContext: pointer with base 0x5606bf8868b0
-TypeContext: pointer with base 0x5606bf8868b0
+TypeContext: pointer with base 0x55917d6958b0
+TypeContext: pointer with base 0x55917d6958b0
                                                     }
                                                     Node {
                                                         Validator: visiting IdentExprMIR node
                                                     }
+TypeContext: pointer with base 0x55917d6958b0
                                                 }
                                             }
                                             Node {
@@ -4396,7 +3819,7 @@ SymbolTable: exiting scope to 31
                                                 Validator: visiting SubscrExprMIR node
                                                 Node {
                                                     Validator: visiting IdentExprMIR node
-TypeContext: array type with base 0x5606bf8867b0, size 30000
+TypeContext: array type with base 0x55917d6958b0, size 30000
                                                 }
                                                 Node {
                                                     Validator: visiting IdentExprMIR node
@@ -4406,6 +3829,9 @@ TypeContext: array type with base 0x5606bf8867b0, size 30000
                                                 Validator: visiting LiteralExprMIR node
 TypeContext: getting primitive type
                                             }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
                                         }
                                         Node {
 SymbolTable: entering scope 33
@@ -4468,10 +3894,16 @@ SymbolTable: exiting scope to 25
                                     Validator: visiting LiteralExprMIR node
 TypeContext: getting primitive type
                                 }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
                             }
                             Node {
                                 Validator: visiting IdentExprMIR node
                             }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
                         }
                         Node {
 SymbolTable: entering scope 35
@@ -4514,6 +3946,9 @@ SymbolTable: entering scope 37
                         Validator: visiting LiteralExprMIR node
 TypeContext: getting primitive type
                     }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
                 }
                 Node {
 SymbolTable: entering scope 38
@@ -4525,7 +3960,7 @@ SymbolTable: entering scope 38
                                 Validator: visiting SubscrExprMIR node
                                 Node {
                                     Validator: visiting IdentExprMIR node
-TypeContext: array type with base 0x5606bf8867b0, size 30000
+TypeContext: array type with base 0x55917d6958b0, size 30000
                                 }
                                 Node {
                                     Validator: visiting IdentExprMIR node
@@ -4577,12 +4012,12 @@ SymbolTable: entering scope 39
                 Validator: visiting PrintStmtMIR node
                 Node {
                     Validator: visiting IdentExprMIR node
-TypeContext: pointer with base 0x5606bf8867b0
+TypeContext: pointer with base 0x55917d6958b0
                 }
                 Node {
                     Validator: visiting LiteralExprMIR node
-TypeContext: pointer with base 0x5606bf8868b0
-TypeContext: pointer with base 0x5606bf8868b0
+TypeContext: pointer with base 0x55917d6958b0
+TypeContext: pointer with base 0x55917d6958b0
                 }
             }
 SymbolTable: exiting scope to 0
@@ -4608,8 +4043,8 @@ SymbolTable: entering scope 40
                 Validator: eval_initializer_expr
                 Node {
                     Validator: visiting LiteralExprMIR node
-TypeContext: pointer with base 0x5606bf8868b0
-TypeContext: pointer with base 0x5606bf8868b0
+TypeContext: pointer with base 0x55917d6958b0
+TypeContext: pointer with base 0x55917d6958b0
                 }
                 types are not equal, checking compatibility
             }
@@ -4622,9 +4057,13 @@ TypeContext: pointer with base 0x5606bf8868b0
                     }
                     Node {
                         Validator: visiting IdentExprMIR node
-TypeContext: array type with base 0x5606bf8868b0, no size
+TypeContext: array type with base 0x55917d6958b0, no size
 TypeContext: found existing array, returning
                     }
+TypeContext: pointer with base 0x55917d6958b0
+TypeContext: pointer with base 0x55917d6958b0
+TypeContext: pointer with base 0x55917d6958b0
+TypeContext: pointer with base 0x55917d6958b0
                 }
             }
             Node {
@@ -4663,22 +4102,21 @@ Base Types:
   classStack_0 : class Stack { i32 cap; i32 len; i32[32] data; }
 
 Function Types:
-  function_6116850818894889 : Void (u8 *)
-  function_6116850818936261 : bool (u8)
-  function_387643083687462298 : Void (u8 *, enum ErrType: i32  { SYSTEM = 1, BAD_CODE = 2 })
-  function_94586983180592 : i32 ()
-  function_6116850818857801 : Void (i32)
-  function_94586983180160 : Void ()
+  function_6081143937437097 : Void (i8 *)
+  function_6081143937494725 : bool (i8)
+  function_394618751813321018 : Void (i8 *, enum ErrType: i32  { SYSTEM = 1, BAD_CODE = 2 })
+  function_94083362674992 : i32 ()
+  function_6081143937457993 : Void (i32)
+  function_94083362674560 : Void ()
 
 Pointer Types:
   :i8 *
-  :u8 *
 
 Array Types:
- : i8[] #2
  : i8[8] #2
- : u8[30000] #8
- : u8[1024] #10
+ : i8[30000] #8
+ : i8[] #2
+ : i8[1024] #10
  : i32[32] #4
 
 
@@ -4686,34 +4124,34 @@ Array Types:
 
 Scope 0: Compound Statement
 Physical Symbols:
-  PrintUsage <0x5606bf8a6920> : FuncSymbol: PrintUsage :: Void (u8 *)
-  JumpToAfter <0x5606bf8492d0> : FuncSymbol: JumpToAfter :: Void ()
-  valid_chars <0x5606bf88d050> : VarSymbol: valid_chars :: I8[8]
-  Initialize <0x5606bf847b60> : FuncSymbol: Initialize :: Void ()
-  Execute <0x5606bf8493f0> : FuncSymbol: Execute :: Void ()
-  Main <0x5606bf8a7c10> : FuncSymbol: Main :: i32 ()
-  StackPush <0x5606bf8483d0> : FuncSymbol: StackPush :: Void (i32)
-  StackPop <0x5606bf847920> : FuncSymbol: StackPop :: i32 ()
-  SYSTEM <0x5606bf88b510> : VarSymbol: SYSTEM :: enum ErrType
-  StackPeek <0x5606bf848610> : FuncSymbol: StackPeek :: i32 ()
-  nesting <0x5606bf887e60> : VarSymbol: nesting :: class Stack
-  code <0x5606bf88aa00> : VarSymbol: code :: U8[1024]
-  data <0x5606bf88afb0> : VarSymbol: data :: U8[30000]
-  insptr <0x5606bf88abe0> : VarSymbol: insptr :: I32
-  ReadCode <0x5606bf8491b0> : FuncSymbol: ReadCode :: Void (u8 *)
-  IsValid <0x5606bf847fe0> : FuncSymbol: IsValid :: bool (u8)
-  Die <0x5606bf847da0> : FuncSymbol: Die :: Void (u8 *, enum ErrType: i32  { SYSTEM = 1, BAD_CODE = 2 })
-  codesize <0x5606bf88adf0> : VarSymbol: codesize :: I32
-  dataptr <0x5606bf88b1b0> : VarSymbol: dataptr :: I32
-  BAD_CODE <0x5606bf88b610> : VarSymbol: BAD_CODE :: enum ErrType
+  PrintUsage <0x55917d6b4990> : FuncSymbol: PrintUsage :: Void (i8 *)
+  JumpToAfter <0x55917d6582d0> : FuncSymbol: JumpToAfter :: Void ()
+  valid_chars <0x55917d69c2f0> : VarSymbol: valid_chars :: I8[8]
+  Initialize <0x55917d656b60> : FuncSymbol: Initialize :: Void ()
+  Execute <0x55917d6583f0> : FuncSymbol: Execute :: Void ()
+  Main <0x55917d6b5ca0> : FuncSymbol: Main :: i32 ()
+  StackPush <0x55917d6573d0> : FuncSymbol: StackPush :: Void (i32)
+  StackPop <0x55917d656920> : FuncSymbol: StackPop :: i32 ()
+  SYSTEM <0x55917d69a790> : VarSymbol: SYSTEM :: enum ErrType
+  StackPeek <0x55917d657610> : FuncSymbol: StackPeek :: i32 ()
+  nesting <0x55917d697080> : VarSymbol: nesting :: class Stack
+  code <0x55917d699c80> : VarSymbol: code :: I8[1024]
+  data <0x55917d69a230> : VarSymbol: data :: I8[30000]
+  insptr <0x55917d699e60> : VarSymbol: insptr :: I32
+  ReadCode <0x55917d6581b0> : FuncSymbol: ReadCode :: Void (i8 *)
+  IsValid <0x55917d656fe0> : FuncSymbol: IsValid :: bool (i8)
+  Die <0x55917d656da0> : FuncSymbol: Die :: Void (i8 *, enum ErrType: i32  { SYSTEM = 1, BAD_CODE = 2 })
+  codesize <0x55917d69a070> : VarSymbol: codesize :: I32
+  dataptr <0x55917d69a430> : VarSymbol: dataptr :: I32
+  BAD_CODE <0x55917d69a890> : VarSymbol: BAD_CODE :: enum ErrType
 
 Type Symbols:
-  ErrType <0x5606bf88b3c0> : TypeSymbol: ErrType :: enum ErrType: i32  { SYSTEM = 1, BAD_CODE = 2 }
-  Stack <0x5606bf8878c0> : TypeSymbol: Stack :: class Stack { i32 cap; i32 len; i32[32] data; }
+  ErrType <0x55917d69a640> : TypeSymbol: ErrType :: enum ErrType: i32  { SYSTEM = 1, BAD_CODE = 2 }
+  Stack <0x55917d696aa0> : TypeSymbol: Stack :: class Stack { i32 cap; i32 len; i32[32] data; }
 -----------------------------------------------------------
   Scope 1: FuncSymbol: StackPush :: Void (i32)
   Physical Symbols:
-    item <0x5606bf888320> : VarSymbol: item :: I32
+    item <0x55917d6975b0> : VarSymbol: item :: I32
 -----------------------------------------------------------
     Scope 2: Compound Statement
 -----------------------------------------------------------
@@ -4721,31 +4159,31 @@ Type Symbols:
 -----------------------------------------------------------
   Scope 4: FuncSymbol: StackPop :: i32 ()
   Physical Symbols:
-    ret <0x5606bf88a530> : VarSymbol: ret :: I32
+    ret <0x55917d697d00> : VarSymbol: ret :: I32
 -----------------------------------------------------------
-  Scope 5: FuncSymbol: Die :: Void (u8 *, enum ErrType: i32  { SYSTEM = 1, BAD_CODE = 2 })
+  Scope 5: FuncSymbol: Die :: Void (i8 *, enum ErrType: i32  { SYSTEM = 1, BAD_CODE = 2 })
   Physical Symbols:
-    errcode <0x5606bf88bbc0> : VarSymbol: errcode :: enum ErrType
-    errmsg <0x5606bf88bb00> : VarSymbol: errmsg :: U8 *
+    errcode <0x55917d69aec0> : VarSymbol: errcode :: enum ErrType
+    errmsg <0x55917d69ae00> : VarSymbol: errmsg :: I8 *
 -----------------------------------------------------------
     Scope 6: Compound Statement
 -----------------------------------------------------------
     Scope 7: Compound Statement
 -----------------------------------------------------------
-  Scope 8: FuncSymbol: IsValid :: bool (u8)
+  Scope 8: FuncSymbol: IsValid :: bool (i8)
   Physical Symbols:
-    i <0x5606bf88d790> : VarSymbol: i :: I32
-    c <0x5606bf88d420> : VarSymbol: c :: U8
+    i <0x55917d69ca50> : VarSymbol: i :: I32
+    c <0x55917d69c700> : VarSymbol: c :: I8
 -----------------------------------------------------------
     Scope 9: Compound Statement
 -----------------------------------------------------------
       Scope 10: Compound Statement
 -----------------------------------------------------------
-  Scope 11: FuncSymbol: ReadCode :: Void (u8 *)
+  Scope 11: FuncSymbol: ReadCode :: Void (i8 *)
   Physical Symbols:
-    i <0x5606bf88e960> : VarSymbol: i :: I32
-    n <0x5606bf88e710> : VarSymbol: n :: I32
-    src <0x5606bf88e390> : VarSymbol: src :: U8 *
+    i <0x55917d69dc90> : VarSymbol: i :: I32
+    n <0x55917d69da40> : VarSymbol: n :: I32
+    src <0x55917d69d6e0> : VarSymbol: src :: I8 *
 -----------------------------------------------------------
     Scope 12: Compound Statement
 -----------------------------------------------------------
@@ -4757,7 +4195,7 @@ Type Symbols:
 -----------------------------------------------------------
   Scope 16: FuncSymbol: JumpToAfter :: Void ()
   Physical Symbols:
-    current <0x5606bf890580> : VarSymbol: current :: I32
+    current <0x55917d69f890> : VarSymbol: current :: I32
 -----------------------------------------------------------
     Scope 17: Compound Statement
 -----------------------------------------------------------
@@ -4773,7 +4211,7 @@ Type Symbols:
 -----------------------------------------------------------
   Scope 23: FuncSymbol: Execute :: Void ()
   Physical Symbols:
-    c <0x5606bf8876c0> : VarSymbol: c :: U8
+    c <0x55917d6967c0> : VarSymbol: c :: I8
 -----------------------------------------------------------
     Scope 24: Compound Statement
 -----------------------------------------------------------
@@ -4791,7 +4229,7 @@ Type Symbols:
 -----------------------------------------------------------
           Scope 31: Compound Statement
           Physical Symbols:
-            opening <0x5606bf8a50c0> : VarSymbol: opening :: I32
+            opening <0x55917d6b3130> : VarSymbol: opening :: I32
 -----------------------------------------------------------
             Scope 32: Compound Statement
 -----------------------------------------------------------
@@ -4803,26 +4241,26 @@ Type Symbols:
 -----------------------------------------------------------
   Scope 36: FuncSymbol: Initialize :: Void ()
   Physical Symbols:
-    i <0x5606bf8a6a80> : VarSymbol: i :: I32
+    i <0x55917d6b4af0> : VarSymbol: i :: I32
 -----------------------------------------------------------
     Scope 37: Compound Statement
 -----------------------------------------------------------
       Scope 38: Compound Statement
 -----------------------------------------------------------
-  Scope 39: FuncSymbol: PrintUsage :: Void (u8 *)
+  Scope 39: FuncSymbol: PrintUsage :: Void (i8 *)
   Physical Symbols:
-    argname <0x5606bf8a77f0> : VarSymbol: argname :: U8 *
+    argname <0x55917d6b58a0> : VarSymbol: argname :: I8 *
 -----------------------------------------------------------
   Scope 40: FuncSymbol: Main :: i32 ()
   Physical Symbols:
-    program <0x5606bf8a8130> : VarSymbol: program :: I8[]
+    program <0x55917d6b61a0> : VarSymbol: program :: I8[]
 -----------------------------------------------------------
 
 --------- MIR ---------
 
 ProgramMIR @ <1.1>
 | VarDecl:  @ <6.1-13>
-| | | VarSymbol: c :: U8
+| | | VarSymbol: c :: I8
 | TypeDecl: Stack @ <9.1-13.2>
 | VarDecl:  @ <15.1-26>
 | | | VarSymbol: nesting :: class Stack
@@ -4908,7 +4346,7 @@ ProgramMIR @ <1.1>
 | | | Return @ <43.5-15>
 | | | | Ident: ret :: I32 @ <43.12-14>
 | VarDecl:  @ <47.1-15>
-| | | VarSymbol: code :: U8[1024]
+| | | VarSymbol: code :: I8[1024]
 | VarDecl:  @ <48.1-16>
 | | | VarSymbol: insptr :: I32
 | | | Initializer @ <48.15>
@@ -4918,13 +4356,13 @@ ProgramMIR @ <1.1>
 | | | Initializer @ <49.17-20>
 | | | | Literal: :: I32 @ <49.17-20>
 1024| VarDecl:  @ <52.1-16>
-| | | VarSymbol: data :: U8[30000]
+| | | VarSymbol: data :: I8[30000]
 | VarDecl:  @ <53.1-17>
 | | | VarSymbol: dataptr :: I32
 | | | Initializer @ <53.16>
 | | | | Literal: :: I32 @ <53.16>
 0| FunctionMIR: Die @ <56.1-63.1>
-    type: Void (u8 *, enum ErrType: i32  { SYSTEM = 1, BAD_CODE = 2 })
+    type: Void (i8 *, enum ErrType: i32  { SYSTEM = 1, BAD_CODE = 2 })
 | | CompoundStmtMIR @ <56.43-63.1>
 | | | IfStmt @ <57.5-61.5>
 | | | | Binary: == :: I32 @ <57.8-25>
@@ -4933,15 +4371,15 @@ ProgramMIR @ <1.1>
 | | | | CompoundStmtMIR @ <57.28-59.5>
 | | | | | Print: "ERROR: %s
 " @ <58.9-30>
-| | | | | | Ident: errmsg :: U8 * @ <58.24-29>
+| | | | | | Ident: errmsg :: I8 * @ <58.24-29>
 | | | | CompoundStmtMIR @ <59.12-61.5>
 | | | | | Print: "ERROR@[Pos %d: '%c']: %s
 " @ <60.9-67>
 | | | | | | Ident: insptr :: I32 @ <60.39-44>
-| | | | | | Subscript :: U8 @ <60.47-58>
-| | | | | | | Ident: code :: U8[1024] @ <60.47-50>
+| | | | | | Subscript :: I8 @ <60.47-58>
+| | | | | | | Ident: code :: I8[1024] @ <60.47-50>
 | | | | | | | Ident: insptr :: I32 @ <60.47-57>
-| | | | | | Ident: errmsg :: U8 * @ <60.61-66>
+| | | | | | Ident: errmsg :: I8 * @ <60.61-66>
 | | | Return @ <62.5-11>
 | VarDecl:  @ <65.1-62>
 | | | VarSymbol: valid_chars :: I8[8]
@@ -4963,7 +4401,7 @@ ProgramMIR @ <1.1>
 91| | | | Initializer @ <65.58-60>
 | | | | | Literal: :: I8 @ <65.58-60>
 93| FunctionMIR: IsValid @ <66.1-74.1>
-    type: bool (u8)
+    type: bool (i8)
 | | CompoundStmtMIR @ <66.21-74.1>
 | | | VarDecl:  @ <67.5-15>
 | | | | | VarSymbol: i :: I32
@@ -4975,20 +4413,24 @@ ProgramMIR @ <1.1>
 | | | | | Literal: :: I32 @ <68.16>
 8| | | | CompoundStmtMIR @ <68.19-71.5>
 | | | | | IfStmt @ <69.9-42>
-| | | | | | Binary: == :: U8 @ <69.12-31>
-| | | | | | | Ident: c :: U8 @ <69.12-13>
-| | | | | | | Subscript :: I8 @ <69.18-31>
-| | | | | | | | Ident: valid_chars :: I8[8] @ <69.18-28>
-| | | | | | | | Ident: i :: I32 @ <69.18-30>
+| | | | | | Binary: == :: I32 @ <69.12-31>
+| | | | | | | Cast -> i32 :: I32 @ <69.12-13>
+| | | | | | | | Ident: c :: I8 @ <69.12-13>
+| | | | | | | Cast -> i32 :: I32 @ <69.18-31>
+| | | | | | | | Subscript :: I8 @ <69.18-31>
+| | | | | | | | | Ident: valid_chars :: I8[8] @ <69.18-28>
+| | | | | | | | | Ident: i :: I32 @ <69.18-30>
 | | | | | | Return @ <69.34-42>
-| | | | | | | Literal: :: I32 @ <69.41>
+| | | | | | | Cast -> bool :: Bool @ <69.41>
+| | | | | | | | Literal: :: I32 @ <69.41>
 1| | | | | ExprStmt @ <70.9-12>
 | | | | | | Postfix: :: I32++ @ <70.9-11>
 | | | | | | | Ident: i :: I32 @ <70.9>
 | | | Return @ <73.5-13>
-| | | | Literal: :: I32 @ <73.12>
+| | | | Cast -> bool :: Bool @ <73.12>
+| | | | | Literal: :: I32 @ <73.12>
 0| FunctionMIR: ReadCode @ <77.1-95.1>
-    type: Void (u8 *)
+    type: Void (i8 *)
 | | CompoundStmtMIR @ <77.23-95.1>
 | | | VarDecl:  @ <78.5-15>
 | | | | | VarSymbol: n :: I32
@@ -4999,27 +4441,29 @@ ProgramMIR @ <1.1>
 | | | | | Initializer @ <79.14>
 | | | | | | Literal: :: I32 @ <79.14>
 0| | | LoopStmt @ <81.5-91.5>
-| | | | Binary: != :: U8 @ <81.11-25>
-| | | | | Subscript :: U8 @ <81.11-17>
-| | | | | | Ident: src :: U8 * @ <81.11-14>
-| | | | | | Ident: i :: I32 @ <81.11-16>
-| | | | | Literal: :: I8 @ <81.22-25>
+| | | | Binary: != :: I32 @ <81.11-25>
+| | | | | Cast -> i32 :: I32 @ <81.11-17>
+| | | | | | Subscript :: I8 @ <81.11-17>
+| | | | | | | Ident: src :: I8 * @ <81.11-14>
+| | | | | | | Ident: i :: I32 @ <81.11-16>
+| | | | | Cast -> i32 :: I32 @ <81.22-25>
+| | | | | | Literal: :: I8 @ <81.22-25>
 0| | | | CompoundStmtMIR @ <81.28-91.5>
 | | | | | IfStmt @ <82.9-84.9>
 | | | | | | Call :: Bool @ <82.12-27>
-| | | | | | | Ident: IsValid :: Bool (U8) @ <82.12-19>
-| | | | | | | Subscript :: U8 @ <82.12-26>
-| | | | | | | | Ident: src :: U8 * @ <82.12-23>
+| | | | | | | Ident: IsValid :: Bool (I8) @ <82.12-19>
+| | | | | | | Subscript :: I8 @ <82.12-26>
+| | | | | | | | Ident: src :: I8 * @ <82.12-23>
 | | | | | | | | Ident: i :: I32 @ <82.12-25>
 | | | | | | CompoundStmtMIR @ <82.30-84.9>
 | | | | | | | ExprStmt @ <83.13-31>
-| | | | | | | | Assign: = :: U8 @ <83.13-30>
-| | | | | | | | | Subscript :: U8 @ <83.13-21>
-| | | | | | | | | | Ident: code :: U8[1024] @ <83.13-16>
+| | | | | | | | Assign: = :: I8 @ <83.13-30>
+| | | | | | | | | Subscript :: I8 @ <83.13-21>
+| | | | | | | | | | Ident: code :: I8[1024] @ <83.13-16>
 | | | | | | | | | | Postfix: :: I32++ @ <83.13-20>
 | | | | | | | | | | | Ident: n :: I32 @ <83.13-18>
-| | | | | | | | | Subscript :: U8 @ <83.25-30>
-| | | | | | | | | | Ident: src :: U8 * @ <83.25-27>
+| | | | | | | | | Subscript :: I8 @ <83.25-30>
+| | | | | | | | | | Ident: src :: I8 * @ <83.25-27>
 | | | | | | | | | | Ident: i :: I32 @ <83.25-29>
 | | | | | IfStmt @ <86.9-89.9>
 | | | | | | Binary: == :: I32 @ <86.12-29>
@@ -5030,7 +4474,7 @@ ProgramMIR @ <1.1>
 | | | | | | CompoundStmtMIR @ <86.32-89.9>
 | | | | | | | ExprStmt @ <87.13-42>
 | | | | | | | | Call :: Void @ <87.13-41>
-| | | | | | | | | Ident: Die :: Void (U8 *, enum ErrType) @ <87.13-15>
+| | | | | | | | | Ident: Die :: Void (I8 *, enum ErrType) @ <87.13-15>
 | | | | | | | | | Literal: :: const I8 * @ <87.13-32>
 code too large| | | | | | | | | Ident: SYSTEM :: enum ErrType @ <87.35-40>
 | | | | | | | Return @ <88.13-19>
@@ -5038,13 +4482,13 @@ code too large| | | | | | | | | Ident: SYSTEM :: enum ErrType @ <87.35-40>
 | | | | | | Postfix: :: I32++ @ <90.9-11>
 | | | | | | | Ident: i :: I32 @ <90.9>
 | | | ExprStmt @ <93.5-19>
-| | | | Assign: = :: U8 @ <93.5-18>
-| | | | | Subscript :: U8 @ <93.5-11>
-| | | | | | Ident: code :: U8[1024] @ <93.5-8>
+| | | | Assign: = :: I8 @ <93.5-18>
+| | | | | Subscript :: I8 @ <93.5-11>
+| | | | | | Ident: code :: I8[1024] @ <93.5-8>
 | | | | | | Ident: n :: I32 @ <93.5-10>
 | | | | | Literal: :: I8 @ <93.15-18>
 0| | | Print: "got code: (" @ <94.5-31>
-| | | | Ident: code :: U8[1024] @ <94.20-23>
+| | | | Ident: code :: I8[1024] @ <94.20-23>
 | | | | Literal: :: const I8 * @ <94.26-30>
 )
 | FunctionMIR: JumpToAfter @ <98.1-118.1>
@@ -5056,28 +4500,34 @@ code too large| | | | | | | | | Ident: SYSTEM :: enum ErrType @ <87.35-40>
 | | | | | | Member: .len :: I32 @ <99.20-30>
 | | | | | | | Ident: nesting :: class Stack @ <99.20-26>
 | | | LoopStmt @ <100.5-117.5>
-| | | | Binary: != :: U8 @ <100.11-31>
-| | | | | Subscript :: U8 @ <100.11-23>
-| | | | | | Ident: code :: U8[1024] @ <100.11-15>
-| | | | | | Ident: insptr :: I32 @ <100.11-22>
-| | | | | Literal: :: I8 @ <100.28-31>
+| | | | Binary: != :: I32 @ <100.11-31>
+| | | | | Cast -> i32 :: I32 @ <100.11-23>
+| | | | | | Subscript :: I8 @ <100.11-23>
+| | | | | | | Ident: code :: I8[1024] @ <100.11-15>
+| | | | | | | Ident: insptr :: I32 @ <100.11-22>
+| | | | | Cast -> i32 :: I32 @ <100.28-31>
+| | | | | | Literal: :: I8 @ <100.28-31>
 0| | | | CompoundStmtMIR @ <100.34-117.5>
 | | | | | IfStmt @ <101.9-109.9>
-| | | | | | Binary: == :: U8 @ <101.12-31>
-| | | | | | | Subscript :: U8 @ <101.12-24>
-| | | | | | | | Ident: code :: U8[1024] @ <101.12-16>
-| | | | | | | | Ident: insptr :: I32 @ <101.12-23>
-| | | | | | | Literal: :: I8 @ <101.29-31>
+| | | | | | Binary: == :: I32 @ <101.12-31>
+| | | | | | | Cast -> i32 :: I32 @ <101.12-24>
+| | | | | | | | Subscript :: I8 @ <101.12-24>
+| | | | | | | | | Ident: code :: I8[1024] @ <101.12-16>
+| | | | | | | | | Ident: insptr :: I32 @ <101.12-23>
+| | | | | | | Cast -> i32 :: I32 @ <101.29-31>
+| | | | | | | | Literal: :: I8 @ <101.29-31>
 91| | | | | | CompoundStmtMIR @ <101.34-103.9>
 | | | | | | | ExprStmt @ <102.13-22>
 | | | | | | | | Postfix: :: I32++ @ <102.13-21>
 | | | | | | | | | Ident: current :: I32 @ <102.13-19>
 | | | | | | IfStmt @ <103.16-109.9>
-| | | | | | | Binary: == :: U8 @ <103.19-38>
-| | | | | | | | Subscript :: U8 @ <103.19-31>
-| | | | | | | | | Ident: code :: U8[1024] @ <103.19-23>
-| | | | | | | | | Ident: insptr :: I32 @ <103.19-30>
-| | | | | | | | Literal: :: I8 @ <103.36-38>
+| | | | | | | Binary: == :: I32 @ <103.19-38>
+| | | | | | | | Cast -> i32 :: I32 @ <103.19-31>
+| | | | | | | | | Subscript :: I8 @ <103.19-31>
+| | | | | | | | | | Ident: code :: I8[1024] @ <103.19-23>
+| | | | | | | | | | Ident: insptr :: I32 @ <103.19-30>
+| | | | | | | | Cast -> i32 :: I32 @ <103.36-38>
+| | | | | | | | | Literal: :: I8 @ <103.36-38>
 93| | | | | | | CompoundStmtMIR @ <103.41-109.9>
 | | | | | | | | ExprStmt @ <104.13-22>
 | | | | | | | | | Postfix: :: I32-- @ <104.13-21>
@@ -5100,7 +4550,7 @@ code too large| | | | | | | | | Ident: SYSTEM :: enum ErrType @ <87.35-40>
 | | | | | | CompoundStmtMIR @ <111.36-114.9>
 | | | | | | | ExprStmt @ <112.13-70>
 | | | | | | | | Call :: Void @ <112.13-69>
-| | | | | | | | | Ident: Die :: Void (U8 *, enum ErrType) @ <112.13-15>
+| | | | | | | | | Ident: Die :: Void (I8 *, enum ErrType) @ <112.13-15>
 | | | | | | | | | Literal: :: const I8 * @ <112.13-58>
 malformed code, missing matching bracket| | | | | | | | | Ident: BAD_CODE :: enum ErrType @ <112.61-68>
 | | | | | | | Return @ <113.13-19>
@@ -5111,15 +4561,17 @@ malformed code, missing matching bracket| | | | | | | | | Ident: BAD_CODE :: enu
     type: Void ()
 | | CompoundStmtMIR @ <120.14-201.1>
 | | | VarDecl:  @ <122.5-10>
-| | | | | VarSymbol: c :: U8
+| | | | | VarSymbol: c :: I8
 | | | LoopStmt @ <123.5-200.5>
-| | | | Binary: != :: U8 @ <123.11-37>
-| | | | | Assign: = :: U8 @ <123.11-29>
-| | | | | | Ident: c :: U8 @ <123.11-13>
-| | | | | | Subscript :: U8 @ <123.17-28>
-| | | | | | | Ident: code :: U8[1024] @ <123.17-20>
-| | | | | | | Ident: insptr :: I32 @ <123.17-27>
-| | | | | Literal: :: I8 @ <123.34-37>
+| | | | Binary: != :: I32 @ <123.11-37>
+| | | | | Cast -> i32 :: I32 @ <123.11-29>
+| | | | | | Assign: = :: I8 @ <123.11-29>
+| | | | | | | Ident: c :: I8 @ <123.11-13>
+| | | | | | | Subscript :: I8 @ <123.17-28>
+| | | | | | | | Ident: code :: I8[1024] @ <123.17-20>
+| | | | | | | | Ident: insptr :: I32 @ <123.17-27>
+| | | | | Cast -> i32 :: I32 @ <123.34-37>
+| | | | | | Literal: :: I8 @ <123.34-37>
 0| | | | CompoundStmtMIR @ <123.40-200.5>
 | | | | | IfStmt @ <124.9-127.9>
 | | | | | | Binary: < :: I32 @ <124.12-22>
@@ -5128,7 +4580,7 @@ malformed code, missing matching bracket| | | | | | | | | Ident: BAD_CODE :: enu
 0| | | | | | CompoundStmtMIR @ <124.25-127.9>
 | | | | | | | ExprStmt @ <125.13-62>
 | | | | | | | | Call :: Void @ <125.13-61>
-| | | | | | | | | Ident: Die :: Void (U8 *, enum ErrType) @ <125.13-15>
+| | | | | | | | | Ident: Die :: Void (I8 *, enum ErrType) @ <125.13-15>
 | | | | | | | | | Literal: :: const I8 * @ <125.13-50>
 instruction pointer went below 0| | | | | | | | | Ident: BAD_CODE :: enum ErrType @ <125.53-60>
 | | | | | | | Return @ <126.13-19>
@@ -5139,16 +4591,16 @@ instruction pointer went below 0| | | | | | | | | Ident: BAD_CODE :: enum ErrTyp
 0| | | | | | CompoundStmtMIR @ <129.26-132.9>
 | | | | | | | ExprStmt @ <130.13-55>
 | | | | | | | | Call :: Void @ <130.13-54>
-| | | | | | | | | Ident: Die :: Void (U8 *, enum ErrType) @ <130.13-15>
+| | | | | | | | | Ident: Die :: Void (I8 *, enum ErrType) @ <130.13-15>
 | | | | | | | | | Literal: :: const I8 * @ <130.13-43>
 data pointer went below 0| | | | | | | | | Ident: BAD_CODE :: enum ErrType @ <130.46-53>
 | | | | | | | Return @ <131.13-19>
 | | | | | Print: "got code: (" @ <133.9-35>
-| | | | | | Ident: code :: U8[1024] @ <133.24-27>
+| | | | | | Ident: code :: I8[1024] @ <133.24-27>
 | | | | | | Literal: :: const I8 * @ <133.30-34>
 )
 | | | | | SwitchStmt @ <134.9-192.9>
-| | | | | | Ident: c :: U8 @ <134.16-17>
+| | | | | | Ident: c :: I8 @ <134.16-17>
 | | | | | | CompoundStmtMIR @ <134.20-192.9>
 | | | | | | | Case: 62 @ <136.13-137.26>
 | | | | | | | | ExprStmt @ <137.17-26>
@@ -5162,38 +4614,39 @@ data pointer went below 0| | | | | | | | | Ident: BAD_CODE :: enum ErrType @ <13
 | | | | | | | Break @ <143.17-22>
 | | | | | | | Case: 43 @ <146.13-147.32>
 | | | | | | | | ExprStmt @ <147.17-32>
-| | | | | | | | | Postfix: :: U8++ @ <147.17-31>
-| | | | | | | | | | Subscript :: U8 @ <147.17-29>
-| | | | | | | | | | | Ident: data :: U8[30000] @ <147.17-20>
+| | | | | | | | | Postfix: :: I8++ @ <147.17-31>
+| | | | | | | | | | Subscript :: I8 @ <147.17-29>
+| | | | | | | | | | | Ident: data :: I8[30000] @ <147.17-20>
 | | | | | | | | | | | Ident: dataptr :: I32 @ <147.17-28>
 | | | | | | | Break @ <148.17-22>
 | | | | | | | Case: 45 @ <151.13-152.32>
 | | | | | | | | ExprStmt @ <152.17-32>
-| | | | | | | | | Postfix: :: U8-- @ <152.17-31>
-| | | | | | | | | | Subscript :: U8 @ <152.17-29>
-| | | | | | | | | | | Ident: data :: U8[30000] @ <152.17-20>
+| | | | | | | | | Postfix: :: I8-- @ <152.17-31>
+| | | | | | | | | | Subscript :: I8 @ <152.17-29>
+| | | | | | | | | | | Ident: data :: I8[30000] @ <152.17-20>
 | | | | | | | | | | | Ident: dataptr :: I32 @ <152.17-28>
 | | | | | | | Break @ <153.17-22>
 | | | | | | | Case: 44 @ <155.13-156.34>
 | | | | | | | | ExprStmt @ <156.17-34>
-| | | | | | | | | Assign: = :: U8 @ <156.17-33>
-| | | | | | | | | | Subscript :: U8 @ <156.17-29>
-| | | | | | | | | | | Ident: data :: U8[30000] @ <156.17-20>
+| | | | | | | | | Assign: = :: I8 @ <156.17-33>
+| | | | | | | | | | Subscript :: I8 @ <156.17-29>
+| | | | | | | | | | | Ident: data :: I8[30000] @ <156.17-20>
 | | | | | | | | | | | Ident: dataptr :: I32 @ <156.17-28>
 | | | | | | | | | | Literal: :: I32 @ <156.33>
 0| | | | | | | Break @ <157.17-22>
 | | | | | | | Case: 46 @ <159.13-160.30>
 | | | | | | | | ExprStmt @ <160.17-30>
-| | | | | | | | | Subscript :: U8 @ <160.17-29>
-| | | | | | | | | | Ident: data :: U8[30000] @ <160.17-20>
+| | | | | | | | | Subscript :: I8 @ <160.17-29>
+| | | | | | | | | | Ident: data :: I8[30000] @ <160.17-20>
 | | | | | | | | | | Ident: dataptr :: I32 @ <160.17-28>
 | | | | | | | Break @ <161.17-22>
 | | | | | | | Case: 91 @ <165.13-172.17>
 | | | | | | | | IfStmt @ <166.17-172.17>
-| | | | | | | | | Binary: == :: U8 @ <166.20-38>
-| | | | | | | | | | Subscript :: U8 @ <166.20-33>
-| | | | | | | | | | | Ident: data :: U8[30000] @ <166.20-24>
-| | | | | | | | | | | Ident: dataptr :: I32 @ <166.20-32>
+| | | | | | | | | Binary: == :: I32 @ <166.20-38>
+| | | | | | | | | | Cast -> i32 :: I32 @ <166.20-33>
+| | | | | | | | | | | Subscript :: I8 @ <166.20-33>
+| | | | | | | | | | | | Ident: data :: I8[30000] @ <166.20-24>
+| | | | | | | | | | | | Ident: dataptr :: I32 @ <166.20-32>
 | | | | | | | | | | Literal: :: I32 @ <166.38>
 0| | | | | | | | | CompoundStmtMIR @ <166.41-169.17>
 | | | | | | | | | | ExprStmt @ <168.21-34>
@@ -5219,15 +4672,16 @@ data pointer went below 0| | | | | | | | | Ident: BAD_CODE :: enum ErrType @ <13
 0| | | | | | | | | | CompoundStmtMIR @ <180.34-183.17>
 | | | | | | | | | | | ExprStmt @ <181.21-64>
 | | | | | | | | | | | | Call :: Void @ <181.21-63>
-| | | | | | | | | | | | | Ident: Die :: Void (U8 *, enum ErrType) @ <181.21-23>
+| | | | | | | | | | | | | Ident: Die :: Void (I8 *, enum ErrType) @ <181.21-23>
 | | | | | | | | | | | | | Literal: :: const I8 * @ <181.21-52>
 mismatched closing bracket| | | | | | | | | | | | | Ident: BAD_CODE :: enum ErrType @ <181.55-62>
 | | | | | | | | | | | Return @ <182.21-27>
 | | | | | | | | | IfStmt @ <185.17-190.17>
-| | | | | | | | | | Binary: != :: U8 @ <185.20-38>
-| | | | | | | | | | | Subscript :: U8 @ <185.20-33>
-| | | | | | | | | | | | Ident: data :: U8[30000] @ <185.20-24>
-| | | | | | | | | | | | Ident: dataptr :: I32 @ <185.20-32>
+| | | | | | | | | | Binary: != :: I32 @ <185.20-38>
+| | | | | | | | | | | Cast -> i32 :: I32 @ <185.20-33>
+| | | | | | | | | | | | Subscript :: I8 @ <185.20-33>
+| | | | | | | | | | | | | Ident: data :: I8[30000] @ <185.20-24>
+| | | | | | | | | | | | | Ident: dataptr :: I32 @ <185.20-32>
 | | | | | | | | | | | Literal: :: I32 @ <185.38>
 0| | | | | | | | | | CompoundStmtMIR @ <185.41-187.17>
 | | | | | | | | | | | ExprStmt @ <186.21-37>
@@ -5263,9 +4717,9 @@ mismatched closing bracket| | | | | | | | | | | | | Ident: BAD_CODE :: enum ErrT
 | | | | | Literal: :: I32 @ <206.16-20>
 30000| | | | CompoundStmtMIR @ <206.23-209.5>
 | | | | | ExprStmt @ <207.9-20>
-| | | | | | Assign: = :: U8 @ <207.9-19>
-| | | | | | | Subscript :: U8 @ <207.9-15>
-| | | | | | | | Ident: data :: U8[30000] @ <207.9-12>
+| | | | | | Assign: = :: I8 @ <207.9-19>
+| | | | | | | Subscript :: I8 @ <207.9-15>
+| | | | | | | | Ident: data :: I8[30000] @ <207.9-12>
 | | | | | | | | Ident: i :: I32 @ <207.9-14>
 | | | | | | | Literal: :: I32 @ <207.19>
 0| | | | | ExprStmt @ <208.9-12>
@@ -5277,10 +4731,10 @@ mismatched closing bracket| | | | | | | | | | | | | Ident: BAD_CODE :: enum ErrT
 | | | | | | Ident: nesting :: class Stack @ <211.5-11>
 | | | | | Literal: :: I32 @ <211.19>
 0| FunctionMIR: PrintUsage @ <214.1-216.1>
-    type: Void (u8 *)
+    type: Void (i8 *)
 | | CompoundStmtMIR @ <214.29-216.1>
 | | | Print: "usage: " @ <215.5-45>
-| | | | Ident: argname :: U8 * @ <215.16-22>
+| | | | Ident: argname :: I8 * @ <215.16-22>
 | | | | Literal: :: const I8 * @ <215.25-44>
  [-m MEMSIZE] CODE| FunctionMIR: Main @ <218.1-228.1>
     type: i32 ()
@@ -5294,8 +4748,10 @@ mismatched closing bracket| | | | | | | | | | | | | Ident: BAD_CODE :: enum ErrT
 | | | | | | Literal: :: const I8 * @ <222.21-186>
 >++++++++[<+++++++++>-]<.>++++[<+++++++>-]<+.+++++++..+++.>>++++++[<+++++++>-]<++.------------.>++++++[<+++++++++>-]<+.<.+++.------.--------.>>>++++[<++++++++>-]<+.| | | ExprStmt @ <224.5-22>
 | | | | Call :: Void @ <224.5-21>
-| | | | | Ident: ReadCode :: Void (U8 *) @ <224.5-12>
-| | | | | Ident: program :: I8[] @ <224.5-20>
+| | | | | Ident: ReadCode :: Void (I8 *) @ <224.5-12>
+| | | | | Cast -> i8 * :: I8 * @ <224.5-20>
+| | | | | | Cast -> i8 * :: I8 * @ <224.5-20>
+| | | | | | | Ident: program :: I8[] @ <224.5-20>
 | | | ExprStmt @ <225.5-14>
 | | | | Call :: Void @ <225.5-13>
 | | | | | Ident: Execute :: Void () @ <225.5-11>
