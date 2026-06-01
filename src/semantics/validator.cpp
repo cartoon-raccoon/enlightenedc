@@ -985,6 +985,7 @@ void Validator::do_visit(MemberAccExprMIR& node) {
 }
 
 void Validator::do_visit(ReintExprMIR& node) {
+    bsv_dbprint("Validator: visiting ReintExprMIR node");
     node.object->accept(*this);
 
     PrimitiveType *objtype = nullptr;
@@ -1002,7 +1003,7 @@ void Validator::do_visit(ReintExprMIR& node) {
             throw UnableToContinue();
         }
 
-        objtype = node.object->eff_type->as_primitive();
+        objtype = node.object->eff_type->as_pointer()->base->as_primitive();
     } else {
         if (!node.object->eff_type->is_primitive()) {
             bsv_dbprint("error: reinterpret object is not a primitive");
