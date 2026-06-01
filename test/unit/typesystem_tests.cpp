@@ -146,7 +146,7 @@ TEST_F(TypeSysAndSymTabTestFixture, PrimCoerce_U8ToI16) {
     EXPECT_TRUE(tctxt.get_u8()->coercible_to(tctxt.get_i16()));
 }
 
-// Cross-sign same size (4 <= 4)
+// Cross-sign same size
 TEST_F(TypeSysAndSymTabTestFixture, PrimCoerce_U32ToI32) {
     EXPECT_TRUE(tctxt.get_u32()->coercible_to(tctxt.get_i32()));
 }
@@ -174,7 +174,7 @@ TEST_F(TypeSysAndSymTabTestFixture, PrimCoerce_F64ToBool) {
     EXPECT_TRUE(tctxt.get_f64()->coercible_to(tctxt.get_bool()));
 }
 
-// Coercion to enum: unwraps enum to its underlying type for the size check
+// Coercion to enum: unwraps enum to its underlying type for the coercibility check
 TEST_F(TypeSysAndSymTabTestFixture, PrimCoerce_U8ToEnumWithU16Underlying) {
     std::string name = "CoerceTargetEnum";
     EnumType   *enm  = tctxt.get_enum(LOC, name, symtab.global.get());
@@ -186,44 +186,43 @@ TEST_F(TypeSysAndSymTabTestFixture, PrimCoerce_U8ToEnumWithU16Underlying) {
         << "U8 should coerce to an enum whose underlying type is U16 (widening)";
 }
 
+// Narrowing: coerces with a warning
+TEST_F(TypeSysAndSymTabTestFixture, PrimCoerce_U32ToU8) {
+    EXPECT_TRUE(tctxt.get_u32()->coercible_to(tctxt.get_u8()));
+}
+
+TEST_F(TypeSysAndSymTabTestFixture, PrimCoerce_U32ToU16) {
+    EXPECT_TRUE(tctxt.get_u32()->coercible_to(tctxt.get_u16()));
+}
+
+TEST_F(TypeSysAndSymTabTestFixture, PrimCoerce_I32ToU8) {
+    EXPECT_TRUE(tctxt.get_i32()->coercible_to(tctxt.get_u8()));
+}
+
+// Float-to-float: allowed in both directions
+TEST_F(TypeSysAndSymTabTestFixture, PrimCoerce_F32ToF64) {
+    EXPECT_TRUE(tctxt.get_f32()->coercible_to(tctxt.get_f64()));
+}
+
+TEST_F(TypeSysAndSymTabTestFixture, PrimCoerce_F64ToF32) {
+    EXPECT_TRUE(tctxt.get_f64()->coercible_to(tctxt.get_f32()));
+}
+
+// Integer-to-float: allowed
+TEST_F(TypeSysAndSymTabTestFixture, PrimCoerce_U32ToF64) {
+    EXPECT_TRUE(tctxt.get_u32()->coercible_to(tctxt.get_f64()));
+}
+
+// Bool to integer: allowed
+TEST_F(TypeSysAndSymTabTestFixture, PrimCoerce_BoolToU8) {
+    EXPECT_TRUE(tctxt.get_bool()->coercible_to(tctxt.get_u8()));
+}
+
 // ── NOT coercible ──
 
-// Narrowing is rejected
-TEST_F(TypeSysAndSymTabTestFixture, PrimNoCoerce_U32ToU8) {
-    EXPECT_FALSE(tctxt.get_u32()->coercible_to(tctxt.get_u8()));
-}
-
-TEST_F(TypeSysAndSymTabTestFixture, PrimNoCoerce_U32ToU16) {
-    EXPECT_FALSE(tctxt.get_u32()->coercible_to(tctxt.get_u16()));
-}
-
-TEST_F(TypeSysAndSymTabTestFixture, PrimNoCoerce_I32ToU8) {
-    EXPECT_FALSE(tctxt.get_i32()->coercible_to(tctxt.get_u8()));
-}
-
-// Float-to-float: neither is an integer, and dst is not Bool
-TEST_F(TypeSysAndSymTabTestFixture, PrimNoCoerce_F32ToF64) {
-    EXPECT_FALSE(tctxt.get_f32()->coercible_to(tctxt.get_f64()));
-}
-
-TEST_F(TypeSysAndSymTabTestFixture, PrimNoCoerce_F64ToF32) {
-    EXPECT_FALSE(tctxt.get_f64()->coercible_to(tctxt.get_f32()));
-}
-
-// Integer-to-float: dst is not integral, fails the mutual-integer check
-TEST_F(TypeSysAndSymTabTestFixture, PrimNoCoerce_U32ToF64) {
-    EXPECT_FALSE(tctxt.get_u32()->coercible_to(tctxt.get_f64()));
-}
-
-// Float-to-integer: src is not integral
+// Float-to-integer: blocked
 TEST_F(TypeSysAndSymTabTestFixture, PrimNoCoerce_F64ToU32) {
     EXPECT_FALSE(tctxt.get_f64()->coercible_to(tctxt.get_u32()));
-}
-
-// Bool: is_integer() returns false, so Bool cannot coerce to any integer type
-TEST_F(TypeSysAndSymTabTestFixture, PrimNoCoerce_BoolToU8) {
-    EXPECT_FALSE(tctxt.get_bool()->coercible_to(tctxt.get_u8()))
-        << "Bool is not an integer type, so the mutual-integer check blocks Bool -> U8";
 }
 
 // Bool -> Bool: dst is Bool so the is_bool() branch fires, but is_integer()||is_float() for Bool
@@ -498,7 +497,7 @@ TEST_F(TypeSysAndSymTabTestFixture, UnionNoCoerce_NoTypeRepToPrimitive) {
     EXPECT_FALSE(unn->coercible_to(class1));
 }
 
-// Union with U32 type_rep follows U32's coercibility rules: widening and Bool allowed
+// Union with U32 type_rep follows U32's coercibility rules
 TEST_F(TypeSysAndSymTabTestFixture, UnionCoerce_U32TypeRepToU64) {
     std::string name = "U32Union";
     UnionType  *unn  = tctxt.get_union(LOC, name, symtab.global.get());
@@ -521,27 +520,28 @@ TEST_F(TypeSysAndSymTabTestFixture, UnionCoerce_U32TypeRepToBool) {
         << "Union(U32 type_rep) should coerce to Bool (integer-to-bool)";
 }
 
-// Union with U32 type_rep still cannot narrow
-TEST_F(TypeSysAndSymTabTestFixture, UnionNoCoerce_U32TypeRepToU8) {
+// Union with U32 type_rep: narrowing coerces with a warning
+TEST_F(TypeSysAndSymTabTestFixture, UnionCoerce_U32TypeRepToU8) {
     std::string name = "U32UnionNarrow";
     UnionType  *unn  = tctxt.get_union(LOC, name, symtab.global.get());
     unn->type_rep    = tctxt.get_u32();
     unn->add_member("x", tctxt.get_u32(), LOC);
     unn->finish(LOC);
 
-    EXPECT_FALSE(unn->coercible_to(tctxt.get_u8()))
-        << "Union(U32 type_rep) should not narrow to U8";
+    EXPECT_TRUE(unn->coercible_to(tctxt.get_u8()))
+        << "Union(U32 type_rep) narrows to U8 (warning)";
 }
 
-TEST_F(TypeSysAndSymTabTestFixture, UnionNoCoerce_U32TypeRepToFloat) {
+// Union with U32 type_rep: int-to-float is allowed
+TEST_F(TypeSysAndSymTabTestFixture, UnionCoerce_U32TypeRepToFloat) {
     std::string name = "U32UnionFloat";
     UnionType  *unn  = tctxt.get_union(LOC, name, symtab.global.get());
     unn->type_rep    = tctxt.get_u32();
     unn->add_member("x", tctxt.get_u32(), LOC);
     unn->finish(LOC);
 
-    EXPECT_FALSE(unn->coercible_to(tctxt.get_f64()))
-        << "Union(U32 type_rep) should not coerce to F64 (float is not integral)";
+    EXPECT_TRUE(unn->coercible_to(tctxt.get_f64()))
+        << "Union(U32 type_rep) should coerce to F64 (int-to-float allowed)";
 }
 
 // ─── EnumType::coercible_to ──────────────────────────────────────────────────
@@ -579,27 +579,29 @@ TEST_F(TypeSysAndSymTabTestFixture, EnumCoerce_U8UnderlyingToU32) {
         << "Enum(U8 underlying) should coerce to U32 (widening)";
 }
 
+// Narrowing: coerces with a warning
+TEST_F(TypeSysAndSymTabTestFixture, EnumCoerce_I32UnderlyingToU8) {
+    std::string name = "EnumNarrow";
+    EnumType   *enm  = tctxt.get_enum(LOC, name, symtab.global.get());
+    enm->add_enumerator("A", LOC);
+    enm->finish(LOC);
+
+    EXPECT_TRUE(enm->coercible_to(tctxt.get_u8()))
+        << "Enum(I32 underlying) narrows to U8 (warning)";
+}
+
+// Int-to-float: allowed
+TEST_F(TypeSysAndSymTabTestFixture, EnumCoerce_I32UnderlyingToFloat) {
+    std::string name = "EnumToFloat";
+    EnumType   *enm  = tctxt.get_enum(LOC, name, symtab.global.get());
+    enm->add_enumerator("A", LOC);
+    enm->finish(LOC);
+
+    EXPECT_TRUE(enm->coercible_to(tctxt.get_f64()))
+        << "Enum(I32 underlying) should coerce to F64 (int-to-float allowed)";
+}
+
 // ── NOT coercible ──
-
-TEST_F(TypeSysAndSymTabTestFixture, EnumNoCoerce_I32UnderlyingToU8) {
-    std::string name = "EnumNoNarrow";
-    EnumType   *enm  = tctxt.get_enum(LOC, name, symtab.global.get());
-    enm->add_enumerator("A", LOC);
-    enm->finish(LOC);
-
-    EXPECT_FALSE(enm->coercible_to(tctxt.get_u8()))
-        << "Enum(I32 underlying) should not narrow to U8";
-}
-
-TEST_F(TypeSysAndSymTabTestFixture, EnumNoCoerce_I32UnderlyingToFloat) {
-    std::string name = "EnumNoFloat";
-    EnumType   *enm  = tctxt.get_enum(LOC, name, symtab.global.get());
-    enm->add_enumerator("A", LOC);
-    enm->finish(LOC);
-
-    EXPECT_FALSE(enm->coercible_to(tctxt.get_f64()))
-        << "Enum(I32 underlying) should not coerce to F64 (float target, not integral)";
-}
 
 TEST_F(TypeSysAndSymTabTestFixture, EnumNoCoerce_ToClass) {
     std::string name = "EnumNoClass";

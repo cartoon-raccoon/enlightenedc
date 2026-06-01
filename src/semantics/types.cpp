@@ -169,14 +169,12 @@ bool PrimitiveType::coercible_to(Type *dst) {
         return is_integer() || is_float();
     }
 
-    // If either is not an integer, return false
-    if (!this->is_integer() || !new_dst->is_integer()) {
+    // If we are float and they are integer, return false
+    if (this->is_float() && new_dst->is_integer()) {
         return false;
     }
 
-    size_t my_size = this->alloc_size();
-
-    return 0 < my_size && my_size <= new_dst->alloc_size();
+    return true;
 }
 
 bool PrimitiveType::castable_to(Type *dst) {

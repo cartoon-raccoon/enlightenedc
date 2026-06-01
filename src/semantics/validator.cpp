@@ -561,6 +561,8 @@ void Validator::do_visit(BinaryExprMIR& node) {
         PrimitiveType *right_type = node.right->eff_type->as_primitive();
         assert(right_type);
 
+        // todo: add warning about narrowing
+
         auto finaltype =
             prim::pr_check_binary_op(node.op, left_type->primkind, right_type->primkind);
 

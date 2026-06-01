@@ -768,7 +768,7 @@ If the target is a bool, any source PrimitiveType is allowed.
 Integers can be coerced into floats, but not vice versa.
 
 Otherwise, a given PrimitiveType a can be implicitly coerced to another
-PrimitiveType b if `b.size() >= a.size()`, regardless of signedness.
+PrimitiveType b, regardless of size.
 
 ## Castability
 
