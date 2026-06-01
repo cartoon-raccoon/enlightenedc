@@ -656,6 +656,16 @@ void LIRSynthesizer::do_visit(MemberAccExprMIR& node) {
     // todo
 }
 
+void LIRSynthesizer::do_visit(ReintExprMIR& node) {
+    // Desugar into a member index instead of by name
+    // Account for anonymous member accesses
+    // If arrow, desugar into a deref expression
+    node.object->accept(*this);
+    Box<ExprLIR> object = std::move(last_expr);
+
+    // todo
+}
+
 void LIRSynthesizer::do_visit(SubscrExprMIR& node) {
     node.array->accept(*this);
     Box<ExprLIR> array = std::move(last_expr);

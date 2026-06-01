@@ -189,6 +189,10 @@ Value ConstEvaluator::eval(MemberAccExprMIR& expr) {
     throw_eval_error("compile-time member access evaluation is not currently supported", expr);
 }
 
+Value ConstEvaluator::eval(ReintExprMIR& expr) {
+    throw_eval_error("compile-time reinterpretation evaluation is not currently supported", expr);
+}
+
 Value ConstEvaluator::eval(SubscrExprMIR& expr) {
     throw_eval_error("compile-time array subscript evaluation is not currently supported", expr);
 }

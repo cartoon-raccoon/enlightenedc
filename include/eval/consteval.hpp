@@ -62,6 +62,8 @@ public:
 
     Value eval(sema::mir::MemberAccExprMIR& expr) override;
 
+    Value eval(sema::mir::ReintExprMIR& expr) override;
+
     Value eval(sema::mir::SubscrExprMIR& expr) override;
 
     Value eval(sema::mir::PostfixExprMIR& expr) override;

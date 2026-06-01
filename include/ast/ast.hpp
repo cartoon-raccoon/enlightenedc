@@ -79,6 +79,7 @@ public:
         STR_EXPR,
         CALL_EXPR,
         ACCESS_EXPR,
+        REINT_EXPR,
         SUBSCR_EXPR,
         POSTF_EXPR,
         SIZEOF_EXPR,
@@ -844,6 +845,31 @@ public:
 
     Box<Expression> object;
     std::string member;
+    bool is_arrow;
+
+    void accept(ASTVisitor& visitor) override;
+};
+
+/**
+An expression for reinterpreting a primitive type as an array of smaller primitives.
+
+For example,
+```
+// declare a U64
+U64 i = 69;
+// reinterpret the U64 as U32[2], and directly access the second U32.
+i.U32[1] = 4;
+```
+*/
+class ReinterpretExpression : public Expression {
+public:
+    ReinterpretExpression(
+        Location loc, Box<Expression> object, tokens::PrimType target, bool is_arrow)
+        : Expression(REINT_EXPR, loc), object(std::move(object)), target(target),
+          is_arrow(is_arrow) {}
+
+    Box<Expression> object;
+    tokens::PrimType target;
     bool is_arrow;
 
     void accept(ASTVisitor& visitor) override;

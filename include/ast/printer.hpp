@@ -70,6 +70,7 @@ public:
     void visit(StringExpression& node) override;
     void visit(CallExpression& node) override;
     void visit(MemberAccessExpression& node) override;
+    void visit(ReinterpretExpression& node) override;
     void visit(ArraySubscriptExpression& node) override;
     void visit(PostfixExpression& node) override;
     void visit(SizeofExpression& node) override;

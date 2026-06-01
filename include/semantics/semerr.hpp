@@ -38,8 +38,8 @@ public:
 class TooManyArgsError : public EccSemError {
 public:
     TooManyArgsError(Location err_loc, size_t expected, size_t got)
-        : EccSemError("too many arguments to call expression", err_loc),
-        expected(expected), got(got) {}
+        : EccSemError("too many arguments to call expression", err_loc), expected(expected),
+          got(got) {}
 
     size_t expected, got;
 
@@ -49,7 +49,6 @@ public:
 
         return ss.str();
     }
-    
 };
 
 class InvertedCaseRangeError : public EccSemError {
@@ -166,6 +165,31 @@ public:
     }
 };
 
+class InvalidReintExprError : public EccSemError {
+public:
+    enum class Kind : uint8_t {
+        ObjIsNotPtr,
+        ObjIsNotPrim,
+        TargetSizeOverflow,
+    };
+
+    InvalidReintExprError(Kind kind, Location err_loc)
+        : EccSemError("invalid reinterpret expression", err_loc), kind(kind) {}
+
+    Kind kind;
+
+    std::string elab() override {
+        switch (kind) {
+        case Kind::ObjIsNotPtr:
+            return "object of an arrow operator must be a pointer";
+        case Kind::ObjIsNotPrim:
+            return "object of a reinterpret expression must be a pointer";
+        case Kind::TargetSizeOverflow:
+            return "target of a reinterpret expression must be smaller than its object";
+        }
+    }
+};
+
 class InvalidPostfixExprError : public EccSemError {
 public:
     InvalidPostfixExprError(
@@ -201,14 +225,25 @@ public:
 
 class InvalidMemberAccError : public EccSemError {
 public:
-    InvalidMemberAccError(types::Type *obj, Location err_loc)
-        : EccSemError("invalid member access on incompatible type", err_loc),
+    enum class Kind : uint8_t {
+        IncompatibleObject,
+        ObjectIsNotPtr,
+    };
+
+    InvalidMemberAccError(Kind kind, types::Type *obj, Location err_loc)
+        : EccSemError("invalid member access on incompatible type", err_loc), kind(kind),
           obj_type(obj->formal()) {}
 
+    Kind kind;
     std::string obj_type;
 
     std::string elab() override {
-        return std::format("type `{}` cannot be used with the `.` or `->`", obj_type);
+        switch (kind) {
+        case Kind::IncompatibleObject:
+            return std::format("type `{}` cannot be used with `.` or `->`", obj_type);
+        case Kind::ObjectIsNotPtr:
+            return "object of an arrow operator must be a pointer";
+        }
     }
 };
 
@@ -330,8 +365,7 @@ public:
 class InvalidAssignError : public EccSemError {
 public:
     InvalidAssignError(types::Type *expr_type, Location err_loc)
-        : EccSemError("invalid assignment", err_loc), 
-        expr_type(expr_type->formal()) {}
+        : EccSemError("invalid assignment", err_loc), expr_type(expr_type->formal()) {}
 
     std::string expr_type;
 

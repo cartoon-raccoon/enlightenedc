@@ -73,6 +73,7 @@ protected:
     void do_visit(mir::LiteralExprMIR& node) final;
     void do_visit(mir::CallExprMIR& node) final;
     void do_visit(mir::MemberAccExprMIR& node) final;
+    void do_visit(mir::ReintExprMIR& node) final;
     void do_visit(mir::SubscrExprMIR& node) final;
     void do_visit(mir::PostfixExprMIR& node) final;
     void do_visit(mir::SizeofExprMIR& node) final;

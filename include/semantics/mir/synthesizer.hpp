@@ -244,6 +244,7 @@ protected:
     void do_visit(ast::StringExpression& node) override;
     void do_visit(ast::CallExpression& node) override;
     void do_visit(ast::MemberAccessExpression& node) override;
+    void do_visit(ast::ReinterpretExpression& node) override;
     void do_visit(ast::ArraySubscriptExpression& node) override;
     void do_visit(ast::PostfixExpression& node) override;
     void do_visit(ast::SizeofExpression& node) override;

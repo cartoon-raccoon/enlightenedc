@@ -722,6 +722,12 @@ postfix_expression:
     | postfix_expression ARROW IDENTIFIER {
         $$ = std::make_unique<MemberAccessExpression>(@$, std::move($1), std::move($3), true);
     }
+    | postfix_expression DOT primitive_type {
+        $$ = std::make_unique<ReinterpretExpression>(@$, std::move($1), $3->pkind, false);
+    }
+    | postfix_expression ARROW primitive_type {
+        $$ = std::make_unique<ReinterpretExpression>(@$, std::move($1), $3->pkind, true);
+    }
     | postfix_expression INC {
         $$ = std::make_unique<PostfixExpression>(@$, std::move($1), ecc::tokens::PostfixOp::POSTINC);
     }

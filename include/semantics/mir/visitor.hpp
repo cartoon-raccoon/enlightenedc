@@ -42,6 +42,7 @@ public:
     virtual void visit(LiteralExprMIR& node)   = 0;
     virtual void visit(CallExprMIR& node)      = 0;
     virtual void visit(MemberAccExprMIR& node) = 0;
+    virtual void visit(ReintExprMIR& node)     = 0;
     virtual void visit(SubscrExprMIR& node)    = 0;
     virtual void visit(PostfixExprMIR& node)   = 0;
     virtual void visit(SizeofExprMIR& node)    = 0;

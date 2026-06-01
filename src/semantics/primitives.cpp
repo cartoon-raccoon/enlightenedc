@@ -46,7 +46,6 @@ PrimTypeRank pr_rank(PrimType pr) {
     }
 }
 
-
 PrimType pr_unsigned(PrimType pr) {
     using P = PrimType;
 
@@ -72,7 +71,6 @@ PrimType pr_unsigned(PrimType pr) {
     }
 }
 
-
 PrimType pr_promote(PrimType lhs, PrimType rhs) {
     PrimTypeRank lhs_rank = pr_rank(lhs);
     PrimTypeRank rhs_rank = pr_rank(rhs);
@@ -93,10 +91,9 @@ PrimType pr_promote(PrimType lhs, PrimType rhs) {
 
         return ret;
     } else {
-        PrimType ret =
-            rhs_rank >= PrimTypeRank::INT32
-                ? (use_signed ? rhs : pr_unsigned(rhs))
-                : pr_from_rank(PrimTypeRank::INT32, use_signed);
+        PrimType ret = rhs_rank >= PrimTypeRank::INT32
+                           ? (use_signed ? rhs : pr_unsigned(rhs))
+                           : pr_from_rank(PrimTypeRank::INT32, use_signed);
 
         return ret;
     }
@@ -180,15 +177,42 @@ bool pr_is_signed(PrimType pr) {
     }
 }
 
+size_t pr_size(PrimType pr) {
+    switch (pr) {
+    case PrimType::BOOL:
+    case PrimType::U8:
+    case PrimType::I8:
+        return ONE_BYTE;
+    case PrimType::U16:
+    case PrimType::I16:
+        return TWO_BYTES;
+    case PrimType::U32:
+    case PrimType::I32:
+    case PrimType::F32:
+        return FOUR_BYTES;
+    case PrimType::U64:
+    case PrimType::I64:
+    case PrimType::F64:
+        return EIGHT_BYTES;
+    }
+}
+
+size_t pr_size_in_bits(PrimType pr) {
+    return pr_size(pr) * BYTE_WIDTH;
+}
+
 Optional<PrimExprTypes> pr_check_binary_op(BinaryOp op, PrimType lhs, PrimType rhs) {
-    
+
     switch (op) {
     case BinaryOp::LSHIFT:
     case BinaryOp::RSHIFT: {
         // exception to promotion: if operation is a bitshift, we only promote the lhs
         lhs = pr_single_promote(lhs);
         if (pr_is_integer(lhs) && pr_is_integer(rhs)) {
-            return PrimExprTypes {{lhs, rhs}, lhs};
+            return PrimExprTypes{
+                {lhs, rhs},
+                lhs
+            };
         }
         break;
     }
@@ -201,7 +225,10 @@ Optional<PrimExprTypes> pr_check_binary_op(BinaryOp op, PrimType lhs, PrimType r
         lhs           = promoted;
         rhs           = promoted;
         if ((pr_is_integer(lhs) || pr_is_float(lhs)) && (pr_is_integer(rhs) || pr_is_float(rhs))) {
-            return PrimExprTypes {{lhs, rhs}, lhs};
+            return PrimExprTypes{
+                {lhs, rhs},
+                lhs
+            };
         }
 
         break;
@@ -213,7 +240,10 @@ Optional<PrimExprTypes> pr_check_binary_op(BinaryOp op, PrimType lhs, PrimType r
         lhs           = promoted;
         rhs           = promoted;
         if (pr_is_integer(lhs) && pr_is_integer(rhs)) {
-            return PrimExprTypes {{lhs, rhs}, lhs};
+            return PrimExprTypes{
+                {lhs, rhs},
+                lhs
+            };
         }
 
         break;
@@ -225,7 +255,10 @@ Optional<PrimExprTypes> pr_check_binary_op(BinaryOp op, PrimType lhs, PrimType r
         rhs           = promoted;
         if ((pr_is_integer(lhs) || pr_is_float(lhs) || pr_is_bool(lhs)) &&
             (pr_is_integer(rhs) || pr_is_float(rhs) || pr_is_bool(rhs))) {
-                   return PrimExprTypes {{lhs, rhs}, lhs};
+            return PrimExprTypes{
+                {lhs, rhs},
+                lhs
+            };
         }
         break;
     }
@@ -237,7 +270,10 @@ Optional<PrimExprTypes> pr_check_binary_op(BinaryOp op, PrimType lhs, PrimType r
         lhs           = promoted;
         rhs           = promoted;
         if ((pr_is_integer(lhs) || pr_is_float(lhs)) && (pr_is_integer(rhs) || pr_is_float(rhs))) {
-            return PrimExprTypes {{lhs, rhs}, lhs};
+            return PrimExprTypes{
+                {lhs, rhs},
+                lhs
+            };
         }
         break;
     }
@@ -249,7 +285,10 @@ Optional<PrimExprTypes> pr_check_binary_op(BinaryOp op, PrimType lhs, PrimType r
         auto promoted = pr_promote(lhs, rhs);
         lhs           = promoted;
         rhs           = promoted;
-        return PrimExprTypes {{lhs, rhs}, lhs};
+        return PrimExprTypes{
+            {lhs, rhs},
+            lhs
+        };
     }
 
     return {};

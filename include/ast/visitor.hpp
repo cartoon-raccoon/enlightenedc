@@ -69,6 +69,7 @@ public:
     virtual void visit(StringExpression& node)         = 0;
     virtual void visit(CallExpression& node)           = 0;
     virtual void visit(MemberAccessExpression& node)   = 0;
+    virtual void visit(ReinterpretExpression& node)    = 0;
     virtual void visit(ArraySubscriptExpression& node) = 0;
     virtual void visit(PostfixExpression& node)        = 0;
     virtual void visit(SizeofExpression& node)         = 0;

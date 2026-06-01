@@ -71,6 +71,7 @@ public:
         STREXPR_MIR,
         CALLEXPR_MIR,
         MEMACCEXPR_MIR,
+        REINTEXPR_MIR,
         SUBSCREXPR_MIR,
         PFIXEXPR_MIR,
         SIZEEXPR_MIR,
@@ -594,13 +595,9 @@ public:
 
     bool is_const_foldable() override { return is_primitive(); }
 
-    bool is_primitive() const {
-        return std::holds_alternative<eval::Value>(value);
-    }
+    bool is_primitive() const { return std::holds_alternative<eval::Value>(value); }
 
-    bool is_string() const {
-        return std::holds_alternative<std::string>(value);
-    }
+    bool is_string() const { return std::holds_alternative<std::string>(value); }
 
     void accept(MIRVisitor& visitor) override;
 
@@ -646,7 +643,39 @@ public:
         }
     }
 
-    bool is_assignable() override { 
+    bool is_assignable() override {
+        // must be lvalue, and neither the object or member is const
+        return is_lvalue() && !(object->act_type->is_const() || act_type->is_const());
+    }
+
+    bool is_const_foldable() override { return false; }
+
+    void accept(MIRVisitor& visitor) override;
+
+    eval::Value eval(eval::ExprEvaluator& ev) override;
+};
+
+class ReintExprMIR : public ExprMIR {
+public:
+    ReintExprMIR(
+        Location loc, sema::sym::Scope *scope, Box<ExprMIR> object, tokens::PrimType target,
+        bool is_arrow)
+        : ExprMIR(loc, NodeKind::EXPRSTMT_MIR, scope), object(std::move(object)), target(target),
+          is_arrow(is_arrow) {}
+
+    Box<ExprMIR> object;
+    tokens::PrimType target;
+    bool is_arrow;
+
+    bool is_lvalue() override {
+        if (!is_arrow) {
+            return object->is_lvalue();
+        } else {
+            return true;
+        }
+    }
+
+    bool is_assignable() override {
         // must be lvalue, and neither the object or member is const
         return is_lvalue() && !(object->act_type->is_const() || act_type->is_const());
     }

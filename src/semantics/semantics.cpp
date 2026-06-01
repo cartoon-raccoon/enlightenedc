@@ -145,6 +145,7 @@ DO_VISIT(BaseASTSemaVisitor, LiteralExpression);
 DO_VISIT(BaseASTSemaVisitor, StringExpression);
 DO_VISIT(BaseASTSemaVisitor, CallExpression);
 DO_VISIT(BaseASTSemaVisitor, MemberAccessExpression);
+DO_VISIT(BaseASTSemaVisitor, ReinterpretExpression);
 DO_VISIT(BaseASTSemaVisitor, ArraySubscriptExpression);
 DO_VISIT(BaseASTSemaVisitor, PostfixExpression);
 DO_VISIT(BaseASTSemaVisitor, SizeofExpression);
@@ -486,6 +487,10 @@ void BaseASTSemaVisitor::do_visit(MemberAccessExpression& node) {
     node.object->accept(*this);
 }
 
+void BaseASTSemaVisitor::do_visit(ReinterpretExpression& node) {
+    node.object->accept(*this);
+}
+
 void BaseASTSemaVisitor::do_visit(ArraySubscriptExpression& node) {
     node.array->accept(*this);
     node.index->accept(*this);
@@ -537,6 +542,7 @@ DO_VISIT(BaseMIRSemaVisitor, mir::IdentExprMIR);
 DO_VISIT(BaseMIRSemaVisitor, mir::LiteralExprMIR);
 DO_VISIT(BaseMIRSemaVisitor, mir::CallExprMIR);
 DO_VISIT(BaseMIRSemaVisitor, mir::MemberAccExprMIR);
+DO_VISIT(BaseMIRSemaVisitor, mir::ReintExprMIR);
 DO_VISIT(BaseMIRSemaVisitor, mir::SubscrExprMIR);
 DO_VISIT(BaseMIRSemaVisitor, mir::PostfixExprMIR);
 DO_VISIT(BaseMIRSemaVisitor, mir::SizeofExprMIR);
@@ -695,6 +701,10 @@ void BaseMIRSemaVisitor::do_visit(mir::CallExprMIR& node) {
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::MemberAccExprMIR& node) {
+    node.object->accept(*this);
+}
+
+void BaseMIRSemaVisitor::do_visit(mir::ReintExprMIR& node) {
     node.object->accept(*this);
 }
 

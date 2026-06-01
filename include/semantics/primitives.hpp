@@ -20,7 +20,7 @@ types, how primitive types relate to each other, and how they relate with operat
 
 ## Rank
 
-Each primitive type is assigned a rank, that affects how it is 
+Each primitive type is assigned a rank, that affects how it is
 */
 namespace ecc::sema::prim {
 
@@ -64,6 +64,23 @@ bool pr_is_float(PrimType pr);
 bool pr_is_bool(PrimType pr);
 
 bool pr_is_signed(PrimType pr);
+
+constexpr size_t ONE_BYTE    = 1;
+constexpr size_t TWO_BYTES   = 2;
+constexpr size_t FOUR_BYTES  = 4;
+constexpr size_t EIGHT_BYTES = 8;
+
+constexpr size_t BYTE_WIDTH = 8;
+
+/**
+Gets the size of the primitive type in bytes.
+*/
+size_t pr_size(PrimType pr);
+
+/**
+Gets the size of the primitive type in bits.
+*/
+size_t pr_size_in_bits(PrimType pr);
 
 PrimType pr_from_rank(PrimTypeRank rank, bool is_signed);
 

@@ -80,13 +80,12 @@ LLVMType *Type::get_llvmtype() {
 }
 
 size_t ConstType::alloc_size() {
-        if (!finalized) {
-            finalize();
-        }
-
-
-        return base->alloc_size();
+    if (!finalized) {
+        finalize();
     }
+
+    return base->alloc_size();
+}
 
 bool ConstType::coercible_to(Type *dst) {
     if (!dst->is_const()) {
@@ -96,7 +95,7 @@ bool ConstType::coercible_to(Type *dst) {
     }
 }
 
-void ConstType::finalize()  {
+void ConstType::finalize() {
     if (finalized) {
         assert(llvm_type && "ConstType marked finalized but llvm_type is null");
         dbprint("ConstType: already finalized, skipping");
@@ -109,10 +108,11 @@ void ConstType::finalize()  {
     llvm_type = base->get_llvmtype();
 
     finalized = true;
-    
 }
 
-Type *ConstType::effective_type() { return ctxt().get_const(base->effective_type()); }
+Type *ConstType::effective_type() {
+    return ctxt().get_const(base->effective_type());
+}
 
 /*
  * VOID TYPE METHODS
@@ -875,9 +875,7 @@ bool PointerType::coercible_to(Type *dst) {
     int ds_nesting = ptr->nesting_lvl();
     Type *dst_base = ptr->true_base();
 
-    return my_nesting == 1 && ds_nesting == 1 ? 
-        base == dst_base || dst_base->is_void() 
-        : false;
+    return my_nesting == 1 && ds_nesting == 1 ? base == dst_base || dst_base->is_void() : false;
 }
 
 void PointerType::finalize() {
@@ -1128,14 +1126,14 @@ PrimitiveType *TypeContext::get_primitive(PrimType pkind) {
     std::unreachable();
 }
 
-constexpr size_t BITS8 = 8;
+constexpr size_t BITS8  = 8;
 constexpr size_t BITS16 = 16;
 constexpr size_t BITS32 = 32;
 constexpr size_t BITS64 = 64;
 
 PrimitiveType *TypeContext::get_size_type(bool is_signed) {
     const llvm::DataLayout& dl = llvmref.get().mod().getDataLayout();
-    auto size = dl.getPointerSizeInBits();
+    auto size                  = dl.getPointerSizeInBits();
 
     switch (size) {
     case BITS8:
@@ -1264,7 +1262,7 @@ PointerType *TypeContext::get_pointer(Type *base) {
 
     // If not found, create a new pointer.
     Box<PointerType> ptr = std::make_unique<PointerType>(base, *this);
-    auto *ret     = ptr.get();
+    auto *ret            = ptr.get();
 
     pointers[base] = std::move(ptr);
 

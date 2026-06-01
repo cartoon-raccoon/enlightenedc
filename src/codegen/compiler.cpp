@@ -87,6 +87,9 @@ void LLVMSynthesizer::visit(CallExprLIR& node) {
 void LLVMSynthesizer::visit(MemberAccExprLIR& node) {
 }
 
+void LLVMSynthesizer::visit(ReintExprLIR& node) {
+}
+
 void LLVMSynthesizer::visit(SubscrExprLIR& node) {
 }
 

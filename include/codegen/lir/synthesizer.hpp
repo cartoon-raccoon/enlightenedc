@@ -80,6 +80,7 @@ protected:
     void do_visit(sema::mir::LiteralExprMIR& node) override;
     void do_visit(sema::mir::CallExprMIR& node) override;
     void do_visit(sema::mir::MemberAccExprMIR& node) override;
+    void do_visit(sema::mir::ReintExprMIR& node) override;
     void do_visit(sema::mir::SubscrExprMIR& node) override;
     void do_visit(sema::mir::PostfixExprMIR& node) override;
     void do_visit(sema::mir::SizeofExprMIR& node) override;

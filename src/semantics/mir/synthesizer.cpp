@@ -258,7 +258,8 @@ void MIRSynthesizer::do_visit(Function& node) {
 
         if (param.value) {
             found_default = true;
-            paramsym = std::make_unique<VarSymbol>(param.loc, *param.name, syms.current, sym_type, *param.value);
+            paramsym      = std::make_unique<VarSymbol>(
+                param.loc, *param.name, syms.current, sym_type, *param.value);
         } else {
             if (found_default) {
                 add_error<EccSemError>(
@@ -267,7 +268,7 @@ void MIRSynthesizer::do_visit(Function& node) {
             // just add without value and continue for now
             paramsym = std::make_unique<VarSymbol>(param.loc, *param.name, syms.current, sym_type);
         }
-            
+
         paramsym->is_funcparam = true;
         params.push_back(std::move(paramsym));
     }
@@ -348,7 +349,7 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
             if (specinfo->is_const) {
                 symtype = types.get_const(symtype);
             }
-            sym = std::make_unique<VarSymbol>(declarator->loc, *ret.name, syms.current, symtype);
+            sym    = std::make_unique<VarSymbol>(declarator->loc, *ret.name, syms.current, symtype);
             symptr = sym.get();
 
             if (specinfo->is_public && specinfo->is_static) {
@@ -360,7 +361,7 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
                 sym->visibility = PhysicalSymbol::Visibility::PUBLIC;
             }
 
-            sym->linkage   = specinfo->linkage;
+            sym->linkage = specinfo->linkage;
 
             if (sym->is_external() && syms.current != syms.global()) {
                 add_error<EccSemError>(
@@ -524,7 +525,7 @@ void MIRSynthesizer::do_visit(ParameterDeclaration& node) {
     if (node.default_value) {
         dv_call_noparam(*node.default_value);
         Value def_val = take_last_result<Value>();
-        ret.value = def_val;
+        ret.value     = def_val;
     }
 
     dv_return(ret);
@@ -1551,6 +1552,18 @@ void MIRSynthesizer::do_visit(MemberAccessExpression& node) {
 
     Box<ExprMIR> expr = std::make_unique<MemberAccExprMIR>(
         node.loc, syms.current, std::move(object), node.member, node.is_arrow);
+
+    dv_return(expr);
+}
+
+void MIRSynthesizer::do_visit(ReinterpretExpression& node) {
+    bsv_dbprint("visiting MemberAccessExpression node: ", node.loc);
+
+    dv_call_noparam(node.object);
+    Box<ExprMIR> object = take_last_result<Box<ExprMIR>>();
+
+    Box<ExprMIR> expr = std::make_unique<ReintExprMIR>(
+        node.loc, syms.current, std::move(object), node.target, node.is_arrow);
 
     dv_return(expr);
 }

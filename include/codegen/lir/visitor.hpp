@@ -38,6 +38,7 @@ public:
     virtual void visit(LiteralExprLIR& node)   = 0;
     virtual void visit(CallExprLIR& node)      = 0;
     virtual void visit(MemberAccExprLIR& node) = 0;
+    virtual void visit(ReintExprLIR& node)     = 0;
     virtual void visit(SubscrExprLIR& node)    = 0;
     virtual void visit(PostfixExprLIR& node)   = 0;
 };

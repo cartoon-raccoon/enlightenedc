@@ -430,6 +430,13 @@ void ASTPrinter::visit(MemberAccessExpression& node) {
         [&] { node.object->accept(*this); });
 }
 
+void ASTPrinter::visit(ReinterpretExpression& node) {
+    print_node(
+        std::string("Reinterpret: ") + (node.is_arrow ? "->" : ".") +
+            primitive_to_string(node.target),
+        node, [&] { node.object->accept(*this); });
+}
+
 void ASTPrinter::visit(ArraySubscriptExpression& node) {
     print_node(
         "ArraySubscriptExpression", node, [&] { node.array->accept(*this); },

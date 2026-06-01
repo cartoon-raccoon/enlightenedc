@@ -309,7 +309,7 @@ public:
     virtual bool is_integral() { return false; }
 
     /** Get the bare type without any const qualifiers. */
-    virtual Type * unqual() { return this; }
+    virtual Type *unqual() { return this; }
 
     /**
     Finalize the type with LLVM, creating the equivalent LLVM type.
@@ -672,42 +672,42 @@ public:
     */
     bool castable_to(Type *dst) override { return base->castable_to(dst->unqual()); }
 
-    VoidType *as_void() override { return base->as_void();  }
+    VoidType *as_void() override { return base->as_void(); }
 
-    PrimitiveType *as_primitive() override { return base->as_primitive();  }
+    PrimitiveType *as_primitive() override { return base->as_primitive(); }
 
-    UserType *as_usertype() override { return base->as_usertype();  }
+    UserType *as_usertype() override { return base->as_usertype(); }
 
-    RecordType *as_recordtype() override { return base->as_recordtype();  }
+    RecordType *as_recordtype() override { return base->as_recordtype(); }
 
-    ClassType *as_class() override { return base->as_class();  }
+    ClassType *as_class() override { return base->as_class(); }
 
-    UnionType *as_union() override { return base->as_union();  }
+    UnionType *as_union() override { return base->as_union(); }
 
-    EnumType *as_enum() override { return base->as_enum();  }
+    EnumType *as_enum() override { return base->as_enum(); }
 
-    DerivedType *as_derivedtype() override { return base->as_derivedtype();  }
+    DerivedType *as_derivedtype() override { return base->as_derivedtype(); }
 
-    PointerType *as_pointer() override { return base->as_pointer();  }
+    PointerType *as_pointer() override { return base->as_pointer(); }
 
-    ArrayType *as_array() override { return base->as_array();  }
+    ArrayType *as_array() override { return base->as_array(); }
 
-    FunctionType *as_function() override { return base->as_function();  }
+    FunctionType *as_function() override { return base->as_function(); }
 
     ConstType *as_const() override { return this; }
 
-    bool is_callable() override { return base->is_callable();  };
+    bool is_callable() override { return base->is_callable(); };
 
-    bool is_subscriptable() override { return base->is_subscriptable();  };
+    bool is_subscriptable() override { return base->is_subscriptable(); };
 
-    bool is_boolable() override { return base->is_boolable();  }
+    bool is_boolable() override { return base->is_boolable(); }
 
-    bool is_scalar() override { return base->is_scalar();  }
+    bool is_scalar() override { return base->is_scalar(); }
 
-    bool is_integral() override { return base->is_integral();  }
+    bool is_integral() override { return base->is_integral(); }
 
     void finalize() override;
-    
+
     /**
     Wraps base->effective_type() in a ConstType.
     */
@@ -1081,7 +1081,6 @@ Eventually, this target type will reflect the system address width.
 */
 class PointerType : public DerivedType {
 public:
-
     // Returns the level of nesting the pointer has (i.e. how many *'s there are).
     int nesting_lvl();
 
@@ -1119,8 +1118,7 @@ protected:
 
     friend constexpr Box<PointerType> std::make_unique<PointerType>(Type *&, TypeContext&);
 
-    PointerType(Type *base, TypeContext& tyctxt)
-        : DerivedType(Kind::POINTER, tyctxt, base) {}
+    PointerType(Type *base, TypeContext& tyctxt) : DerivedType(Kind::POINTER, tyctxt, base) {}
 };
 
 /**
@@ -1544,7 +1542,7 @@ private:
         }
     };
 
-    using ArrayKey   = std::pair<Type *, Optional<uint64_t>>;
+    using ArrayKey = std::pair<Type *, Optional<uint64_t>>;
 
     // The map of record types (i.e. structs, unions, enums).
     std::unordered_map<std::string, Box<UserType>> user_types;

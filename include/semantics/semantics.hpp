@@ -269,6 +269,7 @@ public:
     virtual void do_visit(ast::StringExpression& node);
     virtual void do_visit(ast::CallExpression& node);
     virtual void do_visit(ast::MemberAccessExpression& node);
+    virtual void do_visit(ast::ReinterpretExpression& node);
     virtual void do_visit(ast::ArraySubscriptExpression& node);
     virtual void do_visit(ast::PostfixExpression& node);
     virtual void do_visit(ast::SizeofExpression& node);
@@ -329,6 +330,7 @@ protected:
     void visit(ast::StringExpression& node) override;
     void visit(ast::CallExpression& node) override;
     void visit(ast::MemberAccessExpression& node) override;
+    void visit(ast::ReinterpretExpression& node) override;
     void visit(ast::ArraySubscriptExpression& node) override;
     void visit(ast::PostfixExpression& node) override;
     void visit(ast::SizeofExpression& node) override;
@@ -375,6 +377,7 @@ public:
     virtual void do_visit(mir::LiteralExprMIR& node);
     virtual void do_visit(mir::CallExprMIR& node);
     virtual void do_visit(mir::MemberAccExprMIR& node);
+    virtual void do_visit(mir::ReintExprMIR& node);
     virtual void do_visit(mir::SubscrExprMIR& node);
     virtual void do_visit(mir::PostfixExprMIR& node);
     virtual void do_visit(mir::SizeofExprMIR& node);
@@ -413,6 +416,7 @@ protected:
     void visit(mir::LiteralExprMIR& node) override;
     void visit(mir::CallExprMIR& node) override;
     void visit(mir::MemberAccExprMIR& node) override;
+    void visit(mir::ReintExprMIR& node) override;
     void visit(mir::SubscrExprMIR& node) override;
     void visit(mir::PostfixExprMIR& node) override;
     void visit(mir::SizeofExprMIR& node) override;

@@ -15,6 +15,7 @@ class IdentExprMIR;
 class LiteralExprMIR;
 class CallExprMIR;
 class MemberAccExprMIR;
+class ReintExprMIR;
 class SubscrExprMIR;
 class PostfixExprMIR;
 class SizeofExprMIR;
@@ -46,6 +47,8 @@ public:
     virtual Value eval(sema::mir::CallExprMIR& expr) = 0;
 
     virtual Value eval(sema::mir::MemberAccExprMIR& expr) = 0;
+
+    virtual Value eval(sema::mir::ReintExprMIR& expr) = 0;
 
     virtual Value eval(sema::mir::SubscrExprMIR& expr) = 0;
 

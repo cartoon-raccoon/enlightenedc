@@ -65,6 +65,7 @@ public:
     void visit(lir::LiteralExprLIR& node) override;
     void visit(lir::CallExprLIR& node) override;
     void visit(lir::MemberAccExprLIR& node) override;
+    void visit(lir::ReintExprLIR& node) override;
     void visit(lir::SubscrExprLIR& node) override;
     void visit(lir::PostfixExprLIR& node) override;
 };

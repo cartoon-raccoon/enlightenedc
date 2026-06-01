@@ -417,6 +417,18 @@ public:
     void accept(LIRVisitor& visitor) override;
 };
 
+class ReintExprLIR : public ExprLIR {
+public:
+    ReintExprLIR(
+        Location loc, Box<ExprLIR> object, tokens::PrimType target, sema::types::Type *type)
+        : ExprLIR(loc, NodeKind::MEMACCEXPR_LIR, type), object(std::move(object)), target(target) {}
+
+    Box<ExprLIR> object;
+    tokens::PrimType target;
+
+    void accept(LIRVisitor& visitor) override;
+};
+
 class SubscrExprLIR : public ExprLIR {
 public:
     SubscrExprLIR(Location loc, Box<ExprLIR> array, Box<ExprLIR> index, sema::types::Type *type)

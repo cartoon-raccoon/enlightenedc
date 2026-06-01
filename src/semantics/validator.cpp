@@ -5,6 +5,7 @@
 
 #include "error.hpp"
 #include "semantics/mir/mir.hpp"
+#include "semantics/primitives.hpp"
 #include "semantics/semerr.hpp"
 #include "semantics/typeerr.hpp"
 #include "semantics/types.hpp"
@@ -26,7 +27,6 @@ Box<CastExprMIR> Validator::cast(Type *target, Box<mir::ExprMIR> expr) {
     return newexpr;
 }
 
-
 void Validator::validate_print(std::string& format_str, Span<Box<mir::ExprMIR>> args) {
     // todo
     size_t arg_index = 0;
@@ -37,6 +37,8 @@ void Validator::validate_print(std::string& format_str, Span<Box<mir::ExprMIR>> 
             ++i;
             std::string fmt_spec;
             fmt_spec += *i;
+
+            Type *tut = args[arg_index]->eff_type;
 
             switch (*i) {
             case 'd':
@@ -85,9 +87,11 @@ void Validator::validate_print(std::string& format_str, Span<Box<mir::ExprMIR>> 
             end:
                 arg_index++;
                 break;
-            }
-        }
-    }
+            } // end swwitch
+        } // end if
+    } // end for
+
+    // todo: check for mismatch between number of args and number of format specifiers found
 }
 
 void Validator::eval_initializer(types::Type *type, InitializerMIR& init) {
@@ -518,7 +522,8 @@ void Validator::do_visit(BinaryExprMIR& node) {
         PrimitiveType *right_type = node.right->eff_type->as_primitive();
         assert(right_type);
 
-        auto finaltype = prim::pr_check_binary_op(node.op, left_type->primkind, right_type->primkind);
+        auto finaltype =
+            prim::pr_check_binary_op(node.op, left_type->primkind, right_type->primkind);
 
         if (!finaltype) {
             add_error<InvalidBinaryOpError>(
@@ -554,6 +559,8 @@ void Validator::do_visit(BinaryExprMIR& node) {
 
         node.set_type(exprtype);
     }
+
+    assert((node.act_type && node.eff_type) && "node type not set");
 }
 
 void Validator::do_visit(UnaryExprMIR& node) {
@@ -645,6 +652,8 @@ void Validator::do_visit(UnaryExprMIR& node) {
         node.set_type(node.operand->act_type->unqual());
     } break;
     }
+
+    assert((node.act_type && node.eff_type) && "node type not set");
 }
 
 void Validator::do_visit(CastExprMIR& node) {
@@ -657,6 +666,8 @@ void Validator::do_visit(CastExprMIR& node) {
     }
 
     node.set_type(node.target);
+
+    assert((node.act_type && node.eff_type) && "node type not set");
 }
 
 void Validator::do_visit(AssignExprMIR& node) {
@@ -676,7 +687,7 @@ void Validator::do_visit(AssignExprMIR& node) {
             // skip the rest of the check
             goto done;
         } else {
-            // 
+            //
             LiteralExprMIR *expr = dynamic_cast<LiteralExprMIR *>(node.right.get());
             assert(expr && "got non-literal expression on expression node with LITEXPR");
 
@@ -721,6 +732,8 @@ void Validator::do_visit(AssignExprMIR& node) {
 
 done:
     node.set_type(node.left->act_type->unqual());
+
+    assert((node.act_type && node.eff_type) && "node type not set");
 }
 
 void Validator::do_visit(CondExprMIR& node) { // done
@@ -748,6 +761,8 @@ void Validator::do_visit(CondExprMIR& node) { // done
 
     assert(node.true_expr->act_type == node.false_expr->act_type);
     node.set_type(node.true_expr->act_type->unqual());
+
+    assert((node.act_type && node.eff_type) && "node type not set");
 }
 
 void Validator::do_visit(IdentExprMIR& node) { // done
@@ -763,13 +778,12 @@ void Validator::do_visit(LiteralExprMIR& node) { // done
     if (auto *val = std::get_if<eval::Value>(&node.value)) {
         node.set_type(types.get().get_primitive(val->primtype));
     } else if (auto *_ = std::get_if<std::string>(&node.value)) {
-        node.set_type(
-            types.get().get_const(types.get().get_pointer(types.get().get_i8())));
+        node.set_type(types.get().get_const(types.get().get_pointer(types.get().get_i8())));
     } else {
         // unreachable
     }
 
-    assert(node.eff_type);
+    assert((node.act_type && node.eff_type) && "node type not set");
 }
 
 #pragma clang diagnostic pop
@@ -805,12 +819,17 @@ void Validator::do_visit(CallExprMIR& node) {
     } else if (node.args.size() == sig->num_params()) {
 
         for (auto&& [i, param] : std::views::enumerate(sig->params())) {
-            auto& param_ut = node.args[i];
-            if (param_ut->eff_type != param->effective_type()) {
-                if (param_ut->eff_type->coercible_to(param->effective_type())) {
-                    param_ut = cast(param->effective_type(), std::move(param_ut));
+            auto& arg = node.args[i];
+            // The param here is in an rvalue position, take unqualified
+            auto *arg_type = arg->eff_type->unqual();
+            // Get the type of the param as declared
+            auto *param_type = param->effective_type();
+            if (arg_type != param_type) {
+                if (arg_type->coercible_to(param_type)) {
+                    arg = cast(param_type, std::move(arg));
                 } else {
-                    // todo: add error, invalid coerce
+                    add_error<InvalidCoerceError>(
+                        arg->act_type->unqual(), param->effective_type(), arg->loc);
                 }
             }
         }
@@ -822,6 +841,8 @@ void Validator::do_visit(CallExprMIR& node) {
     }
 
     node.set_type(sig->returntype()->unqual());
+
+    assert((node.act_type && node.eff_type) && "node type not set");
 }
 
 void Validator::do_visit(MemberAccExprMIR& node) {
@@ -831,16 +852,26 @@ void Validator::do_visit(MemberAccExprMIR& node) {
     RecordType *rec = nullptr;
 
     if (node.is_arrow) {
-        if (!node.object->act_type->is_pointer() ||
-            !node.object->act_type->as_pointer()->base->is_recordtype()) {
-            add_error<InvalidMemberAccError>(node.object->eff_type, node.object->loc);
+        if (!node.object->act_type->is_pointer()) {
+            add_error<InvalidMemberAccError>(
+                InvalidMemberAccError::Kind::ObjectIsNotPtr, node.object->eff_type,
+                node.object->loc);
+            throw UnableToContinue();
+        }
+
+        if (!node.object->act_type->as_pointer()->base->is_recordtype()) {
+            add_error<InvalidMemberAccError>(
+                InvalidMemberAccError::Kind::IncompatibleObject, node.object->eff_type,
+                node.object->loc);
             throw UnableToContinue();
         }
 
         rec = node.object->act_type->as_pointer()->base->as_recordtype();
     } else {
         if (!node.object->act_type->is_recordtype()) {
-            add_error<InvalidMemberAccError>(node.object->eff_type, node.object->loc);
+            add_error<InvalidMemberAccError>(
+                InvalidMemberAccError::Kind::IncompatibleObject, node.object->eff_type,
+                node.object->loc);
             throw UnableToContinue();
         }
         rec = node.object->act_type->as_recordtype();
@@ -869,13 +900,77 @@ void Validator::do_visit(MemberAccExprMIR& node) {
     } else {
         // check for const
         if (node.object->act_type->as_pointer()->base->is_const() || member->ty->is_const()) {
-            node.set_type(
-                types.get().get_const(member->ty)
-            );
+            node.set_type(types.get().get_const(member->ty));
         } else {
             node.set_type(member->ty);
         }
     }
+
+    assert((node.act_type && node.eff_type) && "node type not set");
+}
+
+void Validator::do_visit(ReintExprMIR& node) {
+    node.object->accept(*this);
+
+    PrimitiveType *objtype = nullptr;
+
+    if (node.is_arrow) {
+        if (!node.object->eff_type->is_pointer()) {
+            add_error<InvalidReintExprError>(InvalidReintExprError::Kind::ObjIsNotPtr, node.loc);
+            throw UnableToContinue();
+        }
+
+        if (!node.object->eff_type->as_pointer()->base->is_primitive()) {
+            add_error<InvalidReintExprError>(InvalidReintExprError::Kind::ObjIsNotPrim, node.loc);
+            throw UnableToContinue();
+        }
+
+        objtype = node.object->eff_type->as_primitive();
+    } else {
+        if (!node.object->eff_type->is_primitive()) {
+            add_error<InvalidReintExprError>(InvalidReintExprError::Kind::ObjIsNotPrim, node.loc);
+            throw UnableToContinue();
+        }
+
+        objtype = node.object->eff_type->as_primitive();
+    }
+
+    assert(objtype && "ReintExprMIR: object was null while validating expression");
+
+    if (objtype->is_float()) {
+        // todo: warn that reinterpreting floats as bytearrays is risky
+    }
+
+    PrimType objprim = objtype->primkind;
+
+    if (prim::pr_size(objprim) < prim::pr_size(node.target)) {
+        add_error<InvalidReintExprError>(InvalidReintExprError::Kind::TargetSizeOverflow, node.loc);
+        throw UnableToContinue();
+    }
+
+    PrimitiveType *array_base = types.get().get_primitive(node.target);
+    size_t size               = prim::pr_size(objprim) / prim::pr_size(node.target);
+    ArrayType *node_ty        = types.get().get_array(array_base, size);
+
+    if (!node.is_arrow) {
+        if (node.object->is_lvalue()) {
+            if (node.object->eff_type->is_const()) {
+                node.set_type(types.get().get_const(node_ty));
+            } else {
+                node.set_type(node_ty);
+            }
+        } else {
+            node.set_type(node_ty->unqual());
+        }
+    } else {
+        if (node.object->eff_type->as_pointer()->base->is_const()) {
+            node.set_type(types.get().get_const(node_ty));
+        } else {
+            node.set_type(node_ty);
+        }
+    }
+
+    assert((node.act_type && node.eff_type) && "node type not set");
 }
 
 void Validator::do_visit(SubscrExprMIR& node) { // done
@@ -932,6 +1027,8 @@ void Validator::do_visit(SubscrExprMIR& node) { // done
     }
 
     node.set_type(exprty);
+
+    assert((node.act_type && node.eff_type) && "node type not set");
 }
 
 void Validator::do_visit(PostfixExprMIR& node) {
@@ -954,6 +1051,8 @@ void Validator::do_visit(PostfixExprMIR& node) {
     }
 
     node.set_type(node.operand->act_type->unqual());
+
+    assert((node.act_type && node.eff_type) && "node type not set");
 }
 
 void Validator::do_visit(SizeofExprMIR& node) { // done
@@ -977,4 +1076,6 @@ void Validator::do_visit(SizeofExprMIR& node) { // done
         node.operand);
 
     node.set_type(types.get().get_size_type(false));
+
+    assert((node.act_type && node.eff_type) && "node type not set");
 }
