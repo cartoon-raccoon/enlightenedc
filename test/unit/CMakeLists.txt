@@ -19,4 +19,5 @@ ec_unit_test("typesystemtest" "typesystem_tests.cpp")
 ec_unit_test("symboltabletest" "symboltable_tests.cpp")
 ec_unit_test("valuetest" "value_tests.cpp" RC)
 ec_unit_test("primitivetest" "primitive_tests.cpp" RC)
+ec_unit_test("inheritancetest" "inheritance_tests.cpp")
 
