@@ -40,3 +40,5 @@ x += sizeof x;
 
 x = (a, b, x);
 "%d\n", x;
+
+x.U16i[1] = 0;

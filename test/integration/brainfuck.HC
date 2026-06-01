@@ -44,16 +44,16 @@ I32i StackPop() {
 }
 
 /* our code */
-U8i code[DEFAULT_CODE_SIZE];
+I8i code[DEFAULT_CODE_SIZE];
 I32i insptr = 0;
 I32i codesize = DEFAULT_CODE_SIZE;
 
 /* our data */
-U8i data[DEFAULT_DATA_SIZE];
+I8i data[DEFAULT_DATA_SIZE];
 I32i dataptr = 0;
 
 enum ErrType {SYSTEM = 1, BAD_CODE = 2};
-U0 Die(U8i *errmsg, enum ErrType errcode) {
+U0 Die(I8i *errmsg, enum ErrType errcode) {
     if (errcode == SYSTEM) {
         "ERROR: %s\n", errmsg;
     } else {
@@ -63,7 +63,7 @@ U0 Die(U8i *errmsg, enum ErrType errcode) {
 }
 
 I8i valid_chars[8] = {'>', '<', '+', '-', ',', '.', '[', ']'};
-Bool IsValid(U8i c) {
+Bool IsValid(I8i c) {
     I32i i = 0;
     while (i < 8) {
         if (c == valid_chars[i]) return 1;
@@ -74,7 +74,7 @@ Bool IsValid(U8i c) {
 }
 
 // code from string
-U0 ReadCode(U8i *src) {
+U0 ReadCode(I8i *src) {
     I32i n = 0;
     I32i i = 0;
 
@@ -119,7 +119,7 @@ U0 JumpToAfter() {
 
 U0 Execute() {
 
-    U8i c;
+    I8i c;
     while ((c = code[insptr]) != '\0') {
         if (insptr < 0) {
             Die("instruction pointer went below 0", BAD_CODE);
@@ -211,7 +211,7 @@ U0 Initialize() {
     nesting.len = 0;
 }
 
-U0 PrintUsage(U8i *argname) {
+U0 PrintUsage(I8i *argname) {
     "usage: ", argname, " [-m MEMSIZE] CODE";
 }
 
