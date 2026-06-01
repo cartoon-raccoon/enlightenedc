@@ -12,7 +12,7 @@ HolyC was created by [Terry A. Davis](https://en.wikipedia.org/wiki/Terry_A._Dav
 and scripting language for his operating system, [TempleOS](https://en.wikipedia.org/wiki/TempleOS).
 The story of Davis and TempleOS is too long and difficult to retell here, but there are many videos
 and articles detailing the story. Suffice it to say, TempleOS was a remarkable project, and HolyC is a
-genuinuely good language that provides a good middle ground between C and C++.
+genuinely well-designed language that provides a good middle ground between C and C++.
 
 The issue with HolyC itself is that it was built specifically for TempleOS. As such, many of its features
 are specific to the TempleOS operating environment. TempleOS used a completely different calling convention,
