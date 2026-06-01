@@ -24,6 +24,7 @@ Checks: >
   -cppcoreguidelines-avoid-goto,
   performance-*,
   readability-*,
+  -readability-avoid-nested-conditional-operator,
   -readability-redundant-access-specifiers,
   -readability-identifier-length,
   -readability-else-after-return,
