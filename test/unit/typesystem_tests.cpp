@@ -642,3 +642,285 @@ TEST_F(TypeSysAndSymTabTestFixture, ClassNoCast_ToPrimitive) {
     class1->finish(LOC);
     EXPECT_FALSE(class1->castable_to(tctxt.get_u32()));
 }
+
+// ─── RecordType member access ─────────────────────────────────────────────────
+//
+// Fixture layout:
+//   flat_cls  : { x:I64[0], y:F32[1], z:F32[2] }
+//   inner_cls : { inner_a:I64[0], inner_b:F32[1] }
+//   outer_cls : { outer_x:I64[0], <anon inner_cls>[1], nested:inner_cls[2] }
+
+class RecordTypeTestFixture : public TypeSysAndSymTabTestFixture {
+protected:
+    ClassType *flat_cls  = nullptr;
+    ClassType *inner_cls = nullptr;
+    ClassType *outer_cls = nullptr;
+
+    void SetUp() override {
+        std::string flat_name = "FlatCls";
+        flat_cls              = tctxt.get_class(LOC, flat_name, symtab.global.get());
+        flat_cls->add_member("x", tctxt.get_i64(), LOC); // idx 0
+        flat_cls->add_member("y", tctxt.get_f32(), LOC); // idx 1
+        flat_cls->add_member("z", tctxt.get_f32(), LOC); // idx 2
+        flat_cls->finish(LOC);
+
+        std::string inner_name = "InnerCls";
+        inner_cls              = tctxt.get_class(LOC, inner_name, symtab.global.get());
+        inner_cls->add_member("inner_a", tctxt.get_i64(), LOC); // idx 0
+        inner_cls->add_member("inner_b", tctxt.get_f32(), LOC); // idx 1
+        inner_cls->finish(LOC);
+
+        std::string outer_name = "OuterCls";
+        outer_cls              = tctxt.get_class(LOC, outer_name, symtab.global.get());
+        outer_cls->add_member("outer_x", tctxt.get_i64(), LOC); // idx 0, named
+        outer_cls->add_member(inner_cls, LOC);                   // idx 1, anonymous
+        outer_cls->add_member("nested", inner_cls, LOC);         // idx 2, named
+        outer_cls->finish(LOC);
+    }
+
+    static AccessorPath make_path(std::initializer_list<Accessor> accs) {
+        AccessorPath p;
+        for (const auto& acc : accs)
+            p.push_back(acc);
+        return p;
+    }
+};
+
+// ── find(string&) ─────────────────────────────────────────────────────────────
+
+TEST_F(RecordTypeTestFixture, RecordFind_DirectMemberFound) {
+    std::string name = "x";
+    auto       *mem  = flat_cls->find(name);
+    ASSERT_NE(mem, nullptr);
+    EXPECT_EQ(mem->idx, 0U);
+    EXPECT_EQ(*mem->name, "x");
+}
+
+TEST_F(RecordTypeTestFixture, RecordFind_SecondDirectMember) {
+    std::string name = "y";
+    auto       *mem  = flat_cls->find(name);
+    ASSERT_NE(mem, nullptr);
+    EXPECT_EQ(mem->idx, 1U);
+}
+
+TEST_F(RecordTypeTestFixture, RecordFind_MissingMemberReturnsNull) {
+    std::string name = "nope";
+    EXPECT_EQ(flat_cls->find(name), nullptr);
+}
+
+TEST_F(RecordTypeTestFixture, RecordFind_EmptyRecordReturnsNull) {
+    std::string empty_name = "EmptyCls";
+    ClassType  *empty      = tctxt.get_class(LOC, empty_name, symtab.global.get());
+    empty->finish(LOC);
+    std::string name = "x";
+    EXPECT_EQ(empty->find(name), nullptr);
+}
+
+TEST_F(RecordTypeTestFixture, RecordFind_RecursesIntoAnonMember) {
+    std::string name = "inner_a";
+    auto       *mem  = outer_cls->find(name);
+    ASSERT_NE(mem, nullptr) << "find() should recurse into anonymous members";
+    EXPECT_EQ(*mem->name, "inner_a");
+}
+
+TEST_F(RecordTypeTestFixture, RecordFind_NamedMemberAfterAnonMember) {
+    std::string name = "nested";
+    auto       *mem  = outer_cls->find(name);
+    ASSERT_NE(mem, nullptr);
+    EXPECT_EQ(mem->idx, 2U);
+    EXPECT_EQ(mem->ty, inner_cls);
+}
+
+// ── find_imm(string&) ─────────────────────────────────────────────────────────
+
+TEST_F(RecordTypeTestFixture, RecordFindImm_DirectMemberFound) {
+    std::string name = "x";
+    auto       *mem  = flat_cls->find_imm(name);
+    ASSERT_NE(mem, nullptr);
+    EXPECT_EQ(mem->idx, 0U);
+}
+
+TEST_F(RecordTypeTestFixture, RecordFindImm_MissingMemberReturnsNull) {
+    std::string name = "nope";
+    EXPECT_EQ(flat_cls->find_imm(name), nullptr);
+}
+
+TEST_F(RecordTypeTestFixture, RecordFindImm_DoesNotRecurseIntoAnonMember) {
+    std::string name = "inner_a";
+    EXPECT_EQ(outer_cls->find_imm(name), nullptr)
+        << "find_imm should not recurse into anonymous members";
+}
+
+// ── find(size_t) ──────────────────────────────────────────────────────────────
+
+TEST_F(RecordTypeTestFixture, RecordFindByIdx_IdxZeroReturnsFirstMember) {
+    auto *mem = flat_cls->find((size_t)0);
+    ASSERT_NE(mem, nullptr);
+    EXPECT_EQ(*mem->name, "x");
+    EXPECT_EQ(mem->idx, 0U);
+}
+
+TEST_F(RecordTypeTestFixture, RecordFindByIdx_IdxTwoReturnsThirdMember) {
+    auto *mem = flat_cls->find((size_t)2);
+    ASSERT_NE(mem, nullptr);
+    EXPECT_EQ(*mem->name, "z");
+    EXPECT_EQ(mem->idx, 2U);
+}
+
+TEST_F(RecordTypeTestFixture, RecordFindByIdx_OutOfBoundsReturnsNull) {
+    EXPECT_EQ(flat_cls->find((size_t)99), nullptr);
+}
+
+TEST_F(RecordTypeTestFixture, RecordFindByIdx_EmptyRecordReturnsNull) {
+    std::string empty_name = "EmptyCls2";
+    ClassType  *empty      = tctxt.get_class(LOC, empty_name, symtab.global.get());
+    empty->finish(LOC);
+    EXPECT_EQ(empty->find((size_t)0), nullptr);
+}
+
+// ── find(Accessor&) ───────────────────────────────────────────────────────────
+
+TEST_F(RecordTypeTestFixture, RecordFindByAccessor_MemberAccessorDelegates) {
+    Accessor acc(std::string("x"));
+    auto    *mem = flat_cls->find(acc);
+    ASSERT_NE(mem, nullptr);
+    EXPECT_EQ(*mem->name, "x");
+}
+
+TEST_F(RecordTypeTestFixture, RecordFindByAccessor_IndexAccessorDelegates) {
+    Accessor acc((size_t)1);
+    auto    *mem = flat_cls->find(acc);
+    ASSERT_NE(mem, nullptr);
+    EXPECT_EQ(*mem->name, "y");
+}
+
+// ── index(string&) ────────────────────────────────────────────────────────────
+
+TEST_F(RecordTypeTestFixture, RecordIndex_FirstMemberReturnsIdxZero) {
+    std::string name = "x";
+    auto        path = flat_cls->index(name);
+    ASSERT_EQ(path.size(), 1U);
+    EXPECT_EQ(path.first().accessor, AccessorNode((size_t)0));
+}
+
+TEST_F(RecordTypeTestFixture, RecordIndex_ThirdMemberReturnsIdxTwo) {
+    std::string name = "z";
+    auto        path = flat_cls->index(name);
+    ASSERT_EQ(path.size(), 1U);
+    EXPECT_EQ(path.first().accessor, AccessorNode((size_t)2));
+}
+
+TEST_F(RecordTypeTestFixture, RecordIndex_MissingMemberReturnsEmptyPath) {
+    std::string name = "nope";
+    auto        path = flat_cls->index(name);
+    EXPECT_TRUE(path.empty());
+}
+
+TEST_F(RecordTypeTestFixture, RecordIndex_OuterNamedMemberReturnsIdxTwo) {
+    std::string name = "nested";
+    auto        path = outer_cls->index(name);
+    ASSERT_EQ(path.size(), 1U);
+    EXPECT_EQ(path.first().accessor, AccessorNode((size_t)2));
+}
+
+// index() for a member in an anonymous sub-record only returns the inner index;
+// the anonymous member's own outer index (1) is not prepended.
+TEST_F(RecordTypeTestFixture, RecordIndex_MemberInAnonRecord_ReturnsInnerIdxOnly) {
+    std::string name = "inner_a";
+    auto        path = outer_cls->index(name);
+    ASSERT_EQ(path.size(), 1U);
+    EXPECT_EQ(path.first().accessor, AccessorNode((size_t)0));
+}
+
+// ── find_by_path(AccessorPath&) ───────────────────────────────────────────────
+
+TEST_F(RecordTypeTestFixture, FindByPath_SingleMemberName) {
+    auto path = make_path({Accessor(std::string("x"))});
+    auto *mem = flat_cls->find_by_path(path);
+    ASSERT_NE(mem, nullptr);
+    EXPECT_EQ(*mem->name, "x");
+}
+
+TEST_F(RecordTypeTestFixture, FindByPath_SingleIndex) {
+    auto path = make_path({Accessor((size_t)1)});
+    auto *mem = flat_cls->find_by_path(path);
+    ASSERT_NE(mem, nullptr);
+    EXPECT_EQ(*mem->name, "y");
+}
+
+TEST_F(RecordTypeTestFixture, FindByPath_TwoLevelNamedPath) {
+    auto path = make_path({Accessor(std::string("nested")), Accessor(std::string("inner_a"))});
+    auto *mem = outer_cls->find_by_path(path);
+    ASSERT_NE(mem, nullptr);
+    EXPECT_EQ(*mem->name, "inner_a");
+    EXPECT_EQ(mem->idx, 0U);
+}
+
+TEST_F(RecordTypeTestFixture, FindByPath_TwoLevelIndexPath) {
+    // [2, 0]: outer_cls[2] == nested (inner_cls), inner_cls[0] == inner_a
+    auto path = make_path({Accessor((size_t)2), Accessor((size_t)0)});
+    auto *mem = outer_cls->find_by_path(path);
+    ASSERT_NE(mem, nullptr);
+    EXPECT_EQ(*mem->name, "inner_a");
+}
+
+TEST_F(RecordTypeTestFixture, FindByPath_EmptyPathReturnsNull) {
+    AccessorPath empty_path;
+    EXPECT_EQ(flat_cls->find_by_path(empty_path), nullptr);
+}
+
+TEST_F(RecordTypeTestFixture, FindByPath_MissingFirstStepReturnsNull) {
+    auto path = make_path({Accessor(std::string("nope"))});
+    EXPECT_EQ(flat_cls->find_by_path(path), nullptr);
+}
+
+TEST_F(RecordTypeTestFixture, FindByPath_NonRecordMidPathReturnsNull) {
+    // "x" is I64 — stepping past it requires a record type
+    auto path = make_path({Accessor(std::string("x")), Accessor(std::string("anything"))});
+    EXPECT_EQ(flat_cls->find_by_path(path), nullptr);
+}
+
+// ── indexify(AccessorPath&) ───────────────────────────────────────────────────
+
+TEST_F(RecordTypeTestFixture, Indexify_SingleMemberName_ToIdx0) {
+    auto path   = make_path({Accessor(std::string("x"))});
+    auto result = flat_cls->indexify(path);
+    ASSERT_EQ(result.size(), 1U);
+    EXPECT_EQ(result.first().accessor, AccessorNode((size_t)0));
+}
+
+TEST_F(RecordTypeTestFixture, Indexify_ThirdMemberName_ToIdx2) {
+    auto path   = make_path({Accessor(std::string("z"))});
+    auto result = flat_cls->indexify(path);
+    ASSERT_EQ(result.size(), 1U);
+    EXPECT_EQ(result.first().accessor, AccessorNode((size_t)2));
+}
+
+TEST_F(RecordTypeTestFixture, Indexify_IndexPassthrough) {
+    auto path   = make_path({Accessor((size_t)0)});
+    auto result = flat_cls->indexify(path);
+    ASSERT_EQ(result.size(), 1U);
+    EXPECT_EQ(result.first().accessor, AccessorNode((size_t)0));
+}
+
+TEST_F(RecordTypeTestFixture, Indexify_TwoLevelMixedPath) {
+    // ["nested", "inner_a"] on outer_cls → [2, 0]
+    auto path   = make_path({Accessor(std::string("nested")), Accessor(std::string("inner_a"))});
+    auto result = outer_cls->indexify(path);
+    ASSERT_EQ(result.size(), 2U);
+    EXPECT_EQ(result.first().accessor, AccessorNode((size_t)2));
+    EXPECT_EQ(result.first().next()->accessor, AccessorNode((size_t)0));
+}
+
+TEST_F(RecordTypeTestFixture, Indexify_MissingMemberReturnsEmptyPath) {
+    auto path   = make_path({Accessor(std::string("nope"))});
+    auto result = flat_cls->indexify(path);
+    EXPECT_TRUE(result.empty());
+}
+
+TEST_F(RecordTypeTestFixture, Indexify_NonRecordMidPathReturnsEmptyPath) {
+    // "x" is I64 — cannot step further into it
+    auto path   = make_path({Accessor(std::string("x")), Accessor(std::string("anything"))});
+    auto result = flat_cls->indexify(path);
+    EXPECT_TRUE(result.empty());
+}
