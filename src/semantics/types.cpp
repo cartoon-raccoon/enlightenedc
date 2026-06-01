@@ -1,6 +1,8 @@
 #include "semantics/types.hpp"
 
+#include <algorithm>
 #include <cfloat>
+#include <llvm/IR/DerivedTypes.h>
 #include <memory>
 #include <stdexcept>
 #include <utility>
@@ -301,6 +303,12 @@ std::string PrimitiveType::formal() {
  * ACCESSOR METHODS
  */
 
+void Accessor::apply_index_offset(size_t offset) {
+    if (auto *idx = std::get_if<size_t>(&accessor)) {
+        *idx += offset;
+    }
+}
+
 /*
  * RECORD TYPE METHODS
  */
@@ -349,22 +357,28 @@ void RecordType::validate_new_member(Type *type, Optional<std::string> name, Loc
     }
 }
 
-void RecordType::add_member(std::string name, Type *type, Location loc) {
+RecordType::TypeMember *RecordType::add_member(std::string name, Type *type, Location loc) {
     dbprint("ClassType: adding member with name ", name, " type ", type);
 
     validate_new_member(type, name, loc);
 
     Box<TypeMember> member = std::make_unique<TypeMember>(name, type, loc, members.size());
+    auto *ret = member.get();
     members.push_back(std::move(member));
+
+    return ret;
 }
 
-void RecordType::add_member(Type *type, Location loc) {
+RecordType::TypeMember *RecordType::add_member(Type *type, Location loc) {
     dbprint("ClassType: adding anonymous member with type ", type);
 
     validate_new_member(type, {}, loc);
 
     Box<TypeMember> member = std::make_unique<TypeMember>(type, loc, members.size());
+    auto *ret = member.get();
     members.push_back(std::move(member));
+
+    return ret;
 }
 
 AccessorPath RecordType::index(std::string& name) {
@@ -523,11 +537,7 @@ bool RecordType::directly_contains(Type *ty) const {
     return false;
 }
 
-/*
- * CLASS TYPE METHODS
- */
-
-bool ClassType::is_fully_defined() {
+bool RecordType::is_fully_defined() {
     if (!is_complete())
         return false;
 
@@ -569,10 +579,209 @@ bool ClassType::is_fully_defined() {
     return ret;
 }
 
-bool ClassType::castable_to(Type *dst) { // NOLINT
-    // todo
+/*
+ * CLASS TYPE METHODS
+ */
+
+void ClassType::add_parent(ClassType *cls) {
+    if (this->parent) {
+        throw cls;
+    }
+
+    this->parent = cls;
+
+    if (!members.empty()) {
+        for (auto& member : members) {
+            member->idx += member_offset();
+        }
+    }
+}
+
+bool ClassType::is_parent_of(ClassType *cls) {
+    if (!cls->parent) return false;
+
+    return (*cls->parent) == this;
+}
+
+size_t ClassType::member_offset() const {
+    if (!parent) {
+        return 0;
+    } else {
+        // recurse up the inheritance chain, accumulating member offsets
+        return (*parent)->member_offset() + (*parent)->num_local_members();
+    }
+}
+
+
+bool ClassType::is_fully_defined() {
+    // If we have a parent, check that we and the parent are fully defined
+    // Else, delegate to parent class impl
+    if (parent) {
+        return RecordType::is_fully_defined() && (*parent)->is_fully_defined();
+    } else {
+        return RecordType::is_fully_defined();
+    }
+}
+
+RecordType::TypeMember *ClassType::add_member(std::string name, Type *type, Location loc) {
+    auto *mem = RecordType::add_member(name, type, loc);
+
+    if (parent) {
+        mem->idx += member_offset();
+    }
+
+    return mem;
+}
+
+RecordType::TypeMember *ClassType::add_member(Type *type, Location loc) {
+    auto *mem = RecordType::add_member(type, loc);
+
+    if (parent) {
+        mem->idx += member_offset();
+    }
+
+    return mem;
+}
+
+AccessorPath ClassType::index(std::string& name) {
+    // Attempt to index self first
+    AccessorPath path = RecordType::index(name);
+
+    // If path is not empty or we have no parent, return it
+    if (!path.empty() || !parent) {
+        assert(path.is_all_indices());
+        return path;
+    }
+
+    assert(parent.has_value());
+
+    path = (*parent)->index(name);
+
+    if (!path.empty()) {
+        assert(path.is_all_indices());
+    }
+
+    return path;
+}
+
+RecordType::TypeMember *ClassType::find(std::string& name) {
+    dbprint("ClassType: Looking for member with name ", name);
+
+    TypeMember *mem = RecordType::find(name);
+
+    if (mem || !parent) {
+        return mem;
+    }
+
+    assert(parent.has_value());
+
+    return (*parent)->find(name);
+}
+
+RecordType::TypeMember *ClassType::find_imm(std::string& name) {
+    TypeMember *mem = RecordType::find_imm(name);
+
+    if (mem || !parent) {
+        return mem;
+    }
+
+    assert(parent.has_value());
+
+    return (*parent)->find_imm(name);
+}
+
+RecordType::TypeMember *ClassType::find(size_t idx) {
+    dbprint("ClassType: Looking for member with index ", idx);
+
+    if (parent) {
+        size_t offset = member_offset();
+        if (idx < offset) {
+            return (*parent)->find(idx);
+        }
+        return RecordType::find(idx - offset);
+    }
+    
+    return RecordType::find(idx);
+}
+
+RecordType::TypeMember *ClassType::find_relative(size_t idx) {
+    dbprint("ClassType: Looking for member with index ", idx);
+
+    if (idx >= num_members())
+        return nullptr;
+
+    return members[idx].get();
+}
+
+RecordType::TypeMember *ClassType::find(Accessor& acc) {
+    return std::visit(
+        match{[&](MemberAcc& mem) { return find(mem); }, [&](IndexAcc idx) { return find(idx); }},
+        acc.accessor);
+}
+
+RecordType::TypeMember *ClassType::find_by_path(AccessorPath& path) {
+    return RecordType::find_by_path(path);
+
+    // if (mem || !parent) {
+    //     return mem;
+    // }
+
+    // assert(parent.has_value());
+
+    // return (*parent)->find_by_path(path);
+}
+
+size_t ClassType::num_members() const {
+    if (parent) {
+        return (*parent)->num_members() + RecordType::num_members();
+    } else {
+        return RecordType::num_members();
+    }
+}
+
+size_t ClassType::num_local_members() const {
+    return RecordType::num_members();
+}
+
+bool ClassType::coercible_to(Type *dst) {
+    if (!dst->is_class())
+        return false;
+
+    ClassType *target = dst->as_class();
+    ClassType *curr = this;
+
+    while (curr->parent) {
+        curr = *curr->parent;
+        if (curr == target) return true;
+    }
     return false;
 }
+
+Vec<ClassType const *> ClassType::ancestor_chain() const {
+    Vec<ClassType const *> chain;
+    for (ClassType const *c = this; c; c = c->parent ? *c->parent : nullptr)
+        chain.push_back(c);
+
+    return chain;
+}
+
+bool ClassType::castable_to(Type *dst) {
+    if (!dst->is_class())
+        return false;
+    if (coercible_to(dst))
+        return true;  // upcast: dst is ancestor of this
+
+    // downcast: this is ancestor of dst
+    ClassType *target = dst->as_class();
+    ClassType *curr = target;
+
+    while (curr->parent) {
+        curr = *curr->parent;
+        if (curr == this) return true;
+    }
+    return false;
+}
+
 
 void ClassType::finalize() {
     if (finalized) {
@@ -586,8 +795,27 @@ void ClassType::finalize() {
         throw TypeSemError("class not fully defined", decl_loc);
     }
 
+    // recursively finalize up the chain first.
+    if (parent) {
+        (*parent)->finalize();
+    }
+
     Vec<LLVMType *> args;
-    args.reserve(num_members());
+
+    if (parent) {
+        // if we have a parent, all its parents have been finalized as well, so the parent's llvmtype
+        // will contain the members of all its parents, and its own members. so, reading the elements
+        // of the parent's llvmtype will read in all the members of parent classes, in order, up the
+        // inheritance chain.
+        llvm::StructType *parent_llvm = llvm::dyn_cast<llvm::StructType>((*parent)->get_llvmtype());
+
+        assert(parent_llvm && "");
+
+        for (auto *elem : parent_llvm->elements()) {
+            args.push_back(elem);
+        }
+    }
+
     for (auto& member : members) {
         dbprint("ClassType: finalizing member declared at ", member->loc);
         member->ty->finalize();
@@ -611,41 +839,6 @@ std::string ClassType::formal() {
 /*
  * UNION TYPE METHODS
  */
-
-bool UnionType::is_fully_defined() {
-    if (!is_complete())
-        return false;
-
-    bool ret = true;
-    for (auto& member : members) {
-        switch (member->ty->kind) {
-        case Kind::CLASS: {
-            ClassType *cls = member->ty->as_class();
-            assert(cls);
-            ret = ret && cls->is_fully_defined();
-        } break;
-
-        case Kind::UNION: {
-            UnionType *unn = member->ty->as_union();
-            assert(unn);
-            ret = ret && unn->is_fully_defined();
-        } break;
-
-        case Kind::ENUM: {
-            EnumType *enm = member->ty->as_enum();
-            assert(enm);
-            ret = ret && enm->is_fully_defined();
-        } break;
-
-        default: {
-            // explicitly express that any other class is implicitly fully defined.
-            ret = ret && true; // NOLINT
-        } break;
-        }
-    }
-
-    return ret;
-}
 
 bool UnionType::coercible_to(Type *dst) {
     // If there is an underlying type representative, check that

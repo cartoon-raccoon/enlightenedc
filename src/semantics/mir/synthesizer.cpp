@@ -726,6 +726,33 @@ void MIRSynthesizer::do_visit(ClassSpecifier& node) {
             throw UnableToContinue();
         }
 
+        if (node.parents) {
+            assert(!(*node.parents).empty());
+            if ((*node.parents).size() > 1) {
+                add_error<EccSemError>("multiple inheritance is not allowed", node.loc);
+            }
+
+            TypeSymbol *parent = syms.lookup_type((*node.parents)[0]);
+            if (!parent) {
+                add_error<TypeNotDefinedError>("parent class not found", node.loc);
+                throw UnableToContinue();
+            }
+
+            if (!parent->type->is_class()) {
+                add_error<InvalidInheritanceError>(parent->type, node.loc);
+                throw UnableToContinue();
+            }
+
+            if (!parent->type->as_class()->is_complete()) {
+                // We can unwrap the name without worrying about an empty option,
+                // since it was looked up by name.
+                add_error<IncompleteTypeUseError>(*parent->type->get_name(), node.loc);
+                throw UnableToContinue();
+            }
+
+            cls->add_parent(parent->type->as_class());
+        }
+
         // class is defined here, populate its members and mark it complete
         for (auto& decl : *node.declarations) {
             dv_call((RecordType *)cls, decl);

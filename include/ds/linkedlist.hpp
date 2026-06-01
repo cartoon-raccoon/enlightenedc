@@ -126,6 +126,28 @@ public:
         list.last_elem  = nullptr;
     }
 
+    LinkedList& operator=(const LinkedList<N>& other) {
+        if (this == &other) return *this;
+
+        nodes.clear();
+        first_elem = nullptr;
+        last_elem  = nullptr;
+        for (const auto& node : other) {
+            push_back(node);
+        }
+        return *this;
+    }
+
+    LinkedList& operator=(LinkedList<N>&& other) noexcept {
+        nodes      = std::move(other.nodes);
+        first_elem = other.first_elem;
+        last_elem  = other.last_elem;
+        other.first_elem = nullptr;
+        other.last_elem  = nullptr;
+        return *this;
+    }
+
+
     ~LinkedList() = default;
 
     N& operator[](size_t idx) const { return at(idx); }
@@ -253,29 +275,19 @@ public:
     /**
      * Extend this list with all elements from another linked list.
      */
-    void extend(LinkedList& list) { extend(*list.first_elem); }
+    void extend(LinkedList& list) {
+        if (list.first_elem) {
+            extend(*list.first_elem);
+        }
+    }
 
     /**
      * Extend this list with all elements from another linked list.
      */
     void extend(N& start) {
-        // fixme: this is identical to prepend
         const N *traveler = &start;
-
         while (traveler != nullptr) {
-            // We create a new Box (unique_ptr) by copying the data
-            // This hides the Box implementation from the caller
-            auto new_node = make_box<N>(*traveler);
-
-            // Reset pointers to maintain local list integrity
-            new_node->next_node = nullptr;
-            new_node->prev_node = nodes.empty() ? nullptr : nodes.back().get();
-
-            if (!nodes.empty()) {
-                nodes.back()->next_node = new_node.get();
-            }
-
-            nodes.push_back(std::move(new_node));
+            push_back(make_box<N>(*traveler));
             traveler = traveler->next_node;
         }
     }
@@ -379,8 +391,8 @@ private:
 
     Vec<Box<N>> nodes;
 
-    N *first_elem;
-    N *last_elem;
+    N *first_elem = nullptr;
+    N *last_elem = nullptr;
 };
 
 } // end namespace ecc::ds

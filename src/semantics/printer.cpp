@@ -89,6 +89,10 @@ std::string ClassType::to_string() const {
         ss << " " << *name;
     }
 
+    if (parent) {
+        ss << " : " << (*parent)->formal(); 
+    }
+
     if (is_complete()) {
         ss << " { ";
 

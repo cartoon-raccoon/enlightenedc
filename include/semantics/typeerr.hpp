@@ -38,6 +38,23 @@ public:
     std::string name;
 };
 
+class InvalidInheritanceError : public EccSemError {
+public:
+    InvalidInheritanceError(types::Type *parent, Location err_loc)
+        : EccSemError("invalid inheritance: parent classes must be classes", err_loc),
+        parent(parent->formal()) {}
+
+    std::string parent;
+
+    std::string elab() override {
+        std::stringstream ss;
+
+        ss << "type `" << parent << "` is not a class"; 
+
+        return ss.str();
+    }
+};
+
 class InvalidVoidError : public TypeSemError {
 public:
     InvalidVoidError(Location err_loc) : TypeSemError("invalid void", err_loc) {}

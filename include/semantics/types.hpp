@@ -314,8 +314,8 @@ public:
     /**
     Finalize the type with LLVM, creating the equivalent LLVM type.
 
-    Before this function has been called on a type, calling `size()` will
-    produce undefined results.
+    Before this function has been called on a type, calling `alloc_size()` will
+    throw an error.
     */
     virtual void finalize() = 0;
 
@@ -463,6 +463,13 @@ public:
 
     bool is_index() const { return std::holds_alternative<IndexAcc>(accessor); }
 
+    /**
+    Apply an offset to the index, if this Accessor holds an index.
+    
+    Is a no-op if the accessor is a string.
+    */
+    void apply_index_offset(size_t offset);
+
     bool operator==(const Accessor& other) const { return accessor == other.accessor; }
 };
 
@@ -481,6 +488,10 @@ public:
 
     bool is_all_members() {
         return std::all_of(begin(), end(), [](Accessor& acc) { return acc.is_member(); });
+    }
+
+    bool is_all_indices() {
+        return std::all_of(begin(), end(), [](Accessor& acc) { return acc.is_index(); });
     }
 };
 
@@ -503,9 +514,13 @@ or arrow (`->`) operators.
 class RecordType : public UserType {
 public:
     struct TypeMember {
+        // An optional name for the member.
         Optional<std::string> name;
+        // The type of the member.
         Type *ty;
+        // The location where the member was declared.
         Location loc;
+        // The index of the member in the struct.
         size_t idx;
 
         TypeMember(Type *ty, Location loc, size_t idx) : ty(ty), loc(loc), idx(idx) {}
@@ -531,9 +546,9 @@ public:
     */
     virtual void validate_new_member(Type *type, Optional<std::string> name, Location loc);
 
-    void add_member(std::string name, Type *type, Location loc);
+    virtual TypeMember *add_member(std::string name, Type *type, Location loc);
 
-    void add_member(Type *type, Location loc);
+    virtual TypeMember *add_member(Type *type, Location loc);
 
     auto named_members() {
         return members | std::ranges::views::filter(
@@ -550,23 +565,23 @@ public:
 
     The return accessor path will always be entirely indexes.
     */
-    AccessorPath index(std::string& name);
+    virtual AccessorPath index(std::string& name);
 
     /**
     Find a TypeMember by name, searching recursively in anonymous members if needed.
     */
-    TypeMember *find(std::string& name);
+    virtual TypeMember *find(std::string& name);
 
     /**
     Find a TypeMember by name, searching only in the immediate members.
     */
-    TypeMember *find_imm(std::string& name);
+    virtual TypeMember *find_imm(std::string& name);
 
-    TypeMember *find(size_t idx);
+    virtual TypeMember *find(size_t idx);
 
-    TypeMember *find(Accessor& acc);
+    virtual TypeMember *find(Accessor& acc);
 
-    TypeMember *find_by_path(AccessorPath& path);
+    virtual TypeMember *find_by_path(AccessorPath& path);
 
     /**
     Converts a mixed accessor path into an accessor path of entirely indexes.
@@ -576,7 +591,15 @@ public:
     */
     AccessorPath indexify(AccessorPath& path);
 
-    size_t num_members() const { return members.size(); }
+    virtual size_t num_members() const { return members.size(); }
+
+    /**
+    Whether the record is fully defined.
+
+    Unlike `complete`, which only marks whether this record has had all its members added,
+    this recursively checks whether any of the record members, if a UserType, is fully defined.
+    */
+    bool is_fully_defined() override;
 
     /**
     Check if the record type contains a specific type, either as a member,
@@ -839,26 +862,85 @@ The ClassType in EnlightenedC.
 
 ## Coercibility
 
-Classes are completely invariant over all types, including parent classes.
+Classes can be coerced into their parents, since any child class is also
+a parent. Classes cannot be coerced into their children.
 
 ## Castability
 
-Classes can be cast to parent classes. In the case of casting by value, the
-object is truncated (like in C++). The pointer case is handled by PointerType.
+Classes can be cast to any class on the inheritance chain. In the case of
+upcasting by value, the object is truncated (like in C++). The pointer case
+is handled by PointerType.
+
+## Inheritance
+
+Each class stores a pointer to its parent class. This creates a linked
+
+### Member Indexes
+
+There are two types of indexes into classes: absolute and relative. Absolute
+indexes get the index of the member from the very beginning of the inheritance
+chain. Relative indexes get the member relative to the current class.
 */
 class ClassType : public RecordType {
 public:
-    /**
-    Whether the class is fully defined.
 
-    Unlike `complete`, which only marks whether this class has had all its members added,
-    this recursively checks whether any of the class members, if a UserType, is fully defined.
-    */
-    bool is_fully_defined() override;
-
-    // todo: add inheritance
+    Optional<ClassType *> parent;
 
     ClassType *as_class() override { return this; }
+
+    void add_parent(ClassType *cls);
+
+    bool is_parent_of(ClassType *cls);
+
+    /**
+    Get the offset of the index of the class members, that might be > 0 because
+    of the presence of a parent class.
+
+    If there is no parent, the offest is 0.
+    */
+    size_t member_offset() const;
+
+    bool is_fully_defined() override;
+
+    TypeMember *add_member(std::string name, Type *type, Location loc) override;
+
+    TypeMember *add_member(Type *type, Location loc) override;
+
+    AccessorPath index(std::string& name) override;
+
+    TypeMember *find(std::string& name) override;
+
+    /**
+    Find a TypeMember by name, searching only in the immediate members.
+    */
+    TypeMember *find_imm(std::string& name) override;
+
+    /**
+    Find a member by absolute index.
+    */
+    TypeMember *find(size_t idx) override;
+
+    /**
+    Find a member by relative index.
+    */
+    TypeMember *find_relative(size_t idx);
+
+    TypeMember *find(Accessor& acc) override;
+
+    /**
+    Find a member by an accessor path.
+
+    Indexed Accessors are always treated as absolute.
+    */
+    TypeMember *find_by_path(AccessorPath& path) override;
+
+    size_t num_members() const override;
+
+    size_t num_local_members() const;
+
+    Vec<ClassType const *> ancestor_chain() const;
+
+    bool coercible_to(Type *dst) override;
 
     bool castable_to(Type *dst) override;
 
@@ -933,8 +1015,6 @@ public:
     The union type representative.
     */
     Optional<PrimitiveType *> type_rep;
-
-    bool is_fully_defined() override;
 
     bool coercible_to(Type *dst) override;
 
@@ -1266,7 +1346,7 @@ public:
                 }
             }
 
-            return variadic != other.variadic;
+            return variadic == other.variadic;
         }
     };
 
