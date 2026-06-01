@@ -2,6 +2,13 @@
 
 This document lays out the planned improvements and updates for the EnlightenedC project.
 
+## Immediate To-dos
+
+- More granular location tracking (per operator,
+  individual class members, etc)
+- Add options to integration tests to control what phase to
+  stop compilation at, or dump mir, dump AST, etc.
+
 ## Short-Term
 
 - Fully implement compilation pipeline

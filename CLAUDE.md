@@ -155,6 +155,10 @@ Both follow the same visitor pattern as the AST.
 
 `NoCopy` and `NoMove` are CRTP-style base classes used to explicitly restrict copying/moving.
 
+### Tests
+
+Write tests based on expected behaviour, do not work around any inconsistencies found in the code.
+
 ## Code Style
 
 - C++23, compiled with Clang.
