@@ -19,6 +19,13 @@ The full list of types are:
 - `F32` - A 32-bit single precision float.
 - `F64` - A 64-bit floating point number.
 
+### Machine Size Types
+
+Note that unlike HolyC, which was designed to run exclusively on TempleOS (x64), EnlightenedC is designed
+to run on multiple different architectures with different pointer widths. As such, `sizeof` will return
+different types based on what architecture you are compiling for, and pointers will decay into different types
+as well. Usually this will be 32-bit or 64-bit integers.
+
 ### Arrays
 
 Arrays consist of a base type and a size, and are declared much like they are in C.
@@ -29,6 +36,14 @@ U8 array[5] = {1, 2, 3, 4, 5};
 ```
 
 Initialization is also identical to C.
+
+#### Array Designated Initializers
+
+Like in C, you can designate initializers for specific indexes:
+
+```holyc
+U8 array[5] = {[1] = 6, [0] = 5};
+```
 
 ### Pointers
 
