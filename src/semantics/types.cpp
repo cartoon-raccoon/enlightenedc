@@ -585,7 +585,7 @@ bool RecordType::is_fully_defined() {
 
 void ClassType::add_parent(ClassType *cls) {
     if (this->parent) {
-        throw cls;
+        throw cls; // fixme: better error handling
     }
 
     this->parent = cls;
@@ -601,6 +601,19 @@ bool ClassType::is_parent_of(ClassType *cls) {
     if (!cls->parent) return false;
 
     return (*cls->parent) == this;
+}
+
+bool ClassType::is_ancestor_of(ClassType *cls) {
+    if (!cls->parent) return false;
+
+    if (is_parent_of(cls)) {
+        // base case: if we are a direct parent, return true
+        return true;
+    } else {
+        // recursive case: check if we are an ancestor of cls' parent
+        // parent is guaranteed to have a value, as checked above.
+        return is_ancestor_of(*cls->parent);
+    }
 }
 
 size_t ClassType::member_offset() const {

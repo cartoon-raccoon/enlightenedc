@@ -890,7 +890,15 @@ public:
 
     void add_parent(ClassType *cls);
 
+    /**
+    Check if this class is a direct parent of `cls`.
+    */
     bool is_parent_of(ClassType *cls);
+
+    /**
+    Check if this class is an ancestor of `cls`.
+    */
+    bool is_ancestor_of(ClassType *cls);
 
     /**
     Get the offset of the index of the class members, that might be > 0 because
