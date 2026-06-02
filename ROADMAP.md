@@ -2,10 +2,12 @@
 
 This document lays out the planned improvements and updates for the EnlightenedC project.
 
-## Immediate To-dos
+## Important To-dos
+
+These are to-dos that are important, but do not constitute a milestone.
 
 - More granular location tracking (per operator,
-  individual class members, etc)
+  individual class parents, etc)
 - Add options to integration tests to control what phase to
   stop compilation at, or dump mir, dump AST, etc.
 
@@ -14,7 +16,6 @@ This document lays out the planned improvements and updates for the EnlightenedC
 - Fully implement compilation pipeline
   - Validator, codegen, MVP test on Brainfuck
 - Implement missing features
-  - class inheritance
   - default arguments
   - bitfields
 - Implement Range expressions
