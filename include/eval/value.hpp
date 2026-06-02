@@ -28,40 +28,56 @@ public:
     InvalidValueRange(std::string msg) : EccSemError(std::move(msg)) {}
 };
 
-/*
-A value of a primitive type.
-*/
-class Value {
-public:
-    using ValueType = std::variant<
+using ValueType = std::variant<
         int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t, float, double,
         bool>;
 
-    Value() : inner((int32_t)0), primtype(tokens::PrimType::I32) {}
+/*
+A value of a primitive type.
 
-    Value(int8_t v) : inner(v), primtype(tokens::PrimType::I8) {}
+A Value is a pure, functional, immutable container over a contained primitive type.
+Combining two Values in an operation does not modify either - it produces an entirely
+new value.
 
-    Value(int16_t v) : inner(v), primtype(tokens::PrimType::I16) {}
+This is also why certain operators are not overloaded - they operate on memory, at runtime.
+They are meaningless on Values.
+*/
+class Value {
+    
+    /**
+    The inner
+    */
+    ValueType inner;
+    
+    tokens::PrimType ptype;
 
-    Value(int32_t v) : inner(v), primtype(tokens::PrimType::I32) {}
+public:
 
-    Value(int64_t v) : inner(v), primtype(tokens::PrimType::I64) {}
+    Value() : inner((int32_t)0), ptype(tokens::PrimType::I32) {}
 
-    Value(uint8_t v) : inner(v), primtype(tokens::PrimType::U8) {}
+    Value(int8_t v) : inner(v), ptype(tokens::PrimType::I8) {}
 
-    Value(uint16_t v) : inner(v), primtype(tokens::PrimType::U16) {}
+    Value(int16_t v) : inner(v), ptype(tokens::PrimType::I16) {}
 
-    Value(uint32_t v) : inner(v), primtype(tokens::PrimType::U32) {}
+    Value(int32_t v) : inner(v), ptype(tokens::PrimType::I32) {}
 
-    Value(uint64_t v) : inner(v), primtype(tokens::PrimType::U64) {}
+    Value(int64_t v) : inner(v), ptype(tokens::PrimType::I64) {}
 
-    Value(float v) : inner(v), primtype(tokens::PrimType::F32) {}
+    Value(uint8_t v) : inner(v), ptype(tokens::PrimType::U8) {}
 
-    Value(double v) : inner(v), primtype(tokens::PrimType::F64) {}
+    Value(uint16_t v) : inner(v), ptype(tokens::PrimType::U16) {}
 
-    Value(bool v) : inner(v), primtype(tokens::PrimType::BOOL) {}
+    Value(uint32_t v) : inner(v), ptype(tokens::PrimType::U32) {}
 
-    Value(const Value& other) : inner(other.inner), primtype(other.primtype) {}
+    Value(uint64_t v) : inner(v), ptype(tokens::PrimType::U64) {}
+
+    Value(float v) : inner(v), ptype(tokens::PrimType::F32) {}
+
+    Value(double v) : inner(v), ptype(tokens::PrimType::F64) {}
+
+    Value(bool v) : inner(v), ptype(tokens::PrimType::BOOL) {}
+
+    Value(const Value& other) : inner(other.inner), ptype(other.ptype) {}
 
     static Value from_literal(uint64_t lit) {
         if (lit <= INT32_MAX) {
@@ -81,29 +97,29 @@ public:
 
     Value& operator=(const Value& other) {
         inner    = other.inner;
-        primtype = other.primtype;
+        ptype = other.ptype;
         return *this;
     }
 
     Value& operator=(Value&& other) noexcept {
         inner    = other.inner;
-        primtype = other.primtype;
+        ptype = other.ptype;
         return *this;
     }
 
-    ValueType inner;
+    tokens::PrimType primtype() const { return ptype; }
 
-    tokens::PrimType primtype;
+    ValueType value() const { return inner; }
 
-    bool is_integer() const { return sema::prim::pr_is_integer(primtype); }
+    bool is_integer() const { return sema::prim::pr_is_integer(ptype); }
 
-    bool is_float() const { return sema::prim::pr_is_float(primtype); }
+    bool is_float() const { return sema::prim::pr_is_float(ptype); }
 
-    bool is_bool() const { return sema::prim::pr_is_bool(primtype); }
+    bool is_bool() const { return sema::prim::pr_is_bool(ptype); }
 
-    bool is_signed() const { return sema::prim::pr_is_signed(primtype); }
+    bool is_signed() const { return sema::prim::pr_is_signed(ptype); }
 
-    sema::prim::PrimTypeRank pr_rank() const { return sema::prim::pr_rank(primtype); }
+    sema::prim::PrimTypeRank pr_rank() const { return sema::prim::pr_rank(ptype); }
 
     template <typename T>
         requires VariantMember<T, ValueType>

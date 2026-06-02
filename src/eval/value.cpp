@@ -7,8 +7,6 @@
 using namespace ecc::eval;
 using namespace ecc::tokens;
 
-using ValueType = Value::ValueType;
-
 Value Value::pr_cast(PrimType pr) const {
     using P = PrimType;
     switch (pr) {
@@ -48,10 +46,10 @@ Value Value::pr_cast(PrimType pr) const {
 }
 
 Pair<Value, Value> Value::promote(const Value& lhs, const Value& rhs) {
-    PrimType promoted = sema::prim::pr_promote(lhs.primtype, rhs.primtype);
+    PrimType promoted = sema::prim::pr_promote(lhs.ptype, rhs.ptype);
 
-    Value ret_lhs = lhs.primtype == promoted ? lhs : lhs.pr_cast(promoted);
-    Value ret_rhs = rhs.primtype == promoted ? rhs : rhs.pr_cast(promoted);
+    Value ret_lhs = lhs.ptype == promoted ? lhs : lhs.pr_cast(promoted);
+    Value ret_rhs = rhs.ptype == promoted ? rhs : rhs.pr_cast(promoted);
 
     return {ret_lhs, ret_rhs};
 }
@@ -296,6 +294,7 @@ Value Value::operator-(const Value& rhs) const {
             [](uint32_t l, uint32_t r) -> Value { return Value(l - r); },
             [](uint64_t l, uint64_t r) -> Value { return Value(l - r); },
             [](float l, float r) -> Value { return Value(l - r); },
+            [](double l, double r) -> Value { return Value(l - r); },
             [](bool l, bool r) -> Value { return Value(l - r); },
             [](auto&&, auto&&) -> Value {
                 throw std::runtime_error("unexpected type pair while evaluating value");
@@ -435,7 +434,7 @@ ValueRange::ValueRange(Value& start, Value& end) {
 
     auto promoted = Value::promote(start, end);
 
-    if (promoted.first <= promoted.second) {
+    if (promoted.first >= promoted.second) {
         throw InvalidValueRange("invalid range, range start must be less than range end");
     }
 

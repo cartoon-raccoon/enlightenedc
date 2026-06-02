@@ -38,10 +38,10 @@ public:
     std::string name;
 };
 
-class InvalidInheritanceError : public EccSemError {
+class InvalidInheritanceError : public TypeSemError {
 public:
     InvalidInheritanceError(types::Type *parent, Location err_loc)
-        : EccSemError("invalid inheritance: parent classes must be classes", err_loc),
+        : TypeSemError("invalid inheritance: parent classes must be classes", err_loc),
         parent(parent->formal()) {}
 
     std::string parent;

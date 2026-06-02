@@ -36,7 +36,7 @@ static size_t expected_variant_idx(PrimType pt) {
 // Asserts that v.primtype is consistent with the C++ type stored in v.inner.
 // Call this after any operation to verify the structural invariant holds.
 void assert_structural_valid(const Value& v) {
-    RC_ASSERT(v.inner.index() == expected_variant_idx(v.primtype));
+    RC_ASSERT(v.value().index() == expected_variant_idx(v.primtype()));
 }
 
 // ── Generators ────────────────────────────────────────────────────────────────

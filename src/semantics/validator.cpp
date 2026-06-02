@@ -854,7 +854,7 @@ void Validator::do_visit(IdentExprMIR& node) { // done
 void Validator::do_visit(LiteralExprMIR& node) { // done
     bsv_dbprint("Validator: visiting LiteralExprMIR node");
     if (auto *val = std::get_if<eval::Value>(&node.value)) {
-        node.set_type(types.get_primitive(val->primtype));
+        node.set_type(types.get_primitive(val->primtype()));
     } else if (auto *_ = std::get_if<std::string>(&node.value)) {
         node.set_type(types.get_const(types.get_pointer(types.get_i8())));
     } else {

@@ -38,7 +38,7 @@ RC_GTEST_PROP(ValueStructural, ShiftPreservesStructure, ()) {
 RC_GTEST_PROP(ValueTypePromotion, RankFloorIsI32, ()) {
     Value result = *gen_value() + *gen_value();
     assert_structural_valid(result);
-    RC_ASSERT(pr_rank(result.primtype) >= PrimTypeRank::INT32);
+    RC_ASSERT(pr_rank(result.primtype()) >= PrimTypeRank::INT32);
 }
 
 RC_GTEST_PROP(ValueTypePromotion, ResultRankAtLeastBothInputs, ()) {
@@ -46,8 +46,8 @@ RC_GTEST_PROP(ValueTypePromotion, ResultRankAtLeastBothInputs, ()) {
     Value b      = *gen_value();
     Value result = a + b;
     assert_structural_valid(result);
-    RC_ASSERT(pr_rank(result.primtype) >= pr_rank(a.primtype));
-    RC_ASSERT(pr_rank(result.primtype) >= pr_rank(b.primtype));
+    RC_ASSERT(pr_rank(result.primtype()) >= pr_rank(a.primtype()));
+    RC_ASSERT(pr_rank(result.primtype()) >= pr_rank(b.primtype()));
 }
 
 // ── Type promotion — signedness ───────────────────────────────────────────────
@@ -58,7 +58,7 @@ RC_GTEST_PROP(ValueTypePromotion, UnsignedWins, ()) {
     Value b      = *gen_unsigned_value();
     Value result = a + b;
     assert_structural_valid(result);
-    RC_ASSERT(!pr_is_signed(result.primtype));
+    RC_ASSERT(!pr_is_signed(result.primtype()));
 }
 
 RC_GTEST_PROP(ValueTypePromotion, TwoSignedIntegersProduceSignedResult, ()) {
@@ -70,7 +70,7 @@ RC_GTEST_PROP(ValueTypePromotion, TwoSignedIntegersProduceSignedResult, ()) {
         gen_value_of);
     Value result = a + b;
     assert_structural_valid(result);
-    RC_ASSERT(pr_is_signed(result.primtype));
+    RC_ASSERT(pr_is_signed(result.primtype()));
 }
 
 // ── Type promotion — float dominance ─────────────────────────────────────────
@@ -80,39 +80,39 @@ RC_GTEST_PROP(ValueTypePromotion, FloatDominatesNonFloat, ()) {
     Value i      = *gen_non_float_value();
     Value result = f + i;
     assert_structural_valid(result);
-    RC_ASSERT(pr_is_float(result.primtype));
+    RC_ASSERT(pr_is_float(result.primtype()));
 }
 
 RC_GTEST_PROP(ValueTypePromotion, F64DominatesF32, ()) {
     Value f64 = *gen_value_of(PrimType::F64);
     Value f32 = *gen_value_of(PrimType::F32);
-    RC_ASSERT((f64 + f32).primtype == PrimType::F64);
-    RC_ASSERT((f32 + f64).primtype == PrimType::F64);
+    RC_ASSERT((f64 + f32).primtype() == PrimType::F64);
+    RC_ASSERT((f32 + f64).primtype() == PrimType::F64);
 }
 
 // ── Type promotion — other structural properties ──────────────────────────────
 
 RC_GTEST_PROP(ValueTypePromotion, ArithmeticNeverProducesBool, ()) {
-    RC_ASSERT((*gen_value() + *gen_value()).primtype != PrimType::BOOL);
+    RC_ASSERT((*gen_value() + *gen_value()).primtype() != PrimType::BOOL);
 }
 
 RC_GTEST_PROP(ValueTypePromotion, TypeIndependentOfValue, ()) {
     // Same pair of primtypes, different raw values → same result type.
     PrimType pt1 = *gen_primtype();
     PrimType pt2 = *gen_primtype();
-    PrimType type1 = (*gen_value_of(pt1) + *gen_value_of(pt2)).primtype;
-    PrimType type2 = (*gen_value_of(pt1) + *gen_value_of(pt2)).primtype;
+    PrimType type1 = (*gen_value_of(pt1) + *gen_value_of(pt2)).primtype();
+    PrimType type2 = (*gen_value_of(pt1) + *gen_value_of(pt2)).primtype();
     RC_ASSERT(type1 == type2);
 }
 
 RC_GTEST_PROP(ValueTypePromotion, CommutativeOpsHaveSameResultType, ()) {
     Value a = *gen_integer_value();
     Value b = *gen_integer_value();
-    RC_ASSERT((a + b).primtype == (b + a).primtype);
-    RC_ASSERT((a * b).primtype == (b * a).primtype);
-    RC_ASSERT((a & b).primtype == (b & a).primtype);
-    RC_ASSERT((a | b).primtype == (b | a).primtype);
-    RC_ASSERT((a ^ b).primtype == (b ^ a).primtype);
+    RC_ASSERT((a + b).primtype() == (b + a).primtype());
+    RC_ASSERT((a * b).primtype() == (b * a).primtype());
+    RC_ASSERT((a & b).primtype() == (b & a).primtype());
+    RC_ASSERT((a | b).primtype() == (b | a).primtype());
+    RC_ASSERT((a ^ b).primtype() == (b ^ a).primtype());
 }
 
 // ── Value::promote consistency ────────────────────────────────────────────────
@@ -123,14 +123,14 @@ RC_GTEST_PROP(ValueTypePromotion, PromotePairHasEqualTypes, ()) {
     auto [pa, pb]   = Value::promote(a, b);
     assert_structural_valid(pa);
     assert_structural_valid(pb);
-    RC_ASSERT(pa.primtype == pb.primtype);
+    RC_ASSERT(pa.primtype() == pb.primtype());
 }
 
 RC_GTEST_PROP(ValueTypePromotion, PromotePairTypeMatchesPrPromote, ()) {
     Value a       = *gen_value();
     Value b       = *gen_value();
     auto [pa, pb] = Value::promote(a, b);
-    RC_ASSERT(pa.primtype == pr_promote(a.primtype, b.primtype));
+    RC_ASSERT(pa.primtype() == pr_promote(a.primtype(), b.primtype()));
 }
 
 // ── Comparison operators always produce Bool ──────────────────────────────────
@@ -138,12 +138,12 @@ RC_GTEST_PROP(ValueTypePromotion, PromotePairTypeMatchesPrPromote, ()) {
 RC_GTEST_PROP(ValueArithmetic, ComparisonResultIsBool, ()) {
     Value a = *gen_value();
     Value b = *gen_value();
-    RC_ASSERT((a == b).primtype == PrimType::BOOL);
-    RC_ASSERT((a != b).primtype == PrimType::BOOL);
-    RC_ASSERT((a <  b).primtype == PrimType::BOOL);
-    RC_ASSERT((a >  b).primtype == PrimType::BOOL);
-    RC_ASSERT((a <= b).primtype == PrimType::BOOL);
-    RC_ASSERT((a >= b).primtype == PrimType::BOOL);
+    RC_ASSERT((a == b).primtype() == PrimType::BOOL);
+    RC_ASSERT((a != b).primtype() == PrimType::BOOL);
+    RC_ASSERT((a <  b).primtype() == PrimType::BOOL);
+    RC_ASSERT((a >  b).primtype() == PrimType::BOOL);
+    RC_ASSERT((a <= b).primtype() == PrimType::BOOL);
+    RC_ASSERT((a >= b).primtype() == PrimType::BOOL);
 }
 
 // ── Commutativity of values ───────────────────────────────────────────────────
@@ -191,7 +191,7 @@ RC_GTEST_PROP(ValueArithmetic, UnsignedU32AdditionWraps, ()) {
     uint32_t expected = a_raw + b_raw;  // defined modular wrap for unsigned
     Value result = Value(a_raw) + Value(b_raw);
     assert_structural_valid(result);
-    RC_ASSERT(result.primtype == PrimType::U32);
+    RC_ASSERT(result.primtype() == PrimType::U32);
     RC_ASSERT(result.cast<uint32_t>() == expected);
 }
 
@@ -209,11 +209,11 @@ RC_GTEST_PROP(ValueTypePromotion, DISABLED_ShiftResultTypeIsPromotedLeft, ()) {
     Value b(*rc::gen::inRange<uint32_t>(0, 32)); // NOLINT
 
     // Expected: independently promote left to at least I32, ignore right.
-    PrimType expected_type = pr_rank(a.primtype) >= PrimTypeRank::INT32
-        ? a.primtype
-        : pr_from_rank(PrimTypeRank::INT32, pr_is_signed(a.primtype));
+    PrimType expected_type = pr_rank(a.primtype()) >= PrimTypeRank::INT32
+        ? a.primtype()
+        : pr_from_rank(PrimTypeRank::INT32, pr_is_signed(a.primtype()));
 
     Value result = a << b;
     assert_structural_valid(result);
-    RC_ASSERT(result.primtype == expected_type);
+    RC_ASSERT(result.primtype() == expected_type);
 }
