@@ -287,11 +287,12 @@ void MIRSynthesizer::do_visit(Function& node) {
         symbol->visibility = PhysicalSymbol::Visibility::EXTERNC;
     }
 
+    Location def_loc = symbol->loc;
     try {
         sym_ptr = syms.insert(*builder->name, std::move(symbol));
     } catch (Symbol *previous) {
         add_error<SymbolAlrDecldError>(
-            std::format("function \"{}\" was previously declared", sym_ptr->name), sym_ptr->loc,
+            std::format("function \"{}\" was previously declared", previous->name), def_loc,
             previous->loc);
         throw UnableToContinue();
     }
@@ -339,39 +340,49 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
         // declare symbol and corresponding pointer
         Box<VarSymbol> sym = nullptr;
         VarSymbol *symptr  = nullptr;
-        if (ret.name) {
-            // initialize our symbol and its pointer
-            if (ret.type->is_void()) {
-                add_error<EccSemError>("variable cannot have type Void or U0", declarator->loc);
-                throw UnableToContinue();
-            }
-            Type *symtype = ret.type;
-            if (specinfo->is_const) {
-                symtype = types.get_const(symtype);
-            }
-            sym    = std::make_unique<VarSymbol>(declarator->loc, *ret.name, syms.current, symtype);
-            symptr = sym.get();
-
-            if (specinfo->is_public && specinfo->is_static) {
-                add_error<EccSemError>("conflicting visibility specifiers", declarator->loc);
-            }
-
-            // populate other specifiers, and then insert into symbol table
-            if (specinfo->is_public) {
-                sym->visibility = PhysicalSymbol::Visibility::PUBLIC;
-            }
-
-            sym->linkage = specinfo->linkage;
-
-            if (sym->is_external() && syms.current != syms.global()) {
-                add_error<EccSemError>(
-                    "extern variable declaration must be at global scope", declarator->loc);
-                throw UnableToContinue();
-            }
-
-            syms.insert(*ret.name, std::move(sym));
-        } else {
+        if (!ret.name) {
             add_error<EccSemError>("variable declaration with no name", declarator->loc);
+            throw UnableToContinue();
+        }
+
+        // initialize our symbol and its pointer
+        if (ret.type->is_void()) {
+            add_error<EccSemError>("variable cannot have type Void or U0", declarator->loc);
+            throw UnableToContinue();
+        }
+
+        Type *symtype = ret.type;
+        if (specinfo->is_const) {
+            symtype = types.get_const(symtype);
+        }
+
+        sym    = std::make_unique<VarSymbol>(declarator->loc, *ret.name, syms.current, symtype);
+        symptr = sym.get();
+
+        if (specinfo->is_public && specinfo->is_static) {
+            add_error<EccSemError>("conflicting visibility specifiers", declarator->loc);
+        }
+
+        // populate other specifiers, and then insert into symbol table
+        if (specinfo->is_public) {
+            sym->visibility = PhysicalSymbol::Visibility::PUBLIC;
+        }
+
+        sym->linkage = specinfo->linkage;
+
+        if (sym->is_external() && syms.current != syms.global()) {
+            add_error<EccSemError>(
+                "extern variable declaration must be at global scope", declarator->loc);
+            throw UnableToContinue();
+        }
+
+        Location def_loc = sym->loc;
+        try {
+            syms.insert(*ret.name, std::move(sym));
+        } catch (Symbol *existing) {
+            add_error<SymbolAlrDecldError>(
+                std::format("symbol {} already previously declared", existing->name), 
+                def_loc, existing->loc);
             throw UnableToContinue();
         }
 
@@ -490,7 +501,7 @@ void MIRSynthesizer::do_visit(FunctionDeclarator& node) {
     for (auto& param : node.parameters) {
         dv_call_noparam(param);
         FuncParam parsed = take_last_result<FuncParam>();
-        parameters.push_back(parsed);
+        parameters.push_back(std::move(parsed));
     }
 
     builder->ty_bldr.add_function(node.base->loc, parameters, node.is_variadic);
@@ -911,8 +922,31 @@ void MIRSynthesizer::do_visit(Initializer& node) { // NOLINT
                 dv_return(ret);
             },
             [&](Box<Initializer::Member>& mem) {
-                bsv_dbprint("visiting member designated initializer");
-                dv_call(type, mem->initializer);
+                Type *sub_type = type;  // fallback: pass parent type (current behavior)
+
+                if (type->is_class()) {
+                    auto *cls = type->as_class();
+                    auto *member = cls->find(mem->member);
+                    if (!member) {
+                        add_error<EccSemError>(
+                            std::format("no member \"{}\" in class", mem->member), loc);
+                        throw UnableToContinue();
+                    }
+                    sub_type = member->ty;
+                } else if (type->is_union()) {
+                    auto *unn = type->as_union();
+                    auto *member = unn->find(mem->member);
+                    if (!member) {
+                        add_error<EccSemError>(
+                            std::format("no member \"{}\" in union", mem->member), loc);
+                        throw UnableToContinue();
+                    }
+                    sub_type = member->ty;
+                }
+                // If type is neither class nor union, pass it through; the validator
+                // will catch the semantic error when it type-checks the initializer.
+
+                dv_call(sub_type, mem->initializer);
 
                 auto initmir = take_last_result<InitializerRet>();
 
@@ -1331,10 +1365,7 @@ void MIRSynthesizer::do_visit(DoWhileStatement& node) {
 void MIRSynthesizer::do_visit(ForStatement& node) {
     bsv_dbprint("visiting ForStatement node: ", node.loc);
 
-    dv_call_noparam(node.body);
-    Box<StmtMIR> body = take_last_result<Box<StmtMIR>>();
-
-    Box<LoopStmtMIR> loop = std::make_unique<LoopStmtMIR>(node.loc, std::move(body));
+    Box<LoopStmtMIR> loop = std::make_unique<LoopStmtMIR>(node.loc, nullptr);
 
     if (node.init.has_value()) {
         std::visit(
@@ -1360,6 +1391,11 @@ void MIRSynthesizer::do_visit(ForStatement& node) {
         Box<ExprMIR> cond = take_last_result<Box<ExprMIR>>();
         loop->condition   = std::move(cond);
     }
+
+    dv_call_noparam(node.body);
+    Box<StmtMIR> body = take_last_result<Box<StmtMIR>>();
+
+    loop->body = std::move(body);
 
     if (node.increment.has_value()) {
         dv_call_noparam(node.increment.value());
@@ -1584,7 +1620,7 @@ void MIRSynthesizer::do_visit(MemberAccessExpression& node) {
 }
 
 void MIRSynthesizer::do_visit(ReinterpretExpression& node) {
-    bsv_dbprint("visiting MemberAccessExpression node: ", node.loc);
+    bsv_dbprint("visiting ReinterpretExpression node: ", node.loc);
 
     dv_call_noparam(node.object);
     Box<ExprMIR> object = take_last_result<Box<ExprMIR>>();
