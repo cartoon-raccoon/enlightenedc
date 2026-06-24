@@ -330,12 +330,15 @@ void Validator::do_visit(ExprStmtMIR& node) { // done
 void Validator::do_visit(SwitchStmtMIR& node) {
     bsv_dbprint("Validator: visiting SwitchStmtMIR node");
     node.control_val->accept(*this);
-    // todo: check validity of control expression (e.g. classes and floats are not valid)
 
     if (!node.control_val->eff_type->is_primitive()) {
+        add_error<InvalidSwitchCtrlError>(node.control_val->eff_type, node.control_val->loc);
+        throw UnableToContinue();
     }
 
     if (!node.control_val->eff_type->as_primitive()->is_integer()) {
+        add_error<InvalidSwitchCtrlError>(node.control_val->eff_type, node.control_val->loc);
+        throw UnableToContinue();
     }
 
     node.body->accept(*this);
@@ -548,10 +551,71 @@ void Validator::do_visit(BinaryExprMIR& node) {
 
     if (!(node.left->eff_type->is_primitive() && node.right->eff_type->is_primitive())) {
         if (node.left->eff_type->is_pointer() || node.right->eff_type->is_pointer()) {
-            // todo: check pointer arithmetic
 
-            node.set_type(
-                node.left->eff_type->is_pointer() ? node.left->act_type : node.right->act_type);
+            enum PointerSide : uint8_t {
+                LEFT,
+                RIGHT,
+                BOTH,
+            } side;
+
+            if (node.left->eff_type->is_pointer() && !node.right->eff_type->is_pointer()) {
+                side = LEFT;
+            } else if (!node.left->eff_type->is_pointer() && node.right->eff_type->is_pointer()) {
+                side = RIGHT;
+            } else {
+                assert(node.left->eff_type->is_pointer() && node.right->eff_type->is_pointer());
+                side = BOTH;
+            }
+
+            switch (side) {
+            case LEFT: {
+                PointerType *left = node.left->eff_type->as_pointer();
+                PrimitiveType *right = node.right->eff_type->as_primitive();
+
+                if (!right->is_integer()) {
+                    add_error<InvalidPointerArithmetic>(
+                        InvalidPointerArithmetic::Kind::InvalidPrimOperand, node.right->loc);
+                    throw UnableToContinue();
+                }
+
+                node.set_type(node.left->act_type);
+                break;
+            }
+            case RIGHT: {
+                PrimitiveType *left = node.left->eff_type->as_primitive();
+                PointerType *right = node.right->eff_type->as_pointer();
+
+                if (!left->is_integer()) {
+                    add_error<InvalidPointerArithmetic>(
+                        InvalidPointerArithmetic::Kind::InvalidPrimOperand, node.left->loc);
+                    throw UnableToContinue();
+                }
+
+                node.set_type(node.right->act_type);
+                break;
+            }
+            case BOTH: {
+                // todo: handle pointer type compatibility (both sides must have same base or void)
+                switch (node.op) {
+                case BinaryOp::MINUS:
+                    node.set_type(types.get_size_type(false));
+                    break;
+                case BinaryOp::EQ:
+                case BinaryOp::NE:
+                case BinaryOp::LT:
+                case BinaryOp::GT:
+                case BinaryOp::LE:
+                case BinaryOp::GE:
+                    node.set_type(types.get_bool());
+                    break;
+                default:
+                    add_error<InvalidPointerArithmetic>(
+                        InvalidPointerArithmetic::Kind::InvalidOperator, node.loc
+                    );
+                    throw UnableToContinue();
+                }
+            }
+            }
         } else {
             bsv_dbprint("error: operator not applicable to non-primitive non-pointer types");
             add_error<InvalidBinaryOpError>(
