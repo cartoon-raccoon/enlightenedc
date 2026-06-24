@@ -119,6 +119,10 @@ private:
     */
     std::queue<LIRSynthItem> current_q;
     std::stack<std::queue<LIRSynthItem>> queue_stack;
+
+    /*
+    A stack for handling nested functions.
+    */
     std::stack<LIRFuncSym *> func_stack;
 };
 
