@@ -239,7 +239,7 @@ public:
         case Kind::ObjIsNotPtr:
             return "object of an arrow operator must be a pointer";
         case Kind::ObjIsNotPrim:
-            return "object of a reinterpret expression must be a pointer";
+            return "object of a reinterpret expression must be a primitive";
         case Kind::TargetSizeOverflow:
             return "target of a reinterpret expression must be smaller than its object";
         }
