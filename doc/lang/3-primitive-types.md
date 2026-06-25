@@ -63,3 +63,16 @@ array + 5; // equivalent to array[5];
 
 somefunction(array); // this is valid
 ```
+
+### String Literals
+
+Like in C, string literals are arrays of bytes, terminated with a null byte `\0`.
+
+```holyc
+// string size is inferred from the literal
+I8[] str = "this is a string literal";
+
+I8 *str = "declaring it as a pointer also works";
+```
+
+The equivalent of `char` in EnlightenedC is the signed byte, i.e. `I8`.

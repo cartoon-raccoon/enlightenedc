@@ -7,4 +7,6 @@ can come back here to see the differences.
 
 ## Contents
 
+- [Differences from HolyC](2-holyc-differences.md)
 - [Primitive Types](3-primitive-types.md)
+- [Classes, Unions, and Enums](4-user-types.md)
