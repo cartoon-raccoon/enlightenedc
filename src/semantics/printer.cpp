@@ -85,8 +85,8 @@ std::string ClassType::to_string() const {
 
     ss << "class";
 
-    if (name) {
-        ss << " " << *name;
+    if (!is_anonymous()) {
+        ss << " " << name();
     }
 
     if (parent) {
@@ -121,8 +121,8 @@ std::string UnionType::to_string() const {
 
     ss << "union";
 
-    if (name) {
-        ss << " " << *name;
+    if (!is_anonymous()) {
+        ss << " " << name();
     }
 
     if (type_rep) {
@@ -157,8 +157,8 @@ std::string EnumType::to_string() const {
 
     ss << "enum";
 
-    if (name) {
-        ss << " " << *name;
+    if (!is_anonymous()) {
+        ss << " " << name();
     }
 
     if (underlying) {

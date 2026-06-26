@@ -47,6 +47,8 @@ namespace ecc::sema::types {
 using namespace util;
 using namespace location;
 
+using TypeID = size_t;
+
 class Type;
 class BaseType;
 class VoidType;
@@ -62,6 +64,14 @@ class ArrayType;
 class FunctionType;
 class ConstType;
 class TypeContext;
+
+constexpr TypeID POINTER_SALT  = 0x70D2B928EDF37769;
+constexpr TypeID ARRAY_SALT    = 0x1F8C55351FD3B031;
+constexpr TypeID UARRAY_SALT   = 0xB448B9BA4AC5C797;
+constexpr TypeID CONST_SALT    = 0x7376AE5BE64CB9D7;
+constexpr TypeID FUNCTION_SALT = 0x67766060685026C9;
+
+constexpr std::string ANON_USERTYPE_PREFIX = "__ecc_anon_";
 
 /**
 A handle to a Type object, ensuring that the internal Type * can never be null.
@@ -156,6 +166,14 @@ public:
 
     // The kind of the type.
     Kind kind;
+
+    TypeID id() const {
+        if (!type_id.has_value()) {
+            type_id = generate_id();
+        }
+
+        return *type_id;
+    };
 
     bool is_void() const;
     bool is_primitive() const;
@@ -345,12 +363,16 @@ protected:
     Type(Kind kind, TypeContext& tyctxt) : kind(kind), tyctxt(tyctxt) {}
     codegen::LLVMType *llvm_type = nullptr;
 
+    virtual TypeID generate_id() const = 0;
+
     TypeContext& ctxt() { return tyctxt; }
 
     friend class TypeContext;
 
     // Whether the Type has been finalized.
     bool finalized = false;
+
+    mutable Optional<TypeID> type_id;
 
 private:
     Ref<TypeContext> tyctxt;
@@ -374,15 +396,6 @@ An abstract class representing a type that is constructed from BaseTypes,
 or is user-defined. These are the unions, classes, and enums.
 */
 class UserType : public BaseType {
-    /**
-    Whether the type definition is complete.
-
-    This is used in forward declarations of user types that may not have been fully defined.
-    Once a class has been defined (i.e. members have been set), this is marked true,
-    preventing the double-definition problem.
-    */
-    bool complete = false;
-
 public:
     UserType *as_usertype() override { return this; }
 
@@ -391,9 +404,22 @@ public:
     bool is_usertype() override { return true; }
 
     // Returns the kind of type: class, union, enum.
-    static std::string base();
+    virtual std::string base() const = 0;
 
     virtual bool is_fully_defined() { return false; };
+
+    /**
+    The name of the type.
+
+    Anonymous types get a generated name.
+    */
+    std::string name() const;
+
+    std::string mangled_name() const;
+
+    bool is_anonymous() const {
+        return std::holds_alternative<uint64_t>(identifier);
+    }
 
     /**
     Set the location where the type was defined and mark it as complete.
@@ -406,22 +432,38 @@ public:
     /** The scope where the type was declared. */
     sema::sym::Scope *scope;
 
-    /** The optional name of the type. */
-    Optional<std::string> name;
-
     /** The location that the type was declared. */
     Location decl_loc;
     /** The location that the type was defined. */
     Location def_loc;
 
 protected:
-    UserType(Location decl_loc, Kind kind, TypeContext& tyctxt, sema::sym::Scope *scope)
-        : BaseType(kind, tyctxt), scope(scope), decl_loc(decl_loc) {}
+    UserType(Location decl_loc, Kind kind, uint64_t anon_id, TypeContext& tyctxt, sema::sym::Scope *scope)
+        : BaseType(kind, tyctxt), scope(scope), decl_loc(decl_loc), identifier(anon_id) {}
 
     UserType(
         Location decl_loc, Kind kind, std::string name, TypeContext& tyctxt,
         sema::sym::Scope *scope)
-        : BaseType(kind, tyctxt), scope(scope), name(name), decl_loc(decl_loc) {}
+        : BaseType(kind, tyctxt), scope(scope), decl_loc(decl_loc), identifier(name) {}
+
+    TypeID generate_id() const override;
+
+private:
+    /**
+    Whether the type definition is complete.
+
+    This is used in forward declarations of user types that may not have been fully defined.
+    Once a class has been defined (i.e. members have been set), this is marked true,
+    preventing the double-definition problem.
+    */
+    bool complete = false;
+
+    /**
+    The identifier for the type.
+
+    If the type is named, this is a string, otherwise it is an integer.
+    */
+    std::variant<std::string, uint64_t> identifier;
 };
 
 using MemberAcc    = std::string;
@@ -615,8 +657,8 @@ public:
     bool is_recordtype() override { return true; }
 
 protected:
-    RecordType(Location decl_loc, Kind kind, TypeContext& tyctxt, sema::sym::Scope *scope)
-        : UserType(decl_loc, kind, tyctxt, scope) {}
+    RecordType(Location decl_loc, Kind kind, uint64_t anon_id, TypeContext& tyctxt, sema::sym::Scope *scope)
+        : UserType(decl_loc, kind, anon_id, tyctxt, scope) {}
 
     RecordType(
         Location decl_loc, Kind kind, std::string name, TypeContext& tyctxt,
@@ -751,6 +793,8 @@ protected:
     friend constexpr Box<ConstType> std::make_unique<ConstType>(Type *&, TypeContext&);
 
     ConstType(Type *base, TypeContext& tyctxt) : Type(base->kind, tyctxt), base(base) {}
+
+    TypeID generate_id() const override;
 };
 
 /**
@@ -772,6 +816,11 @@ protected:
     friend class TypeContext;
 
     friend constexpr Box<VoidType> std::make_unique<VoidType>(TypeContext&);
+
+    TypeID generate_id() const override {
+        VarHash<uint64_t> h;
+        return h(0);
+    }
 
     VoidType(TypeContext& tyctxt) : BaseType(Type::Kind::VOID, tyctxt) {}
 };
@@ -855,6 +904,8 @@ protected:
 
     PrimitiveType(tokens::PrimType kind, TypeContext& tyctxt)
         : BaseType(Type::Kind::PRIMITIVE, tyctxt), primkind(kind) {}
+
+    TypeID generate_id() const override;
 };
 
 /**
@@ -956,23 +1007,25 @@ public:
 
     std::string to_string() const override;
 
-    Optional<std::string> get_name() override { return name; }
+    Optional<std::string> get_name() override { return name(); }
 
     std::string formal() override;
 
-    static std::string base() { return "class"; }
+    std::string base() const override { return "class"; }
+
+    static std::string static_base() { return "class"; }
 
 protected:
     friend class TypeContext;
 
     friend constexpr Box<ClassType>
-    std::make_unique<ClassType>(Location&, sema::sym::Scope *&, TypeContext&);
+    std::make_unique<ClassType>(Location&, uint64_t&&, sema::sym::Scope *&, TypeContext&);
     friend constexpr Box<ClassType>
     std::make_unique<ClassType>(Location&, std::string&, sema::sym::Scope *&, TypeContext&);
 
     /** Construct an anonymous empty class. */
-    ClassType(Location decl_loc, sema::sym::Scope *scope, TypeContext& tyctxt)
-        : RecordType(decl_loc, Kind::CLASS, tyctxt, scope) {}
+    ClassType(Location decl_loc, uint64_t anon_id, sema::sym::Scope *scope, TypeContext& tyctxt)
+        : RecordType(decl_loc, Kind::CLASS, anon_id, tyctxt, scope) {}
     /** Construct an empty class with a given name. */
     ClassType(Location decl_loc, std::string name, sema::sym::Scope *scope, TypeContext& tyctxt)
         : RecordType(decl_loc, Kind::CLASS, std::move(name), tyctxt, scope) {}
@@ -1051,22 +1104,24 @@ public:
 
     std::string to_string() const override;
 
-    Optional<std::string> get_name() override { return name; }
+    Optional<std::string> get_name() override { return name(); }
 
     std::string formal() override;
 
-    static std::string base() { return "union"; }
+    std::string base() const override { return "union"; }
+
+    static std::string static_base() { return "union"; }
 
 protected:
     friend class TypeContext;
 
     friend constexpr Box<UnionType>
-    std::make_unique<UnionType>(Location&, sema::sym::Scope *&, TypeContext&);
+    std::make_unique<UnionType>(Location&, uint64_t&&, sema::sym::Scope *&, TypeContext&);
     friend constexpr Box<UnionType>
     std::make_unique<UnionType>(Location&, std::string&, sema::sym::Scope *&, TypeContext&);
 
-    UnionType(Location decl_loc, sema::sym::Scope *scope, TypeContext& tyctxt)
-        : RecordType(decl_loc, Kind::UNION, tyctxt, scope) {}
+    UnionType(Location decl_loc, uint64_t anon_id, sema::sym::Scope *scope, TypeContext& tyctxt)
+        : RecordType(decl_loc, Kind::UNION, anon_id, tyctxt, scope) {}
     UnionType(Location decl_loc, std::string name, sema::sym::Scope *scope, TypeContext& tyctxt)
         : RecordType(decl_loc, Kind::UNION, std::move(name), tyctxt, scope) {}
 };
@@ -1130,21 +1185,23 @@ public:
 
     std::string to_string() const override;
 
-    Optional<std::string> get_name() override { return name; }
+    Optional<std::string> get_name() override { return name(); }
 
     std::string formal() override;
 
-    static std::string base() { return "enum"; }
+    std::string base() const override { return "enum"; }
+
+    static std::string static_base() { return "enum"; }
 
 protected:
     friend class TypeContext;
 
     friend constexpr Box<EnumType>
-    std::make_unique<EnumType>(Location&, sema::sym::Scope *&, TypeContext&);
+    std::make_unique<EnumType>(Location&, uint64_t&&, sema::sym::Scope *&, TypeContext&);
     friend constexpr Box<EnumType>
     std::make_unique<EnumType>(Location&, std::string& name, sema::sym::Scope *&, TypeContext&);
 
-    EnumType(Location decl_loc, sema::sym::Scope *scope, TypeContext& tyctxt);
+    EnumType(Location decl_loc, uint64_t anon_id, sema::sym::Scope *scope, TypeContext& tyctxt);
 
     EnumType(Location decl_loc, std::string name, sema::sym::Scope *scope, TypeContext& tyctxt);
 };
@@ -1207,6 +1264,8 @@ protected:
     friend constexpr Box<PointerType> std::make_unique<PointerType>(Type *&, TypeContext&);
 
     PointerType(Type *base, TypeContext& tyctxt) : DerivedType(Kind::POINTER, tyctxt, base) {}
+
+    TypeID generate_id() const override;
 };
 
 /**
@@ -1268,6 +1327,8 @@ protected:
         : DerivedType(Kind::ARRAY, tyctxt, base), arr_size(size) {}
 
     ArrayType(Type *base, TypeContext& tyctxt) : DerivedType(Kind::ARRAY, tyctxt, base) {}
+
+    TypeID generate_id() const override;
 
     /*
     Ref counter for basic ref counting instance management.
@@ -1363,7 +1424,7 @@ public:
     size_t alloc_size() override; // override to immediately throw runtime error
 
     // Generate a hash based on the function signature.
-    std::size_t hash_sig();
+    std::size_t hash_sig() const;
 
     Type *returntype() const { return signature.returntype; }
 
@@ -1397,6 +1458,8 @@ protected:
 
     FunctionType(Type *base, TypeContext& tyctxt)
         : DerivedType(Type::Kind::FUNCTION, tyctxt, base) {}
+
+    TypeID generate_id() const override;
 };
 
 /**
@@ -1669,7 +1732,7 @@ private:
     std::string mangle(std::string name, uint64_t scopeid) {
         std::stringstream ss;
 
-        ss << T::base() << name << "_" << scopeid;
+        ss << T::static_base() << "_" << name << "_" << scopeid;
 
         return ss.str();
     }

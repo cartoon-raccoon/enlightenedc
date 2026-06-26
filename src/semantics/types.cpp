@@ -116,6 +116,11 @@ Type *ConstType::effective_type() {
     return ctxt().get_const(base->effective_type());
 }
 
+TypeID ConstType::generate_id() const {
+    VarHash<TypeID, TypeID> h;
+    return h(base->id(), CONST_SALT);
+}
+
 /*
  * VOID TYPE METHODS
  */
@@ -272,6 +277,12 @@ void PrimitiveType::finalize() {
     finalized = true;
 }
 
+TypeID PrimitiveType::generate_id() const {
+    VarHash<PrimTypeRank, bool> h;
+
+    return h(pr_rank(primkind), pr_is_signed(primkind));
+}
+
 std::string PrimitiveType::formal() {
     switch (primkind) {
     case PrimType::U8:
@@ -309,6 +320,34 @@ void Accessor::apply_index_offset(size_t offset) {
     }
 }
 
+std::string UserType::name() const {
+    return std::visit(match{
+        [&](const std::string& name) {
+            return name;
+        },
+        [&](const uint64_t& anon_id) {
+            std::stringstream ss;
+
+            ss << ANON_USERTYPE_PREFIX << anon_id;
+
+            return ss.str();
+        }
+    }, identifier);
+}
+
+std::string UserType::mangled_name() const {
+    std::stringstream ss;
+
+    ss << base() << "_" << name() << "_" << scope->id;
+
+    return ss.str();
+}
+
+TypeID UserType::generate_id() const {
+    VarHash<std::string> h;
+    return h(mangled_name());
+}
+
 /*
  * RECORD TYPE METHODS
  */
@@ -332,7 +371,7 @@ void RecordType::validate_new_member(Type *type, Optional<std::string> name, Loc
         // if member is usertype, check for completeness
         UserType *uty = type->as_usertype();
         if (!uty->is_complete()) {
-            throw IncompleteTypeUseError(*uty->name, uty->decl_loc);
+            throw IncompleteTypeUseError(uty->name(), uty->decl_loc);
         }
         // if the new member is recordtype and directly contains us, that's mutual recursion,
         // also an error
@@ -358,7 +397,7 @@ void RecordType::validate_new_member(Type *type, Optional<std::string> name, Loc
 }
 
 RecordType::TypeMember *RecordType::add_member(std::string name, Type *type, Location loc) {
-    dbprint("ClassType: adding member with name ", name, " type ", type);
+    dbprint("ClassType: adding member with name ", name, " type ", type->id());
 
     validate_new_member(type, name, loc);
 
@@ -370,7 +409,7 @@ RecordType::TypeMember *RecordType::add_member(std::string name, Type *type, Loc
 }
 
 RecordType::TypeMember *RecordType::add_member(Type *type, Location loc) {
-    dbprint("ClassType: adding anonymous member with type ", type);
+    dbprint("ClassType: adding anonymous member with type ", type->id());
 
     validate_new_member(type, {}, loc);
 
@@ -836,8 +875,8 @@ void ClassType::finalize() {
         args.push_back(member->ty->get_llvmtype());
     }
 
-    if (name) {
-        llvm_type = llvm::StructType::create(ctxt().llvm().ctx(), args, *name);
+    if (!is_anonymous()) {
+        llvm_type = llvm::StructType::create(ctxt().llvm().ctx(), args, name());
     } else {
         llvm_type = llvm::StructType::create(ctxt().llvm().ctx(), args);
     }
@@ -846,7 +885,7 @@ void ClassType::finalize() {
 }
 
 std::string ClassType::formal() {
-    return name ? base() + " " + *name : to_string();
+    return !is_anonymous() ? base() + " " + name() : to_string();
 }
 
 /*
@@ -922,15 +961,15 @@ void UnionType::finalize() {
 }
 
 std::string UnionType::formal() {
-    return name ? base() + " " + *name : to_string();
+    return !is_anonymous() ? base() + " " + name() : to_string();
 }
 
 /*
  * ENUM TYPE METHODS
  */
 
-EnumType::EnumType(Location decl_loc, sema::sym::Scope *scope, TypeContext& tyctxt)
-    : UserType(decl_loc, Kind::ENUM, tyctxt, scope),
+EnumType::EnumType(Location decl_loc, uint64_t anon_id, sema::sym::Scope *scope, TypeContext& tyctxt)
+    : UserType(decl_loc, Kind::ENUM, anon_id, tyctxt, scope),
       // default type for an enum with no declared underlying type is I32.
       underlying(ctxt().get_i32()) {
 }
@@ -1031,7 +1070,7 @@ void EnumType::finalize() {
 }
 
 std::string EnumType::formal() {
-    return name ? base() + " " + *name : to_string();
+    return !is_anonymous() ? base() + " " + name() : to_string();
 }
 
 /*
@@ -1103,6 +1142,12 @@ Type *PointerType::effective_type() {
     return ctxt().get_pointer(base->effective_type());
 }
 
+TypeID PointerType::generate_id() const {
+    
+    VarHash<TypeID, TypeID> h;
+    return h(base->id(), POINTER_SALT);
+}
+
 /*
  * ARRAY TYPE METHODS
  */
@@ -1159,6 +1204,16 @@ Type *ArrayType::effective_type() {
                     : ctxt().get_array(base->effective_type());
 }
 
+TypeID ArrayType::generate_id() const {
+    if (arr_size) {
+        VarHash<TypeID, uint64_t, TypeID> h;
+        return h(base->id(), *arr_size, ARRAY_SALT);
+    } else {
+        VarHash<TypeID, TypeID> h;
+        return h(base->id(), UARRAY_SALT);
+    }
+}
+
 /*
  * FUNCTION TYPE METHODS
  */
@@ -1167,12 +1222,11 @@ size_t FunctionType::alloc_size() {
     throw std::runtime_error("cannot call size() on FunctionType");
 }
 
-std::size_t FunctionType::hash_sig() {
-    // fixme: don't use pointers
-    std::size_t hash = std::hash<Type *>{}(signature.returntype);
+std::size_t FunctionType::hash_sig() const {
+    std::size_t hash = std::hash<TypeID>{}(signature.returntype->id());
 
     for (auto *param : signature.params) {
-        hash ^= std::hash<Type *>{}(param) + BOOST_GOLDEN_RATIO + (hash << HASH_SHL) +
+        hash ^= std::hash<TypeID>{}(param->id()) + BOOST_GOLDEN_RATIO + (hash << HASH_SHL) +
                 (hash >> HASH_SHR);
     }
 
@@ -1201,6 +1255,17 @@ void FunctionType::finalize() {
 Type *FunctionType::decay() {
     return ctxt().get_pointer(this);
 }
+
+TypeID FunctionType::generate_id() const {
+    size_t sig_hash = hash_sig();
+
+    VarHash<size_t, bool, TypeID> h;
+    return h(sig_hash, signature.variadic, FUNCTION_SALT);
+}
+
+/*
+ * TYPE BUiLDER METHODS
+ */
 
 void TypeBuilder::add_array(uint64_t size) {
     type_stack.push(Arr{size});
@@ -1368,7 +1433,7 @@ PrimitiveType *TypeContext::single_promote(PrimType pr) {
 }
 
 ClassType *TypeContext::get_class(Location decl_loc, std::string& name, sym::Scope *scope) {
-    dbprint("TypeContext: class type '", name, "' on scope ", scope);
+    dbprint("TypeContext: class type '", name, "' on scope ", scope->id);
     std::string mangled = mangle<ClassType>(name, scope->id);
 
     if (user_types.contains(mangled)) {
@@ -1391,18 +1456,18 @@ ClassType *TypeContext::get_class(Location decl_loc, sym::Scope *scope) {
     An anonymous struct that has the exact same members as a named struct
     is not the same type as the named struct.
     */
-    dbprint("TypeContext: anonymous class type on scope ", scope);
-    auto name = "anon_" + std::to_string(*anonymous_ctr);
-    anonymous_ctr++;
+    dbprint("TypeContext: anonymous class type on scope ", scope->id);
+    auto name = ANON_USERTYPE_PREFIX + std::to_string(*anonymous_ctr);
     auto mangled = mangle<ClassType>(name, scope->id);
-
-    Box<ClassType> clsty = std::make_unique<ClassType>(decl_loc, scope, *this);
+    
+    Box<ClassType> clsty = std::make_unique<ClassType>(decl_loc, *anonymous_ctr, scope, *this);
+    anonymous_ctr++;
 
     return insert_named_type<ClassType>(mangled, scope, std::move(clsty));
 }
 
 UnionType *TypeContext::get_union(Location decl_loc, std::string& name, sym::Scope *scope) {
-    dbprint("TypeContext: union type '", name, "' on scope ", scope);
+    dbprint("TypeContext: union type '", name, "' on scope ", scope->id);
     std::string mangled = mangle<UnionType>(name, scope->id);
 
     if (user_types.contains(mangled)) {
@@ -1417,18 +1482,18 @@ UnionType *TypeContext::get_union(Location decl_loc, std::string& name, sym::Sco
 }
 
 UnionType *TypeContext::get_union(Location decl_loc, sym::Scope *scope) {
-    dbprint("TypeContext: anonymous union type on scope ", scope);
-    auto name = "anon_" + std::to_string(*anonymous_ctr);
-    anonymous_ctr++;
+    dbprint("TypeContext: anonymous union type on scope ", scope->id);
+    auto name = ANON_USERTYPE_PREFIX + std::to_string(*anonymous_ctr);
     auto mangled = mangle<UnionType>(name, scope->id);
-
-    Box<UnionType> unnty = std::make_unique<UnionType>(decl_loc, scope, *this);
+    
+    Box<UnionType> unnty = std::make_unique<UnionType>(decl_loc, *anonymous_ctr, scope, *this);
+    anonymous_ctr++;
 
     return insert_named_type<UnionType>(mangled, scope, std::move(unnty));
 }
 
 EnumType *TypeContext::get_enum(Location decl_loc, std::string& name, sym::Scope *scope) {
-    dbprint("TypeContext: enum type '", name, "' on scope ", scope);
+    dbprint("TypeContext: enum type '", name, "' on scope ", scope->id);
     std::string mangled = mangle<EnumType>(name, scope->id);
 
     if (user_types.contains(mangled)) {
@@ -1443,18 +1508,18 @@ EnumType *TypeContext::get_enum(Location decl_loc, std::string& name, sym::Scope
 }
 
 EnumType *TypeContext::get_enum(Location decl_loc, sym::Scope *scope) {
-    dbprint("TypeContext: anonymous enum type on scope ", scope);
-    auto name = "anon_" + std::to_string(*anonymous_ctr);
-    anonymous_ctr++;
+    dbprint("TypeContext: anonymous enum type on scope ", scope->id);
+    auto name = ANON_USERTYPE_PREFIX + std::to_string(*anonymous_ctr);
     auto mangled = mangle<EnumType>(name, scope->id);
-
-    Box<EnumType> enmty = std::make_unique<EnumType>(decl_loc, scope, *this);
+    
+    Box<EnumType> enmty = std::make_unique<EnumType>(decl_loc, *anonymous_ctr, scope, *this);
+    anonymous_ctr++;
 
     return insert_named_type<EnumType>(mangled, scope, std::move(enmty));
 }
 
 PointerType *TypeContext::get_pointer(Type *base) {
-    dbprint("TypeContext: pointer with base ", base);
+    dbprint("TypeContext: pointer with base ", base->id());
     // Check for base in our pointer store, if exists, return immediately
     auto it = pointers.find(base);
     if (it != pointers.end()) {
@@ -1495,7 +1560,7 @@ PointerType *TypeContext::decay_array_ref(ArrayType *arr) {
 }
 
 ArrayType *TypeContext::get_array(Type *base, uint64_t size) {
-    dbprint("TypeContext: array type with base ", base, ", size ", size);
+    dbprint("TypeContext: array type with base ", base->id(), ", size ", size);
     ArrayKey key(base, size);
     auto it = arrays.find(key);
     if (it != arrays.end()) {
@@ -1511,7 +1576,7 @@ ArrayType *TypeContext::get_array(Type *base, uint64_t size) {
 }
 
 ArrayType *TypeContext::get_array(Type *base) {
-    dbprint("TypeContext: array type with base ", base, ", no size");
+    dbprint("TypeContext: array type with base ", base->id(), ", no size");
     ArrayKey key(base, {});
     auto it = arrays.find(key);
     if (it != arrays.end()) {

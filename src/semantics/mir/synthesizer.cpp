@@ -840,9 +840,9 @@ void MIRSynthesizer::do_visit(ClassDeclaration& node) {
     Box<SpecifierInfo> specinfo = parse_speclist(node.specifiers, node.loc);
 
     if (recordty->is_class()) {
-        bsv_dbprint("parsing ClassDeclaration for ClassType ", recordty);
+        bsv_dbprint("parsing ClassDeclaration for ClassType ", recordty->id());
     } else if (recordty->is_union()) {
-        bsv_dbprint("parsing ClassDeclaration for UnionType ", recordty);
+        bsv_dbprint("parsing ClassDeclaration for UnionType ", recordty->id());
     }
 
     for (auto& decltr : node.declarators) {
