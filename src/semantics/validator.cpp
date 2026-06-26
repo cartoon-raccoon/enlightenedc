@@ -806,7 +806,7 @@ void Validator::do_visit(AssignExprMIR& node) {
 
     if (!node.left->is_assignable()) {
         bsv_dbprint("error: left-hand side is not assignable");
-        add_error<InvalidAssignError>(node.left->act_type, node.loc);
+        add_error<InvalidAssignError>(InvalidAssignError::Kind::CannotAssign, node.left->act_type, node.loc);
         throw UnableToContinue();
     }
 
@@ -854,18 +854,22 @@ void Validator::do_visit(AssignExprMIR& node) {
     case AssignOp::OREQ: {
         if (auto *prim = node.left->eff_type->as_primitive()) {
             if (!prim->is_integer()) {
-                // todo: add error, primitive but not integer
+                add_error<InvalidAssignError>(
+                    InvalidAssignError::Kind::NonIntPrimitive, node.left->act_type, node.loc);
             }
         } else {
-            // todo: add error, not primitive
+            add_error<InvalidAssignError>(
+                    InvalidAssignError::Kind::NotPrimitive, node.left->act_type, node.loc);
         }
 
         if (auto *prim = node.right->eff_type->as_primitive()) {
             if (!prim->is_integer()) {
-                // todo: add error, primitive but not integer
+                add_error<InvalidAssignError>(
+                    InvalidAssignError::Kind::NonIntPrimitive, node.left->act_type, node.loc);
             }
         } else {
-            // todo: add error, not primitive
+            add_error<InvalidAssignError>(
+                    InvalidAssignError::Kind::NotPrimitive, node.left->act_type, node.loc);
         }
     } break;
     }

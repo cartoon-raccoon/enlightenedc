@@ -420,16 +420,32 @@ public:
 
 class InvalidAssignError : public EccSemError {
 public:
-    InvalidAssignError(types::Type *expr_type, Location err_loc)
-        : EccSemError("invalid assignment", err_loc), expr_type(expr_type->formal()) {}
+    enum class Kind : uint8_t {
+        CannotAssign,
+        NonIntPrimitive,
+        NotPrimitive,
+    };
 
+    InvalidAssignError(Kind kind, types::Type *expr_type, Location err_loc)
+        : EccSemError("invalid assignment", err_loc), kind(kind), expr_type(expr_type->formal()) {}
+
+    Kind kind;
     std::string expr_type;
 
     std::string elab() override {
-        std::stringstream ss;
-        ss << "cannot assign to expression of type " << expr_type;
 
-        return ss.str();
+        switch (kind) {
+        case Kind::CannotAssign: {
+            std::stringstream ss;
+            ss << "cannot assign to expression of type " << expr_type;
+            return ss.str();
+        }
+        case Kind::NonIntPrimitive:
+            return "right operand for this operation must be an integer";
+        case Kind::NotPrimitive:
+            return "right operand must be a primitive";
+        }
+
     }
 };
 
