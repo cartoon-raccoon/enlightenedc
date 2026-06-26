@@ -398,7 +398,6 @@ public:
     LiteralExprLIR(Location loc, LitValueLIR value, sema::types::Type *type)
         : ExprLIR(loc, NodeKind::LITEXPR_LIR, type), value(std::move(value)) {}
 
-
     LitValueLIR value;
 
     void accept(LIRVisitor& visitor) override;

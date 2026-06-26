@@ -22,7 +22,6 @@ private:
 
 class InputFile {
 public:
-
     enum class FileType : uint8_t {
         CODE,
         LLVMIR,
@@ -32,8 +31,7 @@ public:
         UNKNOWN,
     };
 
-    InputFile(std::string& filename):
-        filename(&filename), filetype(filetype_from_ext(filename)) {}
+    InputFile(std::string& filename) : filename(&filename), filetype(filetype_from_ext(filename)) {}
 
     std::string *filename;
 

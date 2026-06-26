@@ -90,7 +90,7 @@ std::string ClassType::to_string() const {
     }
 
     if (parent) {
-        ss << " : " << (*parent)->formal(); 
+        ss << " : " << (*parent)->formal();
     }
 
     if (is_complete()) {

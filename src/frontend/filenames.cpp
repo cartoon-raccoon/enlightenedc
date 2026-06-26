@@ -13,7 +13,7 @@ const std::string *FilenamePool::intern(const char *str) {
     return &(*result.first);
 }
 
-InputFile::FileType InputFile::filetype_from_ext(const std::string& ext)  {
+InputFile::FileType InputFile::filetype_from_ext(const std::string& ext) {
     if (ext.ends_with("ec")) {
         return FileType::CODE;
     } else if (ext.ends_with("ll")) {

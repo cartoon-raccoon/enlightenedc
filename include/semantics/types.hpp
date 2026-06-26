@@ -417,9 +417,7 @@ public:
 
     std::string mangled_name() const;
 
-    bool is_anonymous() const {
-        return std::holds_alternative<uint64_t>(identifier);
-    }
+    bool is_anonymous() const { return std::holds_alternative<uint64_t>(identifier); }
 
     /**
     Set the location where the type was defined and mark it as complete.
@@ -438,7 +436,9 @@ public:
     Location def_loc;
 
 protected:
-    UserType(Location decl_loc, Kind kind, uint64_t anon_id, TypeContext& tyctxt, sema::sym::Scope *scope)
+    UserType(
+        Location decl_loc, Kind kind, uint64_t anon_id, TypeContext& tyctxt,
+        sema::sym::Scope *scope)
         : BaseType(kind, tyctxt), scope(scope), decl_loc(decl_loc), identifier(anon_id) {}
 
     UserType(
@@ -507,7 +507,7 @@ public:
 
     /**
     Apply an offset to the index, if this Accessor holds an index.
-    
+
     Is a no-op if the accessor is a string.
     */
     void apply_index_offset(size_t offset);
@@ -657,7 +657,9 @@ public:
     bool is_recordtype() override { return true; }
 
 protected:
-    RecordType(Location decl_loc, Kind kind, uint64_t anon_id, TypeContext& tyctxt, sema::sym::Scope *scope)
+    RecordType(
+        Location decl_loc, Kind kind, uint64_t anon_id, TypeContext& tyctxt,
+        sema::sym::Scope *scope)
         : UserType(decl_loc, kind, anon_id, tyctxt, scope) {}
 
     RecordType(
@@ -934,7 +936,6 @@ chain. Relative indexes get the member relative to the current class.
 */
 class ClassType : public RecordType {
 public:
-
     Optional<ClassType *> parent;
 
     ClassType *as_class() override { return this; }

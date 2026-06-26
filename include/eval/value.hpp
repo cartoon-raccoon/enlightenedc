@@ -29,8 +29,7 @@ public:
 };
 
 using ValueType = std::variant<
-        int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t, float, double,
-        bool>;
+    int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t, float, double, bool>;
 
 /*
 A value of a primitive type.
@@ -43,16 +42,15 @@ This is also why certain operators are not overloaded - they operate on memory, 
 They are meaningless on Values.
 */
 class Value {
-    
+
     /**
     The inner
     */
     ValueType inner;
-    
+
     tokens::PrimType ptype;
 
 public:
-
     Value() : inner((int32_t)0), ptype(tokens::PrimType::I32) {}
 
     Value(int8_t v) : inner(v), ptype(tokens::PrimType::I8) {}
@@ -96,13 +94,13 @@ public:
     static Value from_literal(bool lit) { return Value(lit); }
 
     Value& operator=(const Value& other) {
-        inner    = other.inner;
+        inner = other.inner;
         ptype = other.ptype;
         return *this;
     }
 
     Value& operator=(Value&& other) noexcept {
-        inner    = other.inner;
+        inner = other.inner;
         ptype = other.ptype;
         return *this;
     }

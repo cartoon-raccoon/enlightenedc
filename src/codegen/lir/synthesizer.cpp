@@ -647,12 +647,10 @@ void LIRSynthesizer::do_visit(MemberAccExprMIR& node) {
         PointerType *objtype = node.object->act_type->as_pointer();
         assert(objtype);
         object = std::make_unique<UnaryExprLIR>(
-            node.loc, objtype->base, std::move(object), tokens::UnaryOp::DEREF
-        );
+            node.loc, objtype->base, std::move(object), tokens::UnaryOp::DEREF);
     }
 
     // todo
-    
 }
 
 void LIRSynthesizer::do_visit(ReintExprMIR& node) {
@@ -666,13 +664,11 @@ void LIRSynthesizer::do_visit(ReintExprMIR& node) {
         PointerType *objtype = node.object->act_type->as_pointer();
         assert(objtype);
         object = std::make_unique<UnaryExprLIR>(
-            node.loc, objtype->base, std::move(object), tokens::UnaryOp::DEREF
-        );
+            node.loc, objtype->base, std::move(object), tokens::UnaryOp::DEREF);
     }
 
-    Box<ExprLIR> expr = std::make_unique<ReintExprLIR>(
-        node.loc, std::move(object), node.target, node.act_type
-    );
+    Box<ExprLIR> expr =
+        std::make_unique<ReintExprLIR>(node.loc, std::move(object), node.target, node.act_type);
 
     last_expr = std::move(expr);
 }

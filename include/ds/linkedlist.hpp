@@ -127,7 +127,8 @@ public:
     }
 
     LinkedList& operator=(const LinkedList<N>& other) {
-        if (this == &other) return *this;
+        if (this == &other)
+            return *this;
 
         nodes.clear();
         first_elem = nullptr;
@@ -139,14 +140,13 @@ public:
     }
 
     LinkedList& operator=(LinkedList<N>&& other) noexcept {
-        nodes      = std::move(other.nodes);
-        first_elem = other.first_elem;
-        last_elem  = other.last_elem;
+        nodes            = std::move(other.nodes);
+        first_elem       = other.first_elem;
+        last_elem        = other.last_elem;
         other.first_elem = nullptr;
         other.last_elem  = nullptr;
         return *this;
     }
-
 
     ~LinkedList() = default;
 
@@ -392,7 +392,7 @@ private:
     Vec<Box<N>> nodes;
 
     N *first_elem = nullptr;
-    N *last_elem = nullptr;
+    N *last_elem  = nullptr;
 };
 
 } // end namespace ecc::ds

@@ -42,14 +42,14 @@ class InvalidInheritanceError : public TypeSemError {
 public:
     InvalidInheritanceError(types::Type *parent, Location err_loc)
         : TypeSemError("invalid inheritance: parent classes must be classes", err_loc),
-        parent(parent->formal()) {}
+          parent(parent->formal()) {}
 
     std::string parent;
 
     std::string elab() override {
         std::stringstream ss;
 
-        ss << "type `" << parent << "` is not a class"; 
+        ss << "type `" << parent << "` is not a class";
 
         return ss.str();
     }

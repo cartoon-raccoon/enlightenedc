@@ -381,8 +381,8 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
             syms.insert(*ret.name, std::move(sym));
         } catch (Symbol *existing) {
             add_error<SymbolAlrDecldError>(
-                std::format("symbol {} already previously declared", existing->name), 
-                def_loc, existing->loc);
+                std::format("symbol {} already previously declared", existing->name), def_loc,
+                existing->loc);
             throw UnableToContinue();
         }
 
@@ -922,10 +922,10 @@ void MIRSynthesizer::do_visit(Initializer& node) { // NOLINT
                 dv_return(ret);
             },
             [&](Box<Initializer::Member>& mem) {
-                Type *sub_type = type;  // fallback: pass parent type (current behavior)
+                Type *sub_type = type; // fallback: pass parent type (current behavior)
 
                 if (type->is_class()) {
-                    auto *cls = type->as_class();
+                    auto *cls    = type->as_class();
                     auto *member = cls->find(mem->member);
                     if (!member) {
                         add_error<EccSemError>(
@@ -934,7 +934,7 @@ void MIRSynthesizer::do_visit(Initializer& node) { // NOLINT
                     }
                     sub_type = member->ty;
                 } else if (type->is_union()) {
-                    auto *unn = type->as_union();
+                    auto *unn    = type->as_union();
                     auto *member = unn->find(mem->member);
                     if (!member) {
                         add_error<EccSemError>(

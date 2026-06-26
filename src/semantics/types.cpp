@@ -321,18 +321,17 @@ void Accessor::apply_index_offset(size_t offset) {
 }
 
 std::string UserType::name() const {
-    return std::visit(match{
-        [&](const std::string& name) {
-            return name;
-        },
-        [&](const uint64_t& anon_id) {
-            std::stringstream ss;
+    return std::visit(
+        match{
+            [&](const std::string& name) { return name; },
+            [&](const uint64_t& anon_id) {
+                std::stringstream ss;
 
-            ss << ANON_USERTYPE_PREFIX << anon_id;
+                ss << ANON_USERTYPE_PREFIX << anon_id;
 
-            return ss.str();
-        }
-    }, identifier);
+                return ss.str();
+            }},
+        identifier);
 }
 
 std::string UserType::mangled_name() const {
@@ -402,7 +401,7 @@ RecordType::TypeMember *RecordType::add_member(std::string name, Type *type, Loc
     validate_new_member(type, name, loc);
 
     Box<TypeMember> member = std::make_unique<TypeMember>(name, type, loc, members.size());
-    auto *ret = member.get();
+    auto *ret              = member.get();
     members.push_back(std::move(member));
 
     return ret;
@@ -414,7 +413,7 @@ RecordType::TypeMember *RecordType::add_member(Type *type, Location loc) {
     validate_new_member(type, {}, loc);
 
     Box<TypeMember> member = std::make_unique<TypeMember>(type, loc, members.size());
-    auto *ret = member.get();
+    auto *ret              = member.get();
     members.push_back(std::move(member));
 
     return ret;
@@ -637,13 +636,15 @@ void ClassType::add_parent(ClassType *cls) {
 }
 
 bool ClassType::is_parent_of(ClassType *cls) {
-    if (!cls->parent) return false;
+    if (!cls->parent)
+        return false;
 
     return (*cls->parent) == this;
 }
 
 bool ClassType::is_ancestor_of(ClassType *cls) {
-    if (!cls->parent) return false;
+    if (!cls->parent)
+        return false;
 
     if (is_parent_of(cls)) {
         // base case: if we are a direct parent, return true
@@ -663,7 +664,6 @@ size_t ClassType::member_offset() const {
         return (*parent)->member_offset() + (*parent)->num_local_members();
     }
 }
-
 
 bool ClassType::is_fully_defined() {
     // If we have a parent, check that we and the parent are fully defined
@@ -752,7 +752,7 @@ RecordType::TypeMember *ClassType::find(size_t idx) {
         }
         return RecordType::find(idx - offset);
     }
-    
+
     return RecordType::find(idx);
 }
 
@@ -800,11 +800,12 @@ bool ClassType::coercible_to(Type *dst) {
         return false;
 
     ClassType *target = dst->as_class();
-    ClassType *curr = this;
+    ClassType *curr   = this;
 
     while (curr->parent) {
         curr = *curr->parent;
-        if (curr == target) return true;
+        if (curr == target)
+            return true;
     }
     return false;
 }
@@ -821,19 +822,19 @@ bool ClassType::castable_to(Type *dst) {
     if (!dst->is_class())
         return false;
     if (coercible_to(dst))
-        return true;  // upcast: dst is ancestor of this
+        return true; // upcast: dst is ancestor of this
 
     // downcast: this is ancestor of dst
     ClassType *target = dst->as_class();
-    ClassType *curr = target;
+    ClassType *curr   = target;
 
     while (curr->parent) {
         curr = *curr->parent;
-        if (curr == this) return true;
+        if (curr == this)
+            return true;
     }
     return false;
 }
-
 
 void ClassType::finalize() {
     if (finalized) {
@@ -855,10 +856,10 @@ void ClassType::finalize() {
     Vec<LLVMType *> args;
 
     if (parent) {
-        // if we have a parent, all its parents have been finalized as well, so the parent's llvmtype
-        // will contain the members of all its parents, and its own members. so, reading the elements
-        // of the parent's llvmtype will read in all the members of parent classes, in order, up the
-        // inheritance chain.
+        // if we have a parent, all its parents have been finalized as well, so the parent's
+        // llvmtype will contain the members of all its parents, and its own members. so, reading
+        // the elements of the parent's llvmtype will read in all the members of parent classes, in
+        // order, up the inheritance chain.
         llvm::StructType *parent_llvm = llvm::dyn_cast<llvm::StructType>((*parent)->get_llvmtype());
 
         assert(parent_llvm && "");
@@ -968,7 +969,8 @@ std::string UnionType::formal() {
  * ENUM TYPE METHODS
  */
 
-EnumType::EnumType(Location decl_loc, uint64_t anon_id, sema::sym::Scope *scope, TypeContext& tyctxt)
+EnumType::EnumType(
+    Location decl_loc, uint64_t anon_id, sema::sym::Scope *scope, TypeContext& tyctxt)
     : UserType(decl_loc, Kind::ENUM, anon_id, tyctxt, scope),
       // default type for an enum with no declared underlying type is I32.
       underlying(ctxt().get_i32()) {
@@ -1143,7 +1145,7 @@ Type *PointerType::effective_type() {
 }
 
 TypeID PointerType::generate_id() const {
-    
+
     VarHash<TypeID, TypeID> h;
     return h(base->id(), POINTER_SALT);
 }
@@ -1457,9 +1459,9 @@ ClassType *TypeContext::get_class(Location decl_loc, sym::Scope *scope) {
     is not the same type as the named struct.
     */
     dbprint("TypeContext: anonymous class type on scope ", scope->id);
-    auto name = ANON_USERTYPE_PREFIX + std::to_string(*anonymous_ctr);
+    auto name    = ANON_USERTYPE_PREFIX + std::to_string(*anonymous_ctr);
     auto mangled = mangle<ClassType>(name, scope->id);
-    
+
     Box<ClassType> clsty = std::make_unique<ClassType>(decl_loc, *anonymous_ctr, scope, *this);
     anonymous_ctr++;
 
@@ -1483,9 +1485,9 @@ UnionType *TypeContext::get_union(Location decl_loc, std::string& name, sym::Sco
 
 UnionType *TypeContext::get_union(Location decl_loc, sym::Scope *scope) {
     dbprint("TypeContext: anonymous union type on scope ", scope->id);
-    auto name = ANON_USERTYPE_PREFIX + std::to_string(*anonymous_ctr);
+    auto name    = ANON_USERTYPE_PREFIX + std::to_string(*anonymous_ctr);
     auto mangled = mangle<UnionType>(name, scope->id);
-    
+
     Box<UnionType> unnty = std::make_unique<UnionType>(decl_loc, *anonymous_ctr, scope, *this);
     anonymous_ctr++;
 
@@ -1509,9 +1511,9 @@ EnumType *TypeContext::get_enum(Location decl_loc, std::string& name, sym::Scope
 
 EnumType *TypeContext::get_enum(Location decl_loc, sym::Scope *scope) {
     dbprint("TypeContext: anonymous enum type on scope ", scope->id);
-    auto name = ANON_USERTYPE_PREFIX + std::to_string(*anonymous_ctr);
+    auto name    = ANON_USERTYPE_PREFIX + std::to_string(*anonymous_ctr);
     auto mangled = mangle<EnumType>(name, scope->id);
-    
+
     Box<EnumType> enmty = std::make_unique<EnumType>(decl_loc, *anonymous_ctr, scope, *this);
     anonymous_ctr++;
 

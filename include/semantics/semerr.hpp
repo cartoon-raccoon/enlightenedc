@@ -37,7 +37,7 @@ public:
     };
     InvalidReturnError(Kind kind, Location err_loc)
         : EccSemError("invalid return statement", err_loc), kind(kind) {}
-    
+
     Kind kind;
 
     std::string elab() override {
@@ -69,14 +69,15 @@ public:
 class InvalidSwitchCtrlError : public EccSemError {
 public:
     InvalidSwitchCtrlError(types::Type *ctrl_type, Location err_loc)
-        : EccSemError("invalid switch control expression", err_loc), ctrl_type(ctrl_type->formal()) {}
+        : EccSemError("invalid switch control expression", err_loc),
+          ctrl_type(ctrl_type->formal()) {}
 
     std::string ctrl_type;
 
     std::string elab() override {
         std::stringstream ss;
-        ss << "switch statement control expression cannot be `" << ctrl_type 
-        << "`; must be an integer or enum";
+        ss << "switch statement control expression cannot be `" << ctrl_type
+           << "`; must be an integer or enum";
 
         return ss.str();
     }
@@ -445,7 +446,6 @@ public:
         case Kind::NotPrimitive:
             return "right operand must be a primitive";
         }
-
     }
 };
 

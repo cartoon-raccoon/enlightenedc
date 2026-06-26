@@ -155,7 +155,9 @@ void Validator::eval_initializer_expr(Type *type, Box<ExprMIR>& expr, Initialize
         } else {
             if (type->is_array()) {
                 auto *litexpr = dynamic_cast<LiteralExprMIR *>(expr.get());
-                assert(litexpr && litexpr->is_string() && "expected string literal for array initializer");
+                assert(
+                    litexpr && litexpr->is_string() &&
+                    "expected string literal for array initializer");
 
                 Type *arr_base = type->unqual()->as_array()->base->unqual();
                 if (arr_base != types.get_u8() && arr_base != types.get_i8()) {
@@ -256,7 +258,9 @@ void Validator::eval_initializer_rec_arr(
                 },
                 [&](Box<InitializerMIR::Index>& idx) {
                     if (!idx->idx.is_integer()) {
-                        bsv_dbprint("error: array index designated initializer must be an integer constant");
+                        bsv_dbprint(
+                            "error: array index designated initializer must be an integer "
+                            "constant");
                         add_error<InvalidInitializerError>(
                             "array index designated initializer must be an integer constant",
                             idx->initializer->loc);
@@ -502,7 +506,6 @@ void Validator::do_visit(ReturnStmtMIR& node) {
     if (node.ret_expr) {
         Type *returntype = sig->returntype()->unqual();
 
-
         if (returntype->is_void()) {
             bsv_dbprint("error: returning a value within a void function");
             add_error<InvalidReturnError>(InvalidReturnError::Kind::RetValueFromVoid, node.loc);
@@ -512,9 +515,8 @@ void Validator::do_visit(ReturnStmtMIR& node) {
         (*node.ret_expr)->accept(*this);
 
         if ((*node.ret_expr)->act_type->is_array()) {
-            node.ret_expr = cast(
-                (*node.ret_expr)->act_type->as_array()->decay(), std::move(*node.ret_expr)
-            );
+            node.ret_expr =
+                cast((*node.ret_expr)->act_type->as_array()->decay(), std::move(*node.ret_expr));
         }
 
         if ((*node.ret_expr)->act_type != returntype) {
@@ -569,7 +571,7 @@ void Validator::do_visit(BinaryExprMIR& node) {
 
             switch (side) {
             case LEFT: {
-                PointerType *left = node.left->eff_type->as_pointer();
+                PointerType *left    = node.left->eff_type->as_pointer();
                 PrimitiveType *right = node.right->eff_type->as_primitive();
 
                 if (!right->is_integer()) {
@@ -583,7 +585,7 @@ void Validator::do_visit(BinaryExprMIR& node) {
             }
             case RIGHT: {
                 PrimitiveType *left = node.left->eff_type->as_primitive();
-                PointerType *right = node.right->eff_type->as_pointer();
+                PointerType *right  = node.right->eff_type->as_pointer();
 
                 if (!left->is_integer()) {
                     add_error<InvalidPointerArithmetic>(
@@ -610,8 +612,7 @@ void Validator::do_visit(BinaryExprMIR& node) {
                     break;
                 default:
                     add_error<InvalidPointerArithmetic>(
-                        InvalidPointerArithmetic::Kind::InvalidOperator, node.loc
-                    );
+                        InvalidPointerArithmetic::Kind::InvalidOperator, node.loc);
                     throw UnableToContinue();
                 }
             }
@@ -719,10 +720,8 @@ void Validator::do_visit(UnaryExprMIR& node) {
 
     case UnaryOp::DEREF: { // *x
         if (node.operand->act_type->is_array()) {
-            node.operand = cast(
-                node.operand->act_type->as_array()->decay(),
-                std::move(node.operand)
-            );
+            node.operand =
+                cast(node.operand->act_type->as_array()->decay(), std::move(node.operand));
         }
         if (!node.operand->act_type->is_pointer()) {
             bsv_dbprint("error: dereference operand is not a pointer");
@@ -806,7 +805,8 @@ void Validator::do_visit(AssignExprMIR& node) {
 
     if (!node.left->is_assignable()) {
         bsv_dbprint("error: left-hand side is not assignable");
-        add_error<InvalidAssignError>(InvalidAssignError::Kind::CannotAssign, node.left->act_type, node.loc);
+        add_error<InvalidAssignError>(
+            InvalidAssignError::Kind::CannotAssign, node.left->act_type, node.loc);
         throw UnableToContinue();
     }
 
@@ -822,17 +822,17 @@ void Validator::do_visit(AssignExprMIR& node) {
                 //
                 LiteralExprMIR *expr = dynamic_cast<LiteralExprMIR *>(node.right.get());
                 assert(expr && "got non-literal expression on expression node with LITEXPR");
-    
+
                 if (expr->is_string()) {
                     PointerType *lhs_ptr = node.left->eff_type->unqual()->as_pointer();
                     if (!lhs_ptr || (lhs_ptr->base->unqual() != types.get_u8() &&
-                                    lhs_ptr->base->unqual() != types.get_i8())) {
-                        add_error<InvalidCoerceError>(node.right->act_type, node.left->act_type, node.loc);
+                                     lhs_ptr->base->unqual() != types.get_i8())) {
+                        add_error<InvalidCoerceError>(
+                            node.right->act_type, node.left->act_type, node.loc);
                         goto done;
                     }
                     node.right = cast(node.left->eff_type, std::move(node.right));
                 }
-
             }
         }
     }
@@ -859,7 +859,7 @@ void Validator::do_visit(AssignExprMIR& node) {
             }
         } else {
             add_error<InvalidAssignError>(
-                    InvalidAssignError::Kind::NotPrimitive, node.left->act_type, node.loc);
+                InvalidAssignError::Kind::NotPrimitive, node.left->act_type, node.loc);
         }
 
         if (auto *prim = node.right->eff_type->as_primitive()) {
@@ -869,7 +869,7 @@ void Validator::do_visit(AssignExprMIR& node) {
             }
         } else {
             add_error<InvalidAssignError>(
-                    InvalidAssignError::Kind::NotPrimitive, node.left->act_type, node.loc);
+                InvalidAssignError::Kind::NotPrimitive, node.left->act_type, node.loc);
         }
     } break;
     }
@@ -974,7 +974,7 @@ void Validator::do_visit(CallExprMIR& node) {
             auto *param_type = param->effective_type();
             if (arg_type != param_type) {
                 if (arg_type->is_array()) {
-                    arg = cast(arg_type->as_array()->decay(), std::move(arg));
+                    arg      = cast(arg_type->as_array()->decay(), std::move(arg));
                     arg_type = arg->eff_type->unqual();
                 }
                 if (arg_type->coercible_to(param_type)) {

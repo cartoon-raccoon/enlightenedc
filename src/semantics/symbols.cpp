@@ -265,8 +265,8 @@ LabelSymbol *SymbolTableWalker::lookup_label(std::string& sym, bool current_only
 
 void SymbolTableWalker::tie_current_to(FuncSymbol *sym, bool override) const {
     dbprint(
-        "SymbolTable: associating current scope ", current->id, " with symbol name \"",
-        sym->name, "\"");
+        "SymbolTable: associating current scope ", current->id, " with symbol name \"", sym->name,
+        "\"");
     if (current->assoc != nullptr) {
         if (override) {
             current->assoc = sym;
