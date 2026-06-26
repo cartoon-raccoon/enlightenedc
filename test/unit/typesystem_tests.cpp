@@ -924,3 +924,205 @@ TEST_F(RecordTypeTestFixture, Indexify_NonRecordMidPathReturnsEmptyPath) {
     auto result = flat_cls->indexify(path);
     EXPECT_TRUE(result.empty());
 }
+
+// ─── TypeID tests ─────────────────────────────────────────────────────────────
+
+// VoidType produces a stable, non-zero ID
+TEST_F(TypeSysAndSymTabTestFixture, TypeID_Void_StableNonZero) {
+    VoidType *vt = tctxt.get_void();
+    EXPECT_NE(vt->id(), 0U);
+    EXPECT_EQ(vt->id(), vt->id());
+}
+
+// id() is lazily cached: repeated calls return the same value
+TEST_F(TypeSysAndSymTabTestFixture, TypeID_LazyCache_StableAcrossCalls) {
+    TypeID first  = prim1->id();
+    TypeID second = prim1->id();
+    EXPECT_EQ(first, second);
+}
+
+// ─── Primitive IDs ───────────────────────────────────────────────────────────
+
+// Signed and unsigned types of the same rank produce distinct IDs
+TEST_F(TypeSysAndSymTabTestFixture, TypeID_Primitive_SignedUnsignedDistinct) {
+    EXPECT_NE(tctxt.get_u8()->id(),  tctxt.get_i8()->id());
+    EXPECT_NE(tctxt.get_u32()->id(), tctxt.get_i32()->id());
+    EXPECT_NE(tctxt.get_u64()->id(), tctxt.get_i64()->id());
+}
+
+// Types of different sizes produce distinct IDs
+TEST_F(TypeSysAndSymTabTestFixture, TypeID_Primitive_DifferentSizesDistinct) {
+    EXPECT_NE(tctxt.get_u8()->id(),  tctxt.get_u16()->id());
+    EXPECT_NE(tctxt.get_u8()->id(),  tctxt.get_u32()->id());
+    EXPECT_NE(tctxt.get_u8()->id(),  tctxt.get_u64()->id());
+    EXPECT_NE(tctxt.get_f32()->id(), tctxt.get_f64()->id());
+}
+
+// Bool is distinct from all integer types
+TEST_F(TypeSysAndSymTabTestFixture, TypeID_Primitive_BoolDistinctFromIntegers) {
+    TypeID bool_id = tctxt.get_bool()->id();
+    EXPECT_NE(bool_id, tctxt.get_u8()->id());
+    EXPECT_NE(bool_id, tctxt.get_i8()->id());
+    EXPECT_NE(bool_id, tctxt.get_u32()->id());
+}
+
+// ─── Pointer IDs ─────────────────────────────────────────────────────────────
+
+// Same base → same pointer ID (pointers are interned)
+TEST_F(TypeSysAndSymTabTestFixture, TypeID_Pointer_SameBaseSameID) {
+    PointerType *p1 = tctxt.get_pointer(prim3);
+    PointerType *p2 = tctxt.get_pointer(prim3);
+    ASSERT_EQ(p1, p2);
+    EXPECT_EQ(p1->id(), p2->id());
+}
+
+// Different base types → different pointer IDs
+TEST_F(TypeSysAndSymTabTestFixture, TypeID_Pointer_DifferentBaseDistinct) {
+    PointerType *pu8 = tctxt.get_pointer(tctxt.get_u8());
+    PointerType *pi8 = tctxt.get_pointer(tctxt.get_i8());
+    EXPECT_NE(pu8->id(), pi8->id());
+}
+
+// Pointer ID differs from its base type's ID
+TEST_F(TypeSysAndSymTabTestFixture, TypeID_Pointer_DiffersFromBase) {
+    PointerType *ptr = tctxt.get_pointer(prim3);
+    EXPECT_NE(ptr->id(), prim3->id());
+}
+
+// ─── Array IDs ───────────────────────────────────────────────────────────────
+
+// Same base and size → same array ID (arrays are interned)
+TEST_F(TypeSysAndSymTabTestFixture, TypeID_Array_SameParamsSameID) {
+    ArrayType *a1 = tctxt.get_array(tctxt.get_u8(), 4);
+    ArrayType *a2 = tctxt.get_array(tctxt.get_u8(), 4);
+    ASSERT_EQ(a1, a2);
+    EXPECT_EQ(a1->id(), a2->id());
+}
+
+// Different sizes → different array IDs
+TEST_F(TypeSysAndSymTabTestFixture, TypeID_Array_DifferentSizeDistinct) {
+    ArrayType *a4 = tctxt.get_array(tctxt.get_u8(), 4);
+    ArrayType *a8 = tctxt.get_array(tctxt.get_u8(), 8); // NOLINT
+    EXPECT_NE(a4->id(), a8->id());
+}
+
+// Array ID differs from pointer of the same base
+TEST_F(TypeSysAndSymTabTestFixture, TypeID_Array_DiffersFromPointerSameBase) {
+    ArrayType   *arr = tctxt.get_array(tctxt.get_u8(), 4);
+    PointerType *ptr = tctxt.get_pointer(tctxt.get_u8());
+    EXPECT_NE(arr->id(), ptr->id());
+}
+
+// Unsized array has a stable ID
+TEST_F(TypeSysAndSymTabTestFixture, TypeID_UnsizedArray_Stable) {
+    ArrayType *ua = tctxt.get_array(tctxt.get_u8());
+    EXPECT_EQ(ua->id(), ua->id());
+}
+
+// Unsized array ID differs from sized array of the same base
+TEST_F(TypeSysAndSymTabTestFixture, TypeID_UnsizedArray_DiffersFromSized) {
+    ArrayType *ua = tctxt.get_array(tctxt.get_u8());
+    ArrayType *sa = tctxt.get_array(tctxt.get_u8(), 4);
+    EXPECT_NE(ua->id(), sa->id());
+}
+
+// ─── Const IDs ───────────────────────────────────────────────────────────────
+
+// Const wrapper has a different ID from its base
+TEST_F(TypeSysAndSymTabTestFixture, TypeID_Const_DiffersFromBase) {
+    ConstType *c = tctxt.get_const(prim1);
+    EXPECT_NE(c->id(), prim1->id());
+}
+
+// Const is idempotent: get_const(get_const(T)) returns the same pointer and same ID
+TEST_F(TypeSysAndSymTabTestFixture, TypeID_Const_IdempotentSameID) {
+    ConstType *c1 = tctxt.get_const(prim1);
+    ConstType *c2 = tctxt.get_const(c1);
+    ASSERT_EQ(c1, c2) << "const is idempotent at the pointer level";
+    EXPECT_EQ(c1->id(), c2->id());
+}
+
+// Different bases → different const IDs
+TEST_F(TypeSysAndSymTabTestFixture, TypeID_Const_DifferentBasesDistinct) {
+    ConstType *cf32 = tctxt.get_const(prim1); // F32
+    ConstType *ci64 = tctxt.get_const(prim3); // I64
+    EXPECT_NE(cf32->id(), ci64->id());
+}
+
+// ─── User type IDs ───────────────────────────────────────────────────────────
+
+// Named class has a stable ID
+TEST_F(TypeSysAndSymTabTestFixture, TypeID_UserType_NamedClassStable) {
+    EXPECT_EQ(class1->id(), class1->id());
+}
+
+// Named classes with distinct names have distinct IDs
+TEST_F(TypeSysAndSymTabTestFixture, TypeID_UserType_DistinctNamedClasses) {
+    EXPECT_NE(class1->id(), class2->id());
+    EXPECT_NE(class1->id(), class3->id());
+    EXPECT_NE(class2->id(), class3->id());
+}
+
+// Two anonymous classes have different IDs (each gets a unique counter value)
+TEST_F(TypeSysAndSymTabTestFixture, TypeID_UserType_DistinctAnonClasses) {
+    ClassType *anon1 = tctxt.get_class(LOC, symtab.global.get());
+    ClassType *anon2 = tctxt.get_class(LOC, symtab.global.get());
+    ASSERT_NE(anon1, anon2);
+    EXPECT_NE(anon1->id(), anon2->id());
+}
+
+// A class and a union are always distinct types regardless of scope
+TEST_F(TypeSysAndSymTabTestFixture, TypeID_UserType_ClassVsUnionDistinct) {
+    std::string unn_name = "SomeUnion";
+    UnionType  *unn      = tctxt.get_union(LOC, unn_name, symtab.global.get());
+    EXPECT_NE(class1->id(), unn->id());
+}
+
+// ─── Function type IDs ───────────────────────────────────────────────────────
+
+// Same signature → same function type pointer and ID (function types are interned)
+TEST_F(TypeSysAndSymTabTestFixture, TypeID_Function_SameSignatureSameID) {
+    FunctionType *f1 = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
+    FunctionType *f2 = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
+    ASSERT_EQ(f1, f2);
+    EXPECT_EQ(f1->id(), f2->id());
+}
+
+// Different return types → different function type IDs
+TEST_F(TypeSysAndSymTabTestFixture, TypeID_Function_DiffReturnTypeDistinct) {
+    FunctionType *fv = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
+    FunctionType *fu = tctxt.get_function(LOC, tctxt.get_u32(), {}, false);
+    EXPECT_NE(fv->id(), fu->id());
+}
+
+// Different param lists → different function type IDs
+TEST_F(TypeSysAndSymTabTestFixture, TypeID_Function_DiffParamsDistinct) {
+    FunctionType *f0 = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
+    FunctionType *f1 = tctxt.get_function(LOC, tctxt.get_void(), {tctxt.get_u32()}, false);
+    EXPECT_NE(f0->id(), f1->id());
+}
+
+// Variadic vs non-variadic → different function type IDs
+TEST_F(TypeSysAndSymTabTestFixture, TypeID_Function_VariadicDistinct) {
+    FunctionType *fn  = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
+    FunctionType *fva = tctxt.get_function(LOC, tctxt.get_void(), {}, true);
+    EXPECT_NE(fn->id(), fva->id());
+}
+
+// ─── Cross-kind discrimination ─────────────────────────────────────────────────
+
+// Pointer, sized array, and const of the same base all have mutually distinct IDs,
+// and all differ from the base type's own ID
+TEST_F(TypeSysAndSymTabTestFixture, TypeID_CrossKind_PointerArrayConstDistinct) {
+    Type        *base = tctxt.get_u32();
+    PointerType *ptr  = tctxt.get_pointer(base);
+    ArrayType   *arr  = tctxt.get_array(base, 4);
+    ConstType   *cst  = tctxt.get_const(base);
+
+    EXPECT_NE(ptr->id(), arr->id());
+    EXPECT_NE(ptr->id(), cst->id());
+    EXPECT_NE(arr->id(), cst->id());
+    EXPECT_NE(ptr->id(), base->id());
+    EXPECT_NE(arr->id(), base->id());
+    EXPECT_NE(cst->id(), base->id());
+}
