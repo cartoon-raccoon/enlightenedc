@@ -57,7 +57,7 @@ The result of visiting an AST node.
 
 Each variant is the result returned by visiting a specific AST node.
 */
-using ElabResult = std::variant<
+using VisitResult = std::variant<
     // The base variant, when visit() does not return anything.
     std::monostate,
     // A simple string, for string literals, identifiers, etc.
@@ -100,7 +100,7 @@ using CmpdStmtDoVisitParam = Optional<std::pair<
 /*
 Any parameters to be passed to a do_visit call (through accept).
 */
-using ElabVisitParam = std::variant<
+using VisitParam = std::variant<
     // The base variant, when the do_visit call does not take parameters.
     std::monostate,
     // A simple string, for anything.
@@ -138,9 +138,9 @@ protected:
     The result of the last visit(ast::) call. This is essentially the `return` value,
     placed here since visit calls cannot directly return values.
     */
-    ElabResult last_result = std::monostate{};
+    VisitResult last_result = std::monostate{};
 
-    ElabVisitParam dovisit_param = std::monostate{};
+    VisitParam dovisit_param = std::monostate{};
 
     ScopeGuard<ast::ASTNode> enter_scope(sym::FuncSymbol *assoc = nullptr) override {
         return ScopeGuard<ast::ASTNode>(BaseSemanticVisitor::State::WRITE, syms, assoc);
@@ -149,7 +149,7 @@ protected:
     Takes the result of the last visit call, replacing it with `std::monostate`.
     */
     template <typename T>
-        requires VariantMember<T, ElabResult>
+        requires VariantMember<T, VisitResult>
     T take_last_result() {
         T ret;
         try {
@@ -165,7 +165,7 @@ protected:
     }
 
     template <typename T>
-        requires VariantMember<T, ElabVisitParam>
+        requires VariantMember<T, VisitParam>
     T take_dovisit_param() {
         T ret;
         try {

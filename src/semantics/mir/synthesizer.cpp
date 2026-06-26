@@ -201,7 +201,7 @@ void MIRSynthesizer::do_visit(Function& node) {
     bsv_dbprint("visiting Function node: ", node.loc);
 
     // Parse and construct specifier info
-    ElabVisitParam param        = std::move(dovisit_param);
+    VisitParam param        = std::move(dovisit_param);
     Box<SpecifierInfo> specinfo = parse_speclist(node.decl_spec_list, node.loc);
     dovisit_param               = std::move(param);
 
@@ -1155,7 +1155,7 @@ void MIRSynthesizer::do_visit(CompoundStatement& node) {
         // we had add_symbols, so we were called from function
         Box<CompoundStmtMIR> cmpdmir =
             std::make_unique<CompoundStmtMIR>(node.loc, std::move(progitems));
-        ElabResult ret = std::pair(std::move(cmpdmir), syms.current);
+        VisitResult ret = std::pair(std::move(cmpdmir), syms.current);
 
         dv_return(ret);
     } else {
