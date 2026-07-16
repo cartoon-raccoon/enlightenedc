@@ -312,6 +312,13 @@ void Validator::do_visit(VarDeclMIR& node) {
 
 void Validator::do_visit(TypeDeclMIR& node) { // done
     bsv_dbprint("Validator: visiting TypeDeclMIR node");
+
+    if (UserType *uty = node.sym->type->as_usertype(); uty && !uty->is_complete()) {
+        // forward declaration; nothing to finalize until it's defined or used
+        // in a context that requires completeness.
+        return;
+    }
+
     try {
         node.sym->type->finalize();
     } catch (TypeSemError& e) {
