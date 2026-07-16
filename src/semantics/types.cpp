@@ -71,6 +71,10 @@ bool Type::is_function() const {
     return kind == Kind::FUNCTION;
 }
 
+ConstType *Type::make_const() {
+    return ctxt().get_const(this);
+}
+
 LLVMType *Type::get_llvmtype() {
     if (llvm_type)
         return llvm_type;
@@ -945,8 +949,8 @@ void UnionType::finalize() {
         }
     } else if (!members.empty()) {
         // get largest member for the size
-        auto largest = std::max(members.begin(), members.end(), [](auto s1, auto s2) {
-            return (*s1)->ty->alloc_size() < (*s2)->ty->alloc_size();
+        auto largest = std::max_element(members.begin(), members.end(), [](auto& s1, auto& s2) {
+            return s1->ty->alloc_size() < s2->ty->alloc_size();
         });
 
         size_t size = (*largest)->ty->alloc_size();

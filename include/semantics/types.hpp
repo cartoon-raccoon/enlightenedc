@@ -300,6 +300,14 @@ public:
     */
     virtual ConstType *as_const() { return nullptr; }
 
+
+    /**
+    Converts this type into its corresponding ConstType.
+
+    Is identity if the underlying type is already const.
+    */
+    ConstType *make_const();
+
     /**
     Whether the type is callable.
     Only functions and function pointers should be callable.
@@ -1041,26 +1049,37 @@ The union type can exist as each of its members, just not at the same time.
 Accessing a union's members essentially performs a bitcast to reinterpret the
 union's bits as the bits of the member's type.
 
-## Type Representative
+## Type Representative / Primitive Aliasing
 Unions can also be represented by a primitive type, where it is essentially that
 type in memory. Syntactically and semantically, however, it acts like a union.
 Such unions can be declared by specifying a primitive type before the `union`
-keyword, e.g. `U64i union U64`.
+keyword, e.g. `U64 union MyU64`.
 
-The above example is used to alias the `U64i` intrinsic type and allow the
-programmer to access individual bytes within a U64i value. It is defined as:
+The below example is used to alias the `U64` intrinsic type and allow the
+programmer to access individual bytes within a U64 value. It is defined as:
 
 ```holyc
-U64i union U64 {
-    U8i  u8[8];
-    U16i u16[4];
-    U32i u32[2];
-    U64i u64[1];
+U64 union MyU64 {
+    U8  u8[8];
+    U16 u16[4];
+    U32 u32[2];
+    U64 u64[1];
 };
 ```
+Then MyU64 can be treated as if it were a U64, even through it semantically
+is a union, so the following statement is valid:
 
-Then some member expression like `unn->u8` treats the U64i as an array of 8 bytes,
+```holyc
+MyU64 myu64 = 42;
+```
+
+Then some member expression like `myu64->u8` treats the U64 as an array of 8 bytes,
 and can be accessed as if it were one.
+
+Aliasing a union as a primitive type imposes some restrictions. One of these is that
+a member's memory footprint cannot exceed the size of its type representative.
+For example, a union aliased as a U16 cannot contain a U32 member, as a U32 is
+larger than a U16.
 
 ## Coercibility
 
