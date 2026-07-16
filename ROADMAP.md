@@ -31,7 +31,8 @@ These are to-dos that are important, but do not constitute a milestone.
   - Use CFG to report optimizations to the LIRSynthesizer
 - Implement a basic stdlib
 - Add try-catch (LLVM unwinding)
-- Add operation chaining (a < b < c vs (a < b) < c)
+- Add relational operator evaluation chaining (a < b < c instead of (a < b) < c)
+- Add designator-chain initializers (`{ .foo[idx].bar = 6 }`)
 - Add inline assembly
 
 ## Long-Term
