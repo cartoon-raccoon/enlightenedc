@@ -51,6 +51,7 @@ public:
     void visit(CondExprLIR& node) override;
     void visit(IdentExprLIR& node) override;
     void visit(LiteralExprLIR& node) override;
+    void visit(ZeroExprLIR& node) override;
     void visit(CallExprLIR& node) override;
     void visit(MemberAccExprLIR& node) override;
     void visit(ReintExprLIR& node) override;

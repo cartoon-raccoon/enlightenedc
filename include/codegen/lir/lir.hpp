@@ -49,6 +49,7 @@ public:
         CONDEXPR_LIR,
         IDENTEXPR_LIR,
         LITEXPR_LIR,
+        ZEROEXPR_LIR,
         CALLEXPR_LIR,
         MEMACCEXPR_LIR,
         SUBSCREXPR_LIR,
@@ -399,6 +400,19 @@ public:
         : ExprLIR(loc, NodeKind::LITEXPR_LIR, type), value(std::move(value)) {}
 
     LitValueLIR value;
+
+    void accept(LIRVisitor& visitor) override;
+};
+
+/**
+An expression to indicate a certain value needs to be zero-filled.
+
+Used in initializers for fields or array indexes that were skipped.
+*/
+class ZeroExprLIR : public ExprLIR {
+public:
+    ZeroExprLIR(Location loc, sema::types::Type *type)
+        : ExprLIR(loc, NodeKind::ZEROEXPR_LIR, type) {}
 
     void accept(LIRVisitor& visitor) override;
 };

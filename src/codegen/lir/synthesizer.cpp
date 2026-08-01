@@ -1,10 +1,13 @@
 #include "codegen/lir/synthesizer.hpp"
 
+#include <set>
 #include <stdexcept>
 
 #include "codegen/lir/lir.hpp"
 #include "codegen/lir/symbols.hpp"
+#include "semantics/mir/mir.hpp"
 #include "semantics/symbols.hpp"
+#include "semantics/types.hpp"
 #include "tokens.hpp"
 #include "util.hpp"
 
@@ -48,18 +51,187 @@ bool LIRSynthesizer::curr_is_empty() {
 
 LIRVarSym *LIRSynthesizer::insert_varsym(VarSymbol *sym, Box<LIRVarSym> var) {
     if (func_stack.empty()) {
-        return symbolmap.get().insert_global(sym, std::move(var));
+        return symbolmap.insert_global(sym, std::move(var));
     } else {
         return func_stack.top()->insert(sym, std::move(var));
     }
 }
 
-void LIRSynthesizer::unfold_initializer(VarSymbol *sym, InitializerMIR& init) {
-    if (init.is_all_literals() && sym->type->is_array()) {
-        bsv_dbprint("initializing array with all literals, decaying to pointer");
+void LIRSynthesizer::unfold_initializer(LIRVarSym *sym, InitializerMIR& init) {
+    Box<ExprLIR> ident = std::make_unique<IdentExprLIR>(sym->sym->loc, sym, sym->sym->type);
+    if (init.is_all_literals() && sym->sym->type->is_array() && sym->sym->type->is_const()) {
+        bsv_dbprint("initializing const array with all literals, decaying to pointer");
+        todo();
     } else {
+        unfold_initializer_rec(std::move(ident), sym->sym->type, init);
     }
-    // todo
+}
+
+void LIRSynthesizer::unfold_initializer_rec(
+    Box<ExprLIR> lhs, Type *type, InitializerMIR& init) {
+    bsv_dbprint("Validator: eval_initializer");
+    std::visit(
+        match{
+            /*
+            Base case. If evaluates to a single expression, perform type comparison.
+            */
+            [&](Box<ExprMIR>& expr) mutable {
+                bsv_dbprint("Validator: matched on single expression");
+                unfold_initializer_expr(std::move(lhs), type, expr, init);
+            },
+            /*
+            Recursive case. If there is a list of initializers, this has to be a class or array.
+            */
+            [&](Vec<Box<InitializerMIR>>& inner) mutable {
+                switch (type->kind) {
+                case Type::Kind::CLASS:
+                    unfold_initializer_rec_cls(std::move(lhs), type->as_class(), inner);
+                    break;
+
+                case Type::Kind::ARRAY:
+                    unfold_initializer_rec_arr(std::move(lhs), type->as_array(), inner);
+                    break;
+
+                default:
+                    throw std::runtime_error(
+                        "found compound initializer with non-class or array at LIR");
+                }
+            },
+            /*
+            Designated initializers are handled within their respective recursive calls (see
+            recursive case above).
+
+            They are guaranteed not to occur here, since they only occur within compound
+            initializers, and is enforced syntactically.
+            */
+            [&](auto&) {
+                throw std::runtime_error(
+                    "encountered variant other than ExprMIR and Vec<Box<InitializerMIR>>");
+            }},
+        init.initializer);
+}
+
+void LIRSynthesizer::unfold_initializer_expr(
+    Box<ExprLIR> lhs, Type *type, Box<ExprMIR>& expr, InitializerMIR& init) {
+
+    expr->accept(*this);
+
+    auto rhs = std::move(last_expr);
+
+    Box<ExprLIR> assign = std::make_unique<AssignExprLIR>(
+        init.loc, type, std::move(lhs), std::move(rhs), tokens::AssignOp::ASSIGN);
+
+    Box<StmtLIR> stmt = std::make_unique<ExprStmtLIR>(init.loc, std::move(assign));
+    emit(std::move(stmt));
+}
+
+void LIRSynthesizer::unfold_initializer_rec_arr(
+    Box<ExprLIR> lhs, ArrayType *arr, Vec<Box<InitializerMIR>>& inits) {
+
+    size_t next_idx = 0;
+
+    Vec<bool> touched(arr->arr_size.value(), false);
+
+    // Run the recursive algorithm for each initializer we encounter
+    for (auto& init : inits) {
+        std::visit(
+            match{
+                [&](Box<ExprMIR>&) {
+                    Box<ExprLIR> idx_expr = std::make_unique<LiteralExprLIR>(
+                        // fixme: ensure Value(next_idx) matches machine size type
+                        init->loc, Value(next_idx), types.get_size_type(false));
+                    Box<ExprLIR> child = std::make_unique<SubscrExprLIR>(
+                        init->loc, clone_lvalue(lhs.get()), std::move(idx_expr), arr->base);
+
+                    unfold_initializer_rec(std::move(child), arr->base, *init);
+                    touched[next_idx] = true;
+                    next_idx++;
+                },
+                [&](Box<InitializerMIR::Member>&) {
+                    throw std::runtime_error(
+                        "encountered member designator while unfolding array initializer");
+                },
+                [&](Box<InitializerMIR::Index>& idx) {
+                    Box<ExprLIR> idx_expr = std::make_unique<LiteralExprLIR>(
+                        init->loc, Value(idx->idx), types.get_size_type(false));
+                    Box<ExprLIR> child = std::make_unique<SubscrExprLIR>(
+                        init->loc, clone_lvalue(lhs.get()), std::move(idx_expr), arr->base);
+
+                    unfold_initializer_rec(std::move(child), arr->base, *idx->initializer);
+                    size_t curr_idx = idx->idx.cast<size_t>();
+                    touched[curr_idx] = true;
+                    next_idx = curr_idx + 1;
+                },
+                [&](Vec<Box<InitializerMIR>>& ) {
+                    Box<ExprLIR> idx_expr = std::make_unique<LiteralExprLIR>(
+                        init->loc, Value(next_idx), types.get_size_type(false));
+                    Box<ExprLIR> child = std::make_unique<SubscrExprLIR>(
+                        init->loc, clone_lvalue(lhs.get()), std::move(idx_expr), arr->base);
+
+                    unfold_initializer_rec(std::move(child), arr->base, *init);
+                    touched[next_idx] = true;
+                    next_idx++;
+                }},
+            init->initializer);
+    }
+
+    for (size_t i = 0; i < arr->arr_size.value(); i++) {
+        if (!touched[i]) {
+            Box<ExprLIR> idx_expr = std::make_unique<LiteralExprLIR>(
+                Location {}, Value(i), types.get_size_type(false));
+            Box<ExprLIR> child = std::make_unique<SubscrExprLIR>(
+                Location {}, clone_lvalue(lhs.get()), std::move(idx_expr), arr->base);
+            Box<ExprLIR> zero = std::make_unique<ZeroExprLIR>(Location {}, arr->base);
+            Box<ExprLIR> assign = std::make_unique<AssignExprLIR>(
+                Location {}, arr->base, std::move(child), std::move(zero), tokens::AssignOp::ASSIGN);
+            Box<StmtLIR> stmt = std::make_unique<ExprStmtLIR>(Location {}, std::move(assign));
+
+            emit(std::move(stmt));
+        }
+    }
+}
+
+void LIRSynthesizer::unfold_initializer_rec_cls(
+    Box<ExprLIR> lhs, ClassType *cls, Vec<Box<InitializerMIR>>& inits) {
+
+    size_t next_idx = 0;
+
+    Vec<bool> touched(cls->num_members(), false);
+
+    for (auto& init : inits) {
+        std::visit(
+            // todo
+            match{
+                [&](Box<ExprMIR>&) {
+                    
+                },
+                [&](Box<InitializerMIR::Member>& mem) {
+                    
+                },
+                [&](Box<InitializerMIR::Index>&) {
+                    throw std::runtime_error(
+                        "encountered index designator while unfolding class initializer");
+                },
+                [&](Vec<Box<InitializerMIR>>& ) {
+                    
+                }},
+            init->initializer);
+    }
+
+    for (size_t i = 0; i < cls->num_members(); i++) {
+        if (!touched[i]) {
+            auto* member = cls->find(i);
+            assert(member);
+            Box<ExprLIR> child = std::make_unique<MemberAccExprLIR>(
+                Location {}, clone_lvalue(lhs.get()), i, member->ty);
+            Box<ExprLIR> zero = std::make_unique<ZeroExprLIR>(Location {}, member->ty);
+            Box<ExprLIR> assign = std::make_unique<AssignExprLIR>(
+                Location {}, member->ty, std::move(child), std::move(zero), tokens::AssignOp::ASSIGN);
+            Box<StmtLIR> stmt = std::make_unique<ExprStmtLIR>(Location {}, std::move(assign));
+
+            emit(std::move(stmt));
+        }
+    }
 }
 
 void LIRSynthesizer::do_visit(ProgramMIR& node) {
@@ -72,16 +244,43 @@ void LIRSynthesizer::do_visit(ProgramMIR& node) {
         std::visit(
             match{
                 [this](Box<FunctionLIR>& func) {
-                    prog_lir.get().functions.push_back(std::move(func));
+                    prog_lir.functions.push_back(std::move(func));
                 },
                 [this](Box<VarDeclLIR>& decl) {
-                    prog_lir.get().globals.push_back(std::move(decl));
+                    prog_lir.globals.push_back(std::move(decl));
                 },
                 [this](Box<ProgItemLIR>& item) {
-                    prog_lir.get().progitems.push_back(std::move(item));
+                    prog_lir.progitems.push_back(std::move(item));
                 },
             },
             item);
+    }
+}
+
+Box<ExprLIR> LIRSynthesizer::clone_lvalue(ExprLIR *expr) {
+    switch (expr->kind) {
+    case NK::IDENTEXPR_LIR: {
+        auto *ident = dynamic_cast<IdentExprLIR *>(expr);
+        return std::make_unique<IdentExprLIR>(ident->loc.value(), ident->sym, ident->act_type);
+    }
+    case NK::MEMACCEXPR_LIR: {
+        auto *memacc = dynamic_cast<MemberAccExprLIR *>(expr);
+        return std::make_unique<MemberAccExprLIR>(
+            memacc->loc.value(), clone_lvalue(memacc->object.get()), memacc->member_idx,
+            memacc->act_type);
+    }
+    case NK::SUBSCREXPR_LIR: {
+        auto *subscr = dynamic_cast<SubscrExprLIR *>(expr);
+        return std::make_unique<SubscrExprLIR>(
+            subscr->loc.value(), clone_lvalue(subscr->array.get()),
+            clone_lvalue(subscr->index.get()), subscr->act_type);
+    }
+    case NK::LITEXPR_LIR: {
+        auto *lit = dynamic_cast<LiteralExprLIR *>(expr);
+        return std::make_unique<LiteralExprLIR>(lit->loc.value(), lit->value, lit->act_type);
+    }
+    default:
+        throw std::runtime_error("clone_lvalue: unexpected expression kind in lvalue chain");
     }
 }
 
@@ -95,7 +294,7 @@ void LIRSynthesizer::do_visit(FunctionMIR& node) {
 
     Box<LIRFuncSym> func = std::make_unique<LIRFuncSym>(mangled, name, node.loc, node.sym);
 
-    LIRFuncSym *funcptr = symbolmap.get().add_function(sym, std::move(func));
+    LIRFuncSym *funcptr = symbolmap.add_function(sym, std::move(func));
 
     func_stack.push(funcptr);
 
@@ -165,7 +364,7 @@ void LIRSynthesizer::do_visit(VarDeclMIR& node) {
 
         // visit the initializer
         if (decl.initializer) {
-            unfold_initializer(decl.sym, *(*decl.initializer));
+            unfold_initializer(lirvar, *(*decl.initializer));
         }
     }
 }
@@ -603,7 +802,7 @@ void LIRSynthesizer::do_visit(CondExprMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(IdentExprMIR& node) {
-    LIRSym *sym = symbolmap.get().lookup(node.ident);
+    LIRSym *sym = symbolmap.lookup(node.ident);
     if (!sym) {
         // todo: throw exception
     }
@@ -643,11 +842,24 @@ void LIRSynthesizer::do_visit(MemberAccExprMIR& node) {
     node.object->accept(*this);
     Box<ExprLIR> object = std::move(last_expr);
 
+    RecordType *record;
     if (node.is_arrow) {
         PointerType *objtype = node.object->act_type->as_pointer();
         assert(objtype);
         object = std::make_unique<UnaryExprLIR>(
             node.loc, objtype->base, std::move(object), tokens::UnaryOp::DEREF);
+        record = objtype->base->as_recordtype();
+    } else {
+        assert(object->act_type->is_recordtype());
+        record = object->act_type->as_recordtype();
+    }
+
+    AccessorPath path = record->index(node.member);
+
+    auto current      = std::move(object);
+    auto *current_rec = record;
+
+    for (auto& acc : path) {
     }
 
     // todo

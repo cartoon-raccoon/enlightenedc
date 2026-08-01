@@ -109,6 +109,7 @@ protected:
     VISIT_NO_IMPL(lir::CondExprLIR);
     VISIT_NO_IMPL(lir::IdentExprLIR);
     VISIT_NO_IMPL(lir::LiteralExprLIR);
+    VISIT_NO_IMPL(lir::ZeroExprLIR);
     VISIT_NO_IMPL(lir::CallExprLIR);
     VISIT_NO_IMPL(lir::MemberAccExprLIR);
     VISIT_NO_IMPL(lir::SubscrExprLIR);

@@ -81,6 +81,9 @@ void LLVMSynthesizer::visit(IdentExprLIR& node) {
 void LLVMSynthesizer::visit(LiteralExprLIR& node) {
 }
 
+void LLVMSynthesizer::visit(ZeroExprLIR& node) {
+}
+
 void LLVMSynthesizer::visit(CallExprLIR& node) {
 }
 

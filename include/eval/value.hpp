@@ -119,9 +119,12 @@ public:
 
     sema::prim::PrimTypeRank pr_rank() const { return sema::prim::pr_rank(ptype); }
 
+    /**
+    Get a value's compiler-type value.
+    */
     template <typename T>
         requires VariantMember<T, ValueType>
-    Optional<T> value_as() {
+    Optional<T> value_as_exact() {
         if (auto *val = std::get_if<T>(&inner)) {
             return *val;
         } else {
@@ -130,9 +133,9 @@ public:
     }
 
     template <typename T>
-        requires VariantMember<T, ValueType>
+        requires std::is_arithmetic_v<T>
     T cast() const {
-        return std::visit(match{[](auto& v) { return static_cast<T>(v); }}, inner);
+        return std::visit([](const auto& v) { return static_cast<T>(v); }, inner);
     }
 
     Value pr_cast(tokens::PrimType pr) const;

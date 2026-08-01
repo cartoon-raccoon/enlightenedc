@@ -36,6 +36,7 @@ public:
     virtual void visit(CondExprLIR& node)      = 0;
     virtual void visit(IdentExprLIR& node)     = 0;
     virtual void visit(LiteralExprLIR& node)   = 0;
+    virtual void visit(ZeroExprLIR& node)      = 0;
     virtual void visit(CallExprLIR& node)      = 0;
     virtual void visit(MemberAccExprLIR& node) = 0;
     virtual void visit(ReintExprLIR& node)     = 0;

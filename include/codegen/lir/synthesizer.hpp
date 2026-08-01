@@ -22,14 +22,15 @@ namespace ecc::codegen::lir {
 
 class LIRSynthesizer : public sema::BaseMIRSemaVisitor, public NoMove {
 public:
-    LIRSynthesizer(ProgramLIR& prog_lir, LIRSymbolMap& symbolmap)
-        : sema::BaseMIRSemaVisitor(State::READ), symbolmap(symbolmap), prog_lir(prog_lir) {}
+    LIRSynthesizer(ProgramLIR& prog_lir, LIRSymbolMap& symbolmap, sema::types::TypeContext& tyctxt)
+        : sema::BaseMIRSemaVisitor(State::READ), symbolmap(symbolmap), types(tyctxt), prog_lir(prog_lir) {}
 
     using LIRSynthItem = std::variant<Box<FunctionLIR>, Box<VarDeclLIR>, Box<ProgItemLIR>>;
 
-    Ref<LIRSymbolMap> symbolmap;
+    LIRSymbolMap& symbolmap;
+    sema::types::TypeContext& types;
 
-    Ref<ProgramLIR> prog_lir;
+    ProgramLIR& prog_lir;
 
     void generate_lir(sema::mir::ProgramMIR& prog);
 
@@ -88,7 +89,7 @@ protected:
 
 private:
     void unfold_initializer_rec(
-        Box<ExprLIR> lhs, sema::types::AccessorPath& path, sema::types::Type *type,
+        Box<ExprLIR> lhs, sema::types::Type *type,
         sema::mir::InitializerMIR& init);
 
     void unfold_initializer_expr(
@@ -96,12 +97,16 @@ private:
         sema::mir::InitializerMIR& init);
 
     void unfold_initializer_rec_arr(
-        Box<ExprLIR> lhs, sema::types::AccessorPath& path, sema::types::ArrayType *arr,
+        Box<ExprLIR> lhs, sema::types::ArrayType *arr,
         Vec<Box<sema::mir::InitializerMIR>>& inits);
 
     void unfold_initializer_rec_cls(
-        Box<ExprLIR> lhs, sema::types::AccessorPath& path, sema::types::ClassType *cls,
+        Box<ExprLIR> lhs, sema::types::ClassType *cls,
         Vec<Box<sema::mir::InitializerMIR>>& inits);
+
+    // Deep-copies an lvalue expression chain (Ident/MemberAcc/Subscr/Literal only) so the same
+    // base `lhs` can be reused across sibling fields/elements of an aggregate initializer.
+    Box<ExprLIR> clone_lvalue(ExprLIR *expr);
     /**
     Side-channel for returning expressions.
     */

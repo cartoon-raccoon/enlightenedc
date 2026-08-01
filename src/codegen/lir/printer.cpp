@@ -2,6 +2,7 @@
 
 #include <variant>
 
+#include "codegen/lir/lir.hpp"
 #include "eval/value.hpp"
 #include "semantics/types.hpp"
 #include "tokens.hpp"
@@ -201,6 +202,10 @@ void LIRPrinter::visit(LiteralExprLIR& node) {
                 [&](std::string& s) { std::cout << s << "\n"; }},
             node.value);
     });
+}
+
+void LIRPrinter::visit(ZeroExprLIR& node) {
+    print_node("Zero :: " + node.act_type->formal(), node);
 }
 
 void LIRPrinter::visit(CallExprLIR& node) {
