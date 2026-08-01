@@ -12,6 +12,7 @@
 #include "semantics/mir/mir.hpp"
 #include "semantics/semantics.hpp"
 #include "semantics/symbols.hpp"
+#include "semantics/types.hpp"
 #include "util.hpp"
 
 using namespace ecc;
@@ -47,7 +48,7 @@ protected:
 
     LIRVarSym *insert_varsym(sema::sym::VarSymbol *sym, Box<LIRVarSym> varsym);
 
-    void unfold_initializer(sema::sym::VarSymbol *sym, sema::mir::InitializerMIR& init);
+    void unfold_initializer(LIRVarSym *sym, sema::mir::InitializerMIR& init);
 
     void do_visit(sema::mir::ProgramMIR& node) override;
     void do_visit(sema::mir::FunctionMIR& node) override;
@@ -86,6 +87,24 @@ protected:
     void do_visit(sema::mir::SizeofExprMIR& node) override;
 
 private:
+    void unfold_initializer_rec(
+        Box<ExprLIR> lhs, sema::types::AccessorPath& path, sema::types::Type *type,
+        sema::mir::InitializerMIR& init);
+
+    void unfold_initializer_expr(
+        Box<ExprLIR> lhs, sema::types::Type *type, Box<sema::mir::ExprMIR>& expr,
+        sema::mir::InitializerMIR& init);
+
+    void unfold_initializer_rec_arr(
+        Box<ExprLIR> lhs, sema::types::AccessorPath& path, sema::types::ArrayType *arr,
+        Vec<Box<sema::mir::InitializerMIR>>& inits);
+
+    void unfold_initializer_rec_cls(
+        Box<ExprLIR> lhs, sema::types::AccessorPath& path, sema::types::ClassType *cls,
+        Vec<Box<sema::mir::InitializerMIR>>& inits);
+    /**
+    Side-channel for returning expressions.
+    */
     Box<ExprLIR> last_expr;
 
     /*

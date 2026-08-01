@@ -38,7 +38,7 @@ public:
 
     bool is_var() const { return kind == LIRSymKind::VAR; }
     bool is_func() const { return kind == LIRSymKind::FUNC; }
-    
+
     virtual LIRVarSym *as_varsym() { return nullptr; }
     virtual LIRFuncSym *as_funcsym() { return nullptr; }
 };

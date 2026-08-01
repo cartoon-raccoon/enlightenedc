@@ -201,7 +201,7 @@ void MIRSynthesizer::do_visit(Function& node) {
     bsv_dbprint("visiting Function node: ", node.loc);
 
     // Parse and construct specifier info
-    VisitParam param        = std::move(dovisit_param);
+    VisitParam param            = std::move(dovisit_param);
     Box<SpecifierInfo> specinfo = parse_speclist(node.decl_spec_list, node.loc);
     dovisit_param               = std::move(param);
 

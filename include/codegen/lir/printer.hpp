@@ -58,8 +58,6 @@ public:
     void visit(PostfixExprLIR& node) override;
 };
 
-}
-
-
+} // namespace ecc::codegen::lir
 
 #endif

@@ -56,12 +56,11 @@ void LIRPrinter::visit(FunctionLIR& node) {
 }
 
 void LIRPrinter::visit(VarDeclLIR& node) {
-    print_node(
-        "VarDecl: " + node.lirsym->name + " (" + node.lirsym->mangled_name + ")", node, [&] {
-            print_indent();
-            std::cout << "type: " << node.lirsym->sym->get_type()->to_string()
-                      << (node.lirsym->is_param ? " [param]" : "") << "\n";
-        });
+    print_node("VarDecl: " + node.lirsym->name + " (" + node.lirsym->mangled_name + ")", node, [&] {
+        print_indent();
+        std::cout << "type: " << node.lirsym->sym->get_type()->to_string()
+                  << (node.lirsym->is_param ? " [param]" : "") << "\n";
+    });
 }
 
 void LIRPrinter::visit(LabelDeclLIR& node) {
@@ -81,8 +80,8 @@ void LIRPrinter::visit(ExprStmtLIR& node) {
 }
 
 void LIRPrinter::visit(GotoStmtLIR& node) {
-    std::string label = node.target ? *node.target + " (" + node.mangled_target + ")"
-                                    : node.mangled_target;
+    std::string label =
+        node.target ? *node.target + " (" + node.mangled_target + ")" : node.mangled_target;
     print_node("Goto: " + label, node);
 }
 
@@ -170,9 +169,9 @@ void LIRPrinter::visit(UnaryExprLIR& node) {
 }
 
 void LIRPrinter::visit(CastExprLIR& node) {
-    print_node(
-        "Cast -> " + node.target->to_string() + " :: " + node.act_type->formal(), node,
-        [&] { node.inner->accept(*this); });
+    print_node("Cast -> " + node.target->to_string() + " :: " + node.act_type->formal(), node, [&] {
+        node.inner->accept(*this);
+    });
 }
 
 void LIRPrinter::visit(AssignExprLIR& node) {
@@ -183,15 +182,14 @@ void LIRPrinter::visit(AssignExprLIR& node) {
 
 void LIRPrinter::visit(CondExprLIR& node) {
     print_node(
-        "CondExpr :: " + node.act_type->formal(), node,
-        [&] { node.condition->accept(*this); }, [&] { node.true_value->accept(*this); },
-        [&] { node.false_value->accept(*this); });
+        "CondExpr :: " + node.act_type->formal(), node, [&] { node.condition->accept(*this); },
+        [&] { node.true_value->accept(*this); }, [&] { node.false_value->accept(*this); });
 }
 
 void LIRPrinter::visit(IdentExprLIR& node) {
     print_node(
-        "Ident: " + node.sym->name + " (" + node.sym->mangled_name + ") :: " +
-            node.act_type->formal(),
+        "Ident: " + node.sym->name + " (" + node.sym->mangled_name +
+            ") :: " + node.act_type->formal(),
         node);
 }
 

@@ -71,6 +71,6 @@ LIRSym *LIRSymbolMap::lookup(sema::sym::PhysicalSymbol *sym) {
             return it->second.get();
         }
     }
-    
+
     return nullptr;
 }

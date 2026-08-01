@@ -300,7 +300,6 @@ public:
     */
     virtual ConstType *as_const() { return nullptr; }
 
-
     /**
     Converts this type into its corresponding ConstType.
 
