@@ -211,7 +211,9 @@ void Validator::eval_initializer_rec_cls(
                             std::format("no member '{}' in class", mem->member), init->loc);
                         throw UnableToContinue();
                     }
-                    eval_initializer_rec(path, member->ty, *mem->initializer);
+
+                    AccessorPath newpath{};
+                    eval_initializer_rec(newpath, member->ty, *mem->initializer);
                     path.pop_back();
                 },
                 [&](Box<InitializerMIR::Index>& idx) {
@@ -231,7 +233,9 @@ void Validator::eval_initializer_rec_cls(
                             "excess elements in class initializer", init->loc);
                         throw UnableToContinue();
                     }
-                    eval_initializer_rec(path, mem->ty, *init);
+
+                    AccessorPath newpath{};
+                    eval_initializer_rec(newpath, mem->ty, *init);
                     path.pop_back();
                 }},
             init->initializer);
@@ -272,7 +276,9 @@ void Validator::eval_initializer_rec_arr(
                 [&](Vec<Box<InitializerMIR>>&) {
                     path.push_back(non_desigd_idx);
                     non_desigd_idx++;
-                    eval_initializer_rec(path, arr->base, *init);
+
+                    AccessorPath newpath{};
+                    eval_initializer_rec(newpath, arr->base, *init);
                     path.pop_back();
                 }},
             init->initializer);
