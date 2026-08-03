@@ -1,6 +1,5 @@
 #include "codegen/lir/synthesizer.hpp"
 
-#include <set>
 #include <stdexcept>
 
 #include "codegen/lir/lir.hpp"
@@ -200,20 +199,69 @@ void LIRSynthesizer::unfold_initializer_rec_cls(
 
     for (auto& init : inits) {
         std::visit(
-            // todo
             match{
                 [&](Box<ExprMIR>&) {
-                    
+                    RecordType::TypeMember *member = cls->find(next_idx);
+                    assert(member);
+
+                    Box<ExprLIR> child = std::make_unique<MemberAccExprLIR>(
+                        init->loc, clone_lvalue(lhs.get()), next_idx, member->ty);
+
+                    unfold_initializer_rec(std::move(child), member->ty, *init);
+                    touched[next_idx] = true;
+                    next_idx++;
                 },
                 [&](Box<InitializerMIR::Member>& mem) {
-                    
+                    // Member designators can refer to a member nested inside one or more
+                    // anonymous struct/union members; index() returns the full chain of
+                    // per-level indices needed to reach it.
+                    AccessorPath path = cls->index(mem->member);
+                    assert(!path.empty());
+
+                    Box<ExprLIR> current  = clone_lvalue(lhs.get());
+                    RecordType *current_rec = cls;
+
+                    RecordType::TypeMember *member = nullptr;
+                    bool first = true;
+                    for (auto& acc : path) {
+                        assert(acc.is_index());
+                        size_t idx = std::get<IndexAcc>(acc.accessor);
+
+                        member = current_rec->find(idx);
+                        assert(member);
+
+                        current = std::make_unique<MemberAccExprLIR>(
+                            init->loc, std::move(current), idx, member->ty);
+
+                        // Only the outermost accessor corresponds to a direct member of
+                        // `cls`; that's the slot the zero-fill pass below should skip.
+                        if (first) {
+                            touched[idx] = true;
+                            first        = false;
+                        }
+
+                        if (acc.next()) {
+                            current_rec = member->ty->as_recordtype();
+                            assert(current_rec);
+                        }
+                    }
+
+                    unfold_initializer_rec(std::move(current), member->ty, *mem->initializer);
                 },
                 [&](Box<InitializerMIR::Index>&) {
                     throw std::runtime_error(
                         "encountered index designator while unfolding class initializer");
                 },
                 [&](Vec<Box<InitializerMIR>>& ) {
-                    
+                    RecordType::TypeMember *member = cls->find(next_idx);
+                    assert(member);
+
+                    Box<ExprLIR> child = std::make_unique<MemberAccExprLIR>(
+                        init->loc, clone_lvalue(lhs.get()), next_idx, member->ty);
+
+                    unfold_initializer_rec(std::move(child), member->ty, *init);
+                    touched[next_idx] = true;
+                    next_idx++;
                 }},
             init->initializer);
     }
@@ -803,9 +851,7 @@ void LIRSynthesizer::do_visit(CondExprMIR& node) {
 
 void LIRSynthesizer::do_visit(IdentExprMIR& node) {
     LIRSym *sym = symbolmap.lookup(node.ident);
-    if (!sym) {
-        // todo: throw exception
-    }
+    assert(sym);
 
     Box<ExprLIR> identexpr = std::make_unique<IdentExprLIR>(node.loc, sym, node.act_type);
 
@@ -855,20 +901,38 @@ void LIRSynthesizer::do_visit(MemberAccExprMIR& node) {
     }
 
     AccessorPath path = record->index(node.member);
+    assert(!path.empty());
 
     auto current      = std::move(object);
     auto *current_rec = record;
 
+    // for each accessor (ensuring it is an index)
     for (auto& acc : path) {
+        assert(acc.is_index());
+        // extract the index
+        size_t idx = std::get<IndexAcc>(acc.accessor);
+
+        // find the member of the current record type, ensuring it exists
+        RecordType::TypeMember *member = current_rec->find(idx);
+        assert(member);
+
+        // resolve the type to use; if not last, use member type, else use node type
+        Type *step_type = acc.next() ? member->ty : node.act_type;
+
+        // wrap current in a new member access expression, make it the new current
+        current = std::make_unique<MemberAccExprLIR>(node.loc, std::move(current), idx, step_type);
+
+        // if there are accessors remaining, update the current recordtype
+        if (acc.next()) {
+            current_rec = member->ty->as_recordtype();
+            assert(current_rec);
+        }
     }
 
-    // todo
+    last_expr = std::move(current);
 }
 
 void LIRSynthesizer::do_visit(ReintExprMIR& node) {
-    // Desugar into a member index instead of by name
-    // Account for anonymous member accesses
-    // If arrow, desugar into a deref expression
     node.object->accept(*this);
     Box<ExprLIR> object = std::move(last_expr);
 
