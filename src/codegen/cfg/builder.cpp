@@ -81,7 +81,7 @@ void CFGBuilder::visit(PrintStmtLIR& node) {
 
 void CFGBuilder::visit(GotoStmtLIR& node) {
     /*
-    0. create goto terminator `term`
+    0. create a Goto terminator `term`
     2. check if current block was terminated
         a. if so, create a new block and set it as current
            terminate newly current block with `term`
@@ -94,7 +94,7 @@ void CFGBuilder::visit(GotoStmtLIR& node) {
 
 void CFGBuilder::visit(SwitchStmtLIR& node) {
     /*
-    0. create switch terminator `term`
+    0. create a Switch terminator `term`
     1. check if current block was terminated
         a. if so, create a new block and set it as current
            terminate newly current block with `term`
@@ -115,7 +115,7 @@ void CFGBuilder::visit(BreakStmtLIR& node) {
     /*
     1. find the latest SwitchStmt or LoopStmt on the stack
         a. if none, throw runtime error
-    2. create a goto terminator `t`, set target as the merge block
+    2. create a Goto terminator `t`, set target as the merge block
     3. check if current block is terminated
         a. if so, create a new block, set it to current, terminate that
         b. else, terminate current block with `t`
@@ -126,7 +126,7 @@ void CFGBuilder::visit(ContStmtLIR& node) {
     /*
     1. find the latest LoopStmt on the stack
         a. if none, throw runtime error
-    2. create a goto terminator `t, set target;
+    2. create a Goto terminator `t, set target;
         a. if step has value, set that as target
         b. otherwise, set body as target
     3. check if current block is terminated
@@ -137,7 +137,11 @@ void CFGBuilder::visit(ContStmtLIR& node) {
 
 void CFGBuilder::visit(IfStmtLIR& node) {
     /*
-    1. create if terminator `t`; terminate current block with it
+    0. create If terminator `term` with cond as node.condition
+    1. check if current block was terminated
+        a. if so, create a new block and set it as current
+           terminate newly current block with `term`
+        b. else, terminate current block with `term`
     2. create new block (outside of function) as merge block
     3. create new block as then block;
     4. create IfStmtInfo and push it to the infostack
@@ -150,18 +154,29 @@ void CFGBuilder::visit(IfStmtLIR& node) {
 
 void CFGBuilder::visit(LoopStmtLIR& node) {
     /*
-    1. create goto terminator `t`; terminate current block with it
+    1. create new block (outside of function) as merge block
     2. if init has value:
+        a. create Goto terminator `t`
+        b. check if current block was terminated
+           a. if so, create a new block as set it as current
+              terminate newly current block with `t`
+           b. else, terminate current block with `t`
         a. create new block `init` as loop init
-        b. iterate over items in init; accept each
-        c. terminate current block with a goto (target uninitialized)
+        b. set `init` as `t`'s target
+        c. iterate over items in init; accept each
+        d. leave block unterminated
+       else, 
+    3. if node.condition has value:
+        a. create If terminator `c` with cond as node.condition
+        b. create new blocks for then_br and else_br
+        c. create Goto terminators for then_br and else_br blocks
     3. create new block `body` as loop body
     4. if init was created:
         a. set `t`'s target as `init`
         b. set `init`'s goto's target as `body`
        else, set `t`'s target as `body`
-    6. set `t`'s target as current block
-    5. iterate over items in body; accept each
+    5. set current block to body
+    6. iterate over items in body; accept each
     */
 }
 

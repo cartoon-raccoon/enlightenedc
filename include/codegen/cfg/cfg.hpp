@@ -43,7 +43,10 @@ public:
 
 class If : public Terminator {
 public:
-    If(BasicBlock *termng) : Terminator(Kind::IF, termng) {}
+    If(BasicBlock *termng, lir::ExprLIR *cond) : Terminator(Kind::IF, termng),
+        cond(cond) {}
+
+    lir::ExprLIR *cond;
 
     BasicBlock *then_br = nullptr;
     BasicBlock *else_br = nullptr;
@@ -109,7 +112,9 @@ public:
     void add_element(lir::NonTerminalLIR *elem) { elements.push_back(elem); }
 
 private:
+    // Whether the block is an entry block into a function.
     bool is_entry        = false;
+    // Whether the block is part of a loop structure.
     bool is_part_of_loop = false;
 
     std::string label;

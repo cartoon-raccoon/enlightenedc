@@ -66,16 +66,15 @@ void LIRSynthesizer::unfold_initializer(LIRVarSym *sym, InitializerMIR& init) {
     }
 }
 
-void LIRSynthesizer::unfold_initializer_rec(
-    Box<ExprLIR> lhs, Type *type, InitializerMIR& init) {
-    bsv_dbprint("Validator: eval_initializer");
+void LIRSynthesizer::unfold_initializer_rec(Box<ExprLIR> lhs, Type *type, InitializerMIR& init) {
+    bsv_dbprint("LIRSynthesizer: unfold_initializer_rec");
     std::visit(
         match{
             /*
             Base case. If evaluates to a single expression, perform type comparison.
             */
             [&](Box<ExprMIR>& expr) mutable {
-                bsv_dbprint("Validator: matched on single expression");
+                bsv_dbprint("LIRSynthesizer: matched on single expression");
                 unfold_initializer_expr(std::move(lhs), type, expr, init);
             },
             /*
@@ -157,11 +156,11 @@ void LIRSynthesizer::unfold_initializer_rec_arr(
                         init->loc, clone_lvalue(lhs.get()), std::move(idx_expr), arr->base);
 
                     unfold_initializer_rec(std::move(child), arr->base, *idx->initializer);
-                    size_t curr_idx = idx->idx.cast<size_t>();
+                    size_t curr_idx   = idx->idx.cast<size_t>();
                     touched[curr_idx] = true;
-                    next_idx = curr_idx + 1;
+                    next_idx          = curr_idx + 1;
                 },
-                [&](Vec<Box<InitializerMIR>>& ) {
+                [&](Vec<Box<InitializerMIR>>&) {
                     Box<ExprLIR> idx_expr = std::make_unique<LiteralExprLIR>(
                         init->loc, Value(next_idx), types.get_size_type(false));
                     Box<ExprLIR> child = std::make_unique<SubscrExprLIR>(
@@ -176,14 +175,14 @@ void LIRSynthesizer::unfold_initializer_rec_arr(
 
     for (size_t i = 0; i < arr->arr_size.value(); i++) {
         if (!touched[i]) {
-            Box<ExprLIR> idx_expr = std::make_unique<LiteralExprLIR>(
-                Location {}, Value(i), types.get_size_type(false));
+            Box<ExprLIR> idx_expr =
+                std::make_unique<LiteralExprLIR>(Location{}, Value(i), types.get_size_type(false));
             Box<ExprLIR> child = std::make_unique<SubscrExprLIR>(
-                Location {}, clone_lvalue(lhs.get()), std::move(idx_expr), arr->base);
-            Box<ExprLIR> zero = std::make_unique<ZeroExprLIR>(Location {}, arr->base);
+                Location{}, clone_lvalue(lhs.get()), std::move(idx_expr), arr->base);
+            Box<ExprLIR> zero   = std::make_unique<ZeroExprLIR>(Location{}, arr->base);
             Box<ExprLIR> assign = std::make_unique<AssignExprLIR>(
-                Location {}, arr->base, std::move(child), std::move(zero), tokens::AssignOp::ASSIGN);
-            Box<StmtLIR> stmt = std::make_unique<ExprStmtLIR>(Location {}, std::move(assign));
+                Location{}, arr->base, std::move(child), std::move(zero), tokens::AssignOp::ASSIGN);
+            Box<StmtLIR> stmt = std::make_unique<ExprStmtLIR>(Location{}, std::move(assign));
 
             emit(std::move(stmt));
         }
@@ -218,11 +217,11 @@ void LIRSynthesizer::unfold_initializer_rec_cls(
                     AccessorPath path = cls->index(mem->member);
                     assert(!path.empty());
 
-                    Box<ExprLIR> current  = clone_lvalue(lhs.get());
+                    Box<ExprLIR> current    = clone_lvalue(lhs.get());
                     RecordType *current_rec = cls;
 
                     RecordType::TypeMember *member = nullptr;
-                    bool first = true;
+                    bool first                     = true;
                     for (auto& acc : path) {
                         assert(acc.is_index());
                         size_t idx = std::get<IndexAcc>(acc.accessor);
@@ -252,7 +251,7 @@ void LIRSynthesizer::unfold_initializer_rec_cls(
                     throw std::runtime_error(
                         "encountered index designator while unfolding class initializer");
                 },
-                [&](Vec<Box<InitializerMIR>>& ) {
+                [&](Vec<Box<InitializerMIR>>&) {
                     RecordType::TypeMember *member = cls->find(next_idx);
                     assert(member);
 
@@ -268,14 +267,15 @@ void LIRSynthesizer::unfold_initializer_rec_cls(
 
     for (size_t i = 0; i < cls->num_members(); i++) {
         if (!touched[i]) {
-            auto* member = cls->find(i);
+            auto *member = cls->find(i);
             assert(member);
             Box<ExprLIR> child = std::make_unique<MemberAccExprLIR>(
-                Location {}, clone_lvalue(lhs.get()), i, member->ty);
-            Box<ExprLIR> zero = std::make_unique<ZeroExprLIR>(Location {}, member->ty);
+                Location{}, clone_lvalue(lhs.get()), i, member->ty);
+            Box<ExprLIR> zero   = std::make_unique<ZeroExprLIR>(Location{}, member->ty);
             Box<ExprLIR> assign = std::make_unique<AssignExprLIR>(
-                Location {}, member->ty, std::move(child), std::move(zero), tokens::AssignOp::ASSIGN);
-            Box<StmtLIR> stmt = std::make_unique<ExprStmtLIR>(Location {}, std::move(assign));
+                Location{}, member->ty, std::move(child), std::move(zero),
+                tokens::AssignOp::ASSIGN);
+            Box<StmtLIR> stmt = std::make_unique<ExprStmtLIR>(Location{}, std::move(assign));
 
             emit(std::move(stmt));
         }
@@ -291,15 +291,9 @@ void LIRSynthesizer::do_visit(ProgramMIR& node) {
         LIRSynthItem item = consume();
         std::visit(
             match{
-                [this](Box<FunctionLIR>& func) {
-                    prog_lir.functions.push_back(std::move(func));
-                },
-                [this](Box<VarDeclLIR>& decl) {
-                    prog_lir.globals.push_back(std::move(decl));
-                },
-                [this](Box<ProgItemLIR>& item) {
-                    prog_lir.progitems.push_back(std::move(item));
-                },
+                [this](Box<FunctionLIR>& func) { prog_lir.functions.push_back(std::move(func)); },
+                [this](Box<VarDeclLIR>& decl) { prog_lir.globals.push_back(std::move(decl)); },
+                [this](Box<ProgItemLIR>& item) { prog_lir.progitems.push_back(std::move(item)); },
             },
             item);
     }
@@ -345,6 +339,21 @@ void LIRSynthesizer::do_visit(FunctionMIR& node) {
     LIRFuncSym *funcptr = symbolmap.add_function(sym, std::move(func));
 
     func_stack.push(funcptr);
+
+    // Register the function's parameters as locals before visiting the body, so that
+    // IdentExprMIR lookups for them succeed. Each is emitted as a VarDeclLIR marked is_param.
+    for (VarSymbol *param : sym->parameters) {
+        std::string param_mangled = param->mangle();
+        std::string param_name    = param->name;
+
+        Box<LIRVarSym> boxed_param =
+            std::make_unique<LIRVarSym>(param_mangled, param_name, param->loc, param, true);
+
+        LIRVarSym *lirparam = insert_varsym(param, std::move(boxed_param));
+
+        Box<VarDeclLIR> paramdecl = std::make_unique<VarDeclLIR>(param->loc, lirparam);
+        emit(std::move(paramdecl));
+    }
 
     node.body->accept(*this);
 
@@ -850,6 +859,18 @@ void LIRSynthesizer::do_visit(CondExprMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(IdentExprMIR& node) {
+    bsv_dbprint(node.loc);
+
+    // Symbolic constants (e.g. enum enumerators) carry a compile-time value and have no
+    // physical storage backing them, so they never go through a VarDeclMIR and never end up
+    // in the LIR symbol map. Synthesize a literal directly for these instead of looking them
+    // up. This must hold independent of whether the (optimization-only) constant-folding pass
+    // has run.
+    if (VarSymbol *varsym = node.ident->as_varsym(); varsym && varsym->value) {
+        last_expr = std::make_unique<LiteralExprLIR>(node.loc, *varsym->value, node.act_type);
+        return;
+    }
+
     LIRSym *sym = symbolmap.lookup(node.ident);
     assert(sym);
 

@@ -1,5 +1,9 @@
 #include "driver/backend.hpp"
 
+#include "codegen/lir/lir.hpp"
+#include "codegen/lir/printer.hpp"
+#include "codegen/lir/symbols.hpp"
+#include "codegen/lir/synthesizer.hpp"
 #include "driver/driver.hpp"
 #include "ecc.hpp"
 #include "error.hpp"
@@ -16,6 +20,7 @@ using namespace ecc::sema;
 using namespace ecc::frontend;
 using namespace ecc::sema::sym;
 using namespace ecc::sema::types;
+using namespace ecc::codegen::lir;
 using namespace mir;
 
 void Backend::run(Ecc& ecc, driver::TranslationUnit& unit) {
@@ -25,11 +30,18 @@ void Backend::run(Ecc& ecc, driver::TranslationUnit& unit) {
         return;
     }
 
-    SymbolTable& symbols = *unit.prog_mir->symbols;
-    TypeContext& types   = *unit.types;
+    TypeContext& types = *unit.types;
+
+    SymbolTable& mirsyms = *unit.prog_mir->symbols;
     ProgramMIR& mir      = *unit.prog_mir->mir;
 
-    MIRSynthesizer mirsynthesizer(symbols, types, mir);
+    LIRSymbolMap& lirsyms = *unit.prog_lir->symbols;
+    ProgramLIR& lir       = *unit.prog_lir->lir;
+
+    dbprint("\n---------- Generating MIR ----------\n");
+
+    MIRSynthesizer mirsynthesizer(mirsyms, types, mir);
+
     try {
         dbprint("Synthesizing MIR for ", unit.ast_root->loc);
         mirsynthesizer.generate_mir(*unit.ast_root);
@@ -55,11 +67,13 @@ void Backend::run(Ecc& ecc, driver::TranslationUnit& unit) {
         throw UnableToContinue();
     }
 
+    dbprint("\n---------- Validating ----------\n");
+
     if (ecc.config->stop_at < Config::StopAt::VALIDATE) {
         return;
     }
 
-    Validator validator(symbols, types);
+    Validator validator(mirsyms, types);
 
     try {
         validator.validate(mir);
@@ -81,11 +95,21 @@ void Backend::run(Ecc& ecc, driver::TranslationUnit& unit) {
 
     // do not perform bulk finalization, finalization should be only on demand.
 
-    dbprint(*unit.types);
-    dbprint(*unit.prog_mir->symbols);
-    dbprint("--------- MIR ---------\n");
-    MIRPrinter printer;
-    unit.prog_mir->mir->accept(printer);
+    if (ecc.config->to_print.contains(Config::ToPrint::MIR)) {
+        dbprint(*unit.types);
+        dbprint(*unit.prog_mir->symbols);
+        dbprint("--------- MIR ---------\n");
+        MIRPrinter printer;
+        mir.accept(printer);
+    }
 
-    // todo: synthesize LIR
+    dbprint("\n---------- Generating LIR ----------\n");
+
+    LIRSynthesizer lirsynthesizer(lirsyms, types, lir);
+
+    lirsynthesizer.generate_lir(mir);
+
+    dbprint("--------- LIR ---------\n");
+    LIRPrinter printer;
+    lir.accept(printer);
 }

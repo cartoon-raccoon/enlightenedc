@@ -63,6 +63,7 @@ class LoopStmtInfo : public NestedStmtInfo {
 public:
     LoopStmtInfo(BasicBlock *merge) : NestedStmtInfo(Kind::LOOP, merge) {}
 
+    BasicBlock *cond = nullptr;
     BasicBlock *body = nullptr;
 
     LoopStmtInfo *as_loop() override { return this; }

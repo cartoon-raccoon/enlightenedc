@@ -22,8 +22,9 @@ namespace ecc::codegen::lir {
 
 class LIRSynthesizer : public sema::BaseMIRSemaVisitor, public NoMove {
 public:
-    LIRSynthesizer(ProgramLIR& prog_lir, LIRSymbolMap& symbolmap, sema::types::TypeContext& tyctxt)
-        : sema::BaseMIRSemaVisitor(State::READ), symbolmap(symbolmap), types(tyctxt), prog_lir(prog_lir) {}
+    LIRSynthesizer(LIRSymbolMap& symbolmap, sema::types::TypeContext& tyctxt, ProgramLIR& prog_lir)
+        : sema::BaseMIRSemaVisitor(State::READ), symbolmap(symbolmap), types(tyctxt),
+          prog_lir(prog_lir) {}
 
     using LIRSynthItem = std::variant<Box<FunctionLIR>, Box<VarDeclLIR>, Box<ProgItemLIR>>;
 
@@ -37,6 +38,11 @@ public:
 protected:
     // Emit a LIR item into the current queue.
     void emit(LIRSynthItem item);
+
+    sema::ScopeGuard<sema::mir::MIRNode>
+    enter_scope(sema::sym::FuncSymbol *assoc = nullptr) override { // NOLINT
+        return sema::ScopeGuard<sema::mir::MIRNode>();
+    }
 
     // Consume a LIR item from the current queue.
     LIRSynthItem consume();
@@ -89,20 +95,17 @@ protected:
 
 private:
     void unfold_initializer_rec(
-        Box<ExprLIR> lhs, sema::types::Type *type,
-        sema::mir::InitializerMIR& init);
+        Box<ExprLIR> lhs, sema::types::Type *type, sema::mir::InitializerMIR& init);
 
     void unfold_initializer_expr(
         Box<ExprLIR> lhs, sema::types::Type *type, Box<sema::mir::ExprMIR>& expr,
         sema::mir::InitializerMIR& init);
 
     void unfold_initializer_rec_arr(
-        Box<ExprLIR> lhs, sema::types::ArrayType *arr,
-        Vec<Box<sema::mir::InitializerMIR>>& inits);
+        Box<ExprLIR> lhs, sema::types::ArrayType *arr, Vec<Box<sema::mir::InitializerMIR>>& inits);
 
     void unfold_initializer_rec_cls(
-        Box<ExprLIR> lhs, sema::types::ClassType *cls,
-        Vec<Box<sema::mir::InitializerMIR>>& inits);
+        Box<ExprLIR> lhs, sema::types::ClassType *cls, Vec<Box<sema::mir::InitializerMIR>>& inits);
 
     // Deep-copies an lvalue expression chain (Ident/MemberAcc/Subscr/Literal only) so the same
     // base `lhs` can be reused across sibling fields/elements of an aggregate initializer.
