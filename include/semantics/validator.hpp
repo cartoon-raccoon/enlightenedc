@@ -45,7 +45,8 @@ protected:
 
     Box<mir::CastExprMIR> cast(types::Type *target, Box<mir::ExprMIR> expr);
 
-    void eval_initializer(types::Type *type, mir::InitializerMIR& init);
+    Optional<types::Type *> eval_initializer(
+        types::Type *type, mir::InitializerMIR& init, bool allow_size_infer = false);
 
     void do_visit(mir::InitializerMIR& node) final;
     void do_visit(mir::VarDeclMIR& node) final;
@@ -83,11 +84,13 @@ private:
 
     void visit_single_vardecl(sym::VarSymbol *varsym, mir::InitializerMIR& init);
 
-    void
-    eval_initializer_rec(types::AccessorPath& path, types::Type *type, mir::InitializerMIR& init);
+    Optional<types::Type *> eval_initializer_rec(
+        types::AccessorPath& path, types::Type *type, mir::InitializerMIR& init,
+        bool allow_size_infer = false);
 
-    void
-    eval_initializer_expr(types::Type *type, Box<mir::ExprMIR>& expr, mir::InitializerMIR& init);
+    Optional<types::Type *> eval_initializer_expr(
+        types::Type *type, Box<mir::ExprMIR>& expr, mir::InitializerMIR& init,
+        bool allow_size_infer = false);
 
     void eval_initializer_rec_cls(
         types::AccessorPath& path, types::ClassType *cls, Vec<Box<mir::InitializerMIR>>& init);

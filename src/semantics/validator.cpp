@@ -94,26 +94,28 @@ void Validator::validate_print(std::string& format_str, Span<Box<mir::ExprMIR>> 
     // todo: check for mismatch between number of args and number of format specifiers found
 }
 
-void Validator::eval_initializer(types::Type *type, InitializerMIR& init) {
+Optional<Type *> Validator::eval_initializer(
+    types::Type *type, InitializerMIR& init, bool allow_size_infer) {
     AccessorPath path;
-    eval_initializer_rec(path, type, init);
+    return eval_initializer_rec(path, type, init, allow_size_infer);
 }
 
-void Validator::eval_initializer_rec(AccessorPath& path, types::Type *type, InitializerMIR& init) {
+Optional<Type *> Validator::eval_initializer_rec(
+    AccessorPath& path, types::Type *type, InitializerMIR& init, bool allow_size_infer) {
     bsv_dbprint("Validator: eval_initializer");
-    std::visit(
+    return std::visit(
         match{
             /*
             Base case. If evaluates to a single expression, perform type comparison.
             */
-            [&](Box<ExprMIR>& expr) mutable {
+            [&](Box<ExprMIR>& expr) mutable -> Optional<Type *> {
                 bsv_dbprint("Validator: matched on single expression");
-                eval_initializer_expr(type, expr, init);
+                return eval_initializer_expr(type, expr, init, allow_size_infer);
             },
             /*
             Recursive case. If there is a list of initializers, this has to be a class or array.
             */
-            [&](Vec<Box<InitializerMIR>>& inner) mutable {
+            [&](Vec<Box<InitializerMIR>>& inner) mutable -> Optional<Type *> {
                 switch (type->kind) {
                 case Type::Kind::CLASS:
                     eval_initializer_rec_cls(path, type->as_class(), inner);
@@ -129,6 +131,7 @@ void Validator::eval_initializer_rec(AccessorPath& path, types::Type *type, Init
                         "compound initializer cannot be used with scalar type", init.loc);
                     throw UnableToContinue();
                 }
+                return {};
             },
             /*
             Designated initializers are handled within their respective recursive calls (see
@@ -137,39 +140,77 @@ void Validator::eval_initializer_rec(AccessorPath& path, types::Type *type, Init
             They are guaranteed not to occur here, since they only occur within compound
             initializers, and is enforced syntactically.
             */
-            [&](auto&) {
+            [&](auto&) -> Optional<Type *> {
                 throw std::runtime_error(
                     "encountered variant other than ExprMIR and Vec<Box<InitializerMIR>>");
             }},
         init.initializer);
 }
 
-void Validator::eval_initializer_expr(Type *type, Box<ExprMIR>& expr, InitializerMIR& init) {
+Optional<Type *> Validator::eval_initializer_expr(
+    Type *type, Box<ExprMIR>& expr, InitializerMIR& init, bool allow_size_infer) {
     bsv_dbprint("Validator: eval_initializer_expr");
 
     expr->accept(*this);
-    if (type != expr->eff_type) {
-        bsv_dbprint("types are not equal, checking compatibility");
-        if (expr->eff_type->unqual()->coercible_to(type)) {
-            init.initializer = cast(type, std::move(expr));
-        } else {
-            if (type->is_array()) {
-                auto *litexpr = dynamic_cast<LiteralExprMIR *>(expr.get());
-                assert(
-                    litexpr && litexpr->is_string() &&
-                    "expected string literal for array initializer");
 
-                Type *arr_base = type->unqual()->as_array()->base->unqual();
-                if (arr_base != types.get_u8() && arr_base != types.get_i8()) {
-                    add_error<InvalidCoerceError>(expr->eff_type, type, expr->loc);
-                }
-
-            } else {
-                bsv_dbprint("error: cannot coerce expression to initializer type");
-                add_error<InvalidCoerceError>(expr->eff_type, type, expr->loc);
-            }
-        }
+    // A bare function identifier decays to a pointer to itself, same as an array decays to a
+    // pointer to its first element (e.g. `Void (*funcptr)() = somefunc;`).
+    if (expr->act_type->is_function()) {
+        expr = cast(expr->act_type->as_function()->decay(), std::move(expr));
     }
+
+    if (type == expr->eff_type) {
+        return {};
+    }
+
+    bsv_dbprint("types are not equal, checking compatibility");
+    if (expr->eff_type->unqual()->coercible_to(type)) {
+        init.initializer = cast(type, std::move(expr));
+        return {};
+    }
+
+    if (!type->is_array()) {
+        bsv_dbprint("error: cannot coerce expression to initializer type");
+        add_error<InvalidCoerceError>(expr->eff_type, type, expr->loc);
+        return {};
+    }
+
+    auto *litexpr = dynamic_cast<LiteralExprMIR *>(expr.get());
+    assert(litexpr && litexpr->is_string() && "expected string literal for array initializer");
+
+    ArrayType *decl_arr = type->unqual()->as_array();
+    Type *arr_base      = decl_arr->base->unqual();
+    if (arr_base != types.get_u8() && arr_base != types.get_i8()) {
+        add_error<InvalidCoerceError>(expr->eff_type, type, expr->loc);
+        return {};
+    }
+
+    uint64_t lit_size = *litexpr->act_type->as_array()->arr_size;
+
+    if (!decl_arr->arr_size) {
+        // U8 buf[] = "hi"; -- infer the array's size directly from the literal. Only legal for a
+        // direct variable declaration (see visit_single_vardecl); arrays as class members or as
+        // elements of an outer array must already be sized, so allow_size_infer is false there.
+        if (!allow_size_infer) {
+            bsv_dbprint("error: array must have a known size in this context");
+            add_error<InvalidInitializerError>(
+                "array must have a known size in this context", init.loc);
+            return {};
+        }
+
+        ArrayType *inferred = types.set_array_size(decl_arr->base, lit_size);
+        init.initializer    = cast(inferred, std::move(expr));
+        return inferred;
+    }
+
+    if (lit_size > *decl_arr->arr_size) {
+        bsv_dbprint("error: excess elements in array initializer");
+        add_error<InvalidInitializerError>("excess elements in array initializer", expr->loc);
+        return {};
+    }
+
+    init.initializer = cast(type, std::move(expr));
+    return {};
 }
 
 void Validator::eval_initializer_rec_cls(
@@ -287,7 +328,9 @@ void Validator::eval_initializer_rec_arr(
 
 void Validator::visit_single_vardecl(sym::VarSymbol *varsym, InitializerMIR& init) {
     bsv_dbprint("Validator: visiting single VarDecl for ", varsym->name);
-    eval_initializer(varsym->type, init);
+    if (Optional<Type *> inferred = eval_initializer(varsym->type, init, /*allow_size_infer=*/true)) {
+        varsym->type = *inferred;
+    }
 }
 
 #pragma clang diagnostic push
@@ -823,29 +866,33 @@ void Validator::do_visit(AssignExprMIR& node) {
         throw UnableToContinue();
     }
 
+    // Capture this before decay potentially rewrites node.right into a CastExprMIR, which would
+    // otherwise hide the fact that it originated from a string literal.
+    LiteralExprMIR *rhs_lit = dynamic_cast<LiteralExprMIR *>(node.right.get());
+    bool rhs_is_string_lit  = rhs_lit != nullptr && rhs_lit->is_string();
+
+    if (node.right->act_type->is_array()) {
+        node.right = cast(node.right->act_type->as_array()->decay(), std::move(node.right));
+    }
+
     if (node.left->eff_type != node.right->eff_type) {
         if (!node.right->eff_type->unqual()->coercible_to(node.left->eff_type)) {
-            if (node.right->kind != MIRNode::NodeKind::LITEXPR_MIR) {
-                // if not literal, add error
+            if (!rhs_is_string_lit) {
+                // if not a string literal, add error
                 bsv_dbprint("error: cannot coerce right-hand side to left-hand side type");
                 add_error<InvalidCoerceError>(node.right->act_type, node.left->act_type, node.loc);
                 // skip the rest of the check
                 goto done;
             } else {
-                //
-                LiteralExprMIR *expr = dynamic_cast<LiteralExprMIR *>(node.right.get());
-                assert(expr && "got non-literal expression on expression node with LITEXPR");
-
-                if (expr->is_string()) {
-                    PointerType *lhs_ptr = node.left->eff_type->unqual()->as_pointer();
-                    if (!lhs_ptr || (lhs_ptr->base->unqual() != types.get_u8() &&
-                                     lhs_ptr->base->unqual() != types.get_i8())) {
-                        add_error<InvalidCoerceError>(
-                            node.right->act_type, node.left->act_type, node.loc);
-                        goto done;
-                    }
-                    node.right = cast(node.left->eff_type, std::move(node.right));
+                // Handles the U8 *s = "hi" case, where "hi" decays to I8 *
+                PointerType *lhs_ptr = node.left->eff_type->unqual()->as_pointer();
+                if (!lhs_ptr || (lhs_ptr->base->unqual() != types.get_u8() &&
+                                 lhs_ptr->base->unqual() != types.get_i8())) {
+                    add_error<InvalidCoerceError>(
+                        node.right->act_type, node.left->act_type, node.loc);
+                    goto done;
                 }
+                node.right = cast(node.left->eff_type, std::move(node.right));
             }
         }
     }
@@ -936,8 +983,8 @@ void Validator::do_visit(LiteralExprMIR& node) { // done
     bsv_dbprint("Validator: visiting LiteralExprMIR node");
     if (auto *val = std::get_if<eval::Value>(&node.value)) {
         node.set_type(types.get_primitive(val->primtype()));
-    } else if (auto *_ = std::get_if<std::string>(&node.value)) {
-        node.set_type(types.get_const(types.get_pointer(types.get_i8())));
+    } else if (auto *s = std::get_if<std::string>(&node.value)) {
+        node.set_type(types.get_array(types.get_i8(), s->size() + 1));
     } else {
         // unreachable
     }
@@ -971,14 +1018,21 @@ void Validator::do_visit(CallExprMIR& node) {
         throw std::runtime_error("CallExprMIR callee returned callable but is not func or funcptr");
     }
 
-    if (node.args.size() > sig->num_params()) {
+    if (node.args.size() > sig->num_params() && !sig->signature.variadic) {
 
         bsv_dbprint("error: too many arguments in function call");
         add_error<TooManyArgsError>(node.loc, sig->num_params(), node.args.size());
         throw UnableToContinue();
 
-    } else if (node.args.size() == sig->num_params()) {
+    } else if (node.args.size() < sig->num_params()) {
+        if (node.callee->kind != MIRNode::NodeKind::IDENTEXPR_MIR) {
+            // todo: add error, default arguments cannot be used through function pointers
+        }
 
+        // todo: check that the call is not underspecified
+    } else {
+        // node.args.size() == sig->num_params(), or node.args.size() > sig->num_params() with a
+        // variadic signature. Either way, the leading args line up with declared params.
         for (auto&& [i, param] : std::views::enumerate(sig->params())) {
             auto& arg = node.args[i];
             // The param here is in an rvalue position, take unqualified
@@ -988,6 +1042,9 @@ void Validator::do_visit(CallExprMIR& node) {
             if (arg_type != param_type) {
                 if (arg_type->is_array()) {
                     arg      = cast(arg_type->as_array()->decay(), std::move(arg));
+                    arg_type = arg->eff_type->unqual();
+                } else if (arg_type->is_function()) {
+                    arg      = cast(arg_type->as_function()->decay(), std::move(arg));
                     arg_type = arg->eff_type->unqual();
                 }
                 if (arg_type->coercible_to(param_type)) {
@@ -1000,12 +1057,18 @@ void Validator::do_visit(CallExprMIR& node) {
             }
         }
 
-    } else if (node.args.size() < sig->num_params()) {
-        if (node.callee->kind != MIRNode::NodeKind::IDENTEXPR_MIR) {
-            // todo: add error, default arguments cannot be used through function pointers
+        // Trailing variadic arguments have no declared parameter type to check against, but
+        // array/function arguments (e.g. string literals, bare function names) still need to
+        // decay to a pointer.
+        for (size_t i = sig->num_params(); i < node.args.size(); i++) {
+            auto& arg      = node.args[i];
+            auto *arg_type = arg->eff_type->unqual();
+            if (arg_type->is_array()) {
+                arg = cast(arg_type->as_array()->decay(), std::move(arg));
+            } else if (arg_type->is_function()) {
+                arg = cast(arg_type->as_function()->decay(), std::move(arg));
+            }
         }
-
-        // todo: check that the call is not underspecified
     }
 
     node.set_type(sig->returntype()->unqual());

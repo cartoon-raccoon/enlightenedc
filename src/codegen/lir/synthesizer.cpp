@@ -669,11 +669,6 @@ void LIRSynthesizer::do_visit(LoopStmtMIR& node) {
     Vec<Box<FunctionLIR>> functions;
     Vec<Box<VarDeclLIR>> decls;
 
-    if (node.condition) {
-        (*node.condition)->accept(*this);
-        loop->condition = std::move(last_expr);
-    }
-
     if (node.init) {
         Vec<Box<ProgItemLIR>> init_items;
         (*node.init)->accept(*this);
@@ -697,6 +692,13 @@ void LIRSynthesizer::do_visit(LoopStmtMIR& node) {
                 item);
         }
         loop->init = std::move(init_items);
+    }
+
+    // The condition may reference a variable declared in init (e.g. `for (U32 n = 0; n < 3; ...)`),
+    // so init must be synthesized first to register it in the symbol table.
+    if (node.condition) {
+        (*node.condition)->accept(*this);
+        loop->condition = std::move(last_expr);
     }
 
     if (node.step) {

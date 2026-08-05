@@ -2,7 +2,7 @@ extern "C" I32i somefunc();
 
 I32i someinternalfunc(I32i);
 
-U32i *add(U32i a, U32i b) {
+U32i add(U32i a, U32i b) {
     return a + b;
 }
 
@@ -12,7 +12,7 @@ I32i someinternalfunc(I32i somearg) {
 
 public I32i compute(I32i x = 10, I32i y = 20, ...) {
     I32i new;
-    new = add(x, y, new);
+    new = add(x, y);
 
     U64i new2 = new + 1;
 
@@ -65,7 +65,7 @@ I64i CallbackFunction(I64i x)
   return x * x;
 }
 
-Void MathFunc(I64i y, I64i (*proc)(I64i _val))
+I64i MathFunc(I64i y, I64i (*proc)(I64i _val))
 {
   return proc(y);
 }
