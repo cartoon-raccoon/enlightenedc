@@ -175,7 +175,7 @@ Optional<Type *> Validator::eval_initializer_expr(
         return {};
     }
 
-    auto *litexpr = dynamic_cast<LiteralExprMIR *>(expr.get());
+    auto *litexpr = dyncast<LiteralExprMIR>(expr.get());
     assert(litexpr && litexpr->is_string() && "expected string literal for array initializer");
 
     ArrayType *decl_arr = type->unqual()->as_array();
@@ -417,7 +417,7 @@ void Validator::do_visit(CaseStmtMIR& node) { // done
     // guaranteed to be non-null since we already checked that we are in a switch node,
     // so if the dynamic cast fails, something went very wrong.
     SwitchStmtMIR *parent =
-        dynamic_cast<SwitchStmtMIR *>(get_context(MIRNode::NodeKind::SWITCHSTMT_MIR));
+        dyncast<SwitchStmtMIR>(get_context(MIRNode::NodeKind::SWITCHSTMT_MIR));
 
     assert(parent && "could not get parent switch statement");
 
@@ -555,7 +555,7 @@ void Validator::do_visit(ReturnStmtMIR& node) {
     if (!node.ret_expr)
         return;
 
-    FunctionMIR *func = dynamic_cast<FunctionMIR *>(get_context(MIRNode::NodeKind::FUNC_MIR));
+    FunctionMIR *func = dyncast<FunctionMIR>(get_context(MIRNode::NodeKind::FUNC_MIR));
     assert(func && "unable to get FunctionMIR");
 
     FunctionType *sig = func->sym->signature;
@@ -869,7 +869,7 @@ void Validator::do_visit(AssignExprMIR& node) {
 
     // Capture this before decay potentially rewrites node.right into a CastExprMIR, which would
     // otherwise hide the fact that it originated from a string literal.
-    LiteralExprMIR *rhs_lit = dynamic_cast<LiteralExprMIR *>(node.right.get());
+    LiteralExprMIR *rhs_lit = dyncast<LiteralExprMIR>(node.right.get());
     bool rhs_is_string_lit  = rhs_lit != nullptr && rhs_lit->is_string();
 
     if (node.right->act_type->is_array()) {

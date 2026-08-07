@@ -214,7 +214,7 @@ Value ConstEvaluator::eval(SizeofExprMIR& expr) {
                     throw InvalidCompileTimeEval("invalid expression argument to sizeof", e->loc);
                 }
 
-                IdentExprMIR *identexpr = dynamic_cast<IdentExprMIR *>(e.get());
+                IdentExprMIR *identexpr = dyncast<IdentExprMIR>(e.get());
                 if (!identexpr) {
                     throw std::runtime_error("could not cast ExprMIR to IdentExprMIR");
                 }

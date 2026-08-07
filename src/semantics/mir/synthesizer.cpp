@@ -217,7 +217,7 @@ void MIRSynthesizer::do_visit(Function& node) {
             "function declaration but missing direct declarator", node.declarator->loc);
         throw UnableToContinue();
     }
-    if (node.declarator->direct.value()->kind != ASTNode::FUNC_DECLTR) {
+    if (node.declarator->direct.value()->kind != ASTNode::NodeKind::FUNC_DECLTR) {
         add_error<EccSemError>(
             "function declaration but declarator is not function", node.declarator->loc);
         throw UnableToContinue();
@@ -1176,7 +1176,7 @@ void MIRSynthesizer::do_visit(ExpressionStatement& node) {
         switch (expr->kind) {
         // If the internal expression is a string literal expression, emit a PrintStatement
         case MNK::LITEXPR_MIR: {
-            auto *litexpr = dynamic_cast<LiteralExprMIR *>(expr.get());
+            auto *litexpr = dyncast<LiteralExprMIR>(expr.get());
             if (!litexpr) {
                 throw std::runtime_error("could not cast LITEXPR_MIR to LiteralExprMIR");
             }
@@ -1194,7 +1194,7 @@ void MIRSynthesizer::do_visit(ExpressionStatement& node) {
         // if the internal expression is an identifier with type function, and function has no
         // params, emit a call to that function instead
         case MNK::IDENTEXPR_MIR: {
-            auto *idexpr = dynamic_cast<IdentExprMIR *>(expr.get());
+            auto *idexpr = dyncast<IdentExprMIR>(expr.get());
             if (!idexpr) {
                 throw std::runtime_error("could not cast IDENTEXPR_MIR to IdentExprMIR");
             }

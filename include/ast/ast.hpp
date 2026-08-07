@@ -27,7 +27,7 @@ class ASTNode : public NoCopy {
 public:
     Location loc;
 
-    enum NodeKind : uint8_t {
+    enum class NodeKind : uint8_t {
         TYPE_QUAL,
         STORAGE_SPEC,
         POINTER,
@@ -85,7 +85,9 @@ public:
         SIZEOF_EXPR,
         FUNC,
         PROG,
-    } kind;
+    };
+
+    NodeKind kind;
 
     ASTNode(NodeKind kind, Location loc) : loc(loc), kind(kind) {}
     virtual ~ASTNode() = default;
@@ -102,12 +104,64 @@ Abstract class denoting a program item: declaration, statement, or function defi
 class ProgramItem : public ASTNode {
 public:
     ProgramItem(NodeKind kind, Location loc) : ASTNode(kind, loc) {}
+
+    static bool classof(const ASTNode *node) {
+        switch (node->kind) {
+        case NodeKind::PARAM_DECL:
+        case NodeKind::TYPE_DECL:
+        case NodeKind::VAR_DECL:
+        case NodeKind::CLASS_DECL:
+        case NodeKind::COMP_STMT:
+        case NodeKind::EXPR_STMT:
+        case NodeKind::CASE_STMT:
+        case NodeKind::CASE_RG_STMT:
+        case NodeKind::DEF_STMT:
+        case NodeKind::LABEL_STMT:
+        case NodeKind::PRINT_STMT:
+        case NodeKind::IF_STMT:
+        case NodeKind::SWITCH_STMT:
+        case NodeKind::WHILE_STMT:
+        case NodeKind::DO_WHILE_STMT:
+        case NodeKind::FOR_STMT:
+        case NodeKind::GOTO_STMT:
+        case NodeKind::BREAK_STMT:
+        case NodeKind::CONT_STMT:
+        case NodeKind::RET_STMT:
+        case NodeKind::FUNC:
+            return true;
+        default:
+            return false;
+        }
+    }
 };
 
 // The abstract Expression class that all expressions inherit from.
 class Expression : public ASTNode {
 public:
     Expression(NodeKind kind, Location loc) : ASTNode(kind, loc) {}
+
+    static bool classof(const ASTNode *node) {
+        switch (node->kind) {
+        case NodeKind::CONST_EXPR:
+        case NodeKind::BIN_EXPR:
+        case NodeKind::CAST_EXPR:
+        case NodeKind::UN_EXPR:
+        case NodeKind::ASSGN_EXPR:
+        case NodeKind::COND_EXPR:
+        case NodeKind::IDENT_EXPR:
+        case NodeKind::LIT_EXPR:
+        case NodeKind::STR_EXPR:
+        case NodeKind::CALL_EXPR:
+        case NodeKind::ACCESS_EXPR:
+        case NodeKind::REINT_EXPR:
+        case NodeKind::SUBSCR_EXPR:
+        case NodeKind::POSTF_EXPR:
+        case NodeKind::SIZEOF_EXPR:
+            return true;
+        default:
+            return false;
+        }
+    }
 };
 
 /*
@@ -119,11 +173,13 @@ compile time, and any expression that is not cannot be.
 class ConstExpression : public Expression {
 public:
     ConstExpression(Box<Expression> expr)
-        : Expression(CONST_EXPR, expr->loc), inner(std::move(expr)) {}
+        : Expression(NodeKind::CONST_EXPR, expr->loc), inner(std::move(expr)) {}
 
     Box<Expression> inner;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::CONST_EXPR; }
 };
 
 //* DECLARATIONS
@@ -134,6 +190,18 @@ The Declaration abstract class that all declarations inherit from.
 class Declaration : public ProgramItem {
 public:
     Declaration(NodeKind kind, Location loc) : ProgramItem(kind, loc) {}
+
+    static bool classof(const ASTNode *node) {
+        switch (node->kind) {
+        case NodeKind::PARAM_DECL:
+        case NodeKind::TYPE_DECL:
+        case NodeKind::VAR_DECL:
+        case NodeKind::CLASS_DECL:
+            return true;
+        default:
+            return false;
+        }
+    }
 };
 
 /*
@@ -142,17 +210,36 @@ Abstract class denoting a storage class or type specifier, or a type qualifier.
 class DeclarationSpecifier : public ASTNode {
 public:
     DeclarationSpecifier(NodeKind kind, Location loc) : ASTNode(kind, loc) {}
+
+    static bool classof(const ASTNode *node) {
+        switch (node->kind) {
+        case NodeKind::TYPE_QUAL:
+        case NodeKind::STORAGE_SPEC:
+        case NodeKind::CLASS_SPEC:
+        case NodeKind::UNION_SPEC:
+        case NodeKind::ENUM_SPEC:
+        case NodeKind::TYPE_IDENT:
+        case NodeKind::VOID_SPEC:
+        case NodeKind::PRIM_SPEC:
+            return true;
+        default:
+            return false;
+        }
+    }
 };
 
 class TypeQualifier : public DeclarationSpecifier {
 public:
     enum QualType : uint8_t { CONST };
 
-    TypeQualifier(Location loc, QualType qual) : DeclarationSpecifier(TYPE_QUAL, loc), qual(qual) {}
+    TypeQualifier(Location loc, QualType qual)
+        : DeclarationSpecifier(NodeKind::TYPE_QUAL, loc), qual(qual) {}
 
     QualType qual;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::TYPE_QUAL; }
 };
 
 // Storage class specifiers (public, static, extern).
@@ -161,22 +248,27 @@ public:
     enum SpecType : uint8_t { PUBLIC, STATIC, EXTERN, EXTERNC };
 
     StorageClassSpecifier(Location loc, SpecType type)
-        : DeclarationSpecifier(STORAGE_SPEC, loc), type(type) {}
+        : DeclarationSpecifier(NodeKind::STORAGE_SPEC, loc), type(type) {}
 
     SpecType type;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::STORAGE_SPEC; }
 };
 
 class Pointer : public ASTNode {
 public:
     Pointer(Location loc, Vec<Box<TypeQualifier>> qualifiers, Optional<Box<Pointer>> nested)
-        : ASTNode(POINTER, loc), qualifiers(std::move(qualifiers)), nested(std::move(nested)) {}
+        : ASTNode(NodeKind::POINTER, loc), qualifiers(std::move(qualifiers)),
+          nested(std::move(nested)) {}
 
     Vec<Box<TypeQualifier>> qualifiers;
     Optional<Box<Pointer>> nested;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::POINTER; }
 };
 
 /*
@@ -185,6 +277,18 @@ A non-pointer declarator abstract class.
 class DirectDeclarator : public ASTNode {
 public:
     DirectDeclarator(NodeKind kind, Location loc) : ASTNode(kind, loc) {}
+
+    static bool classof(const ASTNode *node) {
+        switch (node->kind) {
+        case NodeKind::IDENT_DECLTR:
+        case NodeKind::PAREN_DECLTR:
+        case NodeKind::ARR_DECLTR:
+        case NodeKind::FUNC_DECLTR:
+            return true;
+        default:
+            return false;
+        }
+    }
 };
 
 /*
@@ -209,22 +313,24 @@ public:
         std::variant<Box<Expression>, Box<Member>, Box<Index>, Vec<Box<Initializer>>>;
 
     Initializer(Location loc, Box<Expression> expr)
-        : ASTNode(INITIALIZER, loc), initializer(std::move(expr)) {}
+        : ASTNode(NodeKind::INITIALIZER, loc), initializer(std::move(expr)) {}
 
     Initializer(Location loc, std::string mem, Box<Initializer> init)
-        : ASTNode(INITIALIZER, loc),
+        : ASTNode(NodeKind::INITIALIZER, loc),
           initializer(std::make_unique<Member>(std::move(mem), std::move(init))) {}
 
     Initializer(Location loc, Box<ConstExpression> idx, Box<Initializer> init)
-        : ASTNode(INITIALIZER, loc),
+        : ASTNode(NodeKind::INITIALIZER, loc),
           initializer(std::make_unique<Index>(std::move(idx), std::move(init))) {}
 
     Initializer(Location loc, Vec<Box<Initializer>> list)
-        : ASTNode(INITIALIZER, loc), initializer(std::move(list)) {}
+        : ASTNode(NodeKind::INITIALIZER, loc), initializer(std::move(list)) {}
 
     InitVariant initializer;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::INITIALIZER; }
 };
 
 /*
@@ -233,12 +339,15 @@ A general declarator containing a DirectDeclarator and an optional Pointer.
 class Declarator : public ASTNode {
 public:
     Declarator(Location loc, Optional<Box<Pointer>> pointer, Optional<Box<DirectDeclarator>> direct)
-        : ASTNode(DECLARATOR, loc), pointer(std::move(pointer)), direct(std::move(direct)) {}
+        : ASTNode(NodeKind::DECLARATOR, loc), pointer(std::move(pointer)),
+          direct(std::move(direct)) {}
 
     Optional<Box<Pointer>> pointer;
     Optional<Box<DirectDeclarator>> direct;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::DECLARATOR; }
 };
 
 /*
@@ -247,13 +356,15 @@ A declarator creating one or more new variables, with optional initializers.
 class InitDeclarator : public ASTNode {
 public:
     InitDeclarator(Location loc, Box<Declarator> declarator, Optional<Box<Initializer>> initializer)
-        : ASTNode(INIT_DECLTR, loc), declarator(std::move(declarator)),
+        : ASTNode(NodeKind::INIT_DECLTR, loc), declarator(std::move(declarator)),
           initializer(std::move(initializer)) {}
 
     Box<Declarator> declarator;
     Optional<Box<Initializer>> initializer;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::INIT_DECLTR; }
 };
 
 /*
@@ -264,7 +375,7 @@ public:
     ParameterDeclaration(
         Location loc, Vec<Box<DeclarationSpecifier>> specifiers,
         Optional<Box<Declarator>> declarator, Optional<Box<ConstExpression>> default_value)
-        : Declaration(PARAM_DECL, loc), specifiers(std::move(specifiers)),
+        : Declaration(NodeKind::PARAM_DECL, loc), specifiers(std::move(specifiers)),
           declarator(std::move(declarator)), default_value(std::move(default_value)) {}
 
     Vec<Box<DeclarationSpecifier>> specifiers;
@@ -272,6 +383,8 @@ public:
     Optional<Box<ConstExpression>> default_value;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::PARAM_DECL; }
 };
 
 /*
@@ -280,11 +393,13 @@ A Declaration of a type (i.e. a declaration of only specifiers, no InitDeclarato
 class TypeDeclaration : public Declaration {
 public:
     TypeDeclaration(Location loc, Vec<Box<DeclarationSpecifier>> specifiers)
-        : Declaration(TYPE_DECL, loc), specifiers(std::move(specifiers)) {}
+        : Declaration(NodeKind::TYPE_DECL, loc), specifiers(std::move(specifiers)) {}
 
     Vec<Box<DeclarationSpecifier>> specifiers;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::TYPE_DECL; }
 };
 
 /*
@@ -295,13 +410,15 @@ public:
     VariableDeclaration(
         Location loc, Vec<Box<DeclarationSpecifier>> specifiers,
         Vec<Box<InitDeclarator>> declarators)
-        : Declaration(VAR_DECL, loc), specifiers(std::move(specifiers)),
+        : Declaration(NodeKind::VAR_DECL, loc), specifiers(std::move(specifiers)),
           declarators(std::move(declarators)) {}
 
     Vec<Box<DeclarationSpecifier>> specifiers;
     Vec<Box<InitDeclarator>> declarators;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::VAR_DECL; }
 };
 
 class IdentifierDeclarator : public DirectDeclarator {
@@ -309,9 +426,11 @@ public:
     std::string name;
 
     IdentifierDeclarator(Location loc, std::string n)
-        : DirectDeclarator(IDENT_DECLTR, loc), name(std::move(n)) {}
+        : DirectDeclarator(NodeKind::IDENT_DECLTR, loc), name(std::move(n)) {}
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::IDENT_DECLTR; }
 };
 
 /*
@@ -336,22 +455,27 @@ of `arr` in the former is `U32`.
 class ParenDeclarator : public DirectDeclarator {
 public:
     ParenDeclarator(Location loc, Box<Declarator> decl)
-        : DirectDeclarator(PAREN_DECLTR, loc), inner(std::move(decl)) {}
+        : DirectDeclarator(NodeKind::PAREN_DECLTR, loc), inner(std::move(decl)) {}
 
     Box<Declarator> inner;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::PAREN_DECLTR; }
 };
 
 class ArrayDeclarator : public DirectDeclarator {
 public:
     ArrayDeclarator(Location loc, Box<DirectDeclarator> base, Optional<Box<ConstExpression>> size)
-        : DirectDeclarator(ARR_DECLTR, loc), base(std::move(base)), size(std::move(size)) {}
+        : DirectDeclarator(NodeKind::ARR_DECLTR, loc), base(std::move(base)),
+          size(std::move(size)) {}
 
     Box<DirectDeclarator> base;
     Optional<Box<ConstExpression>> size;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::ARR_DECLTR; }
 };
 
 class FunctionDeclarator : public DirectDeclarator {
@@ -359,14 +483,16 @@ public:
     FunctionDeclarator(
         Location loc, Box<DirectDeclarator> base, Vec<Box<ParameterDeclaration>> params,
         bool is_variadic)
-        : DirectDeclarator(FUNC_DECLTR, loc), base(std::move(base)), parameters(std::move(params)),
-          is_variadic(is_variadic) {}
+        : DirectDeclarator(NodeKind::FUNC_DECLTR, loc), base(std::move(base)),
+          parameters(std::move(params)), is_variadic(is_variadic) {}
 
     Box<DirectDeclarator> base;
     Vec<Box<ParameterDeclaration>> parameters;
     bool is_variadic;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::FUNC_DECLTR; }
 };
 
 /*
@@ -376,13 +502,15 @@ class ClassDeclarator : public ASTNode {
 public:
     ClassDeclarator(
         Location loc, Optional<Box<Declarator>> declarator, Optional<Box<Expression>> bit_width)
-        : ASTNode(CLASS_DECLTR, loc), declarator(std::move(declarator)),
+        : ASTNode(NodeKind::CLASS_DECLTR, loc), declarator(std::move(declarator)),
           bit_width(std::move(bit_width)) {}
 
     Optional<Box<Declarator>> declarator;
     Optional<Box<Expression>> bit_width;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::CLASS_DECLTR; }
 };
 
 /*
@@ -394,13 +522,15 @@ public:
     ClassDeclaration(
         Location loc, Vec<Box<DeclarationSpecifier>> specifiers,
         Vec<Box<ClassDeclarator>> declarators)
-        : Declaration(CLASS_DECL, loc), specifiers(std::move(specifiers)),
+        : Declaration(NodeKind::CLASS_DECL, loc), specifiers(std::move(specifiers)),
           declarators(std::move(declarators)) {}
 
     Vec<Box<DeclarationSpecifier>> specifiers;
     Vec<Box<ClassDeclarator>> declarators;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::CLASS_DECL; }
 };
 
 /*
@@ -410,16 +540,32 @@ or some user-defined compound type.
 class TypeSpecifier : public DeclarationSpecifier {
 public:
     TypeSpecifier(NodeKind kind, Location loc) : DeclarationSpecifier(kind, loc) {}
+
+    static bool classof(const ASTNode *node) {
+        switch (node->kind) {
+        case NodeKind::PRIM_SPEC:
+        case NodeKind::CLASS_SPEC:
+        case NodeKind::UNION_SPEC:
+        case NodeKind::ENUM_SPEC:
+        case NodeKind::TYPE_IDENT:
+        case NodeKind::VOID_SPEC:
+            return true;
+        default:
+            return false;
+        }
+    }
 };
 
 class PrimitiveSpecifier : public TypeSpecifier {
 public:
     PrimitiveSpecifier(Location loc, tokens::PrimType pkind)
-        : TypeSpecifier(PRIM_SPEC, loc), pkind(pkind) {}
+        : TypeSpecifier(NodeKind::PRIM_SPEC, loc), pkind(pkind) {}
 
     tokens::PrimType pkind;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::PRIM_SPEC; }
 };
 
 class ClassSpecifier : public TypeSpecifier {
@@ -427,8 +573,8 @@ public:
     ClassSpecifier(
         Location loc, Optional<std::string> name, Optional<Vec<std::string>> parents,
         Optional<Vec<Box<ClassDeclaration>>> declarations)
-        : TypeSpecifier(CLASS_SPEC, loc), name(std::move(name)), parents(std::move(parents)),
-          declarations(std::move(declarations)) {}
+        : TypeSpecifier(NodeKind::CLASS_SPEC, loc), name(std::move(name)),
+          parents(std::move(parents)), declarations(std::move(declarations)) {}
 
     Optional<std::string> name;
     // Identifiers of parent classes.
@@ -437,6 +583,8 @@ public:
     Optional<Vec<Box<ClassDeclaration>>> declarations;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::CLASS_SPEC; }
 };
 
 class UnionSpecifier : public TypeSpecifier {
@@ -444,7 +592,7 @@ public:
     UnionSpecifier(
         Location loc, Optional<std::string> name, Optional<tokens::PrimType> type_rep,
         Optional<Vec<Box<ClassDeclaration>>> declarations)
-        : TypeSpecifier(UNION_SPEC, loc), name(std::move(name)), type_rep(type_rep),
+        : TypeSpecifier(NodeKind::UNION_SPEC, loc), name(std::move(name)), type_rep(type_rep),
           declarations(std::move(declarations)) {}
 
     Optional<std::string> name;
@@ -454,6 +602,8 @@ public:
     Optional<Vec<Box<ClassDeclaration>>> declarations;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::UNION_SPEC; }
 };
 
 /*
@@ -462,12 +612,14 @@ A declaration of an enumerator within an enum.
 class Enumerator : public ASTNode {
 public:
     Enumerator(Location loc, std::string name, Optional<Box<ConstExpression>> value)
-        : ASTNode(ENUMERATOR, loc), name(std::move(name)), value(std::move(value)) {}
+        : ASTNode(NodeKind::ENUMERATOR, loc), name(std::move(name)), value(std::move(value)) {}
 
     std::string name;
     Optional<Box<ConstExpression>> value;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::ENUMERATOR; }
 };
 
 /*
@@ -477,14 +629,14 @@ class EnumSpecifier : public TypeSpecifier {
 public:
     EnumSpecifier(
         Location loc, Optional<std::string> name, Optional<Vec<Box<Enumerator>>> enumerators)
-        : TypeSpecifier(ENUM_SPEC, loc), name(std::move(name)),
+        : TypeSpecifier(NodeKind::ENUM_SPEC, loc), name(std::move(name)),
           enumerators(std::move(enumerators)) {}
 
     EnumSpecifier(
         Location loc, Optional<std::string> name, Optional<Vec<Box<Enumerator>>> enumerators,
         tokens::PrimType underlying)
-        : TypeSpecifier(ENUM_SPEC, loc), name(std::move(name)), enumerators(std::move(enumerators)),
-          underlying(underlying) {}
+        : TypeSpecifier(NodeKind::ENUM_SPEC, loc), name(std::move(name)),
+          enumerators(std::move(enumerators)), underlying(underlying) {}
 
     Optional<std::string> name;
     Optional<Vec<Box<Enumerator>>> enumerators;
@@ -495,23 +647,29 @@ public:
     Optional<tokens::PrimType> underlying;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::ENUM_SPEC; }
 };
 
 class TypeIdentifier : public TypeSpecifier {
 public:
     TypeIdentifier(Location loc, std::string ident)
-        : TypeSpecifier(TYPE_IDENT, loc), identifier(std::move(ident)) {}
+        : TypeSpecifier(NodeKind::TYPE_IDENT, loc), identifier(std::move(ident)) {}
 
     std::string identifier;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::TYPE_IDENT; }
 };
 
 class VoidSpecifier : public TypeSpecifier {
 public:
-    VoidSpecifier(Location loc) : TypeSpecifier(VOID_SPEC, loc) {}
+    VoidSpecifier(Location loc) : TypeSpecifier(NodeKind::VOID_SPEC, loc) {}
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::VOID_SPEC; }
 };
 
 //* STATEMENTS
@@ -520,39 +678,69 @@ public:
 class Statement : public ProgramItem {
 public:
     Statement(NodeKind kind, Location loc) : ProgramItem(kind, loc) {}
+
+    static bool classof(const ASTNode *node) {
+        switch (node->kind) {
+        case NodeKind::COMP_STMT:
+        case NodeKind::EXPR_STMT:
+        case NodeKind::CASE_STMT:
+        case NodeKind::CASE_RG_STMT:
+        case NodeKind::DEF_STMT:
+        case NodeKind::LABEL_STMT:
+        case NodeKind::PRINT_STMT:
+        case NodeKind::IF_STMT:
+        case NodeKind::SWITCH_STMT:
+        case NodeKind::WHILE_STMT:
+        case NodeKind::DO_WHILE_STMT:
+        case NodeKind::FOR_STMT:
+        case NodeKind::GOTO_STMT:
+        case NodeKind::BREAK_STMT:
+        case NodeKind::CONT_STMT:
+        case NodeKind::RET_STMT:
+            return true;
+        default:
+            return false;
+        }
+    }
 };
 
 // A block of mixed declarations and statements, surrounded by braces.
 class CompoundStatement : public Statement {
 public:
     CompoundStatement(Location loc, Vec<Box<ProgramItem>> items)
-        : Statement(COMP_STMT, loc), items(std::move(items)) {}
+        : Statement(NodeKind::COMP_STMT, loc), items(std::move(items)) {}
 
     Vec<Box<ProgramItem>> items;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::COMP_STMT; }
 };
 
 class ExpressionStatement : public Statement {
 public:
     ExpressionStatement(Location loc, Optional<Box<Expression>> expression)
-        : Statement(EXPR_STMT, loc), expression(std::move(expression)) {}
+        : Statement(NodeKind::EXPR_STMT, loc), expression(std::move(expression)) {}
 
     Optional<Box<Expression>> expression;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::EXPR_STMT; }
 };
 
 class CaseStatement : public Statement {
 public:
     CaseStatement(Location loc, Box<ConstExpression> case_expr, Box<Statement> statement)
-        : Statement(CASE_STMT, loc), case_expr(std::move(case_expr)),
+        : Statement(NodeKind::CASE_STMT, loc), case_expr(std::move(case_expr)),
           statement(std::move(statement)) {}
 
     Box<ConstExpression> case_expr;
     Box<Statement> statement;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::CASE_STMT; }
 };
 
 class CaseRangeStatement : public Statement {
@@ -560,7 +748,7 @@ public:
     CaseRangeStatement(
         Location loc, Box<ConstExpression> range_start, Box<ConstExpression> range_end,
         Box<Statement> statement)
-        : Statement(CASE_RG_STMT, loc), range_start(std::move(range_start)),
+        : Statement(NodeKind::CASE_RG_STMT, loc), range_start(std::move(range_start)),
           range_end(std::move(range_end)), statement(std::move(statement)) {}
 
     Box<ConstExpression> range_start;
@@ -568,39 +756,48 @@ public:
     Box<Statement> statement;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::CASE_RG_STMT; }
 };
 
 class DefaultStatement : public Statement {
 public:
     DefaultStatement(Location loc, Box<Statement> statement)
-        : Statement(DEF_STMT, loc), statement(std::move(statement)) {}
+        : Statement(NodeKind::DEF_STMT, loc), statement(std::move(statement)) {}
 
     Box<Statement> statement;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::DEF_STMT; }
 };
 
 class LabeledStatement : public Statement {
 public:
     LabeledStatement(Location loc, std::string label, Box<Statement> statement)
-        : Statement(LABEL_STMT, loc), label(std::move(label)), statement(std::move(statement)) {}
+        : Statement(NodeKind::LABEL_STMT, loc), label(std::move(label)),
+          statement(std::move(statement)) {}
 
     std::string label;
     Box<Statement> statement;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::LABEL_STMT; }
 };
 
 class PrintStatement : public Statement {
 public:
     PrintStatement(Location loc, std::string format_string, Vec<Box<Expression>> arguments)
-        : Statement(PRINT_STMT, loc), format_string(std::move(format_string)),
+        : Statement(NodeKind::PRINT_STMT, loc), format_string(std::move(format_string)),
           arguments(std::move(arguments)) {}
 
     std::string format_string;
     Vec<Box<Expression>> arguments;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::PRINT_STMT; }
 };
 
 class IfStatement : public Statement {
@@ -608,7 +805,7 @@ public:
     IfStatement(
         Location loc, Box<Expression> condition, Box<Statement> then_branch,
         Optional<Box<Statement>> else_branch)
-        : Statement(IF_STMT, loc), condition(std::move(condition)),
+        : Statement(NodeKind::IF_STMT, loc), condition(std::move(condition)),
           then_branch(std::move(then_branch)), else_branch(std::move(else_branch)) {}
 
     Box<Expression> condition;
@@ -616,39 +813,50 @@ public:
     Optional<Box<Statement>> else_branch;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::IF_STMT; }
 };
 
 class SwitchStatement : public Statement {
 public:
     SwitchStatement(Location loc, Box<Expression> condition, Box<Statement> body)
-        : Statement(SWITCH_STMT, loc), condition(std::move(condition)), body(std::move(body)) {}
+        : Statement(NodeKind::SWITCH_STMT, loc), condition(std::move(condition)),
+          body(std::move(body)) {}
 
     Box<Expression> condition;
     Box<Statement> body;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::SWITCH_STMT; }
 };
 
 class WhileStatement : public Statement {
 public:
     WhileStatement(Location loc, Box<Expression> condition, Box<Statement> body)
-        : Statement(WHILE_STMT, loc), condition(std::move(condition)), body(std::move(body)) {}
+        : Statement(NodeKind::WHILE_STMT, loc), condition(std::move(condition)),
+          body(std::move(body)) {}
 
     Box<Expression> condition;
     Box<Statement> body;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::WHILE_STMT; }
 };
 
 class DoWhileStatement : public Statement {
 public:
     DoWhileStatement(Location loc, Box<Statement> body, Box<Expression> condition)
-        : Statement(DO_WHILE_STMT, loc), body(std::move(body)), condition(std::move(condition)) {}
+        : Statement(NodeKind::DO_WHILE_STMT, loc), body(std::move(body)),
+          condition(std::move(condition)) {}
 
     Box<Statement> body;
     Box<Expression> condition;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::DO_WHILE_STMT; }
 };
 
 class ForStatement : public Statement {
@@ -658,8 +866,8 @@ public:
     ForStatement(
         Location loc, Optional<ForInit> init, Optional<Box<Expression>> condition,
         Optional<Box<Expression>> increment, Box<Statement> body)
-        : Statement(FOR_STMT, loc), init(std::move(init)), condition(std::move(condition)),
-          increment(std::move(increment)), body(std::move(body)) {}
+        : Statement(NodeKind::FOR_STMT, loc), init(std::move(init)),
+          condition(std::move(condition)), increment(std::move(increment)), body(std::move(body)) {}
 
     Optional<ForInit> init;
     Optional<Box<Expression>> condition;
@@ -667,45 +875,67 @@ public:
     Box<Statement> body;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::FOR_STMT; }
 };
 
 class JumpStatement : public Statement {
 public:
     JumpStatement(NodeKind kind, Location loc) : Statement(kind, loc) {}
+
+    static bool classof(const ASTNode *node) {
+        switch (node->kind) {
+        case NodeKind::GOTO_STMT:
+        case NodeKind::BREAK_STMT:
+        case NodeKind::CONT_STMT:
+        case NodeKind::RET_STMT:
+            return true;
+        default:
+            return false;
+        }
+    }
 };
 
 class GotoStatement : public JumpStatement {
 public:
     GotoStatement(Location loc, std::string target_label)
-        : JumpStatement(GOTO_STMT, loc), target_label(std::move(target_label)) {}
+        : JumpStatement(NodeKind::GOTO_STMT, loc), target_label(std::move(target_label)) {}
 
     std::string target_label;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::GOTO_STMT; }
 };
 
 class BreakStatement : public JumpStatement {
 public:
-    BreakStatement(Location loc) : JumpStatement(BREAK_STMT, loc) {}
+    BreakStatement(Location loc) : JumpStatement(NodeKind::BREAK_STMT, loc) {}
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::BREAK_STMT; }
 };
 
 class ContinueStatement : public JumpStatement {
 public:
-    ContinueStatement(Location loc) : JumpStatement(CONT_STMT, loc) {}
+    ContinueStatement(Location loc) : JumpStatement(NodeKind::CONT_STMT, loc) {}
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::CONT_STMT; }
 };
 
 class ReturnStatement : public JumpStatement {
 public:
     ReturnStatement(Location loc, Optional<Box<Expression>> return_value)
-        : JumpStatement(RET_STMT, loc), return_value(std::move(return_value)) {}
+        : JumpStatement(NodeKind::RET_STMT, loc), return_value(std::move(return_value)) {}
 
     Optional<Box<Expression>> return_value;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::RET_STMT; }
 };
 
 class TypeName : public ASTNode {
@@ -713,13 +943,15 @@ public:
     TypeName(
         Location loc, Vec<Box<DeclarationSpecifier>> specifiers,
         Optional<Box<Declarator>> declarator)
-        : ASTNode(TYPE_NAME, loc), specifiers(std::move(specifiers)),
+        : ASTNode(NodeKind::TYPE_NAME, loc), specifiers(std::move(specifiers)),
           declarator(std::move(declarator)) {}
 
     Vec<Box<DeclarationSpecifier>> specifiers;
     Optional<Box<Declarator>> declarator;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::TYPE_NAME; }
 };
 
 //* EXPRESSIONS
@@ -727,48 +959,59 @@ public:
 class BinaryExpression : public Expression {
 public:
     BinaryExpression(Location loc, Box<Expression> left, Box<Expression> right, tokens::BinaryOp op)
-        : Expression(BIN_EXPR, loc), left(std::move(left)), right(std::move(right)), op(op) {}
+        : Expression(NodeKind::BIN_EXPR, loc), left(std::move(left)), right(std::move(right)),
+          op(op) {}
 
     Box<Expression> left;
     Box<Expression> right;
     tokens::BinaryOp op;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::BIN_EXPR; }
 };
 
 class CastExpression : public Expression {
 public:
     CastExpression(Location loc, Box<Expression> inner, Box<TypeName> type_name)
-        : Expression(CAST_EXPR, loc), inner(std::move(inner)), type_name(std::move(type_name)) {}
+        : Expression(NodeKind::CAST_EXPR, loc), inner(std::move(inner)),
+          type_name(std::move(type_name)) {}
 
     Box<Expression> inner;
     Box<TypeName> type_name;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::CAST_EXPR; }
 };
 
 class UnaryExpression : public Expression {
 public:
     UnaryExpression(Location loc, Box<Expression> operand, tokens::UnaryOp op)
-        : Expression(UN_EXPR, loc), operand(std::move(operand)), op(op) {}
+        : Expression(NodeKind::UN_EXPR, loc), operand(std::move(operand)), op(op) {}
 
     Box<Expression> operand;
     tokens::UnaryOp op;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::UN_EXPR; }
 };
 
 class AssignmentExpression : public Expression {
 public:
     AssignmentExpression(
         Location loc, Box<Expression> left, Box<Expression> right, tokens::AssignOp op)
-        : Expression(ASSGN_EXPR, loc), left(std::move(left)), right(std::move(right)), op(op) {}
+        : Expression(NodeKind::ASSGN_EXPR, loc), left(std::move(left)), right(std::move(right)),
+          op(op) {}
 
     Box<Expression> left;
     Box<Expression> right;
     tokens::AssignOp op;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::ASSGN_EXPR; }
 };
 
 class ConditionalExpression : public Expression {
@@ -776,7 +1019,7 @@ public:
     ConditionalExpression(
         Location loc, Box<Expression> condition, Box<Expression> true_expr,
         Box<Expression> false_expr)
-        : Expression(COND_EXPR, loc), condition(std::move(condition)),
+        : Expression(NodeKind::COND_EXPR, loc), condition(std::move(condition)),
           true_expr(std::move(true_expr)), false_expr(std::move(false_expr)) {}
 
     Box<Expression> condition;
@@ -784,16 +1027,20 @@ public:
     Box<Expression> false_expr;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::COND_EXPR; }
 };
 
 class IdentifierExpression : public Expression {
 public:
     IdentifierExpression(Location loc, std::string name)
-        : Expression(IDENT_EXPR, loc), name(std::move(name)) {}
+        : Expression(NodeKind::IDENT_EXPR, loc), name(std::move(name)) {}
 
     std::string name;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::IDENT_EXPR; }
 };
 
 class LiteralExpression : public Expression {
@@ -808,46 +1055,55 @@ public:
     };
 
     LiteralExpression(Location loc, LiteralKind kind, Value value)
-        : Expression(LIT_EXPR, loc), kind(kind), value(value) {}
+        : Expression(NodeKind::LIT_EXPR, loc), kind(kind), value(value) {}
 
     LiteralKind kind;
     Value value;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::LIT_EXPR; }
 };
 
 class StringExpression : public Expression {
 public:
     StringExpression(Location loc, std::string value)
-        : Expression(STR_EXPR, loc), value(std::move(value)) {}
+        : Expression(NodeKind::STR_EXPR, loc), value(std::move(value)) {}
 
     std::string value;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::STR_EXPR; }
 };
 
 class CallExpression : public Expression {
 public:
     CallExpression(Location loc, Box<Expression> callee, Vec<Box<Expression>> arguments)
-        : Expression(CALL_EXPR, loc), callee(std::move(callee)), arguments(std::move(arguments)) {}
+        : Expression(NodeKind::CALL_EXPR, loc), callee(std::move(callee)),
+          arguments(std::move(arguments)) {}
 
     Box<Expression> callee;
     Vec<Box<Expression>> arguments;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::CALL_EXPR; }
 };
 
 class MemberAccessExpression : public Expression {
 public:
     MemberAccessExpression(Location loc, Box<Expression> object, std::string member, bool is_arrow)
-        : Expression(ACCESS_EXPR, loc), object(std::move(object)), member(std::move(member)),
-          is_arrow(is_arrow) {}
+        : Expression(NodeKind::ACCESS_EXPR, loc), object(std::move(object)),
+          member(std::move(member)), is_arrow(is_arrow) {}
 
     Box<Expression> object;
     std::string member;
     bool is_arrow;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::ACCESS_EXPR; }
 };
 
 /**
@@ -865,7 +1121,7 @@ class ReinterpretExpression : public Expression {
 public:
     ReinterpretExpression(
         Location loc, Box<Expression> object, tokens::PrimType target, bool is_arrow)
-        : Expression(REINT_EXPR, loc), object(std::move(object)), target(target),
+        : Expression(NodeKind::REINT_EXPR, loc), object(std::move(object)), target(target),
           is_arrow(is_arrow) {}
 
     Box<Expression> object;
@@ -873,41 +1129,50 @@ public:
     bool is_arrow;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::REINT_EXPR; }
 };
 
 class ArraySubscriptExpression : public Expression {
 public:
     ArraySubscriptExpression(Location loc, Box<Expression> array, Box<Expression> index)
-        : Expression(SUBSCR_EXPR, loc), array(std::move(array)), index(std::move(index)) {}
+        : Expression(NodeKind::SUBSCR_EXPR, loc), array(std::move(array)), index(std::move(index)) {
+    }
 
     Box<Expression> array;
     Box<Expression> index;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::SUBSCR_EXPR; }
 };
 
 class PostfixExpression : public Expression {
 public:
     PostfixExpression(Location loc, Box<Expression> operand, tokens::PostfixOp op)
-        : Expression(POSTF_EXPR, loc), operand(std::move(operand)), op(op) {}
+        : Expression(NodeKind::POSTF_EXPR, loc), operand(std::move(operand)), op(op) {}
 
     Box<Expression> operand;
     tokens::PostfixOp op;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::POSTF_EXPR; }
 };
 
 class SizeofExpression : public Expression {
 public:
     SizeofExpression(Location loc, Box<Expression> expr)
-        : Expression(SIZEOF_EXPR, loc), operand(std::move(expr)) {}
+        : Expression(NodeKind::SIZEOF_EXPR, loc), operand(std::move(expr)) {}
 
     SizeofExpression(Location loc, Box<TypeName> type)
-        : Expression(SIZEOF_EXPR, loc), operand(std::move(type)) {}
+        : Expression(NodeKind::SIZEOF_EXPR, loc), operand(std::move(type)) {}
 
     std::variant<Box<Expression>, Box<TypeName>> operand;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::SIZEOF_EXPR; }
 };
 
 class Function : public ProgramItem {
@@ -915,11 +1180,12 @@ public:
     Function(
         Location loc, Vec<Box<DeclarationSpecifier>> decl_spec_list, Box<Declarator> declarator,
         Box<CompoundStatement> body)
-        : ProgramItem(FUNC, loc), decl_spec_list(std::move(decl_spec_list)),
+        : ProgramItem(NodeKind::FUNC, loc), decl_spec_list(std::move(decl_spec_list)),
           declarator(std::move(declarator)), body(std::move(body)) {}
 
     Function(Location loc, Box<Declarator> declarator, Box<CompoundStatement> body)
-        : ProgramItem(FUNC, loc), declarator(std::move(declarator)), body(std::move(body)) {}
+        : ProgramItem(NodeKind::FUNC, loc), declarator(std::move(declarator)),
+          body(std::move(body)) {}
 
     /*
     Any possible specifiers (e.g. public, int, etc.)
@@ -933,6 +1199,8 @@ public:
     Box<CompoundStatement> body;
 
     void accept(ASTVisitor& visitor) override;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::FUNC; }
 };
 
 /*
@@ -940,7 +1208,7 @@ The toplevel Program class.
 */
 class Program : public ASTNode {
 public:
-    Program(std::string *filename) : ASTNode(PROG, Location(filename)) {}
+    Program(std::string *filename) : ASTNode(NodeKind::PROG, Location(filename)) {}
 
     // Program items.
     std::vector<std::unique_ptr<ProgramItem>> items;
@@ -949,6 +1217,8 @@ public:
 
     // Add a new program item.
     void add_item(std::unique_ptr<ProgramItem> item);
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::PROG; }
 };
 
 std::string storage_to_string(StorageClassSpecifier::SpecType ty);

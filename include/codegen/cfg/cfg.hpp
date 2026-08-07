@@ -81,6 +81,8 @@ public:
     Instruction(InstKind kind) : Value(ValueKind::INST), instkind(kind) {}
 
     Instruction *as_instruction() override { return this; }
+
+    static bool classof(const Value *node) { return node->valkind == ValueKind::INST; }
 };
 
 class AllocaInst : public Instruction {
@@ -93,6 +95,14 @@ public:
 
     lir::LIRVarSym *sym;
     Optional<std::string> name;
+
+    static bool classof(const Value *node) {
+        if (!Instruction::classof(node)) {
+            return false;
+        }
+        const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
+        return inst->instkind == InstKind::ALLOCA;
+    }
 };
 
 class LoadInst : public Instruction {
@@ -101,6 +111,14 @@ public:
         : Instruction(InstKind::LOAD, type, loc), value(value) {}
 
     Value *value;
+
+    static bool classof(const Value *node) {
+        if (!Instruction::classof(node)) {
+            return false;
+        }
+        const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
+        return inst->instkind == InstKind::LOAD;
+    }
 };
 
 class StoreInst : public Instruction {
@@ -109,6 +127,14 @@ public:
         : Instruction(InstKind::STORE, type, loc), value(value) {}
 
     Value *value;
+
+    static bool classof(const Value *node) {
+        if (!Instruction::classof(node)) {
+            return false;
+        }
+        const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
+        return inst->instkind == InstKind::STORE;
+    }
 };
 
 class BinaryInst : public Instruction {
@@ -121,6 +147,14 @@ public:
 
     tokens::BinaryOp op;
     Value *loperand, *roperand;
+
+    static bool classof(const Value *node) {
+        if (!Instruction::classof(node)) {
+            return false;
+        }
+        const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
+        return inst->instkind == InstKind::BINARY;
+    }
 };
 
 class UnaryInst : public Instruction {
@@ -130,15 +164,31 @@ public:
 
     tokens::UnaryOp op;
     Value *operand;
+
+    static bool classof(const Value *node) {
+        if (!Instruction::classof(node)) {
+            return false;
+        }
+        const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
+        return inst->instkind == InstKind::UNARY;
+    }
 };
 
 class CastInst : public Instruction {
 public:
     CastInst(sema::types::Type *type, sema::types::Type *target, Value *operand, Location loc)
         : Instruction(InstKind::CAST, type, loc), target(target), operand(operand) {}
-    
+
     sema::types::Type *target;
     Value *operand;
+
+    static bool classof(const Value *node) {
+        if (!Instruction::classof(node)) {
+            return false;
+        }
+        const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
+        return inst->instkind == InstKind::CAST;
+    }
 };
 
 class ReintInst : public Instruction {
@@ -148,15 +198,31 @@ public:
 
     tokens::PrimType target;
     Value *operand;
+
+    static bool classof(const Value *node) {
+        if (!Instruction::classof(node)) {
+            return false;
+        }
+        const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
+        return inst->instkind == InstKind::REINT;
+    }
 };
 
 class MemberAccInst : public Instruction {
 public:
     MemberAccInst(sema::types::Type *type, size_t member_idx, Value *operand, Location loc)
         : Instruction(InstKind::MEMBERACC, type, loc), member_idx(member_idx), operand(operand) {}
-    
+
     size_t member_idx;
     Value *operand;
+
+    static bool classof(const Value *node) {
+        if (!Instruction::classof(node)) {
+            return false;
+        }
+        const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
+        return inst->instkind == InstKind::MEMBERACC;
+    }
 };
 
 class SubscrInst : public Instruction {
@@ -166,15 +232,31 @@ public:
 
     Value *index;
     Value *operand;
+
+    static bool classof(const Value *node) {
+        if (!Instruction::classof(node)) {
+            return false;
+        }
+        const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
+        return inst->instkind == InstKind::SUBSCR;
+    }
 };
 
 class CallInst : public Instruction {
 public:
     CallInst(sema::types::Type *type, Value *operand, Vec<Value *> args, Location loc)
         : Instruction(InstKind::CALL, type, loc), operand(operand), args(std::move(args)) {}
-    
+
     Value *operand;
     Vec<Value *> args;
+
+    static bool classof(const Value *node) {
+        if (!Instruction::classof(node)) {
+            return false;
+        }
+        const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
+        return inst->instkind == InstKind::CALL;
+    }
 };
 
 /**
@@ -191,6 +273,8 @@ public:
     lir::LIRFuncSym *func;
 
     FuncRef *as_funcref() override { return this; }
+
+    static bool classof(const Value *node) { return node->valkind == ValueKind::FUNC; }
 };
 
 class Literal : public Value {
@@ -202,26 +286,25 @@ public:
 
     Literal(sema::types::Type *type, std::string value)
         : Value(ValueKind::LIT, type), value(std::move(value)) {}
-    
+
     LiteralVariant value;
 
-    bool is_string() const {
-        return std::holds_alternative<std::string>(value);
-    }
+    bool is_string() const { return std::holds_alternative<std::string>(value); }
 
-    bool is_value() const {
-        return std::holds_alternative<eval::Value>(value);
-    }
+    bool is_value() const { return std::holds_alternative<eval::Value>(value); }
 
     Literal *as_literal() override { return this; }
+
+    static bool classof(const Value *node) { return node->valkind == ValueKind::LIT; }
 };
 
 class Zero : public Value {
 public:
-    Zero(sema::types::Type *type)
-        : Value(ValueKind::ZERO, type) {}
-    
+    Zero(sema::types::Type *type) : Value(ValueKind::ZERO, type) {}
+
     Zero *as_zero() override { return this; }
+
+    static bool classof(const Value *node) { return node->valkind == ValueKind::ZERO; }
 };
 
 class BasicBlock;
@@ -268,6 +351,8 @@ public:
     BasicBlock *else_br = nullptr;
 
     If *as_if() override { return this; }
+
+    static bool classof(const Terminator *node) { return node->kind == Kind::IF; }
 };
 
 class Goto : public Terminator {
@@ -277,6 +362,8 @@ public:
     BasicBlock *target = nullptr;
 
     Goto *as_goto() override { return this; }
+
+    static bool classof(const Terminator *node) { return node->kind == Kind::GOTO; }
 };
 
 class Return : public Terminator {
@@ -286,6 +373,8 @@ public:
     Optional<lir::ExprLIR *> expr;
 
     Return *as_return() override { return this; }
+
+    static bool classof(const Terminator *node) { return node->kind == Kind::RETURN; }
 };
 
 class SwitchCase {
@@ -313,6 +402,8 @@ public:
     Vec<SwitchCase> cases;
 
     Switch *as_switch() override { return this; }
+
+    static bool classof(const Terminator *node) { return node->kind == Kind::SWITCH; }
 };
 
 class FunctionCFG;
@@ -323,7 +414,7 @@ The basic unit of the CFG.
 class BasicBlock : public NoCopy, public NoMove {
 public:
     friend class FunctionCFG;
-    
+
     BasicBlock(std::string& label, FunctionCFG *func) : func(func), label(label) {}
 
     static Box<BasicBlock> entry(std::string& func_name, FunctionCFG *func);
@@ -332,18 +423,18 @@ public:
 
     bool has_terminator() { return term != nullptr; }
 
-    template <typename T, typename ...Args>
+    template <typename T, typename... Args>
         requires std::derived_from<T, Instruction>
-    void add_instruction(Args ... args) {
+    void add_instruction(Args... args) {
         Box<Instruction> inst = std::make_unique<T>(args...);
         push_instruction(std::move(inst));
     }
 
-    template <typename T, typename ...Args>
+    template <typename T, typename... Args>
         requires std::derived_from<T, Value>
-    Value *add_value(Args ... args) {
-        Box<Value> val = std::make_unique<T>(args ...);
-        Value *ret = val.get();
+    Value *add_value(Args... args) {
+        Box<Value> val = std::make_unique<T>(args...);
+        Value *ret     = val.get();
 
         push_value(std::move(val));
 

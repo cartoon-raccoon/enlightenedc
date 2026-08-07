@@ -28,8 +28,10 @@ public:
     enum class NodeKind : uint8_t {
         PROG_LIR,
         FUNC_LIR,
+
         VARDECL_LIR,
         LABDECL_LIR,
+
         GOTOSTMT_LIR,
         RETSTMT_LIR,
         SWITCHSTMT_LIR,
@@ -42,6 +44,7 @@ public:
         LOOPSTMT_LIR,
         LABELSTMT_LIR,
         PRINTSTMT_LIR,
+
         BINEXPR_LIR,
         UNEXPR_LIR,
         CASTEXPR_LIR,
@@ -52,6 +55,7 @@ public:
         ZEROEXPR_LIR,
         CALLEXPR_LIR,
         MEMACCEXPR_LIR,
+        REINTEXPR_LIR,
         SUBSCREXPR_LIR,
         PFIXEXPR_LIR,
     };
@@ -77,6 +81,8 @@ public:
     LIRVarSym *lirsym;
 
     void accept(LIRVisitor& visitor) override;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::VARDECL_LIR; }
 };
 
 class ProgItemLIR : public LIRNode {
@@ -88,6 +94,28 @@ public:
     virtual StmtLIR *as_stmt() { return nullptr; }
 
     // virtual Box<ProgItemLIRStream> progitem_stream();
+
+    // NOTE: LabelLIR and StmtLIR are the only two subclasses of ProgItemLIR; VarDeclLIR and
+    // FunctionLIR are siblings that derive LIRNode directly, not ProgItemLIR.
+    static bool classof(const LIRNode *node) {
+        switch (node->kind) {
+        case NodeKind::CASEDECL_LIR:
+        case NodeKind::DEFDECL_LIR:
+        case NodeKind::LABDECL_LIR:
+        case NodeKind::GOTOSTMT_LIR:
+        case NodeKind::RETSTMT_LIR:
+        case NodeKind::SWITCHSTMT_LIR:
+        case NodeKind::BREAKSTMT_LIR:
+        case NodeKind::CONTSTMT_LIR:
+        case NodeKind::EXPRSTMT_LIR:
+        case NodeKind::IFSTMT_LIR:
+        case NodeKind::LOOPSTMT_LIR:
+        case NodeKind::PRINTSTMT_LIR:
+            return true;
+        default:
+            return false;
+        }
+    }
 };
 
 class LabelLIR : public ProgItemLIR {
@@ -96,6 +124,17 @@ public:
     LabelLIR(Location loc, NodeKind kind) : ProgItemLIR(loc, kind) {}
 
     LabelLIR *as_decl() override { return this; }
+
+    static bool classof(const LIRNode *node) {
+        switch (node->kind) {
+        case NodeKind::CASEDECL_LIR:
+        case NodeKind::DEFDECL_LIR:
+        case NodeKind::LABDECL_LIR:
+            return true;
+        default:
+            return false;
+        }
+    }
 };
 
 class StmtLIR : public ProgItemLIR {
@@ -115,6 +154,23 @@ public:
     StmtLIR *as_stmt() override { return this; }
 
     virtual bool is_terminal() { return stkind == StmtKind::TERMINAL; }
+
+    static bool classof(const LIRNode *node) {
+        switch (node->kind) {
+        case NodeKind::GOTOSTMT_LIR:
+        case NodeKind::RETSTMT_LIR:
+        case NodeKind::SWITCHSTMT_LIR:
+        case NodeKind::BREAKSTMT_LIR:
+        case NodeKind::CONTSTMT_LIR:
+        case NodeKind::EXPRSTMT_LIR:
+        case NodeKind::IFSTMT_LIR:
+        case NodeKind::LOOPSTMT_LIR:
+        case NodeKind::PRINTSTMT_LIR:
+            return true;
+        default:
+            return false;
+        }
+    }
 };
 
 /*
@@ -126,6 +182,17 @@ public:
     TerminalLIR(Location loc, NodeKind kind) : StmtLIR(loc, kind, StmtKind::TERMINAL) {}
 
     bool is_terminal() override { return true; }
+
+    // Distinguished from NonTerminalLIR by StmtKind rather than by NodeKind, since several
+    // NodeKind values (e.g. IFSTMT_LIR, LOOPSTMT_LIR) are always terminal and others (e.g.
+    // EXPRSTMT_LIR) are always nonterminal -- stkind is the authoritative discriminator here.
+    static bool classof(const LIRNode *node) {
+        if (!StmtLIR::classof(node)) {
+            return false;
+        }
+        const auto *stmt = static_cast<const StmtLIR *>(node); // NOLINT(*-static-cast-downcast)
+        return stmt->stkind == StmtKind::TERMINAL;
+    }
 };
 
 /*
@@ -137,6 +204,14 @@ public:
     NonTerminalLIR(Location loc, NodeKind kind) : StmtLIR(loc, kind, StmtKind::NONTERMINAL) {}
 
     bool is_terminal() override { return false; }
+
+    static bool classof(const LIRNode *node) {
+        if (!StmtLIR::classof(node)) {
+            return false;
+        }
+        const auto *stmt = static_cast<const StmtLIR *>(node); // NOLINT(*-static-cast-downcast)
+        return stmt->stkind == StmtKind::NONTERMINAL;
+    }
 };
 
 class ExprLIR : public LIRNode {
@@ -148,6 +223,27 @@ public:
 
     sema::types::Type *act_type;
     sema::types::Type *eff_type;
+
+    static bool classof(const LIRNode *node) {
+        switch (node->kind) {
+        case NodeKind::BINEXPR_LIR:
+        case NodeKind::UNEXPR_LIR:
+        case NodeKind::CASTEXPR_LIR:
+        case NodeKind::ASSIGNEXPR_LIR:
+        case NodeKind::CONDEXPR_LIR:
+        case NodeKind::IDENTEXPR_LIR:
+        case NodeKind::LITEXPR_LIR:
+        case NodeKind::ZEROEXPR_LIR:
+        case NodeKind::CALLEXPR_LIR:
+        case NodeKind::MEMACCEXPR_LIR:
+        case NodeKind::REINTEXPR_LIR:
+        case NodeKind::SUBSCREXPR_LIR:
+        case NodeKind::PFIXEXPR_LIR:
+            return true;
+        default:
+            return false;
+        }
+    }
 };
 
 class FunctionLIR : public LIRNode {
@@ -165,6 +261,8 @@ public:
     Vec<Box<ProgItemLIR>> body;
 
     void accept(LIRVisitor& visitor) override;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::FUNC_LIR; }
 };
 
 class GotoStmtLIR : public TerminalLIR {
@@ -185,6 +283,8 @@ public:
     bool is_terminal() override { return true; }
 
     void accept(LIRVisitor& visitor) override;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::GOTOSTMT_LIR; }
 };
 
 class ReturnStmtLIR : public TerminalLIR {
@@ -199,6 +299,8 @@ public:
     bool is_terminal() override { return true; }
 
     void accept(LIRVisitor& visitor) override;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::RETSTMT_LIR; }
 };
 
 class SwitchStmtLIR : public TerminalLIR {
@@ -212,6 +314,8 @@ public:
     bool is_terminal() override { return true; }
 
     void accept(LIRVisitor& visitor) override;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::SWITCHSTMT_LIR; }
 };
 
 class CaseLIR : public LabelLIR {
@@ -222,6 +326,8 @@ public:
     eval::Value case_value;
 
     void accept(LIRVisitor& visitor) override;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::CASEDECL_LIR; }
 };
 
 class DefaultLIR : public LabelLIR {
@@ -229,6 +335,8 @@ public:
     DefaultLIR(Location loc) : LabelLIR(loc, NodeKind::DEFDECL_LIR) {}
 
     void accept(LIRVisitor& visitor) override;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::DEFDECL_LIR; }
 };
 
 class LabelDeclLIR : public LabelLIR {
@@ -241,6 +349,8 @@ public:
     std::string label;
 
     void accept(LIRVisitor& visitor) override;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::LABDECL_LIR; }
 };
 
 class BreakStmtLIR : public TerminalLIR {
@@ -248,6 +358,8 @@ public:
     BreakStmtLIR(Location loc) : TerminalLIR(loc, NodeKind::BREAKSTMT_LIR) {}
 
     void accept(LIRVisitor& visitor) override;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::BREAKSTMT_LIR; }
 };
 
 class ContStmtLIR : public TerminalLIR {
@@ -255,6 +367,8 @@ public:
     ContStmtLIR(Location loc) : TerminalLIR(loc, NodeKind::CONTSTMT_LIR) {}
 
     void accept(LIRVisitor& visitor) override;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::CONTSTMT_LIR; }
 };
 
 class ExprStmtLIR : public NonTerminalLIR {
@@ -265,6 +379,8 @@ public:
     Box<ExprLIR> expr;
 
     void accept(LIRVisitor& visitor) override;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::EXPRSTMT_LIR; }
 };
 
 class IfStmtLIR : public TerminalLIR {
@@ -277,6 +393,8 @@ public:
     Optional<Vec<Box<ProgItemLIR>>> else_br;
 
     void accept(LIRVisitor& visitor) override;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::IFSTMT_LIR; }
 };
 
 class LoopStmtLIR : public TerminalLIR {
@@ -294,6 +412,8 @@ public:
     bool is_dowhile = false;
 
     void accept(LIRVisitor& visitor) override;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::LOOPSTMT_LIR; }
 };
 
 class PrintStmtLIR : public NonTerminalLIR {
@@ -306,6 +426,8 @@ public:
     Vec<Box<ExprLIR>> args;
 
     void accept(LIRVisitor& visitor) override;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::PRINTSTMT_LIR; }
 };
 
 class BinaryExprLIR : public ExprLIR {
@@ -321,6 +443,8 @@ public:
     tokens::BinaryOp op;
 
     void accept(LIRVisitor& visitor) override;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::BINEXPR_LIR; }
 };
 
 class UnaryExprLIR : public ExprLIR {
@@ -332,6 +456,8 @@ public:
     tokens::UnaryOp op;
 
     void accept(LIRVisitor& visitor) override;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::UNEXPR_LIR; }
 };
 
 class CastExprLIR : public ExprLIR {
@@ -344,6 +470,8 @@ public:
     Box<ExprLIR> inner;
 
     void accept(LIRVisitor& visitor) override;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::CASTEXPR_LIR; }
 };
 
 class AssignExprLIR : public ExprLIR {
@@ -359,6 +487,8 @@ public:
     tokens::AssignOp op;
 
     void accept(LIRVisitor& visitor) override;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::ASSIGNEXPR_LIR; }
 };
 
 class CondExprLIR : public ExprLIR {
@@ -374,6 +504,8 @@ public:
     Box<ExprLIR> false_value;
 
     void accept(LIRVisitor& visitor) override;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::CONDEXPR_LIR; }
 };
 
 class IdentExprLIR : public ExprLIR {
@@ -384,6 +516,8 @@ public:
     LIRSym *sym;
 
     void accept(LIRVisitor& visitor) override;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::IDENTEXPR_LIR; }
 };
 
 class LiteralExprLIR : public ExprLIR {
@@ -402,6 +536,8 @@ public:
     LitValueLIR value;
 
     void accept(LIRVisitor& visitor) override;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::LITEXPR_LIR; }
 };
 
 /**
@@ -415,6 +551,8 @@ public:
         : ExprLIR(loc, NodeKind::ZEROEXPR_LIR, type) {}
 
     void accept(LIRVisitor& visitor) override;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::ZEROEXPR_LIR; }
 };
 
 class CallExprLIR : public ExprLIR {
@@ -427,6 +565,8 @@ public:
     Vec<Box<ExprLIR>> args;
 
     void accept(LIRVisitor& visit) override;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::CALLEXPR_LIR; }
 };
 
 class MemberAccExprLIR : public ExprLIR {
@@ -439,18 +579,22 @@ public:
     size_t member_idx;
 
     void accept(LIRVisitor& visitor) override;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::MEMACCEXPR_LIR; }
 };
 
 class ReintExprLIR : public ExprLIR {
 public:
     ReintExprLIR(
         Location loc, Box<ExprLIR> object, tokens::PrimType target, sema::types::Type *type)
-        : ExprLIR(loc, NodeKind::MEMACCEXPR_LIR, type), object(std::move(object)), target(target) {}
+        : ExprLIR(loc, NodeKind::REINTEXPR_LIR, type), object(std::move(object)), target(target) {}
 
     Box<ExprLIR> object;
     tokens::PrimType target;
 
     void accept(LIRVisitor& visitor) override;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::REINTEXPR_LIR; }
 };
 
 class SubscrExprLIR : public ExprLIR {
@@ -463,6 +607,8 @@ public:
     Box<ExprLIR> index;
 
     void accept(LIRVisitor& visitor) override;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::SUBSCREXPR_LIR; }
 };
 
 class PostfixExprLIR : public ExprLIR {
@@ -475,6 +621,8 @@ public:
     tokens::PostfixOp op;
 
     void accept(LIRVisitor& visitor) override;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::PFIXEXPR_LIR; }
 };
 
 class ProgramLIR : public LIRNode {
@@ -497,6 +645,8 @@ public:
     Vec<Box<ProgItemLIR>> progitems;
 
     void accept(LIRVisitor& visitor) override;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::PROG_LIR; }
 };
 
 } // namespace ecc::codegen::lir

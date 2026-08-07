@@ -44,8 +44,10 @@ public:
         PROG_MIR,
         FUNC_MIR,
         INIT_MIR,
+
         TYPEDEC_MIR,
         VARDEC_MIR,
+
         CMPDSTMT_MIR,
         EXPRSTMT_MIR,
         SWITCHSTMT_MIR,
@@ -60,6 +62,7 @@ public:
         BREAKSTMT_MIR,
         CONTSTMT_MIR,
         RETSTMT_MIR,
+
         BINEXPR_MIR,
         UNEXPR_MIR,
         CASTEXPR_MIR,
@@ -93,6 +96,31 @@ public:
 class ProgItemMIR : public MIRNode {
 public:
     ProgItemMIR(Location loc, NodeKind kind) : MIRNode(loc, kind) {}
+
+    static bool classof(const MIRNode *node) {
+        switch (node->kind) {
+        case NodeKind::TYPEDEC_MIR:
+        case NodeKind::VARDEC_MIR:
+        case NodeKind::CMPDSTMT_MIR:
+        case NodeKind::EXPRSTMT_MIR:
+        case NodeKind::SWITCHSTMT_MIR:
+        case NodeKind::CASESTMT_MIR:
+        case NodeKind::CASERGSTMT_MIR:
+        case NodeKind::DEFSTMT_MIR:
+        case NodeKind::LABSTMT_MIR:
+        case NodeKind::PRINTSTMT_MIR:
+        case NodeKind::IFSTMT_MIR:
+        case NodeKind::LOOPSTMT_MIR:
+        case NodeKind::GOTOSTMT_MIR:
+        case NodeKind::BREAKSTMT_MIR:
+        case NodeKind::CONTSTMT_MIR:
+        case NodeKind::RETSTMT_MIR:
+        case NodeKind::FUNC_MIR:
+            return true;
+        default:
+            return false;
+        }
+    }
 };
 
 class ExprMIR : public MIRNode {
@@ -137,16 +165,69 @@ public:
     }
 
     virtual eval::Value eval(eval::ExprEvaluator& ev) = 0;
+
+    static bool classof(const MIRNode *node) {
+        switch (node->kind) {
+        case NodeKind::BINEXPR_MIR:
+        case NodeKind::UNEXPR_MIR:
+        case NodeKind::CASTEXPR_MIR:
+        case NodeKind::ASSGNEXPR_MIR:
+        case NodeKind::CONDEXPR_MIR:
+        case NodeKind::IDENTEXPR_MIR:
+        case NodeKind::LITEXPR_MIR:
+        case NodeKind::CALLEXPR_MIR:
+        case NodeKind::MEMACCEXPR_MIR:
+        case NodeKind::REINTEXPR_MIR:
+        case NodeKind::SUBSCREXPR_MIR:
+        case NodeKind::PFIXEXPR_MIR:
+        case NodeKind::SIZEEXPR_MIR:
+            return true;
+        default:
+            return false;
+        }
+    }
 };
 
 class DeclMIR : public ProgItemMIR {
 public:
     DeclMIR(Location loc, NodeKind kind) : ProgItemMIR(loc, kind) {}
+
+    static bool classof(const MIRNode *node) {
+        switch (node->kind) {
+        case NodeKind::TYPEDEC_MIR:
+        case NodeKind::VARDEC_MIR:
+            return true;
+        default:
+            return false;
+        }
+    }
 };
 
 class StmtMIR : public ProgItemMIR {
 public:
     StmtMIR(Location loc, NodeKind kind) : ProgItemMIR(loc, kind) {}
+
+    static bool classof(const MIRNode *node) {
+        switch (node->kind) {
+        case NodeKind::CMPDSTMT_MIR:
+        case NodeKind::EXPRSTMT_MIR:
+        case NodeKind::SWITCHSTMT_MIR:
+        case NodeKind::CASESTMT_MIR:
+        case NodeKind::CASERGSTMT_MIR:
+        case NodeKind::DEFSTMT_MIR:
+        case NodeKind::LABSTMT_MIR:
+        case NodeKind::PRINTSTMT_MIR:
+        case NodeKind::IFSTMT_MIR:
+        case NodeKind::LOOPSTMT_MIR:
+        case NodeKind::GOTOSTMT_MIR:
+        case NodeKind::BREAKSTMT_MIR:
+        case NodeKind::CONTSTMT_MIR:
+        case NodeKind::RETSTMT_MIR:
+            return true;
+        default:
+            return false;
+        }
+    }
 };
 
 class InitializerMIR : public MIRNode {
@@ -188,6 +269,8 @@ public:
     bool is_all_literals();
 
     void accept(MIRVisitor& visitor) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::INIT_MIR; }
 };
 
 class TypeDeclMIR : public DeclMIR {
@@ -198,6 +281,8 @@ public:
     sema::sym::TypeSymbol *sym;
 
     void accept(MIRVisitor& visitor) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::TYPEDEC_MIR; }
 };
 
 // A MIR node containing a single variable declaration and optional initializer.
@@ -217,6 +302,8 @@ public:
     void add_decl(sema::sym::VarSymbol *sym, Box<InitializerMIR> init);
 
     void accept(MIRVisitor& visitor) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::VARDEC_MIR; }
 };
 
 class CompoundStmtMIR : public StmtMIR {
@@ -231,6 +318,8 @@ public:
     void add_item(Box<ProgItemMIR> item);
 
     void accept(MIRVisitor& visitor) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::CMPDSTMT_MIR; }
 };
 
 class ExprStmtMIR : public StmtMIR {
@@ -245,6 +334,8 @@ public:
     bool is_empty() const { return !expr.has_value(); }
 
     void accept(MIRVisitor& visitor) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::EXPRSTMT_MIR; }
 };
 
 class SwitchStmtMIR : public StmtMIR {
@@ -257,6 +348,8 @@ public:
     Box<StmtMIR> body;
 
     void accept(MIRVisitor& visitor) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::SWITCHSTMT_MIR; }
 };
 
 class CaseStmtMIR : public StmtMIR {
@@ -268,6 +361,8 @@ public:
     Box<StmtMIR> stmt;
 
     void accept(MIRVisitor& visitor) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::CASESTMT_MIR; }
 };
 
 class CaseRangeStmtMIR : public StmtMIR {
@@ -282,6 +377,8 @@ public:
     Box<StmtMIR> stmt;
 
     void accept(MIRVisitor& visitor) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::CASERGSTMT_MIR; }
 };
 
 class DefaultStmtMIR : public StmtMIR {
@@ -292,6 +389,8 @@ public:
     Box<StmtMIR> stmt;
 
     void accept(MIRVisitor& visitor) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::DEFSTMT_MIR; }
 };
 
 class LabeledStmtMIR : public StmtMIR {
@@ -303,6 +402,8 @@ public:
     Box<StmtMIR> stmt;
 
     void accept(MIRVisitor& visitor) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::LABSTMT_MIR; }
 };
 
 class PrintStmtMIR : public StmtMIR {
@@ -318,6 +419,8 @@ public:
     Vec<Box<ExprMIR>> arguments;
 
     void accept(MIRVisitor& visitor) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::PRINTSTMT_MIR; }
 };
 
 class IfStmtMIR : public StmtMIR {
@@ -342,6 +445,8 @@ public:
     Optional<Box<StmtMIR>> else_branch;
 
     void accept(MIRVisitor& visitor) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::IFSTMT_MIR; }
 };
 
 /*
@@ -386,6 +491,8 @@ public:
     bool is_dowhile = false;
 
     void accept(MIRVisitor& visitor) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::LOOPSTMT_MIR; }
 };
 
 class GotoStmtMIR : public StmtMIR {
@@ -405,6 +512,8 @@ public:
     sym::LabelSymbol *target_sym = nullptr;
 
     void accept(MIRVisitor& visitor) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::GOTOSTMT_MIR; }
 };
 
 class BreakStmtMIR : public StmtMIR {
@@ -412,6 +521,8 @@ public:
     BreakStmtMIR(Location loc) : StmtMIR(loc, NodeKind::BREAKSTMT_MIR) {}
 
     void accept(MIRVisitor& visitor) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::BREAKSTMT_MIR; }
 };
 
 class ContStmtMIR : public StmtMIR {
@@ -419,6 +530,8 @@ public:
     ContStmtMIR(Location loc) : StmtMIR(loc, NodeKind::CONTSTMT_MIR) {}
 
     void accept(MIRVisitor& visitor) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::CONTSTMT_MIR; }
 };
 
 class ReturnStmtMIR : public StmtMIR {
@@ -431,6 +544,8 @@ public:
     Optional<Box<ExprMIR>> ret_expr;
 
     void accept(MIRVisitor& visitor) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::RETSTMT_MIR; }
 };
 
 class BinaryExprMIR : public ExprMIR {
@@ -456,6 +571,8 @@ public:
     }
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::BINEXPR_MIR; }
 };
 
 class UnaryExprMIR : public ExprMIR {
@@ -477,6 +594,8 @@ public:
     void accept(MIRVisitor& visitor) override;
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::UNEXPR_MIR; }
 };
 
 class CastExprMIR : public ExprMIR {
@@ -497,6 +616,8 @@ public:
     void accept(MIRVisitor& visitor) override;
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::CASTEXPR_MIR; }
 };
 
 class AssignExprMIR : public ExprMIR {
@@ -518,6 +639,8 @@ public:
     void accept(MIRVisitor& visitor) override;
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::ASSGNEXPR_MIR; }
 };
 
 class CondExprMIR : public ExprMIR {
@@ -543,6 +666,8 @@ public:
     void accept(MIRVisitor& visitor) override;
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::CONDEXPR_MIR; }
 };
 
 class IdentExprMIR : public ExprMIR {
@@ -571,6 +696,8 @@ public:
     void accept(MIRVisitor& visitor) override;
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::IDENTEXPR_MIR; }
 };
 
 class LiteralExprMIR : public ExprMIR {
@@ -602,6 +729,8 @@ public:
     void accept(MIRVisitor& visitor) override;
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::LITEXPR_MIR; }
 };
 
 class CallExprMIR : public ExprMIR {
@@ -621,6 +750,8 @@ public:
     void accept(MIRVisitor& visitor) override;
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::CALLEXPR_MIR; }
 };
 
 class MemberAccExprMIR : public ExprMIR {
@@ -653,6 +784,8 @@ public:
     void accept(MIRVisitor& visitor) override;
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::MEMACCEXPR_MIR; }
 };
 
 class ReintExprMIR : public ExprMIR {
@@ -685,6 +818,8 @@ public:
     void accept(MIRVisitor& visitor) override;
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::REINTEXPR_MIR; }
 };
 
 class SubscrExprMIR : public ExprMIR {
@@ -705,6 +840,8 @@ public:
     void accept(MIRVisitor& visitor) override;
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::SUBSCREXPR_MIR; }
 };
 
 class PostfixExprMIR : public ExprMIR {
@@ -721,6 +858,8 @@ public:
     void accept(MIRVisitor& visitor) override;
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::PFIXEXPR_MIR; }
 };
 
 class SizeofExprMIR : public ExprMIR {
@@ -743,6 +882,8 @@ public:
     void accept(MIRVisitor& visitor) override;
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::SIZEEXPR_MIR; }
 };
 
 class FunctionMIR : public ProgItemMIR {
@@ -761,6 +902,8 @@ public:
     Box<CompoundStmtMIR> body;
 
     void accept(MIRVisitor& visitor) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::FUNC_MIR; }
 };
 
 class ProgramMIR : public MIRNode {
@@ -775,6 +918,8 @@ public:
     void add_item(Box<ProgItemMIR> item);
 
     void accept(MIRVisitor& visitor) override;
+
+    static bool classof(const MIRNode *node) { return node->kind == NodeKind::PROG_MIR; }
 };
 
 } // namespace ecc::sema::mir
