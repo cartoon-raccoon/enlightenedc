@@ -1,5 +1,6 @@
 #pragma once
 
+#include <unordered_map>
 #ifndef ECC_CFG_H
 #define ECC_CFG_H
 
@@ -412,8 +413,17 @@ class FunctionCFG;
 The basic unit of the CFG.
 */
 class BasicBlock : public NoCopy, public NoMove {
+    // Whether the block is an entry block into a function.
+    bool is_entry = false;
+    // Whether the block is part of a loop structure.
+    bool is_part_of_loop = false;
+
+    FunctionCFG *func;
+
 public:
     friend class FunctionCFG;
+
+    BasicBlock(FunctionCFG *func) : func(func) {}
 
     BasicBlock(std::string& label, FunctionCFG *func) : func(func), label(label) {}
 
@@ -421,38 +431,33 @@ public:
 
     void set_terminator(Box<Terminator> term) { this->term = std::move(term); }
 
-    bool has_terminator() { return term != nullptr; }
+    bool has_terminator() const { return term != nullptr; }
 
-    template <typename T, typename... Args>
+    bool has_label() const { return label.has_value(); }
+
+    template <typename T, typename ...Args>
         requires std::derived_from<T, Instruction>
-    void add_instruction(Args... args) {
+    Instruction *add_instruction(Args ... args) {
         Box<Instruction> inst = std::make_unique<T>(args...);
+        Instruction *ret = inst.get();
+        
         push_instruction(std::move(inst));
+
+        return ret;
     }
 
-    template <typename T, typename... Args>
+    template <typename T, typename ...Args>
         requires std::derived_from<T, Value>
-    Value *add_value(Args... args) {
-        Box<Value> val = std::make_unique<T>(args...);
-        Value *ret     = val.get();
+    Value *add_value(Args ... args) {
+        Box<Value> val = std::make_unique<T>(args ...);
+        Value *ret = val.get();
 
         push_value(std::move(val));
 
         return ret;
     }
 
-private:
-    void push_instruction(Box<Instruction> inst) { instructions.push_back(std::move(inst)); }
-
-    void push_value(Box<Value> val);
-
-    // Whether the block is an entry block into a function.
-    bool is_entry = false;
-    // Whether the block is part of a loop structure.
-    bool is_part_of_loop = false;
-
-    FunctionCFG *func;
-    std::string label;
+    Optional<std::string> label;
 
     Vec<BasicBlock *> incoming;
     Vec<BasicBlock *> successors;
@@ -460,6 +465,11 @@ private:
     Vec<Box<Instruction>> instructions;
 
     Box<Terminator> term = nullptr;
+
+private:
+    void push_instruction(Box<Instruction> inst) { instructions.push_back(std::move(inst)); }
+
+    void push_value(Box<Value> val);
 };
 
 /**
@@ -471,13 +481,15 @@ public:
 
     FunctionCFG(lir::FunctionLIR *func) : lir(func) {}
 
-    lir::FunctionLIR *lir;
+    lir::FunctionLIR *lir = nullptr;
 
-    BasicBlock *create_block(std::string& label);
+    BasicBlock *create_block();
+
+    BasicBlock *create_block(std::string& label, bool make_labeled = false);
 
     void append_block(Box<BasicBlock> block) { blocks.push_back(std::move(block)); }
 
-    BasicBlock *lookup_block();
+    BasicBlock *lookup_labeled_block(std::string& label);
 
     size_t num_blocks() { return blocks.size(); }
 
@@ -487,13 +499,14 @@ private:
     Vec<Box<BasicBlock>> blocks;
     // Bag of non-instruction values.
     Vec<Box<Value>> values;
+    std::unordered_map<std::string, BasicBlock *> labeled_blocks;
 };
 
 class ProgramCFG {
 public:
     ProgramCFG() {}
 
-    FunctionCFG *add_function();
+    FunctionCFG *add_function(lir::FunctionLIR *func);
 
     Vec<Box<FunctionCFG>> functions;
 };

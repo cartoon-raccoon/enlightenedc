@@ -27,6 +27,11 @@ void CFGBuilder::visit(ProgramLIR& node) {
 }
 
 void CFGBuilder::visit(FunctionLIR& node) {
+    for (auto& local : node.locals) {
+        local->accept(*this);
+    }
+
+    
 }
 
 void CFGBuilder::visit(LabelDeclLIR& node) {
@@ -200,7 +205,8 @@ void CFGBuilder::visit(BinaryExprLIR& node) {
     node.right->accept(*this);
     Value *right = last_value;
 
-    current_block->add_instruction<BinaryInst>(node.act_type, node.op, left, right, *node.loc);
+    last_value = current_block->add_instruction<BinaryInst>(
+        node.act_type, node.op, left, right, *node.loc);
 }
 
 void CFGBuilder::visit(UnaryExprLIR& node) {

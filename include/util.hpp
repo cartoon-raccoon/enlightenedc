@@ -2,6 +2,7 @@
 
 #include <compare>
 #include <concepts>
+#include <unordered_map>
 #ifndef ECC_UTIL_H
 #define ECC_UTIL_H
 
@@ -78,6 +79,12 @@ A convenient type alias for `std::vector`.
 */
 template <typename T>
 using Vec = std::vector<T>;
+
+/**
+A convenient type alias for `std::unordered_map`.
+*/
+template <typename ... Args>
+using HashMap = std::unordered_map<Args ...>;
 
 /**
 A convenient type alias for `std::span`.
