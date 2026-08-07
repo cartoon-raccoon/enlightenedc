@@ -94,8 +94,8 @@ void Validator::validate_print(std::string& format_str, Span<Box<mir::ExprMIR>> 
     // todo: check for mismatch between number of args and number of format specifiers found
 }
 
-Optional<Type *> Validator::eval_initializer(
-    types::Type *type, InitializerMIR& init, bool allow_size_infer) {
+Optional<Type *>
+Validator::eval_initializer(types::Type *type, InitializerMIR& init, bool allow_size_infer) {
     AccessorPath path;
     return eval_initializer_rec(path, type, init, allow_size_infer);
 }
@@ -328,7 +328,8 @@ void Validator::eval_initializer_rec_arr(
 
 void Validator::visit_single_vardecl(sym::VarSymbol *varsym, InitializerMIR& init) {
     bsv_dbprint("Validator: visiting single VarDecl for ", varsym->name);
-    if (Optional<Type *> inferred = eval_initializer(varsym->type, init, /*allow_size_infer=*/true)) {
+    if (Optional<Type *> inferred =
+            eval_initializer(varsym->type, init, /*allow_size_infer=*/true)) {
         varsym->type = *inferred;
     }
 }

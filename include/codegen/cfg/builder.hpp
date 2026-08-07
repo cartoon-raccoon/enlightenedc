@@ -19,6 +19,7 @@ namespace ecc::codegen::cfg {
 class IfStmtInfo;
 class SwitchStmtInfo;
 class LoopStmtInfo;
+class Value;
 
 class NestedStmtInfo {
 public:
@@ -79,7 +80,9 @@ public:
     void build_cfg(lir::ProgramLIR& prog);
 
 protected:
+    FunctionCFG *current_func = nullptr;
     BasicBlock *current_block = nullptr;
+    Value *last_value         = nullptr;
 
     using NestedStmtFilter = std::function<bool(NestedStmtInfo *)>;
 
@@ -101,20 +104,19 @@ protected:
     void visit(lir::PrintStmtLIR& node) override;
     void visit(lir::ReturnStmtLIR& node) override;
 
-    // variable declaration and expression nodes don't need to be visited.
-    VISIT_NO_IMPL(lir::VarDeclLIR);
-    VISIT_NO_IMPL(lir::BinaryExprLIR);
-    VISIT_NO_IMPL(lir::UnaryExprLIR);
-    VISIT_NO_IMPL(lir::CastExprLIR);
-    VISIT_NO_IMPL(lir::AssignExprLIR);
-    VISIT_NO_IMPL(lir::CondExprLIR);
-    VISIT_NO_IMPL(lir::IdentExprLIR);
-    VISIT_NO_IMPL(lir::LiteralExprLIR);
-    VISIT_NO_IMPL(lir::ZeroExprLIR);
-    VISIT_NO_IMPL(lir::CallExprLIR);
-    VISIT_NO_IMPL(lir::MemberAccExprLIR);
-    VISIT_NO_IMPL(lir::SubscrExprLIR);
-    VISIT_NO_IMPL(lir::PostfixExprLIR);
+    void visit(lir::VarDeclLIR& node) override;
+    void visit(lir::BinaryExprLIR& node) override;
+    void visit(lir::UnaryExprLIR& node) override;
+    void visit(lir::CastExprLIR& node) override;
+    void visit(lir::AssignExprLIR& node) override;
+    void visit(lir::CondExprLIR& node) override;
+    void visit(lir::IdentExprLIR& node) override;
+    void visit(lir::LiteralExprLIR& node) override;
+    void visit(lir::ZeroExprLIR& node) override;
+    void visit(lir::CallExprLIR& node) override;
+    void visit(lir::MemberAccExprLIR& node) override;
+    void visit(lir::SubscrExprLIR& node) override;
+    void visit(lir::PostfixExprLIR& node) override;
 
 private:
     Ref<ProgramCFG> prog_cfg;

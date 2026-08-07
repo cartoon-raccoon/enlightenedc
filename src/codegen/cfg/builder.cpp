@@ -21,6 +21,9 @@ NestedStmtInfo *CFGBuilder::find_info(NestedStmtFilter& filter) {
 }
 
 void CFGBuilder::visit(ProgramLIR& node) {
+    for (auto& item : node.progitems) {
+        item->accept(*this);
+    }
 }
 
 void CFGBuilder::visit(FunctionLIR& node) {
@@ -56,7 +59,7 @@ void CFGBuilder::visit(DefaultLIR& node) {
 
 void CFGBuilder::visit(ExprStmtLIR& node) {
     /*
-    1. check if previous block was terminated
+    1. check if current block is terminated
         a. if so, create a new block and set it as current
         b. else, use current block
     2. insert
@@ -64,19 +67,18 @@ void CFGBuilder::visit(ExprStmtLIR& node) {
 
     if (current_block->has_terminator()) {
     }
-    current_block->add_element(&node);
+    node.expr->accept(*this);
 }
 
 void CFGBuilder::visit(PrintStmtLIR& node) {
     /*
-    1. check if previous block was terminated
+    1. check if current block is terminated
         a. if so, create a new block and set it as current
         b. else, use current block
     2. insert
     */
     if (current_block->has_terminator()) {
     }
-    current_block->add_element(&node);
 }
 
 void CFGBuilder::visit(GotoStmtLIR& node) {
@@ -154,31 +156,83 @@ void CFGBuilder::visit(IfStmtLIR& node) {
 
 void CFGBuilder::visit(LoopStmtLIR& node) {
     /*
+    1. check if current block is terminated
+       a. if so, create new block and set it as current
+       b. else, use current block
     1. create new block (outside of function) as merge block
     2. if init has value:
         a. create Goto terminator `t`
-        b. check if current block was terminated
-           a. if so, create a new block as set it as current
-              terminate newly current block with `t`
-           b. else, terminate current block with `t`
+        b. terminate current block with `t`
+           (current block is guaranteed to be unterminated as we checked in 1)
         a. create new block `init` as loop init
         b. set `init` as `t`'s target
         c. iterate over items in init; accept each
-        d. leave block unterminated
-       else, 
+        d. leave current block unterminated
     3. if node.condition has value:
-        a. create If terminator `c` with cond as node.condition
-        b. create new blocks for then_br and else_br
-        c. create Goto terminators for then_br and else_br blocks
-    3. create new block `body` as loop body
-    4. if init was created:
-        a. set `t`'s target as `init`
-        b. set `init`'s goto's target as `body`
-       else, set `t`'s target as `body`
-    5. set current block to body
-    6. iterate over items in body; accept each
+        a. create new block as condition block
+        b. create Goto terminator `g`, set condition block as target
+        c. terminate current block with `g`
+           (current block is guaranteed to be unterminated)
+        d. create If terminator `c` with cond as node.condition
+        e. create new blocks for then_br and else_br
+        f. create Goto terminators for then_br and else_br blocks
+        g. set else_br's Goto target as merge
+        h. leave then_br's block unterminated, set as current block
+    4. create new block as body block
+    5. create LoopStmtInfo with cond and body, push to stack
+    6. treat current block as body block; iterate over items in body; accept each
+
     */
 }
 
 void CFGBuilder::visit(ReturnStmtLIR& node) {
+    /*
+    0. create Return terminator `ret`
+    */
+}
+
+void CFGBuilder::visit(VarDeclLIR& node) { // NOLINT
+}
+
+void CFGBuilder::visit(BinaryExprLIR& node) {
+    node.left->accept(*this);
+    Value *left = last_value;
+    node.right->accept(*this);
+    Value *right = last_value;
+
+    current_block->add_instruction<BinaryInst>(
+        node.act_type, node.op, left, right, *node.loc);
+}
+
+void CFGBuilder::visit(UnaryExprLIR& node) {
+}
+
+void CFGBuilder::visit(CastExprLIR& node) {
+}
+
+void CFGBuilder::visit(AssignExprLIR& node) {
+}
+
+void CFGBuilder::visit(CondExprLIR& node) {
+}
+
+void CFGBuilder::visit(IdentExprLIR& node) {
+}
+
+void CFGBuilder::visit(LiteralExprLIR& node) {
+}
+
+void CFGBuilder::visit(ZeroExprLIR& node) {
+}
+
+void CFGBuilder::visit(CallExprLIR& node) {
+}
+
+void CFGBuilder::visit(MemberAccExprLIR& node) {
+}
+
+void CFGBuilder::visit(SubscrExprLIR& node) {
+}
+
+void CFGBuilder::visit(PostfixExprLIR& node) {
 }

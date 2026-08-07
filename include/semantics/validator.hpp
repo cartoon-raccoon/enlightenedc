@@ -45,8 +45,8 @@ protected:
 
     Box<mir::CastExprMIR> cast(types::Type *target, Box<mir::ExprMIR> expr);
 
-    Optional<types::Type *> eval_initializer(
-        types::Type *type, mir::InitializerMIR& init, bool allow_size_infer = false);
+    Optional<types::Type *>
+    eval_initializer(types::Type *type, mir::InitializerMIR& init, bool allow_size_infer = false);
 
     void do_visit(mir::InitializerMIR& node) final;
     void do_visit(mir::VarDeclMIR& node) final;
