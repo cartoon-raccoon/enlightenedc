@@ -11,23 +11,23 @@
 
 // Storage classes + primitive types + const
 
-public  I64i g_public = 1;
-static  I32i g_static = 2;
-extern  I64i g_extern;
+public  I64 g_public = 1;
+static  I32 g_static = 2;
+extern  I64 g_extern;
 
-const U32i g_const = 42;
+const U32 g_const = 42;
 
-U8i   u8v  = 255;
-U16i  u16v = 65535;
-U32i  u32v = 1000;
-U64i  u64v = 100000;
+U8   u8v  = 255;
+U16  u16v = 65535;
+U32  u32v = 1000;
+U64  u64v = 100000;
 
-I8i   i8v  = -1;
-I16i  i16v = -2;
-I32i  i32v = -3;
-I64i  i64v = -4;
+I8   i8v  = -1;
+I16  i16v = -2;
+I32  i32v = -3;
+I64  i64v = -4;
 
-F64i  f64v = 1.23e-4;
+F64  f64v = 1.23e-4;
 Bool bv   = TRUE;
 Void *vp;
 
@@ -37,26 +37,26 @@ Void *vp;
 class Node;
 
 class Point {
-    I64i x;
-    I64i y;
+    I64 x;
+    I64 y;
 };
 
 class Bits {
-    I64i a : 3;
-    I64i : 2;
-    I64i b : 4;
+    I64 a : 3;
+    I64 : 2;
+    I64 b : 4;
 };
 
 class {
-    I32i anon_field;
+    I32 anon_field;
 } anon_class;
 
 
 // Union
 
 union Value {
-    I64i i;
-    F64i f;
+    I64 i;
+    F64 f;
 };
 
 
@@ -71,37 +71,37 @@ enum Forward;
 
 // Arrays + Initializers
 
-I64i arr1[3] = {1,2,3};
-I64i arr2[3] = {4,5,6,};
-I64i arr3[];
+I64 arr1[3] = {1,2,3};
+I64 arr2[3] = {4,5,6,};
+I64 arr3[];
 
 
 // Pointers + complex declarators
 
-I64i *ptr;
-I64i * const const_ptr = &i64v;
+I64 *ptr;
+I64 * const const_ptr = &i64v;
 
-I64i (*func_ptr)(I64i);
+I64 (*func_ptr)(I64);
 
 
 // Functions
 
-I64i Add(I64i a, I64i b) {
+I64 Add(I64 a, I64 b) {
     return a + b;
 }
 
-I64i DefaultParam(I64i x = 5) {
+I64 DefaultParam(I64 x = 5) {
     return x;
 }
 
-I64i Variadic(I64i x, ...) {
+I64 Variadic(I64 x, ...) {
     return x;
 }
 
 Void VoidFunc() {
 }
 
-I64i (*ReturnFuncPtr())(I64i) {
+I64 (*ReturnFuncPtr())(I64) {
     return Add;
 }
 
@@ -109,8 +109,8 @@ I64i (*ReturnFuncPtr())(I64i) {
 // Compound statement with declarations + statements
 
 {
-    I64i local = 5;
-    F64i localf = 2.5;
+    I64 local = 5;
+    F64 localf = 2.5;
 
     local += 2;
     local *= 3;
@@ -121,7 +121,7 @@ I64i (*ReturnFuncPtr())(I64i) {
 
 // Control Flow
 
-I64i control = 2;
+I64 control = 2;
 
 if (control > 1 && control < 10 || FALSE)
     control = 1;
@@ -141,7 +141,7 @@ switch (control) {
 
 // Loops
 
-I64i i = 0;
+I64 i = 0;
 
 while (i < 3) {
     i++;
@@ -170,16 +170,16 @@ i = 200;
 
 // Expressions and operators
 
-I64i a = 5;
-I64i b = 2;
+I64 a = 5;
+I64 b = 2;
 
-I64i arith  = a + b * 3 - 1 / 1 % 2;
-I64i shift  = a << 1 >> 1;
-I64i bitops = (a | b) ^ (a & b);
-I64i rel    = a >= b;
-I64i eq     = a == b;
-I64i neq    = a != b;
-I64i tern   = a > b ? a : b;
+I64 arith  = a + b * 3 - 1 / 1 % 2;
+I64 shift  = a << 1 >> 1;
+I64 bitops = (a | b) ^ (a & b);
+I64 rel    = a >= b;
+I64 eq     = a == b;
+I64 neq    = a != b;
+I64 tern   = a > b ? a : b;
 
 a += 1;
 a -= 1;
@@ -197,7 +197,7 @@ a >>= 1;
 a++;
 a--;
 
-I64i comma = (a = 1, b = 2, a + b);
+I64 comma = (a = 1, b = 2, a + b);
 
 
 // Pointer and member access
@@ -215,18 +215,18 @@ pp->y = 20;
 
 // sizeof
 
-I64i sz1 = sizeof a;
-I64i sz2 = sizeof(I64i);
-I64i sz3 = sizeof(class Point);
+I64 sz1 = sizeof a;
+I64 sz2 = sizeof(I64);
+I64 sz3 = sizeof(class Point);
 
 
 // Constants
 
-I64i hexv = 0xABCD;
-I64i octv = 0777;
-I64i negv = -123;
+I64 hexv = 0xABCD;
+I64 octv = 0777;
+I64 negv = -123;
 
-U8i charv = 'A';
+U8 charv = 'A';
 
 
 // Standalone print statement
@@ -236,7 +236,7 @@ U8i charv = 'A';
 
 // Function usage
 
-I64i result = Add(3,4);
+I64 result = Add(3,4);
 func_ptr = Add;
 result = func_ptr(5);
 

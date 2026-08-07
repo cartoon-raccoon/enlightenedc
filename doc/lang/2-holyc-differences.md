@@ -18,15 +18,15 @@ language, the compiler implements type checking, and a lot of features that impl
 because of the lack of type checking now have to become explicitly supported in EnlightenedC. Consider the
 ability of HolyC to reinterpret primitive types as byte arrays. This is implicitly supported because of the
 compiler's lack of type checking. In HolyC, primitive types were in fact defined with an `i` suffix, e.g.
-`U32i`, `I16i`, and the actual types were just unions:
+`U32`, `I16`, and the actual types were just unions:
 
 ```holyc
 // putting U64 before a union declaration causes it to be treated as that type
-U64i union U64 {
-    U64i u64[1];
-    U32i u32[2];
-    U16i u16[4];
-    U8i  u8[8];
+U64 union U64 {
+    U64 u64[1];
+    U32 u32[2];
+    U16 u16[4];
+    U8  u8[8];
 };
 ```
 

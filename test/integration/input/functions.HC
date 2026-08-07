@@ -1,38 +1,38 @@
-extern "C" I32i somefunc();
+extern "C" I32 somefunc();
 
-I32i someinternalfunc(I32i);
+I32 someinternalfunc(I32);
 
-U32i add(U32i a, U32i b) {
+U32 add(U32 a, U32 b) {
     return a + b;
 }
 
-I32i someinternalfunc(I32i somearg) {
+I32 someinternalfunc(I32 somearg) {
     return somearg;
 }
 
-public I32i compute(I32i x = 10, I32i y = 20, ...) {
-    I32i new;
+public I32 compute(I32 x = 10, I32 y = 20, ...) {
+    I32 new;
     new = add(x, y);
 
-    U64i new2 = new + 1;
+    U64 new2 = new + 1;
 
     return x * y;
 }
 
 class What {
-    U32i hello;
-} complex_class_func(U32i thing) {
+    U32 hello;
+} complex_class_func(U32 thing) {
     What ret = { thing };
 
     return ret;
 }
 
 class Point {
-    I32i x;
-    I32i y;
+    I32 x;
+    I32 y;
 };
 
-Point *compute_point(class Point *p, I32i dx, I32i dy) {
+Point *compute_point(class Point *p, I32 dx, I32 dy) {
   p->x += dx;
   p->y += dy;
 
@@ -60,18 +60,18 @@ Void (*funcptr) () = noop;
 // Print statement test
 "TestPrintStatement";
 
-I64i CallbackFunction(I64i x)
+I64 CallbackFunction(I64 x)
 {
   return x * x;
 }
 
-I64i MathFunc(I64i y, I64i (*proc)(I64i _val))
+I64 MathFunc(I64 y, I64 (*proc)(I64 _val))
 {
   return proc(y);
 }
 
 Void Main()
 {
-  I64i x = MathFunc(10, &CallbackFunction);
+  I64 x = MathFunc(10, &CallbackFunction);
   "%d\n",x;
 }

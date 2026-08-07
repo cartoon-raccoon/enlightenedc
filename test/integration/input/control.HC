@@ -1,4 +1,4 @@
-I64i n = 0;
+I64 n = 0;
 
 start:
 if (n < 10) {
@@ -18,7 +18,7 @@ switch (n) {
     case 2 ... 5:
         n += 2;
         "%d\n", n;
-        U32i i = 0;
+        U32 i = 0;
         break;
     default:
         goto start;
@@ -35,7 +35,7 @@ do {
 
 "%d\n", n;
 
-for (U32i n = 0; n < 3; n++) "%d\n", n;
+for (U32 n = 0; n < 3; n++) "%d\n", n;
 
 for (;;) {
     "loop_once\n";

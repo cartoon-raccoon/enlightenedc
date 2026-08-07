@@ -43,9 +43,9 @@ type-specifier = "void"
                | union-specifier
                | enum-specifier
 
-primitive-type = "U8i" | "U16i" | "U32i" | "U64i"
-               | "I8i" | "I16i" | "I32i" | "I64i"
-               | "F32i" | "F64i"
+primitive-type = "U8" | "U16" | "U32" | "U64"
+               | "I8" | "I16" | "I32" | "I64"
+               | "F32" | "F64"
                | "Bool"
 
 type-qualifier = "const"

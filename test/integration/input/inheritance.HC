@@ -1,17 +1,17 @@
 // Single-level inheritance: Rectangle extends Shape
 class Shape {
-    I32i x;
-    I32i y;
+    I32 x;
+    I32 y;
 };
 
 class Rectangle : Shape {
-    I32i width;
-    I32i height;
+    I32 width;
+    I32 height;
 };
 
 // Two-level inheritance: ColoredRect extends Rectangle extends Shape
 class ColoredRect : Rectangle {
-    I32i color;
+    I32 color;
 };
 
 // --- Single-level: access parent and own members ---

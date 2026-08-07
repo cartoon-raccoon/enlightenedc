@@ -138,16 +138,16 @@ static std::string decode_string_literal(char* text, size_t len) {
 
 "Void" { return ecc::frontend::Parser::make_VOID(loc); } /* Type specifiers */
 "U0" { return ecc::frontend::Parser::make_VOID(loc); }
-"U8i" { return ecc::frontend::Parser::make_U8(loc); }
-"U16i" { return ecc::frontend::Parser::make_U16(loc); }
-"U32i" { return ecc::frontend::Parser::make_U32(loc); }
-"U64i" { return ecc::frontend::Parser::make_U64(loc); }
-"I8i" { return ecc::frontend::Parser::make_I8(loc); }
-"I16i" { return ecc::frontend::Parser::make_I16(loc); }
-"I32i" { return ecc::frontend::Parser::make_I32(loc); }
-"I64i" { return ecc::frontend::Parser::make_I64(loc); }
-"F32i" { return ecc::frontend::Parser::make_F32(loc); }
-"F64i" { return ecc::frontend::Parser::make_F64(loc); }
+"U8" { return ecc::frontend::Parser::make_U8(loc); }
+"U16" { return ecc::frontend::Parser::make_U16(loc); }
+"U32" { return ecc::frontend::Parser::make_U32(loc); }
+"U64" { return ecc::frontend::Parser::make_U64(loc); }
+"I8" { return ecc::frontend::Parser::make_I8(loc); }
+"I16" { return ecc::frontend::Parser::make_I16(loc); }
+"I32" { return ecc::frontend::Parser::make_I32(loc); }
+"I64" { return ecc::frontend::Parser::make_I64(loc); }
+"F32" { return ecc::frontend::Parser::make_F32(loc); }
+"F64" { return ecc::frontend::Parser::make_F64(loc); }
 
 "true" { return ecc::frontend::Parser::make_TRUE(loc); }
 "false" { return ecc::frontend::Parser::make_FALSE(loc); }

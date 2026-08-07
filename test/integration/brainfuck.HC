@@ -7,14 +7,14 @@ U0 Execute();
 
 /* a stack to store the position of opening brackets. */
 class Stack {
-    I32i cap;
-    I32i len;
-    I32i data[DEFAULT_STACK_CAP];
+    I32 cap;
+    I32 len;
+    I32 data[DEFAULT_STACK_CAP];
 };
 
 Stack nesting = { DEFAULT_STACK_CAP, 0 };
 
-U0 StackPush(I32i item) {
+U0 StackPush(I32 item) {
     /* if item is less than zero, fail silently */
     if (item < 0) return;
 
@@ -27,33 +27,33 @@ U0 StackPush(I32i item) {
     nesting.len++;
 }
 
-I32i StackPeek() {
+I32 StackPeek() {
     if (nesting.len <= 0)
         return -1;
 
     return nesting.data[nesting.len - 1];
 }
 
-I32i StackPop() {
+I32 StackPop() {
     if (nesting.len <= 0) return -1;
 
-    I32i ret = nesting.data[nesting.len - 1];
+    I32 ret = nesting.data[nesting.len - 1];
     nesting.len--;
 
     return ret;
 }
 
 /* our code */
-I8i code[DEFAULT_CODE_SIZE];
-I32i insptr = 0;
-I32i codesize = DEFAULT_CODE_SIZE;
+I8 code[DEFAULT_CODE_SIZE];
+I32 insptr = 0;
+I32 codesize = DEFAULT_CODE_SIZE;
 
 /* our data */
-I8i data[DEFAULT_DATA_SIZE];
-I32i dataptr = 0;
+I8 data[DEFAULT_DATA_SIZE];
+I32 dataptr = 0;
 
 enum ErrType {SYSTEM = 1, BAD_CODE = 2};
-U0 Die(I8i *errmsg, enum ErrType errcode) {
+U0 Die(I8 *errmsg, enum ErrType errcode) {
     if (errcode == SYSTEM) {
         "ERROR: %s\n", errmsg;
     } else {
@@ -62,9 +62,9 @@ U0 Die(I8i *errmsg, enum ErrType errcode) {
     return;
 }
 
-I8i valid_chars[8] = {'>', '<', '+', '-', ',', '.', '[', ']'};
-Bool IsValid(I8i c) {
-    I32i i = 0;
+I8 valid_chars[8] = {'>', '<', '+', '-', ',', '.', '[', ']'};
+Bool IsValid(I8 c) {
+    I32 i = 0;
     while (i < 8) {
         if (c == valid_chars[i]) return 1;
         i++;
@@ -74,9 +74,9 @@ Bool IsValid(I8i c) {
 }
 
 // code from string
-U0 ReadCode(I8i *src) {
-    I32i n = 0;
-    I32i i = 0;
+U0 ReadCode(I8 *src) {
+    I32 n = 0;
+    I32 i = 0;
 
     while (src[i] != '\0') {
         if (IsValid(src[i])) {
@@ -96,7 +96,7 @@ U0 ReadCode(I8i *src) {
 
 /* Jumps to the command after the matching closing bracket. */
 U0 JumpToAfter() {
-    I32i current = nesting.len;
+    I32 current = nesting.len;
     while (code[insptr] != '\0') {
         if (code[insptr] == '[') {
             current++;
@@ -119,7 +119,7 @@ U0 JumpToAfter() {
 
 U0 Execute() {
 
-    I8i c;
+    I8 c;
     while ((c = code[insptr]) != '\0') {
         if (insptr < 0) {
             Die("instruction pointer went below 0", BAD_CODE);
@@ -175,7 +175,7 @@ U0 Execute() {
             // if current byte is not zero,
             // jump to command after *matching* opening bracket
             case ']': {
-                I32i opening = StackPeek();
+                I32 opening = StackPeek();
 
                 if (opening < 0) {
                     Die("mismatched closing bracket", BAD_CODE);
@@ -201,7 +201,7 @@ U0 Execute() {
 }
 
 U0 Initialize() {
-    I32i i = 0;
+    I32 i = 0;
 
     while (i < DEFAULT_DATA_SIZE) {
         data[i] = 0;
@@ -211,15 +211,15 @@ U0 Initialize() {
     nesting.len = 0;
 }
 
-U0 PrintUsage(I8i *argname) {
+U0 PrintUsage(I8 *argname) {
     "usage: ", argname, " [-m MEMSIZE] CODE";
 }
 
-I32i Main() {
+I32 Main() {
 
     Initialize();
     // hello world
-    I8i program[] = ">++++++++[<+++++++++>-]<.>++++[<+++++++>-]<+.+++++++..+++.>>++++++[<+++++++>-]<++.------------.>++++++[<+++++++++>-]<+.<.+++.------.--------.>>>++++[<++++++++>-]<+.";
+    I8 program[] = ">++++++++[<+++++++++>-]<.>++++[<+++++++>-]<+.+++++++..+++.>>++++++[<+++++++>-]<++.------------.>++++++[<+++++++++>-]<+.<.+++.------.--------.>>>++++[<++++++++>-]<+.";
 
     ReadCode(program);
     Execute();

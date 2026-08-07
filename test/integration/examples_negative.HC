@@ -13,29 +13,29 @@
 // Declaration syntax errors
 
 // Missing semicolon
-I64i x = 5
+I64 x = 5
 
 // Missing identifier in declarator
-I64i *;
+I64 *;
 
 // Malformed declarator (unclosed paren)
-I64i (x;
+I64 (x;
 
 // Missing initializer expression
-I64i x = ;
+I64 x = ;
 
 
 
 // Struct syntax errors
 
 // Missing semicolon in struct member
-struct S { I64i x }
+struct S { I64 x }
 
 // Missing closing brace
-struct S { I64i x;
+struct S { I64 x;
 
 // Invalid bitfield (missing width)
-struct B { I64i x : ; };
+struct B { I64 x : ; };
 
 
 
@@ -55,33 +55,33 @@ enum E { A, B;
 // Array syntax errors
 
 // Missing closing bracket
-I64i arr[10;
+I64 arr[10;
 
 // Empty subscript expression (grammar requires expression)
-I64i arr[ ];
+I64 arr[ ];
 
 
 
 // Function definition syntax errors
 
 // Missing function body
-I64i f(I64i x)
+I64 f(I64 x)
 
 // Malformed parameter list
-I64i f(, I64i x) { return x; }
+I64 f(, I64 x) { return x; }
 
 // Missing closing brace in function
-I64i f(I64i x) { return x;
+I64 f(I64 x) { return x;
 
 
 
 // Compound statement syntax errors
 
 // Missing closing brace
-{ I64i x = 1;
+{ I64 x = 1;
 
 // Invalid mixture (bad order)
-{ I64i x = 1; I64i y }
+{ I64 x = 1; I64 y }
 
 
 
@@ -193,17 +193,17 @@ x->;
 // Initializer syntax errors
 
 // Missing expression inside braces
-I64i x = { };
+I64 x = { };
 
 // Missing closing brace
-I64i x = { 1, 2;
+I64 x = { 1, 2;
 
 
 
 // Parameter syntax errors
 
 // Default without expression
-I64i f(I64i x =) { }
+I64 f(I64 x =) { }
 
 // Ellipsis not last
-I64i f(..., I64i x) { }
+I64 f(..., I64 x) { }

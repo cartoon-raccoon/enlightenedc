@@ -843,58 +843,58 @@ semantic checking complete
 --------- TYPE CONTEXT ---------
 
 Base Types:
-  class_Node_0 : class { I32i value; Node * next; }
+  class_Node_0 : class { I32 value; Node * next; }
 
 Function Types:
-  function_94789464148096 : I32i ()
-  function_388483017259786146 : I32i (I32i (I32i) *, I32i)
-  function_6103427515997401 : I32i (I32i)
+  function_94789464148096 : I32 ()
+  function_388483017259786146 : I32 (I32 (I32) *, I32)
+  function_6103427515997401 : I32 (I32)
 
 Pointer Types:
-  :U32i[5] *
-  :U32i *[5] *
-  :I32i (I32i) *
-  :U32i *
+  :U32[5] *
+  :U32 *[5] *
+  :I32 (I32) *
+  :U32 *
   :Node *
 
 Array Types:
- : U32i *[5] #2
- : U32i[5] #2
- : U32i[2][3] #1
- : U32i[2] #1
- : U32i[6] #1
+ : U32 *[5] #2
+ : U32[5] #2
+ : U32[2][3] #1
+ : U32[2] #1
+ : U32[6] #1
 
 
 --------- SYMBOL TABLE ---------
 
 Scope 0
 Physical Symbols:
-  run -> 0x5635e452d610 : FuncSymbol: run :: I32i ()
-  ptr_to_ptr_arr -> 0x5635e456ffe0 : VarSymbol: ptr_to_ptr_arr :: U32i *[5] *
-  ptr_to_arr -> 0x5635e456fe40 : VarSymbol: ptr_to_arr :: U32i[5] *
-  ptr_array -> 0x5635e456fc50 : VarSymbol: ptr_array :: U32i *[5]
-  complex_arr -> 0x5635e456f790 : VarSymbol: complex_arr :: U32i[2][3]
-  arr -> 0x5635e456fa20 : VarSymbol: arr :: U32i[5]
-  inferred_arr -> 0x5635e456ef40 : VarSymbol: inferred_arr :: U32i[6]
-  square -> 0x5635e452d190 : FuncSymbol: square :: I32i (I32i)
-  apply -> 0x5635e452cf50 : FuncSymbol: apply :: I32i (I32i (I32i) *, I32i)
+  run -> 0x5635e452d610 : FuncSymbol: run :: I32 ()
+  ptr_to_ptr_arr -> 0x5635e456ffe0 : VarSymbol: ptr_to_ptr_arr :: U32 *[5] *
+  ptr_to_arr -> 0x5635e456fe40 : VarSymbol: ptr_to_arr :: U32[5] *
+  ptr_array -> 0x5635e456fc50 : VarSymbol: ptr_array :: U32 *[5]
+  complex_arr -> 0x5635e456f790 : VarSymbol: complex_arr :: U32[2][3]
+  arr -> 0x5635e456fa20 : VarSymbol: arr :: U32[5]
+  inferred_arr -> 0x5635e456ef40 : VarSymbol: inferred_arr :: U32[6]
+  square -> 0x5635e452d190 : FuncSymbol: square :: I32 (I32)
+  apply -> 0x5635e452cf50 : FuncSymbol: apply :: I32 (I32 (I32) *, I32)
 
 Type Symbols:
-  Node -> 0x5635e456ce10 : TypeSymbol: Node :: class { I32i value; Node * next; }
+  Node -> 0x5635e456ce10 : TypeSymbol: Node :: class { I32 value; Node * next; }
 -----------------------------------------------------------
-  Scope 1: FuncSymbol: apply :: I32i (I32i (I32i) *, I32i)
+  Scope 1: FuncSymbol: apply :: I32 (I32 (I32) *, I32)
   Physical Symbols:
-    v -> 0x5635e456dda0 : VarSymbol: v :: I32i
-    fn -> 0x5635e4558680 : VarSymbol: fn :: I32i (I32i) *
+    v -> 0x5635e456dda0 : VarSymbol: v :: I32
+    fn -> 0x5635e4558680 : VarSymbol: fn :: I32 (I32) *
 -----------------------------------------------------------
-  Scope 2: FuncSymbol: square :: I32i (I32i)
+  Scope 2: FuncSymbol: square :: I32 (I32)
   Physical Symbols:
-    x -> 0x5635e456e450 : VarSymbol: x :: I32i
+    x -> 0x5635e456e450 : VarSymbol: x :: I32
 -----------------------------------------------------------
-  Scope 3: FuncSymbol: run :: I32i ()
+  Scope 3: FuncSymbol: run :: I32 ()
   Physical Symbols:
     p -> 0x5635e45705e0 : VarSymbol: p :: Node *
-    n -> 0x5635e45703c0 : VarSymbol: n :: class { I32i value; Node * next; }
+    n -> 0x5635e45703c0 : VarSymbol: n :: class { I32 value; Node * next; }
 -----------------------------------------------------------
 
 --------- MIR ---------
@@ -902,21 +902,21 @@ Type Symbols:
 ProgramMIR @ <1.1>
 | TypeDecl: Node @ <input/pointers_arrays.HC:1.1-4.2>
 | FunctionMIR: apply @ <input/pointers_arrays.HC:6.1-8.1>
-    type: I32i (I32i (I32i) *, I32i)
+    type: I32 (I32 (I32) *, I32)
 | | CompoundStmtMIR @ <input/pointers_arrays.HC:6.38-8.1>
 | | | Return @ <input/pointers_arrays.HC:7.5-17>
 | | | | Call @ <input/pointers_arrays.HC:7.12-16>
 | | | | | Ident: fn @ <input/pointers_arrays.HC:7.12-13>
 | | | | | Ident: v @ <input/pointers_arrays.HC:7.12-15>
 | FunctionMIR: square @ <input/pointers_arrays.HC:10.1-12.1>
-    type: I32i (I32i)
+    type: I32 (I32)
 | | CompoundStmtMIR @ <input/pointers_arrays.HC:10.21-12.1>
 | | | Return @ <input/pointers_arrays.HC:11.5-17>
 | | | | Binary: * @ <input/pointers_arrays.HC:11.12-16>
 | | | | | Ident: x @ <input/pointers_arrays.HC:11.12>
 | | | | | Ident: x @ <input/pointers_arrays.HC:11.16>
 | VarDecl:  @ <input/pointers_arrays.HC:15.1-41>
-| | | VarSymbol: inferred_arr :: U32i[6]
+| | | VarSymbol: inferred_arr :: U32[6]
 | | | Initializer @ <input/pointers_arrays.HC:15.23-40>
 | | | | Initializer @ <input/pointers_arrays.HC:15.23-24>
 | | | | | Literal: 5 @ <input/pointers_arrays.HC:15.23-24>
@@ -931,7 +931,7 @@ ProgramMIR @ <1.1>
 | | | | Initializer @ <input/pointers_arrays.HC:15.39>
 | | | | | Literal: 0 @ <input/pointers_arrays.HC:15.39>
 | VarDecl:  @ <input/pointers_arrays.HC:17.1-45>
-| | | VarSymbol: complex_arr :: U32i[2][3]
+| | | VarSymbol: complex_arr :: U32[2][3]
 | | | Initializer @ <input/pointers_arrays.HC:17.24-44>
 | | | | Initializer @ <input/pointers_arrays.HC:17.24-30>
 | | | | | Initializer @ <input/pointers_arrays.HC:17.24-26>
@@ -947,18 +947,18 @@ ProgramMIR @ <1.1>
 | | | | | Initializer @ <input/pointers_arrays.HC:17.41-42>
 | | | | | | Literal: 1 @ <input/pointers_arrays.HC:17.41-42>
 | VarDecl:  @ <input/pointers_arrays.HC:19.1-12>
-| | | VarSymbol: arr :: U32i[5]
+| | | VarSymbol: arr :: U32[5]
 | VarDecl:  @ <input/pointers_arrays.HC:21.1-19>
-| | | VarSymbol: ptr_array :: U32i *[5]
+| | | VarSymbol: ptr_array :: U32 *[5]
 | VarDecl:  @ <input/pointers_arrays.HC:23.1-24>
-| | | VarSymbol: ptr_to_arr :: U32i[5] *
+| | | VarSymbol: ptr_to_arr :: U32[5] *
 | VarDecl:  @ <input/pointers_arrays.HC:25.1-28>
-| | | VarSymbol: ptr_to_ptr_arr :: U32i *[5] *
+| | | VarSymbol: ptr_to_ptr_arr :: U32 *[5] *
 | FunctionMIR: run @ <input/pointers_arrays.HC:27.1-35.1>
-    type: I32i ()
+    type: I32 ()
 | | CompoundStmtMIR @ <input/pointers_arrays.HC:27.12-35.1>
 | | | VarDecl:  @ <input/pointers_arrays.HC:28.5-11>
-| | | | | VarSymbol: n :: class { I32i value; Node * next; }
+| | | | | VarSymbol: n :: class { I32 value; Node * next; }
 | | | VarDecl:  @ <input/pointers_arrays.HC:29.5-17>
 | | | | | VarSymbol: p :: Node *
 | | | | | Initializer @ <input/pointers_arrays.HC:29.15-16>

@@ -1,7 +1,7 @@
 #define SQUARE(x) ((x) * (x))
 
-I32i main() {
-    I32i a = 5;
-    I32i b = SQUARE(a);
+I32 main() {
+    I32 a = 5;
+    I32 b = SQUARE(a);
     return b;
 }

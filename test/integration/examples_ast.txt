@@ -3375,124 +3375,124 @@ semantic checking complete
 Base Types:
   enum_anon_1_0x55b4e7167fc0 : enum { A = 0, B = 1, C = 2 }
   enum_Forward_0x55b4e7167fc0 : enum
-  union_Value_0x55b4e7167fc0 : union { I64i i; F64i f; }
+  union_Value_0x55b4e7167fc0 : union { I64 i; F64 f; }
   enum_Color_0x55b4e7167fc0 : enum { RED = 0, GREEN = 5, BLUE = 6 }
-  class_anon_0_0x55b4e7167fc0 : class { I32i anon_field; }
-  class_Bits_0x55b4e7167fc0 : class { I64i a; I64i ; I64i b; }
-  class_Point_0x55b4e7167fc0 : class { I64i x; I64i y; }
+  class_anon_0_0x55b4e7167fc0 : class { I32 anon_field; }
+  class_Bits_0x55b4e7167fc0 : class { I64 a; I64 ; I64 b; }
+  class_Point_0x55b4e7167fc0 : class { I64 x; I64 y; }
   class_Node_0x55b4e7167fc0 : class
 
 Function Types:
-  function_94235459506000 : I64i (I64i) * ()
+  function_94235459506000 : I64 (I64) * ()
   function_94235459486208 : Void ()
-  function_v6067003754471033 : I64i (I64i, ...)
-  function_395400465552805102 : I64i (I64i, I64i)
-  function_6067003754471033 : I64i (I64i)
+  function_v6067003754471033 : I64 (I64, ...)
+  function_395400465552805102 : I64 (I64, I64)
+  function_6067003754471033 : I64 (I64)
 
 Pointer Types:
   :Point *
-  :I64i (I64i) *
-  :I64i *
-  :I64i * const
+  :I64 (I64) *
+  :I64 *
+  :I64 * const
   :Void *
 
 Array Types:
- : I64i[]
- : I64i[3]
+ : I64[]
+ : I64[3]
 
 
 --------- SYMBOL TABLE ---------
 
 Scope 0
 Physical Symbols:
-  charv -> 0x55b4e7188960 : VarSymbol: charv :: U8i
-  result -> 0x55b4e7188e40 : VarSymbol: result :: I64i
-  hexv -> 0x55b4e7188280 : VarSymbol: hexv :: I64i
-  tern -> 0x55b4e7185000 : VarSymbol: tern :: I64i
-  neq -> 0x55b4e7184c40 : VarSymbol: neq :: I64i
-  shift -> 0x55b4e7183fe0 : VarSymbol: shift :: I64i
-  comma -> 0x55b4e7186bf0 : VarSymbol: comma :: I64i
-  b -> 0x55b4e7183680 : VarSymbol: b :: I64i
-  eq -> 0x55b4e7184980 : VarSymbol: eq :: I64i
-  a -> 0x55b4e7183450 : VarSymbol: a :: I64i
-  negv -> 0x55b4e71886e0 : VarSymbol: negv :: I64i
-  sz3 -> 0x55b4e7188000 : VarSymbol: sz3 :: I64i
-  i -> 0x55b4e7170e00 : VarSymbol: i :: I64i
-  control -> 0x55b4e716fae0 : VarSymbol: control :: I64i
-  ReturnFuncPtr -> 0x55b4e71312d0 : FuncSymbol: ReturnFuncPtr :: I64i (I64i) * ()
-  Variadic -> 0x55b4e712ffe0 : FuncSymbol: Variadic :: I64i (I64i, ...)
-  i64v -> 0x55b4e716a080 : VarSymbol: i64v :: I64i
-  ptr -> 0x55b4e716cbd0 : VarSymbol: ptr :: I64i *
-  arr2 -> 0x55b4e716c880 : VarSymbol: arr2 :: I64i[3]
-  i8v -> 0x55b4e7169950 : VarSymbol: i8v :: I8i
-  i16v -> 0x55b4e7169b80 : VarSymbol: i16v :: I16i
-  DefaultParam -> 0x55b4e712fda0 : FuncSymbol: DefaultParam :: I64i (I64i)
-  g_const -> 0x55b4e7168e30 : VarSymbol: g_constconst  :: U32i
-  p -> 0x55b4e7186da0 : VarSymbol: p :: class { I64i x; I64i y; }
-  u32v -> 0x55b4e71694f0 : VarSymbol: u32v :: U32i
-  u16v -> 0x55b4e71692c0 : VarSymbol: u16v :: U16i
-  u8v -> 0x55b4e7169040 : VarSymbol: u8v :: U8i
+  charv -> 0x55b4e7188960 : VarSymbol: charv :: U8
+  result -> 0x55b4e7188e40 : VarSymbol: result :: I64
+  hexv -> 0x55b4e7188280 : VarSymbol: hexv :: I64
+  tern -> 0x55b4e7185000 : VarSymbol: tern :: I64
+  neq -> 0x55b4e7184c40 : VarSymbol: neq :: I64
+  shift -> 0x55b4e7183fe0 : VarSymbol: shift :: I64
+  comma -> 0x55b4e7186bf0 : VarSymbol: comma :: I64
+  b -> 0x55b4e7183680 : VarSymbol: b :: I64
+  eq -> 0x55b4e7184980 : VarSymbol: eq :: I64
+  a -> 0x55b4e7183450 : VarSymbol: a :: I64
+  negv -> 0x55b4e71886e0 : VarSymbol: negv :: I64
+  sz3 -> 0x55b4e7188000 : VarSymbol: sz3 :: I64
+  i -> 0x55b4e7170e00 : VarSymbol: i :: I64
+  control -> 0x55b4e716fae0 : VarSymbol: control :: I64
+  ReturnFuncPtr -> 0x55b4e71312d0 : FuncSymbol: ReturnFuncPtr :: I64 (I64) * ()
+  Variadic -> 0x55b4e712ffe0 : FuncSymbol: Variadic :: I64 (I64, ...)
+  i64v -> 0x55b4e716a080 : VarSymbol: i64v :: I64
+  ptr -> 0x55b4e716cbd0 : VarSymbol: ptr :: I64 *
+  arr2 -> 0x55b4e716c880 : VarSymbol: arr2 :: I64[3]
+  i8v -> 0x55b4e7169950 : VarSymbol: i8v :: I8
+  i16v -> 0x55b4e7169b80 : VarSymbol: i16v :: I16
+  DefaultParam -> 0x55b4e712fda0 : FuncSymbol: DefaultParam :: I64 (I64)
+  g_const -> 0x55b4e7168e30 : VarSymbol: g_constconst  :: U32
+  p -> 0x55b4e7186da0 : VarSymbol: p :: class { I64 x; I64 y; }
+  u32v -> 0x55b4e71694f0 : VarSymbol: u32v :: U32
+  u16v -> 0x55b4e71692c0 : VarSymbol: u16v :: U16
+  u8v -> 0x55b4e7169040 : VarSymbol: u8v :: U8
   GREEN -> 0x55b4e716b800 : VarSymbol: GREEN :: enum { RED = 0, GREEN = 5, BLUE = 6 }
-  g_extern -> 0x55b4e7168c70 : VarSymbol: g_extern :: I64i extern
+  g_extern -> 0x55b4e7168c70 : VarSymbol: g_extern :: I64 extern
   C -> 0x55b4e716bda0 : VarSymbol: C :: enum { A = 0, B = 1, C = 2 }
   pp -> 0x55b4e7187740 : VarSymbol: pp :: Point *
-  g_public -> 0x55b4e7168950 : VarSymbol: g_public :: I64i public
-  Add -> 0x55b4e712fb60 : FuncSymbol: Add :: I64i (I64i, I64i)
-  arr1 -> 0x55b4e716c450 : VarSymbol: arr1 :: I64i[3]
-  i32v -> 0x55b4e7169e00 : VarSymbol: i32v :: I32i
-  u64v -> 0x55b4e7169720 : VarSymbol: u64v :: U64i
-  g_static -> 0x55b4e7168b80 : VarSymbol: g_static :: I32i static
-  sz1 -> 0x55b4e7187bb0 : VarSymbol: sz1 :: I64i
+  g_public -> 0x55b4e7168950 : VarSymbol: g_public :: I64 public
+  Add -> 0x55b4e712fb60 : FuncSymbol: Add :: I64 (I64, I64)
+  arr1 -> 0x55b4e716c450 : VarSymbol: arr1 :: I64[3]
+  i32v -> 0x55b4e7169e00 : VarSymbol: i32v :: I32
+  u64v -> 0x55b4e7169720 : VarSymbol: u64v :: U64
+  g_static -> 0x55b4e7168b80 : VarSymbol: g_static :: I32 static
+  sz1 -> 0x55b4e7187bb0 : VarSymbol: sz1 :: I64
   RED -> 0x55b4e716b6f0 : VarSymbol: RED :: enum { RED = 0, GREEN = 5, BLUE = 6 }
-  arr3 -> 0x55b4e716ca30 : VarSymbol: arr3 :: I64i[]
-  arith -> 0x55b4e7183c30 : VarSymbol: arith :: I64i
+  arr3 -> 0x55b4e716ca30 : VarSymbol: arr3 :: I64[]
+  arith -> 0x55b4e7183c30 : VarSymbol: arith :: I64
   VoidFunc -> 0x55b4e71311b0 : FuncSymbol: VoidFunc :: Void ()
   bv -> 0x55b4e716a5e0 : VarSymbol: bv :: Bool
   vp -> 0x55b4e716a7e0 : VarSymbol: vp :: Void *
-  sz2 -> 0x55b4e7187df0 : VarSymbol: sz2 :: I64i
-  anon_class -> 0x55b4e716b1e0 : VarSymbol: anon_class :: class { I32i anon_field; }
-  rel -> 0x55b4e71846c0 : VarSymbol: rel :: I64i
-  f64v -> 0x55b4e716a300 : VarSymbol: f64v :: F64i
+  sz2 -> 0x55b4e7187df0 : VarSymbol: sz2 :: I64
+  anon_class -> 0x55b4e716b1e0 : VarSymbol: anon_class :: class { I32 anon_field; }
+  rel -> 0x55b4e71846c0 : VarSymbol: rel :: I64
+  f64v -> 0x55b4e716a300 : VarSymbol: f64v :: F64
   BLUE -> 0x55b4e716b940 : VarSymbol: BLUE :: enum { RED = 0, GREEN = 5, BLUE = 6 }
   A -> 0x55b4e716bb20 : VarSymbol: A :: enum { A = 0, B = 1, C = 2 }
   B -> 0x55b4e716bc60 : VarSymbol: B :: enum { A = 0, B = 1, C = 2 }
-  octv -> 0x55b4e71884b0 : VarSymbol: octv :: I64i
-  bitops -> 0x55b4e7184400 : VarSymbol: bitops :: I64i
-  const_ptr -> 0x55b4e716ce40 : VarSymbol: const_ptr :: I64i * const
-  func_ptr -> 0x55b4e716d210 : VarSymbol: func_ptr :: I64i (I64i) *
+  octv -> 0x55b4e71884b0 : VarSymbol: octv :: I64
+  bitops -> 0x55b4e7184400 : VarSymbol: bitops :: I64
+  const_ptr -> 0x55b4e716ce40 : VarSymbol: const_ptr :: I64 * const
+  func_ptr -> 0x55b4e716d210 : VarSymbol: func_ptr :: I64 (I64) *
 
 Type Symbols:
   Forward -> 0x55b4e716bf30 : TypeSymbol: Forward :: enum
   Color -> 0x55b4e716b640 : TypeSymbol: Color :: enum { RED = 0, GREEN = 5, BLUE = 6 }
-  Bits -> 0x55b4e716ae60 : TypeSymbol: Bits :: class { I64i a; I64i ; I64i b; }
-  Point -> 0x55b4e716ac00 : TypeSymbol: Point :: class { I64i x; I64i y; }
-  Value -> 0x55b4e716b3e0 : TypeSymbol: Value :: union { I64i i; F64i f; }
+  Bits -> 0x55b4e716ae60 : TypeSymbol: Bits :: class { I64 a; I64 ; I64 b; }
+  Point -> 0x55b4e716ac00 : TypeSymbol: Point :: class { I64 x; I64 y; }
+  Value -> 0x55b4e716b3e0 : TypeSymbol: Value :: union { I64 i; F64 f; }
   Node -> 0x55b4e716aa30 : TypeSymbol: Node :: class
 
 Label Symbols:
   after_label -> 0x55b4e7172350 : LabelSymbol: after_label
   label_here -> 0x55b4e7172070 : LabelSymbol: label_here
 -----------------------------------------------------------
-  Scope 1: FuncSymbol: Add :: I64i (I64i, I64i)
+  Scope 1: FuncSymbol: Add :: I64 (I64, I64)
   Physical Symbols:
-    b -> 0x55b4e716d8c0 : VarSymbol: b :: I64i
-    a -> 0x55b4e716d7f0 : VarSymbol: a :: I64i
+    b -> 0x55b4e716d8c0 : VarSymbol: b :: I64
+    a -> 0x55b4e716d7f0 : VarSymbol: a :: I64
 
   Type Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
-  Scope 2: FuncSymbol: DefaultParam :: I64i (I64i)
+  Scope 2: FuncSymbol: DefaultParam :: I64 (I64)
   Physical Symbols:
-    x -> 0x55b4e716de60 : VarSymbol: x :: I64i
+    x -> 0x55b4e716de60 : VarSymbol: x :: I64
 
   Type Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
-  Scope 3: FuncSymbol: Variadic :: I64i (I64i, ...)
+  Scope 3: FuncSymbol: Variadic :: I64 (I64, ...)
   Physical Symbols:
-    x -> 0x55b4e716e3c0 : VarSymbol: x :: I64i
+    x -> 0x55b4e716e3c0 : VarSymbol: x :: I64
 
   Type Symbols:
 
@@ -3505,7 +3505,7 @@ Label Symbols:
 
   Label Symbols:
 -----------------------------------------------------------
-  Scope 5: FuncSymbol: ReturnFuncPtr :: I64i (I64i) * ()
+  Scope 5: FuncSymbol: ReturnFuncPtr :: I64 (I64) * ()
   Physical Symbols:
 
   Type Symbols:
@@ -3514,8 +3514,8 @@ Label Symbols:
 -----------------------------------------------------------
   Scope 6
   Physical Symbols:
-    localf -> 0x55b4e716f230 : VarSymbol: localf :: F64i
-    local -> 0x55b4e716efd0 : VarSymbol: local :: I64i
+    localf -> 0x55b4e716f230 : VarSymbol: localf :: F64
+    local -> 0x55b4e716efd0 : VarSymbol: local :: I64
 
   Type Symbols:
 
@@ -3575,57 +3575,57 @@ Label Symbols:
 
 ProgramMIR @ <1.1>
 | VarDecl:  @ <test/examples.ec:14.1-195>
-| | | VarSymbol: g_public :: I64i public
+| | | VarSymbol: g_public :: I64 public
 | | | Initializer @ <test/examples.ec:14.194>
 | | | | Literal: 1 @ <test/examples.ec:14.194>
 | VarDecl:  @ <test/examples.ec:15.1-25>
-| | | VarSymbol: g_static :: I32i static
+| | | VarSymbol: g_static :: I32 static
 | | | Initializer @ <test/examples.ec:15.24>
 | | | | Literal: 2 @ <test/examples.ec:15.24>
 | VarDecl:  @ <test/examples.ec:16.1-21>
-| | | VarSymbol: g_extern :: I64i extern
+| | | VarSymbol: g_extern :: I64 extern
 | VarDecl:  @ <test/examples.ec:18.1-24>
-| | | VarSymbol: g_constconst  :: U32i
+| | | VarSymbol: g_constconst  :: U32
 | | | Initializer @ <test/examples.ec:18.22-23>
 | | | | Literal: 42 @ <test/examples.ec:18.22-23>
 | VarDecl:  @ <test/examples.ec:20.1-14>
-| | | VarSymbol: u8v :: U8i
+| | | VarSymbol: u8v :: U8
 | | | Initializer @ <test/examples.ec:20.11-13>
 | | | | Literal: 255 @ <test/examples.ec:20.11-13>
 | VarDecl:  @ <test/examples.ec:21.1-18>
-| | | VarSymbol: u16v :: U16i
+| | | VarSymbol: u16v :: U16
 | | | Initializer @ <test/examples.ec:21.13-17>
 | | | | Literal: 65535 @ <test/examples.ec:21.13-17>
 | VarDecl:  @ <test/examples.ec:22.1-17>
-| | | VarSymbol: u32v :: U32i
+| | | VarSymbol: u32v :: U32
 | | | Initializer @ <test/examples.ec:22.13-16>
 | | | | Literal: 1000 @ <test/examples.ec:22.13-16>
 | VarDecl:  @ <test/examples.ec:23.1-19>
-| | | VarSymbol: u64v :: U64i
+| | | VarSymbol: u64v :: U64
 | | | Initializer @ <test/examples.ec:23.13-18>
 | | | | Literal: 100000 @ <test/examples.ec:23.13-18>
 | VarDecl:  @ <test/examples.ec:25.1-13>
-| | | VarSymbol: i8v :: I8i
+| | | VarSymbol: i8v :: I8
 | | | Initializer @ <test/examples.ec:25.11-12>
 | | | | Unary: - @ <test/examples.ec:25.11-12>
 | | | | | Literal: 1 @ <test/examples.ec:25.11-12>
 | VarDecl:  @ <test/examples.ec:26.1-15>
-| | | VarSymbol: i16v :: I16i
+| | | VarSymbol: i16v :: I16
 | | | Initializer @ <test/examples.ec:26.13-14>
 | | | | Unary: - @ <test/examples.ec:26.13-14>
 | | | | | Literal: 2 @ <test/examples.ec:26.13-14>
 | VarDecl:  @ <test/examples.ec:27.1-15>
-| | | VarSymbol: i32v :: I32i
+| | | VarSymbol: i32v :: I32
 | | | Initializer @ <test/examples.ec:27.13-14>
 | | | | Unary: - @ <test/examples.ec:27.13-14>
 | | | | | Literal: 3 @ <test/examples.ec:27.13-14>
 | VarDecl:  @ <test/examples.ec:28.1-15>
-| | | VarSymbol: i64v :: I64i
+| | | VarSymbol: i64v :: I64
 | | | Initializer @ <test/examples.ec:28.13-14>
 | | | | Unary: - @ <test/examples.ec:28.13-14>
 | | | | | Literal: 4 @ <test/examples.ec:28.13-14>
 | VarDecl:  @ <test/examples.ec:30.1-20>
-| | | VarSymbol: f64v :: F64i
+| | | VarSymbol: f64v :: F64
 | | | Initializer @ <test/examples.ec:30.13-19>
 | | | | Literal: 0.000000 @ <test/examples.ec:30.13-19>
 | VarDecl:  @ <test/examples.ec:31.1-15>
@@ -3638,10 +3638,10 @@ ProgramMIR @ <1.1>
 | TypeDecl: Point @ <test/examples.ec:39.1-42.2>
 | TypeDecl: Bits @ <test/examples.ec:44.1-48.2>
 | VarDecl:  @ <test/examples.ec:50.1-52.13>
-| | | VarSymbol: anon_class :: class { I32i anon_field; }
+| | | VarSymbol: anon_class :: class { I32 anon_field; }
 | TypeDecl: Value @ <test/examples.ec:57.1-60.2>
 | VarDecl:  @ <test/examples.ec:74.1-23>
-| | | VarSymbol: arr1 :: I64i[3]
+| | | VarSymbol: arr1 :: I64[3]
 | | | Initializer @ <test/examples.ec:74.16-22>
 | | | | Initializer @ <test/examples.ec:74.16-17>
 | | | | | Literal: 1 @ <test/examples.ec:74.16-17>
@@ -3650,7 +3650,7 @@ ProgramMIR @ <1.1>
 | | | | Initializer @ <test/examples.ec:74.16-21>
 | | | | | Literal: 3 @ <test/examples.ec:74.16-21>
 | VarDecl:  @ <test/examples.ec:75.1-24>
-| | | VarSymbol: arr2 :: I64i[3]
+| | | VarSymbol: arr2 :: I64[3]
 | | | Initializer @ <test/examples.ec:75.16-23>
 | | | | Initializer @ <test/examples.ec:75.16-17>
 | | | | | Literal: 4 @ <test/examples.ec:75.16-17>
@@ -3659,30 +3659,30 @@ ProgramMIR @ <1.1>
 | | | | Initializer @ <test/examples.ec:75.16-21>
 | | | | | Literal: 6 @ <test/examples.ec:75.16-21>
 | VarDecl:  @ <test/examples.ec:76.1-12>
-| | | VarSymbol: arr3 :: I64i[]
+| | | VarSymbol: arr3 :: I64[]
 | VarDecl:  @ <test/examples.ec:81.1-10>
-| | | VarSymbol: ptr :: I64i *
+| | | VarSymbol: ptr :: I64 *
 | VarDecl:  @ <test/examples.ec:82.1-31>
-| | | VarSymbol: const_ptr :: I64i * const
+| | | VarSymbol: const_ptr :: I64 * const
 | | | Initializer @ <test/examples.ec:82.26-30>
 | | | | Unary: & @ <test/examples.ec:82.26-30>
 | | | | | Ident: i64v @ <test/examples.ec:82.26-30>
 | VarDecl:  @ <test/examples.ec:84.1-23>
-| | | VarSymbol: func_ptr :: I64i (I64i) *
+| | | VarSymbol: func_ptr :: I64 (I64) *
 | FunctionMIR: Add @ <test/examples.ec:89.1-91.1>
-    type: I64i (I64i, I64i)
+    type: I64 (I64, I64)
 | | CompoundStmtMIR @ <test/examples.ec:89.26-91.1>
 | | | Return @ <test/examples.ec:90.5-17>
 | | | | Binary: + @ <test/examples.ec:90.12-16>
 | | | | | Ident: a @ <test/examples.ec:90.12>
 | | | | | Ident: b @ <test/examples.ec:90.16>
 | FunctionMIR: DefaultParam @ <test/examples.ec:93.1-95.1>
-    type: I64i (I64i)
+    type: I64 (I64)
 | | CompoundStmtMIR @ <test/examples.ec:93.31-95.1>
 | | | Return @ <test/examples.ec:94.5-13>
 | | | | Ident: x @ <test/examples.ec:94.12>
 | FunctionMIR: Variadic @ <test/examples.ec:97.1-99.1>
-    type: I64i (I64i, ...)
+    type: I64 (I64, ...)
 | | CompoundStmtMIR @ <test/examples.ec:97.28-99.1>
 | | | Return @ <test/examples.ec:98.5-13>
 | | | | Ident: x @ <test/examples.ec:98.12>
@@ -3690,17 +3690,17 @@ ProgramMIR @ <1.1>
     type: Void ()
 | | CompoundStmtMIR @ <test/examples.ec:101.17-102.1>
 | FunctionMIR: ReturnFuncPtr @ <test/examples.ec:104.1-106.1>
-    type: I64i (I64i) * ()
+    type: I64 (I64) * ()
 | | CompoundStmtMIR @ <test/examples.ec:104.31-106.1>
 | | | Return @ <test/examples.ec:105.5-15>
 | | | | Ident: Add @ <test/examples.ec:105.12-14>
 | CompoundStmtMIR @ <test/examples.ec:111.1-119.1>
 | | VarDecl:  @ <test/examples.ec:112.5-19>
-| | | | VarSymbol: local :: I64i
+| | | | VarSymbol: local :: I64
 | | | | Initializer @ <test/examples.ec:112.18>
 | | | | | Literal: 5 @ <test/examples.ec:112.18>
 | | VarDecl:  @ <test/examples.ec:113.5-22>
-| | | | VarSymbol: localf :: F64i
+| | | | VarSymbol: localf :: F64
 | | | | Initializer @ <test/examples.ec:113.19-21>
 | | | | | Literal: 0.000000 @ <test/examples.ec:113.19-21>
 | | ExprStmt @ <test/examples.ec:115.5-15>
@@ -3720,7 +3720,7 @@ ProgramMIR @ <1.1>
 | | | | Ident: local @ <test/examples.ec:118.5-9>
 | | | | Literal: 7 @ <test/examples.ec:118.14>
 | VarDecl:  @ <test/examples.ec:124.1-17>
-| | | VarSymbol: control :: I64i
+| | | VarSymbol: control :: I64
 | | | Initializer @ <test/examples.ec:124.16>
 | | | | Literal: 2 @ <test/examples.ec:124.16>
 | IfStmt @ <test/examples.ec:126.1-129.16>
@@ -3764,7 +3764,7 @@ ProgramMIR @ <1.1>
 | | | | | | Unary: - @ <test/examples.ec:138.19-20>
 | | | | | | | Literal: 1 @ <test/examples.ec:138.19-20>
 | VarDecl:  @ <test/examples.ec:144.1-11>
-| | | VarSymbol: i :: I64i
+| | | VarSymbol: i :: I64
 | | | Initializer @ <test/examples.ec:144.10>
 | | | | Literal: 0 @ <test/examples.ec:144.10>
 | LoopStmt @ <test/examples.ec:146.1-148.1>
@@ -3812,15 +3812,15 @@ ProgramMIR @ <1.1>
 | | | | Ident: i @ <test/examples.ec:168.1>
 | | | | Literal: 200 @ <test/examples.ec:168.5-7>
 | VarDecl:  @ <test/examples.ec:173.1-11>
-| | | VarSymbol: a :: I64i
+| | | VarSymbol: a :: I64
 | | | Initializer @ <test/examples.ec:173.10>
 | | | | Literal: 5 @ <test/examples.ec:173.10>
 | VarDecl:  @ <test/examples.ec:174.1-11>
-| | | VarSymbol: b :: I64i
+| | | VarSymbol: b :: I64
 | | | Initializer @ <test/examples.ec:174.10>
 | | | | Literal: 2 @ <test/examples.ec:174.10>
 | VarDecl:  @ <test/examples.ec:176.1-35>
-| | | VarSymbol: arith :: I64i
+| | | VarSymbol: arith :: I64
 | | | Initializer @ <test/examples.ec:176.14-34>
 | | | | Binary: - @ <test/examples.ec:176.14-34>
 | | | | | Binary: + @ <test/examples.ec:176.14-22>
@@ -3834,7 +3834,7 @@ ProgramMIR @ <1.1>
 | | | | | | | Literal: 1 @ <test/examples.ec:176.30>
 | | | | | | Literal: 2 @ <test/examples.ec:176.34>
 | VarDecl:  @ <test/examples.ec:177.1-25>
-| | | VarSymbol: shift :: I64i
+| | | VarSymbol: shift :: I64
 | | | Initializer @ <test/examples.ec:177.14-24>
 | | | | Binary: >> @ <test/examples.ec:177.14-24>
 | | | | | Binary: << @ <test/examples.ec:177.14-19>
@@ -3842,7 +3842,7 @@ ProgramMIR @ <1.1>
 | | | | | | Literal: 1 @ <test/examples.ec:177.19>
 | | | | | Literal: 1 @ <test/examples.ec:177.24>
 | VarDecl:  @ <test/examples.ec:178.1-32>
-| | | VarSymbol: bitops :: I64i
+| | | VarSymbol: bitops :: I64
 | | | Initializer @ <test/examples.ec:178.15-31>
 | | | | Binary: ^ @ <test/examples.ec:178.15-31>
 | | | | | Binary: | @ <test/examples.ec:178.15-21>
@@ -3852,25 +3852,25 @@ ProgramMIR @ <1.1>
 | | | | | | Ident: a @ <test/examples.ec:178.25-26>
 | | | | | | Ident: b @ <test/examples.ec:178.30>
 | VarDecl:  @ <test/examples.ec:179.1-18>
-| | | VarSymbol: rel :: I64i
+| | | VarSymbol: rel :: I64
 | | | Initializer @ <test/examples.ec:179.12-17>
 | | | | Binary: >= @ <test/examples.ec:179.12-17>
 | | | | | Ident: a @ <test/examples.ec:179.12>
 | | | | | Ident: b @ <test/examples.ec:179.17>
 | VarDecl:  @ <test/examples.ec:180.1-17>
-| | | VarSymbol: eq :: I64i
+| | | VarSymbol: eq :: I64
 | | | Initializer @ <test/examples.ec:180.11-16>
 | | | | Binary: == @ <test/examples.ec:180.11-16>
 | | | | | Ident: a @ <test/examples.ec:180.11>
 | | | | | Ident: b @ <test/examples.ec:180.16>
 | VarDecl:  @ <test/examples.ec:181.1-18>
-| | | VarSymbol: neq :: I64i
+| | | VarSymbol: neq :: I64
 | | | Initializer @ <test/examples.ec:181.12-17>
 | | | | Binary: != @ <test/examples.ec:181.12-17>
 | | | | | Ident: a @ <test/examples.ec:181.12>
 | | | | | Ident: b @ <test/examples.ec:181.17>
 | VarDecl:  @ <test/examples.ec:182.1-26>
-| | | VarSymbol: tern :: I64i
+| | | VarSymbol: tern :: I64
 | | | Initializer @ <test/examples.ec:182.13-25>
 | | | | CondExpr @ <test/examples.ec:182.13-25>
 | | | | | Binary: > @ <test/examples.ec:182.13-17>
@@ -3931,7 +3931,7 @@ ProgramMIR @ <1.1>
 | | Postfix: -- @ <test/examples.ec:198.1-3>
 | | | Ident: a @ <test/examples.ec:198.1>
 | VarDecl:  @ <test/examples.ec:200.1-35>
-| | | VarSymbol: comma :: I64i
+| | | VarSymbol: comma :: I64
 | | | Initializer @ <test/examples.ec:200.14-34>
 | | | | Binary: , @ <test/examples.ec:200.14-34>
 | | | | | Binary: , @ <test/examples.ec:200.14-26>
@@ -3945,7 +3945,7 @@ ProgramMIR @ <1.1>
 | | | | | | Ident: a @ <test/examples.ec:200.29>
 | | | | | | Ident: b @ <test/examples.ec:200.33>
 | VarDecl:  @ <test/examples.ec:205.1-14>
-| | | VarSymbol: p :: class { I64i x; I64i y; }
+| | | VarSymbol: p :: class { I64 x; I64 y; }
 | ExprStmt @ <test/examples.ec:206.1-8>
 | | Assign: = @ <test/examples.ec:206.1-7>
 | | | Member: .x @ <test/examples.ec:206.1-3>
@@ -3978,35 +3978,35 @@ ProgramMIR @ <1.1>
 | | | | Ident: pp @ <test/examples.ec:213.1-2>
 | | | Literal: 20 @ <test/examples.ec:213.9-10>
 | VarDecl:  @ <test/examples.ec:218.1-20>
-| | | VarSymbol: sz1 :: I64i
+| | | VarSymbol: sz1 :: I64
 | | | Initializer @ <test/examples.ec:218.12-19>
 | | | | Sizeof:  @ <test/examples.ec:218.12-19>
 | | | | | Ident: a @ <test/examples.ec:218.19>
 | VarDecl:  @ <test/examples.ec:219.1-24>
-| | | VarSymbol: sz2 :: I64i
+| | | VarSymbol: sz2 :: I64
 | | | Initializer @ <test/examples.ec:219.12-23>
 | | | | Sizeof:  @ <test/examples.ec:219.12-23>
-I64i
+I64
 | VarDecl:  @ <test/examples.ec:220.1-31>
-| | | VarSymbol: sz3 :: I64i
+| | | VarSymbol: sz3 :: I64
 | | | Initializer @ <test/examples.ec:220.12-30>
 | | | | Sizeof:  @ <test/examples.ec:220.12-30>
-class { I64i x; I64i y; }
+class { I64 x; I64 y; }
 | VarDecl:  @ <test/examples.ec:225.1-19>
-| | | VarSymbol: hexv :: I64i
+| | | VarSymbol: hexv :: I64
 | | | Initializer @ <test/examples.ec:225.13-18>
 | | | | Literal: 43981 @ <test/examples.ec:225.13-18>
 | VarDecl:  @ <test/examples.ec:226.1-17>
-| | | VarSymbol: octv :: I64i
+| | | VarSymbol: octv :: I64
 | | | Initializer @ <test/examples.ec:226.13-16>
 | | | | Literal: 511 @ <test/examples.ec:226.13-16>
 | VarDecl:  @ <test/examples.ec:227.1-17>
-| | | VarSymbol: negv :: I64i
+| | | VarSymbol: negv :: I64
 | | | Initializer @ <test/examples.ec:227.13-16>
 | | | | Unary: - @ <test/examples.ec:227.13-16>
 | | | | | Literal: 123 @ <test/examples.ec:227.13-16>
 | VarDecl:  @ <test/examples.ec:229.1-16>
-| | | VarSymbol: charv :: U8i
+| | | VarSymbol: charv :: U8
 | | | Initializer @ <test/examples.ec:229.13-15>
 | | | | Literal: 65 @ <test/examples.ec:229.13-15>
 | Print: "value:" @ <test/examples.ec:234.1-21>
@@ -4015,7 +4015,7 @@ class { I64i x; I64i y; }
 | | Literal: "
 " @ <test/examples.ec:234.17-20>
 | VarDecl:  @ <test/examples.ec:239.1-23>
-| | | VarSymbol: result :: I64i
+| | | VarSymbol: result :: I64
 | | | Initializer @ <test/examples.ec:239.15-22>
 | | | | Call @ <test/examples.ec:239.15-22>
 | | | | | Ident: Add @ <test/examples.ec:239.15-17>

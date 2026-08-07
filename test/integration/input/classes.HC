@@ -3,35 +3,35 @@ class Opaque;
 Opaque *opaque_ptr;
 
 public class Point {
-    I32i x;
-    I32i y;
+    I32 x;
+    I32 y;
 };
 
 union Data {
-    U32i i;
-    F64i f;
+    U32 i;
+    F64 f;
 };
 
-public U8i union U8 {
-    U8i u8[1];
+public U8 union U8U {
+    U8 u8[1];
 };
 
-public U16i union U16 {
+public U16 union U16U {
     U8   u8[2];
-    U16i u16[1];
+    U16 u16[1];
 };
 
-public U32i union U32 {
+public U32 union U32U {
     U8   u8[4];
     U16  u16[2];
-    U32i  u32[1];
+    U32  u32[1];
 };
 
-public U64i union U64 {
+public U64 union U64U {
     U8   u8[8];
     U16  u16[4];
     U32  u32[2];
-    U64i  u64[1];
+    U64  u64[1];
 };
 
 enum Color {
@@ -41,7 +41,7 @@ enum Color {
 };
 
 class Animal {
-    I32i age;
+    I32 age;
 };
 
 class Dog : Animal {
@@ -51,21 +51,21 @@ class Dog : Animal {
 enum Forward;
 
 class Flags {
-    U8i a : 1;
-    U8i b : 2;
-    U8i : 5;
+    U8 a : 1;
+    U8 b : 2;
+    U8 : 5;
 };
 
 class Value {
-  I32i type;
+  I32 type;
   union {
-    F64i f;
-    U8i ch;
+    F64 f;
+    U8 ch;
   } u;
 };
 
 class VTable {
-    Void (*dispatcher) (U64i count);
+    Void (*dispatcher) (U64 count);
 };
 
 class Value val;

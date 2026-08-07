@@ -369,57 +369,57 @@ Array Types:
 
 Scope 0
 Physical Symbols:
-  nl -> 0x557ea8626430 : VarSymbol: nl :: U8i
-  ch -> 0x557ea8626200 : VarSymbol: ch :: U8i
-  f2 -> 0x557ea8625fd0 : VarSymbol: f2 :: F64i
-  qt -> 0x557ea8626660 : VarSymbol: qt :: U8i
-  f1 -> 0x557ea8625cf0 : VarSymbol: f1 :: F64i
-  c -> 0x557ea86258d0 : VarSymbol: c :: U32i
-  b -> 0x557ea86256a0 : VarSymbol: b :: U32i
-  d -> 0x557ea8625ae0 : VarSymbol: d :: U32i
-  a -> 0x557ea8610670 : VarSymbol: a :: U32i
+  nl -> 0x557ea8626430 : VarSymbol: nl :: U8
+  ch -> 0x557ea8626200 : VarSymbol: ch :: U8
+  f2 -> 0x557ea8625fd0 : VarSymbol: f2 :: F64
+  qt -> 0x557ea8626660 : VarSymbol: qt :: U8
+  f1 -> 0x557ea8625cf0 : VarSymbol: f1 :: F64
+  c -> 0x557ea86258d0 : VarSymbol: c :: U32
+  b -> 0x557ea86256a0 : VarSymbol: b :: U32
+  d -> 0x557ea8625ae0 : VarSymbol: d :: U32
+  a -> 0x557ea8610670 : VarSymbol: a :: U32
 -----------------------------------------------------------
 
 --------- MIR ---------
 
 ProgramMIR @ <1.1>
 | VarDecl:  @ <input/literals.HC:1.1-161>
-| | | VarSymbol: a :: U32i
+| | | VarSymbol: a :: U32
 | | | Initializer @ <input/literals.HC:1.158-160>
 | | | | Literal: 123 @ <input/literals.HC:1.158-160>
 | VarDecl:  @ <input/literals.HC:2.1-13>
-| | | VarSymbol: b :: U32i
+| | | VarSymbol: b :: U32
 | | | Initializer @ <input/literals.HC:2.10-12>
 | | | | Unary: - @ <input/literals.HC:2.10-12>
 | | | | | Literal: 45 @ <input/literals.HC:2.10-12>
 | VarDecl:  @ <input/literals.HC:3.1-13>
-| | | VarSymbol: c :: U32i
+| | | VarSymbol: c :: U32
 | | | Initializer @ <input/literals.HC:3.10-12>
 | | | | Literal: 63 @ <input/literals.HC:3.10-12>
 | VarDecl:  @ <input/literals.HC:4.1-14>
-| | | VarSymbol: d :: U32i
+| | | VarSymbol: d :: U32
 | | | Initializer @ <input/literals.HC:4.10-13>
 | | | | Literal: 255 @ <input/literals.HC:4.10-13>
 | VarDecl:  @ <input/literals.HC:6.1-15>
-| | | VarSymbol: f1 :: F64i
+| | | VarSymbol: f1 :: F64
 | | | Initializer @ <input/literals.HC:6.11-14>
 | | | | Literal: 5e-324 @ <input/literals.HC:6.11-14>
 | VarDecl:  @ <input/literals.HC:7.1-19>
-| | | VarSymbol: f2 :: F64i
+| | | VarSymbol: f2 :: F64
 | | | Initializer @ <input/literals.HC:7.11-18>
 | | | | Unary: - @ <input/literals.HC:7.11-18>
 | | | | | Literal: 1.55136612794e-313 @ <input/literals.HC:7.11-18>
 | VarDecl:  @ <input/literals.HC:9.1-13>
-| | | VarSymbol: ch :: U8i
+| | | VarSymbol: ch :: U8
 | | | Initializer @ <input/literals.HC:9.10-12>
 | | | | Literal: A @ <input/literals.HC:9.10-12>
 | VarDecl:  @ <input/literals.HC:10.1-14>
-| | | VarSymbol: nl :: U8i
+| | | VarSymbol: nl :: U8
 | | | Initializer @ <input/literals.HC:10.10-13>
 | | | | Literal: 
  @ <input/literals.HC:10.10-13>
 | VarDecl:  @ <input/literals.HC:11.1-14>
-| | | VarSymbol: qt :: U8i
+| | | VarSymbol: qt :: U8
 | | | Initializer @ <input/literals.HC:11.10-13>
 | | | | Literal: " @ <input/literals.HC:11.10-13>
 | Print: "Values:

@@ -1257,25 +1257,25 @@ semantic checking complete
 --------- TYPE CONTEXT ---------
 
 Base Types:
-  class_Point_0 : class { I32i x; I32i y; }
-  class_What_0 : class { U32i hello; }
+  class_Point_0 : class { I32 x; I32 y; }
+  class_What_0 : class { U32 hello; }
 
 Function Types:
-  function_388579477687332092 : Void (I64i, I64i (I64i) *)
-  function_6101973892643069 : I64i (I64i)
-  function_6854117458800496855 : Point * (Point *, I32i, I32i)
-  function_6101973891870417 : class { U32i hello; } (U32i)
-  function_v388579477687596817 : I32i (I32i, I32i, ...)
-  function_6101973892638797 : I32i (I32i)
+  function_388579477687332092 : Void (I64, I64 (I64) *)
+  function_6101973892643069 : I64 (I64)
+  function_6854117458800496855 : Point * (Point *, I32, I32)
+  function_6101973891870417 : class { U32 hello; } (U32)
+  function_v388579477687596817 : I32 (I32, I32, ...)
+  function_6101973892638797 : I32 (I32)
   function_94835342780064 : Void ()
-  function_388579477597236340 : U32i * (U32i, U32i)
-  function_94835342780496 : I32i ()
+  function_388579477597236340 : U32 * (U32, U32)
+  function_94835342780496 : I32 ()
 
 Pointer Types:
-  :I64i (I64i) *
+  :I64 (I64) *
   :Void () *
   :Point *
-  :U32i *
+  :U32 *
 
 Array Types:
 
@@ -1286,87 +1286,87 @@ Scope 0
 Physical Symbols:
   Main -> 0x564092e741b0 : FuncSymbol: Main :: Void ()
   funcptr -> 0x564092eb7560 : VarSymbol: funcptr :: Void () *
-  MathFunc -> 0x564092e72fe0 : FuncSymbol: MathFunc :: Void (I64i, I64i (I64i) *)
-  CallbackFunction -> 0x564092e72b60 : FuncSymbol: CallbackFunction :: I64i (I64i)
+  MathFunc -> 0x564092e72fe0 : FuncSymbol: MathFunc :: Void (I64, I64 (I64) *)
+  CallbackFunction -> 0x564092e72b60 : FuncSymbol: CallbackFunction :: I64 (I64)
   noop -> 0x564092e72920 : FuncSymbol: noop :: Void ()
-  complex_class_func -> 0x564092e73190 : FuncSymbol: complex_class_func :: class { U32i hello; } (U32i)
-  compute -> 0x564092e72f50 : FuncSymbol: compute :: I32i (I32i, I32i, ...)
-  add -> 0x564092e72ad0 : FuncSymbol: add :: U32i * (U32i, U32i)
-  someinternalfunc -> 0x564092e72d10 : FuncSymbol: someinternalfunc :: I32i (I32i)
-  compute_point -> 0x564092e733d0 : FuncSymbol: compute_point :: Point * (Point *, I32i, I32i)
-  somefunc -> 0x564092e9e670 : VarSymbol: somefunc :: I32i () extern C
+  complex_class_func -> 0x564092e73190 : FuncSymbol: complex_class_func :: class { U32 hello; } (U32)
+  compute -> 0x564092e72f50 : FuncSymbol: compute :: I32 (I32, I32, ...)
+  add -> 0x564092e72ad0 : FuncSymbol: add :: U32 * (U32, U32)
+  someinternalfunc -> 0x564092e72d10 : FuncSymbol: someinternalfunc :: I32 (I32)
+  compute_point -> 0x564092e733d0 : FuncSymbol: compute_point :: Point * (Point *, I32, I32)
+  somefunc -> 0x564092e9e670 : VarSymbol: somefunc :: I32 () extern C
 
 Type Symbols:
-  Point -> 0x564092eb5e40 : TypeSymbol: Point :: class { I32i x; I32i y; }
-  What -> 0x564092eb53e0 : TypeSymbol: What :: class { U32i hello; }
+  Point -> 0x564092eb5e40 : TypeSymbol: Point :: class { I32 x; I32 y; }
+  What -> 0x564092eb53e0 : TypeSymbol: What :: class { U32 hello; }
 -----------------------------------------------------------
-  Scope 1: FuncSymbol: add :: U32i * (U32i, U32i)
+  Scope 1: FuncSymbol: add :: U32 * (U32, U32)
   Physical Symbols:
-    b -> 0x564092eb3cf0 : VarSymbol: b :: U32i
-    a -> 0x564092eb3c40 : VarSymbol: a :: U32i
+    b -> 0x564092eb3cf0 : VarSymbol: b :: U32
+    a -> 0x564092eb3c40 : VarSymbol: a :: U32
 -----------------------------------------------------------
-  Scope 2: FuncSymbol: someinternalfunc :: I32i (I32i)
+  Scope 2: FuncSymbol: someinternalfunc :: I32 (I32)
   Physical Symbols:
-    somearg -> 0x564092eb4330 : VarSymbol: somearg :: I32i
+    somearg -> 0x564092eb4330 : VarSymbol: somearg :: I32
 -----------------------------------------------------------
-  Scope 3: FuncSymbol: compute :: I32i (I32i, I32i, ...)
+  Scope 3: FuncSymbol: compute :: I32 (I32, I32, ...)
   Physical Symbols:
-    new2 -> 0x564092eb50a0 : VarSymbol: new2 :: U64i
-    new -> 0x564092eb4b00 : VarSymbol: new :: I32i
-    y -> 0x564092eb4760 : VarSymbol: y :: I32i
-    x -> 0x564092eb35b0 : VarSymbol: x :: I32i
+    new2 -> 0x564092eb50a0 : VarSymbol: new2 :: U64
+    new -> 0x564092eb4b00 : VarSymbol: new :: I32
+    y -> 0x564092eb4760 : VarSymbol: y :: I32
+    x -> 0x564092eb35b0 : VarSymbol: x :: I32
 -----------------------------------------------------------
-  Scope 4: FuncSymbol: complex_class_func :: class { U32i hello; } (U32i)
+  Scope 4: FuncSymbol: complex_class_func :: class { U32 hello; } (U32)
   Physical Symbols:
-    ret -> 0x564092eb5bc0 : VarSymbol: ret :: class { U32i hello; }
-    thing -> 0x564092eb57b0 : VarSymbol: thing :: U32i
+    ret -> 0x564092eb5bc0 : VarSymbol: ret :: class { U32 hello; }
+    thing -> 0x564092eb57b0 : VarSymbol: thing :: U32
 -----------------------------------------------------------
-  Scope 5: FuncSymbol: compute_point :: Point * (Point *, I32i, I32i)
+  Scope 5: FuncSymbol: compute_point :: Point * (Point *, I32, I32)
   Physical Symbols:
-    dy -> 0x564092eb6490 : VarSymbol: dy :: I32i
-    dx -> 0x564092eb63c0 : VarSymbol: dx :: I32i
+    dy -> 0x564092eb6490 : VarSymbol: dy :: I32
+    dx -> 0x564092eb63c0 : VarSymbol: dx :: I32
     p -> 0x564092eb6310 : VarSymbol: p :: Point *
 -----------------------------------------------------------
   Scope 6: FuncSymbol: noop :: Void ()
 -----------------------------------------------------------
-  Scope 7: FuncSymbol: CallbackFunction :: I64i (I64i)
+  Scope 7: FuncSymbol: CallbackFunction :: I64 (I64)
   Physical Symbols:
-    x -> 0x564092eb7970 : VarSymbol: x :: I64i
+    x -> 0x564092eb7970 : VarSymbol: x :: I64
 -----------------------------------------------------------
-  Scope 8: FuncSymbol: MathFunc :: Void (I64i, I64i (I64i) *)
+  Scope 8: FuncSymbol: MathFunc :: Void (I64, I64 (I64) *)
   Physical Symbols:
-    proc -> 0x564092eb83a0 : VarSymbol: proc :: I64i (I64i) *
-    y -> 0x564092eb82f0 : VarSymbol: y :: I64i
+    proc -> 0x564092eb83a0 : VarSymbol: proc :: I64 (I64) *
+    y -> 0x564092eb82f0 : VarSymbol: y :: I64
 -----------------------------------------------------------
   Scope 9: FuncSymbol: Main :: Void ()
   Physical Symbols:
-    x -> 0x564092eb8b30 : VarSymbol: x :: I64i
+    x -> 0x564092eb8b30 : VarSymbol: x :: I64
 -----------------------------------------------------------
 
 --------- MIR ---------
 
 ProgramMIR @ <1.1>
 | VarDecl:  @ <input/functions.HC:1.1-177>
-| | | VarSymbol: somefunc :: I32i () extern C
+| | | VarSymbol: somefunc :: I32 () extern C
 | VarDecl:  @ <input/functions.HC:3.1-28>
-| | | VarSymbol: x :: I32i
+| | | VarSymbol: x :: I32
 | FunctionMIR: add @ <input/functions.HC:5.1-7.1>
-    type: U32i * (U32i, U32i)
+    type: U32 * (U32, U32)
 | | CompoundStmtMIR @ <input/functions.HC:5.27-7.1>
 | | | Return @ <input/functions.HC:6.5-17>
 | | | | Binary: + @ <input/functions.HC:6.12-16>
 | | | | | Ident: a @ <input/functions.HC:6.12>
 | | | | | Ident: b @ <input/functions.HC:6.16>
 | FunctionMIR: someinternalfunc @ <input/functions.HC:9.1-11.1>
-    type: I32i (I32i)
+    type: I32 (I32)
 | | CompoundStmtMIR @ <input/functions.HC:9.37-11.1>
 | | | Return @ <input/functions.HC:10.5-19>
 | | | | Ident: somearg @ <input/functions.HC:10.12-18>
 | FunctionMIR: compute @ <input/functions.HC:13.1-20.1>
-    type: I32i (I32i, I32i, ...)
+    type: I32 (I32, I32, ...)
 | | CompoundStmtMIR @ <input/functions.HC:13.52-20.1>
 | | | VarDecl:  @ <input/functions.HC:14.5-13>
-| | | | | VarSymbol: new :: I32i
+| | | | | VarSymbol: new :: I32
 | | | ExprStmt @ <input/functions.HC:15.5-25>
 | | | | Assign: = @ <input/functions.HC:15.5-24>
 | | | | | Ident: new @ <input/functions.HC:15.5-7>
@@ -1376,7 +1376,7 @@ ProgramMIR @ <1.1>
 | | | | | | Ident: y @ <input/functions.HC:15.18>
 | | | | | | Ident: new @ <input/functions.HC:15.21-23>
 | | | VarDecl:  @ <input/functions.HC:17.5-24>
-| | | | | VarSymbol: new2 :: U64i
+| | | | | VarSymbol: new2 :: U64
 | | | | | Initializer @ <input/functions.HC:17.17-23>
 | | | | | | Binary: + @ <input/functions.HC:17.17-23>
 | | | | | | | Ident: new @ <input/functions.HC:17.17-19>
@@ -1386,10 +1386,10 @@ ProgramMIR @ <1.1>
 | | | | | Ident: x @ <input/functions.HC:19.12>
 | | | | | Ident: y @ <input/functions.HC:19.16>
 | FunctionMIR: complex_class_func @ <input/functions.HC:22.1-28.1>
-    type: class { U32i hello; } (U32i)
+    type: class { U32 hello; } (U32)
 | | CompoundStmtMIR @ <input/functions.HC:24.34-28.1>
 | | | VarDecl:  @ <input/functions.HC:25.5-25>
-| | | | | VarSymbol: ret :: class { U32i hello; }
+| | | | | VarSymbol: ret :: class { U32 hello; }
 | | | | | Initializer @ <input/functions.HC:25.16-24>
 | | | | | | Initializer @ <input/functions.HC:25.18-22>
 | | | | | | | Ident: thing @ <input/functions.HC:25.18-22>
@@ -1397,7 +1397,7 @@ ProgramMIR @ <1.1>
 | | | | Ident: ret @ <input/functions.HC:27.12-14>
 | TypeDecl: Point @ <input/functions.HC:30.1-33.2>
 | FunctionMIR: compute_point @ <input/functions.HC:35.1-40.1>
-    type: Point * (Point *, I32i, I32i)
+    type: Point * (Point *, I32, I32)
 | | CompoundStmtMIR @ <input/functions.HC:35.56-40.1>
 | | | ExprStmt @ <input/functions.HC:36.3-13>
 | | | | Assign: += @ <input/functions.HC:36.3-12>
@@ -1434,14 +1434,14 @@ ProgramMIR @ <1.1>
 | | | | Ident: noop @ <input/functions.HC:56.22-25>
 | Print: "TestPrintStatement" @ <input/functions.HC:59.1-21>
 | FunctionMIR: CallbackFunction @ <input/functions.HC:61.1-64.1>
-    type: I64i (I64i)
+    type: I64 (I64)
 | | CompoundStmtMIR @ <input/functions.HC:62.1-64.1>
 | | | Return @ <input/functions.HC:63.3-15>
 | | | | Binary: * @ <input/functions.HC:63.10-14>
 | | | | | Ident: x @ <input/functions.HC:63.10>
 | | | | | Ident: x @ <input/functions.HC:63.14>
 | FunctionMIR: MathFunc @ <input/functions.HC:66.1-69.1>
-    type: Void (I64i, I64i (I64i) *)
+    type: Void (I64, I64 (I64) *)
 | | CompoundStmtMIR @ <input/functions.HC:67.1-69.1>
 | | | Return @ <input/functions.HC:68.3-17>
 | | | | Call @ <input/functions.HC:68.10-16>
@@ -1451,7 +1451,7 @@ ProgramMIR @ <1.1>
     type: Void ()
 | | CompoundStmtMIR @ <input/functions.HC:72.1-75.1>
 | | | VarDecl:  @ <input/functions.HC:73.3-43>
-| | | | | VarSymbol: x :: I64i
+| | | | | VarSymbol: x :: I64
 | | | | | Initializer @ <input/functions.HC:73.12-42>
 | | | | | | Call @ <input/functions.HC:73.12-42>
 | | | | | | | Ident: MathFunc @ <input/functions.HC:73.12-19>

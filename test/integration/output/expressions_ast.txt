@@ -563,7 +563,7 @@ Base Types:
 Function Types:
 
 Pointer Types:
-  :U8i *
+  :U8 *
 
 Array Types:
 
@@ -572,25 +572,25 @@ Array Types:
 
 Scope 0
 Physical Symbols:
-  s -> 0x561131e51150 : VarSymbol: s :: U8i *
-  b -> 0x561131e4f840 : VarSymbol: b :: U32i
-  a -> 0x561131e4f610 : VarSymbol: a :: U32i
-  x -> 0x561131e3a670 : VarSymbol: x :: U32i
+  s -> 0x561131e51150 : VarSymbol: s :: U8 *
+  b -> 0x561131e4f840 : VarSymbol: b :: U32
+  a -> 0x561131e4f610 : VarSymbol: a :: U32
+  x -> 0x561131e3a670 : VarSymbol: x :: U32
 -----------------------------------------------------------
 
 --------- MIR ---------
 
 ProgramMIR @ <1.1>
 | VarDecl:  @ <input/expressions.HC:1.1-165>
-| | | VarSymbol: x :: U32i
+| | | VarSymbol: x :: U32
 | | | Initializer @ <input/expressions.HC:1.164>
 | | | | Literal: 0 @ <input/expressions.HC:1.164>
 | VarDecl:  @ <input/expressions.HC:2.1-11>
-| | | VarSymbol: a :: U32i
+| | | VarSymbol: a :: U32
 | | | Initializer @ <input/expressions.HC:2.10>
 | | | | Literal: 1 @ <input/expressions.HC:2.10>
 | VarDecl:  @ <input/expressions.HC:3.1-11>
-| | | VarSymbol: b :: U32i
+| | | VarSymbol: b :: U32
 | | | Initializer @ <input/expressions.HC:3.10>
 | | | | Literal: 2 @ <input/expressions.HC:3.10>
 | ExprStmt @ <input/expressions.HC:4.1-26>
@@ -647,16 +647,16 @@ ProgramMIR @ <1.1>
 | | Assign: = @ <input/expressions.HC:11.1-16>
 | | | Ident: x @ <input/expressions.HC:11.1>
 | | | Binary: + @ <input/expressions.HC:11.5-16>
-| | | | Cast -> U32i @ <input/expressions.HC:11.5-12>
+| | | | Cast -> U32 @ <input/expressions.HC:11.5-12>
 | | | | | Ident: a @ <input/expressions.HC:11.12>
 | | | | Literal: 2 @ <input/expressions.HC:11.16>
 | ExprStmt @ <input/expressions.HC:12.1-13>
 | | Assign: = @ <input/expressions.HC:12.1-12>
 | | | Ident: x @ <input/expressions.HC:12.1>
-| | | Cast -> I32i @ <input/expressions.HC:12.5-12>
+| | | Cast -> I32 @ <input/expressions.HC:12.5-12>
 | | | | Ident: a @ <input/expressions.HC:12.12>
 | VarDecl:  @ <input/expressions.HC:14.1-7>
-| | | VarSymbol: s :: U8i *
+| | | VarSymbol: s :: U8 *
 | ExprStmt @ <input/expressions.HC:15.1-13>
 | | Assign: = @ <input/expressions.HC:15.1-12>
 | | | Ident: s @ <input/expressions.HC:15.1>
@@ -671,7 +671,7 @@ ProgramMIR @ <1.1>
 | | Assign: += @ <input/expressions.HC:19.1-17>
 | | | Ident: x @ <input/expressions.HC:19.1>
 | | | Sizeof:  @ <input/expressions.HC:19.6-17>
-U32i
+U32
 | ExprStmt @ <input/expressions.HC:20.1-14>
 | | Assign: += @ <input/expressions.HC:20.1-13>
 | | | Ident: x @ <input/expressions.HC:20.1>
