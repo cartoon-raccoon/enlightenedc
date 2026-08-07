@@ -282,6 +282,7 @@ void MIRSynthesizer::do_visit(Function& node) {
         node.loc, *builder->name, syms.current, functype, std::move(paramsym_ptrs));
     FuncSymbol *sym_ptr = symbol.get();
 
+    symbol->linkage = specinfo->linkage;
     // extern "C" function with body, default to Visibility::ExternC
     if (specinfo->linkage == PhysicalSymbol::Linkage::EXTERNC) {
         symbol->visibility = PhysicalSymbol::Visibility::EXTERNC;
@@ -336,10 +337,7 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
 
         // take the last result; should be InitDecltrRet
         auto ret = take_last_result<InitDecltrRet>();
-
-        // declare symbol and corresponding pointer
-        Box<VarSymbol> sym = nullptr;
-        VarSymbol *symptr  = nullptr;
+        
         if (!ret.name) {
             add_error<EccSemError>("variable declaration with no name", declarator->loc);
             throw UnableToContinue();
@@ -356,47 +354,112 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
             symtype = types.get_const(symtype);
         }
 
-        sym    = std::make_unique<VarSymbol>(declarator->loc, *ret.name, syms.current, symtype);
-        symptr = sym.get();
-
         if (specinfo->is_public && specinfo->is_static) {
             add_error<EccSemError>("conflicting visibility specifiers", declarator->loc);
         }
 
-        // populate other specifiers, and then insert into symbol table
-        if (specinfo->is_public) {
-            sym->visibility = PhysicalSymbol::Visibility::PUBLIC;
-        }
+        if (symtype->is_function()) {
+            // variable declaration with function type means this is a forward declaration of a function
 
-        sym->linkage = specinfo->linkage;
+            if (symtype->is_const()) {
+                add_error<EccSemError>(
+                    "function declaration cannot be const", declarator->loc);
+                throw UnableToContinue();
+            }
 
-        if (sym->is_external() && syms.current != syms.global()) {
-            add_error<EccSemError>(
-                "extern variable declaration must be at global scope", declarator->loc);
-            throw UnableToContinue();
-        }
+            if (node.declarators.size() > 1) {
+                add_error<EccSemError>(
+                    "function declaration cannot be combined with other declarators", declarator->loc);
+                throw UnableToContinue();
+            }
 
-        Location def_loc = sym->loc;
-        try {
-            syms.insert(*ret.name, std::move(sym));
-        } catch (Symbol *existing) {
-            add_error<SymbolAlrDecldError>(
-                std::format("symbol {} already previously declared", existing->name), def_loc,
-                existing->loc);
-            throw UnableToContinue();
-        }
+            if (ret.init_mir) {
+                add_error<EccSemError>("function declaration cannot have an initializer", declarator->loc);
+                throw UnableToContinue();
+            }
 
-        // sym should be valid, since to get here builder's name had to exist
-        if (!symptr) {
-            throw std::runtime_error("unexpected null pointer when parsing variable declarator");
-        }
+            if (syms.current != syms.global()) {
+                add_error<EccSemError>("function declarations must be at global scope", declarator->loc);
+                throw UnableToContinue();
+            }
 
-        // extract the initializer mir
-        if (ret.init_mir) {
-            Box<InitializerMIR> init_mir = std::move(*ret.init_mir);
-            var_decl->add_decl(symptr, std::move(init_mir));
+            FunctionType *functype = symtype->as_function();
+
+            Box<FuncSymbol> funcsym = FuncSymbol::empty(node.loc, *ret.name, syms.current, functype);
+
+            if (specinfo->is_public) {
+                funcsym->visibility = PhysicalSymbol::Visibility::PUBLIC;
+            }
+    
+            funcsym->linkage = specinfo->linkage;
+            if (specinfo->linkage == PhysicalSymbol::Linkage::EXTERNC) {
+                funcsym->visibility = PhysicalSymbol::Visibility::EXTERNC;
+            }
+
+            if (funcsym->is_external() && syms.current != syms.global()) {
+                add_error<EccSemError>(
+                    "extern function declaration must be at global scope", declarator->loc);
+                throw UnableToContinue();
+            }
+
+            Location def_loc = funcsym->loc;
+            FuncSymbol *funcptr = nullptr;
+            try {
+                funcptr = syms.insert(*ret.name, std::move(funcsym));
+            } catch (Symbol *existing) {
+                add_error<SymbolAlrDecldError>(
+                    std::format("symbol {} already previously declared", existing->name), def_loc,
+                    existing->loc);
+                throw UnableToContinue();
+            }
+
+            Box<FunctionMIR> funcmir
+                = std::make_unique<FunctionMIR>(node.loc, funcptr, syms.current, nullptr);
+
+            dv_return(funcmir);
         } else {
-            var_decl->add_decl(symptr);
+            // declare symbol and corresponding pointer
+            Box<VarSymbol> sym = nullptr;
+            VarSymbol *symptr  = nullptr;
+
+            sym    = std::make_unique<VarSymbol>(declarator->loc, *ret.name, syms.current, symtype);
+            symptr = sym.get();
+    
+            // populate other specifiers, and then insert into symbol table
+            if (specinfo->is_public) {
+                sym->visibility = PhysicalSymbol::Visibility::PUBLIC;
+            }
+    
+            sym->linkage = specinfo->linkage;
+    
+            if (sym->is_external() && syms.current != syms.global()) {
+                add_error<EccSemError>(
+                    "extern variable declaration must be at global scope", declarator->loc);
+                throw UnableToContinue();
+            }
+    
+            Location def_loc = sym->loc;
+            try {
+                syms.insert(*ret.name, std::move(sym));
+            } catch (Symbol *existing) {
+                add_error<SymbolAlrDecldError>(
+                    std::format("symbol {} already previously declared", existing->name), def_loc,
+                    existing->loc);
+                throw UnableToContinue();
+            }
+    
+            // sym should be valid, since to get here builder's name had to exist
+            if (!symptr) {
+                throw std::runtime_error("unexpected null pointer when parsing variable declarator");
+            }
+    
+            // extract the initializer mir
+            if (ret.init_mir) {
+                Box<InitializerMIR> init_mir = std::move(*ret.init_mir);
+                var_decl->add_decl(symptr, std::move(init_mir));
+            } else {
+                var_decl->add_decl(symptr);
+            }
         }
     }
 

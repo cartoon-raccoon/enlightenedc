@@ -28,12 +28,17 @@ LIRVarSym *LIRFuncSym::lookup(VarSymbol *sym) {
     return it != map.end() ? it->second.get() : nullptr;
 }
 
-LIRFuncSym *LIRSymbolMap::add_function(sema::sym::FuncSymbol *funcsym, Box<LIRFuncSym> func) {
-    LIRFuncSym *ret = func.get();
-    funcs[funcsym]  = std::move(func);
+LIRFuncSym *LIRSymbolMap::add_function(FuncSymbol *funcsym, Box<LIRFuncSym> func) {
+    auto it = funcs.find(funcsym);
 
+    if (it != funcs.end())
+        return it->second.get();   // reuse, discard the fresh one
+    
+    LIRFuncSym *ret = func.get();
+    funcs[funcsym] = std::move(func);
     return ret;
 }
+
 
 LIRVarSym *LIRSymbolMap::insert_global(sema::sym::VarSymbol *sym, Box<LIRVarSym> var) {
     LIRVarSym *ret = var.get();

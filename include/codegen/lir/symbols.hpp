@@ -3,9 +3,8 @@
 #ifndef ECC_LIR_SYMBOLS_H
 #define ECC_LIR_SYMBOLS_H
 
-#include <unordered_map>
-
 #include "semantics/symbols.hpp"
+#include "semantics/types.hpp"
 #include "util.hpp"
 
 using namespace ecc;
@@ -15,6 +14,7 @@ namespace ecc::codegen::lir {
 
 class LIRVarSym;
 class LIRFuncSym;
+class FunctionLIR;
 
 class LIRSym : public NoCopy {
 public:
@@ -62,14 +62,33 @@ public:
     LIRVarSym *as_varsym() override { return this; }
 };
 
+/**
+A function symbol for LIR.
+
+Unlike the AST and MIR where multiple declarations (Function, FunctionMIR) can exist for a single
+FuncSymbol, declarations must collapse at the LIR level, that is, there must be only one FunctionLIR
+for every LIRFuncSym. To this end, each LIRFuncSym holds a back pointer to its corresponding
+FunctionLIR node. This way, the and LIRFuncSym and FunctionLIR node are created the first time the
+corresponding MIR node is encountered, and then reused for subsequent encounters of the same FunctionMIR
+node. LIRSymbolMap is keyed by FuncSymbol, so insertion is idempotent, i.e. the same LIRFuncSym
+(and thus the same FunctionLIR) is returned on subsequent insertion attempts.
+*/
 class LIRFuncSym : public LIRSym {
 public:
     LIRFuncSym(std::string mangled, std::string name, Location loc, sema::sym::FuncSymbol *symbol)
-        : LIRSym(LIRSymKind::FUNC, std::move(mangled), std::move(name), loc), symbol(symbol) {}
+        : LIRSym(LIRSymKind::FUNC, std::move(mangled), std::move(name), loc), symbol(symbol),
+        signature(symbol->signature) {}
 
     sema::sym::FuncSymbol *symbol;
+    sema::types::FunctionType *signature;
 
-    std::unordered_map<sema::sym::VarSymbol *, Box<LIRVarSym>> map;
+    /**
+    Back-pointer to the corresponding FunctionLIR
+    (only one `FunctionLIR` ever exists for every `LIRFuncSym`).
+    */
+    FunctionLIR *lir = nullptr;
+
+    HashMap<sema::sym::VarSymbol *, Box<LIRVarSym>> map;
 
     LIRVarSym *insert(sema::sym::VarSymbol *sym, Box<LIRVarSym> var);
 
@@ -96,8 +115,8 @@ public:
     LIRSym *lookup(sema::sym::PhysicalSymbol *sym);
 
 private:
-    std::unordered_map<sema::sym::FuncSymbol *, Box<LIRFuncSym>> funcs;
-    std::unordered_map<sema::sym::VarSymbol *, Box<LIRVarSym>> globals;
+    HashMap<sema::sym::FuncSymbol *, Box<LIRFuncSym>> funcs;
+    HashMap<sema::sym::VarSymbol *, Box<LIRVarSym>> globals;
 };
 
 } // namespace ecc::codegen::lir

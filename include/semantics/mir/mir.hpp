@@ -901,6 +901,8 @@ public:
 
     Box<CompoundStmtMIR> body;
 
+    bool is_declaration() const { return body == nullptr; }
+
     void accept(MIRVisitor& visitor) override;
 
     static bool classof(const MIRNode *node) { return node->kind == NodeKind::FUNC_MIR; }

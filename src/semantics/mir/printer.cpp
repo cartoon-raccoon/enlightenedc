@@ -28,7 +28,13 @@ void MIRPrinter::visit(FunctionMIR& node) {
             std::cout << std::string(indent * 2, ' ')
                       << "type: " << node.sym->signature->to_string() << "\n";
         },
-        [&] { node.body->accept(*this); });
+        [&] { 
+            if (node.body.get()) {
+                node.body->accept(*this);
+            } else {
+                std::cout << " (declaration)" << "\n";
+            }
+        });
 }
 
 void MIRPrinter::visit(TypeDeclMIR& node) {

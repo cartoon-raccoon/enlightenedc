@@ -248,14 +248,10 @@ public:
 
 class FunctionLIR : public LIRNode {
 public:
-    FunctionLIR(Location loc, std::string mangled, std::string name, LIRFuncSym *func)
-        : LIRNode(loc, NodeKind::FUNC_LIR), mangled_name(std::move(mangled)), name(std::move(name)),
-          lirsym(func) {}
+    FunctionLIR(Location loc, LIRFuncSym *func)
+        : LIRNode(loc, NodeKind::FUNC_LIR), lir(func) {}
 
-    std::string mangled_name;
-    std::string name;
-
-    LIRFuncSym *lirsym;
+    LIRFuncSym *lir;
 
     Vec<Box<VarDeclLIR>> locals;
     Vec<Box<ProgItemLIR>> body;

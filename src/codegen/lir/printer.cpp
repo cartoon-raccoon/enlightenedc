@@ -41,10 +41,10 @@ void LIRPrinter::visit(ProgramLIR& node) {
 
 void LIRPrinter::visit(FunctionLIR& node) {
     print_node(
-        "FunctionLIR: " + node.name + " (" + node.mangled_name + ")", node,
+        "FunctionLIR: " + node.lir->name + " (" + node.lir->mangled_name + ")", node,
         [&] {
             std::cout << std::string(indent * 2, ' ')
-                      << "type: " << node.lirsym->symbol->signature->to_string() << "\n";
+                      << "type: " << node.lir->signature->to_string() << "\n";
         },
         [&] {
             for (auto& local : node.locals)

@@ -557,7 +557,9 @@ void BaseMIRSemaVisitor::do_visit(mir::ProgramMIR& node) {
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::FunctionMIR& node) {
-    node.body->accept(*this);
+    if (node.body.get()) {
+        node.body->accept(*this);
+    }
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::InitializerMIR& node) {

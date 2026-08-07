@@ -187,8 +187,24 @@ public:
         : PhysicalSymbol(Symbol::Kind::FUNC, loc, std::move(name), scope), signature(signature),
           parameters(std::move(parameters)) {}
 
+    FuncSymbol(
+        Location loc, std::string name, Scope *scope, types::FunctionType *signature)
+        : PhysicalSymbol(Symbol::Kind::FUNC, loc, std::move(name), scope), signature(signature) {}
+
+    static Box<FuncSymbol> empty(
+        Location loc, std::string name, Scope *scope, types::FunctionType *signature) {
+
+        auto ret = std::make_unique<FuncSymbol>(loc, std::move(name), scope, signature);
+
+        ret->has_body = false;
+
+        return ret;
+    }
+
     // The function signature.
     types::FunctionType *signature;
+
+    bool has_body = true;
 
     // The list of parameters to the function.
     Vec<VarSymbol *> parameters;

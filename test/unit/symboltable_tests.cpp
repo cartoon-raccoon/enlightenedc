@@ -163,20 +163,6 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_FoundByLookup) {
     EXPECT_EQ(found->name, name);
 }
 
-// FuncSymbol with the same name and same signature replaces the previous entry (no throw).
-TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_SameSignatureReplaces) {
-    SymbolTableWalker walker(symtab);
-    FunctionType *fn_type = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
-    std::string name = "f";
-
-    auto sym1 = std::make_unique<FuncSymbol>(LOC, name, walker.current, fn_type, Vec<VarSymbol *>{});
-    walker.insert(name, std::move(sym1));
-
-    auto sym2 = std::make_unique<FuncSymbol>(LOC, name, walker.current, fn_type, Vec<VarSymbol *>{});
-    EXPECT_NO_THROW(walker.insert(name, std::move(sym2)))
-        << "Re-inserting a FuncSymbol with the same signature should silently replace";
-}
-
 // FuncSymbol with same name but different signature throws.
 TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_DifferentSignatureThrows) {
     SymbolTableWalker walker(symtab);
@@ -190,6 +176,113 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_DifferentSignatureThrows) {
     auto sym2 = std::make_unique<FuncSymbol>(LOC, name, walker.current, fn_u32, Vec<VarSymbol *>{});
     EXPECT_THROW(walker.insert(name, std::move(sym2)), Symbol *)
         << "FuncSymbol with a different signature should throw on duplicate name";
+}
+
+// ─── FuncSymbol declaration/definition reconciliation ──────────────────────────
+
+// A declaration (has_body == false) followed by a matching definition upgrades the same
+// FuncSymbol in place instead of replacing it: has_body flips to true, and the pointer
+// identity is preserved so any earlier-synthesized MIR node holding it stays valid.
+TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_DeclThenDefUpgradesInPlace) {
+    SymbolTableWalker walker(symtab);
+    FunctionType *fn_type = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
+    std::string name = "f";
+
+    FuncSymbol *decl_ptr =
+        walker.insert(name, FuncSymbol::empty(LOC, name, walker.current, fn_type));
+    ASSERT_FALSE(decl_ptr->has_body);
+
+    auto def = std::make_unique<FuncSymbol>(LOC, name, walker.current, fn_type, Vec<VarSymbol *>{});
+    FuncSymbol *def_ptr = nullptr;
+    EXPECT_NO_THROW(def_ptr = walker.insert(name, std::move(def)));
+
+    EXPECT_EQ(def_ptr, decl_ptr)
+        << "Reconciliation should mutate the existing symbol in place, not replace it";
+    EXPECT_TRUE(decl_ptr->has_body) << "has_body should be promoted to true on the existing symbol";
+}
+
+// A declaration followed by another declaration of the same signature is a harmless no-op.
+TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_DeclThenDeclIsNoOp) {
+    SymbolTableWalker walker(symtab);
+    FunctionType *fn_type = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
+    std::string name = "f";
+
+    FuncSymbol *first = walker.insert(name, FuncSymbol::empty(LOC, name, walker.current, fn_type));
+
+    FuncSymbol *second = nullptr;
+    EXPECT_NO_THROW(
+        second = walker.insert(name, FuncSymbol::empty(LOC, name, walker.current, fn_type)));
+
+    EXPECT_EQ(second, first);
+    EXPECT_FALSE(first->has_body);
+}
+
+// A definition followed by a declaration of the same signature is also a harmless no-op —
+// re-declaring an already-defined function must not clobber its body.
+TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_DefThenDeclIsNoOp) {
+    SymbolTableWalker walker(symtab);
+    FunctionType *fn_type = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
+    std::string name = "f";
+
+    auto def = std::make_unique<FuncSymbol>(LOC, name, walker.current, fn_type, Vec<VarSymbol *>{});
+    FuncSymbol *def_ptr = walker.insert(name, std::move(def));
+    ASSERT_TRUE(def_ptr->has_body);
+
+    FuncSymbol *second = nullptr;
+    EXPECT_NO_THROW(
+        second = walker.insert(name, FuncSymbol::empty(LOC, name, walker.current, fn_type)));
+
+    EXPECT_EQ(second, def_ptr);
+    EXPECT_TRUE(def_ptr->has_body) << "the existing definition's body flag must not be clobbered";
+}
+
+// Two definitions of the same signature is a genuine redefinition and must throw.
+TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_DefThenDefThrows) {
+    SymbolTableWalker walker(symtab);
+    FunctionType *fn_type = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
+    std::string name = "f";
+
+    auto def1 = std::make_unique<FuncSymbol>(LOC, name, walker.current, fn_type, Vec<VarSymbol *>{});
+    walker.insert(name, std::move(def1));
+
+    auto def2 = std::make_unique<FuncSymbol>(LOC, name, walker.current, fn_type, Vec<VarSymbol *>{});
+    EXPECT_THROW(walker.insert(name, std::move(def2)), Symbol *)
+        << "Two definitions of the same function should be a redefinition error";
+}
+
+// An extern-linked declaration can be redundantly re-declared without throwing.
+TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_ExternDeclThenExternDeclIsNoOp) {
+    SymbolTableWalker walker(symtab);
+    FunctionType *fn_type = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
+    std::string name = "f";
+
+    auto decl1 = FuncSymbol::empty(LOC, name, walker.current, fn_type);
+    decl1->linkage = PhysicalSymbol::Linkage::EXTERNAL;
+    FuncSymbol *first = walker.insert(name, std::move(decl1));
+
+    auto decl2 = FuncSymbol::empty(LOC, name, walker.current, fn_type);
+    decl2->linkage = PhysicalSymbol::Linkage::EXTERNAL;
+    FuncSymbol *second = nullptr;
+    EXPECT_NO_THROW(second = walker.insert(name, std::move(decl2)))
+        << "Re-declaring the same extern prototype twice should succeed";
+
+    EXPECT_EQ(second, first);
+}
+
+// But attaching a body to an extern-linked declaration contradicts what EXTERNAL means
+// (the symbol is defined in another object file) and must throw.
+TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_ExternDeclThenBodyThrows) {
+    SymbolTableWalker walker(symtab);
+    FunctionType *fn_type = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
+    std::string name = "f";
+
+    auto decl = FuncSymbol::empty(LOC, name, walker.current, fn_type);
+    decl->linkage = PhysicalSymbol::Linkage::EXTERNAL;
+    walker.insert(name, std::move(decl));
+
+    auto def = std::make_unique<FuncSymbol>(LOC, name, walker.current, fn_type, Vec<VarSymbol *>{});
+    EXPECT_THROW(walker.insert(name, std::move(def)), Symbol *)
+        << "Defining a function previously declared extern should be rejected";
 }
 
 // ─── TypeSymbol insertion and lookup ────────────────────────────────────────

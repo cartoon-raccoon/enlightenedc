@@ -332,8 +332,6 @@ Box<ExprLIR> LIRSynthesizer::clone_lvalue(ExprLIR *expr) {
 }
 
 void LIRSynthesizer::do_visit(FunctionMIR& node) {
-    // Push a new queue onto the queue stack
-    push_queue();
 
     FuncSymbol *sym     = node.sym;
     std::string mangled = sym->mangle();
@@ -342,6 +340,27 @@ void LIRSynthesizer::do_visit(FunctionMIR& node) {
     Box<LIRFuncSym> func = std::make_unique<LIRFuncSym>(mangled, name, node.loc, node.sym);
 
     LIRFuncSym *funcptr = symbolmap.add_function(sym, std::move(func));
+
+    FunctionLIR *this_func_ptr;
+    if (funcptr->lir) {
+        // the back-pointer was already set, so just grab it
+        this_func_ptr = funcptr->lir;
+    } else {
+        // back-pointer not set, so create a new FunctionLIR, set the back-pointer, and emit it
+        Box<FunctionLIR> this_func = make_box<FunctionLIR>(node.loc, funcptr);
+        this_func_ptr = this_func.get();
+
+        funcptr->lir = this_func_ptr;
+    
+        emit(std::move(this_func));
+    }
+
+    if (node.is_declaration()) {
+        return;
+    }
+
+    // Push a new queue onto the queue stack
+    push_queue();
 
     func_stack.push(funcptr);
 
@@ -362,23 +381,21 @@ void LIRSynthesizer::do_visit(FunctionMIR& node) {
 
     node.body->accept(*this);
 
-    Box<FunctionLIR> this_func = make_box<FunctionLIR>(node.loc, mangled, name, funcptr);
-
     Vec<Box<FunctionLIR>> functions;
 
     while (!current_q.empty()) {
         LIRSynthItem item = consume();
         std::visit(
             match{
-                [&functions](Box<FunctionLIR>& func) {
+                [&](Box<FunctionLIR>& func) {
                     // Hoist any functions to the global queue.
                     functions.push_back(std::move(func));
                 },
-                [&this_func](Box<VarDeclLIR>& decl) {
-                    this_func->locals.push_back(std::move(decl));
+                [&](Box<VarDeclLIR>& decl) {
+                    this_func_ptr->locals.push_back(std::move(decl));
                 },
-                [&this_func](Box<ProgItemLIR>& item) {
-                    this_func->body.push_back(std::move(item));
+                [&](Box<ProgItemLIR>& item) {
+                    this_func_ptr->body.push_back(std::move(item));
                 },
             },
             item);
@@ -390,8 +407,6 @@ void LIRSynthesizer::do_visit(FunctionMIR& node) {
     for (auto& func : functions) {
         emit(std::move(func));
     }
-
-    emit(std::move(this_func));
 }
 
 #pragma clang diagnostic push

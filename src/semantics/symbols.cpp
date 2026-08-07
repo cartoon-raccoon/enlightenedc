@@ -296,9 +296,9 @@ FuncSymbol *SymbolTableWalker::insert(std::string& name, Box<FuncSymbol> sym) co
     dbprint("SymbolTable: inserting funcsymbol with name \"", name, "\"");
     if (current->phys_symbols.contains(name)) {
         dbprint("SymbolTable: symbol with name ", name, " already exists");
-        // if the same symbol exists, is a function, has the same signature, and is not extern
-        // replace the existing symbol with the new one
+
         PhysicalSymbol *existing = current->phys_symbols.find(name)->second.get();
+
         if (existing->get_type()->is_function()) {
             dbprint("SymbolTable: existing symbol has function type, checking for replaceability");
             FunctionType *othertype = existing->get_type()->as_function();
@@ -307,17 +307,39 @@ FuncSymbol *SymbolTableWalker::insert(std::string& name, Box<FuncSymbol> sym) co
                 dbprint("SymbolTable: could not cast othertype or mytype to FunctionType");
                 goto exists;
             }
-            if (othertype == mytype && !existing->is_external()) {
-                dbprint("SymbolTable: existing symbol matches function signature, replacing");
-                goto insert;
+            if (othertype == mytype) {
+                dbprint(
+                    "SymbolTable: existing symbol matches function signature, evaluating reconciliation");
+                FuncSymbol *existfunc = existing->as_funcsym();
+                assert(existfunc);
+                if (!existfunc->has_body && sym->has_body) {
+                    // existing is decl, new sym is def
+
+                    if (existfunc->is_external()) {
+                        goto exists;
+                    }
+
+                    existfunc->has_body = true;
+                    existfunc->parameters = std::move(sym->parameters);
+
+                    return existfunc;
+                } else if (existfunc->has_body && sym->has_body) {
+                    // existing is def, new sym is def
+
+                    goto exists;
+                } else {
+                    // existing is decl or def, new sym is decl
+
+                    return existfunc;
+                }
             } else {
                 goto exists;
             }
         }
+
     exists:
         throw (Symbol *)existing;
     }
-insert:
     if (current == global()) {
         sym->is_global = true;
     }
