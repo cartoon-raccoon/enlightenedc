@@ -47,11 +47,34 @@ BasicBlock *FunctionCFG::lookup_labeled_block(std::string& label) {
 }
 
 FunctionCFG *ProgramCFG::add_function(FunctionLIR *func) {
+    
+    if (functions.contains(func)) {
+        return functions[func].get();
+    }
+
     auto funcfg = std::make_unique<FunctionCFG>(func);
 
     FunctionCFG *ret = funcfg.get();
 
-    functions.push_back(std::move(funcfg));
+    functions[func] = std::move(funcfg);
 
     return ret;
+}
+
+FuncRef *ProgramCFG::ref_function(FunctionLIR *func) {
+    for (auto& f : functions) {
+        if (f.first == func) {
+            auto ref = std::make_unique<FuncRef>(f.first->lir->signature, f.second.get());
+
+            auto *ret = ref.get();
+            funcrefs.push_back(std::move(ref));
+
+            return ret;
+        }
+    }
+
+    // if lookup fails, add the function and recurse
+    add_function(func);
+
+    return ref_function(func);
 }

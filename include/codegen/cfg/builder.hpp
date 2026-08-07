@@ -119,7 +119,7 @@ protected:
     void visit(lir::PostfixExprLIR& node) override;
 
 private:
-    Ref<ProgramCFG> prog_cfg;
+    ProgramCFG& prog_cfg;
     Vec<Box<NestedStmtInfo>> infostack;
     MonotonicCtr<uint64_t> ctr = 1;
 };

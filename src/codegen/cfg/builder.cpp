@@ -21,17 +21,23 @@ NestedStmtInfo *CFGBuilder::find_info(NestedStmtFilter& filter) {
 }
 
 void CFGBuilder::visit(ProgramLIR& node) {
-    for (auto& item : node.progitems) {
-        item->accept(*this);
+    // todo: implicit main (progitems)
+
+    for (auto& func : node.functions) {
+        func->accept(*this);
     }
 }
 
 void CFGBuilder::visit(FunctionLIR& node) {
+    current_func = prog_cfg.add_function(&node);
+
     for (auto& local : node.locals) {
         local->accept(*this);
     }
 
-    
+    for (auto& item : node.body) {
+        item->accept(*this);
+    }
 }
 
 void CFGBuilder::visit(LabelDeclLIR& node) {
@@ -196,7 +202,7 @@ void CFGBuilder::visit(ReturnStmtLIR& node) {
     */
 }
 
-void CFGBuilder::visit(VarDeclLIR& node) { // NOLINT
+void CFGBuilder::visit(VarDeclLIR& node) {
 }
 
 void CFGBuilder::visit(BinaryExprLIR& node) {
@@ -210,9 +216,15 @@ void CFGBuilder::visit(BinaryExprLIR& node) {
 }
 
 void CFGBuilder::visit(UnaryExprLIR& node) {
+    node.operand->accept(*this);
+    Value *operand = last_value;
+
+    last_value = current_block->add_instruction<UnaryInst>(
+        node.act_type, node.op, operand, *node.loc);
 }
 
 void CFGBuilder::visit(CastExprLIR& node) {
+    node.inner->accept(*this);
 }
 
 void CFGBuilder::visit(AssignExprLIR& node) {

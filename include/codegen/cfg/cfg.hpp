@@ -27,6 +27,17 @@ class FuncRef;
 class Literal;
 class Zero;
 
+class BasicBlock;
+class If;
+class Goto;
+class Return;
+class Switch;
+
+class FunctionCFG;
+
+/**
+A CFG value.
+*/
 class Value : public NoCopy {
 public:
     enum class ValueKind : uint8_t {
@@ -57,6 +68,9 @@ public:
     virtual Zero *as_zero() { return nullptr; }
 };
 
+/**
+A unit of execution in the CFG IR.
+*/
 class Instruction : public Value {
 public:
     enum class InstKind : uint8_t {
@@ -268,10 +282,10 @@ which is the only symbol type Load can operate on.
 */
 class FuncRef : public Value {
 public:
-    FuncRef(sema::types::FunctionType *sig, lir::LIRFuncSym *ref)
+    FuncRef(sema::types::FunctionType *sig, FunctionCFG *ref)
         : Value(ValueKind::FUNC, sig), func(ref) {}
 
-    lir::LIRFuncSym *func;
+    FunctionCFG *func;
 
     FuncRef *as_funcref() override { return this; }
 
@@ -307,12 +321,6 @@ public:
 
     static bool classof(const Value *node) { return node->valkind == ValueKind::ZERO; }
 };
-
-class BasicBlock;
-class If;
-class Goto;
-class Return;
-class Switch;
 
 /**
 A terminator of a basic block.
@@ -406,8 +414,6 @@ public:
 
     static bool classof(const Terminator *node) { return node->kind == Kind::SWITCH; }
 };
-
-class FunctionCFG;
 
 /**
 The basic unit of the CFG.
@@ -508,7 +514,15 @@ public:
 
     FunctionCFG *add_function(lir::FunctionLIR *func);
 
-    Vec<Box<FunctionCFG>> functions;
+    /**
+    Construct a FuncRef from a given FunctionLIR
+    */
+    FuncRef *ref_function(lir::FunctionLIR *func);
+
+    HashMap<lir::FunctionLIR *, Box<FunctionCFG>> functions;
+
+private:
+    Vec<Box<FuncRef>> funcrefs;
 };
 
 } // end namespace ecc::codegen::cfg
