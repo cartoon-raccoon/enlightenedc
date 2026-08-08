@@ -741,24 +741,18 @@ void Validator::do_visit(UnaryExprMIR& node) {
     switch (node.op) {
     case UnaryOp::INC:
     case UnaryOp::DEC: { // ++x, --x
-        if (!node.operand->eff_type->is_primitive()) {
-            bsv_dbprint("error: inc/dec operand must be a primitive type");
+        if (!node.operand->eff_type->is_primitive() && !node.operand->eff_type->is_pointer()) {
+            bsv_dbprint("error: inc/dec operand must be a primitive type or pointer");
             add_error<InvalidUnaryOpError>(
-                "operand must be a primitive type", node.op, node.operand->eff_type, node.loc);
+                "operand must be a primitive type or pointer", node.op, node.operand->eff_type, node.loc);
             throw UnableToContinue();
         }
-        PrimitiveType *primtype = node.operand->eff_type->as_primitive();
 
         assert(node.act_type == nullptr && node.eff_type == nullptr);
         if (!node.operand->is_assignable()) {
             bsv_dbprint("error: inc/dec operand is not assignable");
             add_error<InvalidUnaryOpError>(
                 "operand is not assignable", node.op, node.operand->eff_type, node.loc);
-            throw UnableToContinue();
-        } else if (!primtype->is_integer()) {
-            bsv_dbprint("error: inc/dec operand is not an integer");
-            add_error<InvalidUnaryOpError>(
-                "operand is not an integer", node.op, node.operand->eff_type, node.loc);
             throw UnableToContinue();
         } else {
             node.set_type(node.operand->act_type->unqual());
@@ -1284,15 +1278,16 @@ void Validator::do_visit(PostfixExprMIR& node) {
             "operand is not a valid lvalue", node.op, node.operand->eff_type, node.loc);
     }
 
-    if (!node.operand->eff_type->is_primitive()) {
-        bsv_dbprint("error: postfix operand must be a primitive type");
+    if (!node.operand->eff_type->is_primitive() && !node.operand->eff_type->is_pointer()) {
+        bsv_dbprint("error: postfix operand must be a primitive type or a pointer");
         add_error<InvalidPostfixExprError>(
-            "operand must be a primitive type", node.op, node.operand->eff_type, node.loc);
+            "operand must be a primitive type or pointer",
+            node.op, node.operand->eff_type, node.loc);
         throw UnableToContinue();
     }
 
     PrimitiveType *primtype = node.operand->eff_type->as_primitive();
-    if (primtype->is_bool()) {
+    if (primtype && primtype->is_bool()) {
         //? should this be a warning or a hard error?
     }
 
