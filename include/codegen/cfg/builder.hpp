@@ -1,5 +1,7 @@
 #pragma once
 
+#include <concepts>
+#include <utility>
 #ifndef ECC_CFG_BUILDER_H
 #define ECC_CFG_BUILDER_H
 
@@ -16,7 +18,6 @@ CFG generation functionality.
 */
 namespace ecc::codegen::cfg {
 
-class IfStmtInfo;
 class SwitchStmtInfo;
 class LoopStmtInfo;
 class Value;
@@ -24,69 +25,83 @@ class Value;
 class NestedStmtInfo {
 public:
     enum class Kind : uint8_t {
-        IF,
         SWITCH,
         LOOP,
     };
 
-    NestedStmtInfo(Kind kind, BasicBlock *merge) : kind(kind), merge(merge) {}
+    NestedStmtInfo(Kind kind) : kind(kind) {}
     virtual ~NestedStmtInfo() = default;
 
     Kind kind;
-    BasicBlock *merge;
+    Vec<Goto *> pending_merges;
 
-    bool is_if() const { return kind == Kind::IF; }
     bool is_switch() const { return kind == Kind::SWITCH; }
     bool is_loop() const { return kind == Kind::LOOP; }
 
-    virtual IfStmtInfo *as_if() { return nullptr; }
     virtual SwitchStmtInfo *as_switch() { return nullptr; }
     virtual LoopStmtInfo *as_loop() { return nullptr; }
 };
 
-class IfStmtInfo : public NestedStmtInfo {
-public:
-    IfStmtInfo(BasicBlock *merge) : NestedStmtInfo(Kind::IF, merge) {}
-
-    IfStmtInfo *as_if() override { return this; }
-};
-
 class SwitchStmtInfo : public NestedStmtInfo {
 public:
-    SwitchStmtInfo(BasicBlock *merge) : NestedStmtInfo(Kind::SWITCH, merge) {}
+    SwitchStmtInfo(Switch *swtch) : NestedStmtInfo(Kind::SWITCH), swtch(swtch) {}
 
-    Vec<SwitchCase> cases;
+    Switch *swtch;
 
     SwitchStmtInfo *as_switch() override { return this; }
 };
 
 class LoopStmtInfo : public NestedStmtInfo {
 public:
-    LoopStmtInfo(BasicBlock *merge) : NestedStmtInfo(Kind::LOOP, merge) {}
+    LoopStmtInfo() : NestedStmtInfo(Kind::LOOP) {}
 
     BasicBlock *cond = nullptr;
+    BasicBlock *step = nullptr;
     BasicBlock *body = nullptr;
 
     LoopStmtInfo *as_loop() override { return this; }
 };
 
 /**
-Class that builds
+Class that builds the Control Flow Graph.
 */
 class CFGBuilder : public lir::LIRVisitor {
 public:
-    CFGBuilder(ProgramCFG& prog_cfg) : prog_cfg(prog_cfg) {}
+    CFGBuilder(sema::types::TypeContext& types, ProgramCFG& prog_cfg)
+        : types(types), prog_cfg(prog_cfg) {}
 
     void build_cfg(lir::ProgramLIR& prog);
 
 protected:
-    FunctionCFG *current_func = nullptr;
-    BasicBlock *current_block = nullptr;
+    FunctionCFG *curr_func = nullptr;
+    BasicBlock *curr_blk = nullptr;
     Value *last_value         = nullptr;
 
     using NestedStmtFilter = std::function<bool(NestedStmtInfo *)>;
 
-    NestedStmtInfo *find_info(NestedStmtFilter& filter);
+    template <typename Info, typename ... Args>
+        requires std::derived_from<Info, NestedStmtInfo>
+    NestedStmtInfo *push_info(Args ... args) {
+        auto info = std::make_unique<Info>(std::forward<Args>(args) ...);
+
+        NestedStmtInfo *ret = info.get();
+        infostack.push_back(std::move(info));
+
+        return ret;
+    }
+
+    Box<NestedStmtInfo> pop_info() {
+        auto popped = std::move(infostack.back());
+
+        infostack.pop_back();
+
+        return popped;
+    }
+
+    NestedStmtInfo *find_info(const NestedStmtFilter& filter);
+
+    Value *eval(lir::ExprLIR& node);
+    Value *eval_lvalue(lir::ExprLIR& node);
 
     void visit(lir::ProgramLIR& node) override;
     void visit(lir::FunctionLIR& node) override;
@@ -115,10 +130,12 @@ protected:
     void visit(lir::ZeroExprLIR& node) override;
     void visit(lir::CallExprLIR& node) override;
     void visit(lir::MemberAccExprLIR& node) override;
+    void visit(lir::ReintExprLIR& node) override;
     void visit(lir::SubscrExprLIR& node) override;
     void visit(lir::PostfixExprLIR& node) override;
 
 private:
+    sema::types::TypeContext& types;
     ProgramCFG& prog_cfg;
     Vec<Box<NestedStmtInfo>> infostack;
     MonotonicCtr<uint64_t> ctr = 1;
