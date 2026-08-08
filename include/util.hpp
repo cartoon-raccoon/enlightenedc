@@ -3,6 +3,7 @@
 #include <compare>
 #include <concepts>
 #include <unordered_map>
+#include <unordered_set>
 #ifndef ECC_UTIL_H
 #define ECC_UTIL_H
 
@@ -83,8 +84,14 @@ using Vec = std::vector<T>;
 /**
 A convenient type alias for `std::unordered_map`.
 */
-template <typename ... Args>
-using HashMap = std::unordered_map<Args ...>;
+template <typename... Args>
+using HashMap = std::unordered_map<Args...>;
+
+/**
+A convenient type alias for `std::unordered_set`.
+*/
+template <typename... Args>
+using HashSet = std::unordered_set<Args...>;
 
 /**
 A convenient type alias for `std::span`.
@@ -221,6 +228,17 @@ bool isa(const From *val) {
     } else {
         static_assert(HasClassof<To, From>);
         return To::classof(val);
+    }
+}
+
+template <typename To, typename From>
+bool isa(const Box<From>& val) {
+    static_assert(std::is_base_of_v<From, To>);
+    if constexpr (std::is_same_v<To, From>) {
+        return true;
+    } else {
+        static_assert(HasClassof<To, From>);
+        return To::classof(val.get());
     }
 }
 
