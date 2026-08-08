@@ -252,7 +252,7 @@ const To *dyncast(const From *val) {
 }
 
 template <typename To, typename From>
-const To *dyncast(const Box<From>& val) {
+To *dyncast(Box<From>& val) {
     return dyncast<To>(val.get());
 }
 
