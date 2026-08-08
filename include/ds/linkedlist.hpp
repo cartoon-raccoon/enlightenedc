@@ -6,6 +6,7 @@
 #include <cassert>
 #include <concepts>
 #include <cstddef>
+#include <stdexcept>
 
 #include "util.hpp"
 
@@ -27,7 +28,6 @@ class LinkedListNode {
         requires std::derived_from<T, LinkedListNode<T>>
     friend class LinkedListIter;
 
-    size_t idx      = 0;
     Node *next_node = nullptr, *prev_node = nullptr;
 
 public:
@@ -35,7 +35,21 @@ public:
 
     Node& operator*() { return as<Node>(); }
 
-    size_t index() const { return idx; }
+    /**
+    This node's zero-based position in its list, computed by walking back to the head.
+
+    O(n) in the node's distance from the front. Deliberately not cached: with O(1)
+    intrusive insert/remove elsewhere in the list, a cached index would go stale the
+    moment anything before this node moves. Only pay the walk when a position is
+    actually needed (e.g. debug printing).
+    */
+    size_t index() const {
+        size_t i = 0;
+        for (const Node *n = prev_node; n != nullptr; n = n->prev_node) {
+            ++i;
+        }
+        return i;
+    }
 
     Node *next() { return next_node; }
 
@@ -101,6 +115,11 @@ public:
 
 /**
  * An intrusive doubly-linked list implementation.
+ *
+ * List order lives on the nodes themselves (`prev_node`/`next_node`), tracked here only
+ * via `first_elem`/`last_elem`. Ownership is tracked separately, in a pointer-keyed map,
+ * so that adding/removing a node anywhere in the list - given a reference to it or to its
+ * neighbor - is O(1): no scan to find a position, no shifting of other elements.
  */
 template <typename N>
     requires std::derived_from<N, LinkedListNode<N>>
@@ -167,108 +186,143 @@ public:
     }
 
     /**
-     * Append an element to the end of the list.
-     */
-    void push_back(const N& item) {
-        Box<N> node = make_box<N>(item);
+    Construct a node in place at the end of the list.
 
-        push_back(std::move(node));
+    Unlike push_back(), this does not require N to be copyable/movable - the node is
+    constructed directly from `args` via its own constructor.
+    */
+    template <typename... Args>
+    N& emplace_back(Args&&...args) {
+        return link_back(make_box<N>(std::forward<Args>(args)...));
+    }
+
+    /**
+    Construct a node in place at the beginning of the list.
+    */
+    template <typename... Args>
+    N& emplace_front(Args&&...args) {
+        return link_front(make_box<N>(std::forward<Args>(args)...));
+    }
+
+    /**
+    Construct a node in place immediately before `pos`. O(1).
+    */
+    template <typename... Args>
+    N& emplace_before(N& pos, Args&&...args) {
+        return link_before(make_box<N>(std::forward<Args>(args)...), pos);
+    }
+
+    /**
+    Construct a node in place immediately after `pos`. O(1).
+    */
+    template <typename... Args>
+    N& emplace_after(N& pos, Args&&...args) {
+        return link_after(make_box<N>(std::forward<Args>(args)...), pos);
     }
 
     /**
      * Append an element to the end of the list.
      */
-    void push_back(N&& item) {
-        Box<N> node = make_box<N>(std::move(item));
+    void push_back(const N& item) { emplace_back(item); }
 
-        push_back(std::move(node));
-    }
+    /**
+     * Append an element to the end of the list.
+     */
+    void push_back(N&& item) { emplace_back(std::move(item)); }
 
     /**
      * Prepend an element to the beginning of the list.
      */
-    void push_front(const N& item) {
-        auto node = make_box<N>(item);
+    void push_front(const N& item) { emplace_front(item); }
 
-        push_front(std::move(node));
-    }
+    void push_front(N&& item) { emplace_front(std::move(item)); }
 
-    void push_front(N&& item) {
-        auto node = make_box<N>(std::move(item));
+    /**
+    Insert an element immediately before `succ`. O(1).
+    */
+    void insert_before(const N& item, N& succ) { emplace_before(succ, item); }
 
-        push_front(std::move(node));
-    }
+    void insert_before(N&& item, N& succ) { emplace_before(succ, std::move(item)); }
+
+    /**
+    Insert an element immediately after `prec`. O(1).
+    */
+    void insert_after(const N& item, N& prec) { emplace_after(prec, item); }
+
+    void insert_after(N&& item, N& prec) { emplace_after(prec, std::move(item)); }
 
     /**
      * Insert an element at the specified index.
      */
-    void insert(const N& item, size_t idx) {
-        auto node = make_box<N>(item);
+    void insert(const N& item, size_t idx) { insert(make_box<N>(item), idx); }
 
-        insert(std::move(node), idx);
+    void insert(N&& item, size_t idx) { insert(make_box<N>(std::move(item)), idx); }
+
+    void pop_back() {
+        if (!last_elem) {
+            throw std::out_of_range("pop_back() called on empty LinkedList");
+        }
+        remove(*last_elem);
     }
 
-    void insert(N&& item, size_t idx) {
-        auto node = make_box<N>(std::move(item));
-
-        insert(std::move(node), idx);
+    void pop_front() {
+        if (!first_elem) {
+            throw std::out_of_range("pop_front() called on empty LinkedList");
+        }
+        remove(*first_elem);
     }
 
-    void pop_back() { remove(nodes.size() - 1); }
+    void remove(size_t idx) { remove(at(idx)); }
 
-    void pop_front() { remove(0); }
+    /**
+    Remove `item` from the list. O(1): no search, since unlinking only touches `item`'s
+    own neighbors, and ownership is released via a pointer-keyed lookup.
+    */
+    void remove(N& item) {
+        N *prev = item.prev_node;
+        N *next = item.next_node;
 
-    void remove(size_t idx) {
-        N& to_remove = at(idx);
-
-        if (to_remove.prev_node) {
-            to_remove.prev_node->next_node = to_remove.next_node;
+        if (prev) {
+            prev->next_node = next;
         } else {
-            first_elem = to_remove.next_node;
+            first_elem = next;
         }
 
-        if (to_remove.next_node) {
-            to_remove.next_node->prev_node = to_remove.prev_node;
+        if (next) {
+            next->prev_node = prev;
         } else {
-            last_elem = to_remove.prev_node;
+            last_elem = prev;
         }
 
-        // Remove the node from the vector of nodes
-        auto it = std::find_if(nodes.begin(), nodes.end(), [&to_remove](const Box<N>& node) {
-            return node.get() == &to_remove;
-        });
-
-        if (it != nodes.end()) {
-            nodes.erase(it);
-        }
+        nodes.erase(&item);
     }
 
     /**
      * Prepend all elements from another linked list to this list.
      */
-    void prepend(LinkedList& list) { prepend(*list.first_elem); }
+    void prepend(LinkedList& list) {
+        if (list.first_elem) {
+            prepend(*list.first_elem);
+        }
+    }
 
     /**
-     * Prepend all elements from another linked list to this list.
+     * Prepend copies of `start` and everything after it (in their existing order) to the
+     * beginning of this list.
      */
     void prepend(N& start) {
-        const N *cur = &start;
+        // Anchor on the current front once: inserting each successive copy immediately
+        // before it accumulates them, in order, ahead of what was already here.
+        N *anchor          = first_elem;
+        const N *traveler = &start;
 
-        while (cur != nullptr) {
-            // We create a new Box (unique_ptr) by copying the data
-            // This hides the Box implementation from the caller
-            auto new_node = make_box<N>(*cur);
-
-            // Reset pointers to maintain local list integrity
-            new_node->next_node = nullptr;
-            new_node->prev_node = nodes.empty() ? nullptr : nodes.back().get();
-
-            if (!nodes.empty()) {
-                nodes.back()->next_node = new_node.get();
+        while (traveler != nullptr) {
+            if (anchor) {
+                emplace_before(*anchor, *traveler);
+            } else {
+                emplace_back(*traveler);
             }
-
-            nodes.push_back(std::move(new_node));
-            cur = cur->next_node;
+            traveler = traveler->next_node;
         }
     }
 
@@ -282,12 +336,12 @@ public:
     }
 
     /**
-     * Extend this list with all elements from another linked list.
+     * Extend this list with copies of `start` and everything after it.
      */
     void extend(N& start) {
         const N *traveler = &start;
         while (traveler != nullptr) {
-            push_back(make_box<N>(*traveler));
+            emplace_back(*traveler);
             traveler = traveler->next_node;
         }
     }
@@ -300,16 +354,15 @@ public:
     N& at(size_t idx) {
         N *curr_acc     = first_elem;
         size_t curr_idx = 0;
-        while (curr_idx != idx) {
-            if (curr_acc) {
-                curr_acc = curr_acc->next_node;
-                curr_idx++;
-            } else {
-                throw std::out_of_range("specified index for LinkedList out of range");
-            }
+
+        while (curr_acc && curr_idx != idx) {
+            curr_acc = curr_acc->next_node;
+            ++curr_idx;
         }
 
-        assert(curr_acc->idx == curr_idx);
+        if (!curr_acc) {
+            throw std::out_of_range("specified index for LinkedList out of range");
+        }
 
         return *curr_acc;
     }
@@ -327,69 +380,99 @@ public:
     LinkedListIter<N> end() const { return LinkedListIter<N>(nullptr); }
 
 private:
-    void push_back(Box<N> item) {
-        if (size() == 0) {
-            item->idx       = 0;
-            item->next_node = item->prev_node = nullptr;
-            first_elem = last_elem = item.get();
-        } else {
-            item->idx            = size();
-            last_elem->next_node = item.get();
-            item->prev_node      = last_elem;
-            last_elem            = item.get();
-        }
-        nodes.push_back(std::move(item));
+    /**
+    Take ownership of `item`, keyed by its own address for O(1) release in remove().
+    */
+    void adopt(Box<N> item) {
+        N *raw = item.get();
+        nodes.emplace(raw, std::move(item));
     }
 
-    void push_front(Box<N> item) {
-        if (size() == 0) {
-            item->idx       = 0;
-            item->next_node = item->prev_node = nullptr;
-            first_elem = last_elem = item.get();
+    N& link_back(Box<N> item) {
+        N *raw = item.get();
+
+        item->prev_node = last_elem;
+        item->next_node = nullptr;
+
+        if (last_elem) {
+            last_elem->next_node = raw;
         } else {
-            item->idx             = 0;
-            first_elem->prev_node = item.get();
-            item->next_node       = first_elem;
-            first_elem            = item.get();
+            first_elem = raw;
         }
-        nodes.push_back(std::move(item));
+        last_elem = raw;
+
+        adopt(std::move(item));
+        return *raw;
     }
 
-    void insert(const Box<N>& item, size_t idx) {
+    N& link_front(Box<N> item) {
+        N *raw = item.get();
+
+        item->next_node = first_elem;
+        item->prev_node = nullptr;
+
+        if (first_elem) {
+            first_elem->prev_node = raw;
+        } else {
+            last_elem = raw;
+        }
+        first_elem = raw;
+
+        adopt(std::move(item));
+        return *raw;
+    }
+
+    N& link_before(Box<N> item, N& pos) {
+        N *raw  = item.get();
+        N *prev = pos.prev_node;
+
+        item->next_node = &pos;
+        item->prev_node = prev;
+        pos.prev_node   = raw;
+
+        if (prev) {
+            prev->next_node = raw;
+        } else {
+            first_elem = raw;
+        }
+
+        adopt(std::move(item));
+        return *raw;
+    }
+
+    N& link_after(Box<N> item, N& pos) {
+        N *raw  = item.get();
+        N *next = pos.next_node;
+
+        item->prev_node = &pos;
+        item->next_node = next;
+        pos.next_node   = raw;
+
+        if (next) {
+            next->prev_node = raw;
+        } else {
+            last_elem = raw;
+        }
+
+        adopt(std::move(item));
+        return *raw;
+    }
+
+    void insert(Box<N> item, size_t idx) {
         if (idx > size()) {
             throw std::out_of_range("specified index for LinkedList out of range");
         } else if (idx == size()) {
-            push_back(item);
+            link_back(std::move(item));
         } else if (idx == 0) {
-            push_front(item);
+            link_front(std::move(item));
         } else {
-            N *curr_acc     = first_elem;
-            size_t curr_idx = 0;
-            while (curr_idx != idx) {
-                if (curr_acc) {
-                    curr_acc = curr_acc->next_node;
-                    curr_idx++;
-                } else {
-                    throw std::out_of_range("specified index for LinkedList out of range");
-                }
-            }
-
-            assert(curr_acc->idx == curr_idx);
-
-            item->idx           = idx;
-            item->prev_node     = curr_acc->prev_node;
-            item->next_node     = curr_acc;
-            curr_acc->prev_node = item.get();
-
-            if (item->prev_node) {
-                item->prev_node->next_node = item.get();
-            }
-
-            nodes.push_back(std::move(item));
+            link_before(std::move(item), at(idx));
         }
     }
 
-    Vec<Box<N>> nodes;
+    // Owning storage, keyed by node address rather than position - so remove() never
+    // needs to scan for the Box matching a given node.
+    HashMap<N *, Box<N>> nodes;
 
     N *first_elem = nullptr;
     N *last_elem  = nullptr;
