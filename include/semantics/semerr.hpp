@@ -34,6 +34,7 @@ public:
     enum class Kind : uint8_t {
         NotInFunction,
         RetValueFromVoid,
+        MissingReturn,
     };
     InvalidReturnError(Kind kind, Location err_loc)
         : EccSemError("invalid return statement", err_loc), kind(kind) {}
@@ -46,6 +47,8 @@ public:
             return "return statement not in function";
         case Kind::RetValueFromVoid:
             return "returning a value in a void function";
+        case Kind::MissingReturn:
+            return "non-void function with missing return";
         }
     }
 };

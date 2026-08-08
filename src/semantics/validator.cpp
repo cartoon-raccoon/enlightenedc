@@ -334,6 +334,53 @@ void Validator::visit_single_vardecl(sym::VarSymbol *varsym, InitializerMIR& ini
     }
 }
 
+bool Validator::always_returns(StmtMIR& node) {
+    if (isa<ReturnStmtMIR>(&node)) {
+        // Return Statement case: always true
+        return true;
+    }
+
+    if (auto *cmpdstmt = dyncast<CompoundStmtMIR>(&node)) {
+        // Compound Statement case: if any item in the statement returns true, return true
+
+        for (auto& item : cmpdstmt->items) {
+            auto *stmtmir = dyncast<StmtMIR>(item.get());
+            if (stmtmir && always_returns(*stmtmir)) {
+                return true;
+            }
+        }
+    }
+
+    if (auto *ifstmt = dyncast<IfStmtMIR>(&node)) {
+        // If Statement case: if there is an else branch and both branches always return
+
+        if (ifstmt->else_branch && always_returns(*ifstmt->then_branch) &&
+            always_returns(**ifstmt->else_branch)) {
+            return true;
+        }
+    }
+
+    if (auto *labstmt = dyncast<LabeledStmtMIR>(&node)) {
+        // Labeled Statement case: delegate to inner statement
+
+        return always_returns(*labstmt->stmt);
+    }
+
+    // All other statements return false
+    return false;
+}
+
+void Validator::do_visit(FunctionMIR& node) {
+    if (node.body) {
+        node.body->accept(*this);
+    }
+
+    Type *returntype = node.sym->signature->returntype()->unqual();
+    if (!returntype->is_void() && node.body && !always_returns(*node.body)) {
+        add_error<InvalidReturnError>(InvalidReturnError::Kind::MissingReturn, node.loc);
+    }
+}
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
 void Validator::do_visit(InitializerMIR& node) {
@@ -627,7 +674,7 @@ void Validator::do_visit(BinaryExprMIR& node) {
 
             switch (side) {
             case LEFT: {
-                PointerType *left    = node.left->eff_type->as_pointer();
+                //PointerType *left    = node.left->eff_type->as_pointer();
                 PrimitiveType *right = node.right->eff_type->as_primitive();
 
                 if (!right->is_integer()) {
@@ -641,7 +688,7 @@ void Validator::do_visit(BinaryExprMIR& node) {
             }
             case RIGHT: {
                 PrimitiveType *left = node.left->eff_type->as_primitive();
-                PointerType *right  = node.right->eff_type->as_pointer();
+                //PointerType *right  = node.right->eff_type->as_pointer();
 
                 if (!left->is_integer()) {
                     add_error<InvalidPointerArithmetic>(

@@ -305,6 +305,13 @@ void MIRSynthesizer::do_visit(Function& node) {
 
     auto res = take_last_result<CmpdStmtFromFuncRes>();
 
+    // If void function and no explicit return, insert one
+    if (functype->returntype()->is_void()) {
+        if (res.first->items.empty() || !isa<ReturnStmtMIR>(res.first->items.back())) {
+            res.first->add_item(std::make_unique<ReturnStmtMIR>(Location()));
+        }
+    }
+
     Box<FunctionMIR> func =
         std::make_unique<FunctionMIR>(node.loc, sym_ptr, res.second, std::move(res.first));
     dv_return(func);

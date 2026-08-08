@@ -48,6 +48,15 @@ protected:
     Optional<types::Type *>
     eval_initializer(types::Type *type, mir::InitializerMIR& init, bool allow_size_infer = false);
 
+    /**
+    Checks if a given statement always returns.
+
+    This is used to check if every path in a given statement always terminates in an
+    (explicit) return statement. Implicit returns are not detected.
+    */
+    bool always_returns(mir::StmtMIR& node);
+
+    void do_visit(mir::FunctionMIR& node) final;
     void do_visit(mir::InitializerMIR& node) final;
     void do_visit(mir::VarDeclMIR& node) final;
     void do_visit(mir::TypeDeclMIR& node) final;
