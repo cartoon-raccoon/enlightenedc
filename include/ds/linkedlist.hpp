@@ -272,6 +272,100 @@ public:
         remove(*first_elem);
     }
 
+    /**
+    Swap the positions of `first` and `second` in the list. O(1).
+
+    Adjacency and the head/tail boundaries are handled as explicit cases: the general
+    4-pointer relink (the `else` below) assumes first's and second's neighborhoods are
+    disjoint, which is false when one directly precedes the other - reusing it there
+    would alias a node's prev/next onto itself and corrupt the list into a cycle.
+    */
+    void swap(N& first, N& second) {
+        if (&first == &second) {
+            return;
+        }
+
+        // first immediately precedes second: [before] first second [after]
+        //                                  -> [before] second first [after]
+        if (first.next_node == &second) {
+            N *before = first.prev_node;
+            N *after  = second.next_node;
+
+            second.prev_node = before;
+            second.next_node = &first;
+            first.prev_node  = &second;
+            first.next_node  = after;
+
+            if (before) {
+                before->next_node = &second;
+            } else {
+                first_elem = &second;
+            }
+            if (after) {
+                after->prev_node = &first;
+            } else {
+                last_elem = &first;
+            }
+            return;
+        }
+
+        // second immediately precedes first: mirror image of the above.
+        if (second.next_node == &first) {
+            N *before = second.prev_node;
+            N *after  = first.next_node;
+
+            first.prev_node  = before;
+            first.next_node  = &second;
+            second.prev_node = &first;
+            second.next_node = after;
+
+            if (before) {
+                before->next_node = &first;
+            } else {
+                first_elem = &first;
+            }
+            if (after) {
+                after->prev_node = &second;
+            } else {
+                last_elem = &second;
+            }
+            return;
+        }
+
+        // Not adjacent, so first's and second's neighborhoods can't overlap: a plain
+        // 4-pointer relink is safe.
+        N *first_prev  = first.prev_node;
+        N *first_next  = first.next_node;
+        N *second_prev = second.prev_node;
+        N *second_next = second.next_node;
+
+        first.prev_node  = second_prev;
+        first.next_node  = second_next;
+        second.prev_node = first_prev;
+        second.next_node = first_next;
+
+        if (second_prev) {
+            second_prev->next_node = &first;
+        } else {
+            first_elem = &first;
+        }
+        if (second_next) {
+            second_next->prev_node = &first;
+        } else {
+            last_elem = &first;
+        }
+        if (first_prev) {
+            first_prev->next_node = &second;
+        } else {
+            first_elem = &second;
+        }
+        if (first_next) {
+            first_next->prev_node = &second;
+        } else {
+            last_elem = &second;
+        }
+    }
+
     void remove(size_t idx) { remove(at(idx)); }
 
     /**
@@ -313,7 +407,7 @@ public:
     void prepend(N& start) {
         // Anchor on the current front once: inserting each successive copy immediately
         // before it accumulates them, in order, ahead of what was already here.
-        N *anchor          = first_elem;
+        N *anchor         = first_elem;
         const N *traveler = &start;
 
         while (traveler != nullptr) {
