@@ -130,6 +130,10 @@ target_include_directories(libecc PRIVATE ${SRC_DIR} ${BISON_OUTPUT_DIR})
 target_include_directories(libecc PUBLIC ${INCLUDE_DIR})
 target_include_directories(ecc PUBLIC ${INCLUDE_DIR})
 
+# Disable RTTI
+target_compile_options(libecc PRIVATE -fno-rtti)
+target_compile_options(ecc PRIVATE -fno-rtti)
+
 # 7. Link our targets and their dependencies
 llvm_map_components_to_libnames(llvm_libs
     core

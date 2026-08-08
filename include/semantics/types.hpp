@@ -92,24 +92,24 @@ class TypeHandle {
 public:
     static Optional<TypeHandle<Ty>> create(Ty *ptr);
 
-    /**
-    Express the TypeHandle as a pointer to a different type.
+    // /**
+    // Express the TypeHandle as a pointer to a different type.
 
-    If the internal TypeHandle cannot be dynamically cast to the requested type,
-    an empty optional is returned.
+    // If the internal TypeHandle cannot be dynamically cast to the requested type,
+    // an empty optional is returned.
 
-    @return The cast TypeHandle, nullopt if the cast failed.
-    */
-    template <typename Dst>
-        requires std::derived_from<Dst, Type>
-    Optional<TypeHandle<Dst>> as() noexcept {
-        Dst *targ = dynamic_cast<Dst *>(ptr);
-        if (!targ) {
-            return {};
-        }
+    // @return The cast TypeHandle, nullopt if the cast failed.
+    // */
+    // template <typename Dst>
+    //     requires std::derived_from<Dst, Type>
+    // Optional<TypeHandle<Dst>> as() noexcept {
+    //     Dst *targ = dyncast<Dst>(ptr);
+    //     if (!targ) {
+    //         return {};
+    //     }
 
-        return TypeHandle(targ, tyctxt);
-    }
+    //     return TypeHandle(targ, tyctxt);
+    // }
 
     template <typename Dst>
         requires std::derived_from<Dst, Type>
@@ -194,7 +194,15 @@ public:
 
     virtual bool is_derivedtype() { return false; }
 
-    virtual bool is_const() { return false; }
+    /**
+    `kind` is deliberately not a sufficient discriminant for RTTI purposes: `ConstType`
+    mirrors its base's `kind` (see `ConstType`'s doc comment) so that the non-virtual
+    `is_void()`/`is_pointer()`/etc. helpers see through const-qualification. `classof`
+    implementations across this hierarchy therefore gate on `!is_const()` in addition to
+    `kind`, so that e.g. `isa<PointerType>(x)` is false for a `ConstType` wrapping a
+    `PointerType`, matching what `dynamic_cast<PointerType *>(x)` would have given.
+    */
+    virtual bool is_const() const { return false; }
 
     /**
     Get the size of the type as reported by LLVM.
@@ -394,6 +402,22 @@ class BaseType : public Type {
 public:
     bool is_basetype() override { return true; }
 
+    static bool classof(const Type *node) {
+        if (node->is_const()) {
+            return false;
+        }
+        switch (node->kind) {
+        case Kind::VOID:
+        case Kind::PRIMITIVE:
+        case Kind::CLASS:
+        case Kind::UNION:
+        case Kind::ENUM:
+            return true;
+        default:
+            return false;
+        }
+    }
+
 protected:
     BaseType(Kind kind, TypeContext& tyctxt) : Type(kind, tyctxt) {}
 };
@@ -441,6 +465,20 @@ public:
     Location decl_loc;
     /** The location that the type was defined. */
     Location def_loc;
+
+    static bool classof(const Type *node) {
+        if (node->is_const()) {
+            return false;
+        }
+        switch (node->kind) {
+        case Kind::CLASS:
+        case Kind::UNION:
+        case Kind::ENUM:
+            return true;
+        default:
+            return false;
+        }
+    }
 
 protected:
     UserType(
@@ -663,6 +701,19 @@ public:
 
     bool is_recordtype() override { return true; }
 
+    static bool classof(const Type *node) {
+        if (node->is_const()) {
+            return false;
+        }
+        switch (node->kind) {
+        case Kind::CLASS:
+        case Kind::UNION:
+            return true;
+        default:
+            return false;
+        }
+    }
+
 protected:
     RecordType(
         Location decl_loc, Kind kind, uint64_t anon_id, TypeContext& tyctxt,
@@ -702,6 +753,20 @@ public:
     */
     virtual Type *decay() = 0;
 
+    static bool classof(const Type *node) {
+        if (node->is_const()) {
+            return false;
+        }
+        switch (node->kind) {
+        case Kind::POINTER:
+        case Kind::ARRAY:
+        case Kind::FUNCTION:
+            return true;
+        default:
+            return false;
+        }
+    }
+
 protected:
     DerivedType(Kind kind, TypeContext& tyctxt, Type *base) : Type(kind, tyctxt), base(base) {}
 };
@@ -731,7 +796,7 @@ public:
 
     bool is_derivedtype() override { return base->is_derivedtype(); }
 
-    bool is_const() override { return true; }
+    bool is_const() const override { return true; }
 
     size_t alloc_size() override;
 
@@ -796,6 +861,8 @@ public:
     /** Returns the formal name of the type. */
     std::string formal() override { return "const " + base->formal(); }
 
+    static bool classof(const Type *node) { return node->is_const(); }
+
 protected:
     friend class TypeContext;
 
@@ -820,6 +887,8 @@ public:
     std::string formal() override { return "Void"; }
 
     std::string to_string() const override { return "Void"; }
+
+    static bool classof(const Type *node) { return !node->is_const() && node->kind == Kind::VOID; }
 
 protected:
     friend class TypeContext;
@@ -904,6 +973,10 @@ public:
     std::string to_string() const override;
 
     std::string formal() override;
+
+    static bool classof(const Type *node) {
+        return !node->is_const() && node->kind == Kind::PRIMITIVE;
+    }
 
 protected:
     friend class TypeContext;
@@ -1023,6 +1096,8 @@ public:
 
     static std::string static_base() { return "class"; }
 
+    static bool classof(const Type *node) { return !node->is_const() && node->kind == Kind::CLASS; }
+
 protected:
     friend class TypeContext;
 
@@ -1131,6 +1206,8 @@ public:
 
     static std::string static_base() { return "union"; }
 
+    static bool classof(const Type *node) { return !node->is_const() && node->kind == Kind::UNION; }
+
 protected:
     friend class TypeContext;
 
@@ -1212,6 +1289,8 @@ public:
 
     static std::string static_base() { return "enum"; }
 
+    static bool classof(const Type *node) { return !node->is_const() && node->kind == Kind::ENUM; }
+
 protected:
     friend class TypeContext;
 
@@ -1276,6 +1355,10 @@ public:
 
     std::string formal() override;
 
+    static bool classof(const Type *node) {
+        return !node->is_const() && node->kind == Kind::POINTER;
+    }
+
 protected:
     friend class TypeContext;
     friend class TypeBuilder;
@@ -1334,6 +1417,8 @@ public:
     std::string to_string() const override;
 
     std::string formal() override;
+
+    static bool classof(const Type *node) { return !node->is_const() && node->kind == Kind::ARRAY; }
 
 protected:
     friend class TypeContext;
@@ -1468,6 +1553,10 @@ public:
     std::string formal() override;
 
     static std::string base() { return "function_"; }
+
+    static bool classof(const Type *node) {
+        return !node->is_const() && node->kind == Kind::FUNCTION;
+    }
 
 protected:
     friend class TypeContext;
