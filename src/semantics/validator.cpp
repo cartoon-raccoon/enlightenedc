@@ -416,8 +416,7 @@ void Validator::do_visit(CaseStmtMIR& node) { // done
 
     // guaranteed to be non-null since we already checked that we are in a switch node,
     // so if the dynamic cast fails, something went very wrong.
-    SwitchStmtMIR *parent =
-        dyncast<SwitchStmtMIR>(get_context(MIRNode::NodeKind::SWITCHSTMT_MIR));
+    SwitchStmtMIR *parent = dyncast<SwitchStmtMIR>(get_context(MIRNode::NodeKind::SWITCHSTMT_MIR));
 
     assert(parent && "could not get parent switch statement");
 
@@ -744,7 +743,8 @@ void Validator::do_visit(UnaryExprMIR& node) {
         if (!node.operand->eff_type->is_primitive() && !node.operand->eff_type->is_pointer()) {
             bsv_dbprint("error: inc/dec operand must be a primitive type or pointer");
             add_error<InvalidUnaryOpError>(
-                "operand must be a primitive type or pointer", node.op, node.operand->eff_type, node.loc);
+                "operand must be a primitive type or pointer", node.op, node.operand->eff_type,
+                node.loc);
             throw UnableToContinue();
         }
 
@@ -1281,8 +1281,8 @@ void Validator::do_visit(PostfixExprMIR& node) {
     if (!node.operand->eff_type->is_primitive() && !node.operand->eff_type->is_pointer()) {
         bsv_dbprint("error: postfix operand must be a primitive type or a pointer");
         add_error<InvalidPostfixExprError>(
-            "operand must be a primitive type or pointer",
-            node.op, node.operand->eff_type, node.loc);
+            "operand must be a primitive type or pointer", node.op, node.operand->eff_type,
+            node.loc);
         throw UnableToContinue();
     }
 

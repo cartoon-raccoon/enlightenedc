@@ -248,10 +248,9 @@ public:
 
 class FunctionLIR : public LIRNode {
 public:
-    FunctionLIR(Location loc, LIRFuncSym *func)
-        : LIRNode(loc, NodeKind::FUNC_LIR), lir(func) {}
+    FunctionLIR(Location loc, LIRFuncSym *func) : LIRNode(loc, NodeKind::FUNC_LIR), funcsym(func) {}
 
-    LIRFuncSym *lir;
+    LIRFuncSym *funcsym;
 
     Vec<Box<VarDeclLIR>> locals;
     Vec<Box<ProgItemLIR>> body;

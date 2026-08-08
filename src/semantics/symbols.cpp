@@ -309,7 +309,8 @@ FuncSymbol *SymbolTableWalker::insert(std::string& name, Box<FuncSymbol> sym) co
             }
             if (othertype == mytype) {
                 dbprint(
-                    "SymbolTable: existing symbol matches function signature, evaluating reconciliation");
+                    "SymbolTable: existing symbol matches function signature, evaluating "
+                    "reconciliation");
                 FuncSymbol *existfunc = existing->as_funcsym();
                 assert(existfunc);
                 if (!existfunc->has_body && sym->has_body) {
@@ -319,7 +320,7 @@ FuncSymbol *SymbolTableWalker::insert(std::string& name, Box<FuncSymbol> sym) co
                         goto exists;
                     }
 
-                    existfunc->has_body = true;
+                    existfunc->has_body   = true;
                     existfunc->parameters = std::move(sym->parameters);
 
                     return existfunc;

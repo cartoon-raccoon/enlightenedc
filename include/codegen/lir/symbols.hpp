@@ -69,15 +69,15 @@ Unlike the AST and MIR where multiple declarations (Function, FunctionMIR) can e
 FuncSymbol, declarations must collapse at the LIR level, that is, there must be only one FunctionLIR
 for every LIRFuncSym. To this end, each LIRFuncSym holds a back pointer to its corresponding
 FunctionLIR node. This way, the and LIRFuncSym and FunctionLIR node are created the first time the
-corresponding MIR node is encountered, and then reused for subsequent encounters of the same FunctionMIR
-node. LIRSymbolMap is keyed by FuncSymbol, so insertion is idempotent, i.e. the same LIRFuncSym
-(and thus the same FunctionLIR) is returned on subsequent insertion attempts.
+corresponding MIR node is encountered, and then reused for subsequent encounters of the same
+FunctionMIR node. LIRSymbolMap is keyed by FuncSymbol, so insertion is idempotent, i.e. the same
+LIRFuncSym (and thus the same FunctionLIR) is returned on subsequent insertion attempts.
 */
 class LIRFuncSym : public LIRSym {
 public:
     LIRFuncSym(std::string mangled, std::string name, Location loc, sema::sym::FuncSymbol *symbol)
         : LIRSym(LIRSymKind::FUNC, std::move(mangled), std::move(name), loc), symbol(symbol),
-        signature(symbol->signature) {}
+          signature(symbol->signature) {}
 
     sema::sym::FuncSymbol *symbol;
     sema::types::FunctionType *signature;

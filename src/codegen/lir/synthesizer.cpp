@@ -348,10 +348,10 @@ void LIRSynthesizer::do_visit(FunctionMIR& node) {
     } else {
         // back-pointer not set, so create a new FunctionLIR, set the back-pointer, and emit it
         Box<FunctionLIR> this_func = make_box<FunctionLIR>(node.loc, funcptr);
-        this_func_ptr = this_func.get();
+        this_func_ptr              = this_func.get();
 
         funcptr->lir = this_func_ptr;
-    
+
         emit(std::move(this_func));
     }
 
@@ -391,12 +391,8 @@ void LIRSynthesizer::do_visit(FunctionMIR& node) {
                     // Hoist any functions to the global queue.
                     functions.push_back(std::move(func));
                 },
-                [&](Box<VarDeclLIR>& decl) {
-                    this_func_ptr->locals.push_back(std::move(decl));
-                },
-                [&](Box<ProgItemLIR>& item) {
-                    this_func_ptr->body.push_back(std::move(item));
-                },
+                [&](Box<VarDeclLIR>& decl) { this_func_ptr->locals.push_back(std::move(decl)); },
+                [&](Box<ProgItemLIR>& item) { this_func_ptr->body.push_back(std::move(item)); },
             },
             item);
     }
