@@ -674,7 +674,7 @@ void Validator::do_visit(BinaryExprMIR& node) {
 
             switch (side) {
             case LEFT: {
-                //PointerType *left    = node.left->eff_type->as_pointer();
+                // PointerType *left    = node.left->eff_type->as_pointer();
                 PrimitiveType *right = node.right->eff_type->as_primitive();
 
                 if (!right->is_integer()) {
@@ -688,7 +688,7 @@ void Validator::do_visit(BinaryExprMIR& node) {
             }
             case RIGHT: {
                 PrimitiveType *left = node.left->eff_type->as_primitive();
-                //PointerType *right  = node.right->eff_type->as_pointer();
+                // PointerType *right  = node.right->eff_type->as_pointer();
 
                 if (!left->is_integer()) {
                     add_error<InvalidPointerArithmetic>(
