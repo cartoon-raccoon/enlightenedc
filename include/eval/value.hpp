@@ -93,6 +93,35 @@ public:
 
     static Value from_literal(bool lit) { return Value(lit); }
 
+    template <typename T>
+        requires VariantMember<T, ValueType>
+    static Value from_ptype(tokens::PrimType ptype, T value) {
+        switch (ptype) {
+        case tokens::PrimType::U8:
+            return Value(static_cast<uint8_t>(value));
+        case tokens::PrimType::U16:
+            return Value(static_cast<uint16_t>(value));
+        case tokens::PrimType::U32:
+            return Value(static_cast<uint32_t>(value));
+        case tokens::PrimType::U64:
+            return Value(static_cast<uint64_t>(value));
+        case tokens::PrimType::I8:
+            return Value(static_cast<int8_t>(value));
+        case tokens::PrimType::I16:
+            return Value(static_cast<int16_t>(value));
+        case tokens::PrimType::I32:
+            return Value(static_cast<int32_t>(value));
+        case tokens::PrimType::I64:
+            return Value(static_cast<int64_t>(value));
+        case tokens::PrimType::F32:
+            return Value(static_cast<float>(value));
+        case tokens::PrimType::F64:
+            return Value(static_cast<double>(value));
+        case tokens::PrimType::BOOL:
+            return Value(static_cast<bool>(value));
+        }
+    }
+
     Value& operator=(const Value& other) {
         inner = other.inner;
         ptype = other.ptype;
