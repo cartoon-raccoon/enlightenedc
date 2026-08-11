@@ -223,19 +223,33 @@ public:
     /**
      * Append an element to the end of the list.
      */
-    void push_back(const N& item) { emplace_back(item); }
+    N& push_back(const N& item) { return emplace_back(item); }
 
     /**
      * Append an element to the end of the list.
      */
-    void push_back(N&& item) { emplace_back(std::move(item)); }
+    N& push_back(N&& item) { return emplace_back(std::move(item)); }
+
+    /**
+    Append an already-owned node to the end of the list. Unlike the by-value overloads
+    above, this transfers `item` in as-is rather than move-constructing a fresh N from it -
+    the difference that matters when N is a polymorphic base, where moving by value would
+    slice a derived node down to N.
+    */
+    N& push_back(Box<N> item) { return link_back(std::move(item)); }
 
     /**
      * Prepend an element to the beginning of the list.
      */
-    void push_front(const N& item) { emplace_front(item); }
+    N& push_front(const N& item) { return emplace_front(item); }
 
-    void push_front(N&& item) { emplace_front(std::move(item)); }
+    N& push_front(N&& item) { return emplace_front(std::move(item)); }
+
+    /**
+    Prepend an already-owned node to the beginning of the list. See push_back(Box<N>) for
+    why this differs from the by-value overloads.
+    */
+    N& push_front(Box<N> item) { return link_front(std::move(item)); }
 
     /**
     Insert an element immediately before `succ`. O(1).
@@ -373,22 +387,35 @@ public:
     own neighbors, and ownership is released via a pointer-keyed lookup.
     */
     void remove(N& item) {
-        N *prev = item.prev_node;
-        N *next = item.next_node;
-
-        if (prev) {
-            prev->next_node = next;
-        } else {
-            first_elem = next;
-        }
-
-        if (next) {
-            next->prev_node = prev;
-        } else {
-            last_elem = prev;
-        }
-
+        unlink(item);
         nodes.erase(&item);
+    }
+
+    /**
+    Reposition `item`, already in this list, to immediately before `pos`. O(1). No-op if
+    `item` and `pos` are the same node.
+
+    Ownership is untouched - `item` stays in `nodes` under its own address - only the
+    prev/next links move.
+    */
+    void move_before(N& item, N& pos) {
+        if (&item == &pos) {
+            return;
+        }
+        unlink(item);
+        link_before_raw(item, pos);
+    }
+
+    /**
+    Reposition `item`, already in this list, to immediately after `pos`. O(1). No-op if
+    `item` and `pos` are the same node.
+    */
+    void move_after(N& item, N& pos) {
+        if (&item == &pos) {
+            return;
+        }
+        unlink(item);
+        link_after_raw(item, pos);
     }
 
     /**
@@ -517,39 +544,75 @@ private:
     }
 
     N& link_before(Box<N> item, N& pos) {
-        N *raw  = item.get();
-        N *prev = pos.prev_node;
-
-        item->next_node = &pos;
-        item->prev_node = prev;
-        pos.prev_node   = raw;
-
-        if (prev) {
-            prev->next_node = raw;
-        } else {
-            first_elem = raw;
-        }
-
+        N *raw = item.get();
+        link_before_raw(*raw, pos);
         adopt(std::move(item));
         return *raw;
     }
 
     N& link_after(Box<N> item, N& pos) {
-        N *raw  = item.get();
-        N *next = pos.next_node;
-
-        item->prev_node = &pos;
-        item->next_node = next;
-        pos.next_node   = raw;
-
-        if (next) {
-            next->prev_node = raw;
-        } else {
-            last_elem = raw;
-        }
-
+        N *raw = item.get();
+        link_after_raw(*raw, pos);
         adopt(std::move(item));
         return *raw;
+    }
+
+    /**
+    Splice `item` in immediately before `pos`. Purely a pointer relink - ownership is the
+    caller's problem, which is what lets move_before() reuse this on an already-owned node.
+    */
+    void link_before_raw(N& item, N& pos) {
+        N *prev = pos.prev_node;
+
+        item.next_node = &pos;
+        item.prev_node = prev;
+        pos.prev_node  = &item;
+
+        if (prev) {
+            prev->next_node = &item;
+        } else {
+            first_elem = &item;
+        }
+    }
+
+    /**
+    Splice `item` in immediately after `pos`. See link_before_raw().
+    */
+    void link_after_raw(N& item, N& pos) {
+        N *next = pos.next_node;
+
+        item.prev_node = &pos;
+        item.next_node = next;
+        pos.next_node  = &item;
+
+        if (next) {
+            next->prev_node = &item;
+        } else {
+            last_elem = &item;
+        }
+    }
+
+    /**
+    Pull `item` out of the list, patching its neighbors around the gap. Leaves `item`'s own
+    prev/next untouched by design: callers either overwrite them immediately (move_before(),
+    move_after()) or are about to drop the node entirely (remove()), so clearing them here
+    would be redundant work.
+    */
+    void unlink(N& item) {
+        N *prev = item.prev_node;
+        N *next = item.next_node;
+
+        if (prev) {
+            prev->next_node = next;
+        } else {
+            first_elem = next;
+        }
+
+        if (next) {
+            next->prev_node = prev;
+        } else {
+            last_elem = prev;
+        }
     }
 
     void insert(Box<N> item, size_t idx) {
