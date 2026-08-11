@@ -11,7 +11,7 @@ Do not prompt to update code if not explicitly asked to agentically edit a file.
 
 ## What This Is
 
-EnlightenedC (`ecc`) is an LLVM-powered compiler for HolyC, the language of TempleOS. It targets any architecture via LLVM and is intended to operate as both an AOT compiler and JIT REPL. The project is in active development — the MIR synthesis is largely complete, but LIR synthesis, full validation, and REPL are not yet implemented.
+EnlightenedC (`ecc`) is an LLVM-powered compiler for HolyC, the language of TempleOS. It targets any architecture via LLVM and is intended to operate as both an AOT compiler and JIT REPL. The project is in active development — MIR synthesis and validation are largely complete, LIR synthesis is nearing completion, but LLVM codegen and the REPL are not yet implemented.
 
 ## Build
 
@@ -81,7 +81,7 @@ The compiler is organized into a classic frontend/backend split, driven through 
 - `TypeContext` — interned type singletons for this TU
 - `ast::Program` — the parsed AST root
 - `TranslationUnitMIR` — MIR tree + SymbolTable
-- `TranslationUnitLIR` — LIR tree + LIR symbol map (stub)
+- `TranslationUnitLIR` — LIR tree + LIR symbol map
 
 ### Frontend
 
@@ -103,18 +103,29 @@ All AST nodes inherit from `ast::ASTNode` (`include/ast/ast.hpp`). The visitor p
 
 1. **MIR Synthesis** — `MIRSynthesizer` (`src/semantics/mir/synthesizer.cpp`) walks the AST as a `BaseASTSemaVisitor` and produces the MIR tree. This is the most complete backend stage.
 2. **Validation** — `Validator` (`src/semantics/validator.cpp`) walks the MIR checking types, control flow, lvalue rules, and expression validity. Substantially implemented; some checks (return type matching, parameter arity, promotion/widening casts) are still in progress.
-3. LIR synthesis and LLVM codegen are stubbed.
+3. **LIR Synthesis** — `LIRSynthesizer` (`src/lowering/lir/synthesizer.cpp`) walks the validated MIR and produces the LIR tree. Actively being built out, nearly complete.
+4. LLVM codegen (`LLVMSynthesizer`, `src/codegen/compiler.cpp`) is stubbed.
 
 The compilation pipeline can be stopped at any phase via `Config::StopAt` (PREPROCESS, PARSE, GEN_MIR, VALIDATE, GEN_LIR, COMPILE, ASSEMBLE, LINK).
 
 ### Intermediate Representations
 
-There are two IRs between AST and LLVM IR:
+There are three IRs between AST and LLVM IR:
 
 - **MIR** (Medium-level IR, `src/semantics/mir/`) — typed, scope-aware; a cleaned-up version of the AST used for semantic analysis. Passes: `constfold.cpp`.
-- **LIR** (Low-level IR, `src/codegen/lir/`) — closer to LLVM IR, not yet synthesized.
+- **LIR** (Low-level IR, `src/lowering/lir/`) — closer to LLVM IR; synthesized from validated MIR by `LIRSynthesizer`.
+- **CFG** (`src/lowering/cfg/`) — a control-flow graph IR, lowered from LIR; see [Lowering](#lowering).
 
-Both follow the same visitor pattern as the AST.
+MIR and LIR follow the same visitor pattern as the AST; CFG is a graph of basic blocks rather than a tree, so it doesn't.
+
+### Lowering
+
+`src/lowering/` and `include/lowering/` (namespace `ecc::lower`) hold two successive stages between MIR and LLVM codegen:
+
+- `lower::lir` — the LIR tree, printer, symbol map, and `LIRSynthesizer` (see above). Synthesized directly from validated MIR.
+- `lower::cfg` — a control-flow graph (`FunctionCFG`, `BasicBlock`, etc.) that is its own fully-fledged IR, lowered from LIR after LIR synthesis. LLVM IR generation is intended to be driven from the CFG, not directly from LIR — i.e. the intended pipeline is MIR → LIR → CFG → LLVM IR. CFG construction from LIR is under active development and not yet wired into `Backend::run()`.
+
+LLVM IR generation itself lives separately in `src/codegen/` (namespace `ecc::codegen`): `LLVMCore`/`LLVMUnit` (`codegen/llvm.hpp`) hold global/per-TU LLVM state, and `LLVMSynthesizer` (`codegen/compiler.hpp`) emits LLVM IR — currently stubbed (empty visitor overrides) and still walks the LIR tree directly; it is expected to be reworked to consume the CFG instead once CFG lowering is wired in.
 
 ### Type System
 
