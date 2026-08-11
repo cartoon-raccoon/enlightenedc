@@ -43,7 +43,7 @@ void BasicBlock::push_value(Box<Value> val) {
 }
 
 void BasicBlock::link_to(BasicBlock *target) {
-    successors.push_back(target);
+    succs.push_back(target);
     target->incoming.push_back(this);
 }
 
@@ -58,10 +58,11 @@ BasicBlock *FunctionCFG::initialize() {
         name = "__implicit_main";
     }
 
-    auto& entry    = blocks.emplace_back(name, this);
-    entry.is_entry = true;
+    auto& entry_blk    = blocks.emplace_back(name, this);
+    entry_blk.is_entry = true;
+    entry = &entry_blk;
 
-    return &entry;
+    return entry;
 }
 
 BasicBlock *FunctionCFG::create_block() {

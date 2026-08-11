@@ -585,6 +585,148 @@ protected:
 };
 
 /**
+An abstract class for iterating over the successors of a block.
+One concrete class is implemented for each terminator.
+*/
+class BasicBlockTermSuccIter {
+public:
+    virtual ~BasicBlockTermSuccIter() = default;
+
+    virtual BasicBlock *next() = 0;
+};
+
+class BasicBlockIfSuccIter : public BasicBlockTermSuccIter {
+    If *i;
+    
+    enum State : uint8_t {
+        TRUE,
+        FALSE,
+        DONE,
+    } state = TRUE;
+
+public:
+    BasicBlockIfSuccIter(If *i) : i(i) {}
+
+    BasicBlock *next() override {
+        BasicBlock *ret;
+        switch (state) {
+        case TRUE:
+            ret = i->then_br;
+            state = FALSE;
+            break;
+        case FALSE:
+            ret = i->else_br;
+            state = DONE;
+            break;
+        case DONE:
+            ret = nullptr;
+            break;
+        }
+
+        return ret;
+    }
+};
+
+class BasicBlockGotoSuccIter : public BasicBlockTermSuccIter {
+    Goto *g;
+    bool iterated = false;
+public:
+    BasicBlockGotoSuccIter(Goto *g) : g(g) {}
+
+    BasicBlock *next() override {
+        if (iterated) {
+            return nullptr;
+        } else {
+            iterated = true;
+            return g->target;
+        }
+    }
+};
+
+class BasicBlockSwitchSuccIter : public BasicBlockTermSuccIter {
+    Switch *sw;
+    size_t idx = 0;
+public:
+    BasicBlockSwitchSuccIter(Switch *sw) : sw(sw) {}
+
+    BasicBlock *next() override {
+        if (idx >= sw->num_cases()) {
+            return nullptr;
+        }
+        return sw->cases[idx++].blk;
+    }
+};
+
+class BasicBlockReturnSuccIter : public BasicBlockTermSuccIter {
+    Return *ret; // NOLINT
+public:
+    BasicBlockReturnSuccIter(Return *ret) : ret(ret) {}
+
+    BasicBlock *next() override {
+        return nullptr;
+    }
+};
+
+/**
+An iterator class that wraps a BasicBlockTermSuccIter. 
+*/
+class BasicBlockSuccIter {
+    BasicBlockTermSuccIter *iter = nullptr;
+    BasicBlock *curr = nullptr;
+public:
+    using difference_type = std::ptrdiff_t;
+    using value_type      = BasicBlock *;
+
+    BasicBlockSuccIter(BasicBlockTermSuccIter *iter)
+        : iter(iter), curr(iter->next()) {}
+
+    BasicBlockSuccIter() {}
+
+    BasicBlock *operator*() const {
+        return curr;
+    }
+
+    BasicBlockSuccIter& operator++() {
+        curr = iter->next();
+
+        return *this;
+    }
+
+    BasicBlockSuccIter operator++(int) {
+        BasicBlockSuccIter tmp = *this;
+        curr = iter->next();
+
+        return tmp;
+    }
+
+    bool operator==(const BasicBlockSuccIter& other) const { return curr == other.curr; }
+};
+
+class BasicBlockSuccessors {
+    Box<BasicBlockTermSuccIter> iter;
+public:
+    BasicBlockSuccessors(Terminator *term) {
+        if (isa<If>(term)) {
+            iter = std::make_unique<BasicBlockIfSuccIter>(term->as_if());
+        } else if (isa<Goto>(term)) {
+            iter = std::make_unique<BasicBlockGotoSuccIter>(term->as_goto());       
+        } else if (isa<Switch>(term)) {
+            iter = std::make_unique<BasicBlockSwitchSuccIter>(term->as_switch());
+        } else if (isa<Return>(term)) {
+            iter = std::make_unique<BasicBlockReturnSuccIter>(term->as_return());
+        }
+    }
+
+    BasicBlockSuccIter begin() {
+        return BasicBlockSuccIter(iter.get());
+    }
+
+    BasicBlockSuccIter end() {
+        return BasicBlockSuccIter();
+    }
+};
+
+/**
 The basic unit of the CFG.
 */
 class BasicBlock : public ds::LinkedListNode<BasicBlock> {
@@ -668,6 +810,27 @@ public:
     */
     void link_to(BasicBlock *target);
 
+    /**
+    Return the number of successors to this block
+    */
+    size_t num_successors() const {
+        return succs.size();
+    }
+
+    /**
+    Return the number of incoming blocks to this block.
+    */
+    size_t num_incoming() const {
+        return incoming.size();
+    }
+
+    /**
+    An iterator over the successor blocks to this block.
+    */
+    BasicBlockSuccessors successors() {
+        return BasicBlockSuccessors(term.get());
+    }
+
     Optional<std::string> label;
 
     /**
@@ -679,12 +842,12 @@ public:
     The blocks incoming to this block.
     */
     Vec<BasicBlock *> incoming;
+    
+private:
     /**
     The blocks going out from this block.
     */
-    Vec<BasicBlock *> successors;
-    
-private:
+    Vec<BasicBlock *> succs;
     Box<Terminator> term = nullptr;
     void push_instruction(Box<Instruction> inst) { instructions.push_back(std::move(inst)); }
 
@@ -706,6 +869,8 @@ public:
     Initialize the FunctionCFG, returning a pointer to the entry block.
     */
     BasicBlock *initialize();
+
+    BasicBlock *entry_block() { return entry; }
 
     /**
     Whether the FunctionCFG has been initialized.
@@ -757,6 +922,7 @@ public:
     auto end() { return blocks.end(); }
 
 private:
+    BasicBlock *entry = nullptr;
     ds::LinkedList<BasicBlock> blocks;
 
     HashMap<std::string, BasicBlock *> labeled_blocks;
