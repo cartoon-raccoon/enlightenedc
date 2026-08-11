@@ -74,7 +74,7 @@ public:
 /**
 A unit of execution in the CFG IR.
 */
-class Instruction : public Value {
+class Instruction : public Value, public ds::LinkedListNode<Instruction> {
 public:
     enum class InstKind : uint8_t {
         ALLOCA,
@@ -630,7 +630,7 @@ public:
     Inst *add_instruction(Args&&...args) {
         if constexpr (std::is_same_v<Inst, PhiInst>) {
             if (!instructions.empty() &&
-                instructions.back()->instkind != Instruction::InstKind::PHI) {
+                instructions.last().instkind != Instruction::InstKind::PHI) {
                 throw std::runtime_error("PhiInst must be the first instruction in a block");
             }
         }
@@ -654,6 +654,15 @@ public:
         return ret;
     }
 
+    Instruction *first_non_phi_inst() const {
+        Instruction *curr = &instructions.first();
+        while (!isa<PhiInst>(curr)) {
+            curr = curr->next();
+        }
+
+        return curr;
+    }
+
     /**
     Links `target` as a successor block to `this`.
     */
@@ -661,11 +670,19 @@ public:
 
     Optional<std::string> label;
 
-    Vec<BasicBlock *> incoming;
-    Vec<BasicBlock *> successors;
-    // The instructions that make up the block.
-    Vec<Box<Instruction>> instructions;
+    /**
+    The instructions that make up the block.
+    */
+    ds::LinkedList<Instruction> instructions;
 
+    /**
+    The blocks incoming to this block.
+    */
+    Vec<BasicBlock *> incoming;
+    /**
+    The blocks going out from this block.
+    */
+    Vec<BasicBlock *> successors;
     
 private:
     Box<Terminator> term = nullptr;

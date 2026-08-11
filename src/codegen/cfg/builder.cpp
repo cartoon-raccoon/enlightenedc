@@ -201,16 +201,22 @@ void CFGBuilder::visit(SwitchStmtLIR& node) {
         curr_blk = curr_func->create_block();
     }
     Value *control = eval(*node.condition);
-    /*
-    1. check if current block was terminated
-        a. if so, create a new block and set it as current
-    2. terminate current block with Switch, control as eval(node.condition)
-    3. push SwitchStmtInfo
-    4. 
-    */
+    
+    assert(!curr_blk->is_terminated());
+    Switch *swtch = curr_blk->terminate<Switch>(control);
+    SwitchStmtInfo *info = push_info<SwitchStmtInfo>(swtch)->as_switch();
+
     for (auto& item : node.body) {
         item->accept(*this);
     }
+
+    BasicBlock *merge = curr_func->create_block();
+
+    for (auto *g : info->pending_merges) {
+        g->set_target(merge);
+    }
+
+    pop_info();
 }
 
 #pragma clang diagnostic push
@@ -249,7 +255,14 @@ void CFGBuilder::visit(ContStmtLIR& node) {
 
     assert(loopinfo->step && "no loopinfo.step when visiting ContStmtLIR");
 
-    curr_blk->terminate<Goto>()->set_target(loopinfo->step);
+    // Try, in order, step, cond, and then body to link to
+    if (loopinfo->step) {
+        curr_blk->terminate<Goto>()->set_target(loopinfo->step);
+    } else if (loopinfo->cond) {
+        curr_blk->terminate<Goto>()->set_target(loopinfo->cond);
+    } else if (loopinfo->body) {
+        curr_blk->terminate<Goto>()->set_target(loopinfo->body);
+    }
 }
 
 #pragma clang diagnostic pop
@@ -311,12 +324,131 @@ void CFGBuilder::visit(IfStmtLIR& node) {
 }
 
 void CFGBuilder::visit(LoopStmtLIR& node) {
-    /*
-    1. check if current block is terminated
-       a. if so, create new block and set it as current
+    if (curr_blk->is_terminated()) {
+        curr_blk = curr_func->create_block();
+    }
+    auto *info = push_info<LoopStmtInfo>()->as_loop();
     
+    Goto *entry = curr_blk->terminate<Goto>();
+    BasicBlock *init_blk = nullptr;
+    BasicBlock *init_exit = nullptr;
+    
+    BasicBlock *cond_blk = nullptr;
+    BasicBlock *cond_exit = nullptr;
+    If *condition = nullptr;
+    
+    BasicBlock *body_blk = nullptr;
+    BasicBlock *body_exit = nullptr;
+    
+    BasicBlock *step_blk = nullptr;
+    BasicBlock *step_exit = nullptr;
 
-    */
+    // Create the blocks
+    
+    if (node.init) {
+        init_blk = curr_func->create_block();
+        
+        curr_blk = init_blk;
+        for (auto& item : *node.init) {
+            item->accept(*this);
+        }
+        init_exit = curr_blk;
+    }
+    
+    if (node.condition) {
+        cond_blk = curr_func->create_block();
+        info->cond = cond_blk;
+
+        curr_blk = cond_blk;
+        Value *cond = eval(**node.condition);
+        cond_exit = curr_blk;
+        condition = curr_blk->terminate<If>(cond);
+    }
+
+    if (condition) {
+        assert(cond_blk && cond_exit && "no cond blk with non-null condition");
+    }
+
+    body_blk = curr_func->create_block();
+    info->body = body_blk;
+    curr_blk = body_blk;
+    for (auto& item : node.body) {
+        item->accept(*this);
+    }
+    body_exit = curr_blk;
+
+    if (node.step) {
+        step_blk = curr_func->create_block();
+        info->step = step_blk;
+        curr_blk = step_blk;
+        for (auto& item : *node.step) {
+            item->accept(*this);
+        }
+        step_exit = curr_blk;
+    }
+
+    BasicBlock *merge = curr_func->create_block();
+
+    // Wire up the blocks
+
+    if (init_blk) {
+        // If there is an init block, set the entry target to that
+        entry->set_target(init_blk);
+        if (!init_exit->is_terminated()) {
+            init_exit->terminate<Goto>()->set_target(cond_blk ? cond_blk : body_blk);
+        }
+    } else if (node.is_dowhile || !cond_blk) {
+        // Else, if the loop is dowhile or there is no condition, set the entry
+        // directly to the body block
+        entry->set_target(body_blk);
+    } else {
+        // All other cases, set the entry to the condition block
+        entry->set_target(cond_blk);
+    }
+
+    if (node.is_dowhile) {
+        // If the loop is dowhile, the body always runs first; the condition
+        // (which always exists for do-while) then decides whether to loop back.
+        if (!body_exit->is_terminated()) {
+            body_exit->terminate<Goto>()->set_target(cond_blk);
+        }
+    } else {
+        // Every non-dowhile shape with a condition takes the same then-target:
+        // the body always runs next -- never the step.
+        if (condition) {
+            condition->set_then_target(body_blk);
+        }
+
+        // What runs after the body: recheck the condition if there is one,
+        // otherwise loop straight back to the body. Step, if present, always
+        // lands on this same target afterwards.
+        BasicBlock *backedge_target = cond_blk ? cond_blk : body_blk;
+
+        if (step_blk) {
+            if (!body_exit->is_terminated()) {
+                body_exit->terminate<Goto>()->set_target(step_blk);
+            }
+            if (!step_exit->is_terminated()) {
+                step_exit->terminate<Goto>()->set_target(backedge_target);
+            }
+        } else if (!body_exit->is_terminated()) {
+            body_exit->terminate<Goto>()->set_target(backedge_target);
+        }
+    }
+
+    // In all cases, if the condition fails, exit to the merge block;
+    // loops with no condition (`for(;;)`) can only be left via break/return/goto.
+    if (condition) {
+        condition->set_else_target(merge);
+    }
+
+    for (auto *g : info->pending_merges) {
+        g->set_target(merge);
+    }
+
+    pop_info();
+
+    curr_blk = merge;
 }
 
 void CFGBuilder::visit(ReturnStmtLIR& node) {

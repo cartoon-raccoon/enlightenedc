@@ -33,6 +33,7 @@ public:
     virtual ~NestedStmtInfo() = default;
 
     Kind kind;
+    // All gotos pending a set_target to a merge block.
     Vec<Goto *> pending_merges;
 
     bool is_switch() const { return kind == Kind::SWITCH; }
