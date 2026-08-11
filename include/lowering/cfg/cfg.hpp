@@ -8,15 +8,15 @@
 #include <stdexcept>
 #include <variant>
 
-#include "codegen/lir/lir.hpp"
-#include "codegen/lir/symbols.hpp"
+#include "lowering/lir/lir.hpp"
+#include "lowering/lir/symbols.hpp"
 #include "ds/linkedlist.hpp"
 #include "eval/value.hpp"
 #include "semantics/types.hpp"
 #include "tokens.hpp"
 #include "util.hpp"
 
-namespace ecc::codegen::cfg {
+namespace ecc::lower::cfg {
 
 using EvalValue = eval::Value;
 
@@ -796,6 +796,6 @@ private:
     Vec<Box<FuncRef>> funcrefs;
 };
 
-} // end namespace ecc::codegen::cfg
+} // end namespace ecc::lower::cfg
 
 #endif

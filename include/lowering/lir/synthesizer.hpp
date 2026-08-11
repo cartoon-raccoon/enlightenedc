@@ -7,8 +7,8 @@
 #include <stack>
 #include <variant>
 
-#include "codegen/lir/lir.hpp"
-#include "codegen/lir/symbols.hpp"
+#include "lowering/lir/lir.hpp"
+#include "lowering/lir/symbols.hpp"
 #include "semantics/mir/mir.hpp"
 #include "semantics/semantics.hpp"
 #include "semantics/symbols.hpp"
@@ -18,7 +18,7 @@
 using namespace ecc;
 using namespace util;
 
-namespace ecc::codegen::lir {
+namespace ecc::lower::lir {
 
 class LIRSynthesizer : public sema::BaseMIRSemaVisitor, public NoMove {
 public:
@@ -153,6 +153,6 @@ private:
     std::stack<LIRFuncSym *> func_stack;
 };
 
-} // namespace ecc::codegen::lir
+} // namespace ecc::lower::lir
 
 #endif

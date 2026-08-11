@@ -6,10 +6,10 @@
 #include <iostream>
 #include <string>
 
-#include "codegen/lir/lir.hpp"
-#include "codegen/lir/visitor.hpp"
+#include "lowering/lir/lir.hpp"
+#include "lowering/lir/visitor.hpp"
 
-namespace ecc::codegen::lir {
+namespace ecc::lower::lir {
 
 class LIRPrinter : public LIRVisitor {
 public:
@@ -59,6 +59,6 @@ public:
     void visit(PostfixExprLIR& node) override;
 };
 
-} // namespace ecc::codegen::lir
+} // namespace ecc::lower::lir
 
 #endif

@@ -1,9 +1,9 @@
 #include "driver/backend.hpp"
 
-#include "codegen/lir/lir.hpp"
-#include "codegen/lir/printer.hpp"
-#include "codegen/lir/symbols.hpp"
-#include "codegen/lir/synthesizer.hpp"
+#include "lowering/lir/lir.hpp"
+#include "lowering/lir/printer.hpp"
+#include "lowering/lir/symbols.hpp"
+#include "lowering/lir/synthesizer.hpp"
 #include "driver/driver.hpp"
 #include "ecc.hpp"
 #include "error.hpp"
@@ -20,7 +20,7 @@ using namespace ecc::sema;
 using namespace ecc::frontend;
 using namespace ecc::sema::sym;
 using namespace ecc::sema::types;
-using namespace ecc::codegen::lir;
+using namespace ecc::lower::lir;
 using namespace mir;
 
 void Backend::run(Ecc& ecc, driver::TranslationUnit& unit) {

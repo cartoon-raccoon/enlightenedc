@@ -1,9 +1,9 @@
-#include "codegen/lir/lir.hpp"
+#include "lowering/lir/lir.hpp"
 
-#include "codegen/lir/visitor.hpp"
+#include "lowering/lir/visitor.hpp"
 #include "util.hpp"
 
-using namespace codegen::lir;
+using namespace lower::lir;
 
 DO_ACCEPT(ProgramLIR, LIRVisitor);
 DO_ACCEPT(FunctionLIR, LIRVisitor);

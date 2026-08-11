@@ -82,6 +82,7 @@ file(GLOB_RECURSE PREPROC_SRC "${SRC_DIR}/preproc/*.cpp")
 file(GLOB_RECURSE DRIVER_SRC "${SRC_DIR}/driver/*.cpp")
 file(GLOB_RECURSE FRONTEND_SRC "${SRC_DIR}/frontend/*.cpp")
 file(GLOB_RECURSE SEMANTICS_SRC "${SRC_DIR}/semantics/*.cpp")
+file(GLOB_RECURSE LOWERING_SRC "${SRC_DIR}/lowering/*.cpp")
 file(GLOB_RECURSE CODEGEN_SRC "${SRC_DIR}/codegen/*.cpp")
 file(GLOB_RECURSE EVAL_SRC "${SRC_DIR}/eval/*.cpp")
 file(GLOB         ECC_SRC "${SRC_DIR}/*.cpp")
@@ -95,6 +96,7 @@ list(APPEND ALL_WRITTEN_FILES
     ${DRIVER_SRC} 
     ${FRONTEND_SRC}
     ${SEMANTICS_SRC}
+    ${LOWERING_SRC}
     ${CODEGEN_SRC}
     ${EVAL_SRC}
     ${ECC_SRC}

@@ -7,8 +7,8 @@
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 
-#include "codegen/lir/lir.hpp"
-#include "codegen/lir/visitor.hpp"
+#include "lowering/lir/lir.hpp"
+#include "lowering/lir/visitor.hpp"
 #include "codegen/llvm.hpp"
 #include "util.hpp"
 
@@ -20,12 +20,12 @@ namespace ecc::codegen {
 LLVM IR generation functionality.
 */
 
-class LLVMSynthesizer : public lir::LIRVisitor, public NoMove {
+class LLVMSynthesizer : public lower::lir::LIRVisitor, public NoMove {
     Ref<llvm::LLVMContext> ctxtref;
     Ref<llvm::Module> modref;
     Ref<llvm::IRBuilder<>> irbref;
 
-    Ref<lir::LIRSymbolMap> symsref;
+    Ref<lower::lir::LIRSymbolMap> symsref;
 
 protected:
     llvm::LLVMContext& ctxt() { return ctxtref; }
@@ -33,42 +33,42 @@ protected:
     llvm::IRBuilder<>& irb() { return irbref; }
 
 public:
-    LLVMSynthesizer(lir::LIRSymbolMap& syms, LLVMUnit& llvm);
+    LLVMSynthesizer(lower::lir::LIRSymbolMap& syms, LLVMUnit& llvm);
 
-    void compile(lir::ProgramLIR& prog);
+    void compile(lower::lir::ProgramLIR& prog);
 
     // Visitor method overrides
-    void visit(lir::ProgramLIR& node) override;
-    void visit(lir::FunctionLIR& node) override;
+    void visit(lower::lir::ProgramLIR& node) override;
+    void visit(lower::lir::FunctionLIR& node) override;
 
-    void visit(lir::VarDeclLIR& node) override;
+    void visit(lower::lir::VarDeclLIR& node) override;
 
-    void visit(lir::ExprStmtLIR& node) override;
-    void visit(lir::GotoStmtLIR& node) override;
-    void visit(lir::SwitchStmtLIR& node) override;
-    void visit(lir::BreakStmtLIR& node) override;
-    void visit(lir::ContStmtLIR& node) override;
-    void visit(lir::IfStmtLIR& node) override;
-    void visit(lir::CaseLIR& node) override;
-    void visit(lir::DefaultLIR& node) override;
-    void visit(lir::LoopStmtLIR& node) override;
-    void visit(lir::LabelDeclLIR& node) override;
-    void visit(lir::PrintStmtLIR& node) override;
-    void visit(lir::ReturnStmtLIR& node) override;
+    void visit(lower::lir::ExprStmtLIR& node) override;
+    void visit(lower::lir::GotoStmtLIR& node) override;
+    void visit(lower::lir::SwitchStmtLIR& node) override;
+    void visit(lower::lir::BreakStmtLIR& node) override;
+    void visit(lower::lir::ContStmtLIR& node) override;
+    void visit(lower::lir::IfStmtLIR& node) override;
+    void visit(lower::lir::CaseLIR& node) override;
+    void visit(lower::lir::DefaultLIR& node) override;
+    void visit(lower::lir::LoopStmtLIR& node) override;
+    void visit(lower::lir::LabelDeclLIR& node) override;
+    void visit(lower::lir::PrintStmtLIR& node) override;
+    void visit(lower::lir::ReturnStmtLIR& node) override;
 
-    void visit(lir::BinaryExprLIR& node) override;
-    void visit(lir::UnaryExprLIR& node) override;
-    void visit(lir::CastExprLIR& node) override;
-    void visit(lir::AssignExprLIR& node) override;
-    void visit(lir::CondExprLIR& node) override;
-    void visit(lir::IdentExprLIR& node) override;
-    void visit(lir::LiteralExprLIR& node) override;
-    void visit(lir::ZeroExprLIR& node) override;
-    void visit(lir::CallExprLIR& node) override;
-    void visit(lir::MemberAccExprLIR& node) override;
-    void visit(lir::ReintExprLIR& node) override;
-    void visit(lir::SubscrExprLIR& node) override;
-    void visit(lir::PostfixExprLIR& node) override;
+    void visit(lower::lir::BinaryExprLIR& node) override;
+    void visit(lower::lir::UnaryExprLIR& node) override;
+    void visit(lower::lir::CastExprLIR& node) override;
+    void visit(lower::lir::AssignExprLIR& node) override;
+    void visit(lower::lir::CondExprLIR& node) override;
+    void visit(lower::lir::IdentExprLIR& node) override;
+    void visit(lower::lir::LiteralExprLIR& node) override;
+    void visit(lower::lir::ZeroExprLIR& node) override;
+    void visit(lower::lir::CallExprLIR& node) override;
+    void visit(lower::lir::MemberAccExprLIR& node) override;
+    void visit(lower::lir::ReintExprLIR& node) override;
+    void visit(lower::lir::SubscrExprLIR& node) override;
+    void visit(lower::lir::PostfixExprLIR& node) override;
 };
 
 } // namespace ecc::codegen

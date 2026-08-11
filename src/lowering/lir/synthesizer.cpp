@@ -1,16 +1,16 @@
-#include "codegen/lir/synthesizer.hpp"
+#include "lowering/lir/synthesizer.hpp"
 
 #include <stdexcept>
 
-#include "codegen/lir/lir.hpp"
-#include "codegen/lir/symbols.hpp"
+#include "lowering/lir/lir.hpp"
+#include "lowering/lir/symbols.hpp"
 #include "semantics/mir/mir.hpp"
 #include "semantics/symbols.hpp"
 #include "semantics/types.hpp"
 #include "tokens.hpp"
 #include "util.hpp"
 
-using namespace codegen::lir;
+using namespace lower::lir;
 using namespace eval;
 using namespace sema::mir;
 using namespace sema::sym;

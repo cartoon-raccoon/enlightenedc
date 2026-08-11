@@ -1,10 +1,10 @@
-#include "codegen/cfg/cfg.hpp"
+#include "lowering/cfg/cfg.hpp"
 
-#include "codegen/lir/symbols.hpp"
+#include "lowering/lir/symbols.hpp"
 #include "util.hpp"
 
-using namespace codegen::cfg;
-using namespace codegen::lir;
+using namespace lower::cfg;
+using namespace lower::lir;
 
 void If::set_then_target(BasicBlock *blk) {
     then_br = blk;

@@ -1,9 +1,9 @@
-#include "codegen/lir/symbols.hpp"
+#include "lowering/lir/symbols.hpp"
 
 #include "semantics/symbols.hpp"
 
 using namespace sema::sym;
-using namespace codegen::lir;
+using namespace lower::lir;
 
 LIRVarSym *LIRFuncSym::insert(VarSymbol *sym, Box<LIRVarSym> var) {
     LIRVarSym *ret = var.get();

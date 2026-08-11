@@ -5,9 +5,9 @@
 #ifndef ECC_CFG_BUILDER_H
 #define ECC_CFG_BUILDER_H
 
-#include "codegen/cfg/cfg.hpp"
-#include "codegen/lir/lir.hpp"
-#include "codegen/lir/visitor.hpp"
+#include "lowering/cfg/cfg.hpp"
+#include "lowering/lir/lir.hpp"
+#include "lowering/lir/visitor.hpp"
 #include "util.hpp"
 
 using namespace ecc;
@@ -16,7 +16,7 @@ using namespace util;
 /*
 CFG generation functionality.
 */
-namespace ecc::codegen::cfg {
+namespace ecc::lower::cfg {
 
 class SwitchStmtInfo;
 class LoopStmtInfo;
@@ -142,6 +142,6 @@ private:
     MonotonicCtr<uint64_t> ctr = 1;
 };
 
-} // namespace ecc::codegen::cfg
+} // namespace ecc::lower::cfg
 
 #endif

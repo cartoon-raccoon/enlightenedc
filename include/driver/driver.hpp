@@ -7,8 +7,8 @@
 #include <string>
 
 #include "ast/ast.hpp"
-#include "codegen/lir/lir.hpp"
-#include "codegen/lir/symbols.hpp"
+#include "lowering/lir/lir.hpp"
+#include "lowering/lir/symbols.hpp"
 #include "codegen/llvm.hpp"
 #include "driver/backend.hpp"
 #include "frontend/frontend.hpp"
@@ -41,8 +41,8 @@ The part of the translation unit storing the LIR intermediate representation.
 struct TranslationUnitLIR {
     TranslationUnitLIR();
 
-    Box<codegen::lir::LIRSymbolMap> symbols;
-    Box<codegen::lir::ProgramLIR> lir;
+    Box<lower::lir::LIRSymbolMap> symbols;
+    Box<lower::lir::ProgramLIR> lir;
 };
 
 /**

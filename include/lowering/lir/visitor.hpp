@@ -3,9 +3,9 @@
 #ifndef ECC_LIR_VISITOR_H
 #define ECC_LIR_VISITOR_H
 
-#include "codegen/lir/lir.hpp"
+#include "lowering/lir/lir.hpp"
 
-namespace ecc::codegen::lir {
+namespace ecc::lower::lir {
 
 class LIRVisitor {
 public:
@@ -44,6 +44,6 @@ public:
     virtual void visit(PostfixExprLIR& node)   = 0;
 };
 
-} // namespace ecc::codegen::lir
+} // namespace ecc::lower::lir
 
 #endif

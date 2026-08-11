@@ -10,7 +10,7 @@
 using namespace ecc;
 using namespace util;
 
-namespace ecc::codegen::lir {
+namespace ecc::lower::lir {
 
 class LIRVarSym;
 class LIRFuncSym;
@@ -119,6 +119,6 @@ private:
     HashMap<sema::sym::VarSymbol *, Box<LIRVarSym>> globals;
 };
 
-} // namespace ecc::codegen::lir
+} // namespace ecc::lower::lir
 
 #endif

@@ -3,10 +3,10 @@
 #ifndef ECC_PROGITEM_LIR_ITER_H
 #define ECC_PROGITEM_LIR_ITER_H
 
-#include "codegen/lir/lir.hpp"
+#include "lowering/lir/lir.hpp"
 #include "util.hpp"
 
-namespace ecc::codegen::lir {
+namespace ecc::lower::lir {
 
 class ProgItemLIRStream {
 public:
@@ -21,6 +21,6 @@ private:
     ProgItemLIR *prog_item;
 };
 
-} // namespace ecc::codegen::lir
+} // namespace ecc::lower::lir
 
 #endif

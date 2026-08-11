@@ -2,8 +2,8 @@
 
 #include <memory>
 
-#include "codegen/lir/lir.hpp"
-#include "codegen/lir/symbols.hpp"
+#include "lowering/lir/lir.hpp"
+#include "lowering/lir/symbols.hpp"
 #include "semantics/symbols.hpp"
 #include "semantics/types.hpp"
 #include "util.hpp"
@@ -14,7 +14,7 @@ using namespace ecc::sema::mir;
 using namespace sema::types;
 using namespace sema::sym;
 using namespace ecc::codegen;
-using namespace codegen::lir;
+using namespace lower::lir;
 
 TranslationUnitMIR::TranslationUnitMIR()
     : symbols(make_box<SymbolTable>()), mir(make_box<ProgramMIR>()) {

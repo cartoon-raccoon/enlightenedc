@@ -6,7 +6,7 @@
 #include <cstddef>
 #include <string>
 
-#include "codegen/lir/symbols.hpp"
+#include "lowering/lir/symbols.hpp"
 #include "eval/value.hpp"
 #include "semantics/types.hpp"
 #include "tokens.hpp"
@@ -15,7 +15,7 @@
 using namespace ecc;
 using namespace util;
 
-namespace ecc::codegen::lir {
+namespace ecc::lower::lir {
 
 class LIRVisitor;
 class LabelLIR;
@@ -644,6 +644,6 @@ public:
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::PROG_LIR; }
 };
 
-} // namespace ecc::codegen::lir
+} // namespace ecc::lower::lir
 
 #endif

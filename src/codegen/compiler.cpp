@@ -1,11 +1,11 @@
 #include "codegen/compiler.hpp"
 
-#include "codegen/lir/lir.hpp"
+#include "lowering/lir/lir.hpp"
 
 using namespace ecc::codegen;
-using namespace ecc::codegen::lir;
+using namespace ecc::lower::lir;
 
-LLVMSynthesizer::LLVMSynthesizer(lir::LIRSymbolMap& syms, LLVMUnit& llvm)
+LLVMSynthesizer::LLVMSynthesizer(LIRSymbolMap& syms, LLVMUnit& llvm)
     : ctxtref(llvm.ctx()), modref(llvm.mod()), irbref(llvm.irb()), symsref(syms) {
 }
 

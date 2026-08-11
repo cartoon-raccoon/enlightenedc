@@ -1,13 +1,13 @@
-#include "codegen/lir/printer.hpp"
+#include "lowering/lir/printer.hpp"
 
 #include <variant>
 
-#include "codegen/lir/lir.hpp"
+#include "lowering/lir/lir.hpp"
 #include "eval/value.hpp"
 #include "semantics/types.hpp"
 #include "tokens.hpp"
 
-using namespace ecc::codegen::lir;
+using namespace ecc::lower::lir;
 using namespace ecc::sema::types;
 using namespace ecc::tokens;
 

@@ -1,13 +1,13 @@
-#include "codegen/cfg/builder.hpp"
+#include "lowering/cfg/builder.hpp"
 
 #include <stdexcept>
 
-#include "codegen/cfg/cfg.hpp"
-#include "codegen/lir/lir.hpp"
+#include "lowering/cfg/cfg.hpp"
+#include "lowering/lir/lir.hpp"
 #include "tokens.hpp"
 
-using namespace codegen::lir;
-using namespace codegen::cfg;
+using namespace lower::lir;
+using namespace lower::cfg;
 using namespace tokens;
 
 void CFGBuilder::build_cfg(lir::ProgramLIR& prog) {
@@ -201,7 +201,7 @@ void CFGBuilder::visit(SwitchStmtLIR& node) {
         curr_blk = curr_func->create_block();
     }
     Value *control = eval(*node.condition);
-    
+
     assert(!curr_blk->is_terminated());
     Switch *swtch = curr_blk->terminate<Switch>(control);
     SwitchStmtInfo *info = push_info<SwitchStmtInfo>(swtch)->as_switch();
