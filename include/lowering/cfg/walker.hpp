@@ -3,6 +3,10 @@
 #ifndef ECC_CFG_WALKERS_H
 #define ECC_CFG_WALKERS_H
 
+#include <concepts>
+#include <span>
+#include <utility>
+
 #include "lowering/cfg/cfg.hpp"
 #include "util.hpp"
 
@@ -10,41 +14,132 @@ using namespace ecc::util;
 
 namespace ecc::lower::cfg {
 
+class CFGWalkerBlocks;
+
 /**
+A CFG walker that traverses a Control-Flow Graph using DFS.
 */
 class CFGWalker {
 public:
     virtual ~CFGWalker() = default;
 
-    void walk_function(lower::cfg::FunctionCFG& function);
-
-    void visit_block(lower::cfg::BasicBlock *blk);
-
-    virtual void pre_visit(lower::cfg::BasicBlock *blk) {}; // NOLINT
-
-    virtual void post_visit(lower::cfg::BasicBlock *blk) {}; // NOLINT
+    void walk_function(FunctionCFG& function);
 
     /**
-    The actual block visit by the consumer.
+    The actual block visit in the order specified by the subclass.
 
-    For preorder and postorder, this can be called while still traversing the graph;
-    for reverse postorder, this is called when iterating over the accumulated blocks.
+    This function returns an iterator that yields the blocks in the order
+    specified by the subclass. For example, PostorderCFGWalker returns an
+    iterator that returns blocks postorder.
     */
-    virtual void on_block(lower::cfg::BasicBlock *blk) = 0;
+    virtual CFGWalkerBlocks blocks() = 0;
     
 protected:
-    HashSet<lower::cfg::BasicBlock *> visited;
+    void visit_block(BasicBlock *blk);
+
+    virtual void pre_visit(BasicBlock *blk) {}; // NOLINT
+
+    virtual void post_visit(BasicBlock *blk) {}; // NOLINT
+    
+    HashSet<BasicBlock *> visited;
+};
+
+/**
+The next()-style iterator that drives CFGBlocksIter.
+*/
+class CFGWalkerBlocksInner : public NextIterator<BasicBlock *> {};
+
+class VecCFGWalkerBlocksInner : public CFGWalkerBlocksInner {
+    std::span<BasicBlock * const> blocks;
+    size_t idx;
+    bool reverse;
+public:
+    VecCFGWalkerBlocksInner(std::span<BasicBlock *const> blocks, bool reverse)
+        : blocks(blocks), idx(reverse ? blocks.size() : 0), reverse(reverse) {}
+
+    BasicBlock *next() override;
+};
+
+/**
+The iterator over basic blocks.
+*/
+class CFGBlocksIter {
+    CFGWalkerBlocksInner *inner = nullptr;
+    BasicBlock *curr = nullptr;
+public:
+    using difference_type = std::ptrdiff_t;
+    using value_type      = BasicBlock *;
+    
+    CFGBlocksIter(CFGWalkerBlocksInner *inner)
+        : inner(inner), curr(inner->next()) {}
+
+    CFGBlocksIter() {}
+
+    BasicBlock *operator*() const {
+        return curr;
+    }
+
+    CFGBlocksIter& operator++() {
+        curr = inner->next();
+
+        return *this;
+    }
+
+    CFGBlocksIter operator++(int) {
+        CFGBlocksIter tmp = *this;
+        curr = inner->next();
+
+        return tmp;
+    }
+
+    bool operator==(const CFGBlocksIter& other) const { return curr == other.curr; }
+};
+
+/**
+
+*/
+class CFGWalkerBlocks {
+    Box<CFGWalkerBlocksInner> inner;
+
+    CFGWalkerBlocks(Box<CFGWalkerBlocksInner> inner) : inner(std::move(inner)) {}
+
+public:
+    template <typename Iter, typename... Args>
+        requires std::derived_from<Iter, CFGWalkerBlocksInner>
+    static CFGWalkerBlocks make(Args&&... args) {
+        return CFGWalkerBlocks(std::make_unique<Iter>(std::forward<Args>(args)...));
+    }
+
+    CFGBlocksIter begin() {
+        return CFGBlocksIter(inner.get());
+    }
+
+    CFGBlocksIter end() {
+        return CFGBlocksIter();
+    }
 };
 
 class PreorderCFGWalker : public CFGWalker {
 public:
+    CFGWalkerBlocks blocks() override {
+        return CFGWalkerBlocks::make<VecCFGWalkerBlocksInner>(preorder, false);
+    }
+protected:
+    void pre_visit(BasicBlock *blk) override {
+        preorder.push_back(blk);
+    }
+
+    Vec<BasicBlock *> preorder;
 };
 
 class PostorderCFGWalker : public CFGWalker {
+public:
 
+protected:
+    Vec<BasicBlock *> postorder;
 };
 
-class RevPostorderCFGWalker : public CFGWalker {
+class RevPostorderCFGWalker : public PostorderCFGWalker {
 public:
 };
 

@@ -1,10 +1,30 @@
 #include "lowering/cfg/cfg.hpp"
 
+#include "lowering/cfg/visitor.hpp"
 #include "lowering/lir/symbols.hpp"
 #include "util.hpp"
 
 using namespace lower::cfg;
 using namespace lower::lir;
+
+DO_ACCEPT(AllocaInst, CFGValueVisitor);
+DO_ACCEPT(LoadInst, CFGValueVisitor);
+DO_ACCEPT(StoreInst, CFGValueVisitor);
+DO_ACCEPT(PhiInst, CFGValueVisitor);
+DO_ACCEPT(PrintInst, CFGValueVisitor);
+DO_ACCEPT(BinaryInst, CFGValueVisitor);
+DO_ACCEPT(UnaryInst, CFGValueVisitor);
+DO_ACCEPT(IncrInst, CFGValueVisitor);
+DO_ACCEPT(DecrInst, CFGValueVisitor);
+DO_ACCEPT(CastInst, CFGValueVisitor);
+DO_ACCEPT(ReintInst, CFGValueVisitor);
+DO_ACCEPT(MemberAccInst, CFGValueVisitor);
+DO_ACCEPT(SubscrInst, CFGValueVisitor);
+DO_ACCEPT(CallInst, CFGValueVisitor);
+
+DO_ACCEPT(FuncRef, CFGValueVisitor);
+DO_ACCEPT(Literal, CFGValueVisitor);
+DO_ACCEPT(Zero, CFGValueVisitor);
 
 void If::set_then_target(BasicBlock *blk) {
     then_br = blk;
@@ -45,6 +65,41 @@ void BasicBlock::push_value(Box<Value> val) {
 void BasicBlock::link_to(BasicBlock *target) {
     succs.push_back(target);
     target->incoming.push_back(this);
+}
+
+BasicBlock *BasicBlockIfSuccIter::next() {
+    BasicBlock *ret;
+        switch (state) {
+        case TRUE:
+            ret = i->then_br;
+            state = FALSE;
+            break;
+        case FALSE:
+            ret = i->else_br;
+            state = DONE;
+            break;
+        case DONE:
+            ret = nullptr;
+            break;
+        }
+
+        return ret;
+}
+
+BasicBlock *BasicBlockGotoSuccIter::next() {
+    if (iterated) {
+            return nullptr;
+        } else {
+            iterated = true;
+            return g->target;
+        }
+}
+
+BasicBlock *BasicBlockSwitchSuccIter::next() {
+    if (idx >= sw->num_cases()) {
+            return nullptr;
+        }
+        return sw->cases[idx++].blk;
 }
 
 BasicBlock *FunctionCFG::initialize() {

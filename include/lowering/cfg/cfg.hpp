@@ -36,6 +36,8 @@ class Switch;
 
 class FunctionCFG;
 
+class CFGValueVisitor;
+
 /**
 A CFG value.
 */
@@ -69,6 +71,8 @@ public:
     virtual FuncRef *as_funcref() { return nullptr; }
     virtual Literal *as_literal() { return nullptr; }
     virtual Zero *as_zero() { return nullptr; }
+
+    virtual void accept(CFGValueVisitor& visitor) = 0;
 };
 
 /**
@@ -127,6 +131,8 @@ public:
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::ALLOCA;
     }
+
+    void accept(CFGValueVisitor& visitor) override;
 };
 
 class LoadInst : public Instruction {
@@ -143,6 +149,8 @@ public:
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::LOAD;
     }
+
+    void accept(CFGValueVisitor& visitor) override;
 };
 
 class StoreInst : public Instruction {
@@ -163,6 +171,8 @@ public:
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::STORE;
     }
+
+    void accept(CFGValueVisitor& visitor) override;
 };
 
 /**
@@ -184,6 +194,8 @@ public:
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::PHI;
     }
+
+    void accept(CFGValueVisitor& visitor) override;
 };
 
 class PrintInst : public Instruction {
@@ -211,6 +223,8 @@ public:
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::PRINT;
     }
+
+    void accept(CFGValueVisitor& visitor) override;
 };
 
 class BinaryInst : public Instruction {
@@ -231,6 +245,8 @@ public:
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::BINARY;
     }
+
+    void accept(CFGValueVisitor& visitor) override;
 };
 
 class UnaryInst : public Instruction {
@@ -250,6 +266,8 @@ public:
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::UNARY;
     }
+
+    void accept(CFGValueVisitor& visitor) override;
 };
 
 class IncrInst : public Instruction {
@@ -266,6 +284,8 @@ public:
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::INC;
     }
+
+    void accept(CFGValueVisitor& visitor) override;
 };
 
 class DecrInst : public Instruction {
@@ -282,6 +302,8 @@ public:
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::DEC;
     }
+
+    void accept(CFGValueVisitor& visitor) override;
 };
 
 class CastInst : public Instruction {
@@ -301,6 +323,8 @@ public:
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::CAST;
     }
+
+    void accept(CFGValueVisitor& visitor) override;
 };
 
 class ReintInst : public Instruction {
@@ -320,6 +344,8 @@ public:
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::REINT;
     }
+
+    void accept(CFGValueVisitor& visitor) override;
 };
 
 class MemberAccInst : public Instruction {
@@ -340,6 +366,8 @@ public:
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::MEMBERACC;
     }
+
+    void accept(CFGValueVisitor& visitor) override;
 };
 
 class SubscrInst : public Instruction {
@@ -358,6 +386,8 @@ public:
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::SUBSCR;
     }
+
+    void accept(CFGValueVisitor& visitor) override;
 };
 
 class CallInst : public Instruction {
@@ -378,6 +408,8 @@ public:
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::CALL;
     }
+
+    void accept(CFGValueVisitor& visitor) override;
 };
 
 /**
@@ -396,6 +428,8 @@ public:
     FuncRef *as_funcref() override { return this; }
 
     static bool classof(const Value *node) { return node->valkind == ValueKind::FUNC; }
+
+    void accept(CFGValueVisitor& visitor) override;
 };
 
 class Literal : public Value {
@@ -420,6 +454,8 @@ public:
     Literal *as_literal() override { return this; }
 
     static bool classof(const Value *node) { return node->valkind == ValueKind::LIT; }
+
+    void accept(CFGValueVisitor& visitor) override;
 };
 
 class Zero : public Value {
@@ -429,6 +465,8 @@ public:
     Zero *as_zero() override { return this; }
 
     static bool classof(const Value *node) { return node->valkind == ValueKind::ZERO; }
+
+    void accept(CFGValueVisitor& visitor) override;
 };
 
 /**
@@ -588,12 +626,7 @@ protected:
 An abstract class for iterating over the successors of a block.
 One concrete class is implemented for each terminator.
 */
-class BasicBlockTermSuccIter {
-public:
-    virtual ~BasicBlockTermSuccIter() = default;
-
-    virtual BasicBlock *next() = 0;
-};
+class BasicBlockTermSuccIter : public NextIterator<BasicBlock *> {};
 
 class BasicBlockIfSuccIter : public BasicBlockTermSuccIter {
     If *i;
@@ -607,24 +640,7 @@ class BasicBlockIfSuccIter : public BasicBlockTermSuccIter {
 public:
     BasicBlockIfSuccIter(If *i) : i(i) {}
 
-    BasicBlock *next() override {
-        BasicBlock *ret;
-        switch (state) {
-        case TRUE:
-            ret = i->then_br;
-            state = FALSE;
-            break;
-        case FALSE:
-            ret = i->else_br;
-            state = DONE;
-            break;
-        case DONE:
-            ret = nullptr;
-            break;
-        }
-
-        return ret;
-    }
+    BasicBlock *next() override;
 };
 
 class BasicBlockGotoSuccIter : public BasicBlockTermSuccIter {
@@ -633,14 +649,7 @@ class BasicBlockGotoSuccIter : public BasicBlockTermSuccIter {
 public:
     BasicBlockGotoSuccIter(Goto *g) : g(g) {}
 
-    BasicBlock *next() override {
-        if (iterated) {
-            return nullptr;
-        } else {
-            iterated = true;
-            return g->target;
-        }
-    }
+    BasicBlock *next() override;
 };
 
 class BasicBlockSwitchSuccIter : public BasicBlockTermSuccIter {
@@ -649,12 +658,7 @@ class BasicBlockSwitchSuccIter : public BasicBlockTermSuccIter {
 public:
     BasicBlockSwitchSuccIter(Switch *sw) : sw(sw) {}
 
-    BasicBlock *next() override {
-        if (idx >= sw->num_cases()) {
-            return nullptr;
-        }
-        return sw->cases[idx++].blk;
-    }
+    BasicBlock *next() override;
 };
 
 class BasicBlockReturnSuccIter : public BasicBlockTermSuccIter {

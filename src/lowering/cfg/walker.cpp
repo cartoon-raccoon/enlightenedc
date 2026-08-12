@@ -10,13 +10,37 @@ void CFGWalker::walk_function(FunctionCFG& function) {
     visit_block(starting);
 }
 
-void CFGWalker::visit_block(BasicBlock *blk) {
-    visited.insert(blk);
-
-    pre_visit(blk);
-    for (auto *succ : blk->successors()) {
-        if (!visited.contains(succ))
-        visit_block(succ);
+BasicBlock *VecCFGWalkerBlocksInner::next() {
+    if (reverse) {
+        return idx == 0 ? nullptr : blocks[--idx];
+    } else {
+        return idx >= blocks.size() ? nullptr : blocks[idx++];
     }
-    post_visit(blk);
+}
+
+void CFGWalker::visit_block(BasicBlock *blk) {
+    Vec<BasicBlock *> chain;
+
+    while (!visited.contains(blk)) {
+        visited.insert(blk);
+        pre_visit(blk);
+        chain.push_back(blk);
+
+        size_t n = blk->num_successors();
+        if (n == 0) {
+            break;
+        }
+        if (n > 1) {
+            for (BasicBlock *succ : blk->successors()) {
+                if (!visited.contains(succ)) visit_block(succ);
+            }
+            break;
+        }
+
+        blk = *blk->successors().begin();
+    }
+
+    for (auto it = chain.rbegin(); it != chain.rend(); ++it) {
+        post_visit(*it);
+    }
 }

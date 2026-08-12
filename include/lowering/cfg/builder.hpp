@@ -1,9 +1,10 @@
 #pragma once
 
-#include <concepts>
-#include <utility>
 #ifndef ECC_CFG_BUILDER_H
 #define ECC_CFG_BUILDER_H
+
+#include <concepts>
+#include <utility>
 
 #include "lowering/cfg/cfg.hpp"
 #include "lowering/lir/lir.hpp"
