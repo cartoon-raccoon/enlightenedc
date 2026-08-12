@@ -936,6 +936,11 @@ void Validator::do_visit(AssignExprMIR& node) {
                 }
                 node.right = cast(node.left->eff_type, std::move(node.right));
             }
+        } else {
+            // Types differ but are coercible (e.g. widening an I32 literal into an I64 lvalue) --
+            // cast the right-hand side to match the left-hand side's type, same as elsewhere
+            // (see eval_initializer_expr, do_visit(BinaryExprMIR), do_visit(CondExprMIR)).
+            node.right = cast(node.left->eff_type, std::move(node.right));
         }
     }
 
