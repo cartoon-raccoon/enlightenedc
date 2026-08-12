@@ -283,6 +283,8 @@ void LIRSynthesizer::unfold_initializer_rec_cls(
 }
 
 void LIRSynthesizer::do_visit(ProgramMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting ProgramMIR node");
+
     for (auto& item : node.items) {
         item->accept(*this);
     }
@@ -332,6 +334,7 @@ Box<ExprLIR> LIRSynthesizer::clone_lvalue(ExprLIR *expr) {
 }
 
 void LIRSynthesizer::do_visit(FunctionMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting FunctionMIR node");
 
     FuncSymbol *sym     = node.sym;
     std::string mangled = sym->mangle();
@@ -409,17 +412,23 @@ void LIRSynthesizer::do_visit(FunctionMIR& node) {
 #pragma clang diagnostic ignored "-Wunused-parameter"
 
 void LIRSynthesizer::do_visit(InitializerMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting InitializerMIR node");
+
     // we provide our own initializer unfolder
     throw std::runtime_error("called LIRSynthesizer::do_visit on InitializerMIR");
 }
 
 void LIRSynthesizer::do_visit(TypeDeclMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting TypeDeclMIR node");
+
     // do nothing
 }
 
 #pragma clang diagnostic pop
 
 void LIRSynthesizer::do_visit(VarDeclMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting VarDeclMIR node");
+
     for (auto& decl : node.decls) {
         // grab our names
         std::string mangled = decl.sym->mangle();
@@ -443,6 +452,8 @@ void LIRSynthesizer::do_visit(VarDeclMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(CompoundStmtMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting CompoundStmtMIR node");
+
     for (auto& item : node.items) {
         // emit each item into the current queue
         item->accept(*this);
@@ -450,6 +461,8 @@ void LIRSynthesizer::do_visit(CompoundStmtMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(ExprStmtMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting ExprStmtMIR node");
+
     if (node.expr) {
         (*node.expr)->accept(*this);
         Box<ExprLIR> expr = std::move(last_expr);
@@ -461,6 +474,8 @@ void LIRSynthesizer::do_visit(ExprStmtMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(SwitchStmtMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting SwitchStmtMIR node");
+
     push_queue();
 
     node.control_val->accept(*this);
@@ -508,6 +523,7 @@ void LIRSynthesizer::do_visit(SwitchStmtMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(CaseStmtMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting CaseStmtMIR node");
 
     Box<ProgItemLIR> caselab = std::make_unique<CaseLIR>(node.loc, node.case_val);
     emit(std::move(caselab));
@@ -516,6 +532,7 @@ void LIRSynthesizer::do_visit(CaseStmtMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(CaseRangeStmtMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting CaseRangeStmtMIR node");
 
     ValueRange vrange(node.case_start, node.case_end);
 
@@ -528,6 +545,8 @@ void LIRSynthesizer::do_visit(CaseRangeStmtMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(DefaultStmtMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting DefaultStmtMIR node");
+
     Box<ProgItemLIR> def_label = std::make_unique<DefaultLIR>(node.loc);
     emit(std::move(def_label));
 
@@ -535,6 +554,8 @@ void LIRSynthesizer::do_visit(DefaultStmtMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(LabeledStmtMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting LabeledStmtMIR node");
+
     push_queue();
 
     std::string mangled = node.label->mangle();
@@ -590,6 +611,8 @@ void LIRSynthesizer::do_visit(LabeledStmtMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(PrintStmtMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting PrintStmtMIR node");
+
     Vec<Box<ExprLIR>> args{};
 
     for (auto& arg : node.arguments) {
@@ -604,6 +627,8 @@ void LIRSynthesizer::do_visit(PrintStmtMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(IfStmtMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting IfStmtMIR node");
+
     push_queue();
 
     node.condition->accept(*this);
@@ -677,6 +702,8 @@ void LIRSynthesizer::do_visit(IfStmtMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(LoopStmtMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting LoopStmtMIR node");
+
     push_queue();
 
     Box<LoopStmtLIR> loop = std::make_unique<LoopStmtLIR>(node.loc);
@@ -777,6 +804,8 @@ void LIRSynthesizer::do_visit(LoopStmtMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(GotoStmtMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting GotoStmtMIR node");
+
     if (!node.target_sym) {
         // todo: throw exception: unresolved target
     }
@@ -789,18 +818,24 @@ void LIRSynthesizer::do_visit(GotoStmtMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(BreakStmtMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting BreakStmtMIR node");
+
     Box<StmtLIR> breakstmt = std::make_unique<BreakStmtLIR>(node.loc);
 
     emit(std::move(breakstmt));
 }
 
 void LIRSynthesizer::do_visit(ContStmtMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting ContStmtMIR node");
+
     Box<StmtLIR> contstmt = std::make_unique<ContStmtLIR>(node.loc);
 
     emit(std::move(contstmt));
 }
 
 void LIRSynthesizer::do_visit(ReturnStmtMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting ReturnStmtMIR node");
+
     if (node.ret_expr) {
         (*node.ret_expr)->accept(*this);
         Box<ExprLIR> ret_val = std::move(last_expr);
@@ -815,6 +850,8 @@ void LIRSynthesizer::do_visit(ReturnStmtMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(BinaryExprMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting BinaryExprMIR node");
+
     node.left->accept(*this);
     Box<ExprLIR> left = std::move(last_expr);
     node.right->accept(*this);
@@ -827,6 +864,8 @@ void LIRSynthesizer::do_visit(BinaryExprMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(UnaryExprMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting UnaryExprMIR node");
+
     node.operand->accept(*this);
     Box<ExprLIR> operand = std::move(last_expr);
 
@@ -837,6 +876,8 @@ void LIRSynthesizer::do_visit(UnaryExprMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(CastExprMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting CastExprMIR node");
+
     node.inner->accept(*this);
 
     Box<ExprLIR> inner = std::move(last_expr);
@@ -848,6 +889,8 @@ void LIRSynthesizer::do_visit(CastExprMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(AssignExprMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting AssignExprMIR node");
+
     node.left->accept(*this);
 
     Box<ExprLIR> left = std::move(last_expr);
@@ -863,6 +906,8 @@ void LIRSynthesizer::do_visit(AssignExprMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(CondExprMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting CondExprMIR node");
+
     node.condition->accept(*this);
     Box<ExprLIR> condition = std::move(last_expr);
     node.true_expr->accept(*this);
@@ -877,7 +922,7 @@ void LIRSynthesizer::do_visit(CondExprMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(IdentExprMIR& node) {
-    bsv_dbprint(node.loc);
+    bsv_dbprint("LIRSynthesizer: visiting IdentExprMIR node");
 
     // Symbolic constants (e.g. enum enumerators) carry a compile-time value and have no
     // physical storage backing them, so they never go through a VarDeclMIR and never end up
@@ -898,12 +943,16 @@ void LIRSynthesizer::do_visit(IdentExprMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(LiteralExprMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting LiteralExprMIR node");
+
     Box<ExprLIR> litexpr = std::make_unique<LiteralExprLIR>(node.loc, node.value, node.act_type);
 
     last_expr = std::move(litexpr);
 }
 
 void LIRSynthesizer::do_visit(CallExprMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting CallExprMIR node");
+
     node.callee->accept(*this);
     Box<ExprLIR> callee = std::move(last_expr);
 
@@ -921,6 +970,8 @@ void LIRSynthesizer::do_visit(CallExprMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(MemberAccExprMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting MemberAccExprMIR node");
+
     // Desugar into a member index instead of by name
     // Account for anonymous member accesses
     // If arrow, desugar into a deref expression
@@ -972,6 +1023,8 @@ void LIRSynthesizer::do_visit(MemberAccExprMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(ReintExprMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting ReintExprMIR node");
+
     node.object->accept(*this);
     Box<ExprLIR> object = std::move(last_expr);
 
@@ -989,6 +1042,8 @@ void LIRSynthesizer::do_visit(ReintExprMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(SubscrExprMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting SubscrExprMIR node");
+
     node.array->accept(*this);
     Box<ExprLIR> array = std::move(last_expr);
 
@@ -1002,6 +1057,8 @@ void LIRSynthesizer::do_visit(SubscrExprMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(PostfixExprMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting PostfixExprMIR node");
+
     node.operand->accept(*this);
     Box<ExprLIR> operand = std::move(last_expr);
 
@@ -1012,6 +1069,8 @@ void LIRSynthesizer::do_visit(PostfixExprMIR& node) {
 }
 
 void LIRSynthesizer::do_visit(SizeofExprMIR& node) {
+    bsv_dbprint("LIRSynthesizer: visiting SizeofExprMIR node");
+
     size_t size = std::visit(
         match{
             [](Box<ExprMIR>& expr) mutable { return expr->act_type->alloc_size(); },
