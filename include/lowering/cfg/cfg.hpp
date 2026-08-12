@@ -4,14 +4,14 @@
 #define ECC_CFG_H
 
 #include <concepts>
-#include <utility>
 #include <stdexcept>
+#include <utility>
 #include <variant>
 
-#include "lowering/lir/lir.hpp"
-#include "lowering/lir/symbols.hpp"
 #include "ds/linkedlist.hpp"
 #include "eval/value.hpp"
+#include "lowering/lir/lir.hpp"
+#include "lowering/lir/symbols.hpp"
 #include "semantics/types.hpp"
 #include "tokens.hpp"
 #include "util.hpp"
@@ -630,7 +630,7 @@ class BasicBlockTermSuccIter : public NextIterator<BasicBlock *> {};
 
 class BasicBlockIfSuccIter : public BasicBlockTermSuccIter {
     If *i;
-    
+
     enum State : uint8_t {
         TRUE,
         FALSE,
@@ -646,6 +646,7 @@ public:
 class BasicBlockGotoSuccIter : public BasicBlockTermSuccIter {
     Goto *g;
     bool iterated = false;
+
 public:
     BasicBlockGotoSuccIter(Goto *g) : g(g) {}
 
@@ -655,6 +656,7 @@ public:
 class BasicBlockSwitchSuccIter : public BasicBlockTermSuccIter {
     Switch *sw;
     size_t idx = 0;
+
 public:
     BasicBlockSwitchSuccIter(Switch *sw) : sw(sw) {}
 
@@ -666,29 +668,25 @@ class BasicBlockReturnSuccIter : public BasicBlockTermSuccIter {
 public:
     BasicBlockReturnSuccIter(Return *ret) : ret(ret) {}
 
-    BasicBlock *next() override {
-        return nullptr;
-    }
+    BasicBlock *next() override { return nullptr; }
 };
 
 /**
-An iterator class that wraps a BasicBlockTermSuccIter. 
+An iterator class that wraps a BasicBlockTermSuccIter.
 */
 class BasicBlockSuccIter {
     BasicBlockTermSuccIter *iter = nullptr;
-    BasicBlock *curr = nullptr;
+    BasicBlock *curr             = nullptr;
+
 public:
     using difference_type = std::ptrdiff_t;
     using value_type      = BasicBlock *;
 
-    BasicBlockSuccIter(BasicBlockTermSuccIter *iter)
-        : iter(iter), curr(iter->next()) {}
+    BasicBlockSuccIter(BasicBlockTermSuccIter *iter) : iter(iter), curr(iter->next()) {}
 
     BasicBlockSuccIter() {}
 
-    BasicBlock *operator*() const {
-        return curr;
-    }
+    BasicBlock *operator*() const { return curr; }
 
     BasicBlockSuccIter& operator++() {
         curr = iter->next();
@@ -698,7 +696,7 @@ public:
 
     BasicBlockSuccIter operator++(int) {
         BasicBlockSuccIter tmp = *this;
-        curr = iter->next();
+        curr                   = iter->next();
 
         return tmp;
     }
@@ -708,12 +706,13 @@ public:
 
 class BasicBlockSuccessors {
     Box<BasicBlockTermSuccIter> iter;
+
 public:
     BasicBlockSuccessors(Terminator *term) {
         if (isa<If>(term)) {
             iter = std::make_unique<BasicBlockIfSuccIter>(term->as_if());
         } else if (isa<Goto>(term)) {
-            iter = std::make_unique<BasicBlockGotoSuccIter>(term->as_goto());       
+            iter = std::make_unique<BasicBlockGotoSuccIter>(term->as_goto());
         } else if (isa<Switch>(term)) {
             iter = std::make_unique<BasicBlockSwitchSuccIter>(term->as_switch());
         } else if (isa<Return>(term)) {
@@ -721,13 +720,9 @@ public:
         }
     }
 
-    BasicBlockSuccIter begin() {
-        return BasicBlockSuccIter(iter.get());
-    }
+    BasicBlockSuccIter begin() { return BasicBlockSuccIter(iter.get()); }
 
-    BasicBlockSuccIter end() {
-        return BasicBlockSuccIter();
-    }
+    BasicBlockSuccIter end() { return BasicBlockSuccIter(); }
 };
 
 /**
@@ -817,23 +812,17 @@ public:
     /**
     Return the number of successors to this block
     */
-    size_t num_successors() const {
-        return succs.size();
-    }
+    size_t num_successors() const { return succs.size(); }
 
     /**
     Return the number of incoming blocks to this block.
     */
-    size_t num_incoming() const {
-        return incoming.size();
-    }
+    size_t num_incoming() const { return incoming.size(); }
 
     /**
     An iterator over the successor blocks to this block.
     */
-    BasicBlockSuccessors successors() {
-        return BasicBlockSuccessors(term.get());
-    }
+    BasicBlockSuccessors successors() { return BasicBlockSuccessors(term.get()); }
 
     Optional<std::string> label;
 
@@ -846,7 +835,7 @@ public:
     The blocks incoming to this block.
     */
     Vec<BasicBlock *> incoming;
-    
+
 private:
     /**
     The blocks going out from this block.

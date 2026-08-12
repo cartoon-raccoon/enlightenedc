@@ -2,8 +2,8 @@
 
 #include <variant>
 
-#include "lowering/lir/lir.hpp"
 #include "eval/value.hpp"
+#include "lowering/lir/lir.hpp"
 #include "semantics/types.hpp"
 #include "tokens.hpp"
 

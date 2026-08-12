@@ -7,11 +7,11 @@
 #include <string>
 
 #include "ast/ast.hpp"
-#include "lowering/lir/lir.hpp"
-#include "lowering/lir/symbols.hpp"
 #include "codegen/llvm.hpp"
 #include "driver/backend.hpp"
 #include "frontend/frontend.hpp"
+#include "lowering/lir/lir.hpp"
+#include "lowering/lir/symbols.hpp"
 #include "semantics/mir/mir.hpp"
 #include "semantics/symbols.hpp"
 #include "semantics/types.hpp"

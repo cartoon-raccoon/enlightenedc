@@ -6,8 +6,8 @@
 #include <cstddef>
 #include <string>
 
-#include "lowering/lir/symbols.hpp"
 #include "eval/value.hpp"
+#include "lowering/lir/symbols.hpp"
 #include "semantics/types.hpp"
 #include "tokens.hpp"
 #include "util.hpp"

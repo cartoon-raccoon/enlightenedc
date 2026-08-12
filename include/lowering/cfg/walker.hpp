@@ -33,14 +33,14 @@ public:
     iterator that returns blocks postorder.
     */
     virtual CFGWalkerBlocks blocks() = 0;
-    
+
 protected:
     void visit_block(BasicBlock *blk);
 
     virtual void pre_visit(BasicBlock *blk) {}; // NOLINT
 
     virtual void post_visit(BasicBlock *blk) {}; // NOLINT
-    
+
     HashSet<BasicBlock *> visited;
 };
 
@@ -50,9 +50,10 @@ The next()-style iterator that drives CFGBlocksIter.
 class CFGWalkerBlocksInner : public NextIterator<BasicBlock *> {};
 
 class VecCFGWalkerBlocksInner : public CFGWalkerBlocksInner {
-    std::span<BasicBlock * const> blocks;
+    std::span<BasicBlock *const> blocks;
     size_t idx;
     bool reverse;
+
 public:
     VecCFGWalkerBlocksInner(std::span<BasicBlock *const> blocks, bool reverse)
         : blocks(blocks), idx(reverse ? blocks.size() : 0), reverse(reverse) {}
@@ -65,19 +66,17 @@ The iterator over basic blocks.
 */
 class CFGBlocksIter {
     CFGWalkerBlocksInner *inner = nullptr;
-    BasicBlock *curr = nullptr;
+    BasicBlock *curr            = nullptr;
+
 public:
     using difference_type = std::ptrdiff_t;
     using value_type      = BasicBlock *;
-    
-    CFGBlocksIter(CFGWalkerBlocksInner *inner)
-        : inner(inner), curr(inner->next()) {}
+
+    CFGBlocksIter(CFGWalkerBlocksInner *inner) : inner(inner), curr(inner->next()) {}
 
     CFGBlocksIter() {}
 
-    BasicBlock *operator*() const {
-        return curr;
-    }
+    BasicBlock *operator*() const { return curr; }
 
     CFGBlocksIter& operator++() {
         curr = inner->next();
@@ -87,7 +86,7 @@ public:
 
     CFGBlocksIter operator++(int) {
         CFGBlocksIter tmp = *this;
-        curr = inner->next();
+        curr              = inner->next();
 
         return tmp;
     }
@@ -106,17 +105,13 @@ class CFGWalkerBlocks {
 public:
     template <typename Iter, typename... Args>
         requires std::derived_from<Iter, CFGWalkerBlocksInner>
-    static CFGWalkerBlocks make(Args&&... args) {
+    static CFGWalkerBlocks make(Args&&...args) {
         return CFGWalkerBlocks(std::make_unique<Iter>(std::forward<Args>(args)...));
     }
 
-    CFGBlocksIter begin() {
-        return CFGBlocksIter(inner.get());
-    }
+    CFGBlocksIter begin() { return CFGBlocksIter(inner.get()); }
 
-    CFGBlocksIter end() {
-        return CFGBlocksIter();
-    }
+    CFGBlocksIter end() { return CFGBlocksIter(); }
 };
 
 class PreorderCFGWalker : public CFGWalker {
@@ -124,17 +119,15 @@ public:
     CFGWalkerBlocks blocks() override {
         return CFGWalkerBlocks::make<VecCFGWalkerBlocksInner>(preorder, false);
     }
+
 protected:
-    void pre_visit(BasicBlock *blk) override {
-        preorder.push_back(blk);
-    }
+    void pre_visit(BasicBlock *blk) override { preorder.push_back(blk); }
 
     Vec<BasicBlock *> preorder;
 };
 
 class PostorderCFGWalker : public CFGWalker {
 public:
-
 protected:
     Vec<BasicBlock *> postorder;
 };
@@ -143,6 +136,6 @@ class RevPostorderCFGWalker : public PostorderCFGWalker {
 public:
 };
 
-}
+} // namespace ecc::lower::cfg
 
 #endif

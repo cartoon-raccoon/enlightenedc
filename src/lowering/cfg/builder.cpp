@@ -44,8 +44,7 @@ Value *CFGBuilder::eval_lvalue(ExprLIR& node) {
     if (auto *subscr = dyncast<SubscrExprLIR>(&node)) {
         Value *index = eval(*subscr->index);
         Value *base  = eval_lvalue(*subscr->array);
-        return curr_blk->add_instruction<SubscrInst>(
-            subscr->act_type, index, base, *subscr->loc);
+        return curr_blk->add_instruction<SubscrInst>(subscr->act_type, index, base, *subscr->loc);
     }
     if (auto *unary = dyncast<UnaryExprLIR>(&node); unary && unary->op == tokens::UnaryOp::DEREF) {
         return eval_lvalue(*unary->operand); // *p's address is just p's value
@@ -83,8 +82,8 @@ static tokens::BinaryOp assign_op_to_binop(tokens::AssignOp op) {
 }
 
 void CFGBuilder::visit(ProgramLIR& node) {
-    curr_func  = prog_cfg.implicit_main.get();
-    curr_blk = curr_func->initialize();
+    curr_func = prog_cfg.implicit_main.get();
+    curr_blk  = curr_func->initialize();
 
     for (auto& item : node.progitems) {
         item->accept(*this);
@@ -96,8 +95,8 @@ void CFGBuilder::visit(ProgramLIR& node) {
 }
 
 void CFGBuilder::visit(FunctionLIR& node) {
-    curr_func  = prog_cfg.add_function(&node);
-    curr_blk = curr_func->initialize();
+    curr_func = prog_cfg.add_function(&node);
+    curr_blk  = curr_func->initialize();
 
     for (auto& local : node.locals) {
         local->accept(*this);
@@ -127,8 +126,7 @@ void CFGBuilder::visit(CaseLIR& node) {
 
     auto *info = find_info([&](NestedStmtInfo *info) { return info->is_switch(); });
     if (!info) {
-        throw std::runtime_error(
-            "unable to find switch NestedStmtInfo while visiting CaseLIR");
+        throw std::runtime_error("unable to find switch NestedStmtInfo while visiting CaseLIR");
     }
 
     assert(info->is_switch());
@@ -149,8 +147,7 @@ void CFGBuilder::visit(DefaultLIR& node) {
 
     auto *info = find_info([&](NestedStmtInfo *info) { return info->is_switch(); });
     if (!info) {
-        throw std::runtime_error(
-            "unable to find switch NestedStmtInfo while visiting DefaultLIR");
+        throw std::runtime_error("unable to find switch NestedStmtInfo while visiting DefaultLIR");
     }
     assert(info->is_switch());
     SwitchStmtInfo *swinfo = info->as_switch();
@@ -178,8 +175,7 @@ void CFGBuilder::visit(PrintStmtLIR& node) {
         args.push_back(eval(*arg));
     }
 
-    curr_blk->add_instruction<PrintInst>(
-        types, node.format_string, std::move(args), *node.loc);
+    curr_blk->add_instruction<PrintInst>(types, node.format_string, std::move(args), *node.loc);
 }
 
 void CFGBuilder::visit(GotoStmtLIR& node) {
@@ -203,7 +199,7 @@ void CFGBuilder::visit(SwitchStmtLIR& node) {
     Value *control = eval(*node.condition);
 
     assert(!curr_blk->is_terminated());
-    Switch *swtch = curr_blk->terminate<Switch>(control);
+    Switch *swtch        = curr_blk->terminate<Switch>(control);
     SwitchStmtInfo *info = push_info<SwitchStmtInfo>(swtch)->as_switch();
 
     for (auto& item : node.body) {
@@ -328,59 +324,59 @@ void CFGBuilder::visit(LoopStmtLIR& node) {
         curr_blk = curr_func->create_block();
     }
     auto *info = push_info<LoopStmtInfo>()->as_loop();
-    
-    Goto *entry = curr_blk->terminate<Goto>();
-    BasicBlock *init_blk = nullptr;
+
+    Goto *entry           = curr_blk->terminate<Goto>();
+    BasicBlock *init_blk  = nullptr;
     BasicBlock *init_exit = nullptr;
-    
-    BasicBlock *cond_blk = nullptr;
+
+    BasicBlock *cond_blk  = nullptr;
     BasicBlock *cond_exit = nullptr;
-    If *condition = nullptr;
-    
-    BasicBlock *body_blk = nullptr;
+    If *condition         = nullptr;
+
+    BasicBlock *body_blk  = nullptr;
     BasicBlock *body_exit = nullptr;
-    
-    BasicBlock *step_blk = nullptr;
+
+    BasicBlock *step_blk  = nullptr;
     BasicBlock *step_exit = nullptr;
 
     // Create the blocks
-    
+
     if (node.init) {
         init_blk = curr_func->create_block();
-        
+
         curr_blk = init_blk;
         for (auto& item : *node.init) {
             item->accept(*this);
         }
         init_exit = curr_blk;
     }
-    
+
     if (node.condition) {
-        cond_blk = curr_func->create_block();
+        cond_blk   = curr_func->create_block();
         info->cond = cond_blk;
 
-        curr_blk = cond_blk;
+        curr_blk    = cond_blk;
         Value *cond = eval(**node.condition);
-        cond_exit = curr_blk;
-        condition = curr_blk->terminate<If>(cond);
+        cond_exit   = curr_blk;
+        condition   = curr_blk->terminate<If>(cond);
     }
 
     if (condition) {
         assert(cond_blk && cond_exit && "no cond blk with non-null condition");
     }
 
-    body_blk = curr_func->create_block();
+    body_blk   = curr_func->create_block();
     info->body = body_blk;
-    curr_blk = body_blk;
+    curr_blk   = body_blk;
     for (auto& item : node.body) {
         item->accept(*this);
     }
     body_exit = curr_blk;
 
     if (node.step) {
-        step_blk = curr_func->create_block();
+        step_blk   = curr_func->create_block();
         info->step = step_blk;
-        curr_blk = step_blk;
+        curr_blk   = step_blk;
         for (auto& item : *node.step) {
             item->accept(*this);
         }
@@ -475,9 +471,8 @@ void CFGBuilder::visit(BinaryExprLIR& node) {
     case BinaryOp::OROR: {
         bool is_and = node.op == BinaryOp::ANDAND;
 
-        Value *lhs = eval(*node.left);
-        BasicBlock *lhs_exit =
-            curr_blk; // capture *after eval*, since left may branch by itself
+        Value *lhs              = eval(*node.left);
+        BasicBlock *lhs_exit    = curr_blk; // capture *after eval*, since left may branch by itself
         BasicBlock *rhs_block   = curr_func->create_block();
         BasicBlock *merge_block = curr_func->create_block();
 
@@ -501,15 +496,15 @@ void CFGBuilder::visit(BinaryExprLIR& node) {
         }
 
         // evaluate the RHS, set the target of the rhs block to the merge block
-        curr_blk        = rhs_block;
+        curr_blk             = rhs_block;
         Value *rhs           = eval(*node.right);
         BasicBlock *rhs_exit = curr_blk;
 
         rhs_exit->terminate<Goto>()->set_target(merge_block);
 
         // on the merge block, add a phi with all the incoming edges
-        curr_blk = merge_block;
-        PhiInst *phi  = curr_blk->add_instruction<PhiInst>(node.act_type, *node.loc);
+        curr_blk     = merge_block;
+        PhiInst *phi = curr_blk->add_instruction<PhiInst>(node.act_type, *node.loc);
 
         // create the short circuit value
         Value *short_circuit_val =
@@ -531,8 +526,8 @@ void CFGBuilder::visit(BinaryExprLIR& node) {
         Value *left  = eval(*node.left);
         Value *right = eval(*node.right);
 
-        last_value = curr_blk->add_instruction<BinaryInst>(
-            node.act_type, node.op, left, right, *node.loc);
+        last_value =
+            curr_blk->add_instruction<BinaryInst>(node.act_type, node.op, left, right, *node.loc);
     }
     }
 
@@ -544,7 +539,7 @@ void CFGBuilder::visit(UnaryExprLIR& node) {
     case UnaryOp::INC:
     case UnaryOp::DEC: {
         Value *address = eval_lvalue(*node.operand);
-        Value *cur = curr_blk->add_instruction<LoadInst>(node.act_type, address, *node.loc);
+        Value *cur     = curr_blk->add_instruction<LoadInst>(node.act_type, address, *node.loc);
 
         Value *updated;
         if (node.op == UnaryOp::INC) {
@@ -605,19 +600,19 @@ void CFGBuilder::visit(CondExprLIR& node) {
     branch->set_else_target(false_blk);
 
     // evaluate the true block
-    curr_blk         = true_blk;
+    curr_blk              = true_blk;
     Value *true_val       = eval(*node.true_value);
     BasicBlock *true_exit = curr_blk;
     true_exit->terminate<Goto>()->set_target(merge_blk);
 
     // evaluate the false block
-    curr_blk          = false_blk;
+    curr_blk               = false_blk;
     Value *false_val       = eval(*node.false_value);
     BasicBlock *false_exit = curr_blk;
     false_exit->terminate<Goto>()->set_target(merge_blk);
 
-    curr_blk = merge_blk;
-    PhiInst *phi  = curr_blk->add_instruction<PhiInst>(node.act_type, *node.loc);
+    curr_blk     = merge_blk;
+    PhiInst *phi = curr_blk->add_instruction<PhiInst>(node.act_type, *node.loc);
 
     phi->add_incoming(true_val, true_exit);
     phi->add_incoming(false_val, false_exit);

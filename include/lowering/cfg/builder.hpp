@@ -76,15 +76,15 @@ public:
 
 protected:
     FunctionCFG *curr_func = nullptr;
-    BasicBlock *curr_blk = nullptr;
-    Value *last_value         = nullptr;
+    BasicBlock *curr_blk   = nullptr;
+    Value *last_value      = nullptr;
 
     using NestedStmtFilter = std::function<bool(NestedStmtInfo *)>;
 
-    template <typename Info, typename ... Args>
+    template <typename Info, typename... Args>
         requires std::derived_from<Info, NestedStmtInfo>
-    NestedStmtInfo *push_info(Args ... args) {
-        auto info = std::make_unique<Info>(std::forward<Args>(args) ...);
+    NestedStmtInfo *push_info(Args... args) {
+        auto info = std::make_unique<Info>(std::forward<Args>(args)...);
 
         NestedStmtInfo *ret = info.get();
         infostack.push_back(std::move(info));

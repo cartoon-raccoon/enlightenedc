@@ -32,7 +32,8 @@ void CFGWalker::visit_block(BasicBlock *blk) {
         }
         if (n > 1) {
             for (BasicBlock *succ : blk->successors()) {
-                if (!visited.contains(succ)) visit_block(succ);
+                if (!visited.contains(succ))
+                    visit_block(succ);
             }
             break;
         }

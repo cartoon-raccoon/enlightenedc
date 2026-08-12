@@ -69,37 +69,37 @@ void BasicBlock::link_to(BasicBlock *target) {
 
 BasicBlock *BasicBlockIfSuccIter::next() {
     BasicBlock *ret;
-        switch (state) {
-        case TRUE:
-            ret = i->then_br;
-            state = FALSE;
-            break;
-        case FALSE:
-            ret = i->else_br;
-            state = DONE;
-            break;
-        case DONE:
-            ret = nullptr;
-            break;
-        }
+    switch (state) {
+    case TRUE:
+        ret   = i->then_br;
+        state = FALSE;
+        break;
+    case FALSE:
+        ret   = i->else_br;
+        state = DONE;
+        break;
+    case DONE:
+        ret = nullptr;
+        break;
+    }
 
-        return ret;
+    return ret;
 }
 
 BasicBlock *BasicBlockGotoSuccIter::next() {
     if (iterated) {
-            return nullptr;
-        } else {
-            iterated = true;
-            return g->target;
-        }
+        return nullptr;
+    } else {
+        iterated = true;
+        return g->target;
+    }
 }
 
 BasicBlock *BasicBlockSwitchSuccIter::next() {
     if (idx >= sw->num_cases()) {
-            return nullptr;
-        }
-        return sw->cases[idx++].blk;
+        return nullptr;
+    }
+    return sw->cases[idx++].blk;
 }
 
 BasicBlock *FunctionCFG::initialize() {
@@ -115,7 +115,7 @@ BasicBlock *FunctionCFG::initialize() {
 
     auto& entry_blk    = blocks.emplace_back(name, this);
     entry_blk.is_entry = true;
-    entry = &entry_blk;
+    entry              = &entry_blk;
 
     return entry;
 }
@@ -203,7 +203,6 @@ size_t FunctionCFG::resolve_pending_gotos(std::string& label, BasicBlock *target
     pending_gotos.erase(it);
     return count;
 }
-
 
 AllocaInst *FunctionCFG::lookup_alloca(LIRVarSym *sym) {
     return allocas.contains(sym) ? allocas[sym].get() : nullptr;
