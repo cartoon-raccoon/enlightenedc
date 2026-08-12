@@ -205,13 +205,11 @@ void MIRPrinter::visit(IdentExprMIR& node) {
 }
 
 void MIRPrinter::visit(LiteralExprMIR& node) {
-    print_node("Literal: :: " + node.act_type->formal(), node, [&] {
-        std::visit(
-            match{
-                [&](eval::Value& val) { std::cout << val.to_string(); },
-                [&](std::string& s) { std::cout << s; }},
-            node.value);
-    });
+    std::string valstr = std::visit(
+        match{
+            [](eval::Value& val) { return val.to_string(); }, [](std::string& s) { return s; }},
+        node.value);
+    print_node("Literal: " + valstr + " :: " + node.act_type->formal(), node);
 }
 
 void MIRPrinter::visit(CallExprMIR& node) {

@@ -195,13 +195,11 @@ void LIRPrinter::visit(IdentExprLIR& node) {
 }
 
 void LIRPrinter::visit(LiteralExprLIR& node) {
-    print_node("Literal :: " + node.act_type->formal(), node, [&] {
-        std::visit(
-            match{
-                [&](eval::Value& val) { std::cout << val.to_string() << "\n"; },
-                [&](std::string& s) { std::cout << s << "\n"; }},
-            node.value);
-    });
+    std::string valstr = std::visit(
+        match{
+            [](eval::Value& val) { return val.to_string(); }, [](std::string& s) { return s; }},
+        node.value);
+    print_node("Literal: " + valstr + " :: " + node.act_type->formal(), node);
 }
 
 void LIRPrinter::visit(ZeroExprLIR& node) {
