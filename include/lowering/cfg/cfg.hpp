@@ -10,6 +10,7 @@
 
 #include "ds/linkedlist.hpp"
 #include "eval/value.hpp"
+#include "lowering/cfg/visitor.hpp"
 #include "lowering/lir/lir.hpp"
 #include "lowering/lir/symbols.hpp"
 #include "semantics/types.hpp"
@@ -36,7 +37,8 @@ class Switch;
 
 class FunctionCFG;
 
-class CFGValueVisitor;
+template <typename DerivedT, typename BaseT>
+using CFGVisitable = Visitable<DerivedT, BaseT, CFGValueVisitor>;
 
 /**
 A CFG value.
@@ -117,10 +119,11 @@ public:
     static bool classof(const Value *node) { return node->valkind == ValueKind::INST; }
 };
 
-class AllocaInst : public Instruction {
+class AllocaInst : public CFGVisitable<AllocaInst, Instruction> {
 public:
     AllocaInst(BasicBlock *containing, sema::types::Type *type, lir::LIRVarSym *sym)
-        : Instruction(containing, InstKind::ALLOCA, type, sym->sym->loc), sym(sym) {}
+        : CFGVisitable<AllocaInst, Instruction>(containing, InstKind::ALLOCA, type, sym->sym->loc),
+          sym(sym) {}
 
     lir::LIRVarSym *sym;
 
@@ -131,14 +134,13 @@ public:
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::ALLOCA;
     }
-
-    void accept(CFGValueVisitor& visitor) override;
 };
 
-class LoadInst : public Instruction {
+class LoadInst : public CFGVisitable<LoadInst, Instruction> {
 public:
     LoadInst(BasicBlock *containing, sema::types::Type *type, Value *addr, Location loc)
-        : Instruction(containing, InstKind::LOAD, type, loc), address(addr) {}
+        : CFGVisitable<LoadInst, Instruction>(containing, InstKind::LOAD, type, loc),
+          address(addr) {}
 
     Value *address;
 
@@ -153,13 +155,13 @@ public:
     void accept(CFGValueVisitor& visitor) override;
 };
 
-class StoreInst : public Instruction {
+class StoreInst : public CFGVisitable<StoreInst, Instruction> {
 public:
     StoreInst(
         BasicBlock *containing, sema::types::TypeContext& tyctxt, Value *address, Value *value,
         Location loc)
-        : Instruction(containing, InstKind::STORE, tyctxt.get_void(), loc), address(address),
-          value(value) {}
+        : CFGVisitable<StoreInst, Instruction>(containing, InstKind::STORE, tyctxt.get_void(), loc),
+          address(address), value(value) {}
 
     Value *address;
     Value *value;
@@ -178,10 +180,10 @@ public:
 /**
 The SSA phi function instruction.
 */
-class PhiInst : public Instruction {
+class PhiInst : public CFGVisitable<PhiInst, Instruction> {
 public:
     PhiInst(BasicBlock *containing, sema::types::Type *type, Location loc)
-        : Instruction(containing, InstKind::PHI, type, loc) {}
+        : CFGVisitable<PhiInst, Instruction>(containing, InstKind::PHI, type, loc) {}
 
     void add_incoming(Value *value, BasicBlock *block) { incoming.emplace_back(value, block); }
 
@@ -198,15 +200,16 @@ public:
     void accept(CFGValueVisitor& visitor) override;
 };
 
-class PrintInst : public Instruction {
+class PrintInst : public CFGVisitable<PrintInst, Instruction> {
 public:
     PrintInst(BasicBlock *containing, sema::types::TypeContext& tyctxt, Location loc)
-        : Instruction(containing, InstKind::PRINT, tyctxt.get_void(), loc) {}
+        : CFGVisitable<PrintInst, Instruction>(
+              containing, InstKind::PRINT, tyctxt.get_void(), loc) {}
 
     PrintInst(
         BasicBlock *containing, sema::types::TypeContext& tyctxt, std::string format,
         Vec<Value *> args, Location loc)
-        : Instruction(containing, InstKind::PRINT, tyctxt.get_void(), loc),
+        : CFGVisitable<PrintInst, Instruction>(containing, InstKind::PRINT, tyctxt.get_void(), loc),
           format_string(std::move(format)), args(std::move(args)) {}
 
     std::string format_string;
@@ -227,13 +230,13 @@ public:
     void accept(CFGValueVisitor& visitor) override;
 };
 
-class BinaryInst : public Instruction {
+class BinaryInst : public CFGVisitable<BinaryInst, Instruction> {
 public:
     BinaryInst(
         BasicBlock *containing, sema::types::Type *type, tokens::BinaryOp op, Value *loperand,
         Value *roperand, Location loc)
-        : Instruction(containing, InstKind::BINARY, type, loc), op(op), loperand(loperand),
-          roperand(roperand) {}
+        : CFGVisitable<BinaryInst, Instruction>(containing, InstKind::BINARY, type, loc), op(op),
+          loperand(loperand), roperand(roperand) {}
 
     tokens::BinaryOp op;
     Value *loperand, *roperand;
@@ -249,12 +252,13 @@ public:
     void accept(CFGValueVisitor& visitor) override;
 };
 
-class UnaryInst : public Instruction {
+class UnaryInst : public CFGVisitable<UnaryInst, Instruction> {
 public:
     UnaryInst(
         BasicBlock *containing, sema::types::Type *type, tokens::UnaryOp op, Value *operand,
         Location loc)
-        : Instruction(containing, InstKind::UNARY, type, loc), op(op), operand(operand) {}
+        : CFGVisitable<UnaryInst, Instruction>(containing, InstKind::UNARY, type, loc), op(op),
+          operand(operand) {}
 
     tokens::UnaryOp op;
     Value *operand;
@@ -270,10 +274,11 @@ public:
     void accept(CFGValueVisitor& visitor) override;
 };
 
-class IncrInst : public Instruction {
+class IncrInst : public CFGVisitable<IncrInst, Instruction> {
 public:
     IncrInst(BasicBlock *containing, sema::types::Type *type, Value *operand, Location loc)
-        : Instruction(containing, InstKind::INC, type, loc), operand(operand) {}
+        : CFGVisitable<IncrInst, Instruction>(containing, InstKind::INC, type, loc),
+          operand(operand) {}
 
     Value *operand;
 
@@ -288,10 +293,11 @@ public:
     void accept(CFGValueVisitor& visitor) override;
 };
 
-class DecrInst : public Instruction {
+class DecrInst : public CFGVisitable<DecrInst, Instruction> {
 public:
     DecrInst(BasicBlock *containing, sema::types::Type *type, Value *operand, Location loc)
-        : Instruction(containing, InstKind::DEC, type, loc), operand(operand) {}
+        : CFGVisitable<DecrInst, Instruction>(containing, InstKind::DEC, type, loc),
+          operand(operand) {}
 
     Value *operand;
 
@@ -306,12 +312,13 @@ public:
     void accept(CFGValueVisitor& visitor) override;
 };
 
-class CastInst : public Instruction {
+class CastInst : public CFGVisitable<CastInst, Instruction> {
 public:
     CastInst(
         BasicBlock *containing, sema::types::Type *type, sema::types::Type *target, Value *operand,
         Location loc)
-        : Instruction(containing, InstKind::CAST, type, loc), target(target), operand(operand) {}
+        : CFGVisitable<CastInst, Instruction>(containing, InstKind::CAST, type, loc),
+          target(target), operand(operand) {}
 
     sema::types::Type *target;
     Value *operand;
@@ -327,12 +334,13 @@ public:
     void accept(CFGValueVisitor& visitor) override;
 };
 
-class ReintInst : public Instruction {
+class ReintInst : public CFGVisitable<ReintInst, Instruction> {
 public:
     ReintInst(
         BasicBlock *containing, sema::types::Type *type, tokens::PrimType target, Value *operand,
         Location loc)
-        : Instruction(containing, InstKind::REINT, type, loc), target(target), operand(operand) {}
+        : CFGVisitable<ReintInst, Instruction>(containing, InstKind::REINT, type, loc),
+          target(target), operand(operand) {}
 
     tokens::PrimType target;
     Value *operand;
@@ -348,13 +356,13 @@ public:
     void accept(CFGValueVisitor& visitor) override;
 };
 
-class MemberAccInst : public Instruction {
+class MemberAccInst : public CFGVisitable<MemberAccInst, Instruction> {
 public:
     MemberAccInst(
         BasicBlock *containing, sema::types::Type *type, size_t member_idx, Value *operand,
         Location loc)
-        : Instruction(containing, InstKind::MEMBERACC, type, loc), member_idx(member_idx),
-          operand(operand) {}
+        : CFGVisitable<MemberAccInst, Instruction>(containing, InstKind::MEMBERACC, type, loc),
+          member_idx(member_idx), operand(operand) {}
 
     size_t member_idx;
     Value *operand;
@@ -370,11 +378,12 @@ public:
     void accept(CFGValueVisitor& visitor) override;
 };
 
-class SubscrInst : public Instruction {
+class SubscrInst : public CFGVisitable<SubscrInst, Instruction> {
 public:
     SubscrInst(
         BasicBlock *containing, sema::types::Type *type, Value *index, Value *operand, Location loc)
-        : Instruction(containing, InstKind::SUBSCR, type, loc), index(index), operand(operand) {}
+        : CFGVisitable<SubscrInst, Instruction>(containing, InstKind::SUBSCR, type, loc),
+          index(index), operand(operand) {}
 
     Value *index;
     Value *operand;
@@ -390,13 +399,13 @@ public:
     void accept(CFGValueVisitor& visitor) override;
 };
 
-class CallInst : public Instruction {
+class CallInst : public CFGVisitable<CallInst, Instruction> {
 public:
     CallInst(
         BasicBlock *containing, sema::types::Type *type, Value *operand, Vec<Value *> args,
         Location loc)
-        : Instruction(containing, InstKind::CALL, type, loc), operand(operand),
-          args(std::move(args)) {}
+        : CFGVisitable<CallInst, Instruction>(containing, InstKind::CALL, type, loc),
+          operand(operand), args(std::move(args)) {}
 
     Value *operand;
     Vec<Value *> args;
@@ -418,10 +427,10 @@ A value that holds a reference to a function symbol.
 FuncRef holds a reference to a LIRFuncSym, to distinguish it from LIRVarSym,
 which is the only symbol type Load can operate on.
 */
-class FuncRef : public Value {
+class FuncRef : public CFGVisitable<FuncRef, Value> {
 public:
     FuncRef(sema::types::FunctionType *sig, FunctionCFG *ref)
-        : Value(ValueKind::FUNC, sig), func(ref) {}
+        : CFGVisitable<FuncRef, Value>(ValueKind::FUNC, sig), func(ref) {}
 
     FunctionCFG *func;
 
@@ -432,18 +441,18 @@ public:
     void accept(CFGValueVisitor& visitor) override;
 };
 
-class Literal : public Value {
+class Literal : public CFGVisitable<Literal, Value> {
 public:
     using LiteralVariant = std::variant<eval::Value, std::string>;
 
     Literal(sema::types::Type *type, eval::Value& value)
-        : Value(ValueKind::LIT, type), value(value) {}
+        : CFGVisitable<Literal, Value>(ValueKind::LIT, type), value(value) {}
 
     Literal(sema::types::Type *type, std::string value)
-        : Value(ValueKind::LIT, type), value(std::move(value)) {}
+        : CFGVisitable<Literal, Value>(ValueKind::LIT, type), value(std::move(value)) {}
 
     Literal(sema::types::Type *type, LiteralVariant value)
-        : Value(ValueKind::LIT, type), value(std::move(value)) {}
+        : CFGVisitable<Literal, Value>(ValueKind::LIT, type), value(std::move(value)) {}
 
     LiteralVariant value;
 
@@ -458,9 +467,9 @@ public:
     void accept(CFGValueVisitor& visitor) override;
 };
 
-class Zero : public Value {
+class Zero : public CFGVisitable<Zero, Value> {
 public:
-    Zero(sema::types::Type *type) : Value(ValueKind::ZERO, type) {}
+    Zero(sema::types::Type *type) : CFGVisitable<Zero, Value>(ValueKind::ZERO, type) {}
 
     Zero *as_zero() override { return this; }
 

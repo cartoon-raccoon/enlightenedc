@@ -7,25 +7,6 @@
 using namespace lower::cfg;
 using namespace lower::lir;
 
-DO_ACCEPT(AllocaInst, CFGValueVisitor);
-DO_ACCEPT(LoadInst, CFGValueVisitor);
-DO_ACCEPT(StoreInst, CFGValueVisitor);
-DO_ACCEPT(PhiInst, CFGValueVisitor);
-DO_ACCEPT(PrintInst, CFGValueVisitor);
-DO_ACCEPT(BinaryInst, CFGValueVisitor);
-DO_ACCEPT(UnaryInst, CFGValueVisitor);
-DO_ACCEPT(IncrInst, CFGValueVisitor);
-DO_ACCEPT(DecrInst, CFGValueVisitor);
-DO_ACCEPT(CastInst, CFGValueVisitor);
-DO_ACCEPT(ReintInst, CFGValueVisitor);
-DO_ACCEPT(MemberAccInst, CFGValueVisitor);
-DO_ACCEPT(SubscrInst, CFGValueVisitor);
-DO_ACCEPT(CallInst, CFGValueVisitor);
-
-DO_ACCEPT(FuncRef, CFGValueVisitor);
-DO_ACCEPT(Literal, CFGValueVisitor);
-DO_ACCEPT(Zero, CFGValueVisitor);
-
 void If::set_then_target(BasicBlock *blk) {
     then_br = blk;
     terminating_blk->link_to(blk);

@@ -3,46 +3,46 @@
 #ifndef ECC_LIR_VISITOR_H
 #define ECC_LIR_VISITOR_H
 
-#include "lowering/lir/lir.hpp"
+#include "abstract/visitor.hpp"
 
 namespace ecc::lower::lir {
 
-class LIRVisitor {
-public:
-    virtual ~LIRVisitor() = default;
+class ProgramLIR;
+class FunctionLIR;
+class VarDeclLIR;
+class LabelDeclLIR;
+class CaseLIR;
+class DefaultLIR;
+class ExprStmtLIR;
+class GotoStmtLIR;
+class SwitchStmtLIR;
+class BreakStmtLIR;
+class ContStmtLIR;
+class IfStmtLIR;
+class LoopStmtLIR;
+class PrintStmtLIR;
+class ReturnStmtLIR;
+class BinaryExprLIR;
+class UnaryExprLIR;
+class CastExprLIR;
+class AssignExprLIR;
+class CondExprLIR;
+class IdentExprLIR;
+class LiteralExprLIR;
+class ZeroExprLIR;
+class CallExprLIR;
+class MemberAccExprLIR;
+class ReintExprLIR;
+class SubscrExprLIR;
+class PostfixExprLIR;
 
-    virtual void visit(ProgramLIR& node)  = 0;
-    virtual void visit(FunctionLIR& node) = 0;
-
-    virtual void visit(VarDeclLIR& node) = 0;
-
-    virtual void visit(LabelDeclLIR& node)  = 0;
-    virtual void visit(CaseLIR& node)       = 0;
-    virtual void visit(DefaultLIR& node)    = 0;
-    virtual void visit(ExprStmtLIR& node)   = 0;
-    virtual void visit(GotoStmtLIR& node)   = 0;
-    virtual void visit(SwitchStmtLIR& node) = 0;
-    virtual void visit(BreakStmtLIR& node)  = 0;
-    virtual void visit(ContStmtLIR& node)   = 0;
-    virtual void visit(IfStmtLIR& node)     = 0;
-    virtual void visit(LoopStmtLIR& node)   = 0;
-    virtual void visit(PrintStmtLIR& node)  = 0;
-    virtual void visit(ReturnStmtLIR& node) = 0;
-
-    virtual void visit(BinaryExprLIR& node)    = 0;
-    virtual void visit(UnaryExprLIR& node)     = 0;
-    virtual void visit(CastExprLIR& node)      = 0;
-    virtual void visit(AssignExprLIR& node)    = 0;
-    virtual void visit(CondExprLIR& node)      = 0;
-    virtual void visit(IdentExprLIR& node)     = 0;
-    virtual void visit(LiteralExprLIR& node)   = 0;
-    virtual void visit(ZeroExprLIR& node)      = 0;
-    virtual void visit(CallExprLIR& node)      = 0;
-    virtual void visit(MemberAccExprLIR& node) = 0;
-    virtual void visit(ReintExprLIR& node)     = 0;
-    virtual void visit(SubscrExprLIR& node)    = 0;
-    virtual void visit(PostfixExprLIR& node)   = 0;
-};
+class LIRVisitor
+    : public Visitor<
+          LIRVisitor, ProgramLIR, FunctionLIR, VarDeclLIR, LabelDeclLIR, CaseLIR, DefaultLIR,
+          ExprStmtLIR, GotoStmtLIR, SwitchStmtLIR, BreakStmtLIR, ContStmtLIR, IfStmtLIR,
+          LoopStmtLIR, PrintStmtLIR, ReturnStmtLIR, BinaryExprLIR, UnaryExprLIR, CastExprLIR,
+          AssignExprLIR, CondExprLIR, IdentExprLIR, LiteralExprLIR, ZeroExprLIR, CallExprLIR,
+          MemberAccExprLIR, ReintExprLIR, SubscrExprLIR, PostfixExprLIR> {};
 
 } // namespace ecc::lower::lir
 
