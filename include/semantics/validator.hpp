@@ -43,7 +43,21 @@ protected:
         return ScopeGuard<mir::MIRNode>(State::READ, syms, assoc);
     }
 
+    /**
+    Implicitly cast expr into target.
+
+    Concretely, this creates a new CastExprMIR node, with node.castkind set to Implicit.
+    */
     Box<mir::CastExprMIR> cast(types::Type *target, Box<mir::ExprMIR> expr);
+
+    /**
+    Decays expr into target.
+
+    Concretely, this does the same thing as cast: it creates a new CastExprMIR,
+    and returns it, but the difference is that the castkind is set to
+    either ArrPtrDecay, or FuncPtrDecay.
+    */
+    Box<mir::CastExprMIR> decay(types::Type *target, Box<mir::ExprMIR> expr, bool is_funcdecay = false);
 
     Optional<types::Type *>
     eval_initializer(types::Type *type, mir::InitializerMIR& init, bool allow_size_infer = false);

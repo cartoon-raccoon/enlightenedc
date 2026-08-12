@@ -442,11 +442,19 @@ public:
 
 class CastExprLIR : public LIRVisitable<CastExprLIR, ExprLIR> {
 public:
-    CastExprLIR(
-        Location loc, sema::types::Type *type, Box<ExprLIR> inner, sema::types::Type *target)
-        : LIRVisitable<CastExprLIR, ExprLIR>(loc, NodeKind::CASTEXPR_LIR, type), target(target),
-          inner(std::move(inner)) {}
+    enum class CastKind : uint8_t {
+        Implicit,
+        Explicit,
+        ArrPtrDecay,
+        FuncPtrDecay,
+    };
 
+    CastExprLIR(
+        Location loc, sema::types::Type *type, Box<ExprLIR> inner, sema::types::Type *target, CastKind ck)
+        : LIRVisitable<CastExprLIR, ExprLIR>(loc, NodeKind::CASTEXPR_LIR, type), castkind(ck), target(target),
+          inner(std::move(inner)) {}
+    
+    CastKind castkind;
     sema::types::Type *target;
     Box<ExprLIR> inner;
 

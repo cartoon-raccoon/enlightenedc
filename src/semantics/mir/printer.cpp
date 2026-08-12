@@ -2,6 +2,7 @@
 
 #include <variant>
 
+#include "semantics/mir/mir.hpp"
 #include "semantics/types.hpp"
 #include "tokens.hpp"
 
@@ -53,6 +54,20 @@ void MIRPrinter::visit(VarDeclMIR& node) {
         }
         indent--;
     });
+}
+
+static std::string castkind_to_string(CastExprMIR::CastKind ck) {
+    using CK = CastExprMIR::CastKind;
+    switch (ck) {
+    case CK::Explicit:
+        return "explicit";
+    case CK::Implicit:
+        return "implicit";
+    case CK::ArrPtrDecay:
+        return "array decay";
+    case CK::FuncPtrDecay:
+        return "function decay";
+    }
 }
 
 void MIRPrinter::visit(InitializerMIR& node) {
@@ -183,7 +198,8 @@ void MIRPrinter::visit(UnaryExprMIR& node) {
 }
 
 void MIRPrinter::visit(CastExprMIR& node) {
-    print_node("Cast -> " + node.target->to_string() + " :: " + node.act_type->formal(), node, [&] {
+    print_node("Cast -> " + node.target->to_string() + " (" + castkind_to_string(node.castkind) 
+    + ") :: " + node.act_type->formal(), node, [&] {
         node.inner->accept(*this);
     });
 }

@@ -56,6 +56,22 @@ LIRVarSym *LIRSynthesizer::insert_varsym(VarSymbol *sym, Box<LIRVarSym> var) {
     }
 }
 
+using LIRCK = CastExprLIR::CastKind;
+using MIRCK = CastExprMIR::CastKind;
+
+static LIRCK mirck_to_lirck(MIRCK ck) {
+    switch (ck) {
+    case MIRCK::Explicit:
+        return LIRCK::Explicit;
+    case MIRCK::Implicit:
+        return LIRCK::Implicit;
+    case MIRCK::ArrPtrDecay:
+        return LIRCK::ArrPtrDecay;
+    case MIRCK::FuncPtrDecay:
+        return LIRCK::FuncPtrDecay;
+    }
+}
+
 void LIRSynthesizer::unfold_initializer(LIRVarSym *sym, InitializerMIR& init) {
     Box<ExprLIR> ident = std::make_unique<IdentExprLIR>(sym->sym->loc, sym, sym->sym->type);
     if (init.is_all_literals() && sym->sym->type->is_array() && sym->sym->type->is_const()) {
@@ -883,7 +899,7 @@ void LIRSynthesizer::do_visit(CastExprMIR& node) {
     Box<ExprLIR> inner = std::move(last_expr);
 
     Box<ExprLIR> expr =
-        std::make_unique<CastExprLIR>(node.loc, node.act_type, std::move(inner), node.target);
+        std::make_unique<CastExprLIR>(node.loc, node.act_type, std::move(inner), node.target, mirck_to_lirck(node.castkind));
 
     last_expr = std::move(expr);
 }

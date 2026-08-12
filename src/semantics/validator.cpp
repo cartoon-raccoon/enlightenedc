@@ -24,6 +24,19 @@ void Validator::validate(ProgramMIR& progmir) {
 Box<CastExprMIR> Validator::cast(Type *target, Box<mir::ExprMIR> expr) {
     auto newexpr = make_box<CastExprMIR>(expr->loc, expr->scope, target, std::move(expr));
     newexpr->set_type(target);
+    newexpr->castkind = CastExprMIR::CastKind::Implicit;
+    return newexpr;
+}
+
+Box<CastExprMIR> Validator::decay(Type *target, Box<mir::ExprMIR> expr, bool is_funcdecay) {
+    auto newexpr = make_box<CastExprMIR>(expr->loc, expr->scope, target, std::move(expr));
+    newexpr->set_type(target);
+
+    if (is_funcdecay) {
+        newexpr->castkind = CastExprMIR::CastKind::FuncPtrDecay;
+    } else {
+        newexpr->castkind = CastExprMIR::CastKind::ArrPtrDecay;
+    }
     return newexpr;
 }
 
@@ -156,7 +169,7 @@ Optional<Type *> Validator::eval_initializer_expr(
     // A bare function identifier decays to a pointer to itself, same as an array decays to a
     // pointer to its first element (e.g. `Void (*funcptr)() = somefunc;`).
     if (expr->act_type->is_function()) {
-        expr = cast(expr->act_type->as_function()->decay(), std::move(expr));
+        expr = decay(expr->act_type->as_function()->decay(), std::move(expr), true);
     }
 
     if (type == expr->eff_type) {
@@ -619,7 +632,10 @@ void Validator::do_visit(ReturnStmtMIR& node) {
 
         if ((*node.ret_expr)->act_type->is_array()) {
             node.ret_expr =
-                cast((*node.ret_expr)->act_type->as_array()->decay(), std::move(*node.ret_expr));
+                decay((*node.ret_expr)->act_type->as_array()->decay(), std::move(*node.ret_expr));
+        } else if ((*node.ret_expr)->act_type->is_function()) {
+            node.ret_expr =
+                decay((*node.ret_expr)->act_type->as_function()->decay(), std::move(*node.ret_expr), true);
         }
 
         if ((*node.ret_expr)->act_type != returntype) {
@@ -646,13 +662,18 @@ void Validator::do_visit(BinaryExprMIR& node) {
     assert(node.left->eff_type);
     assert(node.right->eff_type);
 
-    if (node.left->eff_type->is_array()) {
-        node.left = cast(node.left->eff_type->as_array()->decay(), std::move(node.left));
+    if (node.left->act_type->is_array()) {
+        node.left = decay(node.left->act_type->as_array()->decay(), std::move(node.left));
+    } else if (node.left->act_type->is_function()) {
+        node.left = decay(node.left->act_type->as_function()->decay(), std::move(node.left), true);
     }
 
-    if (node.right->eff_type->is_array()) {
-        node.right = cast(node.right->eff_type->as_array()->decay(), std::move(node.right));
+    if (node.right->act_type->is_array()) {
+        node.right = decay(node.right->act_type->as_array()->decay(), std::move(node.right));
+    } else if (node.right->act_type->is_function()) {
+        node.right = decay(node.right->act_type->as_function()->decay(), std::move(node.right), true);
     }
+
 
     if (!(node.left->eff_type->is_primitive() && node.right->eff_type->is_primitive())) {
         if (node.left->eff_type->is_pointer() || node.right->eff_type->is_pointer()) {
@@ -819,7 +840,10 @@ void Validator::do_visit(UnaryExprMIR& node) {
     case UnaryOp::DEREF: { // *x
         if (node.operand->act_type->is_array()) {
             node.operand =
-                cast(node.operand->act_type->as_array()->decay(), std::move(node.operand));
+                decay(node.operand->act_type->as_array()->decay(), std::move(node.operand));
+        } else if (node.operand->act_type->is_function()) {
+            node.operand =
+                decay(node.operand->act_type->as_function()->decay(), std::move(node.operand), true);
         }
         if (!node.operand->act_type->is_pointer()) {
             bsv_dbprint("error: dereference operand is not a pointer");
@@ -914,7 +938,9 @@ void Validator::do_visit(AssignExprMIR& node) {
     bool rhs_is_string_lit  = rhs_lit != nullptr && rhs_lit->is_string();
 
     if (node.right->act_type->is_array()) {
-        node.right = cast(node.right->act_type->as_array()->decay(), std::move(node.right));
+        node.right = decay(node.right->act_type->as_array()->decay(), std::move(node.right));
+    } else if (node.right->act_type->is_function()) {
+        node.right = decay(node.right->act_type->as_function()->decay(), std::move(node.right), true);
     }
 
     if (node.left->eff_type != node.right->eff_type) {
@@ -1083,23 +1109,23 @@ void Validator::do_visit(CallExprMIR& node) {
         for (auto&& [i, param] : std::views::enumerate(sig->params())) {
             auto& arg = node.args[i];
             // The param here is in an rvalue position, take unqualified
-            auto *arg_type = arg->eff_type->unqual();
+            auto *arg_type = arg->act_type->unqual();
             // Get the type of the param as declared
-            auto *param_type = param->effective_type();
+            auto *param_type = param;
             if (arg_type != param_type) {
                 if (arg_type->is_array()) {
-                    arg      = cast(arg_type->as_array()->decay(), std::move(arg));
-                    arg_type = arg->eff_type->unqual();
+                    arg      = decay(arg_type->as_array()->decay(), std::move(arg));
+                    arg_type = arg->act_type->unqual();
                 } else if (arg_type->is_function()) {
-                    arg      = cast(arg_type->as_function()->decay(), std::move(arg));
-                    arg_type = arg->eff_type->unqual();
+                    arg      = decay(arg_type->as_function()->decay(), std::move(arg), true);
+                    arg_type = arg->act_type->unqual();
                 }
                 if (arg_type->coercible_to(param_type)) {
                     arg = cast(param_type, std::move(arg));
                 } else {
                     bsv_dbprint("error: cannot coerce argument to parameter type");
                     add_error<InvalidCoerceError>(
-                        arg->act_type->unqual(), param->effective_type(), arg->loc);
+                        arg->act_type->unqual(), param, arg->loc);
                 }
             }
         }
@@ -1109,11 +1135,11 @@ void Validator::do_visit(CallExprMIR& node) {
         // decay to a pointer.
         for (size_t i = sig->num_params(); i < node.args.size(); i++) {
             auto& arg      = node.args[i];
-            auto *arg_type = arg->eff_type->unqual();
+            auto *arg_type = arg->act_type->unqual();
             if (arg_type->is_array()) {
-                arg = cast(arg_type->as_array()->decay(), std::move(arg));
+                arg = decay(arg_type->as_array()->decay(), std::move(arg));
             } else if (arg_type->is_function()) {
-                arg = cast(arg_type->as_function()->decay(), std::move(arg));
+                arg = decay(arg_type->as_function()->decay(), std::move(arg), true);
             }
         }
     }

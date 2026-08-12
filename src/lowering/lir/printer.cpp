@@ -23,6 +23,20 @@ std::ostream& operator<<(std::ostream& os, const std::optional<Location>& loc) {
 }
 } // namespace ecc::location
 
+static std::string castkind_to_string(CastExprLIR::CastKind ck) {
+    using CK = CastExprLIR::CastKind;
+    switch (ck) {
+    case CK::Explicit:
+        return "explicit";
+    case CK::Implicit:
+        return "implicit";
+    case CK::ArrPtrDecay:
+        return "array decay";
+    case CK::FuncPtrDecay:
+        return "function decay";
+    }
+}
+
 void LIRPrinter::print_indent() const {
     for (size_t i = 0; i < indent; ++i)
         std::cout << "| ";
@@ -170,7 +184,7 @@ void LIRPrinter::visit(UnaryExprLIR& node) {
 }
 
 void LIRPrinter::visit(CastExprLIR& node) {
-    print_node("Cast -> " + node.target->to_string() + " :: " + node.act_type->formal(), node, [&] {
+    print_node("Cast -> " + node.target->to_string() + " (" + castkind_to_string(node.castkind) + ") :: " + node.act_type->formal(), node, [&] {
         node.inner->accept(*this);
     });
 }

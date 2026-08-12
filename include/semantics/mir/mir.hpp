@@ -580,11 +580,19 @@ public:
 
 class CastExprMIR : public MIRVisitable<CastExprMIR, ExprMIR> {
 public:
+    enum class CastKind : uint8_t {
+        Explicit,
+        Implicit,
+        ArrPtrDecay,
+        FuncPtrDecay,
+    };
+
     CastExprMIR(
         Location loc, sema::sym::Scope *scope, sema::types::Type *target, Box<ExprMIR> inner)
         : MIRVisitable<CastExprMIR, ExprMIR>(loc, NodeKind::CASTEXPR_MIR, scope), target(target),
           inner(std::move(inner)) {}
 
+    CastKind castkind = CastKind::Explicit;
     sema::types::Type *target;
     Box<ExprMIR> inner;
 
