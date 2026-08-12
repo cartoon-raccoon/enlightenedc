@@ -6,6 +6,8 @@
 #include <utility>
 #include <variant>
 
+#include "abstract/visitor.hpp"
+#include "ast/visitor.hpp"
 #include "location.hpp"
 #include "tokens.hpp"
 #include "util.hpp"
@@ -17,7 +19,8 @@ using namespace ecc::location;
 /* Class definitions of AST nodes and subclasses. */
 namespace ecc::ast {
 
-class ASTVisitor;
+template <typename DerivedT, typename BaseT>
+using ASTVisitable = Visitable<DerivedT, BaseT, ASTVisitor>;
 
 // The abstract class representing an AST node.
 //
@@ -170,14 +173,13 @@ A wrapper to indicate that the contained expression must be computable at compil
 Any Expression wrapped in a ConstExpression can be treated as if it is computable at
 compile time, and any expression that is not cannot be.
 */
-class ConstExpression : public Expression {
+class ConstExpression : public ASTVisitable<ConstExpression, Expression> {
 public:
     ConstExpression(Box<Expression> expr)
-        : Expression(NodeKind::CONST_EXPR, expr->loc), inner(std::move(expr)) {}
+        : ASTVisitable<ConstExpression, Expression>(NodeKind::CONST_EXPR, expr->loc),
+          inner(std::move(expr)) {}
 
     Box<Expression> inner;
-
-    void accept(ASTVisitor& visitor) override;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::CONST_EXPR; }
 };
@@ -228,45 +230,40 @@ public:
     }
 };
 
-class TypeQualifier : public DeclarationSpecifier {
+class TypeQualifier : public ASTVisitable<TypeQualifier, DeclarationSpecifier> {
 public:
     enum QualType : uint8_t { CONST };
 
     TypeQualifier(Location loc, QualType qual)
-        : DeclarationSpecifier(NodeKind::TYPE_QUAL, loc), qual(qual) {}
+        : ASTVisitable<TypeQualifier, DeclarationSpecifier>(NodeKind::TYPE_QUAL, loc), qual(qual) {}
 
     QualType qual;
-
-    void accept(ASTVisitor& visitor) override;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::TYPE_QUAL; }
 };
 
 // Storage class specifiers (public, static, extern).
-class StorageClassSpecifier : public DeclarationSpecifier {
+class StorageClassSpecifier : public ASTVisitable<StorageClassSpecifier, DeclarationSpecifier> {
 public:
     enum SpecType : uint8_t { PUBLIC, STATIC, EXTERN, EXTERNC };
 
     StorageClassSpecifier(Location loc, SpecType type)
-        : DeclarationSpecifier(NodeKind::STORAGE_SPEC, loc), type(type) {}
+        : ASTVisitable<StorageClassSpecifier, DeclarationSpecifier>(NodeKind::STORAGE_SPEC, loc),
+          type(type) {}
 
     SpecType type;
-
-    void accept(ASTVisitor& visitor) override;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::STORAGE_SPEC; }
 };
 
-class Pointer : public ASTNode {
+class Pointer : public ASTVisitable<Pointer, ASTNode> {
 public:
     Pointer(Location loc, Vec<Box<TypeQualifier>> qualifiers, Optional<Box<Pointer>> nested)
-        : ASTNode(NodeKind::POINTER, loc), qualifiers(std::move(qualifiers)),
+        : ASTVisitable<Pointer, ASTNode>(NodeKind::POINTER, loc), qualifiers(std::move(qualifiers)),
           nested(std::move(nested)) {}
 
     Vec<Box<TypeQualifier>> qualifiers;
     Optional<Box<Pointer>> nested;
-
-    void accept(ASTVisitor& visitor) override;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::POINTER; }
 };
@@ -297,7 +294,7 @@ An initializer for a variable.
 Compound-type variables use the Vec<Box<Initializer>> variant of `initializer`,
 whereas primitive type variables use the Box<Expression> variant.
 */
-class Initializer : public ASTNode {
+class Initializer : public ASTVisitable<Initializer, ASTNode> {
 public:
     struct Member {
         std::string member;
@@ -313,22 +310,22 @@ public:
         std::variant<Box<Expression>, Box<Member>, Box<Index>, Vec<Box<Initializer>>>;
 
     Initializer(Location loc, Box<Expression> expr)
-        : ASTNode(NodeKind::INITIALIZER, loc), initializer(std::move(expr)) {}
+        : ASTVisitable<Initializer, ASTNode>(NodeKind::INITIALIZER, loc),
+          initializer(std::move(expr)) {}
 
     Initializer(Location loc, std::string mem, Box<Initializer> init)
-        : ASTNode(NodeKind::INITIALIZER, loc),
+        : ASTVisitable<Initializer, ASTNode>(NodeKind::INITIALIZER, loc),
           initializer(std::make_unique<Member>(std::move(mem), std::move(init))) {}
 
     Initializer(Location loc, Box<ConstExpression> idx, Box<Initializer> init)
-        : ASTNode(NodeKind::INITIALIZER, loc),
+        : ASTVisitable<Initializer, ASTNode>(NodeKind::INITIALIZER, loc),
           initializer(std::make_unique<Index>(std::move(idx), std::move(init))) {}
 
     Initializer(Location loc, Vec<Box<Initializer>> list)
-        : ASTNode(NodeKind::INITIALIZER, loc), initializer(std::move(list)) {}
+        : ASTVisitable<Initializer, ASTNode>(NodeKind::INITIALIZER, loc),
+          initializer(std::move(list)) {}
 
     InitVariant initializer;
-
-    void accept(ASTVisitor& visitor) override;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::INITIALIZER; }
 };
@@ -336,16 +333,14 @@ public:
 /*
 A general declarator containing a DirectDeclarator and an optional Pointer.
 */
-class Declarator : public ASTNode {
+class Declarator : public ASTVisitable<Declarator, ASTNode> {
 public:
     Declarator(Location loc, Optional<Box<Pointer>> pointer, Optional<Box<DirectDeclarator>> direct)
-        : ASTNode(NodeKind::DECLARATOR, loc), pointer(std::move(pointer)),
+        : ASTVisitable<Declarator, ASTNode>(NodeKind::DECLARATOR, loc), pointer(std::move(pointer)),
           direct(std::move(direct)) {}
 
     Optional<Box<Pointer>> pointer;
     Optional<Box<DirectDeclarator>> direct;
-
-    void accept(ASTVisitor& visitor) override;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::DECLARATOR; }
 };
@@ -353,16 +348,14 @@ public:
 /*
 A declarator creating one or more new variables, with optional initializers.
 */
-class InitDeclarator : public ASTNode {
+class InitDeclarator : public ASTVisitable<InitDeclarator, ASTNode> {
 public:
     InitDeclarator(Location loc, Box<Declarator> declarator, Optional<Box<Initializer>> initializer)
-        : ASTNode(NodeKind::INIT_DECLTR, loc), declarator(std::move(declarator)),
-          initializer(std::move(initializer)) {}
+        : ASTVisitable<InitDeclarator, ASTNode>(NodeKind::INIT_DECLTR, loc),
+          declarator(std::move(declarator)), initializer(std::move(initializer)) {}
 
     Box<Declarator> declarator;
     Optional<Box<Initializer>> initializer;
-
-    void accept(ASTVisitor& visitor) override;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::INIT_DECLTR; }
 };
@@ -370,19 +363,18 @@ public:
 /*
 A declaration of a single function parameter.
 */
-class ParameterDeclaration : public Declaration {
+class ParameterDeclaration : public ASTVisitable<ParameterDeclaration, Declaration> {
 public:
     ParameterDeclaration(
         Location loc, Vec<Box<DeclarationSpecifier>> specifiers,
         Optional<Box<Declarator>> declarator, Optional<Box<ConstExpression>> default_value)
-        : Declaration(NodeKind::PARAM_DECL, loc), specifiers(std::move(specifiers)),
-          declarator(std::move(declarator)), default_value(std::move(default_value)) {}
+        : ASTVisitable<ParameterDeclaration, Declaration>(NodeKind::PARAM_DECL, loc),
+          specifiers(std::move(specifiers)), declarator(std::move(declarator)),
+          default_value(std::move(default_value)) {}
 
     Vec<Box<DeclarationSpecifier>> specifiers;
     Optional<Box<Declarator>> declarator;
     Optional<Box<ConstExpression>> default_value;
-
-    void accept(ASTVisitor& visitor) override;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::PARAM_DECL; }
 };
@@ -390,14 +382,13 @@ public:
 /*
 A Declaration of a type (i.e. a declaration of only specifiers, no InitDeclarators).
 */
-class TypeDeclaration : public Declaration {
+class TypeDeclaration : public ASTVisitable<TypeDeclaration, Declaration> {
 public:
     TypeDeclaration(Location loc, Vec<Box<DeclarationSpecifier>> specifiers)
-        : Declaration(NodeKind::TYPE_DECL, loc), specifiers(std::move(specifiers)) {}
+        : ASTVisitable<TypeDeclaration, Declaration>(NodeKind::TYPE_DECL, loc),
+          specifiers(std::move(specifiers)) {}
 
     Vec<Box<DeclarationSpecifier>> specifiers;
-
-    void accept(ASTVisitor& visitor) override;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::TYPE_DECL; }
 };
@@ -405,30 +396,27 @@ public:
 /*
 A variable declaration (e.g. `U32 x = 5;`, `class Flags {U16 x; bool y} = {3, true}`).
 */
-class VariableDeclaration : public Declaration {
+class VariableDeclaration : public ASTVisitable<VariableDeclaration, Declaration> {
 public:
     VariableDeclaration(
         Location loc, Vec<Box<DeclarationSpecifier>> specifiers,
         Vec<Box<InitDeclarator>> declarators)
-        : Declaration(NodeKind::VAR_DECL, loc), specifiers(std::move(specifiers)),
-          declarators(std::move(declarators)) {}
+        : ASTVisitable<VariableDeclaration, Declaration>(NodeKind::VAR_DECL, loc),
+          specifiers(std::move(specifiers)), declarators(std::move(declarators)) {}
 
     Vec<Box<DeclarationSpecifier>> specifiers;
     Vec<Box<InitDeclarator>> declarators;
 
-    void accept(ASTVisitor& visitor) override;
-
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::VAR_DECL; }
 };
 
-class IdentifierDeclarator : public DirectDeclarator {
+class IdentifierDeclarator : public ASTVisitable<IdentifierDeclarator, DirectDeclarator> {
 public:
     std::string name;
 
     IdentifierDeclarator(Location loc, std::string n)
-        : DirectDeclarator(NodeKind::IDENT_DECLTR, loc), name(std::move(n)) {}
-
-    void accept(ASTVisitor& visitor) override;
+        : ASTVisitable<IdentifierDeclarator, DirectDeclarator>(NodeKind::IDENT_DECLTR, loc),
+          name(std::move(n)) {}
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::IDENT_DECLTR; }
 };
@@ -452,45 +440,40 @@ since the base type of `arr` in this case is `U32 [5]`, whereas the base type
 of `arr` in the former is `U32`.
 
 */
-class ParenDeclarator : public DirectDeclarator {
+class ParenDeclarator : public ASTVisitable<ParenDeclarator, DirectDeclarator> {
 public:
     ParenDeclarator(Location loc, Box<Declarator> decl)
-        : DirectDeclarator(NodeKind::PAREN_DECLTR, loc), inner(std::move(decl)) {}
+        : ASTVisitable<ParenDeclarator, DirectDeclarator>(NodeKind::PAREN_DECLTR, loc),
+          inner(std::move(decl)) {}
 
     Box<Declarator> inner;
-
-    void accept(ASTVisitor& visitor) override;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::PAREN_DECLTR; }
 };
 
-class ArrayDeclarator : public DirectDeclarator {
+class ArrayDeclarator : public ASTVisitable<ArrayDeclarator, DirectDeclarator> {
 public:
     ArrayDeclarator(Location loc, Box<DirectDeclarator> base, Optional<Box<ConstExpression>> size)
-        : DirectDeclarator(NodeKind::ARR_DECLTR, loc), base(std::move(base)),
-          size(std::move(size)) {}
+        : ASTVisitable<ArrayDeclarator, DirectDeclarator>(NodeKind::ARR_DECLTR, loc),
+          base(std::move(base)), size(std::move(size)) {}
 
     Box<DirectDeclarator> base;
     Optional<Box<ConstExpression>> size;
 
-    void accept(ASTVisitor& visitor) override;
-
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::ARR_DECLTR; }
 };
 
-class FunctionDeclarator : public DirectDeclarator {
+class FunctionDeclarator : public ASTVisitable<FunctionDeclarator, DirectDeclarator> {
 public:
     FunctionDeclarator(
         Location loc, Box<DirectDeclarator> base, Vec<Box<ParameterDeclaration>> params,
         bool is_variadic)
-        : DirectDeclarator(NodeKind::FUNC_DECLTR, loc), base(std::move(base)),
-          parameters(std::move(params)), is_variadic(is_variadic) {}
+        : ASTVisitable<FunctionDeclarator, DirectDeclarator>(NodeKind::FUNC_DECLTR, loc),
+          base(std::move(base)), parameters(std::move(params)), is_variadic(is_variadic) {}
 
     Box<DirectDeclarator> base;
     Vec<Box<ParameterDeclaration>> parameters;
     bool is_variadic;
-
-    void accept(ASTVisitor& visitor) override;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::FUNC_DECLTR; }
 };
@@ -498,17 +481,15 @@ public:
 /*
 A declarator representing a member of a class.
 */
-class ClassDeclarator : public ASTNode {
+class ClassDeclarator : public ASTVisitable<ClassDeclarator, ASTNode> {
 public:
     ClassDeclarator(
         Location loc, Optional<Box<Declarator>> declarator, Optional<Box<Expression>> bit_width)
-        : ASTNode(NodeKind::CLASS_DECLTR, loc), declarator(std::move(declarator)),
-          bit_width(std::move(bit_width)) {}
+        : ASTVisitable<ClassDeclarator, ASTNode>(NodeKind::CLASS_DECLTR, loc),
+          declarator(std::move(declarator)), bit_width(std::move(bit_width)) {}
 
     Optional<Box<Declarator>> declarator;
     Optional<Box<Expression>> bit_width;
-
-    void accept(ASTVisitor& visitor) override;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::CLASS_DECLTR; }
 };
@@ -517,18 +498,16 @@ public:
 Declaration of one or more class members. Each declaration contains
 one or more ClassDeclarators.
 */
-class ClassDeclaration : public Declaration {
+class ClassDeclaration : public ASTVisitable<ClassDeclaration, Declaration> {
 public:
     ClassDeclaration(
         Location loc, Vec<Box<DeclarationSpecifier>> specifiers,
         Vec<Box<ClassDeclarator>> declarators)
-        : Declaration(NodeKind::CLASS_DECL, loc), specifiers(std::move(specifiers)),
-          declarators(std::move(declarators)) {}
+        : ASTVisitable<ClassDeclaration, Declaration>(NodeKind::CLASS_DECL, loc),
+          specifiers(std::move(specifiers)), declarators(std::move(declarators)) {}
 
     Vec<Box<DeclarationSpecifier>> specifiers;
     Vec<Box<ClassDeclarator>> declarators;
-
-    void accept(ASTVisitor& visitor) override;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::CLASS_DECL; }
 };
@@ -556,25 +535,24 @@ public:
     }
 };
 
-class PrimitiveSpecifier : public TypeSpecifier {
+class PrimitiveSpecifier : public ASTVisitable<PrimitiveSpecifier, TypeSpecifier> {
 public:
     PrimitiveSpecifier(Location loc, tokens::PrimType pkind)
-        : TypeSpecifier(NodeKind::PRIM_SPEC, loc), pkind(pkind) {}
+        : ASTVisitable<PrimitiveSpecifier, TypeSpecifier>(NodeKind::PRIM_SPEC, loc), pkind(pkind) {}
 
     tokens::PrimType pkind;
-
-    void accept(ASTVisitor& visitor) override;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::PRIM_SPEC; }
 };
 
-class ClassSpecifier : public TypeSpecifier {
+class ClassSpecifier : public ASTVisitable<ClassSpecifier, TypeSpecifier> {
 public:
     ClassSpecifier(
         Location loc, Optional<std::string> name, Optional<Vec<std::string>> parents,
         Optional<Vec<Box<ClassDeclaration>>> declarations)
-        : TypeSpecifier(NodeKind::CLASS_SPEC, loc), name(std::move(name)),
-          parents(std::move(parents)), declarations(std::move(declarations)) {}
+        : ASTVisitable<ClassSpecifier, TypeSpecifier>(NodeKind::CLASS_SPEC, loc),
+          name(std::move(name)), parents(std::move(parents)),
+          declarations(std::move(declarations)) {}
 
     Optional<std::string> name;
     // Identifiers of parent classes.
@@ -582,18 +560,16 @@ public:
     // Declarations of members.
     Optional<Vec<Box<ClassDeclaration>>> declarations;
 
-    void accept(ASTVisitor& visitor) override;
-
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::CLASS_SPEC; }
 };
 
-class UnionSpecifier : public TypeSpecifier {
+class UnionSpecifier : public ASTVisitable<UnionSpecifier, TypeSpecifier> {
 public:
     UnionSpecifier(
         Location loc, Optional<std::string> name, Optional<tokens::PrimType> type_rep,
         Optional<Vec<Box<ClassDeclaration>>> declarations)
-        : TypeSpecifier(NodeKind::UNION_SPEC, loc), name(std::move(name)), type_rep(type_rep),
-          declarations(std::move(declarations)) {}
+        : ASTVisitable<UnionSpecifier, TypeSpecifier>(NodeKind::UNION_SPEC, loc),
+          name(std::move(name)), type_rep(type_rep), declarations(std::move(declarations)) {}
 
     Optional<std::string> name;
 
@@ -601,23 +577,20 @@ public:
 
     Optional<Vec<Box<ClassDeclaration>>> declarations;
 
-    void accept(ASTVisitor& visitor) override;
-
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::UNION_SPEC; }
 };
 
 /*
 A declaration of an enumerator within an enum.
 */
-class Enumerator : public ASTNode {
+class Enumerator : public ASTVisitable<Enumerator, ASTNode> {
 public:
     Enumerator(Location loc, std::string name, Optional<Box<ConstExpression>> value)
-        : ASTNode(NodeKind::ENUMERATOR, loc), name(std::move(name)), value(std::move(value)) {}
+        : ASTVisitable<Enumerator, ASTNode>(NodeKind::ENUMERATOR, loc), name(std::move(name)),
+          value(std::move(value)) {}
 
     std::string name;
     Optional<Box<ConstExpression>> value;
-
-    void accept(ASTVisitor& visitor) override;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::ENUMERATOR; }
 };
@@ -625,18 +598,18 @@ public:
 /*
 A node denoting an enum and its contained variants.
 */
-class EnumSpecifier : public TypeSpecifier {
+class EnumSpecifier : public ASTVisitable<EnumSpecifier, TypeSpecifier> {
 public:
     EnumSpecifier(
         Location loc, Optional<std::string> name, Optional<Vec<Box<Enumerator>>> enumerators)
-        : TypeSpecifier(NodeKind::ENUM_SPEC, loc), name(std::move(name)),
-          enumerators(std::move(enumerators)) {}
+        : ASTVisitable<EnumSpecifier, TypeSpecifier>(NodeKind::ENUM_SPEC, loc),
+          name(std::move(name)), enumerators(std::move(enumerators)) {}
 
     EnumSpecifier(
         Location loc, Optional<std::string> name, Optional<Vec<Box<Enumerator>>> enumerators,
         tokens::PrimType underlying)
-        : TypeSpecifier(NodeKind::ENUM_SPEC, loc), name(std::move(name)),
-          enumerators(std::move(enumerators)), underlying(underlying) {}
+        : ASTVisitable<EnumSpecifier, TypeSpecifier>(NodeKind::ENUM_SPEC, loc),
+          name(std::move(name)), enumerators(std::move(enumerators)), underlying(underlying) {}
 
     Optional<std::string> name;
     Optional<Vec<Box<Enumerator>>> enumerators;
@@ -646,28 +619,24 @@ public:
     */
     Optional<tokens::PrimType> underlying;
 
-    void accept(ASTVisitor& visitor) override;
-
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::ENUM_SPEC; }
 };
 
-class TypeIdentifier : public TypeSpecifier {
+class TypeIdentifier : public ASTVisitable<TypeIdentifier, TypeSpecifier> {
 public:
     TypeIdentifier(Location loc, std::string ident)
-        : TypeSpecifier(NodeKind::TYPE_IDENT, loc), identifier(std::move(ident)) {}
+        : ASTVisitable<TypeIdentifier, TypeSpecifier>(NodeKind::TYPE_IDENT, loc),
+          identifier(std::move(ident)) {}
 
     std::string identifier;
-
-    void accept(ASTVisitor& visitor) override;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::TYPE_IDENT; }
 };
 
-class VoidSpecifier : public TypeSpecifier {
+class VoidSpecifier : public ASTVisitable<VoidSpecifier, TypeSpecifier> {
 public:
-    VoidSpecifier(Location loc) : TypeSpecifier(NodeKind::VOID_SPEC, loc) {}
-
-    void accept(ASTVisitor& visitor) override;
+    VoidSpecifier(Location loc)
+        : ASTVisitable<VoidSpecifier, TypeSpecifier>(NodeKind::VOID_SPEC, loc) {}
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::VOID_SPEC; }
 };
@@ -705,176 +674,157 @@ public:
 };
 
 // A block of mixed declarations and statements, surrounded by braces.
-class CompoundStatement : public Statement {
+class CompoundStatement : public ASTVisitable<CompoundStatement, Statement> {
 public:
     CompoundStatement(Location loc, Vec<Box<ProgramItem>> items)
-        : Statement(NodeKind::COMP_STMT, loc), items(std::move(items)) {}
+        : ASTVisitable<CompoundStatement, Statement>(NodeKind::COMP_STMT, loc),
+          items(std::move(items)) {}
 
     Vec<Box<ProgramItem>> items;
-
-    void accept(ASTVisitor& visitor) override;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::COMP_STMT; }
 };
 
-class ExpressionStatement : public Statement {
+class ExpressionStatement : public ASTVisitable<ExpressionStatement, Statement> {
 public:
     ExpressionStatement(Location loc, Optional<Box<Expression>> expression)
-        : Statement(NodeKind::EXPR_STMT, loc), expression(std::move(expression)) {}
+        : ASTVisitable<ExpressionStatement, Statement>(NodeKind::EXPR_STMT, loc),
+          expression(std::move(expression)) {}
 
     Optional<Box<Expression>> expression;
-
-    void accept(ASTVisitor& visitor) override;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::EXPR_STMT; }
 };
 
-class CaseStatement : public Statement {
+class CaseStatement : public ASTVisitable<CaseStatement, Statement> {
 public:
     CaseStatement(Location loc, Box<ConstExpression> case_expr, Box<Statement> statement)
-        : Statement(NodeKind::CASE_STMT, loc), case_expr(std::move(case_expr)),
-          statement(std::move(statement)) {}
+        : ASTVisitable<CaseStatement, Statement>(NodeKind::CASE_STMT, loc),
+          case_expr(std::move(case_expr)), statement(std::move(statement)) {}
 
     Box<ConstExpression> case_expr;
     Box<Statement> statement;
 
-    void accept(ASTVisitor& visitor) override;
-
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::CASE_STMT; }
 };
 
-class CaseRangeStatement : public Statement {
+class CaseRangeStatement : public ASTVisitable<CaseRangeStatement, Statement> {
 public:
     CaseRangeStatement(
         Location loc, Box<ConstExpression> range_start, Box<ConstExpression> range_end,
         Box<Statement> statement)
-        : Statement(NodeKind::CASE_RG_STMT, loc), range_start(std::move(range_start)),
-          range_end(std::move(range_end)), statement(std::move(statement)) {}
+        : ASTVisitable<CaseRangeStatement, Statement>(NodeKind::CASE_RG_STMT, loc),
+          range_start(std::move(range_start)), range_end(std::move(range_end)),
+          statement(std::move(statement)) {}
 
     Box<ConstExpression> range_start;
     Box<ConstExpression> range_end;
     Box<Statement> statement;
 
-    void accept(ASTVisitor& visitor) override;
-
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::CASE_RG_STMT; }
 };
 
-class DefaultStatement : public Statement {
+class DefaultStatement : public ASTVisitable<DefaultStatement, Statement> {
 public:
     DefaultStatement(Location loc, Box<Statement> statement)
-        : Statement(NodeKind::DEF_STMT, loc), statement(std::move(statement)) {}
+        : ASTVisitable<DefaultStatement, Statement>(NodeKind::DEF_STMT, loc),
+          statement(std::move(statement)) {}
 
     Box<Statement> statement;
-
-    void accept(ASTVisitor& visitor) override;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::DEF_STMT; }
 };
 
-class LabeledStatement : public Statement {
+class LabeledStatement : public ASTVisitable<LabeledStatement, Statement> {
 public:
     LabeledStatement(Location loc, std::string label, Box<Statement> statement)
-        : Statement(NodeKind::LABEL_STMT, loc), label(std::move(label)),
-          statement(std::move(statement)) {}
+        : ASTVisitable<LabeledStatement, Statement>(NodeKind::LABEL_STMT, loc),
+          label(std::move(label)), statement(std::move(statement)) {}
 
     std::string label;
     Box<Statement> statement;
 
-    void accept(ASTVisitor& visitor) override;
-
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::LABEL_STMT; }
 };
 
-class PrintStatement : public Statement {
+class PrintStatement : public ASTVisitable<PrintStatement, Statement> {
 public:
     PrintStatement(Location loc, std::string format_string, Vec<Box<Expression>> arguments)
-        : Statement(NodeKind::PRINT_STMT, loc), format_string(std::move(format_string)),
-          arguments(std::move(arguments)) {}
+        : ASTVisitable<PrintStatement, Statement>(NodeKind::PRINT_STMT, loc),
+          format_string(std::move(format_string)), arguments(std::move(arguments)) {}
 
     std::string format_string;
     Vec<Box<Expression>> arguments;
 
-    void accept(ASTVisitor& visitor) override;
-
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::PRINT_STMT; }
 };
 
-class IfStatement : public Statement {
+class IfStatement : public ASTVisitable<IfStatement, Statement> {
 public:
     IfStatement(
         Location loc, Box<Expression> condition, Box<Statement> then_branch,
         Optional<Box<Statement>> else_branch)
-        : Statement(NodeKind::IF_STMT, loc), condition(std::move(condition)),
-          then_branch(std::move(then_branch)), else_branch(std::move(else_branch)) {}
+        : ASTVisitable<IfStatement, Statement>(NodeKind::IF_STMT, loc),
+          condition(std::move(condition)), then_branch(std::move(then_branch)),
+          else_branch(std::move(else_branch)) {}
 
     Box<Expression> condition;
     Box<Statement> then_branch;
     Optional<Box<Statement>> else_branch;
 
-    void accept(ASTVisitor& visitor) override;
-
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::IF_STMT; }
 };
 
-class SwitchStatement : public Statement {
+class SwitchStatement : public ASTVisitable<SwitchStatement, Statement> {
 public:
     SwitchStatement(Location loc, Box<Expression> condition, Box<Statement> body)
-        : Statement(NodeKind::SWITCH_STMT, loc), condition(std::move(condition)),
-          body(std::move(body)) {}
+        : ASTVisitable<SwitchStatement, Statement>(NodeKind::SWITCH_STMT, loc),
+          condition(std::move(condition)), body(std::move(body)) {}
 
     Box<Expression> condition;
     Box<Statement> body;
-
-    void accept(ASTVisitor& visitor) override;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::SWITCH_STMT; }
 };
 
-class WhileStatement : public Statement {
+class WhileStatement : public ASTVisitable<WhileStatement, Statement> {
 public:
     WhileStatement(Location loc, Box<Expression> condition, Box<Statement> body)
-        : Statement(NodeKind::WHILE_STMT, loc), condition(std::move(condition)),
-          body(std::move(body)) {}
+        : ASTVisitable<WhileStatement, Statement>(NodeKind::WHILE_STMT, loc),
+          condition(std::move(condition)), body(std::move(body)) {}
 
     Box<Expression> condition;
     Box<Statement> body;
-
-    void accept(ASTVisitor& visitor) override;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::WHILE_STMT; }
 };
 
-class DoWhileStatement : public Statement {
+class DoWhileStatement : public ASTVisitable<DoWhileStatement, Statement> {
 public:
     DoWhileStatement(Location loc, Box<Statement> body, Box<Expression> condition)
-        : Statement(NodeKind::DO_WHILE_STMT, loc), body(std::move(body)),
-          condition(std::move(condition)) {}
+        : ASTVisitable<DoWhileStatement, Statement>(NodeKind::DO_WHILE_STMT, loc),
+          body(std::move(body)), condition(std::move(condition)) {}
 
     Box<Statement> body;
     Box<Expression> condition;
 
-    void accept(ASTVisitor& visitor) override;
-
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::DO_WHILE_STMT; }
 };
 
-class ForStatement : public Statement {
+class ForStatement : public ASTVisitable<ForStatement, Statement> {
 public:
     using ForInit = std::variant<Box<Expression>, Box<VariableDeclaration>>;
 
     ForStatement(
         Location loc, Optional<ForInit> init, Optional<Box<Expression>> condition,
         Optional<Box<Expression>> increment, Box<Statement> body)
-        : Statement(NodeKind::FOR_STMT, loc), init(std::move(init)),
+        : ASTVisitable<ForStatement, Statement>(NodeKind::FOR_STMT, loc), init(std::move(init)),
           condition(std::move(condition)), increment(std::move(increment)), body(std::move(body)) {}
 
     Optional<ForInit> init;
     Optional<Box<Expression>> condition;
     Optional<Box<Expression>> increment;
     Box<Statement> body;
-
-    void accept(ASTVisitor& visitor) override;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::FOR_STMT; }
 };
@@ -896,154 +846,139 @@ public:
     }
 };
 
-class GotoStatement : public JumpStatement {
+class GotoStatement : public ASTVisitable<GotoStatement, JumpStatement> {
 public:
     GotoStatement(Location loc, std::string target_label)
-        : JumpStatement(NodeKind::GOTO_STMT, loc), target_label(std::move(target_label)) {}
+        : ASTVisitable<GotoStatement, JumpStatement>(NodeKind::GOTO_STMT, loc),
+          target_label(std::move(target_label)) {}
 
     std::string target_label;
-
-    void accept(ASTVisitor& visitor) override;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::GOTO_STMT; }
 };
 
-class BreakStatement : public JumpStatement {
+class BreakStatement : public ASTVisitable<BreakStatement, JumpStatement> {
 public:
-    BreakStatement(Location loc) : JumpStatement(NodeKind::BREAK_STMT, loc) {}
-
-    void accept(ASTVisitor& visitor) override;
+    BreakStatement(Location loc)
+        : ASTVisitable<BreakStatement, JumpStatement>(NodeKind::BREAK_STMT, loc) {}
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::BREAK_STMT; }
 };
 
-class ContinueStatement : public JumpStatement {
+class ContinueStatement : public ASTVisitable<ContinueStatement, JumpStatement> {
 public:
-    ContinueStatement(Location loc) : JumpStatement(NodeKind::CONT_STMT, loc) {}
-
-    void accept(ASTVisitor& visitor) override;
+    ContinueStatement(Location loc)
+        : ASTVisitable<ContinueStatement, JumpStatement>(NodeKind::CONT_STMT, loc) {}
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::CONT_STMT; }
 };
 
-class ReturnStatement : public JumpStatement {
+class ReturnStatement : public ASTVisitable<ReturnStatement, JumpStatement> {
 public:
     ReturnStatement(Location loc, Optional<Box<Expression>> return_value)
-        : JumpStatement(NodeKind::RET_STMT, loc), return_value(std::move(return_value)) {}
+        : ASTVisitable<ReturnStatement, JumpStatement>(NodeKind::RET_STMT, loc),
+          return_value(std::move(return_value)) {}
 
     Optional<Box<Expression>> return_value;
-
-    void accept(ASTVisitor& visitor) override;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::RET_STMT; }
 };
 
-class TypeName : public ASTNode {
+class TypeName : public ASTVisitable<TypeName, ASTNode> {
 public:
     TypeName(
         Location loc, Vec<Box<DeclarationSpecifier>> specifiers,
         Optional<Box<Declarator>> declarator)
-        : ASTNode(NodeKind::TYPE_NAME, loc), specifiers(std::move(specifiers)),
-          declarator(std::move(declarator)) {}
+        : ASTVisitable<TypeName, ASTNode>(NodeKind::TYPE_NAME, loc),
+          specifiers(std::move(specifiers)), declarator(std::move(declarator)) {}
 
     Vec<Box<DeclarationSpecifier>> specifiers;
     Optional<Box<Declarator>> declarator;
-
-    void accept(ASTVisitor& visitor) override;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::TYPE_NAME; }
 };
 
 //* EXPRESSIONS
 
-class BinaryExpression : public Expression {
+class BinaryExpression : public ASTVisitable<BinaryExpression, Expression> {
 public:
     BinaryExpression(Location loc, Box<Expression> left, Box<Expression> right, tokens::BinaryOp op)
-        : Expression(NodeKind::BIN_EXPR, loc), left(std::move(left)), right(std::move(right)),
-          op(op) {}
+        : ASTVisitable<BinaryExpression, Expression>(NodeKind::BIN_EXPR, loc),
+          left(std::move(left)), right(std::move(right)), op(op) {}
 
     Box<Expression> left;
     Box<Expression> right;
     tokens::BinaryOp op;
 
-    void accept(ASTVisitor& visitor) override;
-
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::BIN_EXPR; }
 };
 
-class CastExpression : public Expression {
+class CastExpression : public ASTVisitable<CastExpression, Expression> {
 public:
     CastExpression(Location loc, Box<Expression> inner, Box<TypeName> type_name)
-        : Expression(NodeKind::CAST_EXPR, loc), inner(std::move(inner)),
-          type_name(std::move(type_name)) {}
+        : ASTVisitable<CastExpression, Expression>(NodeKind::CAST_EXPR, loc),
+          inner(std::move(inner)), type_name(std::move(type_name)) {}
 
     Box<Expression> inner;
     Box<TypeName> type_name;
 
-    void accept(ASTVisitor& visitor) override;
-
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::CAST_EXPR; }
 };
 
-class UnaryExpression : public Expression {
+class UnaryExpression : public ASTVisitable<UnaryExpression, Expression> {
 public:
     UnaryExpression(Location loc, Box<Expression> operand, tokens::UnaryOp op)
-        : Expression(NodeKind::UN_EXPR, loc), operand(std::move(operand)), op(op) {}
+        : ASTVisitable<UnaryExpression, Expression>(NodeKind::UN_EXPR, loc),
+          operand(std::move(operand)), op(op) {}
 
     Box<Expression> operand;
     tokens::UnaryOp op;
 
-    void accept(ASTVisitor& visitor) override;
-
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::UN_EXPR; }
 };
 
-class AssignmentExpression : public Expression {
+class AssignmentExpression : public ASTVisitable<AssignmentExpression, Expression> {
 public:
     AssignmentExpression(
         Location loc, Box<Expression> left, Box<Expression> right, tokens::AssignOp op)
-        : Expression(NodeKind::ASSGN_EXPR, loc), left(std::move(left)), right(std::move(right)),
-          op(op) {}
+        : ASTVisitable<AssignmentExpression, Expression>(NodeKind::ASSGN_EXPR, loc),
+          left(std::move(left)), right(std::move(right)), op(op) {}
 
     Box<Expression> left;
     Box<Expression> right;
     tokens::AssignOp op;
 
-    void accept(ASTVisitor& visitor) override;
-
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::ASSGN_EXPR; }
 };
 
-class ConditionalExpression : public Expression {
+class ConditionalExpression : public ASTVisitable<ConditionalExpression, Expression> {
 public:
     ConditionalExpression(
         Location loc, Box<Expression> condition, Box<Expression> true_expr,
         Box<Expression> false_expr)
-        : Expression(NodeKind::COND_EXPR, loc), condition(std::move(condition)),
-          true_expr(std::move(true_expr)), false_expr(std::move(false_expr)) {}
+        : ASTVisitable<ConditionalExpression, Expression>(NodeKind::COND_EXPR, loc),
+          condition(std::move(condition)), true_expr(std::move(true_expr)),
+          false_expr(std::move(false_expr)) {}
 
     Box<Expression> condition;
     Box<Expression> true_expr;
     Box<Expression> false_expr;
 
-    void accept(ASTVisitor& visitor) override;
-
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::COND_EXPR; }
 };
 
-class IdentifierExpression : public Expression {
+class IdentifierExpression : public ASTVisitable<IdentifierExpression, Expression> {
 public:
     IdentifierExpression(Location loc, std::string name)
-        : Expression(NodeKind::IDENT_EXPR, loc), name(std::move(name)) {}
+        : ASTVisitable<IdentifierExpression, Expression>(NodeKind::IDENT_EXPR, loc),
+          name(std::move(name)) {}
 
     std::string name;
-
-    void accept(ASTVisitor& visitor) override;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::IDENT_EXPR; }
 };
 
-class LiteralExpression : public Expression {
+class LiteralExpression : public ASTVisitable<LiteralExpression, Expression> {
 public:
     enum LiteralKind : uint8_t { INT, FLOAT, CHAR, BOOL };
 
@@ -1055,53 +990,47 @@ public:
     };
 
     LiteralExpression(Location loc, LiteralKind kind, Value value)
-        : Expression(NodeKind::LIT_EXPR, loc), kind(kind), value(value) {}
+        : ASTVisitable<LiteralExpression, Expression>(NodeKind::LIT_EXPR, loc), kind(kind),
+          value(value) {}
 
     LiteralKind kind;
     Value value;
 
-    void accept(ASTVisitor& visitor) override;
-
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::LIT_EXPR; }
 };
 
-class StringExpression : public Expression {
+class StringExpression : public ASTVisitable<StringExpression, Expression> {
 public:
     StringExpression(Location loc, std::string value)
-        : Expression(NodeKind::STR_EXPR, loc), value(std::move(value)) {}
+        : ASTVisitable<StringExpression, Expression>(NodeKind::STR_EXPR, loc),
+          value(std::move(value)) {}
 
     std::string value;
-
-    void accept(ASTVisitor& visitor) override;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::STR_EXPR; }
 };
 
-class CallExpression : public Expression {
+class CallExpression : public ASTVisitable<CallExpression, Expression> {
 public:
     CallExpression(Location loc, Box<Expression> callee, Vec<Box<Expression>> arguments)
-        : Expression(NodeKind::CALL_EXPR, loc), callee(std::move(callee)),
-          arguments(std::move(arguments)) {}
+        : ASTVisitable<CallExpression, Expression>(NodeKind::CALL_EXPR, loc),
+          callee(std::move(callee)), arguments(std::move(arguments)) {}
 
     Box<Expression> callee;
     Vec<Box<Expression>> arguments;
 
-    void accept(ASTVisitor& visitor) override;
-
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::CALL_EXPR; }
 };
 
-class MemberAccessExpression : public Expression {
+class MemberAccessExpression : public ASTVisitable<MemberAccessExpression, Expression> {
 public:
     MemberAccessExpression(Location loc, Box<Expression> object, std::string member, bool is_arrow)
-        : Expression(NodeKind::ACCESS_EXPR, loc), object(std::move(object)),
-          member(std::move(member)), is_arrow(is_arrow) {}
+        : ASTVisitable<MemberAccessExpression, Expression>(NodeKind::ACCESS_EXPR, loc),
+          object(std::move(object)), member(std::move(member)), is_arrow(is_arrow) {}
 
     Box<Expression> object;
     std::string member;
     bool is_arrow;
-
-    void accept(ASTVisitor& visitor) override;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::ACCESS_EXPR; }
 };
@@ -1117,75 +1046,71 @@ U64 i = 69;
 i.U32[1] = 4;
 ```
 */
-class ReinterpretExpression : public Expression {
+class ReinterpretExpression : public ASTVisitable<ReinterpretExpression, Expression> {
 public:
     ReinterpretExpression(
         Location loc, Box<Expression> object, tokens::PrimType target, bool is_arrow)
-        : Expression(NodeKind::REINT_EXPR, loc), object(std::move(object)), target(target),
-          is_arrow(is_arrow) {}
+        : ASTVisitable<ReinterpretExpression, Expression>(NodeKind::REINT_EXPR, loc),
+          object(std::move(object)), target(target), is_arrow(is_arrow) {}
 
     Box<Expression> object;
     tokens::PrimType target;
     bool is_arrow;
 
-    void accept(ASTVisitor& visitor) override;
-
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::REINT_EXPR; }
 };
 
-class ArraySubscriptExpression : public Expression {
+class ArraySubscriptExpression : public ASTVisitable<ArraySubscriptExpression, Expression> {
 public:
     ArraySubscriptExpression(Location loc, Box<Expression> array, Box<Expression> index)
-        : Expression(NodeKind::SUBSCR_EXPR, loc), array(std::move(array)), index(std::move(index)) {
-    }
+        : ASTVisitable<ArraySubscriptExpression, Expression>(NodeKind::SUBSCR_EXPR, loc),
+          array(std::move(array)), index(std::move(index)) {}
 
     Box<Expression> array;
     Box<Expression> index;
 
-    void accept(ASTVisitor& visitor) override;
-
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::SUBSCR_EXPR; }
 };
 
-class PostfixExpression : public Expression {
+class PostfixExpression : public ASTVisitable<PostfixExpression, Expression> {
 public:
     PostfixExpression(Location loc, Box<Expression> operand, tokens::PostfixOp op)
-        : Expression(NodeKind::POSTF_EXPR, loc), operand(std::move(operand)), op(op) {}
+        : ASTVisitable<PostfixExpression, Expression>(NodeKind::POSTF_EXPR, loc),
+          operand(std::move(operand)), op(op) {}
 
     Box<Expression> operand;
     tokens::PostfixOp op;
 
-    void accept(ASTVisitor& visitor) override;
-
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::POSTF_EXPR; }
 };
 
-class SizeofExpression : public Expression {
+class SizeofExpression : public ASTVisitable<SizeofExpression, Expression> {
 public:
     SizeofExpression(Location loc, Box<Expression> expr)
-        : Expression(NodeKind::SIZEOF_EXPR, loc), operand(std::move(expr)) {}
+        : ASTVisitable<SizeofExpression, Expression>(NodeKind::SIZEOF_EXPR, loc),
+          operand(std::move(expr)) {}
 
     SizeofExpression(Location loc, Box<TypeName> type)
-        : Expression(NodeKind::SIZEOF_EXPR, loc), operand(std::move(type)) {}
+        : ASTVisitable<SizeofExpression, Expression>(NodeKind::SIZEOF_EXPR, loc),
+          operand(std::move(type)) {}
 
     std::variant<Box<Expression>, Box<TypeName>> operand;
-
-    void accept(ASTVisitor& visitor) override;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::SIZEOF_EXPR; }
 };
 
-class Function : public ProgramItem {
+class Function : public ASTVisitable<Function, ProgramItem> {
 public:
     Function(
         Location loc, Vec<Box<DeclarationSpecifier>> decl_spec_list, Box<Declarator> declarator,
         Box<CompoundStatement> body)
-        : ProgramItem(NodeKind::FUNC, loc), decl_spec_list(std::move(decl_spec_list)),
-          declarator(std::move(declarator)), body(std::move(body)) {}
+        : ASTVisitable<Function, ProgramItem>(NodeKind::FUNC, loc),
+          decl_spec_list(std::move(decl_spec_list)), declarator(std::move(declarator)),
+          body(std::move(body)) {}
 
     Function(Location loc, Box<Declarator> declarator, Box<CompoundStatement> body)
-        : ProgramItem(NodeKind::FUNC, loc), declarator(std::move(declarator)),
-          body(std::move(body)) {}
+        : ASTVisitable<Function, ProgramItem>(NodeKind::FUNC, loc),
+          declarator(std::move(declarator)), body(std::move(body)) {}
 
     /*
     Any possible specifiers (e.g. public, int, etc.)
@@ -1198,22 +1123,19 @@ public:
     Box<Declarator> declarator;
     Box<CompoundStatement> body;
 
-    void accept(ASTVisitor& visitor) override;
-
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::FUNC; }
 };
 
 /*
 The toplevel Program class.
 */
-class Program : public ASTNode {
+class Program : public ASTVisitable<Program, ASTNode> {
 public:
-    Program(std::string *filename) : ASTNode(NodeKind::PROG, Location(filename)) {}
+    Program(std::string *filename)
+        : ASTVisitable<Program, ASTNode>(NodeKind::PROG, Location(filename)) {}
 
     // Program items.
     std::vector<std::unique_ptr<ProgramItem>> items;
-
-    void accept(ASTVisitor& visitor) override;
 
     // Add a new program item.
     void add_item(std::unique_ptr<ProgramItem> item);

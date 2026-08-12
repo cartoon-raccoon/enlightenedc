@@ -3,77 +3,81 @@
 #ifndef ECC_AST_VISITOR_H
 #define ECC_AST_VISITOR_H
 
-#include "ast/ast.hpp"
+#include "abstract/visitor.hpp"
 
 namespace ecc::ast {
 
-// An abstract class defining the interface for an AST visitor.
-// An ASTVisitor object visits each node on the AST, operating on
-// it as it goes.
-class ASTVisitor {
-public:
-    virtual ~ASTVisitor() = default;
+class Program;
+class Function;
+class TypeDeclaration;
+class VariableDeclaration;
+class ParameterDeclaration;
+class Declarator;
+class ParenDeclarator;
+class ArrayDeclarator;
+class FunctionDeclarator;
+class InitDeclarator;
+class Pointer;
+class ClassDeclarator;
+class ClassDeclaration;
+class Enumerator;
+class StorageClassSpecifier;
+class TypeQualifier;
+class EnumSpecifier;
+class ClassSpecifier;
+class UnionSpecifier;
+class TypeIdentifier;
+class VoidSpecifier;
+class PrimitiveSpecifier;
+class Initializer;
+class TypeName;
+class IdentifierDeclarator;
+class CompoundStatement;
+class ExpressionStatement;
+class CaseStatement;
+class CaseRangeStatement;
+class DefaultStatement;
+class LabeledStatement;
+class PrintStatement;
+class IfStatement;
+class SwitchStatement;
+class WhileStatement;
+class DoWhileStatement;
+class ForStatement;
+class GotoStatement;
+class BreakStatement;
+class ContinueStatement;
+class ReturnStatement;
+class BinaryExpression;
+class CastExpression;
+class UnaryExpression;
+class AssignmentExpression;
+class ConditionalExpression;
+class IdentifierExpression;
+class ConstExpression;
+class LiteralExpression;
+class StringExpression;
+class CallExpression;
+class MemberAccessExpression;
+class ReinterpretExpression;
+class ArraySubscriptExpression;
+class PostfixExpression;
+class SizeofExpression;
 
-    virtual void visit(Program& node)  = 0;
-    virtual void visit(Function& node) = 0;
-
-    virtual void visit(TypeDeclaration& node)       = 0;
-    virtual void visit(VariableDeclaration& node)   = 0;
-    virtual void visit(ParameterDeclaration& node)  = 0;
-    virtual void visit(Declarator& node)            = 0;
-    virtual void visit(ParenDeclarator& node)       = 0;
-    virtual void visit(ArrayDeclarator& node)       = 0;
-    virtual void visit(FunctionDeclarator& node)    = 0;
-    virtual void visit(InitDeclarator& node)        = 0;
-    virtual void visit(Pointer& node)               = 0;
-    virtual void visit(ClassDeclarator& node)       = 0;
-    virtual void visit(ClassDeclaration& node)      = 0;
-    virtual void visit(Enumerator& node)            = 0;
-    virtual void visit(StorageClassSpecifier& node) = 0;
-    virtual void visit(TypeQualifier& node)         = 0;
-    virtual void visit(EnumSpecifier& node)         = 0;
-    virtual void visit(ClassSpecifier& node)        = 0;
-    virtual void visit(UnionSpecifier& node)        = 0;
-    virtual void visit(TypeIdentifier& node)        = 0;
-    virtual void visit(VoidSpecifier& node)         = 0;
-    virtual void visit(PrimitiveSpecifier& node)    = 0;
-    virtual void visit(Initializer& node)           = 0;
-    virtual void visit(TypeName& node)              = 0;
-    virtual void visit(IdentifierDeclarator& node)  = 0;
-
-    virtual void visit(CompoundStatement& node)   = 0;
-    virtual void visit(ExpressionStatement& node) = 0;
-    virtual void visit(CaseStatement& node)       = 0;
-    virtual void visit(CaseRangeStatement& node)  = 0;
-    virtual void visit(DefaultStatement& node)    = 0;
-    virtual void visit(LabeledStatement& node)    = 0;
-    virtual void visit(PrintStatement& node)      = 0;
-    virtual void visit(IfStatement& node)         = 0;
-    virtual void visit(SwitchStatement& node)     = 0;
-    virtual void visit(WhileStatement& node)      = 0;
-    virtual void visit(DoWhileStatement& node)    = 0;
-    virtual void visit(ForStatement& node)        = 0;
-    virtual void visit(GotoStatement& node)       = 0;
-    virtual void visit(BreakStatement& node)      = 0;
-    virtual void visit(ContinueStatement& node)   = 0;
-    virtual void visit(ReturnStatement& node)     = 0;
-
-    virtual void visit(BinaryExpression& node)         = 0;
-    virtual void visit(CastExpression& node)           = 0;
-    virtual void visit(UnaryExpression& node)          = 0;
-    virtual void visit(AssignmentExpression& node)     = 0;
-    virtual void visit(ConditionalExpression& node)    = 0;
-    virtual void visit(IdentifierExpression& node)     = 0;
-    virtual void visit(ConstExpression& node)          = 0;
-    virtual void visit(LiteralExpression& node)        = 0;
-    virtual void visit(StringExpression& node)         = 0;
-    virtual void visit(CallExpression& node)           = 0;
-    virtual void visit(MemberAccessExpression& node)   = 0;
-    virtual void visit(ReinterpretExpression& node)    = 0;
-    virtual void visit(ArraySubscriptExpression& node) = 0;
-    virtual void visit(PostfixExpression& node)        = 0;
-    virtual void visit(SizeofExpression& node)         = 0;
-};
+class ASTVisitor
+    : public Visitor<
+          ASTVisitor, Program, Function, TypeDeclaration, VariableDeclaration, ParameterDeclaration,
+          Declarator, ParenDeclarator, ArrayDeclarator, FunctionDeclarator, InitDeclarator, Pointer,
+          ClassDeclarator, ClassDeclaration, Enumerator, StorageClassSpecifier, TypeQualifier,
+          EnumSpecifier, ClassSpecifier, UnionSpecifier, TypeIdentifier, VoidSpecifier,
+          PrimitiveSpecifier, Initializer, TypeName, IdentifierDeclarator, CompoundStatement,
+          ExpressionStatement, CaseStatement, CaseRangeStatement, DefaultStatement,
+          LabeledStatement, PrintStatement, IfStatement, SwitchStatement, WhileStatement,
+          DoWhileStatement, ForStatement, GotoStatement, BreakStatement, ContinueStatement,
+          ReturnStatement, BinaryExpression, CastExpression, UnaryExpression, AssignmentExpression,
+          ConditionalExpression, IdentifierExpression, ConstExpression, LiteralExpression,
+          StringExpression, CallExpression, MemberAccessExpression, ReinterpretExpression,
+          ArraySubscriptExpression, PostfixExpression, SizeofExpression> {};
 
 } // namespace ecc::ast
 
