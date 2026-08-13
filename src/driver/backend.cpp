@@ -3,6 +3,8 @@
 #include "driver/driver.hpp"
 #include "ecc.hpp"
 #include "error.hpp"
+#include "lowering/cfg/cfg.hpp"
+#include "lowering/cfg/builder.hpp"
 #include "lowering/lir/lir.hpp"
 #include "lowering/lir/printer.hpp"
 #include "lowering/lir/symbols.hpp"
@@ -21,6 +23,7 @@ using namespace ecc::frontend;
 using namespace ecc::sema::sym;
 using namespace ecc::sema::types;
 using namespace ecc::lower::lir;
+using namespace ecc::lower::cfg;
 using namespace mir;
 
 void Backend::run(Ecc& ecc, driver::TranslationUnit& unit) {
@@ -37,6 +40,7 @@ void Backend::run(Ecc& ecc, driver::TranslationUnit& unit) {
 
     LIRSymbolMap& lirsyms = *unit.prog_lir->symbols;
     ProgramLIR& lir       = *unit.prog_lir->lir;
+    ProgramCFG& cfg       = *unit.prog_lir->cfg;
 
     dbprint("\n---------- Generating MIR ----------\n");
 
@@ -103,13 +107,24 @@ void Backend::run(Ecc& ecc, driver::TranslationUnit& unit) {
         mir.accept(printer);
     }
 
+    if (ecc.config->stop_at < Config::StopAt::GEN_LIR) {
+        return;
+    }
+
     dbprint("\n---------- Generating LIR ----------\n");
 
     LIRSynthesizer lirsynthesizer(lirsyms, types, lir);
 
     lirsynthesizer.generate_lir(mir);
+    
+    if (ecc.config->to_print.contains(Config::ToPrint::LIR)) {
+        dbprint("--------- LIR ---------\n");
+        LIRPrinter printer;
+        lir.accept(printer);
+    }
 
-    dbprint("--------- LIR ---------\n");
-    LIRPrinter printer;
-    lir.accept(printer);
+    CFGBuilder cfgbuilder(types, cfg);
+
+    cfgbuilder.build_cfg(lir);
+    
 }

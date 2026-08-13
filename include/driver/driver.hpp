@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ecc.hpp"
 #ifndef ECC_DRIVER_H
 #define ECC_DRIVER_H
 
@@ -9,7 +8,9 @@
 #include "ast/ast.hpp"
 #include "codegen/llvm.hpp"
 #include "driver/backend.hpp"
+#include "ecc.hpp"
 #include "frontend/frontend.hpp"
+#include "lowering/cfg/cfg.hpp"
 #include "lowering/lir/lir.hpp"
 #include "lowering/lir/symbols.hpp"
 #include "semantics/mir/mir.hpp"
@@ -43,6 +44,7 @@ struct TranslationUnitLIR {
 
     Box<lower::lir::LIRSymbolMap> symbols;
     Box<lower::lir::ProgramLIR> lir;
+    Box<lower::cfg::ProgramCFG> cfg;
 };
 
 /**

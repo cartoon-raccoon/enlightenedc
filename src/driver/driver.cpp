@@ -15,13 +15,14 @@ using namespace sema::types;
 using namespace sema::sym;
 using namespace ecc::codegen;
 using namespace lower::lir;
+using namespace lower::cfg;
 
 TranslationUnitMIR::TranslationUnitMIR()
     : symbols(make_box<SymbolTable>()), mir(make_box<ProgramMIR>()) {
 }
 
 TranslationUnitLIR::TranslationUnitLIR()
-    : symbols(make_box<LIRSymbolMap>()), lir(make_box<ProgramLIR>()) {
+    : symbols(make_box<LIRSymbolMap>()), lir(make_box<ProgramLIR>()), cfg(make_box<ProgramCFG>()) {
 }
 
 TranslationUnit::TranslationUnit(std::string *filename, LLVMCore& llvmcore) : filename(filename) {

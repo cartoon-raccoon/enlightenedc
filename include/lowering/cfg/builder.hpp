@@ -103,6 +103,10 @@ protected:
     NestedStmtInfo *find_info(const NestedStmtFilter& filter);
 
     Value *eval(lir::ExprLIR& node);
+
+    /**
+    Evaluate the expression when appearing in an lvalue position.
+    */
     Value *eval_lvalue(lir::ExprLIR& node);
 
     void visit(lir::ProgramLIR& node) override;

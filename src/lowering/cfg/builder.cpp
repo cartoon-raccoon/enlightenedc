@@ -62,6 +62,13 @@ Value *CFGBuilder::eval_lvalue(ExprLIR& node) {
     if (auto *unary = dyncast<UnaryExprLIR>(&node); unary && unary->op == tokens::UnaryOp::DEREF) {
         return eval(*unary->operand); // *p's address is just p's value
     }
+    if (auto *literal = dyncast<LiteralExprLIR>(&node); literal && literal->is_str()) {
+        auto& str = std::get<std::string>(literal->value);
+        String *ret = prog_cfg.add_or_get_string(str);
+        ret->set_type(literal->act_type);
+
+        return ret;
+    }
 
     throw std::runtime_error("invalid ExprLIR type for eval_lvalue");
 }
@@ -95,6 +102,8 @@ static tokens::BinaryOp assign_op_to_binop(tokens::AssignOp op) {
 }
 
 void CFGBuilder::visit(ProgramLIR& node) {
+    dbprint("visiting ProgramLIR node ", node.loc ? *node.loc : Location {});
+
     for (auto& item : node.globals) {
         prog_cfg.add_or_get_global(item->lirsym);
     }
@@ -112,6 +121,8 @@ void CFGBuilder::visit(ProgramLIR& node) {
 }
 
 void CFGBuilder::visit(FunctionLIR& node) {
+    dbprint("visiting FunctionLIR node ", node.loc ? *node.loc : Location {});
+
     curr_func = prog_cfg.add_or_get_function(&node);
 
     if (!node.has_definition) {
@@ -140,6 +151,8 @@ void CFGBuilder::visit(FunctionLIR& node) {
 }
 
 void CFGBuilder::visit(LabelDeclLIR& node) {
+    dbprint("visiting LabelDeclLIR node ", node.loc ? *node.loc : Location {});
+
     BasicBlock *newblock = curr_func->create_block(node.mangled_label, true);
 
     if (!curr_blk->is_terminated()) {
@@ -152,6 +165,8 @@ void CFGBuilder::visit(LabelDeclLIR& node) {
 }
 
 void CFGBuilder::visit(CaseLIR& node) {
+    dbprint("visiting CaseLIR node ", node.loc ? *node.loc : Location {});
+
     BasicBlock *caseblk = curr_func->create_block();
     if (!curr_blk->is_terminated()) {
         curr_blk->terminate<Goto>()->set_target(caseblk);
@@ -173,6 +188,8 @@ void CFGBuilder::visit(CaseLIR& node) {
 #pragma clang diagnostic ignored "-Wunused-parameter"
 
 void CFGBuilder::visit(DefaultLIR& node) {
+    dbprint("visiting DefaultLIR node ", node.loc ? *node.loc : Location {});
+
     BasicBlock *caseblk = curr_func->create_block();
     if (!curr_blk->is_terminated()) {
         curr_blk->terminate<Goto>()->set_target(caseblk);
@@ -192,6 +209,8 @@ void CFGBuilder::visit(DefaultLIR& node) {
 #pragma clang diagnostic pop
 
 void CFGBuilder::visit(ExprStmtLIR& node) {
+    dbprint("visiting ExprStmtLIR node ", node.loc ? *node.loc : Location {});
+
     if (curr_blk->is_terminated()) {
         curr_blk = curr_func->create_block();
     }
@@ -199,6 +218,8 @@ void CFGBuilder::visit(ExprStmtLIR& node) {
 }
 
 void CFGBuilder::visit(PrintStmtLIR& node) {
+    dbprint("visiting PrintStmtLIR node ", node.loc ? *node.loc : Location {});
+
     if (curr_blk->is_terminated()) {
         curr_blk = curr_func->create_block();
     }
@@ -214,6 +235,8 @@ void CFGBuilder::visit(PrintStmtLIR& node) {
 }
 
 void CFGBuilder::visit(GotoStmtLIR& node) {
+    dbprint("visiting GotoStmtLIR node ", node.loc ? *node.loc : Location {});
+
     if (curr_blk->is_terminated()) {
         curr_blk = curr_func->create_block();
     }
@@ -228,6 +251,8 @@ void CFGBuilder::visit(GotoStmtLIR& node) {
 }
 
 void CFGBuilder::visit(SwitchStmtLIR& node) {
+    dbprint("visiting SwitchStmtLIR node ", node.loc ? *node.loc : Location {});
+
     if (curr_blk->is_terminated()) {
         curr_blk = curr_func->create_block();
     }
@@ -254,6 +279,8 @@ void CFGBuilder::visit(SwitchStmtLIR& node) {
 #pragma clang diagnostic ignored "-Wunused-parameter"
 
 void CFGBuilder::visit(BreakStmtLIR& node) {
+    dbprint("visiting BreakStmtLIR node ", node.loc ? *node.loc : Location {});
+
     if (curr_blk->is_terminated()) {
         curr_blk = curr_func->create_block();
     }
@@ -271,6 +298,8 @@ void CFGBuilder::visit(BreakStmtLIR& node) {
 }
 
 void CFGBuilder::visit(ContStmtLIR& node) {
+    dbprint("visiting ContStmtLIR node ", node.loc ? *node.loc : Location {});
+
     if (curr_blk->is_terminated()) {
         curr_blk = curr_func->create_block();
     }
@@ -299,6 +328,8 @@ void CFGBuilder::visit(ContStmtLIR& node) {
 #pragma clang diagnostic pop
 
 void CFGBuilder::visit(IfStmtLIR& node) {
+    dbprint("visiting IfStmtLIR node ", node.loc ? *node.loc : Location {});
+
     // if current block is already terminated, create a new block and set as current
     if (curr_blk->is_terminated()) {
         curr_blk = curr_func->create_block();
@@ -355,6 +386,8 @@ void CFGBuilder::visit(IfStmtLIR& node) {
 }
 
 void CFGBuilder::visit(LoopStmtLIR& node) {
+    dbprint("visiting LoopStmtLIR node ", node.loc ? *node.loc : Location {});
+
     if (curr_blk->is_terminated()) {
         curr_blk = curr_func->create_block();
     }
@@ -483,6 +516,7 @@ void CFGBuilder::visit(LoopStmtLIR& node) {
 }
 
 void CFGBuilder::visit(ReturnStmtLIR& node) {
+    dbprint("visiting ReturnStmtLIR node ", node.loc ? *node.loc : Location {});
 
     if (curr_blk->is_terminated()) {
         curr_blk = curr_func->create_block();
@@ -497,10 +531,14 @@ void CFGBuilder::visit(ReturnStmtLIR& node) {
 }
 
 void CFGBuilder::visit(VarDeclLIR& node) {
+    dbprint("visiting VarDeclLIR node ", node.loc ? *node.loc : Location {});
+
     curr_func->add_alloca(curr_blk, node.lirsym);
 }
 
 void CFGBuilder::visit(BinaryExprLIR& node) {
+    dbprint("visiting BinaryExprLIR node ", node.loc ? *node.loc : Location {});
+
     switch (node.op) {
     case BinaryOp::ANDAND:
     case BinaryOp::OROR: {
@@ -570,6 +608,8 @@ void CFGBuilder::visit(BinaryExprLIR& node) {
 }
 
 void CFGBuilder::visit(UnaryExprLIR& node) {
+    dbprint("visiting UnaryExprLIR node ", node.loc ? *node.loc : Location {});
+
     switch (node.op) {
     case UnaryOp::INC:
     case UnaryOp::DEC: {
@@ -597,19 +637,24 @@ void CFGBuilder::visit(UnaryExprLIR& node) {
 }
 
 void CFGBuilder::visit(CastExprLIR& node) {
+    dbprint("visiting CastExprLIR node ", node.loc ? *node.loc : Location {});
+
     using CK = CastExprLIR::CastKind;
     switch (node.castkind) {
     case CK::Explicit:
     case CK::Implicit: {
+        dbprint("    rvalue cast, evaluating on rvalue eval");
         Value *operand = eval(*node.inner);
         last_value =
             curr_blk->add_instruction<CastInst>(node.act_type, node.target, operand, *node.loc);
     } break;
 
     case CK::ArrPtrDecay: {
+        dbprint("    array-pointer decay, evaluating on lvalue eval");
         last_value = eval_lvalue(*node.inner);
     } break;
     case CK::FuncPtrDecay: {
+        dbprint("    function-pointer decay, evaluating on rvalue eval");
         last_value = eval(*node.inner);
     } break;
     }
@@ -618,6 +663,8 @@ void CFGBuilder::visit(CastExprLIR& node) {
 }
 
 void CFGBuilder::visit(AssignExprLIR& node) {
+    dbprint("visiting AssignExprLIR node ", node.loc ? *node.loc : Location {});
+
     Value *lvalue = eval_lvalue(*node.left);
     Value *right  = eval(*node.right);
 
@@ -633,6 +680,8 @@ void CFGBuilder::visit(AssignExprLIR& node) {
 }
 
 void CFGBuilder::visit(CondExprLIR& node) {
+    dbprint("visiting CondExprLIR node ", node.loc ? *node.loc : Location {});
+
     // evaluate the condition
     Value *cond = eval(*node.condition);
 
@@ -670,6 +719,8 @@ void CFGBuilder::visit(CondExprLIR& node) {
 }
 
 void CFGBuilder::visit(IdentExprLIR& node) {
+    dbprint("visiting IdentExprLIR node ", node.loc ? *node.loc : Location {});
+
     if (node.sym->is_var()) {
         Value *val;
         if (auto *alloc = curr_func->lookup_alloca(node.sym->as_varsym())) {
@@ -686,12 +737,16 @@ void CFGBuilder::visit(IdentExprLIR& node) {
 }
 
 void CFGBuilder::visit(LiteralExprLIR& node) {
+    dbprint("visiting LiteralExprLIR node ", node.loc ? *node.loc : Location {});
+
     std::visit(
         match{
             [&](eval::Value& val) {
+                dbprint("    Literal is Value, creating Literal value");
                 last_value = curr_blk->add_value<Literal>(node.act_type, val);
             },
             [&](std::string& str) {
+                dbprint("    Literal is string, creating String value");
                 // string dedup happens here.
                 last_value = prog_cfg.add_or_get_string(str);
                 last_value->set_type(node.act_type);
@@ -702,12 +757,16 @@ void CFGBuilder::visit(LiteralExprLIR& node) {
 }
 
 void CFGBuilder::visit(ZeroExprLIR& node) {
+    dbprint("visiting ZeroExprLIR node ", node.loc ? *node.loc : Location {});
+
     last_value = curr_blk->add_value<Zero>(node.act_type);
 
     assert(last_value && "last_value is nullptr at end of expr visit");
 }
 
 void CFGBuilder::visit(CallExprLIR& node) {
+    dbprint("visiting CallExprLIR node ", node.loc ? *node.loc : Location {});
+
     Vec<Value *> args;
     for (auto& arg : node.args) {
         args.push_back(eval(*arg));
@@ -719,6 +778,8 @@ void CFGBuilder::visit(CallExprLIR& node) {
 }
 
 void CFGBuilder::visit(MemberAccExprLIR& node) {
+    dbprint("visiting MemberAccExprLIR node ", node.loc ? *node.loc : Location {});
+
     Value *addr = eval_lvalue(node);
 
     last_value = curr_blk->add_instruction<LoadInst>(node.act_type, addr, *node.loc);
@@ -727,6 +788,8 @@ void CFGBuilder::visit(MemberAccExprLIR& node) {
 }
 
 void CFGBuilder::visit(ReintExprLIR& node) {
+    dbprint("visiting ReintExprLIR node ", node.loc ? *node.loc : Location {});
+
     Value *operand = eval(*node.object);
 
     last_value =
@@ -736,6 +799,8 @@ void CFGBuilder::visit(ReintExprLIR& node) {
 }
 
 void CFGBuilder::visit(SubscrExprLIR& node) {
+    dbprint("visiting SubscrExprLIR node ", node.loc ? *node.loc : Location {});
+
     Value *addr = eval_lvalue(node);
 
     last_value = curr_blk->add_instruction<LoadInst>(node.act_type, addr, *node.loc);
@@ -744,6 +809,8 @@ void CFGBuilder::visit(SubscrExprLIR& node) {
 }
 
 void CFGBuilder::visit(PostfixExprLIR& node) {
+    dbprint("visiting PostfixExprLIR node ", node.loc ? *node.loc : Location {});
+
     Value *address = eval_lvalue(*node.operand);
     Value *old_val = curr_blk->add_instruction<LoadInst>(node.act_type, address, *node.loc);
 

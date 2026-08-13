@@ -908,6 +908,8 @@ private:
 class FunctionCFGAllocaIter;
 class FunctionCFGAllocas;
 
+constexpr std::string IMPLICIT_MAIN_NAME = "__implicit_main";
+
 /**
 A single function, composed of linked blocks.
 */
@@ -917,7 +919,9 @@ public:
 
     friend class FunctionCFGAllocas;
 
-    FunctionCFG(lir::FunctionLIR *func) : name(func->funcsym->mangled_name), lir(func) {}
+    FunctionCFG(lir::FunctionLIR *func)
+        // if func is null, treat this function as an implicit main
+        : name(func ? func->funcsym->mangled_name : IMPLICIT_MAIN_NAME), lir(func) {}
 
     /**
     Initialize the FunctionCFG, returning a pointer to the entry block.

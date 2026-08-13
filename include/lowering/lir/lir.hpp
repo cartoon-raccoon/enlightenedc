@@ -1,5 +1,6 @@
 #pragma once
 
+#include <variant>
 #ifndef ECC_LIR_H
 #define ECC_LIR_H
 
@@ -520,6 +521,9 @@ public:
           value(std::move(value)) {}
 
     LitValueLIR value;
+
+    bool is_str() const { return std::holds_alternative<std::string>(value); }
+    bool is_val() const { return std::holds_alternative<eval::Value>(value); }
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::LITEXPR_LIR; }
 };
