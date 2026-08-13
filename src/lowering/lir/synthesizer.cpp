@@ -898,8 +898,8 @@ void LIRSynthesizer::do_visit(CastExprMIR& node) {
 
     Box<ExprLIR> inner = std::move(last_expr);
 
-    Box<ExprLIR> expr =
-        std::make_unique<CastExprLIR>(node.loc, node.act_type, std::move(inner), node.target, mirck_to_lirck(node.castkind));
+    Box<ExprLIR> expr = std::make_unique<CastExprLIR>(
+        node.loc, node.act_type, std::move(inner), node.target, mirck_to_lirck(node.castkind));
 
     last_expr = std::move(expr);
 }
