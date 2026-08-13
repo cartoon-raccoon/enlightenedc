@@ -251,6 +251,7 @@ void MIRSynthesizer::do_visit(Function& node) {
 
         if (!param.name) {
             add_error<EccSemError>("parameter in function declaration has no name", param.loc);
+            throw UnableToContinue();
         }
 
         Type *sym_type = param.is_const ? types.get_const(param.type) : param.type;
@@ -573,9 +574,23 @@ void MIRSynthesizer::do_visit(FunctionDeclarator& node) {
     auto builder = take_last_result<Box<DeclaratorBuilder>>();
 
     Vec<FuncParam> parameters;
+
+    // name pool to check for duplicate parameter names
+    HashSet<std::string> name_pool;
+
     for (auto& param : node.parameters) {
         dv_call_noparam(param);
         FuncParam parsed = take_last_result<FuncParam>();
+
+        if (parsed.name) {
+            if (name_pool.contains(*parsed.name)) {
+                add_error<EccSemError>(
+                    "duplicate parameter name in function declarator", parsed.loc);
+                throw UnableToContinue();
+            } else {
+                name_pool.insert(*parsed.name);
+            }
+        }
         parameters.push_back(std::move(parsed));
     }
 
