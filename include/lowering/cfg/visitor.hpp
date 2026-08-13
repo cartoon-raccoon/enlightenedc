@@ -25,11 +25,15 @@ class CallInst;
 class FuncRef;
 class Literal;
 class Zero;
+class Global;
+class FuncArg;
+class String;
 
-class CFGValueVisitor : public Visitor<
-                            CFGValueVisitor, AllocaInst, LoadInst, StoreInst, PhiInst, PrintInst,
-                            BinaryInst, UnaryInst, IncrInst, DecrInst, CastInst, ReintInst,
-                            MemberAccInst, SubscrInst, CallInst, FuncRef, Literal, Zero> {};
+class CFGValueVisitor
+    : public Visitor<
+          CFGValueVisitor, AllocaInst, LoadInst, StoreInst, PhiInst, PrintInst, BinaryInst,
+          UnaryInst, IncrInst, DecrInst, CastInst, ReintInst, MemberAccInst, SubscrInst, CallInst,
+          FuncRef, Literal, Zero, Global, FuncArg, String> {};
 
 } // namespace ecc::lower::cfg
 

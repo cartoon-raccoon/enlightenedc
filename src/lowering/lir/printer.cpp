@@ -59,7 +59,9 @@ void LIRPrinter::visit(FunctionLIR& node) {
         "FunctionLIR: " + node.funcsym->name + " (" + node.funcsym->mangled_name + ")", node,
         [&] {
             std::cout << std::string(indent * 2, ' ')
-                      << "type: " << node.funcsym->signature->to_string() << "\n";
+                      << "type: " << node.funcsym->signature->to_string()
+                      << (node.has_definition ? "" : "; [DECLARATION]")
+                      << "\n";
         },
         [&] {
             for (auto& local : node.locals)

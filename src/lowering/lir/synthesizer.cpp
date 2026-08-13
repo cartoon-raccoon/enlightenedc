@@ -378,13 +378,14 @@ void LIRSynthesizer::do_visit(FunctionMIR& node) {
         return;
     }
 
+    this_func_ptr->has_definition = true;
+
     // Push a new queue onto the queue stack
     push_queue();
 
     func_stack.push(funcptr);
 
-    // Register the function's parameters as locals before visiting the body, so that
-    // IdentExprMIR lookups for them succeed. Each is emitted as a VarDeclLIR marked is_param.
+    // register the function's parameters as locals
     for (VarSymbol *param : sym->parameters) {
         std::string param_mangled = param->mangle();
         std::string param_name    = param->name;
@@ -393,6 +394,9 @@ void LIRSynthesizer::do_visit(FunctionMIR& node) {
             std::make_unique<LIRVarSym>(param_mangled, param_name, param->loc, param, true);
 
         LIRVarSym *lirparam = insert_varsym(param, std::move(boxed_param));
+
+        // insert the parameter into the funcsym's params store
+        funcptr->params.push_back(lirparam);
 
         Box<VarDeclLIR> paramdecl = std::make_unique<VarDeclLIR>(param->loc, lirparam);
         emit(std::move(paramdecl));

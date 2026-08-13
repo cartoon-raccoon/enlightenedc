@@ -6,7 +6,6 @@
 #include <concepts>
 #include <stdexcept>
 #include <utility>
-#include <variant>
 
 #include "ds/linkedlist.hpp"
 #include "eval/value.hpp"
@@ -25,9 +24,6 @@ using namespace ecc;
 using namespace util;
 
 class Instruction;
-class FuncRef;
-class Literal;
-class Zero;
 
 class BasicBlock;
 class If;
@@ -50,10 +46,17 @@ public:
         FUNC,
         LIT,
         ZERO,
+        GLOBAL,
+        ARG,
+        STR,
     };
 
     Value(ValueKind kind, sema::types::Type *type, Location loc)
         : valkind(kind), type(type), eff_type(type->effective_type()), loc(loc) {}
+
+    Value(ValueKind kind, sema::types::Type *type, std::string name, Location loc)
+        : valkind(kind), name(std::move(name)), type(type), eff_type(type->effective_type()),
+          loc(loc) {}
 
     Value(ValueKind kind, Location loc) : valkind(kind), loc(loc) {}
 
@@ -63,18 +66,118 @@ public:
     Value(ValueKind kind) : valkind(kind) {}
 
     ValueKind valkind;
+
+    /**
+    The name of the value.
+
+    An empty string means that the Value has no name.
+    */
+    std::string name;
     sema::types::Type *type     = nullptr;
     sema::types::Type *eff_type = nullptr;
     Optional<Location> loc;
 
     virtual ~Value() = default;
 
+    bool named() const { return !this->name.empty(); }
+
+    void set_name(std::string&& name) { this->name = std::move(name); }
+
+    void set_name(const std::string& name) { this->name = name; }
+
+    void set_type(sema::types::Type *type) {
+        this->type     = type;
+        this->eff_type = type->effective_type();
+    }
+
     virtual Instruction *as_instruction() { return nullptr; }
     virtual FuncRef *as_funcref() { return nullptr; }
     virtual Literal *as_literal() { return nullptr; }
     virtual Zero *as_zero() { return nullptr; }
+    virtual Global *as_global() { return nullptr; }
+    virtual FuncArg *as_funcarg() { return nullptr; }
+    virtual String *as_string() { return nullptr; }
 
     virtual void accept(CFGValueVisitor& visitor) = 0;
+};
+
+/**
+A value that holds a reference to a function symbol.
+
+FuncRef holds a reference to a LIRFuncSym, to distinguish it from LIRVarSym,
+which is the only symbol type Load can operate on.
+*/
+class FuncRef : public CFGVisitable<FuncRef, Value> {
+public:
+    FuncRef(sema::types::FunctionType *sig, FunctionCFG *ref)
+        : CFGVisitable<FuncRef, Value>(ValueKind::FUNC, sig), func(ref) {}
+
+    FunctionCFG *func;
+
+    FuncRef *as_funcref() override { return this; }
+
+    static bool classof(const Value *node) { return node->valkind == ValueKind::FUNC; }
+};
+
+class Literal : public CFGVisitable<Literal, Value> {
+public:
+    Literal(sema::types::Type *type, eval::Value& value)
+        : CFGVisitable<Literal, Value>(ValueKind::LIT, type), value(value) {}
+
+    eval::Value value;
+
+    Literal *as_literal() override { return this; }
+
+    static bool classof(const Value *node) { return node->valkind == ValueKind::LIT; }
+};
+
+class Zero : public CFGVisitable<Zero, Value> {
+public:
+    Zero(sema::types::Type *type) : CFGVisitable<Zero, Value>(ValueKind::ZERO, type) {}
+
+    Zero *as_zero() override { return this; }
+
+    static bool classof(const Value *node) { return node->valkind == ValueKind::ZERO; }
+};
+
+class Global : public CFGVisitable<Global, Value> {
+public:
+    Global(lir::LIRVarSym *sym)
+        : CFGVisitable<Global, Value>(
+              ValueKind::GLOBAL, sym->sym->type, sym->mangled_name, sym->sym->loc),
+          sym(sym) {}
+          
+    lir::LIRVarSym *sym;
+
+    Global *as_global() override { return this; }
+
+    static bool classof(const Value *node) { return node->valkind == ValueKind::GLOBAL; }
+};
+
+/**
+An argument to a function.
+
+FunctionCFG stores these as the values to be stored into the allocations.
+*/
+class FuncArg : public CFGVisitable<FuncArg, Value> {
+public:
+    FuncArg(sema::types::Type *type) :
+        CFGVisitable<FuncArg, Value>(ValueKind::ARG, type) {}
+
+    FuncArg *as_funcarg() override { return this; }
+
+    static bool classof(const Value *node) { return node->valkind == ValueKind::STR; }
+};
+
+class String : public CFGVisitable<String, Value> {
+public:
+    String(std::string data) : CFGVisitable<String, Value>(ValueKind::STR), data(std::move(data)) {}
+    
+    std::string data;
+
+    String *as_string() override { return this; }
+
+    static bool classof(const Value *node) { return node->valkind == ValueKind::STR; }
 };
 
 /**
@@ -102,6 +205,15 @@ public:
     Instruction(BasicBlock *containing, InstKind kind, sema::types::Type *type, Location loc)
         : Value(ValueKind::INST, type, loc), containing(containing), instkind(kind) {}
 
+    Instruction(BasicBlock *containing, InstKind kind, sema::types::Type *type)
+        : Value(ValueKind::INST, type), containing(containing), instkind(kind) {}
+
+    Instruction(
+        BasicBlock *containing, InstKind kind, sema::types::Type *type, std::string name,
+        Location loc)
+        : Value(ValueKind::INST, type, std::move(name), loc), containing(containing),
+          instkind(kind) {}
+
     Instruction(BasicBlock *containing, InstKind kind, Location loc)
         : Value(ValueKind::INST, loc), containing(containing), instkind(kind) {}
 
@@ -122,7 +234,8 @@ public:
 class AllocaInst : public CFGVisitable<AllocaInst, Instruction> {
 public:
     AllocaInst(BasicBlock *containing, sema::types::Type *type, lir::LIRVarSym *sym)
-        : CFGVisitable<AllocaInst, Instruction>(containing, InstKind::ALLOCA, type, sym->sym->loc),
+        : CFGVisitable<AllocaInst, Instruction>(
+              containing, InstKind::ALLOCA, type, sym->mangled_name, sym->sym->loc),
           sym(sym) {}
 
     lir::LIRVarSym *sym;
@@ -151,8 +264,6 @@ public:
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::LOAD;
     }
-
-    void accept(CFGValueVisitor& visitor) override;
 };
 
 class StoreInst : public CFGVisitable<StoreInst, Instruction> {
@@ -161,6 +272,11 @@ public:
         BasicBlock *containing, sema::types::TypeContext& tyctxt, Value *address, Value *value,
         Location loc)
         : CFGVisitable<StoreInst, Instruction>(containing, InstKind::STORE, tyctxt.get_void(), loc),
+          address(address), value(value) {}
+
+    StoreInst(
+        BasicBlock *containing, sema::types::TypeContext& tyctxt, Value *address, Value *value)
+        : CFGVisitable<StoreInst, Instruction>(containing, InstKind::STORE, tyctxt.get_void()),
           address(address), value(value) {}
 
     Value *address;
@@ -173,8 +289,6 @@ public:
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::STORE;
     }
-
-    void accept(CFGValueVisitor& visitor) override;
 };
 
 /**
@@ -196,26 +310,18 @@ public:
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::PHI;
     }
-
-    void accept(CFGValueVisitor& visitor) override;
 };
 
 class PrintInst : public CFGVisitable<PrintInst, Instruction> {
 public:
-    PrintInst(BasicBlock *containing, sema::types::TypeContext& tyctxt, Location loc)
-        : CFGVisitable<PrintInst, Instruction>(
-              containing, InstKind::PRINT, tyctxt.get_void(), loc) {}
-
     PrintInst(
-        BasicBlock *containing, sema::types::TypeContext& tyctxt, std::string format,
-        Vec<Value *> args, Location loc)
+        BasicBlock *containing, sema::types::TypeContext& tyctxt, String *format, Vec<Value *> args,
+        Location loc)
         : CFGVisitable<PrintInst, Instruction>(containing, InstKind::PRINT, tyctxt.get_void(), loc),
-          format_string(std::move(format)), args(std::move(args)) {}
+          format_string(format), args(std::move(args)) {}
 
-    std::string format_string;
+    String *format_string;
     Vec<Value *> args;
-
-    void set_format(std::string& str) { format_string = str; }
 
     void add_arg(Value *arg) { args.push_back(arg); }
 
@@ -226,8 +332,6 @@ public:
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::PRINT;
     }
-
-    void accept(CFGValueVisitor& visitor) override;
 };
 
 class BinaryInst : public CFGVisitable<BinaryInst, Instruction> {
@@ -248,8 +352,6 @@ public:
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::BINARY;
     }
-
-    void accept(CFGValueVisitor& visitor) override;
 };
 
 class UnaryInst : public CFGVisitable<UnaryInst, Instruction> {
@@ -270,8 +372,6 @@ public:
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::UNARY;
     }
-
-    void accept(CFGValueVisitor& visitor) override;
 };
 
 class IncrInst : public CFGVisitable<IncrInst, Instruction> {
@@ -289,8 +389,6 @@ public:
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::INC;
     }
-
-    void accept(CFGValueVisitor& visitor) override;
 };
 
 class DecrInst : public CFGVisitable<DecrInst, Instruction> {
@@ -308,8 +406,6 @@ public:
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::DEC;
     }
-
-    void accept(CFGValueVisitor& visitor) override;
 };
 
 class CastInst : public CFGVisitable<CastInst, Instruction> {
@@ -330,8 +426,6 @@ public:
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::CAST;
     }
-
-    void accept(CFGValueVisitor& visitor) override;
 };
 
 class ReintInst : public CFGVisitable<ReintInst, Instruction> {
@@ -352,8 +446,6 @@ public:
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::REINT;
     }
-
-    void accept(CFGValueVisitor& visitor) override;
 };
 
 class MemberAccInst : public CFGVisitable<MemberAccInst, Instruction> {
@@ -374,8 +466,6 @@ public:
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::MEMBERACC;
     }
-
-    void accept(CFGValueVisitor& visitor) override;
 };
 
 class SubscrInst : public CFGVisitable<SubscrInst, Instruction> {
@@ -395,8 +485,6 @@ public:
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::SUBSCR;
     }
-
-    void accept(CFGValueVisitor& visitor) override;
 };
 
 class CallInst : public CFGVisitable<CallInst, Instruction> {
@@ -417,65 +505,6 @@ public:
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::CALL;
     }
-
-    void accept(CFGValueVisitor& visitor) override;
-};
-
-/**
-A value that holds a reference to a function symbol.
-
-FuncRef holds a reference to a LIRFuncSym, to distinguish it from LIRVarSym,
-which is the only symbol type Load can operate on.
-*/
-class FuncRef : public CFGVisitable<FuncRef, Value> {
-public:
-    FuncRef(sema::types::FunctionType *sig, FunctionCFG *ref)
-        : CFGVisitable<FuncRef, Value>(ValueKind::FUNC, sig), func(ref) {}
-
-    FunctionCFG *func;
-
-    FuncRef *as_funcref() override { return this; }
-
-    static bool classof(const Value *node) { return node->valkind == ValueKind::FUNC; }
-
-    void accept(CFGValueVisitor& visitor) override;
-};
-
-class Literal : public CFGVisitable<Literal, Value> {
-public:
-    using LiteralVariant = std::variant<eval::Value, std::string>;
-
-    Literal(sema::types::Type *type, eval::Value& value)
-        : CFGVisitable<Literal, Value>(ValueKind::LIT, type), value(value) {}
-
-    Literal(sema::types::Type *type, std::string value)
-        : CFGVisitable<Literal, Value>(ValueKind::LIT, type), value(std::move(value)) {}
-
-    Literal(sema::types::Type *type, LiteralVariant value)
-        : CFGVisitable<Literal, Value>(ValueKind::LIT, type), value(std::move(value)) {}
-
-    LiteralVariant value;
-
-    bool is_string() const { return std::holds_alternative<std::string>(value); }
-
-    bool is_value() const { return std::holds_alternative<eval::Value>(value); }
-
-    Literal *as_literal() override { return this; }
-
-    static bool classof(const Value *node) { return node->valkind == ValueKind::LIT; }
-
-    void accept(CFGValueVisitor& visitor) override;
-};
-
-class Zero : public CFGVisitable<Zero, Value> {
-public:
-    Zero(sema::types::Type *type) : CFGVisitable<Zero, Value>(ValueKind::ZERO, type) {}
-
-    Zero *as_zero() override { return this; }
-
-    static bool classof(const Value *node) { return node->valkind == ValueKind::ZERO; }
-
-    void accept(CFGValueVisitor& visitor) override;
 };
 
 /**
@@ -740,17 +769,18 @@ The basic unit of the CFG.
 class BasicBlock : public ds::LinkedListNode<BasicBlock> {
     // Whether the block is an entry block into a function.
     bool is_entry = false;
-    // Whether the block is part of a loop structure.
-    bool is_part_of_loop = false;
 
-    FunctionCFG *func;
+    /**
+    The function containing this block.
+    */
+    FunctionCFG *parent;
 
 public:
     friend class FunctionCFG;
 
-    BasicBlock(FunctionCFG *func) : func(func) {}
+    BasicBlock(FunctionCFG *func) : parent(func) {}
 
-    BasicBlock(std::string& label, FunctionCFG *func) : func(func), label(label) {}
+    BasicBlock(std::string& label, FunctionCFG *func) : parent(func), label(label), name(label) {}
 
     static Box<BasicBlock> entry(std::string& func_name, FunctionCFG *func);
 
@@ -774,6 +804,10 @@ public:
     BasicBlock *prev_block() { return prev(); }
 
     Terminator *terminator() { return term.get(); }
+
+    void set_label(std::string&& label) { this->label = name = std::move(label); }
+
+    void set_label(const std::string& label) { this->label = name = label; }
 
     template <typename Inst, typename... Args>
         requires std::derived_from<Inst, Instruction>
@@ -814,6 +848,11 @@ public:
     }
 
     /**
+    Retrieve the function containing this block.
+    */
+    FunctionCFG *get_parent() { return parent; }
+
+    /**
     Links `target` as a successor block to `this`.
     */
     void link_to(BasicBlock *target);
@@ -833,19 +872,32 @@ public:
     */
     BasicBlockSuccessors successors() { return BasicBlockSuccessors(term.get()); }
 
+    /**
+    An explicit, user-set label.
+    */
     Optional<std::string> label;
 
+    /**
+    An internal compiler-assigned name. If label is set, this will be label.
+    */
+    std::string name;
+
+    
+    /**
+    The blocks incoming to this block.
+    */
+    Vec<BasicBlock *> incoming;
+    
+    auto begin() const { return instructions.begin(); }
+    
+    auto end() const { return instructions.end(); }
+    
+private:
     /**
     The instructions that make up the block.
     */
     ds::LinkedList<Instruction> instructions;
 
-    /**
-    The blocks incoming to this block.
-    */
-    Vec<BasicBlock *> incoming;
-
-private:
     /**
     The blocks going out from this block.
     */
@@ -856,6 +908,9 @@ private:
     void push_value(Box<Value> val);
 };
 
+class FunctionCFGAllocaIter;
+class FunctionCFGAllocas;
+
 /**
 A single function, composed of linked blocks.
 */
@@ -863,14 +918,18 @@ class FunctionCFG {
 public:
     friend class BasicBlock;
 
-    FunctionCFG(lir::FunctionLIR *func) : lir(func) {}
+    friend class FunctionCFGAllocas;
 
-    lir::FunctionLIR *lir = nullptr;
+    FunctionCFG(lir::FunctionLIR *func) : name(func->funcsym->mangled_name), lir(func) {}
 
     /**
     Initialize the FunctionCFG, returning a pointer to the entry block.
     */
     BasicBlock *initialize();
+
+    FuncArg *add_arg(sema::types::Type *type);
+
+    FuncArg *arg_idx(size_t idx) { return idx < args.size() ? args[idx].get() : nullptr; }
 
     BasicBlock *entry_block() { return entry; }
 
@@ -878,6 +937,11 @@ public:
     Whether the FunctionCFG has been initialized.
     */
     bool is_initialized() { return !blocks.empty(); }
+
+    /**
+    Whether the FunctionCFG is defined in this TU.
+    */
+    bool is_defined() { return entry != nullptr && !blocks.empty(); }
 
     /**
     Insert an anonymous block.
@@ -906,6 +970,8 @@ public:
     */
     void add_pending_goto(std::string& label, Goto *g);
 
+    size_t num_pending_gotos() { return pending_gotos.size(); }
+
     /**
     Resolve all pending gotos with target `label` to `targ`.
     */
@@ -919,11 +985,25 @@ public:
 
     AllocaInst *add_alloca(BasicBlock *blk, lir::LIRVarSym *sym);
 
-    auto begin() { return blocks.begin(); }
+    /**
+    An iterator over the allocations in the function, in allocation order.
+    */
+    FunctionCFGAllocas get_allocas();
 
-    auto end() { return blocks.end(); }
+    Span<Box<FuncArg>> get_args() { return args; }
+
+    auto begin() const { return blocks.begin(); }
+
+    auto end() const { return blocks.end(); }
 
 private:
+
+    std::string name;
+
+    lir::FunctionLIR *lir = nullptr;
+
+    Vec<Box<FuncArg>> args;
+
     BasicBlock *entry = nullptr;
     ds::LinkedList<BasicBlock> blocks;
 
@@ -941,17 +1021,105 @@ private:
     HashMap<std::string, Vec<Goto *>> pending_gotos;
 };
 
+class FunctionCFGAllocaIter {
+    size_t idx = 0;
+    AllocaInst *curr = nullptr;
+
+    Span<lir::LIRVarSym *> order;
+    FunctionCFG *func = nullptr;
+
+    friend class FunctionCFG;
+    friend class FunctionCFGAllocas;
+
+    FunctionCFGAllocaIter(FunctionCFG *func, Span<lir::LIRVarSym *> order)
+        : order(order), func(func) {
+        if (!order.empty()) {
+            curr = func->lookup_alloca(order[idx]);
+        }
+    }
+
+    FunctionCFGAllocaIter() {}
+public:
+    using difference_type = std::ptrdiff_t;
+    using value_type      = AllocaInst *;
+
+    AllocaInst *operator*() const { return curr; }
+
+    FunctionCFGAllocaIter& operator++() {
+        ++idx;
+        curr = idx < order.size() ? func->lookup_alloca(order[idx]) : nullptr;
+
+        return *this;
+    }
+
+    FunctionCFGAllocaIter operator++(int) {
+        FunctionCFGAllocaIter tmp = *this;
+        ++(*this);
+
+        return tmp;
+    }
+
+    bool operator==(const FunctionCFGAllocaIter& other) const { return curr == other.curr; }
+};
+
+class FunctionCFGAllocas {
+    friend class FunctionCFG;
+    friend class FunctionCFGAllocaIter;
+    
+    Span<lir::LIRVarSym *> order;
+    FunctionCFG *func;
+
+    FunctionCFGAllocas(FunctionCFG *func) : order(func->alloca_order), func(func) {}
+public:
+    FunctionCFGAllocaIter begin() {
+        return FunctionCFGAllocaIter(func, order);
+    }
+
+    FunctionCFGAllocaIter end() {
+        return FunctionCFGAllocaIter();
+    }
+
+};
+
+class ProgramCFGGlobalIter;
+class ProgramCFGGlobals;
+
 class ProgramCFG {
 public:
+    friend class ProgramCFGGlobals;
+
     ProgramCFG() : implicit_main(std::make_unique<FunctionCFG>(nullptr)) {}
 
     // The implicit main that all top-level program items go into.
     Box<FunctionCFG> implicit_main;
 
     /**
-    Adds a new function to the ProgramCFG.
+    Adds a new global to the ProgramCFG corresponding to the passed LIRVarSym,
+    or returns the corresponding FunctionCFG if it already exists.
     */
-    FunctionCFG *add_function(lir::FunctionLIR *func);
+    Global *add_or_get_global(lir::LIRVarSym *var);
+
+    /**
+    Looks up the Global corresponding to `sym`, or nullptr if none exists.
+    */
+    Global *lookup_global(lir::LIRVarSym *sym);
+
+    /**
+    An iterator over the globals in the program, in the order they were added.
+    */
+    ProgramCFGGlobals get_globals();
+
+    /**
+    Adds a new string to the ProgramCFG corresponding to the passed string,
+    or returns the corresponding String if it already exists.
+    */
+    String *add_or_get_string(const std::string& str);
+
+    /**
+    Adds a new function to the ProgramCFG corresponding to the passed FunctionLIR,
+    or returns the corresponding FunctionCFG if it already exists.
+    */
+    FunctionCFG *add_or_get_function(lir::FunctionLIR *func);
 
     /**
     Construct a FuncRef from a given FunctionLIR.
@@ -960,8 +1128,72 @@ public:
 
     HashMap<lir::FunctionLIR *, Box<FunctionCFG>> functions;
 
+    HashMap<std::string, Box<String>> strings;
 private:
+    Vec<lir::LIRVarSym *> global_order;
+    HashMap<lir::LIRVarSym *, Box<Global>> globals;
+
+
     Vec<Box<FuncRef>> funcrefs;
+};
+
+class ProgramCFGGlobalIter {
+    size_t idx = 0;
+    Global *curr = nullptr;
+
+    Span<lir::LIRVarSym *> order;
+    ProgramCFG *prog = nullptr;
+
+    friend class ProgramCFG;
+    friend class ProgramCFGGlobals;
+
+    ProgramCFGGlobalIter(ProgramCFG *prog, Span<lir::LIRVarSym *> order)
+        : order(order), prog(prog) {
+        if (!order.empty()) {
+            curr = prog->lookup_global(order[idx]);
+        }
+    }
+
+    ProgramCFGGlobalIter() {}
+public:
+    using difference_type = std::ptrdiff_t;
+    using value_type      = Global *;
+
+    Global *operator*() const { return curr; }
+
+    ProgramCFGGlobalIter& operator++() {
+        ++idx;
+        curr = idx < order.size() ? prog->lookup_global(order[idx]) : nullptr;
+
+        return *this;
+    }
+
+    ProgramCFGGlobalIter operator++(int) {
+        ProgramCFGGlobalIter tmp = *this;
+        ++(*this);
+
+        return tmp;
+    }
+
+    bool operator==(const ProgramCFGGlobalIter& other) const { return curr == other.curr; }
+};
+
+class ProgramCFGGlobals {
+    friend class ProgramCFG;
+    friend class ProgramCFGGlobalIter;
+
+    Span<lir::LIRVarSym *> order;
+    ProgramCFG *prog;
+
+    ProgramCFGGlobals(ProgramCFG *prog) : order(prog->global_order), prog(prog) {}
+public:
+    ProgramCFGGlobalIter begin() {
+        return ProgramCFGGlobalIter(prog, order);
+    }
+
+    ProgramCFGGlobalIter end() {
+        return ProgramCFGGlobalIter();
+    }
 };
 
 } // end namespace ecc::lower::cfg

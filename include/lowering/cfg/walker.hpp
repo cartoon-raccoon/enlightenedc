@@ -4,7 +4,6 @@
 #define ECC_CFG_WALKERS_H
 
 #include <concepts>
-#include <span>
 #include <utility>
 
 #include "lowering/cfg/cfg.hpp"
@@ -50,12 +49,12 @@ The next()-style iterator that drives CFGBlocksIter.
 class CFGWalkerBlocksInner : public NextIterator<BasicBlock *> {};
 
 class VecCFGWalkerBlocksInner : public CFGWalkerBlocksInner {
-    std::span<BasicBlock *const> blocks;
+    Span<BasicBlock *const> blocks;
     size_t idx;
     bool reverse;
 
 public:
-    VecCFGWalkerBlocksInner(std::span<BasicBlock *const> blocks, bool reverse)
+    VecCFGWalkerBlocksInner(Span<BasicBlock *const> blocks, bool reverse)
         : blocks(blocks), idx(reverse ? blocks.size() : 0), reverse(reverse) {}
 
     BasicBlock *next() override;

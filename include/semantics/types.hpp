@@ -1543,7 +1543,7 @@ public:
 
     size_t num_params() const { return signature.params.size(); }
 
-    Type *param_idx(int idx) { return signature.params[idx]; }
+    Type *param_idx(size_t idx) { return signature.params[idx]; }
 
     bool no_params() const { return signature.params.empty(); }
 

@@ -1,5 +1,6 @@
 #include "lowering/cfg/builder.hpp"
 
+#include <ranges>
 #include <stdexcept>
 
 #include "lowering/cfg/cfg.hpp"
@@ -33,7 +34,19 @@ Value *CFGBuilder::eval(ExprLIR& node) {
 
 Value *CFGBuilder::eval_lvalue(ExprLIR& node) {
     if (auto *ident = dyncast<IdentExprLIR>(&node)) {
-        return curr_func->lookup_alloca(ident->sym->as_varsym());
+        assert(ident->sym->is_var());
+
+        Value *ret;
+
+        if (auto *alloc = curr_func->lookup_alloca(ident->sym->as_varsym())) {
+            ret = alloc;
+        } else {
+            ret = prog_cfg.add_or_get_global(ident->sym->as_varsym());
+        }
+
+        assert(ret);
+
+        return ret;
     }
     if (auto *member = dyncast<MemberAccExprLIR>(&node)) {
         Value *base =
@@ -47,7 +60,7 @@ Value *CFGBuilder::eval_lvalue(ExprLIR& node) {
         return curr_blk->add_instruction<SubscrInst>(subscr->act_type, index, base, *subscr->loc);
     }
     if (auto *unary = dyncast<UnaryExprLIR>(&node); unary && unary->op == tokens::UnaryOp::DEREF) {
-        return eval_lvalue(*unary->operand); // *p's address is just p's value
+        return eval(*unary->operand); // *p's address is just p's value
     }
 
     throw std::runtime_error("invalid ExprLIR type for eval_lvalue");
@@ -82,6 +95,10 @@ static tokens::BinaryOp assign_op_to_binop(tokens::AssignOp op) {
 }
 
 void CFGBuilder::visit(ProgramLIR& node) {
+    for (auto& item : node.globals) {
+        prog_cfg.add_or_get_global(item->lirsym);
+    }
+
     curr_func = prog_cfg.implicit_main.get();
     curr_blk  = curr_func->initialize();
 
@@ -95,8 +112,23 @@ void CFGBuilder::visit(ProgramLIR& node) {
 }
 
 void CFGBuilder::visit(FunctionLIR& node) {
-    curr_func = prog_cfg.add_function(&node);
+    curr_func = prog_cfg.add_or_get_function(&node);
+
+    if (!node.has_definition) {
+        return;
+    }
+    
     curr_blk  = curr_func->initialize();
+
+    // emit instructions for allocating and copying in the parameters
+    for (auto [idx, param] : std::views::enumerate(node.funcsym->params)) {
+        auto *addr = curr_func->add_alloca(curr_blk, param);
+
+        auto *value = curr_func->arg_idx(idx);
+        assert(value && "got null arg");
+
+        curr_blk->add_instruction<StoreInst>(types, addr, value);
+    }
 
     for (auto& local : node.locals) {
         local->accept(*this);
@@ -115,6 +147,7 @@ void CFGBuilder::visit(LabelDeclLIR& node) {
     }
 
     curr_func->resolve_pending_gotos(node.mangled_label, newblock);
+    assert(curr_func->num_pending_gotos() == 0);
     curr_blk = newblock;
 }
 
@@ -170,12 +203,14 @@ void CFGBuilder::visit(PrintStmtLIR& node) {
         curr_blk = curr_func->create_block();
     }
 
+    String *format = prog_cfg.add_or_get_string(node.format_string);
+
     Vec<Value *> args;
     for (auto& arg : node.args) {
         args.push_back(eval(*arg));
     }
 
-    curr_blk->add_instruction<PrintInst>(types, node.format_string, std::move(args), *node.loc);
+    curr_blk->add_instruction<PrintInst>(types, format, std::move(args), *node.loc);
 }
 
 void CFGBuilder::visit(GotoStmtLIR& node) {
@@ -562,10 +597,22 @@ void CFGBuilder::visit(UnaryExprLIR& node) {
 }
 
 void CFGBuilder::visit(CastExprLIR& node) {
-    Value *operand = eval(*node.inner);
+    using CK = CastExprLIR::CastKind;
+    switch (node.castkind) {
+    case CK::Explicit:
+    case CK::Implicit: {
+        Value *operand = eval(*node.inner);
+        last_value =
+            curr_blk->add_instruction<CastInst>(node.act_type, node.target, operand, *node.loc);
+    } break;
 
-    last_value =
-        curr_blk->add_instruction<CastInst>(node.act_type, node.target, operand, *node.loc);
+    case CK::ArrPtrDecay: {
+        last_value = eval_lvalue(*node.inner);
+    } break;
+    case CK::FuncPtrDecay: {
+        last_value = eval(*node.inner);
+    } break;
+    }
 
     assert(last_value && "last_value is nullptr at end of expr visit");
 }
@@ -624,8 +671,13 @@ void CFGBuilder::visit(CondExprLIR& node) {
 
 void CFGBuilder::visit(IdentExprLIR& node) {
     if (node.sym->is_var()) {
-        last_value = curr_blk->add_instruction<LoadInst>(
-            node.act_type, curr_func->lookup_alloca(node.sym->as_varsym()), *node.loc);
+        Value *val;
+        if (auto *alloc = curr_func->lookup_alloca(node.sym->as_varsym())) {
+            val = alloc;
+        } else {
+            val = prog_cfg.add_or_get_global(node.sym->as_varsym());
+        }
+        last_value = curr_blk->add_instruction<LoadInst>(node.act_type, val, *node.loc);
     } else if (node.sym->is_func()) {
         last_value = prog_cfg.ref_function(node.sym->as_funcsym()->lir);
     }
@@ -634,7 +686,17 @@ void CFGBuilder::visit(IdentExprLIR& node) {
 }
 
 void CFGBuilder::visit(LiteralExprLIR& node) {
-    last_value = curr_blk->add_value<Literal>(node.act_type, node.value);
+    std::visit(
+        match{
+            [&](eval::Value& val) {
+                last_value = curr_blk->add_value<Literal>(node.act_type, val);
+            },
+            [&](std::string& str) {
+                // string dedup happens here.
+                last_value = prog_cfg.add_or_get_string(str);
+                last_value->set_type(node.act_type);
+            }},
+        node.value);
 
     assert(last_value && "last_value is nullptr at end of expr visit");
 }
@@ -657,7 +719,9 @@ void CFGBuilder::visit(CallExprLIR& node) {
 }
 
 void CFGBuilder::visit(MemberAccExprLIR& node) {
-    last_value = eval_lvalue(node);
+    Value *addr = eval_lvalue(node);
+
+    last_value = curr_blk->add_instruction<LoadInst>(node.act_type, addr, *node.loc);
 
     assert(last_value && "last_value is nullptr at end of expr visit");
 }
@@ -672,7 +736,9 @@ void CFGBuilder::visit(ReintExprLIR& node) {
 }
 
 void CFGBuilder::visit(SubscrExprLIR& node) {
-    last_value = eval_lvalue(node);
+    Value *addr = eval_lvalue(node);
+
+    last_value = curr_blk->add_instruction<LoadInst>(node.act_type, addr, *node.loc);
 
     assert(last_value && "last_value is nullptr at end of expr visit");
 }

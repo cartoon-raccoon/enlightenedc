@@ -82,6 +82,8 @@ public:
     sema::sym::FuncSymbol *symbol;
     sema::types::FunctionType *signature;
 
+    Vec<LIRVarSym *> params;
+
     /**
     Back-pointer to the corresponding FunctionLIR
     (only one `FunctionLIR` ever exists for every `LIRFuncSym`).

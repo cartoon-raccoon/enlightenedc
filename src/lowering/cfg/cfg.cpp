@@ -2,10 +2,12 @@
 
 #include "lowering/cfg/visitor.hpp"
 #include "lowering/lir/symbols.hpp"
+#include "semantics/types.hpp"
 #include "util.hpp"
 
 using namespace lower::cfg;
 using namespace lower::lir;
+using namespace sema::types;
 
 void If::set_then_target(BasicBlock *blk) {
     then_br = blk;
@@ -40,7 +42,7 @@ Box<BasicBlock> BasicBlock::entry(std::string& func_name, FunctionCFG *func) {
 }
 
 void BasicBlock::push_value(Box<Value> val) {
-    func->values.push_back(std::move(val));
+    parent->values.push_back(std::move(val));
 }
 
 void BasicBlock::link_to(BasicBlock *target) {
@@ -89,6 +91,13 @@ BasicBlock *FunctionCFG::initialize() {
     std::string name;
     if (lir) {
         name = lir->funcsym->mangled_name;
+
+        FunctionType *signature = lir->funcsym->signature;
+        for (size_t i = 0; i < signature->num_params(); ++i) {
+            Type *paramtype = signature->param_idx(i);
+            add_arg(paramtype);
+        }
+        
     } else {
         // fixme: come up with a good compiler-internal naming convention
         name = "__implicit_main";
@@ -99,6 +108,16 @@ BasicBlock *FunctionCFG::initialize() {
     entry              = &entry_blk;
 
     return entry;
+}
+
+FuncArg *FunctionCFG::add_arg(Type *type) {
+    auto arg = std::make_unique<FuncArg>(type);
+
+    FuncArg *ret = arg.get();
+
+    args.push_back(std::move(arg));
+
+    return ret;
 }
 
 BasicBlock *FunctionCFG::create_block() {
@@ -189,6 +208,8 @@ AllocaInst *FunctionCFG::lookup_alloca(LIRVarSym *sym) {
     return allocas.contains(sym) ? allocas[sym].get() : nullptr;
 }
 
+FunctionCFGAllocas FunctionCFG::get_allocas() { return FunctionCFGAllocas(this); }
+
 AllocaInst *FunctionCFG::add_alloca(BasicBlock *blk, LIRVarSym *sym) {
     auto alloc = std::make_unique<AllocaInst>(blk, sym->sym->type, sym);
     auto *ret  = alloc.get();
@@ -199,7 +220,42 @@ AllocaInst *FunctionCFG::add_alloca(BasicBlock *blk, LIRVarSym *sym) {
     return ret;
 }
 
-FunctionCFG *ProgramCFG::add_function(FunctionLIR *func) {
+Global *ProgramCFG::add_or_get_global(LIRVarSym *var) {
+    if (globals.contains(var)) {
+        return globals[var].get();
+    }
+
+    auto new_global = std::make_unique<Global>(var);
+
+    Global *ret = new_global.get();
+
+    globals[var] = std::move(new_global);
+    global_order.push_back(var);
+
+    return ret;
+}
+
+Global *ProgramCFG::lookup_global(LIRVarSym *sym) {
+    return globals.contains(sym) ? globals[sym].get() : nullptr;
+}
+
+ProgramCFGGlobals ProgramCFG::get_globals() { return ProgramCFGGlobals(this); }
+
+String *ProgramCFG::add_or_get_string(const std::string& str) {
+    if (strings.contains(str)) {
+        return strings[str].get();
+    }
+
+    auto new_str = std::make_unique<String>(str);
+
+    String *ret = new_str.get();
+
+    strings[str] = std::move(new_str);
+
+    return ret;
+}
+
+FunctionCFG *ProgramCFG::add_or_get_function(FunctionLIR *func) {
 
     if (functions.contains(func)) {
         return functions[func].get();
@@ -226,7 +282,7 @@ FuncRef *ProgramCFG::ref_function(FunctionLIR *func) {
     }
 
     // if lookup fails, add the function
-    add_function(func);
+    add_or_get_function(func);
     auto ref = std::make_unique<FuncRef>(func->funcsym->signature, functions[func].get());
 
     auto *ret = ref.get();

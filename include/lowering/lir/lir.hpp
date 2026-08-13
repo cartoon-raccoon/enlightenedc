@@ -256,6 +256,7 @@ public:
         : LIRVisitable<FunctionLIR, LIRNode>(loc, NodeKind::FUNC_LIR), funcsym(func) {}
 
     LIRFuncSym *funcsym;
+    bool has_definition = false;
 
     Vec<Box<VarDeclLIR>> locals;
     Vec<Box<ProgItemLIR>> body;
@@ -450,10 +451,11 @@ public:
     };
 
     CastExprLIR(
-        Location loc, sema::types::Type *type, Box<ExprLIR> inner, sema::types::Type *target, CastKind ck)
-        : LIRVisitable<CastExprLIR, ExprLIR>(loc, NodeKind::CASTEXPR_LIR, type), castkind(ck), target(target),
-          inner(std::move(inner)) {}
-    
+        Location loc, sema::types::Type *type, Box<ExprLIR> inner, sema::types::Type *target,
+        CastKind ck)
+        : LIRVisitable<CastExprLIR, ExprLIR>(loc, NodeKind::CASTEXPR_LIR, type), castkind(ck),
+          target(target), inner(std::move(inner)) {}
+
     CastKind castkind;
     sema::types::Type *target;
     Box<ExprLIR> inner;
