@@ -5,6 +5,7 @@
 #include "semantics/mir/mir.hpp"
 #include "semantics/types.hpp"
 #include "tokens.hpp"
+#include "util.hpp"
 
 using namespace ecc::sema::mir;
 using namespace ecc::sema::types;
@@ -132,7 +133,7 @@ void MIRPrinter::visit(LabeledStmtMIR& node) {
 }
 
 void MIRPrinter::visit(PrintStmtMIR& node) {
-    print_node("Print: \"" + node.format_string + "\"", node, [&] {
+    print_node("Print: \"" + encode_string_literal(node.format_string) + "\"", node, [&] {
         for (auto& arg : node.arguments)
             arg->accept(*this);
     });
@@ -198,10 +199,10 @@ void MIRPrinter::visit(UnaryExprMIR& node) {
 }
 
 void MIRPrinter::visit(CastExprMIR& node) {
-    print_node("Cast -> " + node.target->to_string() + " (" + castkind_to_string(node.castkind) 
-    + ") :: " + node.act_type->formal(), node, [&] {
-        node.inner->accept(*this);
-    });
+    print_node(
+        "Cast -> " + node.target->to_string() + " (" + castkind_to_string(node.castkind) +
+            ") :: " + node.act_type->formal(),
+        node, [&] { node.inner->accept(*this); });
 }
 
 void MIRPrinter::visit(AssignExprMIR& node) {
@@ -223,7 +224,8 @@ void MIRPrinter::visit(IdentExprMIR& node) {
 void MIRPrinter::visit(LiteralExprMIR& node) {
     std::string valstr = std::visit(
         match{
-            [](eval::Value& val) { return val.to_string(); }, [](std::string& s) { return s; }},
+            [](eval::Value& val) { return val.to_string(); },
+            [](std::string& s) { return encode_string_literal(s); }},
         node.value);
     print_node("Literal: " + valstr + " :: " + node.act_type->formal(), node);
 }

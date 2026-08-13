@@ -50,17 +50,26 @@ static std::string decode_string_literal(char* text, size_t len) {
         char esc = *p++;
 
         switch (esc) {
+        case 'a':
+            out.push_back('\a');
+            break;
+        case 'b':
+            out.push_back('\b');
+            break;
+        case 'f':
+            out.push_back('\f');
+            break;
         case 'n':
             out.push_back('\n');
-            break;
-        case 't':
-            out.push_back('\t');
             break;
         case 'r':
             out.push_back('\r');
             break;
-        case '0':
-            out.push_back('\0');
+        case 't':
+            out.push_back('\t');
+            break;
+        case 'v':
+            out.push_back('\v');
             break;
         case '\\':
             out.push_back('\\');
@@ -70,6 +79,9 @@ static std::string decode_string_literal(char* text, size_t len) {
             break;
         case '\'':
             out.push_back('\'');
+            break;
+        case '?':
+            out.push_back('?');
             break;
 
         case 'x': {
@@ -86,6 +98,27 @@ static std::string decode_string_literal(char* text, size_t len) {
 
             if (found)
                 out.push_back(static_cast<char>(value));
+            break;
+        }
+
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7': {
+            int value = esc - '0';
+            int digits = 1;
+
+            while (p < end && digits < 3 && *p >= '0' && *p <= '7') {
+                value = (value << 3) | (*p - '0');
+                ++p;
+                ++digits;
+            }
+
+            out.push_back(static_cast<char>(value));
             break;
         }
 

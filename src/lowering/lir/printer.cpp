@@ -6,6 +6,7 @@
 #include "lowering/lir/lir.hpp"
 #include "semantics/types.hpp"
 #include "tokens.hpp"
+#include "util.hpp"
 
 using namespace ecc::lower::lir;
 using namespace ecc::sema::types;
@@ -158,7 +159,7 @@ void LIRPrinter::visit(LoopStmtLIR& node) {
 }
 
 void LIRPrinter::visit(PrintStmtLIR& node) {
-    print_node("Print: \"" + node.format_string + "\"", node, [&] {
+    print_node("Print: \"" + encode_string_literal(node.format_string) + "\"", node, [&] {
         for (auto& arg : node.args)
             arg->accept(*this);
     });
@@ -184,9 +185,10 @@ void LIRPrinter::visit(UnaryExprLIR& node) {
 }
 
 void LIRPrinter::visit(CastExprLIR& node) {
-    print_node("Cast -> " + node.target->to_string() + " (" + castkind_to_string(node.castkind) + ") :: " + node.act_type->formal(), node, [&] {
-        node.inner->accept(*this);
-    });
+    print_node(
+        "Cast -> " + node.target->to_string() + " (" + castkind_to_string(node.castkind) +
+            ") :: " + node.act_type->formal(),
+        node, [&] { node.inner->accept(*this); });
 }
 
 void LIRPrinter::visit(AssignExprLIR& node) {
@@ -211,7 +213,8 @@ void LIRPrinter::visit(IdentExprLIR& node) {
 void LIRPrinter::visit(LiteralExprLIR& node) {
     std::string valstr = std::visit(
         match{
-            [](eval::Value& val) { return val.to_string(); }, [](std::string& s) { return s; }},
+            [](eval::Value& val) { return val.to_string(); },
+            [](std::string& s) { return encode_string_literal(s); }},
         node.value);
     print_node("Literal: " + valstr + " :: " + node.act_type->formal(), node);
 }

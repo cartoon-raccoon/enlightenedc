@@ -7,6 +7,7 @@
 
 #include "ast/ast.hpp"
 #include "tokens.hpp"
+#include "util.hpp"
 
 using namespace ecc::ast;
 using namespace ecc::tokens;
@@ -75,7 +76,7 @@ void ASTPrinter::visit(LabeledStatement& node) {
 }
 
 void ASTPrinter::visit(PrintStatement& node) {
-    print_node("PrintStatement: \"" + node.format_string + "\"", node, [&] {
+    print_node("PrintStatement: \"" + encode_string_literal(node.format_string) + "\"", node, [&] {
         for (auto& arg : node.arguments)
             arg->accept(*this);
     });
@@ -375,7 +376,7 @@ void ASTPrinter::visit(LiteralExpression& node) {
 }
 
 void ASTPrinter::visit(StringExpression& node) {
-    print_node("String: " + node.value, node);
+    print_node("String: " + encode_string_literal(node.value), node);
 }
 
 void ASTPrinter::visit(IdentifierExpression& node) {
