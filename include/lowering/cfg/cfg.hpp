@@ -334,14 +334,48 @@ public:
 
 class BinaryInst : public CFGVisitable<BinaryInst, Instruction> {
 public:
+    /**
+    The operators that can appear inside a binary instruction.
+
+    This is used instead of tokens::BinaryOp because some of those operators
+    (namely, logical operators and BINCOMMA) get lowered into other constructs
+    instead of a single binary instruction.
+    */
+    enum class Operator : uint8_t {
+        OR,
+        XOR,
+        AND,
+        EQ,
+        NE,
+        LT,
+        GT,
+        LE,
+        GE,
+        SHL,
+        SHR,
+        ADD,
+        SUB,
+        MUL,
+        DIV,
+        MOD,
+    };
+
+
     BinaryInst(
-        BasicBlock *containing, sema::types::Type *type, tokens::BinaryOp op, Value *loperand,
+        BasicBlock *containing, sema::types::Type *type, Operator op, Value *loperand,
         Value *roperand, Location loc)
         : CFGVisitable<BinaryInst, Instruction>(containing, InstKind::BINARY, type, loc), op(op),
           loperand(loperand), roperand(roperand) {}
 
-    tokens::BinaryOp op;
+    Operator op;
     Value *loperand, *roperand;
+
+    /**
+    Get the Operator corresponding to `op`.
+
+    Throws std::runtime_error if an invalid BinaryOp is provided (logical operator / BINCOMMA).
+    */
+    static Operator op_from_token(tokens::BinaryOp op);
 
     static bool classof(const Value *node) {
         if (!Instruction::classof(node)) {
@@ -354,14 +388,37 @@ public:
 
 class UnaryInst : public CFGVisitable<UnaryInst, Instruction> {
 public:
+    /**
+    The operators that can appear inside an unary instruction.
+
+    This is used instead of tokens::UnaryOp because some of those operators
+    (namely, INC and DEC) get lowered into other constructs
+    instead of a single unary instruction.
+    */
+    enum class Operator : uint8_t {
+        REF,
+        DEREF,
+        POS,
+        NEG,
+        TILDE,
+        NOT,
+    };
+
     UnaryInst(
-        BasicBlock *containing, sema::types::Type *type, tokens::UnaryOp op, Value *operand,
+        BasicBlock *containing, sema::types::Type *type, Operator op, Value *operand,
         Location loc)
         : CFGVisitable<UnaryInst, Instruction>(containing, InstKind::UNARY, type, loc), op(op),
           operand(operand) {}
 
-    tokens::UnaryOp op;
+    Operator op;
     Value *operand;
+
+    /**
+    Get the Operator corresponding to `op`.
+
+    Throws std::runtime_error if an invalid UnaryOp is provided (INC or DEC).
+    */
+    static Operator op_from_token(tokens::UnaryOp op);
 
     static bool classof(const Value *node) {
         if (!Instruction::classof(node)) {

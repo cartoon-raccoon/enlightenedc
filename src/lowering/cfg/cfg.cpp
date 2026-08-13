@@ -1,13 +1,81 @@
 #include "lowering/cfg/cfg.hpp"
 
+#include <stdexcept>
+
 #include "lowering/cfg/visitor.hpp"
 #include "lowering/lir/symbols.hpp"
 #include "semantics/types.hpp"
+#include "tokens.hpp"
 #include "util.hpp"
 
 using namespace lower::cfg;
 using namespace lower::lir;
 using namespace sema::types;
+using namespace tokens;
+
+BinaryInst::Operator BinaryInst::op_from_token(tokens::BinaryOp op) {
+    using BinOp = tokens::BinaryOp;
+    using Op = Operator;
+
+    switch (op) {
+    case BinOp::OR:
+        return Op::OR;
+    case BinOp::XOR:
+        return Op::XOR;
+    case BinOp::AND:
+        return Op::AND;
+    case BinOp::EQ:
+        return Op::EQ;
+    case BinOp::NE:
+        return Op::NE;
+    case BinOp::LT:
+        return Op::LT;
+    case BinOp::GT:
+        return Op::GT;
+    case BinOp::LE:
+        return Op::LE;
+    case BinOp::GE:
+        return Op::GE;
+    case BinOp::LSHIFT:
+        return Op::SHL;
+    case BinOp::RSHIFT:
+        return Op::SHR;
+    case BinOp::PLUS:
+        return Op::ADD;
+    case BinOp::MINUS:
+        return Op::SUB;
+    case BinOp::MUL:
+        return Op::MUL;
+    case BinOp::DIV:
+        return Op::DIV;
+    case BinOp::MOD:
+        return Op::MOD;
+    default:
+        throw std::runtime_error("BinaryInst::op_from_token: invalid operator");
+    }
+}
+
+UnaryInst::Operator UnaryInst::op_from_token(tokens::UnaryOp op) {
+    using UnOp = tokens::UnaryOp;
+    using Op = Operator;
+
+    switch (op) {
+    case UnOp::REF:
+        return Op::REF;
+    case UnOp::DEREF:
+        return Op::DEREF;
+    case UnOp::POS:
+        return Op::POS;
+    case UnOp::NEG:
+        return Op::NEG;
+    case UnOp::TILDE:
+        return Op::TILDE;
+    case UnOp::NOT:
+        return Op::NOT;
+    default:
+        throw std::runtime_error("UnaryInst::op_from_token: invalid operator");
+    }
+}
 
 void If::set_then_target(BasicBlock *blk) {
     then_br = blk;
