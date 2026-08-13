@@ -144,7 +144,7 @@ class Global : public CFGVisitable<Global, Value> {
 public:
     Global(lir::LIRVarSym *sym)
         : CFGVisitable<Global, Value>(
-              ValueKind::GLOBAL, sym->sym->type, sym->mangled_name, sym->sym->loc),
+              ValueKind::GLOBAL, sym->type, sym->mangled_name, sym->loc),
           sym(sym) {}
           
     lir::LIRVarSym *sym;
@@ -235,7 +235,7 @@ class AllocaInst : public CFGVisitable<AllocaInst, Instruction> {
 public:
     AllocaInst(BasicBlock *containing, sema::types::Type *type, lir::LIRVarSym *sym)
         : CFGVisitable<AllocaInst, Instruction>(
-              containing, InstKind::ALLOCA, type, sym->mangled_name, sym->sym->loc),
+              containing, InstKind::ALLOCA, type, sym->mangled_name, sym->loc),
           sym(sym) {}
 
     lir::LIRVarSym *sym;

@@ -73,12 +73,12 @@ static LIRCK mirck_to_lirck(MIRCK ck) {
 }
 
 void LIRSynthesizer::unfold_initializer(LIRVarSym *sym, InitializerMIR& init) {
-    Box<ExprLIR> ident = std::make_unique<IdentExprLIR>(sym->sym->loc, sym, sym->sym->type);
-    if (init.is_all_literals() && sym->sym->type->is_array() && sym->sym->type->is_const()) {
+    Box<ExprLIR> ident = std::make_unique<IdentExprLIR>(sym->loc, sym, sym->type);
+    if (init.is_all_literals() && sym->type->is_array() && sym->type->is_const()) {
         bsv_dbprint("initializing const array with all literals, decaying to pointer");
         todo();
     } else {
-        unfold_initializer_rec(std::move(ident), sym->sym->type, init);
+        unfold_initializer_rec(std::move(ident), sym->type, init);
     }
 }
 
@@ -356,7 +356,7 @@ void LIRSynthesizer::do_visit(FunctionMIR& node) {
     std::string mangled = sym->mangle();
     std::string name    = sym->name;
 
-    Box<LIRFuncSym> func = std::make_unique<LIRFuncSym>(mangled, name, node.loc, node.sym);
+    Box<LIRFuncSym> func = std::make_unique<LIRFuncSym>(mangled, name, sym->linkage, sym->visibility, sym->loc, sym->signature);
 
     LIRFuncSym *funcptr = symbolmap.add_function(sym, std::move(func));
 
@@ -391,7 +391,7 @@ void LIRSynthesizer::do_visit(FunctionMIR& node) {
         std::string param_name    = param->name;
 
         Box<LIRVarSym> boxed_param =
-            std::make_unique<LIRVarSym>(param_mangled, param_name, param->loc, param, true);
+            std::make_unique<LIRVarSym>(param_mangled, param_name, param->linkage, param->visibility, param->loc, param->type, true);
 
         LIRVarSym *lirparam = insert_varsym(param, std::move(boxed_param));
 
@@ -454,9 +454,11 @@ void LIRSynthesizer::do_visit(VarDeclMIR& node) {
         std::string mangled = decl.sym->mangle();
         std::string name    = decl.sym->name;
 
+        VarSymbol *sym = decl.sym;
+
         // create our LIRVar and insert it
         Box<LIRVarSym> boxed_var =
-            std::make_unique<LIRVarSym>(mangled, name, node.loc, decl.sym, decl.sym->is_funcparam);
+            std::make_unique<LIRVarSym>(mangled, name, sym->linkage, sym->visibility, sym->loc, sym->type, sym->is_funcparam);
 
         LIRVarSym *lirvar = insert_varsym(decl.sym, std::move(boxed_var));
 

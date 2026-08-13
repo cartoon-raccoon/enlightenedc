@@ -59,7 +59,7 @@ void LIRPrinter::visit(FunctionLIR& node) {
         "FunctionLIR: " + node.funcsym->name + " (" + node.funcsym->mangled_name + ")", node,
         [&] {
             std::cout << std::string(indent * 2, ' ')
-                      << "type: " << node.funcsym->signature->to_string()
+                      << "type: " << node.funcsym->signature->formal()
                       << (node.has_definition ? "" : "; [DECLARATION]")
                       << "\n";
         },
@@ -76,7 +76,7 @@ void LIRPrinter::visit(FunctionLIR& node) {
 void LIRPrinter::visit(VarDeclLIR& node) {
     print_node("VarDecl: " + node.lirsym->name + " (" + node.lirsym->mangled_name + ")", node, [&] {
         print_indent();
-        std::cout << "type: " << node.lirsym->sym->get_type()->to_string()
+        std::cout << "type: " << node.lirsym->type->formal()
                   << (node.lirsym->is_param ? " [param]" : "") << "\n";
     });
 }

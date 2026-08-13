@@ -94,18 +94,18 @@ MIRSynthesizer::parse_speclist(Vec<Box<ast::DeclarationSpecifier>>& speclist, Lo
                 break;
 
             case StorageClassSpecifier::EXTERN:
-                if (specinfo->linkage != PhysicalSymbol::Linkage::INTERNAL) {
+                if (specinfo->linkage != Linkage::INTERNAL) {
                     add_error<EccSemError>("multiple storage class specifiers", decl_spec->loc);
                 } else {
-                    specinfo->linkage = PhysicalSymbol::Linkage::EXTERNAL;
+                    specinfo->linkage = Linkage::EXTERNAL;
                 }
                 break;
 
             case StorageClassSpecifier::EXTERNC:
-                if (specinfo->linkage != PhysicalSymbol::Linkage::INTERNAL) {
+                if (specinfo->linkage != Linkage::INTERNAL) {
                     add_error<EccSemError>("multiple storage class specifiers", decl_spec->loc);
                 } else {
-                    specinfo->linkage = PhysicalSymbol::Linkage::EXTERNC;
+                    specinfo->linkage = Linkage::EXTERNC;
                 }
                 break;
             }
@@ -205,7 +205,7 @@ void MIRSynthesizer::do_visit(Function& node) {
     Box<SpecifierInfo> specinfo = parse_speclist(node.decl_spec_list, node.loc);
     dovisit_param               = std::move(param);
 
-    if (specinfo->linkage == PhysicalSymbol::Linkage::EXTERNAL) {
+    if (specinfo->linkage == Linkage::EXTERNAL) {
         add_error<EccSemError>("externally linked functions cannot have a body", node.loc);
         throw UnableToContinue();
     }
@@ -285,8 +285,8 @@ void MIRSynthesizer::do_visit(Function& node) {
 
     symbol->linkage = specinfo->linkage;
     // extern "C" function with body, default to Visibility::ExternC
-    if (specinfo->linkage == PhysicalSymbol::Linkage::EXTERNC) {
-        symbol->visibility = PhysicalSymbol::Visibility::EXTERNC;
+    if (specinfo->linkage == Linkage::EXTERNC) {
+        symbol->visibility = Visibility::EXTERNC;
     }
 
     Location def_loc = symbol->loc;
@@ -400,12 +400,12 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
                 FuncSymbol::empty(node.loc, *ret.name, syms.current, functype);
 
             if (specinfo->is_public) {
-                funcsym->visibility = PhysicalSymbol::Visibility::PUBLIC;
+                funcsym->visibility = Visibility::PUBLIC;
             }
 
             funcsym->linkage = specinfo->linkage;
-            if (specinfo->linkage == PhysicalSymbol::Linkage::EXTERNC) {
-                funcsym->visibility = PhysicalSymbol::Visibility::EXTERNC;
+            if (specinfo->linkage == Linkage::EXTERNC) {
+                funcsym->visibility = Visibility::EXTERNC;
             }
 
             if (funcsym->is_external() && syms.current != syms.global()) {
@@ -439,7 +439,7 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
 
             // populate other specifiers, and then insert into symbol table
             if (specinfo->is_public) {
-                sym->visibility = PhysicalSymbol::Visibility::PUBLIC;
+                sym->visibility = Visibility::PUBLIC;
             }
 
             sym->linkage = specinfo->linkage;

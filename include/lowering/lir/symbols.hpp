@@ -23,8 +23,8 @@ public:
         VAR,
     };
 
-    LIRSym(LIRSymKind kind, std::string mangled, std::string name, Location loc)
-        : kind(kind), mangled_name(std::move(mangled)), name(std::move(name)), loc(loc) {}
+    LIRSym(LIRSymKind kind, std::string mangled, std::string name, sema::sym::Linkage linkage, sema::sym::Visibility vis, Location loc)
+        : kind(kind), mangled_name(std::move(mangled)), name(std::move(name)), linkage(linkage), vis(vis), loc(loc) {}
 
     virtual ~LIRSym() = default;
 
@@ -33,6 +33,10 @@ public:
     std::string mangled_name;
 
     std::string name;
+
+    sema::sym::Linkage linkage;
+
+    sema::sym::Visibility vis;
 
     Location loc;
 
@@ -49,13 +53,13 @@ The representation of a physical variable (memory location) in the LIR.
 class LIRVarSym : public LIRSym {
 public:
     LIRVarSym(
-        std::string mangled, std::string name, Location loc, sema::sym::VarSymbol *sym,
+        std::string mangled, std::string name, sema::sym::Linkage linkage, sema::sym::Visibility vis, Location loc, sema::types::Type *type,
         bool is_param)
-        : LIRSym(LIRSymKind::VAR, std::move(mangled), std::move(name), loc), sym(sym),
+        : LIRSym(LIRSymKind::VAR, std::move(mangled), std::move(name), linkage, vis, loc), type(type),
           is_param(is_param) {}
 
     // The type of the variable.
-    sema::sym::VarSymbol *sym;
+    sema::types::Type *type;
     // Whether the variable is a function parameter.
     bool is_param;
 
@@ -75,11 +79,10 @@ LIRFuncSym (and thus the same FunctionLIR) is returned on subsequent insertion a
 */
 class LIRFuncSym : public LIRSym {
 public:
-    LIRFuncSym(std::string mangled, std::string name, Location loc, sema::sym::FuncSymbol *symbol)
-        : LIRSym(LIRSymKind::FUNC, std::move(mangled), std::move(name), loc), symbol(symbol),
-          signature(symbol->signature) {}
+    LIRFuncSym(std::string mangled, std::string name, sema::sym::Linkage linkage, sema::sym::Visibility vis, Location loc, sema::types::FunctionType *signature)
+        : LIRSym(LIRSymKind::FUNC, std::move(mangled), std::move(name), linkage, vis, loc),
+          signature(signature) {}
 
-    sema::sym::FuncSymbol *symbol;
     sema::types::FunctionType *signature;
 
     Vec<LIRVarSym *> params;

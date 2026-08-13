@@ -211,7 +211,7 @@ AllocaInst *FunctionCFG::lookup_alloca(LIRVarSym *sym) {
 FunctionCFGAllocas FunctionCFG::get_allocas() { return FunctionCFGAllocas(this); }
 
 AllocaInst *FunctionCFG::add_alloca(BasicBlock *blk, LIRVarSym *sym) {
-    auto alloc = std::make_unique<AllocaInst>(blk, sym->sym->type, sym);
+    auto alloc = std::make_unique<AllocaInst>(blk, sym->type, sym);
     auto *ret  = alloc.get();
 
     alloca_order.push_back(sym);

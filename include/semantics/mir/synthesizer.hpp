@@ -256,7 +256,7 @@ private:
         bool is_public                       = false;
         bool is_static                       = false;
         bool is_const                        = false;
-        sym::PhysicalSymbol::Linkage linkage = sym::PhysicalSymbol::Linkage::INTERNAL;
+        sym::Linkage linkage = sym::Linkage::INTERNAL;
     };
 
     Box<SpecifierInfo> parse_speclist(Vec<Box<ast::DeclarationSpecifier>>&, Location);

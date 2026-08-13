@@ -91,6 +91,25 @@ public:
     virtual LabelSymbol *as_labsym() { return nullptr; }
 };
 
+// The linkage of the symbol.
+enum class Linkage : uint8_t {
+    // The symbol is defined within this translation unit.
+    INTERNAL,
+    // The symbol is defined from another EnlightenedC object file.
+    EXTERNAL,
+    // The symbol is defined from another C object file, and so must follow cdecl.
+    EXTERNC,
+};
+
+enum class Visibility : uint8_t {
+    // The symbol is only visible within this translation unit.
+    STATIC,
+    // The symbol is visible outside this translation unit.
+    PUBLIC,
+    // The symbol is visible outside this translation unit, with C linkage.
+    EXTERNC,
+};
+
 // A symbol that has a phyiscal location in memory that can be referenced
 // (e.g. a variable or function).
 class PhysicalSymbol : public Symbol {
@@ -101,24 +120,9 @@ public:
     PhysicalSymbol(Kind kind, Location loc, std::string name, Scope *scope)
         : Symbol(kind, loc, std::move(name), scope) {}
 
-    // The linkage of the symbol.
-    enum class Linkage : uint8_t {
-        // The symbol is defined within this translation unit.
-        INTERNAL,
-        // The symbol is defined from another EnlightenedC object file.
-        EXTERNAL,
-        // The symbol is defined from another C object file, and so must follow cdecl.
-        EXTERNC,
-    } linkage = Linkage::INTERNAL;
+    Linkage linkage = Linkage::INTERNAL;
 
-    enum class Visibility : uint8_t {
-        // The symbol is only visible within this translation unit.
-        STATIC,
-        // The symbol is visible outside this translation unit.
-        PUBLIC,
-        // The symbol is visible outside this translation unit, with C linkage.
-        EXTERNC,
-    } visibility = Visibility::STATIC;
+    Visibility visibility = Visibility::STATIC;
 
     bool is_external() const { return linkage != Linkage::INTERNAL; }
 
