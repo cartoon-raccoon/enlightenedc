@@ -614,6 +614,11 @@ void MIRSynthesizer::do_visit(ParameterDeclaration& node) {
         builder->ty_bldr.set_base(specinfo->type);
 
         Type *final_type = builder->ty_bldr.finalize();
+        // if the parameter type is an array, decay it to a pointer (as in C)
+        if (final_type->is_array()) {
+            final_type = final_type->as_array()->decay();
+        }
+
         if (builder->name) {
             ret = {final_type, builder->name, node.loc, specinfo->is_const, {}};
         } else {
