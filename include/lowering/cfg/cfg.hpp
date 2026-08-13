@@ -143,10 +143,9 @@ public:
 class Global : public CFGVisitable<Global, Value> {
 public:
     Global(lir::LIRVarSym *sym)
-        : CFGVisitable<Global, Value>(
-              ValueKind::GLOBAL, sym->type, sym->mangled_name, sym->loc),
+        : CFGVisitable<Global, Value>(ValueKind::GLOBAL, sym->type, sym->mangled_name, sym->loc),
           sym(sym) {}
-          
+
     lir::LIRVarSym *sym;
 
     Global *as_global() override { return this; }
@@ -161,8 +160,7 @@ FunctionCFG stores these as the values to be stored into the allocations.
 */
 class FuncArg : public CFGVisitable<FuncArg, Value> {
 public:
-    FuncArg(sema::types::Type *type) :
-        CFGVisitable<FuncArg, Value>(ValueKind::ARG, type) {}
+    FuncArg(sema::types::Type *type) : CFGVisitable<FuncArg, Value>(ValueKind::ARG, type) {}
 
     FuncArg *as_funcarg() override { return this; }
 
@@ -172,7 +170,7 @@ public:
 class String : public CFGVisitable<String, Value> {
 public:
     String(std::string data) : CFGVisitable<String, Value>(ValueKind::STR), data(std::move(data)) {}
-    
+
     std::string data;
 
     String *as_string() override { return this; }
@@ -882,16 +880,15 @@ public:
     */
     std::string name;
 
-    
     /**
     The blocks incoming to this block.
     */
     Vec<BasicBlock *> incoming;
-    
+
     auto begin() const { return instructions.begin(); }
-    
+
     auto end() const { return instructions.end(); }
-    
+
 private:
     /**
     The instructions that make up the block.
@@ -997,7 +994,6 @@ public:
     auto end() const { return blocks.end(); }
 
 private:
-
     std::string name;
 
     lir::FunctionLIR *lir = nullptr;
@@ -1022,7 +1018,7 @@ private:
 };
 
 class FunctionCFGAllocaIter {
-    size_t idx = 0;
+    size_t idx       = 0;
     AllocaInst *curr = nullptr;
 
     Span<lir::LIRVarSym *> order;
@@ -1039,6 +1035,7 @@ class FunctionCFGAllocaIter {
     }
 
     FunctionCFGAllocaIter() {}
+
 public:
     using difference_type = std::ptrdiff_t;
     using value_type      = AllocaInst *;
@@ -1065,20 +1062,16 @@ public:
 class FunctionCFGAllocas {
     friend class FunctionCFG;
     friend class FunctionCFGAllocaIter;
-    
+
     Span<lir::LIRVarSym *> order;
     FunctionCFG *func;
 
     FunctionCFGAllocas(FunctionCFG *func) : order(func->alloca_order), func(func) {}
+
 public:
-    FunctionCFGAllocaIter begin() {
-        return FunctionCFGAllocaIter(func, order);
-    }
+    FunctionCFGAllocaIter begin() { return FunctionCFGAllocaIter(func, order); }
 
-    FunctionCFGAllocaIter end() {
-        return FunctionCFGAllocaIter();
-    }
-
+    FunctionCFGAllocaIter end() { return FunctionCFGAllocaIter(); }
 };
 
 class ProgramCFGGlobalIter;
@@ -1129,16 +1122,16 @@ public:
     HashMap<lir::FunctionLIR *, Box<FunctionCFG>> functions;
 
     HashMap<std::string, Box<String>> strings;
+
 private:
     Vec<lir::LIRVarSym *> global_order;
     HashMap<lir::LIRVarSym *, Box<Global>> globals;
-
 
     Vec<Box<FuncRef>> funcrefs;
 };
 
 class ProgramCFGGlobalIter {
-    size_t idx = 0;
+    size_t idx   = 0;
     Global *curr = nullptr;
 
     Span<lir::LIRVarSym *> order;
@@ -1155,6 +1148,7 @@ class ProgramCFGGlobalIter {
     }
 
     ProgramCFGGlobalIter() {}
+
 public:
     using difference_type = std::ptrdiff_t;
     using value_type      = Global *;
@@ -1186,14 +1180,11 @@ class ProgramCFGGlobals {
     ProgramCFG *prog;
 
     ProgramCFGGlobals(ProgramCFG *prog) : order(prog->global_order), prog(prog) {}
-public:
-    ProgramCFGGlobalIter begin() {
-        return ProgramCFGGlobalIter(prog, order);
-    }
 
-    ProgramCFGGlobalIter end() {
-        return ProgramCFGGlobalIter();
-    }
+public:
+    ProgramCFGGlobalIter begin() { return ProgramCFGGlobalIter(prog, order); }
+
+    ProgramCFGGlobalIter end() { return ProgramCFGGlobalIter(); }
 };
 
 } // end namespace ecc::lower::cfg

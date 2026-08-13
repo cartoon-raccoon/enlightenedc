@@ -42,18 +42,15 @@ void CFGPrinter::print(ProgramCFG& cfg) {
 
     // second pass - print
     for (auto *global : cfg.get_globals()) {
-
     }
 }
 
 void CFGPrinter::print_function(FunctionCFG& func) {
     if (!func.is_defined()) {
-
     }
 }
 
 void CFGPrinter::print_block(BasicBlock *blk) {
-
 }
 
 void CFGPrinter::visit(AllocaInst& inst) {

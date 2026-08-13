@@ -117,8 +117,8 @@ void CFGBuilder::visit(FunctionLIR& node) {
     if (!node.has_definition) {
         return;
     }
-    
-    curr_blk  = curr_func->initialize();
+
+    curr_blk = curr_func->initialize();
 
     // emit instructions for allocating and copying in the parameters
     for (auto [idx, param] : std::views::enumerate(node.funcsym->params)) {

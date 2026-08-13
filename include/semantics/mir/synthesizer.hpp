@@ -253,9 +253,9 @@ private:
     struct SpecifierInfo {
         types::BaseType *type = nullptr;
         Optional<sym::TypeSymbol *> symbol;
-        bool is_public                       = false;
-        bool is_static                       = false;
-        bool is_const                        = false;
+        bool is_public       = false;
+        bool is_static       = false;
+        bool is_const        = false;
         sym::Linkage linkage = sym::Linkage::INTERNAL;
     };
 

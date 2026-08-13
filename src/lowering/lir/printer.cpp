@@ -60,8 +60,7 @@ void LIRPrinter::visit(FunctionLIR& node) {
         [&] {
             std::cout << std::string(indent * 2, ' ')
                       << "type: " << node.funcsym->signature->formal()
-                      << (node.has_definition ? "" : "; [DECLARATION]")
-                      << "\n";
+                      << (node.has_definition ? "" : "; [DECLARATION]") << "\n";
         },
         [&] {
             for (auto& local : node.locals)

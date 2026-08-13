@@ -97,7 +97,7 @@ BasicBlock *FunctionCFG::initialize() {
             Type *paramtype = signature->param_idx(i);
             add_arg(paramtype);
         }
-        
+
     } else {
         // fixme: come up with a good compiler-internal naming convention
         name = "__implicit_main";
@@ -208,7 +208,9 @@ AllocaInst *FunctionCFG::lookup_alloca(LIRVarSym *sym) {
     return allocas.contains(sym) ? allocas[sym].get() : nullptr;
 }
 
-FunctionCFGAllocas FunctionCFG::get_allocas() { return FunctionCFGAllocas(this); }
+FunctionCFGAllocas FunctionCFG::get_allocas() {
+    return FunctionCFGAllocas(this);
+}
 
 AllocaInst *FunctionCFG::add_alloca(BasicBlock *blk, LIRVarSym *sym) {
     auto alloc = std::make_unique<AllocaInst>(blk, sym->type, sym);
@@ -239,7 +241,9 @@ Global *ProgramCFG::lookup_global(LIRVarSym *sym) {
     return globals.contains(sym) ? globals[sym].get() : nullptr;
 }
 
-ProgramCFGGlobals ProgramCFG::get_globals() { return ProgramCFGGlobals(this); }
+ProgramCFGGlobals ProgramCFG::get_globals() {
+    return ProgramCFGGlobals(this);
+}
 
 String *ProgramCFG::add_or_get_string(const std::string& str) {
     if (strings.contains(str)) {

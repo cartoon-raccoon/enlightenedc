@@ -23,8 +23,11 @@ public:
         VAR,
     };
 
-    LIRSym(LIRSymKind kind, std::string mangled, std::string name, sema::sym::Linkage linkage, sema::sym::Visibility vis, Location loc)
-        : kind(kind), mangled_name(std::move(mangled)), name(std::move(name)), linkage(linkage), vis(vis), loc(loc) {}
+    LIRSym(
+        LIRSymKind kind, std::string mangled, std::string name, sema::sym::Linkage linkage,
+        sema::sym::Visibility vis, Location loc)
+        : kind(kind), mangled_name(std::move(mangled)), name(std::move(name)), linkage(linkage),
+          vis(vis), loc(loc) {}
 
     virtual ~LIRSym() = default;
 
@@ -53,10 +56,10 @@ The representation of a physical variable (memory location) in the LIR.
 class LIRVarSym : public LIRSym {
 public:
     LIRVarSym(
-        std::string mangled, std::string name, sema::sym::Linkage linkage, sema::sym::Visibility vis, Location loc, sema::types::Type *type,
-        bool is_param)
-        : LIRSym(LIRSymKind::VAR, std::move(mangled), std::move(name), linkage, vis, loc), type(type),
-          is_param(is_param) {}
+        std::string mangled, std::string name, sema::sym::Linkage linkage,
+        sema::sym::Visibility vis, Location loc, sema::types::Type *type, bool is_param)
+        : LIRSym(LIRSymKind::VAR, std::move(mangled), std::move(name), linkage, vis, loc),
+          type(type), is_param(is_param) {}
 
     // The type of the variable.
     sema::types::Type *type;
@@ -79,7 +82,9 @@ LIRFuncSym (and thus the same FunctionLIR) is returned on subsequent insertion a
 */
 class LIRFuncSym : public LIRSym {
 public:
-    LIRFuncSym(std::string mangled, std::string name, sema::sym::Linkage linkage, sema::sym::Visibility vis, Location loc, sema::types::FunctionType *signature)
+    LIRFuncSym(
+        std::string mangled, std::string name, sema::sym::Linkage linkage,
+        sema::sym::Visibility vis, Location loc, sema::types::FunctionType *signature)
         : LIRSym(LIRSymKind::FUNC, std::move(mangled), std::move(name), linkage, vis, loc),
           signature(signature) {}
 

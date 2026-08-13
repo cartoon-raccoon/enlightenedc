@@ -257,11 +257,11 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_ExternDeclThenExternDeclIsNoOp) {
     std::string name = "f";
 
     auto decl1 = FuncSymbol::empty(LOC, name, walker.current, fn_type);
-    decl1->linkage = PhysicalSymbol::Linkage::EXTERNAL;
+    decl1->linkage = Linkage::EXTERNAL;
     FuncSymbol *first = walker.insert(name, std::move(decl1));
 
     auto decl2 = FuncSymbol::empty(LOC, name, walker.current, fn_type);
-    decl2->linkage = PhysicalSymbol::Linkage::EXTERNAL;
+    decl2->linkage = Linkage::EXTERNAL;
     FuncSymbol *second = nullptr;
     EXPECT_NO_THROW(second = walker.insert(name, std::move(decl2)))
         << "Re-declaring the same extern prototype twice should succeed";
@@ -277,7 +277,7 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_ExternDeclThenBodyThrows) {
     std::string name = "f";
 
     auto decl = FuncSymbol::empty(LOC, name, walker.current, fn_type);
-    decl->linkage = PhysicalSymbol::Linkage::EXTERNAL;
+    decl->linkage = Linkage::EXTERNAL;
     walker.insert(name, std::move(decl));
 
     auto def = std::make_unique<FuncSymbol>(LOC, name, walker.current, fn_type, Vec<VarSymbol *>{});
