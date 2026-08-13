@@ -166,10 +166,15 @@ Optional<Type *> Validator::eval_initializer_expr(
 
     expr->accept(*this);
 
-    // A bare function identifier decays to a pointer to itself, same as an array decays to a
-    // pointer to its first element (e.g. `Void (*funcptr)() = somefunc;`).
+    // A bare function identifier decays to a pointer to itself, and an array decays to a pointer
+    // to its first element (e.g. `Void (*funcptr)() = somefunc;`, `U32 *p = arr;`). The array
+    // case is skipped when the declared type is itself an array (e.g. `U8 buf[] = "hi";`, sized
+    // array copy-initialization), since decaying there would fight the array-initializer logic
+    // below.
     if (expr->act_type->is_function()) {
         expr = decay(expr->act_type->as_function()->decay(), std::move(expr), true);
+    } else if (expr->act_type->is_array() && !type->unqual()->is_array()) {
+        expr = decay(expr->act_type->as_array()->decay(), std::move(expr));
     }
 
     if (type == expr->eff_type) {
@@ -634,8 +639,9 @@ void Validator::do_visit(ReturnStmtMIR& node) {
             node.ret_expr =
                 decay((*node.ret_expr)->act_type->as_array()->decay(), std::move(*node.ret_expr));
         } else if ((*node.ret_expr)->act_type->is_function()) {
-            node.ret_expr =
-                decay((*node.ret_expr)->act_type->as_function()->decay(), std::move(*node.ret_expr), true);
+            node.ret_expr = decay(
+                (*node.ret_expr)->act_type->as_function()->decay(), std::move(*node.ret_expr),
+                true);
         }
 
         if ((*node.ret_expr)->act_type != returntype) {
@@ -671,9 +677,9 @@ void Validator::do_visit(BinaryExprMIR& node) {
     if (node.right->act_type->is_array()) {
         node.right = decay(node.right->act_type->as_array()->decay(), std::move(node.right));
     } else if (node.right->act_type->is_function()) {
-        node.right = decay(node.right->act_type->as_function()->decay(), std::move(node.right), true);
+        node.right =
+            decay(node.right->act_type->as_function()->decay(), std::move(node.right), true);
     }
-
 
     if (!(node.left->eff_type->is_primitive() && node.right->eff_type->is_primitive())) {
         if (node.left->eff_type->is_pointer() || node.right->eff_type->is_pointer()) {
@@ -842,8 +848,8 @@ void Validator::do_visit(UnaryExprMIR& node) {
             node.operand =
                 decay(node.operand->act_type->as_array()->decay(), std::move(node.operand));
         } else if (node.operand->act_type->is_function()) {
-            node.operand =
-                decay(node.operand->act_type->as_function()->decay(), std::move(node.operand), true);
+            node.operand = decay(
+                node.operand->act_type->as_function()->decay(), std::move(node.operand), true);
         }
         if (!node.operand->act_type->is_pointer()) {
             bsv_dbprint("error: dereference operand is not a pointer");
@@ -910,6 +916,25 @@ void Validator::do_visit(CastExprMIR& node) {
     node.inner->accept(*this);
     assert(node.target);
 
+    // castable_to/coercible_to are pure predicates over a single (src, dst) pair -- they can't
+    // express "yes, but only via an intermediate type". A primitive integer that isn't already
+    // pointer-width can still be reinterpreted as a pointer (and vice versa) by first bridging
+    // through the pointer-width integer type, so synthesize that intermediate cast here instead
+    // of trying to teach the predicate about it.
+    if (node.target->is_pointer() && node.inner->eff_type->is_primitive() &&
+        node.inner->eff_type->as_primitive()->is_integer()) {
+        Type *size_type = node.target->as_pointer()->decay();
+        if (node.inner->eff_type != size_type) {
+            node.inner = cast(size_type, std::move(node.inner));
+        }
+    } else if (node.inner->eff_type->is_pointer() && node.target->is_primitive() &&
+               node.target->as_primitive()->is_integer()) {
+        Type *size_type = node.inner->eff_type->as_pointer()->decay();
+        if (node.target != size_type) {
+            node.inner = cast(size_type, std::move(node.inner));
+        }
+    }
+
     if (!node.inner->eff_type->castable_to(node.target)) {
         bsv_dbprint("error: invalid cast");
         add_error<InvalidCastError>(node.inner->act_type, node.target, node.loc);
@@ -940,7 +965,23 @@ void Validator::do_visit(AssignExprMIR& node) {
     if (node.right->act_type->is_array()) {
         node.right = decay(node.right->act_type->as_array()->decay(), std::move(node.right));
     } else if (node.right->act_type->is_function()) {
-        node.right = decay(node.right->act_type->as_function()->decay(), std::move(node.right), true);
+        node.right =
+            decay(node.right->act_type->as_function()->decay(), std::move(node.right), true);
+    }
+
+    // Pointer arithmetic through compound assignment (`ptr += n` / `ptr -= n`) is legal even
+    // though the operand types differ, same as it is for the equivalent binary `ptr + n` /
+    // `ptr - n` in do_visit(BinaryExprMIR). The right-hand side stays an integer; it is not cast
+    // to the pointer type.
+    if ((node.op == AssignOp::PLUSEQ || node.op == AssignOp::MINUSEQ) &&
+        node.left->eff_type->unqual()->is_pointer()) {
+        PrimitiveType *right = node.right->eff_type->unqual()->as_primitive();
+        if (!right || !right->is_integer()) {
+            add_error<InvalidPointerArithmetic>(
+                InvalidPointerArithmetic::Kind::InvalidPrimOperand, node.right->loc);
+            throw UnableToContinue();
+        }
+        goto done;
     }
 
     if (node.left->eff_type != node.right->eff_type) {
@@ -1124,8 +1165,7 @@ void Validator::do_visit(CallExprMIR& node) {
                     arg = cast(param_type, std::move(arg));
                 } else {
                     bsv_dbprint("error: cannot coerce argument to parameter type");
-                    add_error<InvalidCoerceError>(
-                        arg->act_type->unqual(), param, arg->loc);
+                    add_error<InvalidCoerceError>(arg->act_type->unqual(), param, arg->loc);
                 }
             }
         }

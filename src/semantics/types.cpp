@@ -193,8 +193,9 @@ bool PrimitiveType::castable_to(Type *dst) {
         return false;
 
     if (dst->is_pointer()) {
-        // fixme: switch this over to system size
-        return primkind == PrimType::U64;
+        // Only the pointer-width integer type reinterprets directly into a pointer. Other
+        // integer widths are bridged through it by Validator::do_visit(CastExprMIR).
+        return this == ctxt().get_size_type(false);
     } else {
         // dst must be primitive here, all non-primitives were filtered out earlier
         assert(dst->is_primitive());
@@ -1124,7 +1125,25 @@ bool PointerType::coercible_to(Type *dst) {
     int ds_nesting = ptr->nesting_lvl();
     Type *dst_base = ptr->true_base();
 
-    return my_nesting == 1 && ds_nesting == 1 ? base == dst_base || dst_base->is_void() : false;
+    if (my_nesting != 1 || ds_nesting != 1)
+        return false;
+
+    if (base == dst_base || dst_base->is_void())
+        return true;
+
+    // A pointer to a derived class implicitly upcasts to a pointer to any of its ancestors,
+    // mirroring ClassType::coercible_to at the value level (a derived-class value already
+    // coerces to its base). Scoped to classes specifically -- this must not turn into a
+    // general "base->coercible_to(dst_base)" check, since that would also let e.g. U8 * widen
+    // into I32 * just because U8 widens into I32 as a value, which is unsound.
+    return base->is_class() && base->coercible_to(dst_base);
+}
+
+bool PointerType::castable_to(Type *dst) {
+    if (coercible_to(dst))
+        return true;
+
+    return dst == decay();
 }
 
 void PointerType::finalize() {

@@ -1311,7 +1311,9 @@ A pointer type (U8 *, I32 **, etc.)
 
 A pointer `ptr` is only coercible to another pointer `other` if:
 
-the base type of `other` is the same as `base` or `VoidType`, and
+the base type of `other` is the same as `base` or `VoidType`, or `base` is a class that
+`other`'s base is an ancestor of (i.e. a derived-class pointer upcasts to a base-class
+pointer, mirroring ClassType::coercible_to at the value level), and
 the level of nesting is the same (i.e. U8 ** is coercible to Void **, but not Void ***).
 
 Pointers can be subscripted like arrays, the compiler will treat the subscript as pointer
@@ -1319,8 +1321,11 @@ arithmetic. However, pointers cannot be converted to sized arrays.
 
 ## Castability
 
-In addition to coercible targets, Pointers can be cast into U64 and U64 only.
-Eventually, this target type will reflect the system address width.
+In addition to coercible targets, Pointers can be cast into the pointer-width integer type
+(see `decay()`) to obtain their raw address, and vice versa
+(see `PrimitiveType::castable_to`). Any other integer width is bridged through that type
+through an explicit cast to the pointer width type, since castable_to can only judge a
+single (src, dst) pair, not "yes, via an intermediate step".
 */
 class PointerType : public DerivedType {
 public:
@@ -1338,6 +1343,8 @@ public:
     bool is_callable() override;
 
     bool coercible_to(Type *dst) override;
+
+    bool castable_to(Type *dst) override;
 
     bool is_scalar() override { return true; };
 

@@ -57,7 +57,8 @@ protected:
     and returns it, but the difference is that the castkind is set to
     either ArrPtrDecay, or FuncPtrDecay.
     */
-    Box<mir::CastExprMIR> decay(types::Type *target, Box<mir::ExprMIR> expr, bool is_funcdecay = false);
+    Box<mir::CastExprMIR>
+    decay(types::Type *target, Box<mir::ExprMIR> expr, bool is_funcdecay = false);
 
     Optional<types::Type *>
     eval_initializer(types::Type *type, mir::InitializerMIR& init, bool allow_size_infer = false);
