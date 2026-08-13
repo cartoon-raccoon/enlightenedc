@@ -3,8 +3,8 @@
 #include "driver/driver.hpp"
 #include "ecc.hpp"
 #include "error.hpp"
-#include "lowering/cfg/cfg.hpp"
 #include "lowering/cfg/builder.hpp"
+#include "lowering/cfg/cfg.hpp"
 #include "lowering/lir/lir.hpp"
 #include "lowering/lir/printer.hpp"
 #include "lowering/lir/symbols.hpp"
@@ -116,7 +116,7 @@ void Backend::run(Ecc& ecc, driver::TranslationUnit& unit) {
     LIRSynthesizer lirsynthesizer(lirsyms, types, lir);
 
     lirsynthesizer.generate_lir(mir);
-    
+
     if (ecc.config->to_print.contains(Config::ToPrint::LIR)) {
         dbprint("--------- LIR ---------\n");
         LIRPrinter printer;
@@ -126,5 +126,4 @@ void Backend::run(Ecc& ecc, driver::TranslationUnit& unit) {
     CFGBuilder cfgbuilder(types, cfg);
 
     cfgbuilder.build_cfg(lir);
-    
 }
