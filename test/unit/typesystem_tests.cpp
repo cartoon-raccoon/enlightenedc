@@ -398,23 +398,26 @@ TEST_F(TypeSysAndSymTabTestFixture, PtrNoCoerce_U8PtrToClass) {
     EXPECT_FALSE(src->coercible_to(class1));
 }
 
-// ─── PointerType::castable_to (no override — delegates to coercible_to) ─────
+// ─── PointerType::castable_to ────────────────────────────────────────────────
 
-// castable_to allows the same targets as coercible_to
+// castable_to allows the same targets as coercible_to, plus the pointer-width integer type
+// (see below).
 TEST_F(TypeSysAndSymTabTestFixture, PtrCast_U8PtrToVoidPtr) {
     PointerType *src = tctxt.get_pointer(tctxt.get_u8());
     PointerType *dst = tctxt.get_pointer(tctxt.get_void());
     EXPECT_TRUE(src->castable_to(dst));
 }
 
-// Asymmetry: U64 -> ptr is allowed from the primitive side, but ptr -> U64 is NOT
-// allowed from the pointer side (PointerType::castable_to has no override)
-TEST_F(TypeSysAndSymTabTestFixture, PtrCastAsymmetry_U64ToPtrVsPtrToU64) {
+// U64 -> ptr and ptr -> U64 are symmetric: both directions reinterpret through the
+// pointer-width integer type (PrimitiveType::castable_to and PointerType::castable_to
+// respectively). Other integer widths are bridged through U64 by
+// Validator::do_visit(CastExprMIR), not by castable_to itself.
+TEST_F(TypeSysAndSymTabTestFixture, PtrCastSymmetry_U64ToPtrAndPtrToU64) {
     PointerType *ptr = tctxt.get_pointer(tctxt.get_u8());
     EXPECT_TRUE(tctxt.get_u64()->castable_to(ptr))
         << "U64->castable_to(ptr) should be true via PrimitiveType::castable_to";
-    EXPECT_FALSE(ptr->castable_to(tctxt.get_u64()))
-        << "ptr->castable_to(U64) should be false: PointerType has no castable_to override";
+    EXPECT_TRUE(ptr->castable_to(tctxt.get_u64()))
+        << "ptr->castable_to(U64) should be true via PointerType::castable_to";
 }
 
 // Explicit cross-base cast: also blocked (castable_to == coercible_to for pointers)

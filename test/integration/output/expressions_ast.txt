@@ -1,561 +1,1880 @@
 Initializing LLVM
 LLVM initialized
-running pipeline on file input/expressions.HC
-LLVM: Creating LLVMUnit with module name 'input/expressions.HC'
+running pipeline on file test/integration/input/expressions.HC
+LLVM: Creating LLVMUnit with module name 'test/integration/input/expressions.HC'
 LLVM: LLVMUnit created
-parsing file input/expressions.HC
-printing AST for file input/expressions.HC
-Program @ <input/expressions.HC:1.1> 
-| VariableDeclaration @ <input/expressions.HC:1.1-165> 
-| | PrimitiveSpecifier: u32 @ <input/expressions.HC:1.1-158> 
-| | InitDeclarator @ <input/expressions.HC:1.160-164> 
-| | | Declarator @ <input/expressions.HC:1.160> 
-| | | | IdentifierDeclarator: x @ <input/expressions.HC:1.160> 
-| | | Initializer:  @ <input/expressions.HC:1.164> 
-| | | | 0 @ <input/expressions.HC:1.164> 
-| VariableDeclaration @ <input/expressions.HC:2.1-11> 
-| | PrimitiveSpecifier: u32 @ <input/expressions.HC:2.1-4> 
-| | InitDeclarator @ <input/expressions.HC:2.6-10> 
-| | | Declarator @ <input/expressions.HC:2.6> 
-| | | | IdentifierDeclarator: a @ <input/expressions.HC:2.6> 
-| | | Initializer:  @ <input/expressions.HC:2.10> 
-| | | | 1 @ <input/expressions.HC:2.10> 
-| VariableDeclaration @ <input/expressions.HC:3.1-11> 
-| | PrimitiveSpecifier: u32 @ <input/expressions.HC:3.1-4> 
-| | InitDeclarator @ <input/expressions.HC:3.6-10> 
-| | | Declarator @ <input/expressions.HC:3.6> 
-| | | | IdentifierDeclarator: b @ <input/expressions.HC:3.6> 
-| | | Initializer:  @ <input/expressions.HC:3.10> 
-| | | | 2 @ <input/expressions.HC:3.10> 
-| ExpressionStatement @ <input/expressions.HC:4.1-26> 
-| | AssignmentExpression: = @ <input/expressions.HC:4.1-25> 
-| | | IdentifierExpression: x @ <input/expressions.HC:4.1> 
-| | | BinaryExpression: - @ <input/expressions.HC:4.5-25> 
-| | | | BinaryExpression: + @ <input/expressions.HC:4.5-13> 
-| | | | | IdentifierExpression: a @ <input/expressions.HC:4.5> 
-| | | | | BinaryExpression: * @ <input/expressions.HC:4.9-13> 
-| | | | | | IdentifierExpression: b @ <input/expressions.HC:4.9> 
-| | | | | | 3 @ <input/expressions.HC:4.13> 
-| | | | BinaryExpression: % @ <input/expressions.HC:4.17-25> 
-| | | | | BinaryExpression: / @ <input/expressions.HC:4.17-21> 
-| | | | | | 4 @ <input/expressions.HC:4.17> 
-| | | | | | 2 @ <input/expressions.HC:4.21> 
-| | | | | 5 @ <input/expressions.HC:4.25> 
-| ExpressionStatement @ <input/expressions.HC:5.1-8> 
-| | AssignmentExpression: <<= @ <input/expressions.HC:5.1-7> 
-| | | IdentifierExpression: x @ <input/expressions.HC:5.1> 
-| | | 2 @ <input/expressions.HC:5.7> 
-| ExpressionStatement @ <input/expressions.HC:6.1-15> 
-| | AssignmentExpression: |= @ <input/expressions.HC:6.1-14> 
-| | | IdentifierExpression: x @ <input/expressions.HC:6.1> 
-| | | BinaryExpression: ^ @ <input/expressions.HC:6.6-14> 
-| | | | 1 @ <input/expressions.HC:6.6> 
-| | | | BinaryExpression: & @ <input/expressions.HC:6.10-14> 
-| | | | | 3 @ <input/expressions.HC:6.10> 
-| | | | | 7 @ <input/expressions.HC:6.14> 
-| ExpressionStatement @ <input/expressions.HC:8.1-14> 
-| | AssignmentExpression: = @ <input/expressions.HC:8.1-13> 
-| | | IdentifierExpression: a @ <input/expressions.HC:8.1> 
-| | | ConditionalExpression @ <input/expressions.HC:8.5-13> 
-| | | | 2 @ <input/expressions.HC:8.5> 
-| | | | 1 @ <input/expressions.HC:8.9> 
-| | | | 5 @ <input/expressions.HC:8.13> 
-| ExpressionStatement @ <input/expressions.HC:9.1-20> 
-| | AssignmentExpression: = @ <input/expressions.HC:9.1-19> 
-| | | IdentifierExpression: x @ <input/expressions.HC:9.1> 
-| | | ConditionalExpression @ <input/expressions.HC:9.5-19> 
-| | | | BinaryExpression: > @ <input/expressions.HC:9.5-11> 
-| | | | | IdentifierExpression: a @ <input/expressions.HC:9.5-6> 
-| | | | | IdentifierExpression: b @ <input/expressions.HC:9.10> 
-| | | | IdentifierExpression: a @ <input/expressions.HC:9.15> 
-| | | | IdentifierExpression: b @ <input/expressions.HC:9.19> 
-| ExpressionStatement @ <input/expressions.HC:10.1-16> 
-| | AssignmentExpression: = @ <input/expressions.HC:10.1-15> 
-| | | IdentifierExpression: x @ <input/expressions.HC:10.1> 
-| | | BinaryExpression: || @ <input/expressions.HC:10.5-15> 
-| | | | BinaryExpression: && @ <input/expressions.HC:10.5-10> 
-| | | | | IdentifierExpression: a @ <input/expressions.HC:10.5> 
-| | | | | IdentifierExpression: b @ <input/expressions.HC:10.10> 
-| | | | IdentifierExpression: a @ <input/expressions.HC:10.15> 
-| ExpressionStatement @ <input/expressions.HC:11.1-17> 
-| | AssignmentExpression: = @ <input/expressions.HC:11.1-16> 
-| | | IdentifierExpression: x @ <input/expressions.HC:11.1> 
-| | | BinaryExpression: + @ <input/expressions.HC:11.5-16> 
-| | | | CastExpression:  @ <input/expressions.HC:11.5-12> 
-| | | | | IdentifierExpression: a @ <input/expressions.HC:11.12> 
-| | | | | TypeName @ <input/expressions.HC:11.5-9> 
-| | | | | | PrimitiveSpecifier: u32 @ <input/expressions.HC:11.5-9> 
-| | | | 2 @ <input/expressions.HC:11.16> 
-| ExpressionStatement @ <input/expressions.HC:12.1-13> 
-| | AssignmentExpression: = @ <input/expressions.HC:12.1-12> 
-| | | IdentifierExpression: x @ <input/expressions.HC:12.1> 
-| | | CastExpression:  @ <input/expressions.HC:12.5-12> 
-| | | | IdentifierExpression: a @ <input/expressions.HC:12.12> 
-| | | | TypeName @ <input/expressions.HC:12.5-9> 
-| | | | | PrimitiveSpecifier: i32 @ <input/expressions.HC:12.5-9> 
-| VariableDeclaration @ <input/expressions.HC:14.1-7> 
-| | PrimitiveSpecifier: u8 @ <input/expressions.HC:14.1-3> 
-| | InitDeclarator @ <input/expressions.HC:14.5-6> 
-| | | Declarator @ <input/expressions.HC:14.5-6> 
-| | | | Pointer @ <input/expressions.HC:14.5> 
-| | | | IdentifierDeclarator: s @ <input/expressions.HC:14.5-6> 
-| ExpressionStatement @ <input/expressions.HC:15.1-13> 
-| | AssignmentExpression: = @ <input/expressions.HC:15.1-12> 
-| | | IdentifierExpression: s @ <input/expressions.HC:15.1> 
-| | | String: hello! @ <input/expressions.HC:15.5-12> 
-| ExpressionStatement @ <input/expressions.HC:17.1-4> 
-| | UnaryExpression: ++ @ <input/expressions.HC:17.1-3> 
-| | | IdentifierExpression: x @ <input/expressions.HC:17.1-3> 
-| ExpressionStatement @ <input/expressions.HC:18.1-4> 
-| | PostfixExpression: -- @ <input/expressions.HC:18.1-3> 
-| | | IdentifierExpression: x @ <input/expressions.HC:18.1> 
-| ExpressionStatement @ <input/expressions.HC:19.1-18> 
-| | AssignmentExpression: += @ <input/expressions.HC:19.1-17> 
-| | | IdentifierExpression: x @ <input/expressions.HC:19.1> 
-| | | SizeofExpression @ <input/expressions.HC:19.6-17> 
-| | | | TypeName @ <input/expressions.HC:19.6-16> 
-| | | | | PrimitiveSpecifier: u32 @ <input/expressions.HC:19.6-16> 
-| ExpressionStatement @ <input/expressions.HC:20.1-14> 
-| | AssignmentExpression: += @ <input/expressions.HC:20.1-13> 
-| | | IdentifierExpression: x @ <input/expressions.HC:20.1> 
-| | | SizeofExpression @ <input/expressions.HC:20.6-13> 
-| | | | IdentifierExpression: x @ <input/expressions.HC:20.13> 
-| ExpressionStatement @ <input/expressions.HC:22.1-14> 
-| | AssignmentExpression: = @ <input/expressions.HC:22.1-13> 
-| | | IdentifierExpression: x @ <input/expressions.HC:22.1> 
-| | | BinaryExpression: , @ <input/expressions.HC:22.5-13> 
-| | | | BinaryExpression: , @ <input/expressions.HC:22.5-9> 
-| | | | | IdentifierExpression: a @ <input/expressions.HC:22.5-6> 
-| | | | | IdentifierExpression: b @ <input/expressions.HC:22.9> 
-| | | | IdentifierExpression: x @ <input/expressions.HC:22.12> 
-running backend for file input/expressions.HC
-Checking semantics for input/expressions.HC:1.1
-Synthesizing MIR for input/expressions.HC:1.1
+parsing file test/integration/input/expressions.HC
+running backend for file test/integration/input/expressions.HC
+
+---------- Generating MIR ----------
+
+Synthesizing MIR for 1.1
 Node {
-    visiting Program node: input/expressions.HC:1.1
+    visiting Program node: 1.1
     Node {
-        visiting VariableDeclaration node: input/expressions.HC:1.1-165
-        parsing declaration specifier list for node at input/expressions.HC:1.1-165
+        visiting VariableDeclaration node: 1.1-196
+        parsing declaration specifier list for node at 1.1-196
         Node {
-            visiting PrimitiveSpecifier node: input/expressions.HC:1.1-158
+            visiting PrimitiveSpecifier node: 1.1-189
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/expressions.HC:1.1-165
+        finished parsing specifiers for node 1.1-196
         Node {
-            visiting InitDeclarator node: input/expressions.HC:1.160-164
+            visiting InitDeclarator node: 1.191-195
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/expressions.HC:1.160
+                    visiting IdentifierDeclarator node: 1.191
                 }
             }
 TypeBuilder: finalizing type
             Node {
-                visiting Initializer node: input/expressions.HC:1.164
+                visiting Initializer node: 1.195
                 visiting single initializer
                 Node {
-                    visiting LiteralExpression node: input/expressions.HC:1.164
+                    visiting LiteralExpression node: 1.195
+                    found integer
                 }
             }
         }
 SymbolTable: inserting varsymbol with name "x"
     }
     Node {
-        visiting VariableDeclaration node: input/expressions.HC:2.1-11
-        parsing declaration specifier list for node at input/expressions.HC:2.1-11
+        visiting VariableDeclaration node: 2.1-10
+        parsing declaration specifier list for node at 2.1-10
         Node {
-            visiting PrimitiveSpecifier node: input/expressions.HC:2.1-4
+            visiting PrimitiveSpecifier node: 2.1-3
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/expressions.HC:2.1-11
+        finished parsing specifiers for node 2.1-10
         Node {
-            visiting InitDeclarator node: input/expressions.HC:2.6-10
+            visiting InitDeclarator node: 2.5-9
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/expressions.HC:2.6
+                    visiting IdentifierDeclarator node: 2.5
                 }
             }
 TypeBuilder: finalizing type
             Node {
-                visiting Initializer node: input/expressions.HC:2.10
+                visiting Initializer node: 2.9
                 visiting single initializer
                 Node {
-                    visiting LiteralExpression node: input/expressions.HC:2.10
+                    visiting LiteralExpression node: 2.9
+                    found integer
                 }
             }
         }
 SymbolTable: inserting varsymbol with name "a"
     }
     Node {
-        visiting VariableDeclaration node: input/expressions.HC:3.1-11
-        parsing declaration specifier list for node at input/expressions.HC:3.1-11
+        visiting VariableDeclaration node: 3.1-10
+        parsing declaration specifier list for node at 3.1-10
         Node {
-            visiting PrimitiveSpecifier node: input/expressions.HC:3.1-4
+            visiting PrimitiveSpecifier node: 3.1-3
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/expressions.HC:3.1-11
+        finished parsing specifiers for node 3.1-10
         Node {
-            visiting InitDeclarator node: input/expressions.HC:3.6-10
+            visiting InitDeclarator node: 3.5-9
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/expressions.HC:3.6
+                    visiting IdentifierDeclarator node: 3.5
                 }
             }
 TypeBuilder: finalizing type
             Node {
-                visiting Initializer node: input/expressions.HC:3.10
+                visiting Initializer node: 3.9
                 visiting single initializer
                 Node {
-                    visiting LiteralExpression node: input/expressions.HC:3.10
+                    visiting LiteralExpression node: 3.9
+                    found integer
                 }
             }
         }
 SymbolTable: inserting varsymbol with name "b"
     }
     Node {
-        visiting ExpressionStatement node: input/expressions.HC:4.1-26
+        visiting ExpressionStatement node: 5.1-26
         Node {
-            visiting AssignmentExpression node: input/expressions.HC:4.1-25
+            visiting AssignmentExpression node: 5.1-25
             Node {
-                visiting IdentifierExpression node: input/expressions.HC:4.1
+                visiting IdentifierExpression node: 5.1
 SymbolTable: looking up varsymbol x
             }
             Node {
-                visiting BinaryExpression node: input/expressions.HC:4.5-25
+                visiting BinaryExpression node: 5.5-25
                 Node {
-                    visiting BinaryExpression node: input/expressions.HC:4.5-13
+                    visiting BinaryExpression node: 5.5-13
                     Node {
-                        visiting IdentifierExpression node: input/expressions.HC:4.5
+                        visiting IdentifierExpression node: 5.5
 SymbolTable: looking up varsymbol a
                     }
                     Node {
-                        visiting BinaryExpression node: input/expressions.HC:4.9-13
+                        visiting BinaryExpression node: 5.9-13
                         Node {
-                            visiting IdentifierExpression node: input/expressions.HC:4.9
+                            visiting IdentifierExpression node: 5.9
 SymbolTable: looking up varsymbol b
                         }
                         Node {
-                            visiting LiteralExpression node: input/expressions.HC:4.13
+                            visiting LiteralExpression node: 5.13
+                            found integer
                         }
                     }
                 }
                 Node {
-                    visiting BinaryExpression node: input/expressions.HC:4.17-25
+                    visiting BinaryExpression node: 5.17-25
                     Node {
-                        visiting BinaryExpression node: input/expressions.HC:4.17-21
+                        visiting BinaryExpression node: 5.17-21
                         Node {
-                            visiting LiteralExpression node: input/expressions.HC:4.17
+                            visiting LiteralExpression node: 5.17
+                            found integer
                         }
                         Node {
-                            visiting LiteralExpression node: input/expressions.HC:4.21
+                            visiting LiteralExpression node: 5.21
+                            found integer
                         }
                     }
                     Node {
-                        visiting LiteralExpression node: input/expressions.HC:4.25
+                        visiting LiteralExpression node: 5.25
+                        found integer
                     }
                 }
             }
         }
     }
     Node {
-        visiting ExpressionStatement node: input/expressions.HC:5.1-8
+        visiting PrintStatement node: 6.1-10
         Node {
-            visiting AssignmentExpression node: input/expressions.HC:5.1-7
+            visiting IdentifierExpression node: 6.9
+SymbolTable: looking up varsymbol x
+        }
+    }
+    Node {
+        visiting ExpressionStatement node: 8.1-8
+        Node {
+            visiting AssignmentExpression node: 8.1-7
             Node {
-                visiting IdentifierExpression node: input/expressions.HC:5.1
+                visiting IdentifierExpression node: 8.1
 SymbolTable: looking up varsymbol x
             }
             Node {
-                visiting LiteralExpression node: input/expressions.HC:5.7
+                visiting LiteralExpression node: 8.7
+                found integer
             }
         }
     }
     Node {
-        visiting ExpressionStatement node: input/expressions.HC:6.1-15
+        visiting PrintStatement node: 9.1-10
         Node {
-            visiting AssignmentExpression node: input/expressions.HC:6.1-14
+            visiting IdentifierExpression node: 9.9
+SymbolTable: looking up varsymbol x
+        }
+    }
+    Node {
+        visiting ExpressionStatement node: 11.1-15
+        Node {
+            visiting AssignmentExpression node: 11.1-14
             Node {
-                visiting IdentifierExpression node: input/expressions.HC:6.1
+                visiting IdentifierExpression node: 11.1
 SymbolTable: looking up varsymbol x
             }
             Node {
-                visiting BinaryExpression node: input/expressions.HC:6.6-14
+                visiting BinaryExpression node: 11.6-14
                 Node {
-                    visiting LiteralExpression node: input/expressions.HC:6.6
+                    visiting LiteralExpression node: 11.6
+                    found integer
                 }
                 Node {
-                    visiting BinaryExpression node: input/expressions.HC:6.10-14
+                    visiting BinaryExpression node: 11.10-14
                     Node {
-                        visiting LiteralExpression node: input/expressions.HC:6.10
+                        visiting LiteralExpression node: 11.10
+                        found integer
                     }
                     Node {
-                        visiting LiteralExpression node: input/expressions.HC:6.14
+                        visiting LiteralExpression node: 11.14
+                        found integer
                     }
                 }
             }
         }
     }
     Node {
-        visiting ExpressionStatement node: input/expressions.HC:8.1-14
+        visiting PrintStatement node: 12.1-10
         Node {
-            visiting AssignmentExpression node: input/expressions.HC:8.1-13
+            visiting IdentifierExpression node: 12.9
+SymbolTable: looking up varsymbol x
+        }
+    }
+    Node {
+        visiting ExpressionStatement node: 14.1-14
+        Node {
+            visiting AssignmentExpression node: 14.1-13
             Node {
-                visiting IdentifierExpression node: input/expressions.HC:8.1
+                visiting IdentifierExpression node: 14.1
 SymbolTable: looking up varsymbol a
             }
             Node {
-                visiting ConditionalExpression node: input/expressions.HC:8.5-13
+                visiting ConditionalExpression node: 14.5-13
                 Node {
-                    visiting LiteralExpression node: input/expressions.HC:8.5
+                    visiting LiteralExpression node: 14.5
+                    found integer
                 }
                 Node {
-                    visiting LiteralExpression node: input/expressions.HC:8.9
+                    visiting LiteralExpression node: 14.9
+                    found integer
                 }
                 Node {
-                    visiting LiteralExpression node: input/expressions.HC:8.13
+                    visiting LiteralExpression node: 14.13
+                    found integer
                 }
             }
         }
     }
     Node {
-        visiting ExpressionStatement node: input/expressions.HC:9.1-20
+        visiting PrintStatement node: 15.1-10
         Node {
-            visiting AssignmentExpression node: input/expressions.HC:9.1-19
+            visiting IdentifierExpression node: 15.9
+SymbolTable: looking up varsymbol a
+        }
+    }
+    Node {
+        visiting ExpressionStatement node: 17.1-20
+        Node {
+            visiting AssignmentExpression node: 17.1-19
             Node {
-                visiting IdentifierExpression node: input/expressions.HC:9.1
+                visiting IdentifierExpression node: 17.1
 SymbolTable: looking up varsymbol x
             }
             Node {
-                visiting ConditionalExpression node: input/expressions.HC:9.5-19
+                visiting ConditionalExpression node: 17.5-19
                 Node {
-                    visiting BinaryExpression node: input/expressions.HC:9.5-11
+                    visiting BinaryExpression node: 17.5-11
                     Node {
-                        visiting IdentifierExpression node: input/expressions.HC:9.5-6
+                        visiting IdentifierExpression node: 17.5-6
 SymbolTable: looking up varsymbol a
                     }
                     Node {
-                        visiting IdentifierExpression node: input/expressions.HC:9.10
+                        visiting IdentifierExpression node: 17.10
 SymbolTable: looking up varsymbol b
                     }
                 }
                 Node {
-                    visiting IdentifierExpression node: input/expressions.HC:9.15
+                    visiting IdentifierExpression node: 17.15
 SymbolTable: looking up varsymbol a
                 }
                 Node {
-                    visiting IdentifierExpression node: input/expressions.HC:9.19
+                    visiting IdentifierExpression node: 17.19
 SymbolTable: looking up varsymbol b
                 }
             }
         }
     }
     Node {
-        visiting ExpressionStatement node: input/expressions.HC:10.1-16
+        visiting PrintStatement node: 18.1-10
         Node {
-            visiting AssignmentExpression node: input/expressions.HC:10.1-15
+            visiting IdentifierExpression node: 18.9
+SymbolTable: looking up varsymbol x
+        }
+    }
+    Node {
+        visiting ExpressionStatement node: 20.1-16
+        Node {
+            visiting AssignmentExpression node: 20.1-15
             Node {
-                visiting IdentifierExpression node: input/expressions.HC:10.1
+                visiting IdentifierExpression node: 20.1
 SymbolTable: looking up varsymbol x
             }
             Node {
-                visiting BinaryExpression node: input/expressions.HC:10.5-15
+                visiting BinaryExpression node: 20.5-15
                 Node {
-                    visiting BinaryExpression node: input/expressions.HC:10.5-10
+                    visiting BinaryExpression node: 20.5-10
                     Node {
-                        visiting IdentifierExpression node: input/expressions.HC:10.5
+                        visiting IdentifierExpression node: 20.5
 SymbolTable: looking up varsymbol a
                     }
                     Node {
-                        visiting IdentifierExpression node: input/expressions.HC:10.10
+                        visiting IdentifierExpression node: 20.10
 SymbolTable: looking up varsymbol b
                     }
                 }
                 Node {
-                    visiting IdentifierExpression node: input/expressions.HC:10.15
+                    visiting IdentifierExpression node: 20.15
 SymbolTable: looking up varsymbol a
                 }
             }
         }
     }
     Node {
-        visiting ExpressionStatement node: input/expressions.HC:11.1-17
+        visiting PrintStatement node: 21.1-10
         Node {
-            visiting AssignmentExpression node: input/expressions.HC:11.1-16
+            visiting IdentifierExpression node: 21.9
+SymbolTable: looking up varsymbol x
+        }
+    }
+    Node {
+        visiting ExpressionStatement node: 23.1-16
+        Node {
+            visiting AssignmentExpression node: 23.1-15
             Node {
-                visiting IdentifierExpression node: input/expressions.HC:11.1
+                visiting IdentifierExpression node: 23.1
 SymbolTable: looking up varsymbol x
             }
             Node {
-                visiting BinaryExpression node: input/expressions.HC:11.5-16
+                visiting BinaryExpression node: 23.5-15
                 Node {
-                    visiting CastExpression node: input/expressions.HC:11.5-12
+                    visiting CastExpression node: 23.5-11
                     Node {
-                        visiting IdentifierExpression node: input/expressions.HC:11.12
+                        visiting IdentifierExpression node: 23.11
 SymbolTable: looking up varsymbol a
                     }
                     Node {
-                        parsing declaration specifier list for node at input/expressions.HC:11.5-9
+                        parsing declaration specifier list for node at 23.5-8
                         Node {
-                            visiting PrimitiveSpecifier node: input/expressions.HC:11.5-9
+                            visiting PrimitiveSpecifier node: 23.5-8
 TypeContext: getting primitive type
                         }
-                        finished parsing specifiers for node input/expressions.HC:11.5-9
+                        finished parsing specifiers for node 23.5-8
                     }
                 }
                 Node {
-                    visiting LiteralExpression node: input/expressions.HC:11.16
+                    visiting LiteralExpression node: 23.15
+                    found integer
                 }
             }
         }
     }
     Node {
-        visiting ExpressionStatement node: input/expressions.HC:12.1-13
+        visiting PrintStatement node: 24.1-10
         Node {
-            visiting AssignmentExpression node: input/expressions.HC:12.1-12
+            visiting IdentifierExpression node: 24.9
+SymbolTable: looking up varsymbol x
+        }
+    }
+    Node {
+        visiting ExpressionStatement node: 26.1-12
+        Node {
+            visiting AssignmentExpression node: 26.1-11
             Node {
-                visiting IdentifierExpression node: input/expressions.HC:12.1
+                visiting IdentifierExpression node: 26.1
 SymbolTable: looking up varsymbol x
             }
             Node {
-                visiting CastExpression node: input/expressions.HC:12.5-12
+                visiting CastExpression node: 26.5-11
                 Node {
-                    visiting IdentifierExpression node: input/expressions.HC:12.12
+                    visiting IdentifierExpression node: 26.11
 SymbolTable: looking up varsymbol a
                 }
                 Node {
-                    parsing declaration specifier list for node at input/expressions.HC:12.5-9
+                    parsing declaration specifier list for node at 26.5-8
                     Node {
-                        visiting PrimitiveSpecifier node: input/expressions.HC:12.5-9
+                        visiting PrimitiveSpecifier node: 26.5-8
 TypeContext: getting primitive type
                     }
-                    finished parsing specifiers for node input/expressions.HC:12.5-9
+                    finished parsing specifiers for node 26.5-8
                 }
             }
         }
     }
     Node {
-        visiting VariableDeclaration node: input/expressions.HC:14.1-7
-        parsing declaration specifier list for node at input/expressions.HC:14.1-7
+        visiting PrintStatement node: 27.1-10
         Node {
-            visiting PrimitiveSpecifier node: input/expressions.HC:14.1-3
-TypeContext: getting primitive type
+            visiting IdentifierExpression node: 27.9
+SymbolTable: looking up varsymbol x
         }
-        finished parsing specifiers for node input/expressions.HC:14.1-7
+    }
+    Node {
+        visiting ExpressionStatement node: 29.1-4
         Node {
-            visiting InitDeclarator node: input/expressions.HC:14.5-6
+            visiting UnaryExpression node: 29.1-3
             Node {
+                visiting IdentifierExpression node: 29.1-3
+SymbolTable: looking up varsymbol x
+            }
+        }
+    }
+    Node {
+        visiting PrintStatement node: 30.1-10
+        Node {
+            visiting IdentifierExpression node: 30.9
+SymbolTable: looking up varsymbol x
+        }
+    }
+    Node {
+        visiting ExpressionStatement node: 32.1-4
+        Node {
+            visiting PostfixExpression node: 32.1-3
+            Node {
+                visiting IdentifierExpression node: 32.1
+SymbolTable: looking up varsymbol x
+            }
+        }
+    }
+    Node {
+        visiting PrintStatement node: 33.1-10
+        Node {
+            visiting IdentifierExpression node: 33.9
+SymbolTable: looking up varsymbol x
+        }
+    }
+    Node {
+        visiting ExpressionStatement node: 35.1-17
+        Node {
+            visiting AssignmentExpression node: 35.1-16
+            Node {
+                visiting IdentifierExpression node: 35.1
+SymbolTable: looking up varsymbol x
+            }
+            Node {
+                visiting SizeofExpression node: 35.6-16
                 Node {
-                    visiting IdentifierDeclarator node: input/expressions.HC:14.5-6
+                    parsing declaration specifier list for node at 35.6-15
+                    Node {
+                        visiting PrimitiveSpecifier node: 35.6-15
+TypeContext: getting primitive type
+                    }
+                    finished parsing specifiers for node 35.6-15
+                }
+            }
+        }
+    }
+    Node {
+        visiting PrintStatement node: 36.1-10
+        Node {
+            visiting IdentifierExpression node: 36.9
+SymbolTable: looking up varsymbol x
+        }
+    }
+    Node {
+        visiting ExpressionStatement node: 38.1-14
+        Node {
+            visiting AssignmentExpression node: 38.1-13
+            Node {
+                visiting IdentifierExpression node: 38.1
+SymbolTable: looking up varsymbol x
+            }
+            Node {
+                visiting SizeofExpression node: 38.6-13
+                Node {
+                    visiting IdentifierExpression node: 38.13
+SymbolTable: looking up varsymbol x
+                }
+            }
+        }
+    }
+    Node {
+        visiting PrintStatement node: 39.1-10
+        Node {
+            visiting IdentifierExpression node: 39.9
+SymbolTable: looking up varsymbol x
+        }
+    }
+    Node {
+        visiting ExpressionStatement node: 41.1-14
+        Node {
+            visiting AssignmentExpression node: 41.1-13
+            Node {
+                visiting IdentifierExpression node: 41.1
+SymbolTable: looking up varsymbol x
+            }
+            Node {
+                visiting BinaryExpression node: 41.5-13
+                Node {
+                    visiting BinaryExpression node: 41.5-9
+                    Node {
+                        visiting IdentifierExpression node: 41.5-6
+SymbolTable: looking up varsymbol a
+                    }
+                    Node {
+                        visiting IdentifierExpression node: 41.9
+SymbolTable: looking up varsymbol b
+                    }
                 }
                 Node {
-                    visiting Pointer node: input/expressions.HC:14.5
+                    visiting IdentifierExpression node: 41.12
+SymbolTable: looking up varsymbol x
+                }
+            }
+        }
+    }
+    Node {
+        visiting PrintStatement node: 42.1-10
+        Node {
+            visiting IdentifierExpression node: 42.9
+SymbolTable: looking up varsymbol x
+        }
+    }
+    Node {
+        visiting ExpressionStatement node: 44.1-13
+        Node {
+            visiting AssignmentExpression node: 44.1-12
+            Node {
+                visiting ArraySubscriptExpression node: 44.1-8
+                Node {
+                    visiting ReinterpretExpression node: 44.1-5
+                    Node {
+                        visiting IdentifierExpression node: 44.1
+SymbolTable: looking up varsymbol x
+                    }
+                }
+                Node {
+                    visiting LiteralExpression node: 44.1-7
+                    found integer
+                }
+            }
+            Node {
+                visiting LiteralExpression node: 44.12
+                found integer
+            }
+        }
+    }
+    Node {
+        visiting VariableDeclaration node: 47.1-10
+        parsing declaration specifier list for node at 47.1-10
+        Node {
+            visiting PrimitiveSpecifier node: 47.1-3
+TypeContext: getting primitive type
+        }
+        finished parsing specifiers for node 47.1-10
+        Node {
+            visiting InitDeclarator node: 47.5-9
+            Node {
+                Node {
+                    visiting IdentifierDeclarator node: 47.5
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x561131e4e6d0
-        }
-SymbolTable: inserting varsymbol with name "s"
-    }
-    Node {
-        visiting ExpressionStatement node: input/expressions.HC:15.1-13
-        Node {
-            visiting AssignmentExpression node: input/expressions.HC:15.1-12
             Node {
-                visiting IdentifierExpression node: input/expressions.HC:15.1
-SymbolTable: looking up varsymbol s
-            }
-            Node {
-                visiting StringExpression node: input/expressions.HC:15.5-12
-            }
-        }
-    }
-    Node {
-        visiting ExpressionStatement node: input/expressions.HC:17.1-4
-        Node {
-            visiting UnaryExpression node: input/expressions.HC:17.1-3
-            Node {
-                visiting IdentifierExpression node: input/expressions.HC:17.1-3
-SymbolTable: looking up varsymbol x
-            }
-        }
-    }
-    Node {
-        visiting ExpressionStatement node: input/expressions.HC:18.1-4
-        Node {
-            visiting PostfixExpression node: input/expressions.HC:18.1-3
-            Node {
-                visiting IdentifierExpression node: input/expressions.HC:18.1
-SymbolTable: looking up varsymbol x
-            }
-        }
-    }
-    Node {
-        visiting ExpressionStatement node: input/expressions.HC:19.1-18
-        Node {
-            visiting AssignmentExpression node: input/expressions.HC:19.1-17
-            Node {
-                visiting IdentifierExpression node: input/expressions.HC:19.1
-SymbolTable: looking up varsymbol x
-            }
-            Node {
-                visiting SizeofExpression node: input/expressions.HC:19.6-17
+                visiting Initializer node: 47.9
+                visiting single initializer
                 Node {
-                    parsing declaration specifier list for node at input/expressions.HC:19.6-16
-                    Node {
-                        visiting PrimitiveSpecifier node: input/expressions.HC:19.6-16
+                    visiting LiteralExpression node: 47.9
+                    found integer
+                }
+            }
+        }
+SymbolTable: inserting varsymbol with name "y"
+    }
+    Node {
+        visiting VariableDeclaration node: 48.1-10
+        parsing declaration specifier list for node at 48.1-10
+        Node {
+            visiting PrimitiveSpecifier node: 48.1-3
 TypeContext: getting primitive type
-                    }
-                    finished parsing specifiers for node input/expressions.HC:19.6-16
+        }
+        finished parsing specifiers for node 48.1-10
+        Node {
+            visiting InitDeclarator node: 48.5-9
+            Node {
+                Node {
+                    visiting IdentifierDeclarator node: 48.5
+                }
+            }
+TypeBuilder: finalizing type
+            Node {
+                visiting Initializer node: 48.9
+                visiting single initializer
+                Node {
+                    visiting LiteralExpression node: 48.9
+                    found integer
+                }
+            }
+        }
+SymbolTable: inserting varsymbol with name "z"
+    }
+    Node {
+        visiting PrintStatement node: 50.1-15
+        Node {
+            visiting BinaryExpression node: 50.9-14
+            Node {
+                visiting IdentifierExpression node: 50.9
+SymbolTable: looking up varsymbol y
+            }
+            Node {
+                visiting LiteralExpression node: 50.14
+                found integer
+            }
+        }
+    }
+    Node {
+        visiting PrintStatement node: 51.1-15
+        Node {
+            visiting BinaryExpression node: 51.9-14
+            Node {
+                visiting IdentifierExpression node: 51.9
+SymbolTable: looking up varsymbol y
+            }
+            Node {
+                visiting IdentifierExpression node: 51.14
+SymbolTable: looking up varsymbol z
+            }
+        }
+    }
+    Node {
+        visiting PrintStatement node: 52.1-15
+        Node {
+            visiting BinaryExpression node: 52.9-14
+            Node {
+                visiting IdentifierExpression node: 52.9
+SymbolTable: looking up varsymbol y
+            }
+            Node {
+                visiting LiteralExpression node: 52.14
+                found integer
+            }
+        }
+    }
+    Node {
+        visiting PrintStatement node: 53.1-16
+        Node {
+            visiting BinaryExpression node: 53.9-15
+            Node {
+                visiting IdentifierExpression node: 53.9
+SymbolTable: looking up varsymbol z
+            }
+            Node {
+                visiting LiteralExpression node: 53.14-15
+                found integer
+            }
+        }
+    }
+    Node {
+        visiting PrintStatement node: 56.1-15
+        Node {
+            visiting BinaryExpression node: 56.9-14
+            Node {
+                visiting LiteralExpression node: 56.9
+                found integer
+            }
+            Node {
+                visiting LiteralExpression node: 56.14
+                found integer
+            }
+        }
+    }
+    Node {
+        visiting PrintStatement node: 57.1-16
+        Node {
+            visiting BinaryExpression node: 57.9-15
+            Node {
+                visiting LiteralExpression node: 57.9-10
+                found integer
+            }
+            Node {
+                visiting LiteralExpression node: 57.15
+                found integer
+            }
+        }
+    }
+    Node {
+        visiting ExpressionStatement node: 60.1-7
+        Node {
+            visiting AssignmentExpression node: 60.1-6
+            Node {
+                visiting IdentifierExpression node: 60.1
+SymbolTable: looking up varsymbol y
+            }
+            Node {
+                visiting UnaryExpression node: 60.5-6
+                Node {
+                    visiting IdentifierExpression node: 60.5-6
+SymbolTable: looking up varsymbol y
                 }
             }
         }
     }
     Node {
-        visiting ExpressionStatement node: input/expressions.HC:20.1-14
+        visiting PrintStatement node: 61.1-10
         Node {
-            visiting AssignmentExpression node: input/expressions.HC:20.1-13
+            visiting IdentifierExpression node: 61.9
+SymbolTable: looking up varsymbol y
+        }
+    }
+    Node {
+        visiting ExpressionStatement node: 63.1-7
+        Node {
+            visiting AssignmentExpression node: 63.1-6
             Node {
-                visiting IdentifierExpression node: input/expressions.HC:20.1
-SymbolTable: looking up varsymbol x
+                visiting IdentifierExpression node: 63.1
+SymbolTable: looking up varsymbol y
             }
             Node {
-                visiting SizeofExpression node: input/expressions.HC:20.6-13
+                visiting UnaryExpression node: 63.5-6
                 Node {
-                    visiting IdentifierExpression node: input/expressions.HC:20.13
-SymbolTable: looking up varsymbol x
+                    visiting IdentifierExpression node: 63.5-6
+SymbolTable: looking up varsymbol y
                 }
             }
         }
     }
     Node {
-        visiting ExpressionStatement node: input/expressions.HC:22.1-14
+        visiting PrintStatement node: 64.1-10
         Node {
-            visiting AssignmentExpression node: input/expressions.HC:22.1-13
+            visiting IdentifierExpression node: 64.9
+SymbolTable: looking up varsymbol y
+        }
+    }
+    Node {
+        visiting ExpressionStatement node: 66.1-7
+        Node {
+            visiting AssignmentExpression node: 66.1-6
             Node {
-                visiting IdentifierExpression node: input/expressions.HC:22.1
-SymbolTable: looking up varsymbol x
+                visiting IdentifierExpression node: 66.1
+SymbolTable: looking up varsymbol y
             }
             Node {
-                visiting BinaryExpression node: input/expressions.HC:22.5-13
+                visiting UnaryExpression node: 66.5-6
                 Node {
-                    visiting BinaryExpression node: input/expressions.HC:22.5-9
-                    Node {
-                        visiting IdentifierExpression node: input/expressions.HC:22.5-6
-SymbolTable: looking up varsymbol a
-                    }
-                    Node {
-                        visiting IdentifierExpression node: input/expressions.HC:22.9
-SymbolTable: looking up varsymbol b
-                    }
-                }
-                Node {
-                    visiting IdentifierExpression node: input/expressions.HC:22.12
-SymbolTable: looking up varsymbol x
+                    visiting LiteralExpression node: 66.5-6
+                    found integer
                 }
             }
+        }
+    }
+    Node {
+        visiting PrintStatement node: 67.1-10
+        Node {
+            visiting IdentifierExpression node: 67.9
+SymbolTable: looking up varsymbol y
+        }
+    }
+    Node {
+        visiting VariableDeclaration node: 69.1-13
+        parsing declaration specifier list for node at 69.1-13
+        Node {
+            visiting PrimitiveSpecifier node: 69.1-3
+TypeContext: getting primitive type
+        }
+        finished parsing specifiers for node 69.1-13
+        Node {
+            visiting InitDeclarator node: 69.5-12
+            Node {
+                Node {
+                    visiting IdentifierDeclarator node: 69.5-7
+                }
+            }
+TypeBuilder: finalizing type
+            Node {
+                visiting Initializer node: 69.11-12
+                visiting single initializer
+                Node {
+                    visiting UnaryExpression node: 69.11-12
+                    Node {
+                        visiting LiteralExpression node: 69.11-12
+                        found integer
+                    }
+                }
+            }
+        }
+SymbolTable: inserting varsymbol with name "neg"
+    }
+    Node {
+        visiting VariableDeclaration node: 70.1-15
+        parsing declaration specifier list for node at 70.1-15
+        Node {
+            visiting PrimitiveSpecifier node: 70.1-3
+TypeContext: getting primitive type
+        }
+        finished parsing specifiers for node 70.1-15
+        Node {
+            visiting InitDeclarator node: 70.5-14
+            Node {
+                Node {
+                    visiting IdentifierDeclarator node: 70.5-7
+                }
+            }
+TypeBuilder: finalizing type
+            Node {
+                visiting Initializer node: 70.11-14
+                visiting single initializer
+                Node {
+                    visiting UnaryExpression node: 70.11-14
+                    Node {
+                        visiting IdentifierExpression node: 70.11-14
+SymbolTable: looking up varsymbol neg
+                    }
+                }
+            }
+        }
+SymbolTable: inserting varsymbol with name "pos"
+    }
+    Node {
+        visiting PrintStatement node: 71.1-12
+        Node {
+            visiting IdentifierExpression node: 71.9-11
+SymbolTable: looking up varsymbol pos
+        }
+    }
+    Node {
+        visiting ExpressionStatement node: 74.1-8
+        Node {
+            visiting AssignmentExpression node: 74.1-7
+            Node {
+                visiting IdentifierExpression node: 74.1
+SymbolTable: looking up varsymbol z
+            }
+            Node {
+                visiting LiteralExpression node: 74.7
+                found integer
+            }
+        }
+    }
+    Node {
+        visiting PrintStatement node: 75.1-10
+        Node {
+            visiting IdentifierExpression node: 75.9
+SymbolTable: looking up varsymbol z
+        }
+    }
+    Node {
+        visiting ExpressionStatement node: 77.1-8
+        Node {
+            visiting AssignmentExpression node: 77.1-7
+            Node {
+                visiting IdentifierExpression node: 77.1
+SymbolTable: looking up varsymbol z
+            }
+            Node {
+                visiting LiteralExpression node: 77.7
+                found integer
+            }
+        }
+    }
+    Node {
+        visiting PrintStatement node: 78.1-10
+        Node {
+            visiting IdentifierExpression node: 78.9
+SymbolTable: looking up varsymbol z
+        }
+    }
+    Node {
+        visiting ExpressionStatement node: 80.1-7
+        Node {
+            visiting AssignmentExpression node: 80.1-6
+            Node {
+                visiting IdentifierExpression node: 80.1
+SymbolTable: looking up varsymbol z
+            }
+            Node {
+                visiting LiteralExpression node: 80.6
+                found integer
+            }
+        }
+    }
+    Node {
+        visiting PrintStatement node: 81.1-10
+        Node {
+            visiting IdentifierExpression node: 81.9
+SymbolTable: looking up varsymbol z
+        }
+    }
+    Node {
+        visiting ExpressionStatement node: 83.1-7
+        Node {
+            visiting AssignmentExpression node: 83.1-6
+            Node {
+                visiting IdentifierExpression node: 83.1
+SymbolTable: looking up varsymbol z
+            }
+            Node {
+                visiting LiteralExpression node: 83.6
+                found integer
+            }
+        }
+    }
+    Node {
+        visiting ExpressionStatement node: 84.1-7
+        Node {
+            visiting AssignmentExpression node: 84.1-6
+            Node {
+                visiting IdentifierExpression node: 84.1
+SymbolTable: looking up varsymbol z
+            }
+            Node {
+                visiting LiteralExpression node: 84.6
+                found integer
+            }
+        }
+    }
+    Node {
+        visiting PrintStatement node: 85.1-10
+        Node {
+            visiting IdentifierExpression node: 85.9
+SymbolTable: looking up varsymbol z
+        }
+    }
+    Node {
+        visiting ExpressionStatement node: 87.1-7
+        Node {
+            visiting AssignmentExpression node: 87.1-6
+            Node {
+                visiting IdentifierExpression node: 87.1
+SymbolTable: looking up varsymbol z
+            }
+            Node {
+                visiting LiteralExpression node: 87.6
+                found integer
+            }
+        }
+    }
+    Node {
+        visiting PrintStatement node: 88.1-10
+        Node {
+            visiting IdentifierExpression node: 88.9
+SymbolTable: looking up varsymbol z
+        }
+    }
+    Node {
+        visiting ExpressionStatement node: 90.1-7
+        Node {
+            visiting AssignmentExpression node: 90.1-6
+            Node {
+                visiting IdentifierExpression node: 90.1
+SymbolTable: looking up varsymbol z
+            }
+            Node {
+                visiting LiteralExpression node: 90.6
+                found integer
+            }
+        }
+    }
+    Node {
+        visiting PrintStatement node: 91.1-10
+        Node {
+            visiting IdentifierExpression node: 91.9
+SymbolTable: looking up varsymbol z
+        }
+    }
+    Node {
+        visiting ExpressionStatement node: 93.1-7
+        Node {
+            visiting AssignmentExpression node: 93.1-6
+            Node {
+                visiting IdentifierExpression node: 93.1
+SymbolTable: looking up varsymbol z
+            }
+            Node {
+                visiting LiteralExpression node: 93.6
+                found integer
+            }
+        }
+    }
+    Node {
+        visiting PrintStatement node: 94.1-10
+        Node {
+            visiting IdentifierExpression node: 94.9
+SymbolTable: looking up varsymbol z
+        }
+    }
+    Node {
+        visiting VariableDeclaration node: 97.1-26
+        parsing declaration specifier list for node at 97.1-26
+        Node {
+            visiting PrimitiveSpecifier node: 97.1-3
+TypeContext: getting primitive type
+        }
+        finished parsing specifiers for node 97.1-26
+        Node {
+            visiting InitDeclarator node: 97.5-25
+            Node {
+                Node {
+                    visiting IdentifierDeclarator node: 97.5
+                }
+            }
+TypeBuilder: finalizing type
+            Node {
+                visiting Initializer node: 97.9-25
+                visiting single initializer
+                Node {
+                    visiting ConditionalExpression node: 97.9-25
+                    Node {
+                        visiting LiteralExpression node: 97.9
+                        found integer
+                    }
+                    Node {
+                        visiting ConditionalExpression node: 97.13-21
+                        Node {
+                            visiting LiteralExpression node: 97.13
+                            found integer
+                        }
+                        Node {
+                            visiting LiteralExpression node: 97.17
+                            found integer
+                        }
+                        Node {
+                            visiting LiteralExpression node: 97.21
+                            found integer
+                        }
+                    }
+                    Node {
+                        visiting LiteralExpression node: 97.25
+                        found integer
+                    }
+                }
+            }
+        }
+SymbolTable: inserting varsymbol with name "t"
+    }
+    Node {
+        visiting PrintStatement node: 98.1-10
+        Node {
+            visiting IdentifierExpression node: 98.9
+SymbolTable: looking up varsymbol t
         }
     }
 }
-semantic checking complete
+
+---------- Validating ----------
+
+Node {
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for x
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for a
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for b
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting AssignExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting BinaryExprMIR node
+                Node {
+                    Validator: visiting BinaryExprMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                    Node {
+                        Validator: visiting BinaryExprMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+                        Node {
+                            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                        }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+                    }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+                }
+                Node {
+                    Validator: visiting BinaryExprMIR node
+                    Node {
+                        Validator: visiting BinaryExprMIR node
+                        Node {
+                            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                        }
+                        Node {
+                            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                        }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+                    }
+                    Node {
+                        Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                    }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+                }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting AssignExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting AssignExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting BinaryExprMIR node
+                Node {
+                    Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                }
+                Node {
+                    Validator: visiting BinaryExprMIR node
+                    Node {
+                        Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                    }
+                    Node {
+                        Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                    }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+                }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting AssignExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting CondExprMIR node
+                Node {
+                    Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                }
+                Node {
+                    Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                }
+                Node {
+                    Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                }
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting AssignExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting CondExprMIR node
+                Node {
+                    Validator: visiting BinaryExprMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+                }
+                Node {
+                    Validator: visiting IdentExprMIR node
+                }
+                Node {
+                    Validator: visiting IdentExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting AssignExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting BinaryExprMIR node
+                Node {
+                    Validator: visiting BinaryExprMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+                }
+                Node {
+                    Validator: visiting IdentExprMIR node
+                }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting AssignExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting BinaryExprMIR node
+                Node {
+                    Validator: visiting CastExprMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                }
+                Node {
+                    Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting AssignExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting CastExprMIR node
+                Node {
+                    Validator: visiting IdentExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting UnaryExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting PostfixMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting AssignExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting SizeofExprMIR node
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting AssignExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting SizeofExprMIR node
+                Node {
+                    Validator: visiting IdentExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting AssignExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting BinaryExprMIR node
+                Node {
+                    Validator: visiting BinaryExprMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+                }
+                Node {
+                    Validator: visiting IdentExprMIR node
+                }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting AssignExprMIR node
+            Node {
+                Validator: visiting SubscrExprMIR node
+                Node {
+                    Validator: visiting ReintExprMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+TypeContext: getting primitive type
+TypeContext: array type with base 175247769236, size 2
+TypeContext: array type with base 175247769236, size 2
+                }
+                Node {
+                    Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                }
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+        }
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for y
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for z
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting BinaryExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting BinaryExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting BinaryExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting BinaryExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting BinaryExprMIR node
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting BinaryExprMIR node
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting AssignExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting UnaryExprMIR node
+                Node {
+                    Validator: visiting IdentExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting AssignExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting UnaryExprMIR node
+                Node {
+                    Validator: visiting IdentExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting AssignExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting UnaryExprMIR node
+                Node {
+                    Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                }
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for neg
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting UnaryExprMIR node
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+        }
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for pos
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting UnaryExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting AssignExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting AssignExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting AssignExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting AssignExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting AssignExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting AssignExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting AssignExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting AssignExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for t
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting CondExprMIR node
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+            Node {
+                Validator: visiting CondExprMIR node
+                Node {
+                    Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                }
+                Node {
+                    Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                }
+                Node {
+                    Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                }
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+}
 --------- TYPE CONTEXT ---------
 
 Base Types:
@@ -563,126 +1882,1418 @@ Base Types:
 Function Types:
 
 Pointer Types:
-  :U8 *
 
 Array Types:
+ : u16[2] #2
 
 
 --------- SYMBOL TABLE ---------
 
-Scope 0
+Scope 0: Compound Statement
 Physical Symbols:
-  s -> 0x561131e51150 : VarSymbol: s :: U8 *
-  b -> 0x561131e4f840 : VarSymbol: b :: U32
-  a -> 0x561131e4f610 : VarSymbol: a :: U32
-  x -> 0x561131e3a670 : VarSymbol: x :: U32
+  pos <0x55686f3cb010> : VarSymbol: pos :: I32
+  neg <0x55686f3cad00> : VarSymbol: neg :: I32
+  z <0x55686f3c9470> : VarSymbol: z :: U32
+  y <0x55686f3c9240> : VarSymbol: y :: U32
+  t <0x55686f3cc9a0> : VarSymbol: t :: I32
+  b <0x55686f3c5e20> : VarSymbol: b :: U32
+  a <0x55686f3c5bd0> : VarSymbol: a :: U32
+  x <0x55686f3c5950> : VarSymbol: x :: U32
 -----------------------------------------------------------
 
 --------- MIR ---------
 
 ProgramMIR @ <1.1>
-| VarDecl:  @ <input/expressions.HC:1.1-165>
+| VarDecl:  @ <1.1-196>
 | | | VarSymbol: x :: U32
-| | | Initializer @ <input/expressions.HC:1.164>
-| | | | Literal: 0 @ <input/expressions.HC:1.164>
-| VarDecl:  @ <input/expressions.HC:2.1-11>
+| | | Initializer @ <1.195>
+| | | | Cast -> u32 (implicit) :: U32 @ <1.195>
+| | | | | Literal: 0 :: I32 @ <1.195>
+| VarDecl:  @ <2.1-10>
 | | | VarSymbol: a :: U32
-| | | Initializer @ <input/expressions.HC:2.10>
-| | | | Literal: 1 @ <input/expressions.HC:2.10>
-| VarDecl:  @ <input/expressions.HC:3.1-11>
+| | | Initializer @ <2.9>
+| | | | Cast -> u32 (implicit) :: U32 @ <2.9>
+| | | | | Literal: 1 :: I32 @ <2.9>
+| VarDecl:  @ <3.1-10>
 | | | VarSymbol: b :: U32
-| | | Initializer @ <input/expressions.HC:3.10>
-| | | | Literal: 2 @ <input/expressions.HC:3.10>
-| ExprStmt @ <input/expressions.HC:4.1-26>
-| | Assign: = @ <input/expressions.HC:4.1-25>
-| | | Ident: x @ <input/expressions.HC:4.1>
-| | | Binary: - @ <input/expressions.HC:4.5-25>
-| | | | Binary: + @ <input/expressions.HC:4.5-13>
-| | | | | Ident: a @ <input/expressions.HC:4.5>
-| | | | | Binary: * @ <input/expressions.HC:4.9-13>
-| | | | | | Ident: b @ <input/expressions.HC:4.9>
-| | | | | | Literal: 3 @ <input/expressions.HC:4.13>
-| | | | Binary: % @ <input/expressions.HC:4.17-25>
-| | | | | Binary: / @ <input/expressions.HC:4.17-21>
-| | | | | | Literal: 4 @ <input/expressions.HC:4.17>
-| | | | | | Literal: 2 @ <input/expressions.HC:4.21>
-| | | | | Literal: 5 @ <input/expressions.HC:4.25>
-| ExprStmt @ <input/expressions.HC:5.1-8>
-| | Assign: <<= @ <input/expressions.HC:5.1-7>
-| | | Ident: x @ <input/expressions.HC:5.1>
-| | | Literal: 2 @ <input/expressions.HC:5.7>
-| ExprStmt @ <input/expressions.HC:6.1-15>
-| | Assign: |= @ <input/expressions.HC:6.1-14>
-| | | Ident: x @ <input/expressions.HC:6.1>
-| | | Binary: ^ @ <input/expressions.HC:6.6-14>
-| | | | Literal: 1 @ <input/expressions.HC:6.6>
-| | | | Binary: & @ <input/expressions.HC:6.10-14>
-| | | | | Literal: 3 @ <input/expressions.HC:6.10>
-| | | | | Literal: 7 @ <input/expressions.HC:6.14>
-| ExprStmt @ <input/expressions.HC:8.1-14>
-| | Assign: = @ <input/expressions.HC:8.1-13>
-| | | Ident: a @ <input/expressions.HC:8.1>
-| | | CondExpr @ <input/expressions.HC:8.5-13>
-| | | | Literal: 2 @ <input/expressions.HC:8.5>
-| | | | Literal: 1 @ <input/expressions.HC:8.9>
-| | | | Literal: 5 @ <input/expressions.HC:8.13>
-| ExprStmt @ <input/expressions.HC:9.1-20>
-| | Assign: = @ <input/expressions.HC:9.1-19>
-| | | Ident: x @ <input/expressions.HC:9.1>
-| | | CondExpr @ <input/expressions.HC:9.5-19>
-| | | | Binary: > @ <input/expressions.HC:9.5-11>
-| | | | | Ident: a @ <input/expressions.HC:9.5-6>
-| | | | | Ident: b @ <input/expressions.HC:9.10>
-| | | | Ident: a @ <input/expressions.HC:9.15>
-| | | | Ident: b @ <input/expressions.HC:9.19>
-| ExprStmt @ <input/expressions.HC:10.1-16>
-| | Assign: = @ <input/expressions.HC:10.1-15>
-| | | Ident: x @ <input/expressions.HC:10.1>
-| | | Binary: || @ <input/expressions.HC:10.5-15>
-| | | | Binary: && @ <input/expressions.HC:10.5-10>
-| | | | | Ident: a @ <input/expressions.HC:10.5>
-| | | | | Ident: b @ <input/expressions.HC:10.10>
-| | | | Ident: a @ <input/expressions.HC:10.15>
-| ExprStmt @ <input/expressions.HC:11.1-17>
-| | Assign: = @ <input/expressions.HC:11.1-16>
-| | | Ident: x @ <input/expressions.HC:11.1>
-| | | Binary: + @ <input/expressions.HC:11.5-16>
-| | | | Cast -> U32 @ <input/expressions.HC:11.5-12>
-| | | | | Ident: a @ <input/expressions.HC:11.12>
-| | | | Literal: 2 @ <input/expressions.HC:11.16>
-| ExprStmt @ <input/expressions.HC:12.1-13>
-| | Assign: = @ <input/expressions.HC:12.1-12>
-| | | Ident: x @ <input/expressions.HC:12.1>
-| | | Cast -> I32 @ <input/expressions.HC:12.5-12>
-| | | | Ident: a @ <input/expressions.HC:12.12>
-| VarDecl:  @ <input/expressions.HC:14.1-7>
-| | | VarSymbol: s :: U8 *
-| ExprStmt @ <input/expressions.HC:15.1-13>
-| | Assign: = @ <input/expressions.HC:15.1-12>
-| | | Ident: s @ <input/expressions.HC:15.1>
-| | | Literal: hello! @ <input/expressions.HC:15.5-12>
-| ExprStmt @ <input/expressions.HC:17.1-4>
-| | Unary: ++ @ <input/expressions.HC:17.1-3>
-| | | Ident: x @ <input/expressions.HC:17.1-3>
-| ExprStmt @ <input/expressions.HC:18.1-4>
-| | Postfix: -- @ <input/expressions.HC:18.1-3>
-| | | Ident: x @ <input/expressions.HC:18.1>
-| ExprStmt @ <input/expressions.HC:19.1-18>
-| | Assign: += @ <input/expressions.HC:19.1-17>
-| | | Ident: x @ <input/expressions.HC:19.1>
-| | | Sizeof:  @ <input/expressions.HC:19.6-17>
-U32
-| ExprStmt @ <input/expressions.HC:20.1-14>
-| | Assign: += @ <input/expressions.HC:20.1-13>
-| | | Ident: x @ <input/expressions.HC:20.1>
-| | | Sizeof:  @ <input/expressions.HC:20.6-13>
-| | | | Ident: x @ <input/expressions.HC:20.13>
-| ExprStmt @ <input/expressions.HC:22.1-14>
-| | Assign: = @ <input/expressions.HC:22.1-13>
-| | | Ident: x @ <input/expressions.HC:22.1>
-| | | Binary: , @ <input/expressions.HC:22.5-13>
-| | | | Binary: , @ <input/expressions.HC:22.5-9>
-| | | | | Ident: a @ <input/expressions.HC:22.5-6>
-| | | | | Ident: b @ <input/expressions.HC:22.9>
-| | | | Ident: x @ <input/expressions.HC:22.12>
+| | | Initializer @ <3.9>
+| | | | Cast -> u32 (implicit) :: U32 @ <3.9>
+| | | | | Literal: 2 :: I32 @ <3.9>
+| ExprStmt @ <5.1-26>
+| | Assign: = :: U32 @ <5.1-25>
+| | | Ident: x :: U32 @ <5.1>
+| | | Binary: - :: U32 @ <5.5-25>
+| | | | Binary: + :: U32 @ <5.5-13>
+| | | | | Ident: a :: U32 @ <5.5>
+| | | | | Binary: * :: U32 @ <5.9-13>
+| | | | | | Ident: b :: U32 @ <5.9>
+| | | | | | Cast -> u32 (implicit) :: U32 @ <5.13>
+| | | | | | | Literal: 3 :: I32 @ <5.13>
+| | | | Cast -> u32 (implicit) :: U32 @ <5.17-25>
+| | | | | Binary: % :: I32 @ <5.17-25>
+| | | | | | Binary: / :: I32 @ <5.17-21>
+| | | | | | | Literal: 4 :: I32 @ <5.17>
+| | | | | | | Literal: 2 :: I32 @ <5.21>
+| | | | | | Literal: 5 :: I32 @ <5.25>
+| Print: "%d\n" @ <6.1-10>
+| | Ident: x :: U32 @ <6.9>
+| ExprStmt @ <8.1-8>
+| | Assign: <<= :: U32 @ <8.1-7>
+| | | Ident: x :: U32 @ <8.1>
+| | | Cast -> u32 (implicit) :: U32 @ <8.7>
+| | | | Literal: 2 :: I32 @ <8.7>
+| Print: "%d\n" @ <9.1-10>
+| | Ident: x :: U32 @ <9.9>
+| ExprStmt @ <11.1-15>
+| | Assign: |= :: U32 @ <11.1-14>
+| | | Ident: x :: U32 @ <11.1>
+| | | Cast -> u32 (implicit) :: U32 @ <11.6-14>
+| | | | Binary: ^ :: I32 @ <11.6-14>
+| | | | | Literal: 1 :: I32 @ <11.6>
+| | | | | Binary: & :: I32 @ <11.10-14>
+| | | | | | Literal: 3 :: I32 @ <11.10>
+| | | | | | Literal: 7 :: I32 @ <11.14>
+| Print: "%d\n" @ <12.1-10>
+| | Ident: x :: U32 @ <12.9>
+| ExprStmt @ <14.1-14>
+| | Assign: = :: U32 @ <14.1-13>
+| | | Ident: a :: U32 @ <14.1>
+| | | Cast -> u32 (implicit) :: U32 @ <14.5-13>
+| | | | CondExpr I32 @ <14.5-13>
+| | | | | Literal: 2 :: I32 @ <14.5>
+| | | | | Literal: 1 :: I32 @ <14.9>
+| | | | | Literal: 5 :: I32 @ <14.13>
+| Print: "%d\n" @ <15.1-10>
+| | Ident: a :: U32 @ <15.9>
+| ExprStmt @ <17.1-20>
+| | Assign: = :: U32 @ <17.1-19>
+| | | Ident: x :: U32 @ <17.1>
+| | | CondExpr U32 @ <17.5-19>
+| | | | Binary: > :: U32 @ <17.5-11>
+| | | | | Ident: a :: U32 @ <17.5-6>
+| | | | | Ident: b :: U32 @ <17.10>
+| | | | Ident: a :: U32 @ <17.15>
+| | | | Ident: b :: U32 @ <17.19>
+| Print: "%d\n" @ <18.1-10>
+| | Ident: x :: U32 @ <18.9>
+| ExprStmt @ <20.1-16>
+| | Assign: = :: U32 @ <20.1-15>
+| | | Ident: x :: U32 @ <20.1>
+| | | Binary: || :: U32 @ <20.5-15>
+| | | | Binary: && :: U32 @ <20.5-10>
+| | | | | Ident: a :: U32 @ <20.5>
+| | | | | Ident: b :: U32 @ <20.10>
+| | | | Ident: a :: U32 @ <20.15>
+| Print: "%d\n" @ <21.1-10>
+| | Ident: x :: U32 @ <21.9>
+| ExprStmt @ <23.1-16>
+| | Assign: = :: U32 @ <23.1-15>
+| | | Ident: x :: U32 @ <23.1>
+| | | Binary: + :: U32 @ <23.5-15>
+| | | | Cast -> u32 (explicit) :: U32 @ <23.5-11>
+| | | | | Ident: a :: U32 @ <23.11>
+| | | | Cast -> u32 (implicit) :: U32 @ <23.15>
+| | | | | Literal: 2 :: I32 @ <23.15>
+| Print: "%d\n" @ <24.1-10>
+| | Ident: x :: U32 @ <24.9>
+| ExprStmt @ <26.1-12>
+| | Assign: = :: U32 @ <26.1-11>
+| | | Ident: x :: U32 @ <26.1>
+| | | Cast -> u32 (implicit) :: U32 @ <26.5-11>
+| | | | Cast -> i32 (explicit) :: I32 @ <26.5-11>
+| | | | | Ident: a :: U32 @ <26.11>
+| Print: "%d\n" @ <27.1-10>
+| | Ident: x :: U32 @ <27.9>
+| ExprStmt @ <29.1-4>
+| | Unary: ++ :: U32 @ <29.1-3>
+| | | Ident: x :: U32 @ <29.1-3>
+| Print: "%d\n" @ <30.1-10>
+| | Ident: x :: U32 @ <30.9>
+| ExprStmt @ <32.1-4>
+| | Postfix: :: U32-- @ <32.1-3>
+| | | Ident: x :: U32 @ <32.1>
+| Print: "%d\n" @ <33.1-10>
+| | Ident: x :: U32 @ <33.9>
+| ExprStmt @ <35.1-17>
+| | Assign: += :: U32 @ <35.1-16>
+| | | Ident: x :: U32 @ <35.1>
+| | | Cast -> u32 (implicit) :: U32 @ <35.6-16>
+| | | | Sizeof: :: U64 @ <35.6-16>
+u32
+| Print: "%d\n" @ <36.1-10>
+| | Ident: x :: U32 @ <36.9>
+| ExprStmt @ <38.1-14>
+| | Assign: += :: U32 @ <38.1-13>
+| | | Ident: x :: U32 @ <38.1>
+| | | Cast -> u32 (implicit) :: U32 @ <38.6-13>
+| | | | Sizeof: :: U64 @ <38.6-13>
+| | | | | Ident: x :: U32 @ <38.13>
+| Print: "%d\n" @ <39.1-10>
+| | Ident: x :: U32 @ <39.9>
+| ExprStmt @ <41.1-14>
+| | Assign: = :: U32 @ <41.1-13>
+| | | Ident: x :: U32 @ <41.1>
+| | | Binary: , :: U32 @ <41.5-13>
+| | | | Binary: , :: U32 @ <41.5-9>
+| | | | | Ident: a :: U32 @ <41.5-6>
+| | | | | Ident: b :: U32 @ <41.9>
+| | | | Ident: x :: U32 @ <41.12>
+| Print: "%d\n" @ <42.1-10>
+| | Ident: x :: U32 @ <42.9>
+| ExprStmt @ <44.1-13>
+| | Assign: = :: U16 @ <44.1-12>
+| | | Subscript :: U16 @ <44.1-8>
+| | | | Reint: .u16 :: U16[2] @ <44.1-5>
+| | | | | Ident: x :: U32 @ <44.1>
+| | | | Literal: 1 :: I32 @ <44.1-7>
+| | | Cast -> u16 (implicit) :: U16 @ <44.12>
+| | | | Literal: 0 :: I32 @ <44.12>
+| VarDecl:  @ <47.1-10>
+| | | VarSymbol: y :: U32
+| | | Initializer @ <47.9>
+| | | | Cast -> u32 (implicit) :: U32 @ <47.9>
+| | | | | Literal: 6 :: I32 @ <47.9>
+| VarDecl:  @ <48.1-10>
+| | | VarSymbol: z :: U32
+| | | Initializer @ <48.9>
+| | | | Cast -> u32 (implicit) :: U32 @ <48.9>
+| | | | | Literal: 9 :: I32 @ <48.9>
+| Print: "%d\n" @ <50.1-15>
+| | Binary: == :: U32 @ <50.9-14>
+| | | Ident: y :: U32 @ <50.9>
+| | | Cast -> u32 (implicit) :: U32 @ <50.14>
+| | | | Literal: 6 :: I32 @ <50.14>
+| Print: "%d\n" @ <51.1-15>
+| | Binary: != :: U32 @ <51.9-14>
+| | | Ident: y :: U32 @ <51.9>
+| | | Ident: z :: U32 @ <51.14>
+| Print: "%d\n" @ <52.1-15>
+| | Binary: <= :: U32 @ <52.9-14>
+| | | Ident: y :: U32 @ <52.9>
+| | | Cast -> u32 (implicit) :: U32 @ <52.14>
+| | | | Literal: 6 :: I32 @ <52.14>
+| Print: "%d\n" @ <53.1-16>
+| | Binary: >= :: U32 @ <53.9-15>
+| | | Ident: z :: U32 @ <53.9>
+| | | Cast -> u32 (implicit) :: U32 @ <53.14-15>
+| | | | Literal: 10 :: I32 @ <53.14-15>
+| Print: "%d\n" @ <56.1-15>
+| | Binary: << :: I32 @ <56.9-14>
+| | | Literal: 3 :: I32 @ <56.9>
+| | | Literal: 2 :: I32 @ <56.14>
+| Print: "%d\n" @ <57.1-16>
+| | Binary: >> :: I32 @ <57.9-15>
+| | | Literal: 40 :: I32 @ <57.9-10>
+| | | Literal: 3 :: I32 @ <57.15>
+| ExprStmt @ <60.1-7>
+| | Assign: = :: U32 @ <60.1-6>
+| | | Ident: y :: U32 @ <60.1>
+| | | Unary: ~ :: U32 @ <60.5-6>
+| | | | Ident: y :: U32 @ <60.5-6>
+| Print: "%d\n" @ <61.1-10>
+| | Ident: y :: U32 @ <61.9>
+| ExprStmt @ <63.1-7>
+| | Assign: = :: U32 @ <63.1-6>
+| | | Ident: y :: U32 @ <63.1>
+| | | Unary: ! :: U32 @ <63.5-6>
+| | | | Ident: y :: U32 @ <63.5-6>
+| Print: "%d\n" @ <64.1-10>
+| | Ident: y :: U32 @ <64.9>
+| ExprStmt @ <66.1-7>
+| | Assign: = :: U32 @ <66.1-6>
+| | | Ident: y :: U32 @ <66.1>
+| | | Cast -> u32 (implicit) :: U32 @ <66.5-6>
+| | | | Unary: ! :: I32 @ <66.5-6>
+| | | | | Literal: 0 :: I32 @ <66.5-6>
+| Print: "%d\n" @ <67.1-10>
+| | Ident: y :: U32 @ <67.9>
+| VarDecl:  @ <69.1-13>
+| | | VarSymbol: neg :: I32
+| | | Initializer @ <69.11-12>
+| | | | Unary: - :: I32 @ <69.11-12>
+| | | | | Literal: 5 :: I32 @ <69.11-12>
+| VarDecl:  @ <70.1-15>
+| | | VarSymbol: pos :: I32
+| | | Initializer @ <70.11-14>
+| | | | Unary: + :: I32 @ <70.11-14>
+| | | | | Ident: neg :: I32 @ <70.11-14>
+| Print: "%d\n" @ <71.1-12>
+| | Ident: pos :: I32 @ <71.9-11>
+| ExprStmt @ <74.1-8>
+| | Assign: >>= :: U32 @ <74.1-7>
+| | | Ident: z :: U32 @ <74.1>
+| | | Cast -> u32 (implicit) :: U32 @ <74.7>
+| | | | Literal: 2 :: I32 @ <74.7>
+| Print: "%d\n" @ <75.1-10>
+| | Ident: z :: U32 @ <75.9>
+| ExprStmt @ <77.1-8>
+| | Assign: <<= :: U32 @ <77.1-7>
+| | | Ident: z :: U32 @ <77.1>
+| | | Cast -> u32 (implicit) :: U32 @ <77.7>
+| | | | Literal: 3 :: I32 @ <77.7>
+| Print: "%d\n" @ <78.1-10>
+| | Ident: z :: U32 @ <78.9>
+| ExprStmt @ <80.1-7>
+| | Assign: &= :: U32 @ <80.1-6>
+| | | Ident: z :: U32 @ <80.1>
+| | | Cast -> u32 (implicit) :: U32 @ <80.6>
+| | | | Literal: 6 :: I32 @ <80.6>
+| Print: "%d\n" @ <81.1-10>
+| | Ident: z :: U32 @ <81.9>
+| ExprStmt @ <83.1-7>
+| | Assign: |= :: U32 @ <83.1-6>
+| | | Ident: z :: U32 @ <83.1>
+| | | Cast -> u32 (implicit) :: U32 @ <83.6>
+| | | | Literal: 5 :: I32 @ <83.6>
+| ExprStmt @ <84.1-7>
+| | Assign: ^= :: U32 @ <84.1-6>
+| | | Ident: z :: U32 @ <84.1>
+| | | Cast -> u32 (implicit) :: U32 @ <84.6>
+| | | | Literal: 3 :: I32 @ <84.6>
+| Print: "%d\n" @ <85.1-10>
+| | Ident: z :: U32 @ <85.9>
+| ExprStmt @ <87.1-7>
+| | Assign: *= :: U32 @ <87.1-6>
+| | | Ident: z :: U32 @ <87.1>
+| | | Cast -> u32 (implicit) :: U32 @ <87.6>
+| | | | Literal: 4 :: I32 @ <87.6>
+| Print: "%d\n" @ <88.1-10>
+| | Ident: z :: U32 @ <88.9>
+| ExprStmt @ <90.1-7>
+| | Assign: /= :: U32 @ <90.1-6>
+| | | Ident: z :: U32 @ <90.1>
+| | | Cast -> u32 (implicit) :: U32 @ <90.6>
+| | | | Literal: 5 :: I32 @ <90.6>
+| Print: "%d\n" @ <91.1-10>
+| | Ident: z :: U32 @ <91.9>
+| ExprStmt @ <93.1-7>
+| | Assign: %= :: U32 @ <93.1-6>
+| | | Ident: z :: U32 @ <93.1>
+| | | Cast -> u32 (implicit) :: U32 @ <93.6>
+| | | | Literal: 3 :: I32 @ <93.6>
+| Print: "%d\n" @ <94.1-10>
+| | Ident: z :: U32 @ <94.9>
+| VarDecl:  @ <97.1-26>
+| | | VarSymbol: t :: I32
+| | | Initializer @ <97.9-25>
+| | | | CondExpr I32 @ <97.9-25>
+| | | | | Literal: 1 :: I32 @ <97.9>
+| | | | | CondExpr I32 @ <97.13-21>
+| | | | | | Literal: 2 :: I32 @ <97.13>
+| | | | | | Literal: 3 :: I32 @ <97.17>
+| | | | | | Literal: 4 :: I32 @ <97.21>
+| | | | | Literal: 5 :: I32 @ <97.25>
+| Print: "%d\n" @ <98.1-10>
+| | Ident: t :: I32 @ <98.9>
+
+---------- Generating LIR ----------
+
+Node {
+    LIRSynthesizer: visiting ProgramMIR node
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting AssignExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting BinaryExprMIR node
+                Node {
+                    LIRSynthesizer: visiting BinaryExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                    Node {
+                        LIRSynthesizer: visiting BinaryExprMIR node
+                        Node {
+                            LIRSynthesizer: visiting IdentExprMIR node
+                        }
+                        Node {
+                            LIRSynthesizer: visiting CastExprMIR node
+                            Node {
+                                LIRSynthesizer: visiting LiteralExprMIR node
+                            }
+                        }
+                    }
+                }
+                Node {
+                    LIRSynthesizer: visiting CastExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting BinaryExprMIR node
+                        Node {
+                            LIRSynthesizer: visiting BinaryExprMIR node
+                            Node {
+                                LIRSynthesizer: visiting LiteralExprMIR node
+                            }
+                            Node {
+                                LIRSynthesizer: visiting LiteralExprMIR node
+                            }
+                        }
+                        Node {
+                            LIRSynthesizer: visiting LiteralExprMIR node
+                        }
+                    }
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting AssignExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting AssignExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting BinaryExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting LiteralExprMIR node
+                    }
+                    Node {
+                        LIRSynthesizer: visiting BinaryExprMIR node
+                        Node {
+                            LIRSynthesizer: visiting LiteralExprMIR node
+                        }
+                        Node {
+                            LIRSynthesizer: visiting LiteralExprMIR node
+                        }
+                    }
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting AssignExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting CondExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting LiteralExprMIR node
+                    }
+                    Node {
+                        LIRSynthesizer: visiting LiteralExprMIR node
+                    }
+                    Node {
+                        LIRSynthesizer: visiting LiteralExprMIR node
+                    }
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting AssignExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CondExprMIR node
+                Node {
+                    LIRSynthesizer: visiting BinaryExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                }
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+                }
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting AssignExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting BinaryExprMIR node
+                Node {
+                    LIRSynthesizer: visiting BinaryExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                }
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting AssignExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting BinaryExprMIR node
+                Node {
+                    LIRSynthesizer: visiting CastExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                }
+                Node {
+                    LIRSynthesizer: visiting CastExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting LiteralExprMIR node
+                    }
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting AssignExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting CastExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting UnaryExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting PostfixExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting AssignExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting SizeofExprMIR node
+PrimitiveType: finalizing u32
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting AssignExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting SizeofExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting AssignExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting BinaryExprMIR node
+                Node {
+                    LIRSynthesizer: visiting BinaryExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                }
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting AssignExprMIR node
+            Node {
+                LIRSynthesizer: visiting SubscrExprMIR node
+                Node {
+                    LIRSynthesizer: visiting ReintExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+TypeContext: array type with base 175247769236, size 2
+                }
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting BinaryExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting BinaryExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting BinaryExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting BinaryExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting BinaryExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting BinaryExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting AssignExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting UnaryExprMIR node
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting AssignExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting UnaryExprMIR node
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting AssignExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting UnaryExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting LiteralExprMIR node
+                    }
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting UnaryExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting UnaryExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting AssignExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting AssignExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting AssignExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting AssignExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting AssignExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting AssignExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting AssignExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting AssignExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CondExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CondExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+}
+--------- LIR ---------
+
+ProgramLIR @ <?>
+| VarDecl: x (x) @ <1.1-196>
+| | type: u32
+| VarDecl: a (a) @ <2.1-10>
+| | type: u32
+| VarDecl: b (b) @ <3.1-10>
+| | type: u32
+| VarDecl: y (y) @ <47.1-10>
+| | type: u32
+| VarDecl: z (z) @ <48.1-10>
+| | type: u32
+| VarDecl: neg (neg) @ <69.1-13>
+| | type: i32
+| VarDecl: pos (pos) @ <70.1-15>
+| | type: i32
+| VarDecl: t (t) @ <97.1-26>
+| | type: i32
+| ExprStmt @ <1.195>
+| | Assign: = :: U32 @ <1.195>
+| | | Ident: x (x) :: U32 @ <1.191-195>
+| | | Cast -> u32 (implicit) :: U32 @ <1.195>
+| | | | Literal: 0 :: I32 @ <1.195>
+| ExprStmt @ <2.9>
+| | Assign: = :: U32 @ <2.9>
+| | | Ident: a (a) :: U32 @ <2.5-9>
+| | | Cast -> u32 (implicit) :: U32 @ <2.9>
+| | | | Literal: 1 :: I32 @ <2.9>
+| ExprStmt @ <3.9>
+| | Assign: = :: U32 @ <3.9>
+| | | Ident: b (b) :: U32 @ <3.5-9>
+| | | Cast -> u32 (implicit) :: U32 @ <3.9>
+| | | | Literal: 2 :: I32 @ <3.9>
+| ExprStmt @ <5.1-26>
+| | Assign: = :: U32 @ <5.1-25>
+| | | Ident: x (x) :: U32 @ <5.1>
+| | | Binary: - :: U32 @ <5.5-25>
+| | | | Binary: + :: U32 @ <5.5-13>
+| | | | | Ident: a (a) :: U32 @ <5.5>
+| | | | | Binary: * :: U32 @ <5.9-13>
+| | | | | | Ident: b (b) :: U32 @ <5.9>
+| | | | | | Cast -> u32 (implicit) :: U32 @ <5.13>
+| | | | | | | Literal: 3 :: I32 @ <5.13>
+| | | | Cast -> u32 (implicit) :: U32 @ <5.17-25>
+| | | | | Binary: % :: I32 @ <5.17-25>
+| | | | | | Binary: / :: I32 @ <5.17-21>
+| | | | | | | Literal: 4 :: I32 @ <5.17>
+| | | | | | | Literal: 2 :: I32 @ <5.21>
+| | | | | | Literal: 5 :: I32 @ <5.25>
+| Print: "%d\n" @ <6.1-10>
+| | Ident: x (x) :: U32 @ <6.9>
+| ExprStmt @ <8.1-8>
+| | Assign: <<= :: U32 @ <8.1-7>
+| | | Ident: x (x) :: U32 @ <8.1>
+| | | Cast -> u32 (implicit) :: U32 @ <8.7>
+| | | | Literal: 2 :: I32 @ <8.7>
+| Print: "%d\n" @ <9.1-10>
+| | Ident: x (x) :: U32 @ <9.9>
+| ExprStmt @ <11.1-15>
+| | Assign: |= :: U32 @ <11.1-14>
+| | | Ident: x (x) :: U32 @ <11.1>
+| | | Cast -> u32 (implicit) :: U32 @ <11.6-14>
+| | | | Binary: ^ :: I32 @ <11.6-14>
+| | | | | Literal: 1 :: I32 @ <11.6>
+| | | | | Binary: & :: I32 @ <11.10-14>
+| | | | | | Literal: 3 :: I32 @ <11.10>
+| | | | | | Literal: 7 :: I32 @ <11.14>
+| Print: "%d\n" @ <12.1-10>
+| | Ident: x (x) :: U32 @ <12.9>
+| ExprStmt @ <14.1-14>
+| | Assign: = :: U32 @ <14.1-13>
+| | | Ident: a (a) :: U32 @ <14.1>
+| | | Cast -> u32 (implicit) :: U32 @ <14.5-13>
+| | | | CondExpr :: I32 @ <14.5-13>
+| | | | | Literal: 2 :: I32 @ <14.5>
+| | | | | Literal: 1 :: I32 @ <14.9>
+| | | | | Literal: 5 :: I32 @ <14.13>
+| Print: "%d\n" @ <15.1-10>
+| | Ident: a (a) :: U32 @ <15.9>
+| ExprStmt @ <17.1-20>
+| | Assign: = :: U32 @ <17.1-19>
+| | | Ident: x (x) :: U32 @ <17.1>
+| | | CondExpr :: U32 @ <17.5-19>
+| | | | Binary: > :: U32 @ <17.5-11>
+| | | | | Ident: a (a) :: U32 @ <17.5-6>
+| | | | | Ident: b (b) :: U32 @ <17.10>
+| | | | Ident: a (a) :: U32 @ <17.15>
+| | | | Ident: b (b) :: U32 @ <17.19>
+| Print: "%d\n" @ <18.1-10>
+| | Ident: x (x) :: U32 @ <18.9>
+| ExprStmt @ <20.1-16>
+| | Assign: = :: U32 @ <20.1-15>
+| | | Ident: x (x) :: U32 @ <20.1>
+| | | Binary: || :: U32 @ <20.5-15>
+| | | | Binary: && :: U32 @ <20.5-10>
+| | | | | Ident: a (a) :: U32 @ <20.5>
+| | | | | Ident: b (b) :: U32 @ <20.10>
+| | | | Ident: a (a) :: U32 @ <20.15>
+| Print: "%d\n" @ <21.1-10>
+| | Ident: x (x) :: U32 @ <21.9>
+| ExprStmt @ <23.1-16>
+| | Assign: = :: U32 @ <23.1-15>
+| | | Ident: x (x) :: U32 @ <23.1>
+| | | Binary: + :: U32 @ <23.5-15>
+| | | | Cast -> u32 (explicit) :: U32 @ <23.5-11>
+| | | | | Ident: a (a) :: U32 @ <23.11>
+| | | | Cast -> u32 (implicit) :: U32 @ <23.15>
+| | | | | Literal: 2 :: I32 @ <23.15>
+| Print: "%d\n" @ <24.1-10>
+| | Ident: x (x) :: U32 @ <24.9>
+| ExprStmt @ <26.1-12>
+| | Assign: = :: U32 @ <26.1-11>
+| | | Ident: x (x) :: U32 @ <26.1>
+| | | Cast -> u32 (implicit) :: U32 @ <26.5-11>
+| | | | Cast -> i32 (explicit) :: I32 @ <26.5-11>
+| | | | | Ident: a (a) :: U32 @ <26.11>
+| Print: "%d\n" @ <27.1-10>
+| | Ident: x (x) :: U32 @ <27.9>
+| ExprStmt @ <29.1-4>
+| | Unary: ++ :: U32 @ <29.1-3>
+| | | Ident: x (x) :: U32 @ <29.1-3>
+| Print: "%d\n" @ <30.1-10>
+| | Ident: x (x) :: U32 @ <30.9>
+| ExprStmt @ <32.1-4>
+| | Postfix: -- :: U32 @ <32.1-3>
+| | | Ident: x (x) :: U32 @ <32.1>
+| Print: "%d\n" @ <33.1-10>
+| | Ident: x (x) :: U32 @ <33.9>
+| ExprStmt @ <35.1-17>
+| | Assign: += :: U32 @ <35.1-16>
+| | | Ident: x (x) :: U32 @ <35.1>
+| | | Cast -> u32 (implicit) :: U32 @ <35.6-16>
+| | | | Literal: 4 :: U64 @ <35.6-16>
+| Print: "%d\n" @ <36.1-10>
+| | Ident: x (x) :: U32 @ <36.9>
+| ExprStmt @ <38.1-14>
+| | Assign: += :: U32 @ <38.1-13>
+| | | Ident: x (x) :: U32 @ <38.1>
+| | | Cast -> u32 (implicit) :: U32 @ <38.6-13>
+| | | | Literal: 4 :: U64 @ <38.6-13>
+| Print: "%d\n" @ <39.1-10>
+| | Ident: x (x) :: U32 @ <39.9>
+| ExprStmt @ <41.1-14>
+| | Assign: = :: U32 @ <41.1-13>
+| | | Ident: x (x) :: U32 @ <41.1>
+| | | Binary: , :: U32 @ <41.5-13>
+| | | | Binary: , :: U32 @ <41.5-9>
+| | | | | Ident: a (a) :: U32 @ <41.5-6>
+| | | | | Ident: b (b) :: U32 @ <41.9>
+| | | | Ident: x (x) :: U32 @ <41.12>
+| Print: "%d\n" @ <42.1-10>
+| | Ident: x (x) :: U32 @ <42.9>
+| ExprStmt @ <44.1-13>
+| | Assign: = :: U16 @ <44.1-12>
+| | | Subscript :: U16 @ <44.1-8>
+| | | | Reint: .u16 :: U16[2] @ <44.1-5>
+| | | | | Ident: x (x) :: U32 @ <44.1>
+| | | | Literal: 1 :: I32 @ <44.1-7>
+| | | Cast -> u16 (implicit) :: U16 @ <44.12>
+| | | | Literal: 0 :: I32 @ <44.12>
+| ExprStmt @ <47.9>
+| | Assign: = :: U32 @ <47.9>
+| | | Ident: y (y) :: U32 @ <47.5-9>
+| | | Cast -> u32 (implicit) :: U32 @ <47.9>
+| | | | Literal: 6 :: I32 @ <47.9>
+| ExprStmt @ <48.9>
+| | Assign: = :: U32 @ <48.9>
+| | | Ident: z (z) :: U32 @ <48.5-9>
+| | | Cast -> u32 (implicit) :: U32 @ <48.9>
+| | | | Literal: 9 :: I32 @ <48.9>
+| Print: "%d\n" @ <50.1-15>
+| | Binary: == :: U32 @ <50.9-14>
+| | | Ident: y (y) :: U32 @ <50.9>
+| | | Cast -> u32 (implicit) :: U32 @ <50.14>
+| | | | Literal: 6 :: I32 @ <50.14>
+| Print: "%d\n" @ <51.1-15>
+| | Binary: != :: U32 @ <51.9-14>
+| | | Ident: y (y) :: U32 @ <51.9>
+| | | Ident: z (z) :: U32 @ <51.14>
+| Print: "%d\n" @ <52.1-15>
+| | Binary: <= :: U32 @ <52.9-14>
+| | | Ident: y (y) :: U32 @ <52.9>
+| | | Cast -> u32 (implicit) :: U32 @ <52.14>
+| | | | Literal: 6 :: I32 @ <52.14>
+| Print: "%d\n" @ <53.1-16>
+| | Binary: >= :: U32 @ <53.9-15>
+| | | Ident: z (z) :: U32 @ <53.9>
+| | | Cast -> u32 (implicit) :: U32 @ <53.14-15>
+| | | | Literal: 10 :: I32 @ <53.14-15>
+| Print: "%d\n" @ <56.1-15>
+| | Binary: << :: I32 @ <56.9-14>
+| | | Literal: 3 :: I32 @ <56.9>
+| | | Literal: 2 :: I32 @ <56.14>
+| Print: "%d\n" @ <57.1-16>
+| | Binary: >> :: I32 @ <57.9-15>
+| | | Literal: 40 :: I32 @ <57.9-10>
+| | | Literal: 3 :: I32 @ <57.15>
+| ExprStmt @ <60.1-7>
+| | Assign: = :: U32 @ <60.1-6>
+| | | Ident: y (y) :: U32 @ <60.1>
+| | | Unary: ~ :: U32 @ <60.5-6>
+| | | | Ident: y (y) :: U32 @ <60.5-6>
+| Print: "%d\n" @ <61.1-10>
+| | Ident: y (y) :: U32 @ <61.9>
+| ExprStmt @ <63.1-7>
+| | Assign: = :: U32 @ <63.1-6>
+| | | Ident: y (y) :: U32 @ <63.1>
+| | | Unary: ! :: U32 @ <63.5-6>
+| | | | Ident: y (y) :: U32 @ <63.5-6>
+| Print: "%d\n" @ <64.1-10>
+| | Ident: y (y) :: U32 @ <64.9>
+| ExprStmt @ <66.1-7>
+| | Assign: = :: U32 @ <66.1-6>
+| | | Ident: y (y) :: U32 @ <66.1>
+| | | Cast -> u32 (implicit) :: U32 @ <66.5-6>
+| | | | Unary: ! :: I32 @ <66.5-6>
+| | | | | Literal: 0 :: I32 @ <66.5-6>
+| Print: "%d\n" @ <67.1-10>
+| | Ident: y (y) :: U32 @ <67.9>
+| ExprStmt @ <69.11-12>
+| | Assign: = :: I32 @ <69.11-12>
+| | | Ident: neg (neg) :: I32 @ <69.5-12>
+| | | Unary: - :: I32 @ <69.11-12>
+| | | | Literal: 5 :: I32 @ <69.11-12>
+| ExprStmt @ <70.11-14>
+| | Assign: = :: I32 @ <70.11-14>
+| | | Ident: pos (pos) :: I32 @ <70.5-14>
+| | | Unary: + :: I32 @ <70.11-14>
+| | | | Ident: neg (neg) :: I32 @ <70.11-14>
+| Print: "%d\n" @ <71.1-12>
+| | Ident: pos (pos) :: I32 @ <71.9-11>
+| ExprStmt @ <74.1-8>
+| | Assign: >>= :: U32 @ <74.1-7>
+| | | Ident: z (z) :: U32 @ <74.1>
+| | | Cast -> u32 (implicit) :: U32 @ <74.7>
+| | | | Literal: 2 :: I32 @ <74.7>
+| Print: "%d\n" @ <75.1-10>
+| | Ident: z (z) :: U32 @ <75.9>
+| ExprStmt @ <77.1-8>
+| | Assign: <<= :: U32 @ <77.1-7>
+| | | Ident: z (z) :: U32 @ <77.1>
+| | | Cast -> u32 (implicit) :: U32 @ <77.7>
+| | | | Literal: 3 :: I32 @ <77.7>
+| Print: "%d\n" @ <78.1-10>
+| | Ident: z (z) :: U32 @ <78.9>
+| ExprStmt @ <80.1-7>
+| | Assign: &= :: U32 @ <80.1-6>
+| | | Ident: z (z) :: U32 @ <80.1>
+| | | Cast -> u32 (implicit) :: U32 @ <80.6>
+| | | | Literal: 6 :: I32 @ <80.6>
+| Print: "%d\n" @ <81.1-10>
+| | Ident: z (z) :: U32 @ <81.9>
+| ExprStmt @ <83.1-7>
+| | Assign: |= :: U32 @ <83.1-6>
+| | | Ident: z (z) :: U32 @ <83.1>
+| | | Cast -> u32 (implicit) :: U32 @ <83.6>
+| | | | Literal: 5 :: I32 @ <83.6>
+| ExprStmt @ <84.1-7>
+| | Assign: ^= :: U32 @ <84.1-6>
+| | | Ident: z (z) :: U32 @ <84.1>
+| | | Cast -> u32 (implicit) :: U32 @ <84.6>
+| | | | Literal: 3 :: I32 @ <84.6>
+| Print: "%d\n" @ <85.1-10>
+| | Ident: z (z) :: U32 @ <85.9>
+| ExprStmt @ <87.1-7>
+| | Assign: *= :: U32 @ <87.1-6>
+| | | Ident: z (z) :: U32 @ <87.1>
+| | | Cast -> u32 (implicit) :: U32 @ <87.6>
+| | | | Literal: 4 :: I32 @ <87.6>
+| Print: "%d\n" @ <88.1-10>
+| | Ident: z (z) :: U32 @ <88.9>
+| ExprStmt @ <90.1-7>
+| | Assign: /= :: U32 @ <90.1-6>
+| | | Ident: z (z) :: U32 @ <90.1>
+| | | Cast -> u32 (implicit) :: U32 @ <90.6>
+| | | | Literal: 5 :: I32 @ <90.6>
+| Print: "%d\n" @ <91.1-10>
+| | Ident: z (z) :: U32 @ <91.9>
+| ExprStmt @ <93.1-7>
+| | Assign: %= :: U32 @ <93.1-6>
+| | | Ident: z (z) :: U32 @ <93.1>
+| | | Cast -> u32 (implicit) :: U32 @ <93.6>
+| | | | Literal: 3 :: I32 @ <93.6>
+| Print: "%d\n" @ <94.1-10>
+| | Ident: z (z) :: U32 @ <94.9>
+| ExprStmt @ <97.9-25>
+| | Assign: = :: I32 @ <97.9-25>
+| | | Ident: t (t) :: I32 @ <97.5-25>
+| | | CondExpr :: I32 @ <97.9-25>
+| | | | Literal: 1 :: I32 @ <97.9>
+| | | | CondExpr :: I32 @ <97.13-21>
+| | | | | Literal: 2 :: I32 @ <97.13>
+| | | | | Literal: 3 :: I32 @ <97.17>
+| | | | | Literal: 4 :: I32 @ <97.21>
+| | | | Literal: 5 :: I32 @ <97.25>
+| Print: "%d\n" @ <98.1-10>
+| | Ident: t (t) :: I32 @ <98.9>
 LLVM: Shutting down

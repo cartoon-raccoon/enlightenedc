@@ -43,6 +43,19 @@ compute(10, 4, "this", true);
 
 "%d\n", compute(2,3);
 
+// Calls that rely on default arguments being filled in for omitted trailing
+// parameters (only the fully-specified call above is exercised otherwise).
+"%d\n", compute(5);
+"%d\n", compute();
+
+// Recursion.
+I32 Factorial(I32 n) {
+    if (n <= 1) return 1;
+    return n * Factorial(n - 1);
+}
+
+"%d\n", Factorial(5);
+
 Void noop() {
     return;
 }

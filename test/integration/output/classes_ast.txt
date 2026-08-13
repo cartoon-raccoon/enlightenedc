@@ -5,6 +5,9 @@ LLVM: Creating LLVMUnit with module name 'test/integration/input/classes.HC'
 LLVM: LLVMUnit created
 parsing file test/integration/input/classes.HC
 running backend for file test/integration/input/classes.HC
+
+---------- Generating MIR ----------
+
 Synthesizing MIR for 1.1
 Node {
     visiting Program node: 1.1
@@ -55,19 +58,19 @@ TypeContext: inserting type class_Point_0
 SymbolTable: looking up typesymbol Point in current scope
 SymbolTable: inserting typesymbol with name "Point"
             Node {
-                visiting ClassDeclaration node: 6.5-11
-                parsing declaration specifier list for node at 6.5-11
+                visiting ClassDeclaration node: 6.5-10
+                parsing declaration specifier list for node at 6.5-10
                 Node {
-                    visiting PrimitiveSpecifier node: 6.5-8
+                    visiting PrimitiveSpecifier node: 6.5-7
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node 6.5-11
+                finished parsing specifiers for node 6.5-10
                 parsing ClassDeclaration for ClassType 14746973085105520267
                 Node {
-                    visiting ClassDeclarator node: 6.10
+                    visiting ClassDeclarator node: 6.9
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: 6.10
+                            visiting IdentifierDeclarator node: 6.9
                         }
                     }
                 }
@@ -77,19 +80,19 @@ ClassType: Looking for member with name x
 RecordType: Looking for member with name x
             }
             Node {
-                visiting ClassDeclaration node: 7.5-11
-                parsing declaration specifier list for node at 7.5-11
+                visiting ClassDeclaration node: 7.5-10
+                parsing declaration specifier list for node at 7.5-10
                 Node {
-                    visiting PrimitiveSpecifier node: 7.5-8
+                    visiting PrimitiveSpecifier node: 7.5-7
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node 7.5-11
+                finished parsing specifiers for node 7.5-10
                 parsing ClassDeclaration for ClassType 14746973085105520267
                 Node {
-                    visiting ClassDeclarator node: 7.10
+                    visiting ClassDeclarator node: 7.9
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: 7.10
+                            visiting IdentifierDeclarator node: 7.9
                         }
                     }
                 }
@@ -115,19 +118,19 @@ TypeContext: inserting type union_Data_0
 SymbolTable: looking up typesymbol Data in current scope
 SymbolTable: inserting typesymbol with name "Data"
             Node {
-                visiting ClassDeclaration node: 11.5-11
-                parsing declaration specifier list for node at 11.5-11
+                visiting ClassDeclaration node: 11.5-10
+                parsing declaration specifier list for node at 11.5-10
                 Node {
-                    visiting PrimitiveSpecifier node: 11.5-8
+                    visiting PrimitiveSpecifier node: 11.5-7
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node 11.5-11
+                finished parsing specifiers for node 11.5-10
                 parsing ClassDeclaration for UnionType 486937015329527373
                 Node {
-                    visiting ClassDeclarator node: 11.10
+                    visiting ClassDeclarator node: 11.9
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: 11.10
+                            visiting IdentifierDeclarator node: 11.9
                         }
                     }
                 }
@@ -136,19 +139,19 @@ ClassType: adding member with name i type 175247769301
 RecordType: Looking for member with name i
             }
             Node {
-                visiting ClassDeclaration node: 12.5-11
-                parsing declaration specifier list for node at 12.5-11
+                visiting ClassDeclaration node: 12.5-10
+                parsing declaration specifier list for node at 12.5-10
                 Node {
-                    visiting PrimitiveSpecifier node: 12.5-8
+                    visiting PrimitiveSpecifier node: 12.5-7
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node 12.5-11
+                finished parsing specifiers for node 12.5-10
                 parsing ClassDeclaration for UnionType 486937015329527373
                 Node {
-                    visiting ClassDeclarator node: 12.10
+                    visiting ClassDeclarator node: 12.9
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: 12.10
+                            visiting IdentifierDeclarator node: 12.9
                         }
                     }
                 }
@@ -164,34 +167,34 @@ RecordType: Looking for member with name f
         parsing declaration specifier list for node at 15.1-17.2
         Node {
             visiting UnionSpecifier node 15.8-17.1
-TypeContext: union type 'U8' on scope 0
-TypeContext: inserting type union_U8_0
+TypeContext: union type 'U8U' on scope 0
+TypeContext: inserting type union_U8U_0
             union has name, inserting typesymbol if needed
-SymbolTable: looking up typesymbol U8 in current scope
-SymbolTable: inserting typesymbol with name "U8"
+SymbolTable: looking up typesymbol U8U in current scope
+SymbolTable: inserting typesymbol with name "U8U"
 TypeContext: getting primitive type
             Node {
-                visiting ClassDeclaration node: 16.5-14
-                parsing declaration specifier list for node at 16.5-14
+                visiting ClassDeclaration node: 16.5-13
+                parsing declaration specifier list for node at 16.5-13
                 Node {
-                    visiting PrimitiveSpecifier node: 16.5-7
+                    visiting PrimitiveSpecifier node: 16.5-6
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node 16.5-14
-                parsing ClassDeclaration for UnionType 6509581248366259552
+                finished parsing specifiers for node 16.5-13
+                parsing ClassDeclaration for UnionType 9126911814139720177
                 Node {
-                    visiting ClassDeclarator node: 16.9-13
+                    visiting ClassDeclarator node: 16.8-12
                     Node {
                         Node {
-                            visiting ArrayDeclarator node: 16.9-13
+                            visiting ArrayDeclarator node: 16.8-12
                             Node {
-                                visiting IdentifierDeclarator node: 16.9-10
+                                visiting IdentifierDeclarator node: 16.8-9
                             }
                             array declarator has size, checking for compile time computability
                             Node {
-                                visiting ConstExpression node: 16.9-12
+                                visiting ConstExpression node: 16.8-11
                                 Node {
-                                    visiting LiteralExpression node: 16.9-12
+                                    visiting LiteralExpression node: 16.8-11
                                     found integer
                                 }
                             }
@@ -214,21 +217,21 @@ RecordType: Looking for member with name u8
         parsing declaration specifier list for node at 19.1-22.2
         Node {
             visiting UnionSpecifier node 19.8-22.1
-TypeContext: union type 'U16' on scope 0
-TypeContext: inserting type union_U16_0
+TypeContext: union type 'U16U' on scope 0
+TypeContext: inserting type union_U16U_0
             union has name, inserting typesymbol if needed
-SymbolTable: looking up typesymbol U16 in current scope
-SymbolTable: inserting typesymbol with name "U16"
+SymbolTable: looking up typesymbol U16U in current scope
+SymbolTable: inserting typesymbol with name "U16U"
 TypeContext: getting primitive type
             Node {
                 visiting ClassDeclaration node: 20.5-13
                 parsing declaration specifier list for node at 20.5-13
                 Node {
-                    visiting TypeIdentifier node: 20.5-6
-SymbolTable: looking up typesymbol U8
+                    visiting PrimitiveSpecifier node: 20.5-6
+TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node 20.5-13
-                parsing ClassDeclaration for UnionType 14224058318403286166
+                parsing ClassDeclaration for UnionType 15610962645109129085
                 Node {
                     visiting ClassDeclarator node: 20.8-12
                     Node {
@@ -249,32 +252,32 @@ SymbolTable: looking up typesymbol U8
                     }
                 }
 TypeBuilder: finalizing type
-TypeContext: array type with base 6509581248366259552, size 2
-ClassType: adding member with name u8 type 1519940043654884728
+TypeContext: array type with base 175247769436, size 2
+ClassType: adding member with name u8 type 2274001866959456362
 RecordType: Looking for member with name u8
             }
             Node {
-                visiting ClassDeclaration node: 21.5-16
-                parsing declaration specifier list for node at 21.5-16
+                visiting ClassDeclaration node: 21.5-15
+                parsing declaration specifier list for node at 21.5-15
                 Node {
-                    visiting PrimitiveSpecifier node: 21.5-8
+                    visiting PrimitiveSpecifier node: 21.5-7
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node 21.5-16
-                parsing ClassDeclaration for UnionType 14224058318403286166
+                finished parsing specifiers for node 21.5-15
+                parsing ClassDeclaration for UnionType 15610962645109129085
                 Node {
-                    visiting ClassDeclarator node: 21.10-15
+                    visiting ClassDeclarator node: 21.9-14
                     Node {
                         Node {
-                            visiting ArrayDeclarator node: 21.10-15
+                            visiting ArrayDeclarator node: 21.9-14
                             Node {
-                                visiting IdentifierDeclarator node: 21.10-12
+                                visiting IdentifierDeclarator node: 21.9-11
                             }
                             array declarator has size, checking for compile time computability
                             Node {
-                                visiting ConstExpression node: 21.10-14
+                                visiting ConstExpression node: 21.9-13
                                 Node {
-                                    visiting LiteralExpression node: 21.10-14
+                                    visiting LiteralExpression node: 21.9-13
                                     found integer
                                 }
                             }
@@ -297,21 +300,21 @@ RecordType: Looking for member with name u16
         parsing declaration specifier list for node at 24.1-28.2
         Node {
             visiting UnionSpecifier node 24.8-28.1
-TypeContext: union type 'U32' on scope 0
-TypeContext: inserting type union_U32_0
+TypeContext: union type 'U32U' on scope 0
+TypeContext: inserting type union_U32U_0
             union has name, inserting typesymbol if needed
-SymbolTable: looking up typesymbol U32 in current scope
-SymbolTable: inserting typesymbol with name "U32"
+SymbolTable: looking up typesymbol U32U in current scope
+SymbolTable: inserting typesymbol with name "U32U"
 TypeContext: getting primitive type
             Node {
                 visiting ClassDeclaration node: 25.5-13
                 parsing declaration specifier list for node at 25.5-13
                 Node {
-                    visiting TypeIdentifier node: 25.5-6
-SymbolTable: looking up typesymbol U8
+                    visiting PrimitiveSpecifier node: 25.5-6
+TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node 25.5-13
-                parsing ClassDeclaration for UnionType 14727478089026860714
+                parsing ClassDeclaration for UnionType 5523927918340915686
                 Node {
                     visiting ClassDeclarator node: 25.8-12
                     Node {
@@ -332,19 +335,19 @@ SymbolTable: looking up typesymbol U8
                     }
                 }
 TypeBuilder: finalizing type
-TypeContext: array type with base 6509581248366259552, size 4
-ClassType: adding member with name u8 type 1519940043654884090
+TypeContext: array type with base 175247769436, size 4
+ClassType: adding member with name u8 type 2274001866959456488
 RecordType: Looking for member with name u8
             }
             Node {
                 visiting ClassDeclaration node: 26.5-15
                 parsing declaration specifier list for node at 26.5-15
                 Node {
-                    visiting TypeIdentifier node: 26.5-7
-SymbolTable: looking up typesymbol U16
+                    visiting PrimitiveSpecifier node: 26.5-7
+TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node 26.5-15
-                parsing ClassDeclaration for UnionType 14727478089026860714
+                parsing ClassDeclaration for UnionType 5523927918340915686
                 Node {
                     visiting ClassDeclarator node: 26.9-14
                     Node {
@@ -365,32 +368,32 @@ SymbolTable: looking up typesymbol U16
                     }
                 }
 TypeBuilder: finalizing type
-TypeContext: array type with base 14224058318403286166, size 2
-ClassType: adding member with name u16 type 7838812204196280507
+TypeContext: array type with base 175247769236, size 2
+ClassType: adding member with name u16 type 2274001866960764985
 RecordType: Looking for member with name u16
             }
             Node {
-                visiting ClassDeclaration node: 27.5-16
-                parsing declaration specifier list for node at 27.5-16
+                visiting ClassDeclaration node: 27.5-15
+                parsing declaration specifier list for node at 27.5-15
                 Node {
-                    visiting PrimitiveSpecifier node: 27.5-8
+                    visiting PrimitiveSpecifier node: 27.5-7
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node 27.5-16
-                parsing ClassDeclaration for UnionType 14727478089026860714
+                finished parsing specifiers for node 27.5-15
+                parsing ClassDeclaration for UnionType 5523927918340915686
                 Node {
-                    visiting ClassDeclarator node: 27.10-15
+                    visiting ClassDeclarator node: 27.9-14
                     Node {
                         Node {
-                            visiting ArrayDeclarator node: 27.10-15
+                            visiting ArrayDeclarator node: 27.9-14
                             Node {
-                                visiting IdentifierDeclarator node: 27.10-12
+                                visiting IdentifierDeclarator node: 27.9-11
                             }
                             array declarator has size, checking for compile time computability
                             Node {
-                                visiting ConstExpression node: 27.10-14
+                                visiting ConstExpression node: 27.9-13
                                 Node {
-                                    visiting LiteralExpression node: 27.10-14
+                                    visiting LiteralExpression node: 27.9-13
                                     found integer
                                 }
                             }
@@ -413,21 +416,21 @@ RecordType: Looking for member with name u32
         parsing declaration specifier list for node at 30.1-35.2
         Node {
             visiting UnionSpecifier node 30.8-35.1
-TypeContext: union type 'U64' on scope 0
-TypeContext: inserting type union_U64_0
+TypeContext: union type 'U64U' on scope 0
+TypeContext: inserting type union_U64U_0
             union has name, inserting typesymbol if needed
-SymbolTable: looking up typesymbol U64 in current scope
-SymbolTable: inserting typesymbol with name "U64"
+SymbolTable: looking up typesymbol U64U in current scope
+SymbolTable: inserting typesymbol with name "U64U"
 TypeContext: getting primitive type
             Node {
                 visiting ClassDeclaration node: 31.5-13
                 parsing declaration specifier list for node at 31.5-13
                 Node {
-                    visiting TypeIdentifier node: 31.5-6
-SymbolTable: looking up typesymbol U8
+                    visiting PrimitiveSpecifier node: 31.5-6
+TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node 31.5-13
-                parsing ClassDeclaration for UnionType 12756023043193479267
+                parsing ClassDeclaration for UnionType 2620016612815590558
                 Node {
                     visiting ClassDeclarator node: 31.8-12
                     Node {
@@ -448,19 +451,19 @@ SymbolTable: looking up typesymbol U8
                     }
                 }
 TypeBuilder: finalizing type
-TypeContext: array type with base 6509581248366259552, size 8
-ClassType: adding member with name u8 type 1519940043654884351
+TypeContext: array type with base 175247769436, size 8
+ClassType: adding member with name u8 type 2274001866959458285
 RecordType: Looking for member with name u8
             }
             Node {
                 visiting ClassDeclaration node: 32.5-15
                 parsing declaration specifier list for node at 32.5-15
                 Node {
-                    visiting TypeIdentifier node: 32.5-7
-SymbolTable: looking up typesymbol U16
+                    visiting PrimitiveSpecifier node: 32.5-7
+TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node 32.5-15
-                parsing ClassDeclaration for UnionType 12756023043193479267
+                parsing ClassDeclaration for UnionType 2620016612815590558
                 Node {
                     visiting ClassDeclarator node: 32.9-14
                     Node {
@@ -481,19 +484,19 @@ SymbolTable: looking up typesymbol U16
                     }
                 }
 TypeBuilder: finalizing type
-TypeContext: array type with base 14224058318403286166, size 4
-ClassType: adding member with name u16 type 7838812204196274398
+TypeContext: array type with base 175247769236, size 4
+ClassType: adding member with name u16 type 2274001866960767324
 RecordType: Looking for member with name u16
             }
             Node {
                 visiting ClassDeclaration node: 33.5-15
                 parsing declaration specifier list for node at 33.5-15
                 Node {
-                    visiting TypeIdentifier node: 33.5-7
-SymbolTable: looking up typesymbol U32
+                    visiting PrimitiveSpecifier node: 33.5-7
+TypeContext: getting primitive type
                 }
                 finished parsing specifiers for node 33.5-15
-                parsing ClassDeclaration for UnionType 12756023043193479267
+                parsing ClassDeclaration for UnionType 2620016612815590558
                 Node {
                     visiting ClassDeclarator node: 33.9-14
                     Node {
@@ -514,32 +517,32 @@ SymbolTable: looking up typesymbol U32
                     }
                 }
 TypeBuilder: finalizing type
-TypeContext: array type with base 14727478089026860714, size 2
-ClassType: adding member with name u32 type 13809302328224656214
+TypeContext: array type with base 175247769301, size 2
+ClassType: adding member with name u32 type 2274001866962096398
 RecordType: Looking for member with name u32
             }
             Node {
-                visiting ClassDeclaration node: 34.5-16
-                parsing declaration specifier list for node at 34.5-16
+                visiting ClassDeclaration node: 34.5-15
+                parsing declaration specifier list for node at 34.5-15
                 Node {
-                    visiting PrimitiveSpecifier node: 34.5-8
+                    visiting PrimitiveSpecifier node: 34.5-7
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node 34.5-16
-                parsing ClassDeclaration for UnionType 12756023043193479267
+                finished parsing specifiers for node 34.5-15
+                parsing ClassDeclaration for UnionType 2620016612815590558
                 Node {
-                    visiting ClassDeclarator node: 34.10-15
+                    visiting ClassDeclarator node: 34.9-14
                     Node {
                         Node {
-                            visiting ArrayDeclarator node: 34.10-15
+                            visiting ArrayDeclarator node: 34.9-14
                             Node {
-                                visiting IdentifierDeclarator node: 34.10-12
+                                visiting IdentifierDeclarator node: 34.9-11
                             }
                             array declarator has size, checking for compile time computability
                             Node {
-                                visiting ConstExpression node: 34.10-14
+                                visiting ConstExpression node: 34.9-13
                                 Node {
-                                    visiting LiteralExpression node: 34.10-14
+                                    visiting LiteralExpression node: 34.9-13
                                     found integer
                                 }
                             }
@@ -590,29 +593,62 @@ SymbolTable: inserting varsymbol with name "BLUE"
         finished parsing specifiers for node 37.1-41.2
     }
     Node {
-        visiting TypeDeclaration node: 43.1-45.2
-        parsing declaration specifier list for node at 43.1-45.2
+        visiting TypeDeclaration node: 45.1-49.2
+        parsing declaration specifier list for node at 45.1-49.2
         Node {
-            visiting ClassSpecifier node: 43.1-45.1
+            visiting EnumSpecifier node: 45.1-49.1
+TypeContext: enum type 'SmallFlags' on scope 0
+TypeContext: inserting type enum_SmallFlags_0
+            enum has name, inserting typesymbol if needed
+SymbolTable: looking up typesymbol SmallFlags in current scope
+SymbolTable: inserting typesymbol with name "SmallFlags"
+TypeContext: getting primitive type
+            Node {
+                visiting Enumerator node with name FLAG_NONE
+SymbolTable: inserting varsymbol with name "FLAG_NONE"
+            }
+            Node {
+                visiting Enumerator node with name FLAG_A
+SymbolTable: inserting varsymbol with name "FLAG_A"
+            }
+            Node {
+                visiting Enumerator node with name FLAG_B
+SymbolTable: inserting varsymbol with name "FLAG_B"
+            }
+        }
+        finished parsing specifiers for node 45.1-49.2
+    }
+    Node {
+        visiting PrintStatement node: 51.1-15
+        Node {
+            visiting IdentifierExpression node: 51.9-14
+SymbolTable: looking up varsymbol FLAG_A
+        }
+    }
+    Node {
+        visiting TypeDeclaration node: 53.1-55.2
+        parsing declaration specifier list for node at 53.1-55.2
+        Node {
+            visiting ClassSpecifier node: 53.1-55.1
 TypeContext: class type 'Animal' on scope 0
 TypeContext: inserting type class_Animal_0
             class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol Animal in current scope
 SymbolTable: inserting typesymbol with name "Animal"
             Node {
-                visiting ClassDeclaration node: 44.5-13
-                parsing declaration specifier list for node at 44.5-13
+                visiting ClassDeclaration node: 54.5-12
+                parsing declaration specifier list for node at 54.5-12
                 Node {
-                    visiting PrimitiveSpecifier node: 44.5-8
+                    visiting PrimitiveSpecifier node: 54.5-7
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node 44.5-13
+                finished parsing specifiers for node 54.5-12
                 parsing ClassDeclaration for ClassType 13834335891649622532
                 Node {
-                    visiting ClassDeclarator node: 44.10-12
+                    visiting ClassDeclarator node: 54.9-11
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: 44.10-12
+                            visiting IdentifierDeclarator node: 54.9-11
                         }
                     }
                 }
@@ -622,13 +658,13 @@ ClassType: Looking for member with name age
 RecordType: Looking for member with name age
             }
         }
-        finished parsing specifiers for node 43.1-45.2
+        finished parsing specifiers for node 53.1-55.2
     }
     Node {
-        visiting TypeDeclaration node: 47.1-49.2
-        parsing declaration specifier list for node at 47.1-49.2
+        visiting TypeDeclaration node: 57.1-59.2
+        parsing declaration specifier list for node at 57.1-59.2
         Node {
-            visiting ClassSpecifier node: 47.1-49.1
+            visiting ClassSpecifier node: 57.1-59.1
 TypeContext: class type 'Dog' on scope 0
 TypeContext: inserting type class_Dog_0
             class has name, inserting typesymbol if needed
@@ -636,22 +672,22 @@ SymbolTable: looking up typesymbol Dog in current scope
 SymbolTable: inserting typesymbol with name "Dog"
 SymbolTable: looking up typesymbol Animal
             Node {
-                visiting ClassDeclaration node: 48.5-20
-                parsing declaration specifier list for node at 48.5-20
+                visiting ClassDeclaration node: 58.5-20
+                parsing declaration specifier list for node at 58.5-20
                 Node {
-                    visiting EnumSpecifier node: 48.5-14
+                    visiting EnumSpecifier node: 58.5-14
 TypeContext: enum type 'Color' on scope 0
 TypeContext: existing enum found
                     enum has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol Color in current scope
                 }
-                finished parsing specifiers for node 48.5-20
+                finished parsing specifiers for node 58.5-20
                 parsing ClassDeclaration for ClassType 16967523930178070173
                 Node {
-                    visiting ClassDeclarator node: 48.16-19
+                    visiting ClassDeclarator node: 58.16-19
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: 48.16-19
+                            visiting IdentifierDeclarator node: 58.16-19
                         }
                     }
                 }
@@ -663,45 +699,45 @@ ClassType: Looking for member with name coat
 RecordType: Looking for member with name coat
             }
         }
-        finished parsing specifiers for node 47.1-49.2
+        finished parsing specifiers for node 57.1-59.2
     }
     Node {
-        visiting TypeDeclaration node: 51.1-13
-        parsing declaration specifier list for node at 51.1-13
+        visiting TypeDeclaration node: 61.1-13
+        parsing declaration specifier list for node at 61.1-13
         Node {
-            visiting EnumSpecifier node: 51.1-12
+            visiting EnumSpecifier node: 61.1-12
 TypeContext: enum type 'Forward' on scope 0
 TypeContext: inserting type enum_Forward_0
             enum has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol Forward in current scope
 SymbolTable: inserting typesymbol with name "Forward"
         }
-        finished parsing specifiers for node 51.1-13
+        finished parsing specifiers for node 61.1-13
     }
     Node {
-        visiting TypeDeclaration node: 53.1-57.2
-        parsing declaration specifier list for node at 53.1-57.2
+        visiting TypeDeclaration node: 63.1-67.2
+        parsing declaration specifier list for node at 63.1-67.2
         Node {
-            visiting ClassSpecifier node: 53.1-57.1
+            visiting ClassSpecifier node: 63.1-67.1
 TypeContext: class type 'Flags' on scope 0
 TypeContext: inserting type class_Flags_0
             class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol Flags in current scope
 SymbolTable: inserting typesymbol with name "Flags"
             Node {
-                visiting ClassDeclaration node: 54.5-14
-                parsing declaration specifier list for node at 54.5-14
+                visiting ClassDeclaration node: 64.5-13
+                parsing declaration specifier list for node at 64.5-13
                 Node {
-                    visiting PrimitiveSpecifier node: 54.5-7
+                    visiting PrimitiveSpecifier node: 64.5-6
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node 54.5-14
+                finished parsing specifiers for node 64.5-13
                 parsing ClassDeclaration for ClassType 5032421419555201139
                 Node {
-                    visiting ClassDeclarator node: 54.9-13
+                    visiting ClassDeclarator node: 64.8-12
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: 54.9
+                            visiting IdentifierDeclarator node: 64.8
                         }
                     }
                 }
@@ -711,19 +747,19 @@ ClassType: Looking for member with name a
 RecordType: Looking for member with name a
             }
             Node {
-                visiting ClassDeclaration node: 55.5-14
-                parsing declaration specifier list for node at 55.5-14
+                visiting ClassDeclaration node: 65.5-13
+                parsing declaration specifier list for node at 65.5-13
                 Node {
-                    visiting PrimitiveSpecifier node: 55.5-7
+                    visiting PrimitiveSpecifier node: 65.5-6
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node 55.5-14
+                finished parsing specifiers for node 65.5-13
                 parsing ClassDeclaration for ClassType 5032421419555201139
                 Node {
-                    visiting ClassDeclarator node: 55.9-13
+                    visiting ClassDeclarator node: 65.8-12
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: 55.9
+                            visiting IdentifierDeclarator node: 65.8
                         }
                     }
                 }
@@ -733,46 +769,46 @@ ClassType: Looking for member with name b
 RecordType: Looking for member with name b
             }
             Node {
-                visiting ClassDeclaration node: 56.5-12
-                parsing declaration specifier list for node at 56.5-12
+                visiting ClassDeclaration node: 66.5-11
+                parsing declaration specifier list for node at 66.5-11
                 Node {
-                    visiting PrimitiveSpecifier node: 56.5-7
+                    visiting PrimitiveSpecifier node: 66.5-6
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node 56.5-12
+                finished parsing specifiers for node 66.5-11
                 parsing ClassDeclaration for ClassType 5032421419555201139
                 Node {
-                    visiting ClassDeclarator node: 56.9-11
+                    visiting ClassDeclarator node: 66.8-10
                 }
 ClassType: adding anonymous member with type 175247769436
             }
         }
-        finished parsing specifiers for node 53.1-57.2
+        finished parsing specifiers for node 63.1-67.2
     }
     Node {
-        visiting TypeDeclaration node: 59.1-65.2
-        parsing declaration specifier list for node at 59.1-65.2
+        visiting TypeDeclaration node: 69.1-75.2
+        parsing declaration specifier list for node at 69.1-75.2
         Node {
-            visiting ClassSpecifier node: 59.1-65.1
+            visiting ClassSpecifier node: 69.1-75.1
 TypeContext: class type 'Value' on scope 0
 TypeContext: inserting type class_Value_0
             class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol Value in current scope
 SymbolTable: inserting typesymbol with name "Value"
             Node {
-                visiting ClassDeclaration node: 60.3-12
-                parsing declaration specifier list for node at 60.3-12
+                visiting ClassDeclaration node: 70.3-11
+                parsing declaration specifier list for node at 70.3-11
                 Node {
-                    visiting PrimitiveSpecifier node: 60.3-6
+                    visiting PrimitiveSpecifier node: 70.3-5
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node 60.3-12
+                finished parsing specifiers for node 70.3-11
                 parsing ClassDeclaration for ClassType 7558184877388300549
                 Node {
-                    visiting ClassDeclarator node: 60.8-11
+                    visiting ClassDeclarator node: 70.7-10
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: 60.8-11
+                            visiting IdentifierDeclarator node: 70.7-10
                         }
                     }
                 }
@@ -782,26 +818,26 @@ ClassType: Looking for member with name type
 RecordType: Looking for member with name type
             }
             Node {
-                visiting ClassDeclaration node: 61.3-64.6
-                parsing declaration specifier list for node at 61.3-64.6
+                visiting ClassDeclaration node: 71.3-74.6
+                parsing declaration specifier list for node at 71.3-74.6
                 Node {
-                    visiting UnionSpecifier node 61.3-64.3
+                    visiting UnionSpecifier node 71.3-74.3
 TypeContext: anonymous union type on scope 0
 TypeContext: inserting type union___ecc_anon_0_0
                     Node {
-                        visiting ClassDeclaration node: 62.5-11
-                        parsing declaration specifier list for node at 62.5-11
+                        visiting ClassDeclaration node: 72.5-10
+                        parsing declaration specifier list for node at 72.5-10
                         Node {
-                            visiting PrimitiveSpecifier node: 62.5-8
+                            visiting PrimitiveSpecifier node: 72.5-7
 TypeContext: getting primitive type
                         }
-                        finished parsing specifiers for node 62.5-11
+                        finished parsing specifiers for node 72.5-10
                         parsing ClassDeclaration for UnionType 15695080589286623458
                         Node {
-                            visiting ClassDeclarator node: 62.10
+                            visiting ClassDeclarator node: 72.9
                             Node {
                                 Node {
-                                    visiting IdentifierDeclarator node: 62.10
+                                    visiting IdentifierDeclarator node: 72.9
                                 }
                             }
                         }
@@ -810,19 +846,19 @@ ClassType: adding member with name f type 175247765994
 RecordType: Looking for member with name f
                     }
                     Node {
-                        visiting ClassDeclaration node: 63.5-11
-                        parsing declaration specifier list for node at 63.5-11
+                        visiting ClassDeclaration node: 73.5-10
+                        parsing declaration specifier list for node at 73.5-10
                         Node {
-                            visiting PrimitiveSpecifier node: 63.5-7
+                            visiting PrimitiveSpecifier node: 73.5-6
 TypeContext: getting primitive type
                         }
-                        finished parsing specifiers for node 63.5-11
+                        finished parsing specifiers for node 73.5-10
                         parsing ClassDeclaration for UnionType 15695080589286623458
                         Node {
-                            visiting ClassDeclarator node: 63.9-10
+                            visiting ClassDeclarator node: 73.8-9
                             Node {
                                 Node {
-                                    visiting IdentifierDeclarator node: 63.9-10
+                                    visiting IdentifierDeclarator node: 73.8-9
                                 }
                             }
                         }
@@ -831,13 +867,13 @@ ClassType: adding member with name ch type 175247769436
 RecordType: Looking for member with name ch
                     }
                 }
-                finished parsing specifiers for node 61.3-64.6
+                finished parsing specifiers for node 71.3-74.6
                 parsing ClassDeclaration for ClassType 7558184877388300549
                 Node {
-                    visiting ClassDeclarator node: 64.5
+                    visiting ClassDeclarator node: 74.5
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: 64.5
+                            visiting IdentifierDeclarator node: 74.5
                         }
                     }
                 }
@@ -847,53 +883,53 @@ ClassType: Looking for member with name u
 RecordType: Looking for member with name u
             }
         }
-        finished parsing specifiers for node 59.1-65.2
+        finished parsing specifiers for node 69.1-75.2
     }
     Node {
-        visiting TypeDeclaration node: 67.1-69.2
-        parsing declaration specifier list for node at 67.1-69.2
+        visiting TypeDeclaration node: 77.1-79.2
+        parsing declaration specifier list for node at 77.1-79.2
         Node {
-            visiting ClassSpecifier node: 67.1-69.1
+            visiting ClassSpecifier node: 77.1-79.1
 TypeContext: class type 'VTable' on scope 0
 TypeContext: inserting type class_VTable_0
             class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol VTable in current scope
 SymbolTable: inserting typesymbol with name "VTable"
             Node {
-                visiting ClassDeclaration node: 68.5-36
-                parsing declaration specifier list for node at 68.5-36
+                visiting ClassDeclaration node: 78.5-35
+                parsing declaration specifier list for node at 78.5-35
                 Node {
-                    visiting VoidSpecifier node: 68.5-8
+                    visiting VoidSpecifier node: 78.5-8
                 }
-                finished parsing specifiers for node 68.5-36
+                finished parsing specifiers for node 78.5-35
                 parsing ClassDeclaration for ClassType 1898928013571420719
                 Node {
-                    visiting ClassDeclarator node: 68.10-35
+                    visiting ClassDeclarator node: 78.10-34
                     Node {
                         Node {
-                            visiting FunctionDeclarator node: 68.10-35
+                            visiting FunctionDeclarator node: 78.10-34
                             Node {
-                                visiting ParenDeclarator node: 68.10-22
+                                visiting ParenDeclarator node: 78.10-22
                                 Node {
                                     Node {
-                                        visiting IdentifierDeclarator node: 68.10-21
+                                        visiting IdentifierDeclarator node: 78.10-21
                                     }
                                     Node {
-                                        visiting Pointer node: 68.10-11
+                                        visiting Pointer node: 78.10-11
                                     }
                                 }
                             }
                             Node {
-                                visiting ParameterDeclarator node: 68.24-34
-                                parsing declaration specifier list for node at 68.24-34
+                                visiting ParameterDeclarator node: 78.24-33
+                                parsing declaration specifier list for node at 78.24-33
                                 Node {
-                                    visiting PrimitiveSpecifier node: 68.24-28
+                                    visiting PrimitiveSpecifier node: 78.24-27
 TypeContext: getting primitive type
                                 }
-                                finished parsing specifiers for node 68.24-34
+                                finished parsing specifiers for node 78.24-33
                                 Node {
                                     Node {
-                                        visiting IdentifierDeclarator node: 68.30-34
+                                        visiting IdentifierDeclarator node: 78.29-33
                                     }
                                 }
 TypeBuilder: finalizing type
@@ -909,24 +945,24 @@ ClassType: Looking for member with name dispatcher
 RecordType: Looking for member with name dispatcher
             }
         }
-        finished parsing specifiers for node 67.1-69.2
+        finished parsing specifiers for node 77.1-79.2
     }
     Node {
-        visiting VariableDeclaration node: 71.1-16
-        parsing declaration specifier list for node at 71.1-16
+        visiting VariableDeclaration node: 81.1-16
+        parsing declaration specifier list for node at 81.1-16
         Node {
-            visiting ClassSpecifier node: 71.1-11
+            visiting ClassSpecifier node: 81.1-11
 TypeContext: class type 'Value' on scope 0
 TypeContext: existing class found
             class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol Value in current scope
         }
-        finished parsing specifiers for node 71.1-16
+        finished parsing specifiers for node 81.1-16
         Node {
-            visiting InitDeclarator node: 71.13-15
+            visiting InitDeclarator node: 81.13-15
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: 71.13-15
+                    visiting IdentifierDeclarator node: 81.13-15
                 }
             }
 TypeBuilder: finalizing type
@@ -934,41 +970,41 @@ TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "val"
     }
     Node {
-        visiting ExpressionStatement node: 73.1-14
+        visiting ExpressionStatement node: 83.1-14
         Node {
-            visiting AssignmentExpression node: 73.1-13
+            visiting AssignmentExpression node: 83.1-13
             Node {
-                visiting MemberAccessExpression node: 73.1-8
+                visiting MemberAccessExpression node: 83.1-8
                 Node {
-                    visiting MemberAccessExpression node: 73.1-5
+                    visiting MemberAccessExpression node: 83.1-5
                     Node {
-                        visiting IdentifierExpression node: 73.1-3
+                        visiting IdentifierExpression node: 83.1-3
 SymbolTable: looking up varsymbol val
                     }
                 }
             }
             Node {
-                visiting LiteralExpression node: 73.12-13
+                visiting LiteralExpression node: 83.12-13
                 found integer
             }
         }
     }
     Node {
-        visiting VariableDeclaration node: 75.1-20
-        parsing declaration specifier list for node at 75.1-20
+        visiting VariableDeclaration node: 85.1-20
+        parsing declaration specifier list for node at 85.1-20
         Node {
-            visiting ClassSpecifier node: 75.1-12
+            visiting ClassSpecifier node: 85.1-12
 TypeContext: class type 'VTable' on scope 0
 TypeContext: existing class found
             class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol VTable in current scope
         }
-        finished parsing specifiers for node 75.1-20
+        finished parsing specifiers for node 85.1-20
         Node {
-            visiting InitDeclarator node: 75.14-19
+            visiting InitDeclarator node: 85.14-19
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: 75.14-19
+                    visiting IdentifierDeclarator node: 85.14-19
                 }
             }
 TypeBuilder: finalizing type
@@ -976,36 +1012,39 @@ TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "vtable"
     }
     Node {
-        visiting PrintStatement node: 77.1-17
+        visiting PrintStatement node: 87.1-17
         Node {
-            visiting MemberAccessExpression node: 77.9-16
+            visiting MemberAccessExpression node: 87.9-16
             Node {
-                visiting MemberAccessExpression node: 77.9-13
+                visiting MemberAccessExpression node: 87.9-13
                 Node {
-                    visiting IdentifierExpression node: 77.9-11
+                    visiting IdentifierExpression node: 87.9-11
 SymbolTable: looking up varsymbol val
                 }
             }
         }
     }
     Node {
-        visiting ExpressionStatement node: 79.1-22
+        visiting ExpressionStatement node: 89.1-22
         Node {
-            visiting CallExpression node: 79.1-21
+            visiting CallExpression node: 89.1-21
             Node {
-                visiting MemberAccessExpression node: 79.1-17
+                visiting MemberAccessExpression node: 89.1-17
                 Node {
-                    visiting IdentifierExpression node: 79.1-6
+                    visiting IdentifierExpression node: 89.1-6
 SymbolTable: looking up varsymbol vtable
                 }
             }
             Node {
-                visiting LiteralExpression node: 79.1-20
+                visiting LiteralExpression node: 89.1-20
                 found integer
             }
         }
     }
 }
+
+---------- Validating ----------
+
 Node {
     Node {
         Validator: visiting TypeDeclMIR node
@@ -1016,17 +1055,17 @@ Node {
     Node {
         Validator: visiting TypeDeclMIR node
 ClassType: finalizing class defined at 5.8-8.1
-ClassType: finalizing member declared at 6.10
+ClassType: finalizing member declared at 6.9
 PrimitiveType: finalizing i32
-ClassType: finalizing member declared at 7.10
+ClassType: finalizing member declared at 7.9
 PrimitiveType: i32 already finalized, skipping
     }
     Node {
         Validator: visiting TypeDeclMIR node
 UnionType: finalizing union defined at 10.1-13.1
-UnionType: finalizing member declared at 11.10
+UnionType: finalizing member declared at 11.9
 PrimitiveType: finalizing u32
-UnionType: finalizing member declared at 12.10
+UnionType: finalizing member declared at 12.9
 PrimitiveType: finalizing f64
 PrimitiveType: finalizing u8
     }
@@ -1034,14 +1073,14 @@ PrimitiveType: finalizing u8
         Validator: visiting TypeDeclMIR node
 UnionType: finalizing union defined at 15.8-17.1
 PrimitiveType: u8 already finalized, skipping
-UnionType: finalizing member declared at 16.9-13
+UnionType: finalizing member declared at 16.8-12
     }
     Node {
         Validator: visiting TypeDeclMIR node
 UnionType: finalizing union defined at 19.8-22.1
 PrimitiveType: finalizing u16
 UnionType: finalizing member declared at 20.8-12
-UnionType: finalizing member declared at 21.10-15
+UnionType: finalizing member declared at 21.9-14
     }
     Node {
         Validator: visiting TypeDeclMIR node
@@ -1049,7 +1088,7 @@ UnionType: finalizing union defined at 24.8-28.1
 PrimitiveType: u32 already finalized, skipping
 UnionType: finalizing member declared at 25.8-12
 UnionType: finalizing member declared at 26.9-14
-UnionType: finalizing member declared at 27.10-15
+UnionType: finalizing member declared at 27.9-14
     }
     Node {
         Validator: visiting TypeDeclMIR node
@@ -1058,46 +1097,52 @@ PrimitiveType: finalizing u64
 UnionType: finalizing member declared at 31.8-12
 UnionType: finalizing member declared at 32.9-14
 UnionType: finalizing member declared at 33.9-14
-UnionType: finalizing member declared at 34.10-15
+UnionType: finalizing member declared at 34.9-14
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
     }
     Node {
         Validator: visiting TypeDeclMIR node
-ClassType: finalizing class defined at 43.1-45.1
-ClassType: finalizing member declared at 44.10-12
+ClassType: finalizing class defined at 53.1-55.1
+ClassType: finalizing member declared at 54.9-11
 PrimitiveType: i32 already finalized, skipping
     }
     Node {
         Validator: visiting TypeDeclMIR node
-ClassType: finalizing class defined at 47.1-49.1
+ClassType: finalizing class defined at 57.1-59.1
 ClassType: already finalized, skipping
-ClassType: finalizing member declared at 48.16-19
+ClassType: finalizing member declared at 58.16-19
     }
     Node {
         Validator: visiting TypeDeclMIR node
-ClassType: finalizing class defined at 53.1-57.1
-ClassType: finalizing member declared at 54.9-13
+ClassType: finalizing class defined at 63.1-67.1
+ClassType: finalizing member declared at 64.8-12
 PrimitiveType: u8 already finalized, skipping
-ClassType: finalizing member declared at 55.9-13
+ClassType: finalizing member declared at 65.8-12
 PrimitiveType: u8 already finalized, skipping
-ClassType: finalizing member declared at 56.9-11
+ClassType: finalizing member declared at 66.8-10
 PrimitiveType: u8 already finalized, skipping
     }
     Node {
         Validator: visiting TypeDeclMIR node
-ClassType: finalizing class defined at 59.1-65.1
-ClassType: finalizing member declared at 60.8-11
+ClassType: finalizing class defined at 69.1-75.1
+ClassType: finalizing member declared at 70.7-10
 PrimitiveType: i32 already finalized, skipping
-ClassType: finalizing member declared at 64.5
-UnionType: finalizing union defined at 61.3-64.3
-UnionType: finalizing member declared at 62.10
+ClassType: finalizing member declared at 74.5
+UnionType: finalizing union defined at 71.3-74.3
+UnionType: finalizing member declared at 72.9
 PrimitiveType: f64 already finalized, skipping
-UnionType: finalizing member declared at 63.9-10
+UnionType: finalizing member declared at 73.8-9
 PrimitiveType: u8 already finalized, skipping
     }
     Node {
         Validator: visiting TypeDeclMIR node
-ClassType: finalizing class defined at 67.1-69.1
-ClassType: finalizing member declared at 68.10-35
+ClassType: finalizing class defined at 77.1-79.1
+ClassType: finalizing member declared at 78.10-34
     }
     Node {
         Validator: visiting VarDeclMIR node
@@ -1167,15 +1212,16 @@ TypeContext: getting primitive type
 Base Types:
   class_VTable_0 : class VTable { Void (u64) * dispatcher; }
   union___ecc_anon_0_0 : union { f64 f; u8 ch; }
-  class_Point_0 : class Point { i32 x; i32 y; }
-  union_U8_0 : union U8: u8  { u8[1] u8; }
-  union_U16_0 : union U16: u16  { U8[2] u8; u16[1] u16; }
-  class_Flags_0 : class Flags { u8 a; u8 b; u8 ; }
-  union_Data_0 : union Data { u32 i; f64 f; }
-  union_U64_0 : union U64: u64  { U8[8] u8; U16[4] u16; U32[2] u32; u64[1] u64; }
-  enum_Color_0 : enum Color: i32  { RED = 0, GREEN = 5, BLUE = 6 }
-  union_U32_0 : union U32: u32  { U8[4] u8; U16[2] u16; u32[1] u32; }
   class_Value_0 : class Value { i32 type; union { f64 f; u8 ch; } u; }
+  class_Point_0 : class Point { i32 x; i32 y; }
+  class_Flags_0 : class Flags { u8 a; u8 b; u8 ; }
+  union_U8U_0 : union U8U: u8  { u8[1] u8; }
+  union_Data_0 : union Data { u32 i; f64 f; }
+  union_U64U_0 : union U64U: u64  { u8[8] u8; u16[4] u16; u32[2] u32; u64[1] u64; }
+  union_U16U_0 : union U16U: u16  { u8[2] u8; u16[1] u16; }
+  union_U32U_0 : union U32U: u32  { u8[4] u8; u16[2] u16; u32[1] u32; }
+  enum_Color_0 : enum Color: i32  { RED = 0, GREEN = 5, BLUE = 6 }
+  enum_SmallFlags_0 : enum SmallFlags: u8  { FLAG_NONE = 0, FLAG_A = 1, FLAG_B = 2 }
   class_Opaque_0 : class Opaque[INCOMPLETE]
   enum_Forward_0 : enum Forward: i32 [INCOMPLETE]
   class_Animal_0 : class Animal { i32 age; }
@@ -1189,15 +1235,15 @@ Pointer Types:
   :Opaque *
 
 Array Types:
+ : u16[4] #1
+ : u32[2] #1
+ : u8[8] #1
  : u64[1] #1
- : U8[8] #1
  : u32[1] #1
- : U16[2] #1
- : U8[4] #1
+ : u16[2] #1
+ : u8[4] #1
  : u16[1] #1
- : U16[4] #1
- : U8[2] #1
- : U32[2] #1
+ : u8[2] #1
  : u8[1] #1
 
 
@@ -1205,28 +1251,32 @@ Array Types:
 
 Scope 0: Compound Statement
 Physical Symbols:
-  val <0x55646b5cd1f0> : VarSymbol: val :: class Value
-  BLUE <0x55646b5cba20> : VarSymbol: BLUE :: enum Color
-  GREEN <0x55646b5cb940> : VarSymbol: GREEN :: enum Color
-  RED <0x55646b5cb860> : VarSymbol: RED :: enum Color
-  vtable <0x55646b5cd440> : VarSymbol: vtable :: class VTable
-  opaque_ptr <0x55646b5c9a80> : VarSymbol: opaque_ptr :: class Opaque *
+  val <0x563977ce47d0> : VarSymbol: val :: class Value
+  FLAG_B <0x563977ce2ec0> : VarSymbol: FLAG_B :: enum SmallFlags
+  FLAG_A <0x563977ce2de0> : VarSymbol: FLAG_A :: enum SmallFlags
+  FLAG_NONE <0x563977ce2d00> : VarSymbol: FLAG_NONE :: enum SmallFlags
+  BLUE <0x563977ce2a50> : VarSymbol: BLUE :: enum Color
+  GREEN <0x563977ce2970> : VarSymbol: GREEN :: enum Color
+  RED <0x563977ce2890> : VarSymbol: RED :: enum Color
+  vtable <0x563977ce4a20> : VarSymbol: vtable :: class VTable
+  opaque_ptr <0x563977ce0ab0> : VarSymbol: opaque_ptr :: class Opaque *
 
 Type Symbols:
-  VTable <0x55646b5c9200> : TypeSymbol: VTable :: class VTable { Void (u64) * dispatcher; }
-  Point <0x55646b5c9d30> : TypeSymbol: Point :: class Point { i32 x; i32 y; }
-  Value <0x55646b5cc650> : TypeSymbol: Value :: class Value { i32 type; union { f64 f; u8 ch; } u; }
-  Data <0x55646b5ca020> : TypeSymbol: Data :: union Data { u32 i; f64 f; }
-  Forward <0x55646b5cc130> : TypeSymbol: Forward :: enum Forward: i32 [INCOMPLETE]
-  Opaque <0x55646b5c9270> : TypeSymbol: Opaque :: class Opaque[INCOMPLETE]
-  U8 <0x55646b5ca320> : TypeSymbol: U8 :: union U8: u8  { u8[1] u8; }
-  U16 <0x55646b5ca720> : TypeSymbol: U16 :: union U16: u16  { U8[2] u8; u16[1] u16; }
-  U32 <0x55646b5cab70> : TypeSymbol: U32 :: union U32: u32  { U8[4] u8; U16[2] u16; u32[1] u32; }
-  U64 <0x55646b5cb170> : TypeSymbol: U64 :: union U64: u64  { U8[8] u8; U16[4] u16; U32[2] u32; u64[1] u64; }
-  Dog <0x55646b5cbec0> : TypeSymbol: Dog :: class Dog : class Animal { enum Color: i32  { RED = 0, GREEN = 5, BLUE = 6 } coat; }
-  Flags <0x55646b5cc300> : TypeSymbol: Flags :: class Flags { u8 a; u8 b; u8 ; }
-  Color <0x55646b5cb7b0> : TypeSymbol: Color :: enum Color: i32  { RED = 0, GREEN = 5, BLUE = 6 }
-  Animal <0x55646b5cbc20> : TypeSymbol: Animal :: class Animal { i32 age; }
+  VTable <0x563977ce0350> : TypeSymbol: VTable :: class VTable { Void (u64) * dispatcher; }
+  Opaque <0x563977ce02a0> : TypeSymbol: Opaque :: class Opaque[INCOMPLETE]
+  Value <0x563977ce0230> : TypeSymbol: Value :: class Value { i32 type; union { f64 f; u8 ch; } u; }
+  Data <0x563977ce1050> : TypeSymbol: Data :: union Data { u32 i; f64 f; }
+  Forward <0x563977ce36f0> : TypeSymbol: Forward :: enum Forward: i32 [INCOMPLETE]
+  U16U <0x563977ce1750> : TypeSymbol: U16U :: union U16U: u16  { u8[2] u8; u16[1] u16; }
+  U32U <0x563977ce1ba0> : TypeSymbol: U32U :: union U32U: u32  { u8[4] u8; u16[2] u16; u32[1] u32; }
+  Color <0x563977ce27e0> : TypeSymbol: Color :: enum Color: i32  { RED = 0, GREEN = 5, BLUE = 6 }
+  U64U <0x563977ce21a0> : TypeSymbol: U64U :: union U64U: u64  { u8[8] u8; u16[4] u16; u32[2] u32; u64[1] u64; }
+  Point <0x563977ce0d60> : TypeSymbol: Point :: class Point { i32 x; i32 y; }
+  SmallFlags <0x563977ce2c50> : TypeSymbol: SmallFlags :: enum SmallFlags: u8  { FLAG_NONE = 0, FLAG_A = 1, FLAG_B = 2 }
+  Animal <0x563977ce3190> : TypeSymbol: Animal :: class Animal { i32 age; }
+  U8U <0x563977ce1350> : TypeSymbol: U8U :: union U8U: u8  { u8[1] u8; }
+  Dog <0x563977ce3460> : TypeSymbol: Dog :: class Dog : class Animal { enum Color: i32  { RED = 0, GREEN = 5, BLUE = 6 } coat; }
+  Flags <0x563977ce38c0> : TypeSymbol: Flags :: class Flags { u8 a; u8 b; u8 ; }
 -----------------------------------------------------------
 
 --------- MIR ---------
@@ -1237,34 +1287,189 @@ ProgramMIR @ <1.1>
 | | | VarSymbol: opaque_ptr :: class Opaque *
 | TypeDecl: Point @ <5.1-8.2>
 | TypeDecl: Data @ <10.1-13.2>
-| TypeDecl: U8 @ <15.1-17.2>
-| TypeDecl: U16 @ <19.1-22.2>
-| TypeDecl: U32 @ <24.1-28.2>
-| TypeDecl: U64 @ <30.1-35.2>
-| TypeDecl: Animal @ <43.1-45.2>
-| TypeDecl: Dog @ <47.1-49.2>
-| TypeDecl: Flags @ <53.1-57.2>
-| TypeDecl: Value @ <59.1-65.2>
-| TypeDecl: VTable @ <67.1-69.2>
-| VarDecl:  @ <71.1-16>
+| TypeDecl: U8U @ <15.1-17.2>
+| TypeDecl: U16U @ <19.1-22.2>
+| TypeDecl: U32U @ <24.1-28.2>
+| TypeDecl: U64U @ <30.1-35.2>
+| Print: "%d\n" @ <51.1-15>
+| | Ident: FLAG_A :: enum SmallFlags @ <51.9-14>
+| TypeDecl: Animal @ <53.1-55.2>
+| TypeDecl: Dog @ <57.1-59.2>
+| TypeDecl: Flags @ <63.1-67.2>
+| TypeDecl: Value @ <69.1-75.2>
+| TypeDecl: VTable @ <77.1-79.2>
+| VarDecl:  @ <81.1-16>
 | | | VarSymbol: val :: class Value
-| ExprStmt @ <73.1-14>
-| | Assign: = :: U8 @ <73.1-13>
-| | | Member: .ch :: U8 @ <73.1-8>
-| | | | Member: .u :: union { f64 f; u8 ch; } @ <73.1-5>
-| | | | | Ident: val :: class Value @ <73.1-3>
-| | | Literal: :: I32 @ <73.12-13>
-23| VarDecl:  @ <75.1-20>
+| ExprStmt @ <83.1-14>
+| | Assign: = :: U8 @ <83.1-13>
+| | | Member: .ch :: U8 @ <83.1-8>
+| | | | Member: .u :: union { f64 f; u8 ch; } @ <83.1-5>
+| | | | | Ident: val :: class Value @ <83.1-3>
+| | | Cast -> u8 (implicit) :: U8 @ <83.12-13>
+| | | | Literal: 23 :: I32 @ <83.12-13>
+| VarDecl:  @ <85.1-20>
 | | | VarSymbol: vtable :: class VTable
-| Print: "%d
-" @ <77.1-17>
-| | Member: .ch :: U8 @ <77.9-16>
-| | | Member: .u :: union { f64 f; u8 ch; } @ <77.9-13>
-| | | | Ident: val :: class Value @ <77.9-11>
-| ExprStmt @ <79.1-22>
-| | Call :: Void @ <79.1-21>
-| | | Member: .dispatcher :: Void (U64) * @ <79.1-17>
-| | | | Ident: vtable :: class VTable @ <79.1-6>
-| | | Cast -> u64 :: U64 @ <79.1-20>
-| | | | Literal: :: I32 @ <79.1-20>
-69LLVM: Shutting down
+| Print: "%d\n" @ <87.1-17>
+| | Member: .ch :: U8 @ <87.9-16>
+| | | Member: .u :: union { f64 f; u8 ch; } @ <87.9-13>
+| | | | Ident: val :: class Value @ <87.9-11>
+| ExprStmt @ <89.1-22>
+| | Call :: Void @ <89.1-21>
+| | | Member: .dispatcher :: Void (U64) * @ <89.1-17>
+| | | | Ident: vtable :: class VTable @ <89.1-6>
+| | | Cast -> u64 (implicit) :: U64 @ <89.1-20>
+| | | | Literal: 69 :: I32 @ <89.1-20>
+
+---------- Generating LIR ----------
+
+Node {
+    LIRSynthesizer: visiting ProgramMIR node
+    Node {
+        LIRSynthesizer: visiting TypeDeclMIR node
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+    }
+    Node {
+        LIRSynthesizer: visiting TypeDeclMIR node
+    }
+    Node {
+        LIRSynthesizer: visiting TypeDeclMIR node
+    }
+    Node {
+        LIRSynthesizer: visiting TypeDeclMIR node
+    }
+    Node {
+        LIRSynthesizer: visiting TypeDeclMIR node
+    }
+    Node {
+        LIRSynthesizer: visiting TypeDeclMIR node
+    }
+    Node {
+        LIRSynthesizer: visiting TypeDeclMIR node
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting TypeDeclMIR node
+    }
+    Node {
+        LIRSynthesizer: visiting TypeDeclMIR node
+    }
+    Node {
+        LIRSynthesizer: visiting TypeDeclMIR node
+    }
+    Node {
+        LIRSynthesizer: visiting TypeDeclMIR node
+    }
+    Node {
+        LIRSynthesizer: visiting TypeDeclMIR node
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting AssignExprMIR node
+            Node {
+                LIRSynthesizer: visiting MemberAccExprMIR node
+                Node {
+                    LIRSynthesizer: visiting MemberAccExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+ClassType: Looking for member with name u
+RecordType: Looking for member with name u
+ClassType: Looking for member with index 1
+RecordType: Looking for member with index 1
+                }
+RecordType: Looking for member with name ch
+RecordType: Looking for member with index 1
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting MemberAccExprMIR node
+            Node {
+                LIRSynthesizer: visiting MemberAccExprMIR node
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+                }
+ClassType: Looking for member with name u
+RecordType: Looking for member with name u
+ClassType: Looking for member with index 1
+RecordType: Looking for member with index 1
+            }
+RecordType: Looking for member with name ch
+RecordType: Looking for member with index 1
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting CallExprMIR node
+            Node {
+                LIRSynthesizer: visiting MemberAccExprMIR node
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+                }
+ClassType: Looking for member with name dispatcher
+RecordType: Looking for member with name dispatcher
+ClassType: Looking for member with index 0
+RecordType: Looking for member with index 0
+TypeContext: pointer with base 7456748950117178254
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+    }
+}
+--------- LIR ---------
+
+ProgramLIR @ <?>
+| VarDecl: opaque_ptr (opaque_ptr) @ <3.1-19>
+| | type: Opaque *
+| VarDecl: val (val) @ <81.1-16>
+| | type: class Value { i32 type; union { f64 f; u8 ch; } u; }
+| VarDecl: vtable (vtable) @ <85.1-20>
+| | type: class VTable { Void (u64) * dispatcher; }
+| Print: "%d\n" @ <51.1-15>
+| | Literal: 1 :: enum SmallFlags @ <51.9-14>
+| ExprStmt @ <83.1-14>
+| | Assign: = :: U8 @ <83.1-13>
+| | | Member: [1] :: U8 @ <83.1-8>
+| | | | Member: [1] :: union { f64 f; u8 ch; } @ <83.1-5>
+| | | | | Ident: val (val) :: class Value @ <83.1-3>
+| | | Cast -> u8 (implicit) :: U8 @ <83.12-13>
+| | | | Literal: 23 :: I32 @ <83.12-13>
+| Print: "%d\n" @ <87.1-17>
+| | Member: [1] :: U8 @ <87.9-16>
+| | | Member: [1] :: union { f64 f; u8 ch; } @ <87.9-13>
+| | | | Ident: val (val) :: class Value @ <87.9-11>
+| ExprStmt @ <89.1-22>
+| | Call :: Void @ <89.1-21>
+| | | Member: [0] :: Void (U64) * @ <89.1-17>
+| | | | Ident: vtable (vtable) :: class VTable @ <89.1-6>
+| | | Cast -> u64 (implicit) :: U64 @ <89.1-20>
+| | | | Literal: 69 :: I32 @ <89.1-20>
+LLVM: Shutting down

@@ -31,7 +31,7 @@ Node {
 TypeBuilder: finalizing type
 TypeContext: getting function type
         }
-SymbolTable: inserting varsymbol with name "Execute"
+SymbolTable: inserting funcsymbol with name "Execute"
     }
     Node {
         visiting TypeDeclaration node: 9.1-13.2
@@ -1610,7 +1610,7 @@ TypeContext: existing function type found
 SymbolTable: inserting funcsymbol with name "Execute"
 SymbolTable: symbol with name Execute already exists
 SymbolTable: existing symbol has function type, checking for replaceability
-SymbolTable: existing symbol matches function signature, replacing
+SymbolTable: existing symbol matches function signature, evaluating reconciliation
         Node {
 SymbolTable: pushing scope 23
 SymbolTable: entering scope 23
@@ -2516,7 +2516,6 @@ SymbolTable: looking up funcsymbol Main
 
 Node {
     Node {
-        Validator: visiting VarDeclMIR node
     }
     Node {
         Validator: visiting TypeDeclMIR node
@@ -2657,6 +2656,9 @@ ClassType: Looking for member with name len
 RecordType: Looking for member with name len
                     }
                 }
+            }
+            Node {
+                Validator: visiting ReturnStmtMIR node
             }
 SymbolTable: exiting scope to 0
         }
@@ -3253,6 +3255,9 @@ TypeContext: array type with base 175247769427, size 3
 TypeContext: array type with base 175247769427, size 3
                 }
             }
+            Node {
+                Validator: visiting ReturnStmtMIR node
+            }
 SymbolTable: exiting scope to 0
         }
     }
@@ -3467,6 +3472,9 @@ SymbolTable: exiting scope to 18
 SymbolTable: exiting scope to 17
                 }
 SymbolTable: exiting scope to 16
+            }
+            Node {
+                Validator: visiting ReturnStmtMIR node
             }
 SymbolTable: exiting scope to 0
         }
@@ -3959,6 +3967,9 @@ SymbolTable: exiting scope to 24
                 }
 SymbolTable: exiting scope to 23
             }
+            Node {
+                Validator: visiting ReturnStmtMIR node
+            }
 SymbolTable: exiting scope to 0
         }
     }
@@ -4045,6 +4056,9 @@ TypeContext: getting primitive type
                     }
                 }
             }
+            Node {
+                Validator: visiting ReturnStmtMIR node
+            }
 SymbolTable: exiting scope to 0
         }
     }
@@ -4062,6 +4076,9 @@ TypeContext: pointer with base 175247769427
 TypeContext: array type with base 175247769427, size 19
 TypeContext: array type with base 175247769427, size 19
                 }
+            }
+            Node {
+                Validator: visiting ReturnStmtMIR node
             }
 SymbolTable: exiting scope to 0
         }
@@ -4090,7 +4107,7 @@ TypeContext: array type with base 175247769427, size 165
 TypeContext: array type with base 175247769427, size 165
                 }
                 types are not equal, checking compatibility
-TypeContext: set array of base 0x55e7906fe8b0, with size 165
+TypeContext: set array of base 0x562fd93a38e0, with size 165
 TypeContext: array type with base 175247769427, size 165
             }
             Node {
@@ -4139,27 +4156,724 @@ SymbolTable: exiting scope to 0
         }
     }
 }
+--------- TYPE CONTEXT ---------
+
+Base Types:
+  enum_ErrType_0 : enum ErrType: i32  { SYSTEM = 1, BAD_CODE = 2 }
+  class_Stack_0 : class Stack { i32 cap; i32 len; i32[32] data; }
+
+Function Types:
+  function_8129775578089994345 : Void (i8 *)
+  function_11337807007502 : bool (i8)
+  function_13245216041738793884 : Void (i8 *, enum ErrType: i32  { SYSTEM = 1, BAD_CODE = 2 })
+  function_175247769300 : i32 ()
+  function_351097846914 : Void (i32)
+  function_2654435769 : Void ()
+
+Pointer Types:
+  :i8 *
+
+Array Types:
+ : i8[19] #2
+ : i8[27] #2
+ : i8[165] #5
+ : i8[26] #2
+ : i8[33] #2
+ : i8[3] #4
+ : i8[] #1
+ : i8[8] #2
+ : i8[30000] #8
+ : i8[1024] #10
+ : i8[41] #2
+ : i8[15] #2
+ : i32[32] #4
+
+
+--------- SYMBOL TABLE ---------
+
+Scope 0: Compound Statement
+Physical Symbols:
+  PrintUsage <0x562fd93c2cc0> : FuncSymbol: PrintUsage :: Void (i8 *)
+  JumpToAfter <0x562fd93663f0> : FuncSymbol: JumpToAfter :: Void ()
+  valid_chars <0x562fd93aa470> : VarSymbol: valid_chars :: I8[8]
+  Initialize <0x562fd9364da0> : FuncSymbol: Initialize :: Void ()
+  Execute <0x562fd9364f50> : FuncSymbol: Execute :: Void ()
+  Main <0x562fd93c4050> : FuncSymbol: Main :: i32 ()
+  StackPush <0x562fd9365610> : FuncSymbol: StackPush :: Void (i32)
+  StackPop <0x562fd9364b60> : FuncSymbol: StackPop :: i32 ()
+  SYSTEM <0x562fd93a88b0> : VarSymbol: SYSTEM :: enum ErrType
+  StackPeek <0x562fd9364920> : FuncSymbol: StackPeek :: i32 ()
+  nesting <0x562fd93a50f0> : VarSymbol: nesting :: class Stack
+  code <0x562fd93a7dd0> : VarSymbol: code :: I8[1024]
+  data <0x562fd93a8390> : VarSymbol: data :: I8[30000]
+  insptr <0x562fd93a7f60> : VarSymbol: insptr :: I32
+  ReadCode <0x562fd93662d0> : FuncSymbol: ReadCode :: Void (i8 *)
+  IsValid <0x562fd93661b0> : FuncSymbol: IsValid :: bool (i8)
+  Die <0x562fd9364fe0> : FuncSymbol: Die :: Void (i8 *, enum ErrType: i32  { SYSTEM = 1, BAD_CODE = 2 })
+  codesize <0x562fd93a8170> : VarSymbol: codesize :: I32
+  dataptr <0x562fd93a8540> : VarSymbol: dataptr :: I32
+  BAD_CODE <0x562fd93a89b0> : VarSymbol: BAD_CODE :: enum ErrType
+
+Type Symbols:
+  ErrType <0x562fd93a8760> : TypeSymbol: ErrType :: enum ErrType: i32  { SYSTEM = 1, BAD_CODE = 2 }
+  Stack <0x562fd93a4b00> : TypeSymbol: Stack :: class Stack { i32 cap; i32 len; i32[32] data; }
+-----------------------------------------------------------
+  Scope 1: FuncSymbol: StackPush :: Void (i32)
+  Physical Symbols:
+    item <0x562fd93a5650> : VarSymbol: item :: I32
+-----------------------------------------------------------
+    Scope 2: Compound Statement
+-----------------------------------------------------------
+  Scope 3: FuncSymbol: StackPeek :: i32 ()
+-----------------------------------------------------------
+  Scope 4: FuncSymbol: StackPop :: i32 ()
+  Physical Symbols:
+    ret <0x562fd93a78a0> : VarSymbol: ret :: I32
+-----------------------------------------------------------
+  Scope 5: FuncSymbol: Die :: Void (i8 *, enum ErrType: i32  { SYSTEM = 1, BAD_CODE = 2 })
+  Physical Symbols:
+    errcode <0x562fd93a9000> : VarSymbol: errcode :: enum ErrType
+    errmsg <0x562fd93a8f40> : VarSymbol: errmsg :: I8 *
+-----------------------------------------------------------
+    Scope 6: Compound Statement
+-----------------------------------------------------------
+    Scope 7: Compound Statement
+-----------------------------------------------------------
+  Scope 8: FuncSymbol: IsValid :: bool (i8)
+  Physical Symbols:
+    i <0x562fd93aabc0> : VarSymbol: i :: I32
+    c <0x562fd93aa800> : VarSymbol: c :: I8
+-----------------------------------------------------------
+    Scope 9: Compound Statement
+-----------------------------------------------------------
+      Scope 10: Compound Statement
+-----------------------------------------------------------
+  Scope 11: FuncSymbol: ReadCode :: Void (i8 *)
+  Physical Symbols:
+    i <0x562fd93abde0> : VarSymbol: i :: I32
+    n <0x562fd93abb90> : VarSymbol: n :: I32
+    src <0x562fd93ab830> : VarSymbol: src :: I8 *
+-----------------------------------------------------------
+    Scope 12: Compound Statement
+-----------------------------------------------------------
+      Scope 13: Compound Statement
+-----------------------------------------------------------
+        Scope 14: Compound Statement
+-----------------------------------------------------------
+        Scope 15: Compound Statement
+-----------------------------------------------------------
+  Scope 16: FuncSymbol: JumpToAfter :: Void ()
+  Physical Symbols:
+    current <0x562fd93adaa0> : VarSymbol: current :: I32
+-----------------------------------------------------------
+    Scope 17: Compound Statement
+-----------------------------------------------------------
+      Scope 18: Compound Statement
+-----------------------------------------------------------
+        Scope 19: Compound Statement
+-----------------------------------------------------------
+        Scope 20: Compound Statement
+-----------------------------------------------------------
+          Scope 21: Compound Statement
+-----------------------------------------------------------
+        Scope 22: Compound Statement
+-----------------------------------------------------------
+  Scope 23: FuncSymbol: Execute :: Void ()
+  Physical Symbols:
+    c <0x562fd93be610> : VarSymbol: c :: I8
+-----------------------------------------------------------
+    Scope 24: Compound Statement
+-----------------------------------------------------------
+      Scope 25: Compound Statement
+-----------------------------------------------------------
+        Scope 26: Compound Statement
+-----------------------------------------------------------
+        Scope 27: Compound Statement
+-----------------------------------------------------------
+        Scope 28: Compound Statement
+-----------------------------------------------------------
+          Scope 29: Compound Statement
+-----------------------------------------------------------
+          Scope 30: Compound Statement
+-----------------------------------------------------------
+          Scope 31: Compound Statement
+          Physical Symbols:
+            opening <0x562fd93c13d0> : VarSymbol: opening :: I32
+-----------------------------------------------------------
+            Scope 32: Compound Statement
+-----------------------------------------------------------
+            Scope 33: Compound Statement
+-----------------------------------------------------------
+            Scope 34: Compound Statement
+-----------------------------------------------------------
+        Scope 35: Compound Statement
+-----------------------------------------------------------
+  Scope 36: FuncSymbol: Initialize :: Void ()
+  Physical Symbols:
+    i <0x562fd93c2e80> : VarSymbol: i :: I32
+-----------------------------------------------------------
+    Scope 37: Compound Statement
+-----------------------------------------------------------
+      Scope 38: Compound Statement
+-----------------------------------------------------------
+  Scope 39: FuncSymbol: PrintUsage :: Void (i8 *)
+  Physical Symbols:
+    argname <0x562fd93c3c00> : VarSymbol: argname :: I8 *
+-----------------------------------------------------------
+  Scope 40: FuncSymbol: Main :: i32 ()
+  Physical Symbols:
+    program <0x562fd93c45a0> : VarSymbol: program :: I8[165]
+-----------------------------------------------------------
+
+--------- MIR ---------
+
+ProgramMIR @ <1.1>
+| FunctionMIR: Execute @ <6.1-13>
+    type: Void ()
+ (declaration)
+| TypeDecl: Stack @ <9.1-13.2>
+| VarDecl:  @ <15.1-26>
+| | | VarSymbol: nesting :: class Stack
+| | | Initializer @ <15.17-25>
+| | | | Initializer @ <15.19-20>
+| | | | | Literal: 32 :: I32 @ <15.19-20>
+| | | | Initializer @ <15.23>
+| | | | | Literal: 0 :: I32 @ <15.23>
+| FunctionMIR: StackPush @ <17.1-28.1>
+    type: Void (i32)
+| | CompoundStmtMIR @ <17.24-28.1>
+| | | IfStmt @ <19.5-25>
+| | | | Binary: < :: I32 @ <19.8-16>
+| | | | | Ident: item :: I32 @ <19.8-12>
+| | | | | Literal: 0 :: I32 @ <19.16>
+| | | | Return @ <19.19-25>
+| | | IfStmt @ <21.5-24.5>
+| | | | Binary: > :: I32 @ <21.8-37>
+| | | | | Binary: + :: I32 @ <21.8-23>
+| | | | | | Member: .len :: I32 @ <21.8-19>
+| | | | | | | Ident: nesting :: class Stack @ <21.8-15>
+| | | | | | Literal: 1 :: I32 @ <21.23>
+| | | | | Member: .cap :: I32 @ <21.27-37>
+| | | | | | Ident: nesting :: class Stack @ <21.27-33>
+| | | | CompoundStmtMIR @ <21.40-24.5>
+| | | | | Return @ <23.9-15>
+| | | ExprStmt @ <26.5-37>
+| | | | Assign: = :: I32 @ <26.5-36>
+| | | | | Subscript :: I32 @ <26.5-29>
+| | | | | | Member: .data :: I32[32] @ <26.5-16>
+| | | | | | | Ident: nesting :: class Stack @ <26.5-11>
+| | | | | | Member: .len :: I32 @ <26.5-28>
+| | | | | | | Ident: nesting :: class Stack @ <26.5-24>
+| | | | | Ident: item :: I32 @ <26.33-36>
+| | | ExprStmt @ <27.5-18>
+| | | | Postfix: :: I32++ @ <27.5-17>
+| | | | | Member: .len :: I32 @ <27.5-15>
+| | | | | | Ident: nesting :: class Stack @ <27.5-11>
+| | | Return @ <1.1>
+| FunctionMIR: StackPeek @ <30.1-35.1>
+    type: i32 ()
+| | CompoundStmtMIR @ <30.17-35.1>
+| | | IfStmt @ <31.5-32.18>
+| | | | Binary: <= :: I32 @ <31.8-24>
+| | | | | Member: .len :: I32 @ <31.8-19>
+| | | | | | Ident: nesting :: class Stack @ <31.8-15>
+| | | | | Literal: 0 :: I32 @ <31.24>
+| | | | Return @ <32.9-18>
+| | | | | Unary: - :: I32 @ <32.16-17>
+| | | | | | Literal: 1 :: I32 @ <32.16-17>
+| | | Return @ <34.5-41>
+| | | | Subscript :: I32 @ <34.12-40>
+| | | | | Member: .data :: I32[32] @ <34.12-23>
+| | | | | | Ident: nesting :: class Stack @ <34.12-18>
+| | | | | Binary: - :: I32 @ <34.12-39>
+| | | | | | Member: .len :: I32 @ <34.12-35>
+| | | | | | | Ident: nesting :: class Stack @ <34.12-31>
+| | | | | | Literal: 1 :: I32 @ <34.39>
+| FunctionMIR: StackPop @ <37.1-44.1>
+    type: i32 ()
+| | CompoundStmtMIR @ <37.16-44.1>
+| | | IfStmt @ <38.5-36>
+| | | | Binary: <= :: I32 @ <38.8-24>
+| | | | | Member: .len :: I32 @ <38.8-19>
+| | | | | | Ident: nesting :: class Stack @ <38.8-15>
+| | | | | Literal: 0 :: I32 @ <38.24>
+| | | | Return @ <38.27-36>
+| | | | | Unary: - :: I32 @ <38.34-35>
+| | | | | | Literal: 1 :: I32 @ <38.34-35>
+| | | VarDecl:  @ <40.5-44>
+| | | | | VarSymbol: ret :: I32
+| | | | | Initializer @ <40.15-43>
+| | | | | | Subscript :: I32 @ <40.15-43>
+| | | | | | | Member: .data :: I32[32] @ <40.15-26>
+| | | | | | | | Ident: nesting :: class Stack @ <40.15-21>
+| | | | | | | Binary: - :: I32 @ <40.15-42>
+| | | | | | | | Member: .len :: I32 @ <40.15-38>
+| | | | | | | | | Ident: nesting :: class Stack @ <40.15-34>
+| | | | | | | | Literal: 1 :: I32 @ <40.42>
+| | | ExprStmt @ <41.5-18>
+| | | | Postfix: :: I32-- @ <41.5-17>
+| | | | | Member: .len :: I32 @ <41.5-15>
+| | | | | | Ident: nesting :: class Stack @ <41.5-11>
+| | | Return @ <43.5-15>
+| | | | Ident: ret :: I32 @ <43.12-14>
+| VarDecl:  @ <47.1-14>
+| | | VarSymbol: code :: I8[1024]
+| VarDecl:  @ <48.1-15>
+| | | VarSymbol: insptr :: I32
+| | | Initializer @ <48.14>
+| | | | Literal: 0 :: I32 @ <48.14>
+| VarDecl:  @ <49.1-20>
+| | | VarSymbol: codesize :: I32
+| | | Initializer @ <49.16-19>
+| | | | Literal: 1024 :: I32 @ <49.16-19>
+| VarDecl:  @ <52.1-15>
+| | | VarSymbol: data :: I8[30000]
+| VarDecl:  @ <53.1-16>
+| | | VarSymbol: dataptr :: I32
+| | | Initializer @ <53.15>
+| | | | Literal: 0 :: I32 @ <53.15>
+| FunctionMIR: Die @ <56.1-63.1>
+    type: Void (i8 *, enum ErrType: i32  { SYSTEM = 1, BAD_CODE = 2 })
+| | CompoundStmtMIR @ <56.42-63.1>
+| | | IfStmt @ <57.5-61.5>
+| | | | Binary: == :: I32 @ <57.8-25>
+| | | | | Ident: errcode :: enum ErrType @ <57.8-15>
+| | | | | Ident: SYSTEM :: enum ErrType @ <57.20-25>
+| | | | CompoundStmtMIR @ <57.28-59.5>
+| | | | | Print: "ERROR: %s
+" @ <58.9-30>
+| | | | | | Ident: errmsg :: I8 * @ <58.24-29>
+| | | | CompoundStmtMIR @ <59.12-61.5>
+| | | | | Print: "ERROR@[Pos %d: '%c']: %s
+" @ <60.9-67>
+| | | | | | Ident: insptr :: I32 @ <60.39-44>
+| | | | | | Subscript :: I8 @ <60.47-58>
+| | | | | | | Ident: code :: I8[1024] @ <60.47-50>
+| | | | | | | Ident: insptr :: I32 @ <60.47-57>
+| | | | | | Ident: errmsg :: I8 * @ <60.61-66>
+| | | Return @ <62.5-11>
+| VarDecl:  @ <65.1-61>
+| | | VarSymbol: valid_chars :: I8[8]
+| | | Initializer @ <65.21-60>
+| | | | Initializer @ <65.21-24>
+| | | | | Literal: 62 :: I8 @ <65.21-24>
+| | | | Initializer @ <65.27-29>
+| | | | | Literal: 60 :: I8 @ <65.27-29>
+| | | | Initializer @ <65.32-34>
+| | | | | Literal: 43 :: I8 @ <65.32-34>
+| | | | Initializer @ <65.37-39>
+| | | | | Literal: 45 :: I8 @ <65.37-39>
+| | | | Initializer @ <65.42-44>
+| | | | | Literal: 44 :: I8 @ <65.42-44>
+| | | | Initializer @ <65.47-49>
+| | | | | Literal: 46 :: I8 @ <65.47-49>
+| | | | Initializer @ <65.52-54>
+| | | | | Literal: 91 :: I8 @ <65.52-54>
+| | | | Initializer @ <65.57-59>
+| | | | | Literal: 93 :: I8 @ <65.57-59>
+| FunctionMIR: IsValid @ <66.1-74.1>
+    type: bool (i8)
+| | CompoundStmtMIR @ <66.20-74.1>
+| | | VarDecl:  @ <67.5-14>
+| | | | | VarSymbol: i :: I32
+| | | | | Initializer @ <67.13>
+| | | | | | Literal: 0 :: I32 @ <67.13>
+| | | LoopStmt @ <68.5-71.5>
+| | | | Binary: < :: I32 @ <68.11-16>
+| | | | | Ident: i :: I32 @ <68.11-12>
+| | | | | Literal: 8 :: I32 @ <68.16>
+| | | | CompoundStmtMIR @ <68.19-71.5>
+| | | | | IfStmt @ <69.9-42>
+| | | | | | Binary: == :: I32 @ <69.12-31>
+| | | | | | | Cast -> i32 :: I32 @ <69.12-13>
+| | | | | | | | Ident: c :: I8 @ <69.12-13>
+| | | | | | | Cast -> i32 :: I32 @ <69.18-31>
+| | | | | | | | Subscript :: I8 @ <69.18-31>
+| | | | | | | | | Ident: valid_chars :: I8[8] @ <69.18-28>
+| | | | | | | | | Ident: i :: I32 @ <69.18-30>
+| | | | | | Return @ <69.34-42>
+| | | | | | | Cast -> bool :: Bool @ <69.41>
+| | | | | | | | Literal: 1 :: I32 @ <69.41>
+| | | | | ExprStmt @ <70.9-12>
+| | | | | | Postfix: :: I32++ @ <70.9-11>
+| | | | | | | Ident: i :: I32 @ <70.9>
+| | | Return @ <73.5-13>
+| | | | Cast -> bool :: Bool @ <73.12>
+| | | | | Literal: 0 :: I32 @ <73.12>
+| FunctionMIR: ReadCode @ <77.1-95.1>
+    type: Void (i8 *)
+| | CompoundStmtMIR @ <77.22-95.1>
+| | | VarDecl:  @ <78.5-14>
+| | | | | VarSymbol: n :: I32
+| | | | | Initializer @ <78.13>
+| | | | | | Literal: 0 :: I32 @ <78.13>
+| | | VarDecl:  @ <79.5-14>
+| | | | | VarSymbol: i :: I32
+| | | | | Initializer @ <79.13>
+| | | | | | Literal: 0 :: I32 @ <79.13>
+| | | LoopStmt @ <81.5-91.5>
+| | | | Binary: != :: I32 @ <81.11-25>
+| | | | | Cast -> i32 :: I32 @ <81.11-17>
+| | | | | | Subscript :: I8 @ <81.11-17>
+| | | | | | | Ident: src :: I8 * @ <81.11-14>
+| | | | | | | Ident: i :: I32 @ <81.11-16>
+| | | | | Cast -> i32 :: I32 @ <81.22-25>
+| | | | | | Literal: 0 :: I8 @ <81.22-25>
+| | | | CompoundStmtMIR @ <81.28-91.5>
+| | | | | IfStmt @ <82.9-84.9>
+| | | | | | Call :: Bool @ <82.12-27>
+| | | | | | | Ident: IsValid :: Bool (I8) @ <82.12-19>
+| | | | | | | Subscript :: I8 @ <82.12-26>
+| | | | | | | | Ident: src :: I8 * @ <82.12-23>
+| | | | | | | | Ident: i :: I32 @ <82.12-25>
+| | | | | | CompoundStmtMIR @ <82.30-84.9>
+| | | | | | | ExprStmt @ <83.13-31>
+| | | | | | | | Assign: = :: I8 @ <83.13-30>
+| | | | | | | | | Subscript :: I8 @ <83.13-21>
+| | | | | | | | | | Ident: code :: I8[1024] @ <83.13-16>
+| | | | | | | | | | Postfix: :: I32++ @ <83.13-20>
+| | | | | | | | | | | Ident: n :: I32 @ <83.13-18>
+| | | | | | | | | Subscript :: I8 @ <83.25-30>
+| | | | | | | | | | Ident: src :: I8 * @ <83.25-27>
+| | | | | | | | | | Ident: i :: I32 @ <83.25-29>
+| | | | | IfStmt @ <86.9-89.9>
+| | | | | | Binary: == :: I32 @ <86.12-29>
+| | | | | | | Binary: + :: I32 @ <86.12-17>
+| | | | | | | | Ident: n :: I32 @ <86.12-13>
+| | | | | | | | Literal: 1 :: I32 @ <86.17>
+| | | | | | | Ident: codesize :: I32 @ <86.22-29>
+| | | | | | CompoundStmtMIR @ <86.32-89.9>
+| | | | | | | ExprStmt @ <87.13-42>
+| | | | | | | | Call :: Void @ <87.13-41>
+| | | | | | | | | Ident: Die :: Void (I8 *, enum ErrType) @ <87.13-15>
+| | | | | | | | | Cast -> i8 * :: I8 * @ <87.13-32>
+| | | | | | | | | | Cast -> i8 * :: I8 * @ <87.13-32>
+| | | | | | | | | | | Literal: code too large :: I8[15] @ <87.13-32>
+| | | | | | | | | Ident: SYSTEM :: enum ErrType @ <87.35-40>
+| | | | | | | Return @ <88.13-19>
+| | | | | ExprStmt @ <90.9-12>
+| | | | | | Postfix: :: I32++ @ <90.9-11>
+| | | | | | | Ident: i :: I32 @ <90.9>
+| | | ExprStmt @ <93.5-19>
+| | | | Assign: = :: I8 @ <93.5-18>
+| | | | | Subscript :: I8 @ <93.5-11>
+| | | | | | Ident: code :: I8[1024] @ <93.5-8>
+| | | | | | Ident: n :: I32 @ <93.5-10>
+| | | | | Literal: 0 :: I8 @ <93.15-18>
+| | | Print: "got code: (" @ <94.5-31>
+| | | | Ident: code :: I8[1024] @ <94.20-23>
+| | | | Literal: )
+ :: I8[3] @ <94.26-30>
+| | | Return @ <1.1>
+| FunctionMIR: JumpToAfter @ <98.1-118.1>
+    type: Void ()
+| | CompoundStmtMIR @ <98.18-118.1>
+| | | VarDecl:  @ <99.5-30>
+| | | | | VarSymbol: current :: I32
+| | | | | Initializer @ <99.19-29>
+| | | | | | Member: .len :: I32 @ <99.19-29>
+| | | | | | | Ident: nesting :: class Stack @ <99.19-25>
+| | | LoopStmt @ <100.5-117.5>
+| | | | Binary: != :: I32 @ <100.11-31>
+| | | | | Cast -> i32 :: I32 @ <100.11-23>
+| | | | | | Subscript :: I8 @ <100.11-23>
+| | | | | | | Ident: code :: I8[1024] @ <100.11-15>
+| | | | | | | Ident: insptr :: I32 @ <100.11-22>
+| | | | | Cast -> i32 :: I32 @ <100.28-31>
+| | | | | | Literal: 0 :: I8 @ <100.28-31>
+| | | | CompoundStmtMIR @ <100.34-117.5>
+| | | | | IfStmt @ <101.9-109.9>
+| | | | | | Binary: == :: I32 @ <101.12-31>
+| | | | | | | Cast -> i32 :: I32 @ <101.12-24>
+| | | | | | | | Subscript :: I8 @ <101.12-24>
+| | | | | | | | | Ident: code :: I8[1024] @ <101.12-16>
+| | | | | | | | | Ident: insptr :: I32 @ <101.12-23>
+| | | | | | | Cast -> i32 :: I32 @ <101.29-31>
+| | | | | | | | Literal: 91 :: I8 @ <101.29-31>
+| | | | | | CompoundStmtMIR @ <101.34-103.9>
+| | | | | | | ExprStmt @ <102.13-22>
+| | | | | | | | Postfix: :: I32++ @ <102.13-21>
+| | | | | | | | | Ident: current :: I32 @ <102.13-19>
+| | | | | | IfStmt @ <103.16-109.9>
+| | | | | | | Binary: == :: I32 @ <103.19-38>
+| | | | | | | | Cast -> i32 :: I32 @ <103.19-31>
+| | | | | | | | | Subscript :: I8 @ <103.19-31>
+| | | | | | | | | | Ident: code :: I8[1024] @ <103.19-23>
+| | | | | | | | | | Ident: insptr :: I32 @ <103.19-30>
+| | | | | | | | Cast -> i32 :: I32 @ <103.36-38>
+| | | | | | | | | Literal: 93 :: I8 @ <103.36-38>
+| | | | | | | CompoundStmtMIR @ <103.41-109.9>
+| | | | | | | | ExprStmt @ <104.13-22>
+| | | | | | | | | Postfix: :: I32-- @ <104.13-21>
+| | | | | | | | | | Ident: current :: I32 @ <104.13-19>
+| | | | | | | | IfStmt @ <105.13-108.13>
+| | | | | | | | | Binary: == :: I32 @ <105.16-38>
+| | | | | | | | | | Ident: current :: I32 @ <105.16-23>
+| | | | | | | | | | Member: .len :: I32 @ <105.28-38>
+| | | | | | | | | | | Ident: nesting :: class Stack @ <105.28-34>
+| | | | | | | | | CompoundStmtMIR @ <105.41-108.13>
+| | | | | | | | | | ExprStmt @ <106.17-25>
+| | | | | | | | | | | Postfix: :: I32++ @ <106.17-24>
+| | | | | | | | | | | | Ident: insptr :: I32 @ <106.17-22>
+| | | | | | | | | | Return @ <107.17-23>
+| | | | | IfStmt @ <111.9-114.9>
+| | | | | | Binary: < :: I32 @ <111.12-33>
+| | | | | | | Ident: current :: I32 @ <111.12-19>
+| | | | | | | Member: .len :: I32 @ <111.23-33>
+| | | | | | | | Ident: nesting :: class Stack @ <111.23-29>
+| | | | | | CompoundStmtMIR @ <111.36-114.9>
+| | | | | | | ExprStmt @ <112.13-70>
+| | | | | | | | Call :: Void @ <112.13-69>
+| | | | | | | | | Ident: Die :: Void (I8 *, enum ErrType) @ <112.13-15>
+| | | | | | | | | Cast -> i8 * :: I8 * @ <112.13-58>
+| | | | | | | | | | Cast -> i8 * :: I8 * @ <112.13-58>
+| | | | | | | | | | | Literal: malformed code, missing matching bracket :: I8[41] @ <112.13-58>
+| | | | | | | | | Ident: BAD_CODE :: enum ErrType @ <112.61-68>
+| | | | | | | Return @ <113.13-19>
+| | | | | ExprStmt @ <116.9-17>
+| | | | | | Postfix: :: I32++ @ <116.9-16>
+| | | | | | | Ident: insptr :: I32 @ <116.9-14>
+| | | Return @ <1.1>
+| FunctionMIR: Execute @ <120.1-201.1>
+    type: Void ()
+| | CompoundStmtMIR @ <120.14-201.1>
+| | | VarDecl:  @ <122.5-9>
+| | | | | VarSymbol: c :: I8
+| | | LoopStmt @ <123.5-200.5>
+| | | | Binary: != :: I32 @ <123.11-37>
+| | | | | Cast -> i32 :: I32 @ <123.11-29>
+| | | | | | Assign: = :: I8 @ <123.11-29>
+| | | | | | | Ident: c :: I8 @ <123.11-13>
+| | | | | | | Subscript :: I8 @ <123.17-28>
+| | | | | | | | Ident: code :: I8[1024] @ <123.17-20>
+| | | | | | | | Ident: insptr :: I32 @ <123.17-27>
+| | | | | Cast -> i32 :: I32 @ <123.34-37>
+| | | | | | Literal: 0 :: I8 @ <123.34-37>
+| | | | CompoundStmtMIR @ <123.40-200.5>
+| | | | | IfStmt @ <124.9-127.9>
+| | | | | | Binary: < :: I32 @ <124.12-22>
+| | | | | | | Ident: insptr :: I32 @ <124.12-18>
+| | | | | | | Literal: 0 :: I32 @ <124.22>
+| | | | | | CompoundStmtMIR @ <124.25-127.9>
+| | | | | | | ExprStmt @ <125.13-62>
+| | | | | | | | Call :: Void @ <125.13-61>
+| | | | | | | | | Ident: Die :: Void (I8 *, enum ErrType) @ <125.13-15>
+| | | | | | | | | Cast -> i8 * :: I8 * @ <125.13-50>
+| | | | | | | | | | Cast -> i8 * :: I8 * @ <125.13-50>
+| | | | | | | | | | | Literal: instruction pointer went below 0 :: I8[33] @ <125.13-50>
+| | | | | | | | | Ident: BAD_CODE :: enum ErrType @ <125.53-60>
+| | | | | | | Return @ <126.13-19>
+| | | | | IfStmt @ <129.9-132.9>
+| | | | | | Binary: < :: I32 @ <129.12-23>
+| | | | | | | Ident: dataptr :: I32 @ <129.12-19>
+| | | | | | | Literal: 0 :: I32 @ <129.23>
+| | | | | | CompoundStmtMIR @ <129.26-132.9>
+| | | | | | | ExprStmt @ <130.13-55>
+| | | | | | | | Call :: Void @ <130.13-54>
+| | | | | | | | | Ident: Die :: Void (I8 *, enum ErrType) @ <130.13-15>
+| | | | | | | | | Cast -> i8 * :: I8 * @ <130.13-43>
+| | | | | | | | | | Cast -> i8 * :: I8 * @ <130.13-43>
+| | | | | | | | | | | Literal: data pointer went below 0 :: I8[26] @ <130.13-43>
+| | | | | | | | | Ident: BAD_CODE :: enum ErrType @ <130.46-53>
+| | | | | | | Return @ <131.13-19>
+| | | | | Print: "got code: (" @ <133.9-35>
+| | | | | | Ident: code :: I8[1024] @ <133.24-27>
+| | | | | | Literal: )
+ :: I8[3] @ <133.30-34>
+| | | | | SwitchStmt @ <134.9-192.9>
+| | | | | | Ident: c :: I8 @ <134.16-17>
+| | | | | | CompoundStmtMIR @ <134.20-192.9>
+| | | | | | | Case: 62 @ <136.13-137.26>
+| | | | | | | | ExprStmt @ <137.17-26>
+| | | | | | | | | Postfix: :: I32++ @ <137.17-25>
+| | | | | | | | | | Ident: dataptr :: I32 @ <137.17-23>
+| | | | | | | Break @ <138.17-22>
+| | | | | | | Case: 60 @ <141.13-142.26>
+| | | | | | | | ExprStmt @ <142.17-26>
+| | | | | | | | | Postfix: :: I32-- @ <142.17-25>
+| | | | | | | | | | Ident: dataptr :: I32 @ <142.17-23>
+| | | | | | | Break @ <143.17-22>
+| | | | | | | Case: 43 @ <146.13-147.32>
+| | | | | | | | ExprStmt @ <147.17-32>
+| | | | | | | | | Postfix: :: I8++ @ <147.17-31>
+| | | | | | | | | | Subscript :: I8 @ <147.17-29>
+| | | | | | | | | | | Ident: data :: I8[30000] @ <147.17-20>
+| | | | | | | | | | | Ident: dataptr :: I32 @ <147.17-28>
+| | | | | | | Break @ <148.17-22>
+| | | | | | | Case: 45 @ <151.13-152.32>
+| | | | | | | | ExprStmt @ <152.17-32>
+| | | | | | | | | Postfix: :: I8-- @ <152.17-31>
+| | | | | | | | | | Subscript :: I8 @ <152.17-29>
+| | | | | | | | | | | Ident: data :: I8[30000] @ <152.17-20>
+| | | | | | | | | | | Ident: dataptr :: I32 @ <152.17-28>
+| | | | | | | Break @ <153.17-22>
+| | | | | | | Case: 44 @ <155.13-156.34>
+| | | | | | | | ExprStmt @ <156.17-34>
+| | | | | | | | | Assign: = :: I8 @ <156.17-33>
+| | | | | | | | | | Subscript :: I8 @ <156.17-29>
+| | | | | | | | | | | Ident: data :: I8[30000] @ <156.17-20>
+| | | | | | | | | | | Ident: dataptr :: I32 @ <156.17-28>
+| | | | | | | | | | Literal: 0 :: I32 @ <156.33>
+| | | | | | | Break @ <157.17-22>
+| | | | | | | Case: 46 @ <159.13-160.30>
+| | | | | | | | ExprStmt @ <160.17-30>
+| | | | | | | | | Subscript :: I8 @ <160.17-29>
+| | | | | | | | | | Ident: data :: I8[30000] @ <160.17-20>
+| | | | | | | | | | Ident: dataptr :: I32 @ <160.17-28>
+| | | | | | | Break @ <161.17-22>
+| | | | | | | Case: 91 @ <165.13-172.17>
+| | | | | | | | IfStmt @ <166.17-172.17>
+| | | | | | | | | Binary: == :: I32 @ <166.20-38>
+| | | | | | | | | | Cast -> i32 :: I32 @ <166.20-33>
+| | | | | | | | | | | Subscript :: I8 @ <166.20-33>
+| | | | | | | | | | | | Ident: data :: I8[30000] @ <166.20-24>
+| | | | | | | | | | | | Ident: dataptr :: I32 @ <166.20-32>
+| | | | | | | | | | Literal: 0 :: I32 @ <166.38>
+| | | | | | | | | CompoundStmtMIR @ <166.41-169.17>
+| | | | | | | | | | ExprStmt @ <168.21-34>
+| | | | | | | | | | | Call :: Void @ <168.21-33>
+| | | | | | | | | | | | Ident: JumpToAfter :: Void () @ <168.21-31>
+| | | | | | | | | CompoundStmtMIR @ <169.24-172.17>
+| | | | | | | | | | ExprStmt @ <171.21-38>
+| | | | | | | | | | | Call :: Void @ <171.21-37>
+| | | | | | | | | | | | Ident: StackPush :: Void (I32) @ <171.21-29>
+| | | | | | | | | | | | Ident: insptr :: I32 @ <171.21-36>
+| | | | | | | Break @ <173.17-22>
+| | | | | | | Case: 93 @ <177.13-191.13>
+| | | | | | | | CompoundStmtMIR @ <177.23-191.13>
+| | | | | | | | | VarDecl:  @ <178.17-42>
+| | | | | | | | | | | VarSymbol: opening :: I32
+| | | | | | | | | | | Initializer @ <178.31-41>
+| | | | | | | | | | | | Call :: I32 @ <178.31-41>
+| | | | | | | | | | | | | Ident: StackPeek :: I32 () @ <178.31-39>
+| | | | | | | | | IfStmt @ <180.17-183.17>
+| | | | | | | | | | Binary: < :: I32 @ <180.20-31>
+| | | | | | | | | | | Ident: opening :: I32 @ <180.20-27>
+| | | | | | | | | | | Literal: 0 :: I32 @ <180.31>
+| | | | | | | | | | CompoundStmtMIR @ <180.34-183.17>
+| | | | | | | | | | | ExprStmt @ <181.21-64>
+| | | | | | | | | | | | Call :: Void @ <181.21-63>
+| | | | | | | | | | | | | Ident: Die :: Void (I8 *, enum ErrType) @ <181.21-23>
+| | | | | | | | | | | | | Cast -> i8 * :: I8 * @ <181.21-52>
+| | | | | | | | | | | | | | Cast -> i8 * :: I8 * @ <181.21-52>
+| | | | | | | | | | | | | | | Literal: mismatched closing bracket :: I8[27] @ <181.21-52>
+| | | | | | | | | | | | | Ident: BAD_CODE :: enum ErrType @ <181.55-62>
+| | | | | | | | | | | Return @ <182.21-27>
+| | | | | | | | | IfStmt @ <185.17-190.17>
+| | | | | | | | | | Binary: != :: I32 @ <185.20-38>
+| | | | | | | | | | | Cast -> i32 :: I32 @ <185.20-33>
+| | | | | | | | | | | | Subscript :: I8 @ <185.20-33>
+| | | | | | | | | | | | | Ident: data :: I8[30000] @ <185.20-24>
+| | | | | | | | | | | | | Ident: dataptr :: I32 @ <185.20-32>
+| | | | | | | | | | | Literal: 0 :: I32 @ <185.38>
+| | | | | | | | | | CompoundStmtMIR @ <185.41-187.17>
+| | | | | | | | | | | ExprStmt @ <186.21-37>
+| | | | | | | | | | | | Assign: = :: I32 @ <186.21-36>
+| | | | | | | | | | | | | Ident: insptr :: I32 @ <186.21-26>
+| | | | | | | | | | | | | Ident: opening :: I32 @ <186.30-36>
+| | | | | | | | | | CompoundStmtMIR @ <187.24-190.17>
+| | | | | | | | | | | ExprStmt @ <189.21-31>
+| | | | | | | | | | | | Call :: I32 @ <189.21-30>
+| | | | | | | | | | | | | Ident: StackPop :: I32 () @ <189.21-28>
+| | | | | | | Break @ <191.15-20>
+| | | | | ExprStmt @ <195.9-17>
+| | | | | | Postfix: :: I32++ @ <195.9-16>
+| | | | | | | Ident: insptr :: I32 @ <195.9-14>
+| | | | | IfStmt @ <197.9-199.9>
+| | | | | | Binary: == :: I32 @ <197.12-34>
+| | | | | | | Binary: + :: I32 @ <197.12-22>
+| | | | | | | | Ident: insptr :: I32 @ <197.12-18>
+| | | | | | | | Literal: 1 :: I32 @ <197.22>
+| | | | | | | Ident: codesize :: I32 @ <197.27-34>
+| | | | | | CompoundStmtMIR @ <197.37-199.9>
+| | | | | | | Return @ <198.13-19>
+| | | Return @ <1.1>
+| FunctionMIR: Initialize @ <203.1-212.1>
+    type: Void ()
+| | CompoundStmtMIR @ <203.17-212.1>
+| | | VarDecl:  @ <204.5-14>
+| | | | | VarSymbol: i :: I32
+| | | | | Initializer @ <204.13>
+| | | | | | Literal: 0 :: I32 @ <204.13>
+| | | LoopStmt @ <206.5-209.5>
+| | | | Binary: < :: I32 @ <206.11-20>
+| | | | | Ident: i :: I32 @ <206.11-12>
+| | | | | Literal: 30000 :: I32 @ <206.16-20>
+| | | | CompoundStmtMIR @ <206.23-209.5>
+| | | | | ExprStmt @ <207.9-20>
+| | | | | | Assign: = :: I8 @ <207.9-19>
+| | | | | | | Subscript :: I8 @ <207.9-15>
+| | | | | | | | Ident: data :: I8[30000] @ <207.9-12>
+| | | | | | | | Ident: i :: I32 @ <207.9-14>
+| | | | | | | Literal: 0 :: I32 @ <207.19>
+| | | | | ExprStmt @ <208.9-12>
+| | | | | | Postfix: :: I32++ @ <208.9-11>
+| | | | | | | Ident: i :: I32 @ <208.9>
+| | | ExprStmt @ <211.5-20>
+| | | | Assign: = :: I32 @ <211.5-19>
+| | | | | Member: .len :: I32 @ <211.5-15>
+| | | | | | Ident: nesting :: class Stack @ <211.5-11>
+| | | | | Literal: 0 :: I32 @ <211.19>
+| | | Return @ <1.1>
+| FunctionMIR: PrintUsage @ <214.1-216.1>
+    type: Void (i8 *)
+| | CompoundStmtMIR @ <214.28-216.1>
+| | | Print: "usage: " @ <215.5-45>
+| | | | Ident: argname :: I8 * @ <215.16-22>
+| | | | Literal:  [-m MEMSIZE] CODE :: I8[19] @ <215.25-44>
+| | | Return @ <1.1>
+| FunctionMIR: Main @ <218.1-228.1>
+    type: i32 ()
+| | CompoundStmtMIR @ <218.12-228.1>
+| | | ExprStmt @ <220.5-17>
+| | | | Call :: Void @ <220.5-16>
+| | | | | Ident: Initialize :: Void () @ <220.5-14>
+| | | VarDecl:  @ <222.5-186>
+| | | | | VarSymbol: program :: I8[165]
+| | | | | Initializer @ <222.20-185>
+| | | | | | Cast -> i8[165] :: I8[165] @ <222.20-185>
+| | | | | | | Literal: >++++++++[<+++++++++>-]<.>++++[<+++++++>-]<+.+++++++..+++.>>++++++[<+++++++>-]<++.------------.>++++++[<+++++++++>-]<+.<.+++.------.--------.>>>++++[<++++++++>-]<+. :: I8[165] @ <222.20-185>
+| | | ExprStmt @ <224.5-22>
+| | | | Call :: Void @ <224.5-21>
+| | | | | Ident: ReadCode :: Void (I8 *) @ <224.5-12>
+| | | | | Cast -> i8 * :: I8 * @ <224.5-20>
+| | | | | | Cast -> i8 * :: I8 * @ <224.5-20>
+| | | | | | | Ident: program :: I8[165] @ <224.5-20>
+| | | ExprStmt @ <225.5-14>
+| | | | Call :: Void @ <225.5-13>
+| | | | | Ident: Execute :: Void () @ <225.5-11>
+| | | Return @ <227.5-13>
+| | | | Literal: 0 :: I32 @ <227.12>
+| ExprStmt @ <230.1-7>
+| | Call :: I32 @ <230.1-6>
+| | | Ident: Main :: I32 () @ <230.1-4>
 
 ---------- Generating LIR ----------
 
 Node {
+    LIRSynthesizer: visiting ProgramMIR node
     Node {
+        LIRSynthesizer: visiting FunctionMIR node
     }
     Node {
+        LIRSynthesizer: visiting TypeDeclMIR node
     }
     Node {
+        LIRSynthesizer: visiting VarDeclMIR node
         LIRSynthesizer: unfold_initializer_rec
 ClassType: Looking for member with index 0
 RecordType: Looking for member with index 0
         LIRSynthesizer: unfold_initializer_rec
         LIRSynthesizer: matched on single expression
         Node {
+            LIRSynthesizer: visiting LiteralExprMIR node
         }
 ClassType: Looking for member with index 1
 RecordType: Looking for member with index 1
         LIRSynthesizer: unfold_initializer_rec
         LIRSynthesizer: matched on single expression
         Node {
+            LIRSynthesizer: visiting LiteralExprMIR node
         }
 ClassType: Looking for member with index 2
 RecordType: Looking for member with index 2
@@ -4168,24 +4882,34 @@ TypeContext: array type with base 175247769300, size 32
 TypeContext: array type with base 175247769300, size 32
     }
     Node {
+        LIRSynthesizer: visiting FunctionMIR node
         Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
             Node {
+                LIRSynthesizer: visiting IfStmtMIR node
                 Node {
+                    LIRSynthesizer: visiting BinaryExprMIR node
                     Node {
-                        19.8-12
+                        LIRSynthesizer: visiting IdentExprMIR node
                     }
                     Node {
+                        LIRSynthesizer: visiting LiteralExprMIR node
                     }
                 }
                 Node {
+                    LIRSynthesizer: visiting ReturnStmtMIR node
                 }
             }
             Node {
+                LIRSynthesizer: visiting IfStmtMIR node
                 Node {
+                    LIRSynthesizer: visiting BinaryExprMIR node
                     Node {
+                        LIRSynthesizer: visiting BinaryExprMIR node
                         Node {
+                            LIRSynthesizer: visiting MemberAccExprMIR node
                             Node {
-                                21.8-15
+                                LIRSynthesizer: visiting IdentExprMIR node
                             }
 ClassType: Looking for member with name len
 RecordType: Looking for member with name len
@@ -4193,11 +4917,13 @@ ClassType: Looking for member with index 1
 RecordType: Looking for member with index 1
                         }
                         Node {
+                            LIRSynthesizer: visiting LiteralExprMIR node
                         }
                     }
                     Node {
+                        LIRSynthesizer: visiting MemberAccExprMIR node
                         Node {
-                            21.27-33
+                            LIRSynthesizer: visiting IdentExprMIR node
                         }
 ClassType: Looking for member with name cap
 RecordType: Looking for member with name cap
@@ -4206,16 +4932,22 @@ RecordType: Looking for member with index 0
                     }
                 }
                 Node {
+                    LIRSynthesizer: visiting CompoundStmtMIR node
                     Node {
+                        LIRSynthesizer: visiting ReturnStmtMIR node
                     }
                 }
             }
             Node {
+                LIRSynthesizer: visiting ExprStmtMIR node
                 Node {
+                    LIRSynthesizer: visiting AssignExprMIR node
                     Node {
+                        LIRSynthesizer: visiting SubscrExprMIR node
                         Node {
+                            LIRSynthesizer: visiting MemberAccExprMIR node
                             Node {
-                                26.5-11
+                                LIRSynthesizer: visiting IdentExprMIR node
                             }
 ClassType: Looking for member with name data
 RecordType: Looking for member with name data
@@ -4224,8 +4956,9 @@ RecordType: Looking for member with index 2
 TypeContext: array type with base 175247769300, size 32
                         }
                         Node {
+                            LIRSynthesizer: visiting MemberAccExprMIR node
                             Node {
-                                26.5-24
+                                LIRSynthesizer: visiting IdentExprMIR node
                             }
 ClassType: Looking for member with name len
 RecordType: Looking for member with name len
@@ -4234,15 +4967,18 @@ RecordType: Looking for member with index 1
                         }
                     }
                     Node {
-                        26.33-36
+                        LIRSynthesizer: visiting IdentExprMIR node
                     }
                 }
             }
             Node {
+                LIRSynthesizer: visiting ExprStmtMIR node
                 Node {
+                    LIRSynthesizer: visiting PostfixExprMIR node
                     Node {
+                        LIRSynthesizer: visiting MemberAccExprMIR node
                         Node {
-                            27.5-11
+                            LIRSynthesizer: visiting IdentExprMIR node
                         }
 ClassType: Looking for member with name len
 RecordType: Looking for member with name len
@@ -4250,16 +4986,24 @@ ClassType: Looking for member with index 1
 RecordType: Looking for member with index 1
                     }
                 }
+            }
+            Node {
+                LIRSynthesizer: visiting ReturnStmtMIR node
             }
         }
     }
     Node {
+        LIRSynthesizer: visiting FunctionMIR node
         Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
             Node {
+                LIRSynthesizer: visiting IfStmtMIR node
                 Node {
+                    LIRSynthesizer: visiting BinaryExprMIR node
                     Node {
+                        LIRSynthesizer: visiting MemberAccExprMIR node
                         Node {
-                            31.8-15
+                            LIRSynthesizer: visiting IdentExprMIR node
                         }
 ClassType: Looking for member with name len
 RecordType: Looking for member with name len
@@ -4267,20 +5011,27 @@ ClassType: Looking for member with index 1
 RecordType: Looking for member with index 1
                     }
                     Node {
+                        LIRSynthesizer: visiting LiteralExprMIR node
                     }
                 }
                 Node {
+                    LIRSynthesizer: visiting ReturnStmtMIR node
                     Node {
+                        LIRSynthesizer: visiting UnaryExprMIR node
                         Node {
+                            LIRSynthesizer: visiting LiteralExprMIR node
                         }
                     }
                 }
             }
             Node {
+                LIRSynthesizer: visiting ReturnStmtMIR node
                 Node {
+                    LIRSynthesizer: visiting SubscrExprMIR node
                     Node {
+                        LIRSynthesizer: visiting MemberAccExprMIR node
                         Node {
-                            34.12-18
+                            LIRSynthesizer: visiting IdentExprMIR node
                         }
 ClassType: Looking for member with name data
 RecordType: Looking for member with name data
@@ -4289,9 +5040,11 @@ RecordType: Looking for member with index 2
 TypeContext: array type with base 175247769300, size 32
                     }
                     Node {
+                        LIRSynthesizer: visiting BinaryExprMIR node
                         Node {
+                            LIRSynthesizer: visiting MemberAccExprMIR node
                             Node {
-                                34.12-31
+                                LIRSynthesizer: visiting IdentExprMIR node
                             }
 ClassType: Looking for member with name len
 RecordType: Looking for member with name len
@@ -4299,6 +5052,7 @@ ClassType: Looking for member with index 1
 RecordType: Looking for member with index 1
                         }
                         Node {
+                            LIRSynthesizer: visiting LiteralExprMIR node
                         }
                     }
                 }
@@ -4306,12 +5060,17 @@ RecordType: Looking for member with index 1
         }
     }
     Node {
+        LIRSynthesizer: visiting FunctionMIR node
         Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
             Node {
+                LIRSynthesizer: visiting IfStmtMIR node
                 Node {
+                    LIRSynthesizer: visiting BinaryExprMIR node
                     Node {
+                        LIRSynthesizer: visiting MemberAccExprMIR node
                         Node {
-                            38.8-15
+                            LIRSynthesizer: visiting IdentExprMIR node
                         }
 ClassType: Looking for member with name len
 RecordType: Looking for member with name len
@@ -4319,22 +5078,29 @@ ClassType: Looking for member with index 1
 RecordType: Looking for member with index 1
                     }
                     Node {
+                        LIRSynthesizer: visiting LiteralExprMIR node
                     }
                 }
                 Node {
+                    LIRSynthesizer: visiting ReturnStmtMIR node
                     Node {
+                        LIRSynthesizer: visiting UnaryExprMIR node
                         Node {
+                            LIRSynthesizer: visiting LiteralExprMIR node
                         }
                     }
                 }
             }
             Node {
+                LIRSynthesizer: visiting VarDeclMIR node
                 LIRSynthesizer: unfold_initializer_rec
                 LIRSynthesizer: matched on single expression
                 Node {
+                    LIRSynthesizer: visiting SubscrExprMIR node
                     Node {
+                        LIRSynthesizer: visiting MemberAccExprMIR node
                         Node {
-                            40.15-21
+                            LIRSynthesizer: visiting IdentExprMIR node
                         }
 ClassType: Looking for member with name data
 RecordType: Looking for member with name data
@@ -4343,9 +5109,11 @@ RecordType: Looking for member with index 2
 TypeContext: array type with base 175247769300, size 32
                     }
                     Node {
+                        LIRSynthesizer: visiting BinaryExprMIR node
                         Node {
+                            LIRSynthesizer: visiting MemberAccExprMIR node
                             Node {
-                                40.15-34
+                                LIRSynthesizer: visiting IdentExprMIR node
                             }
 ClassType: Looking for member with name len
 RecordType: Looking for member with name len
@@ -4353,15 +5121,19 @@ ClassType: Looking for member with index 1
 RecordType: Looking for member with index 1
                         }
                         Node {
+                            LIRSynthesizer: visiting LiteralExprMIR node
                         }
                     }
                 }
             }
             Node {
+                LIRSynthesizer: visiting ExprStmtMIR node
                 Node {
+                    LIRSynthesizer: visiting PostfixExprMIR node
                     Node {
+                        LIRSynthesizer: visiting MemberAccExprMIR node
                         Node {
-                            41.5-11
+                            LIRSynthesizer: visiting IdentExprMIR node
                         }
 ClassType: Looking for member with name len
 RecordType: Looking for member with name len
@@ -4371,251 +5143,322 @@ RecordType: Looking for member with index 1
                 }
             }
             Node {
+                LIRSynthesizer: visiting ReturnStmtMIR node
                 Node {
-                    43.12-14
+                    LIRSynthesizer: visiting IdentExprMIR node
                 }
             }
         }
     }
     Node {
+        LIRSynthesizer: visiting VarDeclMIR node
     }
     Node {
+        LIRSynthesizer: visiting VarDeclMIR node
         LIRSynthesizer: unfold_initializer_rec
         LIRSynthesizer: matched on single expression
         Node {
+            LIRSynthesizer: visiting LiteralExprMIR node
         }
     }
     Node {
+        LIRSynthesizer: visiting VarDeclMIR node
         LIRSynthesizer: unfold_initializer_rec
         LIRSynthesizer: matched on single expression
         Node {
+            LIRSynthesizer: visiting LiteralExprMIR node
         }
     }
     Node {
+        LIRSynthesizer: visiting VarDeclMIR node
     }
     Node {
+        LIRSynthesizer: visiting VarDeclMIR node
         LIRSynthesizer: unfold_initializer_rec
         LIRSynthesizer: matched on single expression
         Node {
+            LIRSynthesizer: visiting LiteralExprMIR node
         }
     }
     Node {
+        LIRSynthesizer: visiting FunctionMIR node
         Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
             Node {
+                LIRSynthesizer: visiting IfStmtMIR node
                 Node {
+                    LIRSynthesizer: visiting BinaryExprMIR node
                     Node {
-                        57.8-15
+                        LIRSynthesizer: visiting IdentExprMIR node
                     }
                     Node {
-                        57.20-25
+                        LIRSynthesizer: visiting IdentExprMIR node
                     }
                 }
                 Node {
+                    LIRSynthesizer: visiting CompoundStmtMIR node
                     Node {
+                        LIRSynthesizer: visiting PrintStmtMIR node
                         Node {
-                            58.24-29
+                            LIRSynthesizer: visiting IdentExprMIR node
 TypeContext: pointer with base 175247769427
                         }
                     }
                 }
                 Node {
+                    LIRSynthesizer: visiting CompoundStmtMIR node
                     Node {
+                        LIRSynthesizer: visiting PrintStmtMIR node
                         Node {
-                            60.39-44
+                            LIRSynthesizer: visiting IdentExprMIR node
                         }
                         Node {
+                            LIRSynthesizer: visiting SubscrExprMIR node
                             Node {
-                                60.47-50
+                                LIRSynthesizer: visiting IdentExprMIR node
 TypeContext: array type with base 175247769427, size 1024
                             }
                             Node {
-                                60.47-57
+                                LIRSynthesizer: visiting IdentExprMIR node
                             }
                         }
                         Node {
-                            60.61-66
+                            LIRSynthesizer: visiting IdentExprMIR node
 TypeContext: pointer with base 175247769427
                         }
                     }
                 }
             }
             Node {
+                LIRSynthesizer: visiting ReturnStmtMIR node
             }
         }
     }
     Node {
+        LIRSynthesizer: visiting VarDeclMIR node
 TypeContext: array type with base 175247769427, size 8
         LIRSynthesizer: unfold_initializer_rec
 TypeContext: array type with base 175247769427, size 8
         LIRSynthesizer: unfold_initializer_rec
         LIRSynthesizer: matched on single expression
         Node {
+            LIRSynthesizer: visiting LiteralExprMIR node
         }
 TypeContext: array type with base 175247769427, size 8
         LIRSynthesizer: unfold_initializer_rec
         LIRSynthesizer: matched on single expression
         Node {
+            LIRSynthesizer: visiting LiteralExprMIR node
         }
 TypeContext: array type with base 175247769427, size 8
         LIRSynthesizer: unfold_initializer_rec
         LIRSynthesizer: matched on single expression
         Node {
+            LIRSynthesizer: visiting LiteralExprMIR node
         }
 TypeContext: array type with base 175247769427, size 8
         LIRSynthesizer: unfold_initializer_rec
         LIRSynthesizer: matched on single expression
         Node {
+            LIRSynthesizer: visiting LiteralExprMIR node
         }
 TypeContext: array type with base 175247769427, size 8
         LIRSynthesizer: unfold_initializer_rec
         LIRSynthesizer: matched on single expression
         Node {
+            LIRSynthesizer: visiting LiteralExprMIR node
         }
 TypeContext: array type with base 175247769427, size 8
         LIRSynthesizer: unfold_initializer_rec
         LIRSynthesizer: matched on single expression
         Node {
+            LIRSynthesizer: visiting LiteralExprMIR node
         }
 TypeContext: array type with base 175247769427, size 8
         LIRSynthesizer: unfold_initializer_rec
         LIRSynthesizer: matched on single expression
         Node {
+            LIRSynthesizer: visiting LiteralExprMIR node
         }
 TypeContext: array type with base 175247769427, size 8
         LIRSynthesizer: unfold_initializer_rec
         LIRSynthesizer: matched on single expression
         Node {
+            LIRSynthesizer: visiting LiteralExprMIR node
         }
     }
     Node {
+        LIRSynthesizer: visiting FunctionMIR node
         Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
             Node {
+                LIRSynthesizer: visiting VarDeclMIR node
                 LIRSynthesizer: unfold_initializer_rec
                 LIRSynthesizer: matched on single expression
                 Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
                 }
             }
             Node {
+                LIRSynthesizer: visiting LoopStmtMIR node
                 Node {
+                    LIRSynthesizer: visiting BinaryExprMIR node
                     Node {
-                        68.11-12
+                        LIRSynthesizer: visiting IdentExprMIR node
                     }
                     Node {
+                        LIRSynthesizer: visiting LiteralExprMIR node
                     }
                 }
                 Node {
+                    LIRSynthesizer: visiting CompoundStmtMIR node
                     Node {
+                        LIRSynthesizer: visiting IfStmtMIR node
                         Node {
+                            LIRSynthesizer: visiting BinaryExprMIR node
                             Node {
+                                LIRSynthesizer: visiting CastExprMIR node
                                 Node {
-                                    69.12-13
+                                    LIRSynthesizer: visiting IdentExprMIR node
                                 }
                             }
                             Node {
+                                LIRSynthesizer: visiting CastExprMIR node
                                 Node {
+                                    LIRSynthesizer: visiting SubscrExprMIR node
                                     Node {
-                                        69.18-28
+                                        LIRSynthesizer: visiting IdentExprMIR node
 TypeContext: array type with base 175247769427, size 8
                                     }
                                     Node {
-                                        69.18-30
+                                        LIRSynthesizer: visiting IdentExprMIR node
                                     }
                                 }
                             }
                         }
                         Node {
+                            LIRSynthesizer: visiting ReturnStmtMIR node
                             Node {
+                                LIRSynthesizer: visiting CastExprMIR node
                                 Node {
+                                    LIRSynthesizer: visiting LiteralExprMIR node
                                 }
                             }
                         }
                     }
                     Node {
+                        LIRSynthesizer: visiting ExprStmtMIR node
                         Node {
+                            LIRSynthesizer: visiting PostfixExprMIR node
                             Node {
-                                70.9
+                                LIRSynthesizer: visiting IdentExprMIR node
                             }
                         }
                     }
                 }
             }
             Node {
+                LIRSynthesizer: visiting ReturnStmtMIR node
                 Node {
+                    LIRSynthesizer: visiting CastExprMIR node
                     Node {
+                        LIRSynthesizer: visiting LiteralExprMIR node
                     }
                 }
             }
         }
     }
     Node {
+        LIRSynthesizer: visiting FunctionMIR node
         Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
             Node {
+                LIRSynthesizer: visiting VarDeclMIR node
                 LIRSynthesizer: unfold_initializer_rec
                 LIRSynthesizer: matched on single expression
                 Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
                 }
             }
             Node {
+                LIRSynthesizer: visiting VarDeclMIR node
                 LIRSynthesizer: unfold_initializer_rec
                 LIRSynthesizer: matched on single expression
                 Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
                 }
             }
             Node {
+                LIRSynthesizer: visiting LoopStmtMIR node
                 Node {
+                    LIRSynthesizer: visiting BinaryExprMIR node
                     Node {
+                        LIRSynthesizer: visiting CastExprMIR node
                         Node {
+                            LIRSynthesizer: visiting SubscrExprMIR node
                             Node {
-                                81.11-14
+                                LIRSynthesizer: visiting IdentExprMIR node
 TypeContext: pointer with base 175247769427
                             }
                             Node {
-                                81.11-16
+                                LIRSynthesizer: visiting IdentExprMIR node
                             }
                         }
                     }
                     Node {
+                        LIRSynthesizer: visiting CastExprMIR node
                         Node {
+                            LIRSynthesizer: visiting LiteralExprMIR node
                         }
                     }
                 }
                 Node {
+                    LIRSynthesizer: visiting CompoundStmtMIR node
                     Node {
+                        LIRSynthesizer: visiting IfStmtMIR node
                         Node {
+                            LIRSynthesizer: visiting CallExprMIR node
                             Node {
-                                82.12-19
+                                LIRSynthesizer: visiting IdentExprMIR node
                             }
                             Node {
+                                LIRSynthesizer: visiting SubscrExprMIR node
                                 Node {
-                                    82.12-23
+                                    LIRSynthesizer: visiting IdentExprMIR node
 TypeContext: pointer with base 175247769427
                                 }
                                 Node {
-                                    82.12-25
+                                    LIRSynthesizer: visiting IdentExprMIR node
                                 }
                             }
                         }
                         Node {
+                            LIRSynthesizer: visiting CompoundStmtMIR node
                             Node {
+                                LIRSynthesizer: visiting ExprStmtMIR node
                                 Node {
+                                    LIRSynthesizer: visiting AssignExprMIR node
                                     Node {
+                                        LIRSynthesizer: visiting SubscrExprMIR node
                                         Node {
-                                            83.13-16
+                                            LIRSynthesizer: visiting IdentExprMIR node
 TypeContext: array type with base 175247769427, size 1024
                                         }
                                         Node {
+                                            LIRSynthesizer: visiting PostfixExprMIR node
                                             Node {
-                                                83.13-18
+                                                LIRSynthesizer: visiting IdentExprMIR node
                                             }
                                         }
                                     }
                                     Node {
+                                        LIRSynthesizer: visiting SubscrExprMIR node
                                         Node {
-                                            83.25-27
+                                            LIRSynthesizer: visiting IdentExprMIR node
 TypeContext: pointer with base 175247769427
                                         }
                                         Node {
-                                            83.25-29
+                                            LIRSynthesizer: visiting IdentExprMIR node
                                         }
                                     }
                                 }
@@ -4623,27 +5466,37 @@ TypeContext: pointer with base 175247769427
                         }
                     }
                     Node {
+                        LIRSynthesizer: visiting IfStmtMIR node
                         Node {
+                            LIRSynthesizer: visiting BinaryExprMIR node
                             Node {
+                                LIRSynthesizer: visiting BinaryExprMIR node
                                 Node {
-                                    86.12-13
+                                    LIRSynthesizer: visiting IdentExprMIR node
                                 }
                                 Node {
+                                    LIRSynthesizer: visiting LiteralExprMIR node
                                 }
                             }
                             Node {
-                                86.22-29
+                                LIRSynthesizer: visiting IdentExprMIR node
                             }
                         }
                         Node {
+                            LIRSynthesizer: visiting CompoundStmtMIR node
                             Node {
+                                LIRSynthesizer: visiting ExprStmtMIR node
                                 Node {
+                                    LIRSynthesizer: visiting CallExprMIR node
                                     Node {
-                                        87.13-15
+                                        LIRSynthesizer: visiting IdentExprMIR node
                                     }
                                     Node {
+                                        LIRSynthesizer: visiting CastExprMIR node
                                         Node {
+                                            LIRSynthesizer: visiting CastExprMIR node
                                             Node {
+                                                LIRSynthesizer: visiting LiteralExprMIR node
 TypeContext: array type with base 175247769427, size 15
                                             }
 TypeContext: pointer with base 175247769427
@@ -4651,57 +5504,73 @@ TypeContext: pointer with base 175247769427
 TypeContext: pointer with base 175247769427
                                     }
                                     Node {
-                                        87.35-40
+                                        LIRSynthesizer: visiting IdentExprMIR node
                                     }
                                 }
                             }
                             Node {
+                                LIRSynthesizer: visiting ReturnStmtMIR node
                             }
                         }
                     }
                     Node {
+                        LIRSynthesizer: visiting ExprStmtMIR node
                         Node {
+                            LIRSynthesizer: visiting PostfixExprMIR node
                             Node {
-                                90.9
+                                LIRSynthesizer: visiting IdentExprMIR node
                             }
                         }
                     }
                 }
             }
             Node {
+                LIRSynthesizer: visiting ExprStmtMIR node
                 Node {
+                    LIRSynthesizer: visiting AssignExprMIR node
                     Node {
+                        LIRSynthesizer: visiting SubscrExprMIR node
                         Node {
-                            93.5-8
+                            LIRSynthesizer: visiting IdentExprMIR node
 TypeContext: array type with base 175247769427, size 1024
                         }
                         Node {
-                            93.5-10
+                            LIRSynthesizer: visiting IdentExprMIR node
                         }
                     }
                     Node {
+                        LIRSynthesizer: visiting LiteralExprMIR node
                     }
                 }
             }
             Node {
+                LIRSynthesizer: visiting PrintStmtMIR node
                 Node {
-                    94.20-23
+                    LIRSynthesizer: visiting IdentExprMIR node
 TypeContext: array type with base 175247769427, size 1024
                 }
                 Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
 TypeContext: array type with base 175247769427, size 3
                 }
+            }
+            Node {
+                LIRSynthesizer: visiting ReturnStmtMIR node
             }
         }
     }
     Node {
+        LIRSynthesizer: visiting FunctionMIR node
         Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
             Node {
+                LIRSynthesizer: visiting VarDeclMIR node
                 LIRSynthesizer: unfold_initializer_rec
                 LIRSynthesizer: matched on single expression
                 Node {
+                    LIRSynthesizer: visiting MemberAccExprMIR node
                     Node {
-                        99.19-25
+                        LIRSynthesizer: visiting IdentExprMIR node
                     }
 ClassType: Looking for member with name len
 RecordType: Looking for member with name len
@@ -4710,85 +5579,113 @@ RecordType: Looking for member with index 1
                 }
             }
             Node {
+                LIRSynthesizer: visiting LoopStmtMIR node
                 Node {
+                    LIRSynthesizer: visiting BinaryExprMIR node
                     Node {
+                        LIRSynthesizer: visiting CastExprMIR node
                         Node {
+                            LIRSynthesizer: visiting SubscrExprMIR node
                             Node {
-                                100.11-15
+                                LIRSynthesizer: visiting IdentExprMIR node
 TypeContext: array type with base 175247769427, size 1024
                             }
                             Node {
-                                100.11-22
+                                LIRSynthesizer: visiting IdentExprMIR node
                             }
                         }
                     }
                     Node {
+                        LIRSynthesizer: visiting CastExprMIR node
                         Node {
+                            LIRSynthesizer: visiting LiteralExprMIR node
                         }
                     }
                 }
                 Node {
+                    LIRSynthesizer: visiting CompoundStmtMIR node
                     Node {
+                        LIRSynthesizer: visiting IfStmtMIR node
                         Node {
+                            LIRSynthesizer: visiting BinaryExprMIR node
                             Node {
+                                LIRSynthesizer: visiting CastExprMIR node
                                 Node {
+                                    LIRSynthesizer: visiting SubscrExprMIR node
                                     Node {
-                                        101.12-16
+                                        LIRSynthesizer: visiting IdentExprMIR node
 TypeContext: array type with base 175247769427, size 1024
                                     }
                                     Node {
-                                        101.12-23
+                                        LIRSynthesizer: visiting IdentExprMIR node
                                     }
                                 }
                             }
                             Node {
+                                LIRSynthesizer: visiting CastExprMIR node
                                 Node {
+                                    LIRSynthesizer: visiting LiteralExprMIR node
                                 }
                             }
                         }
                         Node {
+                            LIRSynthesizer: visiting CompoundStmtMIR node
                             Node {
+                                LIRSynthesizer: visiting ExprStmtMIR node
                                 Node {
+                                    LIRSynthesizer: visiting PostfixExprMIR node
                                     Node {
-                                        102.13-19
+                                        LIRSynthesizer: visiting IdentExprMIR node
                                     }
                                 }
                             }
                         }
                         Node {
+                            LIRSynthesizer: visiting IfStmtMIR node
                             Node {
+                                LIRSynthesizer: visiting BinaryExprMIR node
                                 Node {
+                                    LIRSynthesizer: visiting CastExprMIR node
                                     Node {
+                                        LIRSynthesizer: visiting SubscrExprMIR node
                                         Node {
-                                            103.19-23
+                                            LIRSynthesizer: visiting IdentExprMIR node
 TypeContext: array type with base 175247769427, size 1024
                                         }
                                         Node {
-                                            103.19-30
+                                            LIRSynthesizer: visiting IdentExprMIR node
                                         }
                                     }
                                 }
                                 Node {
+                                    LIRSynthesizer: visiting CastExprMIR node
                                     Node {
+                                        LIRSynthesizer: visiting LiteralExprMIR node
                                     }
                                 }
                             }
                             Node {
+                                LIRSynthesizer: visiting CompoundStmtMIR node
                                 Node {
+                                    LIRSynthesizer: visiting ExprStmtMIR node
                                     Node {
+                                        LIRSynthesizer: visiting PostfixExprMIR node
                                         Node {
-                                            104.13-19
+                                            LIRSynthesizer: visiting IdentExprMIR node
                                         }
                                     }
                                 }
                                 Node {
+                                    LIRSynthesizer: visiting IfStmtMIR node
                                     Node {
+                                        LIRSynthesizer: visiting BinaryExprMIR node
                                         Node {
-                                            105.16-23
+                                            LIRSynthesizer: visiting IdentExprMIR node
                                         }
                                         Node {
+                                            LIRSynthesizer: visiting MemberAccExprMIR node
                                             Node {
-                                                105.28-34
+                                                LIRSynthesizer: visiting IdentExprMIR node
                                             }
 ClassType: Looking for member with name len
 RecordType: Looking for member with name len
@@ -4797,14 +5694,18 @@ RecordType: Looking for member with index 1
                                         }
                                     }
                                     Node {
+                                        LIRSynthesizer: visiting CompoundStmtMIR node
                                         Node {
+                                            LIRSynthesizer: visiting ExprStmtMIR node
                                             Node {
+                                                LIRSynthesizer: visiting PostfixExprMIR node
                                                 Node {
-                                                    106.17-22
+                                                    LIRSynthesizer: visiting IdentExprMIR node
                                                 }
                                             }
                                         }
                                         Node {
+                                            LIRSynthesizer: visiting ReturnStmtMIR node
                                         }
                                     }
                                 }
@@ -4812,13 +5713,16 @@ RecordType: Looking for member with index 1
                         }
                     }
                     Node {
+                        LIRSynthesizer: visiting IfStmtMIR node
                         Node {
+                            LIRSynthesizer: visiting BinaryExprMIR node
                             Node {
-                                111.12-19
+                                LIRSynthesizer: visiting IdentExprMIR node
                             }
                             Node {
+                                LIRSynthesizer: visiting MemberAccExprMIR node
                                 Node {
-                                    111.23-29
+                                    LIRSynthesizer: visiting IdentExprMIR node
                                 }
 ClassType: Looking for member with name len
 RecordType: Looking for member with name len
@@ -4827,14 +5731,20 @@ RecordType: Looking for member with index 1
                             }
                         }
                         Node {
+                            LIRSynthesizer: visiting CompoundStmtMIR node
                             Node {
+                                LIRSynthesizer: visiting ExprStmtMIR node
                                 Node {
+                                    LIRSynthesizer: visiting CallExprMIR node
                                     Node {
-                                        112.13-15
+                                        LIRSynthesizer: visiting IdentExprMIR node
                                     }
                                     Node {
+                                        LIRSynthesizer: visiting CastExprMIR node
                                         Node {
+                                            LIRSynthesizer: visiting CastExprMIR node
                                             Node {
+                                                LIRSynthesizer: visiting LiteralExprMIR node
 TypeContext: array type with base 175247769427, size 41
                                             }
 TypeContext: pointer with base 175247769427
@@ -4842,70 +5752,96 @@ TypeContext: pointer with base 175247769427
 TypeContext: pointer with base 175247769427
                                     }
                                     Node {
-                                        112.61-68
+                                        LIRSynthesizer: visiting IdentExprMIR node
                                     }
                                 }
                             }
                             Node {
+                                LIRSynthesizer: visiting ReturnStmtMIR node
                             }
                         }
                     }
                     Node {
+                        LIRSynthesizer: visiting ExprStmtMIR node
                         Node {
+                            LIRSynthesizer: visiting PostfixExprMIR node
                             Node {
-                                116.9-14
+                                LIRSynthesizer: visiting IdentExprMIR node
                             }
                         }
                     }
                 }
+            }
+            Node {
+                LIRSynthesizer: visiting ReturnStmtMIR node
             }
         }
     }
     Node {
+        LIRSynthesizer: visiting FunctionMIR node
         Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
             Node {
+                LIRSynthesizer: visiting VarDeclMIR node
             }
             Node {
+                LIRSynthesizer: visiting LoopStmtMIR node
                 Node {
+                    LIRSynthesizer: visiting BinaryExprMIR node
                     Node {
+                        LIRSynthesizer: visiting CastExprMIR node
                         Node {
+                            LIRSynthesizer: visiting AssignExprMIR node
                             Node {
-                                123.11-13
+                                LIRSynthesizer: visiting IdentExprMIR node
                             }
                             Node {
+                                LIRSynthesizer: visiting SubscrExprMIR node
                                 Node {
-                                    123.17-20
+                                    LIRSynthesizer: visiting IdentExprMIR node
 TypeContext: array type with base 175247769427, size 1024
                                 }
                                 Node {
-                                    123.17-27
+                                    LIRSynthesizer: visiting IdentExprMIR node
                                 }
                             }
                         }
                     }
                     Node {
+                        LIRSynthesizer: visiting CastExprMIR node
                         Node {
+                            LIRSynthesizer: visiting LiteralExprMIR node
                         }
                     }
                 }
                 Node {
+                    LIRSynthesizer: visiting CompoundStmtMIR node
                     Node {
+                        LIRSynthesizer: visiting IfStmtMIR node
                         Node {
+                            LIRSynthesizer: visiting BinaryExprMIR node
                             Node {
-                                124.12-18
+                                LIRSynthesizer: visiting IdentExprMIR node
                             }
                             Node {
+                                LIRSynthesizer: visiting LiteralExprMIR node
                             }
                         }
                         Node {
+                            LIRSynthesizer: visiting CompoundStmtMIR node
                             Node {
+                                LIRSynthesizer: visiting ExprStmtMIR node
                                 Node {
+                                    LIRSynthesizer: visiting CallExprMIR node
                                     Node {
-                                        125.13-15
+                                        LIRSynthesizer: visiting IdentExprMIR node
                                     }
                                     Node {
+                                        LIRSynthesizer: visiting CastExprMIR node
                                         Node {
+                                            LIRSynthesizer: visiting CastExprMIR node
                                             Node {
+                                                LIRSynthesizer: visiting LiteralExprMIR node
 TypeContext: array type with base 175247769427, size 33
                                             }
 TypeContext: pointer with base 175247769427
@@ -4913,31 +5849,41 @@ TypeContext: pointer with base 175247769427
 TypeContext: pointer with base 175247769427
                                     }
                                     Node {
-                                        125.53-60
+                                        LIRSynthesizer: visiting IdentExprMIR node
                                     }
                                 }
                             }
                             Node {
+                                LIRSynthesizer: visiting ReturnStmtMIR node
                             }
                         }
                     }
                     Node {
+                        LIRSynthesizer: visiting IfStmtMIR node
                         Node {
+                            LIRSynthesizer: visiting BinaryExprMIR node
                             Node {
-                                129.12-19
+                                LIRSynthesizer: visiting IdentExprMIR node
                             }
                             Node {
+                                LIRSynthesizer: visiting LiteralExprMIR node
                             }
                         }
                         Node {
+                            LIRSynthesizer: visiting CompoundStmtMIR node
                             Node {
+                                LIRSynthesizer: visiting ExprStmtMIR node
                                 Node {
+                                    LIRSynthesizer: visiting CallExprMIR node
                                     Node {
-                                        130.13-15
+                                        LIRSynthesizer: visiting IdentExprMIR node
                                     }
                                     Node {
+                                        LIRSynthesizer: visiting CastExprMIR node
                                         Node {
+                                            LIRSynthesizer: visiting CastExprMIR node
                                             Node {
+                                                LIRSynthesizer: visiting LiteralExprMIR node
 TypeContext: array type with base 175247769427, size 26
                                             }
 TypeContext: pointer with base 175247769427
@@ -4945,152 +5891,197 @@ TypeContext: pointer with base 175247769427
 TypeContext: pointer with base 175247769427
                                     }
                                     Node {
-                                        130.46-53
+                                        LIRSynthesizer: visiting IdentExprMIR node
                                     }
                                 }
                             }
                             Node {
+                                LIRSynthesizer: visiting ReturnStmtMIR node
                             }
                         }
                     }
                     Node {
+                        LIRSynthesizer: visiting PrintStmtMIR node
                         Node {
-                            133.24-27
+                            LIRSynthesizer: visiting IdentExprMIR node
 TypeContext: array type with base 175247769427, size 1024
                         }
                         Node {
+                            LIRSynthesizer: visiting LiteralExprMIR node
 TypeContext: array type with base 175247769427, size 3
                         }
                     }
                     Node {
+                        LIRSynthesizer: visiting SwitchStmtMIR node
                         Node {
-                            134.16-17
+                            LIRSynthesizer: visiting IdentExprMIR node
                         }
                         Node {
+                            LIRSynthesizer: visiting CompoundStmtMIR node
                             Node {
+                                LIRSynthesizer: visiting CaseStmtMIR node
                                 Node {
+                                    LIRSynthesizer: visiting ExprStmtMIR node
                                     Node {
+                                        LIRSynthesizer: visiting PostfixExprMIR node
                                         Node {
-                                            137.17-23
+                                            LIRSynthesizer: visiting IdentExprMIR node
                                         }
                                     }
                                 }
                             }
                             Node {
+                                LIRSynthesizer: visiting BreakStmtMIR node
                             }
                             Node {
+                                LIRSynthesizer: visiting CaseStmtMIR node
                                 Node {
+                                    LIRSynthesizer: visiting ExprStmtMIR node
                                     Node {
+                                        LIRSynthesizer: visiting PostfixExprMIR node
                                         Node {
-                                            142.17-23
+                                            LIRSynthesizer: visiting IdentExprMIR node
                                         }
                                     }
                                 }
                             }
                             Node {
+                                LIRSynthesizer: visiting BreakStmtMIR node
                             }
                             Node {
+                                LIRSynthesizer: visiting CaseStmtMIR node
                                 Node {
+                                    LIRSynthesizer: visiting ExprStmtMIR node
                                     Node {
+                                        LIRSynthesizer: visiting PostfixExprMIR node
                                         Node {
+                                            LIRSynthesizer: visiting SubscrExprMIR node
                                             Node {
-                                                147.17-20
+                                                LIRSynthesizer: visiting IdentExprMIR node
 TypeContext: array type with base 175247769427, size 30000
                                             }
                                             Node {
-                                                147.17-28
+                                                LIRSynthesizer: visiting IdentExprMIR node
                                             }
                                         }
                                     }
                                 }
                             }
                             Node {
+                                LIRSynthesizer: visiting BreakStmtMIR node
                             }
                             Node {
+                                LIRSynthesizer: visiting CaseStmtMIR node
                                 Node {
+                                    LIRSynthesizer: visiting ExprStmtMIR node
                                     Node {
+                                        LIRSynthesizer: visiting PostfixExprMIR node
                                         Node {
+                                            LIRSynthesizer: visiting SubscrExprMIR node
                                             Node {
-                                                152.17-20
+                                                LIRSynthesizer: visiting IdentExprMIR node
 TypeContext: array type with base 175247769427, size 30000
                                             }
                                             Node {
-                                                152.17-28
+                                                LIRSynthesizer: visiting IdentExprMIR node
                                             }
                                         }
                                     }
                                 }
                             }
                             Node {
+                                LIRSynthesizer: visiting BreakStmtMIR node
                             }
                             Node {
+                                LIRSynthesizer: visiting CaseStmtMIR node
                                 Node {
+                                    LIRSynthesizer: visiting ExprStmtMIR node
                                     Node {
+                                        LIRSynthesizer: visiting AssignExprMIR node
                                         Node {
+                                            LIRSynthesizer: visiting SubscrExprMIR node
                                             Node {
-                                                156.17-20
+                                                LIRSynthesizer: visiting IdentExprMIR node
 TypeContext: array type with base 175247769427, size 30000
                                             }
                                             Node {
-                                                156.17-28
+                                                LIRSynthesizer: visiting IdentExprMIR node
                                             }
                                         }
                                         Node {
+                                            LIRSynthesizer: visiting LiteralExprMIR node
                                         }
                                     }
                                 }
                             }
                             Node {
+                                LIRSynthesizer: visiting BreakStmtMIR node
                             }
                             Node {
+                                LIRSynthesizer: visiting CaseStmtMIR node
                                 Node {
+                                    LIRSynthesizer: visiting ExprStmtMIR node
                                     Node {
+                                        LIRSynthesizer: visiting SubscrExprMIR node
                                         Node {
-                                            160.17-20
+                                            LIRSynthesizer: visiting IdentExprMIR node
 TypeContext: array type with base 175247769427, size 30000
                                         }
                                         Node {
-                                            160.17-28
+                                            LIRSynthesizer: visiting IdentExprMIR node
                                         }
                                     }
                                 }
                             }
                             Node {
+                                LIRSynthesizer: visiting BreakStmtMIR node
                             }
                             Node {
+                                LIRSynthesizer: visiting CaseStmtMIR node
                                 Node {
+                                    LIRSynthesizer: visiting IfStmtMIR node
                                     Node {
+                                        LIRSynthesizer: visiting BinaryExprMIR node
                                         Node {
+                                            LIRSynthesizer: visiting CastExprMIR node
                                             Node {
+                                                LIRSynthesizer: visiting SubscrExprMIR node
                                                 Node {
-                                                    166.20-24
+                                                    LIRSynthesizer: visiting IdentExprMIR node
 TypeContext: array type with base 175247769427, size 30000
                                                 }
                                                 Node {
-                                                    166.20-32
+                                                    LIRSynthesizer: visiting IdentExprMIR node
                                                 }
                                             }
                                         }
                                         Node {
+                                            LIRSynthesizer: visiting LiteralExprMIR node
                                         }
                                     }
                                     Node {
+                                        LIRSynthesizer: visiting CompoundStmtMIR node
                                         Node {
+                                            LIRSynthesizer: visiting ExprStmtMIR node
                                             Node {
+                                                LIRSynthesizer: visiting CallExprMIR node
                                                 Node {
-                                                    168.21-31
+                                                    LIRSynthesizer: visiting IdentExprMIR node
                                                 }
                                             }
                                         }
                                     }
                                     Node {
+                                        LIRSynthesizer: visiting CompoundStmtMIR node
                                         Node {
+                                            LIRSynthesizer: visiting ExprStmtMIR node
                                             Node {
+                                                LIRSynthesizer: visiting CallExprMIR node
                                                 Node {
-                                                    171.21-29
+                                                    LIRSynthesizer: visiting IdentExprMIR node
                                                 }
                                                 Node {
-                                                    171.21-36
+                                                    LIRSynthesizer: visiting IdentExprMIR node
                                                 }
                                             }
                                         }
@@ -5098,35 +6089,49 @@ TypeContext: array type with base 175247769427, size 30000
                                 }
                             }
                             Node {
+                                LIRSynthesizer: visiting BreakStmtMIR node
                             }
                             Node {
+                                LIRSynthesizer: visiting CaseStmtMIR node
                                 Node {
+                                    LIRSynthesizer: visiting CompoundStmtMIR node
                                     Node {
+                                        LIRSynthesizer: visiting VarDeclMIR node
                                         LIRSynthesizer: unfold_initializer_rec
                                         LIRSynthesizer: matched on single expression
                                         Node {
+                                            LIRSynthesizer: visiting CallExprMIR node
                                             Node {
-                                                178.31-39
+                                                LIRSynthesizer: visiting IdentExprMIR node
                                             }
                                         }
                                     }
                                     Node {
+                                        LIRSynthesizer: visiting IfStmtMIR node
                                         Node {
+                                            LIRSynthesizer: visiting BinaryExprMIR node
                                             Node {
-                                                180.20-27
+                                                LIRSynthesizer: visiting IdentExprMIR node
                                             }
                                             Node {
+                                                LIRSynthesizer: visiting LiteralExprMIR node
                                             }
                                         }
                                         Node {
+                                            LIRSynthesizer: visiting CompoundStmtMIR node
                                             Node {
+                                                LIRSynthesizer: visiting ExprStmtMIR node
                                                 Node {
+                                                    LIRSynthesizer: visiting CallExprMIR node
                                                     Node {
-                                                        181.21-23
+                                                        LIRSynthesizer: visiting IdentExprMIR node
                                                     }
                                                     Node {
+                                                        LIRSynthesizer: visiting CastExprMIR node
                                                         Node {
+                                                            LIRSynthesizer: visiting CastExprMIR node
                                                             Node {
+                                                                LIRSynthesizer: visiting LiteralExprMIR node
 TypeContext: array type with base 175247769427, size 27
                                                             }
 TypeContext: pointer with base 175247769427
@@ -5134,47 +6139,59 @@ TypeContext: pointer with base 175247769427
 TypeContext: pointer with base 175247769427
                                                     }
                                                     Node {
-                                                        181.55-62
+                                                        LIRSynthesizer: visiting IdentExprMIR node
                                                     }
                                                 }
                                             }
                                             Node {
+                                                LIRSynthesizer: visiting ReturnStmtMIR node
                                             }
                                         }
                                     }
                                     Node {
+                                        LIRSynthesizer: visiting IfStmtMIR node
                                         Node {
+                                            LIRSynthesizer: visiting BinaryExprMIR node
                                             Node {
+                                                LIRSynthesizer: visiting CastExprMIR node
                                                 Node {
+                                                    LIRSynthesizer: visiting SubscrExprMIR node
                                                     Node {
-                                                        185.20-24
+                                                        LIRSynthesizer: visiting IdentExprMIR node
 TypeContext: array type with base 175247769427, size 30000
                                                     }
                                                     Node {
-                                                        185.20-32
+                                                        LIRSynthesizer: visiting IdentExprMIR node
                                                     }
                                                 }
                                             }
                                             Node {
+                                                LIRSynthesizer: visiting LiteralExprMIR node
                                             }
                                         }
                                         Node {
+                                            LIRSynthesizer: visiting CompoundStmtMIR node
                                             Node {
+                                                LIRSynthesizer: visiting ExprStmtMIR node
                                                 Node {
+                                                    LIRSynthesizer: visiting AssignExprMIR node
                                                     Node {
-                                                        186.21-26
+                                                        LIRSynthesizer: visiting IdentExprMIR node
                                                     }
                                                     Node {
-                                                        186.30-36
+                                                        LIRSynthesizer: visiting IdentExprMIR node
                                                     }
                                                 }
                                             }
                                         }
                                         Node {
+                                            LIRSynthesizer: visiting CompoundStmtMIR node
                                             Node {
+                                                LIRSynthesizer: visiting ExprStmtMIR node
                                                 Node {
+                                                    LIRSynthesizer: visiting CallExprMIR node
                                                     Node {
-                                                        189.21-28
+                                                        LIRSynthesizer: visiting IdentExprMIR node
                                                     }
                                                 }
                                             }
@@ -5183,84 +6200,113 @@ TypeContext: array type with base 175247769427, size 30000
                                 }
                             }
                             Node {
+                                LIRSynthesizer: visiting BreakStmtMIR node
                             }
                         }
                     }
                     Node {
+                        LIRSynthesizer: visiting ExprStmtMIR node
                         Node {
+                            LIRSynthesizer: visiting PostfixExprMIR node
                             Node {
-                                195.9-14
+                                LIRSynthesizer: visiting IdentExprMIR node
                             }
                         }
                     }
                     Node {
+                        LIRSynthesizer: visiting IfStmtMIR node
                         Node {
+                            LIRSynthesizer: visiting BinaryExprMIR node
                             Node {
+                                LIRSynthesizer: visiting BinaryExprMIR node
                                 Node {
-                                    197.12-18
+                                    LIRSynthesizer: visiting IdentExprMIR node
                                 }
                                 Node {
+                                    LIRSynthesizer: visiting LiteralExprMIR node
                                 }
                             }
                             Node {
-                                197.27-34
+                                LIRSynthesizer: visiting IdentExprMIR node
                             }
                         }
                         Node {
+                            LIRSynthesizer: visiting CompoundStmtMIR node
                             Node {
+                                LIRSynthesizer: visiting ReturnStmtMIR node
                             }
                         }
                     }
                 }
+            }
+            Node {
+                LIRSynthesizer: visiting ReturnStmtMIR node
             }
         }
     }
     Node {
+        LIRSynthesizer: visiting FunctionMIR node
         Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
             Node {
+                LIRSynthesizer: visiting VarDeclMIR node
                 LIRSynthesizer: unfold_initializer_rec
                 LIRSynthesizer: matched on single expression
                 Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
                 }
             }
             Node {
+                LIRSynthesizer: visiting LoopStmtMIR node
                 Node {
+                    LIRSynthesizer: visiting BinaryExprMIR node
                     Node {
-                        206.11-12
+                        LIRSynthesizer: visiting IdentExprMIR node
                     }
                     Node {
+                        LIRSynthesizer: visiting LiteralExprMIR node
                     }
                 }
                 Node {
+                    LIRSynthesizer: visiting CompoundStmtMIR node
                     Node {
+                        LIRSynthesizer: visiting ExprStmtMIR node
                         Node {
+                            LIRSynthesizer: visiting AssignExprMIR node
                             Node {
+                                LIRSynthesizer: visiting SubscrExprMIR node
                                 Node {
-                                    207.9-12
+                                    LIRSynthesizer: visiting IdentExprMIR node
 TypeContext: array type with base 175247769427, size 30000
                                 }
                                 Node {
-                                    207.9-14
+                                    LIRSynthesizer: visiting IdentExprMIR node
                                 }
                             }
                             Node {
+                                LIRSynthesizer: visiting LiteralExprMIR node
                             }
                         }
                     }
                     Node {
+                        LIRSynthesizer: visiting ExprStmtMIR node
                         Node {
+                            LIRSynthesizer: visiting PostfixExprMIR node
                             Node {
-                                208.9
+                                LIRSynthesizer: visiting IdentExprMIR node
                             }
                         }
                     }
                 }
             }
             Node {
+                LIRSynthesizer: visiting ExprStmtMIR node
                 Node {
+                    LIRSynthesizer: visiting AssignExprMIR node
                     Node {
+                        LIRSynthesizer: visiting MemberAccExprMIR node
                         Node {
-                            211.5-11
+                            LIRSynthesizer: visiting IdentExprMIR node
                         }
 ClassType: Looking for member with name len
 RecordType: Looking for member with name len
@@ -5268,39 +6314,57 @@ ClassType: Looking for member with index 1
 RecordType: Looking for member with index 1
                     }
                     Node {
+                        LIRSynthesizer: visiting LiteralExprMIR node
                     }
                 }
+            }
+            Node {
+                LIRSynthesizer: visiting ReturnStmtMIR node
             }
         }
     }
     Node {
+        LIRSynthesizer: visiting FunctionMIR node
         Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
             Node {
+                LIRSynthesizer: visiting PrintStmtMIR node
                 Node {
-                    215.16-22
+                    LIRSynthesizer: visiting IdentExprMIR node
 TypeContext: pointer with base 175247769427
                 }
                 Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
 TypeContext: array type with base 175247769427, size 19
                 }
+            }
+            Node {
+                LIRSynthesizer: visiting ReturnStmtMIR node
             }
         }
     }
     Node {
+        LIRSynthesizer: visiting FunctionMIR node
         Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
             Node {
+                LIRSynthesizer: visiting ExprStmtMIR node
                 Node {
+                    LIRSynthesizer: visiting CallExprMIR node
                     Node {
-                        220.5-14
+                        LIRSynthesizer: visiting IdentExprMIR node
                     }
                 }
             }
             Node {
+                LIRSynthesizer: visiting VarDeclMIR node
 TypeContext: array type with base 175247769427, size 165
                 LIRSynthesizer: unfold_initializer_rec
                 LIRSynthesizer: matched on single expression
                 Node {
+                    LIRSynthesizer: visiting CastExprMIR node
                     Node {
+                        LIRSynthesizer: visiting LiteralExprMIR node
 TypeContext: array type with base 175247769427, size 165
                     }
 TypeContext: array type with base 175247769427, size 165
@@ -5308,14 +6372,18 @@ TypeContext: array type with base 175247769427, size 165
 TypeContext: array type with base 175247769427, size 165
             }
             Node {
+                LIRSynthesizer: visiting ExprStmtMIR node
                 Node {
+                    LIRSynthesizer: visiting CallExprMIR node
                     Node {
-                        224.5-12
+                        LIRSynthesizer: visiting IdentExprMIR node
                     }
                     Node {
+                        LIRSynthesizer: visiting CastExprMIR node
                         Node {
+                            LIRSynthesizer: visiting CastExprMIR node
                             Node {
-                                224.5-20
+                                LIRSynthesizer: visiting IdentExprMIR node
 TypeContext: array type with base 175247769427, size 165
                             }
 TypeContext: pointer with base 175247769427
@@ -5325,22 +6393,28 @@ TypeContext: pointer with base 175247769427
                 }
             }
             Node {
+                LIRSynthesizer: visiting ExprStmtMIR node
                 Node {
+                    LIRSynthesizer: visiting CallExprMIR node
                     Node {
-                        225.5-11
+                        LIRSynthesizer: visiting IdentExprMIR node
                     }
                 }
             }
             Node {
+                LIRSynthesizer: visiting ReturnStmtMIR node
                 Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
                 }
             }
         }
     }
     Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
         Node {
+            LIRSynthesizer: visiting CallExprMIR node
             Node {
-                230.1-4
+                LIRSynthesizer: visiting IdentExprMIR node
             }
         }
     }
@@ -5348,8 +6422,6 @@ TypeContext: pointer with base 175247769427
 --------- LIR ---------
 
 ProgramLIR @ <?>
-| VarDecl: c (c_s23) @ <6.1-13>
-| | type: i8
 | VarDecl: nesting (nesting) @ <15.1-26>
 | | type: class Stack { i32 cap; i32 len; i32[32] data; }
 | VarDecl: code (code) @ <47.1-14>
@@ -5364,291 +6436,7 @@ ProgramLIR @ <?>
 | | type: i32
 | VarDecl: valid_chars (valid_chars) @ <65.1-61>
 | | type: i8[8]
-| FunctionLIR: StackPush (StackPush) @ <17.1-28.1>
-    type: Void (i32)
-| | VarDecl: item (item_s0) @ <17.4-21>
-| | | type: i32 [param]
-| | IfStmt @ <19.5-25>
-| | | Binary: < :: I32 @ <19.8-16>
-| | | | Ident: item (item_s0) :: I32 @ <19.8-12>
-| | | | Literal :: I32 @ <19.16>
-0
-| | | Return @ <19.19-25>
-| | IfStmt @ <21.5-24.5>
-| | | Binary: > :: I32 @ <21.8-37>
-| | | | Binary: + :: I32 @ <21.8-23>
-| | | | | Member: [1] :: I32 @ <21.8-19>
-| | | | | | Ident: nesting (nesting) :: class Stack @ <21.8-15>
-| | | | | Literal :: I32 @ <21.23>
-1
-| | | | Member: [0] :: I32 @ <21.27-37>
-| | | | | Ident: nesting (nesting) :: class Stack @ <21.27-33>
-| | | Return @ <23.9-15>
-| | ExprStmt @ <26.5-37>
-| | | Assign: = :: I32 @ <26.5-36>
-| | | | Subscript :: I32 @ <26.5-29>
-| | | | | Member: [2] :: I32[32] @ <26.5-16>
-| | | | | | Ident: nesting (nesting) :: class Stack @ <26.5-11>
-| | | | | Member: [1] :: I32 @ <26.5-28>
-| | | | | | Ident: nesting (nesting) :: class Stack @ <26.5-24>
-| | | | Ident: item (item_s0) :: I32 @ <26.33-36>
-| | ExprStmt @ <27.5-18>
-| | | Postfix: ++ :: I32 @ <27.5-17>
-| | | | Member: [1] :: I32 @ <27.5-15>
-| | | | | Ident: nesting (nesting) :: class Stack @ <27.5-11>
-| FunctionLIR: StackPeek (StackPeek) @ <30.1-35.1>
-    type: i32 ()
-| | IfStmt @ <31.5-32.18>
-| | | Binary: <= :: I32 @ <31.8-24>
-| | | | Member: [1] :: I32 @ <31.8-19>
-| | | | | Ident: nesting (nesting) :: class Stack @ <31.8-15>
-| | | | Literal :: I32 @ <31.24>
-0
-| | | Return @ <32.9-18>
-| | | | Unary: - :: I32 @ <32.16-17>
-| | | | | Literal :: I32 @ <32.16-17>
-1
-| | Return @ <34.5-41>
-| | | Subscript :: I32 @ <34.12-40>
-| | | | Member: [2] :: I32[32] @ <34.12-23>
-| | | | | Ident: nesting (nesting) :: class Stack @ <34.12-18>
-| | | | Binary: - :: I32 @ <34.12-39>
-| | | | | Member: [1] :: I32 @ <34.12-35>
-| | | | | | Ident: nesting (nesting) :: class Stack @ <34.12-31>
-| | | | | Literal :: I32 @ <34.39>
-1
-| FunctionLIR: StackPop (StackPop) @ <37.1-44.1>
-    type: i32 ()
-| | VarDecl: ret (ret_s4) @ <40.5-44>
-| | | type: i32
-| | IfStmt @ <38.5-36>
-| | | Binary: <= :: I32 @ <38.8-24>
-| | | | Member: [1] :: I32 @ <38.8-19>
-| | | | | Ident: nesting (nesting) :: class Stack @ <38.8-15>
-| | | | Literal :: I32 @ <38.24>
-0
-| | | Return @ <38.27-36>
-| | | | Unary: - :: I32 @ <38.34-35>
-| | | | | Literal :: I32 @ <38.34-35>
-1
-| | ExprStmt @ <40.15-43>
-| | | Assign: = :: I32 @ <40.15-43>
-| | | | Ident: ret (ret_s4) :: I32 @ <40.9-43>
-| | | | Subscript :: I32 @ <40.15-43>
-| | | | | Member: [2] :: I32[32] @ <40.15-26>
-| | | | | | Ident: nesting (nesting) :: class Stack @ <40.15-21>
-| | | | | Binary: - :: I32 @ <40.15-42>
-| | | | | | Member: [1] :: I32 @ <40.15-38>
-| | | | | | | Ident: nesting (nesting) :: class Stack @ <40.15-34>
-| | | | | | Literal :: I32 @ <40.42>
-1
-| | ExprStmt @ <41.5-18>
-| | | Postfix: -- :: I32 @ <41.5-17>
-| | | | Member: [1] :: I32 @ <41.5-15>
-| | | | | Ident: nesting (nesting) :: class Stack @ <41.5-11>
-| | Return @ <43.5-15>
-| | | Ident: ret (ret_s4) :: I32 @ <43.12-14>
-| FunctionLIR: Die (Die) @ <56.1-63.1>
-    type: Void (i8 *, enum ErrType: i32  { SYSTEM = 1, BAD_CODE = 2 })
-| | VarDecl: errmsg (errmsg_s0) @ <56.4-17>
-| | | type: i8 * [param]
-| | VarDecl: errcode (errcode_s0) @ <56.20-39>
-| | | type: enum ErrType: i32  { SYSTEM = 1, BAD_CODE = 2 } [param]
-| | IfStmt @ <57.5-61.5>
-| | | Binary: == :: I32 @ <57.8-25>
-| | | | Ident: errcode (errcode_s0) :: enum ErrType @ <57.8-15>
-| | | | Literal :: enum ErrType @ <57.20-25>
-1
-| | | Print: "ERROR: %s
-" @ <58.9-30>
-| | | | Ident: errmsg (errmsg_s0) :: I8 * @ <58.24-29>
-| | | Print: "ERROR@[Pos %d: '%c']: %s
-" @ <60.9-67>
-| | | | Ident: insptr (insptr) :: I32 @ <60.39-44>
-| | | | Subscript :: I8 @ <60.47-58>
-| | | | | Ident: code (code) :: I8[1024] @ <60.47-50>
-| | | | | Ident: insptr (insptr) :: I32 @ <60.47-57>
-| | | | Ident: errmsg (errmsg_s0) :: I8 * @ <60.61-66>
-| | Return @ <62.5-11>
-| FunctionLIR: IsValid (IsValid) @ <66.1-74.1>
-    type: bool (i8)
-| | VarDecl: c (c_s0) @ <66.6-17>
-| | | type: i8 [param]
-| | VarDecl: i (i_s8) @ <67.5-14>
-| | | type: i32
-| | ExprStmt @ <67.13>
-| | | Assign: = :: I32 @ <67.13>
-| | | | Ident: i (i_s8) :: I32 @ <67.9-13>
-| | | | Literal :: I32 @ <67.13>
-0
-| | LoopStmt @ <68.5-71.5>
-| | | Binary: < :: I32 @ <68.11-16>
-| | | | Ident: i (i_s8) :: I32 @ <68.11-12>
-| | | | Literal :: I32 @ <68.16>
-8
-| | | IfStmt @ <69.9-42>
-| | | | Binary: == :: I32 @ <69.12-31>
-| | | | | Cast -> i32 :: I32 @ <69.12-13>
-| | | | | | Ident: c (c_s0) :: I8 @ <69.12-13>
-| | | | | Cast -> i32 :: I32 @ <69.18-31>
-| | | | | | Subscript :: I8 @ <69.18-31>
-| | | | | | | Ident: valid_chars (valid_chars) :: I8[8] @ <69.18-28>
-| | | | | | | Ident: i (i_s8) :: I32 @ <69.18-30>
-| | | | Return @ <69.34-42>
-| | | | | Cast -> bool :: Bool @ <69.41>
-| | | | | | Literal :: I32 @ <69.41>
-1
-| | | ExprStmt @ <70.9-12>
-| | | | Postfix: ++ :: I32 @ <70.9-11>
-| | | | | Ident: i (i_s8) :: I32 @ <70.9>
-| | Return @ <73.5-13>
-| | | Cast -> bool :: Bool @ <73.12>
-| | | | Literal :: I32 @ <73.12>
-0
-| FunctionLIR: ReadCode (ReadCode) @ <77.1-95.1>
-    type: Void (i8 *)
-| | VarDecl: src (src_s0) @ <77.4-19>
-| | | type: i8 * [param]
-| | VarDecl: n (n_s11) @ <78.5-14>
-| | | type: i32
-| | VarDecl: i (i_s11) @ <79.5-14>
-| | | type: i32
-| | ExprStmt @ <78.13>
-| | | Assign: = :: I32 @ <78.13>
-| | | | Ident: n (n_s11) :: I32 @ <78.9-13>
-| | | | Literal :: I32 @ <78.13>
-0
-| | ExprStmt @ <79.13>
-| | | Assign: = :: I32 @ <79.13>
-| | | | Ident: i (i_s11) :: I32 @ <79.9-13>
-| | | | Literal :: I32 @ <79.13>
-0
-| | LoopStmt @ <81.5-91.5>
-| | | Binary: != :: I32 @ <81.11-25>
-| | | | Cast -> i32 :: I32 @ <81.11-17>
-| | | | | Subscript :: I8 @ <81.11-17>
-| | | | | | Ident: src (src_s0) :: I8 * @ <81.11-14>
-| | | | | | Ident: i (i_s11) :: I32 @ <81.11-16>
-| | | | Cast -> i32 :: I32 @ <81.22-25>
-| | | | | Literal :: I8 @ <81.22-25>
-0
-| | | IfStmt @ <82.9-84.9>
-| | | | Call :: Bool @ <82.12-27>
-| | | | | Ident: IsValid (IsValid) :: Bool (I8) @ <82.12-19>
-| | | | | Subscript :: I8 @ <82.12-26>
-| | | | | | Ident: src (src_s0) :: I8 * @ <82.12-23>
-| | | | | | Ident: i (i_s11) :: I32 @ <82.12-25>
-| | | | ExprStmt @ <83.13-31>
-| | | | | Assign: = :: I8 @ <83.13-30>
-| | | | | | Subscript :: I8 @ <83.13-21>
-| | | | | | | Ident: code (code) :: I8[1024] @ <83.13-16>
-| | | | | | | Postfix: ++ :: I32 @ <83.13-20>
-| | | | | | | | Ident: n (n_s11) :: I32 @ <83.13-18>
-| | | | | | Subscript :: I8 @ <83.25-30>
-| | | | | | | Ident: src (src_s0) :: I8 * @ <83.25-27>
-| | | | | | | Ident: i (i_s11) :: I32 @ <83.25-29>
-| | | IfStmt @ <86.9-89.9>
-| | | | Binary: == :: I32 @ <86.12-29>
-| | | | | Binary: + :: I32 @ <86.12-17>
-| | | | | | Ident: n (n_s11) :: I32 @ <86.12-13>
-| | | | | | Literal :: I32 @ <86.17>
-1
-| | | | | Ident: codesize (codesize) :: I32 @ <86.22-29>
-| | | | ExprStmt @ <87.13-42>
-| | | | | Call :: Void @ <87.13-41>
-| | | | | | Ident: Die (Die) :: Void (I8 *, enum ErrType) @ <87.13-15>
-| | | | | | Cast -> i8 * :: I8 * @ <87.13-32>
-| | | | | | | Cast -> i8 * :: I8 * @ <87.13-32>
-| | | | | | | | Literal :: I8[15] @ <87.13-32>
-code too large
-| | | | | | Literal :: enum ErrType @ <87.35-40>
-1
-| | | | Return @ <88.13-19>
-| | | ExprStmt @ <90.9-12>
-| | | | Postfix: ++ :: I32 @ <90.9-11>
-| | | | | Ident: i (i_s11) :: I32 @ <90.9>
-| | ExprStmt @ <93.5-19>
-| | | Assign: = :: I8 @ <93.5-18>
-| | | | Subscript :: I8 @ <93.5-11>
-| | | | | Ident: code (code) :: I8[1024] @ <93.5-8>
-| | | | | Ident: n (n_s11) :: I32 @ <93.5-10>
-| | | | Literal :: I8 @ <93.15-18>
-0
-| | Print: "got code: (" @ <94.5-31>
-| | | Ident: code (code) :: I8[1024] @ <94.20-23>
-| | | Literal :: I8[3] @ <94.26-30>
-)
-
-| FunctionLIR: JumpToAfter (JumpToAfter) @ <98.1-118.1>
-    type: Void ()
-| | VarDecl: current (current_s16) @ <99.5-30>
-| | | type: i32
-| | ExprStmt @ <99.19-29>
-| | | Assign: = :: I32 @ <99.19-29>
-| | | | Ident: current (current_s16) :: I32 @ <99.9-29>
-| | | | Member: [1] :: I32 @ <99.19-29>
-| | | | | Ident: nesting (nesting) :: class Stack @ <99.19-25>
-| | LoopStmt @ <100.5-117.5>
-| | | Binary: != :: I32 @ <100.11-31>
-| | | | Cast -> i32 :: I32 @ <100.11-23>
-| | | | | Subscript :: I8 @ <100.11-23>
-| | | | | | Ident: code (code) :: I8[1024] @ <100.11-15>
-| | | | | | Ident: insptr (insptr) :: I32 @ <100.11-22>
-| | | | Cast -> i32 :: I32 @ <100.28-31>
-| | | | | Literal :: I8 @ <100.28-31>
-0
-| | | IfStmt @ <101.9-109.9>
-| | | | Binary: == :: I32 @ <101.12-31>
-| | | | | Cast -> i32 :: I32 @ <101.12-24>
-| | | | | | Subscript :: I8 @ <101.12-24>
-| | | | | | | Ident: code (code) :: I8[1024] @ <101.12-16>
-| | | | | | | Ident: insptr (insptr) :: I32 @ <101.12-23>
-| | | | | Cast -> i32 :: I32 @ <101.29-31>
-| | | | | | Literal :: I8 @ <101.29-31>
-91
-| | | | ExprStmt @ <102.13-22>
-| | | | | Postfix: ++ :: I32 @ <102.13-21>
-| | | | | | Ident: current (current_s16) :: I32 @ <102.13-19>
-| | | | IfStmt @ <103.16-109.9>
-| | | | | Binary: == :: I32 @ <103.19-38>
-| | | | | | Cast -> i32 :: I32 @ <103.19-31>
-| | | | | | | Subscript :: I8 @ <103.19-31>
-| | | | | | | | Ident: code (code) :: I8[1024] @ <103.19-23>
-| | | | | | | | Ident: insptr (insptr) :: I32 @ <103.19-30>
-| | | | | | Cast -> i32 :: I32 @ <103.36-38>
-| | | | | | | Literal :: I8 @ <103.36-38>
-93
-| | | | | ExprStmt @ <104.13-22>
-| | | | | | Postfix: -- :: I32 @ <104.13-21>
-| | | | | | | Ident: current (current_s16) :: I32 @ <104.13-19>
-| | | | | IfStmt @ <105.13-108.13>
-| | | | | | Binary: == :: I32 @ <105.16-38>
-| | | | | | | Ident: current (current_s16) :: I32 @ <105.16-23>
-| | | | | | | Member: [1] :: I32 @ <105.28-38>
-| | | | | | | | Ident: nesting (nesting) :: class Stack @ <105.28-34>
-| | | | | | ExprStmt @ <106.17-25>
-| | | | | | | Postfix: ++ :: I32 @ <106.17-24>
-| | | | | | | | Ident: insptr (insptr) :: I32 @ <106.17-22>
-| | | | | | Return @ <107.17-23>
-| | | IfStmt @ <111.9-114.9>
-| | | | Binary: < :: I32 @ <111.12-33>
-| | | | | Ident: current (current_s16) :: I32 @ <111.12-19>
-| | | | | Member: [1] :: I32 @ <111.23-33>
-| | | | | | Ident: nesting (nesting) :: class Stack @ <111.23-29>
-| | | | ExprStmt @ <112.13-70>
-| | | | | Call :: Void @ <112.13-69>
-| | | | | | Ident: Die (Die) :: Void (I8 *, enum ErrType) @ <112.13-15>
-| | | | | | Cast -> i8 * :: I8 * @ <112.13-58>
-| | | | | | | Cast -> i8 * :: I8 * @ <112.13-58>
-| | | | | | | | Literal :: I8[41] @ <112.13-58>
-malformed code, missing matching bracket
-| | | | | | Literal :: enum ErrType @ <112.61-68>
-2
-| | | | Return @ <113.13-19>
-| | | ExprStmt @ <116.9-17>
-| | | | Postfix: ++ :: I32 @ <116.9-16>
-| | | | | Ident: insptr (insptr) :: I32 @ <116.9-14>
-| FunctionLIR: Execute (Execute) @ <120.1-201.1>
+| FunctionLIR: Execute (Execute) @ <6.1-13>
     type: Void ()
 | | VarDecl: c (c_s23) @ <122.5-9>
 | | | type: i8
@@ -5663,43 +6451,35 @@ malformed code, missing matching bracket
 | | | | | | | Ident: code (code) :: I8[1024] @ <123.17-20>
 | | | | | | | Ident: insptr (insptr) :: I32 @ <123.17-27>
 | | | | Cast -> i32 :: I32 @ <123.34-37>
-| | | | | Literal :: I8 @ <123.34-37>
-0
+| | | | | Literal: 0 :: I8 @ <123.34-37>
 | | | IfStmt @ <124.9-127.9>
 | | | | Binary: < :: I32 @ <124.12-22>
 | | | | | Ident: insptr (insptr) :: I32 @ <124.12-18>
-| | | | | Literal :: I32 @ <124.22>
-0
+| | | | | Literal: 0 :: I32 @ <124.22>
 | | | | ExprStmt @ <125.13-62>
 | | | | | Call :: Void @ <125.13-61>
 | | | | | | Ident: Die (Die) :: Void (I8 *, enum ErrType) @ <125.13-15>
 | | | | | | Cast -> i8 * :: I8 * @ <125.13-50>
 | | | | | | | Cast -> i8 * :: I8 * @ <125.13-50>
-| | | | | | | | Literal :: I8[33] @ <125.13-50>
-instruction pointer went below 0
-| | | | | | Literal :: enum ErrType @ <125.53-60>
-2
+| | | | | | | | Literal: instruction pointer went below 0 :: I8[33] @ <125.13-50>
+| | | | | | Literal: 2 :: enum ErrType @ <125.53-60>
 | | | | Return @ <126.13-19>
 | | | IfStmt @ <129.9-132.9>
 | | | | Binary: < :: I32 @ <129.12-23>
 | | | | | Ident: dataptr (dataptr) :: I32 @ <129.12-19>
-| | | | | Literal :: I32 @ <129.23>
-0
+| | | | | Literal: 0 :: I32 @ <129.23>
 | | | | ExprStmt @ <130.13-55>
 | | | | | Call :: Void @ <130.13-54>
 | | | | | | Ident: Die (Die) :: Void (I8 *, enum ErrType) @ <130.13-15>
 | | | | | | Cast -> i8 * :: I8 * @ <130.13-43>
 | | | | | | | Cast -> i8 * :: I8 * @ <130.13-43>
-| | | | | | | | Literal :: I8[26] @ <130.13-43>
-data pointer went below 0
-| | | | | | Literal :: enum ErrType @ <130.46-53>
-2
+| | | | | | | | Literal: data pointer went below 0 :: I8[26] @ <130.13-43>
+| | | | | | Literal: 2 :: enum ErrType @ <130.46-53>
 | | | | Return @ <131.13-19>
 | | | Print: "got code: (" @ <133.9-35>
 | | | | Ident: code (code) :: I8[1024] @ <133.24-27>
-| | | | Literal :: I8[3] @ <133.30-34>
-)
-
+| | | | Literal: )
+ :: I8[3] @ <133.30-34>
 | | | SwitchStmt @ <134.9-192.9>
 | | | | Ident: c (c_s23) :: I8 @ <134.16-17>
 | | | | Case: 62 @ <136.13-137.26>
@@ -5732,8 +6512,7 @@ data pointer went below 0
 | | | | | | Subscript :: I8 @ <156.17-29>
 | | | | | | | Ident: data (data) :: I8[30000] @ <156.17-20>
 | | | | | | | Ident: dataptr (dataptr) :: I32 @ <156.17-28>
-| | | | | | Literal :: I32 @ <156.33>
-0
+| | | | | | Literal: 0 :: I32 @ <156.33>
 | | | | Break @ <157.17-22>
 | | | | Case: 46 @ <159.13-160.30>
 | | | | ExprStmt @ <160.17-30>
@@ -5748,8 +6527,7 @@ data pointer went below 0
 | | | | | | | Subscript :: I8 @ <166.20-33>
 | | | | | | | | Ident: data (data) :: I8[30000] @ <166.20-24>
 | | | | | | | | Ident: dataptr (dataptr) :: I32 @ <166.20-32>
-| | | | | | Literal :: I32 @ <166.38>
-0
+| | | | | | Literal: 0 :: I32 @ <166.38>
 | | | | | ExprStmt @ <168.21-34>
 | | | | | | Call :: Void @ <168.21-33>
 | | | | | | | Ident: JumpToAfter (JumpToAfter) :: Void () @ <168.21-31>
@@ -5767,17 +6545,14 @@ data pointer went below 0
 | | | | IfStmt @ <180.17-183.17>
 | | | | | Binary: < :: I32 @ <180.20-31>
 | | | | | | Ident: opening (opening_s31) :: I32 @ <180.20-27>
-| | | | | | Literal :: I32 @ <180.31>
-0
+| | | | | | Literal: 0 :: I32 @ <180.31>
 | | | | | ExprStmt @ <181.21-64>
 | | | | | | Call :: Void @ <181.21-63>
 | | | | | | | Ident: Die (Die) :: Void (I8 *, enum ErrType) @ <181.21-23>
 | | | | | | | Cast -> i8 * :: I8 * @ <181.21-52>
 | | | | | | | | Cast -> i8 * :: I8 * @ <181.21-52>
-| | | | | | | | | Literal :: I8[27] @ <181.21-52>
-mismatched closing bracket
-| | | | | | | Literal :: enum ErrType @ <181.55-62>
-2
+| | | | | | | | | Literal: mismatched closing bracket :: I8[27] @ <181.21-52>
+| | | | | | | Literal: 2 :: enum ErrType @ <181.55-62>
 | | | | | Return @ <182.21-27>
 | | | | IfStmt @ <185.17-190.17>
 | | | | | Binary: != :: I32 @ <185.20-38>
@@ -5785,8 +6560,7 @@ mismatched closing bracket
 | | | | | | | Subscript :: I8 @ <185.20-33>
 | | | | | | | | Ident: data (data) :: I8[30000] @ <185.20-24>
 | | | | | | | | Ident: dataptr (dataptr) :: I32 @ <185.20-32>
-| | | | | | Literal :: I32 @ <185.38>
-0
+| | | | | | Literal: 0 :: I32 @ <185.38>
 | | | | | ExprStmt @ <186.21-37>
 | | | | | | Assign: = :: I32 @ <186.21-36>
 | | | | | | | Ident: insptr (insptr) :: I32 @ <186.21-26>
@@ -5802,10 +6576,271 @@ mismatched closing bracket
 | | | | Binary: == :: I32 @ <197.12-34>
 | | | | | Binary: + :: I32 @ <197.12-22>
 | | | | | | Ident: insptr (insptr) :: I32 @ <197.12-18>
-| | | | | | Literal :: I32 @ <197.22>
-1
+| | | | | | Literal: 1 :: I32 @ <197.22>
 | | | | | Ident: codesize (codesize) :: I32 @ <197.27-34>
 | | | | Return @ <198.13-19>
+| | Return @ <1.1>
+| FunctionLIR: StackPush (StackPush) @ <17.1-28.1>
+    type: Void (i32)
+| | VarDecl: item (item_s0) @ <17.4-21>
+| | | type: i32 [param]
+| | IfStmt @ <19.5-25>
+| | | Binary: < :: I32 @ <19.8-16>
+| | | | Ident: item (item_s0) :: I32 @ <19.8-12>
+| | | | Literal: 0 :: I32 @ <19.16>
+| | | Return @ <19.19-25>
+| | IfStmt @ <21.5-24.5>
+| | | Binary: > :: I32 @ <21.8-37>
+| | | | Binary: + :: I32 @ <21.8-23>
+| | | | | Member: [1] :: I32 @ <21.8-19>
+| | | | | | Ident: nesting (nesting) :: class Stack @ <21.8-15>
+| | | | | Literal: 1 :: I32 @ <21.23>
+| | | | Member: [0] :: I32 @ <21.27-37>
+| | | | | Ident: nesting (nesting) :: class Stack @ <21.27-33>
+| | | Return @ <23.9-15>
+| | ExprStmt @ <26.5-37>
+| | | Assign: = :: I32 @ <26.5-36>
+| | | | Subscript :: I32 @ <26.5-29>
+| | | | | Member: [2] :: I32[32] @ <26.5-16>
+| | | | | | Ident: nesting (nesting) :: class Stack @ <26.5-11>
+| | | | | Member: [1] :: I32 @ <26.5-28>
+| | | | | | Ident: nesting (nesting) :: class Stack @ <26.5-24>
+| | | | Ident: item (item_s0) :: I32 @ <26.33-36>
+| | ExprStmt @ <27.5-18>
+| | | Postfix: ++ :: I32 @ <27.5-17>
+| | | | Member: [1] :: I32 @ <27.5-15>
+| | | | | Ident: nesting (nesting) :: class Stack @ <27.5-11>
+| | Return @ <1.1>
+| FunctionLIR: StackPeek (StackPeek) @ <30.1-35.1>
+    type: i32 ()
+| | IfStmt @ <31.5-32.18>
+| | | Binary: <= :: I32 @ <31.8-24>
+| | | | Member: [1] :: I32 @ <31.8-19>
+| | | | | Ident: nesting (nesting) :: class Stack @ <31.8-15>
+| | | | Literal: 0 :: I32 @ <31.24>
+| | | Return @ <32.9-18>
+| | | | Unary: - :: I32 @ <32.16-17>
+| | | | | Literal: 1 :: I32 @ <32.16-17>
+| | Return @ <34.5-41>
+| | | Subscript :: I32 @ <34.12-40>
+| | | | Member: [2] :: I32[32] @ <34.12-23>
+| | | | | Ident: nesting (nesting) :: class Stack @ <34.12-18>
+| | | | Binary: - :: I32 @ <34.12-39>
+| | | | | Member: [1] :: I32 @ <34.12-35>
+| | | | | | Ident: nesting (nesting) :: class Stack @ <34.12-31>
+| | | | | Literal: 1 :: I32 @ <34.39>
+| FunctionLIR: StackPop (StackPop) @ <37.1-44.1>
+    type: i32 ()
+| | VarDecl: ret (ret_s4) @ <40.5-44>
+| | | type: i32
+| | IfStmt @ <38.5-36>
+| | | Binary: <= :: I32 @ <38.8-24>
+| | | | Member: [1] :: I32 @ <38.8-19>
+| | | | | Ident: nesting (nesting) :: class Stack @ <38.8-15>
+| | | | Literal: 0 :: I32 @ <38.24>
+| | | Return @ <38.27-36>
+| | | | Unary: - :: I32 @ <38.34-35>
+| | | | | Literal: 1 :: I32 @ <38.34-35>
+| | ExprStmt @ <40.15-43>
+| | | Assign: = :: I32 @ <40.15-43>
+| | | | Ident: ret (ret_s4) :: I32 @ <40.9-43>
+| | | | Subscript :: I32 @ <40.15-43>
+| | | | | Member: [2] :: I32[32] @ <40.15-26>
+| | | | | | Ident: nesting (nesting) :: class Stack @ <40.15-21>
+| | | | | Binary: - :: I32 @ <40.15-42>
+| | | | | | Member: [1] :: I32 @ <40.15-38>
+| | | | | | | Ident: nesting (nesting) :: class Stack @ <40.15-34>
+| | | | | | Literal: 1 :: I32 @ <40.42>
+| | ExprStmt @ <41.5-18>
+| | | Postfix: -- :: I32 @ <41.5-17>
+| | | | Member: [1] :: I32 @ <41.5-15>
+| | | | | Ident: nesting (nesting) :: class Stack @ <41.5-11>
+| | Return @ <43.5-15>
+| | | Ident: ret (ret_s4) :: I32 @ <43.12-14>
+| FunctionLIR: Die (Die) @ <56.1-63.1>
+    type: Void (i8 *, enum ErrType: i32  { SYSTEM = 1, BAD_CODE = 2 })
+| | VarDecl: errmsg (errmsg_s0) @ <56.4-17>
+| | | type: i8 * [param]
+| | VarDecl: errcode (errcode_s0) @ <56.20-39>
+| | | type: enum ErrType: i32  { SYSTEM = 1, BAD_CODE = 2 } [param]
+| | IfStmt @ <57.5-61.5>
+| | | Binary: == :: I32 @ <57.8-25>
+| | | | Ident: errcode (errcode_s0) :: enum ErrType @ <57.8-15>
+| | | | Literal: 1 :: enum ErrType @ <57.20-25>
+| | | Print: "ERROR: %s
+" @ <58.9-30>
+| | | | Ident: errmsg (errmsg_s0) :: I8 * @ <58.24-29>
+| | | Print: "ERROR@[Pos %d: '%c']: %s
+" @ <60.9-67>
+| | | | Ident: insptr (insptr) :: I32 @ <60.39-44>
+| | | | Subscript :: I8 @ <60.47-58>
+| | | | | Ident: code (code) :: I8[1024] @ <60.47-50>
+| | | | | Ident: insptr (insptr) :: I32 @ <60.47-57>
+| | | | Ident: errmsg (errmsg_s0) :: I8 * @ <60.61-66>
+| | Return @ <62.5-11>
+| FunctionLIR: IsValid (IsValid) @ <66.1-74.1>
+    type: bool (i8)
+| | VarDecl: c (c_s0) @ <66.6-17>
+| | | type: i8 [param]
+| | VarDecl: i (i_s8) @ <67.5-14>
+| | | type: i32
+| | ExprStmt @ <67.13>
+| | | Assign: = :: I32 @ <67.13>
+| | | | Ident: i (i_s8) :: I32 @ <67.9-13>
+| | | | Literal: 0 :: I32 @ <67.13>
+| | LoopStmt @ <68.5-71.5>
+| | | Binary: < :: I32 @ <68.11-16>
+| | | | Ident: i (i_s8) :: I32 @ <68.11-12>
+| | | | Literal: 8 :: I32 @ <68.16>
+| | | IfStmt @ <69.9-42>
+| | | | Binary: == :: I32 @ <69.12-31>
+| | | | | Cast -> i32 :: I32 @ <69.12-13>
+| | | | | | Ident: c (c_s0) :: I8 @ <69.12-13>
+| | | | | Cast -> i32 :: I32 @ <69.18-31>
+| | | | | | Subscript :: I8 @ <69.18-31>
+| | | | | | | Ident: valid_chars (valid_chars) :: I8[8] @ <69.18-28>
+| | | | | | | Ident: i (i_s8) :: I32 @ <69.18-30>
+| | | | Return @ <69.34-42>
+| | | | | Cast -> bool :: Bool @ <69.41>
+| | | | | | Literal: 1 :: I32 @ <69.41>
+| | | ExprStmt @ <70.9-12>
+| | | | Postfix: ++ :: I32 @ <70.9-11>
+| | | | | Ident: i (i_s8) :: I32 @ <70.9>
+| | Return @ <73.5-13>
+| | | Cast -> bool :: Bool @ <73.12>
+| | | | Literal: 0 :: I32 @ <73.12>
+| FunctionLIR: ReadCode (ReadCode) @ <77.1-95.1>
+    type: Void (i8 *)
+| | VarDecl: src (src_s0) @ <77.4-19>
+| | | type: i8 * [param]
+| | VarDecl: n (n_s11) @ <78.5-14>
+| | | type: i32
+| | VarDecl: i (i_s11) @ <79.5-14>
+| | | type: i32
+| | ExprStmt @ <78.13>
+| | | Assign: = :: I32 @ <78.13>
+| | | | Ident: n (n_s11) :: I32 @ <78.9-13>
+| | | | Literal: 0 :: I32 @ <78.13>
+| | ExprStmt @ <79.13>
+| | | Assign: = :: I32 @ <79.13>
+| | | | Ident: i (i_s11) :: I32 @ <79.9-13>
+| | | | Literal: 0 :: I32 @ <79.13>
+| | LoopStmt @ <81.5-91.5>
+| | | Binary: != :: I32 @ <81.11-25>
+| | | | Cast -> i32 :: I32 @ <81.11-17>
+| | | | | Subscript :: I8 @ <81.11-17>
+| | | | | | Ident: src (src_s0) :: I8 * @ <81.11-14>
+| | | | | | Ident: i (i_s11) :: I32 @ <81.11-16>
+| | | | Cast -> i32 :: I32 @ <81.22-25>
+| | | | | Literal: 0 :: I8 @ <81.22-25>
+| | | IfStmt @ <82.9-84.9>
+| | | | Call :: Bool @ <82.12-27>
+| | | | | Ident: IsValid (IsValid) :: Bool (I8) @ <82.12-19>
+| | | | | Subscript :: I8 @ <82.12-26>
+| | | | | | Ident: src (src_s0) :: I8 * @ <82.12-23>
+| | | | | | Ident: i (i_s11) :: I32 @ <82.12-25>
+| | | | ExprStmt @ <83.13-31>
+| | | | | Assign: = :: I8 @ <83.13-30>
+| | | | | | Subscript :: I8 @ <83.13-21>
+| | | | | | | Ident: code (code) :: I8[1024] @ <83.13-16>
+| | | | | | | Postfix: ++ :: I32 @ <83.13-20>
+| | | | | | | | Ident: n (n_s11) :: I32 @ <83.13-18>
+| | | | | | Subscript :: I8 @ <83.25-30>
+| | | | | | | Ident: src (src_s0) :: I8 * @ <83.25-27>
+| | | | | | | Ident: i (i_s11) :: I32 @ <83.25-29>
+| | | IfStmt @ <86.9-89.9>
+| | | | Binary: == :: I32 @ <86.12-29>
+| | | | | Binary: + :: I32 @ <86.12-17>
+| | | | | | Ident: n (n_s11) :: I32 @ <86.12-13>
+| | | | | | Literal: 1 :: I32 @ <86.17>
+| | | | | Ident: codesize (codesize) :: I32 @ <86.22-29>
+| | | | ExprStmt @ <87.13-42>
+| | | | | Call :: Void @ <87.13-41>
+| | | | | | Ident: Die (Die) :: Void (I8 *, enum ErrType) @ <87.13-15>
+| | | | | | Cast -> i8 * :: I8 * @ <87.13-32>
+| | | | | | | Cast -> i8 * :: I8 * @ <87.13-32>
+| | | | | | | | Literal: code too large :: I8[15] @ <87.13-32>
+| | | | | | Literal: 1 :: enum ErrType @ <87.35-40>
+| | | | Return @ <88.13-19>
+| | | ExprStmt @ <90.9-12>
+| | | | Postfix: ++ :: I32 @ <90.9-11>
+| | | | | Ident: i (i_s11) :: I32 @ <90.9>
+| | ExprStmt @ <93.5-19>
+| | | Assign: = :: I8 @ <93.5-18>
+| | | | Subscript :: I8 @ <93.5-11>
+| | | | | Ident: code (code) :: I8[1024] @ <93.5-8>
+| | | | | Ident: n (n_s11) :: I32 @ <93.5-10>
+| | | | Literal: 0 :: I8 @ <93.15-18>
+| | Print: "got code: (" @ <94.5-31>
+| | | Ident: code (code) :: I8[1024] @ <94.20-23>
+| | | Literal: )
+ :: I8[3] @ <94.26-30>
+| | Return @ <1.1>
+| FunctionLIR: JumpToAfter (JumpToAfter) @ <98.1-118.1>
+    type: Void ()
+| | VarDecl: current (current_s16) @ <99.5-30>
+| | | type: i32
+| | ExprStmt @ <99.19-29>
+| | | Assign: = :: I32 @ <99.19-29>
+| | | | Ident: current (current_s16) :: I32 @ <99.9-29>
+| | | | Member: [1] :: I32 @ <99.19-29>
+| | | | | Ident: nesting (nesting) :: class Stack @ <99.19-25>
+| | LoopStmt @ <100.5-117.5>
+| | | Binary: != :: I32 @ <100.11-31>
+| | | | Cast -> i32 :: I32 @ <100.11-23>
+| | | | | Subscript :: I8 @ <100.11-23>
+| | | | | | Ident: code (code) :: I8[1024] @ <100.11-15>
+| | | | | | Ident: insptr (insptr) :: I32 @ <100.11-22>
+| | | | Cast -> i32 :: I32 @ <100.28-31>
+| | | | | Literal: 0 :: I8 @ <100.28-31>
+| | | IfStmt @ <101.9-109.9>
+| | | | Binary: == :: I32 @ <101.12-31>
+| | | | | Cast -> i32 :: I32 @ <101.12-24>
+| | | | | | Subscript :: I8 @ <101.12-24>
+| | | | | | | Ident: code (code) :: I8[1024] @ <101.12-16>
+| | | | | | | Ident: insptr (insptr) :: I32 @ <101.12-23>
+| | | | | Cast -> i32 :: I32 @ <101.29-31>
+| | | | | | Literal: 91 :: I8 @ <101.29-31>
+| | | | ExprStmt @ <102.13-22>
+| | | | | Postfix: ++ :: I32 @ <102.13-21>
+| | | | | | Ident: current (current_s16) :: I32 @ <102.13-19>
+| | | | IfStmt @ <103.16-109.9>
+| | | | | Binary: == :: I32 @ <103.19-38>
+| | | | | | Cast -> i32 :: I32 @ <103.19-31>
+| | | | | | | Subscript :: I8 @ <103.19-31>
+| | | | | | | | Ident: code (code) :: I8[1024] @ <103.19-23>
+| | | | | | | | Ident: insptr (insptr) :: I32 @ <103.19-30>
+| | | | | | Cast -> i32 :: I32 @ <103.36-38>
+| | | | | | | Literal: 93 :: I8 @ <103.36-38>
+| | | | | ExprStmt @ <104.13-22>
+| | | | | | Postfix: -- :: I32 @ <104.13-21>
+| | | | | | | Ident: current (current_s16) :: I32 @ <104.13-19>
+| | | | | IfStmt @ <105.13-108.13>
+| | | | | | Binary: == :: I32 @ <105.16-38>
+| | | | | | | Ident: current (current_s16) :: I32 @ <105.16-23>
+| | | | | | | Member: [1] :: I32 @ <105.28-38>
+| | | | | | | | Ident: nesting (nesting) :: class Stack @ <105.28-34>
+| | | | | | ExprStmt @ <106.17-25>
+| | | | | | | Postfix: ++ :: I32 @ <106.17-24>
+| | | | | | | | Ident: insptr (insptr) :: I32 @ <106.17-22>
+| | | | | | Return @ <107.17-23>
+| | | IfStmt @ <111.9-114.9>
+| | | | Binary: < :: I32 @ <111.12-33>
+| | | | | Ident: current (current_s16) :: I32 @ <111.12-19>
+| | | | | Member: [1] :: I32 @ <111.23-33>
+| | | | | | Ident: nesting (nesting) :: class Stack @ <111.23-29>
+| | | | ExprStmt @ <112.13-70>
+| | | | | Call :: Void @ <112.13-69>
+| | | | | | Ident: Die (Die) :: Void (I8 *, enum ErrType) @ <112.13-15>
+| | | | | | Cast -> i8 * :: I8 * @ <112.13-58>
+| | | | | | | Cast -> i8 * :: I8 * @ <112.13-58>
+| | | | | | | | Literal: malformed code, missing matching bracket :: I8[41] @ <112.13-58>
+| | | | | | Literal: 2 :: enum ErrType @ <112.61-68>
+| | | | Return @ <113.13-19>
+| | | ExprStmt @ <116.9-17>
+| | | | Postfix: ++ :: I32 @ <116.9-16>
+| | | | | Ident: insptr (insptr) :: I32 @ <116.9-14>
+| | Return @ <1.1>
 | FunctionLIR: Initialize (Initialize) @ <203.1-212.1>
     type: Void ()
 | | VarDecl: i (i_s36) @ <204.5-14>
@@ -5813,20 +6848,17 @@ mismatched closing bracket
 | | ExprStmt @ <204.13>
 | | | Assign: = :: I32 @ <204.13>
 | | | | Ident: i (i_s36) :: I32 @ <204.9-13>
-| | | | Literal :: I32 @ <204.13>
-0
+| | | | Literal: 0 :: I32 @ <204.13>
 | | LoopStmt @ <206.5-209.5>
 | | | Binary: < :: I32 @ <206.11-20>
 | | | | Ident: i (i_s36) :: I32 @ <206.11-12>
-| | | | Literal :: I32 @ <206.16-20>
-30000
+| | | | Literal: 30000 :: I32 @ <206.16-20>
 | | | ExprStmt @ <207.9-20>
 | | | | Assign: = :: I8 @ <207.9-19>
 | | | | | Subscript :: I8 @ <207.9-15>
 | | | | | | Ident: data (data) :: I8[30000] @ <207.9-12>
 | | | | | | Ident: i (i_s36) :: I32 @ <207.9-14>
-| | | | | Literal :: I32 @ <207.19>
-0
+| | | | | Literal: 0 :: I32 @ <207.19>
 | | | ExprStmt @ <208.9-12>
 | | | | Postfix: ++ :: I32 @ <208.9-11>
 | | | | | Ident: i (i_s36) :: I32 @ <208.9>
@@ -5834,16 +6866,16 @@ mismatched closing bracket
 | | | Assign: = :: I32 @ <211.5-19>
 | | | | Member: [1] :: I32 @ <211.5-15>
 | | | | | Ident: nesting (nesting) :: class Stack @ <211.5-11>
-| | | | Literal :: I32 @ <211.19>
-0
+| | | | Literal: 0 :: I32 @ <211.19>
+| | Return @ <1.1>
 | FunctionLIR: PrintUsage (PrintUsage) @ <214.1-216.1>
     type: Void (i8 *)
 | | VarDecl: argname (argname_s0) @ <214.4-25>
 | | | type: i8 * [param]
 | | Print: "usage: " @ <215.5-45>
 | | | Ident: argname (argname_s0) :: I8 * @ <215.16-22>
-| | | Literal :: I8[19] @ <215.25-44>
- [-m MEMSIZE] CODE
+| | | Literal:  [-m MEMSIZE] CODE :: I8[19] @ <215.25-44>
+| | Return @ <1.1>
 | FunctionLIR: Main (Main) @ <218.1-228.1>
     type: i32 ()
 | | VarDecl: program (program_s40) @ <222.5-186>
@@ -5855,8 +6887,7 @@ mismatched closing bracket
 | | | Assign: = :: I8[165] @ <222.20-185>
 | | | | Ident: program (program_s40) :: I8[165] @ <222.8-185>
 | | | | Cast -> i8[165] :: I8[165] @ <222.20-185>
-| | | | | Literal :: I8[165] @ <222.20-185>
->++++++++[<+++++++++>-]<.>++++[<+++++++>-]<+.+++++++..+++.>>++++++[<+++++++>-]<++.------------.>++++++[<+++++++++>-]<+.<.+++.------.--------.>>>++++[<++++++++>-]<+.
+| | | | | Literal: >++++++++[<+++++++++>-]<.>++++[<+++++++>-]<+.+++++++..+++.>>++++++[<+++++++>-]<++.------------.>++++++[<+++++++++>-]<+.<.+++.------.--------.>>>++++[<++++++++>-]<+. :: I8[165] @ <222.20-185>
 | | ExprStmt @ <224.5-22>
 | | | Call :: Void @ <224.5-21>
 | | | | Ident: ReadCode (ReadCode) :: Void (I8 *) @ <224.5-12>
@@ -5867,20 +6898,17 @@ mismatched closing bracket
 | | | Call :: Void @ <225.5-13>
 | | | | Ident: Execute (Execute) :: Void () @ <225.5-11>
 | | Return @ <227.5-13>
-| | | Literal :: I32 @ <227.12>
-0
+| | | Literal: 0 :: I32 @ <227.12>
 | ExprStmt @ <15.19-20>
 | | Assign: = :: I32 @ <15.19-20>
 | | | Member: [0] :: I32 @ <15.19-20>
 | | | | Ident: nesting (nesting) :: class Stack @ <15.7-25>
-| | | Literal :: I32 @ <15.19-20>
-32
+| | | Literal: 32 :: I32 @ <15.19-20>
 | ExprStmt @ <15.23>
 | | Assign: = :: I32 @ <15.23>
 | | | Member: [1] :: I32 @ <15.23>
 | | | | Ident: nesting (nesting) :: class Stack @ <15.7-25>
-| | | Literal :: I32 @ <15.23>
-0
+| | | Literal: 0 :: I32 @ <15.23>
 | ExprStmt @ <1.1>
 | | Assign: = :: I32[32] @ <1.1>
 | | | Member: [2] :: I32[32] @ <1.1>
@@ -5889,82 +6917,63 @@ mismatched closing bracket
 | ExprStmt @ <48.14>
 | | Assign: = :: I32 @ <48.14>
 | | | Ident: insptr (insptr) :: I32 @ <48.5-14>
-| | | Literal :: I32 @ <48.14>
-0
+| | | Literal: 0 :: I32 @ <48.14>
 | ExprStmt @ <49.16-19>
 | | Assign: = :: I32 @ <49.16-19>
 | | | Ident: codesize (codesize) :: I32 @ <49.5-19>
-| | | Literal :: I32 @ <49.16-19>
-1024
+| | | Literal: 1024 :: I32 @ <49.16-19>
 | ExprStmt @ <53.15>
 | | Assign: = :: I32 @ <53.15>
 | | | Ident: dataptr (dataptr) :: I32 @ <53.5-15>
-| | | Literal :: I32 @ <53.15>
-0
+| | | Literal: 0 :: I32 @ <53.15>
 | ExprStmt @ <65.21-24>
 | | Assign: = :: I8 @ <65.21-24>
 | | | Subscript :: I8 @ <65.21-24>
 | | | | Ident: valid_chars (valid_chars) :: I8[8] @ <65.4-60>
-| | | | Literal :: U64 @ <65.21-24>
-0
-| | | Literal :: I8 @ <65.21-24>
-62
+| | | | Literal: 0 :: U64 @ <65.21-24>
+| | | Literal: 62 :: I8 @ <65.21-24>
 | ExprStmt @ <65.27-29>
 | | Assign: = :: I8 @ <65.27-29>
 | | | Subscript :: I8 @ <65.27-29>
 | | | | Ident: valid_chars (valid_chars) :: I8[8] @ <65.4-60>
-| | | | Literal :: U64 @ <65.27-29>
-1
-| | | Literal :: I8 @ <65.27-29>
-60
+| | | | Literal: 1 :: U64 @ <65.27-29>
+| | | Literal: 60 :: I8 @ <65.27-29>
 | ExprStmt @ <65.32-34>
 | | Assign: = :: I8 @ <65.32-34>
 | | | Subscript :: I8 @ <65.32-34>
 | | | | Ident: valid_chars (valid_chars) :: I8[8] @ <65.4-60>
-| | | | Literal :: U64 @ <65.32-34>
-2
-| | | Literal :: I8 @ <65.32-34>
-43
+| | | | Literal: 2 :: U64 @ <65.32-34>
+| | | Literal: 43 :: I8 @ <65.32-34>
 | ExprStmt @ <65.37-39>
 | | Assign: = :: I8 @ <65.37-39>
 | | | Subscript :: I8 @ <65.37-39>
 | | | | Ident: valid_chars (valid_chars) :: I8[8] @ <65.4-60>
-| | | | Literal :: U64 @ <65.37-39>
-3
-| | | Literal :: I8 @ <65.37-39>
-45
+| | | | Literal: 3 :: U64 @ <65.37-39>
+| | | Literal: 45 :: I8 @ <65.37-39>
 | ExprStmt @ <65.42-44>
 | | Assign: = :: I8 @ <65.42-44>
 | | | Subscript :: I8 @ <65.42-44>
 | | | | Ident: valid_chars (valid_chars) :: I8[8] @ <65.4-60>
-| | | | Literal :: U64 @ <65.42-44>
-4
-| | | Literal :: I8 @ <65.42-44>
-44
+| | | | Literal: 4 :: U64 @ <65.42-44>
+| | | Literal: 44 :: I8 @ <65.42-44>
 | ExprStmt @ <65.47-49>
 | | Assign: = :: I8 @ <65.47-49>
 | | | Subscript :: I8 @ <65.47-49>
 | | | | Ident: valid_chars (valid_chars) :: I8[8] @ <65.4-60>
-| | | | Literal :: U64 @ <65.47-49>
-5
-| | | Literal :: I8 @ <65.47-49>
-46
+| | | | Literal: 5 :: U64 @ <65.47-49>
+| | | Literal: 46 :: I8 @ <65.47-49>
 | ExprStmt @ <65.52-54>
 | | Assign: = :: I8 @ <65.52-54>
 | | | Subscript :: I8 @ <65.52-54>
 | | | | Ident: valid_chars (valid_chars) :: I8[8] @ <65.4-60>
-| | | | Literal :: U64 @ <65.52-54>
-6
-| | | Literal :: I8 @ <65.52-54>
-91
+| | | | Literal: 6 :: U64 @ <65.52-54>
+| | | Literal: 91 :: I8 @ <65.52-54>
 | ExprStmt @ <65.57-59>
 | | Assign: = :: I8 @ <65.57-59>
 | | | Subscript :: I8 @ <65.57-59>
 | | | | Ident: valid_chars (valid_chars) :: I8[8] @ <65.4-60>
-| | | | Literal :: U64 @ <65.57-59>
-7
-| | | Literal :: I8 @ <65.57-59>
-93
+| | | | Literal: 7 :: U64 @ <65.57-59>
+| | | Literal: 93 :: I8 @ <65.57-59>
 | ExprStmt @ <230.1-7>
 | | Call :: I32 @ <230.1-6>
 | | | Ident: Main (Main) :: I32 () @ <230.1-4>

@@ -1,139 +1,67 @@
 Initializing LLVM
 LLVM initialized
-running pipeline on file input/literals.HC
-LLVM: Creating LLVMUnit with module name 'input/literals.HC'
+running pipeline on file test/integration/input/literals.HC
+LLVM: Creating LLVMUnit with module name 'test/integration/input/literals.HC'
 LLVM: LLVMUnit created
-parsing file input/literals.HC
-printing AST for file input/literals.HC
-Program @ <input/literals.HC:1.1> 
-| VariableDeclaration @ <input/literals.HC:1.1-161> 
-| | PrimitiveSpecifier: u32 @ <input/literals.HC:1.1-152> 
-| | InitDeclarator @ <input/literals.HC:1.154-160> 
-| | | Declarator @ <input/literals.HC:1.154> 
-| | | | IdentifierDeclarator: a @ <input/literals.HC:1.154> 
-| | | Initializer:  @ <input/literals.HC:1.158-160> 
-| | | | 123 @ <input/literals.HC:1.158-160> 
-| VariableDeclaration @ <input/literals.HC:2.1-13> 
-| | PrimitiveSpecifier: u32 @ <input/literals.HC:2.1-4> 
-| | InitDeclarator @ <input/literals.HC:2.6-12> 
-| | | Declarator @ <input/literals.HC:2.6> 
-| | | | IdentifierDeclarator: b @ <input/literals.HC:2.6> 
-| | | Initializer:  @ <input/literals.HC:2.10-12> 
-| | | | UnaryExpression: - @ <input/literals.HC:2.10-12> 
-| | | | | 45 @ <input/literals.HC:2.10-12> 
-| VariableDeclaration @ <input/literals.HC:3.1-13> 
-| | PrimitiveSpecifier: u32 @ <input/literals.HC:3.1-4> 
-| | InitDeclarator @ <input/literals.HC:3.6-12> 
-| | | Declarator @ <input/literals.HC:3.6> 
-| | | | IdentifierDeclarator: c @ <input/literals.HC:3.6> 
-| | | Initializer:  @ <input/literals.HC:3.10-12> 
-| | | | 63 @ <input/literals.HC:3.10-12> 
-| VariableDeclaration @ <input/literals.HC:4.1-14> 
-| | PrimitiveSpecifier: u32 @ <input/literals.HC:4.1-4> 
-| | InitDeclarator @ <input/literals.HC:4.6-13> 
-| | | Declarator @ <input/literals.HC:4.6> 
-| | | | IdentifierDeclarator: d @ <input/literals.HC:4.6> 
-| | | Initializer:  @ <input/literals.HC:4.10-13> 
-| | | | 255 @ <input/literals.HC:4.10-13> 
-| VariableDeclaration @ <input/literals.HC:6.1-15> 
-| | PrimitiveSpecifier: f64 @ <input/literals.HC:6.1-4> 
-| | InitDeclarator @ <input/literals.HC:6.6-14> 
-| | | Declarator @ <input/literals.HC:6.6-7> 
-| | | | IdentifierDeclarator: f1 @ <input/literals.HC:6.6-7> 
-| | | Initializer:  @ <input/literals.HC:6.11-14> 
-| | | | 5e-324 @ <input/literals.HC:6.11-14> 
-| VariableDeclaration @ <input/literals.HC:7.1-19> 
-| | PrimitiveSpecifier: f64 @ <input/literals.HC:7.1-4> 
-| | InitDeclarator @ <input/literals.HC:7.6-18> 
-| | | Declarator @ <input/literals.HC:7.6-7> 
-| | | | IdentifierDeclarator: f2 @ <input/literals.HC:7.6-7> 
-| | | Initializer:  @ <input/literals.HC:7.11-18> 
-| | | | UnaryExpression: - @ <input/literals.HC:7.11-18> 
-| | | | | 1.55136612794e-313 @ <input/literals.HC:7.11-18> 
-| VariableDeclaration @ <input/literals.HC:9.1-13> 
-| | PrimitiveSpecifier: u8 @ <input/literals.HC:9.1-3> 
-| | InitDeclarator @ <input/literals.HC:9.5-12> 
-| | | Declarator @ <input/literals.HC:9.5-6> 
-| | | | IdentifierDeclarator: ch @ <input/literals.HC:9.5-6> 
-| | | Initializer:  @ <input/literals.HC:9.10-12> 
-| | | | A @ <input/literals.HC:9.10-12> 
-| VariableDeclaration @ <input/literals.HC:10.1-14> 
-| | PrimitiveSpecifier: u8 @ <input/literals.HC:10.1-3> 
-| | InitDeclarator @ <input/literals.HC:10.5-13> 
-| | | Declarator @ <input/literals.HC:10.5-6> 
-| | | | IdentifierDeclarator: nl @ <input/literals.HC:10.5-6> 
-| | | Initializer:  @ <input/literals.HC:10.10-13> 
-| | | | 
- @ <input/literals.HC:10.10-13> 
-| VariableDeclaration @ <input/literals.HC:11.1-14> 
-| | PrimitiveSpecifier: u8 @ <input/literals.HC:11.1-3> 
-| | InitDeclarator @ <input/literals.HC:11.5-13> 
-| | | Declarator @ <input/literals.HC:11.5-6> 
-| | | | IdentifierDeclarator: qt @ <input/literals.HC:11.5-6> 
-| | | Initializer:  @ <input/literals.HC:11.10-13> 
-| | | | " @ <input/literals.HC:11.10-13> 
-| PrintStatement: "Values:
-" @ <input/literals.HC:13.1-32> 
-| | IdentifierExpression: a @ <input/literals.HC:13.14> 
-| | IdentifierExpression: b @ <input/literals.HC:13.17> 
-| | IdentifierExpression: c @ <input/literals.HC:13.20> 
-| | IdentifierExpression: d @ <input/literals.HC:13.23> 
-| | IdentifierExpression: f1 @ <input/literals.HC:13.26-27> 
-| | IdentifierExpression: f2 @ <input/literals.HC:13.30-31> 
-running backend for file input/literals.HC
-Checking semantics for input/literals.HC:1.1
-Synthesizing MIR for input/literals.HC:1.1
+parsing file test/integration/input/literals.HC
+running backend for file test/integration/input/literals.HC
+
+---------- Generating MIR ----------
+
+Synthesizing MIR for 1.1
 Node {
-    visiting Program node: input/literals.HC:1.1
+    visiting Program node: 1.1
     Node {
-        visiting VariableDeclaration node: input/literals.HC:1.1-161
-        parsing declaration specifier list for node at input/literals.HC:1.1-161
+        visiting VariableDeclaration node: 1.1-192
+        parsing declaration specifier list for node at 1.1-192
         Node {
-            visiting PrimitiveSpecifier node: input/literals.HC:1.1-152
+            visiting PrimitiveSpecifier node: 1.1-183
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/literals.HC:1.1-161
+        finished parsing specifiers for node 1.1-192
         Node {
-            visiting InitDeclarator node: input/literals.HC:1.154-160
+            visiting InitDeclarator node: 1.185-191
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/literals.HC:1.154
+                    visiting IdentifierDeclarator node: 1.185
                 }
             }
 TypeBuilder: finalizing type
             Node {
-                visiting Initializer node: input/literals.HC:1.158-160
+                visiting Initializer node: 1.189-191
                 visiting single initializer
                 Node {
-                    visiting LiteralExpression node: input/literals.HC:1.158-160
+                    visiting LiteralExpression node: 1.189-191
+                    found integer
                 }
             }
         }
 SymbolTable: inserting varsymbol with name "a"
     }
     Node {
-        visiting VariableDeclaration node: input/literals.HC:2.1-13
-        parsing declaration specifier list for node at input/literals.HC:2.1-13
+        visiting VariableDeclaration node: 2.1-12
+        parsing declaration specifier list for node at 2.1-12
         Node {
-            visiting PrimitiveSpecifier node: input/literals.HC:2.1-4
+            visiting PrimitiveSpecifier node: 2.1-3
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/literals.HC:2.1-13
+        finished parsing specifiers for node 2.1-12
         Node {
-            visiting InitDeclarator node: input/literals.HC:2.6-12
+            visiting InitDeclarator node: 2.5-11
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/literals.HC:2.6
+                    visiting IdentifierDeclarator node: 2.5
                 }
             }
 TypeBuilder: finalizing type
             Node {
-                visiting Initializer node: input/literals.HC:2.10-12
+                visiting Initializer node: 2.9-11
                 visiting single initializer
                 Node {
-                    visiting UnaryExpression node: input/literals.HC:2.10-12
+                    visiting UnaryExpression node: 2.9-11
                     Node {
-                        visiting LiteralExpression node: input/literals.HC:2.10-12
+                        visiting LiteralExpression node: 2.9-11
+                        found integer
                     }
                 }
             }
@@ -141,106 +69,110 @@ TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "b"
     }
     Node {
-        visiting VariableDeclaration node: input/literals.HC:3.1-13
-        parsing declaration specifier list for node at input/literals.HC:3.1-13
+        visiting VariableDeclaration node: 3.1-12
+        parsing declaration specifier list for node at 3.1-12
         Node {
-            visiting PrimitiveSpecifier node: input/literals.HC:3.1-4
+            visiting PrimitiveSpecifier node: 3.1-3
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/literals.HC:3.1-13
+        finished parsing specifiers for node 3.1-12
         Node {
-            visiting InitDeclarator node: input/literals.HC:3.6-12
+            visiting InitDeclarator node: 3.5-11
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/literals.HC:3.6
+                    visiting IdentifierDeclarator node: 3.5
                 }
             }
 TypeBuilder: finalizing type
             Node {
-                visiting Initializer node: input/literals.HC:3.10-12
+                visiting Initializer node: 3.9-11
                 visiting single initializer
                 Node {
-                    visiting LiteralExpression node: input/literals.HC:3.10-12
+                    visiting LiteralExpression node: 3.9-11
+                    found integer
                 }
             }
         }
 SymbolTable: inserting varsymbol with name "c"
     }
     Node {
-        visiting VariableDeclaration node: input/literals.HC:4.1-14
-        parsing declaration specifier list for node at input/literals.HC:4.1-14
+        visiting VariableDeclaration node: 4.1-13
+        parsing declaration specifier list for node at 4.1-13
         Node {
-            visiting PrimitiveSpecifier node: input/literals.HC:4.1-4
+            visiting PrimitiveSpecifier node: 4.1-3
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/literals.HC:4.1-14
+        finished parsing specifiers for node 4.1-13
         Node {
-            visiting InitDeclarator node: input/literals.HC:4.6-13
+            visiting InitDeclarator node: 4.5-12
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/literals.HC:4.6
+                    visiting IdentifierDeclarator node: 4.5
                 }
             }
 TypeBuilder: finalizing type
             Node {
-                visiting Initializer node: input/literals.HC:4.10-13
+                visiting Initializer node: 4.9-12
                 visiting single initializer
                 Node {
-                    visiting LiteralExpression node: input/literals.HC:4.10-13
+                    visiting LiteralExpression node: 4.9-12
+                    found integer
                 }
             }
         }
 SymbolTable: inserting varsymbol with name "d"
     }
     Node {
-        visiting VariableDeclaration node: input/literals.HC:6.1-15
-        parsing declaration specifier list for node at input/literals.HC:6.1-15
+        visiting VariableDeclaration node: 6.1-14
+        parsing declaration specifier list for node at 6.1-14
         Node {
-            visiting PrimitiveSpecifier node: input/literals.HC:6.1-4
+            visiting PrimitiveSpecifier node: 6.1-3
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/literals.HC:6.1-15
+        finished parsing specifiers for node 6.1-14
         Node {
-            visiting InitDeclarator node: input/literals.HC:6.6-14
+            visiting InitDeclarator node: 6.5-13
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/literals.HC:6.6-7
+                    visiting IdentifierDeclarator node: 6.5-6
                 }
             }
 TypeBuilder: finalizing type
             Node {
-                visiting Initializer node: input/literals.HC:6.11-14
+                visiting Initializer node: 6.10-13
                 visiting single initializer
                 Node {
-                    visiting LiteralExpression node: input/literals.HC:6.11-14
+                    visiting LiteralExpression node: 6.10-13
+                    found float
                 }
             }
         }
 SymbolTable: inserting varsymbol with name "f1"
     }
     Node {
-        visiting VariableDeclaration node: input/literals.HC:7.1-19
-        parsing declaration specifier list for node at input/literals.HC:7.1-19
+        visiting VariableDeclaration node: 7.1-18
+        parsing declaration specifier list for node at 7.1-18
         Node {
-            visiting PrimitiveSpecifier node: input/literals.HC:7.1-4
+            visiting PrimitiveSpecifier node: 7.1-3
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/literals.HC:7.1-19
+        finished parsing specifiers for node 7.1-18
         Node {
-            visiting InitDeclarator node: input/literals.HC:7.6-18
+            visiting InitDeclarator node: 7.5-17
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/literals.HC:7.6-7
+                    visiting IdentifierDeclarator node: 7.5-6
                 }
             }
 TypeBuilder: finalizing type
             Node {
-                visiting Initializer node: input/literals.HC:7.11-18
+                visiting Initializer node: 7.10-17
                 visiting single initializer
                 Node {
-                    visiting UnaryExpression node: input/literals.HC:7.11-18
+                    visiting UnaryExpression node: 7.10-17
                     Node {
-                        visiting LiteralExpression node: input/literals.HC:7.11-18
+                        visiting LiteralExpression node: 7.10-17
+                        found float
                     }
                 }
             }
@@ -248,112 +180,608 @@ TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "f2"
     }
     Node {
-        visiting VariableDeclaration node: input/literals.HC:9.1-13
-        parsing declaration specifier list for node at input/literals.HC:9.1-13
+        visiting VariableDeclaration node: 9.1-12
+        parsing declaration specifier list for node at 9.1-12
         Node {
-            visiting PrimitiveSpecifier node: input/literals.HC:9.1-3
+            visiting PrimitiveSpecifier node: 9.1-2
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/literals.HC:9.1-13
+        finished parsing specifiers for node 9.1-12
         Node {
-            visiting InitDeclarator node: input/literals.HC:9.5-12
+            visiting InitDeclarator node: 9.4-11
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/literals.HC:9.5-6
+                    visiting IdentifierDeclarator node: 9.4-5
                 }
             }
 TypeBuilder: finalizing type
             Node {
-                visiting Initializer node: input/literals.HC:9.10-12
+                visiting Initializer node: 9.9-11
                 visiting single initializer
                 Node {
-                    visiting LiteralExpression node: input/literals.HC:9.10-12
+                    visiting LiteralExpression node: 9.9-11
+                    found char
                 }
             }
         }
 SymbolTable: inserting varsymbol with name "ch"
     }
     Node {
-        visiting VariableDeclaration node: input/literals.HC:10.1-14
-        parsing declaration specifier list for node at input/literals.HC:10.1-14
+        visiting VariableDeclaration node: 10.1-13
+        parsing declaration specifier list for node at 10.1-13
         Node {
-            visiting PrimitiveSpecifier node: input/literals.HC:10.1-3
+            visiting PrimitiveSpecifier node: 10.1-2
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/literals.HC:10.1-14
+        finished parsing specifiers for node 10.1-13
         Node {
-            visiting InitDeclarator node: input/literals.HC:10.5-13
+            visiting InitDeclarator node: 10.4-12
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/literals.HC:10.5-6
+                    visiting IdentifierDeclarator node: 10.4-5
                 }
             }
 TypeBuilder: finalizing type
             Node {
-                visiting Initializer node: input/literals.HC:10.10-13
+                visiting Initializer node: 10.9-12
                 visiting single initializer
                 Node {
-                    visiting LiteralExpression node: input/literals.HC:10.10-13
+                    visiting LiteralExpression node: 10.9-12
+                    found char
                 }
             }
         }
 SymbolTable: inserting varsymbol with name "nl"
     }
     Node {
-        visiting VariableDeclaration node: input/literals.HC:11.1-14
-        parsing declaration specifier list for node at input/literals.HC:11.1-14
+        visiting VariableDeclaration node: 11.1-13
+        parsing declaration specifier list for node at 11.1-13
         Node {
-            visiting PrimitiveSpecifier node: input/literals.HC:11.1-3
+            visiting PrimitiveSpecifier node: 11.1-2
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/literals.HC:11.1-14
+        finished parsing specifiers for node 11.1-13
         Node {
-            visiting InitDeclarator node: input/literals.HC:11.5-13
+            visiting InitDeclarator node: 11.4-12
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/literals.HC:11.5-6
+                    visiting IdentifierDeclarator node: 11.4-5
                 }
             }
 TypeBuilder: finalizing type
             Node {
-                visiting Initializer node: input/literals.HC:11.10-13
+                visiting Initializer node: 11.9-12
                 visiting single initializer
                 Node {
-                    visiting LiteralExpression node: input/literals.HC:11.10-13
+                    visiting LiteralExpression node: 11.9-12
+                    found char
                 }
             }
         }
 SymbolTable: inserting varsymbol with name "qt"
     }
     Node {
-        visiting PrintStatement node: input/literals.HC:13.1-32
+        visiting PrintStatement node: 13.1-28
         Node {
-            visiting IdentifierExpression node: input/literals.HC:13.14
+            visiting IdentifierExpression node: 13.18
 SymbolTable: looking up varsymbol a
         }
         Node {
-            visiting IdentifierExpression node: input/literals.HC:13.17
+            visiting IdentifierExpression node: 13.21
 SymbolTable: looking up varsymbol b
         }
         Node {
-            visiting IdentifierExpression node: input/literals.HC:13.20
+            visiting IdentifierExpression node: 13.24
 SymbolTable: looking up varsymbol c
         }
         Node {
-            visiting IdentifierExpression node: input/literals.HC:13.23
+            visiting IdentifierExpression node: 13.27
 SymbolTable: looking up varsymbol d
         }
+    }
+    Node {
+        visiting PrintStatement node: 14.1-18
         Node {
-            visiting IdentifierExpression node: input/literals.HC:13.26-27
+            visiting IdentifierExpression node: 14.12-13
 SymbolTable: looking up varsymbol f1
         }
         Node {
-            visiting IdentifierExpression node: input/literals.HC:13.30-31
+            visiting IdentifierExpression node: 14.16-17
 SymbolTable: looking up varsymbol f2
         }
     }
+    Node {
+        visiting VariableDeclaration node: 17.1-13
+        parsing declaration specifier list for node at 17.1-13
+        Node {
+            visiting PrimitiveSpecifier node: 17.1-3
+TypeContext: getting primitive type
+        }
+        finished parsing specifiers for node 17.1-13
+        Node {
+            visiting InitDeclarator node: 17.5-12
+            Node {
+                Node {
+                    visiting IdentifierDeclarator node: 17.5
+                }
+            }
+TypeBuilder: finalizing type
+            Node {
+                visiting Initializer node: 17.9-12
+                visiting single initializer
+                Node {
+                    visiting LiteralExpression node: 17.9-12
+                    found integer
+                }
+            }
+        }
+SymbolTable: inserting varsymbol with name "e"
+    }
+    Node {
+        visiting PrintStatement node: 18.1-10
+        Node {
+            visiting IdentifierExpression node: 18.9
+SymbolTable: looking up varsymbol e
+        }
+    }
+    Node {
+        visiting VariableDeclaration node: 22.1-12
+        parsing declaration specifier list for node at 22.1-12
+        Node {
+            visiting PrimitiveSpecifier node: 22.1-3
+TypeContext: getting primitive type
+        }
+        finished parsing specifiers for node 22.1-12
+        Node {
+            visiting InitDeclarator node: 22.5-11
+            Node {
+                Node {
+                    visiting IdentifierDeclarator node: 22.5-6
+                }
+            }
+TypeBuilder: finalizing type
+            Node {
+                visiting Initializer node: 22.10-11
+                visiting single initializer
+                Node {
+                    visiting LiteralExpression node: 22.10-11
+                    found float
+                }
+            }
+        }
+SymbolTable: inserting varsymbol with name "f3"
+    }
+    Node {
+        visiting VariableDeclaration node: 23.1-13
+        parsing declaration specifier list for node at 23.1-13
+        Node {
+            visiting PrimitiveSpecifier node: 23.1-3
+TypeContext: getting primitive type
+        }
+        finished parsing specifiers for node 23.1-13
+        Node {
+            visiting InitDeclarator node: 23.5-12
+            Node {
+                Node {
+                    visiting IdentifierDeclarator node: 23.5-6
+                }
+            }
+TypeBuilder: finalizing type
+            Node {
+                visiting Initializer node: 23.10-12
+                visiting single initializer
+                Node {
+                    visiting LiteralExpression node: 23.10-12
+                    found float
+                }
+            }
+        }
+SymbolTable: inserting varsymbol with name "f4"
+    }
+    Node {
+        visiting PrintStatement node: 24.1-18
+        Node {
+            visiting IdentifierExpression node: 24.12-13
+SymbolTable: looking up varsymbol f3
+        }
+        Node {
+            visiting IdentifierExpression node: 24.16-17
+SymbolTable: looking up varsymbol f4
+        }
+    }
+    Node {
+        visiting VariableDeclaration node: 27.1-13
+        parsing declaration specifier list for node at 27.1-13
+        Node {
+            visiting PrimitiveSpecifier node: 27.1-2
+TypeContext: getting primitive type
+        }
+        finished parsing specifiers for node 27.1-13
+        Node {
+            visiting InitDeclarator node: 27.4-12
+            Node {
+                Node {
+                    visiting IdentifierDeclarator node: 27.4-5
+                }
+            }
+TypeBuilder: finalizing type
+            Node {
+                visiting Initializer node: 27.9-12
+                visiting single initializer
+                Node {
+                    visiting LiteralExpression node: 27.9-12
+                    found char
+                }
+            }
+        }
+SymbolTable: inserting varsymbol with name "tb"
+    }
+    Node {
+        visiting VariableDeclaration node: 28.1-13
+        parsing declaration specifier list for node at 28.1-13
+        Node {
+            visiting PrimitiveSpecifier node: 28.1-2
+TypeContext: getting primitive type
+        }
+        finished parsing specifiers for node 28.1-13
+        Node {
+            visiting InitDeclarator node: 28.4-12
+            Node {
+                Node {
+                    visiting IdentifierDeclarator node: 28.4-5
+                }
+            }
+TypeBuilder: finalizing type
+            Node {
+                visiting Initializer node: 28.9-12
+                visiting single initializer
+                Node {
+                    visiting LiteralExpression node: 28.9-12
+                    found char
+                }
+            }
+        }
+SymbolTable: inserting varsymbol with name "bs"
+    }
+    Node {
+        visiting VariableDeclaration node: 29.1-13
+        parsing declaration specifier list for node at 29.1-13
+        Node {
+            visiting PrimitiveSpecifier node: 29.1-2
+TypeContext: getting primitive type
+        }
+        finished parsing specifiers for node 29.1-13
+        Node {
+            visiting InitDeclarator node: 29.4-12
+            Node {
+                Node {
+                    visiting IdentifierDeclarator node: 29.4-5
+                }
+            }
+TypeBuilder: finalizing type
+            Node {
+                visiting Initializer node: 29.9-12
+                visiting single initializer
+                Node {
+                    visiting LiteralExpression node: 29.9-12
+                    found char
+                }
+            }
+        }
+SymbolTable: inserting varsymbol with name "sq"
+    }
+    Node {
+        visiting VariableDeclaration node: 30.1-14
+        parsing declaration specifier list for node at 30.1-14
+        Node {
+            visiting PrimitiveSpecifier node: 30.1-2
+TypeContext: getting primitive type
+        }
+        finished parsing specifiers for node 30.1-14
+        Node {
+            visiting InitDeclarator node: 30.4-13
+            Node {
+                Node {
+                    visiting IdentifierDeclarator node: 30.4-6
+                }
+            }
+TypeBuilder: finalizing type
+            Node {
+                visiting Initializer node: 30.10-13
+                visiting single initializer
+                Node {
+                    visiting LiteralExpression node: 30.10-13
+                    found char
+                }
+            }
+        }
+SymbolTable: inserting varsymbol with name "oct"
+    }
+    Node {
+        visiting PrintStatement node: 32.1-33
+        Node {
+            visiting IdentifierExpression node: 32.18-19
+SymbolTable: looking up varsymbol tb
+        }
+        Node {
+            visiting IdentifierExpression node: 32.22-23
+SymbolTable: looking up varsymbol bs
+        }
+        Node {
+            visiting IdentifierExpression node: 32.26-27
+SymbolTable: looking up varsymbol sq
+        }
+        Node {
+            visiting IdentifierExpression node: 32.30-32
+SymbolTable: looking up varsymbol oct
+        }
+    }
+    Node {
+        visiting PrintStatement node: 36.1-27
+    }
+    Node {
+        visiting PrintStatement node: 39.1-27
+    }
 }
-semantic checking complete
+
+---------- Validating ----------
+
+Node {
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for a
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for b
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting UnaryExprMIR node
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+        }
+        types are not equal, checking compatibility
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for c
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for d
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for f1
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for f2
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting UnaryExprMIR node
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+        }
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for ch
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for nl
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for qt
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for e
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for f3
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for f4
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for tb
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for bs
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for sq
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for oct
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+    }
+}
 --------- TYPE CONTEXT ---------
 
 Base Types:
@@ -367,67 +795,494 @@ Array Types:
 
 --------- SYMBOL TABLE ---------
 
-Scope 0
+Scope 0: Compound Statement
 Physical Symbols:
-  nl -> 0x557ea8626430 : VarSymbol: nl :: U8
-  ch -> 0x557ea8626200 : VarSymbol: ch :: U8
-  f2 -> 0x557ea8625fd0 : VarSymbol: f2 :: F64
-  qt -> 0x557ea8626660 : VarSymbol: qt :: U8
-  f1 -> 0x557ea8625cf0 : VarSymbol: f1 :: F64
-  c -> 0x557ea86258d0 : VarSymbol: c :: U32
-  b -> 0x557ea86256a0 : VarSymbol: b :: U32
-  d -> 0x557ea8625ae0 : VarSymbol: d :: U32
-  a -> 0x557ea8610670 : VarSymbol: a :: U32
+  oct <0x55b62288b230> : VarSymbol: oct :: U8
+  sq <0x55b62288b000> : VarSymbol: sq :: U8
+  a <0x55b622888950> : VarSymbol: a :: U32
+  d <0x55b622889090> : VarSymbol: d :: U32
+  f3 <0x55b62288a500> : VarSymbol: f3 :: F64
+  b <0x55b622888c30> : VarSymbol: b :: U32
+  c <0x55b622888e80> : VarSymbol: c :: U32
+  f4 <0x55b62288a730> : VarSymbol: f4 :: F64
+  qt <0x55b622889c10> : VarSymbol: qt :: U8
+  f1 <0x55b6228892a0> : VarSymbol: f1 :: F64
+  e <0x55b62288a1e0> : VarSymbol: e :: U32
+  bs <0x55b62288ace0> : VarSymbol: bs :: U8
+  ch <0x55b6228897b0> : VarSymbol: ch :: U8
+  f2 <0x55b622889580> : VarSymbol: f2 :: F64
+  nl <0x55b6228899e0> : VarSymbol: nl :: U8
+  tb <0x55b62288aab0> : VarSymbol: tb :: U8
 -----------------------------------------------------------
 
 --------- MIR ---------
 
 ProgramMIR @ <1.1>
-| VarDecl:  @ <input/literals.HC:1.1-161>
+| VarDecl:  @ <1.1-192>
 | | | VarSymbol: a :: U32
-| | | Initializer @ <input/literals.HC:1.158-160>
-| | | | Literal: 123 @ <input/literals.HC:1.158-160>
-| VarDecl:  @ <input/literals.HC:2.1-13>
+| | | Initializer @ <1.189-191>
+| | | | Cast -> u32 (implicit) :: U32 @ <1.189-191>
+| | | | | Literal: 123 :: I32 @ <1.189-191>
+| VarDecl:  @ <2.1-12>
 | | | VarSymbol: b :: U32
-| | | Initializer @ <input/literals.HC:2.10-12>
-| | | | Unary: - @ <input/literals.HC:2.10-12>
-| | | | | Literal: 45 @ <input/literals.HC:2.10-12>
-| VarDecl:  @ <input/literals.HC:3.1-13>
+| | | Initializer @ <2.9-11>
+| | | | Cast -> u32 (implicit) :: U32 @ <2.9-11>
+| | | | | Unary: - :: I32 @ <2.9-11>
+| | | | | | Literal: 45 :: I32 @ <2.9-11>
+| VarDecl:  @ <3.1-12>
 | | | VarSymbol: c :: U32
-| | | Initializer @ <input/literals.HC:3.10-12>
-| | | | Literal: 63 @ <input/literals.HC:3.10-12>
-| VarDecl:  @ <input/literals.HC:4.1-14>
+| | | Initializer @ <3.9-11>
+| | | | Cast -> u32 (implicit) :: U32 @ <3.9-11>
+| | | | | Literal: 63 :: I32 @ <3.9-11>
+| VarDecl:  @ <4.1-13>
 | | | VarSymbol: d :: U32
-| | | Initializer @ <input/literals.HC:4.10-13>
-| | | | Literal: 255 @ <input/literals.HC:4.10-13>
-| VarDecl:  @ <input/literals.HC:6.1-15>
+| | | Initializer @ <4.9-12>
+| | | | Cast -> u32 (implicit) :: U32 @ <4.9-12>
+| | | | | Literal: 255 :: I32 @ <4.9-12>
+| VarDecl:  @ <6.1-14>
 | | | VarSymbol: f1 :: F64
-| | | Initializer @ <input/literals.HC:6.11-14>
-| | | | Literal: 5e-324 @ <input/literals.HC:6.11-14>
-| VarDecl:  @ <input/literals.HC:7.1-19>
+| | | Initializer @ <6.10-13>
+| | | | Literal: 5e-324 :: F64 @ <6.10-13>
+| VarDecl:  @ <7.1-18>
 | | | VarSymbol: f2 :: F64
-| | | Initializer @ <input/literals.HC:7.11-18>
-| | | | Unary: - @ <input/literals.HC:7.11-18>
-| | | | | Literal: 1.55136612794e-313 @ <input/literals.HC:7.11-18>
-| VarDecl:  @ <input/literals.HC:9.1-13>
+| | | Initializer @ <7.10-17>
+| | | | Unary: - :: F64 @ <7.10-17>
+| | | | | Literal: 1.55136612794e-313 :: F64 @ <7.10-17>
+| VarDecl:  @ <9.1-12>
 | | | VarSymbol: ch :: U8
-| | | Initializer @ <input/literals.HC:9.10-12>
-| | | | Literal: A @ <input/literals.HC:9.10-12>
-| VarDecl:  @ <input/literals.HC:10.1-14>
+| | | Initializer @ <9.9-11>
+| | | | Cast -> u8 (implicit) :: U8 @ <9.9-11>
+| | | | | Literal: 65 :: I8 @ <9.9-11>
+| VarDecl:  @ <10.1-13>
 | | | VarSymbol: nl :: U8
-| | | Initializer @ <input/literals.HC:10.10-13>
-| | | | Literal: 
- @ <input/literals.HC:10.10-13>
-| VarDecl:  @ <input/literals.HC:11.1-14>
+| | | Initializer @ <10.9-12>
+| | | | Cast -> u8 (implicit) :: U8 @ <10.9-12>
+| | | | | Literal: 10 :: I8 @ <10.9-12>
+| VarDecl:  @ <11.1-13>
 | | | VarSymbol: qt :: U8
-| | | Initializer @ <input/literals.HC:11.10-13>
-| | | | Literal: " @ <input/literals.HC:11.10-13>
-| Print: "Values:
-" @ <input/literals.HC:13.1-32>
-| | Ident: a @ <input/literals.HC:13.14>
-| | Ident: b @ <input/literals.HC:13.17>
-| | Ident: c @ <input/literals.HC:13.20>
-| | Ident: d @ <input/literals.HC:13.23>
-| | Ident: f1 @ <input/literals.HC:13.26-27>
-| | Ident: f2 @ <input/literals.HC:13.30-31>
+| | | Initializer @ <11.9-12>
+| | | | Cast -> u8 (implicit) :: U8 @ <11.9-12>
+| | | | | Literal: 34 :: I8 @ <11.9-12>
+| Print: "%d %d %d %d\n" @ <13.1-28>
+| | Ident: a :: U32 @ <13.18>
+| | Ident: b :: U32 @ <13.21>
+| | Ident: c :: U32 @ <13.24>
+| | Ident: d :: U32 @ <13.27>
+| Print: "%f %f\n" @ <14.1-18>
+| | Ident: f1 :: F64 @ <14.12-13>
+| | Ident: f2 :: F64 @ <14.16-17>
+| VarDecl:  @ <17.1-13>
+| | | VarSymbol: e :: U32
+| | | Initializer @ <17.9-12>
+| | | | Cast -> u32 (implicit) :: U32 @ <17.9-12>
+| | | | | Literal: 255 :: I32 @ <17.9-12>
+| Print: "%d\n" @ <18.1-10>
+| | Ident: e :: U32 @ <18.9>
+| VarDecl:  @ <22.1-12>
+| | | VarSymbol: f3 :: F64
+| | | Initializer @ <22.10-11>
+| | | | Literal: 2.5e-323 :: F64 @ <22.10-11>
+| VarDecl:  @ <23.1-13>
+| | | VarSymbol: f4 :: F64
+| | | Initializer @ <23.10-12>
+| | | | Literal: 2.964e-321 :: F64 @ <23.10-12>
+| Print: "%f %f\n" @ <24.1-18>
+| | Ident: f3 :: F64 @ <24.12-13>
+| | Ident: f4 :: F64 @ <24.16-17>
+| VarDecl:  @ <27.1-13>
+| | | VarSymbol: tb :: U8
+| | | Initializer @ <27.9-12>
+| | | | Cast -> u8 (implicit) :: U8 @ <27.9-12>
+| | | | | Literal: 9 :: I8 @ <27.9-12>
+| VarDecl:  @ <28.1-13>
+| | | VarSymbol: bs :: U8
+| | | Initializer @ <28.9-12>
+| | | | Cast -> u8 (implicit) :: U8 @ <28.9-12>
+| | | | | Literal: 92 :: I8 @ <28.9-12>
+| VarDecl:  @ <29.1-13>
+| | | VarSymbol: sq :: U8
+| | | Initializer @ <29.9-12>
+| | | | Cast -> u8 (implicit) :: U8 @ <29.9-12>
+| | | | | Literal: 39 :: I8 @ <29.9-12>
+| VarDecl:  @ <30.1-14>
+| | | VarSymbol: oct :: U8
+| | | Initializer @ <30.10-13>
+| | | | Cast -> u8 (implicit) :: U8 @ <30.10-13>
+| | | | | Literal: 7 :: I8 @ <30.10-13>
+| Print: "%d %d %d %d\n" @ <32.1-33>
+| | Ident: tb :: U8 @ <32.18-19>
+| | Ident: bs :: U8 @ <32.22-23>
+| | Ident: sq :: U8 @ <32.26-27>
+| | Ident: oct :: U8 @ <32.30-32>
+| Print: "hex: A, octal: A\n" @ <36.1-27>
+| Print: "concatenated string\n" @ <39.1-27>
+
+---------- Generating LIR ----------
+
+Node {
+    LIRSynthesizer: visiting ProgramMIR node
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting UnaryExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting LiteralExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting UnaryExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting LiteralExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting LiteralExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+    }
+}
+--------- LIR ---------
+
+ProgramLIR @ <?>
+| VarDecl: a (a) @ <1.1-192>
+| | type: u32
+| VarDecl: b (b) @ <2.1-12>
+| | type: u32
+| VarDecl: c (c) @ <3.1-12>
+| | type: u32
+| VarDecl: d (d) @ <4.1-13>
+| | type: u32
+| VarDecl: f1 (f1) @ <6.1-14>
+| | type: f64
+| VarDecl: f2 (f2) @ <7.1-18>
+| | type: f64
+| VarDecl: ch (ch) @ <9.1-12>
+| | type: u8
+| VarDecl: nl (nl) @ <10.1-13>
+| | type: u8
+| VarDecl: qt (qt) @ <11.1-13>
+| | type: u8
+| VarDecl: e (e) @ <17.1-13>
+| | type: u32
+| VarDecl: f3 (f3) @ <22.1-12>
+| | type: f64
+| VarDecl: f4 (f4) @ <23.1-13>
+| | type: f64
+| VarDecl: tb (tb) @ <27.1-13>
+| | type: u8
+| VarDecl: bs (bs) @ <28.1-13>
+| | type: u8
+| VarDecl: sq (sq) @ <29.1-13>
+| | type: u8
+| VarDecl: oct (oct) @ <30.1-14>
+| | type: u8
+| ExprStmt @ <1.189-191>
+| | Assign: = :: U32 @ <1.189-191>
+| | | Ident: a (a) :: U32 @ <1.185-191>
+| | | Cast -> u32 (implicit) :: U32 @ <1.189-191>
+| | | | Literal: 123 :: I32 @ <1.189-191>
+| ExprStmt @ <2.9-11>
+| | Assign: = :: U32 @ <2.9-11>
+| | | Ident: b (b) :: U32 @ <2.5-11>
+| | | Cast -> u32 (implicit) :: U32 @ <2.9-11>
+| | | | Unary: - :: I32 @ <2.9-11>
+| | | | | Literal: 45 :: I32 @ <2.9-11>
+| ExprStmt @ <3.9-11>
+| | Assign: = :: U32 @ <3.9-11>
+| | | Ident: c (c) :: U32 @ <3.5-11>
+| | | Cast -> u32 (implicit) :: U32 @ <3.9-11>
+| | | | Literal: 63 :: I32 @ <3.9-11>
+| ExprStmt @ <4.9-12>
+| | Assign: = :: U32 @ <4.9-12>
+| | | Ident: d (d) :: U32 @ <4.5-12>
+| | | Cast -> u32 (implicit) :: U32 @ <4.9-12>
+| | | | Literal: 255 :: I32 @ <4.9-12>
+| ExprStmt @ <6.10-13>
+| | Assign: = :: F64 @ <6.10-13>
+| | | Ident: f1 (f1) :: F64 @ <6.5-13>
+| | | Literal: 5e-324 :: F64 @ <6.10-13>
+| ExprStmt @ <7.10-17>
+| | Assign: = :: F64 @ <7.10-17>
+| | | Ident: f2 (f2) :: F64 @ <7.5-17>
+| | | Unary: - :: F64 @ <7.10-17>
+| | | | Literal: 1.55136612794e-313 :: F64 @ <7.10-17>
+| ExprStmt @ <9.9-11>
+| | Assign: = :: U8 @ <9.9-11>
+| | | Ident: ch (ch) :: U8 @ <9.4-11>
+| | | Cast -> u8 (implicit) :: U8 @ <9.9-11>
+| | | | Literal: 65 :: I8 @ <9.9-11>
+| ExprStmt @ <10.9-12>
+| | Assign: = :: U8 @ <10.9-12>
+| | | Ident: nl (nl) :: U8 @ <10.4-12>
+| | | Cast -> u8 (implicit) :: U8 @ <10.9-12>
+| | | | Literal: 10 :: I8 @ <10.9-12>
+| ExprStmt @ <11.9-12>
+| | Assign: = :: U8 @ <11.9-12>
+| | | Ident: qt (qt) :: U8 @ <11.4-12>
+| | | Cast -> u8 (implicit) :: U8 @ <11.9-12>
+| | | | Literal: 34 :: I8 @ <11.9-12>
+| Print: "%d %d %d %d\n" @ <13.1-28>
+| | Ident: a (a) :: U32 @ <13.18>
+| | Ident: b (b) :: U32 @ <13.21>
+| | Ident: c (c) :: U32 @ <13.24>
+| | Ident: d (d) :: U32 @ <13.27>
+| Print: "%f %f\n" @ <14.1-18>
+| | Ident: f1 (f1) :: F64 @ <14.12-13>
+| | Ident: f2 (f2) :: F64 @ <14.16-17>
+| ExprStmt @ <17.9-12>
+| | Assign: = :: U32 @ <17.9-12>
+| | | Ident: e (e) :: U32 @ <17.5-12>
+| | | Cast -> u32 (implicit) :: U32 @ <17.9-12>
+| | | | Literal: 255 :: I32 @ <17.9-12>
+| Print: "%d\n" @ <18.1-10>
+| | Ident: e (e) :: U32 @ <18.9>
+| ExprStmt @ <22.10-11>
+| | Assign: = :: F64 @ <22.10-11>
+| | | Ident: f3 (f3) :: F64 @ <22.5-11>
+| | | Literal: 2.5e-323 :: F64 @ <22.10-11>
+| ExprStmt @ <23.10-12>
+| | Assign: = :: F64 @ <23.10-12>
+| | | Ident: f4 (f4) :: F64 @ <23.5-12>
+| | | Literal: 2.964e-321 :: F64 @ <23.10-12>
+| Print: "%f %f\n" @ <24.1-18>
+| | Ident: f3 (f3) :: F64 @ <24.12-13>
+| | Ident: f4 (f4) :: F64 @ <24.16-17>
+| ExprStmt @ <27.9-12>
+| | Assign: = :: U8 @ <27.9-12>
+| | | Ident: tb (tb) :: U8 @ <27.4-12>
+| | | Cast -> u8 (implicit) :: U8 @ <27.9-12>
+| | | | Literal: 9 :: I8 @ <27.9-12>
+| ExprStmt @ <28.9-12>
+| | Assign: = :: U8 @ <28.9-12>
+| | | Ident: bs (bs) :: U8 @ <28.4-12>
+| | | Cast -> u8 (implicit) :: U8 @ <28.9-12>
+| | | | Literal: 92 :: I8 @ <28.9-12>
+| ExprStmt @ <29.9-12>
+| | Assign: = :: U8 @ <29.9-12>
+| | | Ident: sq (sq) :: U8 @ <29.4-12>
+| | | Cast -> u8 (implicit) :: U8 @ <29.9-12>
+| | | | Literal: 39 :: I8 @ <29.9-12>
+| ExprStmt @ <30.10-13>
+| | Assign: = :: U8 @ <30.10-13>
+| | | Ident: oct (oct) :: U8 @ <30.4-13>
+| | | Cast -> u8 (implicit) :: U8 @ <30.10-13>
+| | | | Literal: 7 :: I8 @ <30.10-13>
+| Print: "%d %d %d %d\n" @ <32.1-33>
+| | Ident: tb (tb) :: U8 @ <32.18-19>
+| | Ident: bs (bs) :: U8 @ <32.22-23>
+| | Ident: sq (sq) :: U8 @ <32.26-27>
+| | Ident: oct (oct) :: U8 @ <32.30-32>
+| Print: "hex: A, octal: A\n" @ <36.1-27>
+| Print: "concatenated string\n" @ <39.1-27>
 LLVM: Shutting down

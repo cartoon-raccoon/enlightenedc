@@ -40,6 +40,16 @@ enum Color {
     BLUE
 };
 
+// Enum with an explicit underlying primitive type (only the default
+// underlying type is exercised by Color above).
+U8 enum SmallFlags {
+    FLAG_NONE,
+    FLAG_A,
+    FLAG_B
+};
+
+"%d\n", FLAG_A;
+
 class Animal {
     I32 age;
 };

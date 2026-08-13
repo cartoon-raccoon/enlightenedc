@@ -1,394 +1,142 @@
 Initializing LLVM
 LLVM initialized
-running pipeline on file input/functions.HC
-LLVM: Creating LLVMUnit with module name 'input/functions.HC'
+running pipeline on file test/integration/input/functions.HC
+LLVM: Creating LLVMUnit with module name 'test/integration/input/functions.HC'
 LLVM: LLVMUnit created
-parsing file input/functions.HC
-printing AST for file input/functions.HC
-Program @ <input/functions.HC:1.1> 
-| VariableDeclaration @ <input/functions.HC:1.1-177> 
-| | PrimitiveSpecifier: i32 @ <input/functions.HC:1.162-165> 
-| | StorageClassSpecifier: extern "C" @ <input/functions.HC:1.1-156> 
-| | InitDeclarator @ <input/functions.HC:1.167-176> 
-| | | Declarator @ <input/functions.HC:1.167-176> 
-| | | | FunctionDeclarator @ <input/functions.HC:1.167-176> 
-| | | | | IdentifierDeclarator: somefunc @ <input/functions.HC:1.167-174> 
-| VariableDeclaration @ <input/functions.HC:3.1-28> 
-| | PrimitiveSpecifier: i32 @ <input/functions.HC:3.1-4> 
-| | InitDeclarator @ <input/functions.HC:3.6-27> 
-| | | Declarator @ <input/functions.HC:3.6-27> 
-| | | | FunctionDeclarator @ <input/functions.HC:3.6-27> 
-| | | | | IdentifierDeclarator: someinternalfunc @ <input/functions.HC:3.6-21> 
-| | | | | ParameterDeclaration @ <input/functions.HC:3.6-26> 
-| | | | | | PrimitiveSpecifier: i32 @ <input/functions.HC:3.6-26> 
-| Function @ <input/functions.HC:5.1-7.1> 
-| | PrimitiveSpecifier: u32 @ <input/functions.HC:5.1-4> 
-| | Declarator @ <input/functions.HC:5.6-25> 
-| | | Pointer @ <input/functions.HC:5.6> 
-| | | FunctionDeclarator @ <input/functions.HC:5.6-25> 
-| | | | IdentifierDeclarator: add @ <input/functions.HC:5.6-9> 
-| | | | ParameterDeclaration @ <input/functions.HC:5.6-16> 
-| | | | | PrimitiveSpecifier: u32 @ <input/functions.HC:5.6-14> 
-| | | | | Declarator @ <input/functions.HC:5.16> 
-| | | | | | IdentifierDeclarator: a @ <input/functions.HC:5.16> 
-| | | | ParameterDeclaration @ <input/functions.HC:5.19-24> 
-| | | | | PrimitiveSpecifier: u32 @ <input/functions.HC:5.19-22> 
-| | | | | Declarator @ <input/functions.HC:5.24> 
-| | | | | | IdentifierDeclarator: b @ <input/functions.HC:5.24> 
-| | CompoundStatement @ <input/functions.HC:5.27-7.1> 
-| | | ReturnStatement @ <input/functions.HC:6.5-17> 
-| | | | BinaryExpression: + @ <input/functions.HC:6.12-16> 
-| | | | | IdentifierExpression: a @ <input/functions.HC:6.12> 
-| | | | | IdentifierExpression: b @ <input/functions.HC:6.16> 
-| Function @ <input/functions.HC:9.1-11.1> 
-| | PrimitiveSpecifier: i32 @ <input/functions.HC:9.1-4> 
-| | Declarator @ <input/functions.HC:9.6-35> 
-| | | FunctionDeclarator @ <input/functions.HC:9.6-35> 
-| | | | IdentifierDeclarator: someinternalfunc @ <input/functions.HC:9.6-21> 
-| | | | ParameterDeclaration @ <input/functions.HC:9.6-34> 
-| | | | | PrimitiveSpecifier: i32 @ <input/functions.HC:9.6-26> 
-| | | | | Declarator @ <input/functions.HC:9.28-34> 
-| | | | | | IdentifierDeclarator: somearg @ <input/functions.HC:9.28-34> 
-| | CompoundStatement @ <input/functions.HC:9.37-11.1> 
-| | | ReturnStatement @ <input/functions.HC:10.5-19> 
-| | | | IdentifierExpression: somearg @ <input/functions.HC:10.12-18> 
-| Function @ <input/functions.HC:13.1-20.1> 
-| | PrimitiveSpecifier: i32 @ <input/functions.HC:13.8-11> 
-| | StorageClassSpecifier: public @ <input/functions.HC:13.1-6> 
-| | Declarator @ <input/functions.HC:13.13-50> 
-| | | FunctionDeclarator (variadic) @ <input/functions.HC:13.13-50> 
-| | | | IdentifierDeclarator: compute @ <input/functions.HC:13.13-19> 
-| | | | ParameterDeclaration @ <input/functions.HC:13.13-31> 
-| | | | | PrimitiveSpecifier: i32 @ <input/functions.HC:13.13-24> 
-| | | | | Declarator @ <input/functions.HC:13.26> 
-| | | | | | IdentifierDeclarator: x @ <input/functions.HC:13.26> 
-| | | | | 10 @ <input/functions.HC:13.30-31> 
-| | | | ParameterDeclaration @ <input/functions.HC:13.34-44> 
-| | | | | PrimitiveSpecifier: i32 @ <input/functions.HC:13.34-37> 
-| | | | | Declarator @ <input/functions.HC:13.39> 
-| | | | | | IdentifierDeclarator: y @ <input/functions.HC:13.39> 
-| | | | | 20 @ <input/functions.HC:13.43-44> 
-| | CompoundStatement @ <input/functions.HC:13.52-20.1> 
-| | | VariableDeclaration @ <input/functions.HC:14.5-13> 
-| | | | PrimitiveSpecifier: i32 @ <input/functions.HC:14.5-8> 
-| | | | InitDeclarator @ <input/functions.HC:14.10-12> 
-| | | | | Declarator @ <input/functions.HC:14.10-12> 
-| | | | | | IdentifierDeclarator: new @ <input/functions.HC:14.10-12> 
-| | | ExpressionStatement @ <input/functions.HC:15.5-25> 
-| | | | AssignmentExpression: = @ <input/functions.HC:15.5-24> 
-| | | | | IdentifierExpression: new @ <input/functions.HC:15.5-7> 
-| | | | | CallExpression @ <input/functions.HC:15.11-24> 
-| | | | | | IdentifierExpression: add @ <input/functions.HC:15.11-13> 
-| | | | | | IdentifierExpression: x @ <input/functions.HC:15.11-15> 
-| | | | | | IdentifierExpression: y @ <input/functions.HC:15.18> 
-| | | | | | IdentifierExpression: new @ <input/functions.HC:15.21-23> 
-| | | VariableDeclaration @ <input/functions.HC:17.5-24> 
-| | | | PrimitiveSpecifier: u64 @ <input/functions.HC:17.5-8> 
-| | | | InitDeclarator @ <input/functions.HC:17.10-23> 
-| | | | | Declarator @ <input/functions.HC:17.10-13> 
-| | | | | | IdentifierDeclarator: new2 @ <input/functions.HC:17.10-13> 
-| | | | | Initializer:  @ <input/functions.HC:17.17-23> 
-| | | | | | BinaryExpression: + @ <input/functions.HC:17.17-23> 
-| | | | | | | IdentifierExpression: new @ <input/functions.HC:17.17-19> 
-| | | | | | | 1 @ <input/functions.HC:17.23> 
-| | | ReturnStatement @ <input/functions.HC:19.5-17> 
-| | | | BinaryExpression: * @ <input/functions.HC:19.12-16> 
-| | | | | IdentifierExpression: x @ <input/functions.HC:19.12> 
-| | | | | IdentifierExpression: y @ <input/functions.HC:19.16> 
-| Function @ <input/functions.HC:22.1-28.1> 
-| | ClassSpecifier:  What: @ <input/functions.HC:22.1-24.1> 
-| | | ClassDeclaration @ <input/functions.HC:23.5-15> 
-| | | | PrimitiveSpecifier: u32 @ <input/functions.HC:23.5-8> 
-| | | | ClassDeclarator @ <input/functions.HC:23.10-14> 
-| | | | | Declarator @ <input/functions.HC:23.10-14> 
-| | | | | | IdentifierDeclarator: hello @ <input/functions.HC:23.10-14> 
-| | Declarator @ <input/functions.HC:24.3-32> 
-| | | FunctionDeclarator @ <input/functions.HC:24.3-32> 
-| | | | IdentifierDeclarator: complex_class_func @ <input/functions.HC:24.3-20> 
-| | | | ParameterDeclaration @ <input/functions.HC:24.3-31> 
-| | | | | PrimitiveSpecifier: u32 @ <input/functions.HC:24.3-25> 
-| | | | | Declarator @ <input/functions.HC:24.27-31> 
-| | | | | | IdentifierDeclarator: thing @ <input/functions.HC:24.27-31> 
-| | CompoundStatement @ <input/functions.HC:24.34-28.1> 
-| | | VariableDeclaration @ <input/functions.HC:25.5-25> 
-| | | | TypeIdentifier: What @ <input/functions.HC:25.5-8> 
-| | | | InitDeclarator @ <input/functions.HC:25.10-24> 
-| | | | | Declarator @ <input/functions.HC:25.10-12> 
-| | | | | | IdentifierDeclarator: ret @ <input/functions.HC:25.10-12> 
-| | | | | Initializer:  @ <input/functions.HC:25.16-24> 
-| | | | | | Initializer:  @ <input/functions.HC:25.18-22> 
-| | | | | | | IdentifierExpression: thing @ <input/functions.HC:25.18-22> 
-| | | ReturnStatement @ <input/functions.HC:27.5-15> 
-| | | | IdentifierExpression: ret @ <input/functions.HC:27.12-14> 
-| TypeDeclaration @ <input/functions.HC:30.1-33.2> 
-| | ClassSpecifier:  Point: @ <input/functions.HC:30.1-33.1> 
-| | | ClassDeclaration @ <input/functions.HC:31.5-11> 
-| | | | PrimitiveSpecifier: i32 @ <input/functions.HC:31.5-8> 
-| | | | ClassDeclarator @ <input/functions.HC:31.10> 
-| | | | | Declarator @ <input/functions.HC:31.10> 
-| | | | | | IdentifierDeclarator: x @ <input/functions.HC:31.10> 
-| | | ClassDeclaration @ <input/functions.HC:32.5-11> 
-| | | | PrimitiveSpecifier: i32 @ <input/functions.HC:32.5-8> 
-| | | | ClassDeclarator @ <input/functions.HC:32.10> 
-| | | | | Declarator @ <input/functions.HC:32.10> 
-| | | | | | IdentifierDeclarator: y @ <input/functions.HC:32.10> 
-| Function @ <input/functions.HC:35.1-40.1> 
-| | TypeIdentifier: Point @ <input/functions.HC:35.1-5> 
-| | Declarator @ <input/functions.HC:35.7-54> 
-| | | Pointer @ <input/functions.HC:35.7> 
-| | | FunctionDeclarator @ <input/functions.HC:35.7-54> 
-| | | | IdentifierDeclarator: compute_point @ <input/functions.HC:35.7-20> 
-| | | | ParameterDeclaration @ <input/functions.HC:35.7-35> 
-| | | | | ClassSpecifier:  Point: @ <input/functions.HC:35.7-32> 
-| | | | | Declarator @ <input/functions.HC:35.34-35> 
-| | | | | | Pointer @ <input/functions.HC:35.34> 
-| | | | | | IdentifierDeclarator: p @ <input/functions.HC:35.34-35> 
-| | | | ParameterDeclaration @ <input/functions.HC:35.38-44> 
-| | | | | PrimitiveSpecifier: i32 @ <input/functions.HC:35.38-41> 
-| | | | | Declarator @ <input/functions.HC:35.43-44> 
-| | | | | | IdentifierDeclarator: dx @ <input/functions.HC:35.43-44> 
-| | | | ParameterDeclaration @ <input/functions.HC:35.47-53> 
-| | | | | PrimitiveSpecifier: i32 @ <input/functions.HC:35.47-50> 
-| | | | | Declarator @ <input/functions.HC:35.52-53> 
-| | | | | | IdentifierDeclarator: dy @ <input/functions.HC:35.52-53> 
-| | CompoundStatement @ <input/functions.HC:35.56-40.1> 
-| | | ExpressionStatement @ <input/functions.HC:36.3-13> 
-| | | | AssignmentExpression: += @ <input/functions.HC:36.3-12> 
-| | | | | MemberAccess: ->x @ <input/functions.HC:36.3-6> 
-| | | | | | IdentifierExpression: p @ <input/functions.HC:36.3> 
-| | | | | IdentifierExpression: dx @ <input/functions.HC:36.11-12> 
-| | | ExpressionStatement @ <input/functions.HC:37.3-13> 
-| | | | AssignmentExpression: += @ <input/functions.HC:37.3-12> 
-| | | | | MemberAccess: ->y @ <input/functions.HC:37.3-6> 
-| | | | | | IdentifierExpression: p @ <input/functions.HC:37.3> 
-| | | | | IdentifierExpression: dy @ <input/functions.HC:37.11-12> 
-| | | ReturnStatement @ <input/functions.HC:39.3-11> 
-| | | | IdentifierExpression: p @ <input/functions.HC:39.10> 
-| ExpressionStatement @ <input/functions.HC:42.1-29> 
-| | CallExpression @ <input/functions.HC:42.1-28> 
-| | | IdentifierExpression: compute @ <input/functions.HC:42.1-7> 
-| | | 10 @ <input/functions.HC:42.1-10> 
-| | | 4 @ <input/functions.HC:42.13> 
-| | | String: this @ <input/functions.HC:42.16-21> 
-| | | true @ <input/functions.HC:42.24-27> 
-| Function @ <input/functions.HC:44.1-46.1> 
-| | VoidSpecifier @ <input/functions.HC:44.1-4> 
-| | Declarator @ <input/functions.HC:44.6-11> 
-| | | FunctionDeclarator @ <input/functions.HC:44.6-11> 
-| | | | IdentifierDeclarator: noop @ <input/functions.HC:44.6-9> 
-| | CompoundStatement @ <input/functions.HC:44.13-46.1> 
-| | | ReturnStatement @ <input/functions.HC:45.5-11> 
-| ExpressionStatement @ <input/functions.HC:49.1-7> 
-| | CallExpression @ <input/functions.HC:49.1-6> 
-| | | IdentifierExpression: noop @ <input/functions.HC:49.1-4> 
-| ExpressionStatement @ <input/functions.HC:52.1-5> 
-| | IdentifierExpression: noop @ <input/functions.HC:52.1-4> 
-| VariableDeclaration @ <input/functions.HC:56.1-26> 
-| | VoidSpecifier @ <input/functions.HC:56.1-4> 
-| | InitDeclarator @ <input/functions.HC:56.6-25> 
-| | | Declarator @ <input/functions.HC:56.6-18> 
-| | | | FunctionDeclarator @ <input/functions.HC:56.6-18> 
-| | | | | ParenDeclarator @ <input/functions.HC:56.6-15> 
-| | | | | | Declarator @ <input/functions.HC:56.6-14> 
-| | | | | | | Pointer @ <input/functions.HC:56.6-7> 
-| | | | | | | IdentifierDeclarator: funcptr @ <input/functions.HC:56.6-14> 
-| | | Initializer:  @ <input/functions.HC:56.22-25> 
-| | | | IdentifierExpression: noop @ <input/functions.HC:56.22-25> 
-| PrintStatement: "TestPrintStatement" @ <input/functions.HC:59.1-21> 
-| Function @ <input/functions.HC:61.1-64.1> 
-| | PrimitiveSpecifier: i64 @ <input/functions.HC:61.1-4> 
-| | Declarator @ <input/functions.HC:61.6-29> 
-| | | FunctionDeclarator @ <input/functions.HC:61.6-29> 
-| | | | IdentifierDeclarator: CallbackFunction @ <input/functions.HC:61.6-21> 
-| | | | ParameterDeclaration @ <input/functions.HC:61.6-28> 
-| | | | | PrimitiveSpecifier: i64 @ <input/functions.HC:61.6-26> 
-| | | | | Declarator @ <input/functions.HC:61.28> 
-| | | | | | IdentifierDeclarator: x @ <input/functions.HC:61.28> 
-| | CompoundStatement @ <input/functions.HC:62.1-64.1> 
-| | | ReturnStatement @ <input/functions.HC:63.3-15> 
-| | | | BinaryExpression: * @ <input/functions.HC:63.10-14> 
-| | | | | IdentifierExpression: x @ <input/functions.HC:63.10> 
-| | | | | IdentifierExpression: x @ <input/functions.HC:63.14> 
-| Function @ <input/functions.HC:66.1-69.1> 
-| | VoidSpecifier @ <input/functions.HC:66.1-4> 
-| | Declarator @ <input/functions.HC:66.6-46> 
-| | | FunctionDeclarator @ <input/functions.HC:66.6-46> 
-| | | | IdentifierDeclarator: MathFunc @ <input/functions.HC:66.6-13> 
-| | | | ParameterDeclaration @ <input/functions.HC:66.6-20> 
-| | | | | PrimitiveSpecifier: i64 @ <input/functions.HC:66.6-18> 
-| | | | | Declarator @ <input/functions.HC:66.20> 
-| | | | | | IdentifierDeclarator: y @ <input/functions.HC:66.20> 
-| | | | ParameterDeclaration @ <input/functions.HC:66.23-45> 
-| | | | | PrimitiveSpecifier: i64 @ <input/functions.HC:66.23-26> 
-| | | | | Declarator @ <input/functions.HC:66.28-45> 
-| | | | | | FunctionDeclarator @ <input/functions.HC:66.28-45> 
-| | | | | | | ParenDeclarator @ <input/functions.HC:66.28-34> 
-| | | | | | | | Declarator @ <input/functions.HC:66.28-33> 
-| | | | | | | | | Pointer @ <input/functions.HC:66.28-29> 
-| | | | | | | | | IdentifierDeclarator: proc @ <input/functions.HC:66.28-33> 
-| | | | | | | ParameterDeclaration @ <input/functions.HC:66.28-44> 
-| | | | | | | | PrimitiveSpecifier: i64 @ <input/functions.HC:66.28-39> 
-| | | | | | | | Declarator @ <input/functions.HC:66.41-44> 
-| | | | | | | | | IdentifierDeclarator: _val @ <input/functions.HC:66.41-44> 
-| | CompoundStatement @ <input/functions.HC:67.1-69.1> 
-| | | ReturnStatement @ <input/functions.HC:68.3-17> 
-| | | | CallExpression @ <input/functions.HC:68.10-16> 
-| | | | | IdentifierExpression: proc @ <input/functions.HC:68.10-13> 
-| | | | | IdentifierExpression: y @ <input/functions.HC:68.10-15> 
-| Function @ <input/functions.HC:71.1-75.1> 
-| | VoidSpecifier @ <input/functions.HC:71.1-4> 
-| | Declarator @ <input/functions.HC:71.6-11> 
-| | | FunctionDeclarator @ <input/functions.HC:71.6-11> 
-| | | | IdentifierDeclarator: Main @ <input/functions.HC:71.6-9> 
-| | CompoundStatement @ <input/functions.HC:72.1-75.1> 
-| | | VariableDeclaration @ <input/functions.HC:73.3-43> 
-| | | | PrimitiveSpecifier: i64 @ <input/functions.HC:73.3-6> 
-| | | | InitDeclarator @ <input/functions.HC:73.8-42> 
-| | | | | Declarator @ <input/functions.HC:73.8> 
-| | | | | | IdentifierDeclarator: x @ <input/functions.HC:73.8> 
-| | | | | Initializer:  @ <input/functions.HC:73.12-42> 
-| | | | | | CallExpression @ <input/functions.HC:73.12-42> 
-| | | | | | | IdentifierExpression: MathFunc @ <input/functions.HC:73.12-19> 
-| | | | | | | 10 @ <input/functions.HC:73.12-22> 
-| | | | | | | UnaryExpression: & @ <input/functions.HC:73.25-41> 
-| | | | | | | | IdentifierExpression: CallbackFunction @ <input/functions.HC:73.25-41> 
-| | | PrintStatement: "%d
-" @ <input/functions.HC:74.3-11> 
-| | | | IdentifierExpression: x @ <input/functions.HC:74.3-10> 
-running backend for file input/functions.HC
-Checking semantics for input/functions.HC:1.1
-Synthesizing MIR for input/functions.HC:1.1
+parsing file test/integration/input/functions.HC
+running backend for file test/integration/input/functions.HC
+
+---------- Generating MIR ----------
+
+Synthesizing MIR for 1.1
 Node {
-    visiting Program node: input/functions.HC:1.1
+    visiting Program node: 1.1
     Node {
-        visiting VariableDeclaration node: input/functions.HC:1.1-177
-        parsing declaration specifier list for node at input/functions.HC:1.1-177
+        visiting VariableDeclaration node: 1.1-208
+        parsing declaration specifier list for node at 1.1-208
         Node {
-            visiting PrimitiveSpecifier node: input/functions.HC:1.162-165
+            visiting PrimitiveSpecifier node: 1.194-196
 TypeContext: getting primitive type
         }
         Node {
-            visiting StorageClassSpecifier node: input/functions.HC:1.1-156
+            visiting StorageClassSpecifier node: 1.1-188
         }
-        finished parsing specifiers for node input/functions.HC:1.1-177
+        finished parsing specifiers for node 1.1-208
         Node {
-            visiting InitDeclarator node: input/functions.HC:1.167-176
+            visiting InitDeclarator node: 1.198-207
             Node {
                 Node {
-                    visiting FunctionDeclarator node: input/functions.HC:1.167-176
+                    visiting FunctionDeclarator node: 1.198-207
                     Node {
-                        visiting IdentifierDeclarator node: input/functions.HC:1.167-174
+                        visiting IdentifierDeclarator node: 1.198-205
                     }
                 }
             }
 TypeBuilder: finalizing type
 TypeContext: getting function type
         }
-SymbolTable: inserting varsymbol with name "somefunc"
+SymbolTable: inserting funcsymbol with name "somefunc"
     }
     Node {
-        visiting VariableDeclaration node: input/functions.HC:3.1-28
-        parsing declaration specifier list for node at input/functions.HC:3.1-28
+        visiting VariableDeclaration node: 3.1-26
+        parsing declaration specifier list for node at 3.1-26
         Node {
-            visiting PrimitiveSpecifier node: input/functions.HC:3.1-4
+            visiting PrimitiveSpecifier node: 3.1-3
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/functions.HC:3.1-28
+        finished parsing specifiers for node 3.1-26
         Node {
-            visiting InitDeclarator node: input/functions.HC:3.6-27
+            visiting InitDeclarator node: 3.5-25
             Node {
                 Node {
-                    visiting FunctionDeclarator node: input/functions.HC:3.6-27
+                    visiting FunctionDeclarator node: 3.5-25
                     Node {
-                        visiting IdentifierDeclarator node: input/functions.HC:3.6-21
+                        visiting IdentifierDeclarator node: 3.5-20
                     }
                     Node {
-                        visiting ParameterDeclarator node: input/functions.HC:3.6-26
-                        parsing declaration specifier list for node at input/functions.HC:3.6-26
+                        visiting ParameterDeclarator node: 3.5-24
+                        parsing declaration specifier list for node at 3.5-24
                         Node {
-                            visiting PrimitiveSpecifier node: input/functions.HC:3.6-26
+                            visiting PrimitiveSpecifier node: 3.5-24
 TypeContext: getting primitive type
                         }
-                        finished parsing specifiers for node input/functions.HC:3.6-26
+                        finished parsing specifiers for node 3.5-24
                     }
                 }
             }
 TypeBuilder: finalizing type
 TypeContext: getting function type
         }
-SymbolTable: inserting varsymbol with name "someinternalfunc"
+SymbolTable: inserting funcsymbol with name "someinternalfunc"
     }
     Node {
-        visiting Function node: input/functions.HC:5.1-7.1
-        parsing declaration specifier list for node at input/functions.HC:5.1-7.1
+        visiting Function node: 5.1-7.1
+        parsing declaration specifier list for node at 5.1-7.1
         Node {
-            visiting PrimitiveSpecifier node: input/functions.HC:5.1-4
+            visiting PrimitiveSpecifier node: 5.1-3
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/functions.HC:5.1-7.1
+        finished parsing specifiers for node 5.1-7.1
         Node {
             Node {
-                visiting FunctionDeclarator node: input/functions.HC:5.6-25
+                visiting FunctionDeclarator node: 5.5-21
                 Node {
-                    visiting IdentifierDeclarator node: input/functions.HC:5.6-9
+                    visiting IdentifierDeclarator node: 5.5-7
                 }
                 Node {
-                    visiting ParameterDeclarator node: input/functions.HC:5.6-16
-                    parsing declaration specifier list for node at input/functions.HC:5.6-16
+                    visiting ParameterDeclarator node: 5.5-13
+                    parsing declaration specifier list for node at 5.5-13
                     Node {
-                        visiting PrimitiveSpecifier node: input/functions.HC:5.6-14
+                        visiting PrimitiveSpecifier node: 5.5-11
 TypeContext: getting primitive type
                     }
-                    finished parsing specifiers for node input/functions.HC:5.6-16
+                    finished parsing specifiers for node 5.5-13
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/functions.HC:5.16
+                            visiting IdentifierDeclarator node: 5.13
                         }
                     }
 TypeBuilder: finalizing type
                 }
                 Node {
-                    visiting ParameterDeclarator node: input/functions.HC:5.19-24
-                    parsing declaration specifier list for node at input/functions.HC:5.19-24
+                    visiting ParameterDeclarator node: 5.16-20
+                    parsing declaration specifier list for node at 5.16-20
                     Node {
-                        visiting PrimitiveSpecifier node: input/functions.HC:5.19-22
+                        visiting PrimitiveSpecifier node: 5.16-18
 TypeContext: getting primitive type
                     }
-                    finished parsing specifiers for node input/functions.HC:5.19-24
+                    finished parsing specifiers for node 5.16-20
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/functions.HC:5.24
+                            visiting IdentifierDeclarator node: 5.20
                         }
                     }
 TypeBuilder: finalizing type
                 }
             }
-            Node {
-                visiting Pointer node: input/functions.HC:5.6
-            }
         }
-TypeContext: pointer with base 0x564092eb2750
+TypeBuilder: finalizing type
 TypeContext: getting function type
-parsing params
+        MIRSynthesizer: parsing Function params
 SymbolTable: inserting funcsymbol with name "add"
         Node {
 SymbolTable: pushing scope 1
 SymbolTable: entering scope 1
-            visiting CompoundStatement node: input/functions.HC:5.27-7.1
+            visiting CompoundStatement node: 5.23-7.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 1 with symbol 0x564092e72ad0 name "add"
+SymbolTable: associating current scope 1 with symbol name "add"
 SymbolTable: inserting varsymbol with name "a"
 SymbolTable: inserting varsymbol with name "b"
             Node {
-                visiting ReturnStatement node: input/functions.HC:6.5-17
+                visiting ReturnStatement node: 6.5-17
                 Node {
-                    visiting BinaryExpression node: input/functions.HC:6.12-16
+                    visiting BinaryExpression node: 6.12-16
                     Node {
-                        visiting IdentifierExpression node: input/functions.HC:6.12
+                        visiting IdentifierExpression node: 6.12
 SymbolTable: looking up varsymbol a
                     }
                     Node {
-                        visiting IdentifierExpression node: input/functions.HC:6.16
+                        visiting IdentifierExpression node: 6.16
 SymbolTable: looking up varsymbol b
                     }
                 }
@@ -397,54 +145,55 @@ SymbolTable: exiting scope to 0
         }
     }
     Node {
-        visiting Function node: input/functions.HC:9.1-11.1
-        parsing declaration specifier list for node at input/functions.HC:9.1-11.1
+        visiting Function node: 9.1-11.1
+        parsing declaration specifier list for node at 9.1-11.1
         Node {
-            visiting PrimitiveSpecifier node: input/functions.HC:9.1-4
+            visiting PrimitiveSpecifier node: 9.1-3
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/functions.HC:9.1-11.1
+        finished parsing specifiers for node 9.1-11.1
         Node {
             Node {
-                visiting FunctionDeclarator node: input/functions.HC:9.6-35
+                visiting FunctionDeclarator node: 9.5-33
                 Node {
-                    visiting IdentifierDeclarator node: input/functions.HC:9.6-21
+                    visiting IdentifierDeclarator node: 9.5-20
                 }
                 Node {
-                    visiting ParameterDeclarator node: input/functions.HC:9.6-34
-                    parsing declaration specifier list for node at input/functions.HC:9.6-34
+                    visiting ParameterDeclarator node: 9.5-32
+                    parsing declaration specifier list for node at 9.5-32
                     Node {
-                        visiting PrimitiveSpecifier node: input/functions.HC:9.6-26
+                        visiting PrimitiveSpecifier node: 9.5-24
 TypeContext: getting primitive type
                     }
-                    finished parsing specifiers for node input/functions.HC:9.6-34
+                    finished parsing specifiers for node 9.5-32
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/functions.HC:9.28-34
+                            visiting IdentifierDeclarator node: 9.26-32
                         }
                     }
 TypeBuilder: finalizing type
                 }
             }
         }
+TypeBuilder: finalizing type
 TypeContext: getting function type
 TypeContext: existing function type found
-parsing params
+        MIRSynthesizer: parsing Function params
 SymbolTable: inserting funcsymbol with name "someinternalfunc"
 SymbolTable: symbol with name someinternalfunc already exists
 SymbolTable: existing symbol has function type, checking for replaceability
-SymbolTable: existing symbol matches function signature, replacing
+SymbolTable: existing symbol matches function signature, evaluating reconciliation
         Node {
 SymbolTable: pushing scope 2
 SymbolTable: entering scope 2
-            visiting CompoundStatement node: input/functions.HC:9.37-11.1
+            visiting CompoundStatement node: 9.35-11.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 2 with symbol 0x564092e72d10 name "someinternalfunc"
+SymbolTable: associating current scope 2 with symbol name "someinternalfunc"
 SymbolTable: inserting varsymbol with name "somearg"
             Node {
-                visiting ReturnStatement node: input/functions.HC:10.5-19
+                visiting ReturnStatement node: 10.5-19
                 Node {
-                    visiting IdentifierExpression node: input/functions.HC:10.12-18
+                    visiting IdentifierExpression node: 10.12-18
 SymbolTable: looking up varsymbol somearg
                 }
             }
@@ -452,78 +201,93 @@ SymbolTable: exiting scope to 0
         }
     }
     Node {
-        visiting Function node: input/functions.HC:13.1-20.1
-        parsing declaration specifier list for node at input/functions.HC:13.1-20.1
+        visiting Function node: 13.1-20.1
+        parsing declaration specifier list for node at 13.1-20.1
         Node {
-            visiting PrimitiveSpecifier node: input/functions.HC:13.8-11
+            visiting PrimitiveSpecifier node: 13.8-10
 TypeContext: getting primitive type
         }
         Node {
-            visiting StorageClassSpecifier node: input/functions.HC:13.1-6
+            visiting StorageClassSpecifier node: 13.1-6
         }
-        finished parsing specifiers for node input/functions.HC:13.1-20.1
+        finished parsing specifiers for node 13.1-20.1
         Node {
             Node {
-                visiting FunctionDeclarator node: input/functions.HC:13.13-50
+                visiting FunctionDeclarator node: 13.12-47
                 Node {
-                    visiting IdentifierDeclarator node: input/functions.HC:13.13-19
+                    visiting IdentifierDeclarator node: 13.12-18
                 }
                 Node {
-                    visiting ParameterDeclarator node: input/functions.HC:13.13-31
-                    parsing declaration specifier list for node at input/functions.HC:13.13-31
+                    visiting ParameterDeclarator node: 13.12-29
+                    parsing declaration specifier list for node at 13.12-29
                     Node {
-                        visiting PrimitiveSpecifier node: input/functions.HC:13.13-24
+                        visiting PrimitiveSpecifier node: 13.12-22
 TypeContext: getting primitive type
                     }
-                    finished parsing specifiers for node input/functions.HC:13.13-31
+                    finished parsing specifiers for node 13.12-29
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/functions.HC:13.26
+                            visiting IdentifierDeclarator node: 13.24
                         }
                     }
 TypeBuilder: finalizing type
+                    Node {
+                        visiting ConstExpression node: 13.28-29
+                        Node {
+                            visiting LiteralExpression node: 13.28-29
+                            found integer
+                        }
+                    }
                 }
                 Node {
-                    visiting ParameterDeclarator node: input/functions.HC:13.34-44
-                    parsing declaration specifier list for node at input/functions.HC:13.34-44
+                    visiting ParameterDeclarator node: 13.32-41
+                    parsing declaration specifier list for node at 13.32-41
                     Node {
-                        visiting PrimitiveSpecifier node: input/functions.HC:13.34-37
+                        visiting PrimitiveSpecifier node: 13.32-34
 TypeContext: getting primitive type
                     }
-                    finished parsing specifiers for node input/functions.HC:13.34-44
+                    finished parsing specifiers for node 13.32-41
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/functions.HC:13.39
+                            visiting IdentifierDeclarator node: 13.36
                         }
                     }
 TypeBuilder: finalizing type
+                    Node {
+                        visiting ConstExpression node: 13.40-41
+                        Node {
+                            visiting LiteralExpression node: 13.40-41
+                            found integer
+                        }
+                    }
                 }
             }
         }
+TypeBuilder: finalizing type
 TypeContext: getting function type
-parsing params
+        MIRSynthesizer: parsing Function params
 SymbolTable: inserting funcsymbol with name "compute"
         Node {
 SymbolTable: pushing scope 3
 SymbolTable: entering scope 3
-            visiting CompoundStatement node: input/functions.HC:13.52-20.1
+            visiting CompoundStatement node: 13.49-20.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 3 with symbol 0x564092e72f50 name "compute"
+SymbolTable: associating current scope 3 with symbol name "compute"
 SymbolTable: inserting varsymbol with name "x"
 SymbolTable: inserting varsymbol with name "y"
             Node {
-                visiting VariableDeclaration node: input/functions.HC:14.5-13
-                parsing declaration specifier list for node at input/functions.HC:14.5-13
+                visiting VariableDeclaration node: 14.5-12
+                parsing declaration specifier list for node at 14.5-12
                 Node {
-                    visiting PrimitiveSpecifier node: input/functions.HC:14.5-8
+                    visiting PrimitiveSpecifier node: 14.5-7
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node input/functions.HC:14.5-13
+                finished parsing specifiers for node 14.5-12
                 Node {
-                    visiting InitDeclarator node: input/functions.HC:14.10-12
+                    visiting InitDeclarator node: 14.9-11
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/functions.HC:14.10-12
+                            visiting IdentifierDeclarator node: 14.9-11
                         }
                     }
 TypeBuilder: finalizing type
@@ -531,62 +295,59 @@ TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "new"
             }
             Node {
-                visiting ExpressionStatement node: input/functions.HC:15.5-25
+                visiting ExpressionStatement node: 15.5-20
                 Node {
-                    visiting AssignmentExpression node: input/functions.HC:15.5-24
+                    visiting AssignmentExpression node: 15.5-19
                     Node {
-                        visiting IdentifierExpression node: input/functions.HC:15.5-7
+                        visiting IdentifierExpression node: 15.5-7
 SymbolTable: looking up varsymbol new
                     }
                     Node {
-                        visiting CallExpression node: input/functions.HC:15.11-24
+                        visiting CallExpression node: 15.11-19
                         Node {
-                            visiting IdentifierExpression node: input/functions.HC:15.11-13
+                            visiting IdentifierExpression node: 15.11-13
 SymbolTable: looking up varsymbol add
 SymbolTable: looking up funcsymbol add
                         }
                         Node {
-                            visiting IdentifierExpression node: input/functions.HC:15.11-15
+                            visiting IdentifierExpression node: 15.11-15
 SymbolTable: looking up varsymbol x
                         }
                         Node {
-                            visiting IdentifierExpression node: input/functions.HC:15.18
+                            visiting IdentifierExpression node: 15.18
 SymbolTable: looking up varsymbol y
-                        }
-                        Node {
-                            visiting IdentifierExpression node: input/functions.HC:15.21-23
-SymbolTable: looking up varsymbol new
                         }
                     }
                 }
             }
             Node {
-                visiting VariableDeclaration node: input/functions.HC:17.5-24
-                parsing declaration specifier list for node at input/functions.HC:17.5-24
+                visiting VariableDeclaration node: 17.5-23
+                parsing declaration specifier list for node at 17.5-23
                 Node {
-                    visiting PrimitiveSpecifier node: input/functions.HC:17.5-8
+                    visiting PrimitiveSpecifier node: 17.5-7
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node input/functions.HC:17.5-24
+                finished parsing specifiers for node 17.5-23
                 Node {
-                    visiting InitDeclarator node: input/functions.HC:17.10-23
+                    visiting InitDeclarator node: 17.9-22
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/functions.HC:17.10-13
+                            visiting IdentifierDeclarator node: 17.9-12
                         }
                     }
 TypeBuilder: finalizing type
                     Node {
-                        visiting Initializer node: input/functions.HC:17.17-23
+                        visiting Initializer node: 17.16-22
                         visiting single initializer
                         Node {
-                            visiting BinaryExpression node: input/functions.HC:17.17-23
+                            visiting BinaryExpression node: 17.16-22
                             Node {
-                                visiting IdentifierExpression node: input/functions.HC:17.17-19
+                                visiting IdentifierExpression node: 17.16-18
 SymbolTable: looking up varsymbol new
                             }
                             Node {
-                                visiting LiteralExpression node: input/functions.HC:17.23
+                                visiting LiteralExpression node: 17.22
+                                found integer
                             }
                         }
                     }
@@ -594,15 +355,15 @@ SymbolTable: looking up varsymbol new
 SymbolTable: inserting varsymbol with name "new2"
             }
             Node {
-                visiting ReturnStatement node: input/functions.HC:19.5-17
+                visiting ReturnStatement node: 19.5-17
                 Node {
-                    visiting BinaryExpression node: input/functions.HC:19.12-16
+                    visiting BinaryExpression node: 19.12-16
                     Node {
-                        visiting IdentifierExpression node: input/functions.HC:19.12
+                        visiting IdentifierExpression node: 19.12
 SymbolTable: looking up varsymbol x
                     }
                     Node {
-                        visiting IdentifierExpression node: input/functions.HC:19.16
+                        visiting IdentifierExpression node: 19.16
 SymbolTable: looking up varsymbol y
                     }
                 }
@@ -611,95 +372,100 @@ SymbolTable: exiting scope to 0
         }
     }
     Node {
-        visiting Function node: input/functions.HC:22.1-28.1
-        parsing declaration specifier list for node at input/functions.HC:22.1-28.1
+        visiting Function node: 22.1-28.1
+        parsing declaration specifier list for node at 22.1-28.1
         Node {
-            visiting ClassSpecifier node: input/functions.HC:22.1-24.1
-TypeContext: class type 'What' on scope 0x564092eb2990
+            visiting ClassSpecifier node: 22.1-24.1
+TypeContext: class type 'What' on scope 0
 TypeContext: inserting type class_What_0
             class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol What in current scope
 SymbolTable: inserting typesymbol with name "What"
             Node {
-                visiting ClassDeclaration node: input/functions.HC:23.5-15
-                parsing declaration specifier list for node at input/functions.HC:23.5-15
+                visiting ClassDeclaration node: 23.5-14
+                parsing declaration specifier list for node at 23.5-14
                 Node {
-                    visiting PrimitiveSpecifier node: input/functions.HC:23.5-8
+                    visiting PrimitiveSpecifier node: 23.5-7
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node input/functions.HC:23.5-15
-                parsing ClassDeclaration for ClassType 0x564092eb39a0
+                finished parsing specifiers for node 23.5-14
+                parsing ClassDeclaration for ClassType 14837191814923926344
                 Node {
-                    visiting ClassDeclarator node: input/functions.HC:23.10-14
+                    visiting ClassDeclarator node: 23.9-13
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/functions.HC:23.10-14
+                            visiting IdentifierDeclarator node: 23.9-13
                         }
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name hello type 0x564092eb2750
+ClassType: adding member with name hello type 175247769301
+ClassType: Looking for member with name hello
+RecordType: Looking for member with name hello
             }
         }
-        finished parsing specifiers for node input/functions.HC:22.1-28.1
+        finished parsing specifiers for node 22.1-28.1
         Node {
             Node {
-                visiting FunctionDeclarator node: input/functions.HC:24.3-32
+                visiting FunctionDeclarator node: 24.3-31
                 Node {
-                    visiting IdentifierDeclarator node: input/functions.HC:24.3-20
+                    visiting IdentifierDeclarator node: 24.3-20
                 }
                 Node {
-                    visiting ParameterDeclarator node: input/functions.HC:24.3-31
-                    parsing declaration specifier list for node at input/functions.HC:24.3-31
+                    visiting ParameterDeclarator node: 24.3-30
+                    parsing declaration specifier list for node at 24.3-30
                     Node {
-                        visiting PrimitiveSpecifier node: input/functions.HC:24.3-25
+                        visiting PrimitiveSpecifier node: 24.3-24
 TypeContext: getting primitive type
                     }
-                    finished parsing specifiers for node input/functions.HC:24.3-31
+                    finished parsing specifiers for node 24.3-30
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/functions.HC:24.27-31
+                            visiting IdentifierDeclarator node: 24.26-30
                         }
                     }
 TypeBuilder: finalizing type
                 }
             }
         }
+TypeBuilder: finalizing type
 TypeContext: getting function type
-parsing params
+        MIRSynthesizer: parsing Function params
 SymbolTable: inserting funcsymbol with name "complex_class_func"
         Node {
 SymbolTable: pushing scope 4
 SymbolTable: entering scope 4
-            visiting CompoundStatement node: input/functions.HC:24.34-28.1
+            visiting CompoundStatement node: 24.33-28.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 4 with symbol 0x564092e73190 name "complex_class_func"
+SymbolTable: associating current scope 4 with symbol name "complex_class_func"
 SymbolTable: inserting varsymbol with name "thing"
             Node {
-                visiting VariableDeclaration node: input/functions.HC:25.5-25
-                parsing declaration specifier list for node at input/functions.HC:25.5-25
+                visiting VariableDeclaration node: 25.5-25
+                parsing declaration specifier list for node at 25.5-25
                 Node {
-                    visiting TypeIdentifier node: input/functions.HC:25.5-8
+                    visiting TypeIdentifier node: 25.5-8
 SymbolTable: looking up typesymbol What
                 }
-                finished parsing specifiers for node input/functions.HC:25.5-25
+                finished parsing specifiers for node 25.5-25
                 Node {
-                    visiting InitDeclarator node: input/functions.HC:25.10-24
+                    visiting InitDeclarator node: 25.10-24
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/functions.HC:25.10-12
+                            visiting IdentifierDeclarator node: 25.10-12
                         }
                     }
 TypeBuilder: finalizing type
                     Node {
-                        visiting Initializer node: input/functions.HC:25.16-24
+                        visiting Initializer node: 25.16-24
                         visiting compound initializer
                         visiting classtype compound initializer
+ClassType: Looking for member with index 0
+RecordType: Looking for member with index 0
                         Node {
-                            visiting Initializer node: input/functions.HC:25.18-22
+                            visiting Initializer node: 25.18-22
                             visiting single initializer
                             Node {
-                                visiting IdentifierExpression node: input/functions.HC:25.18-22
+                                visiting IdentifierExpression node: 25.18-22
 SymbolTable: looking up varsymbol thing
                             }
                         }
@@ -708,9 +474,9 @@ SymbolTable: looking up varsymbol thing
 SymbolTable: inserting varsymbol with name "ret"
             }
             Node {
-                visiting ReturnStatement node: input/functions.HC:27.5-15
+                visiting ReturnStatement node: 27.5-15
                 Node {
-                    visiting IdentifierExpression node: input/functions.HC:27.12-14
+                    visiting IdentifierExpression node: 27.12-14
 SymbolTable: looking up varsymbol ret
                 }
             }
@@ -718,180 +484,185 @@ SymbolTable: exiting scope to 0
         }
     }
     Node {
-        visiting TypeDeclaration node: input/functions.HC:30.1-33.2
-        parsing declaration specifier list for node at input/functions.HC:30.1-33.2
+        visiting TypeDeclaration node: 30.1-33.2
+        parsing declaration specifier list for node at 30.1-33.2
         Node {
-            visiting ClassSpecifier node: input/functions.HC:30.1-33.1
-TypeContext: class type 'Point' on scope 0x564092eb2990
+            visiting ClassSpecifier node: 30.1-33.1
+TypeContext: class type 'Point' on scope 0
 TypeContext: inserting type class_Point_0
             class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol Point in current scope
 SymbolTable: inserting typesymbol with name "Point"
             Node {
-                visiting ClassDeclaration node: input/functions.HC:31.5-11
-                parsing declaration specifier list for node at input/functions.HC:31.5-11
+                visiting ClassDeclaration node: 31.5-10
+                parsing declaration specifier list for node at 31.5-10
                 Node {
-                    visiting PrimitiveSpecifier node: input/functions.HC:31.5-8
+                    visiting PrimitiveSpecifier node: 31.5-7
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node input/functions.HC:31.5-11
-                parsing ClassDeclaration for ClassType 0x564092eb3a60
+                finished parsing specifiers for node 31.5-10
+                parsing ClassDeclaration for ClassType 14746973085105520267
                 Node {
-                    visiting ClassDeclarator node: input/functions.HC:31.10
+                    visiting ClassDeclarator node: 31.9
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/functions.HC:31.10
+                            visiting IdentifierDeclarator node: 31.9
                         }
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name x type 0x564092eb2850
+ClassType: adding member with name x type 175247769300
+ClassType: Looking for member with name x
+RecordType: Looking for member with name x
             }
             Node {
-                visiting ClassDeclaration node: input/functions.HC:32.5-11
-                parsing declaration specifier list for node at input/functions.HC:32.5-11
+                visiting ClassDeclaration node: 32.5-10
+                parsing declaration specifier list for node at 32.5-10
                 Node {
-                    visiting PrimitiveSpecifier node: input/functions.HC:32.5-8
+                    visiting PrimitiveSpecifier node: 32.5-7
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node input/functions.HC:32.5-11
-                parsing ClassDeclaration for ClassType 0x564092eb3a60
+                finished parsing specifiers for node 32.5-10
+                parsing ClassDeclaration for ClassType 14746973085105520267
                 Node {
-                    visiting ClassDeclarator node: input/functions.HC:32.10
+                    visiting ClassDeclarator node: 32.9
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/functions.HC:32.10
+                            visiting IdentifierDeclarator node: 32.9
                         }
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name y type 0x564092eb2850
+ClassType: adding member with name y type 175247769300
+ClassType: Looking for member with name y
+RecordType: Looking for member with name y
             }
         }
-        finished parsing specifiers for node input/functions.HC:30.1-33.2
+        finished parsing specifiers for node 30.1-33.2
     }
     Node {
-        visiting Function node: input/functions.HC:35.1-40.1
-        parsing declaration specifier list for node at input/functions.HC:35.1-40.1
+        visiting Function node: 35.1-40.1
+        parsing declaration specifier list for node at 35.1-40.1
         Node {
-            visiting TypeIdentifier node: input/functions.HC:35.1-5
+            visiting TypeIdentifier node: 35.1-5
 SymbolTable: looking up typesymbol Point
         }
-        finished parsing specifiers for node input/functions.HC:35.1-40.1
+        finished parsing specifiers for node 35.1-40.1
         Node {
             Node {
-                visiting FunctionDeclarator node: input/functions.HC:35.7-54
+                visiting FunctionDeclarator node: 35.7-52
                 Node {
-                    visiting IdentifierDeclarator node: input/functions.HC:35.7-20
+                    visiting IdentifierDeclarator node: 35.7-20
                 }
                 Node {
-                    visiting ParameterDeclarator node: input/functions.HC:35.7-35
-                    parsing declaration specifier list for node at input/functions.HC:35.7-35
+                    visiting ParameterDeclarator node: 35.7-35
+                    parsing declaration specifier list for node at 35.7-35
                     Node {
-                        visiting ClassSpecifier node: input/functions.HC:35.7-32
-TypeContext: class type 'Point' on scope 0x564092eb2990
+                        visiting ClassSpecifier node: 35.7-32
+TypeContext: class type 'Point' on scope 0
 TypeContext: existing class found
                         class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol Point in current scope
                     }
-                    finished parsing specifiers for node input/functions.HC:35.7-35
+                    finished parsing specifiers for node 35.7-35
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/functions.HC:35.34-35
+                            visiting IdentifierDeclarator node: 35.34-35
                         }
                         Node {
-                            visiting Pointer node: input/functions.HC:35.34
-                        }
-                    }
-TypeBuilder: finalizing type
-TypeContext: pointer with base 0x564092eb3a60
-                }
-                Node {
-                    visiting ParameterDeclarator node: input/functions.HC:35.38-44
-                    parsing declaration specifier list for node at input/functions.HC:35.38-44
-                    Node {
-                        visiting PrimitiveSpecifier node: input/functions.HC:35.38-41
-TypeContext: getting primitive type
-                    }
-                    finished parsing specifiers for node input/functions.HC:35.38-44
-                    Node {
-                        Node {
-                            visiting IdentifierDeclarator node: input/functions.HC:35.43-44
+                            visiting Pointer node: 35.34
                         }
                     }
 TypeBuilder: finalizing type
+TypeContext: pointer with base 14746973085105520267
                 }
                 Node {
-                    visiting ParameterDeclarator node: input/functions.HC:35.47-53
-                    parsing declaration specifier list for node at input/functions.HC:35.47-53
+                    visiting ParameterDeclarator node: 35.38-43
+                    parsing declaration specifier list for node at 35.38-43
                     Node {
-                        visiting PrimitiveSpecifier node: input/functions.HC:35.47-50
+                        visiting PrimitiveSpecifier node: 35.38-40
 TypeContext: getting primitive type
                     }
-                    finished parsing specifiers for node input/functions.HC:35.47-53
+                    finished parsing specifiers for node 35.38-43
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/functions.HC:35.52-53
+                            visiting IdentifierDeclarator node: 35.42-43
+                        }
+                    }
+TypeBuilder: finalizing type
+                }
+                Node {
+                    visiting ParameterDeclarator node: 35.46-51
+                    parsing declaration specifier list for node at 35.46-51
+                    Node {
+                        visiting PrimitiveSpecifier node: 35.46-48
+TypeContext: getting primitive type
+                    }
+                    finished parsing specifiers for node 35.46-51
+                    Node {
+                        Node {
+                            visiting IdentifierDeclarator node: 35.50-51
                         }
                     }
 TypeBuilder: finalizing type
                 }
             }
             Node {
-                visiting Pointer node: input/functions.HC:35.7
+                visiting Pointer node: 35.7
             }
         }
-TypeContext: pointer with base 0x564092eb3a60
+TypeBuilder: finalizing type
+TypeContext: pointer with base 14746973085105520267
 TypeContext: getting function type
-parsing params
+        MIRSynthesizer: parsing Function params
 SymbolTable: inserting funcsymbol with name "compute_point"
         Node {
 SymbolTable: pushing scope 5
 SymbolTable: entering scope 5
-            visiting CompoundStatement node: input/functions.HC:35.56-40.1
+            visiting CompoundStatement node: 35.54-40.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 5 with symbol 0x564092e733d0 name "compute_point"
+SymbolTable: associating current scope 5 with symbol name "compute_point"
 SymbolTable: inserting varsymbol with name "p"
 SymbolTable: inserting varsymbol with name "dx"
 SymbolTable: inserting varsymbol with name "dy"
             Node {
-                visiting ExpressionStatement node: input/functions.HC:36.3-13
+                visiting ExpressionStatement node: 36.3-13
                 Node {
-                    visiting AssignmentExpression node: input/functions.HC:36.3-12
+                    visiting AssignmentExpression node: 36.3-12
                     Node {
-                        visiting MemberAccessExpression node: input/functions.HC:36.3-6
+                        visiting MemberAccessExpression node: 36.3-6
                         Node {
-                            visiting IdentifierExpression node: input/functions.HC:36.3
+                            visiting IdentifierExpression node: 36.3
 SymbolTable: looking up varsymbol p
                         }
                     }
                     Node {
-                        visiting IdentifierExpression node: input/functions.HC:36.11-12
+                        visiting IdentifierExpression node: 36.11-12
 SymbolTable: looking up varsymbol dx
                     }
                 }
             }
             Node {
-                visiting ExpressionStatement node: input/functions.HC:37.3-13
+                visiting ExpressionStatement node: 37.3-13
                 Node {
-                    visiting AssignmentExpression node: input/functions.HC:37.3-12
+                    visiting AssignmentExpression node: 37.3-12
                     Node {
-                        visiting MemberAccessExpression node: input/functions.HC:37.3-6
+                        visiting MemberAccessExpression node: 37.3-6
                         Node {
-                            visiting IdentifierExpression node: input/functions.HC:37.3
+                            visiting IdentifierExpression node: 37.3
 SymbolTable: looking up varsymbol p
                         }
                     }
                     Node {
-                        visiting IdentifierExpression node: input/functions.HC:37.11-12
+                        visiting IdentifierExpression node: 37.11-12
 SymbolTable: looking up varsymbol dy
                     }
                 }
             }
             Node {
-                visiting ReturnStatement node: input/functions.HC:39.3-11
+                visiting ReturnStatement node: 39.3-11
                 Node {
-                    visiting IdentifierExpression node: input/functions.HC:39.10
+                    visiting IdentifierExpression node: 39.10
 SymbolTable: looking up varsymbol p
                 }
             }
@@ -899,98 +670,258 @@ SymbolTable: exiting scope to 0
         }
     }
     Node {
-        visiting ExpressionStatement node: input/functions.HC:42.1-29
+        visiting ExpressionStatement node: 42.1-29
         Node {
-            visiting CallExpression node: input/functions.HC:42.1-28
+            visiting CallExpression node: 42.1-28
             Node {
-                visiting IdentifierExpression node: input/functions.HC:42.1-7
+                visiting IdentifierExpression node: 42.1-7
 SymbolTable: looking up varsymbol compute
 SymbolTable: looking up funcsymbol compute
             }
             Node {
-                visiting LiteralExpression node: input/functions.HC:42.1-10
+                visiting LiteralExpression node: 42.1-10
+                found integer
             }
             Node {
-                visiting LiteralExpression node: input/functions.HC:42.13
+                visiting LiteralExpression node: 42.13
+                found integer
             }
             Node {
-                visiting StringExpression node: input/functions.HC:42.16-21
+                visiting StringExpression node: 42.16-21
             }
             Node {
-                visiting LiteralExpression node: input/functions.HC:42.24-27
+                visiting LiteralExpression node: 42.24-27
+                found bool
             }
         }
     }
     Node {
-        visiting Function node: input/functions.HC:44.1-46.1
-        parsing declaration specifier list for node at input/functions.HC:44.1-46.1
+        visiting PrintStatement node: 44.1-21
         Node {
-            visiting VoidSpecifier node: input/functions.HC:44.1-4
+            visiting CallExpression node: 44.9-20
+            Node {
+                visiting IdentifierExpression node: 44.9-15
+SymbolTable: looking up varsymbol compute
+SymbolTable: looking up funcsymbol compute
+            }
+            Node {
+                visiting LiteralExpression node: 44.9-17
+                found integer
+            }
+            Node {
+                visiting LiteralExpression node: 44.9-19
+                found integer
+            }
         }
-        finished parsing specifiers for node input/functions.HC:44.1-46.1
+    }
+    Node {
+        visiting PrintStatement node: 48.1-19
+        Node {
+            visiting CallExpression node: 48.9-18
+            Node {
+                visiting IdentifierExpression node: 48.9-15
+SymbolTable: looking up varsymbol compute
+SymbolTable: looking up funcsymbol compute
+            }
+            Node {
+                visiting LiteralExpression node: 48.9-17
+                found integer
+            }
+        }
+    }
+    Node {
+        visiting PrintStatement node: 49.1-18
+        Node {
+            visiting CallExpression node: 49.9-17
+            Node {
+                visiting IdentifierExpression node: 49.9-15
+SymbolTable: looking up varsymbol compute
+SymbolTable: looking up funcsymbol compute
+            }
+        }
+    }
+    Node {
+        visiting Function node: 52.1-55.1
+        parsing declaration specifier list for node at 52.1-55.1
+        Node {
+            visiting PrimitiveSpecifier node: 52.1-3
+TypeContext: getting primitive type
+        }
+        finished parsing specifiers for node 52.1-55.1
         Node {
             Node {
-                visiting FunctionDeclarator node: input/functions.HC:44.6-11
+                visiting FunctionDeclarator node: 52.5-20
                 Node {
-                    visiting IdentifierDeclarator node: input/functions.HC:44.6-9
+                    visiting IdentifierDeclarator node: 52.5-13
+                }
+                Node {
+                    visiting ParameterDeclarator node: 52.5-19
+                    parsing declaration specifier list for node at 52.5-19
+                    Node {
+                        visiting PrimitiveSpecifier node: 52.5-17
+TypeContext: getting primitive type
+                    }
+                    finished parsing specifiers for node 52.5-19
+                    Node {
+                        Node {
+                            visiting IdentifierDeclarator node: 52.19
+                        }
+                    }
+TypeBuilder: finalizing type
                 }
             }
         }
+TypeBuilder: finalizing type
 TypeContext: getting function type
-parsing params
-SymbolTable: inserting funcsymbol with name "noop"
+TypeContext: existing function type found
+        MIRSynthesizer: parsing Function params
+SymbolTable: inserting funcsymbol with name "Factorial"
         Node {
 SymbolTable: pushing scope 6
 SymbolTable: entering scope 6
-            visiting CompoundStatement node: input/functions.HC:44.13-46.1
+            visiting CompoundStatement node: 52.22-55.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 6 with symbol 0x564092e72920 name "noop"
+SymbolTable: associating current scope 6 with symbol name "Factorial"
+SymbolTable: inserting varsymbol with name "n"
             Node {
-                visiting ReturnStatement node: input/functions.HC:45.5-11
+                visiting IfStatement node: 53.5-25
+                Node {
+                    visiting BinaryExpression node: 53.8-14
+                    Node {
+                        visiting IdentifierExpression node: 53.8-9
+SymbolTable: looking up varsymbol n
+                    }
+                    Node {
+                        visiting LiteralExpression node: 53.14
+                        found integer
+                    }
+                }
+                Node {
+                    visiting ReturnStatement node: 53.17-25
+                    Node {
+                        visiting LiteralExpression node: 53.24
+                        found integer
+                    }
+                }
+            }
+            Node {
+                visiting ReturnStatement node: 54.5-32
+                Node {
+                    visiting BinaryExpression node: 54.12-31
+                    Node {
+                        visiting IdentifierExpression node: 54.12
+SymbolTable: looking up varsymbol n
+                    }
+                    Node {
+                        visiting CallExpression node: 54.16-31
+                        Node {
+                            visiting IdentifierExpression node: 54.16-24
+SymbolTable: looking up varsymbol Factorial
+SymbolTable: looking up funcsymbol Factorial
+                        }
+                        Node {
+                            visiting BinaryExpression node: 54.16-30
+                            Node {
+                                visiting IdentifierExpression node: 54.16-26
+SymbolTable: looking up varsymbol n
+                            }
+                            Node {
+                                visiting LiteralExpression node: 54.30
+                                found integer
+                            }
+                        }
+                    }
+                }
             }
 SymbolTable: exiting scope to 0
         }
     }
     Node {
-        visiting ExpressionStatement node: input/functions.HC:49.1-7
+        visiting PrintStatement node: 57.1-21
         Node {
-            visiting CallExpression node: input/functions.HC:49.1-6
+            visiting CallExpression node: 57.9-20
             Node {
-                visiting IdentifierExpression node: input/functions.HC:49.1-4
+                visiting IdentifierExpression node: 57.9-17
+SymbolTable: looking up varsymbol Factorial
+SymbolTable: looking up funcsymbol Factorial
+            }
+            Node {
+                visiting LiteralExpression node: 57.9-19
+                found integer
+            }
+        }
+    }
+    Node {
+        visiting Function node: 59.1-61.1
+        parsing declaration specifier list for node at 59.1-61.1
+        Node {
+            visiting VoidSpecifier node: 59.1-4
+        }
+        finished parsing specifiers for node 59.1-61.1
+        Node {
+            Node {
+                visiting FunctionDeclarator node: 59.6-11
+                Node {
+                    visiting IdentifierDeclarator node: 59.6-9
+                }
+            }
+        }
+TypeBuilder: finalizing type
+TypeContext: getting function type
+        MIRSynthesizer: parsing Function params
+SymbolTable: inserting funcsymbol with name "noop"
+        Node {
+SymbolTable: pushing scope 7
+SymbolTable: entering scope 7
+            visiting CompoundStatement node: 59.13-61.1
+            CmpdStmtDoVisitParams found to have value, checking for function
+SymbolTable: associating current scope 7 with symbol name "noop"
+            Node {
+                visiting ReturnStatement node: 60.5-11
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+    Node {
+        visiting ExpressionStatement node: 64.1-7
+        Node {
+            visiting CallExpression node: 64.1-6
+            Node {
+                visiting IdentifierExpression node: 64.1-4
 SymbolTable: looking up varsymbol noop
 SymbolTable: looking up funcsymbol noop
             }
         }
     }
     Node {
-        visiting ExpressionStatement node: input/functions.HC:52.1-5
+        visiting ExpressionStatement node: 67.1-5
         Node {
-            visiting IdentifierExpression node: input/functions.HC:52.1-4
+            visiting IdentifierExpression node: 67.1-4
 SymbolTable: looking up varsymbol noop
 SymbolTable: looking up funcsymbol noop
         }
         found identexpr of type function with no params, emitting CallExprMIR
     }
     Node {
-        visiting VariableDeclaration node: input/functions.HC:56.1-26
-        parsing declaration specifier list for node at input/functions.HC:56.1-26
+        visiting VariableDeclaration node: 71.1-26
+        parsing declaration specifier list for node at 71.1-26
         Node {
-            visiting VoidSpecifier node: input/functions.HC:56.1-4
+            visiting VoidSpecifier node: 71.1-4
         }
-        finished parsing specifiers for node input/functions.HC:56.1-26
+        finished parsing specifiers for node 71.1-26
         Node {
-            visiting InitDeclarator node: input/functions.HC:56.6-25
+            visiting InitDeclarator node: 71.6-25
             Node {
                 Node {
-                    visiting FunctionDeclarator node: input/functions.HC:56.6-18
+                    visiting FunctionDeclarator node: 71.6-18
                     Node {
-                        visiting ParenDeclarator node: input/functions.HC:56.6-15
+                        visiting ParenDeclarator node: 71.6-15
                         Node {
                             Node {
-                                visiting IdentifierDeclarator node: input/functions.HC:56.6-14
+                                visiting IdentifierDeclarator node: 71.6-14
                             }
                             Node {
-                                visiting Pointer node: input/functions.HC:56.6-7
+                                visiting Pointer node: 71.6-7
                             }
                         }
                     }
@@ -999,12 +930,12 @@ SymbolTable: looking up funcsymbol noop
 TypeBuilder: finalizing type
 TypeContext: getting function type
 TypeContext: existing function type found
-TypeContext: pointer with base 0x564092eb6f60
+TypeContext: pointer with base 7455274410130379324
             Node {
-                visiting Initializer node: input/functions.HC:56.22-25
+                visiting Initializer node: 71.22-25
                 visiting single initializer
                 Node {
-                    visiting IdentifierExpression node: input/functions.HC:56.22-25
+                    visiting IdentifierExpression node: 71.22-25
 SymbolTable: looking up varsymbol noop
 SymbolTable: looking up funcsymbol noop
                 }
@@ -1013,59 +944,60 @@ SymbolTable: looking up funcsymbol noop
 SymbolTable: inserting varsymbol with name "funcptr"
     }
     Node {
-        visiting PrintStatement node: input/functions.HC:59.1-21
+        visiting PrintStatement node: 74.1-21
     }
     Node {
-        visiting Function node: input/functions.HC:61.1-64.1
-        parsing declaration specifier list for node at input/functions.HC:61.1-64.1
+        visiting Function node: 76.1-79.1
+        parsing declaration specifier list for node at 76.1-79.1
         Node {
-            visiting PrimitiveSpecifier node: input/functions.HC:61.1-4
+            visiting PrimitiveSpecifier node: 76.1-3
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/functions.HC:61.1-64.1
+        finished parsing specifiers for node 76.1-79.1
         Node {
             Node {
-                visiting FunctionDeclarator node: input/functions.HC:61.6-29
+                visiting FunctionDeclarator node: 76.5-27
                 Node {
-                    visiting IdentifierDeclarator node: input/functions.HC:61.6-21
+                    visiting IdentifierDeclarator node: 76.5-20
                 }
                 Node {
-                    visiting ParameterDeclarator node: input/functions.HC:61.6-28
-                    parsing declaration specifier list for node at input/functions.HC:61.6-28
+                    visiting ParameterDeclarator node: 76.5-26
+                    parsing declaration specifier list for node at 76.5-26
                     Node {
-                        visiting PrimitiveSpecifier node: input/functions.HC:61.6-26
+                        visiting PrimitiveSpecifier node: 76.5-24
 TypeContext: getting primitive type
                     }
-                    finished parsing specifiers for node input/functions.HC:61.6-28
+                    finished parsing specifiers for node 76.5-26
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/functions.HC:61.28
+                            visiting IdentifierDeclarator node: 76.26
                         }
                     }
 TypeBuilder: finalizing type
                 }
             }
         }
+TypeBuilder: finalizing type
 TypeContext: getting function type
-parsing params
+        MIRSynthesizer: parsing Function params
 SymbolTable: inserting funcsymbol with name "CallbackFunction"
         Node {
-SymbolTable: pushing scope 7
-SymbolTable: entering scope 7
-            visiting CompoundStatement node: input/functions.HC:62.1-64.1
+SymbolTable: pushing scope 8
+SymbolTable: entering scope 8
+            visiting CompoundStatement node: 77.1-79.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 7 with symbol 0x564092e72b60 name "CallbackFunction"
+SymbolTable: associating current scope 8 with symbol name "CallbackFunction"
 SymbolTable: inserting varsymbol with name "x"
             Node {
-                visiting ReturnStatement node: input/functions.HC:63.3-15
+                visiting ReturnStatement node: 78.3-15
                 Node {
-                    visiting BinaryExpression node: input/functions.HC:63.10-14
+                    visiting BinaryExpression node: 78.10-14
                     Node {
-                        visiting IdentifierExpression node: input/functions.HC:63.10
+                        visiting IdentifierExpression node: 78.10
 SymbolTable: looking up varsymbol x
                     }
                     Node {
-                        visiting IdentifierExpression node: input/functions.HC:63.14
+                        visiting IdentifierExpression node: 78.14
 SymbolTable: looking up varsymbol x
                     }
                 }
@@ -1074,66 +1006,67 @@ SymbolTable: exiting scope to 0
         }
     }
     Node {
-        visiting Function node: input/functions.HC:66.1-69.1
-        parsing declaration specifier list for node at input/functions.HC:66.1-69.1
+        visiting Function node: 81.1-84.1
+        parsing declaration specifier list for node at 81.1-84.1
         Node {
-            visiting VoidSpecifier node: input/functions.HC:66.1-4
+            visiting PrimitiveSpecifier node: 81.1-3
+TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/functions.HC:66.1-69.1
+        finished parsing specifiers for node 81.1-84.1
         Node {
             Node {
-                visiting FunctionDeclarator node: input/functions.HC:66.6-46
+                visiting FunctionDeclarator node: 81.5-42
                 Node {
-                    visiting IdentifierDeclarator node: input/functions.HC:66.6-13
+                    visiting IdentifierDeclarator node: 81.5-12
                 }
                 Node {
-                    visiting ParameterDeclarator node: input/functions.HC:66.6-20
-                    parsing declaration specifier list for node at input/functions.HC:66.6-20
+                    visiting ParameterDeclarator node: 81.5-18
+                    parsing declaration specifier list for node at 81.5-18
                     Node {
-                        visiting PrimitiveSpecifier node: input/functions.HC:66.6-18
+                        visiting PrimitiveSpecifier node: 81.5-16
 TypeContext: getting primitive type
                     }
-                    finished parsing specifiers for node input/functions.HC:66.6-20
+                    finished parsing specifiers for node 81.5-18
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/functions.HC:66.20
+                            visiting IdentifierDeclarator node: 81.18
                         }
                     }
 TypeBuilder: finalizing type
                 }
                 Node {
-                    visiting ParameterDeclarator node: input/functions.HC:66.23-45
-                    parsing declaration specifier list for node at input/functions.HC:66.23-45
+                    visiting ParameterDeclarator node: 81.21-41
+                    parsing declaration specifier list for node at 81.21-41
                     Node {
-                        visiting PrimitiveSpecifier node: input/functions.HC:66.23-26
+                        visiting PrimitiveSpecifier node: 81.21-23
 TypeContext: getting primitive type
                     }
-                    finished parsing specifiers for node input/functions.HC:66.23-45
+                    finished parsing specifiers for node 81.21-41
                     Node {
                         Node {
-                            visiting FunctionDeclarator node: input/functions.HC:66.28-45
+                            visiting FunctionDeclarator node: 81.25-41
                             Node {
-                                visiting ParenDeclarator node: input/functions.HC:66.28-34
+                                visiting ParenDeclarator node: 81.25-31
                                 Node {
                                     Node {
-                                        visiting IdentifierDeclarator node: input/functions.HC:66.28-33
+                                        visiting IdentifierDeclarator node: 81.25-30
                                     }
                                     Node {
-                                        visiting Pointer node: input/functions.HC:66.28-29
+                                        visiting Pointer node: 81.25-26
                                     }
                                 }
                             }
                             Node {
-                                visiting ParameterDeclarator node: input/functions.HC:66.28-44
-                                parsing declaration specifier list for node at input/functions.HC:66.28-44
+                                visiting ParameterDeclarator node: 81.25-40
+                                parsing declaration specifier list for node at 81.25-40
                                 Node {
-                                    visiting PrimitiveSpecifier node: input/functions.HC:66.28-39
+                                    visiting PrimitiveSpecifier node: 81.25-35
 TypeContext: getting primitive type
                                 }
-                                finished parsing specifiers for node input/functions.HC:66.28-44
+                                finished parsing specifiers for node 81.25-40
                                 Node {
                                     Node {
-                                        visiting IdentifierDeclarator node: input/functions.HC:66.41-44
+                                        visiting IdentifierDeclarator node: 81.37-40
                                     }
                                 }
 TypeBuilder: finalizing type
@@ -1143,31 +1076,32 @@ TypeBuilder: finalizing type
 TypeBuilder: finalizing type
 TypeContext: getting function type
 TypeContext: existing function type found
-TypeContext: pointer with base 0x564092eb78d0
+TypeContext: pointer with base 7502112653284387413
                 }
             }
         }
+TypeBuilder: finalizing type
 TypeContext: getting function type
-parsing params
+        MIRSynthesizer: parsing Function params
 SymbolTable: inserting funcsymbol with name "MathFunc"
         Node {
-SymbolTable: pushing scope 8
-SymbolTable: entering scope 8
-            visiting CompoundStatement node: input/functions.HC:67.1-69.1
+SymbolTable: pushing scope 9
+SymbolTable: entering scope 9
+            visiting CompoundStatement node: 82.1-84.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 8 with symbol 0x564092e72fe0 name "MathFunc"
+SymbolTable: associating current scope 9 with symbol name "MathFunc"
 SymbolTable: inserting varsymbol with name "y"
 SymbolTable: inserting varsymbol with name "proc"
             Node {
-                visiting ReturnStatement node: input/functions.HC:68.3-17
+                visiting ReturnStatement node: 83.3-17
                 Node {
-                    visiting CallExpression node: input/functions.HC:68.10-16
+                    visiting CallExpression node: 83.10-16
                     Node {
-                        visiting IdentifierExpression node: input/functions.HC:68.10-13
+                        visiting IdentifierExpression node: 83.10-13
 SymbolTable: looking up varsymbol proc
                     }
                     Node {
-                        visiting IdentifierExpression node: input/functions.HC:68.10-15
+                        visiting IdentifierExpression node: 83.10-15
 SymbolTable: looking up varsymbol y
                     }
                 }
@@ -1176,63 +1110,65 @@ SymbolTable: exiting scope to 0
         }
     }
     Node {
-        visiting Function node: input/functions.HC:71.1-75.1
-        parsing declaration specifier list for node at input/functions.HC:71.1-75.1
+        visiting Function node: 86.1-90.1
+        parsing declaration specifier list for node at 86.1-90.1
         Node {
-            visiting VoidSpecifier node: input/functions.HC:71.1-4
+            visiting VoidSpecifier node: 86.1-4
         }
-        finished parsing specifiers for node input/functions.HC:71.1-75.1
+        finished parsing specifiers for node 86.1-90.1
         Node {
             Node {
-                visiting FunctionDeclarator node: input/functions.HC:71.6-11
+                visiting FunctionDeclarator node: 86.6-11
                 Node {
-                    visiting IdentifierDeclarator node: input/functions.HC:71.6-9
+                    visiting IdentifierDeclarator node: 86.6-9
                 }
             }
         }
+TypeBuilder: finalizing type
 TypeContext: getting function type
 TypeContext: existing function type found
-parsing params
+        MIRSynthesizer: parsing Function params
 SymbolTable: inserting funcsymbol with name "Main"
         Node {
-SymbolTable: pushing scope 9
-SymbolTable: entering scope 9
-            visiting CompoundStatement node: input/functions.HC:72.1-75.1
+SymbolTable: pushing scope 10
+SymbolTable: entering scope 10
+            visiting CompoundStatement node: 87.1-90.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 9 with symbol 0x564092e741b0 name "Main"
+SymbolTable: associating current scope 10 with symbol name "Main"
             Node {
-                visiting VariableDeclaration node: input/functions.HC:73.3-43
-                parsing declaration specifier list for node at input/functions.HC:73.3-43
+                visiting VariableDeclaration node: 88.3-42
+                parsing declaration specifier list for node at 88.3-42
                 Node {
-                    visiting PrimitiveSpecifier node: input/functions.HC:73.3-6
+                    visiting PrimitiveSpecifier node: 88.3-5
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node input/functions.HC:73.3-43
+                finished parsing specifiers for node 88.3-42
                 Node {
-                    visiting InitDeclarator node: input/functions.HC:73.8-42
+                    visiting InitDeclarator node: 88.7-41
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/functions.HC:73.8
+                            visiting IdentifierDeclarator node: 88.7
                         }
                     }
 TypeBuilder: finalizing type
                     Node {
-                        visiting Initializer node: input/functions.HC:73.12-42
+                        visiting Initializer node: 88.11-41
                         visiting single initializer
                         Node {
-                            visiting CallExpression node: input/functions.HC:73.12-42
+                            visiting CallExpression node: 88.11-41
                             Node {
-                                visiting IdentifierExpression node: input/functions.HC:73.12-19
+                                visiting IdentifierExpression node: 88.11-18
 SymbolTable: looking up varsymbol MathFunc
 SymbolTable: looking up funcsymbol MathFunc
                             }
                             Node {
-                                visiting LiteralExpression node: input/functions.HC:73.12-22
+                                visiting LiteralExpression node: 88.11-21
+                                found integer
                             }
                             Node {
-                                visiting UnaryExpression node: input/functions.HC:73.25-41
+                                visiting UnaryExpression node: 88.24-40
                                 Node {
-                                    visiting IdentifierExpression node: input/functions.HC:73.25-41
+                                    visiting IdentifierExpression node: 88.24-40
 SymbolTable: looking up varsymbol CallbackFunction
 SymbolTable: looking up funcsymbol CallbackFunction
                                 }
@@ -1243,9 +1179,9 @@ SymbolTable: looking up funcsymbol CallbackFunction
 SymbolTable: inserting varsymbol with name "x"
             }
             Node {
-                visiting PrintStatement node: input/functions.HC:74.3-11
+                visiting PrintStatement node: 89.3-11
                 Node {
-                    visiting IdentifierExpression node: input/functions.HC:74.3-10
+                    visiting IdentifierExpression node: 89.3-10
 SymbolTable: looking up varsymbol x
                 }
             }
@@ -1253,212 +1189,1322 @@ SymbolTable: exiting scope to 0
         }
     }
 }
-semantic checking complete
+
+---------- Validating ----------
+
+Node {
+    Node {
+    }
+    Node {
+    }
+    Node {
+        Node {
+SymbolTable: entering scope 1
+            Node {
+                Validator: visiting ReturnStmtMIR node
+                Node {
+                    Validator: visiting BinaryExprMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+                }
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+    Node {
+        Node {
+SymbolTable: entering scope 2
+            Node {
+                Validator: visiting ReturnStmtMIR node
+                Node {
+                    Validator: visiting IdentExprMIR node
+                }
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+    Node {
+        Node {
+SymbolTable: entering scope 3
+            Node {
+                Validator: visiting VarDeclMIR node
+            }
+            Node {
+                Validator: visiting ExprStmtMIR node
+                Node {
+                    Validator: visiting AssignExprMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                    Node {
+                        Validator: visiting CallExprMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+                    }
+                }
+            }
+            Node {
+                Validator: visiting VarDeclMIR node
+                Validator: visiting single VarDecl for new2
+                Validator: eval_initializer
+                Validator: matched on single expression
+                Validator: eval_initializer_expr
+                Node {
+                    Validator: visiting BinaryExprMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                    Node {
+                        Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                    }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+                }
+                types are not equal, checking compatibility
+            }
+            Node {
+                Validator: visiting ReturnStmtMIR node
+                Node {
+                    Validator: visiting BinaryExprMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+                }
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+    Node {
+        Node {
+SymbolTable: entering scope 4
+            Node {
+                Validator: visiting VarDeclMIR node
+                Validator: visiting single VarDecl for ret
+                Validator: eval_initializer
+                Validator: eval_initializer_rec_cls
+                [0: #0]
+                checking non-desigd index 0
+ClassType: Looking for member with index 0
+RecordType: Looking for member with index 0
+                Validator: eval_initializer_expr
+                Node {
+                    Validator: visiting IdentExprMIR node
+                }
+            }
+            Node {
+                Validator: visiting ReturnStmtMIR node
+                Node {
+                    Validator: visiting IdentExprMIR node
+                }
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+    Node {
+        Validator: visiting TypeDeclMIR node
+ClassType: finalizing class defined at 30.1-33.1
+ClassType: finalizing member declared at 31.9
+PrimitiveType: finalizing i32
+ClassType: finalizing member declared at 32.9
+PrimitiveType: i32 already finalized, skipping
+    }
+    Node {
+        Node {
+SymbolTable: entering scope 5
+            Node {
+                Validator: visiting ExprStmtMIR node
+                Node {
+                    Validator: visiting AssignExprMIR node
+                    Node {
+                        Validator: visiting MemberAccExprMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+TypeContext: pointer with base 14746973085105520267
+                        }
+ClassType: Looking for member with name x
+RecordType: Looking for member with name x
+                    }
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                }
+            }
+            Node {
+                Validator: visiting ExprStmtMIR node
+                Node {
+                    Validator: visiting AssignExprMIR node
+                    Node {
+                        Validator: visiting MemberAccExprMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+TypeContext: pointer with base 14746973085105520267
+                        }
+ClassType: Looking for member with name y
+RecordType: Looking for member with name y
+                    }
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                }
+            }
+            Node {
+                Validator: visiting ReturnStmtMIR node
+                Node {
+                    Validator: visiting IdentExprMIR node
+TypeContext: pointer with base 14746973085105520267
+                }
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting CallExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: array type with base 175247769427, size 5
+TypeContext: array type with base 175247769427, size 5
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+TypeContext: pointer with base 175247769427
+TypeContext: pointer with base 175247769427
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting CallExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting CallExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting CallExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+        }
+    }
+    Node {
+        Node {
+SymbolTable: entering scope 6
+            Node {
+                Validator: visiting IfStmtMIR node
+                Node {
+                    Validator: visiting BinaryExprMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                    Node {
+                        Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                    }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+                }
+                Node {
+                    Validator: visiting ReturnStmtMIR node
+                    Node {
+                        Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                    }
+                }
+            }
+            Node {
+                Validator: visiting ReturnStmtMIR node
+                Node {
+                    Validator: visiting BinaryExprMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                    Node {
+                        Validator: visiting CallExprMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+                        Node {
+                            Validator: visiting BinaryExprMIR node
+                            Node {
+                                Validator: visiting IdentExprMIR node
+                            }
+                            Node {
+                                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                            }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+                        }
+                    }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+                }
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting CallExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+        }
+    }
+    Node {
+        Node {
+SymbolTable: entering scope 7
+            Node {
+                Validator: visiting ReturnStmtMIR node
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting CallExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting CallExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+        }
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for funcptr
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+TypeContext: pointer with base 7455274410130379324
+TypeContext: pointer with base 7455274410130379324
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+    }
+    Node {
+        Node {
+SymbolTable: entering scope 8
+            Node {
+                Validator: visiting ReturnStmtMIR node
+                Node {
+                    Validator: visiting BinaryExprMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+                }
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+    Node {
+        Node {
+SymbolTable: entering scope 9
+            Node {
+                Validator: visiting ReturnStmtMIR node
+                Node {
+                    Validator: visiting CallExprMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+TypeContext: pointer with base 7502112653284387413
+                    }
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                }
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+    Node {
+        Node {
+SymbolTable: entering scope 10
+            Node {
+                Validator: visiting VarDeclMIR node
+                Validator: visiting single VarDecl for x
+                Validator: eval_initializer
+                Validator: matched on single expression
+                Validator: eval_initializer_expr
+                Node {
+                    Validator: visiting CallExprMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                    Node {
+                        Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                    }
+                    Node {
+                        Validator: visiting UnaryExprMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+TypeContext: pointer with base 7502112653284387413
+TypeContext: pointer with base 7502112653284387413
+                    }
+                }
+            }
+            Node {
+                Validator: visiting PrintStmtMIR node
+                Node {
+                    Validator: visiting IdentExprMIR node
+                }
+            }
+            Node {
+                Validator: visiting ReturnStmtMIR node
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+}
 --------- TYPE CONTEXT ---------
 
 Base Types:
-  class_Point_0 : class { I32 x; I32 y; }
-  class_What_0 : class { U32 hello; }
+  class_Point_0 : class Point { i32 x; i32 y; }
+  class_What_0 : class What { u32 hello; }
 
 Function Types:
-  function_388579477687332092 : Void (I64, I64 (I64) *)
-  function_6101973892643069 : I64 (I64)
-  function_6854117458800496855 : Point * (Point *, I32, I32)
-  function_6101973891870417 : class { U32 hello; } (U32)
-  function_v388579477687596817 : I32 (I32, I32, ...)
-  function_6101973892638797 : I32 (I32)
-  function_94835342780064 : Void ()
-  function_388579477597236340 : U32 * (U32, U32)
-  function_94835342780496 : I32 ()
+  function_2654435769 : Void ()
+  function_11337806926594 : i64 (i64)
+  function_8607948298608877776 : Point * (Point *, i32, i32)
+  function_18018504923902114726 : i64 (i64, i64 (i64) *)
+  function_6945854963976061480 : class What { u32 hello; } (u32)
+  function_v735436146681188 : i32 (i32, i32, ...)
+  function_735436146726325 : u32 (u32, u32)
+  function_11337807012758 : i32 (i32)
+  function_175247769300 : i32 ()
 
 Pointer Types:
-  :I64 (I64) *
+  :i64 (i64) *
+  :i8 *
   :Void () *
   :Point *
-  :U32 *
 
 Array Types:
+ : i8[5] #2
 
 
 --------- SYMBOL TABLE ---------
 
-Scope 0
+Scope 0: Compound Statement
 Physical Symbols:
-  Main -> 0x564092e741b0 : FuncSymbol: Main :: Void ()
-  funcptr -> 0x564092eb7560 : VarSymbol: funcptr :: Void () *
-  MathFunc -> 0x564092e72fe0 : FuncSymbol: MathFunc :: Void (I64, I64 (I64) *)
-  CallbackFunction -> 0x564092e72b60 : FuncSymbol: CallbackFunction :: I64 (I64)
-  noop -> 0x564092e72920 : FuncSymbol: noop :: Void ()
-  complex_class_func -> 0x564092e73190 : FuncSymbol: complex_class_func :: class { U32 hello; } (U32)
-  compute -> 0x564092e72f50 : FuncSymbol: compute :: I32 (I32, I32, ...)
-  add -> 0x564092e72ad0 : FuncSymbol: add :: U32 * (U32, U32)
-  someinternalfunc -> 0x564092e72d10 : FuncSymbol: someinternalfunc :: I32 (I32)
-  compute_point -> 0x564092e733d0 : FuncSymbol: compute_point :: Point * (Point *, I32, I32)
-  somefunc -> 0x564092e9e670 : VarSymbol: somefunc :: I32 () extern C
+  Main <0x564f6db3f3f0> : FuncSymbol: Main :: Void ()
+  funcptr <0x564f6db831c0> : VarSymbol: funcptr :: Void () *
+  MathFunc <0x564f6db3f1b0> : FuncSymbol: MathFunc :: i64 (i64, i64 (i64) *)
+  CallbackFunction <0x564f6db3d920> : FuncSymbol: CallbackFunction :: i64 (i64)
+  noop <0x564f6db3dda0> : FuncSymbol: noop :: Void ()
+  complex_class_func <0x564f6db3e3d0> : FuncSymbol: complex_class_func :: class What { u32 hello; } (u32)
+  Factorial <0x564f6db3db60> : FuncSymbol: Factorial :: i32 (i32)
+  compute <0x564f6db3e190> : FuncSymbol: compute :: i32 (i32, i32, ...)
+  add <0x564f6db3df50> : FuncSymbol: add :: u32 (u32, u32)
+  someinternalfunc <0x564f6db3dad0> : FuncSymbol: someinternalfunc :: i32 (i32)
+  compute_point <0x564f6db3e610> : FuncSymbol: compute_point :: Point * (Point *, i32, i32)
+  somefunc <0x564f6db3e580> : FuncSymbol: somefunc :: i32 () extern C
 
 Type Symbols:
-  Point -> 0x564092eb5e40 : TypeSymbol: Point :: class { I32 x; I32 y; }
-  What -> 0x564092eb53e0 : TypeSymbol: What :: class { U32 hello; }
+  Point <0x564f6db80630> : TypeSymbol: Point :: class Point { i32 x; i32 y; }
+  What <0x564f6db7faa0> : TypeSymbol: What :: class What { u32 hello; }
 -----------------------------------------------------------
-  Scope 1: FuncSymbol: add :: U32 * (U32, U32)
+  Scope 1: FuncSymbol: add :: u32 (u32, u32)
   Physical Symbols:
-    b -> 0x564092eb3cf0 : VarSymbol: b :: U32
-    a -> 0x564092eb3c40 : VarSymbol: a :: U32
+    b <0x564f6db7e240> : VarSymbol: b :: U32
+    a <0x564f6db7e180> : VarSymbol: a :: U32
 -----------------------------------------------------------
-  Scope 2: FuncSymbol: someinternalfunc :: I32 (I32)
+  Scope 2: FuncSymbol: someinternalfunc :: i32 (i32)
   Physical Symbols:
-    somearg -> 0x564092eb4330 : VarSymbol: somearg :: I32
+    somearg <0x564f6db7e850> : VarSymbol: somearg :: I32
 -----------------------------------------------------------
-  Scope 3: FuncSymbol: compute :: I32 (I32, I32, ...)
+  Scope 3: FuncSymbol: compute :: i32 (i32, i32, ...)
   Physical Symbols:
-    new2 -> 0x564092eb50a0 : VarSymbol: new2 :: U64
-    new -> 0x564092eb4b00 : VarSymbol: new :: I32
-    y -> 0x564092eb4760 : VarSymbol: y :: I32
-    x -> 0x564092eb35b0 : VarSymbol: x :: I32
+    new2 <0x564f6db7f6b0> : VarSymbol: new2 :: U64
+    new <0x564f6db7f160> : VarSymbol: new :: I32
+    y <0x564f6db7ed00> : VarSymbol: y :: I32
+    x <0x564f6db7ec60> : VarSymbol: x :: I32
 -----------------------------------------------------------
-  Scope 4: FuncSymbol: complex_class_func :: class { U32 hello; } (U32)
+  Scope 4: FuncSymbol: complex_class_func :: class What { u32 hello; } (u32)
   Physical Symbols:
-    ret -> 0x564092eb5bc0 : VarSymbol: ret :: class { U32 hello; }
-    thing -> 0x564092eb57b0 : VarSymbol: thing :: U32
+    ret <0x564f6db80320> : VarSymbol: ret :: class What
+    thing <0x564f6db7fe60> : VarSymbol: thing :: U32
 -----------------------------------------------------------
-  Scope 5: FuncSymbol: compute_point :: Point * (Point *, I32, I32)
+  Scope 5: FuncSymbol: compute_point :: Point * (Point *, i32, i32)
   Physical Symbols:
-    dy -> 0x564092eb6490 : VarSymbol: dy :: I32
-    dx -> 0x564092eb63c0 : VarSymbol: dx :: I32
-    p -> 0x564092eb6310 : VarSymbol: p :: Point *
+    dy <0x564f6db80ed0> : VarSymbol: dy :: I32
+    dx <0x564f6db80e10> : VarSymbol: dx :: I32
+    p <0x564f6db80d50> : VarSymbol: p :: class Point *
 -----------------------------------------------------------
-  Scope 6: FuncSymbol: noop :: Void ()
------------------------------------------------------------
-  Scope 7: FuncSymbol: CallbackFunction :: I64 (I64)
+  Scope 6: FuncSymbol: Factorial :: i32 (i32)
   Physical Symbols:
-    x -> 0x564092eb7970 : VarSymbol: x :: I64
+    n <0x564f6db82100> : VarSymbol: n :: I32
 -----------------------------------------------------------
-  Scope 8: FuncSymbol: MathFunc :: Void (I64, I64 (I64) *)
-  Physical Symbols:
-    proc -> 0x564092eb83a0 : VarSymbol: proc :: I64 (I64) *
-    y -> 0x564092eb82f0 : VarSymbol: y :: I64
+  Scope 7: FuncSymbol: noop :: Void ()
 -----------------------------------------------------------
-  Scope 9: FuncSymbol: Main :: Void ()
+  Scope 8: FuncSymbol: CallbackFunction :: i64 (i64)
   Physical Symbols:
-    x -> 0x564092eb8b30 : VarSymbol: x :: I64
+    x <0x564f6db83590> : VarSymbol: x :: I64
+-----------------------------------------------------------
+  Scope 9: FuncSymbol: MathFunc :: i64 (i64, i64 (i64) *)
+  Physical Symbols:
+    proc <0x564f6db83ef0> : VarSymbol: proc :: I64 (I64) *
+    y <0x564f6db83e30> : VarSymbol: y :: I64
+-----------------------------------------------------------
+  Scope 10: FuncSymbol: Main :: Void ()
+  Physical Symbols:
+    x <0x564f6db84770> : VarSymbol: x :: I64
 -----------------------------------------------------------
 
 --------- MIR ---------
 
 ProgramMIR @ <1.1>
-| VarDecl:  @ <input/functions.HC:1.1-177>
-| | | VarSymbol: somefunc :: I32 () extern C
-| VarDecl:  @ <input/functions.HC:3.1-28>
-| | | VarSymbol: x :: I32
-| FunctionMIR: add @ <input/functions.HC:5.1-7.1>
-    type: U32 * (U32, U32)
-| | CompoundStmtMIR @ <input/functions.HC:5.27-7.1>
-| | | Return @ <input/functions.HC:6.5-17>
-| | | | Binary: + @ <input/functions.HC:6.12-16>
-| | | | | Ident: a @ <input/functions.HC:6.12>
-| | | | | Ident: b @ <input/functions.HC:6.16>
-| FunctionMIR: someinternalfunc @ <input/functions.HC:9.1-11.1>
-    type: I32 (I32)
-| | CompoundStmtMIR @ <input/functions.HC:9.37-11.1>
-| | | Return @ <input/functions.HC:10.5-19>
-| | | | Ident: somearg @ <input/functions.HC:10.12-18>
-| FunctionMIR: compute @ <input/functions.HC:13.1-20.1>
-    type: I32 (I32, I32, ...)
-| | CompoundStmtMIR @ <input/functions.HC:13.52-20.1>
-| | | VarDecl:  @ <input/functions.HC:14.5-13>
+| FunctionMIR: somefunc @ <1.1-208>
+    type: i32 ()
+ (declaration)
+| FunctionMIR: someinternalfunc @ <3.1-26>
+    type: i32 (i32)
+ (declaration)
+| FunctionMIR: add @ <5.1-7.1>
+    type: u32 (u32, u32)
+| | CompoundStmtMIR @ <5.23-7.1>
+| | | Return @ <6.5-17>
+| | | | Binary: + :: U32 @ <6.12-16>
+| | | | | Ident: a :: U32 @ <6.12>
+| | | | | Ident: b :: U32 @ <6.16>
+| FunctionMIR: someinternalfunc @ <9.1-11.1>
+    type: i32 (i32)
+| | CompoundStmtMIR @ <9.35-11.1>
+| | | Return @ <10.5-19>
+| | | | Ident: somearg :: I32 @ <10.12-18>
+| FunctionMIR: compute @ <13.1-20.1>
+    type: i32 (i32, i32, ...)
+| | CompoundStmtMIR @ <13.49-20.1>
+| | | VarDecl:  @ <14.5-12>
 | | | | | VarSymbol: new :: I32
-| | | ExprStmt @ <input/functions.HC:15.5-25>
-| | | | Assign: = @ <input/functions.HC:15.5-24>
-| | | | | Ident: new @ <input/functions.HC:15.5-7>
-| | | | | Call @ <input/functions.HC:15.11-24>
-| | | | | | Ident: add @ <input/functions.HC:15.11-13>
-| | | | | | Ident: x @ <input/functions.HC:15.11-15>
-| | | | | | Ident: y @ <input/functions.HC:15.18>
-| | | | | | Ident: new @ <input/functions.HC:15.21-23>
-| | | VarDecl:  @ <input/functions.HC:17.5-24>
+| | | ExprStmt @ <15.5-20>
+| | | | Assign: = :: I32 @ <15.5-19>
+| | | | | Ident: new :: I32 @ <15.5-7>
+| | | | | Cast -> i32 (implicit) :: I32 @ <15.11-19>
+| | | | | | Call :: U32 @ <15.11-19>
+| | | | | | | Ident: add :: U32 (U32, U32) @ <15.11-13>
+| | | | | | | Cast -> u32 (implicit) :: U32 @ <15.11-15>
+| | | | | | | | Ident: x :: I32 @ <15.11-15>
+| | | | | | | Cast -> u32 (implicit) :: U32 @ <15.18>
+| | | | | | | | Ident: y :: I32 @ <15.18>
+| | | VarDecl:  @ <17.5-23>
 | | | | | VarSymbol: new2 :: U64
-| | | | | Initializer @ <input/functions.HC:17.17-23>
-| | | | | | Binary: + @ <input/functions.HC:17.17-23>
-| | | | | | | Ident: new @ <input/functions.HC:17.17-19>
-| | | | | | | Literal: 1 @ <input/functions.HC:17.23>
-| | | Return @ <input/functions.HC:19.5-17>
-| | | | Binary: * @ <input/functions.HC:19.12-16>
-| | | | | Ident: x @ <input/functions.HC:19.12>
-| | | | | Ident: y @ <input/functions.HC:19.16>
-| FunctionMIR: complex_class_func @ <input/functions.HC:22.1-28.1>
-    type: class { U32 hello; } (U32)
-| | CompoundStmtMIR @ <input/functions.HC:24.34-28.1>
-| | | VarDecl:  @ <input/functions.HC:25.5-25>
-| | | | | VarSymbol: ret :: class { U32 hello; }
-| | | | | Initializer @ <input/functions.HC:25.16-24>
-| | | | | | Initializer @ <input/functions.HC:25.18-22>
-| | | | | | | Ident: thing @ <input/functions.HC:25.18-22>
-| | | Return @ <input/functions.HC:27.5-15>
-| | | | Ident: ret @ <input/functions.HC:27.12-14>
-| TypeDecl: Point @ <input/functions.HC:30.1-33.2>
-| FunctionMIR: compute_point @ <input/functions.HC:35.1-40.1>
-    type: Point * (Point *, I32, I32)
-| | CompoundStmtMIR @ <input/functions.HC:35.56-40.1>
-| | | ExprStmt @ <input/functions.HC:36.3-13>
-| | | | Assign: += @ <input/functions.HC:36.3-12>
-| | | | | Member: .x @ <input/functions.HC:36.3-6>
-| | | | | | Ident: p @ <input/functions.HC:36.3>
-| | | | | Ident: dx @ <input/functions.HC:36.11-12>
-| | | ExprStmt @ <input/functions.HC:37.3-13>
-| | | | Assign: += @ <input/functions.HC:37.3-12>
-| | | | | Member: .y @ <input/functions.HC:37.3-6>
-| | | | | | Ident: p @ <input/functions.HC:37.3>
-| | | | | Ident: dy @ <input/functions.HC:37.11-12>
-| | | Return @ <input/functions.HC:39.3-11>
-| | | | Ident: p @ <input/functions.HC:39.10>
-| ExprStmt @ <input/functions.HC:42.1-29>
-| | Call @ <input/functions.HC:42.1-28>
-| | | Ident: compute @ <input/functions.HC:42.1-7>
-| | | Literal: 10 @ <input/functions.HC:42.1-10>
-| | | Literal: 4 @ <input/functions.HC:42.13>
-| | | Literal: this @ <input/functions.HC:42.16-21>
-| | | Literal: true @ <input/functions.HC:42.24-27>
-| FunctionMIR: noop @ <input/functions.HC:44.1-46.1>
+| | | | | Initializer @ <17.16-22>
+| | | | | | Cast -> u64 (implicit) :: U64 @ <17.16-22>
+| | | | | | | Binary: + :: I32 @ <17.16-22>
+| | | | | | | | Ident: new :: I32 @ <17.16-18>
+| | | | | | | | Literal: 1 :: I32 @ <17.22>
+| | | Return @ <19.5-17>
+| | | | Binary: * :: I32 @ <19.12-16>
+| | | | | Ident: x :: I32 @ <19.12>
+| | | | | Ident: y :: I32 @ <19.16>
+| FunctionMIR: complex_class_func @ <22.1-28.1>
+    type: class What { u32 hello; } (u32)
+| | CompoundStmtMIR @ <24.33-28.1>
+| | | VarDecl:  @ <25.5-25>
+| | | | | VarSymbol: ret :: class What
+| | | | | Initializer @ <25.16-24>
+| | | | | | Initializer @ <25.18-22>
+| | | | | | | Ident: thing :: U32 @ <25.18-22>
+| | | Return @ <27.5-15>
+| | | | Ident: ret :: class What @ <27.12-14>
+| TypeDecl: Point @ <30.1-33.2>
+| FunctionMIR: compute_point @ <35.1-40.1>
+    type: Point * (Point *, i32, i32)
+| | CompoundStmtMIR @ <35.54-40.1>
+| | | ExprStmt @ <36.3-13>
+| | | | Assign: += :: I32 @ <36.3-12>
+| | | | | Member: .x :: I32 @ <36.3-6>
+| | | | | | Ident: p :: class Point * @ <36.3>
+| | | | | Ident: dx :: I32 @ <36.11-12>
+| | | ExprStmt @ <37.3-13>
+| | | | Assign: += :: I32 @ <37.3-12>
+| | | | | Member: .y :: I32 @ <37.3-6>
+| | | | | | Ident: p :: class Point * @ <37.3>
+| | | | | Ident: dy :: I32 @ <37.11-12>
+| | | Return @ <39.3-11>
+| | | | Ident: p :: class Point * @ <39.10>
+| ExprStmt @ <42.1-29>
+| | Call :: I32 @ <42.1-28>
+| | | Ident: compute :: I32 (I32, I32, ...) @ <42.1-7>
+| | | Literal: 10 :: I32 @ <42.1-10>
+| | | Literal: 4 :: I32 @ <42.13>
+| | | Cast -> i8 * (array decay) :: I8 * @ <42.16-21>
+| | | | Literal: this :: I8[5] @ <42.16-21>
+| | | Literal: true :: Bool @ <42.24-27>
+| Print: "%d\n" @ <44.1-21>
+| | Call :: I32 @ <44.9-20>
+| | | Ident: compute :: I32 (I32, I32, ...) @ <44.9-15>
+| | | Literal: 2 :: I32 @ <44.9-17>
+| | | Literal: 3 :: I32 @ <44.9-19>
+| Print: "%d\n" @ <48.1-19>
+| | Call :: I32 @ <48.9-18>
+| | | Ident: compute :: I32 (I32, I32, ...) @ <48.9-15>
+| | | Literal: 5 :: I32 @ <48.9-17>
+| Print: "%d\n" @ <49.1-18>
+| | Call :: I32 @ <49.9-17>
+| | | Ident: compute :: I32 (I32, I32, ...) @ <49.9-15>
+| FunctionMIR: Factorial @ <52.1-55.1>
+    type: i32 (i32)
+| | CompoundStmtMIR @ <52.22-55.1>
+| | | IfStmt @ <53.5-25>
+| | | | Binary: <= :: I32 @ <53.8-14>
+| | | | | Ident: n :: I32 @ <53.8-9>
+| | | | | Literal: 1 :: I32 @ <53.14>
+| | | | Return @ <53.17-25>
+| | | | | Literal: 1 :: I32 @ <53.24>
+| | | Return @ <54.5-32>
+| | | | Binary: * :: I32 @ <54.12-31>
+| | | | | Ident: n :: I32 @ <54.12>
+| | | | | Call :: I32 @ <54.16-31>
+| | | | | | Ident: Factorial :: I32 (I32) @ <54.16-24>
+| | | | | | Binary: - :: I32 @ <54.16-30>
+| | | | | | | Ident: n :: I32 @ <54.16-26>
+| | | | | | | Literal: 1 :: I32 @ <54.30>
+| Print: "%d\n" @ <57.1-21>
+| | Call :: I32 @ <57.9-20>
+| | | Ident: Factorial :: I32 (I32) @ <57.9-17>
+| | | Literal: 5 :: I32 @ <57.9-19>
+| FunctionMIR: noop @ <59.1-61.1>
     type: Void ()
-| | CompoundStmtMIR @ <input/functions.HC:44.13-46.1>
-| | | Return @ <input/functions.HC:45.5-11>
-| ExprStmt @ <input/functions.HC:49.1-7>
-| | Call @ <input/functions.HC:49.1-6>
-| | | Ident: noop @ <input/functions.HC:49.1-4>
-| ExprStmt @ <input/functions.HC:52.1-5>
-| | Call @ <input/functions.HC:52.1-5>
-| | | Ident: noop @ <input/functions.HC:52.1-4>
-| VarDecl:  @ <input/functions.HC:56.1-26>
+| | CompoundStmtMIR @ <59.13-61.1>
+| | | Return @ <60.5-11>
+| ExprStmt @ <64.1-7>
+| | Call :: Void @ <64.1-6>
+| | | Ident: noop :: Void () @ <64.1-4>
+| ExprStmt @ <67.1-5>
+| | Call :: Void @ <67.1-5>
+| | | Ident: noop :: Void () @ <67.1-4>
+| VarDecl:  @ <71.1-26>
 | | | VarSymbol: funcptr :: Void () *
-| | | Initializer @ <input/functions.HC:56.22-25>
-| | | | Ident: noop @ <input/functions.HC:56.22-25>
-| Print: "TestPrintStatement" @ <input/functions.HC:59.1-21>
-| FunctionMIR: CallbackFunction @ <input/functions.HC:61.1-64.1>
-    type: I64 (I64)
-| | CompoundStmtMIR @ <input/functions.HC:62.1-64.1>
-| | | Return @ <input/functions.HC:63.3-15>
-| | | | Binary: * @ <input/functions.HC:63.10-14>
-| | | | | Ident: x @ <input/functions.HC:63.10>
-| | | | | Ident: x @ <input/functions.HC:63.14>
-| FunctionMIR: MathFunc @ <input/functions.HC:66.1-69.1>
-    type: Void (I64, I64 (I64) *)
-| | CompoundStmtMIR @ <input/functions.HC:67.1-69.1>
-| | | Return @ <input/functions.HC:68.3-17>
-| | | | Call @ <input/functions.HC:68.10-16>
-| | | | | Ident: proc @ <input/functions.HC:68.10-13>
-| | | | | Ident: y @ <input/functions.HC:68.10-15>
-| FunctionMIR: Main @ <input/functions.HC:71.1-75.1>
+| | | Initializer @ <71.22-25>
+| | | | Cast -> Void () * (function decay) :: Void () * @ <71.22-25>
+| | | | | Ident: noop :: Void () @ <71.22-25>
+| Print: "TestPrintStatement" @ <74.1-21>
+| FunctionMIR: CallbackFunction @ <76.1-79.1>
+    type: i64 (i64)
+| | CompoundStmtMIR @ <77.1-79.1>
+| | | Return @ <78.3-15>
+| | | | Binary: * :: I64 @ <78.10-14>
+| | | | | Ident: x :: I64 @ <78.10>
+| | | | | Ident: x :: I64 @ <78.14>
+| FunctionMIR: MathFunc @ <81.1-84.1>
+    type: i64 (i64, i64 (i64) *)
+| | CompoundStmtMIR @ <82.1-84.1>
+| | | Return @ <83.3-17>
+| | | | Call :: I64 @ <83.10-16>
+| | | | | Ident: proc :: I64 (I64) * @ <83.10-13>
+| | | | | Ident: y :: I64 @ <83.10-15>
+| FunctionMIR: Main @ <86.1-90.1>
     type: Void ()
-| | CompoundStmtMIR @ <input/functions.HC:72.1-75.1>
-| | | VarDecl:  @ <input/functions.HC:73.3-43>
+| | CompoundStmtMIR @ <87.1-90.1>
+| | | VarDecl:  @ <88.3-42>
 | | | | | VarSymbol: x :: I64
-| | | | | Initializer @ <input/functions.HC:73.12-42>
-| | | | | | Call @ <input/functions.HC:73.12-42>
-| | | | | | | Ident: MathFunc @ <input/functions.HC:73.12-19>
-| | | | | | | Literal: 10 @ <input/functions.HC:73.12-22>
-| | | | | | | Unary: & @ <input/functions.HC:73.25-41>
-| | | | | | | | Ident: CallbackFunction @ <input/functions.HC:73.25-41>
-| | | Print: "%d
-" @ <input/functions.HC:74.3-11>
-| | | | Ident: x @ <input/functions.HC:74.3-10>
+| | | | | Initializer @ <88.11-41>
+| | | | | | Call :: I64 @ <88.11-41>
+| | | | | | | Ident: MathFunc :: I64 (I64, I64 (I64) *) @ <88.11-18>
+| | | | | | | Cast -> i64 (implicit) :: I64 @ <88.11-21>
+| | | | | | | | Literal: 10 :: I32 @ <88.11-21>
+| | | | | | | Unary: & :: I64 (I64) * @ <88.24-40>
+| | | | | | | | Ident: CallbackFunction :: I64 (I64) @ <88.24-40>
+| | | Print: "%d\n" @ <89.3-11>
+| | | | Ident: x :: I64 @ <89.3-10>
+| | | Return @ <1.1>
+
+---------- Generating LIR ----------
+
+Node {
+    LIRSynthesizer: visiting ProgramMIR node
+    Node {
+        LIRSynthesizer: visiting FunctionMIR node
+    }
+    Node {
+        LIRSynthesizer: visiting FunctionMIR node
+    }
+    Node {
+        LIRSynthesizer: visiting FunctionMIR node
+        Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
+            Node {
+                LIRSynthesizer: visiting ReturnStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting BinaryExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting FunctionMIR node
+        Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
+            Node {
+                LIRSynthesizer: visiting ReturnStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting FunctionMIR node
+        Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
+            Node {
+                LIRSynthesizer: visiting VarDeclMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting ExprStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting AssignExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                    Node {
+                        LIRSynthesizer: visiting CastExprMIR node
+                        Node {
+                            LIRSynthesizer: visiting CallExprMIR node
+                            Node {
+                                LIRSynthesizer: visiting IdentExprMIR node
+                            }
+                            Node {
+                                LIRSynthesizer: visiting CastExprMIR node
+                                Node {
+                                    LIRSynthesizer: visiting IdentExprMIR node
+                                }
+                            }
+                            Node {
+                                LIRSynthesizer: visiting CastExprMIR node
+                                Node {
+                                    LIRSynthesizer: visiting IdentExprMIR node
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting VarDeclMIR node
+                LIRSynthesizer: unfold_initializer_rec
+                LIRSynthesizer: matched on single expression
+                Node {
+                    LIRSynthesizer: visiting CastExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting BinaryExprMIR node
+                        Node {
+                            LIRSynthesizer: visiting IdentExprMIR node
+                        }
+                        Node {
+                            LIRSynthesizer: visiting LiteralExprMIR node
+                        }
+                    }
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting ReturnStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting BinaryExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting FunctionMIR node
+        Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
+            Node {
+                LIRSynthesizer: visiting VarDeclMIR node
+                LIRSynthesizer: unfold_initializer_rec
+ClassType: Looking for member with index 0
+RecordType: Looking for member with index 0
+                LIRSynthesizer: unfold_initializer_rec
+                LIRSynthesizer: matched on single expression
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting ReturnStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting TypeDeclMIR node
+    }
+    Node {
+        LIRSynthesizer: visiting FunctionMIR node
+        Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
+            Node {
+                LIRSynthesizer: visiting ExprStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting AssignExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting MemberAccExprMIR node
+                        Node {
+                            LIRSynthesizer: visiting IdentExprMIR node
+TypeContext: pointer with base 14746973085105520267
+                        }
+ClassType: Looking for member with name x
+RecordType: Looking for member with name x
+ClassType: Looking for member with index 0
+RecordType: Looking for member with index 0
+                    }
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting ExprStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting AssignExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting MemberAccExprMIR node
+                        Node {
+                            LIRSynthesizer: visiting IdentExprMIR node
+TypeContext: pointer with base 14746973085105520267
+                        }
+ClassType: Looking for member with name y
+RecordType: Looking for member with name y
+ClassType: Looking for member with index 1
+RecordType: Looking for member with index 1
+                    }
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting ReturnStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+TypeContext: pointer with base 14746973085105520267
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting CallExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+TypeContext: array type with base 175247769427, size 5
+                }
+TypeContext: pointer with base 175247769427
+            }
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting CallExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting CallExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting CallExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting FunctionMIR node
+        Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
+            Node {
+                LIRSynthesizer: visiting IfStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting BinaryExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                    Node {
+                        LIRSynthesizer: visiting LiteralExprMIR node
+                    }
+                }
+                Node {
+                    LIRSynthesizer: visiting ReturnStmtMIR node
+                    Node {
+                        LIRSynthesizer: visiting LiteralExprMIR node
+                    }
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting ReturnStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting BinaryExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                    Node {
+                        LIRSynthesizer: visiting CallExprMIR node
+                        Node {
+                            LIRSynthesizer: visiting IdentExprMIR node
+                        }
+                        Node {
+                            LIRSynthesizer: visiting BinaryExprMIR node
+                            Node {
+                                LIRSynthesizer: visiting IdentExprMIR node
+                            }
+                            Node {
+                                LIRSynthesizer: visiting LiteralExprMIR node
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting CallExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting FunctionMIR node
+        Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
+            Node {
+                LIRSynthesizer: visiting ReturnStmtMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting CallExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting CallExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+TypeContext: pointer with base 7455274410130379324
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+TypeContext: pointer with base 7455274410130379324
+        }
+TypeContext: pointer with base 7455274410130379324
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+    }
+    Node {
+        LIRSynthesizer: visiting FunctionMIR node
+        Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
+            Node {
+                LIRSynthesizer: visiting ReturnStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting BinaryExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting FunctionMIR node
+        Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
+            Node {
+                LIRSynthesizer: visiting ReturnStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting CallExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+TypeContext: pointer with base 7502112653284387413
+                    }
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting FunctionMIR node
+        Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
+            Node {
+                LIRSynthesizer: visiting VarDeclMIR node
+                LIRSynthesizer: unfold_initializer_rec
+                LIRSynthesizer: matched on single expression
+                Node {
+                    LIRSynthesizer: visiting CallExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                    Node {
+                        LIRSynthesizer: visiting CastExprMIR node
+                        Node {
+                            LIRSynthesizer: visiting LiteralExprMIR node
+                        }
+                    }
+                    Node {
+                        LIRSynthesizer: visiting UnaryExprMIR node
+                        Node {
+                            LIRSynthesizer: visiting IdentExprMIR node
+                        }
+TypeContext: pointer with base 7502112653284387413
+                    }
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting PrintStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting ReturnStmtMIR node
+            }
+        }
+    }
+}
+--------- LIR ---------
+
+ProgramLIR @ <?>
+| VarDecl: funcptr (funcptr) @ <71.1-26>
+| | type: Void () *
+| FunctionLIR: somefunc (somefunc) @ <1.1-208>
+    type: i32 ()
+| FunctionLIR: someinternalfunc (someinternalfunc) @ <3.1-26>
+    type: i32 (i32)
+| | VarDecl: somearg (somearg_s0) @ <9.5-32>
+| | | type: i32 [param]
+| | Return @ <10.5-19>
+| | | Ident: somearg (somearg_s0) :: I32 @ <10.12-18>
+| FunctionLIR: add (add) @ <5.1-7.1>
+    type: u32 (u32, u32)
+| | VarDecl: a (a_s0) @ <5.5-13>
+| | | type: u32 [param]
+| | VarDecl: b (b_s0) @ <5.16-20>
+| | | type: u32 [param]
+| | Return @ <6.5-17>
+| | | Binary: + :: U32 @ <6.12-16>
+| | | | Ident: a (a_s0) :: U32 @ <6.12>
+| | | | Ident: b (b_s0) :: U32 @ <6.16>
+| FunctionLIR: compute (compute) @ <13.1-20.1>
+    type: i32 (i32, i32, ...)
+| | VarDecl: x (x_s0) @ <13.12-29>
+| | | type: i32 [param]
+| | VarDecl: y (y_s0) @ <13.32-41>
+| | | type: i32 [param]
+| | VarDecl: new (new_s3) @ <14.5-12>
+| | | type: i32
+| | VarDecl: new2 (new2_s3) @ <17.5-23>
+| | | type: u64
+| | ExprStmt @ <15.5-20>
+| | | Assign: = :: I32 @ <15.5-19>
+| | | | Ident: new (new_s3) :: I32 @ <15.5-7>
+| | | | Cast -> i32 (implicit) :: I32 @ <15.11-19>
+| | | | | Call :: U32 @ <15.11-19>
+| | | | | | Ident: add (add) :: U32 (U32, U32) @ <15.11-13>
+| | | | | | Cast -> u32 (implicit) :: U32 @ <15.11-15>
+| | | | | | | Literal: 10 :: I32 @ <15.11-15>
+| | | | | | Cast -> u32 (implicit) :: U32 @ <15.18>
+| | | | | | | Literal: 20 :: I32 @ <15.18>
+| | ExprStmt @ <17.16-22>
+| | | Assign: = :: U64 @ <17.16-22>
+| | | | Ident: new2 (new2_s3) :: U64 @ <17.9-22>
+| | | | Cast -> u64 (implicit) :: U64 @ <17.16-22>
+| | | | | Binary: + :: I32 @ <17.16-22>
+| | | | | | Ident: new (new_s3) :: I32 @ <17.16-18>
+| | | | | | Literal: 1 :: I32 @ <17.22>
+| | Return @ <19.5-17>
+| | | Binary: * :: I32 @ <19.12-16>
+| | | | Literal: 10 :: I32 @ <19.12>
+| | | | Literal: 20 :: I32 @ <19.16>
+| FunctionLIR: complex_class_func (complex_class_func) @ <22.1-28.1>
+    type: class What { u32 hello; } (u32)
+| | VarDecl: thing (thing_s0) @ <24.3-30>
+| | | type: u32 [param]
+| | VarDecl: ret (ret_s4) @ <25.5-25>
+| | | type: class What { u32 hello; }
+| | ExprStmt @ <25.18-22>
+| | | Assign: = :: U32 @ <25.18-22>
+| | | | Member: [0] :: U32 @ <25.18-22>
+| | | | | Ident: ret (ret_s4) :: class What @ <25.10-24>
+| | | | Ident: thing (thing_s0) :: U32 @ <25.18-22>
+| | Return @ <27.5-15>
+| | | Ident: ret (ret_s4) :: class What @ <27.12-14>
+| FunctionLIR: compute_point (compute_point) @ <35.1-40.1>
+    type: Point * (Point *, i32, i32)
+| | VarDecl: p (p_s0) @ <35.7-35>
+| | | type: Point * [param]
+| | VarDecl: dx (dx_s0) @ <35.38-43>
+| | | type: i32 [param]
+| | VarDecl: dy (dy_s0) @ <35.46-51>
+| | | type: i32 [param]
+| | ExprStmt @ <36.3-13>
+| | | Assign: += :: I32 @ <36.3-12>
+| | | | Member: [0] :: I32 @ <36.3-6>
+| | | | | Unary: * :: class Point @ <36.3-6>
+| | | | | | Ident: p (p_s0) :: class Point * @ <36.3>
+| | | | Ident: dx (dx_s0) :: I32 @ <36.11-12>
+| | ExprStmt @ <37.3-13>
+| | | Assign: += :: I32 @ <37.3-12>
+| | | | Member: [1] :: I32 @ <37.3-6>
+| | | | | Unary: * :: class Point @ <37.3-6>
+| | | | | | Ident: p (p_s0) :: class Point * @ <37.3>
+| | | | Ident: dy (dy_s0) :: I32 @ <37.11-12>
+| | Return @ <39.3-11>
+| | | Ident: p (p_s0) :: class Point * @ <39.10>
+| FunctionLIR: Factorial (Factorial) @ <52.1-55.1>
+    type: i32 (i32)
+| | VarDecl: n (n_s0) @ <52.5-19>
+| | | type: i32 [param]
+| | IfStmt @ <53.5-25>
+| | | Binary: <= :: I32 @ <53.8-14>
+| | | | Ident: n (n_s0) :: I32 @ <53.8-9>
+| | | | Literal: 1 :: I32 @ <53.14>
+| | | Return @ <53.17-25>
+| | | | Literal: 1 :: I32 @ <53.24>
+| | Return @ <54.5-32>
+| | | Binary: * :: I32 @ <54.12-31>
+| | | | Ident: n (n_s0) :: I32 @ <54.12>
+| | | | Call :: I32 @ <54.16-31>
+| | | | | Ident: Factorial (Factorial) :: I32 (I32) @ <54.16-24>
+| | | | | Binary: - :: I32 @ <54.16-30>
+| | | | | | Ident: n (n_s0) :: I32 @ <54.16-26>
+| | | | | | Literal: 1 :: I32 @ <54.30>
+| FunctionLIR: noop (noop) @ <59.1-61.1>
+    type: Void ()
+| | Return @ <60.5-11>
+| FunctionLIR: CallbackFunction (CallbackFunction) @ <76.1-79.1>
+    type: i64 (i64)
+| | VarDecl: x (x_s0) @ <76.5-26>
+| | | type: i64 [param]
+| | Return @ <78.3-15>
+| | | Binary: * :: I64 @ <78.10-14>
+| | | | Ident: x (x_s0) :: I64 @ <78.10>
+| | | | Ident: x (x_s0) :: I64 @ <78.14>
+| FunctionLIR: MathFunc (MathFunc) @ <81.1-84.1>
+    type: i64 (i64, i64 (i64) *)
+| | VarDecl: y (y_s0) @ <81.5-18>
+| | | type: i64 [param]
+| | VarDecl: proc (proc_s0) @ <81.21-41>
+| | | type: i64 (i64) * [param]
+| | Return @ <83.3-17>
+| | | Call :: I64 @ <83.10-16>
+| | | | Ident: proc (proc_s0) :: I64 (I64) * @ <83.10-13>
+| | | | Ident: y (y_s0) :: I64 @ <83.10-15>
+| FunctionLIR: Main (Main) @ <86.1-90.1>
+    type: Void ()
+| | VarDecl: x (x_s10) @ <88.3-42>
+| | | type: i64
+| | ExprStmt @ <88.11-41>
+| | | Assign: = :: I64 @ <88.11-41>
+| | | | Ident: x (x_s10) :: I64 @ <88.7-41>
+| | | | Call :: I64 @ <88.11-41>
+| | | | | Ident: MathFunc (MathFunc) :: I64 (I64, I64 (I64) *) @ <88.11-18>
+| | | | | Cast -> i64 (implicit) :: I64 @ <88.11-21>
+| | | | | | Literal: 10 :: I32 @ <88.11-21>
+| | | | | Unary: & :: I64 (I64) * @ <88.24-40>
+| | | | | | Ident: CallbackFunction (CallbackFunction) :: I64 (I64) @ <88.24-40>
+| | Print: "%d\n" @ <89.3-11>
+| | | Ident: x (x_s10) :: I64 @ <89.3-10>
+| | Return @ <1.1>
+| ExprStmt @ <42.1-29>
+| | Call :: I32 @ <42.1-28>
+| | | Ident: compute (compute) :: I32 (I32, I32, ...) @ <42.1-7>
+| | | Literal: 10 :: I32 @ <42.1-10>
+| | | Literal: 4 :: I32 @ <42.13>
+| | | Cast -> i8 * (array decay) :: I8 * @ <42.16-21>
+| | | | Literal: this :: I8[5] @ <42.16-21>
+| | | Literal: true :: Bool @ <42.24-27>
+| Print: "%d\n" @ <44.1-21>
+| | Call :: I32 @ <44.9-20>
+| | | Ident: compute (compute) :: I32 (I32, I32, ...) @ <44.9-15>
+| | | Literal: 2 :: I32 @ <44.9-17>
+| | | Literal: 3 :: I32 @ <44.9-19>
+| Print: "%d\n" @ <48.1-19>
+| | Call :: I32 @ <48.9-18>
+| | | Ident: compute (compute) :: I32 (I32, I32, ...) @ <48.9-15>
+| | | Literal: 5 :: I32 @ <48.9-17>
+| Print: "%d\n" @ <49.1-18>
+| | Call :: I32 @ <49.9-17>
+| | | Ident: compute (compute) :: I32 (I32, I32, ...) @ <49.9-15>
+| Print: "%d\n" @ <57.1-21>
+| | Call :: I32 @ <57.9-20>
+| | | Ident: Factorial (Factorial) :: I32 (I32) @ <57.9-17>
+| | | Literal: 5 :: I32 @ <57.9-19>
+| ExprStmt @ <64.1-7>
+| | Call :: Void @ <64.1-6>
+| | | Ident: noop (noop) :: Void () @ <64.1-4>
+| ExprStmt @ <67.1-5>
+| | Call :: Void @ <67.1-5>
+| | | Ident: noop (noop) :: Void () @ <67.1-4>
+| ExprStmt @ <71.22-25>
+| | Assign: = :: Void () * @ <71.22-25>
+| | | Ident: funcptr (funcptr) :: Void () * @ <71.6-25>
+| | | Cast -> Void () * (function decay) :: Void () * @ <71.22-25>
+| | | | Ident: noop (noop) :: Void () @ <71.22-25>
+| Print: "TestPrintStatement" @ <74.1-21>
 LLVM: Shutting down

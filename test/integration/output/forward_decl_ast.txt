@@ -448,6 +448,9 @@ TypeContext: getting primitive type
                     }
                 }
             }
+            Node {
+                Validator: visiting ReturnStmtMIR node
+            }
 SymbolTable: exiting scope to 0
         }
     }
@@ -461,84 +464,196 @@ SymbolTable: exiting scope to 0
         }
     }
 }
+--------- TYPE CONTEXT ---------
+
+Base Types:
+
+Function Types:
+  function_2654435769 : Void ()
+  function_175247769300 : i32 ()
+  function_735436146681188 : i32 (i32, i32)
+  function_11337807012758 : i32 (i32)
+
+Pointer Types:
+
+Array Types:
+
+
+--------- SYMBOL TABLE ---------
+
+Scope 0: Compound Statement
+Physical Symbols:
+  Main <0x555eddece190> : FuncSymbol: Main :: Void ()
+  ExternallyDefined <0x555eddecdad0> : FuncSymbol: ExternallyDefined :: i32 () extern C
+  SquareAndAdd <0x555eddecdd10> : FuncSymbol: SquareAndAdd :: i32 (i32, i32)
+  Square <0x555eddece580> : FuncSymbol: Square :: i32 (i32)
+-----------------------------------------------------------
+  Scope 1: FuncSymbol: SquareAndAdd :: i32 (i32, i32)
+  Physical Symbols:
+    y <0x555eddf0e130> : VarSymbol: y :: I32
+    x <0x555eddf0e070> : VarSymbol: x :: I32
+-----------------------------------------------------------
+  Scope 2: FuncSymbol: Square :: i32 (i32)
+  Physical Symbols:
+    x <0x555eddf0e800> : VarSymbol: x :: I32
+-----------------------------------------------------------
+  Scope 3: FuncSymbol: Main :: Void ()
+-----------------------------------------------------------
+
+--------- MIR ---------
+
+ProgramMIR @ <1.1>
+| FunctionMIR: Square @ <2.1-18>
+    type: i32 (i32)
+ (declaration)
+| FunctionMIR: SquareAndAdd @ <6.1-8.1>
+    type: i32 (i32, i32)
+| | CompoundStmtMIR @ <6.32-8.1>
+| | | Return @ <7.5-25>
+| | | | Binary: + :: I32 @ <7.12-24>
+| | | | | Call :: I32 @ <7.12-20>
+| | | | | | Ident: Square :: I32 (I32) @ <7.12-17>
+| | | | | | Ident: x :: I32 @ <7.12-19>
+| | | | | Ident: y :: I32 @ <7.24>
+| FunctionMIR: Square @ <11.1-13.1>
+    type: i32 (i32)
+| | CompoundStmtMIR @ <11.19-13.1>
+| | | Return @ <12.5-17>
+| | | | Binary: * :: I32 @ <12.12-16>
+| | | | | Ident: x :: I32 @ <12.12>
+| | | | | Ident: x :: I32 @ <12.16>
+| FunctionMIR: Square @ <16.1-18>
+    type: i32 (i32)
+ (declaration)
+| FunctionMIR: ExternallyDefined @ <19.1-35>
+    type: i32 ()
+ (declaration)
+| FunctionMIR: Main @ <21.1-25.1>
+    type: Void ()
+| | CompoundStmtMIR @ <21.13-25.1>
+| | | Print: "%d\n" @ <22.5-22>
+| | | | Call :: I32 @ <22.13-21>
+| | | | | Ident: Square :: I32 (I32) @ <22.13-18>
+| | | | | Literal: 5 :: I32 @ <22.13-20>
+| | | Print: "%d\n" @ <23.5-31>
+| | | | Call :: I32 @ <23.13-30>
+| | | | | Ident: SquareAndAdd :: I32 (I32, I32) @ <23.13-24>
+| | | | | Literal: 3 :: I32 @ <23.13-26>
+| | | | | Literal: 4 :: I32 @ <23.29>
+| | | ExprStmt @ <24.5-24>
+| | | | Call :: I32 @ <24.5-23>
+| | | | | Ident: ExternallyDefined :: I32 () @ <24.5-21>
+| | | Return @ <1.1>
+| ExprStmt @ <27.1-7>
+| | Call :: Void @ <27.1-6>
+| | | Ident: Main :: Void () @ <27.1-4>
 
 ---------- Generating LIR ----------
 
 Node {
+    LIRSynthesizer: visiting ProgramMIR node
     Node {
+        LIRSynthesizer: visiting FunctionMIR node
     }
     Node {
+        LIRSynthesizer: visiting FunctionMIR node
         Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
             Node {
+                LIRSynthesizer: visiting ReturnStmtMIR node
                 Node {
+                    LIRSynthesizer: visiting BinaryExprMIR node
                     Node {
+                        LIRSynthesizer: visiting CallExprMIR node
                         Node {
-                            7.12-17
+                            LIRSynthesizer: visiting IdentExprMIR node
                         }
                         Node {
-                            7.12-19
+                            LIRSynthesizer: visiting IdentExprMIR node
                         }
                     }
                     Node {
-                        7.24
+                        LIRSynthesizer: visiting IdentExprMIR node
                     }
                 }
             }
         }
     }
     Node {
+        LIRSynthesizer: visiting FunctionMIR node
         Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
             Node {
+                LIRSynthesizer: visiting ReturnStmtMIR node
                 Node {
+                    LIRSynthesizer: visiting BinaryExprMIR node
                     Node {
-                        12.12
+                        LIRSynthesizer: visiting IdentExprMIR node
                     }
                     Node {
-                        12.16
+                        LIRSynthesizer: visiting IdentExprMIR node
                     }
                 }
             }
         }
     }
     Node {
+        LIRSynthesizer: visiting FunctionMIR node
     }
     Node {
+        LIRSynthesizer: visiting FunctionMIR node
     }
     Node {
+        LIRSynthesizer: visiting FunctionMIR node
         Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
             Node {
+                LIRSynthesizer: visiting PrintStmtMIR node
                 Node {
+                    LIRSynthesizer: visiting CallExprMIR node
                     Node {
-                        22.13-18
+                        LIRSynthesizer: visiting IdentExprMIR node
                     }
                     Node {
+                        LIRSynthesizer: visiting LiteralExprMIR node
                     }
                 }
             }
             Node {
+                LIRSynthesizer: visiting PrintStmtMIR node
                 Node {
+                    LIRSynthesizer: visiting CallExprMIR node
                     Node {
-                        23.13-24
+                        LIRSynthesizer: visiting IdentExprMIR node
                     }
                     Node {
+                        LIRSynthesizer: visiting LiteralExprMIR node
                     }
                     Node {
+                        LIRSynthesizer: visiting LiteralExprMIR node
                     }
                 }
             }
             Node {
+                LIRSynthesizer: visiting ExprStmtMIR node
                 Node {
+                    LIRSynthesizer: visiting CallExprMIR node
                     Node {
-                        24.5-21
+                        LIRSynthesizer: visiting IdentExprMIR node
                     }
                 }
+            }
+            Node {
+                LIRSynthesizer: visiting ReturnStmtMIR node
             }
         }
     }
     Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
         Node {
+            LIRSynthesizer: visiting CallExprMIR node
             Node {
-                27.1-4
+                LIRSynthesizer: visiting IdentExprMIR node
             }
         }
     }
@@ -570,23 +685,19 @@ ProgramLIR @ <?>
     type: i32 ()
 | FunctionLIR: Main (Main) @ <21.1-25.1>
     type: Void ()
-| | Print: "%d
-" @ <22.5-22>
+| | Print: "%d\n" @ <22.5-22>
 | | | Call :: I32 @ <22.13-21>
 | | | | Ident: Square (Square) :: I32 (I32) @ <22.13-18>
-| | | | Literal :: I32 @ <22.13-20>
-5
-| | Print: "%d
-" @ <23.5-31>
+| | | | Literal: 5 :: I32 @ <22.13-20>
+| | Print: "%d\n" @ <23.5-31>
 | | | Call :: I32 @ <23.13-30>
 | | | | Ident: SquareAndAdd (SquareAndAdd) :: I32 (I32, I32) @ <23.13-24>
-| | | | Literal :: I32 @ <23.13-26>
-3
-| | | | Literal :: I32 @ <23.29>
-4
+| | | | Literal: 3 :: I32 @ <23.13-26>
+| | | | Literal: 4 :: I32 @ <23.29>
 | | ExprStmt @ <24.5-24>
 | | | Call :: I32 @ <24.5-23>
 | | | | Ident: ExternallyDefined (ExternallyDefined) :: I32 () @ <24.5-21>
+| | Return @ <1.1>
 | ExprStmt @ <27.1-7>
 | | Call :: Void @ <27.1-6>
 | | | Ident: Main (Main) :: Void () @ <27.1-4>

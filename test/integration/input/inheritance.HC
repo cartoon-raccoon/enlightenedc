@@ -41,3 +41,18 @@ crect.color = 255;
 "%d\n", crect.width;
 "%d\n", crect.height;
 "%d\n", crect.color;
+
+// --- Accessing an inherited member through a pointer to the derived class ---
+
+Rectangle *rp = &rect;
+"%d\n", rp->x;       // inherited from Shape
+"%d\n", rp->width;   // own member
+
+// Implicit upcast from a derived-class pointer to a base-class pointer at a
+// call site, mirroring ClassType::coercible_to's upcast rule at the value
+// level (PointerType::coercible_to in src/semantics/types.cpp).
+I32 area_via_base(Shape *s) {
+    return s->x + s->y;
+}
+
+"%d\n", area_via_base(rp);

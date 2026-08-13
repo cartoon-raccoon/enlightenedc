@@ -42,3 +42,57 @@ x = (a, b, x);
 "%d\n", x;
 
 x.U16[1] = 0;
+
+// Equality/relational operators not exercised above.
+U32 y = 6;
+U32 z = 9;
+
+"%d\n", y == 6;    // 1
+"%d\n", y != z;    // 1
+"%d\n", y <= 6;    // 1
+"%d\n", z >= 10;   // 0
+
+// Bare bitwise/shift operators (only their compound-assignment forms are used above).
+"%d\n", 3 << 2;    // 12
+"%d\n", 40 >> 3;   // 5
+
+// Unary ~, !, and + (only unary - is exercised above, via negative literals).
+y = ~y;
+"%d\n", y;   // ~6
+
+y = !y;
+"%d\n", y;   // 0, y was nonzero
+
+y = !0;
+"%d\n", y;   // 1
+
+I32 neg = -5;
+I32 pos = +neg;
+"%d\n", pos;   // -5
+
+// Remaining compound-assignment operators.
+z >>= 2;
+"%d\n", z;   // 9 >> 2 = 2
+
+z <<= 3;
+"%d\n", z;   // 2 << 3 = 16
+
+z &= 6;
+"%d\n", z;   // 16 & 6 = 0
+
+z |= 5;
+z ^= 3;
+"%d\n", z;   // (0 | 5) ^ 3 = 6
+
+z *= 4;
+"%d\n", z;   // 24
+
+z /= 5;
+"%d\n", z;   // 24 / 5 = 4
+
+z %= 3;
+"%d\n", z;   // 4 % 3 = 1
+
+// Nested/chained ternary.
+I32 t = 1 ? 2 ? 3 : 4 : 5;
+"%d\n", t;   // 3

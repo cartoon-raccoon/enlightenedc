@@ -1,331 +1,170 @@
 Initializing LLVM
 LLVM initialized
-running pipeline on file input/pointers_arrays.HC
-LLVM: Creating LLVMUnit with module name 'input/pointers_arrays.HC'
+running pipeline on file test/integration/input/pointers_arrays.HC
+LLVM: Creating LLVMUnit with module name 'test/integration/input/pointers_arrays.HC'
 LLVM: LLVMUnit created
-parsing file input/pointers_arrays.HC
-printing AST for file input/pointers_arrays.HC
-Program @ <input/pointers_arrays.HC:1.1> 
-| TypeDeclaration @ <input/pointers_arrays.HC:1.1-4.2> 
-| | ClassSpecifier:  Node: @ <input/pointers_arrays.HC:1.1-4.1> 
-| | | ClassDeclaration @ <input/pointers_arrays.HC:2.5-15> 
-| | | | PrimitiveSpecifier: i32 @ <input/pointers_arrays.HC:2.5-8> 
-| | | | ClassDeclarator @ <input/pointers_arrays.HC:2.10-14> 
-| | | | | Declarator @ <input/pointers_arrays.HC:2.10-14> 
-| | | | | | IdentifierDeclarator: value @ <input/pointers_arrays.HC:2.10-14> 
-| | | ClassDeclaration @ <input/pointers_arrays.HC:3.5-21> 
-| | | | ClassSpecifier:  Node: @ <input/pointers_arrays.HC:3.5-14> 
-| | | | ClassDeclarator @ <input/pointers_arrays.HC:3.16-20> 
-| | | | | Declarator @ <input/pointers_arrays.HC:3.16-20> 
-| | | | | | Pointer @ <input/pointers_arrays.HC:3.16> 
-| | | | | | IdentifierDeclarator: next @ <input/pointers_arrays.HC:3.16-20> 
-| Function @ <input/pointers_arrays.HC:6.1-8.1> 
-| | PrimitiveSpecifier: i32 @ <input/pointers_arrays.HC:6.1-4> 
-| | Declarator @ <input/pointers_arrays.HC:6.6-36> 
-| | | FunctionDeclarator @ <input/pointers_arrays.HC:6.6-36> 
-| | | | IdentifierDeclarator: apply @ <input/pointers_arrays.HC:6.6-10> 
-| | | | ParameterDeclaration @ <input/pointers_arrays.HC:6.6-27> 
-| | | | | PrimitiveSpecifier: i32 @ <input/pointers_arrays.HC:6.6-15> 
-| | | | | Declarator @ <input/pointers_arrays.HC:6.17-27> 
-| | | | | | FunctionDeclarator @ <input/pointers_arrays.HC:6.17-27> 
-| | | | | | | ParenDeclarator @ <input/pointers_arrays.HC:6.17-21> 
-| | | | | | | | Declarator @ <input/pointers_arrays.HC:6.17-20> 
-| | | | | | | | | Pointer @ <input/pointers_arrays.HC:6.17-18> 
-| | | | | | | | | IdentifierDeclarator: fn @ <input/pointers_arrays.HC:6.17-20> 
-| | | | | | | ParameterDeclaration @ <input/pointers_arrays.HC:6.17-26> 
-| | | | | | | | PrimitiveSpecifier: i32 @ <input/pointers_arrays.HC:6.17-26> 
-| | | | ParameterDeclaration @ <input/pointers_arrays.HC:6.30-35> 
-| | | | | PrimitiveSpecifier: i32 @ <input/pointers_arrays.HC:6.30-33> 
-| | | | | Declarator @ <input/pointers_arrays.HC:6.35> 
-| | | | | | IdentifierDeclarator: v @ <input/pointers_arrays.HC:6.35> 
-| | CompoundStatement @ <input/pointers_arrays.HC:6.38-8.1> 
-| | | ReturnStatement @ <input/pointers_arrays.HC:7.5-17> 
-| | | | CallExpression @ <input/pointers_arrays.HC:7.12-16> 
-| | | | | IdentifierExpression: fn @ <input/pointers_arrays.HC:7.12-13> 
-| | | | | IdentifierExpression: v @ <input/pointers_arrays.HC:7.12-15> 
-| Function @ <input/pointers_arrays.HC:10.1-12.1> 
-| | PrimitiveSpecifier: i32 @ <input/pointers_arrays.HC:10.1-4> 
-| | Declarator @ <input/pointers_arrays.HC:10.6-19> 
-| | | FunctionDeclarator @ <input/pointers_arrays.HC:10.6-19> 
-| | | | IdentifierDeclarator: square @ <input/pointers_arrays.HC:10.6-11> 
-| | | | ParameterDeclaration @ <input/pointers_arrays.HC:10.6-18> 
-| | | | | PrimitiveSpecifier: i32 @ <input/pointers_arrays.HC:10.6-16> 
-| | | | | Declarator @ <input/pointers_arrays.HC:10.18> 
-| | | | | | IdentifierDeclarator: x @ <input/pointers_arrays.HC:10.18> 
-| | CompoundStatement @ <input/pointers_arrays.HC:10.21-12.1> 
-| | | ReturnStatement @ <input/pointers_arrays.HC:11.5-17> 
-| | | | BinaryExpression: * @ <input/pointers_arrays.HC:11.12-16> 
-| | | | | IdentifierExpression: x @ <input/pointers_arrays.HC:11.12> 
-| | | | | IdentifierExpression: x @ <input/pointers_arrays.HC:11.16> 
-| VariableDeclaration @ <input/pointers_arrays.HC:15.1-41> 
-| | PrimitiveSpecifier: u32 @ <input/pointers_arrays.HC:15.1-4> 
-| | InitDeclarator @ <input/pointers_arrays.HC:15.6-40> 
-| | | Declarator @ <input/pointers_arrays.HC:15.6-19> 
-| | | | ArrayDeclarator @ <input/pointers_arrays.HC:15.6-19> 
-| | | | | IdentifierDeclarator: inferred_arr @ <input/pointers_arrays.HC:15.6-17> 
-| | | Initializer:  @ <input/pointers_arrays.HC:15.23-40> 
-| | | | Initializer:  @ <input/pointers_arrays.HC:15.23-24> 
-| | | | | 5 @ <input/pointers_arrays.HC:15.23-24> 
-| | | | Initializer:  @ <input/pointers_arrays.HC:15.27> 
-| | | | | 4 @ <input/pointers_arrays.HC:15.27> 
-| | | | Initializer:  @ <input/pointers_arrays.HC:15.30> 
-| | | | | 3 @ <input/pointers_arrays.HC:15.30> 
-| | | | Initializer:  @ <input/pointers_arrays.HC:15.33> 
-| | | | | 2 @ <input/pointers_arrays.HC:15.33> 
-| | | | Initializer:  @ <input/pointers_arrays.HC:15.36> 
-| | | | | 1 @ <input/pointers_arrays.HC:15.36> 
-| | | | Initializer:  @ <input/pointers_arrays.HC:15.39> 
-| | | | | 0 @ <input/pointers_arrays.HC:15.39> 
-| VariableDeclaration @ <input/pointers_arrays.HC:17.1-45> 
-| | PrimitiveSpecifier: u32 @ <input/pointers_arrays.HC:17.1-4> 
-| | InitDeclarator @ <input/pointers_arrays.HC:17.6-44> 
-| | | Declarator @ <input/pointers_arrays.HC:17.6-20> 
-| | | | ArrayDeclarator @ <input/pointers_arrays.HC:17.6-20> 
-| | | | | ArrayDeclarator @ <input/pointers_arrays.HC:17.6-18> 
-| | | | | | IdentifierDeclarator: complex_arr @ <input/pointers_arrays.HC:17.6-16> 
-| | | Initializer:  @ <input/pointers_arrays.HC:17.24-44> 
-| | | | Initializer:  @ <input/pointers_arrays.HC:17.24-30> 
-| | | | | Initializer:  @ <input/pointers_arrays.HC:17.24-26> 
-| | | | | | 5 @ <input/pointers_arrays.HC:17.24-26> 
-| | | | | Initializer:  @ <input/pointers_arrays.HC:17.29> 
-| | | | | | 4 @ <input/pointers_arrays.HC:17.29> 
-| | | | Initializer:  @ <input/pointers_arrays.HC:17.33-38> 
-| | | | | Initializer:  @ <input/pointers_arrays.HC:17.33-34> 
-| | | | | | 6 @ <input/pointers_arrays.HC:17.33-34> 
-| | | | | Initializer:  @ <input/pointers_arrays.HC:17.37> 
-| | | | | | 4 @ <input/pointers_arrays.HC:17.37> 
-| | | | Initializer:  @ <input/pointers_arrays.HC:17.41-43> 
-| | | | | Initializer:  @ <input/pointers_arrays.HC:17.41-42> 
-| | | | | | 1 @ <input/pointers_arrays.HC:17.41-42> 
-| VariableDeclaration @ <input/pointers_arrays.HC:19.1-12> 
-| | PrimitiveSpecifier: u32 @ <input/pointers_arrays.HC:19.1-4> 
-| | InitDeclarator @ <input/pointers_arrays.HC:19.6-11> 
-| | | Declarator @ <input/pointers_arrays.HC:19.6-11> 
-| | | | ArrayDeclarator @ <input/pointers_arrays.HC:19.6-11> 
-| | | | | IdentifierDeclarator: arr @ <input/pointers_arrays.HC:19.6-8> 
-| | | | | ConstExpression:  @ <input/pointers_arrays.HC:19.6-10> 
-| | | | | | 5 @ <input/pointers_arrays.HC:19.6-10> 
-| VariableDeclaration @ <input/pointers_arrays.HC:21.1-19> 
-| | PrimitiveSpecifier: u32 @ <input/pointers_arrays.HC:21.1-4> 
-| | InitDeclarator @ <input/pointers_arrays.HC:21.6-18> 
-| | | Declarator @ <input/pointers_arrays.HC:21.6-18> 
-| | | | Pointer @ <input/pointers_arrays.HC:21.6> 
-| | | | ArrayDeclarator @ <input/pointers_arrays.HC:21.6-18> 
-| | | | | IdentifierDeclarator: ptr_array @ <input/pointers_arrays.HC:21.6-15> 
-| | | | | ConstExpression:  @ <input/pointers_arrays.HC:21.6-17> 
-| | | | | | 5 @ <input/pointers_arrays.HC:21.6-17> 
-| VariableDeclaration @ <input/pointers_arrays.HC:23.1-24> 
-| | PrimitiveSpecifier: u32 @ <input/pointers_arrays.HC:23.1-4> 
-| | InitDeclarator @ <input/pointers_arrays.HC:23.6-23> 
-| | | Declarator @ <input/pointers_arrays.HC:23.6-23> 
-| | | | ArrayDeclarator @ <input/pointers_arrays.HC:23.6-23> 
-| | | | | ParenDeclarator @ <input/pointers_arrays.HC:23.6-19> 
-| | | | | | Declarator @ <input/pointers_arrays.HC:23.6-18> 
-| | | | | | | Pointer @ <input/pointers_arrays.HC:23.6-7> 
-| | | | | | | IdentifierDeclarator: ptr_to_arr @ <input/pointers_arrays.HC:23.9-18> 
-| | | | | ConstExpression:  @ <input/pointers_arrays.HC:23.21-22> 
-| | | | | | 5 @ <input/pointers_arrays.HC:23.21-22> 
-| VariableDeclaration @ <input/pointers_arrays.HC:25.1-28> 
-| | PrimitiveSpecifier: u32 @ <input/pointers_arrays.HC:25.1-4> 
-| | InitDeclarator @ <input/pointers_arrays.HC:25.6-27> 
-| | | Declarator @ <input/pointers_arrays.HC:25.6-27> 
-| | | | Pointer @ <input/pointers_arrays.HC:25.6> 
-| | | | ArrayDeclarator @ <input/pointers_arrays.HC:25.6-27> 
-| | | | | ParenDeclarator @ <input/pointers_arrays.HC:25.6-23> 
-| | | | | | Declarator @ <input/pointers_arrays.HC:25.6-22> 
-| | | | | | | Pointer @ <input/pointers_arrays.HC:25.6-8> 
-| | | | | | | IdentifierDeclarator: ptr_to_ptr_arr @ <input/pointers_arrays.HC:25.6-22> 
-| | | | | ConstExpression:  @ <input/pointers_arrays.HC:25.25-26> 
-| | | | | | 5 @ <input/pointers_arrays.HC:25.25-26> 
-| Function @ <input/pointers_arrays.HC:27.1-35.1> 
-| | PrimitiveSpecifier: i32 @ <input/pointers_arrays.HC:27.1-4> 
-| | Declarator @ <input/pointers_arrays.HC:27.6-10> 
-| | | FunctionDeclarator @ <input/pointers_arrays.HC:27.6-10> 
-| | | | IdentifierDeclarator: run @ <input/pointers_arrays.HC:27.6-8> 
-| | CompoundStatement @ <input/pointers_arrays.HC:27.12-35.1> 
-| | | VariableDeclaration @ <input/pointers_arrays.HC:28.5-11> 
-| | | | TypeIdentifier: Node @ <input/pointers_arrays.HC:28.5-8> 
-| | | | InitDeclarator @ <input/pointers_arrays.HC:28.10> 
-| | | | | Declarator @ <input/pointers_arrays.HC:28.10> 
-| | | | | | IdentifierDeclarator: n @ <input/pointers_arrays.HC:28.10> 
-| | | VariableDeclaration @ <input/pointers_arrays.HC:29.5-17> 
-| | | | TypeIdentifier: Node @ <input/pointers_arrays.HC:29.5-8> 
-| | | | InitDeclarator @ <input/pointers_arrays.HC:29.10-16> 
-| | | | | Declarator @ <input/pointers_arrays.HC:29.10-11> 
-| | | | | | Pointer @ <input/pointers_arrays.HC:29.10> 
-| | | | | | IdentifierDeclarator: p @ <input/pointers_arrays.HC:29.10-11> 
-| | | | | Initializer:  @ <input/pointers_arrays.HC:29.15-16> 
-| | | | | | UnaryExpression: & @ <input/pointers_arrays.HC:29.15-16> 
-| | | | | | | IdentifierExpression: n @ <input/pointers_arrays.HC:29.15-16> 
-| | | ExpressionStatement @ <input/pointers_arrays.HC:31.5-16> 
-| | | | AssignmentExpression: = @ <input/pointers_arrays.HC:31.5-15> 
-| | | | | MemberAccess: .value @ <input/pointers_arrays.HC:31.5-11> 
-| | | | | | IdentifierExpression: n @ <input/pointers_arrays.HC:31.5> 
-| | | | | 5 @ <input/pointers_arrays.HC:31.15> 
-| | | ExpressionStatement @ <input/pointers_arrays.HC:32.5-15> 
-| | | | PostfixExpression: ++ @ <input/pointers_arrays.HC:32.5-14> 
-| | | | | MemberAccess: ->value @ <input/pointers_arrays.HC:32.5-12> 
-| | | | | | IdentifierExpression: p @ <input/pointers_arrays.HC:32.5> 
-| | | ReturnStatement @ <input/pointers_arrays.HC:34.5-34> 
-| | | | CallExpression @ <input/pointers_arrays.HC:34.12-33> 
-| | | | | IdentifierExpression: apply @ <input/pointers_arrays.HC:34.12-16> 
-| | | | | IdentifierExpression: square @ <input/pointers_arrays.HC:34.12-23> 
-| | | | | MemberAccess: .value @ <input/pointers_arrays.HC:34.26-32> 
-| | | | | | IdentifierExpression: n @ <input/pointers_arrays.HC:34.26> 
-running backend for file input/pointers_arrays.HC
-Checking semantics for input/pointers_arrays.HC:1.1
-Synthesizing MIR for input/pointers_arrays.HC:1.1
+parsing file test/integration/input/pointers_arrays.HC
+running backend for file test/integration/input/pointers_arrays.HC
+
+---------- Generating MIR ----------
+
+Synthesizing MIR for 1.1
 Node {
-    visiting Program node: input/pointers_arrays.HC:1.1
+    visiting Program node: 1.1
     Node {
-        visiting TypeDeclaration node: input/pointers_arrays.HC:1.1-4.2
-        parsing declaration specifier list for node at input/pointers_arrays.HC:1.1-4.2
+        visiting TypeDeclaration node: 1.1-4.2
+        parsing declaration specifier list for node at 1.1-4.2
         Node {
-            visiting ClassSpecifier node: input/pointers_arrays.HC:1.1-4.1
-TypeContext: class type 'Node' on scope 0x5635e456c9c0
+            visiting ClassSpecifier node: 1.1-4.1
+TypeContext: class type 'Node' on scope 0
 TypeContext: inserting type class_Node_0
             class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol Node in current scope
 SymbolTable: inserting typesymbol with name "Node"
             Node {
-                visiting ClassDeclaration node: input/pointers_arrays.HC:2.5-15
-                parsing declaration specifier list for node at input/pointers_arrays.HC:2.5-15
+                visiting ClassDeclaration node: 2.5-14
+                parsing declaration specifier list for node at 2.5-14
                 Node {
-                    visiting PrimitiveSpecifier node: input/pointers_arrays.HC:2.5-8
+                    visiting PrimitiveSpecifier node: 2.5-7
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node input/pointers_arrays.HC:2.5-15
-                parsing ClassDeclaration for ClassType 0x5635e456cca0
+                finished parsing specifiers for node 2.5-14
+                parsing ClassDeclaration for ClassType 15942378573112361423
                 Node {
-                    visiting ClassDeclarator node: input/pointers_arrays.HC:2.10-14
+                    visiting ClassDeclarator node: 2.9-13
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/pointers_arrays.HC:2.10-14
+                            visiting IdentifierDeclarator node: 2.9-13
                         }
                     }
                 }
 TypeBuilder: finalizing type
-ClassType: adding member with name value type 0x5635e456c880
+ClassType: adding member with name value type 175247769300
+ClassType: Looking for member with name value
+RecordType: Looking for member with name value
             }
             Node {
-                visiting ClassDeclaration node: input/pointers_arrays.HC:3.5-21
-                parsing declaration specifier list for node at input/pointers_arrays.HC:3.5-21
+                visiting ClassDeclaration node: 3.5-21
+                parsing declaration specifier list for node at 3.5-21
                 Node {
-                    visiting ClassSpecifier node: input/pointers_arrays.HC:3.5-14
-TypeContext: class type 'Node' on scope 0x5635e456c9c0
+                    visiting ClassSpecifier node: 3.5-14
+TypeContext: class type 'Node' on scope 0
 TypeContext: existing class found
                     class has name, inserting typesymbol if needed
 SymbolTable: looking up typesymbol Node in current scope
                 }
-                finished parsing specifiers for node input/pointers_arrays.HC:3.5-21
-                parsing ClassDeclaration for ClassType 0x5635e456cca0
+                finished parsing specifiers for node 3.5-21
+                parsing ClassDeclaration for ClassType 15942378573112361423
                 Node {
-                    visiting ClassDeclarator node: input/pointers_arrays.HC:3.16-20
+                    visiting ClassDeclarator node: 3.16-20
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/pointers_arrays.HC:3.16-20
+                            visiting IdentifierDeclarator node: 3.16-20
                         }
                         Node {
-                            visiting Pointer node: input/pointers_arrays.HC:3.16
+                            visiting Pointer node: 3.16
                         }
                     }
                 }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x5635e456cca0
-ClassType: adding member with name next type 0x5635e456d620
+TypeContext: pointer with base 15942378573112361423
+ClassType: adding member with name next type 3094298895586605452
+ClassType: Looking for member with name next
+RecordType: Looking for member with name next
             }
         }
-        finished parsing specifiers for node input/pointers_arrays.HC:1.1-4.2
+        finished parsing specifiers for node 1.1-4.2
     }
     Node {
-        visiting Function node: input/pointers_arrays.HC:6.1-8.1
-        parsing declaration specifier list for node at input/pointers_arrays.HC:6.1-8.1
+        visiting Function node: 6.1-8.1
+        parsing declaration specifier list for node at 6.1-8.1
         Node {
-            visiting PrimitiveSpecifier node: input/pointers_arrays.HC:6.1-4
+            visiting PrimitiveSpecifier node: 6.1-3
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/pointers_arrays.HC:6.1-8.1
+        finished parsing specifiers for node 6.1-8.1
         Node {
             Node {
-                visiting FunctionDeclarator node: input/pointers_arrays.HC:6.6-36
+                visiting FunctionDeclarator node: 6.5-32
                 Node {
-                    visiting IdentifierDeclarator node: input/pointers_arrays.HC:6.6-10
+                    visiting IdentifierDeclarator node: 6.5-9
                 }
                 Node {
-                    visiting ParameterDeclarator node: input/pointers_arrays.HC:6.6-27
-                    parsing declaration specifier list for node at input/pointers_arrays.HC:6.6-27
+                    visiting ParameterDeclarator node: 6.5-24
+                    parsing declaration specifier list for node at 6.5-24
                     Node {
-                        visiting PrimitiveSpecifier node: input/pointers_arrays.HC:6.6-15
+                        visiting PrimitiveSpecifier node: 6.5-13
 TypeContext: getting primitive type
                     }
-                    finished parsing specifiers for node input/pointers_arrays.HC:6.6-27
+                    finished parsing specifiers for node 6.5-24
                     Node {
                         Node {
-                            visiting FunctionDeclarator node: input/pointers_arrays.HC:6.17-27
+                            visiting FunctionDeclarator node: 6.15-24
                             Node {
-                                visiting ParenDeclarator node: input/pointers_arrays.HC:6.17-21
+                                visiting ParenDeclarator node: 6.15-19
                                 Node {
                                     Node {
-                                        visiting IdentifierDeclarator node: input/pointers_arrays.HC:6.17-20
+                                        visiting IdentifierDeclarator node: 6.15-18
                                     }
                                     Node {
-                                        visiting Pointer node: input/pointers_arrays.HC:6.17-18
+                                        visiting Pointer node: 6.15-16
                                     }
                                 }
                             }
                             Node {
-                                visiting ParameterDeclarator node: input/pointers_arrays.HC:6.17-26
-                                parsing declaration specifier list for node at input/pointers_arrays.HC:6.17-26
+                                visiting ParameterDeclarator node: 6.15-23
+                                parsing declaration specifier list for node at 6.15-23
                                 Node {
-                                    visiting PrimitiveSpecifier node: input/pointers_arrays.HC:6.17-26
+                                    visiting PrimitiveSpecifier node: 6.15-23
 TypeContext: getting primitive type
                                 }
-                                finished parsing specifiers for node input/pointers_arrays.HC:6.17-26
+                                finished parsing specifiers for node 6.15-23
                             }
                         }
                     }
 TypeBuilder: finalizing type
 TypeContext: getting function type
-TypeContext: pointer with base 0x5635e456daa0
+TypeContext: pointer with base 7502112650543024673
                 }
                 Node {
-                    visiting ParameterDeclarator node: input/pointers_arrays.HC:6.30-35
-                    parsing declaration specifier list for node at input/pointers_arrays.HC:6.30-35
+                    visiting ParameterDeclarator node: 6.27-31
+                    parsing declaration specifier list for node at 6.27-31
                     Node {
-                        visiting PrimitiveSpecifier node: input/pointers_arrays.HC:6.30-33
+                        visiting PrimitiveSpecifier node: 6.27-29
 TypeContext: getting primitive type
                     }
-                    finished parsing specifiers for node input/pointers_arrays.HC:6.30-35
+                    finished parsing specifiers for node 6.27-31
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/pointers_arrays.HC:6.35
+                            visiting IdentifierDeclarator node: 6.31
                         }
                     }
 TypeBuilder: finalizing type
                 }
             }
         }
+TypeBuilder: finalizing type
 TypeContext: getting function type
-parsing params
+        MIRSynthesizer: parsing Function params
 SymbolTable: inserting funcsymbol with name "apply"
         Node {
 SymbolTable: pushing scope 1
 SymbolTable: entering scope 1
-            visiting CompoundStatement node: input/pointers_arrays.HC:6.38-8.1
+            visiting CompoundStatement node: 6.34-8.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 1 with symbol 0x5635e452cf50 name "apply"
+SymbolTable: associating current scope 1 with symbol name "apply"
 SymbolTable: inserting varsymbol with name "fn"
 SymbolTable: inserting varsymbol with name "v"
             Node {
-                visiting ReturnStatement node: input/pointers_arrays.HC:7.5-17
+                visiting ReturnStatement node: 7.5-17
                 Node {
-                    visiting CallExpression node: input/pointers_arrays.HC:7.12-16
+                    visiting CallExpression node: 7.12-16
                     Node {
-                        visiting IdentifierExpression node: input/pointers_arrays.HC:7.12-13
+                        visiting IdentifierExpression node: 7.12-13
 SymbolTable: looking up varsymbol fn
                     }
                     Node {
-                        visiting IdentifierExpression node: input/pointers_arrays.HC:7.12-15
+                        visiting IdentifierExpression node: 7.12-15
 SymbolTable: looking up varsymbol v
                     }
                 }
@@ -334,57 +173,58 @@ SymbolTable: exiting scope to 0
         }
     }
     Node {
-        visiting Function node: input/pointers_arrays.HC:10.1-12.1
-        parsing declaration specifier list for node at input/pointers_arrays.HC:10.1-12.1
+        visiting Function node: 10.1-12.1
+        parsing declaration specifier list for node at 10.1-12.1
         Node {
-            visiting PrimitiveSpecifier node: input/pointers_arrays.HC:10.1-4
+            visiting PrimitiveSpecifier node: 10.1-3
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/pointers_arrays.HC:10.1-12.1
+        finished parsing specifiers for node 10.1-12.1
         Node {
             Node {
-                visiting FunctionDeclarator node: input/pointers_arrays.HC:10.6-19
+                visiting FunctionDeclarator node: 10.5-17
                 Node {
-                    visiting IdentifierDeclarator node: input/pointers_arrays.HC:10.6-11
+                    visiting IdentifierDeclarator node: 10.5-10
                 }
                 Node {
-                    visiting ParameterDeclarator node: input/pointers_arrays.HC:10.6-18
-                    parsing declaration specifier list for node at input/pointers_arrays.HC:10.6-18
+                    visiting ParameterDeclarator node: 10.5-16
+                    parsing declaration specifier list for node at 10.5-16
                     Node {
-                        visiting PrimitiveSpecifier node: input/pointers_arrays.HC:10.6-16
+                        visiting PrimitiveSpecifier node: 10.5-14
 TypeContext: getting primitive type
                     }
-                    finished parsing specifiers for node input/pointers_arrays.HC:10.6-18
+                    finished parsing specifiers for node 10.5-16
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/pointers_arrays.HC:10.18
+                            visiting IdentifierDeclarator node: 10.16
                         }
                     }
 TypeBuilder: finalizing type
                 }
             }
         }
+TypeBuilder: finalizing type
 TypeContext: getting function type
 TypeContext: existing function type found
-parsing params
+        MIRSynthesizer: parsing Function params
 SymbolTable: inserting funcsymbol with name "square"
         Node {
 SymbolTable: pushing scope 2
 SymbolTable: entering scope 2
-            visiting CompoundStatement node: input/pointers_arrays.HC:10.21-12.1
+            visiting CompoundStatement node: 10.19-12.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 2 with symbol 0x5635e452d190 name "square"
+SymbolTable: associating current scope 2 with symbol name "square"
 SymbolTable: inserting varsymbol with name "x"
             Node {
-                visiting ReturnStatement node: input/pointers_arrays.HC:11.5-17
+                visiting ReturnStatement node: 11.5-17
                 Node {
-                    visiting BinaryExpression node: input/pointers_arrays.HC:11.12-16
+                    visiting BinaryExpression node: 11.12-16
                     Node {
-                        visiting IdentifierExpression node: input/pointers_arrays.HC:11.12
+                        visiting IdentifierExpression node: 11.12
 SymbolTable: looking up varsymbol x
                     }
                     Node {
-                        visiting IdentifierExpression node: input/pointers_arrays.HC:11.16
+                        visiting IdentifierExpression node: 11.16
 SymbolTable: looking up varsymbol x
                     }
                 }
@@ -393,356 +233,372 @@ SymbolTable: exiting scope to 0
         }
     }
     Node {
-        visiting VariableDeclaration node: input/pointers_arrays.HC:15.1-41
-        parsing declaration specifier list for node at input/pointers_arrays.HC:15.1-41
+        visiting VariableDeclaration node: 15.1-40
+        parsing declaration specifier list for node at 15.1-40
         Node {
-            visiting PrimitiveSpecifier node: input/pointers_arrays.HC:15.1-4
+            visiting PrimitiveSpecifier node: 15.1-3
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/pointers_arrays.HC:15.1-41
+        finished parsing specifiers for node 15.1-40
         Node {
-            visiting InitDeclarator node: input/pointers_arrays.HC:15.6-40
+            visiting InitDeclarator node: 15.5-39
             Node {
                 Node {
-                    visiting ArrayDeclarator node: input/pointers_arrays.HC:15.6-19
+                    visiting ArrayDeclarator node: 15.5-18
                     Node {
-                        visiting IdentifierDeclarator node: input/pointers_arrays.HC:15.6-17
+                        visiting IdentifierDeclarator node: 15.5-16
                     }
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x5635e456c780, no size
+TypeContext: array type with base 175247769301, no size
             Node {
-                visiting Initializer node: input/pointers_arrays.HC:15.23-40
+                visiting Initializer node: 15.22-39
                 visiting compound initializer
                 visiting arraytype compound initializer
                 Node {
-                    visiting Initializer node: input/pointers_arrays.HC:15.23-24
+                    visiting Initializer node: 15.22-23
                     visiting single initializer
                     Node {
-                        visiting LiteralExpression node: input/pointers_arrays.HC:15.23-24
+                        visiting LiteralExpression node: 15.22-23
+                        found integer
                     }
                 }
                 Node {
-                    visiting Initializer node: input/pointers_arrays.HC:15.27
+                    visiting Initializer node: 15.26
                     visiting single initializer
                     Node {
-                        visiting LiteralExpression node: input/pointers_arrays.HC:15.27
+                        visiting LiteralExpression node: 15.26
+                        found integer
                     }
                 }
                 Node {
-                    visiting Initializer node: input/pointers_arrays.HC:15.30
+                    visiting Initializer node: 15.29
                     visiting single initializer
                     Node {
-                        visiting LiteralExpression node: input/pointers_arrays.HC:15.30
+                        visiting LiteralExpression node: 15.29
+                        found integer
                     }
                 }
                 Node {
-                    visiting Initializer node: input/pointers_arrays.HC:15.33
+                    visiting Initializer node: 15.32
                     visiting single initializer
                     Node {
-                        visiting LiteralExpression node: input/pointers_arrays.HC:15.33
+                        visiting LiteralExpression node: 15.32
+                        found integer
                     }
                 }
                 Node {
-                    visiting Initializer node: input/pointers_arrays.HC:15.36
+                    visiting Initializer node: 15.35
                     visiting single initializer
                     Node {
-                        visiting LiteralExpression node: input/pointers_arrays.HC:15.36
+                        visiting LiteralExpression node: 15.35
+                        found integer
                     }
                 }
                 Node {
-                    visiting Initializer node: input/pointers_arrays.HC:15.39
+                    visiting Initializer node: 15.38
                     visiting single initializer
                     Node {
-                        visiting LiteralExpression node: input/pointers_arrays.HC:15.39
+                        visiting LiteralExpression node: 15.38
+                        found integer
                     }
                 }
                 array has no size, inferring from size of initializer
-TypeContext: set array of base 0x5635e456c780, with size 6
-TypeContext: found array of base 0x5635e456c780 to deallocate
-TypeContext: deleting array of base 0x5635e456c780
-TypeContext: array type with base 0x5635e456c780, size 6
+TypeContext: set array of base 0x556f27dd1870, with size 6
+TypeContext: found array of base 0x556f27dd1870 to deallocate
+TypeContext: deleting array of base 0x556f27dd1870
+TypeContext: array type with base 175247769301, size 6
             }
         }
 SymbolTable: inserting varsymbol with name "inferred_arr"
     }
     Node {
-        visiting VariableDeclaration node: input/pointers_arrays.HC:17.1-45
-        parsing declaration specifier list for node at input/pointers_arrays.HC:17.1-45
+        visiting VariableDeclaration node: 17.1-44
+        parsing declaration specifier list for node at 17.1-44
         Node {
-            visiting PrimitiveSpecifier node: input/pointers_arrays.HC:17.1-4
+            visiting PrimitiveSpecifier node: 17.1-3
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/pointers_arrays.HC:17.1-45
+        finished parsing specifiers for node 17.1-44
         Node {
-            visiting InitDeclarator node: input/pointers_arrays.HC:17.6-44
+            visiting InitDeclarator node: 17.5-43
             Node {
                 Node {
-                    visiting ArrayDeclarator node: input/pointers_arrays.HC:17.6-20
+                    visiting ArrayDeclarator node: 17.5-19
                     Node {
-                        visiting ArrayDeclarator node: input/pointers_arrays.HC:17.6-18
+                        visiting ArrayDeclarator node: 17.5-17
                         Node {
-                            visiting IdentifierDeclarator node: input/pointers_arrays.HC:17.6-16
+                            visiting IdentifierDeclarator node: 17.5-15
                         }
                     }
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x5635e456c780, no size
-TypeContext: array type with base 0x5635e456f080, no size
+TypeContext: array type with base 175247769301, no size
+TypeContext: array type with base 12990848669647522429, no size
             Node {
-                visiting Initializer node: input/pointers_arrays.HC:17.24-44
+                visiting Initializer node: 17.23-43
                 visiting compound initializer
                 visiting arraytype compound initializer
                 Node {
-                    visiting Initializer node: input/pointers_arrays.HC:17.24-30
+                    visiting Initializer node: 17.23-29
                     visiting compound initializer
                     visiting arraytype compound initializer
                     Node {
-                        visiting Initializer node: input/pointers_arrays.HC:17.24-26
+                        visiting Initializer node: 17.23-25
                         visiting single initializer
                         Node {
-                            visiting LiteralExpression node: input/pointers_arrays.HC:17.24-26
+                            visiting LiteralExpression node: 17.23-25
+                            found integer
                         }
                     }
                     Node {
-                        visiting Initializer node: input/pointers_arrays.HC:17.29
+                        visiting Initializer node: 17.28
                         visiting single initializer
                         Node {
-                            visiting LiteralExpression node: input/pointers_arrays.HC:17.29
+                            visiting LiteralExpression node: 17.28
+                            found integer
                         }
                     }
                     array has no size, inferring from size of initializer
-TypeContext: set array of base 0x5635e456c780, with size 2
-TypeContext: found array of base 0x5635e456c780 to deallocate
-TypeContext: deleting array of base 0x5635e456c780
-TypeContext: array type with base 0x5635e456c780, size 2
+TypeContext: set array of base 0x556f27dd1870, with size 2
+TypeContext: found array of base 0x556f27dd1870 to deallocate
+TypeContext: deleting array of base 0x556f27dd1870
+TypeContext: array type with base 175247769301, size 2
                 }
                 Node {
-                    visiting Initializer node: input/pointers_arrays.HC:17.33-38
+                    visiting Initializer node: 17.32-37
                     visiting compound initializer
                     visiting arraytype compound initializer
                     Node {
-                        visiting Initializer node: input/pointers_arrays.HC:17.33-34
+                        visiting Initializer node: 17.32-33
                         visiting single initializer
                         Node {
-                            visiting LiteralExpression node: input/pointers_arrays.HC:17.33-34
+                            visiting LiteralExpression node: 17.32-33
+                            found integer
                         }
                     }
                     Node {
-                        visiting Initializer node: input/pointers_arrays.HC:17.37
+                        visiting Initializer node: 17.36
                         visiting single initializer
                         Node {
-                            visiting LiteralExpression node: input/pointers_arrays.HC:17.37
+                            visiting LiteralExpression node: 17.36
+                            found integer
                         }
                     }
                 }
                 Node {
-                    visiting Initializer node: input/pointers_arrays.HC:17.41-43
+                    visiting Initializer node: 17.40-42
                     visiting compound initializer
                     visiting arraytype compound initializer
                     Node {
-                        visiting Initializer node: input/pointers_arrays.HC:17.41-42
+                        visiting Initializer node: 17.40-41
                         visiting single initializer
                         Node {
-                            visiting LiteralExpression node: input/pointers_arrays.HC:17.41-42
+                            visiting LiteralExpression node: 17.40-41
+                            found integer
                         }
                     }
                 }
                 array has no size, inferring from size of initializer
-TypeContext: set array of base 0x5635e456f080, with size 3
-TypeContext: found array of base 0x5635e456f080 to deallocate
-TypeContext: deleting array of base 0x5635e456f080
-TypeContext: array type with base 0x5635e456f080, size 3
+TypeContext: set array of base 0x556f27dd47e0, with size 3
+TypeContext: found array of base 0x556f27dd47e0 to deallocate
+TypeContext: deleting array of base 0x556f27dd47e0
+TypeContext: array type with base 2274001866962096398, size 3
             }
         }
 SymbolTable: inserting varsymbol with name "complex_arr"
     }
     Node {
-        visiting VariableDeclaration node: input/pointers_arrays.HC:19.1-12
-        parsing declaration specifier list for node at input/pointers_arrays.HC:19.1-12
+        visiting VariableDeclaration node: 19.1-11
+        parsing declaration specifier list for node at 19.1-11
         Node {
-            visiting PrimitiveSpecifier node: input/pointers_arrays.HC:19.1-4
+            visiting PrimitiveSpecifier node: 19.1-3
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/pointers_arrays.HC:19.1-12
+        finished parsing specifiers for node 19.1-11
         Node {
-            visiting InitDeclarator node: input/pointers_arrays.HC:19.6-11
+            visiting InitDeclarator node: 19.5-10
             Node {
                 Node {
-                    visiting ArrayDeclarator node: input/pointers_arrays.HC:19.6-11
+                    visiting ArrayDeclarator node: 19.5-10
                     Node {
-                        visiting IdentifierDeclarator node: input/pointers_arrays.HC:19.6-8
+                        visiting IdentifierDeclarator node: 19.5-7
                     }
                     array declarator has size, checking for compile time computability
                     Node {
-                        visiting ConstExpression node: input/pointers_arrays.HC:19.6-10
+                        visiting ConstExpression node: 19.5-9
                         Node {
-                            visiting LiteralExpression node: input/pointers_arrays.HC:19.6-10
+                            visiting LiteralExpression node: 19.5-9
+                            found integer
                         }
                     }
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x5635e456c780, size 5
+TypeContext: array type with base 175247769301, size 5
         }
 SymbolTable: inserting varsymbol with name "arr"
     }
     Node {
-        visiting VariableDeclaration node: input/pointers_arrays.HC:21.1-19
-        parsing declaration specifier list for node at input/pointers_arrays.HC:21.1-19
+        visiting VariableDeclaration node: 21.1-18
+        parsing declaration specifier list for node at 21.1-18
         Node {
-            visiting PrimitiveSpecifier node: input/pointers_arrays.HC:21.1-4
+            visiting PrimitiveSpecifier node: 21.1-3
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/pointers_arrays.HC:21.1-19
+        finished parsing specifiers for node 21.1-18
         Node {
-            visiting InitDeclarator node: input/pointers_arrays.HC:21.6-18
+            visiting InitDeclarator node: 21.5-17
             Node {
                 Node {
-                    visiting ArrayDeclarator node: input/pointers_arrays.HC:21.6-18
+                    visiting ArrayDeclarator node: 21.5-17
                     Node {
-                        visiting IdentifierDeclarator node: input/pointers_arrays.HC:21.6-15
+                        visiting IdentifierDeclarator node: 21.5-14
                     }
                     array declarator has size, checking for compile time computability
                     Node {
-                        visiting ConstExpression node: input/pointers_arrays.HC:21.6-17
+                        visiting ConstExpression node: 21.5-16
                         Node {
-                            visiting LiteralExpression node: input/pointers_arrays.HC:21.6-17
+                            visiting LiteralExpression node: 21.5-16
+                            found integer
                         }
                     }
                 }
                 Node {
-                    visiting Pointer node: input/pointers_arrays.HC:21.6
+                    visiting Pointer node: 21.5
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x5635e456c780
-TypeContext: array type with base 0x5635e456fbd0, size 5
+TypeContext: pointer with base 175247769301
+TypeContext: array type with base 8129775402368375371, size 5
         }
 SymbolTable: inserting varsymbol with name "ptr_array"
     }
     Node {
-        visiting VariableDeclaration node: input/pointers_arrays.HC:23.1-24
-        parsing declaration specifier list for node at input/pointers_arrays.HC:23.1-24
+        visiting VariableDeclaration node: 23.1-23
+        parsing declaration specifier list for node at 23.1-23
         Node {
-            visiting PrimitiveSpecifier node: input/pointers_arrays.HC:23.1-4
+            visiting PrimitiveSpecifier node: 23.1-3
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/pointers_arrays.HC:23.1-24
+        finished parsing specifiers for node 23.1-23
         Node {
-            visiting InitDeclarator node: input/pointers_arrays.HC:23.6-23
+            visiting InitDeclarator node: 23.5-22
             Node {
                 Node {
-                    visiting ArrayDeclarator node: input/pointers_arrays.HC:23.6-23
+                    visiting ArrayDeclarator node: 23.5-22
                     Node {
-                        visiting ParenDeclarator node: input/pointers_arrays.HC:23.6-19
+                        visiting ParenDeclarator node: 23.5-18
                         Node {
                             Node {
-                                visiting IdentifierDeclarator node: input/pointers_arrays.HC:23.9-18
+                                visiting IdentifierDeclarator node: 23.8-17
                             }
                             Node {
-                                visiting Pointer node: input/pointers_arrays.HC:23.6-7
+                                visiting Pointer node: 23.5-6
                             }
                         }
                     }
                     array declarator has size, checking for compile time computability
                     Node {
-                        visiting ConstExpression node: input/pointers_arrays.HC:23.21-22
+                        visiting ConstExpression node: 23.20-21
                         Node {
-                            visiting LiteralExpression node: input/pointers_arrays.HC:23.21-22
+                            visiting LiteralExpression node: 23.20-21
+                            found integer
                         }
                     }
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: array type with base 0x5635e456c780, size 5
-TypeContext: pointer with base 0x5635e456f920
+TypeContext: array type with base 175247769301, size 5
+TypeContext: pointer with base 2274001866962098506
         }
 SymbolTable: inserting varsymbol with name "ptr_to_arr"
     }
     Node {
-        visiting VariableDeclaration node: input/pointers_arrays.HC:25.1-28
-        parsing declaration specifier list for node at input/pointers_arrays.HC:25.1-28
+        visiting VariableDeclaration node: 25.1-27
+        parsing declaration specifier list for node at 25.1-27
         Node {
-            visiting PrimitiveSpecifier node: input/pointers_arrays.HC:25.1-4
+            visiting PrimitiveSpecifier node: 25.1-3
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/pointers_arrays.HC:25.1-28
+        finished parsing specifiers for node 25.1-27
         Node {
-            visiting InitDeclarator node: input/pointers_arrays.HC:25.6-27
+            visiting InitDeclarator node: 25.5-26
             Node {
                 Node {
-                    visiting ArrayDeclarator node: input/pointers_arrays.HC:25.6-27
+                    visiting ArrayDeclarator node: 25.5-26
                     Node {
-                        visiting ParenDeclarator node: input/pointers_arrays.HC:25.6-23
+                        visiting ParenDeclarator node: 25.5-22
                         Node {
                             Node {
-                                visiting IdentifierDeclarator node: input/pointers_arrays.HC:25.6-22
+                                visiting IdentifierDeclarator node: 25.5-21
                             }
                             Node {
-                                visiting Pointer node: input/pointers_arrays.HC:25.6-8
+                                visiting Pointer node: 25.5-7
                             }
                         }
                     }
                     array declarator has size, checking for compile time computability
                     Node {
-                        visiting ConstExpression node: input/pointers_arrays.HC:25.25-26
+                        visiting ConstExpression node: 25.24-25
                         Node {
-                            visiting LiteralExpression node: input/pointers_arrays.HC:25.25-26
+                            visiting LiteralExpression node: 25.24-25
+                            found integer
                         }
                     }
                 }
                 Node {
-                    visiting Pointer node: input/pointers_arrays.HC:25.6
+                    visiting Pointer node: 25.5
                 }
             }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x5635e456c780
-TypeContext: array type with base 0x5635e456fbd0, size 5
-TypeContext: pointer with base 0x5635e456fb80
+TypeContext: pointer with base 175247769301
+TypeContext: array type with base 8129775402368375371, size 5
+TypeContext: pointer with base 1533431776100106275
         }
 SymbolTable: inserting varsymbol with name "ptr_to_ptr_arr"
     }
     Node {
-        visiting Function node: input/pointers_arrays.HC:27.1-35.1
-        parsing declaration specifier list for node at input/pointers_arrays.HC:27.1-35.1
+        visiting Function node: 27.1-38.1
+        parsing declaration specifier list for node at 27.1-38.1
         Node {
-            visiting PrimitiveSpecifier node: input/pointers_arrays.HC:27.1-4
+            visiting PrimitiveSpecifier node: 27.1-3
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/pointers_arrays.HC:27.1-35.1
+        finished parsing specifiers for node 27.1-38.1
         Node {
             Node {
-                visiting FunctionDeclarator node: input/pointers_arrays.HC:27.6-10
+                visiting FunctionDeclarator node: 27.5-9
                 Node {
-                    visiting IdentifierDeclarator node: input/pointers_arrays.HC:27.6-8
+                    visiting IdentifierDeclarator node: 27.5-7
                 }
             }
         }
+TypeBuilder: finalizing type
 TypeContext: getting function type
-parsing params
+        MIRSynthesizer: parsing Function params
 SymbolTable: inserting funcsymbol with name "run"
         Node {
 SymbolTable: pushing scope 3
 SymbolTable: entering scope 3
-            visiting CompoundStatement node: input/pointers_arrays.HC:27.12-35.1
+            visiting CompoundStatement node: 27.11-38.1
             CmpdStmtDoVisitParams found to have value, checking for function
-SymbolTable: associating current scope 3 with symbol 0x5635e452d610 name "run"
+SymbolTable: associating current scope 3 with symbol name "run"
             Node {
-                visiting VariableDeclaration node: input/pointers_arrays.HC:28.5-11
-                parsing declaration specifier list for node at input/pointers_arrays.HC:28.5-11
+                visiting VariableDeclaration node: 28.5-11
+                parsing declaration specifier list for node at 28.5-11
                 Node {
-                    visiting TypeIdentifier node: input/pointers_arrays.HC:28.5-8
+                    visiting TypeIdentifier node: 28.5-8
 SymbolTable: looking up typesymbol Node
                 }
-                finished parsing specifiers for node input/pointers_arrays.HC:28.5-11
+                finished parsing specifiers for node 28.5-11
                 Node {
-                    visiting InitDeclarator node: input/pointers_arrays.HC:28.10
+                    visiting InitDeclarator node: 28.10
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/pointers_arrays.HC:28.10
+                            visiting IdentifierDeclarator node: 28.10
                         }
                     }
 TypeBuilder: finalizing type
@@ -750,32 +606,32 @@ TypeBuilder: finalizing type
 SymbolTable: inserting varsymbol with name "n"
             }
             Node {
-                visiting VariableDeclaration node: input/pointers_arrays.HC:29.5-17
-                parsing declaration specifier list for node at input/pointers_arrays.HC:29.5-17
+                visiting VariableDeclaration node: 29.5-17
+                parsing declaration specifier list for node at 29.5-17
                 Node {
-                    visiting TypeIdentifier node: input/pointers_arrays.HC:29.5-8
+                    visiting TypeIdentifier node: 29.5-8
 SymbolTable: looking up typesymbol Node
                 }
-                finished parsing specifiers for node input/pointers_arrays.HC:29.5-17
+                finished parsing specifiers for node 29.5-17
                 Node {
-                    visiting InitDeclarator node: input/pointers_arrays.HC:29.10-16
+                    visiting InitDeclarator node: 29.10-16
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/pointers_arrays.HC:29.10-11
+                            visiting IdentifierDeclarator node: 29.10-11
                         }
                         Node {
-                            visiting Pointer node: input/pointers_arrays.HC:29.10
+                            visiting Pointer node: 29.10
                         }
                     }
 TypeBuilder: finalizing type
-TypeContext: pointer with base 0x5635e456cca0
+TypeContext: pointer with base 15942378573112361423
                     Node {
-                        visiting Initializer node: input/pointers_arrays.HC:29.15-16
+                        visiting Initializer node: 29.15-16
                         visiting single initializer
                         Node {
-                            visiting UnaryExpression node: input/pointers_arrays.HC:29.15-16
+                            visiting UnaryExpression node: 29.15-16
                             Node {
-                                visiting IdentifierExpression node: input/pointers_arrays.HC:29.15-16
+                                visiting IdentifierExpression node: 29.15-16
 SymbolTable: looking up varsymbol n
                             }
                         }
@@ -784,53 +640,593 @@ SymbolTable: looking up varsymbol n
 SymbolTable: inserting varsymbol with name "p"
             }
             Node {
-                visiting ExpressionStatement node: input/pointers_arrays.HC:31.5-16
+                visiting ExpressionStatement node: 31.5-16
                 Node {
-                    visiting AssignmentExpression node: input/pointers_arrays.HC:31.5-15
+                    visiting AssignmentExpression node: 31.5-15
                     Node {
-                        visiting MemberAccessExpression node: input/pointers_arrays.HC:31.5-11
+                        visiting MemberAccessExpression node: 31.5-11
                         Node {
-                            visiting IdentifierExpression node: input/pointers_arrays.HC:31.5
+                            visiting IdentifierExpression node: 31.5
 SymbolTable: looking up varsymbol n
                         }
                     }
                     Node {
-                        visiting LiteralExpression node: input/pointers_arrays.HC:31.15
+                        visiting LiteralExpression node: 31.15
+                        found integer
                     }
                 }
             }
             Node {
-                visiting ExpressionStatement node: input/pointers_arrays.HC:32.5-15
+                visiting ExpressionStatement node: 32.5-15
                 Node {
-                    visiting PostfixExpression node: input/pointers_arrays.HC:32.5-14
+                    visiting PostfixExpression node: 32.5-14
                     Node {
-                        visiting MemberAccessExpression node: input/pointers_arrays.HC:32.5-12
+                        visiting MemberAccessExpression node: 32.5-12
                         Node {
-                            visiting IdentifierExpression node: input/pointers_arrays.HC:32.5
+                            visiting IdentifierExpression node: 32.5
 SymbolTable: looking up varsymbol p
                         }
                     }
                 }
             }
             Node {
-                visiting ReturnStatement node: input/pointers_arrays.HC:34.5-34
+                visiting VariableDeclaration node: 34.5-40
+                parsing declaration specifier list for node at 34.5-40
                 Node {
-                    visiting CallExpression node: input/pointers_arrays.HC:34.12-33
+                    visiting PrimitiveSpecifier node: 34.5-7
+TypeContext: getting primitive type
+                }
+                finished parsing specifiers for node 34.5-40
+                Node {
+                    visiting InitDeclarator node: 34.9-39
                     Node {
-                        visiting IdentifierExpression node: input/pointers_arrays.HC:34.12-16
+                        Node {
+                            visiting IdentifierDeclarator node: 34.9-14
+                        }
+                    }
+TypeBuilder: finalizing type
+                    Node {
+                        visiting Initializer node: 34.18-39
+                        visiting single initializer
+                        Node {
+                            visiting CallExpression node: 34.18-39
+                            Node {
+                                visiting IdentifierExpression node: 34.18-22
 SymbolTable: looking up varsymbol apply
 SymbolTable: looking up funcsymbol apply
-                    }
-                    Node {
-                        visiting IdentifierExpression node: input/pointers_arrays.HC:34.12-23
+                            }
+                            Node {
+                                visiting IdentifierExpression node: 34.18-29
 SymbolTable: looking up varsymbol square
 SymbolTable: looking up funcsymbol square
+                            }
+                            Node {
+                                visiting MemberAccessExpression node: 34.32-38
+                                Node {
+                                    visiting IdentifierExpression node: 34.32
+SymbolTable: looking up varsymbol n
+                                }
+                            }
+                        }
+                    }
+                }
+SymbolTable: inserting varsymbol with name "result"
+            }
+            Node {
+                visiting PrintStatement node: 35.5-19
+                Node {
+                    visiting IdentifierExpression node: 35.13-18
+SymbolTable: looking up varsymbol result
+                }
+            }
+            Node {
+                visiting ReturnStatement node: 37.5-18
+                Node {
+                    visiting IdentifierExpression node: 37.12-17
+SymbolTable: looking up varsymbol result
+                }
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+    Node {
+        visiting ExpressionStatement node: 40.1-6
+        Node {
+            visiting CallExpression node: 40.1-5
+            Node {
+                visiting IdentifierExpression node: 40.1-3
+SymbolTable: looking up varsymbol run
+SymbolTable: looking up funcsymbol run
+            }
+        }
+    }
+    Node {
+        visiting VariableDeclaration node: 44.1-12
+        parsing declaration specifier list for node at 44.1-12
+        Node {
+            visiting PrimitiveSpecifier node: 44.1-3
+TypeContext: getting primitive type
+        }
+        finished parsing specifiers for node 44.1-12
+        Node {
+            visiting InitDeclarator node: 44.5-11
+            Node {
+                Node {
+                    visiting ArrayDeclarator node: 44.5-11
+                    Node {
+                        visiting IdentifierDeclarator node: 44.5-8
+                    }
+                    array declarator has size, checking for compile time computability
+                    Node {
+                        visiting ConstExpression node: 44.5-10
+                        Node {
+                            visiting LiteralExpression node: 44.5-10
+                            found integer
+                        }
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+TypeContext: array type with base 175247769301, size 3
+        }
+SymbolTable: inserting varsymbol with name "arr2"
+    }
+    Node {
+        visiting ExpressionStatement node: 45.1-12
+        Node {
+            visiting AssignmentExpression node: 45.1-11
+            Node {
+                visiting ArraySubscriptExpression node: 45.1-7
+                Node {
+                    visiting IdentifierExpression node: 45.1-4
+SymbolTable: looking up varsymbol arr2
+                }
+                Node {
+                    visiting LiteralExpression node: 45.1-6
+                    found integer
+                }
+            }
+            Node {
+                visiting LiteralExpression node: 45.11
+                found integer
+            }
+        }
+    }
+    Node {
+        visiting ExpressionStatement node: 46.1-12
+        Node {
+            visiting AssignmentExpression node: 46.1-11
+            Node {
+                visiting ArraySubscriptExpression node: 46.1-7
+                Node {
+                    visiting IdentifierExpression node: 46.1-4
+SymbolTable: looking up varsymbol arr2
+                }
+                Node {
+                    visiting LiteralExpression node: 46.1-6
+                    found integer
+                }
+            }
+            Node {
+                visiting LiteralExpression node: 46.11
+                found integer
+            }
+        }
+    }
+    Node {
+        visiting ExpressionStatement node: 47.1-12
+        Node {
+            visiting AssignmentExpression node: 47.1-11
+            Node {
+                visiting ArraySubscriptExpression node: 47.1-7
+                Node {
+                    visiting IdentifierExpression node: 47.1-4
+SymbolTable: looking up varsymbol arr2
+                }
+                Node {
+                    visiting LiteralExpression node: 47.1-6
+                    found integer
+                }
+            }
+            Node {
+                visiting LiteralExpression node: 47.11
+                found integer
+            }
+        }
+    }
+    Node {
+        visiting VariableDeclaration node: 49.1-19
+        parsing declaration specifier list for node at 49.1-19
+        Node {
+            visiting PrimitiveSpecifier node: 49.1-3
+TypeContext: getting primitive type
+        }
+        finished parsing specifiers for node 49.1-19
+        Node {
+            visiting InitDeclarator node: 49.5-18
+            Node {
+                Node {
+                    visiting IdentifierDeclarator node: 49.5-7
+                }
+                Node {
+                    visiting Pointer node: 49.5
+                }
+            }
+TypeBuilder: finalizing type
+TypeContext: pointer with base 175247769301
+            Node {
+                visiting Initializer node: 49.11-18
+                visiting single initializer
+                Node {
+                    visiting UnaryExpression node: 49.11-18
+                    Node {
+                        visiting ArraySubscriptExpression node: 49.11-18
+                        Node {
+                            visiting IdentifierExpression node: 49.11-15
+SymbolTable: looking up varsymbol arr2
+                        }
+                        Node {
+                            visiting LiteralExpression node: 49.11-17
+                            found integer
+                        }
+                    }
+                }
+            }
+        }
+SymbolTable: inserting varsymbol with name "ap"
+    }
+    Node {
+        visiting PrintStatement node: 50.1-12
+        Node {
+            visiting UnaryExpression node: 50.9-11
+            Node {
+                visiting IdentifierExpression node: 50.9-11
+SymbolTable: looking up varsymbol ap
+            }
+        }
+    }
+    Node {
+        visiting PrintStatement node: 51.1-14
+        Node {
+            visiting ArraySubscriptExpression node: 51.9-13
+            Node {
+                visiting IdentifierExpression node: 51.9-10
+SymbolTable: looking up varsymbol ap
+            }
+            Node {
+                visiting LiteralExpression node: 51.9-12
+                found integer
+            }
+        }
+    }
+    Node {
+        visiting VariableDeclaration node: 54.1-10
+        parsing declaration specifier list for node at 54.1-10
+        Node {
+            visiting PrimitiveSpecifier node: 54.1-3
+TypeContext: getting primitive type
+        }
+        finished parsing specifiers for node 54.1-10
+        Node {
+            visiting InitDeclarator node: 54.5-9
+            Node {
+                Node {
+                    visiting IdentifierDeclarator node: 54.5
+                }
+            }
+TypeBuilder: finalizing type
+            Node {
+                visiting Initializer node: 54.9
+                visiting single initializer
+                Node {
+                    visiting LiteralExpression node: 54.9
+                    found integer
+                }
+            }
+        }
+SymbolTable: inserting varsymbol with name "v"
+    }
+    Node {
+        visiting VariableDeclaration node: 55.1-13
+        parsing declaration specifier list for node at 55.1-13
+        Node {
+            visiting PrimitiveSpecifier node: 55.1-3
+TypeContext: getting primitive type
+        }
+        finished parsing specifiers for node 55.1-13
+        Node {
+            visiting InitDeclarator node: 55.5-12
+            Node {
+                Node {
+                    visiting IdentifierDeclarator node: 55.5-7
+                }
+                Node {
+                    visiting Pointer node: 55.5
+                }
+            }
+TypeBuilder: finalizing type
+TypeContext: pointer with base 175247769300
+            Node {
+                visiting Initializer node: 55.11-12
+                visiting single initializer
+                Node {
+                    visiting UnaryExpression node: 55.11-12
+                    Node {
+                        visiting IdentifierExpression node: 55.11-12
+SymbolTable: looking up varsymbol v
+                    }
+                }
+            }
+        }
+SymbolTable: inserting varsymbol with name "pv"
+    }
+    Node {
+        visiting VariableDeclaration node: 56.1-16
+        parsing declaration specifier list for node at 56.1-16
+        Node {
+            visiting PrimitiveSpecifier node: 56.1-3
+TypeContext: getting primitive type
+        }
+        finished parsing specifiers for node 56.1-16
+        Node {
+            visiting InitDeclarator node: 56.5-15
+            Node {
+                Node {
+                    visiting IdentifierDeclarator node: 56.5-9
+                }
+                Node {
+                    visiting Pointer node: 56.5-6
+                    Node {
+                        visiting Pointer node: 56.5-6
+                    }
+                }
+            }
+TypeBuilder: finalizing type
+TypeContext: pointer with base 175247769300
+TypeContext: pointer with base 8129775402368375304
+            Node {
+                visiting Initializer node: 56.13-15
+                visiting single initializer
+                Node {
+                    visiting UnaryExpression node: 56.13-15
+                    Node {
+                        visiting IdentifierExpression node: 56.13-15
+SymbolTable: looking up varsymbol pv
+                    }
+                }
+            }
+        }
+SymbolTable: inserting varsymbol with name "ppv"
+    }
+    Node {
+        visiting PrintStatement node: 57.1-14
+        Node {
+            visiting UnaryExpression node: 57.9-13
+            Node {
+                visiting UnaryExpression node: 57.9-13
+                Node {
+                    visiting IdentifierExpression node: 57.9-13
+SymbolTable: looking up varsymbol ppv
+                }
+            }
+        }
+    }
+    Node {
+        visiting VariableDeclaration node: 61.1-20
+        parsing declaration specifier list for node at 61.1-20
+        Node {
+            visiting PrimitiveSpecifier node: 61.1-3
+TypeContext: getting primitive type
+        }
+        finished parsing specifiers for node 61.1-20
+        Node {
+            visiting InitDeclarator node: 61.5-19
+            Node {
+                Node {
+                    visiting IdentifierDeclarator node: 61.5-6
+                }
+            }
+TypeBuilder: finalizing type
+            Node {
+                visiting Initializer node: 61.10-19
+                visiting single initializer
+                Node {
+                    visiting LiteralExpression node: 61.10-19
+                    found integer
+                }
+            }
+        }
+SymbolTable: inserting varsymbol with name "rv"
+    }
+    Node {
+        visiting VariableDeclaration node: 62.1-14
+        parsing declaration specifier list for node at 62.1-14
+        Node {
+            visiting PrimitiveSpecifier node: 62.1-3
+TypeContext: getting primitive type
+        }
+        finished parsing specifiers for node 62.1-14
+        Node {
+            visiting InitDeclarator node: 62.5-13
+            Node {
+                Node {
+                    visiting IdentifierDeclarator node: 62.5-7
+                }
+                Node {
+                    visiting Pointer node: 62.5
+                }
+            }
+TypeBuilder: finalizing type
+TypeContext: pointer with base 175247769301
+            Node {
+                visiting Initializer node: 62.11-13
+                visiting single initializer
+                Node {
+                    visiting UnaryExpression node: 62.11-13
+                    Node {
+                        visiting IdentifierExpression node: 62.11-13
+SymbolTable: looking up varsymbol rv
+                    }
+                }
+            }
+        }
+SymbolTable: inserting varsymbol with name "rp"
+    }
+    Node {
+        visiting PrintStatement node: 63.1-19
+        Node {
+            visiting ArraySubscriptExpression node: 63.9-18
+            Node {
+                visiting ReinterpretExpression node: 63.9-15
+                Node {
+                    visiting IdentifierExpression node: 63.9-10
+SymbolTable: looking up varsymbol rp
+                }
+            }
+            Node {
+                visiting LiteralExpression node: 63.9-17
+                found integer
+            }
+        }
+    }
+    Node {
+        visiting Function node: 67.1-76.1
+        parsing declaration specifier list for node at 67.1-76.1
+        Node {
+            visiting PrimitiveSpecifier node: 67.1-3
+TypeContext: getting primitive type
+        }
+        finished parsing specifiers for node 67.1-76.1
+        Node {
+            Node {
+                visiting FunctionDeclarator node: 67.5-14
+                Node {
+                    visiting IdentifierDeclarator node: 67.5-12
+                }
+            }
+        }
+TypeBuilder: finalizing type
+TypeContext: getting function type
+TypeContext: existing function type found
+        MIRSynthesizer: parsing Function params
+SymbolTable: inserting funcsymbol with name "sum_list"
+        Node {
+SymbolTable: pushing scope 4
+SymbolTable: entering scope 4
+            visiting CompoundStatement node: 67.16-76.1
+            CmpdStmtDoVisitParams found to have value, checking for function
+SymbolTable: associating current scope 4 with symbol name "sum_list"
+            Node {
+                visiting VariableDeclaration node: 68.5-11
+                parsing declaration specifier list for node at 68.5-11
+                Node {
+                    visiting TypeIdentifier node: 68.5-8
+SymbolTable: looking up typesymbol Node
+                }
+                finished parsing specifiers for node 68.5-11
+                Node {
+                    visiting InitDeclarator node: 68.10
+                    Node {
+                        Node {
+                            visiting IdentifierDeclarator node: 68.10
+                        }
+                    }
+TypeBuilder: finalizing type
+                }
+SymbolTable: inserting varsymbol with name "a"
+            }
+            Node {
+                visiting VariableDeclaration node: 69.5-11
+                parsing declaration specifier list for node at 69.5-11
+                Node {
+                    visiting TypeIdentifier node: 69.5-8
+SymbolTable: looking up typesymbol Node
+                }
+                finished parsing specifiers for node 69.5-11
+                Node {
+                    visiting InitDeclarator node: 69.10
+                    Node {
+                        Node {
+                            visiting IdentifierDeclarator node: 69.10
+                        }
+                    }
+TypeBuilder: finalizing type
+                }
+SymbolTable: inserting varsymbol with name "b"
+            }
+            Node {
+                visiting ExpressionStatement node: 71.5-16
+                Node {
+                    visiting AssignmentExpression node: 71.5-15
+                    Node {
+                        visiting MemberAccessExpression node: 71.5-11
+                        Node {
+                            visiting IdentifierExpression node: 71.5
+SymbolTable: looking up varsymbol b
+                        }
                     }
                     Node {
-                        visiting MemberAccessExpression node: input/pointers_arrays.HC:34.26-32
+                        visiting LiteralExpression node: 71.15
+                        found integer
+                    }
+                }
+            }
+            Node {
+                visiting ExpressionStatement node: 72.5-16
+                Node {
+                    visiting AssignmentExpression node: 72.5-15
+                    Node {
+                        visiting MemberAccessExpression node: 72.5-11
                         Node {
-                            visiting IdentifierExpression node: input/pointers_arrays.HC:34.26
-SymbolTable: looking up varsymbol n
+                            visiting IdentifierExpression node: 72.5
+SymbolTable: looking up varsymbol a
+                        }
+                    }
+                    Node {
+                        visiting LiteralExpression node: 72.15
+                        found integer
+                    }
+                }
+            }
+            Node {
+                visiting ExpressionStatement node: 73.5-16
+                Node {
+                    visiting AssignmentExpression node: 73.5-15
+                    Node {
+                        visiting MemberAccessExpression node: 73.5-10
+                        Node {
+                            visiting IdentifierExpression node: 73.5
+SymbolTable: looking up varsymbol a
+                        }
+                    }
+                    Node {
+                        visiting UnaryExpression node: 73.14-15
+                        Node {
+                            visiting IdentifierExpression node: 73.14-15
+SymbolTable: looking up varsymbol b
+                        }
+                    }
+                }
+            }
+            Node {
+                visiting ReturnStatement node: 75.5-35
+                Node {
+                    visiting BinaryExpression node: 75.12-34
+                    Node {
+                        visiting MemberAccessExpression node: 75.12-18
+                        Node {
+                            visiting IdentifierExpression node: 75.12
+SymbolTable: looking up varsymbol a
+                        }
+                    }
+                    Node {
+                        visiting MemberAccessExpression node: 75.22-34
+                        Node {
+                            visiting MemberAccessExpression node: 75.22-27
+                            Node {
+                                visiting IdentifierExpression node: 75.22
+SymbolTable: looking up varsymbol a
+                            }
                         }
                     }
                 }
@@ -838,145 +1234,2270 @@ SymbolTable: looking up varsymbol n
 SymbolTable: exiting scope to 0
         }
     }
+    Node {
+        visiting PrintStatement node: 78.1-19
+        Node {
+            visiting CallExpression node: 78.9-18
+            Node {
+                visiting IdentifierExpression node: 78.9-16
+SymbolTable: looking up varsymbol sum_list
+SymbolTable: looking up funcsymbol sum_list
+            }
+        }
+    }
+    Node {
+        visiting VariableDeclaration node: 83.1-24
+        parsing declaration specifier list for node at 83.1-24
+        Node {
+            visiting PrimitiveSpecifier node: 83.1-3
+TypeContext: getting primitive type
+        }
+        finished parsing specifiers for node 83.1-24
+        Node {
+            visiting InitDeclarator node: 83.5-23
+            Node {
+                Node {
+                    visiting IdentifierDeclarator node: 83.5-16
+                }
+                Node {
+                    visiting Pointer node: 83.5
+                }
+            }
+TypeBuilder: finalizing type
+TypeContext: pointer with base 175247769301
+            Node {
+                visiting Initializer node: 83.20-23
+                visiting single initializer
+                Node {
+                    visiting IdentifierExpression node: 83.20-23
+SymbolTable: looking up varsymbol arr2
+                }
+            }
+        }
+SymbolTable: inserting varsymbol with name "decayed_ptr"
+    }
+    Node {
+        visiting PrintStatement node: 84.1-21
+        Node {
+            visiting UnaryExpression node: 84.9-20
+            Node {
+                visiting IdentifierExpression node: 84.9-20
+SymbolTable: looking up varsymbol decayed_ptr
+            }
+        }
+    }
+    Node {
+        visiting ExpressionStatement node: 88.1-8
+        Node {
+            visiting AssignmentExpression node: 88.1-7
+            Node {
+                visiting IdentifierExpression node: 88.1-2
+SymbolTable: looking up varsymbol ap
+            }
+            Node {
+                visiting LiteralExpression node: 88.7
+                found integer
+            }
+        }
+    }
+    Node {
+        visiting PrintStatement node: 89.1-12
+        Node {
+            visiting UnaryExpression node: 89.9-11
+            Node {
+                visiting IdentifierExpression node: 89.9-11
+SymbolTable: looking up varsymbol ap
+            }
+        }
+    }
+    Node {
+        visiting VariableDeclaration node: 97.1-23
+        parsing declaration specifier list for node at 97.1-23
+        Node {
+            visiting PrimitiveSpecifier node: 97.1-3
+TypeContext: getting primitive type
+        }
+        finished parsing specifiers for node 97.1-23
+        Node {
+            visiting InitDeclarator node: 97.5-22
+            Node {
+                Node {
+                    visiting IdentifierDeclarator node: 97.5-10
+                }
+                Node {
+                    visiting Pointer node: 97.5
+                }
+            }
+TypeBuilder: finalizing type
+TypeContext: pointer with base 175247769300
+            Node {
+                visiting Initializer node: 97.14-22
+                visiting single initializer
+                Node {
+                    visiting CastExpression node: 97.14-22
+                    Node {
+                        visiting LiteralExpression node: 97.22
+                        found integer
+                    }
+                    Node {
+                        parsing declaration specifier list for node at 97.14-19
+                        Node {
+                            visiting PrimitiveSpecifier node: 97.14-17
+TypeContext: getting primitive type
+                        }
+                        finished parsing specifiers for node 97.14-19
+                        Node {
+                            Node {
+                                visiting Pointer node: 97.19
+                            }
+                        }
+TypeBuilder: finalizing type
+TypeContext: pointer with base 175247769300
+                    }
+                }
+            }
+        }
+SymbolTable: inserting varsymbol with name "nullp"
+    }
+    Node {
+        visiting PrintStatement node: 98.1-20
+        Node {
+            visiting CastExpression node: 98.9-19
+            Node {
+                visiting IdentifierExpression node: 98.15-19
+SymbolTable: looking up varsymbol nullp
+            }
+            Node {
+                parsing declaration specifier list for node at 98.9-12
+                Node {
+                    visiting PrimitiveSpecifier node: 98.9-12
+TypeContext: getting primitive type
+                }
+                finished parsing specifiers for node 98.9-12
+            }
+        }
+    }
+    Node {
+        visiting VariableDeclaration node: 100.1-33
+        parsing declaration specifier list for node at 100.1-33
+        Node {
+            visiting PrimitiveSpecifier node: 100.1-3
+TypeContext: getting primitive type
+        }
+        finished parsing specifiers for node 100.1-33
+        Node {
+            visiting InitDeclarator node: 100.5-32
+            Node {
+                Node {
+                    visiting IdentifierDeclarator node: 100.5-12
+                }
+            }
+TypeBuilder: finalizing type
+            Node {
+                visiting Initializer node: 100.16-32
+                visiting single initializer
+                Node {
+                    visiting CastExpression node: 100.16-32
+                    Node {
+                        visiting IdentifierExpression node: 100.22-32
+SymbolTable: looking up varsymbol decayed_ptr
+                    }
+                    Node {
+                        parsing declaration specifier list for node at 100.16-19
+                        Node {
+                            visiting PrimitiveSpecifier node: 100.16-19
+TypeContext: getting primitive type
+                        }
+                        finished parsing specifiers for node 100.16-19
+                    }
+                }
+            }
+        }
+SymbolTable: inserting varsymbol with name "raw_addr"
+    }
+    Node {
+        visiting PrintStatement node: 101.1-22
+        Node {
+            visiting BinaryExpression node: 101.9-21
+            Node {
+                visiting IdentifierExpression node: 101.9-16
+SymbolTable: looking up varsymbol raw_addr
+            }
+            Node {
+                visiting LiteralExpression node: 101.21
+                found integer
+            }
+        }
+    }
 }
-semantic checking complete
+
+---------- Validating ----------
+
+Node {
+    Node {
+        Validator: visiting TypeDeclMIR node
+ClassType: finalizing class defined at 1.1-4.1
+ClassType: finalizing member declared at 2.9-13
+PrimitiveType: finalizing i32
+ClassType: finalizing member declared at 3.16-20
+    }
+    Node {
+        Node {
+SymbolTable: entering scope 1
+            Node {
+                Validator: visiting ReturnStmtMIR node
+                Node {
+                    Validator: visiting CallExprMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+TypeContext: pointer with base 7502112650543024673
+                    }
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                }
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+    Node {
+        Node {
+SymbolTable: entering scope 2
+            Node {
+                Validator: visiting ReturnStmtMIR node
+                Node {
+                    Validator: visiting BinaryExprMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+                }
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for inferred_arr
+        Validator: eval_initializer
+        Validator: eval_initializer_rec_arr
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for complex_arr
+        Validator: eval_initializer
+        Validator: eval_initializer_rec_arr
+        Validator: eval_initializer
+        Validator: eval_initializer_rec_arr
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+        Validator: eval_initializer
+        Validator: eval_initializer_rec_arr
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+        Validator: eval_initializer
+        Validator: eval_initializer_rec_arr
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+    }
+    Node {
+        Node {
+SymbolTable: entering scope 3
+            Node {
+                Validator: visiting VarDeclMIR node
+            }
+            Node {
+                Validator: visiting VarDeclMIR node
+                Validator: visiting single VarDecl for p
+                Validator: eval_initializer
+                Validator: matched on single expression
+                Validator: eval_initializer_expr
+                Node {
+                    Validator: visiting UnaryExprMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+TypeContext: pointer with base 15942378573112361423
+TypeContext: pointer with base 15942378573112361423
+                }
+            }
+            Node {
+                Validator: visiting ExprStmtMIR node
+                Node {
+                    Validator: visiting AssignExprMIR node
+                    Node {
+                        Validator: visiting MemberAccExprMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+ClassType: Looking for member with name value
+RecordType: Looking for member with name value
+                    }
+                    Node {
+                        Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                    }
+                }
+            }
+            Node {
+                Validator: visiting ExprStmtMIR node
+                Node {
+                    Validator: visiting PostfixMIR node
+                    Node {
+                        Validator: visiting MemberAccExprMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+TypeContext: pointer with base 15942378573112361423
+                        }
+ClassType: Looking for member with name value
+RecordType: Looking for member with name value
+                    }
+                }
+            }
+            Node {
+                Validator: visiting VarDeclMIR node
+                Validator: visiting single VarDecl for result
+                Validator: eval_initializer
+                Validator: matched on single expression
+                Validator: eval_initializer_expr
+                Node {
+                    Validator: visiting CallExprMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                    Node {
+                        Validator: visiting MemberAccExprMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+ClassType: Looking for member with name value
+RecordType: Looking for member with name value
+                    }
+TypeContext: pointer with base 7502112650543024673
+TypeContext: pointer with base 7502112650543024673
+TypeContext: pointer with base 7502112650543024673
+                }
+            }
+            Node {
+                Validator: visiting PrintStmtMIR node
+                Node {
+                    Validator: visiting IdentExprMIR node
+                }
+            }
+            Node {
+                Validator: visiting ReturnStmtMIR node
+                Node {
+                    Validator: visiting IdentExprMIR node
+                }
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting CallExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+        }
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting AssignExprMIR node
+            Node {
+                Validator: visiting SubscrExprMIR node
+                Node {
+                    Validator: visiting IdentExprMIR node
+TypeContext: array type with base 175247769301, size 3
+                }
+                Node {
+                    Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                }
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting AssignExprMIR node
+            Node {
+                Validator: visiting SubscrExprMIR node
+                Node {
+                    Validator: visiting IdentExprMIR node
+TypeContext: array type with base 175247769301, size 3
+                }
+                Node {
+                    Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                }
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting AssignExprMIR node
+            Node {
+                Validator: visiting SubscrExprMIR node
+                Node {
+                    Validator: visiting IdentExprMIR node
+TypeContext: array type with base 175247769301, size 3
+                }
+                Node {
+                    Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                }
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+        }
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for ap
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting UnaryExprMIR node
+            Node {
+                Validator: visiting SubscrExprMIR node
+                Node {
+                    Validator: visiting IdentExprMIR node
+TypeContext: array type with base 175247769301, size 3
+                }
+                Node {
+                    Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                }
+            }
+TypeContext: pointer with base 175247769301
+TypeContext: pointer with base 175247769301
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting UnaryExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+TypeContext: pointer with base 175247769301
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting SubscrExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+TypeContext: pointer with base 175247769301
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+        }
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for v
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for pv
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting UnaryExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+TypeContext: pointer with base 175247769300
+TypeContext: pointer with base 175247769300
+        }
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for ppv
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting UnaryExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+TypeContext: pointer with base 175247769300
+            }
+TypeContext: pointer with base 8129775402368375304
+TypeContext: pointer with base 175247769300
+TypeContext: pointer with base 8129775402368375304
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting UnaryExprMIR node
+            Node {
+                Validator: visiting UnaryExprMIR node
+                Node {
+                    Validator: visiting IdentExprMIR node
+TypeContext: pointer with base 175247769300
+TypeContext: pointer with base 8129775402368375304
+                }
+TypeContext: pointer with base 175247769300
+            }
+        }
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for rv
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for rp
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting UnaryExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+TypeContext: pointer with base 175247769301
+TypeContext: pointer with base 175247769301
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting SubscrExprMIR node
+            Node {
+                Validator: visiting ReintExprMIR node
+                Node {
+                    Validator: visiting IdentExprMIR node
+TypeContext: pointer with base 175247769301
+                }
+TypeContext: getting primitive type
+TypeContext: array type with base 175247769236, size 2
+TypeContext: array type with base 175247769236, size 2
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+        }
+    }
+    Node {
+        Node {
+SymbolTable: entering scope 4
+            Node {
+                Validator: visiting VarDeclMIR node
+            }
+            Node {
+                Validator: visiting VarDeclMIR node
+            }
+            Node {
+                Validator: visiting ExprStmtMIR node
+                Node {
+                    Validator: visiting AssignExprMIR node
+                    Node {
+                        Validator: visiting MemberAccExprMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+ClassType: Looking for member with name value
+RecordType: Looking for member with name value
+                    }
+                    Node {
+                        Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                    }
+                }
+            }
+            Node {
+                Validator: visiting ExprStmtMIR node
+                Node {
+                    Validator: visiting AssignExprMIR node
+                    Node {
+                        Validator: visiting MemberAccExprMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+ClassType: Looking for member with name value
+RecordType: Looking for member with name value
+                    }
+                    Node {
+                        Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                    }
+                }
+            }
+            Node {
+                Validator: visiting ExprStmtMIR node
+                Node {
+                    Validator: visiting AssignExprMIR node
+                    Node {
+                        Validator: visiting MemberAccExprMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+ClassType: Looking for member with name next
+RecordType: Looking for member with name next
+TypeContext: pointer with base 15942378573112361423
+                    }
+                    Node {
+                        Validator: visiting UnaryExprMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+TypeContext: pointer with base 15942378573112361423
+TypeContext: pointer with base 15942378573112361423
+                    }
+TypeContext: pointer with base 15942378573112361423
+                }
+            }
+            Node {
+                Validator: visiting ReturnStmtMIR node
+                Node {
+                    Validator: visiting BinaryExprMIR node
+                    Node {
+                        Validator: visiting MemberAccExprMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+ClassType: Looking for member with name value
+RecordType: Looking for member with name value
+                    }
+                    Node {
+                        Validator: visiting MemberAccExprMIR node
+                        Node {
+                            Validator: visiting MemberAccExprMIR node
+                            Node {
+                                Validator: visiting IdentExprMIR node
+                            }
+ClassType: Looking for member with name next
+RecordType: Looking for member with name next
+TypeContext: pointer with base 15942378573112361423
+                        }
+ClassType: Looking for member with name value
+RecordType: Looking for member with name value
+                    }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+                }
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting CallExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+        }
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for decayed_ptr
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting IdentExprMIR node
+TypeContext: array type with base 175247769301, size 3
+        }
+TypeContext: pointer with base 175247769301
+TypeContext: pointer with base 175247769301
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting UnaryExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+TypeContext: pointer with base 175247769301
+            }
+        }
+    }
+    Node {
+        Validator: visiting ExprStmtMIR node
+        Node {
+            Validator: visiting AssignExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+TypeContext: pointer with base 175247769301
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+TypeContext: pointer with base 175247769301
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting UnaryExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+TypeContext: pointer with base 175247769301
+            }
+        }
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for nullp
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting CastExprMIR node
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+TypeContext: pointer with base 175247769300
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting CastExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+TypeContext: pointer with base 175247769300
+            }
+        }
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for raw_addr
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting CastExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+TypeContext: pointer with base 175247769301
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting BinaryExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+        }
+    }
+}
 --------- TYPE CONTEXT ---------
 
 Base Types:
-  class_Node_0 : class { I32 value; Node * next; }
+  class_Node_0 : class Node { i32 value; Node * next; }
 
 Function Types:
-  function_94789464148096 : I32 ()
-  function_388483017259786146 : I32 (I32 (I32) *, I32)
-  function_6103427515997401 : I32 (I32)
+  function_175247769300 : i32 ()
+  function_4290533841072774146 : i32 (i32 (i32) *, i32)
+  function_11337807012758 : i32 (i32)
 
 Pointer Types:
-  :U32[5] *
-  :U32 *[5] *
-  :I32 (I32) *
-  :U32 *
+  :i32 * *
+  :i32 *
+  :u32 *[5] *
+  :u32[5] *
+  :u32 *
+  :i32 (i32) *
   :Node *
 
 Array Types:
- : U32 *[5] #2
- : U32[5] #2
- : U32[2][3] #1
- : U32[2] #1
- : U32[6] #1
+ : u32[3] #6
+ : u32 *[5] #2
+ : u32[5] #2
+ : u32[2][3] #1
+ : u16[2] #2
+ : u32[2] #1
+ : u32[6] #1
 
 
 --------- SYMBOL TABLE ---------
 
-Scope 0
+Scope 0: Compound Statement
 Physical Symbols:
-  run -> 0x5635e452d610 : FuncSymbol: run :: I32 ()
-  ptr_to_ptr_arr -> 0x5635e456ffe0 : VarSymbol: ptr_to_ptr_arr :: U32 *[5] *
-  ptr_to_arr -> 0x5635e456fe40 : VarSymbol: ptr_to_arr :: U32[5] *
-  ptr_array -> 0x5635e456fc50 : VarSymbol: ptr_array :: U32 *[5]
-  complex_arr -> 0x5635e456f790 : VarSymbol: complex_arr :: U32[2][3]
-  arr -> 0x5635e456fa20 : VarSymbol: arr :: U32[5]
-  inferred_arr -> 0x5635e456ef40 : VarSymbol: inferred_arr :: U32[6]
-  square -> 0x5635e452d190 : FuncSymbol: square :: I32 (I32)
-  apply -> 0x5635e452cf50 : FuncSymbol: apply :: I32 (I32 (I32) *, I32)
+  raw_addr <0x556f27dda920> : VarSymbol: raw_addr :: U32
+  nullp <0x556f27dda380> : VarSymbol: nullp :: I32 *
+  sum_list <0x556f27d93190> : FuncSymbol: sum_list :: i32 ()
+  ppv <0x556f27dd80c0> : VarSymbol: ppv :: I32 * *
+  apply <0x556f27d92d10> : FuncSymbol: apply :: i32 (i32 (i32) *, i32)
+  square <0x556f27d92f50> : FuncSymbol: square :: i32 (i32)
+  inferred_arr <0x556f27dd4660> : VarSymbol: inferred_arr :: U32[6]
+  arr <0x556f27dd5200> : VarSymbol: arr :: U32[5]
+  pv <0x556f27dd7d60> : VarSymbol: pv :: I32 *
+  complex_arr <0x556f27dd4f60> : VarSymbol: complex_arr :: U32[2][3]
+  decayed_ptr <0x556f27dd9c70> : VarSymbol: decayed_ptr :: U32 *
+  ptr_to_arr <0x556f27dd55d0> : VarSymbol: ptr_to_arr :: U32[5] *
+  ptr_to_ptr_arr <0x556f27dd5790> : VarSymbol: ptr_to_ptr_arr :: U32 *[5] *
+  ptr_array <0x556f27dd5410> : VarSymbol: ptr_array :: U32 *[5]
+  run <0x556f27d933d0> : FuncSymbol: run :: i32 ()
+  rv <0x556f27dd8570> : VarSymbol: rv :: U32
+  arr2 <0x556f27dd6b30> : VarSymbol: arr2 :: U32[3]
+  rp <0x556f27dd87e0> : VarSymbol: rp :: U32 *
+  ap <0x556f27dd7580> : VarSymbol: ap :: U32 *
+  v <0x556f27dd7ad0> : VarSymbol: v :: I32
 
 Type Symbols:
-  Node -> 0x5635e456ce10 : TypeSymbol: Node :: class { I32 value; Node * next; }
+  Node <0x556f27dd22b0> : TypeSymbol: Node :: class Node { i32 value; Node * next; }
 -----------------------------------------------------------
-  Scope 1: FuncSymbol: apply :: I32 (I32 (I32) *, I32)
+  Scope 1: FuncSymbol: apply :: i32 (i32 (i32) *, i32)
   Physical Symbols:
-    v -> 0x5635e456dda0 : VarSymbol: v :: I32
-    fn -> 0x5635e4558680 : VarSymbol: fn :: I32 (I32) *
+    v <0x556f27dd3520> : VarSymbol: v :: I32
+    fn <0x556f27dd3460> : VarSymbol: fn :: I32 (I32) *
 -----------------------------------------------------------
-  Scope 2: FuncSymbol: square :: I32 (I32)
+  Scope 2: FuncSymbol: square :: i32 (i32)
   Physical Symbols:
-    x -> 0x5635e456e450 : VarSymbol: x :: I32
+    x <0x556f27dd3b60> : VarSymbol: x :: I32
 -----------------------------------------------------------
-  Scope 3: FuncSymbol: run :: I32 ()
+  Scope 3: FuncSymbol: run :: i32 ()
   Physical Symbols:
-    p -> 0x5635e45705e0 : VarSymbol: p :: Node *
-    n -> 0x5635e45703c0 : VarSymbol: n :: class { I32 value; Node * next; }
+    result <0x556f27dd6580> : VarSymbol: result :: I32
+    p <0x556f27dd5e40> : VarSymbol: p :: class Node *
+    n <0x556f27dd5b60> : VarSymbol: n :: class Node
+-----------------------------------------------------------
+  Scope 4: FuncSymbol: sum_list :: i32 ()
+  Physical Symbols:
+    b <0x556f27dd8ec0> : VarSymbol: b :: class Node
+    a <0x556f27dd8d50> : VarSymbol: a :: class Node
 -----------------------------------------------------------
 
 --------- MIR ---------
 
 ProgramMIR @ <1.1>
-| TypeDecl: Node @ <input/pointers_arrays.HC:1.1-4.2>
-| FunctionMIR: apply @ <input/pointers_arrays.HC:6.1-8.1>
-    type: I32 (I32 (I32) *, I32)
-| | CompoundStmtMIR @ <input/pointers_arrays.HC:6.38-8.1>
-| | | Return @ <input/pointers_arrays.HC:7.5-17>
-| | | | Call @ <input/pointers_arrays.HC:7.12-16>
-| | | | | Ident: fn @ <input/pointers_arrays.HC:7.12-13>
-| | | | | Ident: v @ <input/pointers_arrays.HC:7.12-15>
-| FunctionMIR: square @ <input/pointers_arrays.HC:10.1-12.1>
-    type: I32 (I32)
-| | CompoundStmtMIR @ <input/pointers_arrays.HC:10.21-12.1>
-| | | Return @ <input/pointers_arrays.HC:11.5-17>
-| | | | Binary: * @ <input/pointers_arrays.HC:11.12-16>
-| | | | | Ident: x @ <input/pointers_arrays.HC:11.12>
-| | | | | Ident: x @ <input/pointers_arrays.HC:11.16>
-| VarDecl:  @ <input/pointers_arrays.HC:15.1-41>
+| TypeDecl: Node @ <1.1-4.2>
+| FunctionMIR: apply @ <6.1-8.1>
+    type: i32 (i32 (i32) *, i32)
+| | CompoundStmtMIR @ <6.34-8.1>
+| | | Return @ <7.5-17>
+| | | | Call :: I32 @ <7.12-16>
+| | | | | Ident: fn :: I32 (I32) * @ <7.12-13>
+| | | | | Ident: v :: I32 @ <7.12-15>
+| FunctionMIR: square @ <10.1-12.1>
+    type: i32 (i32)
+| | CompoundStmtMIR @ <10.19-12.1>
+| | | Return @ <11.5-17>
+| | | | Binary: * :: I32 @ <11.12-16>
+| | | | | Ident: x :: I32 @ <11.12>
+| | | | | Ident: x :: I32 @ <11.16>
+| VarDecl:  @ <15.1-40>
 | | | VarSymbol: inferred_arr :: U32[6]
-| | | Initializer @ <input/pointers_arrays.HC:15.23-40>
-| | | | Initializer @ <input/pointers_arrays.HC:15.23-24>
-| | | | | Literal: 5 @ <input/pointers_arrays.HC:15.23-24>
-| | | | Initializer @ <input/pointers_arrays.HC:15.27>
-| | | | | Literal: 4 @ <input/pointers_arrays.HC:15.27>
-| | | | Initializer @ <input/pointers_arrays.HC:15.30>
-| | | | | Literal: 3 @ <input/pointers_arrays.HC:15.30>
-| | | | Initializer @ <input/pointers_arrays.HC:15.33>
-| | | | | Literal: 2 @ <input/pointers_arrays.HC:15.33>
-| | | | Initializer @ <input/pointers_arrays.HC:15.36>
-| | | | | Literal: 1 @ <input/pointers_arrays.HC:15.36>
-| | | | Initializer @ <input/pointers_arrays.HC:15.39>
-| | | | | Literal: 0 @ <input/pointers_arrays.HC:15.39>
-| VarDecl:  @ <input/pointers_arrays.HC:17.1-45>
+| | | Initializer @ <15.22-39>
+| | | | Initializer @ <15.22-23>
+| | | | | Cast -> u32 (implicit) :: U32 @ <15.22-23>
+| | | | | | Literal: 5 :: I32 @ <15.22-23>
+| | | | Initializer @ <15.26>
+| | | | | Cast -> u32 (implicit) :: U32 @ <15.26>
+| | | | | | Literal: 4 :: I32 @ <15.26>
+| | | | Initializer @ <15.29>
+| | | | | Cast -> u32 (implicit) :: U32 @ <15.29>
+| | | | | | Literal: 3 :: I32 @ <15.29>
+| | | | Initializer @ <15.32>
+| | | | | Cast -> u32 (implicit) :: U32 @ <15.32>
+| | | | | | Literal: 2 :: I32 @ <15.32>
+| | | | Initializer @ <15.35>
+| | | | | Cast -> u32 (implicit) :: U32 @ <15.35>
+| | | | | | Literal: 1 :: I32 @ <15.35>
+| | | | Initializer @ <15.38>
+| | | | | Cast -> u32 (implicit) :: U32 @ <15.38>
+| | | | | | Literal: 0 :: I32 @ <15.38>
+| VarDecl:  @ <17.1-44>
 | | | VarSymbol: complex_arr :: U32[2][3]
-| | | Initializer @ <input/pointers_arrays.HC:17.24-44>
-| | | | Initializer @ <input/pointers_arrays.HC:17.24-30>
-| | | | | Initializer @ <input/pointers_arrays.HC:17.24-26>
-| | | | | | Literal: 5 @ <input/pointers_arrays.HC:17.24-26>
-| | | | | Initializer @ <input/pointers_arrays.HC:17.29>
-| | | | | | Literal: 4 @ <input/pointers_arrays.HC:17.29>
-| | | | Initializer @ <input/pointers_arrays.HC:17.33-38>
-| | | | | Initializer @ <input/pointers_arrays.HC:17.33-34>
-| | | | | | Literal: 6 @ <input/pointers_arrays.HC:17.33-34>
-| | | | | Initializer @ <input/pointers_arrays.HC:17.37>
-| | | | | | Literal: 4 @ <input/pointers_arrays.HC:17.37>
-| | | | Initializer @ <input/pointers_arrays.HC:17.41-43>
-| | | | | Initializer @ <input/pointers_arrays.HC:17.41-42>
-| | | | | | Literal: 1 @ <input/pointers_arrays.HC:17.41-42>
-| VarDecl:  @ <input/pointers_arrays.HC:19.1-12>
+| | | Initializer @ <17.23-43>
+| | | | Initializer @ <17.23-29>
+| | | | | Initializer @ <17.23-25>
+| | | | | | Cast -> u32 (implicit) :: U32 @ <17.23-25>
+| | | | | | | Literal: 5 :: I32 @ <17.23-25>
+| | | | | Initializer @ <17.28>
+| | | | | | Cast -> u32 (implicit) :: U32 @ <17.28>
+| | | | | | | Literal: 4 :: I32 @ <17.28>
+| | | | Initializer @ <17.32-37>
+| | | | | Initializer @ <17.32-33>
+| | | | | | Cast -> u32 (implicit) :: U32 @ <17.32-33>
+| | | | | | | Literal: 6 :: I32 @ <17.32-33>
+| | | | | Initializer @ <17.36>
+| | | | | | Cast -> u32 (implicit) :: U32 @ <17.36>
+| | | | | | | Literal: 4 :: I32 @ <17.36>
+| | | | Initializer @ <17.40-42>
+| | | | | Initializer @ <17.40-41>
+| | | | | | Cast -> u32 (implicit) :: U32 @ <17.40-41>
+| | | | | | | Literal: 1 :: I32 @ <17.40-41>
+| VarDecl:  @ <19.1-11>
 | | | VarSymbol: arr :: U32[5]
-| VarDecl:  @ <input/pointers_arrays.HC:21.1-19>
+| VarDecl:  @ <21.1-18>
 | | | VarSymbol: ptr_array :: U32 *[5]
-| VarDecl:  @ <input/pointers_arrays.HC:23.1-24>
+| VarDecl:  @ <23.1-23>
 | | | VarSymbol: ptr_to_arr :: U32[5] *
-| VarDecl:  @ <input/pointers_arrays.HC:25.1-28>
+| VarDecl:  @ <25.1-27>
 | | | VarSymbol: ptr_to_ptr_arr :: U32 *[5] *
-| FunctionMIR: run @ <input/pointers_arrays.HC:27.1-35.1>
-    type: I32 ()
-| | CompoundStmtMIR @ <input/pointers_arrays.HC:27.12-35.1>
-| | | VarDecl:  @ <input/pointers_arrays.HC:28.5-11>
-| | | | | VarSymbol: n :: class { I32 value; Node * next; }
-| | | VarDecl:  @ <input/pointers_arrays.HC:29.5-17>
-| | | | | VarSymbol: p :: Node *
-| | | | | Initializer @ <input/pointers_arrays.HC:29.15-16>
-| | | | | | Unary: & @ <input/pointers_arrays.HC:29.15-16>
-| | | | | | | Ident: n @ <input/pointers_arrays.HC:29.15-16>
-| | | ExprStmt @ <input/pointers_arrays.HC:31.5-16>
-| | | | Assign: = @ <input/pointers_arrays.HC:31.5-15>
-| | | | | Member: .value @ <input/pointers_arrays.HC:31.5-11>
-| | | | | | Ident: n @ <input/pointers_arrays.HC:31.5>
-| | | | | Literal: 5 @ <input/pointers_arrays.HC:31.15>
-| | | ExprStmt @ <input/pointers_arrays.HC:32.5-15>
-| | | | Postfix: ++ @ <input/pointers_arrays.HC:32.5-14>
-| | | | | Member: .value @ <input/pointers_arrays.HC:32.5-12>
-| | | | | | Ident: p @ <input/pointers_arrays.HC:32.5>
-| | | Return @ <input/pointers_arrays.HC:34.5-34>
-| | | | Call @ <input/pointers_arrays.HC:34.12-33>
-| | | | | Ident: apply @ <input/pointers_arrays.HC:34.12-16>
-| | | | | Ident: square @ <input/pointers_arrays.HC:34.12-23>
-| | | | | Member: .value @ <input/pointers_arrays.HC:34.26-32>
-| | | | | | Ident: n @ <input/pointers_arrays.HC:34.26>
+| FunctionMIR: run @ <27.1-38.1>
+    type: i32 ()
+| | CompoundStmtMIR @ <27.11-38.1>
+| | | VarDecl:  @ <28.5-11>
+| | | | | VarSymbol: n :: class Node
+| | | VarDecl:  @ <29.5-17>
+| | | | | VarSymbol: p :: class Node *
+| | | | | Initializer @ <29.15-16>
+| | | | | | Unary: & :: class Node * @ <29.15-16>
+| | | | | | | Ident: n :: class Node @ <29.15-16>
+| | | ExprStmt @ <31.5-16>
+| | | | Assign: = :: I32 @ <31.5-15>
+| | | | | Member: .value :: I32 @ <31.5-11>
+| | | | | | Ident: n :: class Node @ <31.5>
+| | | | | Literal: 5 :: I32 @ <31.15>
+| | | ExprStmt @ <32.5-15>
+| | | | Postfix: :: I32++ @ <32.5-14>
+| | | | | Member: .value :: I32 @ <32.5-12>
+| | | | | | Ident: p :: class Node * @ <32.5>
+| | | VarDecl:  @ <34.5-40>
+| | | | | VarSymbol: result :: I32
+| | | | | Initializer @ <34.18-39>
+| | | | | | Call :: I32 @ <34.18-39>
+| | | | | | | Ident: apply :: I32 (I32 (I32) *, I32) @ <34.18-22>
+| | | | | | | Cast -> i32 (i32) * (implicit) :: I32 (I32) * @ <34.18-29>
+| | | | | | | | Cast -> i32 (i32) * (function decay) :: I32 (I32) * @ <34.18-29>
+| | | | | | | | | Ident: square :: I32 (I32) @ <34.18-29>
+| | | | | | | Member: .value :: I32 @ <34.32-38>
+| | | | | | | | Ident: n :: class Node @ <34.32>
+| | | Print: "%d\n" @ <35.5-19>
+| | | | Ident: result :: I32 @ <35.13-18>
+| | | Return @ <37.5-18>
+| | | | Ident: result :: I32 @ <37.12-17>
+| ExprStmt @ <40.1-6>
+| | Call :: I32 @ <40.1-5>
+| | | Ident: run :: I32 () @ <40.1-3>
+| VarDecl:  @ <44.1-12>
+| | | VarSymbol: arr2 :: U32[3]
+| ExprStmt @ <45.1-12>
+| | Assign: = :: U32 @ <45.1-11>
+| | | Subscript :: U32 @ <45.1-7>
+| | | | Ident: arr2 :: U32[3] @ <45.1-4>
+| | | | Literal: 0 :: I32 @ <45.1-6>
+| | | Cast -> u32 (implicit) :: U32 @ <45.11>
+| | | | Literal: 1 :: I32 @ <45.11>
+| ExprStmt @ <46.1-12>
+| | Assign: = :: U32 @ <46.1-11>
+| | | Subscript :: U32 @ <46.1-7>
+| | | | Ident: arr2 :: U32[3] @ <46.1-4>
+| | | | Literal: 1 :: I32 @ <46.1-6>
+| | | Cast -> u32 (implicit) :: U32 @ <46.11>
+| | | | Literal: 2 :: I32 @ <46.11>
+| ExprStmt @ <47.1-12>
+| | Assign: = :: U32 @ <47.1-11>
+| | | Subscript :: U32 @ <47.1-7>
+| | | | Ident: arr2 :: U32[3] @ <47.1-4>
+| | | | Literal: 2 :: I32 @ <47.1-6>
+| | | Cast -> u32 (implicit) :: U32 @ <47.11>
+| | | | Literal: 3 :: I32 @ <47.11>
+| VarDecl:  @ <49.1-19>
+| | | VarSymbol: ap :: U32 *
+| | | Initializer @ <49.11-18>
+| | | | Unary: & :: U32 * @ <49.11-18>
+| | | | | Subscript :: U32 @ <49.11-18>
+| | | | | | Ident: arr2 :: U32[3] @ <49.11-15>
+| | | | | | Literal: 0 :: I32 @ <49.11-17>
+| Print: "%d\n" @ <50.1-12>
+| | Unary: * :: U32 @ <50.9-11>
+| | | Ident: ap :: U32 * @ <50.9-11>
+| Print: "%d\n" @ <51.1-14>
+| | Subscript :: U32 @ <51.9-13>
+| | | Ident: ap :: U32 * @ <51.9-10>
+| | | Literal: 1 :: I32 @ <51.9-12>
+| VarDecl:  @ <54.1-10>
+| | | VarSymbol: v :: I32
+| | | Initializer @ <54.9>
+| | | | Literal: 5 :: I32 @ <54.9>
+| VarDecl:  @ <55.1-13>
+| | | VarSymbol: pv :: I32 *
+| | | Initializer @ <55.11-12>
+| | | | Unary: & :: I32 * @ <55.11-12>
+| | | | | Ident: v :: I32 @ <55.11-12>
+| VarDecl:  @ <56.1-16>
+| | | VarSymbol: ppv :: I32 * *
+| | | Initializer @ <56.13-15>
+| | | | Unary: & :: I32 * * @ <56.13-15>
+| | | | | Ident: pv :: I32 * @ <56.13-15>
+| Print: "%d\n" @ <57.1-14>
+| | Unary: * :: I32 @ <57.9-13>
+| | | Unary: * :: I32 * @ <57.9-13>
+| | | | Ident: ppv :: I32 * * @ <57.9-13>
+| VarDecl:  @ <61.1-20>
+| | | VarSymbol: rv :: U32
+| | | Initializer @ <61.10-19>
+| | | | Cast -> u32 (implicit) :: U32 @ <61.10-19>
+| | | | | Literal: 305419896 :: I32 @ <61.10-19>
+| VarDecl:  @ <62.1-14>
+| | | VarSymbol: rp :: U32 *
+| | | Initializer @ <62.11-13>
+| | | | Unary: & :: U32 * @ <62.11-13>
+| | | | | Ident: rv :: U32 @ <62.11-13>
+| Print: "%d\n" @ <63.1-19>
+| | Subscript :: U16 @ <63.9-18>
+| | | Reint: .u16 :: U16[2] @ <63.9-15>
+| | | | Ident: rp :: U32 * @ <63.9-10>
+| | | Literal: 0 :: I32 @ <63.9-17>
+| FunctionMIR: sum_list @ <67.1-76.1>
+    type: i32 ()
+| | CompoundStmtMIR @ <67.16-76.1>
+| | | VarDecl:  @ <68.5-11>
+| | | | | VarSymbol: a :: class Node
+| | | VarDecl:  @ <69.5-11>
+| | | | | VarSymbol: b :: class Node
+| | | ExprStmt @ <71.5-16>
+| | | | Assign: = :: I32 @ <71.5-15>
+| | | | | Member: .value :: I32 @ <71.5-11>
+| | | | | | Ident: b :: class Node @ <71.5>
+| | | | | Literal: 2 :: I32 @ <71.15>
+| | | ExprStmt @ <72.5-16>
+| | | | Assign: = :: I32 @ <72.5-15>
+| | | | | Member: .value :: I32 @ <72.5-11>
+| | | | | | Ident: a :: class Node @ <72.5>
+| | | | | Literal: 1 :: I32 @ <72.15>
+| | | ExprStmt @ <73.5-16>
+| | | | Assign: = :: class Node * @ <73.5-15>
+| | | | | Member: .next :: class Node * @ <73.5-10>
+| | | | | | Ident: a :: class Node @ <73.5>
+| | | | | Unary: & :: class Node * @ <73.14-15>
+| | | | | | Ident: b :: class Node @ <73.14-15>
+| | | Return @ <75.5-35>
+| | | | Binary: + :: I32 @ <75.12-34>
+| | | | | Member: .value :: I32 @ <75.12-18>
+| | | | | | Ident: a :: class Node @ <75.12>
+| | | | | Member: .value :: I32 @ <75.22-34>
+| | | | | | Member: .next :: class Node * @ <75.22-27>
+| | | | | | | Ident: a :: class Node @ <75.22>
+| Print: "%d\n" @ <78.1-19>
+| | Call :: I32 @ <78.9-18>
+| | | Ident: sum_list :: I32 () @ <78.9-16>
+| VarDecl:  @ <83.1-24>
+| | | VarSymbol: decayed_ptr :: U32 *
+| | | Initializer @ <83.20-23>
+| | | | Cast -> u32 * (array decay) :: U32 * @ <83.20-23>
+| | | | | Ident: arr2 :: U32[3] @ <83.20-23>
+| Print: "%d\n" @ <84.1-21>
+| | Unary: * :: U32 @ <84.9-20>
+| | | Ident: decayed_ptr :: U32 * @ <84.9-20>
+| ExprStmt @ <88.1-8>
+| | Assign: += :: U32 * @ <88.1-7>
+| | | Ident: ap :: U32 * @ <88.1-2>
+| | | Literal: 2 :: I32 @ <88.7>
+| Print: "%d\n" @ <89.1-12>
+| | Unary: * :: U32 @ <89.9-11>
+| | | Ident: ap :: U32 * @ <89.9-11>
+| VarDecl:  @ <97.1-23>
+| | | VarSymbol: nullp :: I32 *
+| | | Initializer @ <97.14-22>
+| | | | Cast -> i32 * (explicit) :: I32 * @ <97.14-22>
+| | | | | Cast -> u64 (implicit) :: U64 @ <97.22>
+| | | | | | Literal: 0 :: I32 @ <97.22>
+| Print: "%d\n" @ <98.1-20>
+| | Cast -> u64 (explicit) :: U64 @ <98.9-19>
+| | | Ident: nullp :: I32 * @ <98.15-19>
+| VarDecl:  @ <100.1-33>
+| | | VarSymbol: raw_addr :: U32
+| | | Initializer @ <100.16-32>
+| | | | Cast -> u32 (explicit) :: U32 @ <100.16-32>
+| | | | | Cast -> u64 (implicit) :: U64 @ <100.22-32>
+| | | | | | Ident: decayed_ptr :: U32 * @ <100.22-32>
+| Print: "%d\n" @ <101.1-22>
+| | Binary: != :: U32 @ <101.9-21>
+| | | Ident: raw_addr :: U32 @ <101.9-16>
+| | | Cast -> u32 (implicit) :: U32 @ <101.21>
+| | | | Literal: 0 :: I32 @ <101.21>
+
+---------- Generating LIR ----------
+
+Node {
+    LIRSynthesizer: visiting ProgramMIR node
+    Node {
+        LIRSynthesizer: visiting TypeDeclMIR node
+    }
+    Node {
+        LIRSynthesizer: visiting FunctionMIR node
+        Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
+            Node {
+                LIRSynthesizer: visiting ReturnStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting CallExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+TypeContext: pointer with base 7502112650543024673
+                    }
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting FunctionMIR node
+        Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
+            Node {
+                LIRSynthesizer: visiting ReturnStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting BinaryExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+TypeContext: array type with base 175247769301, size 6
+        LIRSynthesizer: unfold_initializer_rec
+TypeContext: array type with base 175247769301, size 6
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+TypeContext: array type with base 175247769301, size 6
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+TypeContext: array type with base 175247769301, size 6
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+TypeContext: array type with base 175247769301, size 6
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+TypeContext: array type with base 175247769301, size 6
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+TypeContext: array type with base 175247769301, size 6
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+TypeContext: array type with base 175247769301, size 2
+TypeContext: array type with base 2274001866962096398, size 3
+        LIRSynthesizer: unfold_initializer_rec
+TypeContext: array type with base 175247769301, size 2
+TypeContext: array type with base 2274001866962096398, size 3
+TypeContext: array type with base 175247769301, size 2
+        LIRSynthesizer: unfold_initializer_rec
+TypeContext: array type with base 175247769301, size 2
+TypeContext: array type with base 2274001866962096398, size 3
+TypeContext: array type with base 175247769301, size 2
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+TypeContext: array type with base 175247769301, size 2
+TypeContext: array type with base 2274001866962096398, size 3
+TypeContext: array type with base 175247769301, size 2
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+TypeContext: array type with base 175247769301, size 2
+TypeContext: array type with base 2274001866962096398, size 3
+TypeContext: array type with base 175247769301, size 2
+        LIRSynthesizer: unfold_initializer_rec
+TypeContext: array type with base 175247769301, size 2
+TypeContext: array type with base 2274001866962096398, size 3
+TypeContext: array type with base 175247769301, size 2
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+TypeContext: array type with base 175247769301, size 2
+TypeContext: array type with base 2274001866962096398, size 3
+TypeContext: array type with base 175247769301, size 2
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+TypeContext: array type with base 175247769301, size 2
+TypeContext: array type with base 2274001866962096398, size 3
+TypeContext: array type with base 175247769301, size 2
+        LIRSynthesizer: unfold_initializer_rec
+TypeContext: array type with base 175247769301, size 2
+TypeContext: array type with base 2274001866962096398, size 3
+TypeContext: array type with base 175247769301, size 2
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+TypeContext: array type with base 175247769301, size 2
+TypeContext: array type with base 2274001866962096398, size 3
+TypeContext: array type with base 175247769301, size 2
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+    }
+    Node {
+        LIRSynthesizer: visiting FunctionMIR node
+        Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
+            Node {
+                LIRSynthesizer: visiting VarDeclMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting VarDeclMIR node
+TypeContext: pointer with base 15942378573112361423
+                LIRSynthesizer: unfold_initializer_rec
+                LIRSynthesizer: matched on single expression
+                Node {
+                    LIRSynthesizer: visiting UnaryExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+TypeContext: pointer with base 15942378573112361423
+                }
+TypeContext: pointer with base 15942378573112361423
+            }
+            Node {
+                LIRSynthesizer: visiting ExprStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting AssignExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting MemberAccExprMIR node
+                        Node {
+                            LIRSynthesizer: visiting IdentExprMIR node
+                        }
+ClassType: Looking for member with name value
+RecordType: Looking for member with name value
+ClassType: Looking for member with index 0
+RecordType: Looking for member with index 0
+                    }
+                    Node {
+                        LIRSynthesizer: visiting LiteralExprMIR node
+                    }
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting ExprStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting PostfixExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting MemberAccExprMIR node
+                        Node {
+                            LIRSynthesizer: visiting IdentExprMIR node
+TypeContext: pointer with base 15942378573112361423
+                        }
+ClassType: Looking for member with name value
+RecordType: Looking for member with name value
+ClassType: Looking for member with index 0
+RecordType: Looking for member with index 0
+                    }
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting VarDeclMIR node
+                LIRSynthesizer: unfold_initializer_rec
+                LIRSynthesizer: matched on single expression
+                Node {
+                    LIRSynthesizer: visiting CallExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                    Node {
+                        LIRSynthesizer: visiting CastExprMIR node
+                        Node {
+                            LIRSynthesizer: visiting CastExprMIR node
+                            Node {
+                                LIRSynthesizer: visiting IdentExprMIR node
+                            }
+TypeContext: pointer with base 7502112650543024673
+                        }
+TypeContext: pointer with base 7502112650543024673
+                    }
+                    Node {
+                        LIRSynthesizer: visiting MemberAccExprMIR node
+                        Node {
+                            LIRSynthesizer: visiting IdentExprMIR node
+                        }
+ClassType: Looking for member with name value
+RecordType: Looking for member with name value
+ClassType: Looking for member with index 0
+RecordType: Looking for member with index 0
+                    }
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting PrintStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting ReturnStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting CallExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting AssignExprMIR node
+            Node {
+                LIRSynthesizer: visiting SubscrExprMIR node
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+TypeContext: array type with base 175247769301, size 3
+                }
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting AssignExprMIR node
+            Node {
+                LIRSynthesizer: visiting SubscrExprMIR node
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+TypeContext: array type with base 175247769301, size 3
+                }
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting AssignExprMIR node
+            Node {
+                LIRSynthesizer: visiting SubscrExprMIR node
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+TypeContext: array type with base 175247769301, size 3
+                }
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+TypeContext: pointer with base 175247769301
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting UnaryExprMIR node
+            Node {
+                LIRSynthesizer: visiting SubscrExprMIR node
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+TypeContext: array type with base 175247769301, size 3
+                }
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+TypeContext: pointer with base 175247769301
+        }
+TypeContext: pointer with base 175247769301
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting UnaryExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+TypeContext: pointer with base 175247769301
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting SubscrExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+TypeContext: pointer with base 175247769301
+            }
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting LiteralExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+TypeContext: pointer with base 175247769300
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting UnaryExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+TypeContext: pointer with base 175247769300
+        }
+TypeContext: pointer with base 175247769300
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+TypeContext: pointer with base 175247769300
+TypeContext: pointer with base 8129775402368375304
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting UnaryExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+TypeContext: pointer with base 175247769300
+            }
+TypeContext: pointer with base 175247769300
+TypeContext: pointer with base 8129775402368375304
+        }
+TypeContext: pointer with base 175247769300
+TypeContext: pointer with base 8129775402368375304
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting UnaryExprMIR node
+            Node {
+                LIRSynthesizer: visiting UnaryExprMIR node
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+TypeContext: pointer with base 175247769300
+TypeContext: pointer with base 8129775402368375304
+                }
+TypeContext: pointer with base 175247769300
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+TypeContext: pointer with base 175247769301
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting UnaryExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+TypeContext: pointer with base 175247769301
+        }
+TypeContext: pointer with base 175247769301
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting SubscrExprMIR node
+            Node {
+                LIRSynthesizer: visiting ReintExprMIR node
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+TypeContext: pointer with base 175247769301
+                }
+TypeContext: array type with base 175247769236, size 2
+            }
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting FunctionMIR node
+        Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
+            Node {
+                LIRSynthesizer: visiting VarDeclMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting VarDeclMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting ExprStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting AssignExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting MemberAccExprMIR node
+                        Node {
+                            LIRSynthesizer: visiting IdentExprMIR node
+                        }
+ClassType: Looking for member with name value
+RecordType: Looking for member with name value
+ClassType: Looking for member with index 0
+RecordType: Looking for member with index 0
+                    }
+                    Node {
+                        LIRSynthesizer: visiting LiteralExprMIR node
+                    }
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting ExprStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting AssignExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting MemberAccExprMIR node
+                        Node {
+                            LIRSynthesizer: visiting IdentExprMIR node
+                        }
+ClassType: Looking for member with name value
+RecordType: Looking for member with name value
+ClassType: Looking for member with index 0
+RecordType: Looking for member with index 0
+                    }
+                    Node {
+                        LIRSynthesizer: visiting LiteralExprMIR node
+                    }
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting ExprStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting AssignExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting MemberAccExprMIR node
+                        Node {
+                            LIRSynthesizer: visiting IdentExprMIR node
+                        }
+ClassType: Looking for member with name next
+RecordType: Looking for member with name next
+ClassType: Looking for member with index 1
+RecordType: Looking for member with index 1
+TypeContext: pointer with base 15942378573112361423
+                    }
+                    Node {
+                        LIRSynthesizer: visiting UnaryExprMIR node
+                        Node {
+                            LIRSynthesizer: visiting IdentExprMIR node
+                        }
+TypeContext: pointer with base 15942378573112361423
+                    }
+TypeContext: pointer with base 15942378573112361423
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting ReturnStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting BinaryExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting MemberAccExprMIR node
+                        Node {
+                            LIRSynthesizer: visiting IdentExprMIR node
+                        }
+ClassType: Looking for member with name value
+RecordType: Looking for member with name value
+ClassType: Looking for member with index 0
+RecordType: Looking for member with index 0
+                    }
+                    Node {
+                        LIRSynthesizer: visiting MemberAccExprMIR node
+                        Node {
+                            LIRSynthesizer: visiting MemberAccExprMIR node
+                            Node {
+                                LIRSynthesizer: visiting IdentExprMIR node
+                            }
+ClassType: Looking for member with name next
+RecordType: Looking for member with name next
+ClassType: Looking for member with index 1
+RecordType: Looking for member with index 1
+TypeContext: pointer with base 15942378573112361423
+                        }
+ClassType: Looking for member with name value
+RecordType: Looking for member with name value
+ClassType: Looking for member with index 0
+RecordType: Looking for member with index 0
+                    }
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting CallExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+TypeContext: pointer with base 175247769301
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+TypeContext: array type with base 175247769301, size 3
+            }
+TypeContext: pointer with base 175247769301
+        }
+TypeContext: pointer with base 175247769301
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting UnaryExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+TypeContext: pointer with base 175247769301
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting ExprStmtMIR node
+        Node {
+            LIRSynthesizer: visiting AssignExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+TypeContext: pointer with base 175247769301
+            }
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+TypeContext: pointer with base 175247769301
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting UnaryExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+TypeContext: pointer with base 175247769301
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+TypeContext: pointer with base 175247769300
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+TypeContext: pointer with base 175247769300
+        }
+TypeContext: pointer with base 175247769300
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+TypeContext: pointer with base 175247769300
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+TypeContext: pointer with base 175247769301
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting BinaryExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+    }
+}
+--------- LIR ---------
+
+ProgramLIR @ <?>
+| VarDecl: inferred_arr (inferred_arr) @ <15.1-40>
+| | type: u32[6]
+| VarDecl: complex_arr (complex_arr) @ <17.1-44>
+| | type: u32[2][3]
+| VarDecl: arr (arr) @ <19.1-11>
+| | type: u32[5]
+| VarDecl: ptr_array (ptr_array) @ <21.1-18>
+| | type: u32 *[5]
+| VarDecl: ptr_to_arr (ptr_to_arr) @ <23.1-23>
+| | type: u32[5] *
+| VarDecl: ptr_to_ptr_arr (ptr_to_ptr_arr) @ <25.1-27>
+| | type: u32 *[5] *
+| VarDecl: arr2 (arr2) @ <44.1-12>
+| | type: u32[3]
+| VarDecl: ap (ap) @ <49.1-19>
+| | type: u32 *
+| VarDecl: v (v) @ <54.1-10>
+| | type: i32
+| VarDecl: pv (pv) @ <55.1-13>
+| | type: i32 *
+| VarDecl: ppv (ppv) @ <56.1-16>
+| | type: i32 * *
+| VarDecl: rv (rv) @ <61.1-20>
+| | type: u32
+| VarDecl: rp (rp) @ <62.1-14>
+| | type: u32 *
+| VarDecl: decayed_ptr (decayed_ptr) @ <83.1-24>
+| | type: u32 *
+| VarDecl: nullp (nullp) @ <97.1-23>
+| | type: i32 *
+| VarDecl: raw_addr (raw_addr) @ <100.1-33>
+| | type: u32
+| FunctionLIR: apply (apply) @ <6.1-8.1>
+    type: i32 (i32 (i32) *, i32)
+| | VarDecl: fn (fn_s0) @ <6.5-24>
+| | | type: i32 (i32) * [param]
+| | VarDecl: v (v_s0) @ <6.27-31>
+| | | type: i32 [param]
+| | Return @ <7.5-17>
+| | | Call :: I32 @ <7.12-16>
+| | | | Ident: fn (fn_s0) :: I32 (I32) * @ <7.12-13>
+| | | | Ident: v (v_s0) :: I32 @ <7.12-15>
+| FunctionLIR: square (square) @ <10.1-12.1>
+    type: i32 (i32)
+| | VarDecl: x (x_s0) @ <10.5-16>
+| | | type: i32 [param]
+| | Return @ <11.5-17>
+| | | Binary: * :: I32 @ <11.12-16>
+| | | | Ident: x (x_s0) :: I32 @ <11.12>
+| | | | Ident: x (x_s0) :: I32 @ <11.16>
+| FunctionLIR: run (run) @ <27.1-38.1>
+    type: i32 ()
+| | VarDecl: n (n_s3) @ <28.5-11>
+| | | type: class Node { i32 value; Node * next; }
+| | VarDecl: p (p_s3) @ <29.5-17>
+| | | type: Node *
+| | VarDecl: result (result_s3) @ <34.5-40>
+| | | type: i32
+| | ExprStmt @ <29.15-16>
+| | | Assign: = :: class Node * @ <29.15-16>
+| | | | Ident: p (p_s3) :: class Node * @ <29.10-16>
+| | | | Unary: & :: class Node * @ <29.15-16>
+| | | | | Ident: n (n_s3) :: class Node @ <29.15-16>
+| | ExprStmt @ <31.5-16>
+| | | Assign: = :: I32 @ <31.5-15>
+| | | | Member: [0] :: I32 @ <31.5-11>
+| | | | | Ident: n (n_s3) :: class Node @ <31.5>
+| | | | Literal: 5 :: I32 @ <31.15>
+| | ExprStmt @ <32.5-15>
+| | | Postfix: ++ :: I32 @ <32.5-14>
+| | | | Member: [0] :: I32 @ <32.5-12>
+| | | | | Unary: * :: class Node @ <32.5-12>
+| | | | | | Ident: p (p_s3) :: class Node * @ <32.5>
+| | ExprStmt @ <34.18-39>
+| | | Assign: = :: I32 @ <34.18-39>
+| | | | Ident: result (result_s3) :: I32 @ <34.9-39>
+| | | | Call :: I32 @ <34.18-39>
+| | | | | Ident: apply (apply) :: I32 (I32 (I32) *, I32) @ <34.18-22>
+| | | | | Cast -> i32 (i32) * (implicit) :: I32 (I32) * @ <34.18-29>
+| | | | | | Cast -> i32 (i32) * (function decay) :: I32 (I32) * @ <34.18-29>
+| | | | | | | Ident: square (square) :: I32 (I32) @ <34.18-29>
+| | | | | Member: [0] :: I32 @ <34.32-38>
+| | | | | | Ident: n (n_s3) :: class Node @ <34.32>
+| | Print: "%d\n" @ <35.5-19>
+| | | Ident: result (result_s3) :: I32 @ <35.13-18>
+| | Return @ <37.5-18>
+| | | Ident: result (result_s3) :: I32 @ <37.12-17>
+| FunctionLIR: sum_list (sum_list) @ <67.1-76.1>
+    type: i32 ()
+| | VarDecl: a (a_s4) @ <68.5-11>
+| | | type: class Node { i32 value; Node * next; }
+| | VarDecl: b (b_s4) @ <69.5-11>
+| | | type: class Node { i32 value; Node * next; }
+| | ExprStmt @ <71.5-16>
+| | | Assign: = :: I32 @ <71.5-15>
+| | | | Member: [0] :: I32 @ <71.5-11>
+| | | | | Ident: b (b_s4) :: class Node @ <71.5>
+| | | | Literal: 2 :: I32 @ <71.15>
+| | ExprStmt @ <72.5-16>
+| | | Assign: = :: I32 @ <72.5-15>
+| | | | Member: [0] :: I32 @ <72.5-11>
+| | | | | Ident: a (a_s4) :: class Node @ <72.5>
+| | | | Literal: 1 :: I32 @ <72.15>
+| | ExprStmt @ <73.5-16>
+| | | Assign: = :: class Node * @ <73.5-15>
+| | | | Member: [1] :: class Node * @ <73.5-10>
+| | | | | Ident: a (a_s4) :: class Node @ <73.5>
+| | | | Unary: & :: class Node * @ <73.14-15>
+| | | | | Ident: b (b_s4) :: class Node @ <73.14-15>
+| | Return @ <75.5-35>
+| | | Binary: + :: I32 @ <75.12-34>
+| | | | Member: [0] :: I32 @ <75.12-18>
+| | | | | Ident: a (a_s4) :: class Node @ <75.12>
+| | | | Member: [0] :: I32 @ <75.22-34>
+| | | | | Unary: * :: class Node @ <75.22-34>
+| | | | | | Member: [1] :: class Node * @ <75.22-27>
+| | | | | | | Ident: a (a_s4) :: class Node @ <75.22>
+| ExprStmt @ <15.22-23>
+| | Assign: = :: U32 @ <15.22-23>
+| | | Subscript :: U32 @ <15.22-23>
+| | | | Ident: inferred_arr (inferred_arr) :: U32[6] @ <15.5-39>
+| | | | Literal: 0 :: U64 @ <15.22-23>
+| | | Cast -> u32 (implicit) :: U32 @ <15.22-23>
+| | | | Literal: 5 :: I32 @ <15.22-23>
+| ExprStmt @ <15.26>
+| | Assign: = :: U32 @ <15.26>
+| | | Subscript :: U32 @ <15.26>
+| | | | Ident: inferred_arr (inferred_arr) :: U32[6] @ <15.5-39>
+| | | | Literal: 1 :: U64 @ <15.26>
+| | | Cast -> u32 (implicit) :: U32 @ <15.26>
+| | | | Literal: 4 :: I32 @ <15.26>
+| ExprStmt @ <15.29>
+| | Assign: = :: U32 @ <15.29>
+| | | Subscript :: U32 @ <15.29>
+| | | | Ident: inferred_arr (inferred_arr) :: U32[6] @ <15.5-39>
+| | | | Literal: 2 :: U64 @ <15.29>
+| | | Cast -> u32 (implicit) :: U32 @ <15.29>
+| | | | Literal: 3 :: I32 @ <15.29>
+| ExprStmt @ <15.32>
+| | Assign: = :: U32 @ <15.32>
+| | | Subscript :: U32 @ <15.32>
+| | | | Ident: inferred_arr (inferred_arr) :: U32[6] @ <15.5-39>
+| | | | Literal: 3 :: U64 @ <15.32>
+| | | Cast -> u32 (implicit) :: U32 @ <15.32>
+| | | | Literal: 2 :: I32 @ <15.32>
+| ExprStmt @ <15.35>
+| | Assign: = :: U32 @ <15.35>
+| | | Subscript :: U32 @ <15.35>
+| | | | Ident: inferred_arr (inferred_arr) :: U32[6] @ <15.5-39>
+| | | | Literal: 4 :: U64 @ <15.35>
+| | | Cast -> u32 (implicit) :: U32 @ <15.35>
+| | | | Literal: 1 :: I32 @ <15.35>
+| ExprStmt @ <15.38>
+| | Assign: = :: U32 @ <15.38>
+| | | Subscript :: U32 @ <15.38>
+| | | | Ident: inferred_arr (inferred_arr) :: U32[6] @ <15.5-39>
+| | | | Literal: 5 :: U64 @ <15.38>
+| | | Cast -> u32 (implicit) :: U32 @ <15.38>
+| | | | Literal: 0 :: I32 @ <15.38>
+| ExprStmt @ <17.23-25>
+| | Assign: = :: U32 @ <17.23-25>
+| | | Subscript :: U32 @ <17.23-25>
+| | | | Subscript :: U32[2] @ <17.23-29>
+| | | | | Ident: complex_arr (complex_arr) :: U32[2][3] @ <17.5-43>
+| | | | | Literal: 0 :: U64 @ <17.23-29>
+| | | | Literal: 0 :: U64 @ <17.23-25>
+| | | Cast -> u32 (implicit) :: U32 @ <17.23-25>
+| | | | Literal: 5 :: I32 @ <17.23-25>
+| ExprStmt @ <17.28>
+| | Assign: = :: U32 @ <17.28>
+| | | Subscript :: U32 @ <17.28>
+| | | | Subscript :: U32[2] @ <17.23-29>
+| | | | | Ident: complex_arr (complex_arr) :: U32[2][3] @ <17.5-43>
+| | | | | Literal: 0 :: U64 @ <17.23-29>
+| | | | Literal: 1 :: U64 @ <17.28>
+| | | Cast -> u32 (implicit) :: U32 @ <17.28>
+| | | | Literal: 4 :: I32 @ <17.28>
+| ExprStmt @ <17.32-33>
+| | Assign: = :: U32 @ <17.32-33>
+| | | Subscript :: U32 @ <17.32-33>
+| | | | Subscript :: U32[2] @ <17.32-37>
+| | | | | Ident: complex_arr (complex_arr) :: U32[2][3] @ <17.5-43>
+| | | | | Literal: 1 :: U64 @ <17.32-37>
+| | | | Literal: 0 :: U64 @ <17.32-33>
+| | | Cast -> u32 (implicit) :: U32 @ <17.32-33>
+| | | | Literal: 6 :: I32 @ <17.32-33>
+| ExprStmt @ <17.36>
+| | Assign: = :: U32 @ <17.36>
+| | | Subscript :: U32 @ <17.36>
+| | | | Subscript :: U32[2] @ <17.32-37>
+| | | | | Ident: complex_arr (complex_arr) :: U32[2][3] @ <17.5-43>
+| | | | | Literal: 1 :: U64 @ <17.32-37>
+| | | | Literal: 1 :: U64 @ <17.36>
+| | | Cast -> u32 (implicit) :: U32 @ <17.36>
+| | | | Literal: 4 :: I32 @ <17.36>
+| ExprStmt @ <17.40-41>
+| | Assign: = :: U32 @ <17.40-41>
+| | | Subscript :: U32 @ <17.40-41>
+| | | | Subscript :: U32[2] @ <17.40-42>
+| | | | | Ident: complex_arr (complex_arr) :: U32[2][3] @ <17.5-43>
+| | | | | Literal: 2 :: U64 @ <17.40-42>
+| | | | Literal: 0 :: U64 @ <17.40-41>
+| | | Cast -> u32 (implicit) :: U32 @ <17.40-41>
+| | | | Literal: 1 :: I32 @ <17.40-41>
+| ExprStmt @ <1.1>
+| | Assign: = :: U32 @ <1.1>
+| | | Subscript :: U32 @ <1.1>
+| | | | Subscript :: U32[2] @ <17.40-42>
+| | | | | Ident: complex_arr (complex_arr) :: U32[2][3] @ <17.5-43>
+| | | | | Literal: 2 :: U64 @ <17.40-42>
+| | | | Literal: 1 :: U64 @ <1.1>
+| | | Zero :: U32 @ <1.1>
+| ExprStmt @ <40.1-6>
+| | Call :: I32 @ <40.1-5>
+| | | Ident: run (run) :: I32 () @ <40.1-3>
+| ExprStmt @ <45.1-12>
+| | Assign: = :: U32 @ <45.1-11>
+| | | Subscript :: U32 @ <45.1-7>
+| | | | Ident: arr2 (arr2) :: U32[3] @ <45.1-4>
+| | | | Literal: 0 :: I32 @ <45.1-6>
+| | | Cast -> u32 (implicit) :: U32 @ <45.11>
+| | | | Literal: 1 :: I32 @ <45.11>
+| ExprStmt @ <46.1-12>
+| | Assign: = :: U32 @ <46.1-11>
+| | | Subscript :: U32 @ <46.1-7>
+| | | | Ident: arr2 (arr2) :: U32[3] @ <46.1-4>
+| | | | Literal: 1 :: I32 @ <46.1-6>
+| | | Cast -> u32 (implicit) :: U32 @ <46.11>
+| | | | Literal: 2 :: I32 @ <46.11>
+| ExprStmt @ <47.1-12>
+| | Assign: = :: U32 @ <47.1-11>
+| | | Subscript :: U32 @ <47.1-7>
+| | | | Ident: arr2 (arr2) :: U32[3] @ <47.1-4>
+| | | | Literal: 2 :: I32 @ <47.1-6>
+| | | Cast -> u32 (implicit) :: U32 @ <47.11>
+| | | | Literal: 3 :: I32 @ <47.11>
+| ExprStmt @ <49.11-18>
+| | Assign: = :: U32 * @ <49.11-18>
+| | | Ident: ap (ap) :: U32 * @ <49.5-18>
+| | | Unary: & :: U32 * @ <49.11-18>
+| | | | Subscript :: U32 @ <49.11-18>
+| | | | | Ident: arr2 (arr2) :: U32[3] @ <49.11-15>
+| | | | | Literal: 0 :: I32 @ <49.11-17>
+| Print: "%d\n" @ <50.1-12>
+| | Unary: * :: U32 @ <50.9-11>
+| | | Ident: ap (ap) :: U32 * @ <50.9-11>
+| Print: "%d\n" @ <51.1-14>
+| | Subscript :: U32 @ <51.9-13>
+| | | Ident: ap (ap) :: U32 * @ <51.9-10>
+| | | Literal: 1 :: I32 @ <51.9-12>
+| ExprStmt @ <54.9>
+| | Assign: = :: I32 @ <54.9>
+| | | Ident: v (v) :: I32 @ <54.5-9>
+| | | Literal: 5 :: I32 @ <54.9>
+| ExprStmt @ <55.11-12>
+| | Assign: = :: I32 * @ <55.11-12>
+| | | Ident: pv (pv) :: I32 * @ <55.5-12>
+| | | Unary: & :: I32 * @ <55.11-12>
+| | | | Ident: v (v) :: I32 @ <55.11-12>
+| ExprStmt @ <56.13-15>
+| | Assign: = :: I32 * * @ <56.13-15>
+| | | Ident: ppv (ppv) :: I32 * * @ <56.5-15>
+| | | Unary: & :: I32 * * @ <56.13-15>
+| | | | Ident: pv (pv) :: I32 * @ <56.13-15>
+| Print: "%d\n" @ <57.1-14>
+| | Unary: * :: I32 @ <57.9-13>
+| | | Unary: * :: I32 * @ <57.9-13>
+| | | | Ident: ppv (ppv) :: I32 * * @ <57.9-13>
+| ExprStmt @ <61.10-19>
+| | Assign: = :: U32 @ <61.10-19>
+| | | Ident: rv (rv) :: U32 @ <61.5-19>
+| | | Cast -> u32 (implicit) :: U32 @ <61.10-19>
+| | | | Literal: 305419896 :: I32 @ <61.10-19>
+| ExprStmt @ <62.11-13>
+| | Assign: = :: U32 * @ <62.11-13>
+| | | Ident: rp (rp) :: U32 * @ <62.5-13>
+| | | Unary: & :: U32 * @ <62.11-13>
+| | | | Ident: rv (rv) :: U32 @ <62.11-13>
+| Print: "%d\n" @ <63.1-19>
+| | Subscript :: U16 @ <63.9-18>
+| | | Reint: .u16 :: U16[2] @ <63.9-15>
+| | | | Unary: * :: U32 @ <63.9-15>
+| | | | | Ident: rp (rp) :: U32 * @ <63.9-10>
+| | | Literal: 0 :: I32 @ <63.9-17>
+| Print: "%d\n" @ <78.1-19>
+| | Call :: I32 @ <78.9-18>
+| | | Ident: sum_list (sum_list) :: I32 () @ <78.9-16>
+| ExprStmt @ <83.20-23>
+| | Assign: = :: U32 * @ <83.20-23>
+| | | Ident: decayed_ptr (decayed_ptr) :: U32 * @ <83.5-23>
+| | | Cast -> u32 * (array decay) :: U32 * @ <83.20-23>
+| | | | Ident: arr2 (arr2) :: U32[3] @ <83.20-23>
+| Print: "%d\n" @ <84.1-21>
+| | Unary: * :: U32 @ <84.9-20>
+| | | Ident: decayed_ptr (decayed_ptr) :: U32 * @ <84.9-20>
+| ExprStmt @ <88.1-8>
+| | Assign: += :: U32 * @ <88.1-7>
+| | | Ident: ap (ap) :: U32 * @ <88.1-2>
+| | | Literal: 2 :: I32 @ <88.7>
+| Print: "%d\n" @ <89.1-12>
+| | Unary: * :: U32 @ <89.9-11>
+| | | Ident: ap (ap) :: U32 * @ <89.9-11>
+| ExprStmt @ <97.14-22>
+| | Assign: = :: I32 * @ <97.14-22>
+| | | Ident: nullp (nullp) :: I32 * @ <97.5-22>
+| | | Cast -> i32 * (explicit) :: I32 * @ <97.14-22>
+| | | | Cast -> u64 (implicit) :: U64 @ <97.22>
+| | | | | Literal: 0 :: I32 @ <97.22>
+| Print: "%d\n" @ <98.1-20>
+| | Cast -> u64 (explicit) :: U64 @ <98.9-19>
+| | | Ident: nullp (nullp) :: I32 * @ <98.15-19>
+| ExprStmt @ <100.16-32>
+| | Assign: = :: U32 @ <100.16-32>
+| | | Ident: raw_addr (raw_addr) :: U32 @ <100.5-32>
+| | | Cast -> u32 (explicit) :: U32 @ <100.16-32>
+| | | | Cast -> u64 (implicit) :: U64 @ <100.22-32>
+| | | | | Ident: decayed_ptr (decayed_ptr) :: U32 * @ <100.22-32>
+| Print: "%d\n" @ <101.1-22>
+| | Binary: != :: U32 @ <101.9-21>
+| | | Ident: raw_addr (raw_addr) :: U32 @ <101.9-16>
+| | | Cast -> u32 (implicit) :: U32 @ <101.21>
+| | | | Literal: 0 :: I32 @ <101.21>
 LLVM: Shutting down

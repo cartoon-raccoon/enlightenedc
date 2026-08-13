@@ -1,18 +1,22 @@
 Initializing LLVM
 LLVM initialized
-running pipeline on file input/empty.HC
-LLVM: Creating LLVMUnit with module name 'input/empty.HC'
+running pipeline on file test/integration/input/empty.HC
+LLVM: Creating LLVMUnit with module name 'test/integration/input/empty.HC'
 LLVM: LLVMUnit created
-parsing file input/empty.HC
-printing AST for file input/empty.HC
-Program @ <input/empty.HC:1.1> 
-running backend for file input/empty.HC
-Checking semantics for input/empty.HC:1.1
-Synthesizing MIR for input/empty.HC:1.1
+parsing file test/integration/input/empty.HC
+running backend for file test/integration/input/empty.HC
+
+---------- Generating MIR ----------
+
+Synthesizing MIR for 1.1
 Node {
-    visiting Program node: input/empty.HC:1.1
+    visiting Program node: 1.1
 }
-semantic checking complete
+
+---------- Validating ----------
+
+Node {
+}
 --------- TYPE CONTEXT ---------
 
 Base Types:
@@ -26,10 +30,19 @@ Array Types:
 
 --------- SYMBOL TABLE ---------
 
-Scope 0
+Scope 0: Compound Statement
 -----------------------------------------------------------
 
 --------- MIR ---------
 
 ProgramMIR @ <1.1>
+
+---------- Generating LIR ----------
+
+Node {
+    LIRSynthesizer: visiting ProgramMIR node
+}
+--------- LIR ---------
+
+ProgramLIR @ <?>
 LLVM: Shutting down

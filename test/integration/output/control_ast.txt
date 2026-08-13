@@ -1,163 +1,69 @@
 Initializing LLVM
 LLVM initialized
-running pipeline on file input/control.HC
-LLVM: Creating LLVMUnit with module name 'input/control.HC'
+running pipeline on file test/integration/input/control.HC
+LLVM: Creating LLVMUnit with module name 'test/integration/input/control.HC'
 LLVM: LLVMUnit created
-parsing file input/control.HC
-printing AST for file input/control.HC
-Program @ <input/control.HC:1.1> 
-| VariableDeclaration @ <input/control.HC:1.1-157> 
-| | PrimitiveSpecifier: i64 @ <input/control.HC:1.1-150> 
-| | InitDeclarator @ <input/control.HC:1.152-156> 
-| | | Declarator @ <input/control.HC:1.152> 
-| | | | IdentifierDeclarator: n @ <input/control.HC:1.152> 
-| | | Initializer:  @ <input/control.HC:1.156> 
-| | | | 0 @ <input/control.HC:1.156> 
-| LabeledStatement: start @ <input/control.HC:3.1-10.1> 
-| | IfStatement @ <input/control.HC:4.1-10.1> 
-| | | BinaryExpression: < @ <input/control.HC:4.4-10> 
-| | | | IdentifierExpression: n @ <input/control.HC:4.4-5> 
-| | | | 10 @ <input/control.HC:4.9-10> 
-| | | CompoundStatement @ <input/control.HC:4.13-6.1> 
-| | | | ExpressionStatement @ <input/control.HC:5.5-8> 
-| | | | | PostfixExpression: ++ @ <input/control.HC:5.5-7> 
-| | | | | | IdentifierExpression: n @ <input/control.HC:5.5> 
-| | | IfStatement @ <input/control.HC:6.8-10.1> 
-| | | | BinaryExpression: > @ <input/control.HC:6.11-17> 
-| | | | | IdentifierExpression: n @ <input/control.HC:6.11-12> 
-| | | | | 11 @ <input/control.HC:6.16-17> 
-| | | | CompoundStatement @ <input/control.HC:6.20-8.1> 
-| | | | | ExpressionStatement @ <input/control.HC:7.5-8> 
-| | | | | | PostfixExpression: -- @ <input/control.HC:7.5-7> 
-| | | | | | | IdentifierExpression: n @ <input/control.HC:7.5> 
-| | | | CompoundStatement @ <input/control.HC:8.8-10.1> 
-| | | | | ExpressionStatement @ <input/control.HC:9.5-11> 
-| | | | | | AssignmentExpression: += @ <input/control.HC:9.5-10> 
-| | | | | | | IdentifierExpression: n @ <input/control.HC:9.5> 
-| | | | | | | 2 @ <input/control.HC:9.10> 
-| SwitchStatement @ <input/control.HC:12.1-21.1> 
-| | IdentifierExpression: n @ <input/control.HC:12.8-9> 
-| | CompoundStatement @ <input/control.HC:12.12-21.1> 
-| | | CaseStatement:  @ <input/control.HC:13.5-14.14> 
-| | | | ConstExpression:  @ <input/control.HC:13.10> 
-| | | | | 1 @ <input/control.HC:13.10> 
-| | | | BreakStatement @ <input/control.HC:14.9-14> 
-| | | CaseRangeStatement:  @ <input/control.HC:15.5-16.15> 
-| | | | ConstExpression:  @ <input/control.HC:15.10> 
-| | | | | 2 @ <input/control.HC:15.10> 
-| | | | ConstExpression:  @ <input/control.HC:15.16> 
-| | | | | 5 @ <input/control.HC:15.16> 
-| | | | ExpressionStatement @ <input/control.HC:16.9-15> 
-| | | | | AssignmentExpression: += @ <input/control.HC:16.9-14> 
-| | | | | | IdentifierExpression: n @ <input/control.HC:16.9> 
-| | | | | | 2 @ <input/control.HC:16.14> 
-| | | VariableDeclaration @ <input/control.HC:17.9-19> 
-| | | | PrimitiveSpecifier: u32 @ <input/control.HC:17.9-12> 
-| | | | InitDeclarator @ <input/control.HC:17.14-18> 
-| | | | | Declarator @ <input/control.HC:17.14> 
-| | | | | | IdentifierDeclarator: i @ <input/control.HC:17.14> 
-| | | | | Initializer:  @ <input/control.HC:17.18> 
-| | | | | | 0 @ <input/control.HC:17.18> 
-| | | BreakStatement @ <input/control.HC:18.9-14> 
-| | | DefaultStatement:  @ <input/control.HC:19.5-20.19> 
-| | | | GotoStatement: start @ <input/control.HC:20.9-19> 
-| WhileStatement @ <input/control.HC:23.1-24.8> 
-| | BinaryExpression: > @ <input/control.HC:23.7-12> 
-| | | IdentifierExpression: n @ <input/control.HC:23.7-8> 
-| | | 0 @ <input/control.HC:23.12> 
-| | ExpressionStatement @ <input/control.HC:24.5-8> 
-| | | PostfixExpression: -- @ <input/control.HC:24.5-7> 
-| | | | IdentifierExpression: n @ <input/control.HC:24.5> 
-| DoWhileStatement @ <input/control.HC:26.1-28.16> 
-| | CompoundStatement @ <input/control.HC:26.4-28.1> 
-| | | ExpressionStatement @ <input/control.HC:27.5-8> 
-| | | | PostfixExpression: ++ @ <input/control.HC:27.5-7> 
-| | | | | IdentifierExpression: n @ <input/control.HC:27.5> 
-| | BinaryExpression: < @ <input/control.HC:28.9-14> 
-| | | IdentifierExpression: n @ <input/control.HC:28.9-10> 
-| | | 3 @ <input/control.HC:28.14> 
-| ForStatement @ <input/control.HC:30.1-37> 
-| | VariableDeclaration @ <input/control.HC:30.5-15> 
-| | | PrimitiveSpecifier: u32 @ <input/control.HC:30.5-9> 
-| | | InitDeclarator @ <input/control.HC:30.11-15> 
-| | | | Declarator @ <input/control.HC:30.11> 
-| | | | | IdentifierDeclarator: n @ <input/control.HC:30.11> 
-| | | | Initializer:  @ <input/control.HC:30.15> 
-| | | | | 0 @ <input/control.HC:30.15> 
-| | BinaryExpression: < @ <input/control.HC:30.18-22> 
-| | | IdentifierExpression: n @ <input/control.HC:30.18> 
-| | | 5 @ <input/control.HC:30.22> 
-| | PostfixExpression: ++ @ <input/control.HC:30.25-27> 
-| | | IdentifierExpression: n @ <input/control.HC:30.25> 
-| | PrintStatement: "hello" @ <input/control.HC:30.30-37> 
-| ForStatement @ <input/control.HC:32.1-27> 
-| | PrintStatement: "looping forever" @ <input/control.HC:32.10-27> 
-| ForStatement @ <input/control.HC:34.1-32> 
-| | AssignmentExpression: = @ <input/control.HC:34.5-10> 
-| | | IdentifierExpression: n @ <input/control.HC:34.5-6> 
-| | | 0 @ <input/control.HC:34.10> 
-| | BinaryExpression: < @ <input/control.HC:34.13-17> 
-| | | IdentifierExpression: n @ <input/control.HC:34.13> 
-| | | 5 @ <input/control.HC:34.17> 
-| | PostfixExpression: ++ @ <input/control.HC:34.20-22> 
-| | | IdentifierExpression: n @ <input/control.HC:34.20> 
-| | PrintStatement: "hello" @ <input/control.HC:34.25-32> 
-running backend for file input/control.HC
-Checking semantics for input/control.HC:1.1
-Synthesizing MIR for input/control.HC:1.1
+parsing file test/integration/input/control.HC
+running backend for file test/integration/input/control.HC
+
+---------- Generating MIR ----------
+
+Synthesizing MIR for 1.1
 Node {
-    visiting Program node: input/control.HC:1.1
+    visiting Program node: 1.1
     Node {
-        visiting VariableDeclaration node: input/control.HC:1.1-157
-        parsing declaration specifier list for node at input/control.HC:1.1-157
+        visiting VariableDeclaration node: 1.1-188
+        parsing declaration specifier list for node at 1.1-188
         Node {
-            visiting PrimitiveSpecifier node: input/control.HC:1.1-150
+            visiting PrimitiveSpecifier node: 1.1-181
 TypeContext: getting primitive type
         }
-        finished parsing specifiers for node input/control.HC:1.1-157
+        finished parsing specifiers for node 1.1-188
         Node {
-            visiting InitDeclarator node: input/control.HC:1.152-156
+            visiting InitDeclarator node: 1.183-187
             Node {
                 Node {
-                    visiting IdentifierDeclarator node: input/control.HC:1.152
+                    visiting IdentifierDeclarator node: 1.183
                 }
             }
 TypeBuilder: finalizing type
             Node {
-                visiting Initializer node: input/control.HC:1.156
+                visiting Initializer node: 1.187
                 visiting single initializer
                 Node {
-                    visiting LiteralExpression node: input/control.HC:1.156
+                    visiting LiteralExpression node: 1.187
+                    found integer
                 }
             }
         }
 SymbolTable: inserting varsymbol with name "n"
     }
     Node {
-        visiting LabeledStatement node: input/control.HC:3.1-10.1
+        visiting LabeledStatement node: 3.1-10.1
 SymbolTable: inserting labelsymbol with name "start"
         Node {
-            visiting IfStatement node: input/control.HC:4.1-10.1
+            visiting IfStatement node: 4.1-10.1
             Node {
-                visiting BinaryExpression node: input/control.HC:4.4-10
+                visiting BinaryExpression node: 4.4-10
                 Node {
-                    visiting IdentifierExpression node: input/control.HC:4.4-5
+                    visiting IdentifierExpression node: 4.4-5
 SymbolTable: looking up varsymbol n
                 }
                 Node {
-                    visiting LiteralExpression node: input/control.HC:4.9-10
+                    visiting LiteralExpression node: 4.9-10
+                    found integer
                 }
             }
             Node {
 SymbolTable: pushing scope 1
 SymbolTable: entering scope 1
-                visiting CompoundStatement node: input/control.HC:4.13-6.1
+                visiting CompoundStatement node: 4.13-6.1
                 Node {
-                    visiting ExpressionStatement node: input/control.HC:5.5-8
+                    visiting ExpressionStatement node: 5.5-8
                     Node {
-                        visiting PostfixExpression node: input/control.HC:5.5-7
+                        visiting PostfixExpression node: 5.5-7
                         Node {
-                            visiting IdentifierExpression node: input/control.HC:5.5
+                            visiting IdentifierExpression node: 5.5
 SymbolTable: looking up varsymbol n
                         }
                     }
@@ -165,27 +71,28 @@ SymbolTable: looking up varsymbol n
 SymbolTable: exiting scope to 0
             }
             Node {
-                visiting IfStatement node: input/control.HC:6.8-10.1
+                visiting IfStatement node: 6.8-10.1
                 Node {
-                    visiting BinaryExpression node: input/control.HC:6.11-17
+                    visiting BinaryExpression node: 6.11-17
                     Node {
-                        visiting IdentifierExpression node: input/control.HC:6.11-12
+                        visiting IdentifierExpression node: 6.11-12
 SymbolTable: looking up varsymbol n
                     }
                     Node {
-                        visiting LiteralExpression node: input/control.HC:6.16-17
+                        visiting LiteralExpression node: 6.16-17
+                        found integer
                     }
                 }
                 Node {
 SymbolTable: pushing scope 2
 SymbolTable: entering scope 2
-                    visiting CompoundStatement node: input/control.HC:6.20-8.1
+                    visiting CompoundStatement node: 6.20-8.1
                     Node {
-                        visiting ExpressionStatement node: input/control.HC:7.5-8
+                        visiting ExpressionStatement node: 7.5-8
                         Node {
-                            visiting PostfixExpression node: input/control.HC:7.5-7
+                            visiting PostfixExpression node: 7.5-7
                             Node {
-                                visiting IdentifierExpression node: input/control.HC:7.5
+                                visiting IdentifierExpression node: 7.5
 SymbolTable: looking up varsymbol n
                             }
                         }
@@ -195,17 +102,18 @@ SymbolTable: exiting scope to 0
                 Node {
 SymbolTable: pushing scope 3
 SymbolTable: entering scope 3
-                    visiting CompoundStatement node: input/control.HC:8.8-10.1
+                    visiting CompoundStatement node: 8.8-10.1
                     Node {
-                        visiting ExpressionStatement node: input/control.HC:9.5-11
+                        visiting ExpressionStatement node: 9.5-11
                         Node {
-                            visiting AssignmentExpression node: input/control.HC:9.5-10
+                            visiting AssignmentExpression node: 9.5-10
                             Node {
-                                visiting IdentifierExpression node: input/control.HC:9.5
+                                visiting IdentifierExpression node: 9.5
 SymbolTable: looking up varsymbol n
                             }
                             Node {
-                                visiting LiteralExpression node: input/control.HC:9.10
+                                visiting LiteralExpression node: 9.10
+                                found integer
                             }
                         }
                     }
@@ -215,88 +123,110 @@ SymbolTable: exiting scope to 0
         }
     }
     Node {
-        visiting SwitchStatement node: input/control.HC:12.1-21.1
+        visiting PrintStatement node: 12.1-10
         Node {
-            visiting IdentifierExpression node: input/control.HC:12.8-9
+            visiting IdentifierExpression node: 12.9
+SymbolTable: looking up varsymbol n
+        }
+    }
+    Node {
+        visiting SwitchStatement node: 14.1-25.1
+        Node {
+            visiting IdentifierExpression node: 14.8-9
 SymbolTable: looking up varsymbol n
         }
         Node {
 SymbolTable: pushing scope 4
 SymbolTable: entering scope 4
-            visiting CompoundStatement node: input/control.HC:12.12-21.1
+            visiting CompoundStatement node: 14.12-25.1
             Node {
-                visiting CaseStatement node: input/control.HC:13.5-14.14
+                visiting CaseStatement node: 15.5-16.18
                 Node {
-                    visiting ConstExpression node: input/control.HC:13.10
+                    visiting ConstExpression node: 15.10
                     Node {
-                        visiting LiteralExpression node: input/control.HC:13.10
+                        visiting LiteralExpression node: 15.10
+                        found integer
                     }
                 }
                 Node {
-                    visiting BreakStatement node: input/control.HC:14.9-14
+                    visiting PrintStatement node: 16.9-18
                 }
             }
             Node {
-                visiting CaseRangeStatement node: input/control.HC:15.5-16.15
+                visiting BreakStatement node: 17.9-14
+            }
+            Node {
+                visiting CaseRangeStatement node: 18.5-19.15
                 Node {
-                    visiting ConstExpression node: input/control.HC:15.10
+                    visiting ConstExpression node: 18.10
                     Node {
-                        visiting LiteralExpression node: input/control.HC:15.10
+                        visiting LiteralExpression node: 18.10
+                        found integer
                     }
                 }
                 Node {
-                    visiting ConstExpression node: input/control.HC:15.16
+                    visiting ConstExpression node: 18.16
                     Node {
-                        visiting LiteralExpression node: input/control.HC:15.16
+                        visiting LiteralExpression node: 18.16
+                        found integer
                     }
                 }
                 Node {
-                    visiting ExpressionStatement node: input/control.HC:16.9-15
+                    visiting ExpressionStatement node: 19.9-15
                     Node {
-                        visiting AssignmentExpression node: input/control.HC:16.9-14
+                        visiting AssignmentExpression node: 19.9-14
                         Node {
-                            visiting IdentifierExpression node: input/control.HC:16.9
+                            visiting IdentifierExpression node: 19.9
 SymbolTable: looking up varsymbol n
                         }
                         Node {
-                            visiting LiteralExpression node: input/control.HC:16.14
+                            visiting LiteralExpression node: 19.14
+                            found integer
                         }
                     }
                 }
             }
             Node {
-                visiting VariableDeclaration node: input/control.HC:17.9-19
-                parsing declaration specifier list for node at input/control.HC:17.9-19
+                visiting PrintStatement node: 20.9-18
                 Node {
-                    visiting PrimitiveSpecifier node: input/control.HC:17.9-12
+                    visiting IdentifierExpression node: 20.17
+SymbolTable: looking up varsymbol n
+                }
+            }
+            Node {
+                visiting VariableDeclaration node: 21.9-18
+                parsing declaration specifier list for node at 21.9-18
+                Node {
+                    visiting PrimitiveSpecifier node: 21.9-11
 TypeContext: getting primitive type
                 }
-                finished parsing specifiers for node input/control.HC:17.9-19
+                finished parsing specifiers for node 21.9-18
                 Node {
-                    visiting InitDeclarator node: input/control.HC:17.14-18
+                    visiting InitDeclarator node: 21.13-17
                     Node {
                         Node {
-                            visiting IdentifierDeclarator node: input/control.HC:17.14
+                            visiting IdentifierDeclarator node: 21.13
                         }
                     }
 TypeBuilder: finalizing type
                     Node {
-                        visiting Initializer node: input/control.HC:17.18
+                        visiting Initializer node: 21.17
                         visiting single initializer
                         Node {
-                            visiting LiteralExpression node: input/control.HC:17.18
+                            visiting LiteralExpression node: 21.17
+                            found integer
                         }
                     }
                 }
 SymbolTable: inserting varsymbol with name "i"
             }
             Node {
-                visiting BreakStatement node: input/control.HC:18.9-14
+                visiting BreakStatement node: 22.9-14
             }
             Node {
-                visiting DefaultStatement node: input/control.HC:19.5-20.19
+                visiting DefaultStatement node: 23.5-24.19
                 Node {
-                    visiting GotoStatement node: input/control.HC:20.9-19
+                    visiting GotoStatement node: 24.9-19
                 }
             }
 SymbolTable: exiting scope to 0
@@ -305,23 +235,24 @@ SymbolTable: exiting scope to 0
     Node {
 SymbolTable: pushing scope 5
 SymbolTable: entering scope 5
-        visiting WhileStatement node: input/control.HC:23.1-24.8
+        visiting WhileStatement node: 27.1-28.8
         Node {
-            visiting BinaryExpression node: input/control.HC:23.7-12
+            visiting BinaryExpression node: 27.7-12
             Node {
-                visiting IdentifierExpression node: input/control.HC:23.7-8
+                visiting IdentifierExpression node: 27.7-8
 SymbolTable: looking up varsymbol n
             }
             Node {
-                visiting LiteralExpression node: input/control.HC:23.12
+                visiting LiteralExpression node: 27.12
+                found integer
             }
         }
         Node {
-            visiting ExpressionStatement node: input/control.HC:24.5-8
+            visiting ExpressionStatement node: 28.5-8
             Node {
-                visiting PostfixExpression node: input/control.HC:24.5-7
+                visiting PostfixExpression node: 28.5-7
                 Node {
-                    visiting IdentifierExpression node: input/control.HC:24.5
+                    visiting IdentifierExpression node: 28.5
 SymbolTable: looking up varsymbol n
                 }
             }
@@ -329,29 +260,37 @@ SymbolTable: looking up varsymbol n
 SymbolTable: exiting scope to 0
     }
     Node {
+        visiting PrintStatement node: 30.1-10
+        Node {
+            visiting IdentifierExpression node: 30.9
+SymbolTable: looking up varsymbol n
+        }
+    }
+    Node {
 SymbolTable: pushing scope 6
 SymbolTable: entering scope 6
-        visiting DoWhileStatement node: input/control.HC:26.1-28.16
+        visiting DoWhileStatement node: 32.1-34.16
         Node {
-            visiting BinaryExpression node: input/control.HC:28.9-14
+            visiting BinaryExpression node: 34.9-14
             Node {
-                visiting IdentifierExpression node: input/control.HC:28.9-10
+                visiting IdentifierExpression node: 34.9-10
 SymbolTable: looking up varsymbol n
             }
             Node {
-                visiting LiteralExpression node: input/control.HC:28.14
+                visiting LiteralExpression node: 34.14
+                found integer
             }
         }
         Node {
 SymbolTable: pushing scope 7
 SymbolTable: entering scope 7
-            visiting CompoundStatement node: input/control.HC:26.4-28.1
+            visiting CompoundStatement node: 32.4-34.1
             Node {
-                visiting ExpressionStatement node: input/control.HC:27.5-8
+                visiting ExpressionStatement node: 33.5-8
                 Node {
-                    visiting PostfixExpression node: input/control.HC:27.5-7
+                    visiting PostfixExpression node: 33.5-7
                     Node {
-                        visiting IdentifierExpression node: input/control.HC:27.5
+                        visiting IdentifierExpression node: 33.5
 SymbolTable: looking up varsymbol n
                     }
                 }
@@ -361,52 +300,65 @@ SymbolTable: exiting scope to 6
 SymbolTable: exiting scope to 0
     }
     Node {
+        visiting PrintStatement node: 36.1-10
+        Node {
+            visiting IdentifierExpression node: 36.9
+SymbolTable: looking up varsymbol n
+        }
+    }
+    Node {
 SymbolTable: pushing scope 8
 SymbolTable: entering scope 8
-        visiting ForStatement node: input/control.HC:30.1-37
+        visiting ForStatement node: 38.1-38
         Node {
-            visiting PrintStatement node: input/control.HC:30.30-37
-        }
-        Node {
-            visiting VariableDeclaration node: input/control.HC:30.5-15
-            parsing declaration specifier list for node at input/control.HC:30.5-15
+            visiting VariableDeclaration node: 38.5-14
+            parsing declaration specifier list for node at 38.5-14
             Node {
-                visiting PrimitiveSpecifier node: input/control.HC:30.5-9
+                visiting PrimitiveSpecifier node: 38.5-8
 TypeContext: getting primitive type
             }
-            finished parsing specifiers for node input/control.HC:30.5-15
+            finished parsing specifiers for node 38.5-14
             Node {
-                visiting InitDeclarator node: input/control.HC:30.11-15
+                visiting InitDeclarator node: 38.10-14
                 Node {
                     Node {
-                        visiting IdentifierDeclarator node: input/control.HC:30.11
+                        visiting IdentifierDeclarator node: 38.10
                     }
                 }
 TypeBuilder: finalizing type
                 Node {
-                    visiting Initializer node: input/control.HC:30.15
+                    visiting Initializer node: 38.14
                     visiting single initializer
                     Node {
-                        visiting LiteralExpression node: input/control.HC:30.15
+                        visiting LiteralExpression node: 38.14
+                        found integer
                     }
                 }
             }
 SymbolTable: inserting varsymbol with name "n"
         }
         Node {
-            visiting BinaryExpression node: input/control.HC:30.18-22
+            visiting BinaryExpression node: 38.17-21
             Node {
-                visiting IdentifierExpression node: input/control.HC:30.18
+                visiting IdentifierExpression node: 38.17
 SymbolTable: looking up varsymbol n
             }
             Node {
-                visiting LiteralExpression node: input/control.HC:30.22
+                visiting LiteralExpression node: 38.21
+                found integer
             }
         }
         Node {
-            visiting PostfixExpression node: input/control.HC:30.25-27
+            visiting PrintStatement node: 38.29-38
             Node {
-                visiting IdentifierExpression node: input/control.HC:30.25
+                visiting IdentifierExpression node: 38.37
+SymbolTable: looking up varsymbol n
+            }
+        }
+        Node {
+            visiting PostfixExpression node: 38.24-26
+            Node {
+                visiting IdentifierExpression node: 38.24
 SymbolTable: looking up varsymbol n
             }
         }
@@ -415,50 +367,1163 @@ SymbolTable: exiting scope to 0
     Node {
 SymbolTable: pushing scope 9
 SymbolTable: entering scope 9
-        visiting ForStatement node: input/control.HC:32.1-27
+        visiting ForStatement node: 40.1-43.1
         Node {
-            visiting PrintStatement node: input/control.HC:32.10-27
+SymbolTable: pushing scope 10
+SymbolTable: entering scope 10
+            visiting CompoundStatement node: 40.10-43.1
+            Node {
+                visiting PrintStatement node: 41.5-18
+            }
+            Node {
+                visiting BreakStatement node: 42.5-10
+            }
+SymbolTable: exiting scope to 9
         }
 SymbolTable: exiting scope to 0
     }
     Node {
-SymbolTable: pushing scope 10
-SymbolTable: entering scope 10
-        visiting ForStatement node: input/control.HC:34.1-32
+SymbolTable: pushing scope 11
+SymbolTable: entering scope 11
+        visiting ForStatement node: 45.1-34
         Node {
-            visiting PrintStatement node: input/control.HC:34.25-32
-        }
-        Node {
-            visiting AssignmentExpression node: input/control.HC:34.5-10
+            visiting AssignmentExpression node: 45.5-10
             Node {
-                visiting IdentifierExpression node: input/control.HC:34.5-6
+                visiting IdentifierExpression node: 45.5-6
 SymbolTable: looking up varsymbol n
             }
             Node {
-                visiting LiteralExpression node: input/control.HC:34.10
+                visiting LiteralExpression node: 45.10
+                found integer
             }
         }
         Node {
-            visiting BinaryExpression node: input/control.HC:34.13-17
+            visiting BinaryExpression node: 45.13-17
             Node {
-                visiting IdentifierExpression node: input/control.HC:34.13
+                visiting IdentifierExpression node: 45.13
 SymbolTable: looking up varsymbol n
             }
             Node {
-                visiting LiteralExpression node: input/control.HC:34.17
+                visiting LiteralExpression node: 45.17
+                found integer
             }
         }
         Node {
-            visiting PostfixExpression node: input/control.HC:34.20-22
+            visiting PrintStatement node: 45.25-34
             Node {
-                visiting IdentifierExpression node: input/control.HC:34.20
+                visiting IdentifierExpression node: 45.33
 SymbolTable: looking up varsymbol n
+            }
+        }
+        Node {
+            visiting PostfixExpression node: 45.20-22
+            Node {
+                visiting IdentifierExpression node: 45.20
+SymbolTable: looking up varsymbol n
+            }
+        }
+SymbolTable: exiting scope to 0
+    }
+    Node {
+SymbolTable: pushing scope 12
+SymbolTable: entering scope 12
+        visiting ForStatement node: 48.1-51.1
+        Node {
+            visiting VariableDeclaration node: 48.5-14
+            parsing declaration specifier list for node at 48.5-14
+            Node {
+                visiting PrimitiveSpecifier node: 48.5-8
+TypeContext: getting primitive type
+            }
+            finished parsing specifiers for node 48.5-14
+            Node {
+                visiting InitDeclarator node: 48.10-14
+                Node {
+                    Node {
+                        visiting IdentifierDeclarator node: 48.10
+                    }
+                }
+TypeBuilder: finalizing type
+                Node {
+                    visiting Initializer node: 48.14
+                    visiting single initializer
+                    Node {
+                        visiting LiteralExpression node: 48.14
+                        found integer
+                    }
+                }
+            }
+SymbolTable: inserting varsymbol with name "j"
+        }
+        Node {
+            visiting BinaryExpression node: 48.17-21
+            Node {
+                visiting IdentifierExpression node: 48.17
+SymbolTable: looking up varsymbol j
+            }
+            Node {
+                visiting LiteralExpression node: 48.21
+                found integer
+            }
+        }
+        Node {
+SymbolTable: pushing scope 13
+SymbolTable: entering scope 13
+            visiting CompoundStatement node: 48.29-51.1
+            Node {
+                visiting IfStatement node: 49.5-29
+                Node {
+                    visiting BinaryExpression node: 49.8-18
+                    Node {
+                        visiting BinaryExpression node: 49.8-13
+                        Node {
+                            visiting IdentifierExpression node: 49.8-9
+SymbolTable: looking up varsymbol j
+                        }
+                        Node {
+                            visiting LiteralExpression node: 49.13
+                            found integer
+                        }
+                    }
+                    Node {
+                        visiting LiteralExpression node: 49.18
+                        found integer
+                    }
+                }
+                Node {
+                    visiting ContinueStatement node: 49.21-29
+                }
+            }
+            Node {
+                visiting PrintStatement node: 50.5-14
+                Node {
+                    visiting IdentifierExpression node: 50.13
+SymbolTable: looking up varsymbol j
+                }
+            }
+SymbolTable: exiting scope to 12
+        }
+        Node {
+            visiting PostfixExpression node: 48.24-26
+            Node {
+                visiting IdentifierExpression node: 48.24
+SymbolTable: looking up varsymbol j
+            }
+        }
+SymbolTable: exiting scope to 0
+    }
+    Node {
+        visiting VariableDeclaration node: 54.1-20
+        parsing declaration specifier list for node at 54.1-20
+        Node {
+            visiting PrimitiveSpecifier node: 54.1-3
+TypeContext: getting primitive type
+        }
+        finished parsing specifiers for node 54.1-20
+        Node {
+            visiting InitDeclarator node: 54.5-19
+            Node {
+                Node {
+                    visiting IdentifierDeclarator node: 54.5-15
+                }
+            }
+TypeBuilder: finalizing type
+            Node {
+                visiting Initializer node: 54.19
+                visiting single initializer
+                Node {
+                    visiting LiteralExpression node: 54.19
+                    found integer
+                }
+            }
+        }
+SymbolTable: inserting varsymbol with name "outer_count"
+    }
+    Node {
+SymbolTable: pushing scope 14
+SymbolTable: entering scope 14
+        visiting ForStatement node: 55.1-60.1
+        Node {
+            visiting VariableDeclaration node: 55.5-15
+            parsing declaration specifier list for node at 55.5-15
+            Node {
+                visiting PrimitiveSpecifier node: 55.5-8
+TypeContext: getting primitive type
+            }
+            finished parsing specifiers for node 55.5-15
+            Node {
+                visiting InitDeclarator node: 55.10-15
+                Node {
+                    Node {
+                        visiting IdentifierDeclarator node: 55.10-11
+                    }
+                }
+TypeBuilder: finalizing type
+                Node {
+                    visiting Initializer node: 55.15
+                    visiting single initializer
+                    Node {
+                        visiting LiteralExpression node: 55.15
+                        found integer
+                    }
+                }
+            }
+SymbolTable: inserting varsymbol with name "oi"
+        }
+        Node {
+            visiting BinaryExpression node: 55.18-23
+            Node {
+                visiting IdentifierExpression node: 55.18-19
+SymbolTable: looking up varsymbol oi
+            }
+            Node {
+                visiting LiteralExpression node: 55.23
+                found integer
+            }
+        }
+        Node {
+SymbolTable: pushing scope 15
+SymbolTable: entering scope 15
+            visiting CompoundStatement node: 55.32-60.1
+            Node {
+SymbolTable: pushing scope 16
+SymbolTable: entering scope 16
+                visiting ForStatement node: 56.5-59.5
+                Node {
+                    visiting VariableDeclaration node: 56.9-19
+                    parsing declaration specifier list for node at 56.9-19
+                    Node {
+                        visiting PrimitiveSpecifier node: 56.9-12
+TypeContext: getting primitive type
+                    }
+                    finished parsing specifiers for node 56.9-19
+                    Node {
+                        visiting InitDeclarator node: 56.14-19
+                        Node {
+                            Node {
+                                visiting IdentifierDeclarator node: 56.14-15
+                            }
+                        }
+TypeBuilder: finalizing type
+                        Node {
+                            visiting Initializer node: 56.19
+                            visiting single initializer
+                            Node {
+                                visiting LiteralExpression node: 56.19
+                                found integer
+                            }
+                        }
+                    }
+SymbolTable: inserting varsymbol with name "ii"
+                }
+                Node {
+                    visiting BinaryExpression node: 56.22-27
+                    Node {
+                        visiting IdentifierExpression node: 56.22-23
+SymbolTable: looking up varsymbol ii
+                    }
+                    Node {
+                        visiting LiteralExpression node: 56.27
+                        found integer
+                    }
+                }
+                Node {
+SymbolTable: pushing scope 17
+SymbolTable: entering scope 17
+                    visiting CompoundStatement node: 56.36-59.5
+                    Node {
+                        visiting IfStatement node: 57.9-27
+                        Node {
+                            visiting BinaryExpression node: 57.12-19
+                            Node {
+                                visiting IdentifierExpression node: 57.12-14
+SymbolTable: looking up varsymbol ii
+                            }
+                            Node {
+                                visiting LiteralExpression node: 57.19
+                                found integer
+                            }
+                        }
+                        Node {
+                            visiting BreakStatement node: 57.22-27
+                        }
+                    }
+                    Node {
+                        visiting ExpressionStatement node: 58.9-22
+                        Node {
+                            visiting PostfixExpression node: 58.9-21
+                            Node {
+                                visiting IdentifierExpression node: 58.9-19
+SymbolTable: looking up varsymbol outer_count
+                            }
+                        }
+                    }
+SymbolTable: exiting scope to 16
+                }
+                Node {
+                    visiting PostfixExpression node: 56.30-33
+                    Node {
+                        visiting IdentifierExpression node: 56.30-31
+SymbolTable: looking up varsymbol ii
+                    }
+                }
+SymbolTable: exiting scope to 15
+            }
+SymbolTable: exiting scope to 14
+        }
+        Node {
+            visiting PostfixExpression node: 55.26-29
+            Node {
+                visiting IdentifierExpression node: 55.26-27
+SymbolTable: looking up varsymbol oi
+            }
+        }
+SymbolTable: exiting scope to 0
+    }
+    Node {
+        visiting PrintStatement node: 61.1-20
+        Node {
+            visiting IdentifierExpression node: 61.9-19
+SymbolTable: looking up varsymbol outer_count
+        }
+    }
+    Node {
+        visiting SwitchStatement node: 64.1-73.1
+        Node {
+            visiting LiteralExpression node: 64.8-9
+            found integer
+        }
+        Node {
+SymbolTable: pushing scope 18
+SymbolTable: entering scope 18
+            visiting CompoundStatement node: 64.12-73.1
+            Node {
+                visiting CaseStatement node: 65.5-66.25
+                Node {
+                    visiting ConstExpression node: 65.10
+                    Node {
+                        visiting LiteralExpression node: 65.10
+                        found integer
+                    }
+                }
+                Node {
+                    visiting PrintStatement node: 66.9-25
+                }
+            }
+            Node {
+                visiting CaseStatement node: 67.5-68.25
+                Node {
+                    visiting ConstExpression node: 67.10
+                    Node {
+                        visiting LiteralExpression node: 67.10
+                        found integer
+                    }
+                }
+                Node {
+                    visiting PrintStatement node: 68.9-25
+                }
+            }
+            Node {
+                visiting BreakStatement node: 69.9-14
+            }
+            Node {
+                visiting CaseStatement node: 70.5-71.22
+                Node {
+                    visiting ConstExpression node: 70.10
+                    Node {
+                        visiting LiteralExpression node: 70.10
+                        found integer
+                    }
+                }
+                Node {
+                    visiting PrintStatement node: 71.9-22
+                }
+            }
+            Node {
+                visiting BreakStatement node: 72.9-14
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+    Node {
+        visiting GotoStatement node: 76.1-10
+    }
+    Node {
+        visiting PrintStatement node: 77.1-14
+    }
+    Node {
+        visiting LabeledStatement node: 78.1-79.15
+SymbolTable: inserting labelsymbol with name "skip"
+        Node {
+            visiting PrintStatement node: 79.1-15
+        }
+    }
+    Node {
+SymbolTable: pushing scope 19
+SymbolTable: entering scope 19
+        visiting ForStatement node: 82.1-84.1
+        Node {
+            visiting VariableDeclaration node: 82.5-24
+            parsing declaration specifier list for node at 82.5-24
+            Node {
+                visiting PrimitiveSpecifier node: 82.5-8
+TypeContext: getting primitive type
+            }
+            finished parsing specifiers for node 82.5-24
+            Node {
+                visiting InitDeclarator node: 82.10-15
+                Node {
+                    Node {
+                        visiting IdentifierDeclarator node: 82.10-11
+                    }
+                }
+TypeBuilder: finalizing type
+                Node {
+                    visiting Initializer node: 82.15
+                    visiting single initializer
+                    Node {
+                        visiting LiteralExpression node: 82.15
+                        found integer
+                    }
+                }
+            }
+SymbolTable: inserting varsymbol with name "fi"
+            Node {
+                visiting InitDeclarator node: 82.18-24
+                Node {
+                    Node {
+                        visiting IdentifierDeclarator node: 82.18-19
+                    }
+                }
+TypeBuilder: finalizing type
+                Node {
+                    visiting Initializer node: 82.23-24
+                    visiting single initializer
+                    Node {
+                        visiting LiteralExpression node: 82.23-24
+                        found integer
+                    }
+                }
+            }
+SymbolTable: inserting varsymbol with name "fj"
+        }
+        Node {
+            visiting BinaryExpression node: 82.27-32
+            Node {
+                visiting IdentifierExpression node: 82.27-28
+SymbolTable: looking up varsymbol fi
+            }
+            Node {
+                visiting LiteralExpression node: 82.32
+                found integer
+            }
+        }
+        Node {
+SymbolTable: pushing scope 20
+SymbolTable: entering scope 20
+            visiting CompoundStatement node: 82.47-84.1
+            Node {
+                visiting PrintStatement node: 83.5-22
+                Node {
+                    visiting IdentifierExpression node: 83.16-17
+SymbolTable: looking up varsymbol fi
+                }
+                Node {
+                    visiting IdentifierExpression node: 83.20-21
+SymbolTable: looking up varsymbol fj
+                }
+            }
+SymbolTable: exiting scope to 19
+        }
+        Node {
+            visiting BinaryExpression node: 82.35-44
+            Node {
+                visiting PostfixExpression node: 82.35-38
+                Node {
+                    visiting IdentifierExpression node: 82.35-36
+SymbolTable: looking up varsymbol fi
+                }
+            }
+            Node {
+                visiting PostfixExpression node: 82.41-44
+                Node {
+                    visiting IdentifierExpression node: 82.41-42
+SymbolTable: looking up varsymbol fj
+                }
             }
         }
 SymbolTable: exiting scope to 0
     }
 }
-semantic checking complete
+
+---------- Validating ----------
+
+Node {
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for n
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+    }
+    Node {
+        Node {
+            Validator: visiting IfStmtMIR node
+            Node {
+                Validator: visiting BinaryExprMIR node
+                Node {
+                    Validator: visiting IdentExprMIR node
+                }
+                Node {
+                    Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+            }
+            Node {
+SymbolTable: entering scope 1
+                Node {
+                    Validator: visiting ExprStmtMIR node
+                    Node {
+                        Validator: visiting PostfixMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+                    }
+                }
+SymbolTable: exiting scope to 0
+            }
+            Node {
+                Validator: visiting IfStmtMIR node
+                Node {
+                    Validator: visiting BinaryExprMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                    Node {
+                        Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                    }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+                }
+                Node {
+SymbolTable: entering scope 2
+                    Node {
+                        Validator: visiting ExprStmtMIR node
+                        Node {
+                            Validator: visiting PostfixMIR node
+                            Node {
+                                Validator: visiting IdentExprMIR node
+                            }
+                        }
+                    }
+SymbolTable: exiting scope to 0
+                }
+                Node {
+SymbolTable: entering scope 3
+                    Node {
+                        Validator: visiting ExprStmtMIR node
+                        Node {
+                            Validator: visiting AssignExprMIR node
+                            Node {
+                                Validator: visiting IdentExprMIR node
+                            }
+                            Node {
+                                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                            }
+                        }
+                    }
+SymbolTable: exiting scope to 0
+                }
+            }
+        }
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting SwitchStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+        Node {
+SymbolTable: entering scope 4
+            Node {
+                Validator: visiting CaseStmtMIR node
+                Node {
+                    Validator: visiting PrintStmtMIR node
+                }
+            }
+            Node {
+                Validator: visiting BreakStmtMIR node
+            }
+            Node {
+                Validator: visiting CaseRangeStmtMIR node
+                Node {
+                    Validator: visiting ExprStmtMIR node
+                    Node {
+                        Validator: visiting AssignExprMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+                        Node {
+                            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                        }
+                    }
+                }
+            }
+            Node {
+                Validator: visiting PrintStmtMIR node
+                Node {
+                    Validator: visiting IdentExprMIR node
+                }
+            }
+            Node {
+                Validator: visiting VarDeclMIR node
+                Validator: visiting single VarDecl for i
+                Validator: eval_initializer
+                Validator: matched on single expression
+                Validator: eval_initializer_expr
+                Node {
+                    Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                }
+                types are not equal, checking compatibility
+            }
+            Node {
+                Validator: visiting BreakStmtMIR node
+            }
+            Node {
+                Validator: visiting DefaultStmtMIR node
+                Node {
+                    Validator: visiting GotoStmtMIR node
+SymbolTable: looking up labelsymbol in function scope start
+                }
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+    Node {
+SymbolTable: entering scope 5
+        Validator: visiting LoopStmtMIR node
+        Node {
+            Validator: visiting BinaryExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+        }
+        Node {
+            Validator: visiting ExprStmtMIR node
+            Node {
+                Validator: visiting PostfixMIR node
+                Node {
+                    Validator: visiting IdentExprMIR node
+                }
+            }
+        }
+SymbolTable: exiting scope to 0
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+SymbolTable: entering scope 6
+        Validator: visiting LoopStmtMIR node
+        Node {
+            Validator: visiting BinaryExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+        }
+        Node {
+SymbolTable: entering scope 7
+            Node {
+                Validator: visiting ExprStmtMIR node
+                Node {
+                    Validator: visiting PostfixMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                }
+            }
+SymbolTable: exiting scope to 6
+        }
+SymbolTable: exiting scope to 0
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+SymbolTable: entering scope 8
+        Validator: visiting LoopStmtMIR node
+        Node {
+            Validator: visiting BinaryExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+        }
+        Node {
+            Validator: visiting VarDeclMIR node
+            Validator: visiting single VarDecl for n
+            Validator: eval_initializer
+            Validator: matched on single expression
+            Validator: eval_initializer_expr
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+            types are not equal, checking compatibility
+        }
+        Node {
+            Validator: visiting ExprStmtMIR node
+            Node {
+                Validator: visiting PostfixMIR node
+                Node {
+                    Validator: visiting IdentExprMIR node
+                }
+            }
+        }
+        Node {
+            Validator: visiting PrintStmtMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+        }
+SymbolTable: exiting scope to 0
+    }
+    Node {
+SymbolTable: entering scope 9
+        Validator: visiting LoopStmtMIR node
+        Node {
+SymbolTable: entering scope 10
+            Node {
+                Validator: visiting PrintStmtMIR node
+            }
+            Node {
+                Validator: visiting BreakStmtMIR node
+            }
+SymbolTable: exiting scope to 9
+        }
+SymbolTable: exiting scope to 0
+    }
+    Node {
+SymbolTable: entering scope 11
+        Validator: visiting LoopStmtMIR node
+        Node {
+            Validator: visiting BinaryExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+        }
+        Node {
+            Validator: visiting ExprStmtMIR node
+            Node {
+                Validator: visiting AssignExprMIR node
+                Node {
+                    Validator: visiting IdentExprMIR node
+                }
+                Node {
+                    Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                }
+            }
+        }
+        Node {
+            Validator: visiting ExprStmtMIR node
+            Node {
+                Validator: visiting PostfixMIR node
+                Node {
+                    Validator: visiting IdentExprMIR node
+                }
+            }
+        }
+        Node {
+            Validator: visiting PrintStmtMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+        }
+SymbolTable: exiting scope to 0
+    }
+    Node {
+SymbolTable: entering scope 12
+        Validator: visiting LoopStmtMIR node
+        Node {
+            Validator: visiting BinaryExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+        }
+        Node {
+            Validator: visiting VarDeclMIR node
+            Validator: visiting single VarDecl for j
+            Validator: eval_initializer
+            Validator: matched on single expression
+            Validator: eval_initializer_expr
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+            types are not equal, checking compatibility
+        }
+        Node {
+            Validator: visiting ExprStmtMIR node
+            Node {
+                Validator: visiting PostfixMIR node
+                Node {
+                    Validator: visiting IdentExprMIR node
+                }
+            }
+        }
+        Node {
+SymbolTable: entering scope 13
+            Node {
+                Validator: visiting IfStmtMIR node
+                Node {
+                    Validator: visiting BinaryExprMIR node
+                    Node {
+                        Validator: visiting BinaryExprMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+                        Node {
+                            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                        }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+                    }
+                    Node {
+                        Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                    }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+                }
+                Node {
+                    Validator: visiting ContStmtMIR node
+                }
+            }
+            Node {
+                Validator: visiting PrintStmtMIR node
+                Node {
+                    Validator: visiting IdentExprMIR node
+                }
+            }
+SymbolTable: exiting scope to 12
+        }
+SymbolTable: exiting scope to 0
+    }
+    Node {
+        Validator: visiting VarDeclMIR node
+        Validator: visiting single VarDecl for outer_count
+        Validator: eval_initializer
+        Validator: matched on single expression
+        Validator: eval_initializer_expr
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        types are not equal, checking compatibility
+    }
+    Node {
+SymbolTable: entering scope 14
+        Validator: visiting LoopStmtMIR node
+        Node {
+            Validator: visiting BinaryExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+        }
+        Node {
+            Validator: visiting VarDeclMIR node
+            Validator: visiting single VarDecl for oi
+            Validator: eval_initializer
+            Validator: matched on single expression
+            Validator: eval_initializer_expr
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+            types are not equal, checking compatibility
+        }
+        Node {
+            Validator: visiting ExprStmtMIR node
+            Node {
+                Validator: visiting PostfixMIR node
+                Node {
+                    Validator: visiting IdentExprMIR node
+                }
+            }
+        }
+        Node {
+SymbolTable: entering scope 15
+            Node {
+SymbolTable: entering scope 16
+                Validator: visiting LoopStmtMIR node
+                Node {
+                    Validator: visiting BinaryExprMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                    Node {
+                        Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                    }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+                }
+                Node {
+                    Validator: visiting VarDeclMIR node
+                    Validator: visiting single VarDecl for ii
+                    Validator: eval_initializer
+                    Validator: matched on single expression
+                    Validator: eval_initializer_expr
+                    Node {
+                        Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                    }
+                    types are not equal, checking compatibility
+                }
+                Node {
+                    Validator: visiting ExprStmtMIR node
+                    Node {
+                        Validator: visiting PostfixMIR node
+                        Node {
+                            Validator: visiting IdentExprMIR node
+                        }
+                    }
+                }
+                Node {
+SymbolTable: entering scope 17
+                    Node {
+                        Validator: visiting IfStmtMIR node
+                        Node {
+                            Validator: visiting BinaryExprMIR node
+                            Node {
+                                Validator: visiting IdentExprMIR node
+                            }
+                            Node {
+                                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+                            }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+                        }
+                        Node {
+                            Validator: visiting BreakStmtMIR node
+                        }
+                    }
+                    Node {
+                        Validator: visiting ExprStmtMIR node
+                        Node {
+                            Validator: visiting PostfixMIR node
+                            Node {
+                                Validator: visiting IdentExprMIR node
+                            }
+                        }
+                    }
+SymbolTable: exiting scope to 16
+                }
+SymbolTable: exiting scope to 15
+            }
+SymbolTable: exiting scope to 14
+        }
+SymbolTable: exiting scope to 0
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+        Node {
+            Validator: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        Validator: visiting SwitchStmtMIR node
+        Node {
+            Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+        }
+        Node {
+SymbolTable: entering scope 18
+            Node {
+                Validator: visiting CaseStmtMIR node
+                Node {
+                    Validator: visiting PrintStmtMIR node
+                }
+            }
+            Node {
+                Validator: visiting CaseStmtMIR node
+                Node {
+                    Validator: visiting PrintStmtMIR node
+                }
+            }
+            Node {
+                Validator: visiting BreakStmtMIR node
+            }
+            Node {
+                Validator: visiting CaseStmtMIR node
+                Node {
+                    Validator: visiting PrintStmtMIR node
+                }
+            }
+            Node {
+                Validator: visiting BreakStmtMIR node
+            }
+SymbolTable: exiting scope to 0
+        }
+    }
+    Node {
+        Validator: visiting GotoStmtMIR node
+SymbolTable: looking up labelsymbol skip in current scope
+    }
+    Node {
+        Validator: visiting PrintStmtMIR node
+    }
+    Node {
+        Node {
+            Validator: visiting PrintStmtMIR node
+        }
+    }
+    Node {
+SymbolTable: entering scope 19
+        Validator: visiting LoopStmtMIR node
+        Node {
+            Validator: visiting BinaryExprMIR node
+            Node {
+                Validator: visiting IdentExprMIR node
+            }
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+        }
+        Node {
+            Validator: visiting VarDeclMIR node
+            Validator: visiting single VarDecl for fi
+            Validator: eval_initializer
+            Validator: matched on single expression
+            Validator: eval_initializer_expr
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+            types are not equal, checking compatibility
+            Validator: visiting single VarDecl for fj
+            Validator: eval_initializer
+            Validator: matched on single expression
+            Validator: eval_initializer_expr
+            Node {
+                Validator: visiting LiteralExprMIR node
+TypeContext: getting primitive type
+            }
+            types are not equal, checking compatibility
+        }
+        Node {
+            Validator: visiting ExprStmtMIR node
+            Node {
+                Validator: visiting BinaryExprMIR node
+                Node {
+                    Validator: visiting PostfixMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                }
+                Node {
+                    Validator: visiting PostfixMIR node
+                    Node {
+                        Validator: visiting IdentExprMIR node
+                    }
+                }
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+TypeContext: getting primitive type
+            }
+        }
+        Node {
+SymbolTable: entering scope 20
+            Node {
+                Validator: visiting PrintStmtMIR node
+                Node {
+                    Validator: visiting IdentExprMIR node
+                }
+                Node {
+                    Validator: visiting IdentExprMIR node
+                }
+            }
+SymbolTable: exiting scope to 19
+        }
+SymbolTable: exiting scope to 0
+    }
+}
 --------- TYPE CONTEXT ---------
 
 Base Types:
@@ -472,129 +1537,1139 @@ Array Types:
 
 --------- SYMBOL TABLE ---------
 
-Scope 0
+Scope 0: Compound Statement
 Physical Symbols:
-  n -> 0x5609a9aa6670 : VarSymbol: n :: I64
+  outer_count <0x557e15319c30> : VarSymbol: outer_count :: U32
+  n <0x557e15315910> : VarSymbol: n :: I64
 
 Label Symbols:
-  start -> 0x5609a9abb4a0 : LabelSymbol: start
+  skip <0x557e1531b7c0> : LabelSymbol: skip
+  start <0x557e15315a60> : LabelSymbol: start
 -----------------------------------------------------------
-  Scope 1
+  Scope 1: Compound Statement
 -----------------------------------------------------------
-  Scope 2
+  Scope 2: Compound Statement
 -----------------------------------------------------------
-  Scope 3
+  Scope 3: Compound Statement
 -----------------------------------------------------------
-  Scope 4
+  Scope 4: Compound Statement
   Physical Symbols:
-    i -> 0x5609a9abc790 : VarSymbol: i :: U32
+    i <0x557e15316fa0> : VarSymbol: i :: U32
 -----------------------------------------------------------
-  Scope 5
+  Scope 5: Compound Statement
 -----------------------------------------------------------
-  Scope 6
+  Scope 6: Compound Statement
 -----------------------------------------------------------
-    Scope 7
+    Scope 7: Compound Statement
 -----------------------------------------------------------
-  Scope 8
+  Scope 8: Compound Statement
   Physical Symbols:
-    n -> 0x5609a9abd790 : VarSymbol: n :: U32
+    n <0x557e15318100> : VarSymbol: n :: U32
 -----------------------------------------------------------
-  Scope 9
+  Scope 9: Compound Statement
 -----------------------------------------------------------
-  Scope 10
+    Scope 10: Compound Statement
+-----------------------------------------------------------
+  Scope 11: Compound Statement
+-----------------------------------------------------------
+  Scope 12: Compound Statement
+  Physical Symbols:
+    j <0x557e153191c0> : VarSymbol: j :: U32
+-----------------------------------------------------------
+    Scope 13: Compound Statement
+-----------------------------------------------------------
+  Scope 14: Compound Statement
+  Physical Symbols:
+    oi <0x557e15319fb0> : VarSymbol: oi :: U32
+-----------------------------------------------------------
+    Scope 15: Compound Statement
+-----------------------------------------------------------
+      Scope 16: Compound Statement
+      Physical Symbols:
+        ii <0x557e1531a640> : VarSymbol: ii :: U32
+-----------------------------------------------------------
+        Scope 17: Compound Statement
+-----------------------------------------------------------
+  Scope 18: Compound Statement
+-----------------------------------------------------------
+  Scope 19: Compound Statement
+  Physical Symbols:
+    fj <0x557e1531be20> : VarSymbol: fj :: U32
+    fi <0x557e1531bbf0> : VarSymbol: fi :: U32
+-----------------------------------------------------------
+    Scope 20: Compound Statement
 -----------------------------------------------------------
 
 --------- MIR ---------
 
 ProgramMIR @ <1.1>
-| VarDecl:  @ <input/control.HC:1.1-157>
+| VarDecl:  @ <1.1-188>
 | | | VarSymbol: n :: I64
-| | | Initializer @ <input/control.HC:1.156>
-| | | | Literal: 0 @ <input/control.HC:1.156>
-| Label: start @ <input/control.HC:3.1-10.1>
-| | IfStmt @ <input/control.HC:4.1-10.1>
-| | | Binary: < @ <input/control.HC:4.4-10>
-| | | | Ident: n @ <input/control.HC:4.4-5>
-| | | | Literal: 10 @ <input/control.HC:4.9-10>
-| | | CompoundStmtMIR @ <input/control.HC:4.13-6.1>
-| | | | ExprStmt @ <input/control.HC:5.5-8>
-| | | | | Postfix: ++ @ <input/control.HC:5.5-7>
-| | | | | | Ident: n @ <input/control.HC:5.5>
-| | | IfStmt @ <input/control.HC:6.8-10.1>
-| | | | Binary: > @ <input/control.HC:6.11-17>
-| | | | | Ident: n @ <input/control.HC:6.11-12>
-| | | | | Literal: 11 @ <input/control.HC:6.16-17>
-| | | | CompoundStmtMIR @ <input/control.HC:6.20-8.1>
-| | | | | ExprStmt @ <input/control.HC:7.5-8>
-| | | | | | Postfix: -- @ <input/control.HC:7.5-7>
-| | | | | | | Ident: n @ <input/control.HC:7.5>
-| | | | CompoundStmtMIR @ <input/control.HC:8.8-10.1>
-| | | | | ExprStmt @ <input/control.HC:9.5-11>
-| | | | | | Assign: += @ <input/control.HC:9.5-10>
-| | | | | | | Ident: n @ <input/control.HC:9.5>
-| | | | | | | Literal: 2 @ <input/control.HC:9.10>
-| SwitchStmt @ <input/control.HC:12.1-21.1>
-| | Ident: n @ <input/control.HC:12.8-9>
-| | CompoundStmtMIR @ <input/control.HC:12.12-21.1>
-| | | Case:  @ <input/control.HC:13.5-14.14>
-| | | | Const:  @ <input/control.HC:13.10>
-| | | | | Literal: 1 @ <input/control.HC:13.10>
-| | | | Break @ <input/control.HC:14.9-14>
-| | | CaseRange:  @ <input/control.HC:15.5-16.15>
-| | | | Const:  @ <input/control.HC:15.10>
-| | | | | Literal: 2 @ <input/control.HC:15.10>
-| | | | Const:  @ <input/control.HC:15.16>
-| | | | | Literal: 5 @ <input/control.HC:15.16>
-| | | | ExprStmt @ <input/control.HC:16.9-15>
-| | | | | Assign: += @ <input/control.HC:16.9-14>
-| | | | | | Ident: n @ <input/control.HC:16.9>
-| | | | | | Literal: 2 @ <input/control.HC:16.14>
-| | | VarDecl:  @ <input/control.HC:17.9-19>
+| | | Initializer @ <1.187>
+| | | | Cast -> i64 (implicit) :: I64 @ <1.187>
+| | | | | Literal: 0 :: I32 @ <1.187>
+| Label: start @ <3.1-10.1>
+| | IfStmt @ <4.1-10.1>
+| | | Binary: < :: I64 @ <4.4-10>
+| | | | Ident: n :: I64 @ <4.4-5>
+| | | | Cast -> i64 (implicit) :: I64 @ <4.9-10>
+| | | | | Literal: 10 :: I32 @ <4.9-10>
+| | | CompoundStmtMIR @ <4.13-6.1>
+| | | | ExprStmt @ <5.5-8>
+| | | | | Postfix: :: I64++ @ <5.5-7>
+| | | | | | Ident: n :: I64 @ <5.5>
+| | | IfStmt @ <6.8-10.1>
+| | | | Binary: > :: I64 @ <6.11-17>
+| | | | | Ident: n :: I64 @ <6.11-12>
+| | | | | Cast -> i64 (implicit) :: I64 @ <6.16-17>
+| | | | | | Literal: 11 :: I32 @ <6.16-17>
+| | | | CompoundStmtMIR @ <6.20-8.1>
+| | | | | ExprStmt @ <7.5-8>
+| | | | | | Postfix: :: I64-- @ <7.5-7>
+| | | | | | | Ident: n :: I64 @ <7.5>
+| | | | CompoundStmtMIR @ <8.8-10.1>
+| | | | | ExprStmt @ <9.5-11>
+| | | | | | Assign: += :: I64 @ <9.5-10>
+| | | | | | | Ident: n :: I64 @ <9.5>
+| | | | | | | Cast -> i64 (implicit) :: I64 @ <9.10>
+| | | | | | | | Literal: 2 :: I32 @ <9.10>
+| Print: "%d\n" @ <12.1-10>
+| | Ident: n :: I64 @ <12.9>
+| SwitchStmt @ <14.1-25.1>
+| | Ident: n :: I64 @ <14.8-9>
+| | CompoundStmtMIR @ <14.12-25.1>
+| | | Case: 1 @ <15.5-16.18>
+| | | | Print: "case1\n" @ <16.9-18>
+| | | Break @ <17.9-14>
+| | | CaseRange: 2...5 @ <18.5-19.15>
+| | | | ExprStmt @ <19.9-15>
+| | | | | Assign: += :: I64 @ <19.9-14>
+| | | | | | Ident: n :: I64 @ <19.9>
+| | | | | | Cast -> i64 (implicit) :: I64 @ <19.14>
+| | | | | | | Literal: 2 :: I32 @ <19.14>
+| | | Print: "%d\n" @ <20.9-18>
+| | | | Ident: n :: I64 @ <20.17>
+| | | VarDecl:  @ <21.9-18>
 | | | | | VarSymbol: i :: U32
-| | | | | Initializer @ <input/control.HC:17.18>
-| | | | | | Literal: 0 @ <input/control.HC:17.18>
-| | | Break @ <input/control.HC:18.9-14>
-| | | DefaultStmt @ <input/control.HC:19.5-20.19>
-| | | | Goto: start @ <input/control.HC:20.9-19>
-| LoopStmt @ <input/control.HC:23.1-24.8>
-| | Binary: > @ <input/control.HC:23.7-12>
-| | | Ident: n @ <input/control.HC:23.7-8>
-| | | Literal: 0 @ <input/control.HC:23.12>
-| | ExprStmt @ <input/control.HC:24.5-8>
-| | | Postfix: -- @ <input/control.HC:24.5-7>
-| | | | Ident: n @ <input/control.HC:24.5>
-| LoopStmt (do-while) @ <input/control.HC:26.1-28.16>
-| | Binary: < @ <input/control.HC:28.9-14>
-| | | Ident: n @ <input/control.HC:28.9-10>
-| | | Literal: 3 @ <input/control.HC:28.14>
-| | CompoundStmtMIR @ <input/control.HC:26.4-28.1>
-| | | ExprStmt @ <input/control.HC:27.5-8>
-| | | | Postfix: ++ @ <input/control.HC:27.5-7>
-| | | | | Ident: n @ <input/control.HC:27.5>
-| LoopStmt @ <input/control.HC:30.1-37>
-| | VarDecl:  @ <input/control.HC:30.5-15>
+| | | | | Initializer @ <21.17>
+| | | | | | Cast -> u32 (implicit) :: U32 @ <21.17>
+| | | | | | | Literal: 0 :: I32 @ <21.17>
+| | | Break @ <22.9-14>
+| | | DefaultStmt @ <23.5-24.19>
+| | | | Goto: start @ <24.9-19>
+| LoopStmt @ <27.1-28.8>
+| | Binary: > :: I64 @ <27.7-12>
+| | | Ident: n :: I64 @ <27.7-8>
+| | | Cast -> i64 (implicit) :: I64 @ <27.12>
+| | | | Literal: 0 :: I32 @ <27.12>
+| | ExprStmt @ <28.5-8>
+| | | Postfix: :: I64-- @ <28.5-7>
+| | | | Ident: n :: I64 @ <28.5>
+| Print: "%d\n" @ <30.1-10>
+| | Ident: n :: I64 @ <30.9>
+| LoopStmt (do-while) @ <32.1-34.16>
+| | Binary: < :: I64 @ <34.9-14>
+| | | Ident: n :: I64 @ <34.9-10>
+| | | Cast -> i64 (implicit) :: I64 @ <34.14>
+| | | | Literal: 3 :: I32 @ <34.14>
+| | CompoundStmtMIR @ <32.4-34.1>
+| | | ExprStmt @ <33.5-8>
+| | | | Postfix: :: I64++ @ <33.5-7>
+| | | | | Ident: n :: I64 @ <33.5>
+| Print: "%d\n" @ <36.1-10>
+| | Ident: n :: I64 @ <36.9>
+| LoopStmt @ <38.1-38>
+| | VarDecl:  @ <38.5-14>
 | | | | VarSymbol: n :: U32
-| | | | Initializer @ <input/control.HC:30.15>
-| | | | | Literal: 0 @ <input/control.HC:30.15>
-| | Binary: < @ <input/control.HC:30.18-22>
-| | | Ident: n @ <input/control.HC:30.18>
-| | | Literal: 5 @ <input/control.HC:30.22>
-| | ExprStmt @ <input/control.HC:30.25-27>
-| | | Postfix: ++ @ <input/control.HC:30.25-27>
-| | | | Ident: n @ <input/control.HC:30.25>
-| | Print: "hello" @ <input/control.HC:30.30-37>
-| LoopStmt @ <input/control.HC:32.1-27>
-| | Print: "looping forever" @ <input/control.HC:32.10-27>
-| LoopStmt @ <input/control.HC:34.1-32>
-| | ExprStmt @ <input/control.HC:34.5-10>
-| | | Assign: = @ <input/control.HC:34.5-10>
-| | | | Ident: n @ <input/control.HC:34.5-6>
-| | | | Literal: 0 @ <input/control.HC:34.10>
-| | Binary: < @ <input/control.HC:34.13-17>
-| | | Ident: n @ <input/control.HC:34.13>
-| | | Literal: 5 @ <input/control.HC:34.17>
-| | ExprStmt @ <input/control.HC:34.20-22>
-| | | Postfix: ++ @ <input/control.HC:34.20-22>
-| | | | Ident: n @ <input/control.HC:34.20>
-| | Print: "hello" @ <input/control.HC:34.25-32>
+| | | | Initializer @ <38.14>
+| | | | | Cast -> u32 (implicit) :: U32 @ <38.14>
+| | | | | | Literal: 0 :: I32 @ <38.14>
+| | Binary: < :: U32 @ <38.17-21>
+| | | Ident: n :: U32 @ <38.17>
+| | | Cast -> u32 (implicit) :: U32 @ <38.21>
+| | | | Literal: 3 :: I32 @ <38.21>
+| | ExprStmt @ <38.24-26>
+| | | Postfix: :: U32++ @ <38.24-26>
+| | | | Ident: n :: U32 @ <38.24>
+| | Print: "%d\n" @ <38.29-38>
+| | | Ident: n :: U32 @ <38.37>
+| LoopStmt @ <40.1-43.1>
+| | CompoundStmtMIR @ <40.10-43.1>
+| | | Print: "loop_once\n" @ <41.5-18>
+| | | Break @ <42.5-10>
+| LoopStmt @ <45.1-34>
+| | ExprStmt @ <45.5-10>
+| | | Assign: = :: I64 @ <45.5-10>
+| | | | Ident: n :: I64 @ <45.5-6>
+| | | | Cast -> i64 (implicit) :: I64 @ <45.10>
+| | | | | Literal: 0 :: I32 @ <45.10>
+| | Binary: < :: I64 @ <45.13-17>
+| | | Ident: n :: I64 @ <45.13>
+| | | Cast -> i64 (implicit) :: I64 @ <45.17>
+| | | | Literal: 3 :: I32 @ <45.17>
+| | ExprStmt @ <45.20-22>
+| | | Postfix: :: I64++ @ <45.20-22>
+| | | | Ident: n :: I64 @ <45.20>
+| | Print: "%d\n" @ <45.25-34>
+| | | Ident: n :: I64 @ <45.33>
+| LoopStmt @ <48.1-51.1>
+| | VarDecl:  @ <48.5-14>
+| | | | VarSymbol: j :: U32
+| | | | Initializer @ <48.14>
+| | | | | Cast -> u32 (implicit) :: U32 @ <48.14>
+| | | | | | Literal: 0 :: I32 @ <48.14>
+| | Binary: < :: U32 @ <48.17-21>
+| | | Ident: j :: U32 @ <48.17>
+| | | Cast -> u32 (implicit) :: U32 @ <48.21>
+| | | | Literal: 5 :: I32 @ <48.21>
+| | ExprStmt @ <48.24-26>
+| | | Postfix: :: U32++ @ <48.24-26>
+| | | | Ident: j :: U32 @ <48.24>
+| | CompoundStmtMIR @ <48.29-51.1>
+| | | IfStmt @ <49.5-29>
+| | | | Binary: == :: U32 @ <49.8-18>
+| | | | | Binary: % :: U32 @ <49.8-13>
+| | | | | | Ident: j :: U32 @ <49.8-9>
+| | | | | | Cast -> u32 (implicit) :: U32 @ <49.13>
+| | | | | | | Literal: 2 :: I32 @ <49.13>
+| | | | | Cast -> u32 (implicit) :: U32 @ <49.18>
+| | | | | | Literal: 0 :: I32 @ <49.18>
+| | | | Continue @ <49.21-29>
+| | | Print: "%d\n" @ <50.5-14>
+| | | | Ident: j :: U32 @ <50.13>
+| VarDecl:  @ <54.1-20>
+| | | VarSymbol: outer_count :: U32
+| | | Initializer @ <54.19>
+| | | | Cast -> u32 (implicit) :: U32 @ <54.19>
+| | | | | Literal: 0 :: I32 @ <54.19>
+| LoopStmt @ <55.1-60.1>
+| | VarDecl:  @ <55.5-15>
+| | | | VarSymbol: oi :: U32
+| | | | Initializer @ <55.15>
+| | | | | Cast -> u32 (implicit) :: U32 @ <55.15>
+| | | | | | Literal: 0 :: I32 @ <55.15>
+| | Binary: < :: U32 @ <55.18-23>
+| | | Ident: oi :: U32 @ <55.18-19>
+| | | Cast -> u32 (implicit) :: U32 @ <55.23>
+| | | | Literal: 3 :: I32 @ <55.23>
+| | ExprStmt @ <55.26-29>
+| | | Postfix: :: U32++ @ <55.26-29>
+| | | | Ident: oi :: U32 @ <55.26-27>
+| | CompoundStmtMIR @ <55.32-60.1>
+| | | LoopStmt @ <56.5-59.5>
+| | | | VarDecl:  @ <56.9-19>
+| | | | | | VarSymbol: ii :: U32
+| | | | | | Initializer @ <56.19>
+| | | | | | | Cast -> u32 (implicit) :: U32 @ <56.19>
+| | | | | | | | Literal: 0 :: I32 @ <56.19>
+| | | | Binary: < :: U32 @ <56.22-27>
+| | | | | Ident: ii :: U32 @ <56.22-23>
+| | | | | Cast -> u32 (implicit) :: U32 @ <56.27>
+| | | | | | Literal: 3 :: I32 @ <56.27>
+| | | | ExprStmt @ <56.30-33>
+| | | | | Postfix: :: U32++ @ <56.30-33>
+| | | | | | Ident: ii :: U32 @ <56.30-31>
+| | | | CompoundStmtMIR @ <56.36-59.5>
+| | | | | IfStmt @ <57.9-27>
+| | | | | | Binary: == :: U32 @ <57.12-19>
+| | | | | | | Ident: ii :: U32 @ <57.12-14>
+| | | | | | | Cast -> u32 (implicit) :: U32 @ <57.19>
+| | | | | | | | Literal: 1 :: I32 @ <57.19>
+| | | | | | Break @ <57.22-27>
+| | | | | ExprStmt @ <58.9-22>
+| | | | | | Postfix: :: U32++ @ <58.9-21>
+| | | | | | | Ident: outer_count :: U32 @ <58.9-19>
+| Print: "%d\n" @ <61.1-20>
+| | Ident: outer_count :: U32 @ <61.9-19>
+| SwitchStmt @ <64.1-73.1>
+| | Literal: 1 :: I32 @ <64.8-9>
+| | CompoundStmtMIR @ <64.12-73.1>
+| | | Case: 1 @ <65.5-66.25>
+| | | | Print: "fallthrough1\n" @ <66.9-25>
+| | | Case: 2 @ <67.5-68.25>
+| | | | Print: "fallthrough2\n" @ <68.9-25>
+| | | Break @ <69.9-14>
+| | | Case: 3 @ <70.5-71.22>
+| | | | Print: "unreached\n" @ <71.9-22>
+| | | Break @ <72.9-14>
+| Goto: skip @ <76.1-10>
+| Print: "unreached\n" @ <77.1-14>
+| Label: skip @ <78.1-79.15>
+| | Print: "after_skip\n" @ <79.1-15>
+| LoopStmt @ <82.1-84.1>
+| | VarDecl:  @ <82.5-24>
+| | | | VarSymbol: fi :: U32
+| | | | Initializer @ <82.15>
+| | | | | Cast -> u32 (implicit) :: U32 @ <82.15>
+| | | | | | Literal: 0 :: I32 @ <82.15>
+| | | | VarSymbol: fj :: U32
+| | | | Initializer @ <82.23-24>
+| | | | | Cast -> u32 (implicit) :: U32 @ <82.23-24>
+| | | | | | Literal: 10 :: I32 @ <82.23-24>
+| | Binary: < :: U32 @ <82.27-32>
+| | | Ident: fi :: U32 @ <82.27-28>
+| | | Cast -> u32 (implicit) :: U32 @ <82.32>
+| | | | Literal: 3 :: I32 @ <82.32>
+| | ExprStmt @ <82.35-44>
+| | | Binary: , :: U32 @ <82.35-44>
+| | | | Postfix: :: U32++ @ <82.35-38>
+| | | | | Ident: fi :: U32 @ <82.35-36>
+| | | | Postfix: :: U32-- @ <82.41-44>
+| | | | | Ident: fj :: U32 @ <82.41-42>
+| | CompoundStmtMIR @ <82.47-84.1>
+| | | Print: "%d %d\n" @ <83.5-22>
+| | | | Ident: fi :: U32 @ <83.16-17>
+| | | | Ident: fj :: U32 @ <83.20-21>
+
+---------- Generating LIR ----------
+
+Node {
+    LIRSynthesizer: visiting ProgramMIR node
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting LabeledStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IfStmtMIR node
+            Node {
+                LIRSynthesizer: visiting BinaryExprMIR node
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+                }
+                Node {
+                    LIRSynthesizer: visiting CastExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting LiteralExprMIR node
+                    }
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting CompoundStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting ExprStmtMIR node
+                    Node {
+                        LIRSynthesizer: visiting PostfixExprMIR node
+                        Node {
+                            LIRSynthesizer: visiting IdentExprMIR node
+                        }
+                    }
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting IfStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting BinaryExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                    Node {
+                        LIRSynthesizer: visiting CastExprMIR node
+                        Node {
+                            LIRSynthesizer: visiting LiteralExprMIR node
+                        }
+                    }
+                }
+                Node {
+                    LIRSynthesizer: visiting CompoundStmtMIR node
+                    Node {
+                        LIRSynthesizer: visiting ExprStmtMIR node
+                        Node {
+                            LIRSynthesizer: visiting PostfixExprMIR node
+                            Node {
+                                LIRSynthesizer: visiting IdentExprMIR node
+                            }
+                        }
+                    }
+                }
+                Node {
+                    LIRSynthesizer: visiting CompoundStmtMIR node
+                    Node {
+                        LIRSynthesizer: visiting ExprStmtMIR node
+                        Node {
+                            LIRSynthesizer: visiting AssignExprMIR node
+                            Node {
+                                LIRSynthesizer: visiting IdentExprMIR node
+                            }
+                            Node {
+                                LIRSynthesizer: visiting CastExprMIR node
+                                Node {
+                                    LIRSynthesizer: visiting LiteralExprMIR node
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting SwitchStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+        Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
+            Node {
+                LIRSynthesizer: visiting CaseStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting PrintStmtMIR node
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting BreakStmtMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CaseRangeStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting ExprStmtMIR node
+                    Node {
+                        LIRSynthesizer: visiting AssignExprMIR node
+                        Node {
+                            LIRSynthesizer: visiting IdentExprMIR node
+                        }
+                        Node {
+                            LIRSynthesizer: visiting CastExprMIR node
+                            Node {
+                                LIRSynthesizer: visiting LiteralExprMIR node
+                            }
+                        }
+                    }
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting PrintStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting VarDeclMIR node
+                LIRSynthesizer: unfold_initializer_rec
+                LIRSynthesizer: matched on single expression
+                Node {
+                    LIRSynthesizer: visiting CastExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting LiteralExprMIR node
+                    }
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting BreakStmtMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting DefaultStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting GotoStmtMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting LoopStmtMIR node
+        Node {
+            LIRSynthesizer: visiting BinaryExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+        Node {
+            LIRSynthesizer: visiting ExprStmtMIR node
+            Node {
+                LIRSynthesizer: visiting PostfixExprMIR node
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting LoopStmtMIR node
+        Node {
+            LIRSynthesizer: visiting BinaryExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+        Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
+            Node {
+                LIRSynthesizer: visiting ExprStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting PostfixExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting LoopStmtMIR node
+        Node {
+            LIRSynthesizer: visiting VarDeclMIR node
+            LIRSynthesizer: unfold_initializer_rec
+            LIRSynthesizer: matched on single expression
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+        Node {
+            LIRSynthesizer: visiting BinaryExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+        Node {
+            LIRSynthesizer: visiting ExprStmtMIR node
+            Node {
+                LIRSynthesizer: visiting PostfixExprMIR node
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+                }
+            }
+        }
+        Node {
+            LIRSynthesizer: visiting PrintStmtMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting LoopStmtMIR node
+        Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
+            Node {
+                LIRSynthesizer: visiting PrintStmtMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting BreakStmtMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting LoopStmtMIR node
+        Node {
+            LIRSynthesizer: visiting ExprStmtMIR node
+            Node {
+                LIRSynthesizer: visiting AssignExprMIR node
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+                }
+                Node {
+                    LIRSynthesizer: visiting CastExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting LiteralExprMIR node
+                    }
+                }
+            }
+        }
+        Node {
+            LIRSynthesizer: visiting BinaryExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+        Node {
+            LIRSynthesizer: visiting ExprStmtMIR node
+            Node {
+                LIRSynthesizer: visiting PostfixExprMIR node
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+                }
+            }
+        }
+        Node {
+            LIRSynthesizer: visiting PrintStmtMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting LoopStmtMIR node
+        Node {
+            LIRSynthesizer: visiting VarDeclMIR node
+            LIRSynthesizer: unfold_initializer_rec
+            LIRSynthesizer: matched on single expression
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+        Node {
+            LIRSynthesizer: visiting BinaryExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+        Node {
+            LIRSynthesizer: visiting ExprStmtMIR node
+            Node {
+                LIRSynthesizer: visiting PostfixExprMIR node
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+                }
+            }
+        }
+        Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
+            Node {
+                LIRSynthesizer: visiting IfStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting BinaryExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting BinaryExprMIR node
+                        Node {
+                            LIRSynthesizer: visiting IdentExprMIR node
+                        }
+                        Node {
+                            LIRSynthesizer: visiting CastExprMIR node
+                            Node {
+                                LIRSynthesizer: visiting LiteralExprMIR node
+                            }
+                        }
+                    }
+                    Node {
+                        LIRSynthesizer: visiting CastExprMIR node
+                        Node {
+                            LIRSynthesizer: visiting LiteralExprMIR node
+                        }
+                    }
+                }
+                Node {
+                    LIRSynthesizer: visiting ContStmtMIR node
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting PrintStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting VarDeclMIR node
+        LIRSynthesizer: unfold_initializer_rec
+        LIRSynthesizer: matched on single expression
+        Node {
+            LIRSynthesizer: visiting CastExprMIR node
+            Node {
+                LIRSynthesizer: visiting LiteralExprMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting LoopStmtMIR node
+        Node {
+            LIRSynthesizer: visiting VarDeclMIR node
+            LIRSynthesizer: unfold_initializer_rec
+            LIRSynthesizer: matched on single expression
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+        Node {
+            LIRSynthesizer: visiting BinaryExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+        Node {
+            LIRSynthesizer: visiting ExprStmtMIR node
+            Node {
+                LIRSynthesizer: visiting PostfixExprMIR node
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+                }
+            }
+        }
+        Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
+            Node {
+                LIRSynthesizer: visiting LoopStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting VarDeclMIR node
+                    LIRSynthesizer: unfold_initializer_rec
+                    LIRSynthesizer: matched on single expression
+                    Node {
+                        LIRSynthesizer: visiting CastExprMIR node
+                        Node {
+                            LIRSynthesizer: visiting LiteralExprMIR node
+                        }
+                    }
+                }
+                Node {
+                    LIRSynthesizer: visiting BinaryExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                    Node {
+                        LIRSynthesizer: visiting CastExprMIR node
+                        Node {
+                            LIRSynthesizer: visiting LiteralExprMIR node
+                        }
+                    }
+                }
+                Node {
+                    LIRSynthesizer: visiting ExprStmtMIR node
+                    Node {
+                        LIRSynthesizer: visiting PostfixExprMIR node
+                        Node {
+                            LIRSynthesizer: visiting IdentExprMIR node
+                        }
+                    }
+                }
+                Node {
+                    LIRSynthesizer: visiting CompoundStmtMIR node
+                    Node {
+                        LIRSynthesizer: visiting IfStmtMIR node
+                        Node {
+                            LIRSynthesizer: visiting BinaryExprMIR node
+                            Node {
+                                LIRSynthesizer: visiting IdentExprMIR node
+                            }
+                            Node {
+                                LIRSynthesizer: visiting CastExprMIR node
+                                Node {
+                                    LIRSynthesizer: visiting LiteralExprMIR node
+                                }
+                            }
+                        }
+                        Node {
+                            LIRSynthesizer: visiting BreakStmtMIR node
+                        }
+                    }
+                    Node {
+                        LIRSynthesizer: visiting ExprStmtMIR node
+                        Node {
+                            LIRSynthesizer: visiting PostfixExprMIR node
+                            Node {
+                                LIRSynthesizer: visiting IdentExprMIR node
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+        Node {
+            LIRSynthesizer: visiting IdentExprMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting SwitchStmtMIR node
+        Node {
+            LIRSynthesizer: visiting LiteralExprMIR node
+        }
+        Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
+            Node {
+                LIRSynthesizer: visiting CaseStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting PrintStmtMIR node
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting CaseStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting PrintStmtMIR node
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting BreakStmtMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CaseStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting PrintStmtMIR node
+                }
+            }
+            Node {
+                LIRSynthesizer: visiting BreakStmtMIR node
+            }
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting GotoStmtMIR node
+    }
+    Node {
+        LIRSynthesizer: visiting PrintStmtMIR node
+    }
+    Node {
+        LIRSynthesizer: visiting LabeledStmtMIR node
+        Node {
+            LIRSynthesizer: visiting PrintStmtMIR node
+        }
+    }
+    Node {
+        LIRSynthesizer: visiting LoopStmtMIR node
+        Node {
+            LIRSynthesizer: visiting VarDeclMIR node
+            LIRSynthesizer: unfold_initializer_rec
+            LIRSynthesizer: matched on single expression
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+            LIRSynthesizer: unfold_initializer_rec
+            LIRSynthesizer: matched on single expression
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+        Node {
+            LIRSynthesizer: visiting BinaryExprMIR node
+            Node {
+                LIRSynthesizer: visiting IdentExprMIR node
+            }
+            Node {
+                LIRSynthesizer: visiting CastExprMIR node
+                Node {
+                    LIRSynthesizer: visiting LiteralExprMIR node
+                }
+            }
+        }
+        Node {
+            LIRSynthesizer: visiting ExprStmtMIR node
+            Node {
+                LIRSynthesizer: visiting BinaryExprMIR node
+                Node {
+                    LIRSynthesizer: visiting PostfixExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                }
+                Node {
+                    LIRSynthesizer: visiting PostfixExprMIR node
+                    Node {
+                        LIRSynthesizer: visiting IdentExprMIR node
+                    }
+                }
+            }
+        }
+        Node {
+            LIRSynthesizer: visiting CompoundStmtMIR node
+            Node {
+                LIRSynthesizer: visiting PrintStmtMIR node
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+                }
+                Node {
+                    LIRSynthesizer: visiting IdentExprMIR node
+                }
+            }
+        }
+    }
+}
+--------- LIR ---------
+
+ProgramLIR @ <?>
+| VarDecl: n (n) @ <1.1-188>
+| | type: i64
+| VarDecl: i (i_s4) @ <21.9-18>
+| | type: u32
+| VarDecl: n (n_s8) @ <38.5-14>
+| | type: u32
+| VarDecl: j (j_s12) @ <48.5-14>
+| | type: u32
+| VarDecl: outer_count (outer_count) @ <54.1-20>
+| | type: u32
+| VarDecl: oi (oi_s14) @ <55.5-15>
+| | type: u32
+| VarDecl: ii (ii_s16) @ <56.9-19>
+| | type: u32
+| VarDecl: fi (fi_s19) @ <82.5-24>
+| | type: u32
+| VarDecl: fj (fj_s19) @ <82.5-24>
+| | type: u32
+| ExprStmt @ <1.187>
+| | Assign: = :: I64 @ <1.187>
+| | | Ident: n (n) :: I64 @ <1.183-187>
+| | | Cast -> i64 (implicit) :: I64 @ <1.187>
+| | | | Literal: 0 :: I32 @ <1.187>
+| Label: start (global_start) @ <3.1-10.1>
+| IfStmt @ <4.1-10.1>
+| | Binary: < :: I64 @ <4.4-10>
+| | | Ident: n (n) :: I64 @ <4.4-5>
+| | | Cast -> i64 (implicit) :: I64 @ <4.9-10>
+| | | | Literal: 10 :: I32 @ <4.9-10>
+| | ExprStmt @ <5.5-8>
+| | | Postfix: ++ :: I64 @ <5.5-7>
+| | | | Ident: n (n) :: I64 @ <5.5>
+| | IfStmt @ <6.8-10.1>
+| | | Binary: > :: I64 @ <6.11-17>
+| | | | Ident: n (n) :: I64 @ <6.11-12>
+| | | | Cast -> i64 (implicit) :: I64 @ <6.16-17>
+| | | | | Literal: 11 :: I32 @ <6.16-17>
+| | | ExprStmt @ <7.5-8>
+| | | | Postfix: -- :: I64 @ <7.5-7>
+| | | | | Ident: n (n) :: I64 @ <7.5>
+| | | ExprStmt @ <9.5-11>
+| | | | Assign: += :: I64 @ <9.5-10>
+| | | | | Ident: n (n) :: I64 @ <9.5>
+| | | | | Cast -> i64 (implicit) :: I64 @ <9.10>
+| | | | | | Literal: 2 :: I32 @ <9.10>
+| Print: "%d\n" @ <12.1-10>
+| | Ident: n (n) :: I64 @ <12.9>
+| SwitchStmt @ <14.1-25.1>
+| | Ident: n (n) :: I64 @ <14.8-9>
+| | Case: 1 @ <15.5-16.18>
+| | Print: "case1\n" @ <16.9-18>
+| | Break @ <17.9-14>
+| | Case: 2 @ <18.5-19.15>
+| | Case: 3 @ <18.5-19.15>
+| | Case: 4 @ <18.5-19.15>
+| | Case: 5 @ <18.5-19.15>
+| | ExprStmt @ <19.9-15>
+| | | Assign: += :: I64 @ <19.9-14>
+| | | | Ident: n (n) :: I64 @ <19.9>
+| | | | Cast -> i64 (implicit) :: I64 @ <19.14>
+| | | | | Literal: 2 :: I32 @ <19.14>
+| | Print: "%d\n" @ <20.9-18>
+| | | Ident: n (n) :: I64 @ <20.17>
+| | ExprStmt @ <21.17>
+| | | Assign: = :: U32 @ <21.17>
+| | | | Ident: i (i_s4) :: U32 @ <21.13-17>
+| | | | Cast -> u32 (implicit) :: U32 @ <21.17>
+| | | | | Literal: 0 :: I32 @ <21.17>
+| | Break @ <22.9-14>
+| | Default @ <23.5-24.19>
+| | Goto: start (global_start) @ <24.9-19>
+| LoopStmt @ <27.1-28.8>
+| | Binary: > :: I64 @ <27.7-12>
+| | | Ident: n (n) :: I64 @ <27.7-8>
+| | | Cast -> i64 (implicit) :: I64 @ <27.12>
+| | | | Literal: 0 :: I32 @ <27.12>
+| | ExprStmt @ <28.5-8>
+| | | Postfix: -- :: I64 @ <28.5-7>
+| | | | Ident: n (n) :: I64 @ <28.5>
+| Print: "%d\n" @ <30.1-10>
+| | Ident: n (n) :: I64 @ <30.9>
+| LoopStmt (do-while) @ <32.1-34.16>
+| | Binary: < :: I64 @ <34.9-14>
+| | | Ident: n (n) :: I64 @ <34.9-10>
+| | | Cast -> i64 (implicit) :: I64 @ <34.14>
+| | | | Literal: 3 :: I32 @ <34.14>
+| | ExprStmt @ <33.5-8>
+| | | Postfix: ++ :: I64 @ <33.5-7>
+| | | | Ident: n (n) :: I64 @ <33.5>
+| Print: "%d\n" @ <36.1-10>
+| | Ident: n (n) :: I64 @ <36.9>
+| LoopStmt @ <38.1-38>
+| | ExprStmt @ <38.14>
+| | | Assign: = :: U32 @ <38.14>
+| | | | Ident: n (n_s8) :: U32 @ <38.10-14>
+| | | | Cast -> u32 (implicit) :: U32 @ <38.14>
+| | | | | Literal: 0 :: I32 @ <38.14>
+| | Binary: < :: U32 @ <38.17-21>
+| | | Ident: n (n_s8) :: U32 @ <38.17>
+| | | Cast -> u32 (implicit) :: U32 @ <38.21>
+| | | | Literal: 3 :: I32 @ <38.21>
+| | ExprStmt @ <38.24-26>
+| | | Postfix: ++ :: U32 @ <38.24-26>
+| | | | Ident: n (n_s8) :: U32 @ <38.24>
+| | Print: "%d\n" @ <38.29-38>
+| | | Ident: n (n_s8) :: U32 @ <38.37>
+| LoopStmt @ <40.1-43.1>
+| | Print: "loop_once\n" @ <41.5-18>
+| | Break @ <42.5-10>
+| LoopStmt @ <45.1-34>
+| | ExprStmt @ <45.5-10>
+| | | Assign: = :: I64 @ <45.5-10>
+| | | | Ident: n (n) :: I64 @ <45.5-6>
+| | | | Cast -> i64 (implicit) :: I64 @ <45.10>
+| | | | | Literal: 0 :: I32 @ <45.10>
+| | Binary: < :: I64 @ <45.13-17>
+| | | Ident: n (n) :: I64 @ <45.13>
+| | | Cast -> i64 (implicit) :: I64 @ <45.17>
+| | | | Literal: 3 :: I32 @ <45.17>
+| | ExprStmt @ <45.20-22>
+| | | Postfix: ++ :: I64 @ <45.20-22>
+| | | | Ident: n (n) :: I64 @ <45.20>
+| | Print: "%d\n" @ <45.25-34>
+| | | Ident: n (n) :: I64 @ <45.33>
+| LoopStmt @ <48.1-51.1>
+| | ExprStmt @ <48.14>
+| | | Assign: = :: U32 @ <48.14>
+| | | | Ident: j (j_s12) :: U32 @ <48.10-14>
+| | | | Cast -> u32 (implicit) :: U32 @ <48.14>
+| | | | | Literal: 0 :: I32 @ <48.14>
+| | Binary: < :: U32 @ <48.17-21>
+| | | Ident: j (j_s12) :: U32 @ <48.17>
+| | | Cast -> u32 (implicit) :: U32 @ <48.21>
+| | | | Literal: 5 :: I32 @ <48.21>
+| | ExprStmt @ <48.24-26>
+| | | Postfix: ++ :: U32 @ <48.24-26>
+| | | | Ident: j (j_s12) :: U32 @ <48.24>
+| | IfStmt @ <49.5-29>
+| | | Binary: == :: U32 @ <49.8-18>
+| | | | Binary: % :: U32 @ <49.8-13>
+| | | | | Ident: j (j_s12) :: U32 @ <49.8-9>
+| | | | | Cast -> u32 (implicit) :: U32 @ <49.13>
+| | | | | | Literal: 2 :: I32 @ <49.13>
+| | | | Cast -> u32 (implicit) :: U32 @ <49.18>
+| | | | | Literal: 0 :: I32 @ <49.18>
+| | | Continue @ <49.21-29>
+| | Print: "%d\n" @ <50.5-14>
+| | | Ident: j (j_s12) :: U32 @ <50.13>
+| ExprStmt @ <54.19>
+| | Assign: = :: U32 @ <54.19>
+| | | Ident: outer_count (outer_count) :: U32 @ <54.5-19>
+| | | Cast -> u32 (implicit) :: U32 @ <54.19>
+| | | | Literal: 0 :: I32 @ <54.19>
+| LoopStmt @ <55.1-60.1>
+| | ExprStmt @ <55.15>
+| | | Assign: = :: U32 @ <55.15>
+| | | | Ident: oi (oi_s14) :: U32 @ <55.10-15>
+| | | | Cast -> u32 (implicit) :: U32 @ <55.15>
+| | | | | Literal: 0 :: I32 @ <55.15>
+| | Binary: < :: U32 @ <55.18-23>
+| | | Ident: oi (oi_s14) :: U32 @ <55.18-19>
+| | | Cast -> u32 (implicit) :: U32 @ <55.23>
+| | | | Literal: 3 :: I32 @ <55.23>
+| | ExprStmt @ <55.26-29>
+| | | Postfix: ++ :: U32 @ <55.26-29>
+| | | | Ident: oi (oi_s14) :: U32 @ <55.26-27>
+| | LoopStmt @ <56.5-59.5>
+| | | ExprStmt @ <56.19>
+| | | | Assign: = :: U32 @ <56.19>
+| | | | | Ident: ii (ii_s16) :: U32 @ <56.14-19>
+| | | | | Cast -> u32 (implicit) :: U32 @ <56.19>
+| | | | | | Literal: 0 :: I32 @ <56.19>
+| | | Binary: < :: U32 @ <56.22-27>
+| | | | Ident: ii (ii_s16) :: U32 @ <56.22-23>
+| | | | Cast -> u32 (implicit) :: U32 @ <56.27>
+| | | | | Literal: 3 :: I32 @ <56.27>
+| | | ExprStmt @ <56.30-33>
+| | | | Postfix: ++ :: U32 @ <56.30-33>
+| | | | | Ident: ii (ii_s16) :: U32 @ <56.30-31>
+| | | IfStmt @ <57.9-27>
+| | | | Binary: == :: U32 @ <57.12-19>
+| | | | | Ident: ii (ii_s16) :: U32 @ <57.12-14>
+| | | | | Cast -> u32 (implicit) :: U32 @ <57.19>
+| | | | | | Literal: 1 :: I32 @ <57.19>
+| | | | Break @ <57.22-27>
+| | | ExprStmt @ <58.9-22>
+| | | | Postfix: ++ :: U32 @ <58.9-21>
+| | | | | Ident: outer_count (outer_count) :: U32 @ <58.9-19>
+| Print: "%d\n" @ <61.1-20>
+| | Ident: outer_count (outer_count) :: U32 @ <61.9-19>
+| SwitchStmt @ <64.1-73.1>
+| | Literal: 1 :: I32 @ <64.8-9>
+| | Case: 1 @ <65.5-66.25>
+| | Print: "fallthrough1\n" @ <66.9-25>
+| | Case: 2 @ <67.5-68.25>
+| | Print: "fallthrough2\n" @ <68.9-25>
+| | Break @ <69.9-14>
+| | Case: 3 @ <70.5-71.22>
+| | Print: "unreached\n" @ <71.9-22>
+| | Break @ <72.9-14>
+| Goto: skip (global_skip) @ <76.1-10>
+| Print: "unreached\n" @ <77.1-14>
+| Label: skip (global_skip) @ <78.1-79.15>
+| Print: "after_skip\n" @ <79.1-15>
+| LoopStmt @ <82.1-84.1>
+| | ExprStmt @ <82.15>
+| | | Assign: = :: U32 @ <82.15>
+| | | | Ident: fi (fi_s19) :: U32 @ <82.10-15>
+| | | | Cast -> u32 (implicit) :: U32 @ <82.15>
+| | | | | Literal: 0 :: I32 @ <82.15>
+| | ExprStmt @ <82.23-24>
+| | | Assign: = :: U32 @ <82.23-24>
+| | | | Ident: fj (fj_s19) :: U32 @ <82.18-24>
+| | | | Cast -> u32 (implicit) :: U32 @ <82.23-24>
+| | | | | Literal: 10 :: I32 @ <82.23-24>
+| | Binary: < :: U32 @ <82.27-32>
+| | | Ident: fi (fi_s19) :: U32 @ <82.27-28>
+| | | Cast -> u32 (implicit) :: U32 @ <82.32>
+| | | | Literal: 3 :: I32 @ <82.32>
+| | ExprStmt @ <82.35-44>
+| | | Binary: , :: U32 @ <82.35-44>
+| | | | Postfix: ++ :: U32 @ <82.35-38>
+| | | | | Ident: fi (fi_s19) :: U32 @ <82.35-36>
+| | | | Postfix: -- :: U32 @ <82.41-44>
+| | | | | Ident: fj (fj_s19) :: U32 @ <82.41-42>
+| | Print: "%d %d\n" @ <83.5-22>
+| | | Ident: fi (fi_s19) :: U32 @ <83.16-17>
+| | | Ident: fj (fj_s19) :: U32 @ <83.20-21>
 LLVM: Shutting down
