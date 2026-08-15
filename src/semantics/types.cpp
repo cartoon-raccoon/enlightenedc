@@ -1128,7 +1128,7 @@ bool PointerType::coercible_to(Type *dst) {
     if (my_nesting != 1 || ds_nesting != 1)
         return false;
 
-    if (base == dst_base || dst_base->is_void())
+    if (base == dst_base || dst_base->is_void() || base->is_void())
         return true;
 
     // A pointer to a derived class implicitly upcasts to a pointer to any of its ancestors,
