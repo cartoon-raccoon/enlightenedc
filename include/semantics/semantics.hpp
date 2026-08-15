@@ -221,6 +221,8 @@ public:
     // BaseSemanticVisitor provides a basic override of all Visitor methods,
     // so that Elaborator and Validator only need to override needed ones.
     virtual void do_visit(ast::Program& node);
+    virtual void do_visit(ast::AttributeArg& node);
+    virtual void do_visit(ast::Attribute& node);
     virtual void do_visit(ast::Function& node);
 
     virtual void do_visit(ast::TypeDeclaration& node);
@@ -282,6 +284,8 @@ public:
 
 protected:
     void visit(ast::Program& node) override;
+    void visit(ast::AttributeArg& node) override;
+    void visit(ast::Attribute& node) override;
     void visit(ast::Function& node) override;
 
     void visit(ast::TypeDeclaration& node) override;

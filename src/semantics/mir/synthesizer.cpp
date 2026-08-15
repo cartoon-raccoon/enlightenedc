@@ -182,6 +182,20 @@ void MIRSynthesizer::do_visit(Program& node) {
     dv_return_void();
 }
 
+void MIRSynthesizer::do_visit(AttributeArg& node) {
+    // dovisit_param holds the mir::ProgItemMIR * that the owning Attribute was attached to
+    // (propagated down by do_visit(Attribute&)); downcast it via its NodeKind to validate
+    // and apply this arg.
+    todo();
+}
+
+void MIRSynthesizer::do_visit(Attribute& node) {
+    // dovisit_param holds the mir::ProgItemMIR * this attribute is attached to (set by
+    // do_visit(Function&)/do_visit(TypeDeclaration&)/do_visit(VariableDeclaration&) below);
+    // downcast it via its NodeKind to validate and apply this attribute.
+    todo();
+}
+
 void MIRSynthesizer::do_visit(Function& node) {
     /*
     1. Create function signature:
@@ -315,6 +329,11 @@ void MIRSynthesizer::do_visit(Function& node) {
 
     Box<FunctionMIR> func =
         std::make_unique<FunctionMIR>(node.loc, sym_ptr, res.second, std::move(res.first));
+
+    for (auto& attr : node.attributes) {
+        dv_call(func.get(), attr);
+    }
+
     dv_return(func);
 }
 
@@ -326,6 +345,11 @@ void MIRSynthesizer::do_visit(TypeDeclaration& node) {
     if (specinfo->symbol) {
         TypeSymbol *symptr = (*specinfo->symbol);
         Box<DeclMIR> decl  = std::make_unique<TypeDeclMIR>(node.loc, symptr);
+
+        for (auto& attr : node.attributes) {
+            dv_call(decl.get(), attr);
+        }
+
         dv_return(decl);
     } else {
         dv_return_void();
@@ -477,6 +501,10 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
     }
 
     Box<DeclMIR> decl = std::move(var_decl);
+
+    for (auto& attr : node.attributes) {
+        dv_call(decl.get(), attr);
+    }
 
     dv_return(decl);
 }

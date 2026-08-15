@@ -148,6 +148,7 @@ static ecc::frontend::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
     RBRACE   "}"
     LBRACKET "["
     RBRACKET "]"
+    AT       "@"
     DOT      "."
     ARROW    "->"
     COLON    ":"
@@ -175,8 +176,12 @@ static ecc::frontend::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 // Nonterminal type specifications.
 //* Note: the default Bison action will NOT work on these, as std_unique ptr has move semantics.
 //* All actions must be filled with { $$ = std::move($1); }.
-%type <Box<Program>> program 
+%type <Box<Program>> program
 %type <Box<ProgramItem>> program_item
+%type <Box<Attribute>> attribute
+%type <Box<AttributeArg>> attribute_arg
+%type <Vec<Box<AttributeArg>>> attribute_arg_list
+%type <Vec<Box<Attribute>>> attribute_list
 %type <Box<Function>> function
 %type <Box<Declaration>> declaration
 %type <Box<Statement>> statement
@@ -246,11 +251,64 @@ program:
     }
 ;
 
+attribute:
+    AT LBRACKET attribute_arg_list RBRACKET {
+        $$ = std::make_unique<Attribute>(@$, std::move($3));
+    }
+;
+
+attribute_arg:
+    IDENTIFIER {
+        $$ = std::make_unique<AttributeArg>(@1, std::move($1), std::nullopt);
+    }
+    | IDENTIFIER ASSIGN STRING_LITERAL {
+        $$ = std::make_unique<AttributeArg>(@$, std::move($1), std::move($3));
+    }
+;
+
+attribute_arg_list:
+    attribute_arg {
+        Vec<Box<AttributeArg>> list;
+        list.push_back(std::move($1));
+        $$ = std::move(list);
+    }
+    | attribute_arg_list COMMA attribute_arg {
+        $1.push_back(std::move($3));
+        $$ = std::move($1);
+    }
+;
+
+// One or more stacked `#[...]` attributes, e.g. `#[foo] #[bar = "baz"]`.
+attribute_list:
+    attribute {
+        Vec<Box<Attribute>> list;
+        list.push_back(std::move($1));
+        $$ = std::move(list);
+    }
+    | attribute_list attribute {
+        $1.push_back(std::move($2));
+        $$ = std::move($1);
+    }
+;
+
 // Program item
 program_item:
     function { $$ = std::move($1); }
     | statement { $$ = std::move($1); }
     | declaration { $$ = std::move($1); }
+    // Attributes only attach to functions and declarations, not bare statements.
+    | attribute_list function {
+        $2->attributes = std::move($1);
+        $$ = std::move($2);
+    }
+    | attribute_list declaration {
+        $2->attributes = std::move($1);
+        $$ = std::move($2);
+    }
+    | attribute_list statement {
+        error(@$, "attributes cannot be applied to statements");
+        return 1;
+    }
 ;
 
 // Function definitions

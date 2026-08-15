@@ -109,7 +109,10 @@ using VisitParam = std::variant<
     CmpdStmtDoVisitParam,
     // For passing types for population.
     types::RecordType *, types::EnumType *, types::PrimitiveType *, types::BaseType *,
-    types::Type *>;
+    types::Type *,
+    // The ProgItemMIR that an Attribute/AttributeArg is attached to, so do_visit can
+    // downcast it (via its NodeKind) and validate/apply the attribute per item kind.
+    mir::ProgItemMIR *>;
 
 /**
 The class that lowers the AST to MIR, populating the TypeContext and SymbolTable.
@@ -190,6 +193,10 @@ protected:
     /* DO_VISIT OVERRIDES */
 protected:
     void do_visit(ast::Program& node) override;
+    // `dovisit_param` holds the `mir::ProgItemMIR *` that this attribute/arg is attached
+    // to (set by the callers below), for per-item-kind validation.
+    void do_visit(ast::AttributeArg& node) override;
+    void do_visit(ast::Attribute& node) override;
     void do_visit(ast::Function& node) override;
 
     void do_visit(ast::TypeDeclaration& node) override;

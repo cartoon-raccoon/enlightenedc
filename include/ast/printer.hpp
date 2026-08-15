@@ -16,6 +16,8 @@ public:
     int indent = 0;
 
     void visit(Program& node) override;
+    void visit(AttributeArg& node) override;
+    void visit(Attribute& node) override;
     void visit(Function& node) override;
 
     void visit(TypeDeclaration& node) override;

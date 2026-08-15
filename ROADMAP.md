@@ -23,7 +23,6 @@ These are to-dos that are important, but do not constitute a milestone.
 - Add proper unit testing, aim for >90% codecov
 - Add nice error reporting, showing error location and context
 - Add concrete config control and CLI args
-- Add attribute support to top-level constructs (`@(attribute [ = "value" ])` syntax)
 
 ## Medium-Term
 

@@ -8,6 +8,8 @@
 namespace ecc::ast {
 
 class Program;
+class AttributeArg;
+class Attribute;
 class Function;
 class TypeDeclaration;
 class VariableDeclaration;
@@ -66,7 +68,7 @@ class SizeofExpression;
 
 class ASTVisitor
     : public Visitor<
-          ASTVisitor, Program, Function, TypeDeclaration, VariableDeclaration, ParameterDeclaration,
+          ASTVisitor, Program, AttributeArg, Attribute, Function, TypeDeclaration, VariableDeclaration, ParameterDeclaration,
           Declarator, ParenDeclarator, ArrayDeclarator, FunctionDeclarator, InitDeclarator, Pointer,
           ClassDeclarator, ClassDeclaration, Enumerator, StorageClassSpecifier, TypeQualifier,
           EnumSpecifier, ClassSpecifier, UnionSpecifier, TypeIdentifier, VoidSpecifier,

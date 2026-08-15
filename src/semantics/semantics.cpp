@@ -83,6 +83,8 @@ MIRNode *BaseMIRSemaVisitor::get_context(MIRNode::NodeKind kind) {
  */
 
 DO_VISIT(BaseASTSemaVisitor, Program);
+DO_VISIT(BaseASTSemaVisitor, AttributeArg);
+DO_VISIT(BaseASTSemaVisitor, Attribute);
 DO_VISIT(BaseASTSemaVisitor, Function);
 DO_VISIT(BaseASTSemaVisitor, TypeDeclaration);
 DO_VISIT(BaseASTSemaVisitor, VariableDeclaration);
@@ -159,7 +161,20 @@ void BaseASTSemaVisitor::do_visit(Program& node) {
     }
 }
 
+void BaseASTSemaVisitor::do_visit(AttributeArg& node) { /* terminal node */
+}
+
+void BaseASTSemaVisitor::do_visit(Attribute& node) {
+    for (auto& arg : node.args) {
+        arg->accept(*this);
+    }
+}
+
 void BaseASTSemaVisitor::do_visit(Function& node) {
+    for (auto& attr : node.attributes) {
+        attr->accept(*this);
+    }
+
     for (auto& decl_spec : node.decl_spec_list) {
         decl_spec->accept(*this);
     }
@@ -169,6 +184,10 @@ void BaseASTSemaVisitor::do_visit(Function& node) {
 }
 
 void BaseASTSemaVisitor::do_visit(TypeDeclaration& node) {
+    for (auto& attr : node.attributes) {
+        attr->accept(*this);
+    }
+
     // The last element of the specifiers should be the type specifier,
     // and there should only be ony type specifier.
     for (auto& specifier : node.specifiers) {
@@ -177,6 +196,10 @@ void BaseASTSemaVisitor::do_visit(TypeDeclaration& node) {
 }
 
 void BaseASTSemaVisitor::do_visit(VariableDeclaration& node) {
+    for (auto& attr : node.attributes) {
+        attr->accept(*this);
+    }
+
     for (auto& specifier : node.specifiers) {
         specifier->accept(*this);
     }

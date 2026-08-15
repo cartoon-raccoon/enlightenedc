@@ -235,6 +235,7 @@ static std::string decode_string_literal(char* text, size_t len) {
 "}" { return ecc::frontend::Parser::make_RBRACE(loc); }
 "[" { return ecc::frontend::Parser::make_LBRACKET(loc); }
 "]" { return ecc::frontend::Parser::make_RBRACKET(loc); }
+"@" { return ecc::frontend::Parser::make_AT(loc); }
 "." { return ecc::frontend::Parser::make_DOT(loc); }
 "->" { return ecc::frontend::Parser::make_ARROW(loc); }
 ":" { return ecc::frontend::Parser::make_COLON(loc); }

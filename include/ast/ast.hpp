@@ -31,6 +31,8 @@ public:
     Location loc;
 
     enum class NodeKind : uint8_t {
+        ATTR,
+        ATTR_ARG,
         TYPE_QUAL,
         STORAGE_SPEC,
         POINTER,
@@ -99,6 +101,35 @@ public:
     virtual void accept(ASTVisitor& visitor) = 0;
 };
 
+/*
+A single `name` or `name = "value"` entry inside an attribute (e.g. the `packed` in
+`#[packed]`, or the `deprecated = "reason"` in `#[deprecated = "reason"]`).
+*/
+class AttributeArg : public ASTVisitable<AttributeArg, ASTNode> {
+public:
+    AttributeArg(Location loc, std::string name, Optional<std::string> value)
+        : ASTVisitable<AttributeArg, ASTNode>(NodeKind::ATTR_ARG, loc), name(std::move(name)),
+          value(std::move(value)) {}
+
+    std::string name;
+    Optional<std::string> value;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::ATTR_ARG; }
+};
+
+/*
+A single `#[arg, arg = "value", ...]` attribute attached to a top-level ProgramItem.
+*/
+class Attribute : public ASTVisitable<Attribute, ASTNode> {
+public:
+    Attribute(Location loc, Vec<Box<AttributeArg>> args)
+        : ASTVisitable<Attribute, ASTNode>(NodeKind::ATTR, loc), args(std::move(args)) {}
+
+    Vec<Box<AttributeArg>> args;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::ATTR; }
+};
+
 //* PROGRAM ITEMS
 
 /*
@@ -107,6 +138,10 @@ Abstract class denoting a program item: declaration, statement, or function defi
 class ProgramItem : public ASTNode {
 public:
     ProgramItem(NodeKind kind, Location loc) : ASTNode(kind, loc) {}
+
+    // Attributes attached to this item (e.g. `#[packed]`). Only populated for the
+    // Function/Declaration alternatives of `program_item`; empty otherwise.
+    Vec<Box<Attribute>> attributes;
 
     static bool classof(const ASTNode *node) {
         switch (node->kind) {

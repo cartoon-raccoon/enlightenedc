@@ -24,9 +24,24 @@ void ASTPrinter::visit(Program& node) {
     });
 }
 
+void ASTPrinter::visit(AttributeArg& node) {
+    print_node("AttributeArg: " + node.name + (node.value ? " = \"" + *node.value + "\"" : ""), node);
+}
+
+void ASTPrinter::visit(Attribute& node) {
+    print_node("Attribute", node, [&] {
+        for (auto& arg : node.args)
+            arg->accept(*this);
+    });
+}
+
 void ASTPrinter::visit(Function& node) {
     print_node(
         "Function", node,
+        [&] {
+            for (auto& attr : node.attributes)
+                attr->accept(*this);
+        },
         [&] {
             for (auto& spec : node.decl_spec_list)
                 spec->accept(*this);
@@ -151,6 +166,8 @@ void ASTPrinter::visit(ReturnStatement& node) {
 
 void ASTPrinter::visit(TypeDeclaration& node) {
     print_node("TypeDeclaration", node, [&] {
+        for (auto& attr : node.attributes)
+            attr->accept(*this);
         for (auto& spec : node.specifiers)
             spec->accept(*this);
     });
@@ -158,6 +175,8 @@ void ASTPrinter::visit(TypeDeclaration& node) {
 
 void ASTPrinter::visit(VariableDeclaration& node) {
     print_node("VariableDeclaration", node, [&] {
+        for (auto& attr : node.attributes)
+            attr->accept(*this);
         for (auto& spec : node.specifiers)
             spec->accept(*this);
         for (auto& decl : node.declarators)
