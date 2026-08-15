@@ -174,7 +174,11 @@ void CFGPrinter::print_block(BasicBlock& blk) {
 
 void CFGPrinter::print_value(Value& value) {
     if (!isa<StoreInst>(&value) && !isa<PrintInst>(&value)) {
-        std::cout << "  %" << value.name << " = ";
+        if (auto *call = dyncast<CallInst>(&value); call && call->type->is_void()) {
+            std::cout << "  ";
+        } else {
+            std::cout << "  %" << value.name << " = ";
+        }
     } else {
         std::cout << "  ";
     }
@@ -307,6 +311,9 @@ void CFGPrinter::visit(SubscrInst& inst) {
 
 void CFGPrinter::visit(CallInst& inst) {
     std::cout << "call ";
+    if (inst.type->is_void()) {
+        std::cout << "void ";
+    }
     print_value_name(*inst.operand);
     std::cout << " (";
     for (auto [idx, arg] : std::views::enumerate(inst.args)) {
