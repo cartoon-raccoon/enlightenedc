@@ -15,7 +15,7 @@ using namespace tokens;
 
 BinaryInst::Operator BinaryInst::op_from_token(tokens::BinaryOp op) {
     using BinOp = tokens::BinaryOp;
-    using Op = Operator;
+    using Op    = Operator;
 
     switch (op) {
     case BinOp::OR:
@@ -57,13 +57,9 @@ BinaryInst::Operator BinaryInst::op_from_token(tokens::BinaryOp op) {
 
 UnaryInst::Operator UnaryInst::op_from_token(tokens::UnaryOp op) {
     using UnOp = tokens::UnaryOp;
-    using Op = Operator;
+    using Op   = Operator;
 
     switch (op) {
-    case UnOp::REF:
-        return Op::REF;
-    case UnOp::DEREF:
-        return Op::DEREF;
     case UnOp::POS:
         return Op::POS;
     case UnOp::NEG:
@@ -101,6 +97,11 @@ void Switch::add_default(BasicBlock *blk) {
     cases.emplace_back(blk);
     terminating_blk->link_to(blk);
 }
+
+DO_ACCEPT(If, CFGVisitor);
+DO_ACCEPT(Goto, CFGVisitor);
+DO_ACCEPT(Switch, CFGVisitor);
+DO_ACCEPT(Return, CFGVisitor);
 
 Box<BasicBlock> BasicBlock::entry(std::string& func_name, FunctionCFG *func) {
     auto ret      = std::make_unique<BasicBlock>(func_name, func);

@@ -1161,11 +1161,15 @@ void Validator::do_visit(CallExprMIR& node) {
                     arg      = decay(arg_type->as_function()->decay(), std::move(arg), true);
                     arg_type = arg->act_type->unqual();
                 }
-                if (arg_type->coercible_to(param_type)) {
-                    arg = cast(param_type, std::move(arg));
-                } else {
-                    bsv_dbprint("error: cannot coerce argument to parameter type");
-                    add_error<InvalidCoerceError>(arg->act_type->unqual(), param, arg->loc);
+                
+                // re-check after decay to prevent spurious cast nodes
+                if (arg_type != param_type) {
+                    if (arg_type->coercible_to(param_type)) {
+                        arg = cast(param_type, std::move(arg));
+                    } else {
+                        bsv_dbprint("error: cannot coerce argument to parameter type");
+                        add_error<InvalidCoerceError>(arg->act_type->unqual(), param, arg->loc);
+                    }
                 }
             }
         }

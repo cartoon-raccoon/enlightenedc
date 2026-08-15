@@ -315,6 +315,14 @@ void LIRSynthesizer::do_visit(ProgramMIR& node) {
             },
             item);
     }
+
+    // Insert a return statement at the end of progitems
+    //
+    // All progitems end up in implicit main, and return statements aren't allowed
+    // outside of functions. This means that the last block in implicit main ends up
+    // unterminated, which violates the CFG invariant of every block must be terminated.
+    // We insert this here to ensure this invariant.
+    prog_lir.progitems.push_back(std::make_unique<ReturnStmtLIR>());
 }
 
 Box<ExprLIR> LIRSynthesizer::clone_lvalue(ExprLIR *expr) {
@@ -905,11 +913,27 @@ void LIRSynthesizer::do_visit(CastExprMIR& node) {
     node.inner->accept(*this);
 
     Box<ExprLIR> inner = std::move(last_expr);
+    if (auto *literal = dyncast<LiteralExprLIR>(inner.get());
+        literal && literal->is_val() && node.target->is_primitive()) {
 
-    Box<ExprLIR> expr = std::make_unique<CastExprLIR>(
-        node.loc, node.act_type, std::move(inner), node.target, mirck_to_lirck(node.castkind));
+        // if inner is a literal value and target is primitive, directly perform the cast now
+        PrimitiveType *prim_target = node.target->as_primitive();
+        eval::Value cast_val =
+            std::get<eval::Value>(literal->value).pr_cast(prim_target->get_primkind());
 
-    last_expr = std::move(expr);
+        literal->value = cast_val;
+
+        // use the folded node's type, to preserve const
+        literal->set_type(node.act_type);
+        literal->loc = node.loc;
+
+        last_expr = std::move(inner);
+    } else {
+        Box<ExprLIR> expr = std::make_unique<CastExprLIR>(
+            node.loc, node.act_type, std::move(inner), node.target, mirck_to_lirck(node.castkind));
+
+        last_expr = std::move(expr);
+    }
 }
 
 void LIRSynthesizer::do_visit(AssignExprMIR& node) {
@@ -953,7 +977,13 @@ void LIRSynthesizer::do_visit(IdentExprMIR& node) {
     // in the LIR symbol map. Synthesize a literal directly for these instead of looking them
     // up. This must hold independent of whether the (optimization-only) constant-folding pass
     // has run.
-    if (VarSymbol *varsym = node.ident->as_varsym(); varsym && varsym->value) {
+    //
+    // Function parameters with default values also carry a VarSymbol::value (the default),
+    // but unlike symbolic constants they *do* have physical storage - they go through
+    // CFGBuilder's param-alloca handling like any other parameter - so every reference to
+    // one must still resolve to that storage, not to the default literal.
+    if (VarSymbol *varsym = node.ident->as_varsym();
+        varsym && varsym->value && !varsym->is_funcparam) {
         last_expr = std::make_unique<LiteralExprLIR>(node.loc, *varsym->value, node.act_type);
         return;
     }

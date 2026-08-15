@@ -5,6 +5,7 @@
 #include "error.hpp"
 #include "lowering/cfg/builder.hpp"
 #include "lowering/cfg/cfg.hpp"
+#include "lowering/cfg/printer.hpp"
 #include "lowering/lir/lir.hpp"
 #include "lowering/lir/printer.hpp"
 #include "lowering/lir/symbols.hpp"
@@ -124,6 +125,10 @@ void Backend::run(Ecc& ecc, driver::TranslationUnit& unit) {
     }
 
     CFGBuilder cfgbuilder(types, cfg);
-
     cfgbuilder.build_cfg(lir);
+
+    dbprint("--------- CFG ---------\n");
+
+    CFGPrinter cfgprinter;
+    cfgprinter.print(cfg);
 }

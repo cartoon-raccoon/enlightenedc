@@ -229,6 +229,11 @@ public:
     sema::types::Type *act_type;
     sema::types::Type *eff_type;
 
+    void set_type(sema::types::Type *type) {
+        act_type = type;
+        eff_type = type->effective_type();
+    }
+
     static bool classof(const LIRNode *node) {
         switch (node->kind) {
         case NodeKind::BINEXPR_LIR:
@@ -265,6 +270,12 @@ public:
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::FUNC_LIR; }
 };
 
+class Memcpy {};
+
+class Memmove {};
+
+class Memset {};
+
 class GotoStmtLIR : public LIRVisitable<GotoStmtLIR, TerminalLIR> {
 public:
     GotoStmtLIR(std::string mangled_target)
@@ -294,6 +305,8 @@ public:
 
     ReturnStmtLIR(Location loc)
         : LIRVisitable<ReturnStmtLIR, TerminalLIR>(loc, NodeKind::RETSTMT_LIR) {}
+
+    ReturnStmtLIR() : LIRVisitable<ReturnStmtLIR, TerminalLIR>(NodeKind::RETSTMT_LIR) {}
 
     Optional<Box<ExprLIR>> ret_value;
 

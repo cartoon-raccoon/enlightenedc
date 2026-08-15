@@ -15,15 +15,25 @@ CFGPrinter walks the function list in the order it was created,
 and for each function, walks the blocks of the function in
 creation order as well. It does not perform DFS (as of now).
 */
-class CFGPrinter : public CFGValueVisitor {
+class CFGPrinter : public CFGVisitor {
     size_t indent = 0;
+
+    /**
+    Assigns names to the unlabeled blocks, unnamed instructions, and unnamed allocas of
+    a single function.
+    */
+    void name_function(FunctionCFG& func);
 
 public:
     void print(ProgramCFG& cfg);
 
     void print_function(FunctionCFG& func);
 
-    void print_block(BasicBlock *blk);
+    void print_block(BasicBlock& blk);
+
+    void print_value(Value& value);
+
+    void print_value_name(Value& value);
 
     void visit(AllocaInst& inst) override;
     void visit(LoadInst& inst) override;
@@ -46,6 +56,11 @@ public:
     void visit(Global& val) override;
     void visit(FuncArg& val) override;
     void visit(String& val) override;
+
+    void visit(If& term) override;
+    void visit(Goto& term) override;
+    void visit(Switch& term) override;
+    void visit(Return& term) override;
 };
 
 } // namespace ecc::lower::cfg

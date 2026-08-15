@@ -29,11 +29,16 @@ class Global;
 class FuncArg;
 class String;
 
-class CFGValueVisitor
+class If;
+class Goto;
+class Switch;
+class Return;
+
+class CFGVisitor
     : public Visitor<
-          CFGValueVisitor, AllocaInst, LoadInst, StoreInst, PhiInst, PrintInst, BinaryInst,
-          UnaryInst, IncrInst, DecrInst, CastInst, ReintInst, MemberAccInst, SubscrInst, CallInst,
-          FuncRef, Literal, Zero, Global, FuncArg, String> {};
+          CFGVisitor, AllocaInst, LoadInst, StoreInst, PhiInst, PrintInst, BinaryInst, UnaryInst,
+          IncrInst, DecrInst, CastInst, ReintInst, MemberAccInst, SubscrInst, CallInst, FuncRef,
+          Literal, Zero, Global, FuncArg, String, If, Goto, Switch, Return> {};
 
 } // namespace ecc::lower::cfg
 

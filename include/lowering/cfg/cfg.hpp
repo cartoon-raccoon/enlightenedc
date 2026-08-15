@@ -34,7 +34,7 @@ class Switch;
 class FunctionCFG;
 
 template <typename DerivedT, typename BaseT>
-using CFGVisitable = Visitable<DerivedT, BaseT, CFGValueVisitor>;
+using CFGVisitable = Visitable<DerivedT, BaseT, CFGVisitor>;
 
 /**
 A CFG value.
@@ -98,7 +98,7 @@ public:
     virtual FuncArg *as_funcarg() { return nullptr; }
     virtual String *as_string() { return nullptr; }
 
-    virtual void accept(CFGValueVisitor& visitor) = 0;
+    virtual void accept(CFGVisitor& visitor) = 0;
 };
 
 /**
@@ -360,7 +360,6 @@ public:
         MOD,
     };
 
-
     BinaryInst(
         BasicBlock *containing, sema::types::Type *type, Operator op, Value *loperand,
         Value *roperand, Location loc)
@@ -392,12 +391,10 @@ public:
     The operators that can appear inside an unary instruction.
 
     This is used instead of tokens::UnaryOp because some of those operators
-    (namely, INC and DEC) get lowered into other constructs
+    (namely, REF, DEREF, INC and DEC) get lowered into other constructs
     instead of a single unary instruction.
     */
     enum class Operator : uint8_t {
-        REF,
-        DEREF,
         POS,
         NEG,
         TILDE,
@@ -405,8 +402,7 @@ public:
     };
 
     UnaryInst(
-        BasicBlock *containing, sema::types::Type *type, Operator op, Value *operand,
-        Location loc)
+        BasicBlock *containing, sema::types::Type *type, Operator op, Value *operand, Location loc)
         : CFGVisitable<UnaryInst, Instruction>(containing, InstKind::UNARY, type, loc), op(op),
           operand(operand) {}
 
@@ -416,7 +412,7 @@ public:
     /**
     Get the Operator corresponding to `op`.
 
-    Throws std::runtime_error if an invalid UnaryOp is provided (INC or DEC).
+    Throws std::runtime_error if an invalid UnaryOp is provided (REF, DEREF, INC or DEC).
     */
     static Operator op_from_token(tokens::UnaryOp op);
 
@@ -589,6 +585,8 @@ public:
     virtual Return *as_return() { return nullptr; }
     virtual Switch *as_switch() { return nullptr; }
 
+    virtual void accept(CFGVisitor& visitor) = 0;
+
 protected:
     virtual void abstract() = 0;
 };
@@ -630,6 +628,8 @@ public:
 
     If *as_if() override { return this; }
 
+    void accept(CFGVisitor& visitor) override;
+
     static bool classof(const Terminator *node) { return node->kind == Kind::IF; }
 
 protected:
@@ -648,6 +648,8 @@ public:
     void set_target(BasicBlock *blk);
 
     Goto *as_goto() override { return this; }
+
+    void accept(CFGVisitor& visitor) override;
 
     static bool classof(const Terminator *node) { return node->kind == Kind::GOTO; }
 
@@ -689,6 +691,8 @@ public:
 
     Switch *as_switch() override { return this; }
 
+    void accept(CFGVisitor& visitor) override;
+
     static bool classof(const Terminator *node) { return node->kind == Kind::SWITCH; }
 
 protected:
@@ -708,6 +712,8 @@ public:
     Optional<Value *> ret_value;
 
     Return *as_return() override { return this; }
+
+    void accept(CFGVisitor& visitor) override;
 
     static bool classof(const Terminator *node) { return node->kind == Kind::RETURN; }
 
@@ -985,6 +991,8 @@ public:
     */
     BasicBlock *initialize();
 
+    const std::string& get_name() { return name; }
+
     FuncArg *add_arg(sema::types::Type *type);
 
     FuncArg *arg_idx(size_t idx) { return idx < args.size() ? args[idx].get() : nullptr; }
@@ -1162,6 +1170,11 @@ public:
     An iterator over the globals in the program, in the order they were added.
     */
     ProgramCFGGlobals get_globals();
+
+    /**
+    An iterator over the func refs in the program.
+    */
+    Span<Box<FuncRef>> get_funcrefs() { return funcrefs; }
 
     /**
     Adds a new string to the ProgramCFG corresponding to the passed string,

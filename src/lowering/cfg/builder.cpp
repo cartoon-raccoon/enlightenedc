@@ -34,14 +34,16 @@ Value *CFGBuilder::eval(ExprLIR& node) {
 
 Value *CFGBuilder::eval_lvalue(ExprLIR& node) {
     if (auto *ident = dyncast<IdentExprLIR>(&node)) {
-        assert(ident->sym->is_var());
 
-        Value *ret;
-
-        if (auto *alloc = curr_func->lookup_alloca(ident->sym->as_varsym())) {
-            ret = alloc;
+        Value *ret = nullptr;
+        if (ident->sym->is_var()) {
+            if (auto *alloc = curr_func->lookup_alloca(ident->sym->as_varsym())) {
+                ret = alloc;
+            } else {
+                ret = prog_cfg.add_or_get_global(ident->sym->as_varsym());
+            }
         } else {
-            ret = prog_cfg.add_or_get_global(ident->sym->as_varsym());
+            ret = prog_cfg.ref_function(ident->sym->as_funcsym()->lir);
         }
 
         assert(ret);
@@ -53,6 +55,11 @@ Value *CFGBuilder::eval_lvalue(ExprLIR& node) {
             eval_lvalue(*member->object); // object is a pointer *value*, same as the rvalue path
         return curr_blk->add_instruction<MemberAccInst>(
             member->act_type, member->member_idx, base, *member->loc);
+    }
+    if (auto *reint = dyncast<ReintExprLIR>(&node)) {
+        Value *base = eval_lvalue(*reint->object);
+        return curr_blk->add_instruction<ReintInst>(
+            reint->act_type, reint->target, base, *reint->loc);
     }
     if (auto *subscr = dyncast<SubscrExprLIR>(&node)) {
         Value *index = eval(*subscr->index);
@@ -273,6 +280,8 @@ void CFGBuilder::visit(SwitchStmtLIR& node) {
     }
 
     pop_info();
+
+    curr_blk = merge;
 }
 
 #pragma clang diagnostic push
@@ -476,6 +485,7 @@ void CFGBuilder::visit(LoopStmtLIR& node) {
         if (!body_exit->is_terminated()) {
             body_exit->terminate<Goto>()->set_target(cond_blk);
         }
+        condition->set_then_target(body_blk);
     } else {
         // Every non-dowhile shape with a condition takes the same then-target:
         // the body always runs next -- never the step.
@@ -532,6 +542,15 @@ void CFGBuilder::visit(ReturnStmtLIR& node) {
 
 void CFGBuilder::visit(VarDeclLIR& node) {
     dbprint("visiting VarDeclLIR node ", node.loc ? *node.loc : Location{});
+
+    // Parameters are hoisted into FunctionLIR::locals alongside real locals (both flow
+    // through the same synthesis queue), but visit(FunctionLIR&) already allocas + stores
+    // every parameter explicitly before walking locals. Reprocessing one here would
+    // allocate a second AllocaInst for the same symbol and clobber the first, leaving the
+    // parameter's incoming-argument store pointing at a freed instruction.
+    if (node.lirsym->is_param) {
+        return;
+    }
 
     curr_func->add_alloca(curr_blk, node.lirsym);
 }
@@ -630,11 +649,18 @@ void CFGBuilder::visit(UnaryExprLIR& node) {
         last_value = updated;
         break;
     }
+    case UnaryOp::REF:
+        last_value = eval_lvalue(*node.operand);
+        break;
+    case UnaryOp::DEREF: {
+        Value *address = eval(*node.operand);
+        last_value     = curr_blk->add_instruction<LoadInst>(node.act_type, address, *node.loc);
+        break;
+    }
     default: {
-        Value *operand = eval(*node.operand);
+        Value *operand         = eval(*node.operand);
         UnaryInst::Operator op = UnaryInst::op_from_token(node.op);
-        last_value =
-            curr_blk->add_instruction<UnaryInst>(node.act_type, op, operand, *node.loc);
+        last_value = curr_blk->add_instruction<UnaryInst>(node.act_type, op, operand, *node.loc);
     }
     }
     assert(last_value && "last_value is nullptr at end of expr visit");
@@ -673,11 +699,10 @@ void CFGBuilder::visit(AssignExprLIR& node) {
     Value *right  = eval(*node.right);
 
     Value *to_store = right;
-    BinaryInst::Operator op = BinaryInst::op_from_token(assign_op_to_binop(node.op));
     if (node.op != AssignOp::ASSIGN) {
         Value *cur = curr_blk->add_instruction<LoadInst>(node.act_type, lvalue, *node.loc);
-        to_store   = curr_blk->add_instruction<BinaryInst>(
-            node.act_type, op, cur, right, *node.loc);
+        BinaryInst::Operator op = BinaryInst::op_from_token(assign_op_to_binop(node.op));
+        to_store = curr_blk->add_instruction<BinaryInst>(node.act_type, op, cur, right, *node.loc);
     }
 
     curr_blk->add_instruction<StoreInst>(types, lvalue, to_store, *node.loc);
