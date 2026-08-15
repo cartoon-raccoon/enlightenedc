@@ -164,7 +164,7 @@ public:
 
     FuncArg *as_funcarg() override { return this; }
 
-    static bool classof(const Value *node) { return node->valkind == ValueKind::STR; }
+    static bool classof(const Value *node) { return node->valkind == ValueKind::ARG; }
 };
 
 class String : public CFGVisitable<String, Value> {
