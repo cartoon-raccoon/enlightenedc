@@ -76,7 +76,7 @@ Value ConstEvaluator::eval(CastExprMIR& expr) {
     using namespace ecc::sema::types;
     using namespace ecc::tokens;
     if (auto *prim = target->as_primitive()) {
-        switch (prim->primkind) {
+        switch (prim->get_primkind()) {
         case PrimType::U8:
             return val.cast<uint8_t>();
         case PrimType::U16:

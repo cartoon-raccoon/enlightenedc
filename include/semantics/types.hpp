@@ -927,7 +927,7 @@ or to a pointer of any base.
 */
 class PrimitiveType : public BaseType {
 public:
-    tokens::PrimType primkind;
+    tokens::PrimType get_primkind() { return primkind; }
 
     bool coercible_to(Type *dst) override;
 
@@ -979,6 +979,7 @@ public:
     }
 
 protected:
+    tokens::PrimType primkind;
     friend class TypeContext;
 
     friend constexpr Box<PrimitiveType>

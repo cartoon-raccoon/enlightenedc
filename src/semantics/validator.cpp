@@ -763,8 +763,8 @@ void Validator::do_visit(BinaryExprMIR& node) {
 
         // todo: add warning about narrowing
 
-        auto finaltype =
-            prim::pr_check_binary_op(node.op, left_type->primkind, right_type->primkind);
+        auto finaltype = prim::pr_check_binary_op(
+            node.op, left_type->get_primkind(), right_type->get_primkind());
 
         if (!finaltype) {
             bsv_dbprint("error: operator not applicable to these primitive types");
@@ -1293,7 +1293,7 @@ void Validator::do_visit(ReintExprMIR& node) {
         // todo: warn that reinterpreting floats as bytearrays is risky
     }
 
-    PrimType objprim = objtype->primkind;
+    PrimType objprim = objtype->get_primkind();
 
     if (prim::pr_size(objprim) < prim::pr_size(node.target)) {
         bsv_dbprint("error: reinterpret target type is larger than object type");
