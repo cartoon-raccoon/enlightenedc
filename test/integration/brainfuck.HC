@@ -1,7 +1,13 @@
 #define DEFAULT_DATA_SIZE 30000
 #define DEFAULT_CODE_SIZE 1024
 
-#define DEFAULT_STACK_CAP 32
+#define DEFAULT_STACK_CAP 256
+
+#define NULL ((U0 *) 0)
+
+U0 *MAlloc(U64 size);
+U0 *CAlloc(U64 size, U64 num);
+U0 *ReAlloc(U0 *ptr, U64 size);
 
 U0 Execute();
 
@@ -9,7 +15,7 @@ U0 Execute();
 class Stack {
     I32 cap;
     I32 len;
-    I32 data[DEFAULT_STACK_CAP];
+    I32 *data;
 };
 
 Stack nesting = { DEFAULT_STACK_CAP, 0 };
@@ -44,12 +50,12 @@ I32 StackPop() {
 }
 
 /* our code */
-I8 code[DEFAULT_CODE_SIZE];
+I8 *code;
 I32 insptr = 0;
 I32 codesize = DEFAULT_CODE_SIZE;
 
 /* our data */
-I8 data[DEFAULT_DATA_SIZE];
+I8 *data;
 I32 dataptr = 0;
 
 enum ErrType {SYSTEM = 1, BAD_CODE = 2};
@@ -84,14 +90,16 @@ U0 ReadCode(I8 *src) {
         }
 
         if (n + 1 == codesize) {
-            Die("code too large", SYSTEM);
-            return;
+            codesize *= 2;
+            code = ReAlloc(code, codesize);
+            if (code == NULL) {
+                Die("Unable to read code", SYSTEM);
+            }
         }
         i++;
     }
 
     code[n] = '\0';
-    "got code: (", code, ")\n";
 }
 
 /* Jumps to the command after the matching closing bracket. */
@@ -201,18 +209,14 @@ U0 Execute() {
 }
 
 U0 Initialize() {
-    I32 i = 0;
-
-    while (i < DEFAULT_DATA_SIZE) {
-        data[i] = 0;
-        i++;
-    }
-
-    nesting.len = 0;
+    data = CAlloc(sizeof(I8), DEFAULT_DATA_SIZE);
+    code = MAlloc(sizeof(I8) * DEFAULT_CODE_SIZE);
+    nesting.data = MAlloc(sizeof(I32) * DEFAULT_STACK_CAP);
+    nesting.cap = DEFAULT_STACK_CAP;
 }
 
 U0 PrintUsage(I8 *argname) {
-    "usage: ", argname, " [-m MEMSIZE] CODE";
+    "usage: %s [-m MEMSIZE] CODE", argname;
 }
 
 I32 Main() {
