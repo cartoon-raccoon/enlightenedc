@@ -6,6 +6,9 @@ This document lays out the planned improvements and updates for the EnlightenedC
 
 These are to-dos that are important, but do not constitute a milestone.
 
+- Move global initializers from implicit main to constant expressions (like C)
+- Implement insertion of memcpy, memmove, memset
+- Implement AST/MIR matchers
 - More granular location tracking (per operator,
   individual class parents, etc)
 - Add options to integration tests to control what phase to
