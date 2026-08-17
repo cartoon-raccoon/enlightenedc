@@ -73,11 +73,43 @@ void LIRPrinter::visit(FunctionLIR& node) {
 }
 
 void LIRPrinter::visit(VarDeclLIR& node) {
-    print_node("VarDecl: " + node.lirsym->name + " (" + node.lirsym->mangled_name + ")", node, [&] {
-        print_indent();
-        std::cout << "type: " << node.lirsym->type->formal()
-                  << (node.lirsym->is_param ? " [param]" : "") << "\n";
+    print_node("VarDecl: " + node.lirsym->name + " (" + node.lirsym->mangled_name + ")", node, 
+        [&] {
+            print_indent();
+            std::cout << "type: " << node.lirsym->type->formal()
+                    << (node.lirsym->is_param ? " [param]" : "") << "\n";
+        },
+        [&] {
+            if (node.init) {
+                node.init->accept(*this);
+            }
+        }
+    );
+}
+
+void LIRPrinter::visit(ScalarInitLIR& node) {
+    print_node("ScalarInit: " + node.val.to_string() + " :: " + node.type->formal(), node);
+}
+
+void LIRPrinter::visit(AggregateInitLIR& node) {
+    print_node("AggregateInit :: " + node.type->formal(), node, [&] {
+        for (auto& elem : node.elements)
+            elem->accept(*this);
     });
+}
+
+void LIRPrinter::visit(StringInitLIR& node) {
+    print_node(
+        "StringInit: \"" + encode_string_literal(node.str) + "\" :: " + node.type->formal(), node);
+}
+
+void LIRPrinter::visit(FuncInitLIR& node) {
+    print_node(
+        "FuncInit: " + node.func->funcsym->name + " :: " + node.type->formal(), node);
+}
+
+void LIRPrinter::visit(ZeroInitLIR& node) {
+    print_node("ZeroInit :: " + node.type->formal(), node);
 }
 
 void LIRPrinter::visit(LabelDeclLIR& node) {

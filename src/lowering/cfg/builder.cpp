@@ -555,6 +555,26 @@ void CFGBuilder::visit(VarDeclLIR& node) {
     curr_func->add_alloca(curr_blk, node.lirsym);
 }
 
+void CFGBuilder::visit(ScalarInitLIR& node) {
+
+}
+
+void CFGBuilder::visit(AggregateInitLIR& node) {
+
+}
+
+void CFGBuilder::visit(StringInitLIR& node) {
+    
+}
+
+void CFGBuilder::visit(FuncInitLIR& node) {
+    
+}
+
+void CFGBuilder::visit(ZeroInitLIR& node) {
+    
+}
+
 void CFGBuilder::visit(BinaryExprLIR& node) {
     dbprint("visiting BinaryExprLIR node ", node.loc ? *node.loc : Location{});
 

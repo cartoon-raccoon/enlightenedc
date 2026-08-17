@@ -39,11 +39,17 @@ LIRFuncSym *LIRSymbolMap::add_function(FuncSymbol *funcsym, Box<LIRFuncSym> func
     return ret;
 }
 
-LIRVarSym *LIRSymbolMap::insert_global(sema::sym::VarSymbol *sym, Box<LIRVarSym> var) {
+LIRVarSym *LIRSymbolMap::insert_global(VarSymbol *sym, Box<LIRVarSym> var) {
     LIRVarSym *ret = var.get();
     globals[sym]   = std::move(var);
 
     return ret;
+}
+
+LIRFuncSym *LIRSymbolMap::lookup_func(FuncSymbol *sym) {
+    if (!funcs.contains(sym)) return nullptr;
+
+    return funcs[sym].get();
 }
 
 LIRSym *LIRSymbolMap::lookup(sema::sym::PhysicalSymbol *sym) {

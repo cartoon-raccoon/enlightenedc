@@ -124,6 +124,8 @@ public:
 
     LIRVarSym *insert_global(sema::sym::VarSymbol *sym, Box<LIRVarSym> var);
 
+    LIRFuncSym *lookup_func(sema::sym::FuncSymbol *sym);
+
     LIRSym *lookup(sema::sym::PhysicalSymbol *sym);
 
 private:

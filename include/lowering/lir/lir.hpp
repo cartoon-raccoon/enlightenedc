@@ -1,11 +1,11 @@
 #pragma once
 
-#include <variant>
 #ifndef ECC_LIR_H
 #define ECC_LIR_H
 
 #include <cstddef>
 #include <string>
+#include <variant>
 
 #include "abstract/visitor.hpp"
 #include "eval/value.hpp"
@@ -36,6 +36,12 @@ public:
 
         VARDECL_LIR,
         LABDECL_LIR,
+        
+        SCLINIT_LIR,
+        AGGINIT_LIR,
+        STRINIT_LIR,
+        FUNCINIT_LIR,
+        ZEROINIT_LIR,
 
         GOTOSTMT_LIR,
         RETSTMT_LIR,
@@ -77,6 +83,87 @@ public:
     virtual void accept(LIRVisitor& visitor) = 0;
 };
 
+/**
+A constant initializer for a global, indicating that code to initialize the corresponding
+variable should not be generated, and instead the value should be baked into the final
+executable.
+*/
+class ConstInitLIR : public LIRNode {
+public:
+    ConstInitLIR(Location loc, NodeKind kind, sema::types::Type *type)
+        : LIRNode(loc, kind), type(type) {}
+
+    ConstInitLIR(NodeKind kind, sema::types::Type *type)
+        : LIRNode(kind), type(type) {}
+
+    sema::types::Type *type;
+
+    static bool classof(const LIRNode *node) {
+        switch (node->kind) {
+        case NodeKind::SCLINIT_LIR:
+        case NodeKind::AGGINIT_LIR:
+        case NodeKind::STRINIT_LIR:
+        case NodeKind::FUNCINIT_LIR:
+        case NodeKind::ZEROINIT_LIR:
+            return true;
+        default:
+            return false;
+        }
+    }
+};
+
+class ScalarInitLIR: public LIRVisitable<ScalarInitLIR, ConstInitLIR> {
+public:
+    ScalarInitLIR(Location loc, sema::types::PrimitiveType *type, eval::Value& val)
+        : LIRVisitable<ScalarInitLIR, ConstInitLIR>(loc, NodeKind::SCLINIT_LIR, type), val(val) {}
+
+    eval::Value val;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::SCLINIT_LIR; }
+};
+
+/**
+A const-initializer for an aggregate type (Array or Class).
+*/
+class AggregateInitLIR: public LIRVisitable<AggregateInitLIR, ConstInitLIR> {
+public:
+    AggregateInitLIR(Location loc, sema::types::Type *type)
+        : LIRVisitable<AggregateInitLIR, ConstInitLIR>(loc, NodeKind::AGGINIT_LIR, type) {}
+
+    Vec<Box<ConstInitLIR>> elements;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::AGGINIT_LIR; }
+};
+
+class StringInitLIR : public LIRVisitable<StringInitLIR, ConstInitLIR> {
+public:
+    StringInitLIR(Location loc, sema::types::Type *type, std::string str)
+        : LIRVisitable<StringInitLIR, ConstInitLIR>(loc, NodeKind::STRINIT_LIR, type),
+        str(std::move(str)) {}
+
+    std::string str;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::STRINIT_LIR; }
+};
+
+class FuncInitLIR : public LIRVisitable<FuncInitLIR, ConstInitLIR> {
+public:
+    FuncInitLIR(Location loc, sema::types::FunctionType *sig, FunctionLIR *func)
+        : LIRVisitable<FuncInitLIR, ConstInitLIR>(loc, NodeKind::FUNCINIT_LIR, sig), func(func) {}
+
+    FunctionLIR *func;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::FUNCINIT_LIR; }
+};
+
+class ZeroInitLIR : public LIRVisitable<ZeroInitLIR, ConstInitLIR> {
+public:
+    ZeroInitLIR(sema::types::Type *type)
+        : LIRVisitable<ZeroInitLIR, ConstInitLIR>(NodeKind::ZEROINIT_LIR, type) {}
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::ZEROINIT_LIR; }
+};
+
 class VarDeclLIR : public LIRVisitable<VarDeclLIR, LIRNode> {
 public:
     VarDeclLIR(Location loc, LIRVarSym *var)
@@ -86,6 +173,7 @@ public:
         : LIRVisitable<VarDeclLIR, LIRNode>(NodeKind::VARDECL_LIR), lirsym(var) {}
 
     LIRVarSym *lirsym;
+    Box<ConstInitLIR> init = nullptr;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::VARDECL_LIR; }
 };

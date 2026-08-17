@@ -10,6 +10,11 @@ namespace ecc::lower::lir {
 class ProgramLIR;
 class FunctionLIR;
 class VarDeclLIR;
+class ScalarInitLIR;
+class AggregateInitLIR;
+class StringInitLIR;
+class FuncInitLIR;
+class ZeroInitLIR;
 class LabelDeclLIR;
 class CaseLIR;
 class DefaultLIR;
@@ -38,7 +43,7 @@ class PostfixExprLIR;
 
 class LIRVisitor
     : public Visitor<
-          LIRVisitor, ProgramLIR, FunctionLIR, VarDeclLIR, LabelDeclLIR, CaseLIR, DefaultLIR,
+          LIRVisitor, ProgramLIR, FunctionLIR, VarDeclLIR, ScalarInitLIR, AggregateInitLIR, StringInitLIR, FuncInitLIR, ZeroInitLIR, LabelDeclLIR, CaseLIR, DefaultLIR,
           ExprStmtLIR, GotoStmtLIR, SwitchStmtLIR, BreakStmtLIR, ContStmtLIR, IfStmtLIR,
           LoopStmtLIR, PrintStmtLIR, ReturnStmtLIR, BinaryExprLIR, UnaryExprLIR, CastExprLIR,
           AssignExprLIR, CondExprLIR, IdentExprLIR, LiteralExprLIR, ZeroExprLIR, CallExprLIR,

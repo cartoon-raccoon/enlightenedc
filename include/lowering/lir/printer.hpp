@@ -30,6 +30,11 @@ public:
     void visit(FunctionLIR& node) override;
 
     void visit(VarDeclLIR& node) override;
+    void visit(ScalarInitLIR& node) override;
+    void visit(AggregateInitLIR& node) override;
+    void visit(StringInitLIR& node) override;
+    void visit(FuncInitLIR& node) override;
+    void visit(ZeroInitLIR& node) override;
 
     void visit(LabelDeclLIR& node) override;
     void visit(CaseLIR& node) override;
