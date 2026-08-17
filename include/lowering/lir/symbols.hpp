@@ -24,10 +24,10 @@ public:
     };
 
     LIRSym(
-        LIRSymKind kind, std::string mangled, std::string name, sema::sym::Scope *scope, sema::sym::Linkage linkage,
-        sema::sym::Visibility vis, Location loc)
-        : kind(kind), mangled_name(std::move(mangled)), name(std::move(name)), scope(scope), linkage(linkage),
-          vis(vis), loc(loc) {}
+        LIRSymKind kind, std::string mangled, std::string name, sema::sym::Scope *scope,
+        sema::sym::Linkage linkage, sema::sym::Visibility vis, Location loc)
+        : kind(kind), mangled_name(std::move(mangled)), name(std::move(name)), scope(scope),
+          linkage(linkage), vis(vis), loc(loc) {}
 
     virtual ~LIRSym() = default;
 
@@ -57,9 +57,10 @@ The representation of a physical variable (memory location) in the LIR.
 */
 class LIRVarSym : public LIRSym {
 public:
-    LIRVarSym(
-        std::string mangled, std::string name, sema::sym::VarSymbol *sym)
-        : LIRSym(LIRSymKind::VAR, std::move(mangled), std::move(name), sym->scope, sym->linkage, sym->visibility, sym->loc),
+    LIRVarSym(std::string mangled, std::string name, sema::sym::VarSymbol *sym)
+        : LIRSym(
+              LIRSymKind::VAR, std::move(mangled), std::move(name), sym->scope, sym->linkage,
+              sym->visibility, sym->loc),
           type(sym->type), is_param(sym->is_funcparam) {}
 
     // The type of the variable.
@@ -83,9 +84,10 @@ LIRFuncSym (and thus the same FunctionLIR) is returned on subsequent insertion a
 */
 class LIRFuncSym : public LIRSym {
 public:
-    LIRFuncSym(
-        std::string mangled, std::string name, sema::sym::FuncSymbol *sym)
-        : LIRSym(LIRSymKind::FUNC, std::move(mangled), std::move(name), sym->scope, sym->linkage, sym->visibility, sym->loc),
+    LIRFuncSym(std::string mangled, std::string name, sema::sym::FuncSymbol *sym)
+        : LIRSym(
+              LIRSymKind::FUNC, std::move(mangled), std::move(name), sym->scope, sym->linkage,
+              sym->visibility, sym->loc),
           signature(sym->signature) {}
 
     sema::types::FunctionType *signature;

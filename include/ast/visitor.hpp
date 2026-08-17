@@ -68,18 +68,19 @@ class SizeofExpression;
 
 class ASTVisitor
     : public Visitor<
-          ASTVisitor, Program, AttributeArg, Attribute, Function, TypeDeclaration, VariableDeclaration, ParameterDeclaration,
-          Declarator, ParenDeclarator, ArrayDeclarator, FunctionDeclarator, InitDeclarator, Pointer,
-          ClassDeclarator, ClassDeclaration, Enumerator, StorageClassSpecifier, TypeQualifier,
-          EnumSpecifier, ClassSpecifier, UnionSpecifier, TypeIdentifier, VoidSpecifier,
-          PrimitiveSpecifier, Initializer, TypeName, IdentifierDeclarator, CompoundStatement,
-          ExpressionStatement, CaseStatement, CaseRangeStatement, DefaultStatement,
-          LabeledStatement, PrintStatement, IfStatement, SwitchStatement, WhileStatement,
-          DoWhileStatement, ForStatement, GotoStatement, BreakStatement, ContinueStatement,
-          ReturnStatement, BinaryExpression, CastExpression, UnaryExpression, AssignmentExpression,
-          ConditionalExpression, IdentifierExpression, ConstExpression, LiteralExpression,
-          StringExpression, CallExpression, MemberAccessExpression, ReinterpretExpression,
-          ArraySubscriptExpression, PostfixExpression, SizeofExpression> {};
+          ASTVisitor, Program, AttributeArg, Attribute, Function, TypeDeclaration,
+          VariableDeclaration, ParameterDeclaration, Declarator, ParenDeclarator, ArrayDeclarator,
+          FunctionDeclarator, InitDeclarator, Pointer, ClassDeclarator, ClassDeclaration,
+          Enumerator, StorageClassSpecifier, TypeQualifier, EnumSpecifier, ClassSpecifier,
+          UnionSpecifier, TypeIdentifier, VoidSpecifier, PrimitiveSpecifier, Initializer, TypeName,
+          IdentifierDeclarator, CompoundStatement, ExpressionStatement, CaseStatement,
+          CaseRangeStatement, DefaultStatement, LabeledStatement, PrintStatement, IfStatement,
+          SwitchStatement, WhileStatement, DoWhileStatement, ForStatement, GotoStatement,
+          BreakStatement, ContinueStatement, ReturnStatement, BinaryExpression, CastExpression,
+          UnaryExpression, AssignmentExpression, ConditionalExpression, IdentifierExpression,
+          ConstExpression, LiteralExpression, StringExpression, CallExpression,
+          MemberAccessExpression, ReinterpretExpression, ArraySubscriptExpression,
+          PostfixExpression, SizeofExpression> {};
 
 } // namespace ecc::ast
 

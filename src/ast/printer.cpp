@@ -25,7 +25,8 @@ void ASTPrinter::visit(Program& node) {
 }
 
 void ASTPrinter::visit(AttributeArg& node) {
-    print_node("AttributeArg: " + node.name + (node.value ? " = \"" + *node.value + "\"" : ""), node);
+    print_node(
+        "AttributeArg: " + node.name + (node.value ? " = \"" + *node.value + "\"" : ""), node);
 }
 
 void ASTPrinter::visit(Attribute& node) {

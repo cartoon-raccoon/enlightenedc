@@ -1201,9 +1201,8 @@ public:
     */
     FuncRef *ref_function(lir::FunctionLIR *func);
 
-    
     HashMap<std::string, Box<String>> strings;
-    
+
 private:
     Vec<lir::FunctionLIR *> function_order;
     HashMap<lir::FunctionLIR *, Box<FunctionCFG>> functions;
@@ -1272,7 +1271,7 @@ public:
 };
 
 class ProgramCFGFunctionIter {
-    size_t idx   = 0;
+    size_t idx        = 0;
     FunctionCFG *curr = nullptr;
 
     Span<lir::FunctionLIR *> order;

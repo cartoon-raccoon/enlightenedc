@@ -398,8 +398,7 @@ void LIRSynthesizer::do_visit(FunctionMIR& node) {
         std::string param_mangled = param->mangle();
         std::string param_name    = param->name;
 
-        Box<LIRVarSym> boxed_param = std::make_unique<LIRVarSym>(
-            param_mangled, param_name, param);
+        Box<LIRVarSym> boxed_param = std::make_unique<LIRVarSym>(param_mangled, param_name, param);
 
         LIRVarSym *lirparam = insert_varsym(param, std::move(boxed_param));
 

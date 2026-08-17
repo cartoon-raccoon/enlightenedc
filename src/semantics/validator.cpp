@@ -1161,7 +1161,7 @@ void Validator::do_visit(CallExprMIR& node) {
                     arg      = decay(arg_type->as_function()->decay(), std::move(arg), true);
                     arg_type = arg->act_type->unqual();
                 }
-                
+
                 // re-check after decay to prevent spurious cast nodes
                 if (arg_type != param_type) {
                     if (arg_type->coercible_to(param_type)) {

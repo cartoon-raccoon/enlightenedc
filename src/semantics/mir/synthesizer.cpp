@@ -199,11 +199,9 @@ void MIRSynthesizer::do_visit(AttributeArg& node) {
 #pragma clang diagnostic ignored "-Wunused-parameter"
 
 void MIRSynthesizer::check_attribute(FunctionMIR *function, AttributeArg& node) {
-    
 }
 
 void MIRSynthesizer::check_attribute(TypeDeclMIR *typedecl, AttributeArg& node) {
-    
 }
 
 #pragma clang diagnostic pop
