@@ -42,4 +42,6 @@
 
 build/*
 
+test/scratch/
+
 .cache/*
