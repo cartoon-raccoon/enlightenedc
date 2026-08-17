@@ -110,8 +110,8 @@ void CFGPrinter::print(ProgramCFG& cfg) {
         funcref->set_name(funcref->func->get_name());
     }
 
-    for (auto& [lir, function] : cfg.functions) {
-        name_function(*function);
+    for (auto *func : cfg.get_functions()) {
+        name_function(*func);
     }
     name_function(*cfg.implicit_main);
 
@@ -122,8 +122,8 @@ void CFGPrinter::print(ProgramCFG& cfg) {
     for (auto& [str, string] : cfg.strings) {
         string->accept(*this);
     }
-    for (auto& [lir, function] : cfg.functions) {
-        print_function(*function);
+    for (auto *func : cfg.get_functions()) {
+        print_function(*func);
         std::cout << "\n";
     }
     print_function(*cfg.implicit_main);

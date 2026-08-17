@@ -1146,9 +1146,13 @@ public:
 class ProgramCFGGlobalIter;
 class ProgramCFGGlobals;
 
+class ProgramCFGFunctionIter;
+class ProgramCFGFunctions;
+
 class ProgramCFG {
 public:
     friend class ProgramCFGGlobals;
+    friend class ProgramCFGFunctions;
 
     ProgramCFG() : implicit_main(std::make_unique<FunctionCFG>(nullptr)) {}
 
@@ -1188,16 +1192,22 @@ public:
     */
     FunctionCFG *add_or_get_function(lir::FunctionLIR *func);
 
+    FunctionCFG *lookup_function(lir::FunctionLIR *func);
+
+    ProgramCFGFunctions get_functions();
+
     /**
     Construct a FuncRef from a given FunctionLIR.
     */
     FuncRef *ref_function(lir::FunctionLIR *func);
 
+    
+    HashMap<std::string, Box<String>> strings;
+    
+private:
+    Vec<lir::FunctionLIR *> function_order;
     HashMap<lir::FunctionLIR *, Box<FunctionCFG>> functions;
 
-    HashMap<std::string, Box<String>> strings;
-
-private:
     Vec<lir::LIRVarSym *> global_order;
     HashMap<lir::LIRVarSym *, Box<Global>> globals;
 
@@ -1259,6 +1269,63 @@ public:
     ProgramCFGGlobalIter begin() { return ProgramCFGGlobalIter(prog, order); }
 
     ProgramCFGGlobalIter end() { return ProgramCFGGlobalIter(); }
+};
+
+class ProgramCFGFunctionIter {
+    size_t idx   = 0;
+    FunctionCFG *curr = nullptr;
+
+    Span<lir::FunctionLIR *> order;
+    ProgramCFG *prog = nullptr;
+
+    friend class ProgramCFG;
+    friend class ProgramCFGFunctions;
+
+    ProgramCFGFunctionIter(ProgramCFG *prog, Span<lir::FunctionLIR *> order)
+        : order(order), prog(prog) {
+        if (!order.empty()) {
+            curr = prog->lookup_function(order[idx]);
+        }
+    }
+
+    ProgramCFGFunctionIter() {}
+
+public:
+    using difference_type = std::ptrdiff_t;
+    using value_type      = FunctionCFG *;
+
+    FunctionCFG *operator*() const { return curr; }
+
+    ProgramCFGFunctionIter& operator++() {
+        ++idx;
+        curr = idx < order.size() ? prog->lookup_function(order[idx]) : nullptr;
+
+        return *this;
+    }
+
+    ProgramCFGFunctionIter operator++(int) {
+        ProgramCFGFunctionIter tmp = *this;
+        ++(*this);
+
+        return tmp;
+    }
+
+    bool operator==(const ProgramCFGFunctionIter& other) const { return curr == other.curr; }
+};
+
+class ProgramCFGFunctions {
+    friend class ProgramCFG;
+    friend class ProgramCFGFunctionIter;
+
+    Span<lir::FunctionLIR *> order;
+    ProgramCFG *prog;
+
+    ProgramCFGFunctions(ProgramCFG *prog) : order(prog->function_order), prog(prog) {}
+
+public:
+    ProgramCFGFunctionIter begin() { return ProgramCFGFunctionIter(prog, order); }
+
+    ProgramCFGFunctionIter end() { return ProgramCFGFunctionIter(); }
 };
 
 } // end namespace ecc::lower::cfg

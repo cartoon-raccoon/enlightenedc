@@ -339,8 +339,17 @@ FunctionCFG *ProgramCFG::add_or_get_function(FunctionLIR *func) {
     FunctionCFG *ret = funcfg.get();
 
     functions[func] = std::move(funcfg);
+    function_order.push_back(func);
 
     return ret;
+}
+
+FunctionCFG *ProgramCFG::lookup_function(FunctionLIR *func) {
+    return functions.contains(func) ? functions[func].get() : nullptr;
+}
+
+ProgramCFGFunctions ProgramCFG::get_functions() {
+    return ProgramCFGFunctions(this);
 }
 
 FuncRef *ProgramCFG::ref_function(FunctionLIR *func) {
