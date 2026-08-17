@@ -364,8 +364,7 @@ void LIRSynthesizer::do_visit(FunctionMIR& node) {
     std::string mangled = sym->mangle();
     std::string name    = sym->name;
 
-    Box<LIRFuncSym> func = std::make_unique<LIRFuncSym>(
-        mangled, name, sym->linkage, sym->visibility, sym->loc, sym->signature);
+    Box<LIRFuncSym> func = std::make_unique<LIRFuncSym>(mangled, name, sym);
 
     LIRFuncSym *funcptr = symbolmap.add_function(sym, std::move(func));
 
@@ -400,8 +399,7 @@ void LIRSynthesizer::do_visit(FunctionMIR& node) {
         std::string param_name    = param->name;
 
         Box<LIRVarSym> boxed_param = std::make_unique<LIRVarSym>(
-            param_mangled, param_name, param->linkage, param->visibility, param->loc, param->type,
-            true);
+            param_mangled, param_name, param);
 
         LIRVarSym *lirparam = insert_varsym(param, std::move(boxed_param));
 
@@ -467,8 +465,7 @@ void LIRSynthesizer::do_visit(VarDeclMIR& node) {
         VarSymbol *sym = decl.sym;
 
         // create our LIRVar and insert it
-        Box<LIRVarSym> boxed_var = std::make_unique<LIRVarSym>(
-            mangled, name, sym->linkage, sym->visibility, sym->loc, sym->type, sym->is_funcparam);
+        Box<LIRVarSym> boxed_var = std::make_unique<LIRVarSym>(mangled, name, sym);
 
         LIRVarSym *lirvar = insert_varsym(decl.sym, std::move(boxed_var));
 
