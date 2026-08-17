@@ -50,12 +50,13 @@ public:
     void visit(SubscrInst& inst) override;
     void visit(CallInst& inst) override;
 
+    void visit(ScalarConst& val) override;
+    void visit(AggregateConst& val) override;
+    void visit(ZeroConst& val) override;
     void visit(FuncRef& val) override;
-    void visit(Literal& val) override;
-    void visit(Zero& val) override;
     void visit(Global& val) override;
-    void visit(FuncArg& val) override;
     void visit(String& val) override;
+    void visit(FuncArg& val) override;
 
     void visit(If& term) override;
     void visit(Goto& term) override;

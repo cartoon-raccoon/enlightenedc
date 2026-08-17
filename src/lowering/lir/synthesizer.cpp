@@ -476,15 +476,11 @@ void LIRSynthesizer::do_visit(VarDeclMIR& node) {
 
         // visit the initializer
         if (decl.initializer) {
-            if (sym->scope->is_global()) {
-                // If we are processing a global variable, try to generate a constant initializer for it
-                // If we cannot, fall back to unfolding the initializer.
-                ConstInitLIRBuilder builder(symbolmap);
-                if (auto init = builder.try_build_constinit(sym->type, *(*decl.initializer))) {
-                    vardeclptr->init = std::move(*init);
-                } else {
-                    unfold_initializer(lirvar, *(*decl.initializer));
-                }
+            // Try to generate a constant initializer for it
+            // If we cannot, fall back to unfolding the initializer.
+            ConstInitLIRBuilder builder(symbolmap);
+            if (auto init = builder.try_build_constinit(sym->type, *(*decl.initializer))) {
+                vardeclptr->init = std::move(*init);
             } else {
                 unfold_initializer(lirvar, *(*decl.initializer));
             }

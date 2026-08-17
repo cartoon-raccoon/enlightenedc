@@ -118,9 +118,11 @@ void CFGPrinter::print(ProgramCFG& cfg) {
     // second pass - print
     for (auto *global : cfg.get_globals()) {
         global->accept(*this);
+        std::cout << "\n";
     }
     for (auto& [str, string] : cfg.strings) {
         string->accept(*this);
+        std::cout << " = \"" << encode_string_literal(string->data) << "\"\n";
     }
     for (auto *func : cfg.get_functions()) {
         print_function(*func);
@@ -185,7 +187,7 @@ void CFGPrinter::print_value(Value& value) {
 }
 
 void CFGPrinter::print_value_name(Value& value) {
-    if (isa<Literal>(&value) || isa<Zero>(&value)) {
+    if (isa<ScalarConst>(&value) || isa<ZeroConst>(&value) || isa<AggregateConst>(&value)) {
         value.accept(*this);
     } else if (isa<FuncRef>(&value) || isa<String>(&value)) {
         std::cout << value.name;
@@ -196,28 +198,45 @@ void CFGPrinter::print_value_name(Value& value) {
     }
 }
 
+void CFGPrinter::visit(ScalarConst& val) {
+    std::cout << val.value;
+}
+
+void CFGPrinter::visit(AggregateConst& val) {
+    std::cout << "{";
+
+    for (auto [idx, item] : std::views::enumerate(val.elements)) {
+        item->accept(*this);
+        if ((size_t) idx + 1 < val.elements.size()) {
+            std::cout << ", ";
+        }
+    }
+
+    std::cout << "}";
+}
+
+void CFGPrinter::visit(String& val) {
+    std::cout << val.name;
+}
+
+void CFGPrinter::visit(ZeroConst& val) {
+    std::cout << "zero: [" << val.type->formal() << "]";
+}
+
 void CFGPrinter::visit(FuncRef& val) {
     std::cout << "func " << val.func->get_name();
 }
 
-void CFGPrinter::visit(Literal& val) {
-    std::cout << val.value;
-}
-
-void CFGPrinter::visit(Zero& val) {
-    std::cout << "#zero: [" << val.type->formal() << "]";
-}
-
 void CFGPrinter::visit(Global& val) {
-    std::cout << "@" << val.name << " (" << val.type->formal() << ")\n";
+    std::cout << "@" << val.name << " (" << val.type->formal() << ")";
+    if (val.initializer) {
+        std::cout << " = ";
+        val.initializer->accept(*this);
+    }
 }
 
 void CFGPrinter::visit(FuncArg& val) {
     std::cout << "%" << val.name << ": " << val.type->formal();
-}
-
-void CFGPrinter::visit(String& val) {
-    std::cout << val.name << " = \"" << encode_string_literal(val.data) << "\"\n";
 }
 
 void CFGPrinter::visit(AllocaInst& inst) {

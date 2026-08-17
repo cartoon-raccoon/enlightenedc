@@ -291,17 +291,20 @@ AllocaInst *FunctionCFG::add_alloca(BasicBlock *blk, LIRVarSym *sym) {
     return ret;
 }
 
-Global *ProgramCFG::add_or_get_global(LIRVarSym *var) {
-    if (globals.contains(var)) {
-        return globals[var].get();
+Global *ProgramCFG::add_or_get_global(LIRVarSym *sym, Value *init) {
+    if (globals.contains(sym)) {
+        return globals[sym].get();
     }
 
-    auto new_global = std::make_unique<Global>(var);
+    auto new_global = std::make_unique<Global>(sym);
+    if (init) {
+        new_global->initializer = init;
+    }
 
     Global *ret = new_global.get();
 
-    globals[var] = std::move(new_global);
-    global_order.push_back(var);
+    globals[sym] = std::move(new_global);
+    global_order.push_back(sym);
 
     return ret;
 }
@@ -314,12 +317,12 @@ ProgramCFGGlobals ProgramCFG::get_globals() {
     return ProgramCFGGlobals(this);
 }
 
-String *ProgramCFG::add_or_get_string(const std::string& str) {
+String *ProgramCFG::add_or_get_string(ArrayType *type, const std::string& str) {
     if (strings.contains(str)) {
         return strings[str].get();
     }
 
-    auto new_str = std::make_unique<String>(str);
+    auto new_str = std::make_unique<String>(type, str);
 
     String *ret = new_str.get();
 

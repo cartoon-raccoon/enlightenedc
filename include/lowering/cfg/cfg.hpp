@@ -43,9 +43,10 @@ class Value : public NoCopy {
 public:
     enum class ValueKind : uint8_t {
         INST,
-        FUNC,
-        LIT,
+        SCALAR,
+        AGGREG,
         ZERO,
+        FUNC,
         GLOBAL,
         ARG,
         STR,
@@ -91,14 +92,70 @@ public:
     }
 
     virtual Instruction *as_instruction() { return nullptr; }
+    virtual ScalarConst *as_scalar() { return nullptr; }
+    virtual AggregateConst *as_aggregate() { return nullptr; }
+    virtual ZeroConst *as_zero() { return nullptr; }
     virtual FuncRef *as_funcref() { return nullptr; }
-    virtual Literal *as_literal() { return nullptr; }
-    virtual Zero *as_zero() { return nullptr; }
     virtual Global *as_global() { return nullptr; }
     virtual FuncArg *as_funcarg() { return nullptr; }
     virtual String *as_string() { return nullptr; }
 
     virtual void accept(CFGVisitor& visitor) = 0;
+};
+
+class Constant : public Value {
+public:
+    Constant(ValueKind kind, sema::types::Type *type)
+        : Value(kind, type) {}
+
+    Constant(ValueKind kind, sema::types::Type *type, Location loc)
+        : Value(kind, type, loc) {}
+
+    static bool classof(const Value *node) {
+        switch (node->valkind) {
+        case ValueKind::SCALAR:
+        case ValueKind::AGGREG:
+        case ValueKind::ZERO:
+        case ValueKind::FUNC:
+        case ValueKind::STR:
+            return true;
+        default:
+            return false;
+        }
+    }
+};
+
+class ScalarConst : public CFGVisitable<ScalarConst, Constant> {
+public:
+    ScalarConst(sema::types::Type *type, eval::Value& value)
+        : CFGVisitable<ScalarConst, Constant>(ValueKind::SCALAR, type), value(value) {}
+
+    eval::Value value;
+
+    ScalarConst *as_scalar() override { return this; }
+
+    static bool classof(const Value *node) { return node->valkind == ValueKind::SCALAR; }
+};
+
+class AggregateConst : public CFGVisitable<AggregateConst, Constant> {
+public:
+    AggregateConst(sema::types::Type *type)
+        : CFGVisitable<AggregateConst, Constant>(ValueKind::AGGREG, type) {}
+
+    Vec<Constant *> elements;
+
+    AggregateConst *as_aggregate() override { return this; }
+
+    static bool classof(const Value *node) { return node->valkind == ValueKind::AGGREG; }
+};
+
+class ZeroConst : public CFGVisitable<ZeroConst, Constant> {
+public:
+    ZeroConst(sema::types::Type *type) : CFGVisitable<ZeroConst, Constant>(ValueKind::ZERO, type) {}
+
+    ZeroConst *as_zero() override { return this; }
+
+    static bool classof(const Value *node) { return node->valkind == ValueKind::ZERO; }
 };
 
 /**
@@ -107,10 +164,10 @@ A value that holds a reference to a function symbol.
 FuncRef holds a reference to a LIRFuncSym, to distinguish it from LIRVarSym,
 which is the only symbol type Load can operate on.
 */
-class FuncRef : public CFGVisitable<FuncRef, Value> {
+class FuncRef : public CFGVisitable<FuncRef, Constant> {
 public:
     FuncRef(sema::types::FunctionType *sig, FunctionCFG *ref)
-        : CFGVisitable<FuncRef, Value>(ValueKind::FUNC, sig), func(ref) {}
+        : CFGVisitable<FuncRef, Constant>(ValueKind::FUNC, sig), func(ref) {}
 
     FunctionCFG *func;
 
@@ -119,25 +176,16 @@ public:
     static bool classof(const Value *node) { return node->valkind == ValueKind::FUNC; }
 };
 
-class Literal : public CFGVisitable<Literal, Value> {
+class String : public CFGVisitable<String, Constant> {
 public:
-    Literal(sema::types::Type *type, eval::Value& value)
-        : CFGVisitable<Literal, Value>(ValueKind::LIT, type), value(value) {}
+    String(sema::types::Type *type, std::string data)
+        : CFGVisitable<String, Constant>(ValueKind::STR, type), data(std::move(data)) {}
 
-    eval::Value value;
+    std::string data;
 
-    Literal *as_literal() override { return this; }
+    String *as_string() override { return this; }
 
-    static bool classof(const Value *node) { return node->valkind == ValueKind::LIT; }
-};
-
-class Zero : public CFGVisitable<Zero, Value> {
-public:
-    Zero(sema::types::Type *type) : CFGVisitable<Zero, Value>(ValueKind::ZERO, type) {}
-
-    Zero *as_zero() override { return this; }
-
-    static bool classof(const Value *node) { return node->valkind == ValueKind::ZERO; }
+    static bool classof(const Value *node) { return node->valkind == ValueKind::STR; }
 };
 
 class Global : public CFGVisitable<Global, Value> {
@@ -147,6 +195,11 @@ public:
           sym(sym) {}
 
     lir::LIRVarSym *sym;
+
+    /**
+    The initial value of the global, if it has one.
+    */
+    Value *initializer = nullptr;
 
     Global *as_global() override { return this; }
 
@@ -165,17 +218,6 @@ public:
     FuncArg *as_funcarg() override { return this; }
 
     static bool classof(const Value *node) { return node->valkind == ValueKind::ARG; }
-};
-
-class String : public CFGVisitable<String, Value> {
-public:
-    String(std::string data) : CFGVisitable<String, Value>(ValueKind::STR), data(std::move(data)) {}
-
-    std::string data;
-
-    String *as_string() override { return this; }
-
-    static bool classof(const Value *node) { return node->valkind == ValueKind::STR; }
 };
 
 /**
@@ -899,6 +941,13 @@ public:
         return ret;
     }
 
+    Value *insert_value(Box<Value> val) {
+        Value *ret = val.get();
+        push_value(std::move(val));
+
+        return ret;
+    }
+
     Instruction *first_non_phi_inst() const {
         Instruction *curr = &instructions.first();
         while (!isa<PhiInst>(curr)) {
@@ -990,6 +1039,8 @@ public:
     Initialize the FunctionCFG, returning a pointer to the entry block.
     */
     BasicBlock *initialize();
+
+    bool is_implicit_main() { return lir == nullptr; }
 
     const std::string& get_name() { return name; }
 
@@ -1163,7 +1214,7 @@ public:
     Adds a new global to the ProgramCFG corresponding to the passed LIRVarSym,
     or returns the corresponding FunctionCFG if it already exists.
     */
-    Global *add_or_get_global(lir::LIRVarSym *var);
+    Global *add_or_get_global(lir::LIRVarSym *sym, Value *init = nullptr);
 
     /**
     Looks up the Global corresponding to `sym`, or nullptr if none exists.
@@ -1184,7 +1235,7 @@ public:
     Adds a new string to the ProgramCFG corresponding to the passed string,
     or returns the corresponding String if it already exists.
     */
-    String *add_or_get_string(const std::string& str);
+    String *add_or_get_string(sema::types::ArrayType *type, const std::string& str);
 
     /**
     Adds a new function to the ProgramCFG corresponding to the passed FunctionLIR,
@@ -1201,6 +1252,22 @@ public:
     */
     FuncRef *ref_function(lir::FunctionLIR *func);
 
+    /**
+    Constructs a new Constant of type T, owned by the ProgramCFG. Used for constant values that
+    aren't tied to any particular function -- e.g. nodes in the constant initializer tree of a
+    global variable.
+    */
+    template <typename T, typename... Args>
+        requires std::derived_from<T, Constant>
+    T *add_constant(Args... args) {
+        auto c = std::make_unique<T>(args...);
+        T *ret = c.get();
+
+        constants.push_back(std::move(c));
+
+        return ret;
+    }
+
     HashMap<std::string, Box<String>> strings;
 
 private:
@@ -1211,6 +1278,10 @@ private:
     HashMap<lir::LIRVarSym *, Box<Global>> globals;
 
     Vec<Box<FuncRef>> funcrefs;
+
+    // Bag of constant values not owned by any function (i.e. those appearing in globals'
+    // initializer trees).
+    Vec<Box<Constant>> constants;
 };
 
 class ProgramCFGGlobalIter {

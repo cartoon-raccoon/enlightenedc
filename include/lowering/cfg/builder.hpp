@@ -146,6 +146,13 @@ protected:
     void visit(lir::SubscrExprLIR& node) override;
     void visit(lir::PostfixExprLIR& node) override;
 
+    Constant *build_constant(lir::ConstInitLIR& init);
+    Constant *build_constant(lir::ScalarInitLIR& init);
+    Constant *build_constant(lir::AggregateInitLIR& init);
+    Constant *build_constant(lir::StringInitLIR& init);
+    Constant *build_constant(lir::FuncInitLIR& init);
+    Constant *build_constant(lir::ZeroInitLIR& init);
+
 private:
     sema::types::TypeContext& types;
     ProgramCFG& prog_cfg;

@@ -9,6 +9,7 @@
 
 using namespace lower::lir;
 using namespace lower::cfg;
+using namespace sema::types;
 using namespace tokens;
 
 void CFGBuilder::build_cfg(lir::ProgramLIR& prog) {
@@ -40,7 +41,7 @@ Value *CFGBuilder::eval_lvalue(ExprLIR& node) {
             if (auto *alloc = curr_func->lookup_alloca(ident->sym->as_varsym())) {
                 ret = alloc;
             } else {
-                ret = prog_cfg.add_or_get_global(ident->sym->as_varsym());
+                ret = prog_cfg.lookup_global(ident->sym->as_varsym());
             }
         } else {
             ret = prog_cfg.ref_function(ident->sym->as_funcsym()->lir);
@@ -71,7 +72,8 @@ Value *CFGBuilder::eval_lvalue(ExprLIR& node) {
     }
     if (auto *literal = dyncast<LiteralExprLIR>(&node); literal && literal->is_str()) {
         auto& str   = std::get<std::string>(literal->value);
-        String *ret = prog_cfg.add_or_get_string(str);
+        assert(node.act_type->is_array());
+        String *ret = prog_cfg.add_or_get_string(node.act_type->as_array(), str);
         ret->set_type(literal->act_type);
 
         return ret;
@@ -111,12 +113,21 @@ static tokens::BinaryOp assign_op_to_binop(tokens::AssignOp op) {
 void CFGBuilder::visit(ProgramLIR& node) {
     dbprint("visiting ProgramLIR node ", node.loc ? *node.loc : Location{});
 
+    // Set curr_func before processing globals: build_constant() checks curr_func->is_implicit_main()
+    // to decide where a constant's owned, and top-level globals are built outside of any real
+    // function.
+    curr_func = prog_cfg.implicit_main.get();
+
     for (auto& item : node.globals) {
-        prog_cfg.add_or_get_global(item->lirsym);
+        if (item->init) {
+            Constant *init = build_constant(*item->init);
+            prog_cfg.add_or_get_global(item->lirsym, init);
+        } else {
+            prog_cfg.add_or_get_global(item->lirsym);
+        }
     }
 
-    curr_func = prog_cfg.implicit_main.get();
-    curr_blk  = curr_func->initialize();
+    curr_blk = curr_func->initialize();
 
     for (auto& item : node.progitems) {
         item->accept(*this);
@@ -231,7 +242,8 @@ void CFGBuilder::visit(PrintStmtLIR& node) {
         curr_blk = curr_func->create_block();
     }
 
-    String *format = prog_cfg.add_or_get_string(node.format_string);
+    ArrayType *str_type = types.get_array(types.get_i8(), node.format_string.size() + 1);
+    String *format = prog_cfg.add_or_get_string(str_type, node.format_string);
 
     Vec<Value *> args;
     for (auto& arg : node.args) {
@@ -552,28 +564,37 @@ void CFGBuilder::visit(VarDeclLIR& node) {
         return;
     }
 
-    curr_func->add_alloca(curr_blk, node.lirsym);
+    AllocaInst *addr = curr_func->add_alloca(curr_blk, node.lirsym);
+    if (node.init) {
+        Value *store_operand = build_constant(*node.init);
+        curr_blk->add_instruction<StoreInst>(types, addr, store_operand, *node.loc);
+    }
 }
 
-void CFGBuilder::visit(ScalarInitLIR& node) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
 
+void CFGBuilder::visit(ScalarInitLIR& node) {
+    throw std::runtime_error("visit ScalarInitLIR called");
 }
 
 void CFGBuilder::visit(AggregateInitLIR& node) {
-
+    throw std::runtime_error("visit AggregateInitLIR called");
 }
 
 void CFGBuilder::visit(StringInitLIR& node) {
-    
+    throw std::runtime_error("visit StringInitLIR called");
 }
 
 void CFGBuilder::visit(FuncInitLIR& node) {
-    
+    throw std::runtime_error("visit FuncInitLIR called");
 }
 
 void CFGBuilder::visit(ZeroInitLIR& node) {
-    
+    throw std::runtime_error("visit ZeroInitLIR called");
 }
+
+#pragma clang diagnostic pop
 
 void CFGBuilder::visit(BinaryExprLIR& node) {
     dbprint("visiting BinaryExprLIR node ", node.loc ? *node.loc : Location{});
@@ -620,7 +641,7 @@ void CFGBuilder::visit(BinaryExprLIR& node) {
 
         // create the short circuit value
         Value *short_circuit_val =
-            curr_blk->add_value<Literal>(node.act_type, eval::Value(!is_and));
+            curr_blk->add_value<ScalarConst>(node.act_type, eval::Value(!is_and));
 
         phi->add_incoming(short_circuit_val, lhs_exit);
         phi->add_incoming(rhs, rhs_exit);
@@ -776,7 +797,7 @@ void CFGBuilder::visit(IdentExprLIR& node) {
         if (auto *alloc = curr_func->lookup_alloca(node.sym->as_varsym())) {
             val = alloc;
         } else {
-            val = prog_cfg.add_or_get_global(node.sym->as_varsym());
+            val = prog_cfg.lookup_global(node.sym->as_varsym());
         }
         last_value = curr_blk->add_instruction<LoadInst>(node.act_type, val, *node.loc);
     } else if (node.sym->is_func()) {
@@ -793,12 +814,13 @@ void CFGBuilder::visit(LiteralExprLIR& node) {
         match{
             [&](eval::Value& val) {
                 dbprint("    Literal is Value, creating Literal value");
-                last_value = curr_blk->add_value<Literal>(node.act_type, val);
+                last_value = curr_blk->add_value<ScalarConst>(node.act_type, val);
             },
             [&](std::string& str) {
                 dbprint("    Literal is string, creating String value");
                 // string dedup happens here.
-                last_value = prog_cfg.add_or_get_string(str);
+                assert(node.act_type->is_array());
+                last_value = prog_cfg.add_or_get_string(node.act_type->as_array(), str);
                 last_value->set_type(node.act_type);
             }},
         node.value);
@@ -809,7 +831,7 @@ void CFGBuilder::visit(LiteralExprLIR& node) {
 void CFGBuilder::visit(ZeroExprLIR& node) {
     dbprint("visiting ZeroExprLIR node ", node.loc ? *node.loc : Location{});
 
-    last_value = curr_blk->add_value<Zero>(node.act_type);
+    last_value = curr_blk->add_value<ZeroConst>(node.act_type);
 
     assert(last_value && "last_value is nullptr at end of expr visit");
 }
@@ -873,4 +895,63 @@ void CFGBuilder::visit(PostfixExprLIR& node) {
 
     curr_blk->add_instruction<StoreInst>(types, address, new_val, *node.loc);
     last_value = old_val; // postfix yields the *old* value
+}
+
+Constant *CFGBuilder::build_constant(ConstInitLIR& init) {
+    if (isa<ScalarInitLIR>(&init)) {
+        return build_constant(*dyncast<ScalarInitLIR>(&init));
+    } else if (isa<AggregateInitLIR>(&init)) {
+        return build_constant(*dyncast<AggregateInitLIR>(&init));
+    } else if (isa<StringInitLIR>(&init)) {
+        return build_constant(*dyncast<StringInitLIR>(&init));
+    } else if (isa<FuncInitLIR>(&init)) {
+        return build_constant(*dyncast<FuncInitLIR>(&init));
+    } else if (isa<ZeroInitLIR>(&init)) {
+        return build_constant(*dyncast<ZeroInitLIR>(&init));
+    } else {
+        throw std::runtime_error("build constant got invalid LIRNode");
+    }
+}
+
+Constant *CFGBuilder::build_constant(ScalarInitLIR& init) {
+    if (curr_func->is_implicit_main()) {
+        return prog_cfg.add_constant<ScalarConst>(init.type, init.val);
+    } else {
+        return curr_blk->add_value<ScalarConst>(init.type, init.val);
+    }
+}
+
+Constant *CFGBuilder::build_constant(AggregateInitLIR& init) {
+    AggregateConst *aggreg;
+    if (curr_func->is_implicit_main()) {
+        aggreg = prog_cfg.add_constant<AggregateConst>(init.type);
+    } else {
+        aggreg = curr_blk->add_value<AggregateConst>(init.type);
+    }
+
+    for (auto& elem : init.elements) {
+        aggreg->elements.push_back(build_constant(*elem));
+    }
+
+    return aggreg;
+}
+
+Constant *CFGBuilder::build_constant(StringInitLIR& init) {
+
+    ArrayType *str_type = types.get_array(types.get_i8(), init.str.size() + 1);
+
+    return prog_cfg.add_or_get_string(str_type, init.str);
+}
+
+Constant *CFGBuilder::build_constant(FuncInitLIR& init) {
+
+    return prog_cfg.ref_function(init.func);
+}
+
+Constant *CFGBuilder::build_constant(ZeroInitLIR& init) {
+    if (curr_func->is_implicit_main()) {
+        return prog_cfg.add_constant<ZeroConst>(init.type);
+    } else {
+        return curr_blk->add_value<ZeroConst>(init.type);
+    }
 }
