@@ -256,6 +256,9 @@ protected:
     void do_visit(ast::PostfixExpression& node) override;
     void do_visit(ast::SizeofExpression& node) override;
 
+    void check_attribute(mir::FunctionMIR *function, ast::AttributeArg& node);
+    void check_attribute(mir::TypeDeclMIR *typedecl, ast::AttributeArg& node);
+
 private:
     struct SpecifierInfo {
         types::BaseType *type = nullptr;

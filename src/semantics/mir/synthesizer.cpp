@@ -183,35 +183,40 @@ void MIRSynthesizer::do_visit(Program& node) {
 }
 
 void MIRSynthesizer::do_visit(AttributeArg& node) {
-    // dovisit_param holds the mir::ProgItemMIR * that the owning Attribute was attached to
-    // (propagated down by do_visit(Attribute&)); downcast it via its NodeKind to validate
-    // and apply this arg.
-    todo();
+    bsv_dbprint("visiting AttributeArg node: ", node.loc);
+
+    auto *progitem = take_dovisit_param<ProgItemMIR *>();
+    if (auto *function = dyncast<FunctionMIR>(progitem); function) {
+        check_attribute(function, node);
+    } else if (auto *typedecl = dyncast<TypeDeclMIR>(progitem); typedecl) {
+        check_attribute(typedecl, node);
+    } else {
+        throw std::runtime_error("invalid ProgItem for visiting AttributeArg");
+    }
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
+
+void MIRSynthesizer::check_attribute(FunctionMIR *function, AttributeArg& node) {
+    
+}
+
+void MIRSynthesizer::check_attribute(TypeDeclMIR *typedecl, AttributeArg& node) {
+    
+}
+
+#pragma clang diagnostic pop
+
 void MIRSynthesizer::do_visit(Attribute& node) {
-    // dovisit_param holds the mir::ProgItemMIR * this attribute is attached to (set by
-    // do_visit(Function&)/do_visit(TypeDeclaration&)/do_visit(VariableDeclaration&) below);
-    // downcast it via its NodeKind to validate and apply this attribute.
-    todo();
+    bsv_dbprint("visiting Attribute node: ", node.loc);
+    auto *progitem = take_dovisit_param<ProgItemMIR *>();
+    for (auto& arg : node.args) {
+        dv_call(progitem, arg);
+    }
 }
 
 void MIRSynthesizer::do_visit(Function& node) {
-    /*
-    1. Create function signature:
-    - Return type from the decl spec list
-    - Construct pointer from return type if declarator has pointer
-    - Parameters from declarator (check type of declarator)
-
-    2. Create function type with TypeContext
-
-    3. Create function symbol with the signature
-
-    4. Construct parameter for call to function body (CompoundStatement)
-    5. Call accept on node.body
-
-    */
-
     bsv_dbprint("visiting Function node: ", node.loc);
 
     // Parse and construct specifier info
