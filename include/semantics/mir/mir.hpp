@@ -158,8 +158,14 @@ public:
     // Whether this expression is valid on the left side of an assign expression.
     virtual bool is_lvalue() { return false; }
 
+    /**
+    Whether this expression can be validly subscripted.
+    */
     virtual bool is_subscriptable() { return eff_type->is_subscriptable(); }
 
+    /**
+    Whether this expression is constant-foldable.
+    */
     virtual bool is_const_foldable() = 0;
 
     void set_type(sema::types::Type *type) {
@@ -675,7 +681,13 @@ public:
 
     bool is_subscriptable() override { return eff_type->is_subscriptable(); }
 
-    bool is_const_foldable() override { return eff_type->is_enum(); }
+    bool is_const_foldable() override { 
+        if (!eff_type->is_enum()) return false;
+        
+        types::EnumType *type = eff_type->as_enum();
+
+        return type->find(ident->name) != nullptr;
+    }
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
 
