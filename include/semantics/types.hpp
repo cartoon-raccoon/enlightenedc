@@ -1176,6 +1176,8 @@ public:
 
     UnionType *as_union() override { return this; }
 
+    PrimitiveType *as_primitive() override { return type_rep ? *type_rep : nullptr; }
+
     bool is_boolable() override {
         // this if-statement is basically equivalent to
         // type_rep.has_value(), but we do this for more expressiveness.
@@ -1273,6 +1275,8 @@ public:
     bool coercible_to(Type *dst) override;
 
     EnumType *as_enum() override { return this; }
+
+    PrimitiveType *as_primitive() override { return underlying; }
 
     bool is_boolable() override { return underlying->is_boolable(); } // should always return true
 
