@@ -207,7 +207,7 @@ void CFGPrinter::visit(AggregateConst& val) {
 
     for (auto [idx, item] : std::views::enumerate(val.elements)) {
         item->accept(*this);
-        if ((size_t) idx + 1 < val.elements.size()) {
+        if ((size_t)idx + 1 < val.elements.size()) {
             std::cout << ", ";
         }
     }

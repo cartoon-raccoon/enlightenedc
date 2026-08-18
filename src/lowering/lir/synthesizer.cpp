@@ -471,7 +471,7 @@ void LIRSynthesizer::do_visit(VarDeclMIR& node) {
 
         // emit a vardecl
         Box<VarDeclLIR> vardecl = std::make_unique<VarDeclLIR>(node.loc, lirvar);
-        VarDeclLIR *vardeclptr = vardecl.get();
+        VarDeclLIR *vardeclptr  = vardecl.get();
         emit(std::move(vardecl));
 
         // visit the initializer

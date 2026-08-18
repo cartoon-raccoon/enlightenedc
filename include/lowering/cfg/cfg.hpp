@@ -105,11 +105,9 @@ public:
 
 class Constant : public Value {
 public:
-    Constant(ValueKind kind, sema::types::Type *type)
-        : Value(kind, type) {}
+    Constant(ValueKind kind, sema::types::Type *type) : Value(kind, type) {}
 
-    Constant(ValueKind kind, sema::types::Type *type, Location loc)
-        : Value(kind, type, loc) {}
+    Constant(ValueKind kind, sema::types::Type *type, Location loc) : Value(kind, type, loc) {}
 
     static bool classof(const Value *node) {
         switch (node->valkind) {
