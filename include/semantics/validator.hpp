@@ -122,6 +122,10 @@ private:
     void eval_initializer_rec_arr(
         types::AccessorPath& path, types::ArrayType *arr, Vec<Box<mir::InitializerMIR>>& init);
 
+    void validate_binexpr_nonprim(mir::BinaryExprMIR& node);
+
+    void validate_binexpr_prim(mir::BinaryExprMIR& node);
+
     void validate_print(std::string& format_str, Span<Box<mir::ExprMIR>> args);
 };
 

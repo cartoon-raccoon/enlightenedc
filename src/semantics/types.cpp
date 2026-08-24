@@ -389,7 +389,7 @@ void RecordType::validate_new_member(Type *type, Optional<std::string> name, Loc
     } else if (type->is_array()) {
         // if type is array:
         ArrayType *arrayty = type->as_array();
-        if (arrayty->base == this) {
+        if (arrayty->get_base() == this) {
             // check for recursive errors with arrays as well
             throw RecursiveTypeError(*name, loc);
         }
@@ -573,7 +573,7 @@ bool RecordType::directly_contains(Type *ty) const {
                 return true;
         } else if (mem->ty->is_array()) {
             ArrayType *arr = mem->ty->as_array();
-            if (arr->base == ty)
+            if (arr->get_base() == ty)
                 return true;
         }
     }

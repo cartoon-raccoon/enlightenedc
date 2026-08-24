@@ -539,7 +539,7 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncPtr_TypeIsPointerToSignature) {
     ASSERT_NE(ptr_sym, nullptr);
     EXPECT_TRUE(ptr_sym->type->is_pointer())
         << "as_funcptr should produce a VarSymbol with a pointer type";
-    EXPECT_EQ(ptr_sym->type->as_pointer()->base, fn_type)
+    EXPECT_EQ(ptr_sym->type->as_pointer()->get_base(), fn_type)
         << "The pointer base should be the original FunctionType";
 }
 

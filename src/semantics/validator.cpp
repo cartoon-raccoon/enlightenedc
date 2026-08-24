@@ -197,7 +197,7 @@ Optional<Type *> Validator::eval_initializer_expr(
     assert(litexpr && litexpr->is_string() && "expected string literal for array initializer");
 
     ArrayType *decl_arr = type->unqual()->as_array();
-    Type *arr_base      = decl_arr->base->unqual();
+    Type *arr_base      = decl_arr->get_base()->unqual();
     if (arr_base != types.get_u8() && arr_base != types.get_i8()) {
         add_error<InvalidCoerceError>(expr->eff_type, type, expr->loc);
         return {};
@@ -216,7 +216,7 @@ Optional<Type *> Validator::eval_initializer_expr(
             return {};
         }
 
-        ArrayType *inferred = types.set_array_size(decl_arr->base, lit_size);
+        ArrayType *inferred = types.set_array_size(decl_arr->get_base(), lit_size);
         init.initializer    = cast(inferred, std::move(expr));
         return inferred;
     }
@@ -311,7 +311,7 @@ void Validator::eval_initializer_rec_arr(
     for (auto&& [idx, init] : std::views::enumerate(inits)) {
         std::visit(
             match{
-                [&](Box<ExprMIR>& expr) { eval_initializer_expr(arr->base, expr, *init); },
+                [&](Box<ExprMIR>& expr) { eval_initializer_expr(arr->get_base(), expr, *init); },
                 [&](Box<InitializerMIR::Member>& mem) {
                     bsv_dbprint("error: member designators are not allowed in array initializers");
                     add_error<InvalidInitializerError>(
@@ -330,14 +330,14 @@ void Validator::eval_initializer_rec_arr(
                         throw UnableToContinue();
                     }
 
-                    eval_initializer_rec(path, arr->base, *idx->initializer);
+                    eval_initializer_rec(path, arr->get_base(), *idx->initializer);
                 },
                 [&](Vec<Box<InitializerMIR>>&) {
                     path.push_back(non_desigd_idx);
                     non_desigd_idx++;
 
                     AccessorPath newpath{};
-                    eval_initializer_rec(newpath, arr->base, *init);
+                    eval_initializer_rec(newpath, arr->get_base(), *init);
                     path.pop_back();
                 }},
             init->initializer);
@@ -668,6 +668,7 @@ void Validator::do_visit(BinaryExprMIR& node) {
     assert(node.left->eff_type);
     assert(node.right->eff_type);
 
+    // decay array types
     if (node.left->act_type->is_array()) {
         node.left = decay(node.left->act_type->as_array()->decay(), std::move(node.left));
     } else if (node.left->act_type->is_function()) {
@@ -682,129 +683,148 @@ void Validator::do_visit(BinaryExprMIR& node) {
     }
 
     if (!(node.left->eff_type->is_primitive() && node.right->eff_type->is_primitive())) {
-        if (node.left->eff_type->is_pointer() || node.right->eff_type->is_pointer()) {
-
-            enum PointerSide : uint8_t {
-                LEFT,
-                RIGHT,
-                BOTH,
-            } side;
-
-            if (node.left->eff_type->is_pointer() && !node.right->eff_type->is_pointer()) {
-                side = LEFT;
-            } else if (!node.left->eff_type->is_pointer() && node.right->eff_type->is_pointer()) {
-                side = RIGHT;
-            } else {
-                assert(node.left->eff_type->is_pointer() && node.right->eff_type->is_pointer());
-                side = BOTH;
-            }
-
-            switch (side) {
-            case LEFT: {
-                // PointerType *left    = node.left->eff_type->as_pointer();
-                PrimitiveType *right = node.right->eff_type->as_primitive();
-
-                if (!right->is_integer()) {
-                    add_error<InvalidPointerArithmetic>(
-                        InvalidPointerArithmetic::Kind::InvalidPrimOperand, node.right->loc);
-                    throw UnableToContinue();
-                }
-
-                node.set_type(node.left->act_type);
-                break;
-            }
-            case RIGHT: {
-                PrimitiveType *left = node.left->eff_type->as_primitive();
-                // PointerType *right  = node.right->eff_type->as_pointer();
-
-                if (!left->is_integer()) {
-                    add_error<InvalidPointerArithmetic>(
-                        InvalidPointerArithmetic::Kind::InvalidPrimOperand, node.left->loc);
-                    throw UnableToContinue();
-                }
-
-                node.set_type(node.right->act_type);
-                break;
-            }
-            case BOTH: {
-                // todo: handle pointer type compatibility (both sides must have same base or void)
-                switch (node.op) {
-                case BinaryOp::MINUS:
-                    node.set_type(types.get_size_type(false));
-                    break;
-                case BinaryOp::EQ:
-                case BinaryOp::NE:
-                case BinaryOp::LT:
-                case BinaryOp::GT:
-                case BinaryOp::LE:
-                case BinaryOp::GE:
-                    node.set_type(types.get_bool());
-                    break;
-                default:
-                    add_error<InvalidPointerArithmetic>(
-                        InvalidPointerArithmetic::Kind::InvalidOperator, node.loc);
-                    throw UnableToContinue();
-                }
-            }
-            }
-        } else {
-            bsv_dbprint("error: operator not applicable to non-primitive non-pointer types");
-            add_error<InvalidBinaryOpError>(
-                "operator not applicable to these types", node.op, node.left->act_type,
-                node.right->act_type, node.loc);
-            throw UnableToContinue();
-        }
+        // if either side is not a primitive, run the non-primitive check
+        validate_binexpr_nonprim(node);
     } else {
-
-        PrimitiveType *left_type = node.left->eff_type->as_primitive();
-        assert(left_type);
-        PrimitiveType *right_type = node.right->eff_type->as_primitive();
-        assert(right_type);
-
-        // todo: add warning about narrowing
-
-        auto finaltype = prim::pr_check_binary_op(
-            node.op, left_type->get_primkind(), right_type->get_primkind());
-
-        if (!finaltype) {
-            bsv_dbprint("error: operator not applicable to these primitive types");
-            add_error<InvalidBinaryOpError>(
-                "operator not applicable to these types", node.op, left_type, right_type, node.loc);
-            throw UnableToContinue();
-        }
-
-        auto *p1 = types.get_primitive(finaltype->operand_types.first);
-        auto *p2 = types.get_primitive(finaltype->operand_types.second);
-
-        if (p1 != left_type) {
-            if (left_type->coercible_to(p1)) {
-                node.left = cast(p1, std::move(node.left));
-            } else {
-                bsv_dbprint("error: cannot coerce left operand to required type");
-                add_error<InvalidCoerceError>(left_type, p1, node.left->loc);
-                throw UnableToContinue();
-            }
-        }
-
-        if (p2 != right_type) {
-            if (right_type->coercible_to(p2)) {
-                node.right = cast(p2, std::move(node.right));
-            } else {
-                bsv_dbprint("error: cannot coerce right operand to required type");
-                add_error<InvalidCoerceError>(right_type, p2, node.right->loc);
-                throw UnableToContinue();
-            }
-        }
-
-        assert(node.left->eff_type == p1);
-        assert(node.right->eff_type == p2);
-
-        PrimitiveType *exprtype = types.get_primitive(finaltype->expr_type);
-
-        node.set_type(exprtype);
+        // otherwise, run the primitive check
+        validate_binexpr_prim(node);
     }
 
     assert((node.act_type && node.eff_type) && "node type not set");
+}
+
+void Validator::validate_binexpr_nonprim(BinaryExprMIR& node) {
+    if (node.left->eff_type->is_pointer() || node.right->eff_type->is_pointer()) {
+
+        enum PointerSide : uint8_t {
+            LEFT,
+            RIGHT,
+            BOTH,
+        } side;
+
+        if (node.left->eff_type->is_pointer() && !node.right->eff_type->is_pointer()) {
+            side = LEFT;
+        } else if (!node.left->eff_type->is_pointer() && node.right->eff_type->is_pointer()) {
+            side = RIGHT;
+        } else {
+            assert(node.left->eff_type->is_pointer() && node.right->eff_type->is_pointer());
+            side = BOTH;
+        }
+
+        switch (side) {
+        case LEFT: {
+            // PointerType *left    = node.left->eff_type->as_pointer();
+            PrimitiveType *right = node.right->eff_type->as_primitive();
+
+            if (!right->is_integer()) {
+                add_error<InvalidPointerArithmetic>(
+                    InvalidPointerArithmetic::Kind::InvalidPrimOperand, node.right->loc);
+                throw UnableToContinue();
+            }
+
+            node.set_type(node.left->act_type);
+            break;
+        }
+        case RIGHT: {
+            PrimitiveType *left = node.left->eff_type->as_primitive();
+            // PointerType *right  = node.right->eff_type->as_pointer();
+
+            if (!left->is_integer()) {
+                add_error<InvalidPointerArithmetic>(
+                    InvalidPointerArithmetic::Kind::InvalidPrimOperand, node.left->loc);
+                throw UnableToContinue();
+            }
+
+            node.set_type(node.right->act_type);
+            break;
+        }
+        case BOTH: {
+            switch (node.op) {
+            case BinaryOp::MINUS:
+                node.set_type(types.get_size_type(false));
+                break;
+            case BinaryOp::EQ:
+            case BinaryOp::NE:
+            case BinaryOp::LT:
+            case BinaryOp::GT:
+            case BinaryOp::LE:
+            case BinaryOp::GE:
+                node.set_type(types.get_bool());
+                break;
+            default:
+                add_error<InvalidPointerArithmetic>(
+                    InvalidPointerArithmetic::Kind::InvalidOperator, node.loc);
+                throw UnableToContinue();
+            }
+
+            Type *left_base = node.left->act_type->as_pointer()->get_base();
+            Type *right_base = node.right->act_type->as_pointer()->get_base();
+
+            // handle pointer type compatibility (both sides must have same base or void)
+            if (left_base != right_base && !(left_base->is_void() || right_base->is_void())) {
+                add_error<InvalidPointerArithmetic>(
+                    InvalidPointerArithmetic::Kind::IncompatiblePtrOperands, node.loc);
+                throw UnableToContinue();
+            }
+        }
+        }
+    } else {
+        bsv_dbprint("error: operator not applicable to non-primitive non-pointer types");
+        add_error<InvalidBinaryOpError>(
+            "operator not applicable to these types", node.op, node.left->act_type,
+            node.right->act_type, node.loc);
+        throw UnableToContinue();
+    }
+}
+
+void Validator::validate_binexpr_prim(mir::BinaryExprMIR& node) {
+    
+    PrimitiveType *left_type = node.left->eff_type->as_primitive();
+    assert(left_type);
+    PrimitiveType *right_type = node.right->eff_type->as_primitive();
+    assert(right_type);
+
+    // todo: add warning about narrowing
+
+    auto finaltype = prim::pr_check_binary_op(
+        node.op, left_type->get_primkind(), right_type->get_primkind());
+
+    if (!finaltype) {
+        bsv_dbprint("error: operator not applicable to these primitive types");
+        add_error<InvalidBinaryOpError>(
+            "operator not applicable to these types", node.op, left_type, right_type, node.loc);
+        throw UnableToContinue();
+    }
+
+    auto *p1 = types.get_primitive(finaltype->operand_types.first);
+    auto *p2 = types.get_primitive(finaltype->operand_types.second);
+
+    if (p1 != left_type) {
+        if (left_type->coercible_to(p1)) {
+            node.left = cast(p1, std::move(node.left));
+        } else {
+            bsv_dbprint("error: cannot coerce left operand to required type");
+            add_error<InvalidCoerceError>(left_type, p1, node.left->loc);
+            throw UnableToContinue();
+        }
+    }
+
+    if (p2 != right_type) {
+        if (right_type->coercible_to(p2)) {
+            node.right = cast(p2, std::move(node.right));
+        } else {
+            bsv_dbprint("error: cannot coerce right operand to required type");
+            add_error<InvalidCoerceError>(right_type, p2, node.right->loc);
+            throw UnableToContinue();
+        }
+    }
+
+    assert(node.left->eff_type == p1);
+    assert(node.right->eff_type == p2);
+
+    PrimitiveType *exprtype = types.get_primitive(finaltype->expr_type);
+
+    node.set_type(exprtype);
 }
 
 void Validator::do_visit(UnaryExprMIR& node) {
@@ -857,7 +877,7 @@ void Validator::do_visit(UnaryExprMIR& node) {
                 "operand is not a pointer", node.op, node.operand->eff_type, node.loc);
             throw UnableToContinue();
         } else {
-            node.set_type(node.operand->act_type->as_pointer()->base);
+            node.set_type(node.operand->act_type->as_pointer()->get_base());
         }
 
     } break;
@@ -995,8 +1015,8 @@ void Validator::do_visit(AssignExprMIR& node) {
             } else {
                 // Handles the U8 *s = "hi" case, where "hi" decays to I8 *
                 PointerType *lhs_ptr = node.left->eff_type->unqual()->as_pointer();
-                if (!lhs_ptr || (lhs_ptr->base->unqual() != types.get_u8() &&
-                                 lhs_ptr->base->unqual() != types.get_i8())) {
+                if (!lhs_ptr || (lhs_ptr->get_base()->unqual() != types.get_u8() &&
+                                 lhs_ptr->get_base()->unqual() != types.get_i8())) {
                     add_error<InvalidCoerceError>(
                         node.right->act_type, node.left->act_type, node.loc);
                     goto done;
@@ -1123,7 +1143,7 @@ void Validator::do_visit(CallExprMIR& node) {
 
     FunctionType *sig;
     if (auto *ptr = node.callee->act_type->as_pointer()) {
-        auto *base = ptr->base;
+        auto *base = ptr->get_base();
         assert(base->is_function());
         sig = base->as_function();
     } else if (node.callee->act_type->is_function()) {
@@ -1208,7 +1228,7 @@ void Validator::do_visit(MemberAccExprMIR& node) {
             throw UnableToContinue();
         }
 
-        if (!node.object->act_type->as_pointer()->base->is_recordtype()) {
+        if (!node.object->act_type->as_pointer()->get_base()->is_recordtype()) {
             bsv_dbprint("error: arrow member access pointer base is not a class or union");
             add_error<InvalidMemberAccError>(
                 InvalidMemberAccError::Kind::IncompatibleObject, node.object->eff_type,
@@ -1216,7 +1236,7 @@ void Validator::do_visit(MemberAccExprMIR& node) {
             throw UnableToContinue();
         }
 
-        rec = node.object->act_type->as_pointer()->base->as_recordtype();
+        rec = node.object->act_type->as_pointer()->get_base()->as_recordtype();
     } else {
         if (!node.object->act_type->is_recordtype()) {
             bsv_dbprint("error: dot member access object is not a class or union");
@@ -1251,7 +1271,7 @@ void Validator::do_visit(MemberAccExprMIR& node) {
         }
     } else {
         // check for const
-        if (node.object->act_type->as_pointer()->base->is_const() || member->ty->is_const()) {
+        if (node.object->act_type->as_pointer()->get_base()->is_const() || member->ty->is_const()) {
             node.set_type(types.get_const(member->ty));
         } else {
             node.set_type(member->ty);
@@ -1274,13 +1294,13 @@ void Validator::do_visit(ReintExprMIR& node) {
             throw UnableToContinue();
         }
 
-        if (!node.object->eff_type->as_pointer()->base->is_primitive()) {
+        if (!node.object->eff_type->as_pointer()->get_base()->is_primitive()) {
             bsv_dbprint("error: reinterpret arrow pointer base is not a primitive");
             add_error<InvalidReintExprError>(InvalidReintExprError::Kind::ObjIsNotPrim, node.loc);
             throw UnableToContinue();
         }
 
-        objtype = node.object->eff_type->as_pointer()->base->as_primitive();
+        objtype = node.object->eff_type->as_pointer()->get_base()->as_primitive();
     } else {
         if (!node.object->eff_type->is_primitive()) {
             bsv_dbprint("error: reinterpret object is not a primitive");
@@ -1320,7 +1340,7 @@ void Validator::do_visit(ReintExprMIR& node) {
             node.set_type(node_ty->unqual());
         }
     } else {
-        if (node.object->eff_type->as_pointer()->base->is_const()) {
+        if (node.object->eff_type->as_pointer()->get_base()->is_const()) {
             node.set_type(types.get_const(node_ty));
         } else {
             node.set_type(node_ty);
@@ -1376,14 +1396,14 @@ void Validator::do_visit(SubscrExprMIR& node) { // done
 
     Type *exprty;
     if (arrtype) {
-        exprty = arrtype->base;
+        exprty = arrtype->get_base();
         // calling as_x strips the const qualifier, so we need to add it back here.
         if (node.array->act_type->is_const()) {
             exprty = types.get_const(exprty);
         }
     } else {
         // do not propagate const to pointee.
-        exprty = ptrtype->base;
+        exprty = ptrtype->get_base();
     }
 
     node.set_type(exprty);

@@ -157,7 +157,7 @@ ConstInitLIRBuilder::try_build_constinit_agg_arr(
         auto maybe_init = std::visit(match {
             [&](Box<ExprMIR>& expr) -> Optional<Box<ConstInitLIR>> {
                 target_idx = next_idx;
-                auto maybe_init = try_build_constinit_expr(arr->base, *expr);
+                auto maybe_init = try_build_constinit_expr(arr->get_base(), *expr);
 
                 touched[next_idx] = true;
                 next_idx++;
@@ -175,11 +175,11 @@ ConstInitLIRBuilder::try_build_constinit_agg_arr(
                 touched[curr_idx] = true;
                 next_idx          = curr_idx + 1;
 
-                return try_build_constinit(arr->base, *index->initializer);
+                return try_build_constinit(arr->get_base(), *index->initializer);
             },
             [&](Vec<Box<InitializerMIR>>&) -> Optional<Box<ConstInitLIR>> {
                 target_idx = next_idx;
-                auto maybe_init = try_build_constinit(arr->base, *init);
+                auto maybe_init = try_build_constinit(arr->get_base(), *init);
 
                 touched[next_idx] = true;
                 next_idx++;
@@ -197,7 +197,7 @@ ConstInitLIRBuilder::try_build_constinit_agg_arr(
 
     for (size_t i = 0; i < arr->arr_size.value(); i++) {
         if (!touched[i]) {
-            cinit->elements[i] = std::make_unique<ZeroInitLIR>(arr->base);
+            cinit->elements[i] = std::make_unique<ZeroInitLIR>(arr->get_base());
         }
     }
 

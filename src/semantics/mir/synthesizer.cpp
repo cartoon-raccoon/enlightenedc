@@ -1115,7 +1115,7 @@ void MIRSynthesizer::do_visit(Initializer& node) { // NOLINT
 
                     for (auto& init : inits) {
                         // visit each initializer and take the return value
-                        dv_call(arrtype->base, init);
+                        dv_call(arrtype->get_base(), init);
                         auto initmir = take_last_result<InitializerRet>();
 
                         /*
@@ -1148,7 +1148,7 @@ void MIRSynthesizer::do_visit(Initializer& node) { // NOLINT
                             arrtype = types.set_array_size(max_subarray, inits.size());
                         } else {
                             // otherwise, use our current base
-                            arrtype = types.set_array_size(arrtype->base, inits.size());
+                            arrtype = types.set_array_size(arrtype->get_base(), inits.size());
                         }
                         ret.new_type = arrtype;
                     }
