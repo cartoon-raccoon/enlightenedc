@@ -330,28 +330,28 @@ Box<ExprLIR> LIRSynthesizer::clone_lvalue(ExprLIR *expr) {
     switch (expr->kind) {
     case NK::IDENTEXPR_LIR: {
         auto *ident = dyncast<IdentExprLIR>(expr);
-        return std::make_unique<IdentExprLIR>(ident->loc.value(), ident->sym, ident->act_type);
+        return std::make_unique<IdentExprLIR>(ident->loc, ident->sym, ident->act_type);
     }
     case NK::MEMACCEXPR_LIR: {
         auto *memacc = dyncast<MemberAccExprLIR>(expr);
         return std::make_unique<MemberAccExprLIR>(
-            memacc->loc.value(), clone_lvalue(memacc->object.get()), memacc->member_idx,
+            memacc->loc, clone_lvalue(memacc->object.get()), memacc->member_idx,
             memacc->act_type);
     }
     case NK::REINTEXPR_LIR: {
         auto *reint = dyncast<ReintExprLIR>(expr);
         return std::make_unique<ReintExprLIR>(
-            reint->loc.value(), clone_lvalue(reint->object.get()), reint->target, reint->act_type);
+            reint->loc, clone_lvalue(reint->object.get()), reint->target, reint->act_type);
     }
     case NK::SUBSCREXPR_LIR: {
         auto *subscr = dyncast<SubscrExprLIR>(expr);
         return std::make_unique<SubscrExprLIR>(
-            subscr->loc.value(), clone_lvalue(subscr->array.get()),
+            subscr->loc, clone_lvalue(subscr->array.get()),
             clone_lvalue(subscr->index.get()), subscr->act_type);
     }
     case NK::LITEXPR_LIR: {
         auto *lit = dyncast<LiteralExprLIR>(expr);
-        return std::make_unique<LiteralExprLIR>(lit->loc.value(), lit->value, lit->act_type);
+        return std::make_unique<LiteralExprLIR>(lit->loc, lit->value, lit->act_type);
     }
     default:
         throw std::runtime_error("clone_lvalue: unexpected expression kind in lvalue chain");
