@@ -36,7 +36,7 @@ public:
 
         VARDECL_LIR,
         LABDECL_LIR,
-        
+
         SCLINIT_LIR,
         AGGINIT_LIR,
         STRINIT_LIR,
@@ -97,8 +97,7 @@ public:
     ConstInitLIR(Location loc, NodeKind kind, sema::types::Type *type)
         : LIRNode(loc, kind), type(type) {}
 
-    ConstInitLIR(NodeKind kind, sema::types::Type *type)
-        : LIRNode(kind), type(type) {}
+    ConstInitLIR(NodeKind kind, sema::types::Type *type) : LIRNode(kind), type(type) {}
 
     sema::types::Type *type;
 
@@ -116,7 +115,7 @@ public:
     }
 };
 
-class ScalarInitLIR: public LIRVisitable<ScalarInitLIR, ConstInitLIR> {
+class ScalarInitLIR : public LIRVisitable<ScalarInitLIR, ConstInitLIR> {
 public:
     ScalarInitLIR(Location loc, sema::types::PrimitiveType *type, eval::Value& val)
         : LIRVisitable<ScalarInitLIR, ConstInitLIR>(loc, NodeKind::SCLINIT_LIR, type), val(val) {}
@@ -129,7 +128,7 @@ public:
 /**
 A const-initializer for an aggregate type (Array or Class).
 */
-class AggregateInitLIR: public LIRVisitable<AggregateInitLIR, ConstInitLIR> {
+class AggregateInitLIR : public LIRVisitable<AggregateInitLIR, ConstInitLIR> {
 public:
     AggregateInitLIR(Location loc, sema::types::Type *type)
         : LIRVisitable<AggregateInitLIR, ConstInitLIR>(loc, NodeKind::AGGINIT_LIR, type) {}
@@ -143,7 +142,7 @@ class StringInitLIR : public LIRVisitable<StringInitLIR, ConstInitLIR> {
 public:
     StringInitLIR(Location loc, sema::types::Type *type, std::string str)
         : LIRVisitable<StringInitLIR, ConstInitLIR>(loc, NodeKind::STRINIT_LIR, type),
-        str(std::move(str)) {}
+          str(std::move(str)) {}
 
     std::string str;
 
@@ -318,7 +317,7 @@ public:
 
     ExprLIR(Location loc, NodeKind kind, sema::types::Type *type)
         : LIRNode(loc, kind), act_type(type), eff_type(type->effective_type()) {}
-        
+
     ExprLIR(Optional<Location> loc, NodeKind kind, sema::types::Type *type)
         : LIRNode(loc, kind), act_type(type), eff_type(type->effective_type()) {}
 

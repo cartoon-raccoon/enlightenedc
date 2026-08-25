@@ -757,7 +757,7 @@ void Validator::validate_binexpr_nonprim(BinaryExprMIR& node) {
                 throw UnableToContinue();
             }
 
-            Type *left_base = node.left->act_type->as_pointer()->get_base();
+            Type *left_base  = node.left->act_type->as_pointer()->get_base();
             Type *right_base = node.right->act_type->as_pointer()->get_base();
 
             // handle pointer type compatibility (both sides must have same base or void)
@@ -778,7 +778,7 @@ void Validator::validate_binexpr_nonprim(BinaryExprMIR& node) {
 }
 
 void Validator::validate_binexpr_prim(mir::BinaryExprMIR& node) {
-    
+
     PrimitiveType *left_type = node.left->eff_type->as_primitive();
     assert(left_type);
     PrimitiveType *right_type = node.right->eff_type->as_primitive();
@@ -786,8 +786,8 @@ void Validator::validate_binexpr_prim(mir::BinaryExprMIR& node) {
 
     // todo: add warning about narrowing
 
-    auto finaltype = prim::pr_check_binary_op(
-        node.op, left_type->get_primkind(), right_type->get_primkind());
+    auto finaltype =
+        prim::pr_check_binary_op(node.op, left_type->get_primkind(), right_type->get_primkind());
 
     if (!finaltype) {
         bsv_dbprint("error: operator not applicable to these primitive types");

@@ -198,7 +198,8 @@ void LIRSynthesizer::unfold_initializer_rec_arr(
                 Location{}, clone_lvalue(lhs.get()), std::move(idx_expr), arr->get_base());
             Box<ExprLIR> zero   = std::make_unique<ZeroExprLIR>(Location{}, arr->get_base());
             Box<ExprLIR> assign = std::make_unique<AssignExprLIR>(
-                Location{}, arr->get_base(), std::move(child), std::move(zero), tokens::AssignOp::ASSIGN);
+                Location{}, arr->get_base(), std::move(child), std::move(zero),
+                tokens::AssignOp::ASSIGN);
             Box<StmtLIR> stmt = std::make_unique<ExprStmtLIR>(Location{}, std::move(assign));
 
             emit(std::move(stmt));
@@ -335,8 +336,7 @@ Box<ExprLIR> LIRSynthesizer::clone_lvalue(ExprLIR *expr) {
     case NK::MEMACCEXPR_LIR: {
         auto *memacc = dyncast<MemberAccExprLIR>(expr);
         return std::make_unique<MemberAccExprLIR>(
-            memacc->loc, clone_lvalue(memacc->object.get()), memacc->member_idx,
-            memacc->act_type);
+            memacc->loc, clone_lvalue(memacc->object.get()), memacc->member_idx, memacc->act_type);
     }
     case NK::REINTEXPR_LIR: {
         auto *reint = dyncast<ReintExprLIR>(expr);
@@ -346,8 +346,8 @@ Box<ExprLIR> LIRSynthesizer::clone_lvalue(ExprLIR *expr) {
     case NK::SUBSCREXPR_LIR: {
         auto *subscr = dyncast<SubscrExprLIR>(expr);
         return std::make_unique<SubscrExprLIR>(
-            subscr->loc, clone_lvalue(subscr->array.get()),
-            clone_lvalue(subscr->index.get()), subscr->act_type);
+            subscr->loc, clone_lvalue(subscr->array.get()), clone_lvalue(subscr->index.get()),
+            subscr->act_type);
     }
     case NK::LITEXPR_LIR: {
         auto *lit = dyncast<LiteralExprLIR>(expr);
@@ -471,7 +471,7 @@ void LIRSynthesizer::do_visit(VarDeclMIR& node) {
 
         // emit a vardecl
         Box<VarDeclLIR> vardecl = std::make_unique<VarDeclLIR>(node.loc, lirvar);
-        VarDeclLIR *vardeclptr = vardecl.get();
+        VarDeclLIR *vardeclptr  = vardecl.get();
         emit(std::move(vardecl));
 
         // visit the initializer

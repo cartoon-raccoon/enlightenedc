@@ -1,8 +1,9 @@
+#include "lowering/lir/constinit.hpp"
+
 #include <stdexcept>
 #include <variant>
 
 #include "eval/consteval.hpp"
-#include "lowering/lir/constinit.hpp"
 #include "lowering/lir/lir.hpp"
 #include "semantics/mir/mir.hpp"
 #include "semantics/types.hpp"
@@ -11,28 +12,31 @@ using namespace ecc::lower::lir;
 using namespace ecc::sema::mir;
 using namespace ecc::sema::types;
 
-Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit(Type *type, InitializerMIR& init) {
-    return std::visit(match {
-        [&](Box<ExprMIR>& expr) -> Optional<Box<ConstInitLIR>> {
-            return try_build_constinit_expr(type, *expr);
-        },
-        [&](Vec<Box<InitializerMIR>>& aggregate) -> Optional<Box<ConstInitLIR>> {
-            if (type->is_class()) {
-                return try_build_constinit_agg_cls(type->as_class(), aggregate, init.loc);
-            } else if (type->is_array()) {
-                return try_build_constinit_agg_arr(type->as_array(), aggregate, init.loc);
-            } else {
-                throw std::runtime_error("invalid type for try_build_constinit_agg");
-            }
-        },
-        [&](auto&) -> Optional<Box<ConstInitLIR>> {
-            throw std::runtime_error(
+Optional<Box<ConstInitLIR>>
+ConstInitLIRBuilder::try_build_constinit(Type *type, InitializerMIR& init) {
+    return std::visit(
+        match{
+            [&](Box<ExprMIR>& expr) -> Optional<Box<ConstInitLIR>> {
+                return try_build_constinit_expr(type, *expr);
+            },
+            [&](Vec<Box<InitializerMIR>>& aggregate) -> Optional<Box<ConstInitLIR>> {
+                if (type->is_class()) {
+                    return try_build_constinit_agg_cls(type->as_class(), aggregate, init.loc);
+                } else if (type->is_array()) {
+                    return try_build_constinit_agg_arr(type->as_array(), aggregate, init.loc);
+                } else {
+                    throw std::runtime_error("invalid type for try_build_constinit_agg");
+                }
+            },
+            [&](auto&) -> Optional<Box<ConstInitLIR>> {
+                throw std::runtime_error(
                     "encountered variant other than ExprMIR and Vec<Box<InitializerMIR>>");
-        }
-    }, init.initializer);
+            }},
+        init.initializer);
 }
 
-Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_expr(Type *type, ExprMIR& expr) {
+Optional<Box<ConstInitLIR>>
+ConstInitLIRBuilder::try_build_constinit_expr(Type *type, ExprMIR& expr) {
     if (isa<CastExprMIR>(&expr)) {
         return try_build_constinit_expr(type, *dyncast<CastExprMIR>(&expr));
     } else if (isa<IdentExprMIR>(&expr)) {
@@ -46,8 +50,7 @@ Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_expr(Type *
     }
 }
 
-Optional<Box<ConstInitLIR>>
-ConstInitLIRBuilder::try_build_constinit_agg_cls(
+Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_cls(
     ClassType *cls, Vec<Box<InitializerMIR>>& inits, Location loc) {
 
     size_t next_idx = 0;
@@ -58,71 +61,72 @@ ConstInitLIRBuilder::try_build_constinit_agg_cls(
     for (auto& init : inits) {
         size_t target_idx = next_idx;
 
-        auto maybe_init = std::visit(match {
-            [&](Box<ExprMIR>& expr) -> Optional<Box<ConstInitLIR>> {
-                RecordType::TypeMember *member = cls->find(next_idx);
-                assert(member);
+        auto maybe_init = std::visit(
+            match{
+                [&](Box<ExprMIR>& expr) -> Optional<Box<ConstInitLIR>> {
+                    RecordType::TypeMember *member = cls->find(next_idx);
+                    assert(member);
 
-                target_idx = next_idx;
-                auto maybe_init = try_build_constinit_expr(member->ty, *expr);
+                    target_idx      = next_idx;
+                    auto maybe_init = try_build_constinit_expr(member->ty, *expr);
 
-                touched[next_idx] = true;
-                next_idx++;
+                    touched[next_idx] = true;
+                    next_idx++;
 
-                return maybe_init;
-            },
-            [&](Box<InitializerMIR::Member>& member) -> Optional<Box<ConstInitLIR>> {
-                // Member designators can refer to a member nested inside one or more
-                // anonymous struct/union members; index() returns the full chain of
-                // per-level indices needed to reach it (see unfold_initializer_rec_cls).
-                AccessorPath path = cls->index(member->member);
-                assert(!path.empty());
+                    return maybe_init;
+                },
+                [&](Box<InitializerMIR::Member>& member) -> Optional<Box<ConstInitLIR>> {
+                    // Member designators can refer to a member nested inside one or more
+                    // anonymous struct/union members; index() returns the full chain of
+                    // per-level indices needed to reach it (see unfold_initializer_rec_cls).
+                    AccessorPath path = cls->index(member->member);
+                    assert(!path.empty());
 
-                RecordType *current_rec      = cls;
-                RecordType::TypeMember *tymem = nullptr;
-                bool first                    = true;
+                    RecordType *current_rec       = cls;
+                    RecordType::TypeMember *tymem = nullptr;
+                    bool first                    = true;
 
-                for (auto& acc : path) {
-                    assert(acc.is_index());
-                    size_t idx = std::get<IndexAcc>(acc.accessor);
+                    for (auto& acc : path) {
+                        assert(acc.is_index());
+                        size_t idx = std::get<IndexAcc>(acc.accessor);
 
-                    tymem = current_rec->find(idx);
-                    assert(tymem);
+                        tymem = current_rec->find(idx);
+                        assert(tymem);
 
-                    // Only the outermost accessor corresponds to a direct member of `cls`;
-                    // that's the slot this element occupies, and the one the zero-fill pass
-                    // below should skip.
-                    if (first) {
-                        target_idx   = idx;
-                        touched[idx] = true;
-                        first        = false;
+                        // Only the outermost accessor corresponds to a direct member of `cls`;
+                        // that's the slot this element occupies, and the one the zero-fill pass
+                        // below should skip.
+                        if (first) {
+                            target_idx   = idx;
+                            touched[idx] = true;
+                            first        = false;
+                        }
+
+                        if (acc.next()) {
+                            current_rec = tymem->ty->as_recordtype();
+                            assert(current_rec);
+                        }
                     }
 
-                    if (acc.next()) {
-                        current_rec = tymem->ty->as_recordtype();
-                        assert(current_rec);
-                    }
-                }
-
-                return try_build_constinit(tymem->ty, *member->initializer);
-            },
-            [&](Box<InitializerMIR::Index>&) -> Optional<Box<ConstInitLIR>> {
-                throw std::runtime_error(
+                    return try_build_constinit(tymem->ty, *member->initializer);
+                },
+                [&](Box<InitializerMIR::Index>&) -> Optional<Box<ConstInitLIR>> {
+                    throw std::runtime_error(
                         "encountered index designator while constructing constinit class");
-            },
-            [&](Vec<Box<InitializerMIR>>&) -> Optional<Box<ConstInitLIR>> {
-                RecordType::TypeMember *member = cls->find(next_idx);
-                assert(member);
+                },
+                [&](Vec<Box<InitializerMIR>>&) -> Optional<Box<ConstInitLIR>> {
+                    RecordType::TypeMember *member = cls->find(next_idx);
+                    assert(member);
 
-                target_idx = next_idx;
-                auto maybe_init = try_build_constinit(member->ty, *init);
+                    target_idx      = next_idx;
+                    auto maybe_init = try_build_constinit(member->ty, *init);
 
-                touched[next_idx] = true;
-                next_idx++;
+                    touched[next_idx] = true;
+                    next_idx++;
 
-                return maybe_init;
-            }
-        }, init->initializer);
+                    return maybe_init;
+                }},
+            init->initializer);
 
         if (!maybe_init) {
             return {};
@@ -142,8 +146,7 @@ ConstInitLIRBuilder::try_build_constinit_agg_cls(
     return cinit;
 }
 
-Optional<Box<ConstInitLIR>>
-ConstInitLIRBuilder::try_build_constinit_agg_arr(
+Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_arr(
     ArrayType *arr, Vec<Box<InitializerMIR>>& inits, Location loc) {
 
     size_t next_idx = 0;
@@ -154,39 +157,40 @@ ConstInitLIRBuilder::try_build_constinit_agg_arr(
     for (auto& init : inits) {
         size_t target_idx = next_idx;
 
-        auto maybe_init = std::visit(match {
-            [&](Box<ExprMIR>& expr) -> Optional<Box<ConstInitLIR>> {
-                target_idx = next_idx;
-                auto maybe_init = try_build_constinit_expr(arr->get_base(), *expr);
+        auto maybe_init = std::visit(
+            match{
+                [&](Box<ExprMIR>& expr) -> Optional<Box<ConstInitLIR>> {
+                    target_idx      = next_idx;
+                    auto maybe_init = try_build_constinit_expr(arr->get_base(), *expr);
 
-                touched[next_idx] = true;
-                next_idx++;
+                    touched[next_idx] = true;
+                    next_idx++;
 
-                return maybe_init;
-            },
-            [&](Box<InitializerMIR::Member>&) -> Optional<Box<ConstInitLIR>> {
-                throw std::runtime_error(
+                    return maybe_init;
+                },
+                [&](Box<InitializerMIR::Member>&) -> Optional<Box<ConstInitLIR>> {
+                    throw std::runtime_error(
                         "encountered member designator while constructing constinit array");
-            },
-            [&](Box<InitializerMIR::Index>& index) -> Optional<Box<ConstInitLIR>> {
-                size_t curr_idx = index->idx.cast<size_t>();
+                },
+                [&](Box<InitializerMIR::Index>& index) -> Optional<Box<ConstInitLIR>> {
+                    size_t curr_idx = index->idx.cast<size_t>();
 
-                target_idx        = curr_idx;
-                touched[curr_idx] = true;
-                next_idx          = curr_idx + 1;
+                    target_idx        = curr_idx;
+                    touched[curr_idx] = true;
+                    next_idx          = curr_idx + 1;
 
-                return try_build_constinit(arr->get_base(), *index->initializer);
-            },
-            [&](Vec<Box<InitializerMIR>>&) -> Optional<Box<ConstInitLIR>> {
-                target_idx = next_idx;
-                auto maybe_init = try_build_constinit(arr->get_base(), *init);
+                    return try_build_constinit(arr->get_base(), *index->initializer);
+                },
+                [&](Vec<Box<InitializerMIR>>&) -> Optional<Box<ConstInitLIR>> {
+                    target_idx      = next_idx;
+                    auto maybe_init = try_build_constinit(arr->get_base(), *init);
 
-                touched[next_idx] = true;
-                next_idx++;
+                    touched[next_idx] = true;
+                    next_idx++;
 
-                return maybe_init;
-            }
-        }, init->initializer);
+                    return maybe_init;
+                }},
+            init->initializer);
 
         if (!maybe_init) {
             return {};
@@ -220,7 +224,7 @@ ConstInitLIRBuilder::try_build_constinit_expr(Type *type, CastExprMIR& expr) {
         return try_build_constinit_expr(expr.target, *expr.inner);
     case CastKind::FuncPtrDecay:
         // function decay: "undo" the cast, pass in inner type
-        return try_build_constinit_expr(expr.inner->act_type,  *expr.inner);
+        return try_build_constinit_expr(expr.inner->act_type, *expr.inner);
     }
 }
 
@@ -235,7 +239,7 @@ ConstInitLIRBuilder::try_build_constinit_expr(Type *type, IdentExprMIR& expr) {
         if (auto *enumerator = enumtype->find(expr.ident->name)) {
             eval::Value val(enumerator->value);
             auto init = std::make_unique<ScalarInitLIR>(expr.loc, enumtype->as_primitive(), val);
-    
+
             return init;
         } else {
             return {};
@@ -259,25 +263,26 @@ ConstInitLIRBuilder::try_build_constinit_expr(Type *type, IdentExprMIR& expr) {
 Optional<Box<ConstInitLIR>>
 ConstInitLIRBuilder::try_build_constinit_expr(Type *type, LiteralExprMIR& expr) {
     Box<ConstInitLIR> init = nullptr;
-    std::visit(match {
-        [&](eval::Value& val) {
-            assert(type->is_primitive());
+    std::visit(
+        match{
+            [&](eval::Value& val) {
+                assert(type->is_primitive());
 
-            PrimitiveType *ptype = type->as_primitive();
-            eval::Value insert_val = val.pr_cast(ptype->get_primkind());
+                PrimitiveType *ptype   = type->as_primitive();
+                eval::Value insert_val = val.pr_cast(ptype->get_primkind());
 
-            init = std::make_unique<ScalarInitLIR>(expr.loc, type->as_primitive(), insert_val);
-        },
-        [&](std::string& str) {
-            if (type->is_pointer()) {
-                init = std::make_unique<StringInitLIR>(expr.loc, type, str);
-            } else if (type->is_array()) {
-                init = nullptr;
-            } else {
-                throw std::runtime_error("invalid type for building constinit LiteralExprMIR");
-            }
-        }
-    }, expr.value);
+                init = std::make_unique<ScalarInitLIR>(expr.loc, type->as_primitive(), insert_val);
+            },
+            [&](std::string& str) {
+                if (type->is_pointer()) {
+                    init = std::make_unique<StringInitLIR>(expr.loc, type, str);
+                } else if (type->is_array()) {
+                    init = nullptr;
+                } else {
+                    throw std::runtime_error("invalid type for building constinit LiteralExprMIR");
+                }
+            }},
+        expr.value);
 
     if (init == nullptr) {
         return {};
@@ -291,14 +296,12 @@ ConstInitLIRBuilder::try_build_constinit_expr(Type *type, SizeofExprMIR& expr) {
     assert(type->is_primitive());
     PrimitiveType *ptype = type->as_primitive();
 
-    auto val = eval::Value(std::visit(match {
-        [&](Box<ExprMIR>& innerexpr) {
-            return innerexpr->act_type->alloc_size();
-        },
-        [&](Type * type) {
-            return type->alloc_size();
-        }
-    }, expr.operand));
+    auto val = eval::Value(
+        std::visit(
+            match{
+                [&](Box<ExprMIR>& innerexpr) { return innerexpr->act_type->alloc_size(); },
+                [&](Type *type) { return type->alloc_size(); }},
+            expr.operand));
 
     val = val.pr_cast(ptype->get_primkind());
 

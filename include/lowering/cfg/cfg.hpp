@@ -112,11 +112,9 @@ public:
 
 class Constant : public Value {
 public:
-    Constant(ValueKind kind, sema::types::Type *type)
-        : Value(kind, type) {}
+    Constant(ValueKind kind, sema::types::Type *type) : Value(kind, type) {}
 
-    Constant(ValueKind kind, sema::types::Type *type, Location loc)
-        : Value(kind, type, loc) {}
+    Constant(ValueKind kind, sema::types::Type *type, Location loc) : Value(kind, type, loc) {}
 
     static bool classof(const Value *node) {
         switch (node->valkind) {
@@ -252,7 +250,8 @@ public:
     Instruction(BasicBlock *containing, InstKind kind, sema::types::Type *type, Location loc)
         : Value(ValueKind::INST, type, loc), containing(containing), instkind(kind) {}
 
-    Instruction(BasicBlock *containing, InstKind kind, sema::types::Type *type, Optional<Location> loc)
+    Instruction(
+        BasicBlock *containing, InstKind kind, sema::types::Type *type, Optional<Location> loc)
         : Value(ValueKind::INST, type, loc), containing(containing), instkind(kind) {}
 
     Instruction(BasicBlock *containing, InstKind kind, sema::types::Type *type)
@@ -520,7 +519,8 @@ public:
         : CFGVisitable<IncrInst, Instruction>(containing, InstKind::INC, type, loc),
           operand(operand) {}
 
-    IncrInst(BasicBlock *containing, sema::types::Type *type, Value *operand, Optional<Location> loc)
+    IncrInst(
+        BasicBlock *containing, sema::types::Type *type, Value *operand, Optional<Location> loc)
         : CFGVisitable<IncrInst, Instruction>(containing, InstKind::INC, type, loc),
           operand(operand) {}
 
@@ -541,7 +541,8 @@ public:
         : CFGVisitable<DecrInst, Instruction>(containing, InstKind::DEC, type, loc),
           operand(operand) {}
 
-    DecrInst(BasicBlock *containing, sema::types::Type *type, Value *operand, Optional<Location> loc)
+    DecrInst(
+        BasicBlock *containing, sema::types::Type *type, Value *operand, Optional<Location> loc)
         : CFGVisitable<DecrInst, Instruction>(containing, InstKind::DEC, type, loc),
           operand(operand) {}
 

@@ -65,8 +65,8 @@ public:
 
     LIRVarSym(std::string& mangled, sema::sym::Scope *scope, sema::types::Type *type)
         : LIRSym(
-            LIRSymKind::VAR, mangled, mangled, scope, sema::sym::Linkage::INTERNAL, 
-            sema::sym::Visibility::PUBLIC, {}),
+              LIRSymKind::VAR, mangled, mangled, scope, sema::sym::Linkage::INTERNAL,
+              sema::sym::Visibility::PUBLIC, {}),
           type(type), is_param(false) {}
 
     // The type of the variable.

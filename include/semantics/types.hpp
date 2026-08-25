@@ -745,30 +745,29 @@ public:
     bool is_derivedtype() override { return true; }
 
     // virtual std::string construct_str(std::string& base);
-    
+
     /**
     Decay the derived type an underlying type corresponding to how it is handled in memory.
-    
+
     For example, pointers should decay to U64, arrays should decay to a pointer to the base.
     */
     virtual Type *decay() = 0;
-    
+
     static bool classof(const Type *node) {
         if (node->is_const()) {
             return false;
         }
         switch (node->kind) {
-            case Kind::POINTER:
-            case Kind::ARRAY:
-            case Kind::FUNCTION:
+        case Kind::POINTER:
+        case Kind::ARRAY:
+        case Kind::FUNCTION:
             return true;
-            default:
+        default:
             return false;
         }
     }
-    
+
 protected:
-    
     Type *base;
 
     DerivedType(Kind kind, TypeContext& tyctxt, Type *base) : Type(kind, tyctxt), base(base) {}

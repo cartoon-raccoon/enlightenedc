@@ -131,7 +131,7 @@ protected:
     void visit(lir::StringInitLIR& node) override;
     void visit(lir::FuncInitLIR& node) override;
     void visit(lir::ZeroInitLIR& node) override;
-    
+
     void visit(lir::BinaryExprLIR& node) override;
     void visit(lir::UnaryExprLIR& node) override;
     void visit(lir::CastExprLIR& node) override;

@@ -71,7 +71,7 @@ Value *CFGBuilder::eval_lvalue(ExprLIR& node) {
         return eval(*unary->operand); // *p's address is just p's value
     }
     if (auto *literal = dyncast<LiteralExprLIR>(&node); literal && literal->is_str()) {
-        auto& str   = std::get<std::string>(literal->value);
+        auto& str = std::get<std::string>(literal->value);
         assert(node.act_type->is_array());
         String *ret = prog_cfg.add_or_get_string(node.act_type->as_array(), str);
         ret->set_type(literal->act_type);
@@ -113,9 +113,9 @@ static tokens::BinaryOp assign_op_to_binop(tokens::AssignOp op) {
 void CFGBuilder::visit(ProgramLIR& node) {
     dbprint("visiting ProgramLIR node ", node.loc ? *node.loc : Location{});
 
-    // Set curr_func before processing globals: build_constant() checks curr_func->is_implicit_main()
-    // to decide where a constant's owned, and top-level globals are built outside of any real
-    // function.
+    // Set curr_func before processing globals: build_constant() checks
+    // curr_func->is_implicit_main() to decide where a constant's owned, and top-level globals are
+    // built outside of any real function.
     curr_func = prog_cfg.implicit_main.get();
 
     for (auto& item : node.globals) {
@@ -243,7 +243,7 @@ void CFGBuilder::visit(PrintStmtLIR& node) {
     }
 
     ArrayType *str_type = types.get_array(types.get_i8(), node.format_string.size() + 1);
-    String *format = prog_cfg.add_or_get_string(str_type, node.format_string);
+    String *format      = prog_cfg.add_or_get_string(str_type, node.format_string);
 
     Vec<Value *> args;
     for (auto& arg : node.args) {

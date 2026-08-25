@@ -681,9 +681,10 @@ public:
 
     bool is_subscriptable() override { return eff_type->is_subscriptable(); }
 
-    bool is_const_foldable() override { 
-        if (!eff_type->is_enum()) return false;
-        
+    bool is_const_foldable() override {
+        if (!eff_type->is_enum())
+            return false;
+
         types::EnumType *type = eff_type->as_enum();
 
         return type->find(ident->name) != nullptr;
