@@ -819,9 +819,14 @@ public:
     Box<ExprMIR> array;
     Box<ExprMIR> index;
 
-    bool is_lvalue() override { return true; }
+    bool is_lvalue() override {
+        // ReintExprs can be pure rvalues (e.g. 42.U8[1]), so subscripting them does
+        // not produce an lvalue. Therefore, we have to check that the array actually
+        // points to some underlying storage.
+        return array->act_type->is_pointer() || array->is_lvalue();
+    }
 
-    bool is_assignable() override { return !act_type->is_const(); }
+    bool is_assignable() override { return is_lvalue() && !act_type->is_const(); }
 
     bool is_const_foldable() override { return false; }
 
