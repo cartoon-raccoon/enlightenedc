@@ -534,7 +534,7 @@ public:
 
     Accessor(std::string member) : accessor(std::move(member)) {}
 
-    Accessor(const Accessor& acc) : LinkedListNode<Accessor>(), accessor(acc.accessor) {}
+    Accessor(const Accessor& acc) : accessor(acc.accessor) {}
 
     Accessor(Accessor&& acc) noexcept : accessor(std::move(acc.accessor)) {}
 
