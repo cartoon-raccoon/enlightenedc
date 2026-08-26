@@ -488,15 +488,14 @@ protected:
 
     /**
     Whether the type definition is complete.
-    
+
     This is used in forward declarations of user types that may not have been fully defined.
     Once a class has been defined (i.e. members have been set), this is marked true,
     preventing the double-definition problem.
     */
     bool complete = false;
-    
-private:
 
+private:
     /**
     The identifier for the type.
 
@@ -779,6 +778,7 @@ casting, and to wrap `base->effective_type()` in a ConstType wrapper, respective
 */
 class ConstType : public Type {
     Type *base;
+
 public:
     Type *get_base() { return base; }
 
@@ -1012,7 +1012,6 @@ chain. Relative indexes get the member relative to the current class.
 */
 class ClassType : public RecordType {
 public:
-
     ClassType *as_class() override { return this; }
 
     Optional<ClassType *> get_parent() const { return parent; }

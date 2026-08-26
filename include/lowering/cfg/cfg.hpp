@@ -895,6 +895,7 @@ public:
 
 class BasicBlockReturnSuccIter : public BasicBlockTermSuccIter {
     Return *ret;
+
 public:
     BasicBlockReturnSuccIter(Return *ret) : ret(ret) {}
 

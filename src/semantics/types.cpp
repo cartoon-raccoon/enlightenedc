@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <cfloat>
-#include <llvm/IR/DerivedTypes.h>
 #include <memory>
 #include <stdexcept>
 #include <utility>
@@ -778,7 +777,6 @@ bool UnionType::coercible_to(Type *dst) {
 void UnionType::finish(Location loc) {
     def_loc = loc;
 
-    
     if (type_rep) {
         size_t type_rep_size = (*type_rep)->alloc_size();
         // validate that no members are larger than type rep

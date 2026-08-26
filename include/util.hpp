@@ -409,7 +409,6 @@ protected:
     };
 
 public:
-
     template <typename D = DerivedT>
         requires(IterRandomAccessCapable<D>)
     friend DerivedT operator+(const DerivedT& i, DifferenceT n) {

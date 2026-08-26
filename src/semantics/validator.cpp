@@ -4,8 +4,8 @@
 #include <stdexcept>
 
 #include "error.hpp"
-#include "eval/value.hpp"
 #include "eval/consteval.hpp"
+#include "eval/value.hpp"
 #include "semantics/mir/mir.hpp"
 #include "semantics/primitives.hpp"
 #include "semantics/semerr.hpp"
@@ -681,7 +681,7 @@ void Validator::do_visit(ReturnStmtMIR& node) {
     assert(func && "unable to get FunctionMIR");
 
     FunctionType *sig = func->sym->signature;
-    Type *returntype = sig->returntype()->unqual();
+    Type *returntype  = sig->returntype()->unqual();
 
     if (node.ret_expr) {
 
@@ -1105,20 +1105,21 @@ void Validator::do_visit(AssignExprMIR& node) {
     case AssignOp::MINUSEQ: {
         // we already checked coercibility earlier, so just check one side
         if (!node.right->eff_type->is_primitive()) {
-        add_error<InvalidAssignError>(
-            InvalidAssignError::Kind::InvalidOperation, node.right->act_type, node.loc);
+            add_error<InvalidAssignError>(
+                InvalidAssignError::Kind::InvalidOperation, node.right->act_type, node.loc);
             throw UnableToContinue();
         }
-        BinaryOp binop = *prim::pr_assignop_to_binop(node.op);
-        PrimitiveType *left_type = node.left->eff_type->as_primitive();
+        BinaryOp binop            = *prim::pr_assignop_to_binop(node.op);
+        PrimitiveType *left_type  = node.left->eff_type->as_primitive();
         PrimitiveType *right_type = node.right->eff_type->as_primitive();
 
-        if (!prim::pr_check_binary_op(binop, left_type->get_primkind(), right_type->get_primkind())) {
-            add_error<InvalidAssignError>(InvalidAssignError::Kind::InvalidOperation, node.act_type, node.loc);
+        if (!prim::pr_check_binary_op(
+                binop, left_type->get_primkind(), right_type->get_primkind())) {
+            add_error<InvalidAssignError>(
+                InvalidAssignError::Kind::InvalidOperation, node.act_type, node.loc);
             throw UnableToContinue();
         }
-    }
-    break;
+    } break;
 
     case AssignOp::LSHIFTEQ:
     case AssignOp::RSHIFTEQ:
@@ -1250,15 +1251,13 @@ void Validator::do_visit(CallExprMIR& node) {
             } else {
                 // indirect function call through a function pointer identifier
                 bsv_dbprint("error: underspecified indirect function call (identifier)");
-                add_error<UnderspecifiedCallError>(
-                    node.loc, sig->num_params(), node.args.size());
+                add_error<UnderspecifiedCallError>(node.loc, sig->num_params(), node.args.size());
                 throw UnableToContinue();
             }
         } else {
             // indirect function call through a function pointer (not identifier)
             bsv_dbprint("error: underspecified direct function call (not identifier)");
-            add_error<UnderspecifiedCallError>(
-                node.loc, sig->num_params(), node.args.size());
+            add_error<UnderspecifiedCallError>(node.loc, sig->num_params(), node.args.size());
             throw UnableToContinue();
         }
     } else {

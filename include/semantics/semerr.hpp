@@ -16,7 +16,6 @@ using namespace ecc;
 
 class InvalidCaseError : public EccSemError {
 public:
-
     enum class Kind : uint8_t {
         NotInSwitch,
         DuplicateCase,
@@ -26,8 +25,8 @@ public:
         : EccSemError("case statement not in switch", err_loc), kind(Kind::NotInSwitch) {}
 
     InvalidCaseError(Location err_loc, Location decl_loc)
-        : EccSemError("duplicate case label", err_loc), 
-        kind(Kind::DuplicateCase), decl_loc(decl_loc) {}
+        : EccSemError("duplicate case label", err_loc), kind(Kind::DuplicateCase),
+          decl_loc(decl_loc) {}
 
     Kind kind;
     Optional<Location> decl_loc;
@@ -85,10 +84,8 @@ public:
 
 class UnderspecifiedCallError : public EccSemError {
 public:
-
     UnderspecifiedCallError(Location err_loc, size_t at_least, size_t got)
-        : EccSemError("underspecified call expression", err_loc),
-        at_least(at_least), got(got) {}
+        : EccSemError("underspecified call expression", err_loc), at_least(at_least), got(got) {}
 
     size_t at_least, got;
 

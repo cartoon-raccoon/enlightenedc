@@ -1141,7 +1141,8 @@ void MIRSynthesizer::do_visit(Initializer& node) { // NOLINT
                             // if we already have a max array set
                             if (max_subarray) {
                                 // if the new array is larger than the current max size
-                                if ((*initmir.new_type)->get_arr_size() > max_subarray->get_arr_size()) {
+                                if ((*initmir.new_type)->get_arr_size() >
+                                    max_subarray->get_arr_size()) {
                                     max_subarray = *initmir.new_type;
                                 }
                             } else {

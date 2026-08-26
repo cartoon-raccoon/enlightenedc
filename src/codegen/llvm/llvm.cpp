@@ -33,8 +33,8 @@ LLVMCore::LLVMCore() {
     const auto *features = "";
     llvm::TargetOptions opt;
 
-    target_machine =
-        target->createTargetMachine(llvm::Triple(target_triple), cpu, features, opt, llvm::Reloc::PIC_);
+    target_machine = target->createTargetMachine(
+        llvm::Triple(target_triple), cpu, features, opt, llvm::Reloc::PIC_);
 
     dbprint("LLVM initialized");
 }
@@ -145,7 +145,8 @@ void LLVMUnit::finalize(ClassType *type) {
         // llvmtype will contain the members of all its parents, and its own members. so, reading
         // the elements of the parent's llvmtype will read in all the members of parent classes, in
         // order, up the inheritance chain.
-        llvm::StructType *parent_llvm = llvm::dyn_cast<llvm::StructType>(get_llvm_type(*type->get_parent()));
+        llvm::StructType *parent_llvm =
+            llvm::dyn_cast<llvm::StructType>(get_llvm_type(*type->get_parent()));
 
         assert(parent_llvm && "");
 
@@ -200,10 +201,8 @@ void LLVMUnit::finalize(UnionType *type) {
     } else if (type->num_members() > 0) {
         // get largest member for the size
         auto largest = std::max_element(
-            type->get_members().begin(), type->get_members().end(), 
-            [](auto& s1, auto& s2) {
-                return s1->ty->alloc_size() < s2->ty->alloc_size();
-        });
+            type->get_members().begin(), type->get_members().end(),
+            [](auto& s1, auto& s2) { return s1->ty->alloc_size() < s2->ty->alloc_size(); });
 
         // size of the largest member in bytes
         size_t size = (*largest)->ty->alloc_size();
@@ -220,7 +219,7 @@ void LLVMUnit::finalize(UnionType *type) {
         }
 
         unsigned elem_bits = align.value() * BYTE_SIZE;
-        LLVMType *elem_ty = llvm::IntegerType::get(ctx(), elem_bits);
+        LLVMType *elem_ty  = llvm::IntegerType::get(ctx(), elem_bits);
 
         size_t num_elements = (size + align.value() - 1) / align.value();
 
@@ -264,7 +263,8 @@ void LLVMUnit::finalize(ArrayType *type) {
     }
 
     if (type->get_arr_size()) {
-        typemap[type] = llvm::ArrayType::get(get_llvm_type(type->get_base()), *type->get_arr_size());
+        typemap[type] =
+            llvm::ArrayType::get(get_llvm_type(type->get_base()), *type->get_arr_size());
     } else {
         //? would this be a problem?
         throw std::runtime_error("attempted to finalize unsized array");
@@ -294,7 +294,8 @@ void LLVMUnit::finalize(FunctionType *type) {
 
     LLVMType *return_llvm = get_llvm_type(type->get_signature().returntype);
 
-    typemap[type] = llvm::FunctionType::get(return_llvm, params_llvms, type->get_signature().variadic);
+    typemap[type] =
+        llvm::FunctionType::get(return_llvm, params_llvms, type->get_signature().variadic);
 }
 
 size_t LLVMUnit::get_pointer_size() {
@@ -314,7 +315,7 @@ size_t LLVMUnit::alloc_size(Type *type) {
         finalize(type);
     }
 
-    Type *type_key = type->is_const() ? type->as_const()->get_base() : type;
+    Type *type_key      = type->is_const() ? type->as_const()->get_base() : type;
     LLVMType *size_type = get_llvm_type(type_key);
 
     assert(size_type);
@@ -324,5 +325,4 @@ size_t LLVMUnit::alloc_size(Type *type) {
 }
 
 void LLVMUnit::compile(lower::cfg::ProgramCFG& prog) {
-
 }

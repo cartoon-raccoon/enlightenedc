@@ -20,7 +20,7 @@ class ArrayType;
 class FunctionType;
 class ConstType;
 
-}
+} // namespace ecc::sema::types
 
 namespace ecc::lower::cfg {
 
@@ -76,17 +76,17 @@ public:
         }
     }
 
-    virtual void finalize(sema::types::VoidType *type) = 0;
+    virtual void finalize(sema::types::VoidType *type)      = 0;
     virtual void finalize(sema::types::PrimitiveType *type) = 0;
-    virtual void finalize(sema::types::ClassType *type) = 0;
-    virtual void finalize(sema::types::UnionType *type) = 0;
-    virtual void finalize(sema::types::EnumType *type) = 0;
-    virtual void finalize(sema::types::PointerType *type) = 0;
-    virtual void finalize(sema::types::ArrayType *type) = 0;
-    virtual void finalize(sema::types::FunctionType *type) = 0;
-    virtual void finalize(sema::types::ConstType *type) = 0;
+    virtual void finalize(sema::types::ClassType *type)     = 0;
+    virtual void finalize(sema::types::UnionType *type)     = 0;
+    virtual void finalize(sema::types::EnumType *type)      = 0;
+    virtual void finalize(sema::types::PointerType *type)   = 0;
+    virtual void finalize(sema::types::ArrayType *type)     = 0;
+    virtual void finalize(sema::types::FunctionType *type)  = 0;
+    virtual void finalize(sema::types::ConstType *type)     = 0;
 
-    virtual size_t get_pointer_size() = 0;
+    virtual size_t get_pointer_size()      = 0;
     virtual size_t get_pointer_size_bits() = 0;
 
     virtual size_t alloc_size(sema::types::Type *type) = 0;
@@ -94,6 +94,6 @@ public:
     virtual void compile(lower::cfg::ProgramCFG& prog) = 0;
 };
 
-}
+} // namespace ecc::codegen
 
 #endif

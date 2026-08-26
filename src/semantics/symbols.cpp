@@ -65,7 +65,7 @@ Box<VarSymbol> FuncSymbol::as_funcptr(TypeContext& tctxt, bool is_const) {
 
 size_t FuncSymbol::num_default_params() const {
     return std::count_if(
-        parameters.begin(), parameters.end(), [](VarSymbol *sym) { return sym->has_value();});
+        parameters.begin(), parameters.end(), [](VarSymbol *sym) { return sym->has_value(); });
 }
 
 void SymbolTable::clear() {

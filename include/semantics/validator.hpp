@@ -25,29 +25,17 @@ class SwitchTracker {
     Optional<Location> default_loc;
 
 public:
-    void insert_case(eval::Value& val, Location loc) {
-        cases.insert_or_assign(val, loc);
-    }
+    void insert_case(eval::Value& val, Location loc) { cases.insert_or_assign(val, loc); }
 
-    Location get_loc(eval::Value& val) {
-        return cases[val];
-    }
+    Location get_loc(eval::Value& val) { return cases[val]; }
 
-    Optional<Location> get_default_loc() {
-        return default_loc;
-    }
+    Optional<Location> get_default_loc() { return default_loc; }
 
-    bool contains_case(eval::Value& val) {
-        return cases.contains(val);
-    }
+    bool contains_case(eval::Value& val) { return cases.contains(val); }
 
-    void set_default(Location loc) {
-        default_loc = loc;
-    }
+    void set_default(Location loc) { default_loc = loc; }
 
-    bool has_default() const {
-        return default_loc.has_value();
-    }
+    bool has_default() const { return default_loc.has_value(); }
 };
 
 /*

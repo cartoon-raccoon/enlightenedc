@@ -243,9 +243,7 @@ public:
 
     size_t num_default_params() const;
 
-    size_t num_non_default_params() const {
-        return num_params() - num_default_params();
-    }
+    size_t num_non_default_params() const { return num_params() - num_default_params(); }
 
     auto default_params() {
         return std::views::filter(parameters, [](VarSymbol *sym) { return sym->has_value(); });
