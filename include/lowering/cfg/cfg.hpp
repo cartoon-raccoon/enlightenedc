@@ -890,13 +890,18 @@ public:
     BasicBlock *next() override;
 };
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-private-field"
+
 class BasicBlockReturnSuccIter : public BasicBlockTermSuccIter {
-    Return *ret; // NOLINT
+    Return *ret;
 public:
     BasicBlockReturnSuccIter(Return *ret) : ret(ret) {}
 
     BasicBlock *next() override { return nullptr; }
 };
+
+#pragma clang diagnostic pop
 
 /**
 An iterator class that wraps a BasicBlockTermSuccIter.
@@ -1156,8 +1161,14 @@ public:
     */
     BasicBlock *create_block(std::string& name, bool make_labeled = false);
 
+    /**
+    Insert an anonymous block before `succ`.
+    */
     BasicBlock *create_block_before(BasicBlock *succ);
 
+    /**
+    Insert a named block before `succ`, optionally making it a labeled block.
+    */
     BasicBlock *create_block_before(BasicBlock *succ, std::string& name, bool make_labeled = false);
 
     BasicBlock *create_block_after(BasicBlock *prec);
