@@ -20,6 +20,8 @@ using namespace ecc::sema::prim;
 using namespace ecc::tokens;
 using namespace ecc::codegen;
 
+constexpr size_t BYTE_SIZE = 8;
+
 /*
  * TYPE METHODS
  */
@@ -954,13 +956,31 @@ void UnionType::finalize() {
             return s1->ty->alloc_size() < s2->ty->alloc_size();
         });
 
+        // size of the largest member in bytes
         size_t size = (*largest)->ty->alloc_size();
 
-        // set llvm_type as an array of unsigned bytes with size equal to largest member
-        llvm_type = llvm::ArrayType::get(ctxt().u8->get_llvmtype(), size);
+        const llvm::DataLayout& dl = ctxt().llvm().mod().getDataLayout();
+        llvm::Align align(1);
+
+        // find the strictest alignment
+        for (auto& member : members) {
+            llvm::Align mem_align = dl.getABITypeAlign(member->ty->get_llvmtype());
+            if (mem_align > align) {
+                align = mem_align;
+            }
+        }
+
+        unsigned elem_bits = align.value() * BYTE_SIZE;
+        LLVMType *elem_ty = llvm::IntegerType::get(ctxt().llvm().ctx(), elem_bits);
+
+        size_t num_elements = (size + align.value() - 1) / align.value();
+
+        // set llvm_type as an array of integers sized to the strictest alignment,
+        // array size is smallest number of integers needed to hold the largest member
+        llvm_type = llvm::ArrayType::get(elem_ty, num_elements);
     } else {
         // set llvm_type as an empty array
-        llvm_type = llvm::ArrayType::get(ctxt().u8->get_llvmtype(), 0);
+        llvm_type = llvm::ArrayType::get(ctxt().get_u8()->get_llvmtype(), 0);
     }
 
     finalized = true;
