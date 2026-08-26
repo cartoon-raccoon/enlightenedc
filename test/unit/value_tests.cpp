@@ -1,4 +1,6 @@
+#include <bit>
 #include <cstdint>
+#include <unordered_map>
 
 #include <gtest/gtest.h>
 #include <rapidcheck.h>
@@ -216,4 +218,148 @@ RC_GTEST_PROP(ValueTypePromotion, DISABLED_ShiftResultTypeIsPromotedLeft, ()) {
     Value result = a << b;
     assert_structural_valid(result);
     RC_ASSERT(result.primtype() == expected_type);
+}
+
+// ── bits() ────────────────────────────────────────────────────────────────────
+//
+// bits() returns the value's raw bit pattern as a uint64_t: signed integers are
+// sign-extended, unsigned integers are zero-extended, floats are bit-cast then
+// zero-extended, and doubles are bit-cast directly.
+
+RC_GTEST_PROP(ValueBits, SignedIntegersSignExtend, ()) {
+    int8_t v8   = *rc::gen::arbitrary<int8_t>();
+    int16_t v16 = *rc::gen::arbitrary<int16_t>();
+    int32_t v32 = *rc::gen::arbitrary<int32_t>();
+    int64_t v64 = *rc::gen::arbitrary<int64_t>();
+
+    RC_ASSERT(Value(v8).bits() == static_cast<uint64_t>(static_cast<int64_t>(v8)));
+    RC_ASSERT(Value(v16).bits() == static_cast<uint64_t>(static_cast<int64_t>(v16)));
+    RC_ASSERT(Value(v32).bits() == static_cast<uint64_t>(static_cast<int64_t>(v32)));
+    RC_ASSERT(Value(v64).bits() == static_cast<uint64_t>(v64));
+}
+
+RC_GTEST_PROP(ValueBits, UnsignedIntegersZeroExtend, ()) {
+    uint8_t v8   = *rc::gen::arbitrary<uint8_t>();
+    uint16_t v16 = *rc::gen::arbitrary<uint16_t>();
+    uint32_t v32 = *rc::gen::arbitrary<uint32_t>();
+    uint64_t v64 = *rc::gen::arbitrary<uint64_t>();
+
+    RC_ASSERT(Value(v8).bits() == static_cast<uint64_t>(v8));
+    RC_ASSERT(Value(v16).bits() == static_cast<uint64_t>(v16));
+    RC_ASSERT(Value(v32).bits() == static_cast<uint64_t>(v32));
+    RC_ASSERT(Value(v64).bits() == v64);
+}
+
+RC_GTEST_PROP(ValueBits, FloatBitCastThenZeroExtended, ()) {
+    float f = *rc::gen::arbitrary<float>();
+    RC_ASSERT(Value(f).bits() == static_cast<uint64_t>(std::bit_cast<uint32_t>(f)));
+    // Upper 32 bits must be clear -- bits() must not sign-extend a float's bit pattern.
+    RC_ASSERT((Value(f).bits() >> 32) == 0U); // NOLINT
+}
+
+RC_GTEST_PROP(ValueBits, DoubleBitCastDirectly, ()) {
+    double d = *rc::gen::arbitrary<double>();
+    RC_ASSERT(Value(d).bits() == std::bit_cast<uint64_t>(d));
+}
+
+TEST(ValueBits, BoolBitsAreZeroOrOne) {
+    EXPECT_EQ(Value(true).bits(), 1U);
+    EXPECT_EQ(Value(false).bits(), 0U);
+}
+
+// Negative signed integers must not collide with any unsigned bit pattern of the
+// same width -- sign extension into the upper bits is what keeps them distinct.
+TEST(ValueBits, NegativeI8DiffersFromU8SameLowByte) {
+    Value negative(static_cast<int8_t>(-1));
+    Value unsigned_same_byte(static_cast<uint8_t>(0xFF));
+    EXPECT_NE(negative.bits(), unsigned_same_byte.bits());
+}
+
+// Rebuilds a Value holding the exact same stored representation as `v`, but via
+// a distinct construction path (std::visit + the scalar constructor, rather than
+// the copy constructor) -- so the two comparisons below aren't tautological.
+static Value rebuild_same_representation(const Value& v) {
+    return std::visit([](auto raw) { return Value(raw); }, v.value());
+}
+
+// bits() is a pure function of the stored representation: two Values holding the
+// same primtype and raw representation always yield the same bits().
+RC_GTEST_PROP(ValueBits, DeterministicForEqualConstruction, ()) {
+    Value a = *gen_value();
+    Value b = rebuild_same_representation(a);
+    RC_ASSERT(a.primtype() == b.primtype());
+    RC_ASSERT(a.bits() == b.bits());
+}
+
+// ── ValueHash / ValueStructEq ────────────────────────────────────────────────
+//
+// ValueStructEq compares primtype() and bits() -- unlike Value::operator==,
+// which performs a value-level comparison and can equate values of different
+// primtype (e.g. I32(0) == U8(0)). ValueHash is consistent with ValueStructEq:
+// equal-under-ValueStructEq values must hash equal.
+
+// A Value structurally equals itself.
+RC_GTEST_PROP(ValueStructEqProp, ReflexiveOnSelf, ()) {
+    Value v = *gen_value();
+    ValueStructEq eq;
+    RC_ASSERT(eq(v, v));
+}
+
+// Two Values built from the same primtype and raw bit pattern compare structurally equal.
+RC_GTEST_PROP(ValueStructEqProp, EqualForSamePrimtypeAndBits, ()) {
+    Value a = *gen_value();
+    Value b = rebuild_same_representation(a);
+    ValueStructEq eq;
+    RC_ASSERT(eq(a, b));
+}
+
+// Same bit pattern, different primtype: ValueStructEq says unequal even though
+// Value::operator== (a value-level comparison) may say equal.
+TEST(ValueStructEqProp, DifferentPrimtypeSameBitsAreNotStructurallyEqual) {
+    Value i32_zero(static_cast<int32_t>(0));
+    Value u8_zero(static_cast<uint8_t>(0));
+    ValueStructEq eq;
+
+    EXPECT_FALSE(eq(i32_zero, u8_zero))
+        << "ValueStructEq must distinguish primtype even when bits() matches";
+    EXPECT_TRUE(static_cast<bool>(i32_zero == u8_zero))
+        << "sanity check: Value::operator== is value-level and does treat these as equal";
+}
+
+// Same primtype, different value: not structurally equal.
+RC_GTEST_PROP(ValueStructEqProp, DifferentBitsAreNotStructurallyEqual, ()) {
+    PrimType pt = *gen_integer_primtype();
+    Value a     = *gen_value_of(pt);
+    Value b     = *gen_value_of(pt);
+    RC_PRE(a.bits() != b.bits());
+    ValueStructEq eq;
+    RC_ASSERT(!eq(a, b));
+}
+
+// ValueHash is consistent with ValueStructEq: values that structurally compare
+// equal must hash to the same value.
+RC_GTEST_PROP(ValueHashProp, ConsistentWithStructEq, ()) {
+    Value a = *gen_value();
+    Value b = rebuild_same_representation(a);
+    ValueStructEq eq;
+    ValueHash hash;
+    RC_PRE(eq(a, b));
+    RC_ASSERT(hash(a) == hash(b));
+}
+
+// Value can be used as a key in an unordered_map keyed by ValueHash/ValueStructEq
+// (the intended use case, mirroring sema::SwitchTracker's case-value map).
+TEST(ValueHashProp, UsableAsUnorderedMapKey) {
+    std::unordered_map<Value, std::string, ValueHash, ValueStructEq> map;
+
+    map.insert({Value(static_cast<int32_t>(1)), "one"});
+    map.insert({Value(static_cast<int32_t>(2)), "two"});
+    // Same bit pattern as the I32 key above, but a different primtype: must not collide.
+    map.insert({Value(static_cast<uint8_t>(1)), "one-u8"});
+
+    EXPECT_EQ(map.size(), 3U);
+    EXPECT_EQ(map.at(Value(static_cast<int32_t>(1))), "one");
+    EXPECT_EQ(map.at(Value(static_cast<int32_t>(2))), "two");
+    EXPECT_EQ(map.at(Value(static_cast<uint8_t>(1))), "one-u8");
+    EXPECT_EQ(map.find(Value(static_cast<int32_t>(3))), map.end());
 }

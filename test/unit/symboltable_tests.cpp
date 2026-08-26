@@ -612,3 +612,232 @@ TEST_F(TypeSysAndSymTabTestFixture, TieTo_OverrideReplacesExisting) {
     EXPECT_EQ(walker.current->assoc, fn2)
         << "With override=true, the assoc should be replaced";
 }
+
+// ─── classof / isa / dyncast (manual RTTI) ─────────────────────────────────────
+
+// VarSymbol classifies as PhysicalSymbol, not AbstractSymbol.
+TEST_F(TypeSysAndSymTabTestFixture, Classof_VarSymbolIsPhysical) {
+    SymbolTableWalker walker(symtab);
+    std::string name = "physVar";
+    VarSymbol *var =
+        walker.insert(name, std::make_unique<VarSymbol>(LOC, name, walker.current, tctxt.get_u32()));
+    Symbol *sym = var;
+
+    EXPECT_TRUE(isa<PhysicalSymbol>(sym));
+    EXPECT_FALSE(isa<AbstractSymbol>(sym));
+}
+
+// FuncSymbol classifies as PhysicalSymbol, not AbstractSymbol.
+TEST_F(TypeSysAndSymTabTestFixture, Classof_FuncSymbolIsPhysical) {
+    SymbolTableWalker walker(symtab);
+    FuncSymbol *fn = insert_func(walker, tctxt, LOC, "physFn");
+    Symbol *sym    = fn;
+
+    EXPECT_TRUE(isa<PhysicalSymbol>(sym));
+    EXPECT_FALSE(isa<AbstractSymbol>(sym));
+}
+
+// TypeSymbol classifies as AbstractSymbol, not PhysicalSymbol.
+TEST_F(TypeSysAndSymTabTestFixture, Classof_TypeSymbolIsAbstract) {
+    SymbolTableWalker walker(symtab);
+    std::string name = "AbstractType";
+    TypeSymbol *tysym = walker.insert(
+        name, std::make_unique<TypeSymbol>(LOC, name, walker.current, class1));
+    Symbol *sym = tysym;
+
+    EXPECT_TRUE(isa<AbstractSymbol>(sym));
+    EXPECT_FALSE(isa<PhysicalSymbol>(sym));
+}
+
+// LabelSymbol classifies as AbstractSymbol, not PhysicalSymbol.
+TEST_F(TypeSysAndSymTabTestFixture, Classof_LabelSymbolIsAbstract) {
+    SymbolTableWalker walker(symtab);
+    std::string name  = "abstractLabel";
+    LabelSymbol *labsym =
+        walker.insert(name, std::make_unique<LabelSymbol>(LOC, name, walker.current));
+    Symbol *sym = labsym;
+
+    EXPECT_TRUE(isa<AbstractSymbol>(sym));
+    EXPECT_FALSE(isa<PhysicalSymbol>(sym));
+}
+
+// dyncast<VarSymbol> succeeds through a base Symbol* for a VAR symbol, and
+// dyncast<FuncSymbol> on the same pointer fails.
+TEST_F(TypeSysAndSymTabTestFixture, Classof_DyncastVarSymbolFromSymbolPtr) {
+    SymbolTableWalker walker(symtab);
+    std::string name = "dcVar";
+    Symbol *sym =
+        walker.insert(name, std::make_unique<VarSymbol>(LOC, name, walker.current, tctxt.get_u32()));
+
+    EXPECT_NE(dyncast<VarSymbol>(sym), nullptr);
+    EXPECT_EQ(dyncast<FuncSymbol>(sym), nullptr);
+}
+
+// dyncast<FuncSymbol> succeeds through a base Symbol* for a FUNC symbol, and
+// dyncast<VarSymbol> on the same pointer fails.
+TEST_F(TypeSysAndSymTabTestFixture, Classof_DyncastFuncSymbolFromSymbolPtr) {
+    SymbolTableWalker walker(symtab);
+    FuncSymbol *fn = insert_func(walker, tctxt, LOC, "dcFn");
+    Symbol *sym    = fn;
+
+    EXPECT_NE(dyncast<FuncSymbol>(sym), nullptr);
+    EXPECT_EQ(dyncast<VarSymbol>(sym), nullptr);
+}
+
+// dyncast<TypeSymbol> succeeds through a base Symbol* for a TYPE symbol, and
+// dyncast<LabelSymbol> on the same pointer fails.
+TEST_F(TypeSysAndSymTabTestFixture, Classof_DyncastTypeSymbolFromSymbolPtr) {
+    SymbolTableWalker walker(symtab);
+    std::string name = "dcType";
+    Symbol *sym       = walker.insert(
+        name, std::make_unique<TypeSymbol>(LOC, name, walker.current, class1));
+
+    EXPECT_NE(dyncast<TypeSymbol>(sym), nullptr);
+    EXPECT_EQ(dyncast<LabelSymbol>(sym), nullptr);
+}
+
+// dyncast<LabelSymbol> succeeds through a base Symbol* for a LABEL symbol, and
+// dyncast<TypeSymbol> on the same pointer fails.
+TEST_F(TypeSysAndSymTabTestFixture, Classof_DyncastLabelSymbolFromSymbolPtr) {
+    SymbolTableWalker walker(symtab);
+    std::string name = "dcLabel";
+    Symbol *sym = walker.insert(name, std::make_unique<LabelSymbol>(LOC, name, walker.current));
+
+    EXPECT_NE(dyncast<LabelSymbol>(sym), nullptr);
+    EXPECT_EQ(dyncast<TypeSymbol>(sym), nullptr);
+}
+
+// ─── VarSymbol::has_value ───────────────────────────────────────────────────────
+
+// A VarSymbol constructed without an initializer value reports has_value() == false.
+TEST_F(TypeSysAndSymTabTestFixture, VarSymbol_HasValueFalseWithoutValue) {
+    SymbolTableWalker walker(symtab);
+    VarSymbol var(LOC, "noValue", walker.current, tctxt.get_u32());
+    EXPECT_FALSE(var.has_value());
+}
+
+// A VarSymbol constructed with an eval::Value initializer reports has_value() == true.
+TEST_F(TypeSysAndSymTabTestFixture, VarSymbol_HasValueTrueWithValue) {
+    SymbolTableWalker walker(symtab);
+    VarSymbol var(LOC, "hasValue", walker.current, tctxt.get_u32(), eval::Value((uint32_t)42));
+    EXPECT_TRUE(var.has_value());
+}
+
+// ─── FuncSymbol parameter/default-argument helpers ─────────────────────────────
+
+// Helper: build a VarSymbol parameter, optionally with a default value.
+static Box<VarSymbol>
+make_param(const Location& LOC, Scope *scope, std::string name, Type *type) {
+    return std::make_unique<VarSymbol>(LOC, std::move(name), scope, type);
+}
+
+static Box<VarSymbol> make_default_param(
+    const Location& LOC, Scope *scope, std::string name, Type *type, eval::Value value) {
+    return std::make_unique<VarSymbol>(LOC, std::move(name), scope, type, value);
+}
+
+// num_params() reflects the number of parameters passed to the FuncSymbol.
+TEST_F(TypeSysAndSymTabTestFixture, FuncSymbol_NumParamsMatchesParameterCount) {
+    SymbolTableWalker walker(symtab);
+
+    Box<VarSymbol> p1 = make_param(LOC, walker.current, "a", tctxt.get_i32());
+    Box<VarSymbol> p2 = make_param(LOC, walker.current, "b", tctxt.get_i32());
+
+    Vec<VarSymbol *> params{p1.get(), p2.get()};
+    FunctionType *fn_type =
+        tctxt.get_function(LOC, tctxt.get_void(), {tctxt.get_i32(), tctxt.get_i32()}, false);
+
+    FuncSymbol fn(LOC, "twoParams", walker.current, fn_type, params);
+
+    EXPECT_EQ(fn.num_params(), 2U);
+}
+
+// num_default_params() counts only parameters constructed with a value.
+TEST_F(TypeSysAndSymTabTestFixture, FuncSymbol_NumDefaultParamsCountsOnlyDefaulted) {
+    SymbolTableWalker walker(symtab);
+
+    Box<VarSymbol> p1 = make_param(LOC, walker.current, "req", tctxt.get_i32());
+    Box<VarSymbol> p2 =
+        make_default_param(LOC, walker.current, "opt1", tctxt.get_i32(), eval::Value((int32_t)1));
+    Box<VarSymbol> p3 =
+        make_default_param(LOC, walker.current, "opt2", tctxt.get_i32(), eval::Value((int32_t)2));
+
+    Vec<VarSymbol *> params{p1.get(), p2.get(), p3.get()};
+    FunctionType *fn_type = tctxt.get_function(
+        LOC, tctxt.get_void(), {tctxt.get_i32(), tctxt.get_i32(), tctxt.get_i32()}, false);
+
+    FuncSymbol fn(LOC, "mixedParams", walker.current, fn_type, params);
+
+    EXPECT_EQ(fn.num_default_params(), 2U);
+}
+
+// num_default_params() is zero when no parameter carries a value.
+TEST_F(TypeSysAndSymTabTestFixture, FuncSymbol_NumDefaultParamsZeroWhenNoneDefaulted) {
+    SymbolTableWalker walker(symtab);
+
+    Box<VarSymbol> p1 = make_param(LOC, walker.current, "a", tctxt.get_i32());
+    Box<VarSymbol> p2 = make_param(LOC, walker.current, "b", tctxt.get_i32());
+
+    Vec<VarSymbol *> params{p1.get(), p2.get()};
+    FunctionType *fn_type =
+        tctxt.get_function(LOC, tctxt.get_void(), {tctxt.get_i32(), tctxt.get_i32()}, false);
+
+    FuncSymbol fn(LOC, "noDefaults", walker.current, fn_type, params);
+
+    EXPECT_EQ(fn.num_default_params(), 0U);
+}
+
+// num_non_default_params() is the complement of num_default_params() over num_params().
+TEST_F(TypeSysAndSymTabTestFixture, FuncSymbol_NumNonDefaultParamsIsComplement) {
+    SymbolTableWalker walker(symtab);
+
+    Box<VarSymbol> p1 = make_param(LOC, walker.current, "req1", tctxt.get_i32());
+    Box<VarSymbol> p2 = make_param(LOC, walker.current, "req2", tctxt.get_i32());
+    Box<VarSymbol> p3 =
+        make_default_param(LOC, walker.current, "opt", tctxt.get_i32(), eval::Value((int32_t)7));
+
+    Vec<VarSymbol *> params{p1.get(), p2.get(), p3.get()};
+    FunctionType *fn_type = tctxt.get_function(
+        LOC, tctxt.get_void(), {tctxt.get_i32(), tctxt.get_i32(), tctxt.get_i32()}, false);
+
+    FuncSymbol fn(LOC, "complementParams", walker.current, fn_type, params);
+
+    EXPECT_EQ(fn.num_non_default_params(), fn.num_params() - fn.num_default_params());
+    EXPECT_EQ(fn.num_non_default_params(), 2U);
+}
+
+// default_params() yields exactly the defaulted parameters, in declaration order.
+TEST_F(TypeSysAndSymTabTestFixture, FuncSymbol_DefaultParamsViewFiltersToDefaultedOnly) {
+    SymbolTableWalker walker(symtab);
+
+    Box<VarSymbol> p1 = make_param(LOC, walker.current, "req", tctxt.get_i32());
+    Box<VarSymbol> p2 =
+        make_default_param(LOC, walker.current, "opt1", tctxt.get_i32(), eval::Value((int32_t)10));
+    Box<VarSymbol> p3 =
+        make_default_param(LOC, walker.current, "opt2", tctxt.get_i32(), eval::Value((int32_t)20));
+
+    Vec<VarSymbol *> params{p1.get(), p2.get(), p3.get()};
+    FunctionType *fn_type = tctxt.get_function(
+        LOC, tctxt.get_void(), {tctxt.get_i32(), tctxt.get_i32(), tctxt.get_i32()}, false);
+
+    FuncSymbol fn(LOC, "viewParams", walker.current, fn_type, params);
+
+    Vec<VarSymbol *> defaulted;
+    for (VarSymbol *sym : fn.default_params()) {
+        defaulted.push_back(sym);
+    }
+
+    ASSERT_EQ(defaulted.size(), 2U);
+    EXPECT_EQ(defaulted[0], p2.get());
+    EXPECT_EQ(defaulted[1], p3.get());
+}
+
+// default_params() is empty when the function has no parameters at all.
+TEST_F(TypeSysAndSymTabTestFixture, FuncSymbol_DefaultParamsEmptyWithNoParams) {
+    SymbolTableWalker walker(symtab);
+    FuncSymbol *fn = insert_func(walker, tctxt, LOC, "emptyParams");
+
+    EXPECT_EQ(fn->num_params(), 0U);
+    EXPECT_EQ(fn->num_default_params(), 0U);
+    EXPECT_TRUE(fn->default_params().empty());
+}
