@@ -138,6 +138,11 @@ public:
 
     ValueType value() const { return inner; }
 
+    /**
+    Returns the bit pattern of the underlying value, as an unsigned 64-bit integer.
+    */
+    uint64_t bits() const;
+
     bool is_integer() const { return sema::prim::pr_is_integer(ptype); }
 
     bool is_float() const { return sema::prim::pr_is_float(ptype); }
@@ -329,6 +334,24 @@ public:
     }
 }; // end class Value
 
+/**
+A helper struct for hashing a Value.
+*/
+struct ValueHash {
+    size_t operator()(const eval::Value& v) const noexcept {
+        return VarHash<tokens::PrimType, uint64_t>{}(v.primtype(), v.bits());
+    }
+};
+
+/**
+A helper struct for structurally comparing two Values.
+*/
+struct ValueStructEq {
+    bool operator()(const eval::Value& a, const eval::Value& b) const noexcept {
+        return a.primtype() == b.primtype() && a.bits() == b.bits();
+    }
+};
+
 template <typename T>
 std::basic_ostream<T>& operator<<(std::basic_ostream<T>& ostr, const Value& val) {
     return ostr << val.to_string();
@@ -372,5 +395,11 @@ private:
 static_assert(std::input_iterator<ValueRange::ValueRangeItem>);
 
 } // namespace ecc::eval
+
+namespace std {
+
+using ValueHash = ecc::eval::ValueHash;
+
+}
 
 #endif

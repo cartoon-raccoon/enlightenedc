@@ -1,11 +1,53 @@
 #include "eval/value.hpp"
 
+#include <bit>
 #include <stdexcept>
 
 #include "tokens.hpp"
 
 using namespace ecc::eval;
 using namespace ecc::tokens;
+
+uint64_t Value::bits() const {
+    return std::visit(
+        match{
+            [](int8_t val) -> uint64_t { 
+                return std::bit_cast<uint64_t>(static_cast<int64_t>(val));
+            },
+            [](int16_t val) -> uint64_t { 
+                return std::bit_cast<uint64_t>(static_cast<int64_t>(val));
+             },
+            [](int32_t val) -> uint64_t { 
+                return std::bit_cast<uint64_t>(static_cast<int64_t>(val));
+             },
+            [](int64_t val) -> uint64_t { 
+                return std::bit_cast<uint64_t>(val);
+             },
+            [](uint8_t val) -> uint64_t { 
+                return static_cast<uint64_t>(val);
+            },
+            [](uint16_t val) -> uint64_t {
+                return static_cast<uint64_t>(val);
+            },
+            [](uint32_t val) -> uint64_t {
+                return static_cast<uint64_t>(val);
+            },
+            [](uint64_t val) -> uint64_t {
+                return val;
+            },
+            [](float val) -> uint64_t {
+                return static_cast<uint64_t>(std::bit_cast<uint32_t>(val));
+            },
+            [](double val) -> uint64_t {
+                return std::bit_cast<uint64_t>(val);
+            },
+            [](bool val) -> uint64_t {
+                return static_cast<uint64_t>(val);
+            },
+
+            },
+        inner);
+}
 
 Value Value::pr_cast(PrimType pr) const {
     using P = PrimType;
