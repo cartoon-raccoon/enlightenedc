@@ -12,7 +12,6 @@
 #include <stack>
 #include <string>
 #include <type_traits>
-#include <unordered_map>
 #include <utility>
 #include <variant>
 
@@ -1834,19 +1833,19 @@ private:
     using ArrayKey = std::pair<Type *, Optional<uint64_t>>;
 
     // The map of record types (i.e. structs, unions, enums).
-    std::unordered_map<std::string, Box<UserType>> user_types;
+    HashMap<std::string, Box<UserType>> user_types;
 
     // The map of function types.
-    std::unordered_map<std::string, Box<FunctionType>> function_types;
+    HashMap<std::string, Box<FunctionType>> function_types;
 
     // The map of pointer types, mapped by their base type.
-    std::unordered_map<Type *, Box<PointerType>> pointers;
+    HashMap<Type *, Box<PointerType>> pointers;
 
     // The map of array types, mapped by their base type.
-    std::unordered_map<ArrayKey, Box<ArrayType>, pair_hash<Optional<uint64_t>>> arrays;
+    HashMap<ArrayKey, Box<ArrayType>, pair_hash<Optional<uint64_t>>> arrays;
 
     // The map of const types mapped by their base type.
-    std::unordered_map<Type *, Box<ConstType>> const_types;
+    HashMap<Type *, Box<ConstType>> const_types;
 
     // Generate a mangled, unique name for a type incorporating its associated scope.
     template <typename T>

@@ -884,7 +884,7 @@ void ClassType::finalize() {
     if (!is_anonymous()) {
         llvm_type = llvm::StructType::create(ctxt().llvm().ctx(), args, name());
     } else {
-        llvm_type = llvm::StructType::create(ctxt().llvm().ctx(), args);
+        llvm_type = llvm::StructType::get(ctxt().llvm().ctx(), args);
     }
 
     finalized = true;
