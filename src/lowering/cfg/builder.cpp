@@ -334,8 +334,6 @@ void CFGBuilder::visit(ContStmtLIR& node) {
     assert(info->is_loop());
     auto *loopinfo = info->as_loop();
 
-    assert(loopinfo->step && "no loopinfo.step when visiting ContStmtLIR");
-
     // Try, in order, step, cond, and then body to link to
     if (loopinfo->step) {
         curr_blk->terminate<Goto>()->set_target(loopinfo->step);
@@ -343,6 +341,8 @@ void CFGBuilder::visit(ContStmtLIR& node) {
         curr_blk->terminate<Goto>()->set_target(loopinfo->cond);
     } else if (loopinfo->body) {
         curr_blk->terminate<Goto>()->set_target(loopinfo->body);
+    } else {
+        throw std::runtime_error("no loop construct to link to when visiting contstmt");
     }
 }
 
