@@ -400,18 +400,24 @@ protected:
         PointerProxy(RefT&& R) : R(std::forward<RefT>(R)) {}
 
     public:
-        PointerT operator->() const { return &R; }
+        // Not const: when ReferenceT is a plain value (not a true reference),
+        // R is stored by value, and a const method here would make `&R`
+        // yield a `const T*`, which won't convert to a non-const PointerT.
+        // The proxy is a short-lived temporary, so dropping const costs
+        // nothing.
+        PointerT operator->() { return &R; }
     };
 
 public:
+
     template <typename D = DerivedT>
         requires(IterRandomAccessCapable<D>)
-    DerivedT operator+(DifferenceT n) const {
+    friend DerivedT operator+(const DerivedT& i, DifferenceT n) {
         static_assert(
             std::is_base_of_v<IteratorBase, DerivedT>,
             "you must pass the derived class into this class!");
 
-        DerivedT tmp = *static_cast<const DerivedT *>(this);
+        DerivedT tmp = i;
         tmp += n;
         return tmp;
     }
@@ -428,18 +434,18 @@ public:
 
     template <typename D = DerivedT>
         requires(IterRandomAccessCapable<D>)
-    DerivedT operator-(DifferenceT n) const {
+    friend DerivedT operator-(const DerivedT& i, DifferenceT n) {
         static_assert(
             std::is_base_of_v<IteratorBase, DerivedT>,
             "you must pass the derived class into this class!");
 
-        DerivedT tmp = *static_cast<const DerivedT *>(this);
+        DerivedT tmp = i;
         tmp -= n;
         return tmp;
     }
 
     template <typename D = DerivedT>
-        requires(IterInputCapable<D>)
+        requires(IterAdvance<D>)
     DerivedT& operator++() {
         static_assert(
             std::is_base_of_v<IteratorBase, DerivedT>,
@@ -450,10 +456,63 @@ public:
 
     template <typename D = DerivedT>
         requires(IterInputCapable<D>)
-    DerivedT operator++(int) {
-        DerivedT tmp = *static_cast<DerivedT *>(this);
-        ++*static_cast<DerivedT *>(this);
+    friend DerivedT operator++(DerivedT& i, int) {
+        DerivedT tmp = i;
+        ++i;
         return tmp;
+    }
+
+    template <typename D = DerivedT>
+        requires(IterBacktrack<D>)
+    DerivedT& operator--() {
+        static_assert(
+            std::is_base_of_v<IteratorBase, DerivedT>,
+            "you must pass the derived class into this class!");
+
+        return static_cast<DerivedT *>(this)->operator-=(1);
+    }
+
+    template <typename D = DerivedT>
+        requires(IterBidirectionalCapable<D>)
+    friend DerivedT operator--(DerivedT& i, int) {
+        DerivedT tmp = i;
+        --i;
+        return tmp;
+    }
+
+    template <typename D = DerivedT>
+        requires(IterDeref<D>)
+    decltype(auto) operator->() const {
+        static_assert(
+            std::is_base_of_v<IteratorBase, DerivedT>,
+            "you must pass the derived class into this class!");
+
+        const DerivedT& self = *static_cast<const DerivedT *>(this);
+        if constexpr (std::is_reference_v<ReferenceT>) {
+            return &*self;
+        } else {
+            return PointerProxy(*self);
+        }
+    }
+
+    template <typename D = DerivedT>
+        requires(IterRandomAccessCapable<D>)
+    ReferenceProxy operator[](DifferenceT n) const {
+        static_assert(
+            std::is_base_of_v<IteratorBase, DerivedT>,
+            "you must pass the derived class into this class!");
+
+        return ReferenceProxy(*static_cast<const DerivedT *>(this) + n);
+    }
+
+    template <typename D = DerivedT>
+        requires(IterRandomAccessCapable<D>)
+    friend auto operator<=>(const DerivedT& a, const DerivedT& b) {
+        static_assert(
+            std::is_base_of_v<IteratorBase, DerivedT>,
+            "you must pass the derived class into this class!");
+
+        return (a - b) <=> 0;
     }
 };
 
