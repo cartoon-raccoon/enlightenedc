@@ -4,9 +4,12 @@
 #include <stdexcept>
 
 #include "error.hpp"
+#include "eval/value.hpp"
+#include "eval/consteval.hpp"
 #include "semantics/mir/mir.hpp"
 #include "semantics/primitives.hpp"
 #include "semantics/semerr.hpp"
+#include "semantics/symbols.hpp"
 #include "semantics/typeerr.hpp"
 #include "semantics/types.hpp"
 #include "tokens.hpp"
@@ -16,6 +19,7 @@ using namespace sema;
 using namespace types;
 using namespace mir;
 using namespace tokens;
+using namespace eval;
 
 void Validator::validate(ProgramMIR& progmir) {
     progmir.accept(*this);
@@ -194,6 +198,12 @@ Optional<Type *> Validator::eval_initializer_expr(
     }
 
     auto *litexpr = dyncast<LiteralExprMIR>(expr.get());
+    if (!litexpr || !litexpr->is_string()) {
+        bsv_dbprint("error: cannot coerce expression to initializer type");
+        add_error<InvalidCoerceError>(expr->eff_type, type, expr->loc);
+        return {};
+    }
+
     assert(litexpr && litexpr->is_string() && "expected string literal for array initializer");
 
     ArrayType *decl_arr = type->unqual()->as_array();
@@ -352,6 +362,15 @@ void Validator::visit_single_vardecl(sym::VarSymbol *varsym, InitializerMIR& ini
     }
 }
 
+bool Validator::expr_is_tautological(ExprMIR& expr) {
+    if (!expr.is_const_foldable()) {
+        return false;
+    }
+
+    eval::ConstEvaluator evalr(syms, types);
+    return static_cast<bool>(expr.eval(evalr));
+}
+
 bool Validator::always_returns(StmtMIR& node) {
     if (isa<ReturnStmtMIR>(&node)) {
         // Return Statement case: always true
@@ -384,6 +403,13 @@ bool Validator::always_returns(StmtMIR& node) {
         return always_returns(*labstmt->stmt);
     }
 
+    if (auto *loopstmt = dyncast<LoopStmtMIR>(&node)) {
+        bool infinite = !loopstmt->condition || expr_is_tautological(**loopstmt->condition);
+        if (infinite /* && no reachable break at this loop's level */) {
+            return true;
+        }
+    }
+
     // All other statements return false
     return false;
 }
@@ -401,12 +427,14 @@ void Validator::do_visit(FunctionMIR& node) {
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
+
 void Validator::do_visit(InitializerMIR& node) {
     /*
     We provide our own bespoke member function for evaluating initializers.
     */
     throw std::runtime_error("do_visit for InitializerMIR called");
 }
+
 #pragma clang diagnostic pop
 
 void Validator::do_visit(VarDeclMIR& node) {
@@ -467,7 +495,11 @@ void Validator::do_visit(SwitchStmtMIR& node) {
         throw UnableToContinue();
     }
 
+    switches.emplace_back();
+
     node.body->accept(*this);
+
+    switches.pop_back();
 }
 
 void Validator::do_visit(CaseStmtMIR& node) { // done
@@ -479,16 +511,19 @@ void Validator::do_visit(CaseStmtMIR& node) { // done
         throw UnableToContinue();
     }
 
-    // guaranteed to be non-null since we already checked that we are in a switch node,
-    // so if the dynamic cast fails, something went very wrong.
-    SwitchStmtMIR *parent = dyncast<SwitchStmtMIR>(get_context(MIRNode::NodeKind::SWITCHSTMT_MIR));
-
-    assert(parent && "could not get parent switch statement");
-
     if (!node.case_val.is_integer()) {
         bsv_dbprint("error: invalid case value");
         add_error<InvalidCaseValueError>(node.case_val, node.loc);
     }
+
+    // Check for duplicate cases
+    auto& my_switch = switches.back();
+    if (my_switch.contains_case(node.case_val)) {
+        add_error<InvalidCaseError>(node.loc, my_switch.get_loc(node.case_val));
+        throw UnableToContinue();
+    }
+
+    my_switch.insert_case(node.case_val, node.loc);
 
     node.stmt->accept(*this);
 }
@@ -507,11 +542,23 @@ void Validator::do_visit(CaseRangeStmtMIR& node) {
     if (!node.case_start.is_integer() || !node.case_end.is_integer()) {
         bsv_dbprint("error: invalid case range values");
         add_error<InvalidCaseRangeError>(node.case_start, node.case_end, node.loc);
+        throw UnableToContinue();
     }
 
     if (node.case_end <= node.case_start) {
         bsv_dbprint("error: inverted case range");
         add_error<InvertedCaseRangeError>(node.case_start, node.case_end, node.loc);
+        throw UnableToContinue();
+    }
+
+    ValueRange valrange(node.case_start, node.case_end);
+    for (auto val : valrange) {
+        auto& my_switch = switches.back();
+        if (my_switch.contains_case(val)) {
+            add_error<InvalidCaseError>(node.loc, my_switch.get_loc(val));
+            throw UnableToContinue();
+        }
+        my_switch.insert_case(val, node.loc);
     }
 
     if (node.case_end - node.case_start > CASE_RANGE_WARN_THRESHOLD) {
@@ -527,7 +574,17 @@ void Validator::do_visit(DefaultStmtMIR& node) { // done
     if (in_node(MIRNode::NodeKind::SWITCHSTMT_MIR) < 0) {
         bsv_dbprint("error: default statement outside of switch");
         add_error<InvalidCaseError>(node.loc);
+        throw UnableToContinue();
     }
+
+    auto& my_switch = switches.back();
+    if (my_switch.has_default()) {
+        add_error<InvalidCaseError>(node.loc, *my_switch.get_default_loc());
+        throw UnableToContinue();
+    }
+
+    my_switch.set_default(node.loc);
+
     node.stmt->accept(*this);
 }
 
@@ -616,16 +673,13 @@ void Validator::do_visit(ReturnStmtMIR& node) {
         throw UnableToContinue();
     }
 
-    if (!node.ret_expr)
-        return;
-
     FunctionMIR *func = dyncast<FunctionMIR>(get_context(MIRNode::NodeKind::FUNC_MIR));
     assert(func && "unable to get FunctionMIR");
 
     FunctionType *sig = func->sym->signature;
+    Type *returntype = sig->returntype()->unqual();
 
     if (node.ret_expr) {
-        Type *returntype = sig->returntype()->unqual();
 
         if (returntype->is_void()) {
             bsv_dbprint("error: returning a value within a void function");
@@ -650,6 +704,12 @@ void Validator::do_visit(ReturnStmtMIR& node) {
             } else {
                 add_error<InvalidCoerceError>((*node.ret_expr)->act_type, returntype, node.loc);
             }
+        }
+    } else {
+        if (!returntype->is_void()) {
+            bsv_dbprint("error: bare return in a non-void function");
+            add_error<InvalidReturnError>(InvalidReturnError::Kind::VoidReturnInNonVoid, node.loc);
+            throw UnableToContinue();
         }
     }
 }
@@ -1033,13 +1093,28 @@ void Validator::do_visit(AssignExprMIR& node) {
 
     switch (node.op) {
     case AssignOp::ASSIGN:
+        break;
     case AssignOp::MULEQ:
     case AssignOp::DIVEQ:
     case AssignOp::MODEQ:
     case AssignOp::PLUSEQ:
-    case AssignOp::MINUSEQ:
-        // we already checked coercibility earlier, so just break
-        break;
+    case AssignOp::MINUSEQ: {
+        // we already checked coercibility earlier, so just check one side
+        if (!node.right->eff_type->is_primitive()) {
+        add_error<InvalidAssignError>(
+            InvalidAssignError::Kind::InvalidOperation, node.right->act_type, node.loc);
+            throw UnableToContinue();
+        }
+        BinaryOp binop = *prim::pr_assignop_to_binop(node.op);
+        PrimitiveType *left_type = node.left->eff_type->as_primitive();
+        PrimitiveType *right_type = node.right->eff_type->as_primitive();
+
+        if (!prim::pr_check_binary_op(binop, left_type->get_primkind(), right_type->get_primkind())) {
+            add_error<InvalidAssignError>(InvalidAssignError::Kind::InvalidOperation, node.act_type, node.loc);
+            throw UnableToContinue();
+        }
+    }
+    break;
 
     case AssignOp::LSHIFTEQ:
     case AssignOp::RSHIFTEQ:
@@ -1159,11 +1234,29 @@ void Validator::do_visit(CallExprMIR& node) {
         throw UnableToContinue();
 
     } else if (node.args.size() < sig->num_params()) {
-        if (node.callee->kind != MIRNode::NodeKind::IDENTEXPR_MIR) {
-            // todo: add error, default arguments cannot be used through function pointers
+        if (auto *callee = dyncast<IdentExprMIR>(node.callee)) {
+            if (auto *function = dyncast<sym::FuncSymbol>(callee->ident)) {
+                // direct function call through a function symbol, check default
+                if (node.args.size() + function->num_default_params() < sig->num_params()) {
+                    bsv_dbprint("error: underspecified direct function call");
+                    add_error<UnderspecifiedCallError>(
+                        node.loc, function->num_non_default_params(), node.args.size());
+                    throw UnableToContinue();
+                }
+            } else {
+                // indirect function call through a function pointer identifier
+                bsv_dbprint("error: underspecified indirect function call (identifier)");
+                add_error<UnderspecifiedCallError>(
+                    node.loc, sig->num_params(), node.args.size());
+                throw UnableToContinue();
+            }
+        } else {
+            // indirect function call through a function pointer (not identifier)
+            bsv_dbprint("error: underspecified direct function call (not identifier)");
+            add_error<UnderspecifiedCallError>(
+                node.loc, sig->num_params(), node.args.size());
+            throw UnableToContinue();
         }
-
-        // todo: check that the call is not underspecified
     } else {
         // node.args.size() == sig->num_params(), or node.args.size() > sig->num_params() with a
         // variadic signature. Either way, the leading args line up with declared params.
@@ -1451,6 +1544,9 @@ void Validator::do_visit(SizeofExprMIR& node) { // done
                 }
             },
             [&](Type *type) {
+                if (auto *ty = type->as_usertype(); ty && !ty->is_complete()) {
+                    add_error<EccSemError>("use of incomplete type", node.loc);
+                }
                 if (type->is_function()) {
                     bsv_dbprint("error: sizeof operand cannot be a function type");
                     add_error<InvalidTypeError>(

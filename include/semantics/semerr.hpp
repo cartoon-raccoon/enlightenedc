@@ -16,7 +16,34 @@ using namespace ecc;
 
 class InvalidCaseError : public EccSemError {
 public:
-    InvalidCaseError(Location err_loc) : EccSemError("case label not in switch", err_loc) {}
+
+    enum class Kind : uint8_t {
+        NotInSwitch,
+        DuplicateCase,
+    };
+
+    InvalidCaseError(Location err_loc)
+        : EccSemError("case statement not in switch", err_loc), kind(Kind::NotInSwitch) {}
+
+    InvalidCaseError(Location err_loc, Location decl_loc)
+        : EccSemError("duplicate case label", err_loc), 
+        kind(Kind::DuplicateCase), decl_loc(decl_loc) {}
+
+    Kind kind;
+    Optional<Location> decl_loc;
+
+    std::string elab() override {
+        switch (kind) {
+        case Kind::NotInSwitch:
+            return "";
+        case Kind::DuplicateCase:
+            assert(decl_loc.has_value());
+            std::stringstream ss;
+            ss << "case previously declared at " << *decl_loc;
+
+            return ss.str();
+        }
+    }
 };
 
 class InvalidBreakError : public EccSemError {
@@ -34,6 +61,7 @@ public:
     enum class Kind : uint8_t {
         NotInFunction,
         RetValueFromVoid,
+        VoidReturnInNonVoid,
         MissingReturn,
     };
     InvalidReturnError(Kind kind, Location err_loc)
@@ -47,9 +75,27 @@ public:
             return "return statement not in function";
         case Kind::RetValueFromVoid:
             return "returning a value in a void function";
+        case Kind::VoidReturnInNonVoid:
+            return "bare return in a non-void function";
         case Kind::MissingReturn:
             return "non-void function with missing return";
         }
+    }
+};
+
+class UnderspecifiedCallError : public EccSemError {
+public:
+
+    UnderspecifiedCallError(Location err_loc, size_t at_least, size_t got)
+        : EccSemError("underspecified call expression", err_loc),
+        at_least(at_least), got(got) {}
+
+    size_t at_least, got;
+
+    std::string elab() override {
+        std::stringstream ss;
+        ss << "expected at least " << at_least << " arguments, got " << got;
+        return ss.str();
     }
 };
 
@@ -63,7 +109,7 @@ public:
 
     std::string elab() override {
         std::stringstream ss;
-        ss << "expected " << expected << ", got " << got;
+        ss << "expected " << expected << " arguments, got " << got;
 
         return ss.str();
     }
@@ -428,6 +474,7 @@ public:
         CannotAssign,
         NonIntPrimitive,
         NotPrimitive,
+        InvalidOperation,
     };
 
     InvalidAssignError(Kind kind, types::Type *expr_type, Location err_loc)
@@ -448,6 +495,10 @@ public:
             return "right operand for this operation must be an integer";
         case Kind::NotPrimitive:
             return "right operand must be a primitive";
+        case Kind::InvalidOperation:
+            std::stringstream ss;
+            ss << "invalid operands for operation (" << expr_type << ")";
+            return ss.str();
         }
     }
 };

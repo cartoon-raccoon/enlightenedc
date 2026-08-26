@@ -219,8 +219,7 @@ Optional<PrimExprTypes> pr_check_binary_op(BinaryOp op, PrimType lhs, PrimType r
     case BinaryOp::PLUS:
     case BinaryOp::MINUS:
     case BinaryOp::MUL:
-    case BinaryOp::DIV:
-    case BinaryOp::MOD: {
+    case BinaryOp::DIV: {
         auto promoted = pr_promote(lhs, rhs);
         lhs           = promoted;
         rhs           = promoted;
@@ -233,9 +232,10 @@ Optional<PrimExprTypes> pr_check_binary_op(BinaryOp op, PrimType lhs, PrimType r
 
         break;
     }
-    case BinaryOp::AND: // NOLINT
+    case BinaryOp::AND:
     case BinaryOp::OR:
-    case BinaryOp::XOR: {
+    case BinaryOp::XOR:
+    case BinaryOp::MOD: {
         auto promoted = pr_promote(lhs, rhs);
         lhs           = promoted;
         rhs           = promoted;
@@ -292,6 +292,33 @@ Optional<PrimExprTypes> pr_check_binary_op(BinaryOp op, PrimType lhs, PrimType r
     }
 
     return {};
+}
+
+Optional<BinaryOp> pr_assignop_to_binop(AssignOp op) {
+    switch (op) {
+    case AssignOp::ASSIGN:
+        return {};
+    case AssignOp::MULEQ:
+        return BinaryOp::MUL;
+    case AssignOp::DIVEQ:
+        return BinaryOp::DIV;
+    case AssignOp::MODEQ:
+        return BinaryOp::MOD;
+    case AssignOp::PLUSEQ:
+        return BinaryOp::PLUS;
+    case AssignOp::MINUSEQ:
+        return BinaryOp::MINUS;
+    case AssignOp::LSHIFTEQ:
+        return BinaryOp::LSHIFT;
+    case AssignOp::RSHIFTEQ:
+        return BinaryOp::RSHIFT;
+    case AssignOp::ANDEQ:
+        return BinaryOp::AND;
+    case AssignOp::XOREQ:
+        return BinaryOp::XOR;
+    case AssignOp::OREQ:
+        return BinaryOp::OR;
+    }
 }
 
 } // namespace ecc::sema::prim

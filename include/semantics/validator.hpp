@@ -1,5 +1,6 @@
 #pragma once
 
+#include "eval/value.hpp"
 #include "util.hpp"
 #ifndef ECC_TYPECHECK_H
 #define ECC_TYPECHECK_H
@@ -16,12 +17,47 @@ using namespace util;
 
 namespace ecc::sema {
 
+/**
+A helper struct for tracking cases in a switch statement.
+*/
+class SwitchTracker {
+    HashMap<eval::Value, Location, eval::ValueHash, eval::ValueStructEq> cases;
+    Optional<Location> default_loc;
+
+public:
+    void insert_case(eval::Value& val, Location loc) {
+        cases.insert_or_assign(val, loc);
+    }
+
+    Location get_loc(eval::Value& val) {
+        return cases[val];
+    }
+
+    Optional<Location> get_default_loc() {
+        return default_loc;
+    }
+
+    bool contains_case(eval::Value& val) {
+        return cases.contains(val);
+    }
+
+    void set_default(Location loc) {
+        default_loc = loc;
+    }
+
+    bool has_default() const {
+        return default_loc.has_value();
+    }
+};
+
 /*
 The class that performs type-checking and semantic validation.
 */
 class Validator : public BaseMIRSemaVisitor, public NoMove {
     types::TypeContext& types;
     sym::SymbolTableWalker syms;
+
+    Vec<SwitchTracker> switches;
 
 public:
     Validator(sym::SymbolTable& syms, types::TypeContext& types)
@@ -62,6 +98,11 @@ protected:
 
     Optional<types::Type *>
     eval_initializer(types::Type *type, mir::InitializerMIR& init, bool allow_size_infer = false);
+
+    /**
+    Check if an expression is tautological.
+    */
+    bool expr_is_tautological(mir::ExprMIR& expr);
 
     /**
     Checks if a given statement always returns.

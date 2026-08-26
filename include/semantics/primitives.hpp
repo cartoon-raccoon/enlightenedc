@@ -132,6 +132,11 @@ Check PrimitiveType compatibility with the given operation `op`.
 */
 Optional<PrimExprTypes> pr_check_binary_op(BinaryOp op, PrimType lhs, PrimType rhs);
 
+/**
+Returns the corresponding BinaryOp for `op`.
+*/
+Optional<BinaryOp> pr_assignop_to_binop(AssignOp op);
+
 } // namespace ecc::sema::prim
 
 #endif
