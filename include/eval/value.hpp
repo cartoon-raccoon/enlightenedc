@@ -396,10 +396,4 @@ static_assert(std::input_iterator<ValueRange::ValueRangeItem>);
 
 } // namespace ecc::eval
 
-namespace std {
-
-using ValueHash = ecc::eval::ValueHash;
-
-}
-
 #endif

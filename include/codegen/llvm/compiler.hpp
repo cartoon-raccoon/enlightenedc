@@ -7,7 +7,7 @@
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 
-#include "codegen/llvm.hpp"
+#include "codegen/llvm/llvm.hpp"
 #include "lowering/cfg/cfg.hpp"
 #include "lowering/cfg/walker.hpp"
 #include "util.hpp"
@@ -16,9 +16,6 @@ using namespace ecc;
 using namespace util;
 
 namespace ecc::codegen {
-/*
-LLVM IR generation functionality.
-*/
 
 class LLVMSynthesizer : public lower::cfg::RevPostorderCFGWalker, public NoMove {
     Ref<llvm::LLVMContext> ctxtref;

@@ -36,6 +36,12 @@ public:
         : TypeSemError("use of incomplete type", err_loc), name(std::move(name)) {}
 
     std::string name;
+
+    std::string elab() override {
+        std::stringstream ss;
+        ss << "type '" << name << "' has not been fully defined";
+        return ss.str();
+    }
 };
 
 class InvalidInheritanceError : public TypeSemError {

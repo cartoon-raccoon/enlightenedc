@@ -783,14 +783,20 @@ void MIRSynthesizer::do_visit(EnumSpecifier& node) {
             if (!underlying->is_integral()) {
                 add_error<InvalidEnumUnderlyingError>(node.loc);
             }
-            enm->underlying = underlying;
+            enm->set_underlying(underlying);
         }
 
         for (auto& enumtr : *node.enumerators) {
             dv_call(enm, enumtr);
         }
 
-        enm->finish(node.loc);
+        try {
+            enm->finish(node.loc);
+        } catch (TypeSemError& e) {
+            // fixme: this slices the error and produces a degraded error message
+            add_error<TypeSemError>(e);
+            throw UnableToContinue();
+        }
     }
 
     dv_return(ret);
@@ -945,14 +951,20 @@ void MIRSynthesizer::do_visit(UnionSpecifier& node) {
             if (!typerep->is_integer()) {
                 // todo: issue warning
             }
-            unn->type_rep = typerep;
+            unn->set_type_rep(typerep);
         }
         // union is defined here, populate its members and mark it complete
         for (auto& decl : *node.declarations) {
             dv_call((RecordType *)unn, decl);
         }
 
-        unn->finish(node.loc);
+        try {
+            unn->finish(node.loc);
+        } catch (TypeSemError& e) {
+            // fixme: this slices the error and produces a degraded error message
+            add_error<TypeSemError>(e);
+            throw UnableToContinue();
+        }
     }
 
     dv_return(ret);
@@ -1129,7 +1141,7 @@ void MIRSynthesizer::do_visit(Initializer& node) { // NOLINT
                             // if we already have a max array set
                             if (max_subarray) {
                                 // if the new array is larger than the current max size
-                                if ((*initmir.new_type)->arr_size > max_subarray->arr_size) {
+                                if ((*initmir.new_type)->get_arr_size() > max_subarray->get_arr_size()) {
                                     max_subarray = *initmir.new_type;
                                 }
                             } else {
@@ -1140,7 +1152,7 @@ void MIRSynthesizer::do_visit(Initializer& node) { // NOLINT
                         init_mirs.push_back(std::move(initmir.init_mir));
                     }
 
-                    if (!arrtype->arr_size) {
+                    if (!arrtype->get_arr_size()) {
                         // if no size
                         bsv_dbprint("array has no size, inferring from size of initializer");
                         if (max_subarray) {

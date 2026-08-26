@@ -145,7 +145,7 @@ void LIRSynthesizer::unfold_initializer_rec_arr(
 
     size_t next_idx = 0;
 
-    Vec<bool> touched(arr->arr_size.value(), false);
+    Vec<bool> touched(arr->get_arr_size().value(), false);
 
     // Run the recursive algorithm for each initializer we encounter
     for (auto& init : inits) {
@@ -190,7 +190,7 @@ void LIRSynthesizer::unfold_initializer_rec_arr(
             init->initializer);
     }
 
-    for (size_t i = 0; i < arr->arr_size.value(); i++) {
+    for (size_t i = 0; i < arr->get_arr_size().value(); i++) {
         if (!touched[i]) {
             Box<ExprLIR> idx_expr =
                 std::make_unique<LiteralExprLIR>(Location{}, Value(i), types.get_size_type(false));

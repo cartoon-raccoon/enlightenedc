@@ -6,7 +6,7 @@
 #include <string>
 
 #include "ast/ast.hpp"
-#include "codegen/llvm.hpp"
+#include "codegen/codegen.hpp"
 #include "driver/backend.hpp"
 #include "ecc.hpp"
 #include "frontend/frontend.hpp"
@@ -56,10 +56,10 @@ level since both MIR and LIR depend on it.
 */
 class TranslationUnit {
 public:
-    TranslationUnit(std::string *filename, codegen::LLVMCore& llvmcore);
+    TranslationUnit(std::string *filename, codegen::CodeGenCore& cgcore);
 
     std::string *filename;
-    Box<codegen::LLVMUnit> llvm;
+    Box<codegen::CodeGenUnit> cgu;
     Box<sema::types::TypeContext> types;
 
     Box<ast::Program> ast_root;

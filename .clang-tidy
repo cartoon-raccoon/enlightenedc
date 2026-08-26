@@ -6,6 +6,7 @@ Checks: >
   -bugprone-implicit-widening-of-multiplication-result,
   -bugprone-empty-catch,
   -bugprone-copy-constructor-init,
+  -bugprone-std-namespace-modification,
   clang-analyzer-*,
   -clang-analyzer-osx*,
   -clang-analyzer-optin.osx*,

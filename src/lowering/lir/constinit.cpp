@@ -150,9 +150,9 @@ Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_arr(
     ArrayType *arr, Vec<Box<InitializerMIR>>& inits, Location loc) {
 
     size_t next_idx = 0;
-    Vec<bool> touched(arr->arr_size.value(), false);
+    Vec<bool> touched(arr->get_arr_size().value(), false);
     auto cinit = std::make_unique<AggregateInitLIR>(loc, arr);
-    cinit->elements.resize(arr->arr_size.value());
+    cinit->elements.resize(arr->get_arr_size().value());
 
     for (auto& init : inits) {
         size_t target_idx = next_idx;
@@ -199,7 +199,7 @@ Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_arr(
         cinit->elements[target_idx] = std::move(*maybe_init);
     }
 
-    for (size_t i = 0; i < arr->arr_size.value(); i++) {
+    for (size_t i = 0; i < arr->get_arr_size().value(); i++) {
         if (!touched[i]) {
             cinit->elements[i] = std::make_unique<ZeroInitLIR>(arr->get_base());
         }

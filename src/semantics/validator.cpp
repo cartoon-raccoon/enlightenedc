@@ -213,9 +213,9 @@ Optional<Type *> Validator::eval_initializer_expr(
         return {};
     }
 
-    uint64_t lit_size = *litexpr->act_type->as_array()->arr_size;
+    uint64_t lit_size = *litexpr->act_type->as_array()->get_arr_size();
 
-    if (!decl_arr->arr_size) {
+    if (!decl_arr->get_arr_size()) {
         // U8 buf[] = "hi"; -- infer the array's size directly from the literal. Only legal for a
         // direct variable declaration (see visit_single_vardecl); arrays as class members or as
         // elements of an outer array must already be sized, so allow_size_infer is false there.
@@ -231,7 +231,7 @@ Optional<Type *> Validator::eval_initializer_expr(
         return inferred;
     }
 
-    if (lit_size > *decl_arr->arr_size) {
+    if (lit_size > *decl_arr->get_arr_size()) {
         bsv_dbprint("error: excess elements in array initializer");
         add_error<InvalidInitializerError>("excess elements in array initializer", expr->loc);
         return {};
@@ -447,6 +447,10 @@ void Validator::do_visit(VarDeclMIR& node) {
     }
 
     for (auto& decl : node.decls) {
+        if (decl.sym->type->is_usertype() && !decl.sym->type->as_usertype()->is_complete()) {
+            add_error<IncompleteTypeUseError>(*decl.sym->type->get_name(), decl.sym->loc);
+            throw UnableToContinue();
+        }
         if (decl.initializer) {
             visit_single_vardecl(decl.sym, **decl.initializer);
         }
@@ -1227,7 +1231,7 @@ void Validator::do_visit(CallExprMIR& node) {
         throw std::runtime_error("CallExprMIR callee returned callable but is not func or funcptr");
     }
 
-    if (node.args.size() > sig->num_params() && !sig->signature.variadic) {
+    if (node.args.size() > sig->num_params() && !sig->get_signature().variadic) {
 
         bsv_dbprint("error: too many arguments in function call");
         add_error<TooManyArgsError>(node.loc, sig->num_params(), node.args.size());
@@ -1342,6 +1346,13 @@ void Validator::do_visit(MemberAccExprMIR& node) {
     }
 
     assert(rec && "class was null while validating member access expression");
+
+    if (!rec->is_complete()) {
+        assert(!rec->is_anonymous());
+        add_error<IncompleteTypeUseError>(*rec->get_name(), node.loc);
+        throw UnableToContinue();
+    }
+
     RecordType::TypeMember *member = rec->find(node.member);
 
     if (!member) {
