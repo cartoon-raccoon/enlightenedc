@@ -7,7 +7,7 @@
 
 namespace ecc::lower::cfg {
 
-class AllocaInst;
+class Alloca;
 class LoadInst;
 class StoreInst;
 class PhiInst;
@@ -25,9 +25,9 @@ class CallInst;
 class ScalarConst;
 class AggregateConst;
 class ZeroConst;
-class FuncRef;
 class String;
 class Global;
+class FunctionCFG;
 class FuncArg;
 
 class If;
@@ -35,11 +35,11 @@ class Goto;
 class Switch;
 class Return;
 
-class CFGVisitor
-    : public Visitor<
-          CFGVisitor, AllocaInst, LoadInst, StoreInst, PhiInst, PrintInst, BinaryInst, UnaryInst,
-          IncrInst, DecrInst, CastInst, ReintInst, MemberAccInst, SubscrInst, CallInst, ScalarConst,
-          AggregateConst, ZeroConst, FuncRef, Global, String, FuncArg, If, Goto, Switch, Return> {};
+class CFGVisitor : public Visitor<
+                       CFGVisitor, Alloca, LoadInst, StoreInst, PhiInst, PrintInst, BinaryInst,
+                       UnaryInst, IncrInst, DecrInst, CastInst, ReintInst, MemberAccInst,
+                       SubscrInst, CallInst, ScalarConst, AggregateConst, ZeroConst, FunctionCFG,
+                       Global, String, FuncArg, If, Goto, Switch, Return> {};
 
 } // namespace ecc::lower::cfg
 

@@ -65,7 +65,7 @@ void CFGPrinter::name_function(FunctionCFG& func) {
     MonotonicCtr<size_t> blk_ctr;
     MonotonicCtr<size_t> inst_ctr;
 
-    for (auto *alloc : func.get_allocas()) {
+    for (auto& alloc : func.get_allocas()) {
         if (!alloc->named()) {
             alloc->set_name(std::format("{}", *inst_ctr));
             inst_ctr++;
@@ -100,23 +100,19 @@ void CFGPrinter::print(ProgramCFG& cfg) {
         strpair.second->set_name(std::format("@str.{}", *global_ctr));
         global_ctr++;
     }
-    for (auto *global : cfg.get_globals()) {
+    for (auto& global : cfg.get_globals()) {
         if (!global->named()) {
             global->set_name(std::format("{}", *global_ctr));
         }
         global_ctr++;
     }
-    for (auto& funcref : cfg.get_funcrefs()) {
-        funcref->set_name(funcref->func->get_name());
-    }
 
-    for (auto *func : cfg.get_functions()) {
+    for (auto& func : cfg.get_functions()) {
         name_function(*func);
     }
-    name_function(*cfg.implicit_main);
 
     // second pass - print
-    for (auto *global : cfg.get_globals()) {
+    for (auto& global : cfg.get_globals()) {
         global->accept(*this);
         std::cout << "\n";
     }
@@ -124,11 +120,10 @@ void CFGPrinter::print(ProgramCFG& cfg) {
         string->accept(*this);
         std::cout << " = \"" << encode_string_literal(string->data) << "\"\n";
     }
-    for (auto *func : cfg.get_functions()) {
+    for (auto& func : cfg.get_functions()) {
         print_function(*func);
         std::cout << "\n";
     }
-    print_function(*cfg.implicit_main);
 }
 
 void CFGPrinter::print_function(FunctionCFG& func) {
@@ -152,7 +147,7 @@ void CFGPrinter::print_function(FunctionCFG& func) {
         std::cout << ";\n";
     } else {
         std::cout << " {\n";
-        for (auto *alloc : func.get_allocas()) {
+        for (auto& alloc : func.get_allocas()) {
             print_value(*alloc);
             alloc->accept(*this);
         }
@@ -189,7 +184,7 @@ void CFGPrinter::print_value(Value& value) {
 void CFGPrinter::print_value_name(Value& value) {
     if (isa<ScalarConst>(&value) || isa<ZeroConst>(&value) || isa<AggregateConst>(&value)) {
         value.accept(*this);
-    } else if (isa<FuncRef>(&value) || isa<String>(&value)) {
+    } else if (isa<FunctionCFG>(&value) || isa<String>(&value)) {
         std::cout << value.name;
     } else if (isa<Global>(&value)) {
         std::cout << "@" << value.name;
@@ -223,8 +218,8 @@ void CFGPrinter::visit(ZeroConst& val) {
     std::cout << "zero: [" << val.type->formal() << "]";
 }
 
-void CFGPrinter::visit(FuncRef& val) {
-    std::cout << "func " << val.func->get_name();
+void CFGPrinter::visit(FunctionCFG& val) {
+    std::cout << "func " << val.get_name();
 }
 
 void CFGPrinter::visit(Global& val) {
@@ -239,7 +234,7 @@ void CFGPrinter::visit(FuncArg& val) {
     std::cout << "%" << val.name << ": " << val.type->formal();
 }
 
-void CFGPrinter::visit(AllocaInst& inst) {
+void CFGPrinter::visit(Alloca& inst) {
     std::cout << "alloca (" << inst.type->formal() << ")\n";
 }
 

@@ -10,8 +10,6 @@
 #include "ds/linkedlist.hpp"
 #include "eval/value.hpp"
 #include "lowering/cfg/visitor.hpp"
-#include "lowering/lir/lir.hpp"
-#include "lowering/lir/symbols.hpp"
 #include "semantics/types.hpp"
 #include "tokens.hpp"
 #include "util.hpp"
@@ -48,6 +46,7 @@ public:
         ZERO,
         FUNC,
         GLOBAL,
+        ALLOCA,
         ARG,
         STR,
     };
@@ -61,6 +60,9 @@ public:
     Value(ValueKind kind, sema::types::Type *type, std::string name, Location loc)
         : valkind(kind), name(std::move(name)), type(type), eff_type(type->effective_type()),
           loc(loc) {}
+
+    Value(ValueKind kind, sema::types::Type *type, std::string name)
+        : valkind(kind), name(std::move(name)), type(type), eff_type(type->effective_type()) {}
 
     Value(ValueKind kind, sema::types::Type *type, std::string name, Optional<Location> loc)
         : valkind(kind), name(std::move(name)), type(type), eff_type(type->effective_type()),
@@ -102,8 +104,8 @@ public:
     virtual ScalarConst *as_scalar() { return nullptr; }
     virtual AggregateConst *as_aggregate() { return nullptr; }
     virtual ZeroConst *as_zero() { return nullptr; }
-    virtual FuncRef *as_funcref() { return nullptr; }
     virtual Global *as_global() { return nullptr; }
+    virtual Alloca *as_alloca() { return nullptr; }
     virtual FuncArg *as_funcarg() { return nullptr; }
     virtual String *as_string() { return nullptr; }
 
@@ -115,6 +117,9 @@ public:
     Constant(ValueKind kind, sema::types::Type *type) : Value(kind, type) {}
 
     Constant(ValueKind kind, sema::types::Type *type, Location loc) : Value(kind, type, loc) {}
+
+    Constant(ValueKind kind, sema::types::Type *type, std::string name)
+        : Value(kind, type, std::move(name)) {}
 
     static bool classof(const Value *node) {
         switch (node->valkind) {
@@ -163,24 +168,6 @@ public:
     static bool classof(const Value *node) { return node->valkind == ValueKind::ZERO; }
 };
 
-/**
-A value that holds a reference to a function symbol.
-
-FuncRef holds a reference to a LIRFuncSym, to distinguish it from LIRVarSym,
-which is the only symbol type Load can operate on.
-*/
-class FuncRef : public CFGVisitable<FuncRef, Constant> {
-public:
-    FuncRef(sema::types::FunctionType *sig, FunctionCFG *ref)
-        : CFGVisitable<FuncRef, Constant>(ValueKind::FUNC, sig), func(ref) {}
-
-    FunctionCFG *func;
-
-    FuncRef *as_funcref() override { return this; }
-
-    static bool classof(const Value *node) { return node->valkind == ValueKind::FUNC; }
-};
-
 class String : public CFGVisitable<String, Constant> {
 public:
     String(sema::types::Type *type, std::string data)
@@ -195,11 +182,12 @@ public:
 
 class Global : public CFGVisitable<Global, Value> {
 public:
-    Global(lir::LIRVarSym *sym)
-        : CFGVisitable<Global, Value>(ValueKind::GLOBAL, sym->type, sym->mangled_name, sym->loc),
-          sym(sym) {}
+    Global(sema::types::Type *type, std::string name)
+        : CFGVisitable<Global, Value>(ValueKind::GLOBAL, type, std::move(name)) {}
 
-    lir::LIRVarSym *sym;
+    Global(sema::types::Type *type, std::string name, Value *initializer)
+        : CFGVisitable<Global, Value>(ValueKind::GLOBAL, type, std::move(name)),
+          initializer(initializer) {}
 
     /**
     The initial value of the global, if it has one.
@@ -209,6 +197,18 @@ public:
     Global *as_global() override { return this; }
 
     static bool classof(const Value *node) { return node->valkind == ValueKind::GLOBAL; }
+};
+
+class Alloca : public CFGVisitable<Alloca, Value> {
+public:
+    Alloca(sema::types::Type *type, std::string name)
+        : CFGVisitable<Alloca, Value>(ValueKind::ALLOCA, type, std::move(name)), type(type) {}
+
+    sema::types::Type *type;
+
+    Alloca *as_alloca() override { return this; }
+
+    static bool classof(const Value *node) { return node->valkind == ValueKind::ALLOCA; }
 };
 
 /**
@@ -231,7 +231,6 @@ A unit of execution in the CFG IR.
 class Instruction : public Value, public ds::LinkedListNode<Instruction> {
 public:
     enum class InstKind : uint8_t {
-        ALLOCA,
         LOAD,
         STORE,
         PHI,
@@ -284,24 +283,6 @@ public:
     InstKind instkind;
 
     static bool classof(const Value *node) { return node->valkind == ValueKind::INST; }
-};
-
-class AllocaInst : public CFGVisitable<AllocaInst, Instruction> {
-public:
-    AllocaInst(BasicBlock *containing, sema::types::Type *type, lir::LIRVarSym *sym)
-        : CFGVisitable<AllocaInst, Instruction>(
-              containing, InstKind::ALLOCA, type, sym->mangled_name, sym->loc),
-          sym(sym) {}
-
-    lir::LIRVarSym *sym;
-
-    static bool classof(const Value *node) {
-        if (!Instruction::classof(node)) {
-            return false;
-        }
-        const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
-        return inst->instkind == InstKind::ALLOCA;
-    }
 };
 
 class LoadInst : public CFGVisitable<LoadInst, Instruction> {
@@ -1109,30 +1090,21 @@ private:
     void push_value(Box<Value> val);
 };
 
-class FunctionCFGAllocaIter;
-class FunctionCFGAllocas;
-
-constexpr std::string IMPLICIT_MAIN_NAME = "__implicit_main";
-
 /**
 A single function, composed of linked blocks.
 */
-class FunctionCFG {
+class FunctionCFG : public CFGVisitable<FunctionCFG, Constant> {
 public:
     friend class BasicBlock;
 
-    friend class FunctionCFGAllocas;
-
-    FunctionCFG(lir::FunctionLIR *func)
-        // if func is null, treat this function as an implicit main
-        : name(func ? func->funcsym->mangled_name : IMPLICIT_MAIN_NAME), lir(func) {}
+    FunctionCFG(sema::types::FunctionType *sig, std::string name)
+        : CFGVisitable<FunctionCFG, Constant>(ValueKind::FUNC, sig, std::move(name)),
+          signature(sig) {}
 
     /**
     Initialize the FunctionCFG, returning a pointer to the entry block.
     */
     BasicBlock *initialize();
-
-    bool is_implicit_main() { return lir == nullptr; }
 
     const std::string& get_name() { return name; }
 
@@ -1180,30 +1152,16 @@ public:
 
     BasicBlock *lookup_labeled_block(std::string& label);
 
-    /**
-    Add a goto to `label` to be resolved later.
-    */
-    void add_pending_goto(std::string& label, Goto *g);
-
-    size_t num_pending_gotos() { return pending_gotos.size(); }
-
-    /**
-    Resolve all pending gotos with target `label` to `targ`.
-    */
-    size_t resolve_pending_gotos(std::string& label, BasicBlock *targ);
-
     size_t num_blocks() { return blocks.size(); }
 
     void remove_block(BasicBlock *blk);
 
-    AllocaInst *lookup_alloca(lir::LIRVarSym *sym);
-
-    AllocaInst *add_alloca(BasicBlock *blk, lir::LIRVarSym *sym);
+    Alloca *add_alloca(sema::types::Type *type, std::string name);
 
     /**
     An iterator over the allocations in the function, in allocation order.
     */
-    FunctionCFGAllocas get_allocas();
+    Span<Box<Alloca>> get_allocas();
 
     Span<Box<FuncArg>> get_args() { return args; }
 
@@ -1211,10 +1169,10 @@ public:
 
     auto end() const { return blocks.end(); }
 
-private:
-    std::string name;
+    static bool classof(const Value *node) { return node->valkind == ValueKind::FUNC; }
 
-    lir::FunctionLIR *lir = nullptr;
+private:
+    sema::types::FunctionType *signature;
 
     Vec<Box<FuncArg>> args;
 
@@ -1223,132 +1181,38 @@ private:
 
     HashMap<std::string, BasicBlock *> labeled_blocks;
 
-    // The allocations in the function, one per LIRVarSym.
-    //
-    // Vec is used to preserve allocation order.
-    Vec<lir::LIRVarSym *> alloca_order;
-    HashMap<lir::LIRVarSym *, Box<AllocaInst>> allocas;
+    // The allocations in the function.
+    Vec<Box<Alloca>> allocas;
 
     // Bag of non-instruction values.
     Vec<Box<Value>> values;
-
-    HashMap<std::string, Vec<Goto *>> pending_gotos;
 };
-
-class FunctionCFGAllocaIter {
-    size_t idx       = 0;
-    AllocaInst *curr = nullptr;
-
-    Span<lir::LIRVarSym *> order;
-    FunctionCFG *func = nullptr;
-
-    friend class FunctionCFG;
-    friend class FunctionCFGAllocas;
-
-    FunctionCFGAllocaIter(FunctionCFG *func, Span<lir::LIRVarSym *> order)
-        : order(order), func(func) {
-        if (!order.empty()) {
-            curr = func->lookup_alloca(order[idx]);
-        }
-    }
-
-    FunctionCFGAllocaIter() {}
-
-public:
-    using difference_type = std::ptrdiff_t;
-    using value_type      = AllocaInst *;
-
-    AllocaInst *operator*() const { return curr; }
-
-    FunctionCFGAllocaIter& operator++() {
-        ++idx;
-        curr = idx < order.size() ? func->lookup_alloca(order[idx]) : nullptr;
-
-        return *this;
-    }
-
-    FunctionCFGAllocaIter operator++(int) {
-        FunctionCFGAllocaIter tmp = *this;
-        ++(*this);
-
-        return tmp;
-    }
-
-    bool operator==(const FunctionCFGAllocaIter& other) const { return curr == other.curr; }
-};
-
-class FunctionCFGAllocas {
-    friend class FunctionCFG;
-    friend class FunctionCFGAllocaIter;
-
-    Span<lir::LIRVarSym *> order;
-    FunctionCFG *func;
-
-    FunctionCFGAllocas(FunctionCFG *func) : order(func->alloca_order), func(func) {}
-
-public:
-    FunctionCFGAllocaIter begin() { return FunctionCFGAllocaIter(func, order); }
-
-    FunctionCFGAllocaIter end() { return FunctionCFGAllocaIter(); }
-};
-
-class ProgramCFGGlobalIter;
-class ProgramCFGGlobals;
-
-class ProgramCFGFunctionIter;
-class ProgramCFGFunctions;
 
 class ProgramCFG {
 public:
-    friend class ProgramCFGGlobals;
-    friend class ProgramCFGFunctions;
 
-    ProgramCFG() : implicit_main(std::make_unique<FunctionCFG>(nullptr)) {}
-
-    // The implicit main that all top-level program items go into.
-    Box<FunctionCFG> implicit_main;
+    ProgramCFG() {}
 
     /**
     Adds a new global to the ProgramCFG corresponding to the passed LIRVarSym,
     or returns the corresponding FunctionCFG if it already exists.
     */
-    Global *add_or_get_global(lir::LIRVarSym *sym, Value *init = nullptr);
+    Global *add_global(sema::types::Type *type, std::string name, Value *init = nullptr);
 
-    /**
-    Looks up the Global corresponding to `sym`, or nullptr if none exists.
-    */
-    Global *lookup_global(lir::LIRVarSym *sym);
+    FunctionCFG *add_function(sema::types::FunctionType *sig, std::string name);
 
     /**
     An iterator over the globals in the program, in the order they were added.
     */
-    ProgramCFGGlobals get_globals();
+    Span<Box<Global>> get_globals();
 
-    /**
-    An iterator over the func refs in the program.
-    */
-    Span<Box<FuncRef>> get_funcrefs() { return funcrefs; }
+    Span<Box<FunctionCFG>> get_functions();
 
     /**
     Adds a new string to the ProgramCFG corresponding to the passed string,
     or returns the corresponding String if it already exists.
     */
     String *add_or_get_string(sema::types::ArrayType *type, const std::string& str);
-
-    /**
-    Adds a new function to the ProgramCFG corresponding to the passed FunctionLIR,
-    or returns the corresponding FunctionCFG if it already exists.
-    */
-    FunctionCFG *add_or_get_function(lir::FunctionLIR *func);
-
-    FunctionCFG *lookup_function(lir::FunctionLIR *func);
-
-    ProgramCFGFunctions get_functions();
-
-    /**
-    Construct a FuncRef from a given FunctionLIR.
-    */
-    FuncRef *ref_function(lir::FunctionLIR *func);
 
     /**
     Constructs a new Constant of type T, owned by the ProgramCFG. Used for constant values that
@@ -1369,131 +1233,13 @@ public:
     HashMap<std::string, Box<String>> strings;
 
 private:
-    Vec<lir::FunctionLIR *> function_order;
-    HashMap<lir::FunctionLIR *, Box<FunctionCFG>> functions;
+    Vec<Box<FunctionCFG>> functions;
 
-    Vec<lir::LIRVarSym *> global_order;
-    HashMap<lir::LIRVarSym *, Box<Global>> globals;
-
-    Vec<Box<FuncRef>> funcrefs;
+    Vec<Box<Global>> globals;
 
     // Bag of constant values not owned by any function (i.e. those appearing in globals'
     // initializer trees).
     Vec<Box<Constant>> constants;
-};
-
-class ProgramCFGGlobalIter {
-    size_t idx   = 0;
-    Global *curr = nullptr;
-
-    Span<lir::LIRVarSym *> order;
-    ProgramCFG *prog = nullptr;
-
-    friend class ProgramCFG;
-    friend class ProgramCFGGlobals;
-
-    ProgramCFGGlobalIter(ProgramCFG *prog, Span<lir::LIRVarSym *> order)
-        : order(order), prog(prog) {
-        if (!order.empty()) {
-            curr = prog->lookup_global(order[idx]);
-        }
-    }
-
-    ProgramCFGGlobalIter() {}
-
-public:
-    using difference_type = std::ptrdiff_t;
-    using value_type      = Global *;
-
-    Global *operator*() const { return curr; }
-
-    ProgramCFGGlobalIter& operator++() {
-        ++idx;
-        curr = idx < order.size() ? prog->lookup_global(order[idx]) : nullptr;
-
-        return *this;
-    }
-
-    ProgramCFGGlobalIter operator++(int) {
-        ProgramCFGGlobalIter tmp = *this;
-        ++(*this);
-
-        return tmp;
-    }
-
-    bool operator==(const ProgramCFGGlobalIter& other) const { return curr == other.curr; }
-};
-
-class ProgramCFGGlobals {
-    friend class ProgramCFG;
-    friend class ProgramCFGGlobalIter;
-
-    Span<lir::LIRVarSym *> order;
-    ProgramCFG *prog;
-
-    ProgramCFGGlobals(ProgramCFG *prog) : order(prog->global_order), prog(prog) {}
-
-public:
-    ProgramCFGGlobalIter begin() { return ProgramCFGGlobalIter(prog, order); }
-
-    ProgramCFGGlobalIter end() { return ProgramCFGGlobalIter(); }
-};
-
-class ProgramCFGFunctionIter {
-    size_t idx        = 0;
-    FunctionCFG *curr = nullptr;
-
-    Span<lir::FunctionLIR *> order;
-    ProgramCFG *prog = nullptr;
-
-    friend class ProgramCFG;
-    friend class ProgramCFGFunctions;
-
-    ProgramCFGFunctionIter(ProgramCFG *prog, Span<lir::FunctionLIR *> order)
-        : order(order), prog(prog) {
-        if (!order.empty()) {
-            curr = prog->lookup_function(order[idx]);
-        }
-    }
-
-    ProgramCFGFunctionIter() {}
-
-public:
-    using difference_type = std::ptrdiff_t;
-    using value_type      = FunctionCFG *;
-
-    FunctionCFG *operator*() const { return curr; }
-
-    ProgramCFGFunctionIter& operator++() {
-        ++idx;
-        curr = idx < order.size() ? prog->lookup_function(order[idx]) : nullptr;
-
-        return *this;
-    }
-
-    ProgramCFGFunctionIter operator++(int) {
-        ProgramCFGFunctionIter tmp = *this;
-        ++(*this);
-
-        return tmp;
-    }
-
-    bool operator==(const ProgramCFGFunctionIter& other) const { return curr == other.curr; }
-};
-
-class ProgramCFGFunctions {
-    friend class ProgramCFG;
-    friend class ProgramCFGFunctionIter;
-
-    Span<lir::FunctionLIR *> order;
-    ProgramCFG *prog;
-
-    ProgramCFGFunctions(ProgramCFG *prog) : order(prog->function_order), prog(prog) {}
-
-public:
-    ProgramCFGFunctionIter begin() { return ProgramCFGFunctionIter(prog, order); }
-
-    ProgramCFGFunctionIter end() { return ProgramCFGFunctionIter(); }
 };
 
 } // end namespace ecc::lower::cfg

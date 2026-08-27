@@ -3,13 +3,11 @@
 #include <stdexcept>
 
 #include "lowering/cfg/visitor.hpp"
-#include "lowering/lir/symbols.hpp"
 #include "semantics/types.hpp"
 #include "tokens.hpp"
 #include "util.hpp"
 
 using namespace lower::cfg;
-using namespace lower::lir;
 using namespace sema::types;
 using namespace tokens;
 
@@ -155,21 +153,11 @@ BasicBlock *BasicBlockSwitchSuccIter::next() {
 }
 
 BasicBlock *FunctionCFG::initialize() {
-    assert(blocks.empty() && "attempted to initialize already initialized FunctionCFG");
+    if (is_initialized()) return entry;
 
-    std::string name;
-    if (lir) {
-        name = lir->funcsym->mangled_name;
-
-        FunctionType *signature = lir->funcsym->signature;
-        for (size_t i = 0; i < signature->num_params(); ++i) {
-            Type *paramtype = signature->param_idx(i);
-            add_arg(paramtype);
-        }
-
-    } else {
-        // fixme: come up with a good compiler-internal naming convention
-        name = "__implicit_main";
+    for (size_t i = 0; i < signature->num_params(); ++i) {
+        Type *paramtype = signature->param_idx(i);
+        add_arg(paramtype);
     }
 
     auto& entry_blk    = blocks.emplace_back(name, this);
@@ -249,72 +237,36 @@ BasicBlock *FunctionCFG::lookup_labeled_block(std::string& label) {
     }
 }
 
-void FunctionCFG::add_pending_goto(std::string& label, Goto *g) {
-    if (pending_gotos.contains(label)) {
-        pending_gotos[label].push_back(g);
-    } else {
-        pending_gotos[label] = {};
-        pending_gotos[label].push_back(g);
-    }
+Span<Box<Alloca>> FunctionCFG::get_allocas() {
+    return allocas;
 }
 
-size_t FunctionCFG::resolve_pending_gotos(std::string& label, BasicBlock *target) {
-    auto it = pending_gotos.find(label);
-    if (it == pending_gotos.end()) {
-        return 0;
-    }
-
-    for (Goto *g : it->second) {
-        g->set_target(target);
-    }
-
-    size_t count = it->second.size();
-    pending_gotos.erase(it);
-    return count;
-}
-
-AllocaInst *FunctionCFG::lookup_alloca(LIRVarSym *sym) {
-    return allocas.contains(sym) ? allocas[sym].get() : nullptr;
-}
-
-FunctionCFGAllocas FunctionCFG::get_allocas() {
-    return FunctionCFGAllocas(this);
-}
-
-AllocaInst *FunctionCFG::add_alloca(BasicBlock *blk, LIRVarSym *sym) {
-    auto alloc = std::make_unique<AllocaInst>(blk, sym->type, sym);
+Alloca *FunctionCFG::add_alloca(Type *type, std::string name) {
+    auto alloc = std::make_unique<Alloca>(type, std::move(name));
     auto *ret  = alloc.get();
 
-    alloca_order.push_back(sym);
-    allocas[sym] = std::move(alloc);
+    allocas.push_back(std::move(alloc));
 
     return ret;
 }
 
-Global *ProgramCFG::add_or_get_global(LIRVarSym *sym, Value *init) {
-    if (globals.contains(sym)) {
-        return globals[sym].get();
-    }
+Global *ProgramCFG::add_global(Type *type, std::string name, Value *init) {
 
-    auto new_global = std::make_unique<Global>(sym);
+    Box<Global> new_global;
     if (init) {
-        new_global->initializer = init;
+        new_global = std::make_unique<Global>(type, std::move(name), init);
+    } else {
+        new_global = std::make_unique<Global>(type, std::move(name));
     }
 
     Global *ret = new_global.get();
-
-    globals[sym] = std::move(new_global);
-    global_order.push_back(sym);
+    globals.push_back(std::move(new_global));
 
     return ret;
 }
 
-Global *ProgramCFG::lookup_global(LIRVarSym *sym) {
-    return globals.contains(sym) ? globals[sym].get() : nullptr;
-}
-
-ProgramCFGGlobals ProgramCFG::get_globals() {
-    return ProgramCFGGlobals(this);
+Span<Box<Global>> ProgramCFG::get_globals() {
+    return globals;
 }
 
 String *ProgramCFG::add_or_get_string(ArrayType *type, const std::string& str) {
@@ -331,47 +283,17 @@ String *ProgramCFG::add_or_get_string(ArrayType *type, const std::string& str) {
     return ret;
 }
 
-FunctionCFG *ProgramCFG::add_or_get_function(FunctionLIR *func) {
+FunctionCFG *ProgramCFG::add_function(sema::types::FunctionType *sig, std::string name) {
 
-    if (functions.contains(func)) {
-        return functions[func].get();
-    }
-
-    auto funcfg = std::make_unique<FunctionCFG>(func);
+    auto funcfg = std::make_unique<FunctionCFG>(sig, std::move(name));
 
     FunctionCFG *ret = funcfg.get();
 
-    functions[func] = std::move(funcfg);
-    function_order.push_back(func);
+    functions.push_back(std::move(funcfg));
 
     return ret;
 }
 
-FunctionCFG *ProgramCFG::lookup_function(FunctionLIR *func) {
-    return functions.contains(func) ? functions[func].get() : nullptr;
-}
-
-ProgramCFGFunctions ProgramCFG::get_functions() {
-    return ProgramCFGFunctions(this);
-}
-
-FuncRef *ProgramCFG::ref_function(FunctionLIR *func) {
-
-    if (functions.contains(func)) {
-        auto ref = std::make_unique<FuncRef>(func->funcsym->signature, functions[func].get());
-
-        auto *ret = ref.get();
-        funcrefs.push_back(std::move(ref));
-
-        return ret;
-    }
-
-    // if lookup fails, add the function
-    add_or_get_function(func);
-    auto ref = std::make_unique<FuncRef>(func->funcsym->signature, functions[func].get());
-
-    auto *ret = ref.get();
-    funcrefs.push_back(std::move(ref));
-
-    return ret;
+Span<Box<FunctionCFG>> ProgramCFG::get_functions() {
+    return functions;
 }

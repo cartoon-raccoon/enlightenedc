@@ -8,6 +8,7 @@
 
 #include "lowering/cfg/cfg.hpp"
 #include "lowering/lir/lir.hpp"
+#include "lowering/lir/symbols.hpp"
 #include "lowering/lir/visitor.hpp"
 #include "util.hpp"
 
@@ -109,6 +110,20 @@ protected:
     */
     Value *eval_lvalue(lir::ExprLIR& node);
 
+    Global *add_or_get_global(lir::LIRVarSym *sym, Value *init = nullptr);
+
+    Global *lookup_global(lir::LIRVarSym *sym);
+
+    FunctionCFG *add_or_get_function(lir::FunctionLIR *func);
+
+    FunctionCFG *lookup_function(lir::FunctionLIR *func);
+
+    Alloca *add_or_get_alloca(lir::LIRVarSym *sym);
+
+    Alloca *lookup_alloca(lir::LIRVarSym *sym);
+
+    void clear_allocas() { allocas.clear(); };
+
     void visit(lir::ProgramLIR& node) override;
     void visit(lir::FunctionLIR& node) override;
 
@@ -154,9 +169,22 @@ protected:
     Constant *build_constant(lir::ZeroInitLIR& init);
 
 private:
+    void add_pending_goto(std::string& label, Goto *g);
+
+    size_t resolve_pending_gotos(std::string& label, BasicBlock *target);
+
+    size_t num_pending_gotos() { return pending_gotos.size(); }
+
     sema::types::TypeContext& types;
     ProgramCFG& prog_cfg;
     Vec<Box<NestedStmtInfo>> infostack;
+
+    HashMap<lir::LIRVarSym *, Global *> globals;
+    HashMap<lir::FunctionLIR *, FunctionCFG *> functions;
+    HashMap<lir::LIRVarSym *, Alloca *> allocas;
+
+    HashMap<std::string, Vec<Goto *>> pending_gotos;
+
     MonotonicCtr<uint64_t> ctr = 1;
 };
 

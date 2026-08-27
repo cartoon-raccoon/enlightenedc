@@ -5,12 +5,15 @@
 
 #include "lowering/cfg/cfg.hpp"
 #include "lowering/lir/lir.hpp"
+#include "lowering/lir/symbols.hpp"
 #include "tokens.hpp"
 
 using namespace lower::lir;
 using namespace lower::cfg;
 using namespace sema::types;
 using namespace tokens;
+
+constexpr std::string IMPLICIT_MAIN_NAME = "__implicit_main";
 
 void CFGBuilder::build_cfg(lir::ProgramLIR& prog) {
     prog.accept(*this);
@@ -38,13 +41,13 @@ Value *CFGBuilder::eval_lvalue(ExprLIR& node) {
 
         Value *ret = nullptr;
         if (ident->sym->is_var()) {
-            if (auto *alloc = curr_func->lookup_alloca(ident->sym->as_varsym())) {
+            if (auto *alloc = lookup_alloca(ident->sym->as_varsym())) {
                 ret = alloc;
             } else {
-                ret = prog_cfg.lookup_global(ident->sym->as_varsym());
+                ret = lookup_global(ident->sym->as_varsym());
             }
         } else {
-            ret = prog_cfg.ref_function(ident->sym->as_funcsym()->lir);
+            ret = add_or_get_function(ident->sym->as_funcsym()->lir);
         }
 
         assert(ret);
@@ -82,6 +85,73 @@ Value *CFGBuilder::eval_lvalue(ExprLIR& node) {
     throw std::runtime_error("invalid ExprLIR type for eval_lvalue");
 }
 
+Global *CFGBuilder::add_or_get_global(LIRVarSym *sym, Value *init) {
+    if (globals.contains(sym))
+        return globals[sym];
+
+    Global *ret  = prog_cfg.add_global(sym->type, sym->mangled_name, init);
+    globals[sym] = ret;
+
+    return ret;
+}
+
+Global *CFGBuilder::lookup_global(LIRVarSym *sym) {
+    return globals.contains(sym) ? globals[sym] : nullptr;
+}
+
+FunctionCFG *CFGBuilder::add_or_get_function(lir::FunctionLIR *func) {
+    if (functions.contains(func))
+        return functions[func];
+
+    FunctionCFG *ret = prog_cfg.add_function(func->funcsym->signature, func->funcsym->mangled_name);
+    functions[func]  = ret;
+
+    return ret;
+}
+
+FunctionCFG *CFGBuilder::lookup_function(lir::FunctionLIR *func) {
+    return functions.contains(func) ? functions[func] : nullptr;
+}
+
+Alloca *CFGBuilder::add_or_get_alloca(lir::LIRVarSym *sym) {
+    if (allocas.contains(sym)) {
+        return allocas[sym];
+    }
+
+    Alloca *ret        = curr_func->add_alloca(sym->type, sym->mangled_name);
+    allocas[sym] = ret;
+
+    return ret;
+}
+
+Alloca *CFGBuilder::lookup_alloca(lir::LIRVarSym *sym) {
+    return allocas.contains(sym) ? allocas[sym] : nullptr;
+}
+
+void CFGBuilder::add_pending_goto(std::string& label, Goto *g) {
+    if (pending_gotos.contains(label)) {
+        pending_gotos[label].push_back(g);
+    } else {
+        pending_gotos[label] = {};
+        pending_gotos[label].push_back(g);
+    }
+}
+
+size_t CFGBuilder::resolve_pending_gotos(std::string& label, BasicBlock *target) {
+    auto it = pending_gotos.find(label);
+    if (it == pending_gotos.end()) {
+        return 0;
+    }
+
+    for (Goto *g : it->second) {
+        g->set_target(target);
+    }
+
+    size_t count = it->second.size();
+    pending_gotos.erase(it);
+    return count;
+}
+
 static tokens::BinaryOp assign_op_to_binop(tokens::AssignOp op) {
     using namespace tokens;
     switch (op) {
@@ -113,17 +183,16 @@ static tokens::BinaryOp assign_op_to_binop(tokens::AssignOp op) {
 void CFGBuilder::visit(ProgramLIR& node) {
     dbprint("visiting ProgramLIR node ", node.loc ? *node.loc : Location{});
 
-    // Set curr_func before processing globals: build_constant() checks
-    // curr_func->is_implicit_main() to decide where a constant's owned, and top-level globals are
-    // built outside of any real function.
-    curr_func = prog_cfg.implicit_main.get();
+    FunctionType *implicit_main_sig = types.get_function({}, types.get_void(), {}, false);
+    curr_func                       = prog_cfg.add_function(implicit_main_sig, IMPLICIT_MAIN_NAME);
+    curr_func->initialize();
 
     for (auto& item : node.globals) {
         if (item->init) {
             Constant *init = build_constant(*item->init);
-            prog_cfg.add_or_get_global(item->lirsym, init);
+            add_or_get_global(item->lirsym, init);
         } else {
-            prog_cfg.add_or_get_global(item->lirsym);
+            add_or_get_global(item->lirsym);
         }
     }
 
@@ -141,7 +210,7 @@ void CFGBuilder::visit(ProgramLIR& node) {
 void CFGBuilder::visit(FunctionLIR& node) {
     dbprint("visiting FunctionLIR node ", node.loc ? *node.loc : Location{});
 
-    curr_func = prog_cfg.add_or_get_function(&node);
+    curr_func = add_or_get_function(&node);
 
     if (!node.has_definition) {
         return;
@@ -151,7 +220,7 @@ void CFGBuilder::visit(FunctionLIR& node) {
 
     // emit instructions for allocating and copying in the parameters
     for (auto [idx, param] : std::views::enumerate(node.funcsym->params)) {
-        auto *addr = curr_func->add_alloca(curr_blk, param);
+        auto *addr = add_or_get_alloca(param);
 
         auto *value = curr_func->arg_idx(idx);
         assert(value && "got null arg");
@@ -177,8 +246,8 @@ void CFGBuilder::visit(LabelDeclLIR& node) {
         curr_blk->terminate<Goto>()->set_target(newblock);
     }
 
-    curr_func->resolve_pending_gotos(node.mangled_label, newblock);
-    assert(curr_func->num_pending_gotos() == 0);
+    resolve_pending_gotos(node.mangled_label, newblock);
+    assert(num_pending_gotos() == 0);
     curr_blk = newblock;
 }
 
@@ -265,7 +334,7 @@ void CFGBuilder::visit(GotoStmtLIR& node) {
     if (auto *targ = curr_func->lookup_labeled_block(node.mangled_target)) {
         g->set_target(targ);
     } else {
-        curr_func->add_pending_goto(node.mangled_target, g);
+        add_pending_goto(node.mangled_target, g);
     }
 }
 
@@ -558,13 +627,13 @@ void CFGBuilder::visit(VarDeclLIR& node) {
     // Parameters are hoisted into FunctionLIR::locals alongside real locals (both flow
     // through the same synthesis queue), but visit(FunctionLIR&) already allocas + stores
     // every parameter explicitly before walking locals. Reprocessing one here would
-    // allocate a second AllocaInst for the same symbol and clobber the first, leaving the
+    // allocate a second Alloca for the same symbol and clobber the first, leaving the
     // parameter's incoming-argument store pointing at a freed instruction.
     if (node.lirsym->is_param) {
         return;
     }
 
-    AllocaInst *addr = curr_func->add_alloca(curr_blk, node.lirsym);
+    Alloca *addr = add_or_get_alloca(node.lirsym);
     if (node.init) {
         Value *store_operand = build_constant(*node.init);
         curr_blk->add_instruction<StoreInst>(types, addr, store_operand, node.loc);
@@ -794,14 +863,14 @@ void CFGBuilder::visit(IdentExprLIR& node) {
 
     if (node.sym->is_var()) {
         Value *val;
-        if (auto *alloc = curr_func->lookup_alloca(node.sym->as_varsym())) {
+        if (auto *alloc = lookup_alloca(node.sym->as_varsym())) {
             val = alloc;
         } else {
-            val = prog_cfg.lookup_global(node.sym->as_varsym());
+            val = lookup_global(node.sym->as_varsym());
         }
         last_value = curr_blk->add_instruction<LoadInst>(node.act_type, val, node.loc);
     } else if (node.sym->is_func()) {
-        last_value = prog_cfg.ref_function(node.sym->as_funcsym()->lir);
+        last_value = add_or_get_function(node.sym->as_funcsym()->lir);
     }
 
     assert(last_value && "last_value is nullptr at end of expr visit");
@@ -914,7 +983,7 @@ Constant *CFGBuilder::build_constant(ConstInitLIR& init) {
 }
 
 Constant *CFGBuilder::build_constant(ScalarInitLIR& init) {
-    if (curr_func->is_implicit_main()) {
+    if (curr_func->get_name() == IMPLICIT_MAIN_NAME) {
         return prog_cfg.add_constant<ScalarConst>(init.type, init.val);
     } else {
         return curr_blk->add_value<ScalarConst>(init.type, init.val);
@@ -923,7 +992,7 @@ Constant *CFGBuilder::build_constant(ScalarInitLIR& init) {
 
 Constant *CFGBuilder::build_constant(AggregateInitLIR& init) {
     AggregateConst *aggreg;
-    if (curr_func->is_implicit_main()) {
+    if (curr_func->get_name() == IMPLICIT_MAIN_NAME) {
         aggreg = prog_cfg.add_constant<AggregateConst>(init.type);
     } else {
         aggreg = curr_blk->add_value<AggregateConst>(init.type);
@@ -945,11 +1014,11 @@ Constant *CFGBuilder::build_constant(StringInitLIR& init) {
 
 Constant *CFGBuilder::build_constant(FuncInitLIR& init) {
 
-    return prog_cfg.ref_function(init.func);
+    return add_or_get_function(init.func);
 }
 
 Constant *CFGBuilder::build_constant(ZeroInitLIR& init) {
-    if (curr_func->is_implicit_main()) {
+    if (curr_func->get_name() == IMPLICIT_MAIN_NAME) {
         return prog_cfg.add_constant<ZeroConst>(init.type);
     } else {
         return curr_blk->add_value<ZeroConst>(init.type);

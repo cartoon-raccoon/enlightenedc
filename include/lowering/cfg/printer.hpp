@@ -35,7 +35,7 @@ public:
 
     void print_value_name(Value& value);
 
-    void visit(AllocaInst& inst) override;
+    void visit(Alloca& inst) override;
     void visit(LoadInst& inst) override;
     void visit(StoreInst& inst) override;
     void visit(PhiInst& inst) override;
@@ -53,7 +53,7 @@ public:
     void visit(ScalarConst& val) override;
     void visit(AggregateConst& val) override;
     void visit(ZeroConst& val) override;
-    void visit(FuncRef& val) override;
+    void visit(FunctionCFG& val) override;
     void visit(Global& val) override;
     void visit(String& val) override;
     void visit(FuncArg& val) override;
