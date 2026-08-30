@@ -56,10 +56,11 @@ void LIRPrinter::visit(ProgramLIR& node) {
 
 void LIRPrinter::visit(FunctionLIR& node) {
     print_node(
-        "FunctionLIR: " + node.funcsym->name + " (" + node.funcsym->mangled_name + ")", node,
+        "FunctionLIR: " + node.funcsym->get_name() + " (" + node.funcsym->get_mangled_name() + ")",
+        node,
         [&] {
             std::cout << std::string(indent * 2, ' ')
-                      << "type: " << node.funcsym->signature->formal()
+                      << "type: " << node.funcsym->get_symdata()->get_signature()->formal()
                       << (node.has_definition ? "" : "; [DECLARATION]") << "\n";
         },
         [&] {
@@ -74,10 +75,10 @@ void LIRPrinter::visit(FunctionLIR& node) {
 
 void LIRPrinter::visit(VarDeclLIR& node) {
     print_node(
-        "VarDecl: " + node.lirsym->name + " (" + node.lirsym->mangled_name + ")", node,
+        "VarDecl: " + node.lirsym->get_name() + " (" + node.lirsym->get_mangled_name() + ")", node,
         [&] {
             print_indent();
-            std::cout << "type: " << node.lirsym->type->formal()
+            std::cout << "type: " << node.lirsym->get_type()->formal()
                       << (node.lirsym->is_param ? " [param]" : "") << "\n";
         },
         [&] {
@@ -104,7 +105,7 @@ void LIRPrinter::visit(StringInitLIR& node) {
 }
 
 void LIRPrinter::visit(FuncInitLIR& node) {
-    print_node("FuncInit: " + node.func->funcsym->name + " :: " + node.type->formal(), node);
+    print_node("FuncInit: " + node.func->funcsym->get_name() + " :: " + node.type->formal(), node);
 }
 
 void LIRPrinter::visit(ZeroInitLIR& node) {
@@ -237,7 +238,7 @@ void LIRPrinter::visit(CondExprLIR& node) {
 
 void LIRPrinter::visit(IdentExprLIR& node) {
     print_node(
-        "Ident: " + node.sym->name + " (" + node.sym->mangled_name +
+        "Ident: " + node.sym->get_name() + " (" + node.sym->get_mangled_name() +
             ") :: " + node.act_type->formal(),
         node);
 }

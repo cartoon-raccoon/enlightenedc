@@ -74,12 +74,12 @@ static LIRCK mirck_to_lirck(MIRCK ck) {
 }
 
 void LIRSynthesizer::unfold_initializer(LIRVarSym *sym, InitializerMIR& init) {
-    Box<ExprLIR> ident = std::make_unique<IdentExprLIR>(sym->loc, sym, sym->type);
-    if (init.is_all_literals() && sym->type->is_array() && sym->type->is_const()) {
+    Box<ExprLIR> ident = std::make_unique<IdentExprLIR>(sym->loc, sym, sym->get_type());
+    if (init.is_all_literals() && sym->get_type()->is_array() && sym->get_type()->is_const()) {
         bsv_dbprint("initializing const array with all literals, decaying to pointer");
         todo();
     } else {
-        unfold_initializer_rec(std::move(ident), sym->type, init);
+        unfold_initializer_rec(std::move(ident), sym->get_type(), init);
     }
 }
 
@@ -361,11 +361,10 @@ Box<ExprLIR> LIRSynthesizer::clone_lvalue(ExprLIR *expr) {
 void LIRSynthesizer::do_visit(FunctionMIR& node) {
     bsv_dbprint("LIRSynthesizer: visiting FunctionMIR node");
 
-    FuncSymbol *sym     = node.sym;
-    std::string mangled = sym->mangle();
-    std::string name    = sym->name;
+    FuncSymbol *sym = node.sym;
+    sym->get_symdata()->set_mangled_name(sym->mangle());
 
-    Box<LIRFuncSym> func = std::make_unique<LIRFuncSym>(mangled, name, sym);
+    Box<LIRFuncSym> func = std::make_unique<LIRFuncSym>(sym);
 
     LIRFuncSym *funcptr = symbolmap.add_function(sym, std::move(func));
 
@@ -396,10 +395,9 @@ void LIRSynthesizer::do_visit(FunctionMIR& node) {
 
     // register the function's parameters as locals
     for (VarSymbol *param : sym->parameters) {
-        std::string param_mangled = param->mangle();
-        std::string param_name    = param->name;
+        param->get_symdata()->set_mangled_name(param->mangle());
 
-        Box<LIRVarSym> boxed_param = std::make_unique<LIRVarSym>(param_mangled, param_name, param);
+        Box<LIRVarSym> boxed_param = std::make_unique<LIRVarSym>(param);
 
         LIRVarSym *lirparam = insert_varsym(param, std::move(boxed_param));
 
@@ -459,13 +457,12 @@ void LIRSynthesizer::do_visit(VarDeclMIR& node) {
 
     for (auto& decl : node.decls) {
         // grab our names
-        std::string mangled = decl.sym->mangle();
-        std::string name    = decl.sym->name;
 
         VarSymbol *sym = decl.sym;
+        sym->get_symdata()->set_mangled_name(sym->mangle());
 
         // create our LIRVar and insert it
-        Box<LIRVarSym> boxed_var = std::make_unique<LIRVarSym>(mangled, name, sym);
+        Box<LIRVarSym> boxed_var = std::make_unique<LIRVarSym>(sym);
 
         LIRVarSym *lirvar = insert_varsym(decl.sym, std::move(boxed_var));
 
@@ -479,7 +476,7 @@ void LIRSynthesizer::do_visit(VarDeclMIR& node) {
             // Try to generate a constant initializer for it
             // If we cannot, fall back to unfolding the initializer.
             ConstInitLIRBuilder builder(symbolmap);
-            if (auto init = builder.try_build_constinit(sym->type, *(*decl.initializer))) {
+            if (auto init = builder.try_build_constinit(sym->get_type(), *(*decl.initializer))) {
                 vardeclptr->init = std::move(*init);
             } else {
                 unfold_initializer(lirvar, *(*decl.initializer));

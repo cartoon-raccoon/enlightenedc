@@ -16,19 +16,19 @@ std::string VarSymbol::to_string() const {
 
     ss << "VarSymbol: " << name;
 
-    if (type) {
-        ss << " :: " << type->formal();
+    if (get_type()) {
+        ss << " :: " << get_symdata()->get_type()->formal();
     } else {
         ss << " :: <nulltype>";
     }
 
-    if (linkage == Linkage::EXTERNAL)
+    if (get_symdata()->get_linkage() == Linkage::EXTERNAL)
         ss << " extern";
 
-    if (linkage == Linkage::EXTERNC)
+    if (get_symdata()->get_linkage() == Linkage::EXTERNC)
         ss << " extern C";
 
-    if (visibility == Visibility::PUBLIC)
+    if (get_symdata()->get_visibility() == Visibility::PUBLIC)
         ss << " public";
 
     return ss.str();
@@ -39,16 +39,16 @@ std::string FuncSymbol::to_string() const {
 
     ss << "FuncSymbol: " << name;
 
-    if (signature) {
-        ss << " :: " << signature->to_string();
+    if (get_signature()) {
+        ss << " :: " << get_signature()->to_string();
     } else {
         ss << " :: <nullsig>";
     }
 
-    if (linkage == Linkage::EXTERNC)
+    if (get_linkage() == Linkage::EXTERNC)
         ss << " extern C";
 
-    if (visibility == Visibility::PUBLIC)
+    if (get_visibility() == Visibility::PUBLIC)
         ss << " public";
 
     return ss.str();

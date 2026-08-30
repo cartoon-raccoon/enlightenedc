@@ -1101,6 +1101,8 @@ public:
         : CFGVisitable<FunctionCFG, Constant>(ValueKind::FUNC, sig, std::move(name)),
           signature(sig) {}
 
+    sema::types::FunctionType *get_signature() { return signature; }
+
     /**
     Initialize the FunctionCFG, returning a pointer to the entry block.
     */
@@ -1190,7 +1192,6 @@ private:
 
 class ProgramCFG {
 public:
-
     ProgramCFG() {}
 
     /**

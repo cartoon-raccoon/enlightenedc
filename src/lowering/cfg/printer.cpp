@@ -7,6 +7,7 @@
 #include "util.hpp"
 
 using namespace ecc::lower::cfg;
+using namespace ecc::sema::types;
 
 static std::string binop_to_string(BinaryInst::Operator op) {
     using BinOp = BinaryInst::Operator;
@@ -134,18 +135,27 @@ void CFGPrinter::print_function(FunctionCFG& func) {
     }
 
     std::cout << func.get_name();
-    std::cout << "(";
-    for (auto [idx, arg] : std::views::enumerate(func.get_args())) {
-        arg->accept(*this);
-        if ((size_t)idx + 1 < func.get_args().size()) {
-            std::cout << ", ";
-        }
-    }
-    std::cout << ")";
 
     if (!func.is_defined()) {
+        FunctionType *sig = func.get_signature();
+        std::cout << "(";
+        for (auto [idx, arg] : std::views::enumerate(sig->params())) {
+            std::cout << arg->formal();
+            if ((size_t)idx + 1 < sig->num_params()) {
+                std::cout << ", ";
+            }
+        }
+        std::cout << ")";
         std::cout << ";\n";
     } else {
+        std::cout << "(";
+        for (auto [idx, arg] : std::views::enumerate(func.get_args())) {
+            arg->accept(*this);
+            if ((size_t)idx + 1 < func.get_args().size()) {
+                std::cout << ", ";
+            }
+        }
+        std::cout << ")";
         std::cout << " {\n";
         for (auto& alloc : func.get_allocas()) {
             print_value(*alloc);

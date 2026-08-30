@@ -257,11 +257,11 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_ExternDeclThenExternDeclIsNoOp) {
     std::string name = "f";
 
     auto decl1 = FuncSymbol::empty(LOC, name, walker.current, fn_type);
-    decl1->linkage = Linkage::EXTERNAL;
+    decl1->get_symdata()->set_linkage(Linkage::EXTERNAL);
     FuncSymbol *first = walker.insert(name, std::move(decl1));
 
     auto decl2 = FuncSymbol::empty(LOC, name, walker.current, fn_type);
-    decl2->linkage = Linkage::EXTERNAL;
+    decl2->get_symdata()->set_linkage(Linkage::EXTERNAL);
     FuncSymbol *second = nullptr;
     EXPECT_NO_THROW(second = walker.insert(name, std::move(decl2)))
         << "Re-declaring the same extern prototype twice should succeed";
@@ -277,7 +277,7 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_ExternDeclThenBodyThrows) {
     std::string name = "f";
 
     auto decl = FuncSymbol::empty(LOC, name, walker.current, fn_type);
-    decl->linkage = Linkage::EXTERNAL;
+    decl->get_symdata()->set_linkage(Linkage::EXTERNAL);
     walker.insert(name, std::move(decl));
 
     auto def = std::make_unique<FuncSymbol>(LOC, name, walker.current, fn_type, Vec<VarSymbol *>{});
@@ -401,7 +401,7 @@ TEST_F(TypeSysAndSymTabTestFixture, Lookup_InnerShadowsOuter) {
 
     VarSymbol *found = walker.lookup_var(name);
     ASSERT_NE(found, nullptr);
-    EXPECT_EQ(found->type, tctxt.get_u8())
+    EXPECT_EQ(found->get_type(), tctxt.get_u8())
         << "lookup from inner scope should return the inner 'x', not the outer one";
 }
 
@@ -418,7 +418,7 @@ TEST_F(TypeSysAndSymTabTestFixture, Lookup_OuterVisibleAfterPop) {
 
     VarSymbol *found = walker.lookup_var(name);
     ASSERT_NE(found, nullptr);
-    EXPECT_EQ(found->type, tctxt.get_u32())
+    EXPECT_EQ(found->get_type(), tctxt.get_u32())
         << "After popping inner scope, lookup should find the outer 'x'";
 }
 
@@ -537,9 +537,9 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncPtr_TypeIsPointerToSignature) {
     Box<VarSymbol> ptr_sym = fn->as_funcptr(tctxt);
 
     ASSERT_NE(ptr_sym, nullptr);
-    EXPECT_TRUE(ptr_sym->type->is_pointer())
+    EXPECT_TRUE(ptr_sym->get_type()->is_pointer())
         << "as_funcptr should produce a VarSymbol with a pointer type";
-    EXPECT_EQ(ptr_sym->type->as_pointer()->get_base(), fn_type)
+    EXPECT_EQ(ptr_sym->get_type()->as_pointer()->get_base(), fn_type)
         << "The pointer base should be the original FunctionType";
 }
 
@@ -554,7 +554,7 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncPtr_ConstProducesConstType) {
     Box<VarSymbol> ptr_sym = fn->as_funcptr(tctxt, /*is_const=*/true);
 
     ASSERT_NE(ptr_sym, nullptr);
-    EXPECT_TRUE(ptr_sym->type->is_const())
+    EXPECT_TRUE(ptr_sym->get_type()->is_const())
         << "as_funcptr(is_const=true) should wrap the pointer in a ConstType";
 }
 
@@ -569,7 +569,7 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncPtr_NonConstProducesPlainPointer) {
     Box<VarSymbol> ptr_sym = fn->as_funcptr(tctxt, /*is_const=*/false);
 
     ASSERT_NE(ptr_sym, nullptr);
-    EXPECT_FALSE(ptr_sym->type->is_const())
+    EXPECT_FALSE(ptr_sym->get_type()->is_const())
         << "as_funcptr(is_const=false) should produce a non-const pointer";
 }
 

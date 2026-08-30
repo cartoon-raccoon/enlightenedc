@@ -10,6 +10,7 @@
 #include "ast/ast.hpp"
 #include "eval/value.hpp"
 #include "location.hpp"
+#include "semantics/symdata.hpp"
 #include "semantics/types.hpp"
 #include "util.hpp"
 
@@ -90,28 +91,12 @@ public:
     virtual LabelSymbol *as_labsym() { return nullptr; }
 };
 
-// The linkage of the symbol.
-enum class Linkage : uint8_t {
-    // The symbol is defined within this translation unit.
-    INTERNAL,
-    // The symbol is defined from another EnlightenedC object file.
-    EXTERNAL,
-    // The symbol is defined from another C object file, and so must follow cdecl.
-    EXTERNC,
-};
-
-enum class Visibility : uint8_t {
-    // The symbol is only visible within this translation unit.
-    STATIC,
-    // The symbol is visible outside this translation unit.
-    PUBLIC,
-    // The symbol is visible outside this translation unit, with C linkage.
-    EXTERNC,
-};
-
 // A symbol that has a phyiscal location in memory that can be referenced
 // (e.g. a variable or function).
 class PhysicalSymbol : public Symbol {
+protected:
+    Rc<SymData> symdata = nullptr;
+
 public:
     PhysicalSymbol(Kind kind, std::string name, Scope *scope)
         : Symbol(kind, std::move(name), scope) {}
@@ -119,15 +104,24 @@ public:
     PhysicalSymbol(Kind kind, Location loc, std::string name, Scope *scope)
         : Symbol(kind, loc, std::move(name), scope) {}
 
-    Linkage linkage = Linkage::INTERNAL;
+    bool is_external() const { return symdata->get_linkage() != Linkage::INTERNAL; }
 
-    Visibility visibility = Visibility::STATIC;
+    SymData *get_symdata() { return symdata.get(); }
 
-    bool is_external() const { return linkage != Linkage::INTERNAL; }
+    /**
+    The shared owner of this symbol's data. Pass this (not get_symdata()) when
+    another object needs to co-own the data, so it shares this control block
+    rather than creating a second one over the same object.
+    */
+    const Rc<SymData>& get_symdata_rc() const { return symdata; }
+
+    Linkage get_linkage() const { return symdata->get_linkage(); }
+
+    Visibility get_visibility() const { return symdata->get_visibility(); }
 
     PhysicalSymbol *as_physical() override { return this; }
 
-    virtual types::Type *get_type() = 0;
+    virtual types::Type *get_type() const = 0;
 
     bool is_physical() override { return true; }
 
@@ -173,14 +167,16 @@ A symbol representing a variable declaration.
 class VarSymbol : public PhysicalSymbol {
 public:
     VarSymbol(Location loc, std::string name, Scope *scope, types::Type *type)
-        : PhysicalSymbol(Symbol::Kind::VAR, loc, std::move(name), scope), type(type) {}
+        : PhysicalSymbol(Symbol::Kind::VAR, loc, name, scope) {
 
-    VarSymbol(Location loc, std::string name, Scope *scope, types::Type *type, eval::Value value)
-        : PhysicalSymbol(Symbol::Kind::VAR, loc, std::move(name), scope), type(type), value(value) {
+        symdata = make_rc<VarSymData>(std::move(name), type);
     }
 
-    /// The type of the symbol.
-    types::Type *type;
+    VarSymbol(Location loc, std::string name, Scope *scope, types::Type *type, eval::Value value)
+        : PhysicalSymbol(Symbol::Kind::VAR, loc, name, scope), value(value) {
+
+        symdata = make_rc<VarSymData>(std::move(name), type);
+    }
 
     // The value of the Symbol, if defined.
     Optional<eval::Value> value;
@@ -193,11 +189,15 @@ public:
 
     std::string mangle() const override;
 
+    VarSymData *get_symdata() const { return dyncast<VarSymData>(symdata.get()); }
+
     bool has_value() const { return value.has_value(); }
 
     VarSymbol *as_varsym() override { return this; }
 
-    types::Type *get_type() override { return type; }
+    types::Type *get_type() const override { return get_symdata()->get_type(); }
+
+    void set_type(types::Type *type) const { get_symdata()->set_type(type); }
 
     static bool classof(const Symbol *sym) { return sym->kind == Kind::VAR; }
 };
@@ -211,11 +211,14 @@ public:
     FuncSymbol(
         Location loc, std::string name, Scope *scope, types::FunctionType *signature,
         Vec<VarSymbol *> parameters)
-        : PhysicalSymbol(Symbol::Kind::FUNC, loc, std::move(name), scope), signature(signature),
-          parameters(std::move(parameters)) {}
+        : PhysicalSymbol(Symbol::Kind::FUNC, loc, name, scope), parameters(std::move(parameters)) {
+        symdata = make_rc<FuncSymData>(std::move(name), signature);
+    }
 
     FuncSymbol(Location loc, std::string name, Scope *scope, types::FunctionType *signature)
-        : PhysicalSymbol(Symbol::Kind::FUNC, loc, std::move(name), scope), signature(signature) {}
+        : PhysicalSymbol(Symbol::Kind::FUNC, loc, name, scope) {
+        symdata = make_rc<FuncSymData>(std::move(name), signature);
+    }
 
     static Box<FuncSymbol>
     empty(Location loc, std::string name, Scope *scope, types::FunctionType *signature) {
@@ -227,9 +230,6 @@ public:
         return ret;
     }
 
-    // The function signature.
-    types::FunctionType *signature;
-
     bool has_body = true;
 
     // The list of parameters to the function.
@@ -238,6 +238,10 @@ public:
     std::string to_string() const override;
 
     std::string mangle() const override;
+
+    FuncSymData *get_symdata() const { return dyncast<FuncSymData>(symdata.get()); }
+
+    types::FunctionType *get_signature() const { return get_symdata()->get_signature(); }
 
     size_t num_params() const { return parameters.size(); }
 
@@ -254,7 +258,7 @@ public:
 
     FuncSymbol *as_funcsym() override { return this; }
 
-    types::Type *get_type() override { return signature; }
+    types::Type *get_type() const override { return get_symdata()->get_signature(); }
 
     static bool classof(const Symbol *sym) { return sym->kind == Kind::FUNC; }
 };
@@ -400,7 +404,7 @@ public:
 
     TypeSymbol *lookup_type(std::string& sym, bool current = false) const;
 
-    /*
+    /**
     Look up a label from Scope `from`, up to the first function scope.
 
     Unlike other lookup functions, which continue on to global scope,

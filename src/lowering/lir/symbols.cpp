@@ -14,7 +14,7 @@ LIRVarSym *LIRFuncSym::insert(VarSymbol *sym, Box<LIRVarSym> var) {
 
 LIRVarSym *LIRFuncSym::lookup(std::string& mangled_name) {
     for (auto& [sym, var] : map) {
-        if (var->mangled_name == mangled_name) {
+        if (var->get_mangled_name() == mangled_name) {
             return var.get();
         }
     }

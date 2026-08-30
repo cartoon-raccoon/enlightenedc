@@ -82,6 +82,21 @@ public:
     }
 };
 
+class UnknownAttrError : public EccSemError {
+public:
+    UnknownAttrError(Location err_loc, std::string attr_name)
+        : EccSemError("unknown attribute", err_loc), attr_name(std::move(attr_name)) {}
+
+    std::string attr_name;
+
+    std::string elab() override {
+        std::stringstream ss;
+        ss << "no attribute with name '" << attr_name << "'";
+
+        return ss.str();
+    }
+};
+
 class UnderspecifiedCallError : public EccSemError {
 public:
     UnderspecifiedCallError(Location err_loc, size_t at_least, size_t got)

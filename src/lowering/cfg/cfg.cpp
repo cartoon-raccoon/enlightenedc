@@ -153,7 +153,8 @@ BasicBlock *BasicBlockSwitchSuccIter::next() {
 }
 
 BasicBlock *FunctionCFG::initialize() {
-    if (is_initialized()) return entry;
+    if (is_initialized())
+        return entry;
 
     for (size_t i = 0; i < signature->num_params(); ++i) {
         Type *paramtype = signature->param_idx(i);

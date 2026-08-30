@@ -357,8 +357,8 @@ void Validator::eval_initializer_rec_arr(
 void Validator::visit_single_vardecl(sym::VarSymbol *varsym, InitializerMIR& init) {
     bsv_dbprint("Validator: visiting single VarDecl for ", varsym->name);
     if (Optional<Type *> inferred =
-            eval_initializer(varsym->type, init, /*allow_size_infer=*/true)) {
-        varsym->type = *inferred;
+            eval_initializer(varsym->get_type(), init, /*allow_size_infer=*/true)) {
+        varsym->set_type(*inferred);
     }
 }
 
@@ -419,7 +419,7 @@ void Validator::do_visit(FunctionMIR& node) {
         node.body->accept(*this);
     }
 
-    Type *returntype = node.sym->signature->returntype()->unqual();
+    Type *returntype = node.sym->get_signature()->returntype()->unqual();
     if (!returntype->is_void() && node.body && !always_returns(*node.body)) {
         add_error<InvalidReturnError>(InvalidReturnError::Kind::MissingReturn, node.loc);
     }
@@ -447,8 +447,9 @@ void Validator::do_visit(VarDeclMIR& node) {
     }
 
     for (auto& decl : node.decls) {
-        if (decl.sym->type->is_usertype() && !decl.sym->type->as_usertype()->is_complete()) {
-            add_error<IncompleteTypeUseError>(*decl.sym->type->get_name(), decl.sym->loc);
+        if (decl.sym->get_type()->is_usertype() &&
+            !decl.sym->get_type()->as_usertype()->is_complete()) {
+            add_error<IncompleteTypeUseError>(*decl.sym->get_type()->get_name(), decl.sym->loc);
             throw UnableToContinue();
         }
         if (decl.initializer) {
@@ -680,7 +681,7 @@ void Validator::do_visit(ReturnStmtMIR& node) {
     FunctionMIR *func = dyncast<FunctionMIR>(get_context(MIRNode::NodeKind::FUNC_MIR));
     assert(func && "unable to get FunctionMIR");
 
-    FunctionType *sig = func->sym->signature;
+    FunctionType *sig = func->sym->get_signature();
     Type *returntype  = sig->returntype()->unqual();
 
     if (node.ret_expr) {

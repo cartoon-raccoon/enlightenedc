@@ -13,7 +13,7 @@ using namespace lower::cfg;
 using namespace sema::types;
 using namespace tokens;
 
-constexpr std::string IMPLICIT_MAIN_NAME = "__implicit_main";
+const char *const IMPLICIT_MAIN_NAME = "__ec_implicit_main";
 
 void CFGBuilder::build_cfg(lir::ProgramLIR& prog) {
     prog.accept(*this);
@@ -89,7 +89,7 @@ Global *CFGBuilder::add_or_get_global(LIRVarSym *sym, Value *init) {
     if (globals.contains(sym))
         return globals[sym];
 
-    Global *ret  = prog_cfg.add_global(sym->type, sym->mangled_name, init);
+    Global *ret  = prog_cfg.add_global(sym->get_type(), sym->symdata->get_mangled_name(), init);
     globals[sym] = ret;
 
     return ret;
@@ -103,8 +103,9 @@ FunctionCFG *CFGBuilder::add_or_get_function(lir::FunctionLIR *func) {
     if (functions.contains(func))
         return functions[func];
 
-    FunctionCFG *ret = prog_cfg.add_function(func->funcsym->signature, func->funcsym->mangled_name);
-    functions[func]  = ret;
+    FunctionCFG *ret = prog_cfg.add_function(
+        func->funcsym->get_symdata()->get_signature(), func->funcsym->symdata->get_mangled_name());
+    functions[func] = ret;
 
     return ret;
 }
@@ -118,7 +119,7 @@ Alloca *CFGBuilder::add_or_get_alloca(lir::LIRVarSym *sym) {
         return allocas[sym];
     }
 
-    Alloca *ret        = curr_func->add_alloca(sym->type, sym->mangled_name);
+    Alloca *ret  = curr_func->add_alloca(sym->get_type(), sym->symdata->get_mangled_name());
     allocas[sym] = ret;
 
     return ret;

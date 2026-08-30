@@ -54,7 +54,7 @@ std::string LabelSymbol::mangle() const {
 }
 
 Box<VarSymbol> FuncSymbol::as_funcptr(TypeContext& tctxt, bool is_const) {
-    Type *ptrtype = tctxt.get_pointer(signature);
+    Type *ptrtype = tctxt.get_pointer(get_signature());
 
     if (is_const) {
         ptrtype = tctxt.get_const(ptrtype);

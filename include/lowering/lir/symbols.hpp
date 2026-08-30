@@ -1,5 +1,6 @@
 #pragma once
 
+#include "semantics/symdata.hpp"
 #ifndef ECC_LIR_SYMBOLS_H
 #define ECC_LIR_SYMBOLS_H
 
@@ -23,27 +24,22 @@ public:
         VAR,
     };
 
-    LIRSym(
-        LIRSymKind kind, std::string mangled, std::string name, sema::sym::Scope *scope,
-        sema::sym::Linkage linkage, sema::sym::Visibility vis, Location loc)
-        : kind(kind), mangled_name(std::move(mangled)), name(std::move(name)), scope(scope),
-          linkage(linkage), vis(vis), loc(loc) {}
+    LIRSym(LIRSymKind kind, Rc<sema::sym::SymData> symdata, Location loc)
+        : kind(kind), symdata(std::move(symdata)), loc(loc) {}
 
     virtual ~LIRSym() = default;
 
     LIRSymKind kind;
 
-    std::string mangled_name;
-
-    std::string name;
-
-    sema::sym::Scope *scope;
-
-    sema::sym::Linkage linkage;
-
-    sema::sym::Visibility vis;
+    Rc<sema::sym::SymData> symdata;
 
     Optional<Location> loc;
+
+    const std::string& get_name() const { return symdata->get_name(); }
+
+    const std::string& get_mangled_name() const { return symdata->get_mangled_name(); }
+
+    sema::sym::Linkage get_linkage() { return symdata->get_linkage(); }
 
     bool is_var() const { return kind == LIRSymKind::VAR; }
     bool is_func() const { return kind == LIRSymKind::FUNC; }
@@ -57,22 +53,14 @@ The representation of a physical variable (memory location) in the LIR.
 */
 class LIRVarSym : public LIRSym {
 public:
-    LIRVarSym(std::string mangled, std::string name, sema::sym::VarSymbol *sym)
-        : LIRSym(
-              LIRSymKind::VAR, std::move(mangled), std::move(name), sym->scope, sym->linkage,
-              sym->visibility, sym->loc),
-          type(sym->type), is_param(sym->is_funcparam) {}
-
-    LIRVarSym(std::string& mangled, sema::sym::Scope *scope, sema::types::Type *type)
-        : LIRSym(
-              LIRSymKind::VAR, mangled, mangled, scope, sema::sym::Linkage::INTERNAL,
-              sema::sym::Visibility::PUBLIC, {}),
-          type(type), is_param(false) {}
-
-    // The type of the variable.
-    sema::types::Type *type;
+    LIRVarSym(sema::sym::VarSymbol *sym)
+        : LIRSym(LIRSymKind::VAR, sym->get_symdata_rc(), sym->loc), is_param(sym->is_funcparam) {}
     // Whether the variable is a function parameter.
     bool is_param;
+
+    sema::sym::VarSymData *get_symdata() { return dyncast<sema::sym::VarSymData>(symdata.get()); }
+
+    sema::types::Type *get_type() { return get_symdata()->get_type(); }
 
     LIRVarSym *as_varsym() override { return this; }
 };
@@ -90,13 +78,8 @@ LIRFuncSym (and thus the same FunctionLIR) is returned on subsequent insertion a
 */
 class LIRFuncSym : public LIRSym {
 public:
-    LIRFuncSym(std::string mangled, std::string name, sema::sym::FuncSymbol *sym)
-        : LIRSym(
-              LIRSymKind::FUNC, std::move(mangled), std::move(name), sym->scope, sym->linkage,
-              sym->visibility, sym->loc),
-          signature(sym->signature) {}
-
-    sema::types::FunctionType *signature;
+    LIRFuncSym(sema::sym::FuncSymbol *sym)
+        : LIRSym(LIRSymKind::FUNC, sym->get_symdata_rc(), sym->loc) {}
 
     Vec<LIRVarSym *> params;
 
@@ -115,6 +98,12 @@ public:
     LIRVarSym *lookup(sema::sym::VarSymbol *sym);
 
     LIRVarSym *operator[](sema::sym::VarSymbol *sym) { return lookup(sym); }
+
+    sema::sym::FuncSymData *get_symdata() const {
+        return dyncast<sema::sym::FuncSymData>(symdata.get());
+    }
+
+    sema::types::FunctionType *get_signature() const { return get_symdata()->get_signature(); }
 
     LIRFuncSym *as_funcsym() override { return this; }
 };

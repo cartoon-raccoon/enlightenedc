@@ -300,10 +300,10 @@ void MIRSynthesizer::do_visit(Function& node) {
         node.loc, *builder->name, syms.current, functype, std::move(paramsym_ptrs));
     FuncSymbol *sym_ptr = symbol.get();
 
-    symbol->linkage = specinfo->linkage;
+    symbol->get_symdata()->set_linkage(specinfo->linkage);
     // extern "C" function with body, default to Visibility::ExternC
     if (specinfo->linkage == Linkage::EXTERNC) {
-        symbol->visibility = Visibility::EXTERNC;
+        symbol->get_symdata()->set_visibility(Visibility::EXTERNC);
     }
 
     Location def_loc = symbol->loc;
@@ -427,12 +427,12 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
                 FuncSymbol::empty(node.loc, *ret.name, syms.current, functype);
 
             if (specinfo->is_public) {
-                funcsym->visibility = Visibility::PUBLIC;
+                funcsym->get_symdata()->set_visibility(Visibility::PUBLIC);
             }
 
-            funcsym->linkage = specinfo->linkage;
+            funcsym->get_symdata()->set_linkage(specinfo->linkage);
             if (specinfo->linkage == Linkage::EXTERNC) {
-                funcsym->visibility = Visibility::EXTERNC;
+                funcsym->get_symdata()->set_visibility(Visibility::EXTERNC);
             }
 
             if (funcsym->is_external() && syms.current != syms.global()) {
@@ -466,10 +466,10 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
 
             // populate other specifiers, and then insert into symbol table
             if (specinfo->is_public) {
-                sym->visibility = Visibility::PUBLIC;
+                sym->get_symdata()->set_visibility(Visibility::PUBLIC);
             }
 
-            sym->linkage = specinfo->linkage;
+            sym->get_symdata()->set_linkage(specinfo->linkage);
 
             if (sym->is_external() && syms.current != syms.global()) {
                 add_error<EccSemError>(

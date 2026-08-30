@@ -118,6 +118,14 @@ auto make_box(Args&&...args) -> decltype(std::make_unique<T>(std::forward<Args>(
     return std::make_unique<T>(std::forward<Args>(args)...);
 }
 
+template <typename T>
+using Rc = std::shared_ptr<T>;
+
+template <typename T, typename... Args>
+auto make_rc(Args&&...args) -> decltype(std::make_shared<T>(std::forward<Args>(args)...)) {
+    return std::make_shared<T>(std::forward<Args>(args)...);
+}
+
 /**
 A convenient type alias for `std::vector`.
 */
