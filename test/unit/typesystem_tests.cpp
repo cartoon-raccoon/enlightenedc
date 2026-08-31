@@ -123,7 +123,7 @@ TEST_F(TypeSysAndSymTabTestFixture, TestAllocBeforeAndAfterFinalize) {
         << "alloc_size threw even after finalize";
 
     LLVMType *llvm_type;
-    EXPECT_NO_THROW(llvm_type = prim1->get_llvmtype());
+    EXPECT_NO_THROW(llvm_type = llvm_unit.get_llvm_type(prim1));
     ASSERT_TRUE(llvm_type != nullptr);
 }
 
@@ -178,7 +178,7 @@ TEST_F(TypeSysAndSymTabTestFixture, PrimCoerce_F64ToBool) {
 TEST_F(TypeSysAndSymTabTestFixture, PrimCoerce_U8ToEnumWithU16Underlying) {
     std::string name = "CoerceTargetEnum";
     EnumType   *enm  = tctxt.get_enum(LOC, name, symtab.global.get());
-    enm->underlying  = tctxt.get_u16();
+    enm->set_underlying(tctxt.get_u16());
     enm->add_enumerator("A", LOC);
     enm->finish(LOC);
 
@@ -504,7 +504,7 @@ TEST_F(TypeSysAndSymTabTestFixture, UnionNoCoerce_NoTypeRepToPrimitive) {
 TEST_F(TypeSysAndSymTabTestFixture, UnionCoerce_U32TypeRepToU64) {
     std::string name = "U32Union";
     UnionType  *unn  = tctxt.get_union(LOC, name, symtab.global.get());
-    unn->type_rep    = tctxt.get_u32();
+    unn->set_type_rep(tctxt.get_u32());
     unn->add_member("x", tctxt.get_u32(), LOC);
     unn->finish(LOC);
 
@@ -515,7 +515,7 @@ TEST_F(TypeSysAndSymTabTestFixture, UnionCoerce_U32TypeRepToU64) {
 TEST_F(TypeSysAndSymTabTestFixture, UnionCoerce_U32TypeRepToBool) {
     std::string name = "U32UnionBool";
     UnionType  *unn  = tctxt.get_union(LOC, name, symtab.global.get());
-    unn->type_rep    = tctxt.get_u32();
+    unn->set_type_rep(tctxt.get_u32());
     unn->add_member("x", tctxt.get_u32(), LOC);
     unn->finish(LOC);
 
@@ -527,7 +527,7 @@ TEST_F(TypeSysAndSymTabTestFixture, UnionCoerce_U32TypeRepToBool) {
 TEST_F(TypeSysAndSymTabTestFixture, UnionCoerce_U32TypeRepToU8) {
     std::string name = "U32UnionNarrow";
     UnionType  *unn  = tctxt.get_union(LOC, name, symtab.global.get());
-    unn->type_rep    = tctxt.get_u32();
+    unn->set_type_rep(tctxt.get_u32());
     unn->add_member("x", tctxt.get_u32(), LOC);
     unn->finish(LOC);
 
@@ -539,7 +539,7 @@ TEST_F(TypeSysAndSymTabTestFixture, UnionCoerce_U32TypeRepToU8) {
 TEST_F(TypeSysAndSymTabTestFixture, UnionCoerce_U32TypeRepToFloat) {
     std::string name = "U32UnionFloat";
     UnionType  *unn  = tctxt.get_union(LOC, name, symtab.global.get());
-    unn->type_rep    = tctxt.get_u32();
+    unn->set_type_rep(tctxt.get_u32());
     unn->add_member("x", tctxt.get_u32(), LOC);
     unn->finish(LOC);
 
@@ -574,7 +574,7 @@ TEST_F(TypeSysAndSymTabTestFixture, EnumCoerce_I32UnderlyingToBool) {
 TEST_F(TypeSysAndSymTabTestFixture, EnumCoerce_U8UnderlyingToU32) {
     std::string name = "EnumU8ToU32";
     EnumType   *enm  = tctxt.get_enum(LOC, name, symtab.global.get());
-    enm->underlying  = tctxt.get_u8();
+    enm->set_underlying(tctxt.get_u8());
     enm->add_enumerator("X", LOC);
     enm->finish(LOC);
 

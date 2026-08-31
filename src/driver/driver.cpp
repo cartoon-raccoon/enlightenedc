@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "codegen/codegen.hpp"
 #include "lowering/lir/lir.hpp"
 #include "lowering/lir/symbols.hpp"
 #include "semantics/symbols.hpp"
@@ -25,9 +26,9 @@ TranslationUnitLIR::TranslationUnitLIR()
     : symbols(make_box<LIRSymbolMap>()), lir(make_box<ProgramLIR>()), cfg(make_box<ProgramCFG>()) {
 }
 
-TranslationUnit::TranslationUnit(std::string *filename, LLVMCore& llvmcore) : filename(filename) {
-    llvm     = make_box<LLVMUnit>(*filename, llvmcore);
-    types    = make_box<TypeContext>(*llvm);
+TranslationUnit::TranslationUnit(std::string *filename, CodeGenCore& cgcore) : filename(filename) {
+    cgu      = cgcore.make_unit(*filename);
+    types    = make_box<TypeContext>(*cgu);
     ast_root = make_box<Program>(filename);
     prog_mir = make_box<TranslationUnitMIR>();
     prog_lir = make_box<TranslationUnitLIR>();

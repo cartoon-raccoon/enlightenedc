@@ -39,10 +39,15 @@ protected:
     // Emit a LIR item into the current queue.
     void emit(LIRSynthItem item);
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
+
     sema::ScopeGuard<sema::mir::MIRNode>
-    enter_scope(sema::sym::FuncSymbol *assoc = nullptr) override { // NOLINT
+    enter_scope(sema::sym::FuncSymbol *assoc = nullptr) override {
         return sema::ScopeGuard<sema::mir::MIRNode>();
     }
+
+#pragma clang diagnostic pop
 
     // Consume a LIR item from the current queue.
     LIRSynthItem consume();

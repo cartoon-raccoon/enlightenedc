@@ -1,4 +1,4 @@
-#include "codegen/compiler.hpp"
+#include "codegen/llvm/compiler.hpp"
 
 using namespace ecc::codegen;
 using namespace ecc::lower::cfg;

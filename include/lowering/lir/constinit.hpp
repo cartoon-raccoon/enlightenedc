@@ -16,6 +16,7 @@ namespace ecc::lower::lir {
 
 class ConstInitLIRBuilder : public NoMove {
     Ref<LIRSymbolMap> syms;
+
 public:
     ConstInitLIRBuilder(LIRSymbolMap& symbols) : syms(symbols) {}
 
@@ -26,12 +27,10 @@ private:
     Optional<Box<ConstInitLIR>>
     try_build_constinit_expr(sema::types::Type *type, sema::mir::ExprMIR& expr);
 
-    Optional<Box<ConstInitLIR>>
-    try_build_constinit_agg_cls(
+    Optional<Box<ConstInitLIR>> try_build_constinit_agg_cls(
         sema::types::ClassType *cls, Vec<Box<sema::mir::InitializerMIR>>& inits, Location loc);
 
-    Optional<Box<ConstInitLIR>>
-    try_build_constinit_agg_arr(
+    Optional<Box<ConstInitLIR>> try_build_constinit_agg_arr(
         sema::types::ArrayType *arr, Vec<Box<sema::mir::InitializerMIR>>& inits, Location loc);
 
     Optional<Box<ConstInitLIR>>

@@ -72,7 +72,11 @@ public:
     };
 
     LIRNode(NodeKind kind) : kind(kind) {}
+
     LIRNode(Location loc, NodeKind kind) : kind(kind), loc(loc) {}
+
+    LIRNode(Optional<Location> loc, NodeKind kind) : kind(kind), loc(loc) {}
+
     virtual ~LIRNode() = default;
 
     NodeKind kind;
@@ -310,7 +314,11 @@ class ExprLIR : public LIRNode {
 public:
     ExprLIR(NodeKind kind, sema::types::Type *type)
         : LIRNode(kind), act_type(type), eff_type(type->effective_type()) {}
+
     ExprLIR(Location loc, NodeKind kind, sema::types::Type *type)
+        : LIRNode(loc, kind), act_type(type), eff_type(type->effective_type()) {}
+
+    ExprLIR(Optional<Location> loc, NodeKind kind, sema::types::Type *type)
         : LIRNode(loc, kind), act_type(type), eff_type(type->effective_type()) {}
 
     sema::types::Type *act_type;
@@ -600,6 +608,9 @@ public:
     IdentExprLIR(Location loc, LIRSym *sym, sema::types::Type *type)
         : LIRVisitable<IdentExprLIR, ExprLIR>(loc, NodeKind::IDENTEXPR_LIR, type), sym(sym) {}
 
+    IdentExprLIR(Optional<Location> loc, LIRSym *sym, sema::types::Type *type)
+        : LIRVisitable<IdentExprLIR, ExprLIR>(loc, NodeKind::IDENTEXPR_LIR, type), sym(sym) {}
+
     LIRSym *sym;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::IDENTEXPR_LIR; }
@@ -617,6 +628,10 @@ public:
           value(std::move(value)) {}
 
     LiteralExprLIR(Location loc, LitValueLIR value, sema::types::Type *type)
+        : LIRVisitable<LiteralExprLIR, ExprLIR>(loc, NodeKind::LITEXPR_LIR, type),
+          value(std::move(value)) {}
+
+    LiteralExprLIR(Optional<Location> loc, LitValueLIR value, sema::types::Type *type)
         : LIRVisitable<LiteralExprLIR, ExprLIR>(loc, NodeKind::LITEXPR_LIR, type),
           value(std::move(value)) {}
 
@@ -659,6 +674,11 @@ public:
         : LIRVisitable<MemberAccExprLIR, ExprLIR>(loc, NodeKind::MEMACCEXPR_LIR, type),
           object(std::move(object)), member_idx(member_idx) {}
 
+    MemberAccExprLIR(
+        Optional<Location> loc, Box<ExprLIR> object, size_t member_idx, sema::types::Type *type)
+        : LIRVisitable<MemberAccExprLIR, ExprLIR>(loc, NodeKind::MEMACCEXPR_LIR, type),
+          object(std::move(object)), member_idx(member_idx) {}
+
     Box<ExprLIR> object;
     size_t member_idx;
 
@@ -672,6 +692,12 @@ public:
         : LIRVisitable<ReintExprLIR, ExprLIR>(loc, NodeKind::REINTEXPR_LIR, type),
           object(std::move(object)), target(target) {}
 
+    ReintExprLIR(
+        Optional<Location> loc, Box<ExprLIR> object, tokens::PrimType target,
+        sema::types::Type *type)
+        : LIRVisitable<ReintExprLIR, ExprLIR>(loc, NodeKind::REINTEXPR_LIR, type),
+          object(std::move(object)), target(target) {}
+
     Box<ExprLIR> object;
     tokens::PrimType target;
 
@@ -681,6 +707,11 @@ public:
 class SubscrExprLIR : public LIRVisitable<SubscrExprLIR, ExprLIR> {
 public:
     SubscrExprLIR(Location loc, Box<ExprLIR> array, Box<ExprLIR> index, sema::types::Type *type)
+        : LIRVisitable<SubscrExprLIR, ExprLIR>(loc, NodeKind::SUBSCREXPR_LIR, type),
+          array(std::move(array)), index(std::move(index)) {}
+
+    SubscrExprLIR(
+        Optional<Location> loc, Box<ExprLIR> array, Box<ExprLIR> index, sema::types::Type *type)
         : LIRVisitable<SubscrExprLIR, ExprLIR>(loc, NodeKind::SUBSCREXPR_LIR, type),
           array(std::move(array)), index(std::move(index)) {}
 

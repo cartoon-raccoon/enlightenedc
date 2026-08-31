@@ -145,7 +145,7 @@ void LIRSynthesizer::unfold_initializer_rec_arr(
 
     size_t next_idx = 0;
 
-    Vec<bool> touched(arr->arr_size.value(), false);
+    Vec<bool> touched(arr->get_arr_size().value(), false);
 
     // Run the recursive algorithm for each initializer we encounter
     for (auto& init : inits) {
@@ -156,9 +156,9 @@ void LIRSynthesizer::unfold_initializer_rec_arr(
                         // fixme: ensure Value(next_idx) matches machine size type
                         init->loc, Value(next_idx), types.get_size_type(false));
                     Box<ExprLIR> child = std::make_unique<SubscrExprLIR>(
-                        init->loc, clone_lvalue(lhs.get()), std::move(idx_expr), arr->base);
+                        init->loc, clone_lvalue(lhs.get()), std::move(idx_expr), arr->get_base());
 
-                    unfold_initializer_rec(std::move(child), arr->base, *init);
+                    unfold_initializer_rec(std::move(child), arr->get_base(), *init);
                     touched[next_idx] = true;
                     next_idx++;
                 },
@@ -170,9 +170,9 @@ void LIRSynthesizer::unfold_initializer_rec_arr(
                     Box<ExprLIR> idx_expr = std::make_unique<LiteralExprLIR>(
                         init->loc, Value(idx->idx), types.get_size_type(false));
                     Box<ExprLIR> child = std::make_unique<SubscrExprLIR>(
-                        init->loc, clone_lvalue(lhs.get()), std::move(idx_expr), arr->base);
+                        init->loc, clone_lvalue(lhs.get()), std::move(idx_expr), arr->get_base());
 
-                    unfold_initializer_rec(std::move(child), arr->base, *idx->initializer);
+                    unfold_initializer_rec(std::move(child), arr->get_base(), *idx->initializer);
                     size_t curr_idx   = idx->idx.cast<size_t>();
                     touched[curr_idx] = true;
                     next_idx          = curr_idx + 1;
@@ -181,24 +181,25 @@ void LIRSynthesizer::unfold_initializer_rec_arr(
                     Box<ExprLIR> idx_expr = std::make_unique<LiteralExprLIR>(
                         init->loc, Value(next_idx), types.get_size_type(false));
                     Box<ExprLIR> child = std::make_unique<SubscrExprLIR>(
-                        init->loc, clone_lvalue(lhs.get()), std::move(idx_expr), arr->base);
+                        init->loc, clone_lvalue(lhs.get()), std::move(idx_expr), arr->get_base());
 
-                    unfold_initializer_rec(std::move(child), arr->base, *init);
+                    unfold_initializer_rec(std::move(child), arr->get_base(), *init);
                     touched[next_idx] = true;
                     next_idx++;
                 }},
             init->initializer);
     }
 
-    for (size_t i = 0; i < arr->arr_size.value(); i++) {
+    for (size_t i = 0; i < arr->get_arr_size().value(); i++) {
         if (!touched[i]) {
             Box<ExprLIR> idx_expr =
                 std::make_unique<LiteralExprLIR>(Location{}, Value(i), types.get_size_type(false));
             Box<ExprLIR> child = std::make_unique<SubscrExprLIR>(
-                Location{}, clone_lvalue(lhs.get()), std::move(idx_expr), arr->base);
-            Box<ExprLIR> zero   = std::make_unique<ZeroExprLIR>(Location{}, arr->base);
+                Location{}, clone_lvalue(lhs.get()), std::move(idx_expr), arr->get_base());
+            Box<ExprLIR> zero   = std::make_unique<ZeroExprLIR>(Location{}, arr->get_base());
             Box<ExprLIR> assign = std::make_unique<AssignExprLIR>(
-                Location{}, arr->base, std::move(child), std::move(zero), tokens::AssignOp::ASSIGN);
+                Location{}, arr->get_base(), std::move(child), std::move(zero),
+                tokens::AssignOp::ASSIGN);
             Box<StmtLIR> stmt = std::make_unique<ExprStmtLIR>(Location{}, std::move(assign));
 
             emit(std::move(stmt));
@@ -330,28 +331,27 @@ Box<ExprLIR> LIRSynthesizer::clone_lvalue(ExprLIR *expr) {
     switch (expr->kind) {
     case NK::IDENTEXPR_LIR: {
         auto *ident = dyncast<IdentExprLIR>(expr);
-        return std::make_unique<IdentExprLIR>(ident->loc.value(), ident->sym, ident->act_type);
+        return std::make_unique<IdentExprLIR>(ident->loc, ident->sym, ident->act_type);
     }
     case NK::MEMACCEXPR_LIR: {
         auto *memacc = dyncast<MemberAccExprLIR>(expr);
         return std::make_unique<MemberAccExprLIR>(
-            memacc->loc.value(), clone_lvalue(memacc->object.get()), memacc->member_idx,
-            memacc->act_type);
+            memacc->loc, clone_lvalue(memacc->object.get()), memacc->member_idx, memacc->act_type);
     }
     case NK::REINTEXPR_LIR: {
         auto *reint = dyncast<ReintExprLIR>(expr);
         return std::make_unique<ReintExprLIR>(
-            reint->loc.value(), clone_lvalue(reint->object.get()), reint->target, reint->act_type);
+            reint->loc, clone_lvalue(reint->object.get()), reint->target, reint->act_type);
     }
     case NK::SUBSCREXPR_LIR: {
         auto *subscr = dyncast<SubscrExprLIR>(expr);
         return std::make_unique<SubscrExprLIR>(
-            subscr->loc.value(), clone_lvalue(subscr->array.get()),
-            clone_lvalue(subscr->index.get()), subscr->act_type);
+            subscr->loc, clone_lvalue(subscr->array.get()), clone_lvalue(subscr->index.get()),
+            subscr->act_type);
     }
     case NK::LITEXPR_LIR: {
         auto *lit = dyncast<LiteralExprLIR>(expr);
-        return std::make_unique<LiteralExprLIR>(lit->loc.value(), lit->value, lit->act_type);
+        return std::make_unique<LiteralExprLIR>(lit->loc, lit->value, lit->act_type);
     }
     default:
         throw std::runtime_error("clone_lvalue: unexpected expression kind in lvalue chain");
@@ -1042,8 +1042,8 @@ void LIRSynthesizer::do_visit(MemberAccExprMIR& node) {
         PointerType *objtype = node.object->act_type->as_pointer();
         assert(objtype);
         object = std::make_unique<UnaryExprLIR>(
-            node.loc, objtype->base, std::move(object), tokens::UnaryOp::DEREF);
-        record = objtype->base->as_recordtype();
+            node.loc, objtype->get_base(), std::move(object), tokens::UnaryOp::DEREF);
+        record = objtype->get_base()->as_recordtype();
     } else {
         assert(object->act_type->is_recordtype());
         record = object->act_type->as_recordtype();
@@ -1091,7 +1091,7 @@ void LIRSynthesizer::do_visit(ReintExprMIR& node) {
         PointerType *objtype = node.object->act_type->as_pointer();
         assert(objtype);
         object = std::make_unique<UnaryExprLIR>(
-            node.loc, objtype->base, std::move(object), tokens::UnaryOp::DEREF);
+            node.loc, objtype->get_base(), std::move(object), tokens::UnaryOp::DEREF);
     }
 
     Box<ExprLIR> expr =

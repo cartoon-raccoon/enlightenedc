@@ -6,7 +6,7 @@
 #include <memory>
 #include <string>
 
-#include "codegen/llvm.hpp"
+#include "codegen/llvm/llvm.hpp"
 #include "config.hpp"
 #include "error.hpp"
 #include "frontend/filenames.hpp"
@@ -23,10 +23,10 @@ class Ecc {
 public:
     Ecc(int argc, char **argv)
         : config(std::make_unique<Config>(argc, argv)),
-          llvm(std::make_unique<codegen::LLVMCore>()) {}
+          cgcore(std::make_unique<codegen::LLVMCore>()) {}
 
     Box<Config> config;
-    Box<codegen::LLVMCore> llvm;
+    Box<codegen::CodeGenCore> cgcore;
     frontend::FilenamePool filenames;
 
     /**

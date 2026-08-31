@@ -43,7 +43,7 @@ public:
 
     sema::sym::Visibility vis;
 
-    Location loc;
+    Optional<Location> loc;
 
     bool is_var() const { return kind == LIRSymKind::VAR; }
     bool is_func() const { return kind == LIRSymKind::FUNC; }
@@ -62,6 +62,12 @@ public:
               LIRSymKind::VAR, std::move(mangled), std::move(name), sym->scope, sym->linkage,
               sym->visibility, sym->loc),
           type(sym->type), is_param(sym->is_funcparam) {}
+
+    LIRVarSym(std::string& mangled, sema::sym::Scope *scope, sema::types::Type *type)
+        : LIRSym(
+              LIRSymKind::VAR, mangled, mangled, scope, sema::sym::Linkage::INTERNAL,
+              sema::sym::Visibility::PUBLIC, {}),
+          type(type), is_param(false) {}
 
     // The type of the variable.
     sema::types::Type *type;

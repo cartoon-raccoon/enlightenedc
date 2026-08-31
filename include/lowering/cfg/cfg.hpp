@@ -55,7 +55,14 @@ public:
     Value(ValueKind kind, sema::types::Type *type, Location loc)
         : valkind(kind), type(type), eff_type(type->effective_type()), loc(loc) {}
 
+    Value(ValueKind kind, sema::types::Type *type, Optional<Location> loc)
+        : valkind(kind), type(type), eff_type(type->effective_type()), loc(loc) {}
+
     Value(ValueKind kind, sema::types::Type *type, std::string name, Location loc)
+        : valkind(kind), name(std::move(name)), type(type), eff_type(type->effective_type()),
+          loc(loc) {}
+
+    Value(ValueKind kind, sema::types::Type *type, std::string name, Optional<Location> loc)
         : valkind(kind), name(std::move(name)), type(type), eff_type(type->effective_type()),
           loc(loc) {}
 
@@ -243,12 +250,22 @@ public:
     Instruction(BasicBlock *containing, InstKind kind, sema::types::Type *type, Location loc)
         : Value(ValueKind::INST, type, loc), containing(containing), instkind(kind) {}
 
+    Instruction(
+        BasicBlock *containing, InstKind kind, sema::types::Type *type, Optional<Location> loc)
+        : Value(ValueKind::INST, type, loc), containing(containing), instkind(kind) {}
+
     Instruction(BasicBlock *containing, InstKind kind, sema::types::Type *type)
         : Value(ValueKind::INST, type), containing(containing), instkind(kind) {}
 
     Instruction(
         BasicBlock *containing, InstKind kind, sema::types::Type *type, std::string name,
         Location loc)
+        : Value(ValueKind::INST, type, std::move(name), loc), containing(containing),
+          instkind(kind) {}
+
+    Instruction(
+        BasicBlock *containing, InstKind kind, sema::types::Type *type, std::string name,
+        Optional<Location> loc)
         : Value(ValueKind::INST, type, std::move(name), loc), containing(containing),
           instkind(kind) {}
 
@@ -293,6 +310,10 @@ public:
         : CFGVisitable<LoadInst, Instruction>(containing, InstKind::LOAD, type, loc),
           address(addr) {}
 
+    LoadInst(BasicBlock *containing, sema::types::Type *type, Value *addr, Optional<Location> loc)
+        : CFGVisitable<LoadInst, Instruction>(containing, InstKind::LOAD, type, loc),
+          address(addr) {}
+
     Value *address;
 
     static bool classof(const Value *node) {
@@ -309,6 +330,12 @@ public:
     StoreInst(
         BasicBlock *containing, sema::types::TypeContext& tyctxt, Value *address, Value *value,
         Location loc)
+        : CFGVisitable<StoreInst, Instruction>(containing, InstKind::STORE, tyctxt.get_void(), loc),
+          address(address), value(value) {}
+
+    StoreInst(
+        BasicBlock *containing, sema::types::TypeContext& tyctxt, Value *address, Value *value,
+        Optional<Location> loc)
         : CFGVisitable<StoreInst, Instruction>(containing, InstKind::STORE, tyctxt.get_void(), loc),
           address(address), value(value) {}
 
@@ -337,6 +364,9 @@ public:
     PhiInst(BasicBlock *containing, sema::types::Type *type, Location loc)
         : CFGVisitable<PhiInst, Instruction>(containing, InstKind::PHI, type, loc) {}
 
+    PhiInst(BasicBlock *containing, sema::types::Type *type, Optional<Location> loc)
+        : CFGVisitable<PhiInst, Instruction>(containing, InstKind::PHI, type, loc) {}
+
     void add_incoming(Value *value, BasicBlock *block) { incoming.emplace_back(value, block); }
 
     Vec<Pair<Value *, BasicBlock *>> incoming;
@@ -355,6 +385,12 @@ public:
     PrintInst(
         BasicBlock *containing, sema::types::TypeContext& tyctxt, String *format, Vec<Value *> args,
         Location loc)
+        : CFGVisitable<PrintInst, Instruction>(containing, InstKind::PRINT, tyctxt.get_void(), loc),
+          format_string(format), args(std::move(args)) {}
+
+    PrintInst(
+        BasicBlock *containing, sema::types::TypeContext& tyctxt, String *format, Vec<Value *> args,
+        Optional<Location> loc)
         : CFGVisitable<PrintInst, Instruction>(containing, InstKind::PRINT, tyctxt.get_void(), loc),
           format_string(format), args(std::move(args)) {}
 
@@ -406,6 +442,12 @@ public:
         : CFGVisitable<BinaryInst, Instruction>(containing, InstKind::BINARY, type, loc), op(op),
           loperand(loperand), roperand(roperand) {}
 
+    BinaryInst(
+        BasicBlock *containing, sema::types::Type *type, Operator op, Value *loperand,
+        Value *roperand, Optional<Location> loc)
+        : CFGVisitable<BinaryInst, Instruction>(containing, InstKind::BINARY, type, loc), op(op),
+          loperand(loperand), roperand(roperand) {}
+
     Operator op;
     Value *loperand, *roperand;
 
@@ -446,6 +488,12 @@ public:
         : CFGVisitable<UnaryInst, Instruction>(containing, InstKind::UNARY, type, loc), op(op),
           operand(operand) {}
 
+    UnaryInst(
+        BasicBlock *containing, sema::types::Type *type, Operator op, Value *operand,
+        Optional<Location> loc)
+        : CFGVisitable<UnaryInst, Instruction>(containing, InstKind::UNARY, type, loc), op(op),
+          operand(operand) {}
+
     Operator op;
     Value *operand;
 
@@ -471,6 +519,11 @@ public:
         : CFGVisitable<IncrInst, Instruction>(containing, InstKind::INC, type, loc),
           operand(operand) {}
 
+    IncrInst(
+        BasicBlock *containing, sema::types::Type *type, Value *operand, Optional<Location> loc)
+        : CFGVisitable<IncrInst, Instruction>(containing, InstKind::INC, type, loc),
+          operand(operand) {}
+
     Value *operand;
 
     static bool classof(const Value *node) {
@@ -485,6 +538,11 @@ public:
 class DecrInst : public CFGVisitable<DecrInst, Instruction> {
 public:
     DecrInst(BasicBlock *containing, sema::types::Type *type, Value *operand, Location loc)
+        : CFGVisitable<DecrInst, Instruction>(containing, InstKind::DEC, type, loc),
+          operand(operand) {}
+
+    DecrInst(
+        BasicBlock *containing, sema::types::Type *type, Value *operand, Optional<Location> loc)
         : CFGVisitable<DecrInst, Instruction>(containing, InstKind::DEC, type, loc),
           operand(operand) {}
 
@@ -504,6 +562,12 @@ public:
     CastInst(
         BasicBlock *containing, sema::types::Type *type, sema::types::Type *target, Value *operand,
         Location loc)
+        : CFGVisitable<CastInst, Instruction>(containing, InstKind::CAST, type, loc),
+          target(target), operand(operand) {}
+
+    CastInst(
+        BasicBlock *containing, sema::types::Type *type, sema::types::Type *target, Value *operand,
+        Optional<Location> loc)
         : CFGVisitable<CastInst, Instruction>(containing, InstKind::CAST, type, loc),
           target(target), operand(operand) {}
 
@@ -527,6 +591,12 @@ public:
         : CFGVisitable<ReintInst, Instruction>(containing, InstKind::REINT, type, loc),
           target(target), operand(operand) {}
 
+    ReintInst(
+        BasicBlock *containing, sema::types::Type *type, tokens::PrimType target, Value *operand,
+        Optional<Location> loc)
+        : CFGVisitable<ReintInst, Instruction>(containing, InstKind::REINT, type, loc),
+          target(target), operand(operand) {}
+
     tokens::PrimType target;
     Value *operand;
 
@@ -544,6 +614,12 @@ public:
     MemberAccInst(
         BasicBlock *containing, sema::types::Type *type, size_t member_idx, Value *operand,
         Location loc)
+        : CFGVisitable<MemberAccInst, Instruction>(containing, InstKind::MEMBERACC, type, loc),
+          member_idx(member_idx), operand(operand) {}
+
+    MemberAccInst(
+        BasicBlock *containing, sema::types::Type *type, size_t member_idx, Value *operand,
+        Optional<Location> loc)
         : CFGVisitable<MemberAccInst, Instruction>(containing, InstKind::MEMBERACC, type, loc),
           member_idx(member_idx), operand(operand) {}
 
@@ -566,6 +642,12 @@ public:
         : CFGVisitable<SubscrInst, Instruction>(containing, InstKind::SUBSCR, type, loc),
           index(index), operand(operand) {}
 
+    SubscrInst(
+        BasicBlock *containing, sema::types::Type *type, Value *index, Value *operand,
+        Optional<Location> loc)
+        : CFGVisitable<SubscrInst, Instruction>(containing, InstKind::SUBSCR, type, loc),
+          index(index), operand(operand) {}
+
     Value *index;
     Value *operand;
 
@@ -583,6 +665,12 @@ public:
     CallInst(
         BasicBlock *containing, sema::types::Type *type, Value *operand, Vec<Value *> args,
         Location loc)
+        : CFGVisitable<CallInst, Instruction>(containing, InstKind::CALL, type, loc),
+          operand(operand), args(std::move(args)) {}
+
+    CallInst(
+        BasicBlock *containing, sema::types::Type *type, Value *operand, Vec<Value *> args,
+        Optional<Location> loc)
         : CFGVisitable<CallInst, Instruction>(containing, InstKind::CALL, type, loc),
           operand(operand), args(std::move(args)) {}
 
@@ -802,13 +890,19 @@ public:
     BasicBlock *next() override;
 };
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-private-field"
+
 class BasicBlockReturnSuccIter : public BasicBlockTermSuccIter {
-    Return *ret; // NOLINT
+    Return *ret;
+
 public:
     BasicBlockReturnSuccIter(Return *ret) : ret(ret) {}
 
     BasicBlock *next() override { return nullptr; }
 };
+
+#pragma clang diagnostic pop
 
 /**
 An iterator class that wraps a BasicBlockTermSuccIter.
@@ -1068,8 +1162,14 @@ public:
     */
     BasicBlock *create_block(std::string& name, bool make_labeled = false);
 
+    /**
+    Insert an anonymous block before `succ`.
+    */
     BasicBlock *create_block_before(BasicBlock *succ);
 
+    /**
+    Insert a named block before `succ`, optionally making it a labeled block.
+    */
     BasicBlock *create_block_before(BasicBlock *succ, std::string& name, bool make_labeled = false);
 
     BasicBlock *create_block_after(BasicBlock *prec);

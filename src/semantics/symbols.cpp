@@ -1,5 +1,6 @@
 #include "semantics/symbols.hpp"
 
+#include <algorithm>
 #include <cassert>
 #include <sstream>
 #include <stdexcept>
@@ -60,6 +61,11 @@ Box<VarSymbol> FuncSymbol::as_funcptr(TypeContext& tctxt, bool is_const) {
     }
 
     return std::make_unique<VarSymbol>(loc, name, scope, ptrtype);
+}
+
+size_t FuncSymbol::num_default_params() const {
+    return std::count_if(
+        parameters.begin(), parameters.end(), [](VarSymbol *sym) { return sym->has_value(); });
 }
 
 void SymbolTable::clear() {

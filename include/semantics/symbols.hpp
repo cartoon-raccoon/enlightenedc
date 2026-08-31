@@ -6,7 +6,6 @@
 #include <cstdint>
 #include <memory>
 #include <stack>
-#include <unordered_map>
 
 #include "ast/ast.hpp"
 #include "eval/value.hpp"
@@ -131,6 +130,16 @@ public:
     virtual types::Type *get_type() = 0;
 
     bool is_physical() override { return true; }
+
+    static bool classof(const Symbol *sym) {
+        switch (sym->kind) {
+        case Kind::VAR:
+        case Kind::FUNC:
+            return true;
+        default:
+            return false;
+        }
+    }
 };
 
 // A symbol that is abstract, and exists only for the purposes of the compiler.
@@ -146,6 +155,16 @@ public:
     AbstractSymbol *as_abstract() override { return this; }
 
     bool is_abstract() override { return true; }
+
+    static bool classof(const Symbol *sym) {
+        switch (sym->kind) {
+        case Kind::TYPE:
+        case Kind::LABEL:
+            return true;
+        default:
+            return false;
+        }
+    }
 };
 
 /*
@@ -174,9 +193,13 @@ public:
 
     std::string mangle() const override;
 
+    bool has_value() const { return value.has_value(); }
+
     VarSymbol *as_varsym() override { return this; }
 
     types::Type *get_type() override { return type; }
+
+    static bool classof(const Symbol *sym) { return sym->kind == Kind::VAR; }
 };
 
 /*
@@ -216,12 +239,24 @@ public:
 
     std::string mangle() const override;
 
+    size_t num_params() const { return parameters.size(); }
+
+    size_t num_default_params() const;
+
+    size_t num_non_default_params() const { return num_params() - num_default_params(); }
+
+    auto default_params() {
+        return std::views::filter(parameters, [](VarSymbol *sym) { return sym->has_value(); });
+    }
+
     /// Create a function pointer VarSymbol from this FuncSymbol.
     Box<VarSymbol> as_funcptr(sema::types::TypeContext& tctxt, bool is_const = false);
 
     FuncSymbol *as_funcsym() override { return this; }
 
     types::Type *get_type() override { return signature; }
+
+    static bool classof(const Symbol *sym) { return sym->kind == Kind::FUNC; }
 };
 
 /*
@@ -239,6 +274,8 @@ public:
     std::string mangle() const override;
 
     TypeSymbol *as_typesym() override { return this; }
+
+    static bool classof(const Symbol *sym) { return sym->kind == Kind::TYPE; }
 };
 
 /*
@@ -254,6 +291,8 @@ public:
     std::string mangle() const override;
 
     LabelSymbol *as_labsym() override { return this; }
+
+    static bool classof(const Symbol *sym) { return sym->kind == Kind::LABEL; }
 };
 
 /*
@@ -270,15 +309,18 @@ public:
 
     // the outer scope enclosing the inner scope.
     Scope *outer;
+
     // A function associated with this scope.
     // if null, this is an anonymous scope.
     FuncSymbol *assoc;
+
     // an ASTNode associated with this scope, if any.
     ast::ASTNode *node = nullptr;
+
     // the symbol tables.
-    std::unordered_map<std::string, Box<PhysicalSymbol>> phys_symbols;
-    std::unordered_map<std::string, Box<TypeSymbol>> type_symbols;
-    std::unordered_map<std::string, Box<LabelSymbol>> label_symbols;
+    HashMap<std::string, Box<PhysicalSymbol>> phys_symbols;
+    HashMap<std::string, Box<TypeSymbol>> type_symbols;
+    HashMap<std::string, Box<LabelSymbol>> label_symbols;
     // inner scopes contained within this scope.
     Vec<Box<Scope>> nested;
 

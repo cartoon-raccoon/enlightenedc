@@ -28,6 +28,13 @@ class LinkedListNode {
         requires std::derived_from<T, LinkedListNode<T>>
     friend class LinkedListIter;
 
+    // Only Node itself may construct its LinkedListNode<Node> base -- catches a
+    // mis-parameterized CRTP base (e.g. `class Oops : public LinkedListNode<SomeOtherType>`)
+    // at the point of misuse instead of letting it compile silently.
+    friend Node;
+
+    LinkedListNode() = default;
+
     Node *next_node = nullptr, *prev_node = nullptr;
 
 public:

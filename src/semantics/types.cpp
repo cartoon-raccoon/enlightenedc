@@ -2,13 +2,11 @@
 
 #include <algorithm>
 #include <cfloat>
-#include <llvm/IR/DerivedTypes.h>
 #include <memory>
 #include <stdexcept>
 #include <utility>
 #include <variant>
 
-#include "codegen/llvm.hpp"
 #include "semantics/primitives.hpp"
 #include "semantics/symbols.hpp"
 #include "semantics/typeerr.hpp"
@@ -25,18 +23,7 @@ using namespace ecc::codegen;
  */
 
 size_t Type::alloc_size() {
-    // If no type, call finalize
-    if (!llvm_type) {
-        finalize();
-    }
-
-    // Check that type has been initialized properly
-    if (!llvm_type && finalized) {
-        throw std::runtime_error("LLVM Type not initialized on type, cannot get size");
-    }
-
-    const llvm::DataLayout& dl = ctxt().llvm().mod().getDataLayout();
-    return dl.getTypeAllocSize(llvm_type);
+    return ctxt().backend().alloc_size(this);
 }
 
 bool Type::is_void() const {
@@ -75,24 +62,6 @@ ConstType *Type::make_const() {
     return ctxt().get_const(this);
 }
 
-LLVMType *Type::get_llvmtype() {
-    if (llvm_type)
-        return llvm_type;
-
-    finalize();
-
-    assert(llvm_type);
-    return llvm_type;
-}
-
-size_t ConstType::alloc_size() {
-    if (!finalized) {
-        finalize();
-    }
-
-    return base->alloc_size();
-}
-
 bool ConstType::coercible_to(Type *dst) {
     if (!dst->is_const()) {
         return false;
@@ -102,18 +71,7 @@ bool ConstType::coercible_to(Type *dst) {
 }
 
 void ConstType::finalize() {
-    if (finalized) {
-        assert(llvm_type && "ConstType marked finalized but llvm_type is null");
-        dbprint("ConstType: already finalized, skipping");
-        return;
-    }
-
-    dbprint("VoidType: finalizing");
-
-    base->finalize();
-    llvm_type = base->get_llvmtype();
-
-    finalized = true;
+    ctxt().backend().finalize(this);
 }
 
 Type *ConstType::effective_type() {
@@ -130,16 +88,7 @@ TypeID ConstType::generate_id() const {
  */
 
 void VoidType::finalize() {
-    if (finalized) {
-        assert(llvm_type && "VoidType marked finalized but llvm_type is null");
-        dbprint("VoidType: already finalized, skipping");
-        return;
-    }
-
-    dbprint("VoidType: finalizing");
-    llvm_type = llvm::Type::getVoidTy(ctxt().llvm().ctx());
-
-    finalized = true;
+    ctxt().backend().finalize(this);
 }
 
 /*
@@ -167,7 +116,7 @@ bool PrimitiveType::coercible_to(Type *dst) {
     if (!dst->is_primitive()) {
         // check for enum
         if (dst->is_enum()) {
-            new_dst = dst->as_enum()->underlying;
+            new_dst = dst->as_enum()->get_underlying();
         } else {
             return false;
         }
@@ -241,45 +190,7 @@ Optional<double> PrimitiveType::flt_max() const {
 }
 
 void PrimitiveType::finalize() {
-    if (finalized) {
-        assert(llvm_type && "PrimitiveType marked finalize but llvm_type is null");
-        dbprint("PrimitiveType: ", to_string(), " already finalized, skipping");
-        return;
-    }
-    dbprint("PrimitiveType: finalizing ", to_string());
-
-    switch (primkind) {
-    case PrimType::U8:
-    case PrimType::I8:
-    case PrimType::BOOL: //? should bool be 1 bit?
-        llvm_type = llvm::Type::getInt8Ty(ctxt().llvm().ctx());
-        break;
-
-    case PrimType::U16:
-    case PrimType::I16:
-        llvm_type = llvm::Type::getInt16Ty(ctxt().llvm().ctx());
-        break;
-
-    case PrimType::U32:
-    case PrimType::I32:
-        llvm_type = llvm::Type::getInt32Ty(ctxt().llvm().ctx());
-        break;
-
-    case PrimType::U64:
-    case PrimType::I64:
-        llvm_type = llvm::Type::getInt64Ty(ctxt().llvm().ctx());
-        break;
-
-    case PrimType::F32:
-        llvm_type = llvm::Type::getFloatTy(ctxt().llvm().ctx());
-        break;
-
-    case PrimType::F64:
-        llvm_type = llvm::Type::getDoubleTy(ctxt().llvm().ctx());
-        break;
-    }
-
-    finalized = true;
+    ctxt().backend().finalize(this);
 }
 
 TypeID PrimitiveType::generate_id() const {
@@ -389,11 +300,11 @@ void RecordType::validate_new_member(Type *type, Optional<std::string> name, Loc
     } else if (type->is_array()) {
         // if type is array:
         ArrayType *arrayty = type->as_array();
-        if (arrayty->base == this) {
+        if (arrayty->get_base() == this) {
             // check for recursive errors with arrays as well
             throw RecursiveTypeError(*name, loc);
         }
-        if (!arrayty->arr_size) {
+        if (!arrayty->get_arr_size()) {
             // check that array is sized
             throw UnsizedArrInUserTypeError(loc);
         }
@@ -573,7 +484,7 @@ bool RecordType::directly_contains(Type *ty) const {
                 return true;
         } else if (mem->ty->is_array()) {
             ArrayType *arr = mem->ty->as_array();
-            if (arr->base == ty)
+            if (arr->get_base() == ty)
                 return true;
         }
     }
@@ -610,7 +521,7 @@ bool RecordType::is_fully_defined() {
         case Kind::ARRAY: {
             ArrayType *arr = member->ty->as_array();
             assert(arr);
-            ret = ret && arr->arr_size.has_value();
+            ret = ret && arr->get_arr_size().has_value();
         } break;
 
         default: {
@@ -842,52 +753,7 @@ bool ClassType::castable_to(Type *dst) {
 }
 
 void ClassType::finalize() {
-    if (finalized) {
-        assert(llvm_type && "ClassType marked finalize but llvm_type is null");
-        dbprint("ClassType: already finalized, skipping");
-        return;
-    }
-    dbprint("ClassType: finalizing class defined at ", def_loc);
-
-    if (!is_complete()) {
-        throw TypeSemError("class not fully defined", decl_loc);
-    }
-
-    // recursively finalize up the chain first.
-    if (parent) {
-        (*parent)->finalize();
-    }
-
-    Vec<LLVMType *> args;
-
-    if (parent) {
-        // if we have a parent, all its parents have been finalized as well, so the parent's
-        // llvmtype will contain the members of all its parents, and its own members. so, reading
-        // the elements of the parent's llvmtype will read in all the members of parent classes, in
-        // order, up the inheritance chain.
-        llvm::StructType *parent_llvm = llvm::dyn_cast<llvm::StructType>((*parent)->get_llvmtype());
-
-        assert(parent_llvm && "");
-
-        for (auto *elem : parent_llvm->elements()) {
-            args.push_back(elem);
-        }
-    }
-
-    for (auto& member : members) {
-        dbprint("ClassType: finalizing member declared at ", member->loc);
-        member->ty->finalize();
-        assert(member->ty->get_llvmtype());
-        args.push_back(member->ty->get_llvmtype());
-    }
-
-    if (!is_anonymous()) {
-        llvm_type = llvm::StructType::create(ctxt().llvm().ctx(), args, name());
-    } else {
-        llvm_type = llvm::StructType::create(ctxt().llvm().ctx(), args);
-    }
-
-    finalized = true;
+    ctxt().backend().finalize(this);
 }
 
 std::string ClassType::formal() {
@@ -908,38 +774,11 @@ bool UnionType::coercible_to(Type *dst) {
     return false;
 }
 
-void UnionType::finalize() {
-    /*
-    If the union has a type representative, that becomes the final type of the union.
-    Otherwise, the LLVM type of the union becomes that of the largest member.
-    */
-    if (finalized) {
-        assert(llvm_type && "UnionType marked finalize but llvm_type is null");
-        dbprint("UnionType: already finalized, skipping");
-        return;
-    }
-    dbprint("UnionType: finalizing union defined at ", def_loc);
-
-    if (!is_complete()) {
-        throw TypeSemError("union not fully defined", decl_loc);
-    }
+void UnionType::finish(Location loc) {
+    def_loc = loc;
 
     if (type_rep) {
-        (*type_rep)->finalize();
-    }
-    // Finalize all members first
-    for (auto& member : members) {
-        dbprint("UnionType: finalizing member declared at ", member->loc);
-        member->ty->finalize();
-        assert(member->ty->get_llvmtype());
-    }
-
-    if (type_rep) {
-        // since type_rep is primitive, it is guaranteed to be finalized
-        llvm_type = (*type_rep)->get_llvmtype();
-
         size_t type_rep_size = (*type_rep)->alloc_size();
-
         // validate that no members are larger than type rep
         for (auto& member : members) {
             size_t mem_size = member->ty->alloc_size();
@@ -948,22 +787,13 @@ void UnionType::finalize() {
                     def_loc, member->loc, member->ty, type_rep_size, mem_size);
             }
         }
-    } else if (!members.empty()) {
-        // get largest member for the size
-        auto largest = std::max_element(members.begin(), members.end(), [](auto& s1, auto& s2) {
-            return s1->ty->alloc_size() < s2->ty->alloc_size();
-        });
-
-        size_t size = (*largest)->ty->alloc_size();
-
-        // set llvm_type as an array of unsigned bytes with size equal to largest member
-        llvm_type = llvm::ArrayType::get(ctxt().u8->get_llvmtype(), size);
-    } else {
-        // set llvm_type as an empty array
-        llvm_type = llvm::ArrayType::get(ctxt().u8->get_llvmtype(), 0);
     }
 
-    finalized = true;
+    complete = true;
+}
+
+void UnionType::finalize() {
+    ctxt().backend().finalize(this);
 }
 
 std::string UnionType::formal() {
@@ -1039,22 +869,11 @@ bool EnumType::coercible_to(Type *dst) {
     return underlying->coercible_to(dst);
 }
 
-void EnumType::finalize() {
-    if (finalized) {
-        assert(llvm_type && "EnumType marked finalized but llvm_type is null");
-        dbprint("EnumType: already finalized, skipping");
-        return;
-    }
-
-    if (!is_complete()) {
-        throw TypeSemError("enum not fully defined", decl_loc);
-    }
-
+void EnumType::finish(Location loc) {
+    def_loc = loc;
     if (!underlying->is_integral()) {
         throw InvalidEnumUnderlyingError(def_loc);
     }
-
-    llvm_type = underlying->get_llvmtype();
 
     // check # of enumerators <= max value of underlying
     auto max_enum_ct = *underlying->int_max();
@@ -1073,7 +892,11 @@ void EnumType::finalize() {
         }
     }
 
-    finalized = true;
+    complete = true;
+}
+
+void EnumType::finalize() {
+    ctxt().backend().finalize(this);
 }
 
 std::string EnumType::formal() {
@@ -1147,16 +970,7 @@ bool PointerType::castable_to(Type *dst) {
 }
 
 void PointerType::finalize() {
-    if (finalized) {
-        assert(llvm_type && "PointerType was marked finalized but llvm_type was null");
-        return;
-    }
-
-    // do not finalize base here: pointers to forward-declared (incomplete) types
-    // are valid, and LLVM opaque pointers require no pointee type anyway.
-
-    llvm_type = llvm::PointerType::get(ctxt().llvm().ctx(), 0);
-    finalized = true;
+    ctxt().backend().finalize(this);
 }
 
 Type *PointerType::decay() {
@@ -1203,21 +1017,7 @@ bool ArrayType::coercible_to(Type *dst) {
 }
 
 void ArrayType::finalize() {
-    if (finalized) {
-        assert(llvm_type && "ArrayType marked finalized but llvm_type is null");
-        dbprint("ArrayType: already finalized, skipping");
-        return;
-    }
-
-    if (arr_size) {
-        llvm_type = llvm::ArrayType::get(base->get_llvmtype(), *arr_size);
-        assert(llvm_type);
-    } else {
-        //? would this be a problem?
-        throw std::runtime_error("attempted to finalize unsized array");
-    }
-
-    finalized = true;
+    ctxt().backend().finalize(this);
 }
 
 Type *ArrayType::decay() {
@@ -1259,22 +1059,7 @@ std::size_t FunctionType::hash_sig() const {
 }
 
 void FunctionType::finalize() {
-    if (finalized) {
-        assert(llvm_type && "FunctionType marked finalized but llvm_type is null");
-        dbprint("FunctionType: already finalized, skipping");
-        return;
-    }
-
-    Vec<LLVMType *> params_llvms;
-    for (auto& param : signature.params) {
-        params_llvms.push_back(param->get_llvmtype());
-    }
-
-    LLVMType *return_llvm = signature.returntype->get_llvmtype();
-
-    llvm_type = llvm::FunctionType::get(return_llvm, params_llvms, signature.variadic);
-
-    finalized = true;
+    ctxt().backend().finalize(this);
 }
 
 Type *FunctionType::decay() {
@@ -1367,8 +1152,8 @@ Type *TypeBuilder::finalize(Optional<Ref<Vec<FuncParam>>> last_params) {
  * TYPE CONTEXT METHODS
  */
 
-TypeContext::TypeContext(codegen::LLVMUnit& llvm)
-    : llvmref(llvm), voidt(std::make_unique<VoidType>(*this)),
+TypeContext::TypeContext(codegen::CodeGenUnit& cgu)
+    : backendref(cgu), voidt(std::make_unique<VoidType>(*this)),
       u8(std::make_unique<PrimitiveType>(PrimType::U8, *this)),
       u16(std::make_unique<PrimitiveType>(PrimType::U16, *this)),
       u32(std::make_unique<PrimitiveType>(PrimType::U32, *this)),
@@ -1426,8 +1211,7 @@ constexpr size_t BITS32 = 32;
 constexpr size_t BITS64 = 64;
 
 PrimitiveType *TypeContext::get_size_type(bool is_signed) {
-    const llvm::DataLayout& dl = llvmref.get().mod().getDataLayout();
-    auto size                  = dl.getPointerSizeInBits();
+    auto size = backendref.get().get_pointer_size_bits();
 
     switch (size) {
     case BITS8:

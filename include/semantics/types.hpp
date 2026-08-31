@@ -12,11 +12,10 @@
 #include <stack>
 #include <string>
 #include <type_traits>
-#include <unordered_map>
 #include <utility>
 #include <variant>
 
-#include "codegen/llvm.hpp"
+#include "codegen/codegen.hpp"
 #include "ds/linkedlist.hpp"
 #include "eval/value.hpp"
 #include "location.hpp"
@@ -149,7 +148,7 @@ In order to enforce the type equality = pointer equality property, Types cannot 
 externally. They are instead created and managed by a `TypeContext`, and are retrieved using its
 `get_*` methods.
 
-Type size and member alignment is calculated at compile time, using LLVM's `DataLayout` class.
+Type size and member alignment is calculated at compile time, using the TypeContext backend.
 */
 class Type : public NoCopy, public NoMove {
 public:
@@ -205,7 +204,7 @@ public:
     virtual bool is_const() const { return false; }
 
     /**
-    Get the size of the type as reported by LLVM.
+    Get the size of the type as reported by the backend.
 
     Before `finalize()` is called, calling this will throw an error.
     */
@@ -345,7 +344,7 @@ public:
     virtual Type *unqual() { return this; }
 
     /**
-    Finalize the type with LLVM, creating the equivalent LLVM type.
+    Finalize the type with the backend.
 
     Before this function has been called on a type, calling `alloc_size()` will
     throw an error.
@@ -361,8 +360,6 @@ public:
     */
     virtual Type *effective_type() { return this; };
 
-    virtual codegen::LLVMType *get_llvmtype();
-
     virtual std::string to_string() const { return "()"; }
 
     virtual Optional<std::string> get_name() { return {}; };
@@ -376,16 +373,12 @@ public:
 
 protected:
     Type(Kind kind, TypeContext& tyctxt) : kind(kind), tyctxt(tyctxt) {}
-    codegen::LLVMType *llvm_type = nullptr;
 
     virtual TypeID generate_id() const = 0;
 
     TypeContext& ctxt() { return tyctxt; }
 
     friend class TypeContext;
-
-    // Whether the Type has been finalized.
-    bool finalized = false;
 
     mutable Optional<TypeID> type_id;
 
@@ -453,7 +446,7 @@ public:
     /**
     Set the location where the type was defined and mark it as complete.
     */
-    void finish(Location loc) {
+    virtual void finish(Location loc) {
         def_loc  = loc;
         complete = true;
     }
@@ -493,7 +486,6 @@ protected:
 
     TypeID generate_id() const override;
 
-private:
     /**
     Whether the type definition is complete.
 
@@ -503,6 +495,7 @@ private:
     */
     bool complete = false;
 
+private:
     /**
     The identifier for the type.
 
@@ -540,7 +533,7 @@ public:
 
     Accessor(std::string member) : accessor(std::move(member)) {}
 
-    Accessor(const Accessor& acc) : LinkedListNode<Accessor>(), accessor(acc.accessor) {}
+    Accessor(const Accessor& acc) : accessor(acc.accessor) {}
 
     Accessor(Accessor&& acc) noexcept : accessor(std::move(acc.accessor)) {}
 
@@ -617,8 +610,6 @@ public:
             : name(std::move(name)), ty(ty), loc(loc), idx(idx) {}
     };
 
-    Vec<Box<TypeMember>> members;
-
     /**
     Validate that a member can be added.
 
@@ -636,6 +627,8 @@ public:
     virtual TypeMember *add_member(std::string name, Type *type, Location loc);
 
     virtual TypeMember *add_member(Type *type, Location loc);
+
+    Span<Box<TypeMember>> get_members() { return members; }
 
     auto named_members() {
         return members | std::ranges::views::filter(
@@ -715,6 +708,8 @@ public:
     }
 
 protected:
+    Vec<Box<TypeMember>> members;
+
     RecordType(
         Location decl_loc, Kind kind, uint64_t anon_id, TypeContext& tyctxt,
         sema::sym::Scope *scope)
@@ -738,13 +733,13 @@ type being their return type.
 */
 class DerivedType : public Type {
 public:
+    Type *get_base() const { return base; }
+
     DerivedType *as_derivedtype() override { return this; }
 
     bool is_derivedtype() override { return true; }
 
     // virtual std::string construct_str(std::string& base);
-
-    Type *base;
 
     /**
     Decay the derived type an underlying type corresponding to how it is handled in memory.
@@ -768,6 +763,8 @@ public:
     }
 
 protected:
+    Type *base;
+
     DerivedType(Kind kind, TypeContext& tyctxt, Type *base) : Type(kind, tyctxt), base(base) {}
 };
 
@@ -780,8 +777,10 @@ There are compositions on `coercible_to` and `effective_type`, to block const-to
 casting, and to wrap `base->effective_type()` in a ConstType wrapper, respectively.
 */
 class ConstType : public Type {
-public:
     Type *base;
+
+public:
+    Type *get_base() { return base; }
 
     Type *unqual() override { return base; }
 
@@ -797,8 +796,6 @@ public:
     bool is_derivedtype() override { return base->is_derivedtype(); }
 
     bool is_const() const override { return true; }
-
-    size_t alloc_size() override;
 
     /**
     Checks if dst is const, delegating to `base->coercible_to()` if true,
@@ -851,8 +848,6 @@ public:
     Wraps base->effective_type() in a ConstType.
     */
     Type *effective_type() override;
-
-    codegen::LLVMType *get_llvmtype() override { return base->get_llvmtype(); }
 
     std::string to_string() const override { return "const " + base->to_string(); }
 
@@ -1017,9 +1012,9 @@ chain. Relative indexes get the member relative to the current class.
 */
 class ClassType : public RecordType {
 public:
-    Optional<ClassType *> parent;
-
     ClassType *as_class() override { return this; }
+
+    Optional<ClassType *> get_parent() const { return parent; }
 
     void add_parent(ClassType *cls);
 
@@ -1100,6 +1095,8 @@ public:
     static bool classof(const Type *node) { return !node->is_const() && node->kind == Kind::CLASS; }
 
 protected:
+    Optional<ClassType *> parent;
+
     friend class TypeContext;
 
     friend constexpr Box<ClassType>
@@ -1167,10 +1164,11 @@ Same as coercing rules.
 */
 class UnionType : public RecordType {
 public:
-    /**
-    The union type representative.
-    */
-    Optional<PrimitiveType *> type_rep;
+    bool has_type_rep() const { return type_rep.has_value(); }
+
+    Optional<PrimitiveType *> get_type_rep() const { return type_rep; }
+
+    void set_type_rep(PrimitiveType *type) { type_rep = type; }
 
     bool coercible_to(Type *dst) override;
 
@@ -1187,6 +1185,8 @@ public:
             return false;
         }
     }
+
+    void finish(Location loc) override;
 
     void finalize() override;
 
@@ -1212,6 +1212,11 @@ public:
     static bool classof(const Type *node) { return !node->is_const() && node->kind == Kind::UNION; }
 
 protected:
+    /**
+    The union type representative.
+    */
+    Optional<PrimitiveType *> type_rep;
+
     friend class TypeContext;
 
     friend constexpr Box<UnionType>
@@ -1252,9 +1257,11 @@ public:
         Location loc;
     };
 
-    Vec<Box<EnumTypeMember>> enumerators;
+    Span<const Box<EnumTypeMember>> get_enumerators() { return enumerators; }
 
-    PrimitiveType *underlying;
+    PrimitiveType *get_underlying() const { return underlying; }
+
+    void set_underlying(PrimitiveType *ul) { underlying = ul; }
 
     size_t num_enumerators() const { return enumerators.size(); }
 
@@ -1280,6 +1287,8 @@ public:
 
     bool is_boolable() override { return underlying->is_boolable(); } // should always return true
 
+    void finish(Location loc) override;
+
     void finalize() override;
 
     Type *effective_type() override { return underlying; }
@@ -1297,6 +1306,10 @@ public:
     static bool classof(const Type *node) { return !node->is_const() && node->kind == Kind::ENUM; }
 
 protected:
+    Vec<Box<EnumTypeMember>> enumerators;
+
+    PrimitiveType *underlying;
+
     friend class TypeContext;
 
     friend constexpr Box<EnumType>
@@ -1409,8 +1422,7 @@ decayed to a pointer.
 */
 class ArrayType : public DerivedType {
 public:
-    // The number of elements in the array, populated after elaboration.
-    Optional<uint64_t> arr_size;
+    Optional<uint64_t> get_arr_size() { return arr_size; }
 
     bool is_fully_sized();
 
@@ -1433,6 +1445,9 @@ public:
     static bool classof(const Type *node) { return !node->is_const() && node->kind == Kind::ARRAY; }
 
 protected:
+    // The number of elements in the array, populated after elaboration.
+    Optional<uint64_t> arr_size;
+
     friend class TypeContext;
 
     friend constexpr Box<ArrayType> std::make_unique<ArrayType>(Type *&, uint64_t&, TypeContext&);
@@ -1535,7 +1550,7 @@ public:
         }
     };
 
-    FunctionSignature signature;
+    const FunctionSignature& get_signature() const { return signature; }
 
     size_t alloc_size() override; // override to immediately throw runtime error
 
@@ -1573,6 +1588,8 @@ public:
 protected:
     friend class TypeContext;
     friend class TypeBuilder;
+
+    FunctionSignature signature;
 
     friend constexpr Box<FunctionType> std::make_unique<FunctionType>(Type *&, TypeContext&);
 
@@ -1667,7 +1684,7 @@ public:
     friend class ArrayType;
     friend class FunctionType;
 
-    TypeContext(codegen::LLVMUnit&);
+    TypeContext(codegen::CodeGenUnit&);
 
     // already enforced by NoCopy, but explicitly delete copy constructor and assignment operator
     // for clarity.
@@ -1806,14 +1823,14 @@ public:
     */
     ConstType *get_const(Type *base);
 
-    codegen::LLVMUnit& llvm() { return llvmref; }
+    codegen::CodeGenUnit& backend() { return backendref; }
 
     std::string to_string() const;
 
 private:
     MonotonicCtr<uint64_t> anonymous_ctr = 0;
 
-    Ref<codegen::LLVMUnit> llvmref;
+    Ref<codegen::CodeGenUnit> backendref;
 
     // intern the primitive language-defined types directly in the context.
     Box<VoidType> voidt;
@@ -1832,19 +1849,19 @@ private:
     using ArrayKey = std::pair<Type *, Optional<uint64_t>>;
 
     // The map of record types (i.e. structs, unions, enums).
-    std::unordered_map<std::string, Box<UserType>> user_types;
+    HashMap<std::string, Box<UserType>> user_types;
 
     // The map of function types.
-    std::unordered_map<std::string, Box<FunctionType>> function_types;
+    HashMap<std::string, Box<FunctionType>> function_types;
 
     // The map of pointer types, mapped by their base type.
-    std::unordered_map<Type *, Box<PointerType>> pointers;
+    HashMap<Type *, Box<PointerType>> pointers;
 
     // The map of array types, mapped by their base type.
-    std::unordered_map<ArrayKey, Box<ArrayType>, pair_hash<Optional<uint64_t>>> arrays;
+    HashMap<ArrayKey, Box<ArrayType>, pair_hash<Optional<uint64_t>>> arrays;
 
     // The map of const types mapped by their base type.
-    std::unordered_map<Type *, Box<ConstType>> const_types;
+    HashMap<Type *, Box<ConstType>> const_types;
 
     // Generate a mangled, unique name for a type incorporating its associated scope.
     template <typename T>

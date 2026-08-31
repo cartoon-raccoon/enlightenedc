@@ -55,17 +55,17 @@ Value *CFGBuilder::eval_lvalue(ExprLIR& node) {
         Value *base =
             eval_lvalue(*member->object); // object is a pointer *value*, same as the rvalue path
         return curr_blk->add_instruction<MemberAccInst>(
-            member->act_type, member->member_idx, base, *member->loc);
+            member->act_type, member->member_idx, base, member->loc);
     }
     if (auto *reint = dyncast<ReintExprLIR>(&node)) {
         Value *base = eval_lvalue(*reint->object);
         return curr_blk->add_instruction<ReintInst>(
-            reint->act_type, reint->target, base, *reint->loc);
+            reint->act_type, reint->target, base, reint->loc);
     }
     if (auto *subscr = dyncast<SubscrExprLIR>(&node)) {
         Value *index = eval(*subscr->index);
         Value *base  = eval_lvalue(*subscr->array);
-        return curr_blk->add_instruction<SubscrInst>(subscr->act_type, index, base, *subscr->loc);
+        return curr_blk->add_instruction<SubscrInst>(subscr->act_type, index, base, subscr->loc);
     }
     if (auto *unary = dyncast<UnaryExprLIR>(&node); unary && unary->op == tokens::UnaryOp::DEREF) {
         return eval(*unary->operand); // *p's address is just p's value
@@ -250,7 +250,7 @@ void CFGBuilder::visit(PrintStmtLIR& node) {
         args.push_back(eval(*arg));
     }
 
-    curr_blk->add_instruction<PrintInst>(types, format, std::move(args), *node.loc);
+    curr_blk->add_instruction<PrintInst>(types, format, std::move(args), node.loc);
 }
 
 void CFGBuilder::visit(GotoStmtLIR& node) {
@@ -334,8 +334,6 @@ void CFGBuilder::visit(ContStmtLIR& node) {
     assert(info->is_loop());
     auto *loopinfo = info->as_loop();
 
-    assert(loopinfo->step && "no loopinfo.step when visiting ContStmtLIR");
-
     // Try, in order, step, cond, and then body to link to
     if (loopinfo->step) {
         curr_blk->terminate<Goto>()->set_target(loopinfo->step);
@@ -343,6 +341,8 @@ void CFGBuilder::visit(ContStmtLIR& node) {
         curr_blk->terminate<Goto>()->set_target(loopinfo->cond);
     } else if (loopinfo->body) {
         curr_blk->terminate<Goto>()->set_target(loopinfo->body);
+    } else {
+        throw std::runtime_error("no loop construct to link to when visiting contstmt");
     }
 }
 
@@ -567,7 +567,7 @@ void CFGBuilder::visit(VarDeclLIR& node) {
     AllocaInst *addr = curr_func->add_alloca(curr_blk, node.lirsym);
     if (node.init) {
         Value *store_operand = build_constant(*node.init);
-        curr_blk->add_instruction<StoreInst>(types, addr, store_operand, *node.loc);
+        curr_blk->add_instruction<StoreInst>(types, addr, store_operand, node.loc);
     }
 }
 
@@ -637,7 +637,7 @@ void CFGBuilder::visit(BinaryExprLIR& node) {
 
         // on the merge block, add a phi with all the incoming edges
         curr_blk     = merge_block;
-        PhiInst *phi = curr_blk->add_instruction<PhiInst>(node.act_type, *node.loc);
+        PhiInst *phi = curr_blk->add_instruction<PhiInst>(node.act_type, node.loc);
 
         // create the short circuit value
         Value *short_circuit_val =
@@ -663,7 +663,7 @@ void CFGBuilder::visit(BinaryExprLIR& node) {
 
         BinaryInst::Operator op = BinaryInst::op_from_token(node.op);
         last_value =
-            curr_blk->add_instruction<BinaryInst>(node.act_type, op, left, right, *node.loc);
+            curr_blk->add_instruction<BinaryInst>(node.act_type, op, left, right, node.loc);
     }
     }
 
@@ -677,16 +677,16 @@ void CFGBuilder::visit(UnaryExprLIR& node) {
     case UnaryOp::INC:
     case UnaryOp::DEC: {
         Value *address = eval_lvalue(*node.operand);
-        Value *cur     = curr_blk->add_instruction<LoadInst>(node.act_type, address, *node.loc);
+        Value *cur     = curr_blk->add_instruction<LoadInst>(node.act_type, address, node.loc);
 
         Value *updated;
         if (node.op == UnaryOp::INC) {
-            updated = curr_blk->add_instruction<IncrInst>(node.act_type, cur, *node.loc);
+            updated = curr_blk->add_instruction<IncrInst>(node.act_type, cur, node.loc);
         } else {
-            updated = curr_blk->add_instruction<DecrInst>(node.act_type, cur, *node.loc);
+            updated = curr_blk->add_instruction<DecrInst>(node.act_type, cur, node.loc);
         }
 
-        curr_blk->add_instruction<StoreInst>(types, address, updated, *node.loc);
+        curr_blk->add_instruction<StoreInst>(types, address, updated, node.loc);
         last_value = updated;
         break;
     }
@@ -695,13 +695,13 @@ void CFGBuilder::visit(UnaryExprLIR& node) {
         break;
     case UnaryOp::DEREF: {
         Value *address = eval(*node.operand);
-        last_value     = curr_blk->add_instruction<LoadInst>(node.act_type, address, *node.loc);
+        last_value     = curr_blk->add_instruction<LoadInst>(node.act_type, address, node.loc);
         break;
     }
     default: {
         Value *operand         = eval(*node.operand);
         UnaryInst::Operator op = UnaryInst::op_from_token(node.op);
-        last_value = curr_blk->add_instruction<UnaryInst>(node.act_type, op, operand, *node.loc);
+        last_value = curr_blk->add_instruction<UnaryInst>(node.act_type, op, operand, node.loc);
     }
     }
     assert(last_value && "last_value is nullptr at end of expr visit");
@@ -717,7 +717,7 @@ void CFGBuilder::visit(CastExprLIR& node) {
         dbprint("    rvalue cast, evaluating on rvalue eval");
         Value *operand = eval(*node.inner);
         last_value =
-            curr_blk->add_instruction<CastInst>(node.act_type, node.target, operand, *node.loc);
+            curr_blk->add_instruction<CastInst>(node.act_type, node.target, operand, node.loc);
     } break;
 
     case CK::ArrPtrDecay: {
@@ -741,12 +741,12 @@ void CFGBuilder::visit(AssignExprLIR& node) {
 
     Value *to_store = right;
     if (node.op != AssignOp::ASSIGN) {
-        Value *cur = curr_blk->add_instruction<LoadInst>(node.act_type, lvalue, *node.loc);
+        Value *cur = curr_blk->add_instruction<LoadInst>(node.act_type, lvalue, node.loc);
         BinaryInst::Operator op = BinaryInst::op_from_token(assign_op_to_binop(node.op));
-        to_store = curr_blk->add_instruction<BinaryInst>(node.act_type, op, cur, right, *node.loc);
+        to_store = curr_blk->add_instruction<BinaryInst>(node.act_type, op, cur, right, node.loc);
     }
 
-    curr_blk->add_instruction<StoreInst>(types, lvalue, to_store, *node.loc);
+    curr_blk->add_instruction<StoreInst>(types, lvalue, to_store, node.loc);
     last_value = to_store;
 }
 
@@ -779,7 +779,7 @@ void CFGBuilder::visit(CondExprLIR& node) {
     false_exit->terminate<Goto>()->set_target(merge_blk);
 
     curr_blk     = merge_blk;
-    PhiInst *phi = curr_blk->add_instruction<PhiInst>(node.act_type, *node.loc);
+    PhiInst *phi = curr_blk->add_instruction<PhiInst>(node.act_type, node.loc);
 
     phi->add_incoming(true_val, true_exit);
     phi->add_incoming(false_val, false_exit);
@@ -799,7 +799,7 @@ void CFGBuilder::visit(IdentExprLIR& node) {
         } else {
             val = prog_cfg.lookup_global(node.sym->as_varsym());
         }
-        last_value = curr_blk->add_instruction<LoadInst>(node.act_type, val, *node.loc);
+        last_value = curr_blk->add_instruction<LoadInst>(node.act_type, val, node.loc);
     } else if (node.sym->is_func()) {
         last_value = prog_cfg.ref_function(node.sym->as_funcsym()->lir);
     }
@@ -844,7 +844,7 @@ void CFGBuilder::visit(CallExprLIR& node) {
         args.push_back(eval(*arg));
     }
     last_value = curr_blk->add_instruction<CallInst>(
-        node.act_type, eval(*node.callee), std::move(args), *node.loc);
+        node.act_type, eval(*node.callee), std::move(args), node.loc);
 
     assert(last_value && "last_value is nullptr at end of expr visit");
 }
@@ -854,7 +854,7 @@ void CFGBuilder::visit(MemberAccExprLIR& node) {
 
     Value *addr = eval_lvalue(node);
 
-    last_value = curr_blk->add_instruction<LoadInst>(node.act_type, addr, *node.loc);
+    last_value = curr_blk->add_instruction<LoadInst>(node.act_type, addr, node.loc);
 
     assert(last_value && "last_value is nullptr at end of expr visit");
 }
@@ -865,7 +865,7 @@ void CFGBuilder::visit(ReintExprLIR& node) {
     Value *operand = eval(*node.object);
 
     last_value =
-        curr_blk->add_instruction<ReintInst>(node.act_type, node.target, operand, *node.loc);
+        curr_blk->add_instruction<ReintInst>(node.act_type, node.target, operand, node.loc);
 
     assert(last_value && "last_value is nullptr at end of expr visit");
 }
@@ -875,7 +875,7 @@ void CFGBuilder::visit(SubscrExprLIR& node) {
 
     Value *addr = eval_lvalue(node);
 
-    last_value = curr_blk->add_instruction<LoadInst>(node.act_type, addr, *node.loc);
+    last_value = curr_blk->add_instruction<LoadInst>(node.act_type, addr, node.loc);
 
     assert(last_value && "last_value is nullptr at end of expr visit");
 }
@@ -884,16 +884,16 @@ void CFGBuilder::visit(PostfixExprLIR& node) {
     dbprint("visiting PostfixExprLIR node ", node.loc ? *node.loc : Location{});
 
     Value *address = eval_lvalue(*node.operand);
-    Value *old_val = curr_blk->add_instruction<LoadInst>(node.act_type, address, *node.loc);
+    Value *old_val = curr_blk->add_instruction<LoadInst>(node.act_type, address, node.loc);
 
     Value *new_val;
     if (node.op == PostfixOp::POSTINC) {
-        new_val = curr_blk->add_instruction<IncrInst>(node.act_type, old_val, *node.loc);
+        new_val = curr_blk->add_instruction<IncrInst>(node.act_type, old_val, node.loc);
     } else {
-        new_val = curr_blk->add_instruction<DecrInst>(node.act_type, old_val, *node.loc);
+        new_val = curr_blk->add_instruction<DecrInst>(node.act_type, old_val, node.loc);
     }
 
-    curr_blk->add_instruction<StoreInst>(types, address, new_val, *node.loc);
+    curr_blk->add_instruction<StoreInst>(types, address, new_val, node.loc);
     last_value = old_val; // postfix yields the *old* value
 }
 
