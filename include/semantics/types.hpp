@@ -318,13 +318,19 @@ public:
     Whether the type is callable.
     Only functions and function pointers should be callable.
     */
-    virtual bool is_callable() { return false; };
+    virtual bool is_callable() { return false; }
+
+    /**
+    Whether the type is assignable.
+    The void type, const types, function types and array types are not assignable.
+    */
+    virtual bool is_assignable() { return true; }
 
     /**
     Whether the type is subscriptable/indexable.
     Only arrays and pointers should be subscriptable.
     */
-    virtual bool is_subscriptable() { return false; };
+    virtual bool is_subscriptable() { return false; }
 
     /**
     Whether the type can be used as a condition (e.g. in a loop or if statement).
@@ -834,6 +840,8 @@ public:
 
     bool is_callable() override { return base->is_callable(); };
 
+    bool is_assignable() override { return false; }
+
     bool is_subscriptable() override { return base->is_subscriptable(); };
 
     bool is_boolable() override { return base->is_boolable(); }
@@ -876,6 +884,8 @@ Acts as a reification of the concept of Void, instead of using a nullptr.
 class VoidType : public BaseType {
 public:
     VoidType *as_void() override { return this; }
+
+    bool is_assignable() override { return false; }
 
     void finalize() override;
 
@@ -1428,6 +1438,8 @@ public:
 
     ArrayType *as_array() override { return this; }
 
+    bool is_assignable() override { return false; }
+
     bool is_subscriptable() override { return true; }
 
     bool coercible_to(Type *dst) override;
@@ -1568,6 +1580,8 @@ public:
     bool no_params() const { return signature.params.empty(); }
 
     bool is_callable() override { return true; }
+
+    bool is_assignable() override { return false; }
 
     FunctionType *as_function() override { return this; }
 

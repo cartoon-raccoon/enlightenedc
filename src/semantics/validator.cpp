@@ -1035,6 +1035,13 @@ void Validator::do_visit(AssignExprMIR& node) {
     node.left->accept(*this);
     node.right->accept(*this);
 
+    if (!node.left->act_type->is_assignable()) {
+        bsv_dbprint("error: left-hand side is not assignable by type");
+        add_error<InvalidAssignError>(
+            InvalidAssignError::Kind::CannotAssign, node.left->act_type, node.loc);
+        throw UnableToContinue();
+    }
+
     if (!node.left->is_assignable()) {
         bsv_dbprint("error: left-hand side is not assignable");
         add_error<InvalidAssignError>(
