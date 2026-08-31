@@ -67,8 +67,11 @@ Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_cls(
                     RecordType::TypeMember *member = cls->find(next_idx);
                     assert(member);
 
-                    target_idx      = next_idx;
+                    target_idx = next_idx;
+
+                    tracking_path.push_back(LIRAccessor::member(member->ty, target_idx));
                     auto maybe_init = try_build_constinit_expr(member->ty, *expr);
+                    tracking_path.pop_back();
 
                     touched[next_idx] = true;
                     next_idx++;
@@ -106,9 +109,17 @@ Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_cls(
                             current_rec = tymem->ty->as_recordtype();
                             assert(current_rec);
                         }
+
+                        tracking_path.push_back(LIRAccessor::member(tymem->ty, target_idx));
                     }
 
-                    return try_build_constinit(tymem->ty, *member->initializer);
+                    auto maybe_init = try_build_constinit(tymem->ty, *member->initializer);
+
+                    for (auto& _ : path) {
+                        tracking_path.pop_back();
+                    }
+
+                    return maybe_init;
                 },
                 [&](Box<InitializerMIR::Index>&) -> Optional<Box<ConstInitLIR>> {
                     throw std::runtime_error(
@@ -118,8 +129,11 @@ Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_cls(
                     RecordType::TypeMember *member = cls->find(next_idx);
                     assert(member);
 
-                    target_idx      = next_idx;
+                    target_idx = next_idx;
+
+                    tracking_path.push_back(LIRAccessor::member(member->ty, target_idx));
                     auto maybe_init = try_build_constinit(member->ty, *init);
+                    tracking_path.pop_back();
 
                     touched[next_idx] = true;
                     next_idx++;
@@ -160,8 +174,11 @@ Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_arr(
         auto maybe_init = std::visit(
             match{
                 [&](Box<ExprMIR>& expr) -> Optional<Box<ConstInitLIR>> {
-                    target_idx      = next_idx;
+                    target_idx = next_idx;
+
+                    tracking_path.push_back(LIRAccessor::index(arr->get_base(), target_idx));
                     auto maybe_init = try_build_constinit_expr(arr->get_base(), *expr);
+                    tracking_path.pop_back();
 
                     touched[next_idx] = true;
                     next_idx++;
@@ -179,11 +196,18 @@ Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_arr(
                     touched[curr_idx] = true;
                     next_idx          = curr_idx + 1;
 
-                    return try_build_constinit(arr->get_base(), *index->initializer);
+                    tracking_path.push_back(LIRAccessor::index(arr->get_base(), target_idx));
+                    auto maybe_init = try_build_constinit(arr->get_base(), *index->initializer);
+                    tracking_path.pop_back();
+
+                    return maybe_init;
                 },
                 [&](Vec<Box<InitializerMIR>>&) -> Optional<Box<ConstInitLIR>> {
-                    target_idx      = next_idx;
+                    target_idx = next_idx;
+
+                    tracking_path.push_back(LIRAccessor::index(arr->get_base(), target_idx));
                     auto maybe_init = try_build_constinit(arr->get_base(), *init);
+                    tracking_path.pop_back();
 
                     touched[next_idx] = true;
                     next_idx++;
@@ -274,10 +298,51 @@ ConstInitLIRBuilder::try_build_constinit_expr(Type *type, LiteralExprMIR& expr) 
                 init = std::make_unique<ScalarInitLIR>(expr.loc, type->as_primitive(), insert_val);
             },
             [&](std::string& str) {
-                if (type->is_pointer()) {
+                if (type->is_pointer() || static_storage) {
                     init = std::make_unique<StringInitLIR>(expr.loc, type, str);
                 } else if (type->is_array()) {
-                    init = nullptr;
+                    init = std::make_unique<ZeroInitLIR>(type);
+
+                    Box<ExprLIR> dest = initializee->clone_box();
+                    for (auto& acc : tracking_path) {
+                        switch (acc.kind) {
+                        case LIRAccessor::Kind::MEMBER:
+                            dest = make_box<MemberAccExprLIR>(std::move(dest), acc.idx, acc.type);
+                            break;
+                        case LIRAccessor::Kind::INDEX: {
+                            eval::Value index_val = eval::Value::from_literal(acc.idx);
+                            PrimitiveType *index_type =
+                                types.get().get_primitive(index_val.primtype());
+
+                            Box<ExprLIR> index = make_box<LiteralExprLIR>(index_val, index_type);
+                            dest               = make_box<SubscrExprLIR>(
+                                std::move(dest), std::move(index), acc.type);
+                        } break;
+                        }
+                    }
+                    ArrayType *dest_arr = type->as_array();
+                    ArrayType *init_arr = expr.act_type->as_array();
+                    assert(init_arr);
+
+                    // pad the string if needed with null bytes
+                    size_t final_size;
+                    size_t padding = 0;
+                    assert(*dest_arr->get_arr_size() >= *init_arr->get_arr_size());
+                    if (*dest_arr->get_arr_size() > *init_arr->get_arr_size()) {
+                        final_size = *dest_arr->get_arr_size();
+                        padding    = *dest_arr->get_arr_size() - *init_arr->get_arr_size();
+                    } else {
+                        final_size = *init_arr->get_arr_size();
+                    }
+
+                    for (size_t i = 0; i < padding; i++) {
+                        str += '\0';
+                    }
+
+                    auto src    = make_box<LiteralExprLIR>(expr.loc, str, expr.act_type);
+                    auto memcpy = make_box<MemcpyLIR>(std::move(dest), std::move(src), final_size);
+
+                    deferred_inits.push_back(std::move(memcpy));
                 } else {
                     throw std::runtime_error("invalid type for building constinit LiteralExprMIR");
                 }

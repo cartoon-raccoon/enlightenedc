@@ -107,6 +107,8 @@ protected:
 
     /**
     Evaluate the expression when appearing in an lvalue position.
+
+    If `node` is not a valid lvalue expression, returns null.
     */
     Value *eval_lvalue(lir::ExprLIR& node);
 
@@ -122,6 +124,16 @@ protected:
 
     Alloca *lookup_alloca(lir::LIRVarSym *sym);
 
+    /**
+    Attempt to materialize backing storage for an expression.
+
+    This first calls `eval_lvalue`. If a non-null pointer is returned, that is used.
+    Otherwise, the node is evaluated and spilled to a temporary alloca, which is then returned.
+    */
+    Value *materialize(lir::ExprLIR& node);
+
+    Value *spill_to_temp(Value *val, sema::types::Type *type, Optional<Location> loc);
+
     void clear_allocas() { allocas.clear(); };
 
     void visit(lir::ProgramLIR& node) override;
@@ -131,6 +143,7 @@ protected:
     void visit(lir::CaseLIR& node) override;
     void visit(lir::DefaultLIR& node) override;
     void visit(lir::ExprStmtLIR& node) override;
+    void visit(lir::MemcpyLIR& node) override;
     void visit(lir::GotoStmtLIR& node) override;
     void visit(lir::SwitchStmtLIR& node) override;
     void visit(lir::BreakStmtLIR& node) override;

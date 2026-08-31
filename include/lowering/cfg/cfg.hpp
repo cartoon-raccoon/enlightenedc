@@ -204,6 +204,9 @@ public:
     Alloca(sema::types::Type *type, std::string name)
         : CFGVisitable<Alloca, Value>(ValueKind::ALLOCA, type, std::move(name)), type(type) {}
 
+    Alloca(sema::types::Type *type)
+        : CFGVisitable<Alloca, Value>(ValueKind::ALLOCA, type), type(type) {}
+
     sema::types::Type *type;
 
     Alloca *as_alloca() override { return this; }
@@ -235,12 +238,12 @@ public:
         STORE,
         PHI,
         PRINT,
+        MEMCPY,
         BINARY,
         UNARY,
         INC,
         DEC,
         CAST,
-        REINT,
         MEMBERACC,
         SUBSCR,
         CALL,
@@ -358,6 +361,25 @@ public:
         }
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::PHI;
+    }
+};
+
+class MemcpyInst : public CFGVisitable<MemcpyInst, Instruction> {
+public:
+    MemcpyInst(
+        BasicBlock *containing, sema::types::TypeContext& tyctxt, Value *to, Value *from, size_t n)
+        : CFGVisitable<MemcpyInst, Instruction>(containing, InstKind::MEMCPY, tyctxt.get_void()),
+          to(to), from(from), n(n) {}
+
+    Value *to, *from;
+    size_t n;
+
+    static bool classof(const Value *node) {
+        if (!Instruction::classof(node)) {
+            return false;
+        }
+        const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
+        return inst->instkind == InstKind::MEMCPY;
     }
 };
 
@@ -561,32 +583,6 @@ public:
         }
         const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
         return inst->instkind == InstKind::CAST;
-    }
-};
-
-class ReintInst : public CFGVisitable<ReintInst, Instruction> {
-public:
-    ReintInst(
-        BasicBlock *containing, sema::types::Type *type, tokens::PrimType target, Value *operand,
-        Location loc)
-        : CFGVisitable<ReintInst, Instruction>(containing, InstKind::REINT, type, loc),
-          target(target), operand(operand) {}
-
-    ReintInst(
-        BasicBlock *containing, sema::types::Type *type, tokens::PrimType target, Value *operand,
-        Optional<Location> loc)
-        : CFGVisitable<ReintInst, Instruction>(containing, InstKind::REINT, type, loc),
-          target(target), operand(operand) {}
-
-    tokens::PrimType target;
-    Value *operand;
-
-    static bool classof(const Value *node) {
-        if (!Instruction::classof(node)) {
-            return false;
-        }
-        const auto *inst = static_cast<const Instruction *>(node); // NOLINT(*-static-cast-downcast)
-        return inst->instkind == InstKind::REINT;
     }
 };
 
@@ -1159,6 +1155,11 @@ public:
     void remove_block(BasicBlock *blk);
 
     Alloca *add_alloca(sema::types::Type *type, std::string name);
+
+    /**
+    Add an anonymous Alloca, typically as a temporary spill variable.
+    */
+    Alloca *add_alloca(sema::types::Type *type);
 
     /**
     An iterator over the allocations in the function, in allocation order.

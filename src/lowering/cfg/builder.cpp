@@ -56,18 +56,22 @@ Value *CFGBuilder::eval_lvalue(ExprLIR& node) {
     }
     if (auto *member = dyncast<MemberAccExprLIR>(&node)) {
         Value *base =
-            eval_lvalue(*member->object); // object is a pointer *value*, same as the rvalue path
-        return curr_blk->add_instruction<MemberAccInst>(
-            member->act_type, member->member_idx, base, member->loc);
+            materialize(*member->object); // object is a pointer *value*, same as the rvalue path
+        if (member->object->act_type->is_union()) {
+            // if object is a union, return the base directly
+            return base;
+        } else {
+            return curr_blk->add_instruction<MemberAccInst>(
+                member->act_type, member->member_idx, base, member->loc);
+        }
     }
     if (auto *reint = dyncast<ReintExprLIR>(&node)) {
-        Value *base = eval_lvalue(*reint->object);
-        return curr_blk->add_instruction<ReintInst>(
-            reint->act_type, reint->target, base, reint->loc);
+        Value *base = materialize(*reint->object);
+        return base;
     }
     if (auto *subscr = dyncast<SubscrExprLIR>(&node)) {
         Value *index = eval(*subscr->index);
-        Value *base  = eval_lvalue(*subscr->array);
+        Value *base  = materialize(*subscr->array);
         return curr_blk->add_instruction<SubscrInst>(subscr->act_type, index, base, subscr->loc);
     }
     if (auto *unary = dyncast<UnaryExprLIR>(&node); unary && unary->op == tokens::UnaryOp::DEREF) {
@@ -82,7 +86,21 @@ Value *CFGBuilder::eval_lvalue(ExprLIR& node) {
         return ret;
     }
 
-    throw std::runtime_error("invalid ExprLIR type for eval_lvalue");
+    return nullptr;
+}
+
+Value *CFGBuilder::materialize(ExprLIR& node) {
+    if (auto *val = eval_lvalue(node); val) {
+        return val;
+    }
+    return spill_to_temp(eval(node), node.act_type, node.loc);
+}
+
+Value *CFGBuilder::spill_to_temp(Value *val, Type *type, Optional<Location> loc) {
+    Alloca *alloca = curr_func->add_alloca(type->unqual());
+    curr_blk->add_instruction<StoreInst>(types, alloca, val, loc);
+
+    return alloca;
 }
 
 Global *CFGBuilder::add_or_get_global(LIRVarSym *sym, Value *init) {
@@ -303,6 +321,18 @@ void CFGBuilder::visit(ExprStmtLIR& node) {
         curr_blk = curr_func->create_block();
     }
     node.expr->accept(*this);
+}
+
+void CFGBuilder::visit(MemcpyLIR& node) {
+    dbprint("visiting MemcpyLIR node ", node.loc ? *node.loc : Location{});
+
+    if (curr_blk->is_terminated()) {
+        curr_blk = curr_func->create_block();
+    }
+    Value *to   = eval(*node.to);
+    Value *from = eval(*node.from);
+
+    curr_blk->add_instruction<MemcpyInst>(types, to, from, node.n);
 }
 
 void CFGBuilder::visit(PrintStmtLIR& node) {
@@ -932,10 +962,9 @@ void CFGBuilder::visit(MemberAccExprLIR& node) {
 void CFGBuilder::visit(ReintExprLIR& node) {
     dbprint("visiting ReintExprLIR node ", node.loc ? *node.loc : Location{});
 
-    Value *operand = eval(*node.object);
+    Value *operand = eval_lvalue(node);
 
-    last_value =
-        curr_blk->add_instruction<ReintInst>(node.act_type, node.target, operand, node.loc);
+    last_value = curr_blk->add_instruction<LoadInst>(node.act_type, operand, node.loc);
 
     assert(last_value && "last_value is nullptr at end of expr visit");
 }
@@ -954,6 +983,7 @@ void CFGBuilder::visit(PostfixExprLIR& node) {
     dbprint("visiting PostfixExprLIR node ", node.loc ? *node.loc : Location{});
 
     Value *address = eval_lvalue(*node.operand);
+    assert(address && "non-lvalue operand for PostfixExprLIR");
     Value *old_val = curr_blk->add_instruction<LoadInst>(node.act_type, address, node.loc);
 
     Value *new_val;

@@ -12,12 +12,12 @@ class LoadInst;
 class StoreInst;
 class PhiInst;
 class PrintInst;
+class MemcpyInst;
 class BinaryInst;
 class UnaryInst;
 class IncrInst;
 class DecrInst;
 class CastInst;
-class ReintInst;
 class MemberAccInst;
 class SubscrInst;
 class CallInst;
@@ -36,8 +36,8 @@ class Switch;
 class Return;
 
 class CFGVisitor : public Visitor<
-                       CFGVisitor, Alloca, LoadInst, StoreInst, PhiInst, PrintInst, BinaryInst,
-                       UnaryInst, IncrInst, DecrInst, CastInst, ReintInst, MemberAccInst,
+                       CFGVisitor, Alloca, LoadInst, StoreInst, PhiInst, PrintInst, MemcpyInst,
+                       BinaryInst, UnaryInst, IncrInst, DecrInst, CastInst, MemberAccInst,
                        SubscrInst, CallInst, ScalarConst, AggregateConst, ZeroConst, FunctionCFG,
                        Global, String, FuncArg, If, Goto, Switch, Return> {};
 

@@ -133,11 +133,24 @@ void LIRSynthesizer::unfold_initializer_expr(
 
     auto rhs = std::move(last_expr);
 
-    Box<ExprLIR> assign = std::make_unique<AssignExprLIR>(
-        init.loc, type, std::move(lhs), std::move(rhs), tokens::AssignOp::ASSIGN);
+    auto *maybe_literal = dyncast<LiteralExprLIR>(rhs);
+    if (maybe_literal && lhs->act_type->is_array()) {
+        ArrayType *literal_size = maybe_literal->act_type->as_array();
+        ArrayType *lhs_size     = lhs->act_type->as_array();
 
-    Box<StmtLIR> stmt = std::make_unique<ExprStmtLIR>(init.loc, std::move(assign));
-    emit(std::move(stmt));
+        assert(literal_size && lhs_size);
+
+        Box<StmtLIR> memcp =
+            make_box<MemcpyLIR>(lhs->clone_box(), std::move(rhs), *lhs_size->get_arr_size());
+
+        emit(std::move(memcp));
+    } else {
+        Box<ExprLIR> assign = std::make_unique<AssignExprLIR>(
+            init.loc, type, std::move(lhs), std::move(rhs), tokens::AssignOp::ASSIGN);
+
+        Box<StmtLIR> stmt = std::make_unique<ExprStmtLIR>(init.loc, std::move(assign));
+        emit(std::move(stmt));
+    }
 }
 
 void LIRSynthesizer::unfold_initializer_rec_arr(
@@ -473,11 +486,16 @@ void LIRSynthesizer::do_visit(VarDeclMIR& node) {
 
         // visit the initializer
         if (decl.initializer) {
-            // Try to generate a constant initializer for it
+            // Try to generate a constant initializer for it;
             // If we cannot, fall back to unfolding the initializer.
-            ConstInitLIRBuilder builder(symbolmap);
+            // We want everything to be sent to static storage if in global scope,
+            // so we construct the builder in static_storage mode if func_stack is empty.
+            ConstInitLIRBuilder builder(symbolmap, types, lirvar, func_stack.empty());
             if (auto init = builder.try_build_constinit(sym->get_type(), *(*decl.initializer))) {
                 vardeclptr->init = std::move(*init);
+                for (auto& init : builder.get_deferred_inits()) {
+                    emit(std::move(init));
+                }
             } else {
                 unfold_initializer(lirvar, *(*decl.initializer));
             }

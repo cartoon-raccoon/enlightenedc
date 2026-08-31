@@ -40,12 +40,12 @@ public:
     void visit(StoreInst& inst) override;
     void visit(PhiInst& inst) override;
     void visit(PrintInst& inst) override;
+    void visit(MemcpyInst& inst) override;
     void visit(BinaryInst& inst) override;
     void visit(UnaryInst& inst) override;
     void visit(IncrInst& inst) override;
     void visit(DecrInst& inst) override;
     void visit(CastInst& inst) override;
-    void visit(ReintInst& inst) override;
     void visit(MemberAccInst& inst) override;
     void visit(SubscrInst& inst) override;
     void visit(CallInst& inst) override;

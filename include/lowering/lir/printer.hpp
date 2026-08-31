@@ -40,6 +40,7 @@ public:
     void visit(CaseLIR& node) override;
     void visit(DefaultLIR& node) override;
     void visit(ExprStmtLIR& node) override;
+    void visit(MemcpyLIR& node) override;
     void visit(GotoStmtLIR& node) override;
     void visit(SwitchStmtLIR& node) override;
     void visit(BreakStmtLIR& node) override;

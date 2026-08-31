@@ -128,6 +128,12 @@ void LIRPrinter::visit(ExprStmtLIR& node) {
     print_node("ExprStmt", node, [&] { node.expr->accept(*this); });
 }
 
+void LIRPrinter::visit(MemcpyLIR& node) {
+    print_node(
+        "Memcpy: " + std::to_string(node.n), node, [&] { node.to->accept(*this); },
+        [&] { node.from->accept(*this); });
+}
+
 void LIRPrinter::visit(GotoStmtLIR& node) {
     std::string label =
         node.target ? *node.target + " (" + node.mangled_target + ")" : node.mangled_target;

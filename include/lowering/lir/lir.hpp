@@ -51,6 +51,7 @@ public:
         CASEDECL_LIR,
         DEFDECL_LIR,
         EXPRSTMT_LIR,
+        MEMCPY_LIR,
         IFSTMT_LIR,
         LOOPSTMT_LIR,
         LABELSTMT_LIR,
@@ -329,6 +330,11 @@ public:
         eff_type = type->effective_type();
     }
 
+    /**
+    Create a boxed clone of `this`.
+    */
+    virtual Box<ExprLIR> clone_box() = 0;
+
     static bool classof(const LIRNode *node) {
         switch (node->kind) {
         case NodeKind::BINEXPR_LIR:
@@ -364,12 +370,6 @@ public:
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::FUNC_LIR; }
 };
-
-class Memcpy {};
-
-class Memmove {};
-
-class Memset {};
 
 class GotoStmtLIR : public LIRVisitable<GotoStmtLIR, TerminalLIR> {
 public:
@@ -480,6 +480,26 @@ public:
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::EXPRSTMT_LIR; }
 };
 
+class MemcpyLIR : public LIRVisitable<MemcpyLIR, NonTerminalLIR> {
+public:
+    MemcpyLIR(Location loc, Box<ExprLIR> to, Box<ExprLIR> from, size_t n)
+        : LIRVisitable<MemcpyLIR, NonTerminalLIR>(loc, NodeKind::MEMCPY_LIR), to(std::move(to)),
+          from(std::move(from)), n(n) {}
+
+    MemcpyLIR(Box<ExprLIR> to, Box<ExprLIR> from, size_t n)
+        : LIRVisitable<MemcpyLIR, NonTerminalLIR>(NodeKind::MEMCPY_LIR), to(std::move(to)),
+          from(std::move(from)), n(n) {}
+
+    Box<ExprLIR> to, from;
+    size_t n;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::MEMCPY_LIR; }
+};
+
+class MemmoveLIR {};
+
+class MemsetLIR {};
+
 class IfStmtLIR : public LIRVisitable<IfStmtLIR, TerminalLIR> {
 public:
     IfStmtLIR(Location loc, Box<ExprLIR> condition)
@@ -535,6 +555,8 @@ public:
     Box<ExprLIR> right;
     tokens::BinaryOp op;
 
+    Box<ExprLIR> clone_box() override;
+
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::BINEXPR_LIR; }
 };
 
@@ -546,6 +568,8 @@ public:
 
     Box<ExprLIR> operand;
     tokens::UnaryOp op;
+
+    Box<ExprLIR> clone_box() override;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::UNEXPR_LIR; }
 };
@@ -569,6 +593,8 @@ public:
     sema::types::Type *target;
     Box<ExprLIR> inner;
 
+    Box<ExprLIR> clone_box() override;
+
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::CASTEXPR_LIR; }
 };
 
@@ -583,6 +609,8 @@ public:
     Box<ExprLIR> left;
     Box<ExprLIR> right;
     tokens::AssignOp op;
+
+    Box<ExprLIR> clone_box() override;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::ASSIGNEXPR_LIR; }
 };
@@ -600,6 +628,8 @@ public:
     Box<ExprLIR> true_value;
     Box<ExprLIR> false_value;
 
+    Box<ExprLIR> clone_box() override;
+
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::CONDEXPR_LIR; }
 };
 
@@ -608,10 +638,15 @@ public:
     IdentExprLIR(Location loc, LIRSym *sym, sema::types::Type *type)
         : LIRVisitable<IdentExprLIR, ExprLIR>(loc, NodeKind::IDENTEXPR_LIR, type), sym(sym) {}
 
+    IdentExprLIR(LIRSym *sym, sema::types::Type *type)
+        : LIRVisitable<IdentExprLIR, ExprLIR>(NodeKind::IDENTEXPR_LIR, type), sym(sym) {}
+
     IdentExprLIR(Optional<Location> loc, LIRSym *sym, sema::types::Type *type)
         : LIRVisitable<IdentExprLIR, ExprLIR>(loc, NodeKind::IDENTEXPR_LIR, type), sym(sym) {}
 
     LIRSym *sym;
+
+    Box<ExprLIR> clone_box() override;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::IDENTEXPR_LIR; }
 };
@@ -622,6 +657,9 @@ public:
 
     LiteralExprLIR(Location loc, eval::Value value, sema::types::Type *type)
         : LIRVisitable<LiteralExprLIR, ExprLIR>(loc, NodeKind::LITEXPR_LIR, type), value(value) {}
+
+    LiteralExprLIR(eval::Value value, sema::types::Type *type)
+        : LIRVisitable<LiteralExprLIR, ExprLIR>(NodeKind::LITEXPR_LIR, type), value(value) {}
 
     LiteralExprLIR(Location loc, std::string value, sema::types::Type *type)
         : LIRVisitable<LiteralExprLIR, ExprLIR>(loc, NodeKind::LITEXPR_LIR, type),
@@ -636,6 +674,8 @@ public:
           value(std::move(value)) {}
 
     LitValueLIR value;
+
+    Box<ExprLIR> clone_box() override;
 
     bool is_str() const { return std::holds_alternative<std::string>(value); }
     bool is_val() const { return std::holds_alternative<eval::Value>(value); }
@@ -653,6 +693,8 @@ public:
     ZeroExprLIR(Location loc, sema::types::Type *type)
         : LIRVisitable<ZeroExprLIR, ExprLIR>(loc, NodeKind::ZEROEXPR_LIR, type) {}
 
+    Box<ExprLIR> clone_box() override;
+
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::ZEROEXPR_LIR; }
 };
 
@@ -665,6 +707,8 @@ public:
     Box<ExprLIR> callee;
     Vec<Box<ExprLIR>> args;
 
+    Box<ExprLIR> clone_box() override;
+
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::CALLEXPR_LIR; }
 };
 
@@ -674,6 +718,10 @@ public:
         : LIRVisitable<MemberAccExprLIR, ExprLIR>(loc, NodeKind::MEMACCEXPR_LIR, type),
           object(std::move(object)), member_idx(member_idx) {}
 
+    MemberAccExprLIR(Box<ExprLIR> object, size_t member_idx, sema::types::Type *type)
+        : LIRVisitable<MemberAccExprLIR, ExprLIR>(NodeKind::MEMACCEXPR_LIR, type),
+          object(std::move(object)), member_idx(member_idx) {}
+
     MemberAccExprLIR(
         Optional<Location> loc, Box<ExprLIR> object, size_t member_idx, sema::types::Type *type)
         : LIRVisitable<MemberAccExprLIR, ExprLIR>(loc, NodeKind::MEMACCEXPR_LIR, type),
@@ -681,6 +729,8 @@ public:
 
     Box<ExprLIR> object;
     size_t member_idx;
+
+    Box<ExprLIR> clone_box() override;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::MEMACCEXPR_LIR; }
 };
@@ -701,6 +751,8 @@ public:
     Box<ExprLIR> object;
     tokens::PrimType target;
 
+    Box<ExprLIR> clone_box() override;
+
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::REINTEXPR_LIR; }
 };
 
@@ -710,6 +762,10 @@ public:
         : LIRVisitable<SubscrExprLIR, ExprLIR>(loc, NodeKind::SUBSCREXPR_LIR, type),
           array(std::move(array)), index(std::move(index)) {}
 
+    SubscrExprLIR(Box<ExprLIR> array, Box<ExprLIR> index, sema::types::Type *type)
+        : LIRVisitable<SubscrExprLIR, ExprLIR>(NodeKind::SUBSCREXPR_LIR, type),
+          array(std::move(array)), index(std::move(index)) {}
+
     SubscrExprLIR(
         Optional<Location> loc, Box<ExprLIR> array, Box<ExprLIR> index, sema::types::Type *type)
         : LIRVisitable<SubscrExprLIR, ExprLIR>(loc, NodeKind::SUBSCREXPR_LIR, type),
@@ -717,6 +773,8 @@ public:
 
     Box<ExprLIR> array;
     Box<ExprLIR> index;
+
+    Box<ExprLIR> clone_box() override;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::SUBSCREXPR_LIR; }
 };
@@ -730,6 +788,8 @@ public:
 
     Box<ExprLIR> operand;
     tokens::PostfixOp op;
+
+    Box<ExprLIR> clone_box() override;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::PFIXEXPR_LIR; }
 };

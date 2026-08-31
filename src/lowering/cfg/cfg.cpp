@@ -251,6 +251,15 @@ Alloca *FunctionCFG::add_alloca(Type *type, std::string name) {
     return ret;
 }
 
+Alloca *FunctionCFG::add_alloca(Type *type) {
+    auto alloc = std::make_unique<Alloca>(type);
+    auto *ret  = alloc.get();
+
+    allocas.push_back(std::move(alloc));
+
+    return ret;
+}
+
 Global *ProgramCFG::add_global(Type *type, std::string name, Value *init) {
 
     Box<Global> new_global;

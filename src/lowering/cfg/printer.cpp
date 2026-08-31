@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include "lowering/cfg/cfg.hpp"
-#include "tokens.hpp"
 #include "util.hpp"
 
 using namespace ecc::lower::cfg;
@@ -180,7 +179,7 @@ void CFGPrinter::print_block(BasicBlock& blk) {
 }
 
 void CFGPrinter::print_value(Value& value) {
-    if (!isa<StoreInst>(&value) && !isa<PrintInst>(&value)) {
+    if (!isa<StoreInst>(&value) && !isa<PrintInst>(&value) && !isa<MemcpyInst>(&value)) {
         if (auto *call = dyncast<CallInst>(&value); call && call->type->is_void()) {
             std::cout << "  ";
         } else {
@@ -281,6 +280,15 @@ void CFGPrinter::visit(PrintInst& inst) {
     std::cout << "\n";
 }
 
+void CFGPrinter::visit(MemcpyInst& inst) {
+    std::cout << "memcpy ";
+    print_value_name(*inst.to);
+    std::cout << " ";
+    print_value_name(*inst.from);
+    std::cout << " " << inst.n;
+    std::cout << "\n";
+}
+
 void CFGPrinter::visit(BinaryInst& inst) {
     std::cout << binop_to_string(inst.op) << " ";
     print_value_name(*inst.loperand);
@@ -311,12 +319,6 @@ void CFGPrinter::visit(CastInst& inst) {
     std::cout << "cast ";
     print_value_name(*inst.operand);
     std::cout << " to (" << inst.target->formal() << ")\n";
-}
-
-void CFGPrinter::visit(ReintInst& inst) {
-    std::cout << "reint ";
-    print_value_name(*inst.operand);
-    std::cout << " as " << tokens::primitive_to_string(inst.target) << "\n";
 }
 
 void CFGPrinter::visit(MemberAccInst& inst) {
