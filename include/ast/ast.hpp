@@ -7,6 +7,8 @@
 #include <variant>
 
 #include "abstract/visitor.hpp"
+#include "allocator/alloc.hpp"
+#include "allocator/chunk.hpp"
 #include "ast/visitor.hpp"
 #include "location.hpp"
 #include "tokens.hpp"
@@ -122,10 +124,10 @@ A single `#[arg, arg = "value", ...]` attribute attached to a top-level ProgramI
 */
 class Attribute : public ASTVisitable<Attribute, ASTNode> {
 public:
-    Attribute(Location loc, Vec<Box<AttributeArg>> args)
+    Attribute(Location loc, Vec<Chunk<AttributeArg>> args)
         : ASTVisitable<Attribute, ASTNode>(NodeKind::ATTR, loc), args(std::move(args)) {}
 
-    Vec<Box<AttributeArg>> args;
+    Vec<Chunk<AttributeArg>> args;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::ATTR; }
 };
@@ -141,7 +143,7 @@ public:
 
     // Attributes attached to this item (e.g. `#[packed]`). Only populated for the
     // Function/Declaration alternatives of `program_item`; empty otherwise.
-    Vec<Box<Attribute>> attributes;
+    Vec<Chunk<Attribute>> attributes;
 
     static bool classof(const ASTNode *node) {
         switch (node->kind) {
@@ -210,11 +212,11 @@ compile time, and any expression that is not cannot be.
 */
 class ConstExpression : public ASTVisitable<ConstExpression, Expression> {
 public:
-    ConstExpression(Box<Expression> expr)
+    ConstExpression(Chunk<Expression> expr)
         : ASTVisitable<ConstExpression, Expression>(NodeKind::CONST_EXPR, expr->loc),
           inner(std::move(expr)) {}
 
-    Box<Expression> inner;
+    Chunk<Expression> inner;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::CONST_EXPR; }
 };
@@ -293,12 +295,12 @@ public:
 
 class Pointer : public ASTVisitable<Pointer, ASTNode> {
 public:
-    Pointer(Location loc, Vec<Box<TypeQualifier>> qualifiers, Optional<Box<Pointer>> nested)
+    Pointer(Location loc, Vec<Chunk<TypeQualifier>> qualifiers, Optional<Chunk<Pointer>> nested)
         : ASTVisitable<Pointer, ASTNode>(NodeKind::POINTER, loc), qualifiers(std::move(qualifiers)),
           nested(std::move(nested)) {}
 
-    Vec<Box<TypeQualifier>> qualifiers;
-    Optional<Box<Pointer>> nested;
+    Vec<Chunk<TypeQualifier>> qualifiers;
+    Optional<Chunk<Pointer>> nested;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::POINTER; }
 };
@@ -326,37 +328,37 @@ public:
 /*
 An initializer for a variable.
 
-Compound-type variables use the Vec<Box<Initializer>> variant of `initializer`,
-whereas primitive type variables use the Box<Expression> variant.
+Compound-type variables use the Vec<Chunk<Initializer>> variant of `initializer`,
+whereas primitive type variables use the Chunk<Expression> variant.
 */
 class Initializer : public ASTVisitable<Initializer, ASTNode> {
 public:
     struct Member {
         std::string member;
-        Box<Initializer> initializer;
+        Chunk<Initializer> initializer;
     };
 
     struct Index {
-        Box<ConstExpression> idx;
-        Box<Initializer> initializer;
+        Chunk<ConstExpression> idx;
+        Chunk<Initializer> initializer;
     };
 
     using InitVariant =
-        std::variant<Box<Expression>, Box<Member>, Box<Index>, Vec<Box<Initializer>>>;
+        std::variant<Chunk<Expression>, Chunk<Member>, Chunk<Index>, Vec<Chunk<Initializer>>>;
 
-    Initializer(Location loc, Box<Expression> expr)
+    Initializer(Location loc, Chunk<Expression> expr)
         : ASTVisitable<Initializer, ASTNode>(NodeKind::INITIALIZER, loc),
           initializer(std::move(expr)) {}
 
-    Initializer(Location loc, std::string mem, Box<Initializer> init)
+    Initializer(Location loc, std::string mem, Chunk<Initializer> init)
         : ASTVisitable<Initializer, ASTNode>(NodeKind::INITIALIZER, loc),
-          initializer(std::make_unique<Member>(std::move(mem), std::move(init))) {}
+          initializer(make_chunk<Member>(std::move(mem), std::move(init))) {}
 
-    Initializer(Location loc, Box<ConstExpression> idx, Box<Initializer> init)
+    Initializer(Location loc, Chunk<ConstExpression> idx, Chunk<Initializer> init)
         : ASTVisitable<Initializer, ASTNode>(NodeKind::INITIALIZER, loc),
-          initializer(std::make_unique<Index>(std::move(idx), std::move(init))) {}
+          initializer(make_chunk<Index>(std::move(idx), std::move(init))) {}
 
-    Initializer(Location loc, Vec<Box<Initializer>> list)
+    Initializer(Location loc, Vec<Chunk<Initializer>> list)
         : ASTVisitable<Initializer, ASTNode>(NodeKind::INITIALIZER, loc),
           initializer(std::move(list)) {}
 
@@ -370,12 +372,12 @@ A general declarator containing a DirectDeclarator and an optional Pointer.
 */
 class Declarator : public ASTVisitable<Declarator, ASTNode> {
 public:
-    Declarator(Location loc, Optional<Box<Pointer>> pointer, Optional<Box<DirectDeclarator>> direct)
+    Declarator(Location loc, Optional<Chunk<Pointer>> pointer, Optional<Chunk<DirectDeclarator>> direct)
         : ASTVisitable<Declarator, ASTNode>(NodeKind::DECLARATOR, loc), pointer(std::move(pointer)),
           direct(std::move(direct)) {}
 
-    Optional<Box<Pointer>> pointer;
-    Optional<Box<DirectDeclarator>> direct;
+    Optional<Chunk<Pointer>> pointer;
+    Optional<Chunk<DirectDeclarator>> direct;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::DECLARATOR; }
 };
@@ -385,12 +387,12 @@ A declarator creating one or more new variables, with optional initializers.
 */
 class InitDeclarator : public ASTVisitable<InitDeclarator, ASTNode> {
 public:
-    InitDeclarator(Location loc, Box<Declarator> declarator, Optional<Box<Initializer>> initializer)
+    InitDeclarator(Location loc, Chunk<Declarator> declarator, Optional<Chunk<Initializer>> initializer)
         : ASTVisitable<InitDeclarator, ASTNode>(NodeKind::INIT_DECLTR, loc),
           declarator(std::move(declarator)), initializer(std::move(initializer)) {}
 
-    Box<Declarator> declarator;
-    Optional<Box<Initializer>> initializer;
+    Chunk<Declarator> declarator;
+    Optional<Chunk<Initializer>> initializer;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::INIT_DECLTR; }
 };
@@ -401,15 +403,15 @@ A declaration of a single function parameter.
 class ParameterDeclaration : public ASTVisitable<ParameterDeclaration, Declaration> {
 public:
     ParameterDeclaration(
-        Location loc, Vec<Box<DeclarationSpecifier>> specifiers,
-        Optional<Box<Declarator>> declarator, Optional<Box<ConstExpression>> default_value)
+        Location loc, Vec<Chunk<DeclarationSpecifier>> specifiers,
+        Optional<Chunk<Declarator>> declarator, Optional<Chunk<ConstExpression>> default_value)
         : ASTVisitable<ParameterDeclaration, Declaration>(NodeKind::PARAM_DECL, loc),
           specifiers(std::move(specifiers)), declarator(std::move(declarator)),
           default_value(std::move(default_value)) {}
 
-    Vec<Box<DeclarationSpecifier>> specifiers;
-    Optional<Box<Declarator>> declarator;
-    Optional<Box<ConstExpression>> default_value;
+    Vec<Chunk<DeclarationSpecifier>> specifiers;
+    Optional<Chunk<Declarator>> declarator;
+    Optional<Chunk<ConstExpression>> default_value;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::PARAM_DECL; }
 };
@@ -419,11 +421,11 @@ A Declaration of a type (i.e. a declaration of only specifiers, no InitDeclarato
 */
 class TypeDeclaration : public ASTVisitable<TypeDeclaration, Declaration> {
 public:
-    TypeDeclaration(Location loc, Vec<Box<DeclarationSpecifier>> specifiers)
+    TypeDeclaration(Location loc, Vec<Chunk<DeclarationSpecifier>> specifiers)
         : ASTVisitable<TypeDeclaration, Declaration>(NodeKind::TYPE_DECL, loc),
           specifiers(std::move(specifiers)) {}
 
-    Vec<Box<DeclarationSpecifier>> specifiers;
+    Vec<Chunk<DeclarationSpecifier>> specifiers;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::TYPE_DECL; }
 };
@@ -434,13 +436,13 @@ A variable declaration (e.g. `U32 x = 5;`, `class Flags {U16 x; bool y} = {3, tr
 class VariableDeclaration : public ASTVisitable<VariableDeclaration, Declaration> {
 public:
     VariableDeclaration(
-        Location loc, Vec<Box<DeclarationSpecifier>> specifiers,
-        Vec<Box<InitDeclarator>> declarators)
+        Location loc, Vec<Chunk<DeclarationSpecifier>> specifiers,
+        Vec<Chunk<InitDeclarator>> declarators)
         : ASTVisitable<VariableDeclaration, Declaration>(NodeKind::VAR_DECL, loc),
           specifiers(std::move(specifiers)), declarators(std::move(declarators)) {}
 
-    Vec<Box<DeclarationSpecifier>> specifiers;
-    Vec<Box<InitDeclarator>> declarators;
+    Vec<Chunk<DeclarationSpecifier>> specifiers;
+    Vec<Chunk<InitDeclarator>> declarators;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::VAR_DECL; }
 };
@@ -477,23 +479,23 @@ of `arr` in the former is `U32`.
 */
 class ParenDeclarator : public ASTVisitable<ParenDeclarator, DirectDeclarator> {
 public:
-    ParenDeclarator(Location loc, Box<Declarator> decl)
+    ParenDeclarator(Location loc, Chunk<Declarator> decl)
         : ASTVisitable<ParenDeclarator, DirectDeclarator>(NodeKind::PAREN_DECLTR, loc),
           inner(std::move(decl)) {}
 
-    Box<Declarator> inner;
+    Chunk<Declarator> inner;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::PAREN_DECLTR; }
 };
 
 class ArrayDeclarator : public ASTVisitable<ArrayDeclarator, DirectDeclarator> {
 public:
-    ArrayDeclarator(Location loc, Box<DirectDeclarator> base, Optional<Box<ConstExpression>> size)
+    ArrayDeclarator(Location loc, Chunk<DirectDeclarator> base, Optional<Chunk<ConstExpression>> size)
         : ASTVisitable<ArrayDeclarator, DirectDeclarator>(NodeKind::ARR_DECLTR, loc),
           base(std::move(base)), size(std::move(size)) {}
 
-    Box<DirectDeclarator> base;
-    Optional<Box<ConstExpression>> size;
+    Chunk<DirectDeclarator> base;
+    Optional<Chunk<ConstExpression>> size;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::ARR_DECLTR; }
 };
@@ -501,13 +503,13 @@ public:
 class FunctionDeclarator : public ASTVisitable<FunctionDeclarator, DirectDeclarator> {
 public:
     FunctionDeclarator(
-        Location loc, Box<DirectDeclarator> base, Vec<Box<ParameterDeclaration>> params,
+        Location loc, Chunk<DirectDeclarator> base, Vec<Chunk<ParameterDeclaration>> params,
         bool is_variadic)
         : ASTVisitable<FunctionDeclarator, DirectDeclarator>(NodeKind::FUNC_DECLTR, loc),
           base(std::move(base)), parameters(std::move(params)), is_variadic(is_variadic) {}
 
-    Box<DirectDeclarator> base;
-    Vec<Box<ParameterDeclaration>> parameters;
+    Chunk<DirectDeclarator> base;
+    Vec<Chunk<ParameterDeclaration>> parameters;
     bool is_variadic;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::FUNC_DECLTR; }
@@ -519,12 +521,12 @@ A declarator representing a member of a class.
 class ClassDeclarator : public ASTVisitable<ClassDeclarator, ASTNode> {
 public:
     ClassDeclarator(
-        Location loc, Optional<Box<Declarator>> declarator, Optional<Box<Expression>> bit_width)
+        Location loc, Optional<Chunk<Declarator>> declarator, Optional<Chunk<Expression>> bit_width)
         : ASTVisitable<ClassDeclarator, ASTNode>(NodeKind::CLASS_DECLTR, loc),
           declarator(std::move(declarator)), bit_width(std::move(bit_width)) {}
 
-    Optional<Box<Declarator>> declarator;
-    Optional<Box<Expression>> bit_width;
+    Optional<Chunk<Declarator>> declarator;
+    Optional<Chunk<Expression>> bit_width;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::CLASS_DECLTR; }
 };
@@ -536,13 +538,13 @@ one or more ClassDeclarators.
 class ClassDeclaration : public ASTVisitable<ClassDeclaration, Declaration> {
 public:
     ClassDeclaration(
-        Location loc, Vec<Box<DeclarationSpecifier>> specifiers,
-        Vec<Box<ClassDeclarator>> declarators)
+        Location loc, Vec<Chunk<DeclarationSpecifier>> specifiers,
+        Vec<Chunk<ClassDeclarator>> declarators)
         : ASTVisitable<ClassDeclaration, Declaration>(NodeKind::CLASS_DECL, loc),
           specifiers(std::move(specifiers)), declarators(std::move(declarators)) {}
 
-    Vec<Box<DeclarationSpecifier>> specifiers;
-    Vec<Box<ClassDeclarator>> declarators;
+    Vec<Chunk<DeclarationSpecifier>> specifiers;
+    Vec<Chunk<ClassDeclarator>> declarators;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::CLASS_DECL; }
 };
@@ -584,7 +586,7 @@ class ClassSpecifier : public ASTVisitable<ClassSpecifier, TypeSpecifier> {
 public:
     ClassSpecifier(
         Location loc, Optional<std::string> name, Optional<Vec<std::string>> parents,
-        Optional<Vec<Box<ClassDeclaration>>> declarations)
+        Optional<Vec<Chunk<ClassDeclaration>>> declarations)
         : ASTVisitable<ClassSpecifier, TypeSpecifier>(NodeKind::CLASS_SPEC, loc),
           name(std::move(name)), parents(std::move(parents)),
           declarations(std::move(declarations)) {}
@@ -593,7 +595,7 @@ public:
     // Identifiers of parent classes.
     Optional<Vec<std::string>> parents;
     // Declarations of members.
-    Optional<Vec<Box<ClassDeclaration>>> declarations;
+    Optional<Vec<Chunk<ClassDeclaration>>> declarations;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::CLASS_SPEC; }
 };
@@ -602,7 +604,7 @@ class UnionSpecifier : public ASTVisitable<UnionSpecifier, TypeSpecifier> {
 public:
     UnionSpecifier(
         Location loc, Optional<std::string> name, Optional<tokens::PrimType> type_rep,
-        Optional<Vec<Box<ClassDeclaration>>> declarations)
+        Optional<Vec<Chunk<ClassDeclaration>>> declarations)
         : ASTVisitable<UnionSpecifier, TypeSpecifier>(NodeKind::UNION_SPEC, loc),
           name(std::move(name)), type_rep(type_rep), declarations(std::move(declarations)) {}
 
@@ -610,7 +612,7 @@ public:
 
     Optional<tokens::PrimType> type_rep;
 
-    Optional<Vec<Box<ClassDeclaration>>> declarations;
+    Optional<Vec<Chunk<ClassDeclaration>>> declarations;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::UNION_SPEC; }
 };
@@ -620,12 +622,12 @@ A declaration of an enumerator within an enum.
 */
 class Enumerator : public ASTVisitable<Enumerator, ASTNode> {
 public:
-    Enumerator(Location loc, std::string name, Optional<Box<ConstExpression>> value)
+    Enumerator(Location loc, std::string name, Optional<Chunk<ConstExpression>> value)
         : ASTVisitable<Enumerator, ASTNode>(NodeKind::ENUMERATOR, loc), name(std::move(name)),
           value(std::move(value)) {}
 
     std::string name;
-    Optional<Box<ConstExpression>> value;
+    Optional<Chunk<ConstExpression>> value;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::ENUMERATOR; }
 };
@@ -636,18 +638,18 @@ A node denoting an enum and its contained variants.
 class EnumSpecifier : public ASTVisitable<EnumSpecifier, TypeSpecifier> {
 public:
     EnumSpecifier(
-        Location loc, Optional<std::string> name, Optional<Vec<Box<Enumerator>>> enumerators)
+        Location loc, Optional<std::string> name, Optional<Vec<Chunk<Enumerator>>> enumerators)
         : ASTVisitable<EnumSpecifier, TypeSpecifier>(NodeKind::ENUM_SPEC, loc),
           name(std::move(name)), enumerators(std::move(enumerators)) {}
 
     EnumSpecifier(
-        Location loc, Optional<std::string> name, Optional<Vec<Box<Enumerator>>> enumerators,
+        Location loc, Optional<std::string> name, Optional<Vec<Chunk<Enumerator>>> enumerators,
         tokens::PrimType underlying)
         : ASTVisitable<EnumSpecifier, TypeSpecifier>(NodeKind::ENUM_SPEC, loc),
           name(std::move(name)), enumerators(std::move(enumerators)), underlying(underlying) {}
 
     Optional<std::string> name;
-    Optional<Vec<Box<Enumerator>>> enumerators;
+    Optional<Vec<Chunk<Enumerator>>> enumerators;
 
     /**
     The underlying type of the enum, if applicable.
@@ -711,34 +713,34 @@ public:
 // A block of mixed declarations and statements, surrounded by braces.
 class CompoundStatement : public ASTVisitable<CompoundStatement, Statement> {
 public:
-    CompoundStatement(Location loc, Vec<Box<ProgramItem>> items)
+    CompoundStatement(Location loc, Vec<Chunk<ProgramItem>> items)
         : ASTVisitable<CompoundStatement, Statement>(NodeKind::COMP_STMT, loc),
           items(std::move(items)) {}
 
-    Vec<Box<ProgramItem>> items;
+    Vec<Chunk<ProgramItem>> items;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::COMP_STMT; }
 };
 
 class ExpressionStatement : public ASTVisitable<ExpressionStatement, Statement> {
 public:
-    ExpressionStatement(Location loc, Optional<Box<Expression>> expression)
+    ExpressionStatement(Location loc, Optional<Chunk<Expression>> expression)
         : ASTVisitable<ExpressionStatement, Statement>(NodeKind::EXPR_STMT, loc),
           expression(std::move(expression)) {}
 
-    Optional<Box<Expression>> expression;
+    Optional<Chunk<Expression>> expression;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::EXPR_STMT; }
 };
 
 class CaseStatement : public ASTVisitable<CaseStatement, Statement> {
 public:
-    CaseStatement(Location loc, Box<ConstExpression> case_expr, Box<Statement> statement)
+    CaseStatement(Location loc, Chunk<ConstExpression> case_expr, Chunk<Statement> statement)
         : ASTVisitable<CaseStatement, Statement>(NodeKind::CASE_STMT, loc),
           case_expr(std::move(case_expr)), statement(std::move(statement)) {}
 
-    Box<ConstExpression> case_expr;
-    Box<Statement> statement;
+    Chunk<ConstExpression> case_expr;
+    Chunk<Statement> statement;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::CASE_STMT; }
 };
@@ -746,50 +748,50 @@ public:
 class CaseRangeStatement : public ASTVisitable<CaseRangeStatement, Statement> {
 public:
     CaseRangeStatement(
-        Location loc, Box<ConstExpression> range_start, Box<ConstExpression> range_end,
-        Box<Statement> statement)
+        Location loc, Chunk<ConstExpression> range_start, Chunk<ConstExpression> range_end,
+        Chunk<Statement> statement)
         : ASTVisitable<CaseRangeStatement, Statement>(NodeKind::CASE_RG_STMT, loc),
           range_start(std::move(range_start)), range_end(std::move(range_end)),
           statement(std::move(statement)) {}
 
-    Box<ConstExpression> range_start;
-    Box<ConstExpression> range_end;
-    Box<Statement> statement;
+    Chunk<ConstExpression> range_start;
+    Chunk<ConstExpression> range_end;
+    Chunk<Statement> statement;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::CASE_RG_STMT; }
 };
 
 class DefaultStatement : public ASTVisitable<DefaultStatement, Statement> {
 public:
-    DefaultStatement(Location loc, Box<Statement> statement)
+    DefaultStatement(Location loc, Chunk<Statement> statement)
         : ASTVisitable<DefaultStatement, Statement>(NodeKind::DEF_STMT, loc),
           statement(std::move(statement)) {}
 
-    Box<Statement> statement;
+    Chunk<Statement> statement;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::DEF_STMT; }
 };
 
 class LabeledStatement : public ASTVisitable<LabeledStatement, Statement> {
 public:
-    LabeledStatement(Location loc, std::string label, Box<Statement> statement)
+    LabeledStatement(Location loc, std::string label, Chunk<Statement> statement)
         : ASTVisitable<LabeledStatement, Statement>(NodeKind::LABEL_STMT, loc),
           label(std::move(label)), statement(std::move(statement)) {}
 
     std::string label;
-    Box<Statement> statement;
+    Chunk<Statement> statement;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::LABEL_STMT; }
 };
 
 class PrintStatement : public ASTVisitable<PrintStatement, Statement> {
 public:
-    PrintStatement(Location loc, std::string format_string, Vec<Box<Expression>> arguments)
+    PrintStatement(Location loc, std::string format_string, Vec<Chunk<Expression>> arguments)
         : ASTVisitable<PrintStatement, Statement>(NodeKind::PRINT_STMT, loc),
           format_string(std::move(format_string)), arguments(std::move(arguments)) {}
 
     std::string format_string;
-    Vec<Box<Expression>> arguments;
+    Vec<Chunk<Expression>> arguments;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::PRINT_STMT; }
 };
@@ -797,69 +799,69 @@ public:
 class IfStatement : public ASTVisitable<IfStatement, Statement> {
 public:
     IfStatement(
-        Location loc, Box<Expression> condition, Box<Statement> then_branch,
-        Optional<Box<Statement>> else_branch)
+        Location loc, Chunk<Expression> condition, Chunk<Statement> then_branch,
+        Optional<Chunk<Statement>> else_branch)
         : ASTVisitable<IfStatement, Statement>(NodeKind::IF_STMT, loc),
           condition(std::move(condition)), then_branch(std::move(then_branch)),
           else_branch(std::move(else_branch)) {}
 
-    Box<Expression> condition;
-    Box<Statement> then_branch;
-    Optional<Box<Statement>> else_branch;
+    Chunk<Expression> condition;
+    Chunk<Statement> then_branch;
+    Optional<Chunk<Statement>> else_branch;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::IF_STMT; }
 };
 
 class SwitchStatement : public ASTVisitable<SwitchStatement, Statement> {
 public:
-    SwitchStatement(Location loc, Box<Expression> condition, Box<Statement> body)
+    SwitchStatement(Location loc, Chunk<Expression> condition, Chunk<Statement> body)
         : ASTVisitable<SwitchStatement, Statement>(NodeKind::SWITCH_STMT, loc),
           condition(std::move(condition)), body(std::move(body)) {}
 
-    Box<Expression> condition;
-    Box<Statement> body;
+    Chunk<Expression> condition;
+    Chunk<Statement> body;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::SWITCH_STMT; }
 };
 
 class WhileStatement : public ASTVisitable<WhileStatement, Statement> {
 public:
-    WhileStatement(Location loc, Box<Expression> condition, Box<Statement> body)
+    WhileStatement(Location loc, Chunk<Expression> condition, Chunk<Statement> body)
         : ASTVisitable<WhileStatement, Statement>(NodeKind::WHILE_STMT, loc),
           condition(std::move(condition)), body(std::move(body)) {}
 
-    Box<Expression> condition;
-    Box<Statement> body;
+    Chunk<Expression> condition;
+    Chunk<Statement> body;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::WHILE_STMT; }
 };
 
 class DoWhileStatement : public ASTVisitable<DoWhileStatement, Statement> {
 public:
-    DoWhileStatement(Location loc, Box<Statement> body, Box<Expression> condition)
+    DoWhileStatement(Location loc, Chunk<Statement> body, Chunk<Expression> condition)
         : ASTVisitable<DoWhileStatement, Statement>(NodeKind::DO_WHILE_STMT, loc),
           body(std::move(body)), condition(std::move(condition)) {}
 
-    Box<Statement> body;
-    Box<Expression> condition;
+    Chunk<Statement> body;
+    Chunk<Expression> condition;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::DO_WHILE_STMT; }
 };
 
 class ForStatement : public ASTVisitable<ForStatement, Statement> {
 public:
-    using ForInit = std::variant<Box<Expression>, Box<VariableDeclaration>>;
+    using ForInit = std::variant<Chunk<Expression>, Chunk<VariableDeclaration>>;
 
     ForStatement(
-        Location loc, Optional<ForInit> init, Optional<Box<Expression>> condition,
-        Optional<Box<Expression>> increment, Box<Statement> body)
+        Location loc, Optional<ForInit> init, Optional<Chunk<Expression>> condition,
+        Optional<Chunk<Expression>> increment, Chunk<Statement> body)
         : ASTVisitable<ForStatement, Statement>(NodeKind::FOR_STMT, loc), init(std::move(init)),
           condition(std::move(condition)), increment(std::move(increment)), body(std::move(body)) {}
 
     Optional<ForInit> init;
-    Optional<Box<Expression>> condition;
-    Optional<Box<Expression>> increment;
-    Box<Statement> body;
+    Optional<Chunk<Expression>> condition;
+    Optional<Chunk<Expression>> increment;
+    Chunk<Statement> body;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::FOR_STMT; }
 };
@@ -910,11 +912,11 @@ public:
 
 class ReturnStatement : public ASTVisitable<ReturnStatement, JumpStatement> {
 public:
-    ReturnStatement(Location loc, Optional<Box<Expression>> return_value)
+    ReturnStatement(Location loc, Optional<Chunk<Expression>> return_value)
         : ASTVisitable<ReturnStatement, JumpStatement>(NodeKind::RET_STMT, loc),
           return_value(std::move(return_value)) {}
 
-    Optional<Box<Expression>> return_value;
+    Optional<Chunk<Expression>> return_value;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::RET_STMT; }
 };
@@ -922,13 +924,13 @@ public:
 class TypeName : public ASTVisitable<TypeName, ASTNode> {
 public:
     TypeName(
-        Location loc, Vec<Box<DeclarationSpecifier>> specifiers,
-        Optional<Box<Declarator>> declarator)
+        Location loc, Vec<Chunk<DeclarationSpecifier>> specifiers,
+        Optional<Chunk<Declarator>> declarator)
         : ASTVisitable<TypeName, ASTNode>(NodeKind::TYPE_NAME, loc),
           specifiers(std::move(specifiers)), declarator(std::move(declarator)) {}
 
-    Vec<Box<DeclarationSpecifier>> specifiers;
-    Optional<Box<Declarator>> declarator;
+    Vec<Chunk<DeclarationSpecifier>> specifiers;
+    Optional<Chunk<Declarator>> declarator;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::TYPE_NAME; }
 };
@@ -937,12 +939,12 @@ public:
 
 class BinaryExpression : public ASTVisitable<BinaryExpression, Expression> {
 public:
-    BinaryExpression(Location loc, Box<Expression> left, Box<Expression> right, tokens::BinaryOp op)
+    BinaryExpression(Location loc, Chunk<Expression> left, Chunk<Expression> right, tokens::BinaryOp op)
         : ASTVisitable<BinaryExpression, Expression>(NodeKind::BIN_EXPR, loc),
           left(std::move(left)), right(std::move(right)), op(op) {}
 
-    Box<Expression> left;
-    Box<Expression> right;
+    Chunk<Expression> left;
+    Chunk<Expression> right;
     tokens::BinaryOp op;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::BIN_EXPR; }
@@ -950,23 +952,23 @@ public:
 
 class CastExpression : public ASTVisitable<CastExpression, Expression> {
 public:
-    CastExpression(Location loc, Box<Expression> inner, Box<TypeName> type_name)
+    CastExpression(Location loc, Chunk<Expression> inner, Chunk<TypeName> type_name)
         : ASTVisitable<CastExpression, Expression>(NodeKind::CAST_EXPR, loc),
           inner(std::move(inner)), type_name(std::move(type_name)) {}
 
-    Box<Expression> inner;
-    Box<TypeName> type_name;
+    Chunk<Expression> inner;
+    Chunk<TypeName> type_name;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::CAST_EXPR; }
 };
 
 class UnaryExpression : public ASTVisitable<UnaryExpression, Expression> {
 public:
-    UnaryExpression(Location loc, Box<Expression> operand, tokens::UnaryOp op)
+    UnaryExpression(Location loc, Chunk<Expression> operand, tokens::UnaryOp op)
         : ASTVisitable<UnaryExpression, Expression>(NodeKind::UN_EXPR, loc),
           operand(std::move(operand)), op(op) {}
 
-    Box<Expression> operand;
+    Chunk<Expression> operand;
     tokens::UnaryOp op;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::UN_EXPR; }
@@ -975,12 +977,12 @@ public:
 class AssignmentExpression : public ASTVisitable<AssignmentExpression, Expression> {
 public:
     AssignmentExpression(
-        Location loc, Box<Expression> left, Box<Expression> right, tokens::AssignOp op)
+        Location loc, Chunk<Expression> left, Chunk<Expression> right, tokens::AssignOp op)
         : ASTVisitable<AssignmentExpression, Expression>(NodeKind::ASSGN_EXPR, loc),
           left(std::move(left)), right(std::move(right)), op(op) {}
 
-    Box<Expression> left;
-    Box<Expression> right;
+    Chunk<Expression> left;
+    Chunk<Expression> right;
     tokens::AssignOp op;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::ASSGN_EXPR; }
@@ -989,15 +991,15 @@ public:
 class ConditionalExpression : public ASTVisitable<ConditionalExpression, Expression> {
 public:
     ConditionalExpression(
-        Location loc, Box<Expression> condition, Box<Expression> true_expr,
-        Box<Expression> false_expr)
+        Location loc, Chunk<Expression> condition, Chunk<Expression> true_expr,
+        Chunk<Expression> false_expr)
         : ASTVisitable<ConditionalExpression, Expression>(NodeKind::COND_EXPR, loc),
           condition(std::move(condition)), true_expr(std::move(true_expr)),
           false_expr(std::move(false_expr)) {}
 
-    Box<Expression> condition;
-    Box<Expression> true_expr;
-    Box<Expression> false_expr;
+    Chunk<Expression> condition;
+    Chunk<Expression> true_expr;
+    Chunk<Expression> false_expr;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::COND_EXPR; }
 };
@@ -1047,23 +1049,23 @@ public:
 
 class CallExpression : public ASTVisitable<CallExpression, Expression> {
 public:
-    CallExpression(Location loc, Box<Expression> callee, Vec<Box<Expression>> arguments)
+    CallExpression(Location loc, Chunk<Expression> callee, Vec<Chunk<Expression>> arguments)
         : ASTVisitable<CallExpression, Expression>(NodeKind::CALL_EXPR, loc),
           callee(std::move(callee)), arguments(std::move(arguments)) {}
 
-    Box<Expression> callee;
-    Vec<Box<Expression>> arguments;
+    Chunk<Expression> callee;
+    Vec<Chunk<Expression>> arguments;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::CALL_EXPR; }
 };
 
 class MemberAccessExpression : public ASTVisitable<MemberAccessExpression, Expression> {
 public:
-    MemberAccessExpression(Location loc, Box<Expression> object, std::string member, bool is_arrow)
+    MemberAccessExpression(Location loc, Chunk<Expression> object, std::string member, bool is_arrow)
         : ASTVisitable<MemberAccessExpression, Expression>(NodeKind::ACCESS_EXPR, loc),
           object(std::move(object)), member(std::move(member)), is_arrow(is_arrow) {}
 
-    Box<Expression> object;
+    Chunk<Expression> object;
     std::string member;
     bool is_arrow;
 
@@ -1084,11 +1086,11 @@ i.U32[1] = 4;
 class ReinterpretExpression : public ASTVisitable<ReinterpretExpression, Expression> {
 public:
     ReinterpretExpression(
-        Location loc, Box<Expression> object, tokens::PrimType target, bool is_arrow)
+        Location loc, Chunk<Expression> object, tokens::PrimType target, bool is_arrow)
         : ASTVisitable<ReinterpretExpression, Expression>(NodeKind::REINT_EXPR, loc),
           object(std::move(object)), target(target), is_arrow(is_arrow) {}
 
-    Box<Expression> object;
+    Chunk<Expression> object;
     tokens::PrimType target;
     bool is_arrow;
 
@@ -1097,23 +1099,23 @@ public:
 
 class ArraySubscriptExpression : public ASTVisitable<ArraySubscriptExpression, Expression> {
 public:
-    ArraySubscriptExpression(Location loc, Box<Expression> array, Box<Expression> index)
+    ArraySubscriptExpression(Location loc, Chunk<Expression> array, Chunk<Expression> index)
         : ASTVisitable<ArraySubscriptExpression, Expression>(NodeKind::SUBSCR_EXPR, loc),
           array(std::move(array)), index(std::move(index)) {}
 
-    Box<Expression> array;
-    Box<Expression> index;
+    Chunk<Expression> array;
+    Chunk<Expression> index;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::SUBSCR_EXPR; }
 };
 
 class PostfixExpression : public ASTVisitable<PostfixExpression, Expression> {
 public:
-    PostfixExpression(Location loc, Box<Expression> operand, tokens::PostfixOp op)
+    PostfixExpression(Location loc, Chunk<Expression> operand, tokens::PostfixOp op)
         : ASTVisitable<PostfixExpression, Expression>(NodeKind::POSTF_EXPR, loc),
           operand(std::move(operand)), op(op) {}
 
-    Box<Expression> operand;
+    Chunk<Expression> operand;
     tokens::PostfixOp op;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::POSTF_EXPR; }
@@ -1121,15 +1123,15 @@ public:
 
 class SizeofExpression : public ASTVisitable<SizeofExpression, Expression> {
 public:
-    SizeofExpression(Location loc, Box<Expression> expr)
+    SizeofExpression(Location loc, Chunk<Expression> expr)
         : ASTVisitable<SizeofExpression, Expression>(NodeKind::SIZEOF_EXPR, loc),
           operand(std::move(expr)) {}
 
-    SizeofExpression(Location loc, Box<TypeName> type)
+    SizeofExpression(Location loc, Chunk<TypeName> type)
         : ASTVisitable<SizeofExpression, Expression>(NodeKind::SIZEOF_EXPR, loc),
           operand(std::move(type)) {}
 
-    std::variant<Box<Expression>, Box<TypeName>> operand;
+    std::variant<Chunk<Expression>, Chunk<TypeName>> operand;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::SIZEOF_EXPR; }
 };
@@ -1137,26 +1139,26 @@ public:
 class Function : public ASTVisitable<Function, ProgramItem> {
 public:
     Function(
-        Location loc, Vec<Box<DeclarationSpecifier>> decl_spec_list, Box<Declarator> declarator,
-        Box<CompoundStatement> body)
+        Location loc, Vec<Chunk<DeclarationSpecifier>> decl_spec_list, Chunk<Declarator> declarator,
+        Chunk<CompoundStatement> body)
         : ASTVisitable<Function, ProgramItem>(NodeKind::FUNC, loc),
           decl_spec_list(std::move(decl_spec_list)), declarator(std::move(declarator)),
           body(std::move(body)) {}
 
-    Function(Location loc, Box<Declarator> declarator, Box<CompoundStatement> body)
+    Function(Location loc, Chunk<Declarator> declarator, Chunk<CompoundStatement> body)
         : ASTVisitable<Function, ProgramItem>(NodeKind::FUNC, loc),
           declarator(std::move(declarator)), body(std::move(body)) {}
 
     /*
     Any possible specifiers (e.g. public, int, etc.)
     */
-    Vec<Box<DeclarationSpecifier>> decl_spec_list;
+    Vec<Chunk<DeclarationSpecifier>> decl_spec_list;
     /*
     The function name and its parameters.
     Note: If the declarator contains a pointer, the pointer applies to its return type.
     */
-    Box<Declarator> declarator;
-    Box<CompoundStatement> body;
+    Chunk<Declarator> declarator;
+    Chunk<CompoundStatement> body;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::FUNC; }
 };
@@ -1170,10 +1172,10 @@ public:
         : ASTVisitable<Program, ASTNode>(NodeKind::PROG, Location(filename)) {}
 
     // Program items.
-    std::vector<std::unique_ptr<ProgramItem>> items;
+    Vec<Chunk<ProgramItem>> items;
 
     // Add a new program item.
-    void add_item(std::unique_ptr<ProgramItem> item);
+    void add_item(Chunk<ProgramItem> item);
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::PROG; }
 };

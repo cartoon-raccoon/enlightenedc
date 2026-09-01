@@ -2,7 +2,7 @@
 
 using namespace ecc::ast;
 
-void Program::add_item(std::unique_ptr<ProgramItem> item) {
+void Program::add_item(Chunk<ProgramItem> item) {
     items.push_back(std::move(item));
 }
 

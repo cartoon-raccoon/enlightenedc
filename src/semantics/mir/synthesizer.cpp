@@ -53,7 +53,7 @@ void MIRSynthesizer::generate_mir(Program& prog) {
 }
 
 Box<MIRSynthesizer::SpecifierInfo>
-MIRSynthesizer::parse_speclist(Vec<Box<ast::DeclarationSpecifier>>& speclist, Location loc) {
+MIRSynthesizer::parse_speclist(Vec<Chunk<ast::DeclarationSpecifier>>& speclist, Location loc) {
     using NK = ASTNode::NodeKind;
 
     bsv_dbprint("parsing declaration specifier list for node at ", loc);
@@ -1050,7 +1050,7 @@ void MIRSynthesizer::do_visit(Initializer& node) { // NOLINT
     std::visit(
         match{
             // Base case: single expression
-            [&](Box<Expression>& expr) {
+            [&](Chunk<Expression>& expr) {
                 bsv_dbprint("visiting single initializer");
                 dv_call_noparam(expr);
                 Box<ExprMIR> exprmir = take_last_result<Box<ExprMIR>>();
@@ -1059,7 +1059,7 @@ void MIRSynthesizer::do_visit(Initializer& node) { // NOLINT
                 InitializerRet ret = {{}, std::move(init)};
                 dv_return(ret);
             },
-            [&](Box<Initializer::Member>& mem) {
+            [&](Chunk<Initializer::Member>& mem) {
                 Type *sub_type = type; // fallback: pass parent type (current behavior)
 
                 if (type->is_class()) {
@@ -1094,7 +1094,7 @@ void MIRSynthesizer::do_visit(Initializer& node) { // NOLINT
                 InitializerRet ret = {initmir.new_type, std::move(init)};
                 dv_return(ret);
             },
-            [&](Box<Initializer::Index>& idx) {
+            [&](Chunk<Initializer::Index>& idx) {
                 bsv_dbprint("visiting index designated initializer");
 
                 dv_call_noparam(idx->idx);
@@ -1112,7 +1112,7 @@ void MIRSynthesizer::do_visit(Initializer& node) { // NOLINT
                 dv_return(ret);
             },
             // Recursive case: sub-initializer
-            [&](Vec<Box<Initializer>>& inits) {
+            [&](Vec<Chunk<Initializer>>& inits) {
                 bsv_dbprint("visiting compound initializer");
 
                 Vec<Box<InitializerMIR>> init_mirs{};
@@ -1509,7 +1509,7 @@ void MIRSynthesizer::do_visit(ForStatement& node) {
     if (node.init.has_value()) {
         std::visit(
             match{
-                [&](Box<Expression>& expr) {
+                [&](Chunk<Expression>& expr) {
                     dv_call_noparam(expr);
                     Box<ExprMIR> exprmir = take_last_result<Box<ExprMIR>>();
                     Box<ExprStmtMIR> exprstmt =
@@ -1517,7 +1517,7 @@ void MIRSynthesizer::do_visit(ForStatement& node) {
 
                     loop->init = std::move(exprstmt);
                 },
-                [&](Box<VariableDeclaration>& decl) {
+                [&](Chunk<VariableDeclaration>& decl) {
                     dv_call_noparam(decl);
                     Box<DeclMIR> declmir = take_last_result<Box<DeclMIR>>();
                     loop->init           = std::move(declmir);
@@ -1803,14 +1803,14 @@ void MIRSynthesizer::do_visit(SizeofExpression& node) {
     Box<SizeofExprMIR> sizexpr = std::make_unique<SizeofExprMIR>(node.loc, syms.current);
     std::visit(
         match{
-            [&](Box<Expression>& expr) mutable {
+            [&](Chunk<Expression>& expr) mutable {
                 // this might be a literal expression, so we defer
                 // resolution of the actual type to validation.
                 dv_call_noparam(expr);
                 Box<ExprMIR> target = take_last_result<Box<ExprMIR>>();
                 sizexpr->operand    = std::move(target);
             },
-            [&](Box<TypeName>& typen) mutable {
+            [&](Chunk<TypeName>& typen) mutable {
                 dv_call_noparam(typen);
                 Type *target     = take_last_result<Type *>();
                 sizexpr->operand = target;

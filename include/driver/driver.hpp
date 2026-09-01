@@ -62,7 +62,7 @@ public:
     Box<codegen::CodeGenUnit> cgu;
     Box<sema::types::TypeContext> types;
 
-    Box<ast::Program> ast_root;
+    Chunk<ast::Program> ast_root;
     Box<TranslationUnitMIR> prog_mir;
     Box<TranslationUnitLIR> prog_lir;
 };

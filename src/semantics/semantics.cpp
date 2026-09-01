@@ -337,13 +337,13 @@ void BaseASTSemaVisitor::do_visit(PrimitiveSpecifier& node) { /* terminal node *
 void BaseASTSemaVisitor::do_visit(Initializer& node) {
     std::visit(
         match{
-            [&](Box<Expression>& expr) { expr->accept(*this); },
-            [&](Box<Initializer::Member>& mem) { mem->initializer->accept(*this); },
-            [&](Box<Initializer::Index>& idx) {
+            [&](Chunk<Expression>& expr) { expr->accept(*this); },
+            [&](Chunk<Initializer::Member>& mem) { mem->initializer->accept(*this); },
+            [&](Chunk<Initializer::Index>& idx) {
                 idx->idx->accept(*this);
                 idx->initializer->accept(*this);
             },
-            [&](Vec<Box<Initializer>>& inits) {
+            [&](Vec<Chunk<Initializer>>& inits) {
                 for (auto& init : inits) {
                     init->accept(*this);
                 }
@@ -429,8 +429,8 @@ void BaseASTSemaVisitor::do_visit(ForStatement& node) {
     if (node.init.has_value()) {
         std::visit(
             match{
-                [this](Box<Expression>& expr) { expr->accept(*this); },
-                [this](Box<VariableDeclaration>& decl) { decl->accept(*this); }},
+                [this](Chunk<Expression>& expr) { expr->accept(*this); },
+                [this](Chunk<VariableDeclaration>& decl) { decl->accept(*this); }},
             *node.init);
     }
 
@@ -526,8 +526,8 @@ void BaseASTSemaVisitor::do_visit(PostfixExpression& node) {
 void BaseASTSemaVisitor::do_visit(SizeofExpression& node) {
     std::visit(
         match{
-            [this](Box<Expression>& expr) { expr->accept(*this); },
-            [this](Box<TypeName>& typen) { typen->accept(*this); }},
+            [this](Chunk<Expression>& expr) { expr->accept(*this); },
+            [this](Chunk<TypeName>& typen) { typen->accept(*this); }},
         node.operand);
 }
 

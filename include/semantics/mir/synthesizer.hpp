@@ -9,6 +9,7 @@
 #include <variant>
 
 #include "ast/ast.hpp"
+#include "allocator/chunk.hpp"
 #include "semantics/mir/mir.hpp"
 #include "semantics/semantics.hpp"
 #include "semantics/symbols.hpp"
@@ -269,7 +270,7 @@ private:
         sym::Linkage linkage = sym::Linkage::INTERNAL;
     };
 
-    Box<SpecifierInfo> parse_speclist(Vec<Box<ast::DeclarationSpecifier>>&, Location);
+    Box<SpecifierInfo> parse_speclist(Vec<Chunk<ast::DeclarationSpecifier>>&, Location);
 };
 
 } // namespace ecc::sema

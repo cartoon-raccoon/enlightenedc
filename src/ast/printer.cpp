@@ -133,8 +133,8 @@ void ASTPrinter::visit(ForStatement& node) {
             if (node.init) {
                 std::visit(
                     match{
-                        [this](Box<Expression>& expr) { expr->accept(*this); },
-                        [this](Box<VariableDeclaration>& decl) { decl->accept(*this); }},
+                        [this](Chunk<Expression>& expr) { expr->accept(*this); },
+                        [this](Chunk<VariableDeclaration>& decl) { decl->accept(*this); }},
                     *node.init);
             }
         },
@@ -351,16 +351,16 @@ void ASTPrinter::visit(Initializer& node) {
     print_node("Initializer: ", node, [&] {
         std::visit(
             match{
-                [&](Box<Expression>& expr) { expr->accept(*this); },
-                [&](Box<Initializer::Member>& mem) {
+                [&](Chunk<Expression>& expr) { expr->accept(*this); },
+                [&](Chunk<Initializer::Member>& mem) {
                     std::cout << "." << mem->member << ":";
                     mem->initializer->accept(*this);
                 },
-                [&](Box<Initializer::Index>& idx) {
+                [&](Chunk<Initializer::Index>& idx) {
                     idx->idx->accept(*this);
                     idx->initializer->accept(*this);
                 },
-                [&](Vec<Box<Initializer>>& inits) {
+                [&](Vec<Chunk<Initializer>>& inits) {
                     for (auto& init : inits) {
                         init->accept(*this);
                     }
@@ -472,10 +472,10 @@ void ASTPrinter::visit(PostfixExpression& node) {
 
 void ASTPrinter::visit(SizeofExpression& node) {
     print_node("SizeofExpression", node, [&] {
-        if (std::holds_alternative<Box<Expression>>(node.operand)) {
-            std::get<Box<Expression>>(node.operand)->accept(*this);
+        if (std::holds_alternative<Chunk<Expression>>(node.operand)) {
+            std::get<Chunk<Expression>>(node.operand)->accept(*this);
         } else {
-            std::get<Box<TypeName>>(node.operand)->accept(*this);
+            std::get<Chunk<TypeName>>(node.operand)->accept(*this);
         }
     });
 }

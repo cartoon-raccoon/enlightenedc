@@ -29,7 +29,7 @@ TranslationUnitLIR::TranslationUnitLIR()
 TranslationUnit::TranslationUnit(std::string *filename, CodeGenCore& cgcore) : filename(filename) {
     cgu      = cgcore.make_unit(*filename);
     types    = make_box<TypeContext>(*cgu);
-    ast_root = make_box<Program>(filename);
+    ast_root = make_chunk<Program>(filename);
     prog_mir = make_box<TranslationUnitMIR>();
     prog_lir = make_box<TranslationUnitLIR>();
 }

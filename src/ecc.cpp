@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include "allocator/alloc.hpp"
 #include "config.hpp"
 #include "driver/driver.hpp"
 #include "error.hpp"
@@ -15,7 +16,10 @@ int Ecc::run() {
             throw EccError("no input files provided");
         }
         for (auto& file : config->input_files) {
+            // run the pipeline
             run_pipeline(&file);
+            // clear the allocator
+            alloc::reset();
         }
     } catch (UnableToContinue _) {
         return 1;

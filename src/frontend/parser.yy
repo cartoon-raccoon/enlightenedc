@@ -23,6 +23,8 @@
 #include <memory>
 #include "ast/ast.hpp"
 #include "util.hpp"
+#include "allocator/alloc.hpp"
+#include "allocator/chunk.hpp"
 
 using namespace ecc::ast;
 using namespace ecc::util;
@@ -176,70 +178,70 @@ static ecc::frontend::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 // Nonterminal type specifications.
 //* Note: the default Bison action will NOT work on these, as std_unique ptr has move semantics.
 //* All actions must be filled with { $$ = std::move($1); }.
-%type <Box<Program>> program
-%type <Box<ProgramItem>> program_item
-%type <Box<Attribute>> attribute
-%type <Box<AttributeArg>> attribute_arg
-%type <Vec<Box<AttributeArg>>> attribute_arg_list
-%type <Vec<Box<Attribute>>> attribute_list
-%type <Box<Function>> function
-%type <Box<Declaration>> declaration
-%type <Box<Statement>> statement
-%type <Box<Declarator>> declarator abstract_declarator
-%type <Box<DirectDeclarator>> direct_abstract_declarator
-%type <Vec<Box<ProgramItem>>> stmt_or_decl_list
+%type <Chunk<Program>> program
+%type <Chunk<ProgramItem>> program_item
+%type <Chunk<Attribute>> attribute
+%type <Chunk<AttributeArg>> attribute_arg
+%type <Vec<Chunk<AttributeArg>>> attribute_arg_list
+%type <Vec<Chunk<Attribute>>> attribute_list
+%type <Chunk<Function>> function
+%type <Chunk<Declaration>> declaration
+%type <Chunk<Statement>> statement
+%type <Chunk<Declarator>> declarator abstract_declarator
+%type <Chunk<DirectDeclarator>> direct_abstract_declarator
+%type <Vec<Chunk<ProgramItem>>> stmt_or_decl_list
 
-%type <Vec<Box<DeclarationSpecifier>>> declaration_specifier_list specifier_qualifier_list
-%type <Box<DeclarationSpecifier>> storage_class_specifier type_specifier
-%type <Box<PrimitiveSpecifier>> primitive_type
-%type <Box<ClassSpecifier>> class_specifier
-%type <Box<UnionSpecifier>> union_specifier
-%type <Box<TypeQualifier>> type_qualifier
-%type <Vec<Box<TypeQualifier>>> type_qualifier_list
-%type <Box<TypeIdentifier>> type_identifier
+%type <Vec<Chunk<DeclarationSpecifier>>> declaration_specifier_list specifier_qualifier_list
+%type <Chunk<DeclarationSpecifier>> storage_class_specifier type_specifier
+%type <Chunk<PrimitiveSpecifier>> primitive_type
+%type <Chunk<ClassSpecifier>> class_specifier
+%type <Chunk<UnionSpecifier>> union_specifier
+%type <Chunk<TypeQualifier>> type_qualifier
+%type <Vec<Chunk<TypeQualifier>>> type_qualifier_list
+%type <Chunk<TypeIdentifier>> type_identifier
 
-%type <Box<InitDeclarator>> init_declarator
-%type <Vec<Box<InitDeclarator>>> init_declarator_list
+%type <Chunk<InitDeclarator>> init_declarator
+%type <Vec<Chunk<InitDeclarator>>> init_declarator_list
 %type <ecc::tokens::AssignOp> assignment_operator
 %type <ecc::tokens::UnaryOp> unary_operator
 
-%type <Box<Pointer>> pointer
-%type <Box<DirectDeclarator>> direct_declarator
-%type <Vec<Box<ParameterDeclaration>>> parameter_list
-%type <Box<ParameterDeclaration>> parameter_declaration
-%type <std::pair<Vec<Box<ParameterDeclaration>>, bool>> parameter_type_list
+%type <Chunk<Pointer>> pointer
+%type <Chunk<DirectDeclarator>> direct_declarator
+%type <Vec<Chunk<ParameterDeclaration>>> parameter_list
+%type <Chunk<ParameterDeclaration>> parameter_declaration
+%type <std::pair<Vec<Chunk<ParameterDeclaration>>, bool>> parameter_type_list
 
-%type <Box<EnumSpecifier>> enum_specifier
-%type <Vec<Box<ClassDeclaration>>> member_declaration_list
-%type <Box<ClassDeclaration>> class_declaration
-%type <Vec<Box<ClassDeclarator>>> class_declarator_list
-%type <Box<ClassDeclarator>> member_declarator
-%type <Vec<Box<Enumerator>>> enumerator_list
-%type <Box<Enumerator>> enumerator
+%type <Chunk<EnumSpecifier>> enum_specifier
+%type <Vec<Chunk<ClassDeclaration>>> member_declaration_list
+%type <Chunk<ClassDeclaration>> class_declaration
+%type <Vec<Chunk<ClassDeclarator>>> class_declarator_list
+%type <Chunk<ClassDeclarator>> member_declarator
+%type <Vec<Chunk<Enumerator>>> enumerator_list
+%type <Chunk<Enumerator>> enumerator
 %type <Vec<std::string>> class_parent_list
 %type <std::string> class_parent
 
-%type <Box<TypeName>> type_name
-%type <Box<Initializer>> initializer designated_initializer
-%type <Vec<Box<Initializer>>> initializer_list
+%type <Chunk<TypeName>> type_name
+%type <Chunk<Initializer>> initializer designated_initializer
+%type <Vec<Chunk<Initializer>>> initializer_list
 
-%type <Box<CompoundStatement>> compound_statement
-%type <Box<Statement>> labeled_statement expression_statement print_statement
-%type <Box<Statement>> selection_statement iteration_statement jump_statement
+%type <Chunk<CompoundStatement>> compound_statement
+%type <Chunk<Statement>> labeled_statement expression_statement print_statement
+%type <Chunk<Statement>> selection_statement iteration_statement jump_statement
 
-%type <Box<Expression>> expression assignment_expression conditional_expression
-%type <Box<Expression>> unary_expression postfix_expression
-%type <Box<Expression>> primary_expression cast_expression logical_and_expression
-%type <Box<Expression>> logical_or_expression inclusive_or_expression
-%type <Box<Expression>> exclusive_or_expression and_expression equality_expression
-%type <Box<Expression>> relational_expression shift_expression additive_expression
-%type <Box<Expression>> multiplicative_expression
-%type <Box<LiteralExpression>> constant
+%type <Chunk<Expression>> expression assignment_expression conditional_expression
+%type <Chunk<Expression>> unary_expression postfix_expression
+%type <Chunk<Expression>> primary_expression cast_expression logical_and_expression
+%type <Chunk<Expression>> logical_or_expression inclusive_or_expression
+%type <Chunk<Expression>> exclusive_or_expression and_expression equality_expression
+%type <Chunk<Expression>> relational_expression shift_expression additive_expression
+%type <Chunk<Expression>> multiplicative_expression
+%type <Chunk<LiteralExpression>> constant
 %type <std::string> string_literal
-%type <Box<ConstExpression>> constant_expression
-%type <Vec<Box<Expression>>> argument_expression_list
+%type <Chunk<ConstExpression>> constant_expression
+%type <Vec<Chunk<Expression>>> argument_expression_list
 %type <Optional<ForStatement::ForInit>> for_init_opt
-%type <Optional<Box<Expression>>> expression_opt
+%type <Optional<Chunk<Expression>>> expression_opt
 
 %%
 
@@ -253,22 +255,22 @@ program:
 
 attribute:
     AT LBRACKET attribute_arg_list RBRACKET {
-        $$ = std::make_unique<Attribute>(@$, std::move($3));
+        $$ = make_chunk<Attribute>(@$, std::move($3));
     }
 ;
 
 attribute_arg:
     IDENTIFIER {
-        $$ = std::make_unique<AttributeArg>(@1, std::move($1), std::nullopt);
+        $$ = make_chunk<AttributeArg>(@1, std::move($1), std::nullopt);
     }
     | IDENTIFIER ASSIGN STRING_LITERAL {
-        $$ = std::make_unique<AttributeArg>(@$, std::move($1), std::move($3));
+        $$ = make_chunk<AttributeArg>(@$, std::move($1), std::move($3));
     }
 ;
 
 attribute_arg_list:
     attribute_arg {
-        Vec<Box<AttributeArg>> list;
+        Vec<Chunk<AttributeArg>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
@@ -281,7 +283,7 @@ attribute_arg_list:
 // One or more stacked `#[...]` attributes, e.g. `#[foo] #[bar = "baz"]`.
 attribute_list:
     attribute {
-        Vec<Box<Attribute>> list;
+        Vec<Chunk<Attribute>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
@@ -314,13 +316,13 @@ program_item:
 // Function definitions
 function:
     declaration_specifier_list declarator compound_statement {
-        $$ = std::make_unique<Function>(@$, std::move($1), std::move($2), std::move($3));
+        $$ = make_chunk<Function>(@$, std::move($1), std::move($2), std::move($3));
     }
 ;
 
 declaration_specifier_list:
     type_specifier { // ensure that the type specifier is the last node in the list
-        Vec<Box<DeclarationSpecifier>> list;
+        Vec<Chunk<DeclarationSpecifier>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
@@ -335,20 +337,20 @@ declaration_specifier_list:
 ;
 
 storage_class_specifier:
-    PUBLIC { $$ = std::make_unique<StorageClassSpecifier>(@1, StorageClassSpecifier::PUBLIC); }
-    | STATIC { $$ = std::make_unique<StorageClassSpecifier>(@1, StorageClassSpecifier::STATIC); }
-    | EXTERN { $$ = std::make_unique<StorageClassSpecifier>(@1, StorageClassSpecifier::EXTERN); }
+    PUBLIC { $$ = make_chunk<StorageClassSpecifier>(@1, StorageClassSpecifier::PUBLIC); }
+    | STATIC { $$ = make_chunk<StorageClassSpecifier>(@1, StorageClassSpecifier::STATIC); }
+    | EXTERN { $$ = make_chunk<StorageClassSpecifier>(@1, StorageClassSpecifier::EXTERN); }
     | EXTERN STRING_LITERAL {
         if ($2 != "C") { // fixme: this is a bodge
             error(@$, "only \"C\" linkage is supported");
             return 1;
         }
-        $$ = std::make_unique<StorageClassSpecifier>(@1, StorageClassSpecifier::EXTERNC);
+        $$ = make_chunk<StorageClassSpecifier>(@1, StorageClassSpecifier::EXTERNC);
     }
 ;
 
 type_specifier:
-    VOID { $$ = std::make_unique<VoidSpecifier>(@1); }
+    VOID { $$ = make_chunk<VoidSpecifier>(@1); }
     | type_identifier { $$ = std::move($1); }
     | primitive_type { $$ = std::move($1); }
     | class_specifier { $$ = std::move($1); }
@@ -360,10 +362,10 @@ class_specifier:
     // Class specifier with definition and parent classes.
     CLASS IDENTIFIER COLON class_parent_list LBRACE member_declaration_list RBRACE {
         type_idents.insert($2);
-        $$ = std::make_unique<ClassSpecifier>(@$, std::move($2), std::move($4), std::move($6));
+        $$ = make_chunk<ClassSpecifier>(@$, std::move($2), std::move($4), std::move($6));
     }
     | CLASS TYPE_IDENTIFIER COLON class_parent_list LBRACE member_declaration_list RBRACE {
-        $$ = std::make_unique<ClassSpecifier>(@$, std::move($2), std::move($4), std::move($6));
+        $$ = make_chunk<ClassSpecifier>(@$, std::move($2), std::move($4), std::move($6));
     }
     // Adding parent classes is part of the class definition, so if no members follow a
     // class declaration with a parent list, that is a syntactic error.
@@ -378,22 +380,22 @@ class_specifier:
     // Class specifier with definition.
     | CLASS IDENTIFIER LBRACE member_declaration_list RBRACE {
         type_idents.insert($2);
-        $$ = std::make_unique<ClassSpecifier>(@$, std::move($2), std::nullopt, std::move($4));
+        $$ = make_chunk<ClassSpecifier>(@$, std::move($2), std::nullopt, std::move($4));
     }
     | CLASS TYPE_IDENTIFIER LBRACE member_declaration_list RBRACE {
-        $$ = std::make_unique<ClassSpecifier>(@$, std::move($2), std::nullopt, std::move($4));
+        $$ = make_chunk<ClassSpecifier>(@$, std::move($2), std::nullopt, std::move($4));
     }
     // Anonymous class specifier with member declarations.
     | CLASS LBRACE member_declaration_list RBRACE {
-        $$ = std::make_unique<ClassSpecifier>(@$, std::nullopt, std::nullopt, std::move($3));
+        $$ = make_chunk<ClassSpecifier>(@$, std::nullopt, std::nullopt, std::move($3));
     }
     // Class specifier with no definition.
     | CLASS IDENTIFIER {
         type_idents.insert($2);
-        $$ = std::make_unique<ClassSpecifier>(@$, std::move($2), std::nullopt, std::nullopt);
+        $$ = make_chunk<ClassSpecifier>(@$, std::move($2), std::nullopt, std::nullopt);
     }
     | CLASS TYPE_IDENTIFIER {
-        $$ = std::make_unique<ClassSpecifier>(@$, std::move($2), std::nullopt, std::nullopt);
+        $$ = make_chunk<ClassSpecifier>(@$, std::move($2), std::nullopt, std::nullopt);
     }
 ;
 
@@ -401,26 +403,26 @@ union_specifier:
     // Union specifier with a type representative and definition.
     primitive_type UNION IDENTIFIER LBRACE member_declaration_list RBRACE {
         type_idents.insert($3);
-        $$ = std::make_unique<UnionSpecifier>(@$, std::move($3), $1->pkind, std::move($5));
+        $$ = make_chunk<UnionSpecifier>(@$, std::move($3), $1->pkind, std::move($5));
     }
     | primitive_type UNION TYPE_IDENTIFIER LBRACE member_declaration_list RBRACE {
-        $$ = std::make_unique<UnionSpecifier>(@$, std::move($3), $1->pkind, std::move($5));
+        $$ = make_chunk<UnionSpecifier>(@$, std::move($3), $1->pkind, std::move($5));
     }
     // Regular union specifier with definition.
     | UNION IDENTIFIER LBRACE member_declaration_list RBRACE {
         type_idents.insert($2);
-        $$ = std::make_unique<UnionSpecifier>(@$, std::move($2), std::nullopt, std::move($4));
+        $$ = make_chunk<UnionSpecifier>(@$, std::move($2), std::nullopt, std::move($4));
     }
     | UNION TYPE_IDENTIFIER LBRACE member_declaration_list RBRACE {
-        $$ = std::make_unique<UnionSpecifier>(@$, std::move($2), std::nullopt, std::move($4));
+        $$ = make_chunk<UnionSpecifier>(@$, std::move($2), std::nullopt, std::move($4));
     }
     // Anonymous union specifier with a type representative and definition.
     | primitive_type UNION LBRACE member_declaration_list RBRACE {
-        $$ = std::make_unique<UnionSpecifier>(@$, std::nullopt, $1->pkind, std::move($4));
+        $$ = make_chunk<UnionSpecifier>(@$, std::nullopt, $1->pkind, std::move($4));
     }
     // Regular anonymous union specifier with definition.
     | UNION LBRACE member_declaration_list RBRACE {
-        $$ = std::make_unique<UnionSpecifier>(@$, std::nullopt, std::nullopt, std::move($3));
+        $$ = make_chunk<UnionSpecifier>(@$, std::nullopt, std::nullopt, std::move($3));
     }
     // Adding a type representative is part of the union definition, so if no members
     // follow a union declaration with a primitive type, that is a syntactic error.
@@ -435,29 +437,29 @@ union_specifier:
     // Union specifier with no definition.
     | UNION IDENTIFIER {
         type_idents.insert($2);
-        $$ = std::make_unique<UnionSpecifier>(@$, std::move($2), std::nullopt, std::nullopt);
+        $$ = make_chunk<UnionSpecifier>(@$, std::move($2), std::nullopt, std::nullopt);
     }
     | UNION TYPE_IDENTIFIER {
-        $$ = std::make_unique<UnionSpecifier>(@$, std::move($2), std::nullopt, std::nullopt);
+        $$ = make_chunk<UnionSpecifier>(@$, std::move($2), std::nullopt, std::nullopt);
     }
 ;
 
 primitive_type:
-    U8 { $$ = std::make_unique<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::U8); }
-    | U16 { $$ = std::make_unique<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::U16); }
-    | U32 { $$ = std::make_unique<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::U32); }
-    | U64 { $$ = std::make_unique<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::U64); }
-    | I8 { $$ = std::make_unique<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::I8); }
-    | I16 { $$ = std::make_unique<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::I16); }
-    | I32 { $$ = std::make_unique<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::I32); }
-    | I64 { $$ = std::make_unique<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::I64); }
-    | F32 { $$ = std::make_unique<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::F32); }
-    | F64 { $$ = std::make_unique<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::F64); }
-    | BOOL { $$ = std::make_unique<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::BOOL); }
+    U8 { $$ = make_chunk<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::U8); }
+    | U16 { $$ = make_chunk<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::U16); }
+    | U32 { $$ = make_chunk<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::U32); }
+    | U64 { $$ = make_chunk<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::U64); }
+    | I8 { $$ = make_chunk<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::I8); }
+    | I16 { $$ = make_chunk<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::I16); }
+    | I32 { $$ = make_chunk<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::I32); }
+    | I64 { $$ = make_chunk<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::I64); }
+    | F32 { $$ = make_chunk<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::F32); }
+    | F64 { $$ = make_chunk<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::F64); }
+    | BOOL { $$ = make_chunk<PrimitiveSpecifier>(@1, ecc::tokens::PrimType::BOOL); }
 ;
 
 type_qualifier:
-    CONST { $$ = std::make_unique<TypeQualifier>(@1, TypeQualifier::CONST); }
+    CONST { $$ = make_chunk<TypeQualifier>(@1, TypeQualifier::CONST); }
 ;
 
 class_parent_list:
@@ -487,7 +489,7 @@ class_parent:
 
 member_declaration_list:
     class_declaration {
-        Vec<Box<ClassDeclaration>> list;
+        Vec<Chunk<ClassDeclaration>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
@@ -499,13 +501,13 @@ member_declaration_list:
 
 class_declaration:
     specifier_qualifier_list class_declarator_list SEMI {
-        $$ = std::make_unique<ClassDeclaration>(@$, std::move($1), std::move($2));
+        $$ = make_chunk<ClassDeclaration>(@$, std::move($1), std::move($2));
     }
 ;
 
 specifier_qualifier_list:
     type_specifier {
-        Vec<Box<DeclarationSpecifier>> list;
+        Vec<Chunk<DeclarationSpecifier>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
@@ -517,7 +519,7 @@ specifier_qualifier_list:
 
 class_declarator_list:
     member_declarator {
-        Vec<Box<ClassDeclarator>> list;
+        Vec<Chunk<ClassDeclarator>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
@@ -532,44 +534,44 @@ class_declarator_list:
 
 member_declarator:
     declarator {
-        $$ = std::make_unique<ClassDeclarator>(@1, std::move($1), std::nullopt);
+        $$ = make_chunk<ClassDeclarator>(@1, std::move($1), std::nullopt);
     }
     | declarator COLON constant_expression {
-        $$ = std::make_unique<ClassDeclarator>(@$, std::move($1), std::move($3));
+        $$ = make_chunk<ClassDeclarator>(@$, std::move($1), std::move($3));
     }
     | COLON constant_expression {
-        $$ = std::make_unique<ClassDeclarator>(@$, std::nullopt, std::move($2));
+        $$ = make_chunk<ClassDeclarator>(@$, std::nullopt, std::move($2));
     }
 ;
 
 // Declarators
 declarator:
     pointer direct_declarator {
-        $$ = std::make_unique<Declarator>(@$, std::move($1), std::move($2));
+        $$ = make_chunk<Declarator>(@$, std::move($1), std::move($2));
     }
     | direct_declarator {
-        $$ = std::make_unique<Declarator>(@$, std::nullopt, std::move($1));
+        $$ = make_chunk<Declarator>(@$, std::nullopt, std::move($1));
     }
 ;
 
 pointer:
     MUL {
-        $$ = std::make_unique<Pointer>(@1, Vec<Box<TypeQualifier>>{}, std::nullopt);
+        $$ = make_chunk<Pointer>(@1, Vec<Chunk<TypeQualifier>>{}, std::nullopt);
     }
     | MUL type_qualifier_list {
-        $$ = std::make_unique<Pointer>(@$, std::move($2), std::nullopt);
+        $$ = make_chunk<Pointer>(@$, std::move($2), std::nullopt);
     }
     | MUL pointer {
-        $$ = std::make_unique<Pointer>(@$, Vec<Box<TypeQualifier>>{}, std::move($2));
+        $$ = make_chunk<Pointer>(@$, Vec<Chunk<TypeQualifier>>{}, std::move($2));
     }
     | MUL type_qualifier_list pointer {
-        $$ = std::make_unique<Pointer>(@$, std::move($2), std::move($3));
+        $$ = make_chunk<Pointer>(@$, std::move($2), std::move($3));
     }
 ;
 
 type_qualifier_list:
     type_qualifier {
-        Vec<Box<TypeQualifier>> list;
+        Vec<Chunk<TypeQualifier>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
@@ -581,22 +583,22 @@ type_qualifier_list:
 
 direct_declarator:
     IDENTIFIER {
-        $$ = std::make_unique<IdentifierDeclarator>(@1, std::move($1));
+        $$ = make_chunk<IdentifierDeclarator>(@1, std::move($1));
     }
     | LPAREN declarator RPAREN {
-        $$ = std::make_unique<ParenDeclarator>(@$, std::move($2));
+        $$ = make_chunk<ParenDeclarator>(@$, std::move($2));
     }
     | direct_declarator LBRACKET RBRACKET {
-        $$ = std::make_unique<ArrayDeclarator>(@$, std::move($1), std::nullopt);
+        $$ = make_chunk<ArrayDeclarator>(@$, std::move($1), std::nullopt);
     }
     | direct_declarator LBRACKET constant_expression RBRACKET {
-        $$ = std::make_unique<ArrayDeclarator>(@$, std::move($1), std::move($3));
+        $$ = make_chunk<ArrayDeclarator>(@$, std::move($1), std::move($3));
     }
     | direct_declarator LPAREN RPAREN {
-        $$ = std::make_unique<FunctionDeclarator>(@$, std::move($1), Vec<Box<ParameterDeclaration>>{}, false);
+        $$ = make_chunk<FunctionDeclarator>(@$, std::move($1), Vec<Chunk<ParameterDeclaration>>{}, false);
     }
     | direct_declarator LPAREN parameter_type_list RPAREN {
-        $$ = std::make_unique<FunctionDeclarator>(@$, std::move($1), std::move($3.first), $3.second);
+        $$ = make_chunk<FunctionDeclarator>(@$, std::move($1), std::move($3.first), $3.second);
   }
 
 ;
@@ -604,7 +606,7 @@ direct_declarator:
 // Expressions
 constant_expression:
     conditional_expression {
-        $$ = std::make_unique<ConstExpression>(std::move($1));
+        $$ = make_chunk<ConstExpression>(std::move($1));
     }
 ;
 
@@ -613,7 +615,7 @@ conditional_expression:
         $$ = std::move($1);
     }
     | logical_or_expression QUESTION expression COLON conditional_expression %prec QUESTION {
-        $$ = std::make_unique<ConditionalExpression>(@$, std::move($1), std::move($3), std::move($5));
+        $$ = make_chunk<ConditionalExpression>(@$, std::move($1), std::move($3), std::move($5));
     }
 ;
 
@@ -622,7 +624,7 @@ logical_or_expression:
         $$ = std::move($1);
     }
     | logical_or_expression OROR logical_and_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::OROR);
+        $$ = make_chunk<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::OROR);
     }
 ;
 
@@ -631,7 +633,7 @@ logical_and_expression:
         $$ = std::move($1);
     }
     | logical_and_expression ANDAND inclusive_or_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::ANDAND);
+        $$ = make_chunk<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::ANDAND);
     }
 ;
 
@@ -640,7 +642,7 @@ inclusive_or_expression:
         $$ = std::move($1);
     }
     | inclusive_or_expression OR exclusive_or_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::OR);
+        $$ = make_chunk<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::OR);
     }
 ;
 
@@ -649,7 +651,7 @@ exclusive_or_expression:
         $$ = std::move($1);
     }
     | exclusive_or_expression XOR and_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::XOR);
+        $$ = make_chunk<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::XOR);
     }
 ;
 
@@ -658,7 +660,7 @@ and_expression:
         $$ = std::move($1);
     }
     | and_expression AND equality_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::AND);
+        $$ = make_chunk<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::AND);
     }
 ;
 
@@ -667,10 +669,10 @@ equality_expression:
         $$ = std::move($1);
     }
     | equality_expression EQ relational_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::EQ);
+        $$ = make_chunk<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::EQ);
     }
     | equality_expression NE relational_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::NE);
+        $$ = make_chunk<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::NE);
     }
 ;
 
@@ -679,16 +681,16 @@ relational_expression:
         $$ = std::move($1);
     }
     | relational_expression LT shift_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::LT);
+        $$ = make_chunk<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::LT);
     }
     | relational_expression GT shift_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::GT);
+        $$ = make_chunk<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::GT);
     }
     | relational_expression LE shift_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::LE);
+        $$ = make_chunk<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::LE);
     }
     | relational_expression GE shift_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::GE);
+        $$ = make_chunk<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::GE);
     }
 ;
 
@@ -697,10 +699,10 @@ shift_expression:
         $$ = std::move($1);
     }
     | shift_expression LSHIFT additive_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::LSHIFT);
+        $$ = make_chunk<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::LSHIFT);
     }
     | shift_expression RSHIFT additive_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::RSHIFT);
+        $$ = make_chunk<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::RSHIFT);
     }
 ;
 
@@ -709,10 +711,10 @@ additive_expression:
         $$ = std::move($1);
     }
     | additive_expression PLUS multiplicative_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::PLUS);
+        $$ = make_chunk<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::PLUS);
     }
     | additive_expression MINUS multiplicative_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::MINUS);
+        $$ = make_chunk<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::MINUS);
     }
 ;
 
@@ -721,13 +723,13 @@ multiplicative_expression:
         $$ = std::move($1);
     }
     | multiplicative_expression MUL cast_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::MUL);
+        $$ = make_chunk<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::MUL);
     }
     | multiplicative_expression DIV cast_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::DIV);
+        $$ = make_chunk<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::DIV);
     }
     | multiplicative_expression MOD cast_expression {
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::MOD);
+        $$ = make_chunk<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::MOD);
     }
 ;
 
@@ -736,7 +738,7 @@ cast_expression:
         $$ = std::move($1);
     }
     | LPAREN type_name RPAREN cast_expression { // casting in enlightenedc is prefix because postfix is too hard.
-        $$ = std::make_unique<CastExpression>(@$, std::move($4), std::move($2));
+        $$ = make_chunk<CastExpression>(@$, std::move($4), std::move($2));
     }
 ;
 
@@ -745,19 +747,19 @@ unary_expression:
         $$ = std::move($1);
     }
     | INC unary_expression {
-        $$ = std::make_unique<UnaryExpression>(@$, std::move($2), ecc::tokens::UnaryOp::INC);
+        $$ = make_chunk<UnaryExpression>(@$, std::move($2), ecc::tokens::UnaryOp::INC);
     }
     | DEC unary_expression {
-        $$ = std::make_unique<UnaryExpression>(@$, std::move($2), ecc::tokens::UnaryOp::DEC);
+        $$ = make_chunk<UnaryExpression>(@$, std::move($2), ecc::tokens::UnaryOp::DEC);
     }
     | unary_operator unary_expression {
-        $$ = std::make_unique<UnaryExpression>(@$, std::move($2), $1);
+        $$ = make_chunk<UnaryExpression>(@$, std::move($2), $1);
     }
     | SIZEOF unary_expression {
-        $$ = std::make_unique<SizeofExpression>(@$, std::move($2));
+        $$ = make_chunk<SizeofExpression>(@$, std::move($2));
     }
     | SIZEOF LPAREN type_name RPAREN {
-        $$ = std::make_unique<SizeofExpression>(@$, std::move($3));
+        $$ = make_chunk<SizeofExpression>(@$, std::move($3));
     }
 ;
 
@@ -766,43 +768,43 @@ postfix_expression:
         $$ = std::move($1);
     }
     | postfix_expression LBRACKET expression RBRACKET {
-        $$ = std::make_unique<ArraySubscriptExpression>(@$, std::move($1), std::move($3));
+        $$ = make_chunk<ArraySubscriptExpression>(@$, std::move($1), std::move($3));
     }
     | postfix_expression LPAREN RPAREN {
-        $$ = std::make_unique<CallExpression>(@$, std::move($1), Vec<Box<Expression>>{});
+        $$ = make_chunk<CallExpression>(@$, std::move($1), Vec<Chunk<Expression>>{});
     }
     | postfix_expression LPAREN argument_expression_list RPAREN {
-        $$ = std::make_unique<CallExpression>(@$, std::move($1), std::move($3));
+        $$ = make_chunk<CallExpression>(@$, std::move($1), std::move($3));
     }
     | postfix_expression DOT IDENTIFIER {
-        $$ = std::make_unique<MemberAccessExpression>(@$, std::move($1), std::move($3), false);
+        $$ = make_chunk<MemberAccessExpression>(@$, std::move($1), std::move($3), false);
     }
     | postfix_expression ARROW IDENTIFIER {
-        $$ = std::make_unique<MemberAccessExpression>(@$, std::move($1), std::move($3), true);
+        $$ = make_chunk<MemberAccessExpression>(@$, std::move($1), std::move($3), true);
     }
     | postfix_expression DOT primitive_type {
-        $$ = std::make_unique<ReinterpretExpression>(@$, std::move($1), $3->pkind, false);
+        $$ = make_chunk<ReinterpretExpression>(@$, std::move($1), $3->pkind, false);
     }
     | postfix_expression ARROW primitive_type {
-        $$ = std::make_unique<ReinterpretExpression>(@$, std::move($1), $3->pkind, true);
+        $$ = make_chunk<ReinterpretExpression>(@$, std::move($1), $3->pkind, true);
     }
     | postfix_expression INC {
-        $$ = std::make_unique<PostfixExpression>(@$, std::move($1), ecc::tokens::PostfixOp::POSTINC);
+        $$ = make_chunk<PostfixExpression>(@$, std::move($1), ecc::tokens::PostfixOp::POSTINC);
     }
     | postfix_expression DEC {
-        $$ = std::make_unique<PostfixExpression>(@$, std::move($1), ecc::tokens::PostfixOp::POSTDEC);
+        $$ = make_chunk<PostfixExpression>(@$, std::move($1), ecc::tokens::PostfixOp::POSTDEC);
     }
 ;
 
 primary_expression:
     IDENTIFIER {
-        $$ = std::make_unique<IdentifierExpression>(@1, std::move($1));
+        $$ = make_chunk<IdentifierExpression>(@1, std::move($1));
     }
     | constant {
         $$ = std::move($1);
     }
     | string_literal {
-        $$ = std::make_unique<StringExpression>(@$, $1);
+        $$ = make_chunk<StringExpression>(@$, $1);
     }
     | LPAREN expression RPAREN {
         $2->loc = @$;
@@ -812,19 +814,19 @@ primary_expression:
 
 constant:
     INT_CONST {
-        $$ = std::make_unique<LiteralExpression>(@1, LiteralExpression::INT, LiteralExpression::Value($1));
+        $$ = make_chunk<LiteralExpression>(@1, LiteralExpression::INT, LiteralExpression::Value($1));
     }
     | CHAR_CONST {
-        $$ = std::make_unique<LiteralExpression>(@1, LiteralExpression::CHAR, LiteralExpression::Value($1));
+        $$ = make_chunk<LiteralExpression>(@1, LiteralExpression::CHAR, LiteralExpression::Value($1));
     }
     | FLOAT_CONST {
-        $$ = std::make_unique<LiteralExpression>(@1, LiteralExpression::FLOAT, LiteralExpression::Value($1));
+        $$ = make_chunk<LiteralExpression>(@1, LiteralExpression::FLOAT, LiteralExpression::Value($1));
     }
     | TRUE {
-        $$ = std::make_unique<LiteralExpression>(@1, LiteralExpression::BOOL, LiteralExpression::Value(true));
+        $$ = make_chunk<LiteralExpression>(@1, LiteralExpression::BOOL, LiteralExpression::Value(true));
     }
     | FALSE {
-        $$ = std::make_unique<LiteralExpression>(@1, LiteralExpression::BOOL, LiteralExpression::Value(false));
+        $$ = make_chunk<LiteralExpression>(@1, LiteralExpression::BOOL, LiteralExpression::Value(false));
     }
 ;
 
@@ -842,7 +844,7 @@ expression:
         $$ = std::move($1);
     }
     | expression COMMA assignment_expression { // See examples.ec line 198 for an example.
-        $$ = std::make_unique<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::BINCOMMA);
+        $$ = make_chunk<BinaryExpression>(@$, std::move($1), std::move($3), ecc::tokens::BinaryOp::BINCOMMA);
     }
 ;
 
@@ -851,7 +853,7 @@ assignment_expression:
         $$ = std::move($1);
     }
     | unary_expression assignment_operator assignment_expression {
-        $$ = std::make_unique<AssignmentExpression>(@$, std::move($1), std::move($3), $2);
+        $$ = make_chunk<AssignmentExpression>(@$, std::move($1), std::move($3), $2);
     }
 ;
 
@@ -880,7 +882,7 @@ unary_operator:
 
 argument_expression_list:
     assignment_expression {
-        Vec<Box<Expression>> list;
+        Vec<Chunk<Expression>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
@@ -892,10 +894,10 @@ argument_expression_list:
 
 type_name:
     specifier_qualifier_list {
-        $$ = std::make_unique<TypeName>(@1, std::move($1), std::nullopt);
+        $$ = make_chunk<TypeName>(@1, std::move($1), std::nullopt);
     }
     | specifier_qualifier_list abstract_declarator {
-        $$ = std::make_unique<TypeName>(@$, std::move($1), std::move($2));
+        $$ = make_chunk<TypeName>(@$, std::move($1), std::move($2));
     }
 ;
 
@@ -912,7 +914,7 @@ parameter_type_list:
 
 parameter_list:
     parameter_declaration {
-        Vec<Box<ParameterDeclaration>> list;
+        Vec<Chunk<ParameterDeclaration>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
@@ -924,92 +926,92 @@ parameter_list:
 
 parameter_declaration:
     declaration_specifier_list {
-        $$ = std::make_unique<ParameterDeclaration>(@1, std::move($1), std::nullopt, std::nullopt);
+        $$ = make_chunk<ParameterDeclaration>(@1, std::move($1), std::nullopt, std::nullopt);
     }
     | declaration_specifier_list declarator {
-        $$ = std::make_unique<ParameterDeclaration>(@$, std::move($1), std::move($2), std::nullopt);
+        $$ = make_chunk<ParameterDeclaration>(@$, std::move($1), std::move($2), std::nullopt);
     }
     | declaration_specifier_list declarator ASSIGN constant_expression {
-        $$ = std::make_unique<ParameterDeclaration>(@$, std::move($1), std::move($2), std::move($4));
+        $$ = make_chunk<ParameterDeclaration>(@$, std::move($1), std::move($2), std::move($4));
     }
     | declaration_specifier_list abstract_declarator {
-        $$ = std::make_unique<ParameterDeclaration>(@$, std::move($1), std::move($2), std::nullopt);
+        $$ = make_chunk<ParameterDeclaration>(@$, std::move($1), std::move($2), std::nullopt);
     }
 ;
 
 abstract_declarator:
     pointer {
-        $$ = std::make_unique<Declarator>(@1, std::move($1), std::nullopt);
+        $$ = make_chunk<Declarator>(@1, std::move($1), std::nullopt);
     }
     | pointer direct_abstract_declarator {
-        $$ = std::make_unique<Declarator>(@$, std::move($1), std::move($2));
+        $$ = make_chunk<Declarator>(@$, std::move($1), std::move($2));
     }
     | direct_abstract_declarator {
-        $$ = std::make_unique<Declarator>(@$, std::nullopt, std::move($1));
+        $$ = make_chunk<Declarator>(@$, std::nullopt, std::move($1));
     }
 ;
 
 direct_abstract_declarator:
     LPAREN abstract_declarator RPAREN {
-        $$ = std::make_unique<ParenDeclarator>(@$, std::move($2));
+        $$ = make_chunk<ParenDeclarator>(@$, std::move($2));
     }
     | direct_abstract_declarator LBRACKET RBRACKET {
-        $$ = std::make_unique<ArrayDeclarator>(@$, std::move($1), std::nullopt);
+        $$ = make_chunk<ArrayDeclarator>(@$, std::move($1), std::nullopt);
     }
     | direct_abstract_declarator LBRACKET constant_expression RBRACKET {
-        $$ = std::make_unique<ArrayDeclarator>(@$, std::move($1), std::move($3));
+        $$ = make_chunk<ArrayDeclarator>(@$, std::move($1), std::move($3));
     }
     | direct_abstract_declarator LPAREN RPAREN {
-        $$ = std::make_unique<FunctionDeclarator>(@$, std::move($1), Vec<Box<ParameterDeclaration>>{}, false);
+        $$ = make_chunk<FunctionDeclarator>(@$, std::move($1), Vec<Chunk<ParameterDeclaration>>{}, false);
     }
     | direct_abstract_declarator LPAREN parameter_type_list RPAREN {
-        $$ = std::make_unique<FunctionDeclarator>(@$, std::move($1), std::move($3.first), $3.second);
+        $$ = make_chunk<FunctionDeclarator>(@$, std::move($1), std::move($3.first), $3.second);
     }
     | LBRACKET RBRACKET {
-        $$ = std::make_unique<ArrayDeclarator>(@$, nullptr, std::nullopt);
+        $$ = make_chunk<ArrayDeclarator>(@$, nullptr, std::nullopt);
     }
     | LBRACKET constant_expression RBRACKET {
-        $$ = std::make_unique<ArrayDeclarator>(@$, nullptr, std::move($2));
+        $$ = make_chunk<ArrayDeclarator>(@$, nullptr, std::move($2));
     }
     | LPAREN RPAREN {
-        $$ = std::make_unique<FunctionDeclarator>(@$, nullptr, Vec<Box<ParameterDeclaration>>{}, false);
+        $$ = make_chunk<FunctionDeclarator>(@$, nullptr, Vec<Chunk<ParameterDeclaration>>{}, false);
     }
     | LPAREN parameter_type_list RPAREN {
-        $$ = std::make_unique<FunctionDeclarator>(@$, nullptr, std::move($2.first), $2.second);
+        $$ = make_chunk<FunctionDeclarator>(@$, nullptr, std::move($2.first), $2.second);
     }
 ;
 
 enum_specifier:
     ENUM LBRACE enumerator_list RBRACE {
-        $$ = std::make_unique<EnumSpecifier>(@$, std::nullopt, std::move($3));
+        $$ = make_chunk<EnumSpecifier>(@$, std::nullopt, std::move($3));
     }
     | primitive_type ENUM LBRACE enumerator_list RBRACE {
-        $$ = std::make_unique<EnumSpecifier>(@$, std::nullopt, std::move($4), $1->pkind);
+        $$ = make_chunk<EnumSpecifier>(@$, std::nullopt, std::move($4), $1->pkind);
     }
     | ENUM IDENTIFIER LBRACE enumerator_list RBRACE {
         type_idents.insert($2);
-        $$ = std::make_unique<EnumSpecifier>(@$, $2, std::move($4));
+        $$ = make_chunk<EnumSpecifier>(@$, $2, std::move($4));
     }
     | primitive_type ENUM IDENTIFIER LBRACE enumerator_list RBRACE {
         type_idents.insert($3);
-        $$ = std::make_unique<EnumSpecifier>(@$, $3, std::move($5), $1->pkind);
+        $$ = make_chunk<EnumSpecifier>(@$, $3, std::move($5), $1->pkind);
     }
     | ENUM TYPE_IDENTIFIER LBRACE enumerator_list RBRACE {
-        $$ = std::make_unique<EnumSpecifier>(@$, $2, std::move($4));
+        $$ = make_chunk<EnumSpecifier>(@$, $2, std::move($4));
     }
     | primitive_type ENUM TYPE_IDENTIFIER LBRACE enumerator_list RBRACE {
-        $$ = std::make_unique<EnumSpecifier>(@$, $3, std::move($5), $1->pkind);
+        $$ = make_chunk<EnumSpecifier>(@$, $3, std::move($5), $1->pkind);
     }
     | ENUM IDENTIFIER {
         type_idents.insert($2);
-        $$ = std::make_unique<EnumSpecifier>(@$, $2, std::nullopt);
+        $$ = make_chunk<EnumSpecifier>(@$, $2, std::nullopt);
     }
     | primitive_type ENUM IDENTIFIER {
         error(@$, "incomplete enum definition");
         return 1;
     }
     | ENUM TYPE_IDENTIFIER {
-        $$ = std::make_unique<EnumSpecifier>(@$, $2, std::nullopt);
+        $$ = make_chunk<EnumSpecifier>(@$, $2, std::nullopt);
     }
     | primitive_type ENUM TYPE_IDENTIFIER {
         error(@$, "incomplete enum definition");
@@ -1019,7 +1021,7 @@ enum_specifier:
 
 enumerator_list:
     enumerator {
-        Vec<Box<Enumerator>> list;
+        Vec<Chunk<Enumerator>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
@@ -1034,32 +1036,32 @@ enumerator_list:
 
 enumerator:
     IDENTIFIER {
-        $$ = std::make_unique<Enumerator>(@1, $1, std::nullopt);
+        $$ = make_chunk<Enumerator>(@1, $1, std::nullopt);
     }
     | IDENTIFIER ASSIGN constant_expression {
-        $$ = std::make_unique<Enumerator>(@$, $1, std::move($3));
+        $$ = make_chunk<Enumerator>(@$, $1, std::move($3));
     }
 ;
 
 type_identifier:
-    TYPE_IDENTIFIER { $$ = std::make_unique<TypeIdentifier>(@1, $1); }
+    TYPE_IDENTIFIER { $$ = make_chunk<TypeIdentifier>(@1, $1); }
 ;
 
 
 // Declarations
 declaration:
     declaration_specifier_list SEMI {
-        $$ = std::make_unique<TypeDeclaration>(@$, std::move($1));
+        $$ = make_chunk<TypeDeclaration>(@$, std::move($1));
     }
     | declaration_specifier_list init_declarator_list SEMI {
-        $$ = std::make_unique<VariableDeclaration>(@$, std::move($1), std::move($2));
+        $$ = make_chunk<VariableDeclaration>(@$, std::move($1), std::move($2));
     }
 ;
 
 // Init declarators
 init_declarator_list:
     init_declarator {
-        Vec<Box<InitDeclarator>> list;
+        Vec<Chunk<InitDeclarator>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
@@ -1071,38 +1073,38 @@ init_declarator_list:
 
 init_declarator:
     declarator {
-        $$ = std::make_unique<InitDeclarator>(@1, std::move($1), std::nullopt);
+        $$ = make_chunk<InitDeclarator>(@1, std::move($1), std::nullopt);
     }
     | declarator ASSIGN initializer {
-        $$ = std::make_unique<InitDeclarator>(@$, std::move($1), std::move($3));
+        $$ = make_chunk<InitDeclarator>(@$, std::move($1), std::move($3));
     }
 ;
 
 initializer:
     assignment_expression {
-        $$ = std::make_unique<Initializer>(@1, std::move($1));
+        $$ = make_chunk<Initializer>(@1, std::move($1));
     }
-    | LBRACE initializer_list RBRACE { $$ = std::make_unique<Initializer>(@$, std::move($2)); }
-    | LBRACE initializer_list COMMA RBRACE { $$ = std::make_unique<Initializer>(@$, std::move($2)); }
+    | LBRACE initializer_list RBRACE { $$ = make_chunk<Initializer>(@$, std::move($2)); }
+    | LBRACE initializer_list COMMA RBRACE { $$ = make_chunk<Initializer>(@$, std::move($2)); }
 ;
 
 designated_initializer:
     DOT IDENTIFIER ASSIGN initializer {
-        $$ = std::make_unique<Initializer>(@$, $2, std::move($4));
+        $$ = make_chunk<Initializer>(@$, $2, std::move($4));
     }
     | LBRACKET constant_expression RBRACKET ASSIGN initializer {
-        $$ = std::make_unique<Initializer>(@$, std::move($2), std::move($5));
+        $$ = make_chunk<Initializer>(@$, std::move($2), std::move($5));
     }
 ;
 
 initializer_list:
     initializer {
-        Vec<Box<Initializer>> list;
+        Vec<Chunk<Initializer>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
     | designated_initializer {
-        Vec<Box<Initializer>> list;
+        Vec<Chunk<Initializer>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
@@ -1121,10 +1123,10 @@ initializer_list:
 
 compound_statement:
     LBRACE RBRACE {
-        $$ = std::make_unique<CompoundStatement>(@$, Vec<Box<ProgramItem>>{});
+        $$ = make_chunk<CompoundStatement>(@$, Vec<Chunk<ProgramItem>>{});
     }
     | LBRACE stmt_or_decl_list RBRACE {
-        $$ = std::make_unique<CompoundStatement>(@$, std::move($2));
+        $$ = make_chunk<CompoundStatement>(@$, std::move($2));
     }
 ;
 
@@ -1141,68 +1143,68 @@ statement:
 
 print_statement:
     string_literal SEMI {
-        $$ = std::make_unique<PrintStatement>(@$, std::move($1), Vec<Box<Expression>>{});
+        $$ = make_chunk<PrintStatement>(@$, std::move($1), Vec<Chunk<Expression>>{});
     }
     | string_literal COMMA argument_expression_list SEMI {
-        $$ = std::make_unique<PrintStatement>(@$, std::move($1), std::move($3));
+        $$ = make_chunk<PrintStatement>(@$, std::move($1), std::move($3));
     }
 ;
 
 labeled_statement:
     IDENTIFIER COLON statement {
-        $$ = std::make_unique<LabeledStatement>(@$, std::move($1), std::move($3));
+        $$ = make_chunk<LabeledStatement>(@$, std::move($1), std::move($3));
     }
     | CASE constant_expression COLON statement {
-        $$ = std::make_unique<CaseStatement>(@$, std::move($2), std::move($4));
+        $$ = make_chunk<CaseStatement>(@$, std::move($2), std::move($4));
     }
     | CASE constant_expression ELLIPSIS constant_expression COLON statement {
-        $$ = std::make_unique<CaseRangeStatement>(@$, std::move($2), std::move($4), std::move($6));
+        $$ = make_chunk<CaseRangeStatement>(@$, std::move($2), std::move($4), std::move($6));
     }
     | DEFAULT COLON statement {
-        $$ = std::make_unique<DefaultStatement>(@$, std::move($3));
+        $$ = make_chunk<DefaultStatement>(@$, std::move($3));
     }
 ;
 
 expression_statement:
     SEMI {
-        $$ = std::make_unique<ExpressionStatement>(@1, std::nullopt);
+        $$ = make_chunk<ExpressionStatement>(@1, std::nullopt);
     }
     | expression SEMI { // IDENTIFIER SEMI is a special case of this rule that should resolve to a call expression.
-        $$ = std::make_unique<ExpressionStatement>(@$, std::move($1));
+        $$ = make_chunk<ExpressionStatement>(@$, std::move($1));
     }
 ;
 
 stmt_or_decl_list: // A mixed list of declarations and statements.
     declaration {
-        Vec<Box<ProgramItem>> list;
-        Box<ProgramItem> item = std::move($1);
+        Vec<Chunk<ProgramItem>> list;
+        Chunk<ProgramItem> item = std::move($1);
         list.push_back(std::move(item));
         $$ = std::move(list);
     }
     | statement {
-        Vec<Box<ProgramItem>> list;
-        Box<ProgramItem> item = std::move($1);
+        Vec<Chunk<ProgramItem>> list;
+        Chunk<ProgramItem> item = std::move($1);
         list.push_back(std::move(item));
         $$ = std::move(list);
     }
     | function {
-        Vec<Box<ProgramItem>> list;
-        Box<ProgramItem> item = std::move($1);
+        Vec<Chunk<ProgramItem>> list;
+        Chunk<ProgramItem> item = std::move($1);
         list.push_back(std::move(item));
         $$ = std::move(list);
     }
     | stmt_or_decl_list declaration {
-        Box<ProgramItem> item = std::move($2);
+        Chunk<ProgramItem> item = std::move($2);
         $1.push_back(std::move(item));
         $$ = std::move($1);
     }
     | stmt_or_decl_list statement {
-        Box<ProgramItem> item = std::move($2);
+        Chunk<ProgramItem> item = std::move($2);
         $1.push_back(std::move(item));
         $$ = std::move($1);
     }
     | stmt_or_decl_list function {
-        Box<ProgramItem> item = std::move($2);
+        Chunk<ProgramItem> item = std::move($2);
         $1.push_back(std::move(item));
         $$ = std::move($1);
     }
@@ -1211,13 +1213,13 @@ stmt_or_decl_list: // A mixed list of declarations and statements.
 // Selection
 selection_statement:
     IF LPAREN expression RPAREN statement {
-        $$ = std::make_unique<IfStatement>(@$, std::move($3), std::move($5), std::nullopt);
+        $$ = make_chunk<IfStatement>(@$, std::move($3), std::move($5), std::nullopt);
     }
     | IF LPAREN expression RPAREN statement ELSE statement {
-        $$ = std::make_unique<IfStatement>(@$, std::move($3), std::move($5), std::move($7));
+        $$ = make_chunk<IfStatement>(@$, std::move($3), std::move($5), std::move($7));
     }
     | SWITCH LPAREN expression RPAREN statement {
-        $$ = std::make_unique<SwitchStatement>(@$, std::move($3), std::move($5));
+        $$ = make_chunk<SwitchStatement>(@$, std::move($3), std::move($5));
     }
 ;
 
@@ -1225,20 +1227,20 @@ selection_statement:
 // Iteration
 iteration_statement:
     WHILE LPAREN expression RPAREN statement {
-        $$ = std::make_unique<WhileStatement>(@$, std::move($3), std::move($5));
+        $$ = make_chunk<WhileStatement>(@$, std::move($3), std::move($5));
     }
     | DO statement WHILE LPAREN expression RPAREN SEMI {
-        $$ = std::make_unique<DoWhileStatement>(@$, std::move($2), std::move($5));
+        $$ = make_chunk<DoWhileStatement>(@$, std::move($2), std::move($5));
     }
     | FOR LPAREN for_init_opt SEMI expression_opt SEMI expression_opt RPAREN statement {
-        $$ = std::make_unique<ForStatement>(@$, std::move($3), std::move($5), std::move($7), std::move($9));
+        $$ = make_chunk<ForStatement>(@$, std::move($3), std::move($5), std::move($7), std::move($9));
     }
 ;
 
 // Rules for the initialization part of the for loop, to allow for variable declarations.
 for_init_opt:
     declaration_specifier_list init_declarator_list {
-        $$ = std::make_unique<VariableDeclaration>(@$, std::move($1), std::move($2));
+        $$ = make_chunk<VariableDeclaration>(@$, std::move($1), std::move($2));
     }
     | expression {
         $$ = std::move($1);
@@ -1255,19 +1257,19 @@ expression_opt: // an optional expression specifically for `for` loops where one
 // Jump
 jump_statement:
     GOTO IDENTIFIER SEMI {
-        $$ = std::make_unique<GotoStatement>(@$, $2);
+        $$ = make_chunk<GotoStatement>(@$, $2);
     }
     | BREAK SEMI {
-        $$ = std::make_unique<BreakStatement>(@$);
+        $$ = make_chunk<BreakStatement>(@$);
     }
     | CONTINUE SEMI {
-        $$ = std::make_unique<ContinueStatement>(@$);
+        $$ = make_chunk<ContinueStatement>(@$);
     }
     | RETURN SEMI {
-        $$ = std::make_unique<ReturnStatement>(@$, std::nullopt);
+        $$ = make_chunk<ReturnStatement>(@$, std::nullopt);
     }
     | RETURN expression SEMI {
-        $$ = std::make_unique<ReturnStatement>(@$, std::move($2));
+        $$ = make_chunk<ReturnStatement>(@$, std::move($2));
     }
 ;
 
