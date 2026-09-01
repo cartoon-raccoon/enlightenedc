@@ -90,14 +90,14 @@ void LIRSynthesizer::unfold_initializer_rec(Box<ExprLIR> lhs, Type *type, Initia
             /*
             Base case. If evaluates to a single expression, perform type comparison.
             */
-            [&](Box<ExprMIR>& expr) mutable {
+            [&](Chunk<ExprMIR>& expr) mutable {
                 bsv_dbprint("LIRSynthesizer: matched on single expression");
                 unfold_initializer_expr(std::move(lhs), type, expr, init);
             },
             /*
             Recursive case. If there is a list of initializers, this has to be a class or array.
             */
-            [&](Vec<Box<InitializerMIR>>& inner) mutable {
+            [&](Vec<Chunk<InitializerMIR>>& inner) mutable {
                 switch (type->kind) {
                 case Type::Kind::CLASS:
                     unfold_initializer_rec_cls(std::move(lhs), type->as_class(), inner);
@@ -121,13 +121,13 @@ void LIRSynthesizer::unfold_initializer_rec(Box<ExprLIR> lhs, Type *type, Initia
             */
             [&](auto&) {
                 throw std::runtime_error(
-                    "encountered variant other than ExprMIR and Vec<Box<InitializerMIR>>");
+                    "encountered variant other than ExprMIR and Vec<Chunk<InitializerMIR>>");
             }},
         init.initializer);
 }
 
 void LIRSynthesizer::unfold_initializer_expr(
-    Box<ExprLIR> lhs, Type *type, Box<ExprMIR>& expr, InitializerMIR& init) {
+    Box<ExprLIR> lhs, Type *type, Chunk<ExprMIR>& expr, InitializerMIR& init) {
 
     expr->accept(*this);
 
@@ -154,7 +154,7 @@ void LIRSynthesizer::unfold_initializer_expr(
 }
 
 void LIRSynthesizer::unfold_initializer_rec_arr(
-    Box<ExprLIR> lhs, ArrayType *arr, Vec<Box<InitializerMIR>>& inits) {
+    Box<ExprLIR> lhs, ArrayType *arr, Vec<Chunk<InitializerMIR>>& inits) {
 
     size_t next_idx = 0;
 
@@ -164,7 +164,7 @@ void LIRSynthesizer::unfold_initializer_rec_arr(
     for (auto& init : inits) {
         std::visit(
             match{
-                [&](Box<ExprMIR>&) {
+                [&](Chunk<ExprMIR>&) {
                     Box<ExprLIR> idx_expr = std::make_unique<LiteralExprLIR>(
                         // fixme: ensure Value(next_idx) matches machine size type
                         init->loc, Value(next_idx), types.get_size_type(false));
@@ -175,11 +175,11 @@ void LIRSynthesizer::unfold_initializer_rec_arr(
                     touched[next_idx] = true;
                     next_idx++;
                 },
-                [&](Box<InitializerMIR::Member>&) {
+                [&](Chunk<InitializerMIR::Member>&) {
                     throw std::runtime_error(
                         "encountered member designator while unfolding array initializer");
                 },
-                [&](Box<InitializerMIR::Index>& idx) {
+                [&](Chunk<InitializerMIR::Index>& idx) {
                     Box<ExprLIR> idx_expr = std::make_unique<LiteralExprLIR>(
                         init->loc, Value(idx->idx), types.get_size_type(false));
                     Box<ExprLIR> child = std::make_unique<SubscrExprLIR>(
@@ -190,7 +190,7 @@ void LIRSynthesizer::unfold_initializer_rec_arr(
                     touched[curr_idx] = true;
                     next_idx          = curr_idx + 1;
                 },
-                [&](Vec<Box<InitializerMIR>>&) {
+                [&](Vec<Chunk<InitializerMIR>>&) {
                     Box<ExprLIR> idx_expr = std::make_unique<LiteralExprLIR>(
                         init->loc, Value(next_idx), types.get_size_type(false));
                     Box<ExprLIR> child = std::make_unique<SubscrExprLIR>(
@@ -221,7 +221,7 @@ void LIRSynthesizer::unfold_initializer_rec_arr(
 }
 
 void LIRSynthesizer::unfold_initializer_rec_cls(
-    Box<ExprLIR> lhs, ClassType *cls, Vec<Box<InitializerMIR>>& inits) {
+    Box<ExprLIR> lhs, ClassType *cls, Vec<Chunk<InitializerMIR>>& inits) {
 
     size_t next_idx = 0;
 
@@ -230,7 +230,7 @@ void LIRSynthesizer::unfold_initializer_rec_cls(
     for (auto& init : inits) {
         std::visit(
             match{
-                [&](Box<ExprMIR>&) {
+                [&](Chunk<ExprMIR>&) {
                     RecordType::TypeMember *member = cls->find(next_idx);
                     assert(member);
 
@@ -241,7 +241,7 @@ void LIRSynthesizer::unfold_initializer_rec_cls(
                     touched[next_idx] = true;
                     next_idx++;
                 },
-                [&](Box<InitializerMIR::Member>& mem) {
+                [&](Chunk<InitializerMIR::Member>& mem) {
                     // Member designators can refer to a member nested inside one or more
                     // anonymous struct/union members; index() returns the full chain of
                     // per-level indices needed to reach it.
@@ -278,11 +278,11 @@ void LIRSynthesizer::unfold_initializer_rec_cls(
 
                     unfold_initializer_rec(std::move(current), member->ty, *mem->initializer);
                 },
-                [&](Box<InitializerMIR::Index>&) {
+                [&](Chunk<InitializerMIR::Index>&) {
                     throw std::runtime_error(
                         "encountered index designator while unfolding class initializer");
                 },
-                [&](Vec<Box<InitializerMIR>>&) {
+                [&](Vec<Chunk<InitializerMIR>>&) {
                     RecordType::TypeMember *member = cls->find(next_idx);
                     assert(member);
 
@@ -1147,7 +1147,7 @@ void LIRSynthesizer::do_visit(SizeofExprMIR& node) {
 
     size_t size = std::visit(
         match{
-            [](Box<ExprMIR>& expr) mutable { return expr->act_type->alloc_size(); },
+            [](Chunk<ExprMIR>& expr) mutable { return expr->act_type->alloc_size(); },
             [](Type *& type) mutable { return type->alloc_size(); }},
         node.operand);
 

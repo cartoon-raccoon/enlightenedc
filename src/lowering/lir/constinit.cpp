@@ -16,10 +16,10 @@ Optional<Box<ConstInitLIR>>
 ConstInitLIRBuilder::try_build_constinit(Type *type, InitializerMIR& init) {
     return std::visit(
         match{
-            [&](Box<ExprMIR>& expr) -> Optional<Box<ConstInitLIR>> {
+            [&](Chunk<ExprMIR>& expr) -> Optional<Box<ConstInitLIR>> {
                 return try_build_constinit_expr(type, *expr);
             },
-            [&](Vec<Box<InitializerMIR>>& aggregate) -> Optional<Box<ConstInitLIR>> {
+            [&](Vec<Chunk<InitializerMIR>>& aggregate) -> Optional<Box<ConstInitLIR>> {
                 if (type->is_class()) {
                     return try_build_constinit_agg_cls(type->as_class(), aggregate, init.loc);
                 } else if (type->is_array()) {
@@ -30,7 +30,7 @@ ConstInitLIRBuilder::try_build_constinit(Type *type, InitializerMIR& init) {
             },
             [&](auto&) -> Optional<Box<ConstInitLIR>> {
                 throw std::runtime_error(
-                    "encountered variant other than ExprMIR and Vec<Box<InitializerMIR>>");
+                    "encountered variant other than ExprMIR and Vec<Chunk<InitializerMIR>>");
             }},
         init.initializer);
 }
@@ -51,7 +51,7 @@ ConstInitLIRBuilder::try_build_constinit_expr(Type *type, ExprMIR& expr) {
 }
 
 Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_cls(
-    ClassType *cls, Vec<Box<InitializerMIR>>& inits, Location loc) {
+    ClassType *cls, Vec<Chunk<InitializerMIR>>& inits, Location loc) {
 
     size_t next_idx = 0;
     Vec<bool> touched(cls->num_members(), false);
@@ -63,7 +63,7 @@ Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_cls(
 
         auto maybe_init = std::visit(
             match{
-                [&](Box<ExprMIR>& expr) -> Optional<Box<ConstInitLIR>> {
+                [&](Chunk<ExprMIR>& expr) -> Optional<Box<ConstInitLIR>> {
                     RecordType::TypeMember *member = cls->find(next_idx);
                     assert(member);
 
@@ -78,7 +78,7 @@ Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_cls(
 
                     return maybe_init;
                 },
-                [&](Box<InitializerMIR::Member>& member) -> Optional<Box<ConstInitLIR>> {
+                [&](Chunk<InitializerMIR::Member>& member) -> Optional<Box<ConstInitLIR>> {
                     // Member designators can refer to a member nested inside one or more
                     // anonymous struct/union members; index() returns the full chain of
                     // per-level indices needed to reach it (see unfold_initializer_rec_cls).
@@ -121,11 +121,11 @@ Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_cls(
 
                     return maybe_init;
                 },
-                [&](Box<InitializerMIR::Index>&) -> Optional<Box<ConstInitLIR>> {
+                [&](Chunk<InitializerMIR::Index>&) -> Optional<Box<ConstInitLIR>> {
                     throw std::runtime_error(
                         "encountered index designator while constructing constinit class");
                 },
-                [&](Vec<Box<InitializerMIR>>&) -> Optional<Box<ConstInitLIR>> {
+                [&](Vec<Chunk<InitializerMIR>>&) -> Optional<Box<ConstInitLIR>> {
                     RecordType::TypeMember *member = cls->find(next_idx);
                     assert(member);
 
@@ -161,7 +161,7 @@ Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_cls(
 }
 
 Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_arr(
-    ArrayType *arr, Vec<Box<InitializerMIR>>& inits, Location loc) {
+    ArrayType *arr, Vec<Chunk<InitializerMIR>>& inits, Location loc) {
 
     size_t next_idx = 0;
     Vec<bool> touched(arr->get_arr_size().value(), false);
@@ -173,7 +173,7 @@ Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_arr(
 
         auto maybe_init = std::visit(
             match{
-                [&](Box<ExprMIR>& expr) -> Optional<Box<ConstInitLIR>> {
+                [&](Chunk<ExprMIR>& expr) -> Optional<Box<ConstInitLIR>> {
                     target_idx = next_idx;
 
                     tracking_path.push_back(LIRAccessor::index(arr->get_base(), target_idx));
@@ -185,11 +185,11 @@ Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_arr(
 
                     return maybe_init;
                 },
-                [&](Box<InitializerMIR::Member>&) -> Optional<Box<ConstInitLIR>> {
+                [&](Chunk<InitializerMIR::Member>&) -> Optional<Box<ConstInitLIR>> {
                     throw std::runtime_error(
                         "encountered member designator while constructing constinit array");
                 },
-                [&](Box<InitializerMIR::Index>& index) -> Optional<Box<ConstInitLIR>> {
+                [&](Chunk<InitializerMIR::Index>& index) -> Optional<Box<ConstInitLIR>> {
                     size_t curr_idx = index->idx.cast<size_t>();
 
                     target_idx        = curr_idx;
@@ -202,7 +202,7 @@ Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_arr(
 
                     return maybe_init;
                 },
-                [&](Vec<Box<InitializerMIR>>&) -> Optional<Box<ConstInitLIR>> {
+                [&](Vec<Chunk<InitializerMIR>>&) -> Optional<Box<ConstInitLIR>> {
                     target_idx = next_idx;
 
                     tracking_path.push_back(LIRAccessor::index(arr->get_base(), target_idx));
@@ -350,7 +350,7 @@ ConstInitLIRBuilder::try_build_constinit_expr(Type *type, SizeofExprMIR& expr) {
     auto val = eval::Value(
         std::visit(
             match{
-                [&](Box<ExprMIR>& innerexpr) { return innerexpr->act_type->alloc_size(); },
+                [&](Chunk<ExprMIR>& innerexpr) { return innerexpr->act_type->alloc_size(); },
                 [&](Type *type) { return type->alloc_size(); }},
             expr.operand));
 

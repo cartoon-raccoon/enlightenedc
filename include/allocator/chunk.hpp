@@ -77,9 +77,9 @@ public:
         other.ptr = tmp;
     }
 
-    T& operator*() { return *ptr; }
+    T& operator*() const { return *ptr; }
 
-    T *operator->() { return ptr; }
+    T *operator->() const { return ptr; }
 
     bool operator==(const Chunk& other) const { return ptr == other.ptr; }
 

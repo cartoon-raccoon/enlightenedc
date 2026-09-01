@@ -56,7 +56,7 @@ public:
     template <typename E, typename... Args>
         requires std::derived_from<E, EccSemError>
     void add_error(Args... args) {
-        Box<EccSemError> err = std::make_unique<E>(args...);
+        Box<EccSemError> err = make_box<E>(args...);
         errors.push_back(std::move(err));
     }
 
@@ -72,7 +72,7 @@ protected:
 
     Concretely, this creates a new CastExprMIR node, with node.castkind set to Implicit.
     */
-    Box<mir::CastExprMIR> cast(types::Type *target, Box<mir::ExprMIR> expr);
+    Chunk<mir::CastExprMIR> cast(types::Type *target, Chunk<mir::ExprMIR> expr);
 
     /**
     Decays expr into target.
@@ -81,8 +81,8 @@ protected:
     and returns it, but the difference is that the castkind is set to
     either ArrPtrDecay, or FuncPtrDecay.
     */
-    Box<mir::CastExprMIR>
-    decay(types::Type *target, Box<mir::ExprMIR> expr, bool is_funcdecay = false);
+    Chunk<mir::CastExprMIR>
+    decay(types::Type *target, Chunk<mir::ExprMIR> expr, bool is_funcdecay = false);
 
     Optional<types::Type *>
     eval_initializer(types::Type *type, mir::InitializerMIR& init, bool allow_size_infer = false);
@@ -142,20 +142,20 @@ private:
         bool allow_size_infer = false);
 
     Optional<types::Type *> eval_initializer_expr(
-        types::Type *type, Box<mir::ExprMIR>& expr, mir::InitializerMIR& init,
+        types::Type *type, Chunk<mir::ExprMIR>& expr, mir::InitializerMIR& init,
         bool allow_size_infer = false);
 
     void eval_initializer_rec_cls(
-        types::AccessorPath& path, types::ClassType *cls, Vec<Box<mir::InitializerMIR>>& init);
+        types::AccessorPath& path, types::ClassType *cls, Vec<Chunk<mir::InitializerMIR>>& init);
 
     void eval_initializer_rec_arr(
-        types::AccessorPath& path, types::ArrayType *arr, Vec<Box<mir::InitializerMIR>>& init);
+        types::AccessorPath& path, types::ArrayType *arr, Vec<Chunk<mir::InitializerMIR>>& init);
 
     void validate_binexpr_nonprim(mir::BinaryExprMIR& node);
 
     void validate_binexpr_prim(mir::BinaryExprMIR& node);
 
-    void validate_print(std::string& format_str, Span<Box<mir::ExprMIR>> args);
+    void validate_print(std::string& format_str, Span<Chunk<mir::ExprMIR>> args);
 };
 
 } // namespace ecc::sema

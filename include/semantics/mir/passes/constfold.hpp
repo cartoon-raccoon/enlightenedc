@@ -1,9 +1,10 @@
 #pragma once
-#include "semantics/mir/mir.hpp"
 #ifndef ECC_OPTI_CONSTFOLD_H
 #define ECC_OPTI_CONSTFOLD_H
 
+#include "allocator/chunk.hpp"
 #include "eval/consteval.hpp"
+#include "semantics/mir/mir.hpp"
 #include "semantics/semantics.hpp"
 #include "semantics/symbols.hpp"
 #include "semantics/types.hpp"
@@ -30,7 +31,7 @@ protected:
         return sema::ScopeGuard<sema::mir::MIRNode>(State::READ, syms, assoc);
     }
 
-    Box<sema::mir::LiteralExprMIR> eval_and_expr(Box<sema::mir::ExprMIR>&, Location);
+    Chunk<sema::mir::LiteralExprMIR> eval_and_expr(Chunk<sema::mir::ExprMIR>&, Location);
 
     void do_visit(sema::mir::InitializerMIR& node) override;
     void do_visit(sema::mir::ExprStmtMIR& node) override;

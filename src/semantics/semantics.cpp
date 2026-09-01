@@ -1,8 +1,8 @@
 #include "semantics/semantics.hpp"
 
 #include <cassert>
-#include <memory>
 
+#include "allocator/chunk.hpp"
 #include "ast/ast.hpp"
 #include "semantics/mir/mir.hpp"
 #include "util.hpp"
@@ -580,7 +580,7 @@ void BaseMIRSemaVisitor::do_visit(mir::ProgramMIR& node) {
 }
 
 void BaseMIRSemaVisitor::do_visit(mir::FunctionMIR& node) {
-    if (node.body.get()) {
+    if (node.body) {
         node.body->accept(*this);
     }
 }
@@ -588,10 +588,10 @@ void BaseMIRSemaVisitor::do_visit(mir::FunctionMIR& node) {
 void BaseMIRSemaVisitor::do_visit(mir::InitializerMIR& node) {
     std::visit(
         match{
-            [&](Box<ExprMIR>& expr) { expr->accept(*this); },
-            [&](Box<InitializerMIR::Member>& mem) { mem->initializer->accept(*this); },
-            [&](Box<InitializerMIR::Index>& idx) { idx->initializer->accept(*this); },
-            [&](Vec<Box<InitializerMIR>>& inits) {
+            [&](Chunk<ExprMIR>& expr) { expr->accept(*this); },
+            [&](Chunk<InitializerMIR::Member>& mem) { mem->initializer->accept(*this); },
+            [&](Chunk<InitializerMIR::Index>& idx) { idx->initializer->accept(*this); },
+            [&](Vec<Chunk<InitializerMIR>>& inits) {
                 for (auto& init : inits) {
                     init->accept(*this);
                 }
@@ -745,7 +745,7 @@ void BaseMIRSemaVisitor::do_visit(mir::PostfixExprMIR& node) {
 void BaseMIRSemaVisitor::do_visit(mir::SizeofExprMIR& node) {
     std::visit(
         match{
-            [&](Box<ExprMIR>& expr) { expr->accept(*this); },
+            [&](Chunk<ExprMIR>& expr) { expr->accept(*this); },
             [&](types::Type *& type) {
                 /* terminal node */
             }},

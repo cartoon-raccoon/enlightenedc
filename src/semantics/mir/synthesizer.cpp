@@ -52,12 +52,12 @@ void MIRSynthesizer::generate_mir(Program& prog) {
     prog.accept(*this);
 }
 
-Box<MIRSynthesizer::SpecifierInfo>
+MIRSynthesizer::SpecifierInfo
 MIRSynthesizer::parse_speclist(Vec<Chunk<ast::DeclarationSpecifier>>& speclist, Location loc) {
     using NK = ASTNode::NodeKind;
 
     bsv_dbprint("parsing declaration specifier list for node at ", loc);
-    Box<SpecifierInfo> specinfo = std::make_unique<SpecifierInfo>();
+    SpecifierInfo specinfo;
 
     for (auto& decl_spec : speclist) {
         decl_spec->accept(*this);
@@ -66,10 +66,10 @@ MIRSynthesizer::parse_speclist(Vec<Chunk<ast::DeclarationSpecifier>>& speclist, 
             auto qualtype = take_last_result<TypeQualifier::QualType>();
             switch (qualtype) {
             case TypeQualifier::QualType::CONST:
-                if (specinfo->is_const) {
+                if (specinfo.is_const) {
                     add_error<EccSemError>("duplicate const qualifier", decl_spec->loc);
                 } else {
-                    specinfo->is_const = true;
+                    specinfo.is_const = true;
                 }
             }
         } break;
@@ -78,74 +78,74 @@ MIRSynthesizer::parse_speclist(Vec<Chunk<ast::DeclarationSpecifier>>& speclist, 
             auto spectype = take_last_result<StorageClassSpecifier::SpecType>();
             switch (spectype) {
             case StorageClassSpecifier::PUBLIC:
-                if (specinfo->is_public) {
+                if (specinfo.is_public) {
                     add_error<EccSemError>("duplicate public specifier", decl_spec->loc);
                 } else {
-                    specinfo->is_public = true;
+                    specinfo.is_public = true;
                 }
                 break;
 
             case StorageClassSpecifier::STATIC:
-                if (specinfo->is_static) {
+                if (specinfo.is_static) {
                     add_error<EccSemError>("duplicate static specifier", decl_spec->loc);
                 } else {
-                    specinfo->is_static = true;
+                    specinfo.is_static = true;
                 }
                 break;
 
             case StorageClassSpecifier::EXTERN:
-                if (specinfo->linkage != Linkage::INTERNAL) {
+                if (specinfo.linkage != Linkage::INTERNAL) {
                     add_error<EccSemError>("multiple storage class specifiers", decl_spec->loc);
                 } else {
-                    specinfo->linkage = Linkage::EXTERNAL;
+                    specinfo.linkage = Linkage::EXTERNAL;
                 }
                 break;
 
             case StorageClassSpecifier::EXTERNC:
-                if (specinfo->linkage != Linkage::INTERNAL) {
+                if (specinfo.linkage != Linkage::INTERNAL) {
                     add_error<EccSemError>("multiple storage class specifiers", decl_spec->loc);
                 } else {
-                    specinfo->linkage = Linkage::EXTERNC;
+                    specinfo.linkage = Linkage::EXTERNC;
                 }
                 break;
             }
         } break;
 
         case NK::TYPE_IDENT: {
-            specinfo->symbol = take_last_result<TypeSymbol *>();
+            specinfo.symbol = take_last_result<TypeSymbol *>();
             // No need to check for nullptr here because it is guaranteed,
             // if the ident didn't exist it would have thrown
-            specinfo->type = (*specinfo->symbol)->type;
+            specinfo.type = (*specinfo.symbol)->type;
             break;
         }
 
         case NK::CLASS_SPEC: {
             auto typespecret = take_last_result<TypeSpecRet<ClassType>>();
-            specinfo->type   = typespecret.type;
-            specinfo->symbol = typespecret.symbol;
+            specinfo.type   = typespecret.type;
+            specinfo.symbol = typespecret.symbol;
             break;
         }
 
         case NK::UNION_SPEC: {
             auto typespecret = take_last_result<TypeSpecRet<UnionType>>();
-            specinfo->type   = typespecret.type;
-            specinfo->symbol = typespecret.symbol;
+            specinfo.type   = typespecret.type;
+            specinfo.symbol = typespecret.symbol;
             break;
         }
 
         case NK::ENUM_SPEC: {
             auto typespecret = take_last_result<TypeSpecRet<EnumType>>();
-            specinfo->type   = typespecret.type;
-            specinfo->symbol = typespecret.symbol;
+            specinfo.type   = typespecret.type;
+            specinfo.symbol = typespecret.symbol;
             break;
         }
 
         case NK::VOID_SPEC:
-            specinfo->type = take_last_result<VoidType *>();
+            specinfo.type = take_last_result<VoidType *>();
             break;
 
         case NK::PRIM_SPEC:
-            specinfo->type = take_last_result<PrimitiveType *>();
+            specinfo.type = take_last_result<PrimitiveType *>();
             break;
 
         default:
@@ -153,7 +153,7 @@ MIRSynthesizer::parse_speclist(Vec<Chunk<ast::DeclarationSpecifier>>& speclist, 
                 "encountered a non-declaration specifier while parsing specifiers");
         }
     }
-    assert(specinfo->type);
+    assert(specinfo.type);
     bsv_dbprint("finished parsing specifiers for node ", loc);
 
     return specinfo;
@@ -166,9 +166,9 @@ void MIRSynthesizer::do_visit(Program& node) {
         dv_call_noparam(item);
         std::visit(
             match{
-                [&](Box<DeclMIR>& decl) mutable { prog_mir.add_item(std::move(decl)); },
-                [&](Box<StmtMIR>& stmt) mutable { prog_mir.add_item(std::move(stmt)); },
-                [&](Box<FunctionMIR>& func) mutable { prog_mir.add_item(std::move(func)); },
+                [&](Chunk<DeclMIR>& decl) mutable { prog_mir.add_item(std::move(decl)); },
+                [&](Chunk<StmtMIR>& stmt) mutable { prog_mir.add_item(std::move(stmt)); },
+                [&](Chunk<FunctionMIR>& func) mutable { prog_mir.add_item(std::move(func)); },
                 [&](std::monostate&) {
                     // ignore and continue
                 },
@@ -219,15 +219,15 @@ void MIRSynthesizer::do_visit(Function& node) {
 
     // Parse and construct specifier info
     VisitParam param            = std::move(dovisit_param);
-    Box<SpecifierInfo> specinfo = parse_speclist(node.decl_spec_list, node.loc);
+    SpecifierInfo specinfo = parse_speclist(node.decl_spec_list, node.loc);
     dovisit_param               = std::move(param);
 
-    if (specinfo->linkage == Linkage::EXTERNAL) {
+    if (specinfo.linkage == Linkage::EXTERNAL) {
         add_error<EccSemError>("externally linked functions cannot have a body", node.loc);
         throw UnableToContinue();
     }
 
-    BaseType *return_base = specinfo->type;
+    BaseType *return_base = specinfo.type;
 
     if (!node.declarator->direct) {
         add_error<EccSemError>(
@@ -242,7 +242,7 @@ void MIRSynthesizer::do_visit(Function& node) {
 
     // Visit the Declarator to construct the type builder.
     dv_call_noparam(node.declarator);
-    auto builder = take_last_result<Box<DeclaratorBuilder>>();
+    auto builder = take_last_result<Chunk<DeclaratorBuilder>>();
     builder->ty_bldr.set_base(return_base);
 
     // The latest function parameters.
@@ -300,9 +300,9 @@ void MIRSynthesizer::do_visit(Function& node) {
         node.loc, *builder->name, syms.current, functype, std::move(paramsym_ptrs));
     FuncSymbol *sym_ptr = symbol.get();
 
-    symbol->get_symdata()->set_linkage(specinfo->linkage);
+    symbol->get_symdata()->set_linkage(specinfo.linkage);
     // extern "C" function with body, default to Visibility::ExternC
-    if (specinfo->linkage == Linkage::EXTERNC) {
+    if (specinfo.linkage == Linkage::EXTERNC) {
         symbol->get_symdata()->set_visibility(Visibility::EXTERNC);
     }
 
@@ -326,12 +326,12 @@ void MIRSynthesizer::do_visit(Function& node) {
     // If void function and no explicit return, insert one
     if (functype->returntype()->is_void()) {
         if (res.first->items.empty() || !isa<ReturnStmtMIR>(res.first->items.back())) {
-            res.first->add_item(std::make_unique<ReturnStmtMIR>(Location()));
+            res.first->add_item(make_chunk<ReturnStmtMIR>(Location()));
         }
     }
 
-    Box<FunctionMIR> func =
-        std::make_unique<FunctionMIR>(node.loc, sym_ptr, res.second, std::move(res.first));
+    Chunk<FunctionMIR> func =
+        make_chunk<FunctionMIR>(node.loc, sym_ptr, res.second, std::move(res.first));
 
     for (auto& attr : node.attributes) {
         dv_call(func.get(), attr);
@@ -345,9 +345,9 @@ void MIRSynthesizer::do_visit(TypeDeclaration& node) {
 
     auto specinfo = parse_speclist(node.specifiers, node.loc);
 
-    if (specinfo->symbol) {
-        TypeSymbol *symptr = (*specinfo->symbol);
-        Box<DeclMIR> decl  = std::make_unique<TypeDeclMIR>(node.loc, symptr);
+    if (specinfo.symbol) {
+        TypeSymbol *symptr = (*specinfo.symbol);
+        Chunk<DeclMIR> decl  = make_chunk<TypeDeclMIR>(node.loc, symptr);
 
         for (auto& attr : node.attributes) {
             dv_call(decl.get(), attr);
@@ -364,11 +364,11 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
 
     auto specinfo = parse_speclist(node.specifiers, node.loc);
 
-    Box<VarDeclMIR> var_decl = std::make_unique<VarDeclMIR>(node.loc);
+    Chunk<VarDeclMIR> var_decl = make_chunk<VarDeclMIR>(node.loc);
 
     for (auto& declarator : node.declarators) {
         // call accept on our declarator
-        dv_call(specinfo->type, declarator);
+        dv_call(specinfo.type, declarator);
 
         // take the last result; should be InitDecltrRet
         auto ret = take_last_result<InitDecltrRet>();
@@ -385,11 +385,11 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
         }
 
         Type *symtype = ret.type;
-        if (specinfo->is_const) {
+        if (specinfo.is_const) {
             symtype = types.get_const(symtype);
         }
 
-        if (specinfo->is_public && specinfo->is_static) {
+        if (specinfo.is_public && specinfo.is_static) {
             add_error<EccSemError>("conflicting visibility specifiers", declarator->loc);
         }
 
@@ -426,12 +426,12 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
             Box<FuncSymbol> funcsym =
                 FuncSymbol::empty(node.loc, *ret.name, syms.current, functype);
 
-            if (specinfo->is_public) {
+            if (specinfo.is_public) {
                 funcsym->get_symdata()->set_visibility(Visibility::PUBLIC);
             }
 
-            funcsym->get_symdata()->set_linkage(specinfo->linkage);
-            if (specinfo->linkage == Linkage::EXTERNC) {
+            funcsym->get_symdata()->set_linkage(specinfo.linkage);
+            if (specinfo.linkage == Linkage::EXTERNC) {
                 funcsym->get_symdata()->set_visibility(Visibility::EXTERNC);
             }
 
@@ -452,8 +452,8 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
                 throw UnableToContinue();
             }
 
-            Box<FunctionMIR> funcmir =
-                std::make_unique<FunctionMIR>(node.loc, funcptr, syms.current, nullptr);
+            Chunk<FunctionMIR> funcmir =
+                make_chunk<FunctionMIR>(node.loc, funcptr, syms.current, nullptr);
 
             dv_return(funcmir);
         } else {
@@ -461,15 +461,15 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
             Box<VarSymbol> sym = nullptr;
             VarSymbol *symptr  = nullptr;
 
-            sym    = std::make_unique<VarSymbol>(declarator->loc, *ret.name, syms.current, symtype);
+            sym    = make_box<VarSymbol>(declarator->loc, *ret.name, syms.current, symtype);
             symptr = sym.get();
 
             // populate other specifiers, and then insert into symbol table
-            if (specinfo->is_public) {
+            if (specinfo.is_public) {
                 sym->get_symdata()->set_visibility(Visibility::PUBLIC);
             }
 
-            sym->get_symdata()->set_linkage(specinfo->linkage);
+            sym->get_symdata()->set_linkage(specinfo.linkage);
 
             if (sym->is_external() && syms.current != syms.global()) {
                 add_error<EccSemError>(
@@ -495,7 +495,7 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
 
             // extract the initializer mir
             if (ret.init_mir) {
-                Box<InitializerMIR> init_mir = std::move(*ret.init_mir);
+                Chunk<InitializerMIR> init_mir = std::move(*ret.init_mir);
                 var_decl->add_decl(symptr, std::move(init_mir));
             } else {
                 var_decl->add_decl(symptr);
@@ -503,7 +503,7 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
         }
     }
 
-    Box<DeclMIR> decl = std::move(var_decl);
+    Chunk<DeclMIR> decl = std::move(var_decl);
 
     for (auto& attr : node.attributes) {
         dv_call(decl.get(), attr);
@@ -519,7 +519,7 @@ void MIRSynthesizer::do_visit(InitDeclarator& node) {
 
     dv_call_noparam(node.declarator);
     // pull builder before we visit the initializer
-    Box<DeclaratorBuilder> builder = take_last_result<Box<DeclaratorBuilder>>();
+    Chunk<DeclaratorBuilder> builder = take_last_result<Chunk<DeclaratorBuilder>>();
 
     builder->ty_bldr.set_base(base);
     Type *complete = builder->ty_bldr.finalize();
@@ -544,13 +544,13 @@ void MIRSynthesizer::do_visit(InitDeclarator& node) {
 }
 
 void MIRSynthesizer::do_visit(Declarator& node) {
-    Box<DeclaratorBuilder> builder;
+    Chunk<DeclaratorBuilder> builder;
     if (node.direct) {
         dv_call_noparam(node.direct.value());
-        builder = take_last_result<Box<DeclaratorBuilder>>();
+        builder = take_last_result<Chunk<DeclaratorBuilder>>();
     } else {
         // no direct declarator, assume abstract
-        builder = std::make_unique<DeclaratorBuilder>(std::nullopt, types.builder());
+        builder = make_chunk<DeclaratorBuilder>(std::nullopt, types.builder());
     }
     if (node.pointer.has_value()) {
         dv_call(builder.get(), node.pointer.value());
@@ -563,7 +563,7 @@ void MIRSynthesizer::do_visit(ParenDeclarator& node) {
     bsv_dbprint("visiting ParenDeclarator node: ", node.loc);
     dv_call_noparam(node.inner);
 
-    auto ret = take_last_result<Box<DeclaratorBuilder>>();
+    auto ret = take_last_result<Chunk<DeclaratorBuilder>>();
     dv_return(ret);
 }
 
@@ -571,7 +571,7 @@ void MIRSynthesizer::do_visit(ArrayDeclarator& node) {
     bsv_dbprint("visiting ArrayDeclarator node: ", node.loc);
     dv_call_noparam(node.base);
 
-    auto builder = take_last_result<Box<DeclaratorBuilder>>();
+    auto builder = take_last_result<Chunk<DeclaratorBuilder>>();
 
     Optional<uint64_t> size{};
     if (node.size) {
@@ -602,7 +602,7 @@ void MIRSynthesizer::do_visit(ArrayDeclarator& node) {
 void MIRSynthesizer::do_visit(FunctionDeclarator& node) {
     bsv_dbprint("visiting FunctionDeclarator node: ", node.loc);
     dv_call_noparam(node.base);
-    auto builder = take_last_result<Box<DeclaratorBuilder>>();
+    auto builder = take_last_result<Chunk<DeclaratorBuilder>>();
 
     Vec<FuncParam> parameters;
 
@@ -636,13 +636,13 @@ void MIRSynthesizer::do_visit(ParameterDeclaration& node) {
     last_result: FuncParam
     */
     bsv_dbprint("visiting ParameterDeclarator node: ", node.loc);
-    Box<SpecifierInfo> specinfo = parse_speclist(node.specifiers, node.loc);
+    SpecifierInfo specinfo = parse_speclist(node.specifiers, node.loc);
 
     FuncParam ret;
     if (node.declarator) {
         dv_call_noparam(*node.declarator);
-        auto builder = take_last_result<Box<DeclaratorBuilder>>();
-        builder->ty_bldr.set_base(specinfo->type);
+        auto builder = take_last_result<Chunk<DeclaratorBuilder>>();
+        builder->ty_bldr.set_base(specinfo.type);
 
         Type *final_type = builder->ty_bldr.finalize();
         // if the parameter type is an array, decay it to a pointer (as in C)
@@ -651,12 +651,12 @@ void MIRSynthesizer::do_visit(ParameterDeclaration& node) {
         }
 
         if (builder->name) {
-            ret = {final_type, builder->name, node.loc, specinfo->is_const, {}};
+            ret = {final_type, builder->name, node.loc, specinfo.is_const, {}};
         } else {
-            ret = {final_type, {}, node.loc, specinfo->is_const, {}};
+            ret = {final_type, {}, node.loc, specinfo.is_const, {}};
         }
     } else {
-        ret = {specinfo->type, {}, node.loc, specinfo->is_const, {}};
+        ret = {specinfo.type, {}, node.loc, specinfo.is_const, {}};
     }
 
     if (node.default_value) {
@@ -676,7 +676,7 @@ void MIRSynthesizer::do_visit(IdentifierDeclarator& node) {
     */
     bsv_dbprint("visiting IdentifierDeclarator node: ", node.loc);
 
-    auto ret = std::make_unique<DeclaratorBuilder>(node.name, types.builder());
+    auto ret = make_chunk<DeclaratorBuilder>(node.name, types.builder());
     dv_return(ret);
 }
 
@@ -975,7 +975,7 @@ void MIRSynthesizer::do_visit(ClassDeclaration& node) {
 
     // save our current param, as it may get clobbered while parsing specifiers
     RecordType *recordty        = take_dovisit_param<RecordType *>();
-    Box<SpecifierInfo> specinfo = parse_speclist(node.specifiers, node.loc);
+    SpecifierInfo specinfo = parse_speclist(node.specifiers, node.loc);
 
     if (recordty->is_class()) {
         bsv_dbprint("parsing ClassDeclaration for ClassType ", recordty->id());
@@ -988,11 +988,11 @@ void MIRSynthesizer::do_visit(ClassDeclaration& node) {
         try {
             std::visit(
                 match{
-                    [&](Box<DeclaratorBuilder>& builder) {
-                        builder->ty_bldr.set_base(specinfo->type);
+                    [&](Chunk<DeclaratorBuilder>& builder) {
+                        builder->ty_bldr.set_base(specinfo.type);
                         Type *finaltype = builder->ty_bldr.finalize();
 
-                        if (specinfo->is_const) {
+                        if (specinfo.is_const) {
                             finaltype = types.get_const(finaltype);
                         }
 
@@ -1005,9 +1005,9 @@ void MIRSynthesizer::do_visit(ClassDeclaration& node) {
                     [&](std::monostate&) {
                         // no declarator, use the base type
 
-                        Type *to_add = specinfo->type;
+                        Type *to_add = specinfo.type;
 
-                        if (specinfo->is_const) {
+                        if (specinfo.is_const) {
                             to_add = types.get_const(to_add);
                         }
                         recordty->add_member(to_add, decltr->loc);
@@ -1032,7 +1032,7 @@ void MIRSynthesizer::do_visit(ClassDeclarator& node) {
     bsv_dbprint("visiting ClassDeclarator node: ", node.loc);
     if (node.declarator) {
         dv_call_noparam(node.declarator.value());
-        auto ret = take_last_result<Box<DeclaratorBuilder>>();
+        auto ret = take_last_result<Chunk<DeclaratorBuilder>>();
         dv_return(ret);
     } else {
         dv_return_void();
@@ -1053,9 +1053,9 @@ void MIRSynthesizer::do_visit(Initializer& node) { // NOLINT
             [&](Chunk<Expression>& expr) {
                 bsv_dbprint("visiting single initializer");
                 dv_call_noparam(expr);
-                Box<ExprMIR> exprmir = take_last_result<Box<ExprMIR>>();
-                Box<InitializerMIR> init =
-                    std::make_unique<InitializerMIR>(loc, std::move(exprmir));
+                Chunk<ExprMIR> exprmir = take_last_result<Chunk<ExprMIR>>();
+                Chunk<InitializerMIR> init =
+                    make_chunk<InitializerMIR>(loc, std::move(exprmir));
                 InitializerRet ret = {{}, std::move(init)};
                 dv_return(ret);
             },
@@ -1088,8 +1088,8 @@ void MIRSynthesizer::do_visit(Initializer& node) { // NOLINT
 
                 auto initmir = take_last_result<InitializerRet>();
 
-                Box<InitializerMIR> init =
-                    std::make_unique<InitializerMIR>(loc, mem->member, std::move(initmir.init_mir));
+                Chunk<InitializerMIR> init =
+                    make_chunk<InitializerMIR>(loc, mem->member, std::move(initmir.init_mir));
 
                 InitializerRet ret = {initmir.new_type, std::move(init)};
                 dv_return(ret);
@@ -1105,8 +1105,8 @@ void MIRSynthesizer::do_visit(Initializer& node) { // NOLINT
 
                 auto initmir = take_last_result<InitializerRet>();
 
-                Box<InitializerMIR> init =
-                    std::make_unique<InitializerMIR>(loc, new_idx, std::move(initmir.init_mir));
+                Chunk<InitializerMIR> init =
+                    make_chunk<InitializerMIR>(loc, new_idx, std::move(initmir.init_mir));
 
                 InitializerRet ret = {initmir.new_type, std::move(init)};
                 dv_return(ret);
@@ -1115,7 +1115,7 @@ void MIRSynthesizer::do_visit(Initializer& node) { // NOLINT
             [&](Vec<Chunk<Initializer>>& inits) {
                 bsv_dbprint("visiting compound initializer");
 
-                Vec<Box<InitializerMIR>> init_mirs{};
+                Vec<Chunk<InitializerMIR>> init_mirs{};
                 InitializerRet ret{{}, nullptr};
 
                 switch (type->kind) {
@@ -1194,8 +1194,8 @@ void MIRSynthesizer::do_visit(Initializer& node) { // NOLINT
                 }
                 }
 
-                Box<InitializerMIR> fullinit =
-                    std::make_unique<InitializerMIR>(loc, std::move(init_mirs));
+                Chunk<InitializerMIR> fullinit =
+                    make_chunk<InitializerMIR>(loc, std::move(init_mirs));
                 ret.init_mir = std::move(fullinit);
                 dv_return(ret);
             }},
@@ -1205,24 +1205,24 @@ void MIRSynthesizer::do_visit(Initializer& node) { // NOLINT
 void MIRSynthesizer::do_visit(TypeName& node) {
     // dovisit_param: monostate
     // last_result: Type *
-    Box<SpecifierInfo> specinfo = parse_speclist(node.specifiers, node.loc);
+    SpecifierInfo specinfo = parse_speclist(node.specifiers, node.loc);
 
     if (node.declarator) {
         dv_call_noparam(*node.declarator);
-        auto builder = take_last_result<Box<DeclaratorBuilder>>();
-        builder->ty_bldr.set_base(specinfo->type);
+        auto builder = take_last_result<Chunk<DeclaratorBuilder>>();
+        builder->ty_bldr.set_base(specinfo.type);
 
         Type *finaltype = builder->ty_bldr.finalize();
 
-        if (specinfo->is_const) {
+        if (specinfo.is_const) {
             finaltype = types.get_const(finaltype);
         }
 
         dv_return(finaltype);
     } else {
 
-        Type *ret = specinfo->type;
-        if (specinfo->is_const) {
+        Type *ret = specinfo.type;
+        if (specinfo.is_const) {
             ret = types.get_const(ret);
         }
         dv_return(ret);
@@ -1271,14 +1271,14 @@ void MIRSynthesizer::do_visit(CompoundStatement& node) {
         }
     }
 
-    Vec<Box<ProgItemMIR>> progitems{};
+    Vec<Chunk<ProgItemMIR>> progitems{};
     for (auto& item : node.items) {
         dv_call_noparam(item);
         std::visit(
             match{
-                [&](Box<DeclMIR>& decl) mutable { progitems.push_back(std::move(decl)); },
-                [&](Box<StmtMIR>& stmt) mutable { progitems.push_back(std::move(stmt)); },
-                [&](Box<FunctionMIR>& func) mutable { progitems.push_back(std::move(func)); },
+                [&](Chunk<DeclMIR>& decl) mutable { progitems.push_back(std::move(decl)); },
+                [&](Chunk<StmtMIR>& stmt) mutable { progitems.push_back(std::move(stmt)); },
+                [&](Chunk<FunctionMIR>& func) mutable { progitems.push_back(std::move(func)); },
                 [](std::monostate&) {
                     // ignore and continue
                 },
@@ -1292,14 +1292,14 @@ void MIRSynthesizer::do_visit(CompoundStatement& node) {
     // resolve our return value
     if (add_symbols) {
         // we had add_symbols, so we were called from function
-        Box<CompoundStmtMIR> cmpdmir =
-            std::make_unique<CompoundStmtMIR>(node.loc, std::move(progitems));
+        Chunk<CompoundStmtMIR> cmpdmir =
+            make_chunk<CompoundStmtMIR>(node.loc, std::move(progitems));
         VisitResult ret = std::pair(std::move(cmpdmir), syms.current);
 
         dv_return(ret);
     } else {
 
-        Box<StmtMIR> cmpdmir = std::make_unique<CompoundStmtMIR>(node.loc, std::move(progitems));
+        Chunk<StmtMIR> cmpdmir = make_chunk<CompoundStmtMIR>(node.loc, std::move(progitems));
 
         dv_return(cmpdmir);
     }
@@ -1310,7 +1310,7 @@ void MIRSynthesizer::do_visit(ExpressionStatement& node) {
     using MNK = MIRNode::NodeKind;
     if (node.expression) {
         dv_call_noparam(*node.expression);
-        auto expr = take_last_result<Box<ExprMIR>>();
+        auto expr = take_last_result<Chunk<ExprMIR>>();
 
         switch (expr->kind) {
         // If the internal expression is a string literal expression, emit a PrintStatement
@@ -1323,8 +1323,8 @@ void MIRSynthesizer::do_visit(ExpressionStatement& node) {
                 bsv_dbprint(
                     "found string literal inside ExpressionStatement, emitting PrintStmtMIR");
                 std::string format_string = std::move(*str);
-                Box<StmtMIR> stmt =
-                    std::make_unique<PrintStmtMIR>(node.loc, std::move(format_string));
+                Chunk<StmtMIR> stmt =
+                    make_chunk<PrintStmtMIR>(node.loc, std::move(format_string));
                 dv_return(stmt);
             }
             break;
@@ -1346,8 +1346,8 @@ void MIRSynthesizer::do_visit(ExpressionStatement& node) {
                 if (idtype->no_params()) {
                     bsv_dbprint(
                         "found identexpr of type function with no params, emitting CallExprMIR");
-                    Vec<Box<ExprMIR>> empty_args{};
-                    expr = std::make_unique<CallExprMIR>(
+                    Vec<Chunk<ExprMIR>> empty_args{};
+                    expr = make_chunk<CallExprMIR>(
                         node.loc, syms.current, std::move(expr), std::move(empty_args));
                 }
             }
@@ -1357,11 +1357,11 @@ void MIRSynthesizer::do_visit(ExpressionStatement& node) {
         default:
             break;
         }
-        Box<StmtMIR> stmt = std::make_unique<ExprStmtMIR>(node.loc, std::move(expr));
+        Chunk<StmtMIR> stmt = make_chunk<ExprStmtMIR>(node.loc, std::move(expr));
         dv_return(stmt);
 
     } else {
-        Box<StmtMIR> stmt = std::make_unique<ExprStmtMIR>(node.loc);
+        Chunk<StmtMIR> stmt = make_chunk<ExprStmtMIR>(node.loc);
         dv_return(stmt);
     }
 }
@@ -1372,9 +1372,9 @@ void MIRSynthesizer::do_visit(CaseStatement& node) {
     Value case_val = take_last_result<Value>();
 
     dv_call_noparam(node.statement);
-    Box<StmtMIR> stmt = take_last_result<Box<StmtMIR>>();
+    Chunk<StmtMIR> stmt = take_last_result<Chunk<StmtMIR>>();
 
-    Box<StmtMIR> casestmt = std::make_unique<CaseStmtMIR>(node.loc, case_val, std::move(stmt));
+    Chunk<StmtMIR> casestmt = make_chunk<CaseStmtMIR>(node.loc, case_val, std::move(stmt));
 
     dv_return(casestmt);
 }
@@ -1389,10 +1389,10 @@ void MIRSynthesizer::do_visit(CaseRangeStatement& node) {
     Value case_end = take_last_result<Value>();
 
     dv_call_noparam(node.statement);
-    Box<StmtMIR> stmt = take_last_result<Box<StmtMIR>>();
+    Chunk<StmtMIR> stmt = take_last_result<Chunk<StmtMIR>>();
 
-    Box<StmtMIR> casestmt =
-        std::make_unique<CaseRangeStmtMIR>(node.loc, case_start, case_end, std::move(stmt));
+    Chunk<StmtMIR> casestmt =
+        make_chunk<CaseRangeStmtMIR>(node.loc, case_start, case_end, std::move(stmt));
 
     dv_return(casestmt);
 }
@@ -1400,9 +1400,9 @@ void MIRSynthesizer::do_visit(CaseRangeStatement& node) {
 void MIRSynthesizer::do_visit(DefaultStatement& node) {
     bsv_dbprint("visiting DefaultStatement node: ", node.loc);
     dv_call_noparam(node.statement);
-    Box<StmtMIR> stmt = take_last_result<Box<StmtMIR>>();
+    Chunk<StmtMIR> stmt = take_last_result<Chunk<StmtMIR>>();
 
-    Box<StmtMIR> defstmt = std::make_unique<DefaultStmtMIR>(node.loc, std::move(stmt));
+    Chunk<StmtMIR> defstmt = make_chunk<DefaultStmtMIR>(node.loc, std::move(stmt));
 
     dv_return(defstmt);
 }
@@ -1414,26 +1414,26 @@ void MIRSynthesizer::do_visit(LabeledStatement& node) {
     syms.insert(node.label, std::move(label));
     dv_call_noparam(node.statement);
 
-    auto stmt = take_last_result<Box<StmtMIR>>();
+    auto stmt = take_last_result<Chunk<StmtMIR>>();
 
-    Box<StmtMIR> ret = std::make_unique<LabeledStmtMIR>(node.loc, labelptr, std::move(stmt));
+    Chunk<StmtMIR> ret = make_chunk<LabeledStmtMIR>(node.loc, labelptr, std::move(stmt));
     dv_return(ret);
 }
 
 void MIRSynthesizer::do_visit(PrintStatement& node) {
     bsv_dbprint("visiting PrintStatement node: ", node.loc);
 
-    Vec<Box<ExprMIR>> exprs{};
+    Vec<Chunk<ExprMIR>> exprs{};
     exprs.reserve(node.arguments.size());
 
     for (auto& arg : node.arguments) {
         dv_call_noparam(arg);
-        Box<ExprMIR> argmir = take_last_result<Box<ExprMIR>>();
+        Chunk<ExprMIR> argmir = take_last_result<Chunk<ExprMIR>>();
         exprs.push_back(std::move(argmir));
     }
 
-    Box<StmtMIR> printstmt =
-        std::make_unique<PrintStmtMIR>(node.loc, node.format_string, std::move(exprs));
+    Chunk<StmtMIR> printstmt =
+        make_chunk<PrintStmtMIR>(node.loc, node.format_string, std::move(exprs));
 
     dv_return(printstmt);
 }
@@ -1441,18 +1441,18 @@ void MIRSynthesizer::do_visit(PrintStatement& node) {
 void MIRSynthesizer::do_visit(IfStatement& node) {
     bsv_dbprint("visiting IfStatement node: ", node.loc);
     dv_call_noparam(node.condition);
-    Box<ExprMIR> cond = take_last_result<Box<ExprMIR>>();
+    Chunk<ExprMIR> cond = take_last_result<Chunk<ExprMIR>>();
 
     dv_call_noparam(node.then_branch);
-    Box<StmtMIR> then_br = take_last_result<Box<StmtMIR>>();
+    Chunk<StmtMIR> then_br = take_last_result<Chunk<StmtMIR>>();
 
-    Optional<Box<StmtMIR>> else_br;
+    Optional<Chunk<StmtMIR>> else_br;
     if (node.else_branch.has_value()) {
         dv_call_noparam(node.else_branch.value());
-        else_br = take_last_result<Box<StmtMIR>>();
+        else_br = take_last_result<Chunk<StmtMIR>>();
     }
 
-    Box<StmtMIR> ifstmt = std::make_unique<IfStmtMIR>(
+    Chunk<StmtMIR> ifstmt = make_chunk<IfStmtMIR>(
         node.loc, std::move(cond), std::move(then_br), std::move(else_br));
 
     dv_return(ifstmt);
@@ -1461,13 +1461,13 @@ void MIRSynthesizer::do_visit(IfStatement& node) {
 void MIRSynthesizer::do_visit(SwitchStatement& node) {
     bsv_dbprint("visiting SwitchStatement node: ", node.loc);
     dv_call_noparam(node.condition);
-    Box<ExprMIR> cond = take_last_result<Box<ExprMIR>>();
+    Chunk<ExprMIR> cond = take_last_result<Chunk<ExprMIR>>();
 
     dv_call_noparam(node.body);
-    Box<StmtMIR> stmt = take_last_result<Box<StmtMIR>>();
+    Chunk<StmtMIR> stmt = take_last_result<Chunk<StmtMIR>>();
 
-    Box<StmtMIR> switchst =
-        std::make_unique<SwitchStmtMIR>(node.loc, std::move(cond), std::move(stmt));
+    Chunk<StmtMIR> switchst =
+        make_chunk<SwitchStmtMIR>(node.loc, std::move(cond), std::move(stmt));
 
     dv_return(switchst);
 }
@@ -1476,13 +1476,13 @@ void MIRSynthesizer::do_visit(WhileStatement& node) {
     bsv_dbprint("visiting WhileStatement node: ", node.loc);
 
     dv_call_noparam(node.condition);
-    Box<ExprMIR> cond = take_last_result<Box<ExprMIR>>();
+    Chunk<ExprMIR> cond = take_last_result<Chunk<ExprMIR>>();
     dv_call_noparam(node.body);
-    Box<StmtMIR> body = take_last_result<Box<StmtMIR>>();
+    Chunk<StmtMIR> body = take_last_result<Chunk<StmtMIR>>();
 
     // Create the actual loop
-    Box<StmtMIR> loop =
-        std::make_unique<LoopStmtMIR>(node.loc, std::move(cond), std::move(body), false);
+    Chunk<StmtMIR> loop =
+        make_chunk<LoopStmtMIR>(node.loc, std::move(cond), std::move(body), false);
 
     dv_return(loop);
 }
@@ -1491,12 +1491,12 @@ void MIRSynthesizer::do_visit(DoWhileStatement& node) {
     bsv_dbprint("visiting DoWhileStatement node: ", node.loc);
 
     dv_call_noparam(node.condition);
-    Box<ExprMIR> cond = take_last_result<Box<ExprMIR>>();
+    Chunk<ExprMIR> cond = take_last_result<Chunk<ExprMIR>>();
     dv_call_noparam(node.body);
-    Box<StmtMIR> body = take_last_result<Box<StmtMIR>>();
+    Chunk<StmtMIR> body = take_last_result<Chunk<StmtMIR>>();
 
-    Box<StmtMIR> loop =
-        std::make_unique<LoopStmtMIR>(node.loc, std::move(cond), std::move(body), true);
+    Chunk<StmtMIR> loop =
+        make_chunk<LoopStmtMIR>(node.loc, std::move(cond), std::move(body), true);
 
     dv_return(loop);
 }
@@ -1504,22 +1504,22 @@ void MIRSynthesizer::do_visit(DoWhileStatement& node) {
 void MIRSynthesizer::do_visit(ForStatement& node) {
     bsv_dbprint("visiting ForStatement node: ", node.loc);
 
-    Box<LoopStmtMIR> loop = std::make_unique<LoopStmtMIR>(node.loc, nullptr);
+    Chunk<LoopStmtMIR> loop = make_chunk<LoopStmtMIR>(node.loc, nullptr);
 
     if (node.init.has_value()) {
         std::visit(
             match{
                 [&](Chunk<Expression>& expr) {
                     dv_call_noparam(expr);
-                    Box<ExprMIR> exprmir = take_last_result<Box<ExprMIR>>();
-                    Box<ExprStmtMIR> exprstmt =
-                        std::make_unique<ExprStmtMIR>(expr->loc, std::move(exprmir));
+                    Chunk<ExprMIR> exprmir = take_last_result<Chunk<ExprMIR>>();
+                    Chunk<ExprStmtMIR> exprstmt =
+                        make_chunk<ExprStmtMIR>(expr->loc, std::move(exprmir));
 
                     loop->init = std::move(exprstmt);
                 },
                 [&](Chunk<VariableDeclaration>& decl) {
                     dv_call_noparam(decl);
-                    Box<DeclMIR> declmir = take_last_result<Box<DeclMIR>>();
+                    Chunk<DeclMIR> declmir = take_last_result<Chunk<DeclMIR>>();
                     loop->init           = std::move(declmir);
                 }},
             *node.init);
@@ -1527,61 +1527,61 @@ void MIRSynthesizer::do_visit(ForStatement& node) {
 
     if (node.condition.has_value()) {
         dv_call_noparam(node.condition.value());
-        Box<ExprMIR> cond = take_last_result<Box<ExprMIR>>();
+        Chunk<ExprMIR> cond = take_last_result<Chunk<ExprMIR>>();
         loop->condition   = std::move(cond);
     }
 
     dv_call_noparam(node.body);
-    Box<StmtMIR> body = take_last_result<Box<StmtMIR>>();
+    Chunk<StmtMIR> body = take_last_result<Chunk<StmtMIR>>();
 
     loop->body = std::move(body);
 
     if (node.increment.has_value()) {
         dv_call_noparam(node.increment.value());
-        Box<ExprMIR> step_expr = take_last_result<Box<ExprMIR>>();
-        Box<StmtMIR> step_stmt =
-            std::make_unique<ExprStmtMIR>(step_expr->loc, std::move(step_expr));
+        Chunk<ExprMIR> step_expr = take_last_result<Chunk<ExprMIR>>();
+        Chunk<StmtMIR> step_stmt =
+            make_chunk<ExprStmtMIR>(step_expr->loc, std::move(step_expr));
 
         loop->step = std::move(step_stmt);
     }
 
-    Box<StmtMIR> stmt = std::move(loop);
+    Chunk<StmtMIR> stmt = std::move(loop);
     dv_return(stmt);
 }
 
 void MIRSynthesizer::do_visit(GotoStatement& node) {
     bsv_dbprint("visiting GotoStatement node: ", node.loc);
 
-    Box<StmtMIR> stmt = std::make_unique<GotoStmtMIR>(node.loc, node.target_label);
+    Chunk<StmtMIR> stmt = make_chunk<GotoStmtMIR>(node.loc, node.target_label);
     dv_return(stmt);
 }
 
 void MIRSynthesizer::do_visit(BreakStatement& node) {
     bsv_dbprint("visiting BreakStatement node: ", node.loc);
 
-    Box<StmtMIR> stmt = std::make_unique<BreakStmtMIR>(node.loc);
+    Chunk<StmtMIR> stmt = make_chunk<BreakStmtMIR>(node.loc);
     dv_return(stmt);
 }
 
 void MIRSynthesizer::do_visit(ContinueStatement& node) {
     bsv_dbprint("visiting ContinueStatement node: ", node.loc);
 
-    Box<StmtMIR> stmt = std::make_unique<ContStmtMIR>(node.loc);
+    Chunk<StmtMIR> stmt = make_chunk<ContStmtMIR>(node.loc);
     dv_return(stmt);
 }
 
 void MIRSynthesizer::do_visit(ReturnStatement& node) {
     bsv_dbprint("visiting ReturnStatement node: ", node.loc);
 
-    Box<ReturnStmtMIR> retstmt = std::make_unique<ReturnStmtMIR>(node.loc);
+    Chunk<ReturnStmtMIR> retstmt = make_chunk<ReturnStmtMIR>(node.loc);
 
     if (node.return_value) {
         dv_call_noparam(*node.return_value);
-        Box<ExprMIR> return_value = take_last_result<Box<ExprMIR>>();
-        retstmt->ret_expr         = std::move(return_value);
+        Chunk<ExprMIR> return_value = take_last_result<Chunk<ExprMIR>>();
+        retstmt->ret_expr           = std::move(return_value);
     }
 
-    Box<StmtMIR> stmt = std::move(retstmt);
+    Chunk<StmtMIR> stmt = std::move(retstmt);
     dv_return(stmt);
 }
 
@@ -1589,11 +1589,11 @@ void MIRSynthesizer::do_visit(BinaryExpression& node) {
     bsv_dbprint("visiting BinaryExpression node: ", node.loc);
 
     dv_call_noparam(node.left);
-    Box<ExprMIR> left = take_last_result<Box<ExprMIR>>();
+    Chunk<ExprMIR> left = take_last_result<Chunk<ExprMIR>>();
     dv_call_noparam(node.right);
-    Box<ExprMIR> right = take_last_result<Box<ExprMIR>>();
+    Chunk<ExprMIR> right = take_last_result<Chunk<ExprMIR>>();
 
-    Box<ExprMIR> expr = std::make_unique<BinaryExprMIR>(
+    Chunk<ExprMIR> expr = make_chunk<BinaryExprMIR>(
         node.loc, syms.current, std::move(left), std::move(right), node.op);
 
     dv_return(expr);
@@ -1602,10 +1602,10 @@ void MIRSynthesizer::do_visit(BinaryExpression& node) {
 void MIRSynthesizer::do_visit(UnaryExpression& node) {
     bsv_dbprint("visiting UnaryExpression node: ", node.loc);
     dv_call_noparam(node.operand);
-    Box<ExprMIR> operand = take_last_result<Box<ExprMIR>>();
+    Chunk<ExprMIR> operand = take_last_result<Chunk<ExprMIR>>();
 
-    Box<ExprMIR> expr =
-        std::make_unique<UnaryExprMIR>(node.loc, syms.current, std::move(operand), node.op);
+    Chunk<ExprMIR> expr =
+        make_chunk<UnaryExprMIR>(node.loc, syms.current, std::move(operand), node.op);
 
     dv_return(expr);
 }
@@ -1613,12 +1613,12 @@ void MIRSynthesizer::do_visit(UnaryExpression& node) {
 void MIRSynthesizer::do_visit(CastExpression& node) {
     bsv_dbprint("visiting CastExpression node: ", node.loc);
     dv_call_noparam(node.inner);
-    Box<ExprMIR> inner = take_last_result<Box<ExprMIR>>();
+    Chunk<ExprMIR> inner = take_last_result<Chunk<ExprMIR>>();
     dv_call_noparam(node.type_name);
     Type *target = take_last_result<Type *>();
 
-    Box<ExprMIR> expr =
-        std::make_unique<CastExprMIR>(node.loc, syms.current, target, std::move(inner));
+    Chunk<ExprMIR> expr =
+        make_chunk<CastExprMIR>(node.loc, syms.current, target, std::move(inner));
 
     dv_return(expr);
 }
@@ -1626,11 +1626,11 @@ void MIRSynthesizer::do_visit(CastExpression& node) {
 void MIRSynthesizer::do_visit(AssignmentExpression& node) {
     bsv_dbprint("visiting AssignmentExpression node: ", node.loc);
     dv_call_noparam(node.left);
-    Box<ExprMIR> left = take_last_result<Box<ExprMIR>>();
+    Chunk<ExprMIR> left = take_last_result<Chunk<ExprMIR>>();
     dv_call_noparam(node.right);
-    Box<ExprMIR> right = take_last_result<Box<ExprMIR>>();
+    Chunk<ExprMIR> right = take_last_result<Chunk<ExprMIR>>();
 
-    Box<ExprMIR> expr = std::make_unique<AssignExprMIR>(
+    Chunk<ExprMIR> expr = make_chunk<AssignExprMIR>(
         node.loc, syms.current, std::move(left), std::move(right), node.op);
 
     dv_return(expr);
@@ -1639,13 +1639,13 @@ void MIRSynthesizer::do_visit(AssignmentExpression& node) {
 void MIRSynthesizer::do_visit(ConditionalExpression& node) {
     bsv_dbprint("visiting ConditionalExpression node: ", node.loc);
     dv_call_noparam(node.condition);
-    Box<ExprMIR> condition = take_last_result<Box<ExprMIR>>();
+    Chunk<ExprMIR> condition = take_last_result<Chunk<ExprMIR>>();
     dv_call_noparam(node.true_expr);
-    Box<ExprMIR> true_expr = take_last_result<Box<ExprMIR>>();
+    Chunk<ExprMIR> true_expr = take_last_result<Chunk<ExprMIR>>();
     dv_call_noparam(node.false_expr);
-    Box<ExprMIR> false_expr = take_last_result<Box<ExprMIR>>();
+    Chunk<ExprMIR> false_expr = take_last_result<Chunk<ExprMIR>>();
 
-    Box<ExprMIR> expr = std::make_unique<CondExprMIR>(
+    Chunk<ExprMIR> expr = make_chunk<CondExprMIR>(
         node.loc, syms.current, std::move(condition), std::move(true_expr), std::move(false_expr));
 
     dv_return(expr);
@@ -1667,7 +1667,7 @@ void MIRSynthesizer::do_visit(IdentifierExpression& node) {
     PhysicalSymbol *physsym = sym->as_physical();
     assert(physsym);
 
-    Box<ExprMIR> expr = std::make_unique<IdentExprMIR>(node.loc, syms.current, physsym);
+    Chunk<ExprMIR> expr = make_chunk<IdentExprMIR>(node.loc, syms.current, physsym);
 
     dv_return(expr);
 }
@@ -1675,7 +1675,7 @@ void MIRSynthesizer::do_visit(IdentifierExpression& node) {
 void MIRSynthesizer::do_visit(ConstExpression& node) {
     bsv_dbprint("visiting ConstExpression node: ", node.loc);
     dv_call_noparam(node.inner);
-    Box<ExprMIR> inner = take_last_result<Box<ExprMIR>>();
+    Chunk<ExprMIR> inner = take_last_result<Chunk<ExprMIR>>();
 
     ConstEvaluator evalr(syms, types);
     Value res;
@@ -1715,7 +1715,7 @@ void MIRSynthesizer::do_visit(LiteralExpression& node) {
         break;
     }
 
-    Box<ExprMIR> expr = std::make_unique<LiteralExprMIR>(node.loc, syms.current, val);
+    Chunk<ExprMIR> expr = make_chunk<LiteralExprMIR>(node.loc, syms.current, val);
 
     dv_return(expr);
 }
@@ -1723,7 +1723,7 @@ void MIRSynthesizer::do_visit(LiteralExpression& node) {
 void MIRSynthesizer::do_visit(StringExpression& node) {
     bsv_dbprint("visiting StringExpression node: ", node.loc);
 
-    Box<ExprMIR> expr = std::make_unique<LiteralExprMIR>(node.loc, syms.current, node.value);
+    Chunk<ExprMIR> expr = make_chunk<LiteralExprMIR>(node.loc, syms.current, node.value);
 
     dv_return(expr);
 }
@@ -1731,17 +1731,17 @@ void MIRSynthesizer::do_visit(StringExpression& node) {
 void MIRSynthesizer::do_visit(CallExpression& node) {
     bsv_dbprint("visiting CallExpression node: ", node.loc);
     dv_call_noparam(node.callee);
-    Box<ExprMIR> callee = take_last_result<Box<ExprMIR>>();
+    Chunk<ExprMIR> callee = take_last_result<Chunk<ExprMIR>>();
 
-    Vec<Box<ExprMIR>> args;
+    Vec<Chunk<ExprMIR>> args;
     for (auto& arg : node.arguments) {
         dv_call_noparam(arg);
-        Box<ExprMIR> argument = take_last_result<Box<ExprMIR>>();
+        Chunk<ExprMIR> argument = take_last_result<Chunk<ExprMIR>>();
         args.push_back(std::move(argument));
     }
 
-    Box<ExprMIR> call =
-        std::make_unique<CallExprMIR>(node.loc, syms.current, std::move(callee), std::move(args));
+    Chunk<ExprMIR> call =
+        make_chunk<CallExprMIR>(node.loc, syms.current, std::move(callee), std::move(args));
 
     dv_return(call);
 }
@@ -1750,9 +1750,9 @@ void MIRSynthesizer::do_visit(MemberAccessExpression& node) {
     bsv_dbprint("visiting MemberAccessExpression node: ", node.loc);
 
     dv_call_noparam(node.object);
-    Box<ExprMIR> object = take_last_result<Box<ExprMIR>>();
+    Chunk<ExprMIR> object = take_last_result<Chunk<ExprMIR>>();
 
-    Box<ExprMIR> expr = std::make_unique<MemberAccExprMIR>(
+    Chunk<ExprMIR> expr = make_chunk<MemberAccExprMIR>(
         node.loc, syms.current, std::move(object), node.member, node.is_arrow);
 
     dv_return(expr);
@@ -1762,9 +1762,9 @@ void MIRSynthesizer::do_visit(ReinterpretExpression& node) {
     bsv_dbprint("visiting ReinterpretExpression node: ", node.loc);
 
     dv_call_noparam(node.object);
-    Box<ExprMIR> object = take_last_result<Box<ExprMIR>>();
+    Chunk<ExprMIR> object = take_last_result<Chunk<ExprMIR>>();
 
-    Box<ExprMIR> expr = std::make_unique<ReintExprMIR>(
+    Chunk<ExprMIR> expr = make_chunk<ReintExprMIR>(
         node.loc, syms.current, std::move(object), node.target, node.is_arrow);
 
     dv_return(expr);
@@ -1774,13 +1774,13 @@ void MIRSynthesizer::do_visit(ArraySubscriptExpression& node) {
     bsv_dbprint("visiting ArraySubscriptExpression node: ", node.loc);
 
     dv_call_noparam(node.array);
-    Box<ExprMIR> array = take_last_result<Box<ExprMIR>>();
+    Chunk<ExprMIR> array = take_last_result<Chunk<ExprMIR>>();
 
     dv_call_noparam(node.index);
-    Box<ExprMIR> index = take_last_result<Box<ExprMIR>>();
+    Chunk<ExprMIR> index = take_last_result<Chunk<ExprMIR>>();
 
-    Box<ExprMIR> expr =
-        std::make_unique<SubscrExprMIR>(node.loc, syms.current, std::move(array), std::move(index));
+    Chunk<ExprMIR> expr =
+        make_chunk<SubscrExprMIR>(node.loc, syms.current, std::move(array), std::move(index));
 
     dv_return(expr);
 }
@@ -1789,10 +1789,10 @@ void MIRSynthesizer::do_visit(PostfixExpression& node) {
     bsv_dbprint("visiting PostfixExpression node: ", node.loc);
 
     dv_call_noparam(node.operand);
-    Box<ExprMIR> operand = take_last_result<Box<ExprMIR>>();
+    Chunk<ExprMIR> operand = take_last_result<Chunk<ExprMIR>>();
 
-    Box<ExprMIR> expr =
-        std::make_unique<PostfixExprMIR>(node.loc, syms.current, std::move(operand), node.op);
+    Chunk<ExprMIR> expr =
+        make_chunk<PostfixExprMIR>(node.loc, syms.current, std::move(operand), node.op);
 
     dv_return(expr);
 }
@@ -1800,14 +1800,14 @@ void MIRSynthesizer::do_visit(PostfixExpression& node) {
 void MIRSynthesizer::do_visit(SizeofExpression& node) {
     bsv_dbprint("visiting SizeofExpression node: ", node.loc);
 
-    Box<SizeofExprMIR> sizexpr = std::make_unique<SizeofExprMIR>(node.loc, syms.current);
+    Chunk<SizeofExprMIR> sizexpr = make_chunk<SizeofExprMIR>(node.loc, syms.current);
     std::visit(
         match{
             [&](Chunk<Expression>& expr) mutable {
                 // this might be a literal expression, so we defer
                 // resolution of the actual type to validation.
                 dv_call_noparam(expr);
-                Box<ExprMIR> target = take_last_result<Box<ExprMIR>>();
+                Chunk<ExprMIR> target = take_last_result<Chunk<ExprMIR>>();
                 sizexpr->operand    = std::move(target);
             },
             [&](Chunk<TypeName>& typen) mutable {
@@ -1817,6 +1817,6 @@ void MIRSynthesizer::do_visit(SizeofExpression& node) {
             }},
         node.operand);
 
-    Box<ExprMIR> expr = std::move(sizexpr);
+    Chunk<ExprMIR> expr = std::move(sizexpr);
     dv_return(expr);
 }

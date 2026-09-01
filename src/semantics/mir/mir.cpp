@@ -30,22 +30,22 @@ DO_EVAL(SubscrExprMIR, eval::ExprEvaluator);
 DO_EVAL(PostfixExprMIR, eval::ExprEvaluator);
 DO_EVAL(SizeofExprMIR, eval::ExprEvaluator);
 
-void CompoundStmtMIR::add_item(Box<ProgItemMIR> item) {
+void CompoundStmtMIR::add_item(Chunk<ProgItemMIR> item) {
     items.push_back(std::move(item));
 }
 
-void ProgramMIR::add_item(Box<ProgItemMIR> item) {
+void ProgramMIR::add_item(Chunk<ProgItemMIR> item) {
     items.push_back(std::move(item));
 }
 
 bool InitializerMIR::is_all_literals() {
     return std::visit(
         match{
-            [&](Box<ExprMIR>& expr) { return expr->kind == MIRNode::NodeKind::LITEXPR_MIR; },
-            [&](Box<InitializerMIR::Member>& mem) { return mem->initializer->is_all_literals(); },
-            [&](Box<InitializerMIR::Index>& idx) { return idx->initializer->is_all_literals(); },
-            [&](Vec<Box<InitializerMIR>>& init) {
-                return std::all_of(init.cbegin(), init.cend(), [](const Box<InitializerMIR>& init) {
+            [&](Chunk<ExprMIR>& expr) { return expr->kind == MIRNode::NodeKind::LITEXPR_MIR; },
+            [&](Chunk<InitializerMIR::Member>& mem) { return mem->initializer->is_all_literals(); },
+            [&](Chunk<InitializerMIR::Index>& idx) { return idx->initializer->is_all_literals(); },
+            [&](Vec<Chunk<InitializerMIR>>& init) {
+                return std::all_of(init.cbegin(), init.cend(), [](const Chunk<InitializerMIR>& init) {
                     return init->is_all_literals();
                 });
             }},
@@ -56,6 +56,6 @@ void VarDeclMIR::add_decl(VarSymbol *sym) {
     decls.emplace_back(VarDecl{sym, {}});
 }
 
-void VarDeclMIR::add_decl(VarSymbol *sym, Box<InitializerMIR> init) {
+void VarDeclMIR::add_decl(VarSymbol *sym, Chunk<InitializerMIR> init) {
     decls.emplace_back(VarDecl{sym, std::move(init)});
 }

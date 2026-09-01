@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 
+#include "allocator/chunk.hpp"
 #include "eval/value.hpp"
 #include "semantics/mir/mir.hpp"
 #include "semantics/types.hpp"
@@ -208,7 +209,7 @@ Value ConstEvaluator::eval(SizeofExprMIR& expr) {
 
     std::visit(
         util::match{
-            [&](Box<ExprMIR>& e) {
+            [&](Chunk<ExprMIR>& e) {
                 // only accept ident expressions
                 if (e->kind != MIRNode::NodeKind::IDENTEXPR_MIR) {
                     throw InvalidCompileTimeEval("invalid expression argument to sizeof", e->loc);

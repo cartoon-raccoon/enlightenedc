@@ -25,15 +25,15 @@ void Validator::validate(ProgramMIR& progmir) {
     progmir.accept(*this);
 }
 
-Box<CastExprMIR> Validator::cast(Type *target, Box<mir::ExprMIR> expr) {
-    auto newexpr = make_box<CastExprMIR>(expr->loc, expr->scope, target, std::move(expr));
+Chunk<CastExprMIR> Validator::cast(Type *target, Chunk<mir::ExprMIR> expr) {
+    auto newexpr = make_chunk<CastExprMIR>(expr->loc, expr->scope, target, std::move(expr));
     newexpr->set_type(target);
     newexpr->castkind = CastExprMIR::CastKind::Implicit;
     return newexpr;
 }
 
-Box<CastExprMIR> Validator::decay(Type *target, Box<mir::ExprMIR> expr, bool is_funcdecay) {
-    auto newexpr = make_box<CastExprMIR>(expr->loc, expr->scope, target, std::move(expr));
+Chunk<CastExprMIR> Validator::decay(Type *target, Chunk<mir::ExprMIR> expr, bool is_funcdecay) {
+    auto newexpr = make_chunk<CastExprMIR>(expr->loc, expr->scope, target, std::move(expr));
     newexpr->set_type(target);
 
     if (is_funcdecay) {
@@ -44,7 +44,7 @@ Box<CastExprMIR> Validator::decay(Type *target, Box<mir::ExprMIR> expr, bool is_
     return newexpr;
 }
 
-void Validator::validate_print(std::string& format_str, Span<Box<mir::ExprMIR>> args) {
+void Validator::validate_print(std::string& format_str, Span<Chunk<mir::ExprMIR>> args) {
     // todo
     size_t arg_index = 0;
     for (auto i = format_str.begin(); i != format_str.end(); ++i) {
@@ -125,14 +125,14 @@ Optional<Type *> Validator::eval_initializer_rec(
             /*
             Base case. If evaluates to a single expression, perform type comparison.
             */
-            [&](Box<ExprMIR>& expr) mutable -> Optional<Type *> {
+            [&](Chunk<ExprMIR>& expr) mutable -> Optional<Type *> {
                 bsv_dbprint("Validator: matched on single expression");
                 return eval_initializer_expr(type, expr, init, allow_size_infer);
             },
             /*
             Recursive case. If there is a list of initializers, this has to be a class or array.
             */
-            [&](Vec<Box<InitializerMIR>>& inner) mutable -> Optional<Type *> {
+            [&](Vec<Chunk<InitializerMIR>>& inner) mutable -> Optional<Type *> {
                 switch (type->kind) {
                 case Type::Kind::CLASS:
                     eval_initializer_rec_cls(path, type->as_class(), inner);
@@ -159,13 +159,13 @@ Optional<Type *> Validator::eval_initializer_rec(
             */
             [&](auto&) -> Optional<Type *> {
                 throw std::runtime_error(
-                    "encountered variant other than ExprMIR and Vec<Box<InitializerMIR>>");
+                    "encountered variant other than ExprMIR and Vec<Chunk<InitializerMIR>>");
             }},
         init.initializer);
 }
 
 Optional<Type *> Validator::eval_initializer_expr(
-    Type *type, Box<ExprMIR>& expr, InitializerMIR& init, bool allow_size_infer) {
+    Type *type, Chunk<ExprMIR>& expr, InitializerMIR& init, bool allow_size_infer) {
     bsv_dbprint("Validator: eval_initializer_expr");
 
     expr->accept(*this);
@@ -242,7 +242,7 @@ Optional<Type *> Validator::eval_initializer_expr(
 }
 
 void Validator::eval_initializer_rec_cls(
-    types::AccessorPath& path, ClassType *cls, Vec<Box<InitializerMIR>>& inits) {
+    types::AccessorPath& path, ClassType *cls, Vec<Chunk<InitializerMIR>>& inits) {
     assert(cls && "cls was null while evaluating initializer");
 
     bsv_dbprint("Validator: eval_initializer_rec_cls");
@@ -251,7 +251,7 @@ void Validator::eval_initializer_rec_cls(
     for (auto&& [idx, init] : std::views::enumerate(inits)) {
         std::visit(
             match{
-                [&](Box<ExprMIR>& expr) {
+                [&](Chunk<ExprMIR>& expr) {
                     path.push_back(non_desigd_idx);
                     bsv_dbprint(path);
                     bsv_dbprint("checking non-desigd index ", non_desigd_idx);
@@ -271,7 +271,7 @@ void Validator::eval_initializer_rec_cls(
                     eval_initializer_expr(mem->ty, expr, *init);
                     path.pop_back();
                 },
-                [&](Box<InitializerMIR::Member>& mem) {
+                [&](Chunk<InitializerMIR::Member>& mem) {
                     path.push_back(mem->member);
                     RecordType::TypeMember *member = cls->find_by_path(path);
                     if (!member) {
@@ -285,14 +285,14 @@ void Validator::eval_initializer_rec_cls(
                     eval_initializer_rec(newpath, member->ty, *mem->initializer);
                     path.pop_back();
                 },
-                [&](Box<InitializerMIR::Index>& idx) {
+                [&](Chunk<InitializerMIR::Index>& idx) {
                     bsv_dbprint("error: index designators are not allowed in class initializers");
                     add_error<InvalidInitializerError>(
                         "index designators are not allowed in class initializers",
                         idx->initializer->loc);
                     throw UnableToContinue();
                 },
-                [&](Vec<Box<InitializerMIR>>&) {
+                [&](Vec<Chunk<InitializerMIR>>&) {
                     path.push_back(non_desigd_idx);
                     non_desigd_idx++;
                     RecordType::TypeMember *mem = cls->find_by_path(path);
@@ -312,7 +312,7 @@ void Validator::eval_initializer_rec_cls(
 }
 
 void Validator::eval_initializer_rec_arr(
-    types::AccessorPath& path, ArrayType *arr, Vec<Box<InitializerMIR>>& inits) {
+    types::AccessorPath& path, ArrayType *arr, Vec<Chunk<InitializerMIR>>& inits) {
     assert(arr && "arr was null while evaluating initializer");
 
     bsv_dbprint("Validator: eval_initializer_rec_arr");
@@ -321,15 +321,15 @@ void Validator::eval_initializer_rec_arr(
     for (auto&& [idx, init] : std::views::enumerate(inits)) {
         std::visit(
             match{
-                [&](Box<ExprMIR>& expr) { eval_initializer_expr(arr->get_base(), expr, *init); },
-                [&](Box<InitializerMIR::Member>& mem) {
+                [&](Chunk<ExprMIR>& expr) { eval_initializer_expr(arr->get_base(), expr, *init); },
+                [&](Chunk<InitializerMIR::Member>& mem) {
                     bsv_dbprint("error: member designators are not allowed in array initializers");
                     add_error<InvalidInitializerError>(
                         "member designators are not allowed in array initializers",
                         mem->initializer->loc);
                     throw UnableToContinue();
                 },
-                [&](Box<InitializerMIR::Index>& idx) {
+                [&](Chunk<InitializerMIR::Index>& idx) {
                     if (!idx->idx.is_integer()) {
                         bsv_dbprint(
                             "error: array index designated initializer must be an integer "
@@ -342,7 +342,7 @@ void Validator::eval_initializer_rec_arr(
 
                     eval_initializer_rec(path, arr->get_base(), *idx->initializer);
                 },
-                [&](Vec<Box<InitializerMIR>>&) {
+                [&](Vec<Chunk<InitializerMIR>>&) {
                     path.push_back(non_desigd_idx);
                     non_desigd_idx++;
 
@@ -1554,7 +1554,7 @@ void Validator::do_visit(SizeofExprMIR& node) { // done
 
     std::visit(
         match{
-            [&](Box<ExprMIR>& expr) {
+            [&](Chunk<ExprMIR>& expr) {
                 expr->accept(*this);
                 if (expr->act_type->is_function()) {
                     auto *prop_type = expr->act_type->as_function()->decay();

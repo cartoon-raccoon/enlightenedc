@@ -7,6 +7,8 @@
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
+#include <limits>
+#include <new>
 #include <type_traits>
 #include <utility>
 
@@ -314,6 +316,50 @@ Chunk<T> make_chunk(Args&&...args) {
     T *obj = detail::instance().create<T>(std::forward<Args>(args)...);
     return Chunk<T>(obj);
 }
+
+/**
+A generic allocator that allocates on the arena, instead of directly on the heap.
+
+Note that `deallocate` is a no-op; this allocator allocates on the arena, whose
+memory is only reclaimed after the entire arena is reset. When the arena is reset,
+every allocation is thus invalidated, and any pointers into it will be left dangling.
+*/
+template <typename T>
+class ArenaAllocator {
+public:
+    using value_type = T;
+    using size_type = size_t;
+    using difference_type = std::ptrdiff_t;
+
+    using is_always_equal = std::true_type;
+
+    static_assert(alignof(T) <= alignof(std::max_align_t), 
+        "alignment of T must be less than that of std::max_align_t");
+    static_assert(!std::is_const_v<T>, 
+        "cannot allocate a const type");
+
+    ArenaAllocator() noexcept = default;
+
+    template <class U>
+    ArenaAllocator(const ArenaAllocator<U>&) noexcept {}
+
+    [[nodiscard]]
+    T *allocate(size_t n) {
+        if (n > std::numeric_limits<size_t>::max() / sizeof(T)) {
+            throw std::bad_array_new_length();
+        }
+
+        if (n == 0) return nullptr;
+
+        return static_cast<T *>(detail::instance().alloc(n *sizeof(T), alignof(T)));
+    }
+
+    void deallocate(T *, size_t) noexcept {}
+
+    friend bool operator==(const ArenaAllocator&, const ArenaAllocator&) noexcept {
+        return true;
+    }
+};
 
 } // namespace ecc::alloc
 

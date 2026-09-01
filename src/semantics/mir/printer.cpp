@@ -32,7 +32,7 @@ void MIRPrinter::visit(FunctionMIR& node) {
                       << (node.is_declaration() ? "; [DECLARATION]" : "") << "\n";
         },
         [&] {
-            if (node.body.get()) {
+            if (node.body) {
                 node.body->accept(*this);
             } else {
                 std::cout << " (declaration)" << "\n";
@@ -76,16 +76,16 @@ void MIRPrinter::visit(InitializerMIR& node) {
     print_node("Initializer", node, [&] {
         std::visit(
             match{
-                [&](Box<ExprMIR>& expr) { expr->accept(*this); },
-                [&](Box<InitializerMIR::Member>& mem) {
+                [&](Chunk<ExprMIR>& expr) { expr->accept(*this); },
+                [&](Chunk<InitializerMIR::Member>& mem) {
                     std::cout << "." << mem->member << ": ";
                     mem->initializer->accept(*this);
                 },
-                [&](Box<InitializerMIR::Index>& idx) {
+                [&](Chunk<InitializerMIR::Index>& idx) {
                     std::cout << "[" << idx->idx.to_string() << "]: ";
                     idx->initializer->accept(*this);
                 },
-                [&](Vec<Box<InitializerMIR>>& inits) {
+                [&](Vec<Chunk<InitializerMIR>>& inits) {
                     for (auto& init : inits) {
                         init->accept(*this);
                     }
@@ -268,7 +268,7 @@ void MIRPrinter::visit(SizeofExprMIR& node) {
     print_node("Sizeof: :: " + node.act_type->formal(), node, [&] {
         std::visit(
             match{
-                [this](Box<ExprMIR>& expr) { expr->accept(*this); },
+                [this](Chunk<ExprMIR>& expr) { expr->accept(*this); },
                 [](Type *& type) { std::cout << type->to_string() << '\n'; }},
             node.operand);
     });

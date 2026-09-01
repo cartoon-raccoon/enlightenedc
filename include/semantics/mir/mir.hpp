@@ -243,30 +243,30 @@ class InitializerMIR : public MIRVisitable<InitializerMIR, MIRNode> {
 public:
     struct Member {
         std::string member;
-        Box<InitializerMIR> initializer;
+        Chunk<InitializerMIR> initializer;
     };
 
     struct Index {
         eval::Value idx;
-        Box<InitializerMIR> initializer;
+        Chunk<InitializerMIR> initializer;
     };
 
     using InitMIRType =
-        std::variant<Box<ExprMIR>, Box<Member>, Box<Index>, Vec<Box<InitializerMIR>>>;
+        std::variant<Chunk<ExprMIR>, Chunk<Member>, Chunk<Index>, Vec<Chunk<InitializerMIR>>>;
 
-    InitializerMIR(Location loc, Box<ExprMIR> expr)
+    InitializerMIR(Location loc, Chunk<ExprMIR> expr)
         : MIRVisitable<InitializerMIR, MIRNode>(loc, NodeKind::INIT_MIR),
           initializer(std::move(expr)) {}
 
-    InitializerMIR(Location loc, std::string mem, Box<InitializerMIR> init)
+    InitializerMIR(Location loc, std::string mem, Chunk<InitializerMIR> init)
         : MIRVisitable<InitializerMIR, MIRNode>(loc, NodeKind::INIT_MIR),
-          initializer(std::make_unique<Member>(std::move(mem), std::move(init))) {}
+          initializer(make_chunk<Member>(std::move(mem), std::move(init))) {}
 
-    InitializerMIR(Location loc, eval::Value& idx, Box<InitializerMIR> init)
+    InitializerMIR(Location loc, eval::Value& idx, Chunk<InitializerMIR> init)
         : MIRVisitable<InitializerMIR, MIRNode>(loc, NodeKind::INIT_MIR),
-          initializer(std::make_unique<Index>(idx, std::move(init))) {}
+          initializer(make_chunk<Index>(idx, std::move(init))) {}
 
-    InitializerMIR(Location loc, Vec<Box<InitializerMIR>> initializers)
+    InitializerMIR(Location loc, Vec<Chunk<InitializerMIR>> initializers)
         : MIRVisitable<InitializerMIR, MIRNode>(loc, NodeKind::INIT_MIR),
           initializer(std::move(initializers)) {}
 
@@ -297,7 +297,7 @@ class VarDeclMIR : public MIRVisitable<VarDeclMIR, DeclMIR> {
 public:
     struct VarDecl {
         sema::sym::VarSymbol *sym;
-        Optional<Box<InitializerMIR>> initializer;
+        Optional<Chunk<InitializerMIR>> initializer;
     };
 
     VarDeclMIR(Location loc) : MIRVisitable<VarDeclMIR, DeclMIR>(loc, NodeKind::VARDEC_MIR) {}
@@ -306,7 +306,7 @@ public:
 
     void add_decl(sema::sym::VarSymbol *sym);
 
-    void add_decl(sema::sym::VarSymbol *sym, Box<InitializerMIR> init);
+    void add_decl(sema::sym::VarSymbol *sym, Chunk<InitializerMIR> init);
 
     static bool classof(const MIRNode *node) { return node->kind == NodeKind::VARDEC_MIR; }
 };
@@ -316,25 +316,25 @@ public:
     CompoundStmtMIR(Location loc)
         : MIRVisitable<CompoundStmtMIR, StmtMIR>(loc, NodeKind::CMPDSTMT_MIR) {}
 
-    CompoundStmtMIR(Location loc, Vec<Box<ProgItemMIR>> items)
+    CompoundStmtMIR(Location loc, Vec<Chunk<ProgItemMIR>> items)
         : MIRVisitable<CompoundStmtMIR, StmtMIR>(loc, NodeKind::CMPDSTMT_MIR),
           items(std::move(items)) {}
 
-    Vec<Box<ProgItemMIR>> items;
+    Vec<Chunk<ProgItemMIR>> items;
 
-    void add_item(Box<ProgItemMIR> item);
+    void add_item(Chunk<ProgItemMIR> item);
 
     static bool classof(const MIRNode *node) { return node->kind == NodeKind::CMPDSTMT_MIR; }
 };
 
 class ExprStmtMIR : public MIRVisitable<ExprStmtMIR, StmtMIR> {
 public:
-    ExprStmtMIR(Location loc, Box<ExprMIR> expr)
+    ExprStmtMIR(Location loc, Chunk<ExprMIR> expr)
         : MIRVisitable<ExprStmtMIR, StmtMIR>(loc, NodeKind::EXPRSTMT_MIR), expr(std::move(expr)) {}
 
     ExprStmtMIR(Location loc) : MIRVisitable<ExprStmtMIR, StmtMIR>(loc, NodeKind::EXPRSTMT_MIR) {}
 
-    Optional<Box<ExprMIR>> expr;
+    Optional<Chunk<ExprMIR>> expr;
 
     bool is_empty() const { return !expr.has_value(); }
 
@@ -343,24 +343,24 @@ public:
 
 class SwitchStmtMIR : public MIRVisitable<SwitchStmtMIR, StmtMIR> {
 public:
-    SwitchStmtMIR(Location loc, Box<ExprMIR> condition, Box<StmtMIR> body)
+    SwitchStmtMIR(Location loc, Chunk<ExprMIR> condition, Chunk<StmtMIR> body)
         : MIRVisitable<SwitchStmtMIR, StmtMIR>(loc, NodeKind::SWITCHSTMT_MIR),
           control_val(std::move(condition)), body(std::move(body)) {}
 
-    Box<ExprMIR> control_val;
-    Box<StmtMIR> body;
+    Chunk<ExprMIR> control_val;
+    Chunk<StmtMIR> body;
 
     static bool classof(const MIRNode *node) { return node->kind == NodeKind::SWITCHSTMT_MIR; }
 };
 
 class CaseStmtMIR : public MIRVisitable<CaseStmtMIR, StmtMIR> {
 public:
-    CaseStmtMIR(Location loc, eval::Value& case_val, Box<StmtMIR> stmt)
+    CaseStmtMIR(Location loc, eval::Value& case_val, Chunk<StmtMIR> stmt)
         : MIRVisitable<CaseStmtMIR, StmtMIR>(loc, NodeKind::CASESTMT_MIR), case_val(case_val),
           stmt(std::move(stmt)) {}
 
     eval::Value case_val;
-    Box<StmtMIR> stmt;
+    Chunk<StmtMIR> stmt;
 
     static bool classof(const MIRNode *node) { return node->kind == NodeKind::CASESTMT_MIR; }
 };
@@ -368,36 +368,36 @@ public:
 class CaseRangeStmtMIR : public MIRVisitable<CaseRangeStmtMIR, StmtMIR> {
 public:
     CaseRangeStmtMIR(
-        Location loc, eval::Value& case_start, eval::Value& case_end, Box<StmtMIR> stmt)
+        Location loc, eval::Value& case_start, eval::Value& case_end, Chunk<StmtMIR> stmt)
         : MIRVisitable<CaseRangeStmtMIR, StmtMIR>(loc, NodeKind::CASERGSTMT_MIR),
           case_start(case_start), case_end(case_end), stmt(std::move(stmt)) {}
 
     eval::Value case_start;
     eval::Value case_end;
-    Box<StmtMIR> stmt;
+    Chunk<StmtMIR> stmt;
 
     static bool classof(const MIRNode *node) { return node->kind == NodeKind::CASERGSTMT_MIR; }
 };
 
 class DefaultStmtMIR : public MIRVisitable<DefaultStmtMIR, StmtMIR> {
 public:
-    DefaultStmtMIR(Location loc, Box<StmtMIR> stmt)
+    DefaultStmtMIR(Location loc, Chunk<StmtMIR> stmt)
         : MIRVisitable<DefaultStmtMIR, StmtMIR>(loc, NodeKind::DEFSTMT_MIR), stmt(std::move(stmt)) {
     }
 
-    Box<StmtMIR> stmt;
+    Chunk<StmtMIR> stmt;
 
     static bool classof(const MIRNode *node) { return node->kind == NodeKind::DEFSTMT_MIR; }
 };
 
 class LabeledStmtMIR : public MIRVisitable<LabeledStmtMIR, StmtMIR> {
 public:
-    LabeledStmtMIR(Location loc, sema::sym::LabelSymbol *label, Box<StmtMIR> stmt)
+    LabeledStmtMIR(Location loc, sema::sym::LabelSymbol *label, Chunk<StmtMIR> stmt)
         : MIRVisitable<LabeledStmtMIR, StmtMIR>(loc, NodeKind::LABSTMT_MIR), label(label),
           stmt(std::move(stmt)) {}
 
     sema::sym::LabelSymbol *label;
-    Box<StmtMIR> stmt;
+    Chunk<StmtMIR> stmt;
 
     static bool classof(const MIRNode *node) { return node->kind == NodeKind::LABSTMT_MIR; }
 };
@@ -408,12 +408,12 @@ public:
         : MIRVisitable<PrintStmtMIR, StmtMIR>(loc, NodeKind::PRINTSTMT_MIR),
           format_string(std::move(format_string)) {}
 
-    PrintStmtMIR(Location loc, std::string format_string, Vec<Box<ExprMIR>> arguments)
+    PrintStmtMIR(Location loc, std::string format_string, Vec<Chunk<ExprMIR>> arguments)
         : MIRVisitable<PrintStmtMIR, StmtMIR>(loc, NodeKind::PRINTSTMT_MIR),
           format_string(std::move(format_string)), arguments(std::move(arguments)) {}
 
     std::string format_string;
-    Vec<Box<ExprMIR>> arguments;
+    Vec<Chunk<ExprMIR>> arguments;
 
     static bool classof(const MIRNode *node) { return node->kind == NodeKind::PRINTSTMT_MIR; }
 };
@@ -421,25 +421,25 @@ public:
 class IfStmtMIR : public MIRVisitable<IfStmtMIR, StmtMIR> {
 public:
     IfStmtMIR(
-        Location loc, Box<ExprMIR> condition, Box<StmtMIR> then_branch, Box<StmtMIR> else_branch)
+        Location loc, Chunk<ExprMIR> condition, Chunk<StmtMIR> then_branch, Chunk<StmtMIR> else_branch)
         : MIRVisitable<IfStmtMIR, StmtMIR>(loc, NodeKind::IFSTMT_MIR),
           condition(std::move(condition)), then_branch(std::move(then_branch)),
           else_branch(std::move(else_branch)) {}
 
     IfStmtMIR(
-        Location loc, Box<ExprMIR> condition, Box<StmtMIR> then_branch,
-        Optional<Box<StmtMIR>> else_branch)
+        Location loc, Chunk<ExprMIR> condition, Chunk<StmtMIR> then_branch,
+        Optional<Chunk<StmtMIR>> else_branch)
         : MIRVisitable<IfStmtMIR, StmtMIR>(loc, NodeKind::IFSTMT_MIR),
           condition(std::move(condition)), then_branch(std::move(then_branch)),
           else_branch(std::move(else_branch)) {}
 
-    IfStmtMIR(Location loc, Box<ExprMIR> condition, Box<StmtMIR> then_branch)
+    IfStmtMIR(Location loc, Chunk<ExprMIR> condition, Chunk<StmtMIR> then_branch)
         : MIRVisitable<IfStmtMIR, StmtMIR>(loc, NodeKind::IFSTMT_MIR),
           condition(std::move(condition)), then_branch(std::move(then_branch)) {}
 
-    Box<ExprMIR> condition;
-    Box<StmtMIR> then_branch;
-    Optional<Box<StmtMIR>> else_branch;
+    Chunk<ExprMIR> condition;
+    Chunk<StmtMIR> then_branch;
+    Optional<Chunk<StmtMIR>> else_branch;
 
     static bool classof(const MIRNode *node) { return node->kind == NodeKind::IFSTMT_MIR; }
 };
@@ -449,17 +449,17 @@ A basic loop that all loops expand into.
 */
 class LoopStmtMIR : public MIRVisitable<LoopStmtMIR, StmtMIR> {
 public:
-    LoopStmtMIR(Location loc, Box<StmtMIR> body)
+    LoopStmtMIR(Location loc, Chunk<StmtMIR> body)
         : MIRVisitable<LoopStmtMIR, StmtMIR>(loc, NodeKind::LOOPSTMT_MIR), body(std::move(body)) {}
 
     LoopStmtMIR(
-        Location loc, Optional<Box<ProgItemMIR>> init, Optional<Box<ExprMIR>> condition,
-        Optional<Box<StmtMIR>> step, Box<StmtMIR> body, bool is_dowhile)
+        Location loc, Optional<Chunk<ProgItemMIR>> init, Optional<Chunk<ExprMIR>> condition,
+        Optional<Chunk<StmtMIR>> step, Chunk<StmtMIR> body, bool is_dowhile)
         : MIRVisitable<LoopStmtMIR, StmtMIR>(loc, NodeKind::LOOPSTMT_MIR), init(std::move(init)),
           condition(std::move(condition)), step(std::move(step)), body(std::move(body)),
           is_dowhile(is_dowhile) {}
 
-    LoopStmtMIR(Location loc, Box<ExprMIR> condition, Box<StmtMIR> body, bool is_dowhile)
+    LoopStmtMIR(Location loc, Chunk<ExprMIR> condition, Chunk<StmtMIR> body, bool is_dowhile)
         : MIRVisitable<LoopStmtMIR, StmtMIR>(loc, NodeKind::LOOPSTMT_MIR),
           condition(std::move(condition)), body(std::move(body)), is_dowhile(is_dowhile) {}
 
@@ -469,20 +469,20 @@ public:
     ProgItem is used because the init code can be a variable declaration
     or an expression statement.
     */
-    Optional<Box<ProgItemMIR>> init;
+    Optional<Chunk<ProgItemMIR>> init;
     /*
     The condition needed for the loop to continue.
 
     Can be missing (in the case of a for loop with no condition).
     */
-    Optional<Box<ExprMIR>> condition;
+    Optional<Chunk<ExprMIR>> condition;
     /*
     The step condition for updating a sentinel value in the loop.
     Only needed for `for` loops.
     */
-    Optional<Box<StmtMIR>> step;
+    Optional<Chunk<StmtMIR>> step;
     // The actual body of the loop.
-    Box<StmtMIR> body;
+    Chunk<StmtMIR> body;
     bool is_dowhile = false;
 
     static bool classof(const MIRNode *node) { return node->kind == NodeKind::LOOPSTMT_MIR; }
@@ -528,11 +528,11 @@ public:
     ReturnStmtMIR(Location loc)
         : MIRVisitable<ReturnStmtMIR, StmtMIR>(loc, NodeKind::RETSTMT_MIR) {}
 
-    ReturnStmtMIR(Location loc, Box<ExprMIR> ret_expr)
+    ReturnStmtMIR(Location loc, Chunk<ExprMIR> ret_expr)
         : MIRVisitable<ReturnStmtMIR, StmtMIR>(loc, NodeKind::RETSTMT_MIR),
           ret_expr(std::move(ret_expr)) {}
 
-    Optional<Box<ExprMIR>> ret_expr;
+    Optional<Chunk<ExprMIR>> ret_expr;
 
     static bool classof(const MIRNode *node) { return node->kind == NodeKind::RETSTMT_MIR; }
 };
@@ -540,13 +540,13 @@ public:
 class BinaryExprMIR : public MIRVisitable<BinaryExprMIR, ExprMIR> {
 public:
     BinaryExprMIR(
-        Location loc, sema::sym::Scope *scope, Box<ExprMIR> left, Box<ExprMIR> right,
+        Location loc, sema::sym::Scope *scope, Chunk<ExprMIR> left, Chunk<ExprMIR> right,
         tokens::BinaryOp op)
         : MIRVisitable<BinaryExprMIR, ExprMIR>(loc, NodeKind::BINEXPR_MIR, scope),
           left(std::move(left)), right(std::move(right)), op(op) {}
 
-    Box<ExprMIR> left;
-    Box<ExprMIR> right;
+    Chunk<ExprMIR> left;
+    Chunk<ExprMIR> right;
     tokens::BinaryOp op;
 
     bool is_assignable() override { return false; }
@@ -564,11 +564,11 @@ public:
 
 class UnaryExprMIR : public MIRVisitable<UnaryExprMIR, ExprMIR> {
 public:
-    UnaryExprMIR(Location loc, sema::sym::Scope *scope, Box<ExprMIR> operand, tokens::UnaryOp op)
+    UnaryExprMIR(Location loc, sema::sym::Scope *scope, Chunk<ExprMIR> operand, tokens::UnaryOp op)
         : MIRVisitable<UnaryExprMIR, ExprMIR>(loc, NodeKind::UNEXPR_MIR, scope),
           operand(std::move(operand)), op(op) {}
 
-    Box<ExprMIR> operand;
+    Chunk<ExprMIR> operand;
     tokens::UnaryOp op;
 
     bool is_assignable() override { return is_lvalue() && !act_type->is_const(); }
@@ -594,13 +594,13 @@ public:
     };
 
     CastExprMIR(
-        Location loc, sema::sym::Scope *scope, sema::types::Type *target, Box<ExprMIR> inner)
+        Location loc, sema::sym::Scope *scope, sema::types::Type *target, Chunk<ExprMIR> inner)
         : MIRVisitable<CastExprMIR, ExprMIR>(loc, NodeKind::CASTEXPR_MIR, scope), target(target),
           inner(std::move(inner)) {}
 
     CastKind castkind = CastKind::Explicit;
     sema::types::Type *target;
-    Box<ExprMIR> inner;
+    Chunk<ExprMIR> inner;
 
     bool is_assignable() override { return false; }
 
@@ -616,13 +616,13 @@ public:
 class AssignExprMIR : public MIRVisitable<AssignExprMIR, ExprMIR> {
 public:
     AssignExprMIR(
-        Location loc, sema::sym::Scope *scope, Box<ExprMIR> left, Box<ExprMIR> right,
+        Location loc, sema::sym::Scope *scope, Chunk<ExprMIR> left, Chunk<ExprMIR> right,
         tokens::AssignOp op)
         : MIRVisitable<AssignExprMIR, ExprMIR>(loc, NodeKind::ASSGNEXPR_MIR, scope),
           left(std::move(left)), right(std::move(right)), op(op) {}
 
-    Box<ExprMIR> left;
-    Box<ExprMIR> right;
+    Chunk<ExprMIR> left;
+    Chunk<ExprMIR> right;
     tokens::AssignOp op;
 
     bool is_lvalue() override { return false; }
@@ -637,15 +637,15 @@ public:
 class CondExprMIR : public MIRVisitable<CondExprMIR, ExprMIR> {
 public:
     CondExprMIR(
-        Location loc, sema::sym::Scope *scope, Box<ExprMIR> condition, Box<ExprMIR> true_expr,
-        Box<ExprMIR> false_expr)
+        Location loc, sema::sym::Scope *scope, Chunk<ExprMIR> condition, Chunk<ExprMIR> true_expr,
+        Chunk<ExprMIR> false_expr)
         : MIRVisitable<CondExprMIR, ExprMIR>(loc, NodeKind::CONDEXPR_MIR, scope),
           condition(std::move(condition)), true_expr(std::move(true_expr)),
           false_expr(std::move(false_expr)) {}
 
-    Box<ExprMIR> condition;
-    Box<ExprMIR> true_expr;
-    Box<ExprMIR> false_expr;
+    Chunk<ExprMIR> condition;
+    Chunk<ExprMIR> true_expr;
+    Chunk<ExprMIR> false_expr;
 
     bool is_lvalue() override { return false; }
 
@@ -728,16 +728,16 @@ public:
 
 class CallExprMIR : public MIRVisitable<CallExprMIR, ExprMIR> {
 public:
-    CallExprMIR(Location loc, sema::sym::Scope *scope, Box<ExprMIR> callee)
+    CallExprMIR(Location loc, sema::sym::Scope *scope, Chunk<ExprMIR> callee)
         : MIRVisitable<CallExprMIR, ExprMIR>(loc, NodeKind::CALLEXPR_MIR, scope),
           callee(std::move(callee)) {}
 
-    CallExprMIR(Location loc, sema::sym::Scope *scope, Box<ExprMIR> callee, Vec<Box<ExprMIR>> args)
+    CallExprMIR(Location loc, sema::sym::Scope *scope, Chunk<ExprMIR> callee, Vec<Chunk<ExprMIR>> args)
         : MIRVisitable<CallExprMIR, ExprMIR>(loc, NodeKind::CALLEXPR_MIR, scope),
           callee(std::move(callee)), args(std::move(args)) {}
 
-    Box<ExprMIR> callee;
-    Vec<Box<ExprMIR>> args;
+    Chunk<ExprMIR> callee;
+    Vec<Chunk<ExprMIR>> args;
 
     bool is_const_foldable() override { return false; }
 
@@ -749,12 +749,12 @@ public:
 class MemberAccExprMIR : public MIRVisitable<MemberAccExprMIR, ExprMIR> {
 public:
     MemberAccExprMIR(
-        Location loc, sema::sym::Scope *scope, Box<ExprMIR> object, std::string member,
+        Location loc, sema::sym::Scope *scope, Chunk<ExprMIR> object, std::string member,
         bool is_arrow)
         : MIRVisitable<MemberAccExprMIR, ExprMIR>(loc, NodeKind::MEMACCEXPR_MIR, scope),
           object(std::move(object)), member(std::move(member)), is_arrow(is_arrow) {}
 
-    Box<ExprMIR> object;
+    Chunk<ExprMIR> object;
     std::string member;
     bool is_arrow;
 
@@ -781,12 +781,12 @@ public:
 class ReintExprMIR : public MIRVisitable<ReintExprMIR, ExprMIR> {
 public:
     ReintExprMIR(
-        Location loc, sema::sym::Scope *scope, Box<ExprMIR> object, tokens::PrimType target,
+        Location loc, sema::sym::Scope *scope, Chunk<ExprMIR> object, tokens::PrimType target,
         bool is_arrow)
         : MIRVisitable<ReintExprMIR, ExprMIR>(loc, NodeKind::REINTEXPR_MIR, scope),
           object(std::move(object)), target(target), is_arrow(is_arrow) {}
 
-    Box<ExprMIR> object;
+    Chunk<ExprMIR> object;
     tokens::PrimType target;
     bool is_arrow;
 
@@ -812,12 +812,12 @@ public:
 
 class SubscrExprMIR : public MIRVisitable<SubscrExprMIR, ExprMIR> {
 public:
-    SubscrExprMIR(Location loc, sema::sym::Scope *scope, Box<ExprMIR> array, Box<ExprMIR> index)
+    SubscrExprMIR(Location loc, sema::sym::Scope *scope, Chunk<ExprMIR> array, Chunk<ExprMIR> index)
         : MIRVisitable<SubscrExprMIR, ExprMIR>(loc, NodeKind::SUBSCREXPR_MIR, scope),
           array(std::move(array)), index(std::move(index)) {}
 
-    Box<ExprMIR> array;
-    Box<ExprMIR> index;
+    Chunk<ExprMIR> array;
+    Chunk<ExprMIR> index;
 
     bool is_lvalue() override {
         // ReintExprs can be pure rvalues (e.g. 42.U8[1]), so subscripting them does
@@ -838,11 +838,11 @@ public:
 class PostfixExprMIR : public MIRVisitable<PostfixExprMIR, ExprMIR> {
 public:
     PostfixExprMIR(
-        Location loc, sema::sym::Scope *scope, Box<ExprMIR> operand, tokens::PostfixOp op)
+        Location loc, sema::sym::Scope *scope, Chunk<ExprMIR> operand, tokens::PostfixOp op)
         : MIRVisitable<PostfixExprMIR, ExprMIR>(loc, NodeKind::PFIXEXPR_MIR, scope),
           operand(std::move(operand)), op(op) {}
 
-    Box<ExprMIR> operand;
+    Chunk<ExprMIR> operand;
     tokens::PostfixOp op;
 
     bool is_const_foldable() override { return false; }
@@ -854,7 +854,7 @@ public:
 
 class SizeofExprMIR : public MIRVisitable<SizeofExprMIR, ExprMIR> {
 public:
-    using SizeofOperand = std::variant<Box<ExprMIR>, sema::types::Type *>;
+    using SizeofOperand = std::variant<Chunk<ExprMIR>, sema::types::Type *>;
 
     SizeofExprMIR(Location loc, sema::sym::Scope *scope)
         : MIRVisitable<SizeofExprMIR, ExprMIR>(loc, NodeKind::SIZEEXPR_MIR, scope) {}
@@ -863,7 +863,7 @@ public:
         : MIRVisitable<SizeofExprMIR, ExprMIR>(loc, NodeKind::SIZEEXPR_MIR, scope),
           operand(target) {}
 
-    SizeofExprMIR(Location loc, sema::sym::Scope *scope, Box<ExprMIR> target)
+    SizeofExprMIR(Location loc, sema::sym::Scope *scope, Chunk<ExprMIR> target)
         : MIRVisitable<SizeofExprMIR, ExprMIR>(loc, NodeKind::SIZEEXPR_MIR, scope),
           operand(std::move(target)) {}
 
@@ -880,7 +880,7 @@ class FunctionMIR : public MIRVisitable<FunctionMIR, ProgItemMIR> {
 public:
     FunctionMIR(
         Location loc, sema::sym::FuncSymbol *sym, sema::sym::Scope *scope,
-        Box<CompoundStmtMIR> body)
+        Chunk<CompoundStmtMIR> body)
         : MIRVisitable<FunctionMIR, ProgItemMIR>(loc, NodeKind::FUNC_MIR), sym(sym), scope(scope),
           body(std::move(body)) {}
 
@@ -890,7 +890,7 @@ public:
     // The scope associated with the function.
     sema::sym::Scope *scope;
 
-    Box<CompoundStmtMIR> body;
+    Chunk<CompoundStmtMIR> body;
 
     bool is_declaration() const { return body == nullptr; }
 
@@ -901,12 +901,12 @@ class ProgramMIR : public MIRVisitable<ProgramMIR, MIRNode> {
 public:
     ProgramMIR() : MIRVisitable<ProgramMIR, MIRNode>(NodeKind::PROG_MIR) {}
 
-    ProgramMIR(Vec<Box<ProgItemMIR>> items)
+    ProgramMIR(Vec<Chunk<ProgItemMIR>> items)
         : MIRVisitable<ProgramMIR, MIRNode>(NodeKind::PROG_MIR), items(std::move(items)) {}
 
-    Vec<Box<ProgItemMIR>> items;
+    Vec<Chunk<ProgItemMIR>> items;
 
-    void add_item(Box<ProgItemMIR> item);
+    void add_item(Chunk<ProgItemMIR> item);
 
     static bool classof(const MIRNode *node) { return node->kind == NodeKind::PROG_MIR; }
 };

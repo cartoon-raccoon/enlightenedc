@@ -39,7 +39,7 @@ struct TypeSpecRet {
 struct InitDecltrRet {
     Optional<std::string> name;
     types::Type *type;
-    Optional<Box<sema::mir::InitializerMIR>> init_mir;
+    Optional<Chunk<sema::mir::InitializerMIR>> init_mir;
 };
 
 // The result of visiting an Initializer node.
@@ -47,11 +47,11 @@ struct InitializerRet {
     // A new type to apply if needed.
     // Used only in array size inference.
     Optional<types::ArrayType *> new_type;
-    Box<sema::mir::InitializerMIR> init_mir;
+    Chunk<sema::mir::InitializerMIR> init_mir;
 };
 
 // The result of visiting a compound statement from a function.
-using CmpdStmtFromFuncRes = std::pair<Box<sema::mir::CompoundStmtMIR>, sema::sym::Scope *>;
+using CmpdStmtFromFuncRes = std::pair<Chunk<sema::mir::CompoundStmtMIR>, sema::sym::Scope *>;
 
 /*
 The result of visiting an AST node.
@@ -66,7 +66,7 @@ using VisitResult = std::variant<
     // The result of evaluating a ConstExpression.
     eval::Value,
     // For building up declarators.
-    Box<DeclaratorBuilder>,
+    Chunk<DeclaratorBuilder>,
     // The result of visiting a type specifier node.
     TypeSpecRet<types::ClassType>, TypeSpecRet<types::UnionType>, TypeSpecRet<types::EnumType>,
     types::VoidType *, types::PrimitiveType *, types::PointerType *, types::Type *,
@@ -78,7 +78,7 @@ using VisitResult = std::variant<
     // The result of visiting a StorageClassSpecifier node.
     ast::StorageClassSpecifier::SpecType,
 
-    Box<sema::mir::ProgItemMIR>, Box<sema::mir::FunctionMIR>,
+    Chunk<sema::mir::ProgItemMIR>, Chunk<sema::mir::FunctionMIR>,
     // The return type of visiting a CompoundStatement node from a Function node.
     CmpdStmtFromFuncRes,
     /*
@@ -86,8 +86,8 @@ using VisitResult = std::variant<
     We do not use the specific types, as we cannot match on those when returning,
     due to how std::variant's visit and get_if functions work.
     */
-    Box<sema::mir::DeclMIR>, Box<sema::mir::StmtMIR>, Box<sema::mir::ExprMIR>,
-    Box<sema::mir::InitializerMIR>,
+    Chunk<sema::mir::DeclMIR>, Chunk<sema::mir::StmtMIR>, Chunk<sema::mir::ExprMIR>,
+    Chunk<sema::mir::InitializerMIR>,
     // The return type of visiting an InitDeclarator.
     InitDecltrRet,
     // The return type of visiting an Initializer.
@@ -270,7 +270,7 @@ private:
         sym::Linkage linkage = sym::Linkage::INTERNAL;
     };
 
-    Box<SpecifierInfo> parse_speclist(Vec<Chunk<ast::DeclarationSpecifier>>&, Location);
+    SpecifierInfo parse_speclist(Vec<Chunk<ast::DeclarationSpecifier>>&, Location);
 };
 
 } // namespace ecc::sema

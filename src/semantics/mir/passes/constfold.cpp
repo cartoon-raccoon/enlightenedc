@@ -6,7 +6,7 @@ using namespace ecc::opti;
 using namespace ecc::eval;
 using namespace ecc::sema::mir;
 
-Box<LiteralExprMIR> ConstantFolder::eval_and_expr(Box<ExprMIR>& expr, Location loc) {
+Chunk<LiteralExprMIR> ConstantFolder::eval_and_expr(Chunk<ExprMIR>& expr, Location loc) {
 
     if (expr->kind == MIRNode::NodeKind::CONDEXPR_MIR) {
         // todo: implement checking for cond exprs
@@ -14,7 +14,7 @@ Box<LiteralExprMIR> ConstantFolder::eval_and_expr(Box<ExprMIR>& expr, Location l
     }
 
     Value val     = expr->eval(evalr);
-    auto new_expr = std::make_unique<LiteralExprMIR>(loc, syms.current, std::move(val));
+    auto new_expr = make_chunk<LiteralExprMIR>(loc, syms.current, std::move(val));
 
     return new_expr;
 }
