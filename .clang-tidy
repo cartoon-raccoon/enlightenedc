@@ -15,7 +15,9 @@ Checks: >
   -clang-analyzer-security*,
   cppcoreguidelines-*,
   -cppcoreguidelines-avoid-c-arrays,
+  -cppcoreguidelines-avoid-magic-numbers,
   -cppcoreguidelines-init-variables,
+  -cppcoreguidelines-no-malloc,
   -cppcoreguidelines-pro-type-vararg,
   -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
   -cppcoreguidelines-special-member-functions,
@@ -24,14 +26,19 @@ Checks: >
   -cppcoreguidelines-pro-bounds-pointer-arithmetic,
   -cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,
   -cppcoreguidelines-pro-type-union-access,
+  -cppcoreguidelines-pro-type-reinterpret-cast,
+  -cppcoreguidelines-owning-memory,
   -cppcoreguidelines-avoid-goto,
   -cppcoreguidelines-avoid-const-or-ref-data-members,
+  -cppcoreguidelines-rvalue-reference-param-not-moved,
   performance-*,
+  -performance-no-int-to-ptr,
   readability-*,
   -readability-avoid-nested-conditional-operator,
   -readability-redundant-access-specifiers,
   -readability-identifier-length,
   -readability-else-after-return,
+  -readability-magic-numbers,
   -readability-convert-member-functions-to-static,
 
 WarningsAsErrors: 'false'
@@ -297,7 +304,7 @@ CheckOptions:
   readability-enum-initial-value.AllowExplicitZeroFirstInitialValue: 'true'
   readability-function-cognitive-complexity.DescribeBasicIncrements: 'true'
   readability-function-cognitive-complexity.IgnoreMacros: 'false'
-  readability-function-cognitive-complexity.Threshold: '75'
+  readability-function-cognitive-complexity.Threshold: '80'
   readability-function-size.BranchThreshold: none
   readability-function-size.CountMemberInitAsStmt: 'true'
   readability-function-size.LineThreshold: none

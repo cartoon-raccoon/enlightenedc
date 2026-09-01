@@ -21,6 +21,10 @@
 #include <variant>
 #include <vector>
 
+#include "allocator/chunk.hpp"
+
+using namespace ecc::alloc;
+
 /*
  * CONSTANTS
  */
@@ -577,6 +581,17 @@ bool isa(const Box<From>& val) {
 }
 
 template <typename To, typename From>
+bool isa(const Chunk<From>& val) {
+    static_assert(std::is_base_of_v<From, To>);
+    if constexpr (std::is_same_v<To, From>) {
+        return true;
+    } else {
+        static_assert(HasClassof<To, From>);
+        return To::classof(val.get());
+    }
+}
+
+template <typename To, typename From>
 To *cast(From *val) {
     assert(val && isa<To>(val) && "dyncast<>: incompatible types of To and From");
     return static_cast<To *>(val);
@@ -594,6 +609,11 @@ To *cast(const Box<From>& val) {
 }
 
 template <typename To, typename From>
+To *cast(const Chunk<From>& val) {
+    return cast<To>(val.get());
+}
+
+template <typename To, typename From>
 To *dyncast(From *val) {
     return val && isa<To>(val) ? static_cast<To *>(val) : nullptr;
 }
@@ -605,6 +625,11 @@ const To *dyncast(const From *val) {
 
 template <typename To, typename From>
 To *dyncast(Box<From>& val) {
+    return dyncast<To>(val.get());
+}
+
+template <typename To, typename From>
+To *dyncast(Chunk<From>& val) {
     return dyncast<To>(val.get());
 }
 

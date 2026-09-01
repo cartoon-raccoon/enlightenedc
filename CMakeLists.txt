@@ -85,6 +85,7 @@ file(GLOB_RECURSE SEMANTICS_SRC "${SRC_DIR}/semantics/*.cpp")
 file(GLOB_RECURSE LOWERING_SRC "${SRC_DIR}/lowering/*.cpp")
 file(GLOB_RECURSE CODEGEN_SRC "${SRC_DIR}/codegen/*.cpp")
 file(GLOB_RECURSE EVAL_SRC "${SRC_DIR}/eval/*.cpp")
+file(GLOB_RECURSE ALLOC_SRC "${SRC_DIR}/allocator/*.cpp")
 file(GLOB         ECC_SRC "${SRC_DIR}/*.cpp")
 
 file(GLOB_RECURSE HEADERS "${INCLUDE_DIR}/*.hpp")
@@ -99,6 +100,7 @@ list(APPEND ALL_WRITTEN_FILES
     ${LOWERING_SRC}
     ${CODEGEN_SRC}
     ${EVAL_SRC}
+    ${ALLOC_SRC}
     ${ECC_SRC}
 )
 

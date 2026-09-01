@@ -329,8 +329,10 @@ void CFGBuilder::visit(MemcpyLIR& node) {
     if (curr_blk->is_terminated()) {
         curr_blk = curr_func->create_block();
     }
-    Value *to   = eval(*node.to);
-    Value *from = eval(*node.from);
+    Value *to   = eval_lvalue(*node.to);
+    Value *from = eval_lvalue(*node.from);
+
+    assert(to && from);
 
     curr_blk->add_instruction<MemcpyInst>(types, to, from, node.n);
 }

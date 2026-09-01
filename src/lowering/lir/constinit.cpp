@@ -320,27 +320,13 @@ ConstInitLIRBuilder::try_build_constinit_expr(Type *type, LiteralExprMIR& expr) 
                         } break;
                         }
                     }
-                    ArrayType *dest_arr = type->as_array();
                     ArrayType *init_arr = expr.act_type->as_array();
                     assert(init_arr);
 
                     // pad the string if needed with null bytes
-                    size_t final_size;
-                    size_t padding = 0;
-                    assert(*dest_arr->get_arr_size() >= *init_arr->get_arr_size());
-                    if (*dest_arr->get_arr_size() > *init_arr->get_arr_size()) {
-                        final_size = *dest_arr->get_arr_size();
-                        padding    = *dest_arr->get_arr_size() - *init_arr->get_arr_size();
-                    } else {
-                        final_size = *init_arr->get_arr_size();
-                    }
-
-                    for (size_t i = 0; i < padding; i++) {
-                        str += '\0';
-                    }
-
-                    auto src    = make_box<LiteralExprLIR>(expr.loc, str, expr.act_type);
-                    auto memcpy = make_box<MemcpyLIR>(std::move(dest), std::move(src), final_size);
+                    size_t lit_size = *init_arr->get_arr_size(); // strlen + 1, base i8
+                    auto src        = make_box<LiteralExprLIR>(expr.loc, str, expr.act_type);
+                    auto memcpy = make_box<MemcpyLIR>(std::move(dest), std::move(src), lit_size);
 
                     deferred_inits.push_back(std::move(memcpy));
                 } else {
