@@ -18,6 +18,9 @@ int Ecc::run() {
         for (auto& file : config->input_files) {
             // run the pipeline
             run_pipeline(&file);
+#ifndef NDEBUG
+            alloc::print_allocator_stats();
+#endif
             // clear the allocator
             alloc::reset();
         }

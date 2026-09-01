@@ -47,11 +47,36 @@ public:
     bool is_clear() { return ptr == nullptr; }
 };
 
+#ifndef NDEBUG
+
 struct AllocatorStats {
-    size_t num_slabs;
-    size_t num_custom_slabs;
-    size_t total_used_bytes;
+    size_t num_slabs = 0;
+    size_t num_custom_slabs = 0;
+    size_t total_used_bytes = 0;
+    size_t total_allocated_bytes = 0;
+    size_t current_slab_size = 0;
+
+    void reset() {
+        num_slabs = num_custom_slabs 
+                  = total_used_bytes
+                  = total_allocated_bytes
+                  = 0;
+    }
 };
+
+template <typename T>
+std::basic_ostream<T>& operator<<(std::basic_ostream<T>& ostr, const AllocatorStats& stats) {
+    ostr << "===== Bump-Pointer Allocator Stats =====\n";
+    ostr << "  # of Slabs:         " << stats.num_slabs << "\n";
+    ostr << "  # of Custom Slabs:  " << stats.num_custom_slabs << "\n";
+    ostr << "  Total Used Bytes:   " << stats.total_used_bytes << "\n";
+    ostr << "  Total Alloc'd Byes: " << stats.total_allocated_bytes << "\n";
+    ostr << "  Current Slab Size:  " << stats.current_slab_size << "\n";
+
+    return ostr;
+}
+
+#endif
 
 struct Cleanup {
     void *obj;
@@ -104,6 +129,10 @@ class BumpAllocator {
 
     Cleanup *cleanup_head = nullptr;
 
+#ifndef NDEBUG
+    AllocatorStats stats;
+#endif
+
 public:
     BumpAllocator() = default;
 
@@ -148,6 +177,11 @@ public:
             auto raw        = align_addr(cur, align_to_use);
             uint8_t *result = reinterpret_cast<uint8_t *>(raw);
             if (result + size <= end) {
+
+#ifndef NDEBUG
+                stats.total_used_bytes += size;
+#endif
+
                 // bump the pointer
                 cur = result + size;
                 return result;
@@ -164,6 +198,12 @@ public:
 
         Slab slab(size);
 
+#ifndef NDEBUG
+        stats.num_custom_slabs += 1;
+        stats.total_used_bytes += size;
+        stats.total_allocated_bytes += size;
+#endif
+
         void *ret = slab.start();
 
         custom_slabs.push_back(std::move(slab));
@@ -178,6 +218,13 @@ public:
         size_t slab_size = compute_slab_size();
 
         Slab slab(slab_size);
+
+#ifndef NDEBUG
+        stats.num_slabs += 1;
+        stats.total_allocated_bytes += slab_size;
+        stats.current_slab_size = slab_size;
+#endif
+
         cur = slab.start();
         end = slab.end();
 
@@ -186,7 +233,12 @@ public:
         size_t align_to_use = std::max(align, MinAlign);
         auto raw            = align_addr(cur, align_to_use);
         uint8_t *result     = reinterpret_cast<uint8_t *>(raw);
-        cur                 = result + size;
+
+#ifndef NDEBUG
+        stats.total_used_bytes += size;
+#endif
+
+        cur = result + size;
 
         return result;
     }
@@ -215,7 +267,16 @@ public:
         } else {
             cur = end = nullptr;
         }
+#ifndef NDEBUG
+        stats.reset();
+#endif
     }
+
+#ifndef NDEBUG
+    void print_stats() {
+        std::cerr << stats;
+    }
+#endif
 
 private:
     size_t compute_slab_size() {
@@ -241,6 +302,12 @@ inline void *alloc(size_t size, size_t align) {
 inline void reset() {
     detail::instance().reset();
 }
+
+#ifndef NDEBUG
+inline void print_allocator_stats() {
+    detail::instance().print_stats();
+}
+#endif
 
 template <typename T, typename... Args>
 Chunk<T> make_chunk(Args&&...args) {
