@@ -47,10 +47,9 @@ LIRVarSym *LIRSymbolMap::insert_global(VarSymbol *sym, Box<LIRVarSym> var) {
 }
 
 LIRFuncSym *LIRSymbolMap::lookup_func(FuncSymbol *sym) {
-    if (!funcs.contains(sym))
-        return nullptr;
+    auto it = funcs.find(sym);
 
-    return funcs[sym].get();
+    return it != funcs.end() ? it->second.get() : nullptr;
 }
 
 LIRSym *LIRSymbolMap::lookup(sema::sym::PhysicalSymbol *sym) {

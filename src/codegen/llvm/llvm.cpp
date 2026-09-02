@@ -70,7 +70,9 @@ LLVMType *LLVMUnit::get_llvm_type(Type *type) {
         finalize(type);
     }
 
-    return typemap[type];
+    auto it = typemap.find(type);
+    assert(it != typemap.end() && "finalize() did not populate typemap for this type");
+    return it->second;
 }
 
 void LLVMUnit::finalize(VoidType *type) {
@@ -190,7 +192,7 @@ void LLVMUnit::finalize(UnionType *type) {
     for (auto& member : type->get_members()) {
         dbprint("UnionType: finalizing member declared at ", member->loc);
         finalize(member->ty);
-        assert(typemap[member->ty]);
+        assert(typemap.contains(member->ty) && "member type not finalized");
     }
 
     if (type->get_type_rep()) {
@@ -212,7 +214,9 @@ void LLVMUnit::finalize(UnionType *type) {
 
         // find the strictest alignment
         for (auto& member : type->get_members()) {
-            llvm::Align mem_align = dl.getABITypeAlign(typemap[member->ty]);
+            auto mem_it = typemap.find(member->ty);
+            assert(mem_it != typemap.end() && "member type not finalized");
+            llvm::Align mem_align = dl.getABITypeAlign(mem_it->second);
             if (mem_align > align) {
                 align = mem_align;
             }
@@ -278,7 +282,7 @@ void LLVMUnit::finalize(ConstType *type) {
     }
 
     finalize(type->get_base());
-    typemap[type] = typemap[type->get_base()];
+    typemap[type] = get_llvm_type(type->get_base());
 }
 
 void LLVMUnit::finalize(FunctionType *type) {

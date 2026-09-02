@@ -27,7 +27,11 @@ class SwitchTracker {
 public:
     void insert_case(eval::Value& val, Location loc) { cases.insert_or_assign(val, loc); }
 
-    Location get_loc(eval::Value& val) { return cases[val]; }
+    Location get_loc(eval::Value& val) {
+        auto it = cases.find(val);
+        assert(it != cases.end() && "get_loc() called for a case that was never inserted");
+        return it->second;
+    }
 
     Optional<Location> get_default_loc() { return default_loc; }
 
