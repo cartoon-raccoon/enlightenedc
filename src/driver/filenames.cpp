@@ -1,8 +1,23 @@
 #include "driver/filenames.hpp"
 
 #include <string>
+#include "util.hpp"
 
 using namespace ecc::driver;
+using namespace ecc::util;
+
+/**
+All extension-filename mappings known by ecc.
+*/
+const std::array<Pair<const char *, FileType>, 8> EXT_MAPPINGS = {
+    Pair {"ec", FileType::CODE},
+    Pair {"HC", FileType::CODE},
+    Pair {"ll", FileType::LLVMIR},
+    Pair {"bc", FileType::LLVMBC},
+    Pair {"S", FileType::ASM},
+    Pair {"s", FileType::ASM},
+    Pair {"o", FileType::ASM},
+};
 
 const std::string *FilenamePool::intern(const char *str) {
     // insert returns a pair: {iterator, bool_inserted}
@@ -11,18 +26,19 @@ const std::string *FilenamePool::intern(const char *str) {
     return &(*result.first);
 }
 
-InputFile::FileType InputFile::filetype_from_ext(const std::string& ext) {
-    if (ext.ends_with("ec")) {
-        return FileType::CODE;
-    } else if (ext.ends_with("ll")) {
-        return FileType::LLVMIR;
-    } else if (ext.ends_with("bc")) {
-        return FileType::LLVMBC;
-    } else if (ext.ends_with("S") || ext.ends_with("s") || ext.ends_with("asm")) {
-        return FileType::ASM;
-    } else if (ext.ends_with("o")) {
-        return FileType::OBJECT;
-    } else {
-        return FileType::UNKNOWN;
+InputFile::InputFile(std::string& filename, FilenamePool& pool) 
+: path(filename),
+filename(pool.intern(path.filename().stem().c_str())),
+filetype(filetype_from_ext(filename)) {
+}
+
+FileType InputFile::filetype_from_ext(const std::string& path) {
+    std::string ext = fs::path(path).extension();
+    for (const auto& [ex, filetype] : EXT_MAPPINGS) {
+        if (ext == ex) {
+            return filetype;
+        }
     }
+
+    return FileType::UNKNOWN;
 }
