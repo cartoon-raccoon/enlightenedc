@@ -2,8 +2,8 @@
 
 #include <stdexcept>
 
-#include "allocator/chunk.hpp"
 #include "allocator/alloc.hpp"
+#include "allocator/chunk.hpp"
 #include "lowering/lir/constinit.hpp"
 #include "lowering/lir/lir.hpp"
 #include "lowering/lir/symbols.hpp"
@@ -250,7 +250,7 @@ void LIRSynthesizer::unfold_initializer_rec_cls(
                     AccessorPath path = cls->index(mem->member);
                     assert(!path.empty());
 
-                    Chunk<ExprLIR> current    = clone_lvalue(lhs.get());
+                    Chunk<ExprLIR> current  = clone_lvalue(lhs.get());
                     RecordType *current_rec = cls;
 
                     RecordType::TypeMember *member = nullptr;
@@ -302,8 +302,8 @@ void LIRSynthesizer::unfold_initializer_rec_cls(
         if (!touched[i]) {
             auto *member = cls->find(i);
             assert(member);
-            Chunk<ExprLIR> child = make_chunk<MemberAccExprLIR>(
-                Location{}, clone_lvalue(lhs.get()), i, member->ty);
+            Chunk<ExprLIR> child =
+                make_chunk<MemberAccExprLIR>(Location{}, clone_lvalue(lhs.get()), i, member->ty);
             Chunk<ExprLIR> zero   = make_chunk<ZeroExprLIR>(Location{}, member->ty);
             Chunk<ExprLIR> assign = make_chunk<AssignExprLIR>(
                 Location{}, member->ty, std::move(child), std::move(zero),
@@ -390,7 +390,7 @@ void LIRSynthesizer::do_visit(FunctionMIR& node) {
     } else {
         // back-pointer not set, so create a new FunctionLIR, set the back-pointer, and emit it
         Chunk<FunctionLIR> this_func = make_chunk<FunctionLIR>(node.loc, funcptr);
-        this_func_ptr              = this_func.get();
+        this_func_ptr                = this_func.get();
 
         funcptr->lir = this_func_ptr;
 
@@ -483,7 +483,7 @@ void LIRSynthesizer::do_visit(VarDeclMIR& node) {
 
         // emit a vardecl
         Chunk<VarDeclLIR> vardecl = make_chunk<VarDeclLIR>(node.loc, lirvar);
-        VarDeclLIR *vardeclptr  = vardecl.get();
+        VarDeclLIR *vardeclptr    = vardecl.get();
         emit(std::move(vardecl));
 
         // visit the initializer
@@ -674,8 +674,7 @@ void LIRSynthesizer::do_visit(PrintStmtMIR& node) {
         args.push_back(std::move(last_expr));
     }
 
-    Chunk<StmtLIR> stmt =
-        make_chunk<PrintStmtLIR>(node.loc, node.format_string, std::move(args));
+    Chunk<StmtLIR> stmt = make_chunk<PrintStmtLIR>(node.loc, node.format_string, std::move(args));
 
     emit(std::move(stmt));
 }
@@ -1126,8 +1125,8 @@ void LIRSynthesizer::do_visit(SubscrExprMIR& node) {
     node.index->accept(*this);
     Chunk<ExprLIR> index = std::move(last_expr);
 
-    Chunk<ExprLIR> subscript = make_chunk<SubscrExprLIR>(
-        node.loc, std::move(array), std::move(index), node.act_type);
+    Chunk<ExprLIR> subscript =
+        make_chunk<SubscrExprLIR>(node.loc, std::move(array), std::move(index), node.act_type);
 
     last_expr = std::move(subscript);
 }

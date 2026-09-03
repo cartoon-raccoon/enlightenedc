@@ -3,8 +3,8 @@
 #ifndef ECC_CHUNK_H
 #define ECC_CHUNK_H
 
-#include <cstddef>
 #include <concepts>
+#include <cstddef>
 
 namespace ecc::alloc {
 
@@ -43,7 +43,7 @@ public:
     Chunk& operator=(const Chunk&) = delete;
 
     Chunk& operator=(Chunk&& chunk) noexcept {
-        ptr       = chunk.ptr;
+        ptr = chunk.ptr;
         if (this != &chunk) {
             chunk.ptr = nullptr;
         }
@@ -66,7 +66,7 @@ public:
 
     T *release() {
         T *tmp = ptr;
-        ptr = nullptr;
+        ptr    = nullptr;
 
         return tmp;
     }
@@ -88,6 +88,6 @@ public:
     explicit operator bool() const { return ptr != nullptr; }
 };
 
-}
+} // namespace ecc::alloc
 
 #endif

@@ -314,8 +314,9 @@ ConstInitLIRBuilder::try_build_constinit_expr(Type *type, LiteralExprMIR& expr) 
                             PrimitiveType *index_type =
                                 types.get().get_primitive(index_val.primtype());
 
-                            Chunk<ExprLIR> index = make_chunk<LiteralExprLIR>(index_val, index_type);
-                            dest               = make_chunk<SubscrExprLIR>(
+                            Chunk<ExprLIR> index =
+                                make_chunk<LiteralExprLIR>(index_val, index_type);
+                            dest = make_chunk<SubscrExprLIR>(
                                 std::move(dest), std::move(index), acc.type);
                         } break;
                         }

@@ -421,7 +421,8 @@ public:
 class IfStmtMIR : public MIRVisitable<IfStmtMIR, StmtMIR> {
 public:
     IfStmtMIR(
-        Location loc, Chunk<ExprMIR> condition, Chunk<StmtMIR> then_branch, Chunk<StmtMIR> else_branch)
+        Location loc, Chunk<ExprMIR> condition, Chunk<StmtMIR> then_branch,
+        Chunk<StmtMIR> else_branch)
         : MIRVisitable<IfStmtMIR, StmtMIR>(loc, NodeKind::IFSTMT_MIR),
           condition(std::move(condition)), then_branch(std::move(then_branch)),
           else_branch(std::move(else_branch)) {}
@@ -732,7 +733,8 @@ public:
         : MIRVisitable<CallExprMIR, ExprMIR>(loc, NodeKind::CALLEXPR_MIR, scope),
           callee(std::move(callee)) {}
 
-    CallExprMIR(Location loc, sema::sym::Scope *scope, Chunk<ExprMIR> callee, Vec<Chunk<ExprMIR>> args)
+    CallExprMIR(
+        Location loc, sema::sym::Scope *scope, Chunk<ExprMIR> callee, Vec<Chunk<ExprMIR>> args)
         : MIRVisitable<CallExprMIR, ExprMIR>(loc, NodeKind::CALLEXPR_MIR, scope),
           callee(std::move(callee)), args(std::move(args)) {}
 

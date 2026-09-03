@@ -52,9 +52,8 @@ enum class FileType : uint8_t {
 
 class InputFile {
 public:
-
     InputFile(std::string& filename, FilenamePool& pool);
-    
+
     /**
     Get the file type from
     */
@@ -76,6 +75,6 @@ private:
     const FileType filetype;
 };
 
-} // namespace ecc::frontend
+} // namespace ecc::driver
 
 #endif

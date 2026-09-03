@@ -108,10 +108,12 @@ private:
         sema::mir::InitializerMIR& init);
 
     void unfold_initializer_rec_arr(
-        Chunk<ExprLIR> lhs, sema::types::ArrayType *arr, Vec<Chunk<sema::mir::InitializerMIR>>& inits);
+        Chunk<ExprLIR> lhs, sema::types::ArrayType *arr,
+        Vec<Chunk<sema::mir::InitializerMIR>>& inits);
 
     void unfold_initializer_rec_cls(
-        Chunk<ExprLIR> lhs, sema::types::ClassType *cls, Vec<Chunk<sema::mir::InitializerMIR>>& inits);
+        Chunk<ExprLIR> lhs, sema::types::ClassType *cls,
+        Vec<Chunk<sema::mir::InitializerMIR>>& inits);
 
     // Deep-copies an lvalue expression chain (Ident/MemberAcc/Subscr/Literal only) so the same
     // base `lhs` can be reused across sibling fields/elements of an aggregate initializer.

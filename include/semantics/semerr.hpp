@@ -14,6 +14,83 @@
 namespace ecc::sema {
 using namespace ecc;
 
+class InvalidAttributeError : public EccSemError {
+public:
+    enum class Kind : uint8_t {
+        ProvidedValue,
+        ValueNotProvided,
+        InvalidValue,
+        NoSuchAttribute,
+        InvalidTarget,
+    };
+
+    enum class Target : uint8_t {
+        Function,
+        Type,
+    };
+
+    InvalidAttributeError(Location err_loc, Kind kind)
+        : EccSemError(err_str_from_kind(kind), err_loc), kind(kind) {}
+
+    InvalidAttributeError(Location err_loc, std::string name)
+        : EccSemError("no such attribute", err_loc), kind(Kind::NoSuchAttribute),
+          name(std::move(name)) {}
+
+    InvalidAttributeError(Location err_loc, std::string name, Target target)
+        : EccSemError("invalid target for attribute", err_loc), kind(Kind::InvalidTarget),
+          name(std::move(name)), target(target) {}
+
+    InvalidAttributeError(Location err_loc, Kind kind, std::string name)
+        : EccSemError(err_str_from_kind(kind), err_loc), kind(kind), name(std::move(name)) {}
+
+    InvalidAttributeError(Location err_loc, Kind kind, std::string name, std::string value)
+        : EccSemError(err_str_from_kind(kind), err_loc), kind(kind), name(std::move(name)),
+          value(std::move(value)) {}
+
+    Kind kind;
+    std::string name, value;
+    Target target = Target::Type;
+
+    static std::string err_str_from_kind(Kind kind) {
+        switch (kind) {
+        case Kind::ProvidedValue:
+            return "attribute does not take value";
+        case Kind::ValueNotProvided:
+            return "value not provided for attribute";
+        case Kind::InvalidValue:
+            return "invalid value for attribute";
+        case Kind::NoSuchAttribute:
+            return "invalid attribute";
+        case Kind::InvalidTarget:
+            return "invalid target for attribute";
+        }
+    }
+
+    std::string elab() override {
+        std::stringstream ss;
+        switch (kind) {
+        case Kind::ProvidedValue:
+            ss << "attribute '" << name << "' does not take a value, but was given value '" << value
+               << "'";
+            break;
+        case Kind::ValueNotProvided:
+            ss << "attribute '" << name << "' takes a value, but one was not provided";
+            break;
+        case Kind::InvalidValue:
+            ss << "'" << value << "' is not a valid value for attribute '" << name << "'";
+            break;
+        case Kind::NoSuchAttribute:
+            ss << "no valid attribute with name '" << name << "'";
+            break;
+        case Kind::InvalidTarget:
+            ss << "attribute '" << name << "' cannot take "
+               << (target == Target::Function ? "functions" : "types") << " as targets";
+        }
+
+        return ss.str();
+    }
+};
+
 class InvalidCaseError : public EccSemError {
 public:
     enum class Kind : uint8_t {

@@ -8,8 +8,8 @@
 #include <utility>
 #include <variant>
 
-#include "ast/ast.hpp"
 #include "allocator/chunk.hpp"
+#include "ast/ast.hpp"
 #include "semantics/mir/mir.hpp"
 #include "semantics/semantics.hpp"
 #include "semantics/symbols.hpp"

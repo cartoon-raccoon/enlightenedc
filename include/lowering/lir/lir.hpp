@@ -700,7 +700,8 @@ public:
 
 class CallExprLIR : public LIRVisitable<CallExprLIR, ExprLIR> {
 public:
-    CallExprLIR(Location loc, Chunk<ExprLIR> callee, Vec<Chunk<ExprLIR>> args, sema::types::Type *type)
+    CallExprLIR(
+        Location loc, Chunk<ExprLIR> callee, Vec<Chunk<ExprLIR>> args, sema::types::Type *type)
         : LIRVisitable<CallExprLIR, ExprLIR>(loc, NodeKind::CALLEXPR_LIR, type),
           callee(std::move(callee)), args(std::move(args)) {}
 
@@ -714,7 +715,8 @@ public:
 
 class MemberAccExprLIR : public LIRVisitable<MemberAccExprLIR, ExprLIR> {
 public:
-    MemberAccExprLIR(Location loc, Chunk<ExprLIR> object, size_t member_idx, sema::types::Type *type)
+    MemberAccExprLIR(
+        Location loc, Chunk<ExprLIR> object, size_t member_idx, sema::types::Type *type)
         : LIRVisitable<MemberAccExprLIR, ExprLIR>(loc, NodeKind::MEMACCEXPR_LIR, type),
           object(std::move(object)), member_idx(member_idx) {}
 

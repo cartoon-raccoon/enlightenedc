@@ -372,7 +372,8 @@ A general declarator containing a DirectDeclarator and an optional Pointer.
 */
 class Declarator : public ASTVisitable<Declarator, ASTNode> {
 public:
-    Declarator(Location loc, Optional<Chunk<Pointer>> pointer, Optional<Chunk<DirectDeclarator>> direct)
+    Declarator(
+        Location loc, Optional<Chunk<Pointer>> pointer, Optional<Chunk<DirectDeclarator>> direct)
         : ASTVisitable<Declarator, ASTNode>(NodeKind::DECLARATOR, loc), pointer(std::move(pointer)),
           direct(std::move(direct)) {}
 
@@ -387,7 +388,8 @@ A declarator creating one or more new variables, with optional initializers.
 */
 class InitDeclarator : public ASTVisitable<InitDeclarator, ASTNode> {
 public:
-    InitDeclarator(Location loc, Chunk<Declarator> declarator, Optional<Chunk<Initializer>> initializer)
+    InitDeclarator(
+        Location loc, Chunk<Declarator> declarator, Optional<Chunk<Initializer>> initializer)
         : ASTVisitable<InitDeclarator, ASTNode>(NodeKind::INIT_DECLTR, loc),
           declarator(std::move(declarator)), initializer(std::move(initializer)) {}
 
@@ -490,7 +492,8 @@ public:
 
 class ArrayDeclarator : public ASTVisitable<ArrayDeclarator, DirectDeclarator> {
 public:
-    ArrayDeclarator(Location loc, Chunk<DirectDeclarator> base, Optional<Chunk<ConstExpression>> size)
+    ArrayDeclarator(
+        Location loc, Chunk<DirectDeclarator> base, Optional<Chunk<ConstExpression>> size)
         : ASTVisitable<ArrayDeclarator, DirectDeclarator>(NodeKind::ARR_DECLTR, loc),
           base(std::move(base)), size(std::move(size)) {}
 
@@ -939,7 +942,8 @@ public:
 
 class BinaryExpression : public ASTVisitable<BinaryExpression, Expression> {
 public:
-    BinaryExpression(Location loc, Chunk<Expression> left, Chunk<Expression> right, tokens::BinaryOp op)
+    BinaryExpression(
+        Location loc, Chunk<Expression> left, Chunk<Expression> right, tokens::BinaryOp op)
         : ASTVisitable<BinaryExpression, Expression>(NodeKind::BIN_EXPR, loc),
           left(std::move(left)), right(std::move(right)), op(op) {}
 
@@ -1061,7 +1065,8 @@ public:
 
 class MemberAccessExpression : public ASTVisitable<MemberAccessExpression, Expression> {
 public:
-    MemberAccessExpression(Location loc, Chunk<Expression> object, std::string member, bool is_arrow)
+    MemberAccessExpression(
+        Location loc, Chunk<Expression> object, std::string member, bool is_arrow)
         : ASTVisitable<MemberAccessExpression, Expression>(NodeKind::ACCESS_EXPR, loc),
           object(std::move(object)), member(std::move(member)), is_arrow(is_arrow) {}
 

@@ -26,8 +26,7 @@ TranslationUnitLIR::TranslationUnitLIR()
     : symbols(make_box<LIRSymbolMap>()), lir(make_box<ProgramLIR>()) {
 }
 
-TranslationUnitCFG::TranslationUnitCFG()
-    : cfg(make_box<ProgramCFG>()) {
+TranslationUnitCFG::TranslationUnitCFG() : cfg(make_box<ProgramCFG>()) {
 }
 
 TranslationUnit::TranslationUnit(std::string *filename, CodeGenCore& cgcore) : filename(filename) {

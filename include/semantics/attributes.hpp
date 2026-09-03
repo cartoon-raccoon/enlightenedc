@@ -36,8 +36,7 @@ struct AttributeData {
 
 // clang-format off
 inline constexpr
-std::array<Pair<const char *, AttributeData>, NUM_ATTRS> ATTR_REGISTRY 
-= std::to_array<Pair<const char *, AttributeData>>({
+std::array ATTR_REGISTRY = std::to_array<Pair<const char *, AttributeData>>({
     Pair { 
         "packed", 
         AttributeData { 

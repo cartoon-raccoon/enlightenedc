@@ -52,18 +52,13 @@ public:
 #ifndef NDEBUG
 
 struct AllocatorStats {
-    size_t num_slabs = 0;
-    size_t num_custom_slabs = 0;
-    size_t total_used_bytes = 0;
+    size_t num_slabs             = 0;
+    size_t num_custom_slabs      = 0;
+    size_t total_used_bytes      = 0;
     size_t total_allocated_bytes = 0;
-    size_t current_slab_size = 0;
+    size_t current_slab_size     = 0;
 
-    void reset() {
-        num_slabs = num_custom_slabs 
-                  = total_used_bytes
-                  = total_allocated_bytes
-                  = 0;
-    }
+    void reset() { num_slabs = num_custom_slabs = total_used_bytes = total_allocated_bytes = 0; }
 };
 
 template <typename T>
@@ -275,9 +270,7 @@ public:
     }
 
 #ifndef NDEBUG
-    void print_stats() {
-        std::cerr << stats;
-    }
+    void print_stats() { std::cerr << stats; }
 #endif
 
 private:
@@ -339,16 +332,16 @@ every allocation is thus invalidated, and any pointers into it will be left dang
 template <typename T>
 class ArenaAllocator {
 public:
-    using value_type = T;
-    using size_type = size_t;
+    using value_type      = T;
+    using size_type       = size_t;
     using difference_type = std::ptrdiff_t;
 
     using is_always_equal = std::true_type;
 
-    static_assert(alignof(T) <= alignof(std::max_align_t), 
+    static_assert(
+        alignof(T) <= alignof(std::max_align_t),
         "alignment of T must be less than that of std::max_align_t");
-    static_assert(!std::is_const_v<T>, 
-        "cannot allocate a const type");
+    static_assert(!std::is_const_v<T>, "cannot allocate a const type");
 
     ArenaAllocator() noexcept = default;
 
@@ -361,16 +354,15 @@ public:
             throw std::bad_array_new_length();
         }
 
-        if (n == 0) return nullptr;
+        if (n == 0)
+            return nullptr;
 
-        return static_cast<T *>(detail::instance().alloc(n *sizeof(T), alignof(T)));
+        return static_cast<T *>(detail::instance().alloc(n * sizeof(T), alignof(T)));
     }
 
     void deallocate(T *, size_t) noexcept {}
 
-    friend bool operator==(const ArenaAllocator&, const ArenaAllocator&) noexcept {
-        return true;
-    }
+    friend bool operator==(const ArenaAllocator&, const ArenaAllocator&) noexcept { return true; }
 };
 
 } // namespace ecc::alloc

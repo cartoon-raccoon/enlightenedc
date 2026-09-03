@@ -45,9 +45,9 @@ bool InitializerMIR::is_all_literals() {
             [&](Chunk<InitializerMIR::Member>& mem) { return mem->initializer->is_all_literals(); },
             [&](Chunk<InitializerMIR::Index>& idx) { return idx->initializer->is_all_literals(); },
             [&](Vec<Chunk<InitializerMIR>>& init) {
-                return std::all_of(init.cbegin(), init.cend(), [](const Chunk<InitializerMIR>& init) {
-                    return init->is_all_literals();
-                });
+                return std::all_of(
+                    init.cbegin(), init.cend(),
+                    [](const Chunk<InitializerMIR>& init) { return init->is_all_literals(); });
             }},
         initializer);
 }

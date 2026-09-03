@@ -63,5 +63,6 @@ Chunk<ExprLIR> SubscrExprLIR::clone_chunk() {
 }
 
 Chunk<ExprLIR> PostfixExprLIR::clone_chunk() {
-    return make_chunk<PostfixExprLIR>(loc.value_or(Location{}), operand->clone_chunk(), op, act_type);
+    return make_chunk<PostfixExprLIR>(
+        loc.value_or(Location{}), operand->clone_chunk(), op, act_type);
 }
