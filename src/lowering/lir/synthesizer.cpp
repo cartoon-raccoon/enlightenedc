@@ -2,6 +2,8 @@
 
 #include <stdexcept>
 
+#include "allocator/chunk.hpp"
+#include "allocator/alloc.hpp"
 #include "lowering/lir/constinit.hpp"
 #include "lowering/lir/lir.hpp"
 #include "lowering/lir/symbols.hpp"
@@ -74,7 +76,7 @@ static LIRCK mirck_to_lirck(MIRCK ck) {
 }
 
 void LIRSynthesizer::unfold_initializer(LIRVarSym *sym, InitializerMIR& init) {
-    Box<ExprLIR> ident = std::make_unique<IdentExprLIR>(sym->loc, sym, sym->get_type());
+    Chunk<ExprLIR> ident = make_chunk<IdentExprLIR>(sym->loc, sym, sym->get_type());
     if (init.is_all_literals() && sym->get_type()->is_array() && sym->get_type()->is_const()) {
         bsv_dbprint("initializing const array with all literals, decaying to pointer");
         todo();
@@ -83,7 +85,7 @@ void LIRSynthesizer::unfold_initializer(LIRVarSym *sym, InitializerMIR& init) {
     }
 }
 
-void LIRSynthesizer::unfold_initializer_rec(Box<ExprLIR> lhs, Type *type, InitializerMIR& init) {
+void LIRSynthesizer::unfold_initializer_rec(Chunk<ExprLIR> lhs, Type *type, InitializerMIR& init) {
     bsv_dbprint("LIRSynthesizer: unfold_initializer_rec");
     std::visit(
         match{
@@ -127,7 +129,7 @@ void LIRSynthesizer::unfold_initializer_rec(Box<ExprLIR> lhs, Type *type, Initia
 }
 
 void LIRSynthesizer::unfold_initializer_expr(
-    Box<ExprLIR> lhs, Type *type, Chunk<ExprMIR>& expr, InitializerMIR& init) {
+    Chunk<ExprLIR> lhs, Type *type, Chunk<ExprMIR>& expr, InitializerMIR& init) {
 
     expr->accept(*this);
 
@@ -140,21 +142,21 @@ void LIRSynthesizer::unfold_initializer_expr(
 
         assert(literal_size && lhs_size);
 
-        Box<StmtLIR> memcp =
-            make_box<MemcpyLIR>(lhs->clone_box(), std::move(rhs), *lhs_size->get_arr_size());
+        Chunk<StmtLIR> memcp =
+            make_chunk<MemcpyLIR>(lhs->clone_chunk(), std::move(rhs), *lhs_size->get_arr_size());
 
         emit(std::move(memcp));
     } else {
-        Box<ExprLIR> assign = std::make_unique<AssignExprLIR>(
+        Chunk<ExprLIR> assign = make_chunk<AssignExprLIR>(
             init.loc, type, std::move(lhs), std::move(rhs), tokens::AssignOp::ASSIGN);
 
-        Box<StmtLIR> stmt = std::make_unique<ExprStmtLIR>(init.loc, std::move(assign));
+        Chunk<StmtLIR> stmt = make_chunk<ExprStmtLIR>(init.loc, std::move(assign));
         emit(std::move(stmt));
     }
 }
 
 void LIRSynthesizer::unfold_initializer_rec_arr(
-    Box<ExprLIR> lhs, ArrayType *arr, Vec<Chunk<InitializerMIR>>& inits) {
+    Chunk<ExprLIR> lhs, ArrayType *arr, Vec<Chunk<InitializerMIR>>& inits) {
 
     size_t next_idx = 0;
 
@@ -165,10 +167,10 @@ void LIRSynthesizer::unfold_initializer_rec_arr(
         std::visit(
             match{
                 [&](Chunk<ExprMIR>&) {
-                    Box<ExprLIR> idx_expr = std::make_unique<LiteralExprLIR>(
+                    Chunk<ExprLIR> idx_expr = make_chunk<LiteralExprLIR>(
                         // fixme: ensure Value(next_idx) matches machine size type
                         init->loc, Value(next_idx), types.get_size_type(false));
-                    Box<ExprLIR> child = std::make_unique<SubscrExprLIR>(
+                    Chunk<ExprLIR> child = make_chunk<SubscrExprLIR>(
                         init->loc, clone_lvalue(lhs.get()), std::move(idx_expr), arr->get_base());
 
                     unfold_initializer_rec(std::move(child), arr->get_base(), *init);
@@ -180,9 +182,9 @@ void LIRSynthesizer::unfold_initializer_rec_arr(
                         "encountered member designator while unfolding array initializer");
                 },
                 [&](Chunk<InitializerMIR::Index>& idx) {
-                    Box<ExprLIR> idx_expr = std::make_unique<LiteralExprLIR>(
+                    Chunk<ExprLIR> idx_expr = make_chunk<LiteralExprLIR>(
                         init->loc, Value(idx->idx), types.get_size_type(false));
-                    Box<ExprLIR> child = std::make_unique<SubscrExprLIR>(
+                    Chunk<ExprLIR> child = make_chunk<SubscrExprLIR>(
                         init->loc, clone_lvalue(lhs.get()), std::move(idx_expr), arr->get_base());
 
                     unfold_initializer_rec(std::move(child), arr->get_base(), *idx->initializer);
@@ -191,9 +193,9 @@ void LIRSynthesizer::unfold_initializer_rec_arr(
                     next_idx          = curr_idx + 1;
                 },
                 [&](Vec<Chunk<InitializerMIR>>&) {
-                    Box<ExprLIR> idx_expr = std::make_unique<LiteralExprLIR>(
+                    Chunk<ExprLIR> idx_expr = make_chunk<LiteralExprLIR>(
                         init->loc, Value(next_idx), types.get_size_type(false));
-                    Box<ExprLIR> child = std::make_unique<SubscrExprLIR>(
+                    Chunk<ExprLIR> child = make_chunk<SubscrExprLIR>(
                         init->loc, clone_lvalue(lhs.get()), std::move(idx_expr), arr->get_base());
 
                     unfold_initializer_rec(std::move(child), arr->get_base(), *init);
@@ -205,15 +207,15 @@ void LIRSynthesizer::unfold_initializer_rec_arr(
 
     for (size_t i = 0; i < arr->get_arr_size().value(); i++) {
         if (!touched[i]) {
-            Box<ExprLIR> idx_expr =
-                std::make_unique<LiteralExprLIR>(Location{}, Value(i), types.get_size_type(false));
-            Box<ExprLIR> child = std::make_unique<SubscrExprLIR>(
+            Chunk<ExprLIR> idx_expr =
+                make_chunk<LiteralExprLIR>(Location{}, Value(i), types.get_size_type(false));
+            Chunk<ExprLIR> child = make_chunk<SubscrExprLIR>(
                 Location{}, clone_lvalue(lhs.get()), std::move(idx_expr), arr->get_base());
-            Box<ExprLIR> zero   = std::make_unique<ZeroExprLIR>(Location{}, arr->get_base());
-            Box<ExprLIR> assign = std::make_unique<AssignExprLIR>(
+            Chunk<ExprLIR> zero   = make_chunk<ZeroExprLIR>(Location{}, arr->get_base());
+            Chunk<ExprLIR> assign = make_chunk<AssignExprLIR>(
                 Location{}, arr->get_base(), std::move(child), std::move(zero),
                 tokens::AssignOp::ASSIGN);
-            Box<StmtLIR> stmt = std::make_unique<ExprStmtLIR>(Location{}, std::move(assign));
+            Chunk<StmtLIR> stmt = make_chunk<ExprStmtLIR>(Location{}, std::move(assign));
 
             emit(std::move(stmt));
         }
@@ -221,7 +223,7 @@ void LIRSynthesizer::unfold_initializer_rec_arr(
 }
 
 void LIRSynthesizer::unfold_initializer_rec_cls(
-    Box<ExprLIR> lhs, ClassType *cls, Vec<Chunk<InitializerMIR>>& inits) {
+    Chunk<ExprLIR> lhs, ClassType *cls, Vec<Chunk<InitializerMIR>>& inits) {
 
     size_t next_idx = 0;
 
@@ -234,7 +236,7 @@ void LIRSynthesizer::unfold_initializer_rec_cls(
                     RecordType::TypeMember *member = cls->find(next_idx);
                     assert(member);
 
-                    Box<ExprLIR> child = std::make_unique<MemberAccExprLIR>(
+                    Chunk<ExprLIR> child = make_chunk<MemberAccExprLIR>(
                         init->loc, clone_lvalue(lhs.get()), next_idx, member->ty);
 
                     unfold_initializer_rec(std::move(child), member->ty, *init);
@@ -248,7 +250,7 @@ void LIRSynthesizer::unfold_initializer_rec_cls(
                     AccessorPath path = cls->index(mem->member);
                     assert(!path.empty());
 
-                    Box<ExprLIR> current    = clone_lvalue(lhs.get());
+                    Chunk<ExprLIR> current    = clone_lvalue(lhs.get());
                     RecordType *current_rec = cls;
 
                     RecordType::TypeMember *member = nullptr;
@@ -260,7 +262,7 @@ void LIRSynthesizer::unfold_initializer_rec_cls(
                         member = current_rec->find(idx);
                         assert(member);
 
-                        current = std::make_unique<MemberAccExprLIR>(
+                        current = make_chunk<MemberAccExprLIR>(
                             init->loc, std::move(current), idx, member->ty);
 
                         // Only the outermost accessor corresponds to a direct member of
@@ -286,7 +288,7 @@ void LIRSynthesizer::unfold_initializer_rec_cls(
                     RecordType::TypeMember *member = cls->find(next_idx);
                     assert(member);
 
-                    Box<ExprLIR> child = std::make_unique<MemberAccExprLIR>(
+                    Chunk<ExprLIR> child = make_chunk<MemberAccExprLIR>(
                         init->loc, clone_lvalue(lhs.get()), next_idx, member->ty);
 
                     unfold_initializer_rec(std::move(child), member->ty, *init);
@@ -300,13 +302,13 @@ void LIRSynthesizer::unfold_initializer_rec_cls(
         if (!touched[i]) {
             auto *member = cls->find(i);
             assert(member);
-            Box<ExprLIR> child = std::make_unique<MemberAccExprLIR>(
+            Chunk<ExprLIR> child = make_chunk<MemberAccExprLIR>(
                 Location{}, clone_lvalue(lhs.get()), i, member->ty);
-            Box<ExprLIR> zero   = std::make_unique<ZeroExprLIR>(Location{}, member->ty);
-            Box<ExprLIR> assign = std::make_unique<AssignExprLIR>(
+            Chunk<ExprLIR> zero   = make_chunk<ZeroExprLIR>(Location{}, member->ty);
+            Chunk<ExprLIR> assign = make_chunk<AssignExprLIR>(
                 Location{}, member->ty, std::move(child), std::move(zero),
                 tokens::AssignOp::ASSIGN);
-            Box<StmtLIR> stmt = std::make_unique<ExprStmtLIR>(Location{}, std::move(assign));
+            Chunk<StmtLIR> stmt = make_chunk<ExprStmtLIR>(Location{}, std::move(assign));
 
             emit(std::move(stmt));
         }
@@ -324,9 +326,9 @@ void LIRSynthesizer::do_visit(ProgramMIR& node) {
         LIRSynthItem item = consume();
         std::visit(
             match{
-                [this](Box<FunctionLIR>& func) { prog_lir.functions.push_back(std::move(func)); },
-                [this](Box<VarDeclLIR>& decl) { prog_lir.globals.push_back(std::move(decl)); },
-                [this](Box<ProgItemLIR>& item) { prog_lir.progitems.push_back(std::move(item)); },
+                [this](Chunk<FunctionLIR>& func) { prog_lir.functions.push_back(std::move(func)); },
+                [this](Chunk<VarDeclLIR>& decl) { prog_lir.globals.push_back(std::move(decl)); },
+                [this](Chunk<ProgItemLIR>& item) { prog_lir.progitems.push_back(std::move(item)); },
             },
             item);
     }
@@ -337,34 +339,34 @@ void LIRSynthesizer::do_visit(ProgramMIR& node) {
     // outside of functions. This means that the last block in implicit main ends up
     // unterminated, which violates the CFG invariant of every block must be terminated.
     // We insert this here to ensure this invariant.
-    prog_lir.progitems.push_back(std::make_unique<ReturnStmtLIR>());
+    prog_lir.progitems.push_back(make_chunk<ReturnStmtLIR>());
 }
 
-Box<ExprLIR> LIRSynthesizer::clone_lvalue(ExprLIR *expr) {
+Chunk<ExprLIR> LIRSynthesizer::clone_lvalue(ExprLIR *expr) {
     switch (expr->kind) {
     case NK::IDENTEXPR_LIR: {
         auto *ident = dyncast<IdentExprLIR>(expr);
-        return std::make_unique<IdentExprLIR>(ident->loc, ident->sym, ident->act_type);
+        return make_chunk<IdentExprLIR>(ident->loc, ident->sym, ident->act_type);
     }
     case NK::MEMACCEXPR_LIR: {
         auto *memacc = dyncast<MemberAccExprLIR>(expr);
-        return std::make_unique<MemberAccExprLIR>(
+        return make_chunk<MemberAccExprLIR>(
             memacc->loc, clone_lvalue(memacc->object.get()), memacc->member_idx, memacc->act_type);
     }
     case NK::REINTEXPR_LIR: {
         auto *reint = dyncast<ReintExprLIR>(expr);
-        return std::make_unique<ReintExprLIR>(
+        return make_chunk<ReintExprLIR>(
             reint->loc, clone_lvalue(reint->object.get()), reint->target, reint->act_type);
     }
     case NK::SUBSCREXPR_LIR: {
         auto *subscr = dyncast<SubscrExprLIR>(expr);
-        return std::make_unique<SubscrExprLIR>(
+        return make_chunk<SubscrExprLIR>(
             subscr->loc, clone_lvalue(subscr->array.get()), clone_lvalue(subscr->index.get()),
             subscr->act_type);
     }
     case NK::LITEXPR_LIR: {
         auto *lit = dyncast<LiteralExprLIR>(expr);
-        return std::make_unique<LiteralExprLIR>(lit->loc, lit->value, lit->act_type);
+        return make_chunk<LiteralExprLIR>(lit->loc, lit->value, lit->act_type);
     }
     default:
         throw std::runtime_error("clone_lvalue: unexpected expression kind in lvalue chain");
@@ -377,7 +379,7 @@ void LIRSynthesizer::do_visit(FunctionMIR& node) {
     FuncSymbol *sym = node.sym;
     sym->get_symdata()->set_mangled_name(sym->mangle());
 
-    Box<LIRFuncSym> func = std::make_unique<LIRFuncSym>(sym);
+    Box<LIRFuncSym> func = make_box<LIRFuncSym>(sym);
 
     LIRFuncSym *funcptr = symbolmap.add_function(sym, std::move(func));
 
@@ -387,7 +389,7 @@ void LIRSynthesizer::do_visit(FunctionMIR& node) {
         this_func_ptr = funcptr->lir;
     } else {
         // back-pointer not set, so create a new FunctionLIR, set the back-pointer, and emit it
-        Box<FunctionLIR> this_func = make_box<FunctionLIR>(node.loc, funcptr);
+        Chunk<FunctionLIR> this_func = make_chunk<FunctionLIR>(node.loc, funcptr);
         this_func_ptr              = this_func.get();
 
         funcptr->lir = this_func_ptr;
@@ -410,31 +412,31 @@ void LIRSynthesizer::do_visit(FunctionMIR& node) {
     for (VarSymbol *param : sym->parameters) {
         param->get_symdata()->set_mangled_name(param->mangle());
 
-        Box<LIRVarSym> boxed_param = std::make_unique<LIRVarSym>(param);
+        Box<LIRVarSym> boxed_param = make_box<LIRVarSym>(param);
 
         LIRVarSym *lirparam = insert_varsym(param, std::move(boxed_param));
 
         // insert the parameter into the funcsym's params store
         funcptr->params.push_back(lirparam);
 
-        Box<VarDeclLIR> paramdecl = std::make_unique<VarDeclLIR>(param->loc, lirparam);
+        Chunk<VarDeclLIR> paramdecl = make_chunk<VarDeclLIR>(param->loc, lirparam);
         emit(std::move(paramdecl));
     }
 
     node.body->accept(*this);
 
-    Vec<Box<FunctionLIR>> functions;
+    Vec<Chunk<FunctionLIR>> functions;
 
     while (!current_q.empty()) {
         LIRSynthItem item = consume();
         std::visit(
             match{
-                [&](Box<FunctionLIR>& func) {
+                [&](Chunk<FunctionLIR>& func) {
                     // Hoist any functions to the global queue.
                     functions.push_back(std::move(func));
                 },
-                [&](Box<VarDeclLIR>& decl) { this_func_ptr->locals.push_back(std::move(decl)); },
-                [&](Box<ProgItemLIR>& item) { this_func_ptr->body.push_back(std::move(item)); },
+                [&](Chunk<VarDeclLIR>& decl) { this_func_ptr->locals.push_back(std::move(decl)); },
+                [&](Chunk<ProgItemLIR>& item) { this_func_ptr->body.push_back(std::move(item)); },
             },
             item);
     }
@@ -475,12 +477,12 @@ void LIRSynthesizer::do_visit(VarDeclMIR& node) {
         sym->get_symdata()->set_mangled_name(sym->mangle());
 
         // create our LIRVar and insert it
-        Box<LIRVarSym> boxed_var = std::make_unique<LIRVarSym>(sym);
+        Box<LIRVarSym> boxed_var = make_box<LIRVarSym>(sym);
 
         LIRVarSym *lirvar = insert_varsym(decl.sym, std::move(boxed_var));
 
         // emit a vardecl
-        Box<VarDeclLIR> vardecl = std::make_unique<VarDeclLIR>(node.loc, lirvar);
+        Chunk<VarDeclLIR> vardecl = make_chunk<VarDeclLIR>(node.loc, lirvar);
         VarDeclLIR *vardeclptr  = vardecl.get();
         emit(std::move(vardecl));
 
@@ -517,9 +519,9 @@ void LIRSynthesizer::do_visit(ExprStmtMIR& node) {
 
     if (node.expr) {
         (*node.expr)->accept(*this);
-        Box<ExprLIR> expr = std::move(last_expr);
+        Chunk<ExprLIR> expr = std::move(last_expr);
 
-        Box<StmtLIR> stmt = std::make_unique<ExprStmtLIR>(node.loc, std::move(expr));
+        Chunk<StmtLIR> stmt = make_chunk<ExprStmtLIR>(node.loc, std::move(expr));
 
         emit(std::move(stmt));
     }
@@ -531,27 +533,27 @@ void LIRSynthesizer::do_visit(SwitchStmtMIR& node) {
     push_queue();
 
     node.control_val->accept(*this);
-    Box<ExprLIR> condition = std::move(last_expr);
+    Chunk<ExprLIR> condition = std::move(last_expr);
 
-    Vec<Box<FunctionLIR>> functions;
-    Vec<Box<VarDeclLIR>> decls;
+    Vec<Chunk<FunctionLIR>> functions;
+    Vec<Chunk<VarDeclLIR>> decls;
 
-    Box<SwitchStmtLIR> this_stmt = std::make_unique<SwitchStmtLIR>(node.loc, std::move(condition));
+    Chunk<SwitchStmtLIR> this_stmt = make_chunk<SwitchStmtLIR>(node.loc, std::move(condition));
 
     node.body->accept(*this);
     while (!current_q.empty()) {
         LIRSynthItem item = consume();
         std::visit(
             match{
-                [&functions](Box<FunctionLIR>& func) {
+                [&functions](Chunk<FunctionLIR>& func) {
                     // Hoist any functions to the global queue.
                     functions.push_back(std::move(func));
                 },
-                [&decls](Box<VarDeclLIR>& decl) {
+                [&decls](Chunk<VarDeclLIR>& decl) {
                     // Hoist any declarations to the function queue.
                     decls.push_back(std::move(decl));
                 },
-                [&this_stmt](Box<ProgItemLIR>& item) {
+                [&this_stmt](Chunk<ProgItemLIR>& item) {
                     // push the stmt into our body
                     this_stmt->body.push_back(std::move(item));
                 },
@@ -570,14 +572,14 @@ void LIRSynthesizer::do_visit(SwitchStmtMIR& node) {
     }
 
     // cast to an opaque stmtlir and emit
-    Box<StmtLIR> ret = std::move(this_stmt);
+    Chunk<StmtLIR> ret = std::move(this_stmt);
     emit(std::move(ret));
 }
 
 void LIRSynthesizer::do_visit(CaseStmtMIR& node) {
     bsv_dbprint("LIRSynthesizer: visiting CaseStmtMIR node");
 
-    Box<ProgItemLIR> caselab = std::make_unique<CaseLIR>(node.loc, node.case_val);
+    Chunk<ProgItemLIR> caselab = make_chunk<CaseLIR>(node.loc, node.case_val);
     emit(std::move(caselab));
 
     node.stmt->accept(*this);
@@ -589,7 +591,7 @@ void LIRSynthesizer::do_visit(CaseRangeStmtMIR& node) {
     ValueRange vrange(node.case_start, node.case_end);
 
     for (auto i : vrange) {
-        Box<ProgItemLIR> caselab = std::make_unique<CaseLIR>(node.loc, i);
+        Chunk<ProgItemLIR> caselab = make_chunk<CaseLIR>(node.loc, i);
         emit(std::move(caselab));
     }
 
@@ -599,7 +601,7 @@ void LIRSynthesizer::do_visit(CaseRangeStmtMIR& node) {
 void LIRSynthesizer::do_visit(DefaultStmtMIR& node) {
     bsv_dbprint("LIRSynthesizer: visiting DefaultStmtMIR node");
 
-    Box<ProgItemLIR> def_label = std::make_unique<DefaultLIR>(node.loc);
+    Chunk<ProgItemLIR> def_label = make_chunk<DefaultLIR>(node.loc);
     emit(std::move(def_label));
 
     node.stmt->accept(*this);
@@ -613,26 +615,26 @@ void LIRSynthesizer::do_visit(LabeledStmtMIR& node) {
     std::string mangled = node.label->mangle();
     std::string name    = node.label->name;
 
-    Box<LabelDeclLIR> this_stmt = std::make_unique<LabelDeclLIR>(node.loc, mangled, name);
+    Chunk<LabelDeclLIR> this_stmt = make_chunk<LabelDeclLIR>(node.loc, mangled, name);
 
-    Vec<Box<FunctionLIR>> functions{};
-    Vec<Box<VarDeclLIR>> decls{};
-    Vec<Box<ProgItemLIR>> body{};
+    Vec<Chunk<FunctionLIR>> functions{};
+    Vec<Chunk<VarDeclLIR>> decls{};
+    Vec<Chunk<ProgItemLIR>> body{};
 
     node.stmt->accept(*this);
     while (!current_q.empty()) {
         LIRSynthItem item = consume();
         std::visit(
             match{
-                [&functions](Box<FunctionLIR>& func) {
+                [&functions](Chunk<FunctionLIR>& func) {
                     // Hoist any functions to the global queue.
                     functions.push_back(std::move(func));
                 },
-                [&decls](Box<VarDeclLIR>& decl) {
+                [&decls](Chunk<VarDeclLIR>& decl) {
                     // Hoist any declarations to the function queue.
                     decls.push_back(std::move(decl));
                 },
-                [&body](Box<ProgItemLIR>& item) {
+                [&body](Chunk<ProgItemLIR>& item) {
                     // push the stmt into our body
                     body.push_back(std::move(item));
                 },
@@ -653,7 +655,7 @@ void LIRSynthesizer::do_visit(LabeledStmtMIR& node) {
     }
 
     // emit our label
-    Box<ProgItemLIR> ret = std::move(this_stmt);
+    Chunk<ProgItemLIR> ret = std::move(this_stmt);
     emit(std::move(ret));
 
     // emit our items after that
@@ -665,15 +667,15 @@ void LIRSynthesizer::do_visit(LabeledStmtMIR& node) {
 void LIRSynthesizer::do_visit(PrintStmtMIR& node) {
     bsv_dbprint("LIRSynthesizer: visiting PrintStmtMIR node");
 
-    Vec<Box<ExprLIR>> args{};
+    Vec<Chunk<ExprLIR>> args{};
 
     for (auto& arg : node.arguments) {
         arg->accept(*this);
         args.push_back(std::move(last_expr));
     }
 
-    Box<StmtLIR> stmt =
-        std::make_unique<PrintStmtLIR>(node.loc, node.format_string, std::move(args));
+    Chunk<StmtLIR> stmt =
+        make_chunk<PrintStmtLIR>(node.loc, node.format_string, std::move(args));
 
     emit(std::move(stmt));
 }
@@ -684,27 +686,27 @@ void LIRSynthesizer::do_visit(IfStmtMIR& node) {
     push_queue();
 
     node.condition->accept(*this);
-    Box<ExprLIR> condition = std::move(last_expr);
+    Chunk<ExprLIR> condition = std::move(last_expr);
 
-    Box<IfStmtLIR> ifstmt = std::make_unique<IfStmtLIR>(node.loc, std::move(condition));
+    Chunk<IfStmtLIR> ifstmt = make_chunk<IfStmtLIR>(node.loc, std::move(condition));
 
-    Vec<Box<FunctionLIR>> functions{};
-    Vec<Box<VarDeclLIR>> decls{};
+    Vec<Chunk<FunctionLIR>> functions{};
+    Vec<Chunk<VarDeclLIR>> decls{};
 
     node.then_branch->accept(*this);
     while (!current_q.empty()) {
         LIRSynthItem item = consume();
         std::visit(
             match{
-                [&functions](Box<FunctionLIR>& func) {
+                [&functions](Chunk<FunctionLIR>& func) {
                     // Hoist any functions to the global queue.
                     functions.push_back(std::move(func));
                 },
-                [&decls](Box<VarDeclLIR>& decl) {
+                [&decls](Chunk<VarDeclLIR>& decl) {
                     // Hoist any declarations to the function queue.
                     decls.push_back(std::move(decl));
                 },
-                [&ifstmt](Box<ProgItemLIR>& item) {
+                [&ifstmt](Chunk<ProgItemLIR>& item) {
                     // push the stmt into our then branch
                     ifstmt->then_br.push_back(std::move(item));
                 },
@@ -713,22 +715,22 @@ void LIRSynthesizer::do_visit(IfStmtMIR& node) {
     }
 
     if (node.else_branch) {
-        Vec<Box<ProgItemLIR>> else_stmts{};
+        Vec<Chunk<ProgItemLIR>> else_stmts{};
 
         (*node.else_branch)->accept(*this);
         while (!current_q.empty()) {
             LIRSynthItem item = consume();
             std::visit(
                 match{
-                    [&functions](Box<FunctionLIR>& func) {
+                    [&functions](Chunk<FunctionLIR>& func) {
                         // Hoist any functions to the global queue.
                         functions.push_back(std::move(func));
                     },
-                    [&decls](Box<VarDeclLIR>& decl) {
+                    [&decls](Chunk<VarDeclLIR>& decl) {
                         // Hoist any declarations to the function queue.
                         decls.push_back(std::move(decl));
                     },
-                    [&else_stmts](Box<ProgItemLIR>& stmt) {
+                    [&else_stmts](Chunk<ProgItemLIR>& stmt) {
                         // push the stmt into our else branch
                         else_stmts.push_back(std::move(stmt));
                     },
@@ -749,7 +751,7 @@ void LIRSynthesizer::do_visit(IfStmtMIR& node) {
         emit(std::move(decl));
     }
 
-    Box<StmtLIR> ret = std::move(ifstmt);
+    Chunk<StmtLIR> ret = std::move(ifstmt);
     emit(std::move(ret));
 }
 
@@ -758,29 +760,29 @@ void LIRSynthesizer::do_visit(LoopStmtMIR& node) {
 
     push_queue();
 
-    Box<LoopStmtLIR> loop = std::make_unique<LoopStmtLIR>(node.loc);
+    Chunk<LoopStmtLIR> loop = make_chunk<LoopStmtLIR>(node.loc);
 
     // items to be hoisted to the outer scope.
-    Vec<Box<FunctionLIR>> functions;
-    Vec<Box<VarDeclLIR>> decls;
+    Vec<Chunk<FunctionLIR>> functions;
+    Vec<Chunk<VarDeclLIR>> decls;
 
     if (node.init) {
-        Vec<Box<ProgItemLIR>> init_items;
+        Vec<Chunk<ProgItemLIR>> init_items;
         (*node.init)->accept(*this);
 
         while (!current_q.empty()) {
             LIRSynthItem item = consume();
             std::visit(
                 match{
-                    [&functions](Box<FunctionLIR>& func) {
+                    [&functions](Chunk<FunctionLIR>& func) {
                         // Hoist any functions to the global queue.
                         functions.push_back(std::move(func));
                     },
-                    [&decls](Box<VarDeclLIR>& decl) {
+                    [&decls](Chunk<VarDeclLIR>& decl) {
                         // Hoist any declarations to the function queue.
                         decls.push_back(std::move(decl));
                     },
-                    [&init_items](Box<ProgItemLIR>& stmt) {
+                    [&init_items](Chunk<ProgItemLIR>& stmt) {
                         init_items.push_back(std::move(stmt));
                     },
                 },
@@ -797,22 +799,22 @@ void LIRSynthesizer::do_visit(LoopStmtMIR& node) {
     }
 
     if (node.step) {
-        Vec<Box<ProgItemLIR>> step_items;
+        Vec<Chunk<ProgItemLIR>> step_items;
         (*node.step)->accept(*this);
 
         while (!current_q.empty()) {
             LIRSynthItem item = consume();
             std::visit(
                 match{
-                    [&functions](Box<FunctionLIR>& func) {
+                    [&functions](Chunk<FunctionLIR>& func) {
                         // Hoist any functions to the global queue.
                         functions.push_back(std::move(func));
                     },
-                    [&decls](Box<VarDeclLIR>& decl) {
+                    [&decls](Chunk<VarDeclLIR>& decl) {
                         // Hoist any declarations to the function queue.
                         decls.push_back(std::move(decl));
                     },
-                    [&step_items](Box<ProgItemLIR>& stmt) {
+                    [&step_items](Chunk<ProgItemLIR>& stmt) {
                         step_items.push_back(std::move(stmt));
                     },
                 },
@@ -821,21 +823,21 @@ void LIRSynthesizer::do_visit(LoopStmtMIR& node) {
         loop->step = std::move(step_items);
     }
 
-    Vec<Box<ProgItemLIR>> body;
+    Vec<Chunk<ProgItemLIR>> body;
     node.body->accept(*this);
     while (!current_q.empty()) {
         LIRSynthItem item = consume();
         std::visit(
             match{
-                [&functions](Box<FunctionLIR>& func) {
+                [&functions](Chunk<FunctionLIR>& func) {
                     // Hoist any functions to the global queue.
                     functions.push_back(std::move(func));
                 },
-                [&decls](Box<VarDeclLIR>& decl) {
+                [&decls](Chunk<VarDeclLIR>& decl) {
                     // Hoist any declarations to the function queue.
                     decls.push_back(std::move(decl));
                 },
-                [&body](Box<ProgItemLIR>& stmt) { body.push_back(std::move(stmt)); },
+                [&body](Chunk<ProgItemLIR>& stmt) { body.push_back(std::move(stmt)); },
             },
             item);
     }
@@ -865,14 +867,14 @@ void LIRSynthesizer::do_visit(GotoStmtMIR& node) {
     std::string mangled = node.target_sym->mangle();
     std::string name    = node.target_sym->name;
 
-    Box<ProgItemLIR> gotostmt = std::make_unique<GotoStmtLIR>(node.loc, mangled, name);
+    Chunk<ProgItemLIR> gotostmt = make_chunk<GotoStmtLIR>(node.loc, mangled, name);
     emit(std::move(gotostmt));
 }
 
 void LIRSynthesizer::do_visit(BreakStmtMIR& node) {
     bsv_dbprint("LIRSynthesizer: visiting BreakStmtMIR node");
 
-    Box<StmtLIR> breakstmt = std::make_unique<BreakStmtLIR>(node.loc);
+    Chunk<StmtLIR> breakstmt = make_chunk<BreakStmtLIR>(node.loc);
 
     emit(std::move(breakstmt));
 }
@@ -880,7 +882,7 @@ void LIRSynthesizer::do_visit(BreakStmtMIR& node) {
 void LIRSynthesizer::do_visit(ContStmtMIR& node) {
     bsv_dbprint("LIRSynthesizer: visiting ContStmtMIR node");
 
-    Box<StmtLIR> contstmt = std::make_unique<ContStmtLIR>(node.loc);
+    Chunk<StmtLIR> contstmt = make_chunk<ContStmtLIR>(node.loc);
 
     emit(std::move(contstmt));
 }
@@ -890,13 +892,13 @@ void LIRSynthesizer::do_visit(ReturnStmtMIR& node) {
 
     if (node.ret_expr) {
         (*node.ret_expr)->accept(*this);
-        Box<ExprLIR> ret_val = std::move(last_expr);
+        Chunk<ExprLIR> ret_val = std::move(last_expr);
 
-        Box<StmtLIR> ret = std::make_unique<ReturnStmtLIR>(node.loc, std::move(ret_val));
+        Chunk<StmtLIR> ret = make_chunk<ReturnStmtLIR>(node.loc, std::move(ret_val));
         emit(std::move(ret));
     } else {
 
-        Box<StmtLIR> ret = std::make_unique<ReturnStmtLIR>(node.loc);
+        Chunk<StmtLIR> ret = make_chunk<ReturnStmtLIR>(node.loc);
         emit(std::move(ret));
     }
 }
@@ -905,11 +907,11 @@ void LIRSynthesizer::do_visit(BinaryExprMIR& node) {
     bsv_dbprint("LIRSynthesizer: visiting BinaryExprMIR node");
 
     node.left->accept(*this);
-    Box<ExprLIR> left = std::move(last_expr);
+    Chunk<ExprLIR> left = std::move(last_expr);
     node.right->accept(*this);
-    Box<ExprLIR> right = std::move(last_expr);
+    Chunk<ExprLIR> right = std::move(last_expr);
 
-    Box<ExprLIR> expr = std::make_unique<BinaryExprLIR>(
+    Chunk<ExprLIR> expr = make_chunk<BinaryExprLIR>(
         node.loc, node.act_type, std::move(left), std::move(right), node.op);
 
     last_expr = std::move(expr);
@@ -919,10 +921,10 @@ void LIRSynthesizer::do_visit(UnaryExprMIR& node) {
     bsv_dbprint("LIRSynthesizer: visiting UnaryExprMIR node");
 
     node.operand->accept(*this);
-    Box<ExprLIR> operand = std::move(last_expr);
+    Chunk<ExprLIR> operand = std::move(last_expr);
 
-    Box<ExprLIR> expr =
-        std::make_unique<UnaryExprLIR>(node.loc, node.act_type, std::move(operand), node.op);
+    Chunk<ExprLIR> expr =
+        make_chunk<UnaryExprLIR>(node.loc, node.act_type, std::move(operand), node.op);
 
     last_expr = std::move(expr);
 }
@@ -932,7 +934,7 @@ void LIRSynthesizer::do_visit(CastExprMIR& node) {
 
     node.inner->accept(*this);
 
-    Box<ExprLIR> inner = std::move(last_expr);
+    Chunk<ExprLIR> inner = std::move(last_expr);
     if (auto *literal = dyncast<LiteralExprLIR>(inner.get());
         literal && literal->is_val() && node.target->is_primitive()) {
 
@@ -949,7 +951,7 @@ void LIRSynthesizer::do_visit(CastExprMIR& node) {
 
         last_expr = std::move(inner);
     } else {
-        Box<ExprLIR> expr = std::make_unique<CastExprLIR>(
+        Chunk<ExprLIR> expr = make_chunk<CastExprLIR>(
             node.loc, node.act_type, std::move(inner), node.target, mirck_to_lirck(node.castkind));
 
         last_expr = std::move(expr);
@@ -961,13 +963,13 @@ void LIRSynthesizer::do_visit(AssignExprMIR& node) {
 
     node.left->accept(*this);
 
-    Box<ExprLIR> left = std::move(last_expr);
+    Chunk<ExprLIR> left = std::move(last_expr);
 
     node.right->accept(*this);
 
-    Box<ExprLIR> right = std::move(last_expr);
+    Chunk<ExprLIR> right = std::move(last_expr);
 
-    Box<ExprLIR> expr = std::make_unique<AssignExprLIR>(
+    Chunk<ExprLIR> expr = make_chunk<AssignExprLIR>(
         node.loc, node.act_type, std::move(left), std::move(right), node.op);
 
     last_expr = std::move(expr);
@@ -977,13 +979,13 @@ void LIRSynthesizer::do_visit(CondExprMIR& node) {
     bsv_dbprint("LIRSynthesizer: visiting CondExprMIR node");
 
     node.condition->accept(*this);
-    Box<ExprLIR> condition = std::move(last_expr);
+    Chunk<ExprLIR> condition = std::move(last_expr);
     node.true_expr->accept(*this);
-    Box<ExprLIR> true_val = std::move(last_expr);
+    Chunk<ExprLIR> true_val = std::move(last_expr);
     node.false_expr->accept(*this);
-    Box<ExprLIR> false_val = std::move(last_expr);
+    Chunk<ExprLIR> false_val = std::move(last_expr);
 
-    Box<ExprLIR> expr = std::make_unique<CondExprLIR>(
+    Chunk<ExprLIR> expr = make_chunk<CondExprLIR>(
         node.loc, node.act_type, std::move(condition), std::move(true_val), std::move(false_val));
 
     last_expr = std::move(expr);
@@ -1004,14 +1006,14 @@ void LIRSynthesizer::do_visit(IdentExprMIR& node) {
     // one must still resolve to that storage, not to the default literal.
     if (VarSymbol *varsym = node.ident->as_varsym();
         varsym && varsym->value && !varsym->is_funcparam) {
-        last_expr = std::make_unique<LiteralExprLIR>(node.loc, *varsym->value, node.act_type);
+        last_expr = make_chunk<LiteralExprLIR>(node.loc, *varsym->value, node.act_type);
         return;
     }
 
     LIRSym *sym = symbolmap.lookup(node.ident);
     assert(sym);
 
-    Box<ExprLIR> identexpr = std::make_unique<IdentExprLIR>(node.loc, sym, node.act_type);
+    Chunk<ExprLIR> identexpr = make_chunk<IdentExprLIR>(node.loc, sym, node.act_type);
 
     last_expr = std::move(identexpr);
 }
@@ -1019,7 +1021,7 @@ void LIRSynthesizer::do_visit(IdentExprMIR& node) {
 void LIRSynthesizer::do_visit(LiteralExprMIR& node) {
     bsv_dbprint("LIRSynthesizer: visiting LiteralExprMIR node");
 
-    Box<ExprLIR> litexpr = std::make_unique<LiteralExprLIR>(node.loc, node.value, node.act_type);
+    Chunk<ExprLIR> litexpr = make_chunk<LiteralExprLIR>(node.loc, node.value, node.act_type);
 
     last_expr = std::move(litexpr);
 }
@@ -1028,17 +1030,17 @@ void LIRSynthesizer::do_visit(CallExprMIR& node) {
     bsv_dbprint("LIRSynthesizer: visiting CallExprMIR node");
 
     node.callee->accept(*this);
-    Box<ExprLIR> callee = std::move(last_expr);
+    Chunk<ExprLIR> callee = std::move(last_expr);
 
-    Vec<Box<ExprLIR>> args;
+    Vec<Chunk<ExprLIR>> args;
 
     for (auto& arg : node.args) {
         arg->accept(*this);
         args.push_back(std::move(last_expr));
     }
 
-    Box<ExprLIR> callexpr =
-        std::make_unique<CallExprLIR>(node.loc, std::move(callee), std::move(args), node.act_type);
+    Chunk<ExprLIR> callexpr =
+        make_chunk<CallExprLIR>(node.loc, std::move(callee), std::move(args), node.act_type);
 
     last_expr = std::move(callexpr);
 }
@@ -1050,13 +1052,13 @@ void LIRSynthesizer::do_visit(MemberAccExprMIR& node) {
     // Account for anonymous member accesses
     // If arrow, desugar into a deref expression
     node.object->accept(*this);
-    Box<ExprLIR> object = std::move(last_expr);
+    Chunk<ExprLIR> object = std::move(last_expr);
 
     RecordType *record;
     if (node.is_arrow) {
         PointerType *objtype = node.object->act_type->as_pointer();
         assert(objtype);
-        object = std::make_unique<UnaryExprLIR>(
+        object = make_chunk<UnaryExprLIR>(
             node.loc, objtype->get_base(), std::move(object), tokens::UnaryOp::DEREF);
         record = objtype->get_base()->as_recordtype();
     } else {
@@ -1084,7 +1086,7 @@ void LIRSynthesizer::do_visit(MemberAccExprMIR& node) {
         Type *step_type = acc.next() ? member->ty : node.act_type;
 
         // wrap current in a new member access expression, make it the new current
-        current = std::make_unique<MemberAccExprLIR>(node.loc, std::move(current), idx, step_type);
+        current = make_chunk<MemberAccExprLIR>(node.loc, std::move(current), idx, step_type);
 
         // if there are accessors remaining, update the current recordtype
         if (acc.next()) {
@@ -1100,17 +1102,17 @@ void LIRSynthesizer::do_visit(ReintExprMIR& node) {
     bsv_dbprint("LIRSynthesizer: visiting ReintExprMIR node");
 
     node.object->accept(*this);
-    Box<ExprLIR> object = std::move(last_expr);
+    Chunk<ExprLIR> object = std::move(last_expr);
 
     if (node.is_arrow) {
         PointerType *objtype = node.object->act_type->as_pointer();
         assert(objtype);
-        object = std::make_unique<UnaryExprLIR>(
+        object = make_chunk<UnaryExprLIR>(
             node.loc, objtype->get_base(), std::move(object), tokens::UnaryOp::DEREF);
     }
 
-    Box<ExprLIR> expr =
-        std::make_unique<ReintExprLIR>(node.loc, std::move(object), node.target, node.act_type);
+    Chunk<ExprLIR> expr =
+        make_chunk<ReintExprLIR>(node.loc, std::move(object), node.target, node.act_type);
 
     last_expr = std::move(expr);
 }
@@ -1119,12 +1121,12 @@ void LIRSynthesizer::do_visit(SubscrExprMIR& node) {
     bsv_dbprint("LIRSynthesizer: visiting SubscrExprMIR node");
 
     node.array->accept(*this);
-    Box<ExprLIR> array = std::move(last_expr);
+    Chunk<ExprLIR> array = std::move(last_expr);
 
     node.index->accept(*this);
-    Box<ExprLIR> index = std::move(last_expr);
+    Chunk<ExprLIR> index = std::move(last_expr);
 
-    Box<ExprLIR> subscript = std::make_unique<SubscrExprLIR>(
+    Chunk<ExprLIR> subscript = make_chunk<SubscrExprLIR>(
         node.loc, std::move(array), std::move(index), node.act_type);
 
     last_expr = std::move(subscript);
@@ -1134,10 +1136,10 @@ void LIRSynthesizer::do_visit(PostfixExprMIR& node) {
     bsv_dbprint("LIRSynthesizer: visiting PostfixExprMIR node");
 
     node.operand->accept(*this);
-    Box<ExprLIR> operand = std::move(last_expr);
+    Chunk<ExprLIR> operand = std::move(last_expr);
 
-    Box<ExprLIR> postfix =
-        std::make_unique<PostfixExprLIR>(node.loc, std::move(operand), node.op, node.act_type);
+    Chunk<ExprLIR> postfix =
+        make_chunk<PostfixExprLIR>(node.loc, std::move(operand), node.op, node.act_type);
 
     last_expr = std::move(postfix);
 }
@@ -1151,7 +1153,7 @@ void LIRSynthesizer::do_visit(SizeofExprMIR& node) {
             [](Type *& type) mutable { return type->alloc_size(); }},
         node.operand);
 
-    Box<ExprLIR> ret = std::make_unique<LiteralExprLIR>(node.loc, Value(size), node.act_type);
+    Chunk<ExprLIR> ret = make_chunk<LiteralExprLIR>(node.loc, Value(size), node.act_type);
 
     last_expr = std::move(ret);
 }

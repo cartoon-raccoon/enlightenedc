@@ -12,14 +12,14 @@ using namespace ecc::lower::lir;
 using namespace ecc::sema::mir;
 using namespace ecc::sema::types;
 
-Optional<Box<ConstInitLIR>>
+Optional<Chunk<ConstInitLIR>>
 ConstInitLIRBuilder::try_build_constinit(Type *type, InitializerMIR& init) {
     return std::visit(
         match{
-            [&](Chunk<ExprMIR>& expr) -> Optional<Box<ConstInitLIR>> {
+            [&](Chunk<ExprMIR>& expr) -> Optional<Chunk<ConstInitLIR>> {
                 return try_build_constinit_expr(type, *expr);
             },
-            [&](Vec<Chunk<InitializerMIR>>& aggregate) -> Optional<Box<ConstInitLIR>> {
+            [&](Vec<Chunk<InitializerMIR>>& aggregate) -> Optional<Chunk<ConstInitLIR>> {
                 if (type->is_class()) {
                     return try_build_constinit_agg_cls(type->as_class(), aggregate, init.loc);
                 } else if (type->is_array()) {
@@ -28,14 +28,14 @@ ConstInitLIRBuilder::try_build_constinit(Type *type, InitializerMIR& init) {
                     throw std::runtime_error("invalid type for try_build_constinit_agg");
                 }
             },
-            [&](auto&) -> Optional<Box<ConstInitLIR>> {
+            [&](auto&) -> Optional<Chunk<ConstInitLIR>> {
                 throw std::runtime_error(
                     "encountered variant other than ExprMIR and Vec<Chunk<InitializerMIR>>");
             }},
         init.initializer);
 }
 
-Optional<Box<ConstInitLIR>>
+Optional<Chunk<ConstInitLIR>>
 ConstInitLIRBuilder::try_build_constinit_expr(Type *type, ExprMIR& expr) {
     if (isa<CastExprMIR>(&expr)) {
         return try_build_constinit_expr(type, *dyncast<CastExprMIR>(&expr));
@@ -50,12 +50,12 @@ ConstInitLIRBuilder::try_build_constinit_expr(Type *type, ExprMIR& expr) {
     }
 }
 
-Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_cls(
+Optional<Chunk<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_cls(
     ClassType *cls, Vec<Chunk<InitializerMIR>>& inits, Location loc) {
 
     size_t next_idx = 0;
     Vec<bool> touched(cls->num_members(), false);
-    auto cinit = std::make_unique<AggregateInitLIR>(loc, cls);
+    auto cinit = make_chunk<AggregateInitLIR>(loc, cls);
     cinit->elements.resize(cls->num_members());
 
     for (auto& init : inits) {
@@ -63,7 +63,7 @@ Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_cls(
 
         auto maybe_init = std::visit(
             match{
-                [&](Chunk<ExprMIR>& expr) -> Optional<Box<ConstInitLIR>> {
+                [&](Chunk<ExprMIR>& expr) -> Optional<Chunk<ConstInitLIR>> {
                     RecordType::TypeMember *member = cls->find(next_idx);
                     assert(member);
 
@@ -78,7 +78,7 @@ Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_cls(
 
                     return maybe_init;
                 },
-                [&](Chunk<InitializerMIR::Member>& member) -> Optional<Box<ConstInitLIR>> {
+                [&](Chunk<InitializerMIR::Member>& member) -> Optional<Chunk<ConstInitLIR>> {
                     // Member designators can refer to a member nested inside one or more
                     // anonymous struct/union members; index() returns the full chain of
                     // per-level indices needed to reach it (see unfold_initializer_rec_cls).
@@ -121,11 +121,11 @@ Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_cls(
 
                     return maybe_init;
                 },
-                [&](Chunk<InitializerMIR::Index>&) -> Optional<Box<ConstInitLIR>> {
+                [&](Chunk<InitializerMIR::Index>&) -> Optional<Chunk<ConstInitLIR>> {
                     throw std::runtime_error(
                         "encountered index designator while constructing constinit class");
                 },
-                [&](Vec<Chunk<InitializerMIR>>&) -> Optional<Box<ConstInitLIR>> {
+                [&](Vec<Chunk<InitializerMIR>>&) -> Optional<Chunk<ConstInitLIR>> {
                     RecordType::TypeMember *member = cls->find(next_idx);
                     assert(member);
 
@@ -153,19 +153,19 @@ Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_cls(
         if (!touched[i]) {
             auto *member = cls->find(i);
             assert(member);
-            cinit->elements[i] = std::make_unique<ZeroInitLIR>(member->ty);
+            cinit->elements[i] = make_chunk<ZeroInitLIR>(member->ty);
         }
     }
 
     return cinit;
 }
 
-Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_arr(
+Optional<Chunk<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_arr(
     ArrayType *arr, Vec<Chunk<InitializerMIR>>& inits, Location loc) {
 
     size_t next_idx = 0;
     Vec<bool> touched(arr->get_arr_size().value(), false);
-    auto cinit = std::make_unique<AggregateInitLIR>(loc, arr);
+    auto cinit = make_chunk<AggregateInitLIR>(loc, arr);
     cinit->elements.resize(arr->get_arr_size().value());
 
     for (auto& init : inits) {
@@ -173,7 +173,7 @@ Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_arr(
 
         auto maybe_init = std::visit(
             match{
-                [&](Chunk<ExprMIR>& expr) -> Optional<Box<ConstInitLIR>> {
+                [&](Chunk<ExprMIR>& expr) -> Optional<Chunk<ConstInitLIR>> {
                     target_idx = next_idx;
 
                     tracking_path.push_back(LIRAccessor::index(arr->get_base(), target_idx));
@@ -185,11 +185,11 @@ Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_arr(
 
                     return maybe_init;
                 },
-                [&](Chunk<InitializerMIR::Member>&) -> Optional<Box<ConstInitLIR>> {
+                [&](Chunk<InitializerMIR::Member>&) -> Optional<Chunk<ConstInitLIR>> {
                     throw std::runtime_error(
                         "encountered member designator while constructing constinit array");
                 },
-                [&](Chunk<InitializerMIR::Index>& index) -> Optional<Box<ConstInitLIR>> {
+                [&](Chunk<InitializerMIR::Index>& index) -> Optional<Chunk<ConstInitLIR>> {
                     size_t curr_idx = index->idx.cast<size_t>();
 
                     target_idx        = curr_idx;
@@ -202,7 +202,7 @@ Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_arr(
 
                     return maybe_init;
                 },
-                [&](Vec<Chunk<InitializerMIR>>&) -> Optional<Box<ConstInitLIR>> {
+                [&](Vec<Chunk<InitializerMIR>>&) -> Optional<Chunk<ConstInitLIR>> {
                     target_idx = next_idx;
 
                     tracking_path.push_back(LIRAccessor::index(arr->get_base(), target_idx));
@@ -225,14 +225,14 @@ Optional<Box<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_arr(
 
     for (size_t i = 0; i < arr->get_arr_size().value(); i++) {
         if (!touched[i]) {
-            cinit->elements[i] = std::make_unique<ZeroInitLIR>(arr->get_base());
+            cinit->elements[i] = make_chunk<ZeroInitLIR>(arr->get_base());
         }
     }
 
     return cinit;
 }
 
-Optional<Box<ConstInitLIR>>
+Optional<Chunk<ConstInitLIR>>
 ConstInitLIRBuilder::try_build_constinit_expr(Type *type, CastExprMIR& expr) {
     using CastKind = CastExprMIR::CastKind;
 
@@ -252,7 +252,7 @@ ConstInitLIRBuilder::try_build_constinit_expr(Type *type, CastExprMIR& expr) {
     }
 }
 
-Optional<Box<ConstInitLIR>>
+Optional<Chunk<ConstInitLIR>>
 ConstInitLIRBuilder::try_build_constinit_expr(Type *type, IdentExprMIR& expr) {
     if (!type->is_enum() && !type->is_function()) {
         return {};
@@ -262,7 +262,7 @@ ConstInitLIRBuilder::try_build_constinit_expr(Type *type, IdentExprMIR& expr) {
         EnumType *enumtype = type->as_enum();
         if (auto *enumerator = enumtype->find(expr.ident->name)) {
             eval::Value val(enumerator->value);
-            auto init = std::make_unique<ScalarInitLIR>(expr.loc, enumtype->as_primitive(), val);
+            auto init = make_chunk<ScalarInitLIR>(expr.loc, enumtype->as_primitive(), val);
 
             return init;
         } else {
@@ -276,7 +276,7 @@ ConstInitLIRBuilder::try_build_constinit_expr(Type *type, IdentExprMIR& expr) {
         assert(sym);
         assert(sym->lir);
 
-        auto init = std::make_unique<FuncInitLIR>(expr.loc, sig, sym->lir);
+        auto init = make_chunk<FuncInitLIR>(expr.loc, sig, sym->lir);
         return init;
 
     } else {
@@ -284,9 +284,9 @@ ConstInitLIRBuilder::try_build_constinit_expr(Type *type, IdentExprMIR& expr) {
     }
 }
 
-Optional<Box<ConstInitLIR>>
+Optional<Chunk<ConstInitLIR>>
 ConstInitLIRBuilder::try_build_constinit_expr(Type *type, LiteralExprMIR& expr) {
-    Box<ConstInitLIR> init = nullptr;
+    Chunk<ConstInitLIR> init = nullptr;
     std::visit(
         match{
             [&](eval::Value& val) {
@@ -295,27 +295,27 @@ ConstInitLIRBuilder::try_build_constinit_expr(Type *type, LiteralExprMIR& expr) 
                 PrimitiveType *ptype   = type->as_primitive();
                 eval::Value insert_val = val.pr_cast(ptype->get_primkind());
 
-                init = std::make_unique<ScalarInitLIR>(expr.loc, type->as_primitive(), insert_val);
+                init = make_chunk<ScalarInitLIR>(expr.loc, type->as_primitive(), insert_val);
             },
             [&](std::string& str) {
                 if (type->is_pointer() || static_storage) {
-                    init = std::make_unique<StringInitLIR>(expr.loc, type, str);
+                    init = make_chunk<StringInitLIR>(expr.loc, type, str);
                 } else if (type->is_array()) {
-                    init = std::make_unique<ZeroInitLIR>(type);
+                    init = make_chunk<ZeroInitLIR>(type);
 
-                    Box<ExprLIR> dest = initializee->clone_box();
+                    Chunk<ExprLIR> dest = initializee->clone_chunk();
                     for (auto& acc : tracking_path) {
                         switch (acc.kind) {
                         case LIRAccessor::Kind::MEMBER:
-                            dest = make_box<MemberAccExprLIR>(std::move(dest), acc.idx, acc.type);
+                            dest = make_chunk<MemberAccExprLIR>(std::move(dest), acc.idx, acc.type);
                             break;
                         case LIRAccessor::Kind::INDEX: {
                             eval::Value index_val = eval::Value::from_literal(acc.idx);
                             PrimitiveType *index_type =
                                 types.get().get_primitive(index_val.primtype());
 
-                            Box<ExprLIR> index = make_box<LiteralExprLIR>(index_val, index_type);
-                            dest               = make_box<SubscrExprLIR>(
+                            Chunk<ExprLIR> index = make_chunk<LiteralExprLIR>(index_val, index_type);
+                            dest               = make_chunk<SubscrExprLIR>(
                                 std::move(dest), std::move(index), acc.type);
                         } break;
                         }
@@ -325,8 +325,8 @@ ConstInitLIRBuilder::try_build_constinit_expr(Type *type, LiteralExprMIR& expr) 
 
                     // pad the string if needed with null bytes
                     size_t lit_size = *init_arr->get_arr_size(); // strlen + 1, base i8
-                    auto src        = make_box<LiteralExprLIR>(expr.loc, str, expr.act_type);
-                    auto memcpy = make_box<MemcpyLIR>(std::move(dest), std::move(src), lit_size);
+                    auto src        = make_chunk<LiteralExprLIR>(expr.loc, str, expr.act_type);
+                    auto memcpy = make_chunk<MemcpyLIR>(std::move(dest), std::move(src), lit_size);
 
                     deferred_inits.push_back(std::move(memcpy));
                 } else {
@@ -342,7 +342,7 @@ ConstInitLIRBuilder::try_build_constinit_expr(Type *type, LiteralExprMIR& expr) 
     }
 }
 
-Optional<Box<ConstInitLIR>>
+Optional<Chunk<ConstInitLIR>>
 ConstInitLIRBuilder::try_build_constinit_expr(Type *type, SizeofExprMIR& expr) {
     assert(type->is_primitive());
     PrimitiveType *ptype = type->as_primitive();
@@ -356,7 +356,7 @@ ConstInitLIRBuilder::try_build_constinit_expr(Type *type, SizeofExprMIR& expr) {
 
     val = val.pr_cast(ptype->get_primkind());
 
-    auto init = std::make_unique<ScalarInitLIR>(expr.loc, ptype, val);
+    auto init = make_chunk<ScalarInitLIR>(expr.loc, ptype, val);
 
     return init;
 }

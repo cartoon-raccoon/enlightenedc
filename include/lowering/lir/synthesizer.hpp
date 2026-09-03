@@ -7,6 +7,7 @@
 #include <stack>
 #include <variant>
 
+#include "allocator/chunk.hpp"
 #include "lowering/lir/lir.hpp"
 #include "lowering/lir/symbols.hpp"
 #include "semantics/mir/mir.hpp"
@@ -26,7 +27,7 @@ public:
         : sema::BaseMIRSemaVisitor(State::READ), symbolmap(symbolmap), types(tyctxt),
           prog_lir(prog_lir) {}
 
-    using LIRSynthItem = std::variant<Box<FunctionLIR>, Box<VarDeclLIR>, Box<ProgItemLIR>>;
+    using LIRSynthItem = std::variant<Chunk<FunctionLIR>, Chunk<VarDeclLIR>, Chunk<ProgItemLIR>>;
 
     LIRSymbolMap& symbolmap;
     sema::types::TypeContext& types;
@@ -100,25 +101,25 @@ protected:
 
 private:
     void unfold_initializer_rec(
-        Box<ExprLIR> lhs, sema::types::Type *type, sema::mir::InitializerMIR& init);
+        Chunk<ExprLIR> lhs, sema::types::Type *type, sema::mir::InitializerMIR& init);
 
     void unfold_initializer_expr(
-        Box<ExprLIR> lhs, sema::types::Type *type, Chunk<sema::mir::ExprMIR>& expr,
+        Chunk<ExprLIR> lhs, sema::types::Type *type, Chunk<sema::mir::ExprMIR>& expr,
         sema::mir::InitializerMIR& init);
 
     void unfold_initializer_rec_arr(
-        Box<ExprLIR> lhs, sema::types::ArrayType *arr, Vec<Chunk<sema::mir::InitializerMIR>>& inits);
+        Chunk<ExprLIR> lhs, sema::types::ArrayType *arr, Vec<Chunk<sema::mir::InitializerMIR>>& inits);
 
     void unfold_initializer_rec_cls(
-        Box<ExprLIR> lhs, sema::types::ClassType *cls, Vec<Chunk<sema::mir::InitializerMIR>>& inits);
+        Chunk<ExprLIR> lhs, sema::types::ClassType *cls, Vec<Chunk<sema::mir::InitializerMIR>>& inits);
 
     // Deep-copies an lvalue expression chain (Ident/MemberAcc/Subscr/Literal only) so the same
     // base `lhs` can be reused across sibling fields/elements of an aggregate initializer.
-    Box<ExprLIR> clone_lvalue(ExprLIR *expr);
+    Chunk<ExprLIR> clone_lvalue(ExprLIR *expr);
     /**
     Side-channel for returning expressions.
     */
-    Box<ExprLIR> last_expr;
+    Chunk<ExprLIR> last_expr;
 
     /*
     The queue streaming system for LIRSynthesizer, which performs hoisting of function and

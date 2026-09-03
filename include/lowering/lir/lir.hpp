@@ -134,7 +134,7 @@ public:
     AggregateInitLIR(Location loc, sema::types::Type *type)
         : LIRVisitable<AggregateInitLIR, ConstInitLIR>(loc, NodeKind::AGGINIT_LIR, type) {}
 
-    Vec<Box<ConstInitLIR>> elements;
+    Vec<Chunk<ConstInitLIR>> elements;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::AGGINIT_LIR; }
 };
@@ -177,7 +177,7 @@ public:
         : LIRVisitable<VarDeclLIR, LIRNode>(NodeKind::VARDECL_LIR), lirsym(var) {}
 
     LIRVarSym *lirsym;
-    Box<ConstInitLIR> init = nullptr;
+    Chunk<ConstInitLIR> init = nullptr;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::VARDECL_LIR; }
 };
@@ -190,7 +190,7 @@ public:
     virtual LabelLIR *as_decl() { return nullptr; }
     virtual StmtLIR *as_stmt() { return nullptr; }
 
-    // virtual Box<ProgItemLIRStream> progitem_stream();
+    // virtual Chunk<ProgItemLIRStream> progitem_stream();
 
     // NOTE: LabelLIR and StmtLIR are the only two subclasses of ProgItemLIR; VarDeclLIR and
     // FunctionLIR are siblings that derive LIRNode directly, not ProgItemLIR.
@@ -333,7 +333,7 @@ public:
     /**
     Create a boxed clone of `this`.
     */
-    virtual Box<ExprLIR> clone_box() = 0;
+    virtual Chunk<ExprLIR> clone_chunk() = 0;
 
     static bool classof(const LIRNode *node) {
         switch (node->kind) {
@@ -365,8 +365,8 @@ public:
     LIRFuncSym *funcsym;
     bool has_definition = false;
 
-    Vec<Box<VarDeclLIR>> locals;
-    Vec<Box<ProgItemLIR>> body;
+    Vec<Chunk<VarDeclLIR>> locals;
+    Vec<Chunk<ProgItemLIR>> body;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::FUNC_LIR; }
 };
@@ -394,7 +394,7 @@ public:
 
 class ReturnStmtLIR : public LIRVisitable<ReturnStmtLIR, TerminalLIR> {
 public:
-    ReturnStmtLIR(Location loc, Box<ExprLIR> ret_value)
+    ReturnStmtLIR(Location loc, Chunk<ExprLIR> ret_value)
         : LIRVisitable<ReturnStmtLIR, TerminalLIR>(loc, NodeKind::RETSTMT_LIR),
           ret_value(std::move(ret_value)) {}
 
@@ -403,7 +403,7 @@ public:
 
     ReturnStmtLIR() : LIRVisitable<ReturnStmtLIR, TerminalLIR>(NodeKind::RETSTMT_LIR) {}
 
-    Optional<Box<ExprLIR>> ret_value;
+    Optional<Chunk<ExprLIR>> ret_value;
 
     bool is_terminal() override { return true; }
 
@@ -412,12 +412,12 @@ public:
 
 class SwitchStmtLIR : public LIRVisitable<SwitchStmtLIR, TerminalLIR> {
 public:
-    SwitchStmtLIR(Location loc, Box<ExprLIR> condition)
+    SwitchStmtLIR(Location loc, Chunk<ExprLIR> condition)
         : LIRVisitable<SwitchStmtLIR, TerminalLIR>(loc, NodeKind::SWITCHSTMT_LIR),
           condition(std::move(condition)) {}
 
-    Box<ExprLIR> condition;
-    Vec<Box<ProgItemLIR>> body;
+    Chunk<ExprLIR> condition;
+    Vec<Chunk<ProgItemLIR>> body;
 
     bool is_terminal() override { return true; }
 
@@ -471,26 +471,26 @@ public:
 
 class ExprStmtLIR : public LIRVisitable<ExprStmtLIR, NonTerminalLIR> {
 public:
-    ExprStmtLIR(Location loc, Box<ExprLIR> expr)
+    ExprStmtLIR(Location loc, Chunk<ExprLIR> expr)
         : LIRVisitable<ExprStmtLIR, NonTerminalLIR>(loc, NodeKind::EXPRSTMT_LIR),
           expr(std::move(expr)) {}
 
-    Box<ExprLIR> expr;
+    Chunk<ExprLIR> expr;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::EXPRSTMT_LIR; }
 };
 
 class MemcpyLIR : public LIRVisitable<MemcpyLIR, NonTerminalLIR> {
 public:
-    MemcpyLIR(Location loc, Box<ExprLIR> to, Box<ExprLIR> from, size_t n)
+    MemcpyLIR(Location loc, Chunk<ExprLIR> to, Chunk<ExprLIR> from, size_t n)
         : LIRVisitable<MemcpyLIR, NonTerminalLIR>(loc, NodeKind::MEMCPY_LIR), to(std::move(to)),
           from(std::move(from)), n(n) {}
 
-    MemcpyLIR(Box<ExprLIR> to, Box<ExprLIR> from, size_t n)
+    MemcpyLIR(Chunk<ExprLIR> to, Chunk<ExprLIR> from, size_t n)
         : LIRVisitable<MemcpyLIR, NonTerminalLIR>(NodeKind::MEMCPY_LIR), to(std::move(to)),
           from(std::move(from)), n(n) {}
 
-    Box<ExprLIR> to, from;
+    Chunk<ExprLIR> to, from;
     size_t n;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::MEMCPY_LIR; }
@@ -502,13 +502,13 @@ class MemsetLIR {};
 
 class IfStmtLIR : public LIRVisitable<IfStmtLIR, TerminalLIR> {
 public:
-    IfStmtLIR(Location loc, Box<ExprLIR> condition)
+    IfStmtLIR(Location loc, Chunk<ExprLIR> condition)
         : LIRVisitable<IfStmtLIR, TerminalLIR>(loc, NodeKind::IFSTMT_LIR),
           condition(std::move(condition)) {}
 
-    Box<ExprLIR> condition;
-    Vec<Box<ProgItemLIR>> then_br;
-    Optional<Vec<Box<ProgItemLIR>>> else_br;
+    Chunk<ExprLIR> condition;
+    Vec<Chunk<ProgItemLIR>> then_br;
+    Optional<Vec<Chunk<ProgItemLIR>>> else_br;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::IFSTMT_LIR; }
 };
@@ -518,13 +518,13 @@ public:
     LoopStmtLIR(Location loc)
         : LIRVisitable<LoopStmtLIR, TerminalLIR>(loc, NodeKind::LOOPSTMT_LIR) {}
 
-    Optional<Vec<Box<ProgItemLIR>>> init;
+    Optional<Vec<Chunk<ProgItemLIR>>> init;
 
-    Optional<Box<ExprLIR>> condition;
+    Optional<Chunk<ExprLIR>> condition;
 
-    Optional<Vec<Box<ProgItemLIR>>> step;
+    Optional<Vec<Chunk<ProgItemLIR>>> step;
 
-    Vec<Box<ProgItemLIR>> body;
+    Vec<Chunk<ProgItemLIR>> body;
 
     bool is_dowhile = false;
 
@@ -533,12 +533,12 @@ public:
 
 class PrintStmtLIR : public LIRVisitable<PrintStmtLIR, NonTerminalLIR> {
 public:
-    PrintStmtLIR(Location loc, std::string format_string, Vec<Box<ExprLIR>> args)
+    PrintStmtLIR(Location loc, std::string format_string, Vec<Chunk<ExprLIR>> args)
         : LIRVisitable<PrintStmtLIR, NonTerminalLIR>(loc, NodeKind::PRINTSTMT_LIR),
           format_string(std::move(format_string)), args(std::move(args)) {}
 
     std::string format_string;
-    Vec<Box<ExprLIR>> args;
+    Vec<Chunk<ExprLIR>> args;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::PRINTSTMT_LIR; }
 };
@@ -546,30 +546,30 @@ public:
 class BinaryExprLIR : public LIRVisitable<BinaryExprLIR, ExprLIR> {
 public:
     BinaryExprLIR(
-        Location loc, sema::types::Type *type, Box<ExprLIR> left, Box<ExprLIR> right,
+        Location loc, sema::types::Type *type, Chunk<ExprLIR> left, Chunk<ExprLIR> right,
         tokens::BinaryOp op)
         : LIRVisitable<BinaryExprLIR, ExprLIR>(loc, NodeKind::BINEXPR_LIR, type),
           left(std::move(left)), right(std::move(right)), op(op) {}
 
-    Box<ExprLIR> left;
-    Box<ExprLIR> right;
+    Chunk<ExprLIR> left;
+    Chunk<ExprLIR> right;
     tokens::BinaryOp op;
 
-    Box<ExprLIR> clone_box() override;
+    Chunk<ExprLIR> clone_chunk() override;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::BINEXPR_LIR; }
 };
 
 class UnaryExprLIR : public LIRVisitable<UnaryExprLIR, ExprLIR> {
 public:
-    UnaryExprLIR(Location loc, sema::types::Type *type, Box<ExprLIR> operand, tokens::UnaryOp op)
+    UnaryExprLIR(Location loc, sema::types::Type *type, Chunk<ExprLIR> operand, tokens::UnaryOp op)
         : LIRVisitable<UnaryExprLIR, ExprLIR>(loc, NodeKind::UNEXPR_LIR, type),
           operand(std::move(operand)), op(op) {}
 
-    Box<ExprLIR> operand;
+    Chunk<ExprLIR> operand;
     tokens::UnaryOp op;
 
-    Box<ExprLIR> clone_box() override;
+    Chunk<ExprLIR> clone_chunk() override;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::UNEXPR_LIR; }
 };
@@ -584,16 +584,16 @@ public:
     };
 
     CastExprLIR(
-        Location loc, sema::types::Type *type, Box<ExprLIR> inner, sema::types::Type *target,
+        Location loc, sema::types::Type *type, Chunk<ExprLIR> inner, sema::types::Type *target,
         CastKind ck)
         : LIRVisitable<CastExprLIR, ExprLIR>(loc, NodeKind::CASTEXPR_LIR, type), castkind(ck),
           target(target), inner(std::move(inner)) {}
 
     CastKind castkind;
     sema::types::Type *target;
-    Box<ExprLIR> inner;
+    Chunk<ExprLIR> inner;
 
-    Box<ExprLIR> clone_box() override;
+    Chunk<ExprLIR> clone_chunk() override;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::CASTEXPR_LIR; }
 };
@@ -601,16 +601,16 @@ public:
 class AssignExprLIR : public LIRVisitable<AssignExprLIR, ExprLIR> {
 public:
     AssignExprLIR(
-        Location loc, sema::types::Type *type, Box<ExprLIR> left, Box<ExprLIR> right,
+        Location loc, sema::types::Type *type, Chunk<ExprLIR> left, Chunk<ExprLIR> right,
         tokens::AssignOp op)
         : LIRVisitable<AssignExprLIR, ExprLIR>(loc, NodeKind::ASSIGNEXPR_LIR, type),
           left(std::move(left)), right(std::move(right)), op(op) {}
 
-    Box<ExprLIR> left;
-    Box<ExprLIR> right;
+    Chunk<ExprLIR> left;
+    Chunk<ExprLIR> right;
     tokens::AssignOp op;
 
-    Box<ExprLIR> clone_box() override;
+    Chunk<ExprLIR> clone_chunk() override;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::ASSIGNEXPR_LIR; }
 };
@@ -618,17 +618,17 @@ public:
 class CondExprLIR : public LIRVisitable<CondExprLIR, ExprLIR> {
 public:
     CondExprLIR(
-        Location loc, sema::types::Type *type, Box<ExprLIR> cond, Box<ExprLIR> true_val,
-        Box<ExprLIR> false_val)
+        Location loc, sema::types::Type *type, Chunk<ExprLIR> cond, Chunk<ExprLIR> true_val,
+        Chunk<ExprLIR> false_val)
         : LIRVisitable<CondExprLIR, ExprLIR>(loc, NodeKind::CONDEXPR_LIR, type),
           condition(std::move(cond)), true_value(std::move(true_val)),
           false_value(std::move(false_val)) {}
 
-    Box<ExprLIR> condition;
-    Box<ExprLIR> true_value;
-    Box<ExprLIR> false_value;
+    Chunk<ExprLIR> condition;
+    Chunk<ExprLIR> true_value;
+    Chunk<ExprLIR> false_value;
 
-    Box<ExprLIR> clone_box() override;
+    Chunk<ExprLIR> clone_chunk() override;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::CONDEXPR_LIR; }
 };
@@ -646,7 +646,7 @@ public:
 
     LIRSym *sym;
 
-    Box<ExprLIR> clone_box() override;
+    Chunk<ExprLIR> clone_chunk() override;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::IDENTEXPR_LIR; }
 };
@@ -675,7 +675,7 @@ public:
 
     LitValueLIR value;
 
-    Box<ExprLIR> clone_box() override;
+    Chunk<ExprLIR> clone_chunk() override;
 
     bool is_str() const { return std::holds_alternative<std::string>(value); }
     bool is_val() const { return std::holds_alternative<eval::Value>(value); }
@@ -693,44 +693,44 @@ public:
     ZeroExprLIR(Location loc, sema::types::Type *type)
         : LIRVisitable<ZeroExprLIR, ExprLIR>(loc, NodeKind::ZEROEXPR_LIR, type) {}
 
-    Box<ExprLIR> clone_box() override;
+    Chunk<ExprLIR> clone_chunk() override;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::ZEROEXPR_LIR; }
 };
 
 class CallExprLIR : public LIRVisitable<CallExprLIR, ExprLIR> {
 public:
-    CallExprLIR(Location loc, Box<ExprLIR> callee, Vec<Box<ExprLIR>> args, sema::types::Type *type)
+    CallExprLIR(Location loc, Chunk<ExprLIR> callee, Vec<Chunk<ExprLIR>> args, sema::types::Type *type)
         : LIRVisitable<CallExprLIR, ExprLIR>(loc, NodeKind::CALLEXPR_LIR, type),
           callee(std::move(callee)), args(std::move(args)) {}
 
-    Box<ExprLIR> callee;
-    Vec<Box<ExprLIR>> args;
+    Chunk<ExprLIR> callee;
+    Vec<Chunk<ExprLIR>> args;
 
-    Box<ExprLIR> clone_box() override;
+    Chunk<ExprLIR> clone_chunk() override;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::CALLEXPR_LIR; }
 };
 
 class MemberAccExprLIR : public LIRVisitable<MemberAccExprLIR, ExprLIR> {
 public:
-    MemberAccExprLIR(Location loc, Box<ExprLIR> object, size_t member_idx, sema::types::Type *type)
+    MemberAccExprLIR(Location loc, Chunk<ExprLIR> object, size_t member_idx, sema::types::Type *type)
         : LIRVisitable<MemberAccExprLIR, ExprLIR>(loc, NodeKind::MEMACCEXPR_LIR, type),
           object(std::move(object)), member_idx(member_idx) {}
 
-    MemberAccExprLIR(Box<ExprLIR> object, size_t member_idx, sema::types::Type *type)
+    MemberAccExprLIR(Chunk<ExprLIR> object, size_t member_idx, sema::types::Type *type)
         : LIRVisitable<MemberAccExprLIR, ExprLIR>(NodeKind::MEMACCEXPR_LIR, type),
           object(std::move(object)), member_idx(member_idx) {}
 
     MemberAccExprLIR(
-        Optional<Location> loc, Box<ExprLIR> object, size_t member_idx, sema::types::Type *type)
+        Optional<Location> loc, Chunk<ExprLIR> object, size_t member_idx, sema::types::Type *type)
         : LIRVisitable<MemberAccExprLIR, ExprLIR>(loc, NodeKind::MEMACCEXPR_LIR, type),
           object(std::move(object)), member_idx(member_idx) {}
 
-    Box<ExprLIR> object;
+    Chunk<ExprLIR> object;
     size_t member_idx;
 
-    Box<ExprLIR> clone_box() override;
+    Chunk<ExprLIR> clone_chunk() override;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::MEMACCEXPR_LIR; }
 };
@@ -738,43 +738,43 @@ public:
 class ReintExprLIR : public LIRVisitable<ReintExprLIR, ExprLIR> {
 public:
     ReintExprLIR(
-        Location loc, Box<ExprLIR> object, tokens::PrimType target, sema::types::Type *type)
+        Location loc, Chunk<ExprLIR> object, tokens::PrimType target, sema::types::Type *type)
         : LIRVisitable<ReintExprLIR, ExprLIR>(loc, NodeKind::REINTEXPR_LIR, type),
           object(std::move(object)), target(target) {}
 
     ReintExprLIR(
-        Optional<Location> loc, Box<ExprLIR> object, tokens::PrimType target,
+        Optional<Location> loc, Chunk<ExprLIR> object, tokens::PrimType target,
         sema::types::Type *type)
         : LIRVisitable<ReintExprLIR, ExprLIR>(loc, NodeKind::REINTEXPR_LIR, type),
           object(std::move(object)), target(target) {}
 
-    Box<ExprLIR> object;
+    Chunk<ExprLIR> object;
     tokens::PrimType target;
 
-    Box<ExprLIR> clone_box() override;
+    Chunk<ExprLIR> clone_chunk() override;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::REINTEXPR_LIR; }
 };
 
 class SubscrExprLIR : public LIRVisitable<SubscrExprLIR, ExprLIR> {
 public:
-    SubscrExprLIR(Location loc, Box<ExprLIR> array, Box<ExprLIR> index, sema::types::Type *type)
+    SubscrExprLIR(Location loc, Chunk<ExprLIR> array, Chunk<ExprLIR> index, sema::types::Type *type)
         : LIRVisitable<SubscrExprLIR, ExprLIR>(loc, NodeKind::SUBSCREXPR_LIR, type),
           array(std::move(array)), index(std::move(index)) {}
 
-    SubscrExprLIR(Box<ExprLIR> array, Box<ExprLIR> index, sema::types::Type *type)
+    SubscrExprLIR(Chunk<ExprLIR> array, Chunk<ExprLIR> index, sema::types::Type *type)
         : LIRVisitable<SubscrExprLIR, ExprLIR>(NodeKind::SUBSCREXPR_LIR, type),
           array(std::move(array)), index(std::move(index)) {}
 
     SubscrExprLIR(
-        Optional<Location> loc, Box<ExprLIR> array, Box<ExprLIR> index, sema::types::Type *type)
+        Optional<Location> loc, Chunk<ExprLIR> array, Chunk<ExprLIR> index, sema::types::Type *type)
         : LIRVisitable<SubscrExprLIR, ExprLIR>(loc, NodeKind::SUBSCREXPR_LIR, type),
           array(std::move(array)), index(std::move(index)) {}
 
-    Box<ExprLIR> array;
-    Box<ExprLIR> index;
+    Chunk<ExprLIR> array;
+    Chunk<ExprLIR> index;
 
-    Box<ExprLIR> clone_box() override;
+    Chunk<ExprLIR> clone_chunk() override;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::SUBSCREXPR_LIR; }
 };
@@ -782,14 +782,14 @@ public:
 class PostfixExprLIR : public LIRVisitable<PostfixExprLIR, ExprLIR> {
 public:
     PostfixExprLIR(
-        Location loc, Box<ExprLIR> operand, tokens::PostfixOp op, sema::types::Type *type)
+        Location loc, Chunk<ExprLIR> operand, tokens::PostfixOp op, sema::types::Type *type)
         : LIRVisitable<PostfixExprLIR, ExprLIR>(loc, NodeKind::PFIXEXPR_LIR, type),
           operand(std::move(operand)), op(op) {}
 
-    Box<ExprLIR> operand;
+    Chunk<ExprLIR> operand;
     tokens::PostfixOp op;
 
-    Box<ExprLIR> clone_box() override;
+    Chunk<ExprLIR> clone_chunk() override;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::PFIXEXPR_LIR; }
 };
@@ -798,7 +798,7 @@ class ProgramLIR : public LIRVisitable<ProgramLIR, LIRNode> {
 public:
     ProgramLIR() : LIRVisitable<ProgramLIR, LIRNode>(NodeKind::PROG_LIR) {}
 
-    Vec<Box<FunctionLIR>> functions;
+    Vec<Chunk<FunctionLIR>> functions;
     /*
     In HolyC, statements can be declared in the global scope, and they will be executed
     as if they were in something like main().
@@ -810,8 +810,8 @@ public:
     Additionally, since we will be inserting an implicit main() but all variables declared
     outside a function are global, we also need to separate out declarations.
     */
-    Vec<Box<VarDeclLIR>> globals;
-    Vec<Box<ProgItemLIR>> progitems;
+    Vec<Chunk<VarDeclLIR>> globals;
+    Vec<Chunk<ProgItemLIR>> progitems;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::PROG_LIR; }
 };

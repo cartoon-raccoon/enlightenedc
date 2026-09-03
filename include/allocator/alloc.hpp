@@ -311,9 +311,21 @@ inline void print_allocator_stats() {
 }
 #endif
 
+/**
+Create a `Chunk<T>` using the global allocator.
+*/
 template <typename T, typename... Args>
 Chunk<T> make_chunk(Args&&...args) {
     T *obj = detail::instance().create<T>(std::forward<Args>(args)...);
+    return Chunk<T>(obj);
+}
+
+/**
+Create a `Chunk<T>`, where the memory is owned by the provided `allocator`.
+*/
+template <typename T, typename... Args>
+Chunk<T> make_chunk(BumpAllocator<>& allocator, Args&&...args) {
+    T *obj = allocator.create<T>(std::forward<Args>(args)...);
     return Chunk<T>(obj);
 }
 

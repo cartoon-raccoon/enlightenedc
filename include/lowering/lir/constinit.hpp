@@ -3,6 +3,8 @@
 #ifndef ECC_LIR_CONSTINIT_H
 #define ECC_LIR_CONSTINIT_H
 
+#include "allocator/alloc.hpp"
+#include "allocator/chunk.hpp"
 #include "ds/linkedlist.hpp"
 #include "lowering/lir/lir.hpp"
 #include "lowering/lir/symbols.hpp"
@@ -50,47 +52,47 @@ class ConstInitLIRBuilder : public NoMove {
     /**
     The initializee.
     */
-    Box<ExprLIR> initializee;
+    Chunk<ExprLIR> initializee;
 
     const bool static_storage;
 
     LIRAccessorPath tracking_path;
 
-    Vec<Box<StmtLIR>> deferred_inits;
+    Vec<Chunk<StmtLIR>> deferred_inits;
 
 public:
     ConstInitLIRBuilder(
         LIRSymbolMap& symbols, sema::types::TypeContext& types, LIRVarSym *initializee,
         bool static_storage)
         : syms(symbols), types(types),
-          initializee(make_box<IdentExprLIR>(initializee, initializee->get_type())),
+          initializee(make_chunk<IdentExprLIR>(initializee, initializee->get_type())),
           static_storage(static_storage) {}
 
-    Optional<Box<ConstInitLIR>>
+    Optional<Chunk<ConstInitLIR>>
     try_build_constinit(sema::types::Type *type, sema::mir::InitializerMIR& init);
 
-    Span<Box<StmtLIR>> get_deferred_inits() { return deferred_inits; }
+    Span<Chunk<StmtLIR>> get_deferred_inits() { return deferred_inits; }
 
 private:
-    Optional<Box<ConstInitLIR>>
+    Optional<Chunk<ConstInitLIR>>
     try_build_constinit_expr(sema::types::Type *type, sema::mir::ExprMIR& expr);
 
-    Optional<Box<ConstInitLIR>> try_build_constinit_agg_cls(
+    Optional<Chunk<ConstInitLIR>> try_build_constinit_agg_cls(
         sema::types::ClassType *cls, Vec<Chunk<sema::mir::InitializerMIR>>& inits, Location loc);
 
-    Optional<Box<ConstInitLIR>> try_build_constinit_agg_arr(
+    Optional<Chunk<ConstInitLIR>> try_build_constinit_agg_arr(
         sema::types::ArrayType *arr, Vec<Chunk<sema::mir::InitializerMIR>>& inits, Location loc);
 
-    Optional<Box<ConstInitLIR>>
+    Optional<Chunk<ConstInitLIR>>
     try_build_constinit_expr(sema::types::Type *type, sema::mir::CastExprMIR& expr);
 
-    Optional<Box<ConstInitLIR>>
+    Optional<Chunk<ConstInitLIR>>
     try_build_constinit_expr(sema::types::Type *type, sema::mir::IdentExprMIR& expr);
 
-    Optional<Box<ConstInitLIR>>
+    Optional<Chunk<ConstInitLIR>>
     try_build_constinit_expr(sema::types::Type *type, sema::mir::LiteralExprMIR& expr);
 
-    Optional<Box<ConstInitLIR>>
+    Optional<Chunk<ConstInitLIR>>
     try_build_constinit_expr(sema::types::Type *type, sema::mir::SizeofExprMIR& expr);
 };
 
