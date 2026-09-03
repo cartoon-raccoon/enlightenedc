@@ -44,6 +44,11 @@ struct TranslationUnitLIR {
 
     Box<lower::lir::LIRSymbolMap> symbols;
     Box<lower::lir::ProgramLIR> lir;
+};
+
+struct TranslationUnitCFG {
+    TranslationUnitCFG();
+
     Box<lower::cfg::ProgramCFG> cfg;
 };
 
@@ -65,9 +70,12 @@ public:
     Chunk<ast::Program> ast_root;
     Box<TranslationUnitMIR> prog_mir;
     Box<TranslationUnitLIR> prog_lir;
+    Box<TranslationUnitCFG> prog_cfg;
 };
 
-// A class for driving the compilation process for a single translation unit.
+/**
+A class for driving the compilation process for a single translation unit.
+*/
 class Driver {
 public:
     TranslationUnit& unit;

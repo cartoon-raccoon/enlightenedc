@@ -8,8 +8,8 @@
 
 #include "codegen/llvm/llvm.hpp"
 #include "config.hpp"
+#include "driver/filenames.hpp"
 #include "error.hpp"
-#include "frontend/filenames.hpp"
 #include "util.hpp"
 
 using namespace ecc::util;
@@ -27,7 +27,7 @@ public:
 
     Box<Config> config;
     Box<codegen::CodeGenCore> cgcore;
-    frontend::FilenamePool filenames;
+    driver::FilenamePool filenames;
 
     /**
     Run the compilation pipeline on a single input file.

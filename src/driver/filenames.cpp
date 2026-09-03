@@ -1,10 +1,8 @@
-#include "frontend/filenames.hpp"
+#include "driver/filenames.hpp"
 
 #include <string>
 
-namespace ecc::frontend {} // namespace ecc::frontend
-
-using namespace ecc::frontend;
+using namespace ecc::driver;
 
 const std::string *FilenamePool::intern(const char *str) {
     // insert returns a pair: {iterator, bool_inserted}

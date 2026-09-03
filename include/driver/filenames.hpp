@@ -7,7 +7,7 @@
 #include <string>
 #include <unordered_set>
 
-namespace ecc::frontend {
+namespace ecc::driver {
 
 /*
 A class for managing filenames.

@@ -41,7 +41,7 @@ void Backend::run(Ecc& ecc, driver::TranslationUnit& unit) {
 
     LIRSymbolMap& lirsyms = *unit.prog_lir->symbols;
     ProgramLIR& lir       = *unit.prog_lir->lir;
-    ProgramCFG& cfg       = *unit.prog_lir->cfg;
+    ProgramCFG& cfg       = *unit.prog_cfg->cfg;
 
     dbprint("\n---------- Generating MIR ----------\n");
 

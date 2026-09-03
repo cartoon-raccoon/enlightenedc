@@ -1,8 +1,9 @@
 #pragma once
 
-#include "frontend/filenames.hpp"
 #ifndef ECC_LEXER_H
 #define ECC_LEXER_H
+
+#include "driver/filenames.hpp"
 
 #if !defined(yyFlexLexerOnce)
 // FlexLexer.h is the definition for the Flex C++ scanner.
@@ -20,13 +21,13 @@ class Lexer : public yyFlexLexer {
     Location loc;
 
     Ref<std::set<std::string>> typedefs;
-    Ref<FilenamePool> filenames;
+    Ref<driver::FilenamePool> filenames;
 
 public:
     // Use the standard yyFlexLexer constructor.
     Lexer(
         std::istream *in, std::string *filename, std::set<std::string>& typedefs,
-        FilenamePool& filenames);
+        driver::FilenamePool& filenames);
 
     // Override the yyFlexLexer constructor.
     Parser::symbol_type get_next_token();

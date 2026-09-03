@@ -23,7 +23,11 @@ TranslationUnitMIR::TranslationUnitMIR()
 }
 
 TranslationUnitLIR::TranslationUnitLIR()
-    : symbols(make_box<LIRSymbolMap>()), lir(make_box<ProgramLIR>()), cfg(make_box<ProgramCFG>()) {
+    : symbols(make_box<LIRSymbolMap>()), lir(make_box<ProgramLIR>()) {
+}
+
+TranslationUnitCFG::TranslationUnitCFG()
+    : cfg(make_box<ProgramCFG>()) {
 }
 
 TranslationUnit::TranslationUnit(std::string *filename, CodeGenCore& cgcore) : filename(filename) {
@@ -32,6 +36,7 @@ TranslationUnit::TranslationUnit(std::string *filename, CodeGenCore& cgcore) : f
     ast_root = make_chunk<Program>(filename);
     prog_mir = make_box<TranslationUnitMIR>();
     prog_lir = make_box<TranslationUnitLIR>();
+    prog_cfg = make_box<TranslationUnitCFG>();
 }
 
 Driver::Driver(TranslationUnit& unit) : unit(unit) {

@@ -5,7 +5,6 @@
 
 #include "ecc.hpp"
 #include "error.hpp"
-#include "util.hpp"
 
 namespace ecc::driver {
 class TranslationUnit;
