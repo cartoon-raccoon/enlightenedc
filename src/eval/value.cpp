@@ -1,12 +1,30 @@
 #include "eval/value.hpp"
 
 #include <bit>
+#include <limits>
 #include <stdexcept>
+#include <type_traits>
 
 #include "tokens.hpp"
 
 using namespace ecc::eval;
 using namespace ecc::tokens;
+
+namespace {
+
+// The only integer division/modulo that is undefined in C and C++: the minimum
+// value of a signed type divided by -1. The true result is not representable, so
+// the hardware traps. Reject it here instead of crashing the compiler.
+template <typename T>
+void reject_intdiv_overflow(T lhs, T rhs) {
+    if constexpr (std::is_signed_v<T>) {
+        if (rhs == T{-1} && lhs == std::numeric_limits<T>::min()) {
+            throw InvalidCompileTimeEval("integer overflow in constant expression");
+        }
+    }
+}
+
+} // namespace
 
 uint64_t Value::bits() const {
     return std::visit(
@@ -71,6 +89,8 @@ Value Value::pr_cast(PrimType pr) const {
     case P::F64:
         return cast<double>();
     }
+
+    throw InvalidCompileTimeEval("unknown primitive type in pr_cast");
 }
 
 Pair<Value, Value> Value::promote(const Value& lhs, const Value& rhs) {
@@ -82,300 +102,334 @@ Pair<Value, Value> Value::promote(const Value& lhs, const Value& rhs) {
     return {ret_lhs, ret_rhs};
 }
 
-Value Value::operator|(const Value& rhs) const {
-    if (is_float() || rhs.is_float()) {
-        // fixme: better error handling
-        throw InvalidCompileTimeEval("invalid value types for bitwise OR");
+template <typename Compute>
+Value Value::apply_binary(tokens::BinaryOp op, const Value& rhs, Compute compute) const {
+    // The primitive type algebra (pr_check_binary_op) is the single source of
+    // truth for how a binary operator treats its operands and what type it
+    // yields. Coerce both operands to the operand types it requires, run the
+    // operation, then coerce the result to its expr_type.
+    Optional<sema::prim::PrimExprTypes> types =
+        sema::prim::pr_check_binary_op(op, ptype, rhs.ptype);
+
+    if (!types) {
+        throw InvalidCompileTimeEval("operator not applicable to these value types");
     }
-    auto pr = promote(*this, rhs);
-    return std::visit(
-        match{
-            [](int8_t l, int8_t r) -> Value { return Value(l | r); },
-            [](int16_t l, int16_t r) -> Value { return Value(l | r); },
-            [](int32_t l, int32_t r) -> Value { return Value(l | r); },
-            [](int64_t l, int64_t r) -> Value { return Value(l | r); },
-            [](uint8_t l, uint8_t r) -> Value { return Value(l | r); },
-            [](uint16_t l, uint16_t r) -> Value { return Value(l | r); },
-            [](uint32_t l, uint32_t r) -> Value { return Value(l | r); },
-            [](uint64_t l, uint64_t r) -> Value { return Value(l | r); },
-            [](bool l, bool r) -> Value { return Value(l | r); },
-            [](auto&&, auto&&) -> Value {
-                throw std::runtime_error("unexpected type pair while evaluating value");
+
+    Value lop = pr_cast(types->operand_types.first);
+    Value rop = rhs.pr_cast(types->operand_types.second);
+
+    return compute(lop, rop).pr_cast(types->expr_type);
+}
+
+// Operands reaching a `compute` lambda have already been coerced by apply_binary
+// to the operand types pr_check_binary_op requires. Promotion floors every
+// integer operand to at least I32, so only the I32/I64/U32/U64 (and, for the
+// arithmetic and comparison operators, F32/F64) alternatives can occur.
+
+Value Value::operator|(const Value& rhs) const {
+    return apply_binary(BinaryOp::OR, rhs, [](const Value& l, const Value& r) -> Value {
+        return std::visit(
+            match{
+                [](int32_t a, int32_t b) -> Value { return Value(a | b); },
+                [](int64_t a, int64_t b) -> Value { return Value(a | b); },
+                [](uint32_t a, uint32_t b) -> Value { return Value(a | b); },
+                [](uint64_t a, uint64_t b) -> Value { return Value(a | b); },
+                [](auto&&, auto&&) -> Value {
+                    throw std::runtime_error("unexpected operand types for bitwise OR");
+                },
             },
-        },
-        pr.first.inner, pr.second.inner);
+            *l, *r);
+    });
 }
 
 Value Value::operator^(const Value& rhs) const {
-    if (is_float() || rhs.is_float()) {
-        throw InvalidCompileTimeEval("invalid value types for bitwise XOR");
-    }
-    auto pr = promote(*this, rhs);
-    return std::visit(
-        match{
-            [](int8_t l, int8_t r) -> Value { return Value(l ^ r); },
-            [](int16_t l, int16_t r) -> Value { return Value(l ^ r); },
-            [](int32_t l, int32_t r) -> Value { return Value(l ^ r); },
-            [](int64_t l, int64_t r) -> Value { return Value(l ^ r); },
-            [](uint8_t l, uint8_t r) -> Value { return Value(l ^ r); },
-            [](uint16_t l, uint16_t r) -> Value { return Value(l ^ r); },
-            [](uint32_t l, uint32_t r) -> Value { return Value(l ^ r); },
-            [](uint64_t l, uint64_t r) -> Value { return Value(l ^ r); },
-            [](bool l, bool r) -> Value { return Value(l ^ r); },
-            [](auto&&, auto&&) -> Value {
-                throw std::runtime_error("unexpected type pair while evaluating value");
+    return apply_binary(BinaryOp::XOR, rhs, [](const Value& l, const Value& r) -> Value {
+        return std::visit(
+            match{
+                [](int32_t a, int32_t b) -> Value { return Value(a ^ b); },
+                [](int64_t a, int64_t b) -> Value { return Value(a ^ b); },
+                [](uint32_t a, uint32_t b) -> Value { return Value(a ^ b); },
+                [](uint64_t a, uint64_t b) -> Value { return Value(a ^ b); },
+                [](auto&&, auto&&) -> Value {
+                    throw std::runtime_error("unexpected operand types for bitwise XOR");
+                },
             },
-        },
-        pr.first.inner, pr.second.inner);
+            *l, *r);
+    });
 }
 
 Value Value::operator&(const Value& rhs) const {
-    if (is_float() || rhs.is_float()) {
-        throw InvalidCompileTimeEval("invalid value types for bitwise AND");
-    }
-    auto pr = promote(*this, rhs);
-    return std::visit(
-        match{
-            [](int8_t l, int8_t r) -> Value { return Value(l & r); },
-            [](int16_t l, int16_t r) -> Value { return Value(l & r); },
-            [](int32_t l, int32_t r) -> Value { return Value(l & r); },
-            [](int64_t l, int64_t r) -> Value { return Value(l & r); },
-            [](uint8_t l, uint8_t r) -> Value { return Value(l & r); },
-            [](uint16_t l, uint16_t r) -> Value { return Value(l & r); },
-            [](uint32_t l, uint32_t r) -> Value { return Value(l & r); },
-            [](uint64_t l, uint64_t r) -> Value { return Value(l & r); },
-            [](bool l, bool r) -> Value { return Value(l & r); },
-            [](auto&&, auto&&) -> Value {
-                throw std::runtime_error("unexpected type pair while evaluating value");
+    return apply_binary(BinaryOp::AND, rhs, [](const Value& l, const Value& r) -> Value {
+        return std::visit(
+            match{
+                [](int32_t a, int32_t b) -> Value { return Value(a & b); },
+                [](int64_t a, int64_t b) -> Value { return Value(a & b); },
+                [](uint32_t a, uint32_t b) -> Value { return Value(a & b); },
+                [](uint64_t a, uint64_t b) -> Value { return Value(a & b); },
+                [](auto&&, auto&&) -> Value {
+                    throw std::runtime_error("unexpected operand types for bitwise AND");
+                },
             },
-        },
-        pr.first.inner, pr.second.inner);
+            *l, *r);
+    });
 }
 
 Value Value::operator<<(const Value& rhs) const {
-    if (is_float() || rhs.is_float()) {
-        throw InvalidCompileTimeEval("invalid value types for bitshift left");
-    }
-    auto pr = promote(*this, rhs);
-    return std::visit(
-        match{
-            [](int8_t l, int8_t r) -> Value { return Value(l << r); },
-            [](int16_t l, int16_t r) -> Value { return Value(l << r); },
-            [](int32_t l, int32_t r) -> Value { return Value(l << r); },
-            [](int64_t l, int64_t r) -> Value { return Value(l << r); },
-            [](uint8_t l, uint8_t r) -> Value { return Value(l << r); },
-            [](uint16_t l, uint16_t r) -> Value { return Value(l << r); },
-            [](uint32_t l, uint32_t r) -> Value { return Value(l << r); },
-            [](uint64_t l, uint64_t r) -> Value { return Value(l << r); },
-            [](bool l, bool r) -> Value { return Value(l << r); },
-            [](auto&&, auto&&) -> Value {
-                throw std::runtime_error("unexpected type pair while evaluating value");
+    // pr_check_binary_op promotes only the left operand for a shift; the right
+    // operand keeps its own type and is not part of the usual conversions.
+    return apply_binary(BinaryOp::LSHIFT, rhs, [](const Value& l, const Value& r) -> Value {
+        const int64_t cnt = r.cast<int64_t>();
+        if (cnt < 0 || static_cast<size_t>(cnt) >= sema::prim::pr_size_in_bits(l.primtype())) {
+            throw InvalidCompileTimeEval("bitshift count out of range");
+        }
+        return std::visit(
+            match{
+                [cnt](int32_t a) -> Value { return Value(static_cast<int32_t>(a << cnt)); },
+                [cnt](int64_t a) -> Value { return Value(static_cast<int64_t>(a << cnt)); },
+                [cnt](uint32_t a) -> Value { return Value(static_cast<uint32_t>(a << cnt)); },
+                [cnt](uint64_t a) -> Value { return Value(static_cast<uint64_t>(a << cnt)); },
+                [](auto&&) -> Value {
+                    throw std::runtime_error("unexpected operand type for bitshift left");
+                },
             },
-        },
-        pr.first.inner, pr.second.inner);
+            *l);
+    });
 }
 
 Value Value::operator>>(const Value& rhs) const {
-    if (is_float() || rhs.is_float()) {
-        throw InvalidCompileTimeEval("invalid value types for bitshift right");
-    }
-    auto pr = promote(*this, rhs);
-    return std::visit(
-        match{
-            [](int8_t l, int8_t r) -> Value { return Value(l >> r); },
-            [](int16_t l, int16_t r) -> Value { return Value(l >> r); },
-            [](int32_t l, int32_t r) -> Value { return Value(l >> r); },
-            [](int64_t l, int64_t r) -> Value { return Value(l >> r); },
-            [](uint8_t l, uint8_t r) -> Value { return Value(l >> r); },
-            [](uint16_t l, uint16_t r) -> Value { return Value(l >> r); },
-            [](uint32_t l, uint32_t r) -> Value { return Value(l >> r); },
-            [](uint64_t l, uint64_t r) -> Value { return Value(l >> r); },
-            [](bool l, bool r) -> Value { return Value(l >> r); },
-            [](auto&&, auto&&) -> Value {
-                throw std::runtime_error("unexpected type pair while evaluating value");
+    return apply_binary(BinaryOp::RSHIFT, rhs, [](const Value& l, const Value& r) -> Value {
+        const int64_t cnt = r.cast<int64_t>();
+        if (cnt < 0 || static_cast<size_t>(cnt) >= sema::prim::pr_size_in_bits(l.primtype())) {
+            throw InvalidCompileTimeEval("bitshift count out of range");
+        }
+        return std::visit(
+            match{
+                [cnt](int32_t a) -> Value { return Value(static_cast<int32_t>(a >> cnt)); },
+                [cnt](int64_t a) -> Value { return Value(static_cast<int64_t>(a >> cnt)); },
+                [cnt](uint32_t a) -> Value { return Value(static_cast<uint32_t>(a >> cnt)); },
+                [cnt](uint64_t a) -> Value { return Value(static_cast<uint64_t>(a >> cnt)); },
+                [](auto&&) -> Value {
+                    throw std::runtime_error("unexpected operand type for bitshift right");
+                },
             },
-        },
-        pr.first.inner, pr.second.inner);
+            *l);
+    });
 }
 
 Value Value::operator%(const Value& rhs) const {
-    if (is_float() || rhs.is_float()) {
-        throw InvalidCompileTimeEval("invalid value types for MOD");
-    }
-    auto pr = promote(*this, rhs);
-    return std::visit(
-        match{
-            [](int8_t l, int8_t r) -> Value { return Value(l % r); },
-            [](int16_t l, int16_t r) -> Value { return Value(l % r); },
-            [](int32_t l, int32_t r) -> Value { return Value(l % r); },
-            [](int64_t l, int64_t r) -> Value { return Value(l % r); },
-            [](uint8_t l, uint8_t r) -> Value { return Value(l % r); },
-            [](uint16_t l, uint16_t r) -> Value { return Value(l % r); },
-            [](uint32_t l, uint32_t r) -> Value { return Value(l % r); },
-            [](uint64_t l, uint64_t r) -> Value { return Value(l % r); },
-            [](bool l, bool r) -> Value { return Value(l % r); },
-            [](auto&&, auto&&) -> Value {
-                throw std::runtime_error("unexpected type pair while evaluating value");
+    return apply_binary(BinaryOp::MOD, rhs, [](const Value& l, const Value& r) -> Value {
+        if (!static_cast<bool>(r)) {
+            throw InvalidCompileTimeEval("modulo by zero");
+        }
+        return std::visit(
+            match{
+                [](int32_t a, int32_t b) -> Value {
+                    reject_intdiv_overflow(a, b);
+                    return Value(a % b);
+                },
+                [](int64_t a, int64_t b) -> Value {
+                    reject_intdiv_overflow(a, b);
+                    return Value(a % b);
+                },
+                [](uint32_t a, uint32_t b) -> Value { return Value(a % b); },
+                [](uint64_t a, uint64_t b) -> Value { return Value(a % b); },
+                [](auto&&, auto&&) -> Value {
+                    throw std::runtime_error("unexpected operand types for modulo");
+                },
             },
-        },
-        pr.first.inner, pr.second.inner);
+            *l, *r);
+    });
 }
 
 Value Value::operator==(const Value& rhs) const {
-    auto pr = promote(*this, rhs);
-    return std::visit(
-        match{
-            [](int8_t l, int8_t r) -> Value { return Value(l == r); },
-            [](int16_t l, int16_t r) -> Value { return Value(l == r); },
-            [](int32_t l, int32_t r) -> Value { return Value(l == r); },
-            [](int64_t l, int64_t r) -> Value { return Value(l == r); },
-            [](uint8_t l, uint8_t r) -> Value { return Value(l == r); },
-            [](uint16_t l, uint16_t r) -> Value { return Value(l == r); },
-            [](uint32_t l, uint32_t r) -> Value { return Value(l == r); },
-            [](uint64_t l, uint64_t r) -> Value { return Value(l == r); },
-            [](float l, float r) -> Value { return Value(l == r); },
-            [](double l, double r) -> Value { return Value(l == r); },
-            [](bool l, bool r) -> Value { return Value(l == r); },
-            [](auto&&, auto&&) -> Value {
-                throw std::runtime_error("unexpected type pair while evaluating value");
+    return apply_binary(BinaryOp::EQ, rhs, [](const Value& l, const Value& r) -> Value {
+        return std::visit(
+            match{
+                [](int32_t a, int32_t b) -> Value { return Value(a == b); },
+                [](int64_t a, int64_t b) -> Value { return Value(a == b); },
+                [](uint32_t a, uint32_t b) -> Value { return Value(a == b); },
+                [](uint64_t a, uint64_t b) -> Value { return Value(a == b); },
+                [](float a, float b) -> Value { return Value(a == b); },
+                [](double a, double b) -> Value { return Value(a == b); },
+                [](auto&&, auto&&) -> Value {
+                    throw std::runtime_error("unexpected operand types for equality");
+                },
             },
-        },
-        pr.first.inner, pr.second.inner);
+            *l, *r);
+    });
+}
+
+Value Value::operator!=(const Value& rhs) const {
+    return apply_binary(BinaryOp::NE, rhs, [](const Value& l, const Value& r) -> Value {
+        return std::visit(
+            match{
+                [](int32_t a, int32_t b) -> Value { return Value(a != b); },
+                [](int64_t a, int64_t b) -> Value { return Value(a != b); },
+                [](uint32_t a, uint32_t b) -> Value { return Value(a != b); },
+                [](uint64_t a, uint64_t b) -> Value { return Value(a != b); },
+                [](float a, float b) -> Value { return Value(a != b); },
+                [](double a, double b) -> Value { return Value(a != b); },
+                [](auto&&, auto&&) -> Value {
+                    throw std::runtime_error("unexpected operand types for inequality");
+                },
+            },
+            *l, *r);
+    });
 }
 
 Value Value::operator<(const Value& rhs) const {
-    auto pr = promote(*this, rhs);
-    return std::visit(
-        match{
-            [](int8_t l, int8_t r) -> Value { return Value(l < r); },
-            [](int16_t l, int16_t r) -> Value { return Value(l < r); },
-            [](int32_t l, int32_t r) -> Value { return Value(l < r); },
-            [](int64_t l, int64_t r) -> Value { return Value(l < r); },
-            [](uint8_t l, uint8_t r) -> Value { return Value(l < r); },
-            [](uint16_t l, uint16_t r) -> Value { return Value(l < r); },
-            [](uint32_t l, uint32_t r) -> Value { return Value(l < r); },
-            [](uint64_t l, uint64_t r) -> Value { return Value(l < r); },
-            [](float l, float r) -> Value { return Value(l < r); },
-            [](double l, double r) -> Value { return Value(l < r); },
-            [](bool l, bool r) -> Value { return Value(l < r); },
-            [](auto&&, auto&&) -> Value {
-                throw std::runtime_error("unexpected type pair while evaluating value");
+    return apply_binary(BinaryOp::LT, rhs, [](const Value& l, const Value& r) -> Value {
+        return std::visit(
+            match{
+                [](int32_t a, int32_t b) -> Value { return Value(a < b); },
+                [](int64_t a, int64_t b) -> Value { return Value(a < b); },
+                [](uint32_t a, uint32_t b) -> Value { return Value(a < b); },
+                [](uint64_t a, uint64_t b) -> Value { return Value(a < b); },
+                [](float a, float b) -> Value { return Value(a < b); },
+                [](double a, double b) -> Value { return Value(a < b); },
+                [](auto&&, auto&&) -> Value {
+                    throw std::runtime_error("unexpected operand types for less-than");
+                },
             },
-        },
-        pr.first.inner, pr.second.inner);
+            *l, *r);
+    });
 }
 
 Value Value::operator>(const Value& rhs) const {
-    auto pr = promote(*this, rhs);
-    return std::visit(
-        match{
-            [](int8_t l, int8_t r) -> Value { return Value(l > r); },
-            [](int16_t l, int16_t r) -> Value { return Value(l > r); },
-            [](int32_t l, int32_t r) -> Value { return Value(l > r); },
-            [](int64_t l, int64_t r) -> Value { return Value(l > r); },
-            [](uint8_t l, uint8_t r) -> Value { return Value(l > r); },
-            [](uint16_t l, uint16_t r) -> Value { return Value(l > r); },
-            [](uint32_t l, uint32_t r) -> Value { return Value(l > r); },
-            [](uint64_t l, uint64_t r) -> Value { return Value(l > r); },
-            [](float l, float r) -> Value { return Value(l > r); },
-            [](double l, double r) -> Value { return Value(l > r); },
-            [](bool l, bool r) -> Value { return Value(l > r); },
-            [](auto&&, auto&&) -> Value {
-                throw std::runtime_error("unexpected type pair while evaluating value");
+    return apply_binary(BinaryOp::GT, rhs, [](const Value& l, const Value& r) -> Value {
+        return std::visit(
+            match{
+                [](int32_t a, int32_t b) -> Value { return Value(a > b); },
+                [](int64_t a, int64_t b) -> Value { return Value(a > b); },
+                [](uint32_t a, uint32_t b) -> Value { return Value(a > b); },
+                [](uint64_t a, uint64_t b) -> Value { return Value(a > b); },
+                [](float a, float b) -> Value { return Value(a > b); },
+                [](double a, double b) -> Value { return Value(a > b); },
+                [](auto&&, auto&&) -> Value {
+                    throw std::runtime_error("unexpected operand types for greater-than");
+                },
             },
-        },
-        pr.first.inner, pr.second.inner);
+            *l, *r);
+    });
+}
+
+Value Value::operator<=(const Value& rhs) const {
+    return apply_binary(BinaryOp::LE, rhs, [](const Value& l, const Value& r) -> Value {
+        return std::visit(
+            match{
+                [](int32_t a, int32_t b) -> Value { return Value(a <= b); },
+                [](int64_t a, int64_t b) -> Value { return Value(a <= b); },
+                [](uint32_t a, uint32_t b) -> Value { return Value(a <= b); },
+                [](uint64_t a, uint64_t b) -> Value { return Value(a <= b); },
+                [](float a, float b) -> Value { return Value(a <= b); },
+                [](double a, double b) -> Value { return Value(a <= b); },
+                [](auto&&, auto&&) -> Value {
+                    throw std::runtime_error("unexpected operand types for less-or-equal");
+                },
+            },
+            *l, *r);
+    });
+}
+
+Value Value::operator>=(const Value& rhs) const {
+    return apply_binary(BinaryOp::GE, rhs, [](const Value& l, const Value& r) -> Value {
+        return std::visit(
+            match{
+                [](int32_t a, int32_t b) -> Value { return Value(a >= b); },
+                [](int64_t a, int64_t b) -> Value { return Value(a >= b); },
+                [](uint32_t a, uint32_t b) -> Value { return Value(a >= b); },
+                [](uint64_t a, uint64_t b) -> Value { return Value(a >= b); },
+                [](float a, float b) -> Value { return Value(a >= b); },
+                [](double a, double b) -> Value { return Value(a >= b); },
+                [](auto&&, auto&&) -> Value {
+                    throw std::runtime_error("unexpected operand types for greater-or-equal");
+                },
+            },
+            *l, *r);
+    });
 }
 
 Value Value::operator+(const Value& rhs) const {
-    auto pr = promote(*this, rhs);
-    return std::visit(
-        match{
-            [](int8_t l, int8_t r) -> Value { return Value(l + r); },
-            [](int16_t l, int16_t r) -> Value { return Value(l + r); },
-            [](int32_t l, int32_t r) -> Value { return Value(l + r); },
-            [](int64_t l, int64_t r) -> Value { return Value(l + r); },
-            [](uint8_t l, uint8_t r) -> Value { return Value(l + r); },
-            [](uint16_t l, uint16_t r) -> Value { return Value(l + r); },
-            [](uint32_t l, uint32_t r) -> Value { return Value(l + r); },
-            [](uint64_t l, uint64_t r) -> Value { return Value(l + r); },
-            [](float l, float r) -> Value { return Value(l + r); },
-            [](double l, double r) -> Value { return Value(l + r); },
-            [](bool l, bool r) -> Value { return Value(l + r); },
-            [](auto&&, auto&&) -> Value {
-                throw std::runtime_error("unexpected type pair while evaluating value");
+    return apply_binary(BinaryOp::PLUS, rhs, [](const Value& l, const Value& r) -> Value {
+        return std::visit(
+            match{
+                [](int32_t a, int32_t b) -> Value { return Value(a + b); },
+                [](int64_t a, int64_t b) -> Value { return Value(a + b); },
+                [](uint32_t a, uint32_t b) -> Value { return Value(a + b); },
+                [](uint64_t a, uint64_t b) -> Value { return Value(a + b); },
+                [](float a, float b) -> Value { return Value(a + b); },
+                [](double a, double b) -> Value { return Value(a + b); },
+                [](auto&&, auto&&) -> Value {
+                    throw std::runtime_error("unexpected operand types for addition");
+                },
             },
-        },
-        pr.first.inner, pr.second.inner);
+            *l, *r);
+    });
 }
 
 Value Value::operator-(const Value& rhs) const {
-    auto pr = promote(*this, rhs);
-    return std::visit(
-        match{
-            [](int8_t l, int8_t r) -> Value { return Value(l - r); },
-            [](int16_t l, int16_t r) -> Value { return Value(l - r); },
-            [](int32_t l, int32_t r) -> Value { return Value(l - r); },
-            [](int64_t l, int64_t r) -> Value { return Value(l - r); },
-            [](uint8_t l, uint8_t r) -> Value { return Value(l - r); },
-            [](uint16_t l, uint16_t r) -> Value { return Value(l - r); },
-            [](uint32_t l, uint32_t r) -> Value { return Value(l - r); },
-            [](uint64_t l, uint64_t r) -> Value { return Value(l - r); },
-            [](float l, float r) -> Value { return Value(l - r); },
-            [](double l, double r) -> Value { return Value(l - r); },
-            [](bool l, bool r) -> Value { return Value(l - r); },
-            [](auto&&, auto&&) -> Value {
-                throw std::runtime_error("unexpected type pair while evaluating value");
+    return apply_binary(BinaryOp::MINUS, rhs, [](const Value& l, const Value& r) -> Value {
+        return std::visit(
+            match{
+                [](int32_t a, int32_t b) -> Value { return Value(a - b); },
+                [](int64_t a, int64_t b) -> Value { return Value(a - b); },
+                [](uint32_t a, uint32_t b) -> Value { return Value(a - b); },
+                [](uint64_t a, uint64_t b) -> Value { return Value(a - b); },
+                [](float a, float b) -> Value { return Value(a - b); },
+                [](double a, double b) -> Value { return Value(a - b); },
+                [](auto&&, auto&&) -> Value {
+                    throw std::runtime_error("unexpected operand types for subtraction");
+                },
             },
-        },
-        pr.first.inner, pr.second.inner);
+            *l, *r);
+    });
 }
 
 Value Value::operator*(const Value& rhs) const {
-    auto pr = promote(*this, rhs);
-    return std::visit(
-        match{
-            [](int8_t l, int8_t r) -> Value { return Value(l * r); },
-            [](int16_t l, int16_t r) -> Value { return Value(l * r); },
-            [](int32_t l, int32_t r) -> Value { return Value(l * r); },
-            [](int64_t l, int64_t r) -> Value { return Value(l * r); },
-            [](uint8_t l, uint8_t r) -> Value { return Value(l * r); },
-            [](uint16_t l, uint16_t r) -> Value { return Value(l * r); },
-            [](uint32_t l, uint32_t r) -> Value { return Value(l * r); },
-            [](uint64_t l, uint64_t r) -> Value { return Value(l * r); },
-            [](float l, float r) -> Value { return Value(l * r); },
-            [](double l, double r) -> Value { return Value(l * r); },
-            [](bool l, bool r) -> Value { return Value(l * r); },
-            [](auto&&, auto&&) -> Value {
-                throw std::runtime_error("unexpected type pair while evaluating value");
+    return apply_binary(BinaryOp::MUL, rhs, [](const Value& l, const Value& r) -> Value {
+        return std::visit(
+            match{
+                [](int32_t a, int32_t b) -> Value { return Value(a * b); },
+                [](int64_t a, int64_t b) -> Value { return Value(a * b); },
+                [](uint32_t a, uint32_t b) -> Value { return Value(a * b); },
+                [](uint64_t a, uint64_t b) -> Value { return Value(a * b); },
+                [](float a, float b) -> Value { return Value(a * b); },
+                [](double a, double b) -> Value { return Value(a * b); },
+                [](auto&&, auto&&) -> Value {
+                    throw std::runtime_error("unexpected operand types for multiplication");
+                },
             },
-        },
-        pr.first.inner, pr.second.inner);
+            *l, *r);
+    });
 }
 
 Value Value::operator/(const Value& rhs) const {
-    auto pr = promote(*this, rhs);
-    if (rhs == 0) {
-        throw InvalidCompileTimeEval("divide by zero");
-    }
-    return std::visit(
-        match{
-            [](int8_t l, int8_t r) -> Value { return Value(l / r); },
-            [](int16_t l, int16_t r) -> Value { return Value(l / r); },
-            [](int32_t l, int32_t r) -> Value { return Value(l / r); },
-            [](int64_t l, int64_t r) -> Value { return Value(l / r); },
-            [](uint8_t l, uint8_t r) -> Value { return Value(l / r); },
-            [](uint16_t l, uint16_t r) -> Value { return Value(l / r); },
-            [](uint32_t l, uint32_t r) -> Value { return Value(l / r); },
-            [](uint64_t l, uint64_t r) -> Value { return Value(l / r); },
-            [](float l, float r) -> Value { return Value(l / r); },
-            [](double l, double r) -> Value { return Value(l / r); },
-            [](bool l, bool r) -> Value { return Value(l / r); },
-            [](auto&&, auto&&) -> Value {
-                throw std::runtime_error("unexpected type pair while evaluating value");
+    return apply_binary(BinaryOp::DIV, rhs, [](const Value& l, const Value& r) -> Value {
+        // Integer division by zero is an error; IEEE floating-point division by
+        // zero is well-defined (inf / nan) and is left alone.
+        if (r.is_integer() && !static_cast<bool>(r)) {
+            throw InvalidCompileTimeEval("divide by zero");
+        }
+        return std::visit(
+            match{
+                [](int32_t a, int32_t b) -> Value {
+                    reject_intdiv_overflow(a, b);
+                    return Value(a / b);
+                },
+                [](int64_t a, int64_t b) -> Value {
+                    reject_intdiv_overflow(a, b);
+                    return Value(a / b);
+                },
+                [](uint32_t a, uint32_t b) -> Value { return Value(a / b); },
+                [](uint64_t a, uint64_t b) -> Value { return Value(a / b); },
+                [](float a, float b) -> Value { return Value(a / b); },
+                [](double a, double b) -> Value { return Value(a / b); },
+                [](auto&&, auto&&) -> Value {
+                    throw std::runtime_error("unexpected operand types for division");
+                },
             },
-        },
-        pr.first.inner, pr.second.inner);
+            *l, *r);
+    });
 }
 
 Value Value::operator!() const {
@@ -400,7 +454,9 @@ Value Value::operator~() const {
             [](int32_t v) { return Value(~v); }, [](int64_t v) { return Value(~v); },
             [](uint8_t v) { return Value(~v); }, [](uint16_t v) { return Value(~v); },
             [](uint32_t v) { return Value(~v); }, [](uint64_t v) { return Value(~v); },
-            [](bool v) { return Value(!v); },
+            // `~` triggers integer promotion in C, so `~true` is `~1 == -2` with
+            // type int -- not a bool.
+            [](bool v) { return Value(~static_cast<int32_t>(v)); },
             [](auto&&) -> Value {
                 throw InvalidCompileTimeEval("invalid value type for bitwise NOT");
             }},

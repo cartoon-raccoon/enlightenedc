@@ -24,15 +24,28 @@ inline void throw_eval_error(const std::string& msg, const ExprMIR& expr) {
 Value ConstEvaluator::eval(BinaryExprMIR& expr) {
     using namespace ecc::tokens;
 
+    // The short-circuit operators must not evaluate their right operand unless
+    // the left operand fails to settle the result. Evaluating both up front
+    // would reject well-defined expressions such as `1 || (1 / 0)`. C++ `||`
+    // and `&&` already short-circuit, so the right operand is only evaluated
+    // when needed. The result type is Bool, matching pr_check_binary_op.
+    if (expr.op == BinaryOp::OROR) {
+        return Value(
+            static_cast<bool>(expr.left->eval(*this)) ||
+            static_cast<bool>(expr.right->eval(*this)));
+    }
+
+    if (expr.op == BinaryOp::ANDAND) {
+        return Value(
+            static_cast<bool>(expr.left->eval(*this)) &&
+            static_cast<bool>(expr.right->eval(*this)));
+    }
+
     Value left  = expr.left->eval(*this);
     Value right = expr.right->eval(*this);
 
     switch (expr.op) {
 
-    case BinaryOp::OROR:
-        return left || right;
-    case BinaryOp::ANDAND:
-        return left && right;
     case BinaryOp::PLUS:
         return left + right;
     case BinaryOp::MINUS:

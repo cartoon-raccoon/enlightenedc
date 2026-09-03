@@ -120,6 +120,8 @@ public:
         case tokens::PrimType::BOOL:
             return Value(static_cast<bool>(value));
         }
+
+        throw InvalidCompileTimeEval("unknown primitive type in from_ptype");
     }
 
     Value& operator=(const Value& other) {
@@ -251,7 +253,7 @@ public:
         return *this != Value(rhs);
     }
 
-    Value operator!=(const Value& rhs) const { return !(*this == rhs); }
+    Value operator!=(const Value& rhs) const;
 
     // Binary LEQ
     template <typename T>
@@ -259,7 +261,7 @@ public:
         return *this <= Value(rhs);
     }
 
-    Value operator<=(const Value& rhs) const { return !(*this > rhs); }
+    Value operator<=(const Value& rhs) const;
 
     // Binary GEQ
     template <typename T>
@@ -267,7 +269,7 @@ public:
         return *this >= Value(rhs);
     }
 
-    Value operator>=(const Value& rhs) const { return !(*this < rhs); }
+    Value operator>=(const Value& rhs) const;
 
     // Logical LT
     template <typename T>
@@ -332,6 +334,13 @@ public:
     std::string to_string() const {
         return std::visit([&](const auto& v) { return std::format("{}", v); }, inner);
     }
+
+private:
+    // Run a primitive binary operator through the type algebra: validate the
+    // operand pair with pr_check_binary_op, coerce both operands to the operand
+    // types it requires, run `compute`, then coerce the result to its expr_type.
+    template <typename Compute>
+    Value apply_binary(tokens::BinaryOp op, const Value& rhs, Compute compute) const;
 }; // end class Value
 
 /**
@@ -372,7 +381,11 @@ public:
 
         Value operator*() const { return curr; }
 
-        ValueRangeItem operator++(int) { return ValueRangeItem(curr + 1); }
+        ValueRangeItem operator++(int) {
+            ValueRangeItem prev = *this;
+            curr                = curr + 1;
+            return prev;
+        }
 
         ValueRangeItem& operator++() {
             curr = curr + 1;

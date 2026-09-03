@@ -1,88 +1,147 @@
 #include "semantics/mir/passes/constfold.hpp"
 
 #include "semantics/mir/mir.hpp"
+#include "semantics/types.hpp"
 
 using namespace ecc::opti;
 using namespace ecc::eval;
 using namespace ecc::sema::mir;
 
-Chunk<LiteralExprMIR> ConstantFolder::eval_and_expr(Chunk<ExprMIR>& expr, Location loc) {
+Chunk<ExprMIR> ConstantFolder::eval_and_expr(Chunk<ExprMIR>& expr, Location loc) {
 
-    if (expr->kind == MIRNode::NodeKind::CONDEXPR_MIR) {
-        // todo: implement checking for cond exprs
-        // cast expr to CondExprMIR, eliminate branch
+    if (isa<CondExprMIR>(expr)) {
+        // A CondExpr only reaches here when its condition is constant-foldable
+        // (that is the whole of CondExprMIR::is_const_foldable). Fold just the
+        // condition and keep the branch it selects; the discarded branch does
+        // not have to be foldable itself.
+        auto *condexpr = dyncast<CondExprMIR>(expr);
+
+        Value cond = condexpr->condition->eval(evalr);
+
+        Chunk<ExprMIR>& taken =
+            static_cast<bool>(cond) ? condexpr->true_expr : condexpr->false_expr;
+
+        if (taken->is_const_foldable()) {
+            return eval_and_expr(taken, taken->loc);
+        }
+
+        // Surviving branch is not constant: fold within it and hoist it up.
+        taken->accept(*this);
+        return std::move(taken);
     }
 
-    Value val     = expr->eval(evalr);
+    Value val = expr->eval(evalr);
+
+    // The folded literal must keep the type of the expression it replaces
+    sema::types::Type *result_type = expr->eff_type;
+    if (result_type != nullptr && result_type->is_primitive()) {
+        val = val.pr_cast(result_type->as_primitive()->get_primkind());
+    } else {
+        result_type = types.get().get_primitive(val.primtype());
+    }
+
     auto new_expr = make_chunk<LiteralExprMIR>(loc, syms.current, std::move(val));
+    new_expr->set_type(result_type);
 
     return new_expr;
 }
 
-void ConstantFolder::do_visit(sema::mir::InitializerMIR& node) {
-    // todo
+void ConstantFolder::fold_operand(Chunk<ExprMIR>& operand) {
+    if (operand->is_const_foldable()) {
+        operand = eval_and_expr(operand, operand->loc);
+    } else {
+        operand->accept(*this);
+    }
+}
+
+void ConstantFolder::do_visit(InitializerMIR& node) {
+    std::visit(
+        match{
+            [&](Chunk<ExprMIR>& expr) { fold_operand(expr); },
+            [&](Chunk<InitializerMIR::Member>& member) { member->initializer->accept(*this); },
+            [&](Chunk<InitializerMIR::Index>& index) { index->initializer->accept(*this); },
+            [&](Vec<Chunk<InitializerMIR>>& inits) {
+                for (auto& init : inits) {
+                    init->accept(*this);
+                }
+            }},
+        node.initializer);
 }
 
 void ConstantFolder::do_visit(ExprStmtMIR& node) {
-    if (!node.expr)
-        return;
+    if (node.expr) {
+        fold_operand(*node.expr);
+    }
+}
 
-    if ((*node.expr)->is_const_foldable()) {
-        node.expr = eval_and_expr(*node.expr, (*node.expr)->loc);
-    } else {
-        (*node.expr)->accept(*this);
+void ConstantFolder::do_visit(ReturnStmtMIR& node) {
+    if (node.ret_expr) {
+        fold_operand(*node.ret_expr);
+    }
+}
+
+void ConstantFolder::do_visit(IfStmtMIR& node) {
+    fold_operand(node.condition);
+    node.then_branch->accept(*this);
+    if (node.else_branch) {
+        (*node.else_branch)->accept(*this);
+    }
+}
+
+void ConstantFolder::do_visit(LoopStmtMIR& node) {
+    if (node.init) {
+        (*node.init)->accept(*this);
+    }
+    if (node.condition) {
+        fold_operand(*node.condition);
+    }
+    if (node.step) {
+        (*node.step)->accept(*this);
+    }
+    node.body->accept(*this);
+}
+
+void ConstantFolder::do_visit(SwitchStmtMIR& node) {
+    fold_operand(node.control_val);
+    node.body->accept(*this);
+}
+
+void ConstantFolder::do_visit(PrintStmtMIR& node) {
+    for (auto& arg : node.arguments) {
+        fold_operand(arg);
     }
 }
 
 void ConstantFolder::do_visit(BinaryExprMIR& node) {
-    if (node.left->is_const_foldable()) {
-        node.left = eval_and_expr(node.left, node.left->loc);
-    } else {
-        node.left->accept(*this);
-    }
-
-    if (node.right->is_const_foldable()) {
-        node.right = eval_and_expr(node.right, node.right->loc);
-    } else {
-        node.right->accept(*this);
-    }
+    fold_operand(node.left);
+    fold_operand(node.right);
 }
 
 void ConstantFolder::do_visit(UnaryExprMIR& node) {
-    if (node.operand->is_const_foldable()) {
-        node.operand = eval_and_expr(node.operand, node.operand->loc);
-    } else {
-        node.operand->accept(*this);
-    }
+    fold_operand(node.operand);
 }
 
 void ConstantFolder::do_visit(CastExprMIR& node) {
-    if (node.inner->is_const_foldable()) {
-        node.inner = eval_and_expr(node.inner, node.inner->loc);
-    } else {
-        node.inner->accept(*this);
-    }
+    fold_operand(node.inner);
 }
 
 void ConstantFolder::do_visit(CondExprMIR& node) {
-    // fixme:
-    // if condition is foldable, but children are not, it can be still be
-    // optimized by returning the branch that gets chosen every time
-    if (node.condition->is_const_foldable()) {
-        node.condition = eval_and_expr(node.condition, node.condition->loc);
-    } else {
-        node.condition->accept(*this);
-    }
+    // Reached only when the condition is not constant (a constant condition is
+    // handled, with branch elimination, in eval_and_expr). Fold within each part
+    // and keep the CondExpr.
+    fold_operand(node.condition);
+    fold_operand(node.true_expr);
+    fold_operand(node.false_expr);
+}
 
-    if (node.true_expr->is_const_foldable()) {
-        node.true_expr = eval_and_expr(node.true_expr, node.true_expr->loc);
-    } else {
-        node.true_expr->accept(*this);
+void ConstantFolder::do_visit(CallExprMIR& node) {
+    node.callee->accept(*this);
+    for (auto& arg : node.args) {
+        fold_operand(arg);
     }
+}
 
-    if (node.false_expr->is_const_foldable()) {
-        node.false_expr = eval_and_expr(node.false_expr, node.false_expr->loc);
-    } else {
-        node.false_expr->accept(*this);
-    }
+void ConstantFolder::do_visit(AssignExprMIR& node) {
+    node.left->accept(*this);
+    fold_operand(node.right);
 }

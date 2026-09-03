@@ -257,11 +257,13 @@ Optional<PrimExprTypes> pr_check_binary_op(BinaryOp op, PrimType lhs, PrimType r
             (pr_is_integer(rhs) || pr_is_float(rhs) || pr_is_bool(rhs))) {
             return PrimExprTypes{
                 {lhs, rhs},
-                lhs
+                PrimType::BOOL,
             };
         }
         break;
     }
+    case BinaryOp::ANDAND:
+    case BinaryOp::OROR:
     case BinaryOp::LT:
     case BinaryOp::GT:
     case BinaryOp::LE:
@@ -272,7 +274,7 @@ Optional<PrimExprTypes> pr_check_binary_op(BinaryOp op, PrimType lhs, PrimType r
         if ((pr_is_integer(lhs) || pr_is_float(lhs)) && (pr_is_integer(rhs) || pr_is_float(rhs))) {
             return PrimExprTypes{
                 {lhs, rhs},
-                lhs
+                PrimType::BOOL,
             };
         }
         break;

@@ -197,15 +197,13 @@ RC_GTEST_PROP(ValueArithmetic, UnsignedU32AdditionWraps, ()) {
     RC_ASSERT(result.cast<uint32_t>() == expected);
 }
 
-// ── Shift result type (C-standard rule — DISABLED until fix is implemented) ───
+// ── Shift result type (C-standard rule) ──────────────────────────────────────
 //
 // C11 §6.5.7: shift result type = independently-promoted left operand.
 // The right operand's rank and signedness must NOT affect the result type.
-// Currently pr_promote() (usual arithmetic conversions) is applied instead,
-// so e.g. I32 << U64 gives U64 rather than I32.
-// Enable this test after adding pr_promote_shift to value.cpp.
+// operator<< / operator>> use pr_single_promote() on the left operand only.
 
-RC_GTEST_PROP(ValueTypePromotion, DISABLED_ShiftResultTypeIsPromotedLeft, ()) {
+RC_GTEST_PROP(ValueTypePromotion, ShiftResultTypeIsPromotedLeft, ()) {
     Value a = *gen_integer_value();
     // Bounded shift amount avoids UB from oversized or negative shifts.
     Value b(*rc::gen::inRange<uint32_t>(0, 32)); // NOLINT
