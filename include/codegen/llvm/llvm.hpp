@@ -72,7 +72,18 @@ public:
     llvm::Module& mod() { return *llvmmod; }
     llvm::IRBuilder<>& irb() { return *irbuilder; }
 
-    LLVMType *get_llvm_type(sema::types::Type *type);
+    /**
+    Get the storage LLVM type (that is, the type that is stored as in memory).
+    */
+    LLVMType *get_storage_type(sema::types::Type *type);
+
+    /**
+    Get the value LLVM type (that is, the type that is used in expressions and operations).
+
+    For the most part, storage type and value type are the same. The one exception is Bool,
+    which has an i1 value type, but an i8 storage type.
+    */
+    LLVMType *get_value_type(sema::types::Type *type);
 
     // Without this, declaring any of the finalize(Xxx *) overrides below hides the entire
     // base-class finalize overload set, including CodeGenUnit::finalize(Type *) -- the

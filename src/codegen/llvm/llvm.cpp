@@ -3,6 +3,7 @@
 #include "error.hpp"
 #include "lowering/cfg/cfg.hpp"
 #include "semantics/typeerr.hpp"
+#include "semantics/types.hpp"
 #include "util.hpp"
 
 using namespace ecc::codegen;
@@ -65,7 +66,7 @@ bool LLVMUnit::is_finalized(Type *type) {
     return typemap.contains(type);
 }
 
-LLVMType *LLVMUnit::get_llvm_type(Type *type) {
+LLVMType *LLVMUnit::get_storage_type(Type *type) {
     if (!is_finalized(type)) {
         finalize(type);
     }
@@ -73,6 +74,16 @@ LLVMType *LLVMUnit::get_llvm_type(Type *type) {
     auto it = typemap.find(type);
     assert(it != typemap.end() && "finalize() did not populate typemap for this type");
     return it->second;
+}
+
+LLVMType *LLVMUnit::get_value_type(Type *type) {
+    if (auto *primtype = dyncast<PrimitiveType>(type)) {
+        if (primtype->get_primkind() == PrimType::BOOL) {
+            return llvm::IntegerType::get(ctx(), 1);
+        }
+    }
+
+    return get_storage_type(type);
 }
 
 void LLVMUnit::finalize(VoidType *type) {
@@ -148,7 +159,7 @@ void LLVMUnit::finalize(ClassType *type) {
         // the elements of the parent's llvmtype will read in all the members of parent classes, in
         // order, up the inheritance chain.
         llvm::StructType *parent_llvm =
-            llvm::dyn_cast<llvm::StructType>(get_llvm_type(*type->get_parent()));
+            llvm::dyn_cast<llvm::StructType>(get_storage_type(*type->get_parent()));
 
         assert(parent_llvm && "");
 
@@ -160,7 +171,7 @@ void LLVMUnit::finalize(ClassType *type) {
     for (auto& member : type->get_members()) {
         dbprint("ClassType: finalizing member declared at ", member->loc);
         finalize(member->ty);
-        args.push_back(get_llvm_type(member->ty));
+        args.push_back(get_storage_type(member->ty));
     }
 
     if (!type->is_anonymous()) {
@@ -197,7 +208,7 @@ void LLVMUnit::finalize(UnionType *type) {
 
     if (type->get_type_rep()) {
         // we finalized the type rep earlier, it is guaranteed to be found
-        LLVMType *llvm_type = get_llvm_type(*type->get_type_rep());
+        LLVMType *llvm_type = get_storage_type(*type->get_type_rep());
 
         typemap[type] = llvm_type;
     } else if (type->num_members() > 0) {
@@ -246,7 +257,7 @@ void LLVMUnit::finalize(EnumType *type) {
         throw TypeSemError("enum not fully defined", type->decl_loc);
     }
 
-    typemap[type] = get_llvm_type(type->get_underlying());
+    typemap[type] = get_storage_type(type->get_underlying());
 }
 
 void LLVMUnit::finalize(PointerType *type) {
@@ -268,7 +279,7 @@ void LLVMUnit::finalize(ArrayType *type) {
 
     if (type->get_arr_size()) {
         typemap[type] =
-            llvm::ArrayType::get(get_llvm_type(type->get_base()), *type->get_arr_size());
+            llvm::ArrayType::get(get_storage_type(type->get_base()), *type->get_arr_size());
     } else {
         //? would this be a problem?
         throw std::runtime_error("attempted to finalize unsized array");
@@ -282,7 +293,7 @@ void LLVMUnit::finalize(ConstType *type) {
     }
 
     finalize(type->get_base());
-    typemap[type] = get_llvm_type(type->get_base());
+    typemap[type] = get_storage_type(type->get_base());
 }
 
 void LLVMUnit::finalize(FunctionType *type) {
@@ -293,10 +304,10 @@ void LLVMUnit::finalize(FunctionType *type) {
 
     Vec<LLVMType *> params_llvms;
     for (const auto& param : type->get_signature().params) {
-        params_llvms.push_back(get_llvm_type(param));
+        params_llvms.push_back(get_storage_type(param));
     }
 
-    LLVMType *return_llvm = get_llvm_type(type->get_signature().returntype);
+    LLVMType *return_llvm = get_storage_type(type->get_signature().returntype);
 
     typemap[type] =
         llvm::FunctionType::get(return_llvm, params_llvms, type->get_signature().variadic);
@@ -320,7 +331,7 @@ size_t LLVMUnit::alloc_size(Type *type) {
     }
 
     Type *type_key      = type->is_const() ? type->as_const()->get_base() : type;
-    LLVMType *size_type = get_llvm_type(type_key);
+    LLVMType *size_type = get_storage_type(type_key);
 
     assert(size_type);
 

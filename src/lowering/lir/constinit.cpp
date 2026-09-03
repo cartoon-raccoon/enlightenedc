@@ -237,20 +237,39 @@ ConstInitLIRBuilder::try_build_constinit_expr(Type *type, CastExprMIR& expr) {
     using CastKind = CastExprMIR::CastKind;
 
     if (type != expr.target) {
-        throw std::runtime_error("type mismatch for buildining constinit CastExprMIR");
+        throw std::runtime_error("type mismatch for building constinit CastExprMIR");
     }
 
-    switch (expr.castkind) {
-    case CastKind::Implicit:
-    case CastKind::Explicit:
-    case CastKind::ArrPtrDecay:
-        // all others: pass in the target
-        return try_build_constinit_expr(expr.target, *expr.inner);
-    case CastKind::FuncPtrDecay:
+    if (expr.castkind == CastKind::FuncPtrDecay) {
         // function decay: "undo" the cast, pass in inner type
         return try_build_constinit_expr(expr.inner->act_type, *expr.inner);
     }
+
+    // The validator lowers an int<->pointer reinterpret that isn't already pointer-width
+    // into a two-level cast chain, bridging through the pointer-width integer type
+    // (Validator::do_visit(CastExprMIR&)). For a constant the bridge is a no-op, so peel
+    // every nested cast and lower the leaf directly against the destination type.
+    ExprMIR *leaf = expr.inner.get();
+    while (auto *inner = dyncast<CastExprMIR>(leaf)) {
+        leaf = inner->inner.get();
+    }
+
+    if (type->is_pointer()) {
+        if (auto *lit = dyncast<LiteralExprMIR>(leaf)) {
+            if (auto *val = std::get_if<eval::Value>(&lit->value)) {
+                // integer constant reinterpreted as a pointer
+                if (val->cast<uint64_t>() == 0) {
+                    return make_chunk<ZeroInitLIR>(type);
+                }
+                return {}; // non-null constant address: not representable yet
+            }
+        }
+        // string literal / decayed array: fall through to the normal handlers
+    }
+
+    return try_build_constinit_expr(type, *leaf);
 }
+
 
 Optional<Chunk<ConstInitLIR>>
 ConstInitLIRBuilder::try_build_constinit_expr(Type *type, IdentExprMIR& expr) {
