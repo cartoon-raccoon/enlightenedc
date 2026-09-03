@@ -9,6 +9,7 @@
 #include "error.hpp"
 #include "eval/consteval.hpp"
 #include "eval/value.hpp"
+#include "semantics/attributes.hpp"
 #include "semantics/mir/mir.hpp"
 #include "semantics/semerr.hpp"
 #include "semantics/symbols.hpp"
@@ -121,22 +122,22 @@ MIRSynthesizer::parse_speclist(Vec<Chunk<ast::DeclarationSpecifier>>& speclist, 
 
         case NK::CLASS_SPEC: {
             auto typespecret = take_last_result<TypeSpecRet<ClassType>>();
-            specinfo.type   = typespecret.type;
-            specinfo.symbol = typespecret.symbol;
+            specinfo.type    = typespecret.type;
+            specinfo.symbol  = typespecret.symbol;
             break;
         }
 
         case NK::UNION_SPEC: {
             auto typespecret = take_last_result<TypeSpecRet<UnionType>>();
-            specinfo.type   = typespecret.type;
-            specinfo.symbol = typespecret.symbol;
+            specinfo.type    = typespecret.type;
+            specinfo.symbol  = typespecret.symbol;
             break;
         }
 
         case NK::ENUM_SPEC: {
             auto typespecret = take_last_result<TypeSpecRet<EnumType>>();
-            specinfo.type   = typespecret.type;
-            specinfo.symbol = typespecret.symbol;
+            specinfo.type    = typespecret.type;
+            specinfo.symbol  = typespecret.symbol;
             break;
         }
 
@@ -195,16 +196,66 @@ void MIRSynthesizer::do_visit(AttributeArg& node) {
     }
 }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
+using namespace ecc::sema::attr;
 
 void MIRSynthesizer::check_attribute(FunctionMIR *function, AttributeArg& node) {
+    const auto *attrdata = find_attr(node.name);
+    if (attrdata == nullptr) {
+        add_error<InvalidAttributeError>(node.loc, node.name);
+        throw UnableToContinue();
+    }
+
+    if (attrdata->target != AttributeTarget::FUNCTION) {
+        add_error<InvalidAttributeError>(
+            node.loc, node.name, InvalidAttributeError::Target::Function);
+        throw UnableToContinue();
+    }
+
+    if (attrdata->takes_value && !node.value) {
+        add_error<InvalidAttributeError>(
+            node.loc, InvalidAttributeError::Kind::ValueNotProvided, node.name);
+        throw UnableToContinue();
+    } else if (!attrdata->takes_value && node.value) {
+        add_error<InvalidAttributeError>(
+            node.loc, InvalidAttributeError::Kind::ProvidedValue, node.name, *node.value);
+        throw UnableToContinue();
+    }
+
+    try {
+        attrdata->action(*function, node.value);
+    } catch (InvalidAttributeError& err) {
+        add_error<InvalidAttributeError>(err);
+    }
 }
 
 void MIRSynthesizer::check_attribute(TypeDeclMIR *typedecl, AttributeArg& node) {
-}
+    const auto *attrdata = find_attr(node.name);
+    if (attrdata == nullptr) {
+        add_error<InvalidAttributeError>(node.loc, node.name);
+        throw UnableToContinue();
+    }
 
-#pragma clang diagnostic pop
+    if (attrdata->target != AttributeTarget::TYPE) {
+        add_error<InvalidAttributeError>(node.loc, node.name, InvalidAttributeError::Target::Type);
+        throw UnableToContinue();
+    }
+
+    if (attrdata->takes_value && !node.value) {
+        add_error<InvalidAttributeError>(
+            node.loc, InvalidAttributeError::Kind::ValueNotProvided, node.name);
+        throw UnableToContinue();
+    } else if (!attrdata->takes_value && node.value) {
+        add_error<InvalidAttributeError>(
+            node.loc, InvalidAttributeError::Kind::ProvidedValue, node.name, *node.value);
+        throw UnableToContinue();
+    }
+
+    try {
+        attrdata->action(*typedecl, node.value);
+    } catch (InvalidAttributeError& err) {
+        add_error<InvalidAttributeError>(err);
+    }
+}
 
 void MIRSynthesizer::do_visit(Attribute& node) {
     bsv_dbprint("visiting Attribute node: ", node.loc);
@@ -218,9 +269,9 @@ void MIRSynthesizer::do_visit(Function& node) {
     bsv_dbprint("visiting Function node: ", node.loc);
 
     // Parse and construct specifier info
-    VisitParam param            = std::move(dovisit_param);
+    VisitParam param       = std::move(dovisit_param);
     SpecifierInfo specinfo = parse_speclist(node.decl_spec_list, node.loc);
-    dovisit_param               = std::move(param);
+    dovisit_param          = std::move(param);
 
     if (specinfo.linkage == Linkage::EXTERNAL) {
         add_error<EccSemError>("externally linked functions cannot have a body", node.loc);
@@ -346,8 +397,8 @@ void MIRSynthesizer::do_visit(TypeDeclaration& node) {
     auto specinfo = parse_speclist(node.specifiers, node.loc);
 
     if (specinfo.symbol) {
-        TypeSymbol *symptr = (*specinfo.symbol);
-        Chunk<DeclMIR> decl  = make_chunk<TypeDeclMIR>(node.loc, symptr);
+        TypeSymbol *symptr  = (*specinfo.symbol);
+        Chunk<DeclMIR> decl = make_chunk<TypeDeclMIR>(node.loc, symptr);
 
         for (auto& attr : node.attributes) {
             dv_call(decl.get(), attr);
@@ -974,7 +1025,7 @@ void MIRSynthesizer::do_visit(ClassDeclaration& node) {
     bsv_dbprint("visiting ClassDeclaration node: ", node.loc);
 
     // save our current param, as it may get clobbered while parsing specifiers
-    RecordType *recordty        = take_dovisit_param<RecordType *>();
+    RecordType *recordty   = take_dovisit_param<RecordType *>();
     SpecifierInfo specinfo = parse_speclist(node.specifiers, node.loc);
 
     if (recordty->is_class()) {
@@ -1053,10 +1104,9 @@ void MIRSynthesizer::do_visit(Initializer& node) { // NOLINT
             [&](Chunk<Expression>& expr) {
                 bsv_dbprint("visiting single initializer");
                 dv_call_noparam(expr);
-                Chunk<ExprMIR> exprmir = take_last_result<Chunk<ExprMIR>>();
-                Chunk<InitializerMIR> init =
-                    make_chunk<InitializerMIR>(loc, std::move(exprmir));
-                InitializerRet ret = {{}, std::move(init)};
+                Chunk<ExprMIR> exprmir     = take_last_result<Chunk<ExprMIR>>();
+                Chunk<InitializerMIR> init = make_chunk<InitializerMIR>(loc, std::move(exprmir));
+                InitializerRet ret         = {{}, std::move(init)};
                 dv_return(ret);
             },
             [&](Chunk<Initializer::Member>& mem) {
@@ -1323,8 +1373,7 @@ void MIRSynthesizer::do_visit(ExpressionStatement& node) {
                 bsv_dbprint(
                     "found string literal inside ExpressionStatement, emitting PrintStmtMIR");
                 std::string format_string = std::move(*str);
-                Chunk<StmtMIR> stmt =
-                    make_chunk<PrintStmtMIR>(node.loc, std::move(format_string));
+                Chunk<StmtMIR> stmt = make_chunk<PrintStmtMIR>(node.loc, std::move(format_string));
                 dv_return(stmt);
             }
             break;
@@ -1452,8 +1501,8 @@ void MIRSynthesizer::do_visit(IfStatement& node) {
         else_br = take_last_result<Chunk<StmtMIR>>();
     }
 
-    Chunk<StmtMIR> ifstmt = make_chunk<IfStmtMIR>(
-        node.loc, std::move(cond), std::move(then_br), std::move(else_br));
+    Chunk<StmtMIR> ifstmt =
+        make_chunk<IfStmtMIR>(node.loc, std::move(cond), std::move(then_br), std::move(else_br));
 
     dv_return(ifstmt);
 }
@@ -1466,8 +1515,7 @@ void MIRSynthesizer::do_visit(SwitchStatement& node) {
     dv_call_noparam(node.body);
     Chunk<StmtMIR> stmt = take_last_result<Chunk<StmtMIR>>();
 
-    Chunk<StmtMIR> switchst =
-        make_chunk<SwitchStmtMIR>(node.loc, std::move(cond), std::move(stmt));
+    Chunk<StmtMIR> switchst = make_chunk<SwitchStmtMIR>(node.loc, std::move(cond), std::move(stmt));
 
     dv_return(switchst);
 }
@@ -1495,8 +1543,7 @@ void MIRSynthesizer::do_visit(DoWhileStatement& node) {
     dv_call_noparam(node.body);
     Chunk<StmtMIR> body = take_last_result<Chunk<StmtMIR>>();
 
-    Chunk<StmtMIR> loop =
-        make_chunk<LoopStmtMIR>(node.loc, std::move(cond), std::move(body), true);
+    Chunk<StmtMIR> loop = make_chunk<LoopStmtMIR>(node.loc, std::move(cond), std::move(body), true);
 
     dv_return(loop);
 }
@@ -1520,7 +1567,7 @@ void MIRSynthesizer::do_visit(ForStatement& node) {
                 [&](Chunk<VariableDeclaration>& decl) {
                     dv_call_noparam(decl);
                     Chunk<DeclMIR> declmir = take_last_result<Chunk<DeclMIR>>();
-                    loop->init           = std::move(declmir);
+                    loop->init             = std::move(declmir);
                 }},
             *node.init);
     }
@@ -1528,7 +1575,7 @@ void MIRSynthesizer::do_visit(ForStatement& node) {
     if (node.condition.has_value()) {
         dv_call_noparam(node.condition.value());
         Chunk<ExprMIR> cond = take_last_result<Chunk<ExprMIR>>();
-        loop->condition   = std::move(cond);
+        loop->condition     = std::move(cond);
     }
 
     dv_call_noparam(node.body);
@@ -1539,8 +1586,7 @@ void MIRSynthesizer::do_visit(ForStatement& node) {
     if (node.increment.has_value()) {
         dv_call_noparam(node.increment.value());
         Chunk<ExprMIR> step_expr = take_last_result<Chunk<ExprMIR>>();
-        Chunk<StmtMIR> step_stmt =
-            make_chunk<ExprStmtMIR>(step_expr->loc, std::move(step_expr));
+        Chunk<StmtMIR> step_stmt = make_chunk<ExprStmtMIR>(step_expr->loc, std::move(step_expr));
 
         loop->step = std::move(step_stmt);
     }
@@ -1617,8 +1663,7 @@ void MIRSynthesizer::do_visit(CastExpression& node) {
     dv_call_noparam(node.type_name);
     Type *target = take_last_result<Type *>();
 
-    Chunk<ExprMIR> expr =
-        make_chunk<CastExprMIR>(node.loc, syms.current, target, std::move(inner));
+    Chunk<ExprMIR> expr = make_chunk<CastExprMIR>(node.loc, syms.current, target, std::move(inner));
 
     dv_return(expr);
 }
@@ -1808,7 +1853,7 @@ void MIRSynthesizer::do_visit(SizeofExpression& node) {
                 // resolution of the actual type to validation.
                 dv_call_noparam(expr);
                 Chunk<ExprMIR> target = take_last_result<Chunk<ExprMIR>>();
-                sizexpr->operand    = std::move(target);
+                sizexpr->operand      = std::move(target);
             },
             [&](Chunk<TypeName>& typen) mutable {
                 dv_call_noparam(typen);
