@@ -38,6 +38,7 @@ public:
         LABDECL_LIR,
 
         SCLINIT_LIR,
+        PTRINIT_LIR,
         AGGINIT_LIR,
         STRINIT_LIR,
         FUNCINIT_LIR,
@@ -105,6 +106,7 @@ public:
     static bool classof(const LIRNode *node) {
         switch (node->kind) {
         case NodeKind::SCLINIT_LIR:
+        case NodeKind::PTRINIT_LIR:
         case NodeKind::AGGINIT_LIR:
         case NodeKind::STRINIT_LIR:
         case NodeKind::FUNCINIT_LIR:
@@ -124,6 +126,20 @@ public:
     eval::Value val;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::SCLINIT_LIR; }
+};
+
+/**
+An initializer for a pointer type, usually as an integer literal cast to a
+pointer (e.g. `(I32 *) 0x4000`).
+*/
+class PointerInitLIR : public LIRVisitable<PointerInitLIR, ConstInitLIR> {
+public:
+    PointerInitLIR(Location loc, sema::types::PointerType *type, eval::Value& val)
+        : LIRVisitable<PointerInitLIR, ConstInitLIR>(loc, NodeKind::PTRINIT_LIR, type), val(val) {}
+
+    eval::Value val;
+
+    static bool classof(const LIRNode *node) { return node->kind == NodeKind::PTRINIT_LIR; }
 };
 
 /**

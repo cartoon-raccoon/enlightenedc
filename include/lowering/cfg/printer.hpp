@@ -52,6 +52,7 @@ public:
 
     void visit(FunctionCFG& val) override;
     void visit(ScalarConst& val) override;
+    void visit(PointerConst& val) override;
     void visit(AggregateConst& val) override;
     void visit(ZeroConst& val) override;
     void visit(Global& val) override;

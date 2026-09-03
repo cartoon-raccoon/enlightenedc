@@ -97,5 +97,8 @@ ap += 2;
 I32 *nullp = (I32 *) 0;
 "%d\n", (U64) nullp;
 
+I32 *nonnullp = (I32 *) 0x4000;
+"%d\n", (U64) nonnullp;
+
 U32 raw_addr = (U32) decayed_ptr;
 "%d\n", raw_addr != 0;

@@ -92,6 +92,10 @@ void LIRPrinter::visit(ScalarInitLIR& node) {
     print_node("ScalarInit: " + node.val.to_string() + " :: " + node.type->formal(), node);
 }
 
+void LIRPrinter::visit(PointerInitLIR& node) {
+    print_node("PointerInit: " + node.val.to_string() + " :: " + node.type->formal(), node);
+}
+
 void LIRPrinter::visit(AggregateInitLIR& node) {
     print_node("AggregateInit :: " + node.type->formal(), node, [&] {
         for (auto& elem : node.elements)

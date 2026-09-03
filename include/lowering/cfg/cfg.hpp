@@ -42,6 +42,7 @@ public:
     enum class ValueKind : uint8_t {
         INST,
         SCALAR,
+        POINTER,
         AGGREG,
         ZERO,
         FUNC,
@@ -102,6 +103,7 @@ public:
 
     virtual Instruction *as_instruction() { return nullptr; }
     virtual ScalarConst *as_scalar() { return nullptr; }
+    virtual PointerConst *as_pointer() { return nullptr; }
     virtual AggregateConst *as_aggregate() { return nullptr; }
     virtual ZeroConst *as_zero() { return nullptr; }
     virtual Global *as_global() { return nullptr; }
@@ -137,7 +139,7 @@ public:
 
 class ScalarConst : public CFGVisitable<ScalarConst, Constant> {
 public:
-    ScalarConst(sema::types::Type *type, eval::Value& value)
+    ScalarConst(sema::types::PrimitiveType *type, eval::Value& value)
         : CFGVisitable<ScalarConst, Constant>(ValueKind::SCALAR, type), value(value) {}
 
     eval::Value value;
@@ -145,6 +147,18 @@ public:
     ScalarConst *as_scalar() override { return this; }
 
     static bool classof(const Value *node) { return node->valkind == ValueKind::SCALAR; }
+};
+
+class PointerConst : public CFGVisitable<PointerConst, Constant> {
+public:
+    PointerConst(sema::types::PointerType *type, eval::Value& value)
+        : CFGVisitable<PointerConst, Constant>(ValueKind::POINTER, type), value(value) {}
+
+    eval::Value value;
+
+    PointerConst *as_pointer() override { return this; }
+
+    static bool classof(const Value *node) { return node->valkind == ValueKind::POINTER; }
 };
 
 class AggregateConst : public CFGVisitable<AggregateConst, Constant> {

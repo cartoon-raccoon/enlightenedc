@@ -261,7 +261,7 @@ ConstInitLIRBuilder::try_build_constinit_expr(Type *type, CastExprMIR& expr) {
                 if (val->cast<uint64_t>() == 0) {
                     return make_chunk<ZeroInitLIR>(type);
                 }
-                return {}; // non-null constant address: not representable yet
+                return make_chunk<PointerInitLIR>(expr.loc, type->as_pointer(), *val);
             }
         }
         // string literal / decayed array: fall through to the normal handlers

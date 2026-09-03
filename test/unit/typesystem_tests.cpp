@@ -123,7 +123,7 @@ TEST_F(TypeSysAndSymTabTestFixture, TestAllocBeforeAndAfterFinalize) {
         << "alloc_size threw even after finalize";
 
     LLVMType *llvm_type;
-    EXPECT_NO_THROW(llvm_type = llvm_unit.get_llvm_type(prim1));
+    EXPECT_NO_THROW(llvm_type = llvm_unit.get_storage_type(prim1));
     ASSERT_TRUE(llvm_type != nullptr);
 }
 

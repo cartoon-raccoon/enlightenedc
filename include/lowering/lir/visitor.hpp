@@ -11,6 +11,7 @@ class ProgramLIR;
 class FunctionLIR;
 class VarDeclLIR;
 class ScalarInitLIR;
+class PointerInitLIR;
 class AggregateInitLIR;
 class StringInitLIR;
 class FuncInitLIR;
@@ -44,7 +45,7 @@ class PostfixExprLIR;
 
 class LIRVisitor
     : public Visitor<
-          LIRVisitor, ProgramLIR, FunctionLIR, VarDeclLIR, ScalarInitLIR, AggregateInitLIR,
+          LIRVisitor, ProgramLIR, FunctionLIR, VarDeclLIR, ScalarInitLIR, PointerInitLIR, AggregateInitLIR,
           StringInitLIR, FuncInitLIR, ZeroInitLIR, LabelDeclLIR, CaseLIR, DefaultLIR, ExprStmtLIR,
           MemcpyLIR, GotoStmtLIR, SwitchStmtLIR, BreakStmtLIR, ContStmtLIR, IfStmtLIR, LoopStmtLIR,
           PrintStmtLIR, ReturnStmtLIR, BinaryExprLIR, UnaryExprLIR, CastExprLIR, AssignExprLIR,

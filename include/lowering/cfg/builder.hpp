@@ -155,6 +155,7 @@ protected:
 
     void visit(lir::VarDeclLIR& node) override;
     void visit(lir::ScalarInitLIR& node) override;
+    void visit(lir::PointerInitLIR& node) override;
     void visit(lir::AggregateInitLIR& node) override;
     void visit(lir::StringInitLIR& node) override;
     void visit(lir::FuncInitLIR& node) override;
@@ -176,6 +177,7 @@ protected:
 
     Constant *build_constant(lir::ConstInitLIR& init);
     Constant *build_constant(lir::ScalarInitLIR& init);
+    Constant *build_constant(lir::PointerInitLIR& init);
     Constant *build_constant(lir::AggregateInitLIR& init);
     Constant *build_constant(lir::StringInitLIR& init);
     Constant *build_constant(lir::FuncInitLIR& init);

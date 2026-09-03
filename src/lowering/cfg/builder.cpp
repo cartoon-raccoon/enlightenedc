@@ -680,6 +680,10 @@ void CFGBuilder::visit(ScalarInitLIR& node) {
     throw std::runtime_error("visit ScalarInitLIR called");
 }
 
+void CFGBuilder::visit(PointerInitLIR& node) {
+    throw std::runtime_error("visit PointerInitLIR called");
+}
+
 void CFGBuilder::visit(AggregateInitLIR& node) {
     throw std::runtime_error("visit AggregateInitLIR called");
 }
@@ -743,7 +747,7 @@ void CFGBuilder::visit(BinaryExprLIR& node) {
 
         // create the short circuit value
         Value *short_circuit_val =
-            curr_blk->add_value<ScalarConst>(node.act_type, eval::Value(!is_and));
+            curr_blk->add_value<ScalarConst>(node.act_type->as_primitive(), eval::Value(!is_and));
 
         phi->add_incoming(short_circuit_val, lhs_exit);
         phi->add_incoming(rhs, rhs_exit);
@@ -916,7 +920,7 @@ void CFGBuilder::visit(LiteralExprLIR& node) {
         match{
             [&](eval::Value& val) {
                 dbprint("    Literal is Value, creating Literal value");
-                last_value = curr_blk->add_value<ScalarConst>(node.act_type, val);
+                last_value = curr_blk->add_value<ScalarConst>(node.act_type->as_primitive(), val);
             },
             [&](std::string& str) {
                 dbprint("    Literal is string, creating String value");
@@ -1002,6 +1006,8 @@ void CFGBuilder::visit(PostfixExprLIR& node) {
 Constant *CFGBuilder::build_constant(ConstInitLIR& init) {
     if (isa<ScalarInitLIR>(&init)) {
         return build_constant(*dyncast<ScalarInitLIR>(&init));
+    } else if (isa<PointerInitLIR>(&init)) {
+        return build_constant(*dyncast<PointerInitLIR>(&init));
     } else if (isa<AggregateInitLIR>(&init)) {
         return build_constant(*dyncast<AggregateInitLIR>(&init));
     } else if (isa<StringInitLIR>(&init)) {
@@ -1017,9 +1023,17 @@ Constant *CFGBuilder::build_constant(ConstInitLIR& init) {
 
 Constant *CFGBuilder::build_constant(ScalarInitLIR& init) {
     if (curr_func->get_name() == IMPLICIT_MAIN_NAME) {
-        return prog_cfg.add_constant<ScalarConst>(init.type, init.val);
+        return prog_cfg.add_constant<ScalarConst>(init.type->as_primitive(), init.val);
     } else {
-        return curr_blk->add_value<ScalarConst>(init.type, init.val);
+        return curr_blk->add_value<ScalarConst>(init.type->as_primitive(), init.val);
+    }
+}
+
+Constant *CFGBuilder::build_constant(PointerInitLIR& init) {
+    if (curr_func->get_name() == IMPLICIT_MAIN_NAME) {
+        return prog_cfg.add_constant<PointerConst>(init.type->as_pointer(), init.val);
+    } else {
+        return curr_blk->add_value<PointerConst>(init.type->as_pointer(), init.val);
     }
 }
 

@@ -23,6 +23,7 @@ class SubscrInst;
 class CallInst;
 
 class ScalarConst;
+class PointerConst;
 class AggregateConst;
 class ZeroConst;
 class String;
@@ -38,7 +39,7 @@ class Return;
 class CFGVisitor : public Visitor<
                        CFGVisitor, Alloca, LoadInst, StoreInst, PhiInst, PrintInst, MemcpyInst,
                        BinaryInst, UnaryInst, IncrInst, DecrInst, CastInst, MemberAccInst,
-                       SubscrInst, CallInst, ScalarConst, AggregateConst, ZeroConst, FunctionCFG,
+                       SubscrInst, CallInst, ScalarConst, PointerConst, AggregateConst, ZeroConst, FunctionCFG,
                        Global, String, FuncArg, If, Goto, Switch, Return> {};
 
 } // namespace ecc::lower::cfg
