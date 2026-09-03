@@ -11,7 +11,7 @@ Do not prompt to update code if not explicitly asked to agentically edit a file.
 
 ## What This Is
 
-EnlightenedC (`ecc`) is an LLVM-powered compiler for HolyC, the language of TempleOS. It targets any architecture via LLVM and is intended to operate as both an AOT compiler and JIT REPL. The project is in active development — MIR synthesis and validation are largely complete, LIR synthesis is nearing completion, but LLVM codegen and the REPL are not yet implemented.
+EnlightenedC (`ecc`) is an LLVM-powered compiler for HolyC, the language of TempleOS. It targets any architecture via LLVM and is intended to operate as both an AOT compiler and JIT REPL. The project is in active development — MIR synthesis and validation are largely complete, LIR synthesis and CFG construction are nearly complete, but LLVM codegen and the REPL are not yet implemented.
 
 ## Build
 
@@ -77,11 +77,11 @@ The compiler is organized into a classic frontend/backend split, driven through 
 
 **TranslationUnit** (`include/driver/driver.hpp`) is the central per-file state container, holding:
 
-- `LLVMUnit` — per-file LLVM context/module/builder
+- `CodeGenUnit` — per-file code-generator state (abstract interface; the LLVM backend supplies `LLVMUnit`)
 - `TypeContext` — interned type singletons for this TU
-- `ast::Program` — the parsed AST root
+- `ast::Program` — the parsed AST root, held as an arena `Chunk` (see [Memory & Arena Allocation](#memory--arena-allocation))
 - `TranslationUnitMIR` — MIR tree + SymbolTable
-- `TranslationUnitLIR` — LIR tree + LIR symbol map
+- `TranslationUnitLIR` — LIR tree + LIR symbol map + CFG
 
 ### Frontend
 
@@ -95,7 +95,56 @@ The Bison grammar file is `src/frontend/parser.yy`; the BNF/EBNF specs live in `
 
 ### AST
 
-All AST nodes inherit from `ast::ASTNode` (`include/ast/ast.hpp`). The visitor pattern is used pervasively — `ast::ASTVisitor` (`include/ast/visitor.hpp`) declares pure virtual `visit()` methods for every node type. `DO_ACCEPT` and `VISIT_NO_IMPL` macros in `util.hpp` reduce boilerplate.
+All AST nodes inherit from `ast::ASTNode` (`include/ast/ast.hpp`). The visitor pattern is used pervasively — `ast::ASTVisitor` (`include/ast/visitor.hpp`) declares pure virtual `visit()` methods for every node type. See [Visitor Infrastructure](#visitor-infrastructure) for how the visitor classes are built.
+
+### Visitor Infrastructure
+
+Every tree IR (AST, MIR, LIR) and the CFG use the same visitor scaffolding, defined once in `include/abstract/visitor.hpp` (namespace `ecc`):
+
+```cpp
+template <typename DerivedT>
+class VisitResult {};
+
+template <typename DerivedT>
+class VisitArg {};
+
+// A CRTP mixin interposer that overrides the accept() function on each Node,
+// avoiding repetition of `void accept()` implementations per node.
+template <typename DerivedT, typename BaseT, typename VisitorT>
+class Visitable : public BaseT {
+public:
+    using BaseT::BaseT;
+
+    void accept(VisitorT& visitor) override { return visitor.visit(static_cast<DerivedT&>(*this)); }
+};
+
+// A visitor to a single Node.
+template <typename NodeT>
+class SingleVisitor {
+public:
+    virtual ~SingleVisitor()        = default;
+    virtual void visit(NodeT& node) = 0;
+};
+
+// An abstract CRTP class that all visitors inherit from.
+template <typename DerivedT, typename... Visitables>
+class Visitor : public SingleVisitor<Visitables>... {
+public:
+    using SingleVisitor<Visitables>::visit...;
+};
+```
+
+- `SingleVisitor<NodeT>` — one pure virtual `visit(NodeT&)`.
+- `Visitor<DerivedT, Nodes...>` — multiply inherits `SingleVisitor<Nodes>...` and pulls every `visit` overload into scope. A concrete visitor derives from this with the full node list, so it must implement `visit()` for every node type.
+- `Visitable<DerivedT, BaseT, VisitorT>` — a CRTP interposer inserted between a node's parent class and the node itself. It forwards the parent's constructors (`using BaseT::BaseT`) and supplies the single `accept()` override, static-casting `*this` to the concrete node and dispatching to `visitor.visit(...)`. Nodes therefore never hand-write `accept()`.
+- `VisitResult<DerivedT>` / `VisitArg<DerivedT>` — empty CRTP marker templates reserved for visitors that carry a return value or an argument; not yet used by the concrete visitors.
+
+Each IR wires itself in through two files:
+
+- `<ir>/visitor.hpp` — forward-declares every node class in that IR, then defines the concrete visitor (`ASTVisitor`, `MIRVisitor`, `LIRVisitor`, `CFGVisitor`) as an otherwise-empty `class XVisitor : public Visitor<XVisitor, NodeA, NodeB, ...> {};`.
+- the IR's node header (`ast.hpp`, `mir.hpp`, `lir.hpp`, `cfg.hpp`) — defines a local alias, e.g. `template <class D, class B> using ASTVisitable = Visitable<D, B, ASTVisitor>;`. The IR's root abstract node declares `virtual void accept(XVisitor&) = 0;`, and each concrete node inherits `XVisitable<ConcreteNode, ParentNode>` instead of `ParentNode` directly.
+
+The `DO_ACCEPT(node, visitor)` and `VISIT_NO_IMPL(node)` macros in `util.hpp` remain for the exceptions: `DO_ACCEPT` hand-defines `accept()` for nodes not built through the `Visitable` interposer (e.g. a few CFG terminators in `cfg.cpp`); `VISIT_NO_IMPL` stubs a `visit()` that throws, for visitors that only handle a subset of nodes.
 
 ### Backend / Semantic Analysis
 
@@ -104,7 +153,8 @@ All AST nodes inherit from `ast::ASTNode` (`include/ast/ast.hpp`). The visitor p
 1. **MIR Synthesis** — `MIRSynthesizer` (`src/semantics/mir/synthesizer.cpp`) walks the AST as a `BaseASTSemaVisitor` and produces the MIR tree. This is the most complete backend stage.
 2. **Validation** — `Validator` (`src/semantics/validator.cpp`) walks the MIR checking types, control flow, lvalue rules, and expression validity. Substantially implemented; some checks (return type matching, parameter arity, promotion/widening casts) are still in progress.
 3. **LIR Synthesis** — `LIRSynthesizer` (`src/lowering/lir/synthesizer.cpp`) walks the validated MIR and produces the LIR tree. Actively being built out, nearly complete.
-4. LLVM codegen (`LLVMSynthesizer`, `src/codegen/compiler.cpp`) is stubbed.
+4. **CFG Construction** — `CFGBuilder` (`src/lowering/cfg/builder.cpp`) lowers the LIR tree to a control-flow graph. Now runs (and prints) in `Backend::run()`; still under active development.
+5. LLVM codegen (`LLVMSynthesizer`, `src/codegen/llvm/compiler.cpp`) is stubbed.
 
 The compilation pipeline can be stopped at any phase via `Config::StopAt` (PREPROCESS, PARSE, GEN_MIR, VALIDATE, GEN_LIR, COMPILE, ASSEMBLE, LINK).
 
@@ -116,16 +166,19 @@ There are three IRs between AST and LLVM IR:
 - **LIR** (Low-level IR, `src/lowering/lir/`) — closer to LLVM IR; synthesized from validated MIR by `LIRSynthesizer`.
 - **CFG** (`src/lowering/cfg/`) — a control-flow graph IR, lowered from LIR; see [Lowering](#lowering).
 
-MIR and LIR follow the same visitor pattern as the AST; CFG is a graph of basic blocks rather than a tree, so it doesn't.
+MIR and LIR follow the same visitor pattern as the AST (see [Visitor Infrastructure](#visitor-infrastructure)). The CFG has a `CFGVisitor` for its instructions, values, and terminators, but graph traversal itself is done by walking basic blocks, not by the visitor.
 
 ### Lowering
 
 `src/lowering/` and `include/lowering/` (namespace `ecc::lower`) hold two successive stages between MIR and LLVM codegen:
 
 - `lower::lir` — the LIR tree, printer, symbol map, and `LIRSynthesizer` (see above). Synthesized directly from validated MIR.
-- `lower::cfg` — a control-flow graph (`FunctionCFG`, `BasicBlock`, etc.) that is its own fully-fledged IR, lowered from LIR after LIR synthesis. LLVM IR generation is intended to be driven from the CFG, not directly from LIR — i.e. the intended pipeline is MIR → LIR → CFG → LLVM IR. CFG construction from LIR is under active development and not yet wired into `Backend::run()`.
+- `lower::cfg` — a control-flow graph (`FunctionCFG`, `BasicBlock`, etc.) that is its own fully-fledged IR, lowered from LIR after LIR synthesis by `CFGBuilder` (`src/lowering/cfg/builder.cpp`), which now runs in `Backend::run()`. The CFG no longer depends on LIR headers. LLVM IR generation is intended to be driven from the CFG, not directly from LIR — the pipeline is MIR → LIR → CFG → LLVM IR.
 
-LLVM IR generation itself lives separately in `src/codegen/` (namespace `ecc::codegen`): `LLVMCore`/`LLVMUnit` (`codegen/llvm.hpp`) hold global/per-TU LLVM state, and `LLVMSynthesizer` (`codegen/compiler.hpp`) emits LLVM IR — currently stubbed (empty visitor overrides) and still walks the LIR tree directly; it is expected to be reworked to consume the CFG instead once CFG lowering is wired in.
+Code generation is split into a backend-agnostic interface and an LLVM implementation:
+
+- `include/codegen/codegen.hpp` (namespace `ecc::codegen`) — `CodeGenCore` and `CodeGenUnit`, the abstract interface used by the driver and the type system: type finalization, `alloc_size()`, pointer sizing, and `compile(ProgramCFG&)`. This decouples the type system from LLVM.
+- `src/codegen/llvm/` — the LLVM implementation. `LLVMCore`/`LLVMUnit` (`codegen/llvm/llvm.hpp`) hold global/per-TU LLVM state; `LLVMSynthesizer` (`codegen/llvm/compiler.hpp`) emits LLVM IR — currently stubbed (empty visitor overrides). Because `CodeGenUnit::compile()` takes the CFG, codegen is expected to consume the CFG rather than the LIR tree.
 
 ### Type System
 
@@ -134,7 +187,7 @@ LLVM IR generation itself lives separately in `src/codegen/` (namespace `ecc::co
 - Type equality is pointer equality — only one instance of any given type exists per TU.
 - Types cannot be constructed outside `TypeContext`; use `get_void()`, `get_primitive()`, `get_class()`, `get_pointer()`, etc.
 - `TypeBuilder` handles cases where type constructors (arrays, pointers) are known before the base type.
-- `Type::finalize()` must be called before `alloc_size()` can be used; it creates the corresponding `llvm::Type *`.
+- `Type::finalize()` must be called before `alloc_size()` can be used; it materializes the backend type through `CodeGenUnit` (an `llvm::Type *` for the LLVM backend). `TypeContext` is constructed with a `CodeGenUnit&`.
 - Primitive types: U8/U16/U32/U64 (unsigned), I8/I16/I32/I64 (signed), F32/F64 (float), Bool.
 - `ConstType` is a transparent wrapper that marks a type as const. `const T` and `T` are distinct interned types; `unqual()` strips the wrapper. Const is not deeply embedded — `get_const(T)` composes with any other type.
 
@@ -159,12 +212,25 @@ LLVM IR generation itself lives separately in `src/codegen/` (namespace `ecc::co
 `include/util.hpp` defines project-wide type aliases used everywhere:
 
 - `Box<T>` = `std::unique_ptr<T>`, `make_box<T>(...)` = `std::make_unique<T>(...)`
+- `Chunk<T>` — arena counterpart of `Box`; the IR node trees now favour it (see [Memory & Arena Allocation](#memory--arena-allocation))
 - `Vec<T>` = `std::vector<T>`, `Optional<T>` = `std::optional<T>`, `Ref<T>` = `std::reference_wrapper<T>`
 - `match<Ts...>` — overloaded visitor for `std::variant` pattern matching
 - `todo()` — throws `Todo` with source location (marks unimplemented code)
 - `dbprint(...)` — prints to stderr in debug builds only, no-op in release
+- `isa` / `cast` / `dyncast` — RTTI-style helpers, with overloads for raw pointers, `Box`, and `Chunk`
 
 `NoCopy` and `NoMove` are CRTP-style base classes used to explicitly restrict copying/moving.
+
+### Memory & Arena Allocation
+
+Most IR nodes (AST and MIR, and increasingly LIR) are allocated from a single process-wide arena instead of the heap. The allocator lives in namespace `ecc::alloc` (`include/allocator/`, `src/allocator/`).
+
+- `BumpAllocator<...>` (`allocator/alloc.hpp`) — a bump-pointer allocator backed by a growing list of `Slab`s. Slab size scales up as more slabs are allocated. Oversized objects get their own slabs. Objects with a non-trivial destructor are linked into a cleanup chain and destroyed at `reset()`. Debug builds track `AllocatorStats`.
+- Global arena — `alloc::alloc(size, align)`, `alloc::reset()`, and (debug only) `alloc::print_allocator_stats()` operate on one shared `BumpAllocator<>` singleton. `Ecc::run()` prints the stats and resets the arena after each translation unit.
+- `Chunk<T>` (`allocator/chunk.hpp`) — a move-only, `unique_ptr`-like handle to one arena-allocated object. Its destructor does **not** run `~T()` or free memory; the arena does that at `reset()`. Create one with `alloc::make_chunk<T>(args...)`.
+- `ArenaAllocator<T>` (`allocator/alloc.hpp`) — an STL-compatible allocator drawing from the global arena; `deallocate` is a no-op. `ecc::ds::ArenaVec` (`include/ds/arenavec.hpp`) is a `vector`-like container built on it (work in progress).
+
+Resetting the arena invalidates every allocation — pointers and `Chunk`s into it dangle afterward.
 
 ### Tests
 

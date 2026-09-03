@@ -39,6 +39,7 @@ Checks: >
   -readability-identifier-length,
   -readability-else-after-return,
   -readability-magic-numbers,
+  -readability-named-parameter,
   -readability-convert-member-functions-to-static,
 
 WarningsAsErrors: 'false'

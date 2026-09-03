@@ -6,6 +6,7 @@ This document lays out the planned improvements and updates for the EnlightenedC
 
 These are to-dos that are important, but do not constitute a milestone.
 
+- Add `linkname =`, `main`, and `packed` attributes
 - Implement insertion of memcpy, memmove, memset
 - Centralize ownership of CFG constants and values, add interning
 - Implement AST/MIR matchers
