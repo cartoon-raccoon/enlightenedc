@@ -157,7 +157,7 @@ BasicBlock *FunctionCFG::initialize() {
         return entry;
 
     for (size_t i = 0; i < signature->num_params(); ++i) {
-        Type *paramtype = signature->param_idx(i);
+        Type *paramtype = signature->param_at(i);
         add_arg(paramtype);
     }
 

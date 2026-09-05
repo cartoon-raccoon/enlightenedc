@@ -883,16 +883,18 @@ public:
 class FunctionMIR : public MIRVisitable<FunctionMIR, ProgItemMIR> {
 public:
     FunctionMIR(
-        Location loc, sema::sym::FuncSymbol *sym, sema::sym::Scope *scope,
+        Location loc, Location declarator_loc, sema::sym::FuncSymbol *sym, sema::sym::Scope *scope,
         Chunk<CompoundStmtMIR> body)
-        : MIRVisitable<FunctionMIR, ProgItemMIR>(loc, NodeKind::FUNC_MIR), sym(sym), scope(scope),
-          body(std::move(body)) {}
+        : MIRVisitable<FunctionMIR, ProgItemMIR>(loc, NodeKind::FUNC_MIR), 
+        sym(sym), scope(scope), declarator_loc(declarator_loc), body(std::move(body)) {}
 
     // The symbol associated with the function.
     // This contains the name and signature.
     sema::sym::FuncSymbol *sym;
     // The scope associated with the function.
     sema::sym::Scope *scope;
+
+    Location declarator_loc;
 
     Chunk<CompoundStmtMIR> body;
 

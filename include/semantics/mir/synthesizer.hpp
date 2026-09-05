@@ -67,7 +67,7 @@ using VisitResult = std::variant<
     // The result of evaluating a ConstExpression.
     eval::Value,
     // For building up declarators.
-    Chunk<DeclaratorBuilder>,
+    Box<DeclaratorBuilder>,
     // The result of visiting a type specifier node.
     TypeSpecRet<types::ClassType>, TypeSpecRet<types::UnionType>, TypeSpecRet<types::EnumType>,
     types::VoidType *, types::PrimitiveType *, types::PointerType *, types::Type *,

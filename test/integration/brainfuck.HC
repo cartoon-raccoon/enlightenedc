@@ -219,6 +219,7 @@ U0 PrintUsage(I8 *argname) {
     "usage: %s [-m MEMSIZE] CODE", argname;
 }
 
+@[main]
 I32 Main() {
 
     Initialize();
@@ -230,5 +231,3 @@ I32 Main() {
 
     return 0;
 }
-
-Main();

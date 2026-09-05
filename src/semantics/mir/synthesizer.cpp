@@ -296,7 +296,7 @@ void MIRSynthesizer::do_visit(Function& node) {
 
     // Visit the Declarator to construct the type builder.
     dv_call_noparam(node.declarator);
-    auto builder = take_last_result<Chunk<DeclaratorBuilder>>();
+    auto builder = take_last_result<Box<DeclaratorBuilder>>();
     builder->ty_bldr.set_base(return_base);
 
     // The latest function parameters.
@@ -385,7 +385,7 @@ void MIRSynthesizer::do_visit(Function& node) {
     }
 
     Chunk<FunctionMIR> func =
-        make_chunk<FunctionMIR>(node.loc, sym_ptr, res.second, std::move(res.first));
+        make_chunk<FunctionMIR>(node.loc, node.declarator->loc, sym_ptr, res.second, std::move(res.first));
 
     for (auto& attr : node.attributes) {
         dv_call(func.get(), attr);
@@ -509,7 +509,7 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
             }
 
             Chunk<FunctionMIR> funcmir =
-                make_chunk<FunctionMIR>(node.loc, funcptr, syms.current, nullptr);
+                make_chunk<FunctionMIR>(node.loc, node.loc, funcptr, syms.current, nullptr);
 
             dv_return(funcmir);
         } else {
@@ -577,7 +577,7 @@ void MIRSynthesizer::do_visit(InitDeclarator& node) {
 
     dv_call_noparam(node.declarator);
     // pull builder before we visit the initializer
-    Chunk<DeclaratorBuilder> builder = take_last_result<Chunk<DeclaratorBuilder>>();
+    Box<DeclaratorBuilder> builder = take_last_result<Box<DeclaratorBuilder>>();
 
     builder->ty_bldr.set_base(base);
     Type *complete = builder->ty_bldr.finalize();
@@ -602,13 +602,13 @@ void MIRSynthesizer::do_visit(InitDeclarator& node) {
 }
 
 void MIRSynthesizer::do_visit(Declarator& node) {
-    Chunk<DeclaratorBuilder> builder;
+    Box<DeclaratorBuilder> builder;
     if (node.direct) {
         dv_call_noparam(node.direct.value());
-        builder = take_last_result<Chunk<DeclaratorBuilder>>();
+        builder = take_last_result<Box<DeclaratorBuilder>>();
     } else {
         // no direct declarator, assume abstract
-        builder = make_chunk<DeclaratorBuilder>(std::nullopt, types.builder());
+        builder = make_box<DeclaratorBuilder>(std::nullopt, types.builder());
     }
     if (node.pointer.has_value()) {
         dv_call(builder.get(), node.pointer.value());
@@ -621,15 +621,21 @@ void MIRSynthesizer::do_visit(ParenDeclarator& node) {
     bsv_dbprint("visiting ParenDeclarator node: ", node.loc);
     dv_call_noparam(node.inner);
 
-    auto ret = take_last_result<Chunk<DeclaratorBuilder>>();
+    auto ret = take_last_result<Box<DeclaratorBuilder>>();
     dv_return(ret);
 }
 
 void MIRSynthesizer::do_visit(ArrayDeclarator& node) {
     bsv_dbprint("visiting ArrayDeclarator node: ", node.loc);
-    dv_call_noparam(node.base);
 
-    auto builder = take_last_result<Chunk<DeclaratorBuilder>>();
+    Box<DeclaratorBuilder> builder;
+    if (node.base) {
+        dv_call_noparam(node.base);
+        builder = take_last_result<Box<DeclaratorBuilder>>();
+    } else {
+        // Abstract array declarator (e.g. `I8 []` as a parameter type): no inner declarator.
+        builder = make_box<DeclaratorBuilder>(std::nullopt, types.builder());
+    }
 
     Optional<uint64_t> size{};
     if (node.size) {
@@ -659,8 +665,15 @@ void MIRSynthesizer::do_visit(ArrayDeclarator& node) {
 
 void MIRSynthesizer::do_visit(FunctionDeclarator& node) {
     bsv_dbprint("visiting FunctionDeclarator node: ", node.loc);
-    dv_call_noparam(node.base);
-    auto builder = take_last_result<Chunk<DeclaratorBuilder>>();
+
+    Box<DeclaratorBuilder> builder;
+    if (node.base) {
+        dv_call_noparam(node.base);
+        builder = take_last_result<Box<DeclaratorBuilder>>();
+    } else {
+        // Abstract function declarator (e.g. `U0 ()` as a parameter type): no inner declarator.
+        builder = make_box<DeclaratorBuilder>(std::nullopt, types.builder());
+    }
 
     Vec<FuncParam> parameters;
 
@@ -699,13 +712,15 @@ void MIRSynthesizer::do_visit(ParameterDeclaration& node) {
     FuncParam ret;
     if (node.declarator) {
         dv_call_noparam(*node.declarator);
-        auto builder = take_last_result<Chunk<DeclaratorBuilder>>();
+        auto builder = take_last_result<Box<DeclaratorBuilder>>();
         builder->ty_bldr.set_base(specinfo.type);
 
         Type *final_type = builder->ty_bldr.finalize();
-        // if the parameter type is an array, decay it to a pointer (as in C)
+        // If the parameter type is an array, decay it to a pointer (as in C). Route through
+        // TypeContext::decay_array so the transient (possibly unsized) ArrayType built here is
+        // released instead of lingering in the type context with a live ref count.
         if (final_type->is_array()) {
-            final_type = final_type->as_array()->decay();
+            final_type = types.decay_array(final_type->as_array());
         }
 
         if (builder->name) {
@@ -734,7 +749,7 @@ void MIRSynthesizer::do_visit(IdentifierDeclarator& node) {
     */
     bsv_dbprint("visiting IdentifierDeclarator node: ", node.loc);
 
-    auto ret = make_chunk<DeclaratorBuilder>(node.name, types.builder());
+    auto ret = make_box<DeclaratorBuilder>(node.name, types.builder());
     dv_return(ret);
 }
 
@@ -1046,7 +1061,7 @@ void MIRSynthesizer::do_visit(ClassDeclaration& node) {
         try {
             std::visit(
                 match{
-                    [&](Chunk<DeclaratorBuilder>& builder) {
+                    [&](Box<DeclaratorBuilder>& builder) {
                         builder->ty_bldr.set_base(specinfo.type);
                         Type *finaltype = builder->ty_bldr.finalize();
 
@@ -1090,7 +1105,7 @@ void MIRSynthesizer::do_visit(ClassDeclarator& node) {
     bsv_dbprint("visiting ClassDeclarator node: ", node.loc);
     if (node.declarator) {
         dv_call_noparam(node.declarator.value());
-        auto ret = take_last_result<Chunk<DeclaratorBuilder>>();
+        auto ret = take_last_result<Box<DeclaratorBuilder>>();
         dv_return(ret);
     } else {
         dv_return_void();
@@ -1266,7 +1281,7 @@ void MIRSynthesizer::do_visit(TypeName& node) {
 
     if (node.declarator) {
         dv_call_noparam(*node.declarator);
-        auto builder = take_last_result<Chunk<DeclaratorBuilder>>();
+        auto builder = take_last_result<Box<DeclaratorBuilder>>();
         builder->ty_bldr.set_base(specinfo.type);
 
         Type *finaltype = builder->ty_bldr.finalize();

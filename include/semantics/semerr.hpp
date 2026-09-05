@@ -469,6 +469,21 @@ public:
     std::string elab() override { return err; }
 };
 
+class InvalidMainSignature : public EccSemError {
+public:
+    InvalidMainSignature(Location err_loc, types::FunctionType *bad_sig)
+        : EccSemError("invalid signature for main function", err_loc), bad_sig(bad_sig->to_string()) {}
+
+    std::string bad_sig;
+
+    std::string elab() override {
+        std::stringstream ss;
+        ss << "function marked as main cannot have signature " << bad_sig;
+
+        return ss.str();
+    }
+};
+
 class InvalidTypeError : public EccSemError {
 public:
     InvalidTypeError(std::string err, types::Type *type, Location err_loc)

@@ -1587,9 +1587,11 @@ public:
 
     size_t num_params() const { return signature.params.size(); }
 
-    Type *param_idx(size_t idx) { return signature.params[idx]; }
+    Type *param_at(size_t idx) { return signature.params.at(idx); }
 
     bool no_params() const { return signature.params.empty(); }
+
+    bool is_variadic() const { return signature.variadic; }
 
     bool is_callable() override { return true; }
 
@@ -1848,6 +1850,21 @@ public:
     Wrap a type in a ConstType wrapper.
     */
     ConstType *get_const(Type *base);
+
+    /**
+    Whether `signature` is a valid signature for a main function.
+    */
+    bool is_valid_main_signature(FunctionType *signature);
+
+    /**
+    Whether `signature` is a valid signature for a print function.
+    */
+    bool is_valid_print_signature(FunctionType *signature);
+
+    /**
+    Whether `signature is a valid signature for an implicit main function.
+    */
+    bool is_valid_implicitmain_signature(FunctionType *signature);
 
     codegen::CodeGenUnit& backend() { return backendref; }
 

@@ -1487,6 +1487,72 @@ ConstType *TypeContext::get_const(Type *base) {
     return ret;
 }
 
+bool TypeContext::is_valid_main_signature(FunctionType *signature) {
+    Type *ret = signature->returntype()->unqual();
+    if (ret != get_i32() && ret != get_void()) {
+        // return type must be either an I32 or Void
+        return false;
+    }
+
+    if (signature->num_params() > 3) {
+        // signature can have up to 3 parameters: argc, argv, env
+        return false;
+    }
+
+    for (size_t i = 0; i < signature->num_params(); i++) {
+        Type *param = signature->param_at(i);
+        switch (i) {
+        case 0: {
+            if (param != get_u32())
+                return false;
+            break;
+        }
+        case 1:
+        case 2: {
+            Type *ptr = get_pointer(get_pointer(get_i8()));
+            if (param != ptr) {
+                return false;
+            }
+            break;
+        }
+        default:
+            std::unreachable();
+            break;
+        }
+    }
+
+    return true;
+}
+
+bool TypeContext::is_valid_print_signature(FunctionType *signature) {
+    if (signature->returntype() != get_void()) {
+        return false;
+    }
+
+    if (signature->num_params() != 1) {
+        return false;
+    }
+
+    Type *formatstr = get_pointer(get_const(get_i8()));
+    if (signature->param_at(0) != formatstr) {
+        return false;
+    }
+
+    return signature->is_variadic();
+}
+
+bool TypeContext::is_valid_implicitmain_signature(FunctionType *signature) {
+    if (signature->returntype() != get_void()) {
+        return false;
+    }
+
+    if (signature->num_params() != 0) {
+        return false;
+    }
+
+    return true;
+}
+
 void TypeContext::deallocate_unsized_array(Type *base) {
     ArrayKey key = {base, {}};
 

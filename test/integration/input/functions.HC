@@ -83,7 +83,8 @@ I64 MathFunc(I64 y, I64 (*proc)(I64 _val))
   return proc(y);
 }
 
-Void Main()
+@[main]
+Void Main(U32 argc, I8 *argv[])
 {
   I64 x = MathFunc(10, &CallbackFunction);
   "%d\n",x;

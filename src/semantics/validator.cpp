@@ -17,6 +17,7 @@
 #include "util.hpp"
 
 using namespace sema;
+using namespace sym;
 using namespace types;
 using namespace mir;
 using namespace tokens;
@@ -417,6 +418,18 @@ bool Validator::always_returns(StmtMIR& node) {
 }
 
 void Validator::do_visit(FunctionMIR& node) {
+    FuncSymbol *sym = node.sym;
+    if (sym->get_symdata()->is_main()) {
+        FunctionType *signature = sym->get_signature();
+        if (!types.is_valid_main_signature(signature)) {
+            add_error<InvalidMainSignature>(node.declarator_loc, sym->get_signature());
+        }
+        // todo: check for duplicate mains
+    }
+
+    // Visit the body first so every expression node has its types resolved.
+    // always_returns() inspects loop conditions (expr_is_tautological ->
+    // is_const_foldable / eval), which need eff_type/act_type set.
     if (node.body) {
         node.body->accept(*this);
     }
