@@ -10,6 +10,7 @@
 #include "allocator/alloc.hpp"
 #include "allocator/chunk.hpp"
 #include "ast/visitor.hpp"
+#include "ds/arenavec.hpp"
 #include "location.hpp"
 #include "tokens.hpp"
 #include "util.hpp"
@@ -124,10 +125,10 @@ A single `#[arg, arg = "value", ...]` attribute attached to a top-level ProgramI
 */
 class Attribute : public ASTVisitable<Attribute, ASTNode> {
 public:
-    Attribute(Location loc, Vec<Chunk<AttributeArg>> args)
+    Attribute(Location loc, ds::ArenaVec<Chunk<AttributeArg>> args)
         : ASTVisitable<Attribute, ASTNode>(NodeKind::ATTR, loc), args(std::move(args)) {}
 
-    Vec<Chunk<AttributeArg>> args;
+    ds::ArenaVec<Chunk<AttributeArg>> args;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::ATTR; }
 };
@@ -143,7 +144,7 @@ public:
 
     // Attributes attached to this item (e.g. `#[packed]`). Only populated for the
     // Function/Declaration alternatives of `program_item`; empty otherwise.
-    Vec<Chunk<Attribute>> attributes;
+    ds::ArenaVec<Chunk<Attribute>> attributes;
 
     static bool classof(const ASTNode *node) {
         switch (node->kind) {
@@ -295,11 +296,13 @@ public:
 
 class Pointer : public ASTVisitable<Pointer, ASTNode> {
 public:
-    Pointer(Location loc, Vec<Chunk<TypeQualifier>> qualifiers, Optional<Chunk<Pointer>> nested)
+    Pointer(
+        Location loc, ds::ArenaVec<Chunk<TypeQualifier>> qualifiers,
+        Optional<Chunk<Pointer>> nested)
         : ASTVisitable<Pointer, ASTNode>(NodeKind::POINTER, loc), qualifiers(std::move(qualifiers)),
           nested(std::move(nested)) {}
 
-    Vec<Chunk<TypeQualifier>> qualifiers;
+    ds::ArenaVec<Chunk<TypeQualifier>> qualifiers;
     Optional<Chunk<Pointer>> nested;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::POINTER; }
@@ -328,7 +331,7 @@ public:
 /*
 An initializer for a variable.
 
-Compound-type variables use the Vec<Chunk<Initializer>> variant of `initializer`,
+Compound-type variables use the ds::ArenaVec<Chunk<Initializer>> variant of `initializer`,
 whereas primitive type variables use the Chunk<Expression> variant.
 */
 class Initializer : public ASTVisitable<Initializer, ASTNode> {
@@ -343,8 +346,8 @@ public:
         Chunk<Initializer> initializer;
     };
 
-    using InitVariant =
-        std::variant<Chunk<Expression>, Chunk<Member>, Chunk<Index>, Vec<Chunk<Initializer>>>;
+    using InitVariant = std::variant<
+        Chunk<Expression>, Chunk<Member>, Chunk<Index>, ds::ArenaVec<Chunk<Initializer>>>;
 
     Initializer(Location loc, Chunk<Expression> expr)
         : ASTVisitable<Initializer, ASTNode>(NodeKind::INITIALIZER, loc),
@@ -358,7 +361,7 @@ public:
         : ASTVisitable<Initializer, ASTNode>(NodeKind::INITIALIZER, loc),
           initializer(make_chunk<Index>(std::move(idx), std::move(init))) {}
 
-    Initializer(Location loc, Vec<Chunk<Initializer>> list)
+    Initializer(Location loc, ds::ArenaVec<Chunk<Initializer>> list)
         : ASTVisitable<Initializer, ASTNode>(NodeKind::INITIALIZER, loc),
           initializer(std::move(list)) {}
 
@@ -405,13 +408,13 @@ A declaration of a single function parameter.
 class ParameterDeclaration : public ASTVisitable<ParameterDeclaration, Declaration> {
 public:
     ParameterDeclaration(
-        Location loc, Vec<Chunk<DeclarationSpecifier>> specifiers,
+        Location loc, ds::ArenaVec<Chunk<DeclarationSpecifier>> specifiers,
         Optional<Chunk<Declarator>> declarator, Optional<Chunk<ConstExpression>> default_value)
         : ASTVisitable<ParameterDeclaration, Declaration>(NodeKind::PARAM_DECL, loc),
           specifiers(std::move(specifiers)), declarator(std::move(declarator)),
           default_value(std::move(default_value)) {}
 
-    Vec<Chunk<DeclarationSpecifier>> specifiers;
+    ds::ArenaVec<Chunk<DeclarationSpecifier>> specifiers;
     Optional<Chunk<Declarator>> declarator;
     Optional<Chunk<ConstExpression>> default_value;
 
@@ -423,11 +426,11 @@ A Declaration of a type (i.e. a declaration of only specifiers, no InitDeclarato
 */
 class TypeDeclaration : public ASTVisitable<TypeDeclaration, Declaration> {
 public:
-    TypeDeclaration(Location loc, Vec<Chunk<DeclarationSpecifier>> specifiers)
+    TypeDeclaration(Location loc, ds::ArenaVec<Chunk<DeclarationSpecifier>> specifiers)
         : ASTVisitable<TypeDeclaration, Declaration>(NodeKind::TYPE_DECL, loc),
           specifiers(std::move(specifiers)) {}
 
-    Vec<Chunk<DeclarationSpecifier>> specifiers;
+    ds::ArenaVec<Chunk<DeclarationSpecifier>> specifiers;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::TYPE_DECL; }
 };
@@ -438,13 +441,13 @@ A variable declaration (e.g. `U32 x = 5;`, `class Flags {U16 x; bool y} = {3, tr
 class VariableDeclaration : public ASTVisitable<VariableDeclaration, Declaration> {
 public:
     VariableDeclaration(
-        Location loc, Vec<Chunk<DeclarationSpecifier>> specifiers,
-        Vec<Chunk<InitDeclarator>> declarators)
+        Location loc, ds::ArenaVec<Chunk<DeclarationSpecifier>> specifiers,
+        ds::ArenaVec<Chunk<InitDeclarator>> declarators)
         : ASTVisitable<VariableDeclaration, Declaration>(NodeKind::VAR_DECL, loc),
           specifiers(std::move(specifiers)), declarators(std::move(declarators)) {}
 
-    Vec<Chunk<DeclarationSpecifier>> specifiers;
-    Vec<Chunk<InitDeclarator>> declarators;
+    ds::ArenaVec<Chunk<DeclarationSpecifier>> specifiers;
+    ds::ArenaVec<Chunk<InitDeclarator>> declarators;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::VAR_DECL; }
 };
@@ -506,13 +509,13 @@ public:
 class FunctionDeclarator : public ASTVisitable<FunctionDeclarator, DirectDeclarator> {
 public:
     FunctionDeclarator(
-        Location loc, Chunk<DirectDeclarator> base, Vec<Chunk<ParameterDeclaration>> params,
-        bool is_variadic)
+        Location loc, Chunk<DirectDeclarator> base,
+        ds::ArenaVec<Chunk<ParameterDeclaration>> params, bool is_variadic)
         : ASTVisitable<FunctionDeclarator, DirectDeclarator>(NodeKind::FUNC_DECLTR, loc),
           base(std::move(base)), parameters(std::move(params)), is_variadic(is_variadic) {}
 
     Chunk<DirectDeclarator> base;
-    Vec<Chunk<ParameterDeclaration>> parameters;
+    ds::ArenaVec<Chunk<ParameterDeclaration>> parameters;
     bool is_variadic;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::FUNC_DECLTR; }
@@ -541,13 +544,13 @@ one or more ClassDeclarators.
 class ClassDeclaration : public ASTVisitable<ClassDeclaration, Declaration> {
 public:
     ClassDeclaration(
-        Location loc, Vec<Chunk<DeclarationSpecifier>> specifiers,
-        Vec<Chunk<ClassDeclarator>> declarators)
+        Location loc, ds::ArenaVec<Chunk<DeclarationSpecifier>> specifiers,
+        ds::ArenaVec<Chunk<ClassDeclarator>> declarators)
         : ASTVisitable<ClassDeclaration, Declaration>(NodeKind::CLASS_DECL, loc),
           specifiers(std::move(specifiers)), declarators(std::move(declarators)) {}
 
-    Vec<Chunk<DeclarationSpecifier>> specifiers;
-    Vec<Chunk<ClassDeclarator>> declarators;
+    ds::ArenaVec<Chunk<DeclarationSpecifier>> specifiers;
+    ds::ArenaVec<Chunk<ClassDeclarator>> declarators;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::CLASS_DECL; }
 };
@@ -588,17 +591,17 @@ public:
 class ClassSpecifier : public ASTVisitable<ClassSpecifier, TypeSpecifier> {
 public:
     ClassSpecifier(
-        Location loc, Optional<std::string> name, Optional<Vec<std::string>> parents,
-        Optional<Vec<Chunk<ClassDeclaration>>> declarations)
+        Location loc, Optional<std::string> name, Optional<ds::ArenaVec<std::string>> parents,
+        Optional<ds::ArenaVec<Chunk<ClassDeclaration>>> declarations)
         : ASTVisitable<ClassSpecifier, TypeSpecifier>(NodeKind::CLASS_SPEC, loc),
           name(std::move(name)), parents(std::move(parents)),
           declarations(std::move(declarations)) {}
 
     Optional<std::string> name;
     // Identifiers of parent classes.
-    Optional<Vec<std::string>> parents;
+    Optional<ds::ArenaVec<std::string>> parents;
     // Declarations of members.
-    Optional<Vec<Chunk<ClassDeclaration>>> declarations;
+    Optional<ds::ArenaVec<Chunk<ClassDeclaration>>> declarations;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::CLASS_SPEC; }
 };
@@ -607,7 +610,7 @@ class UnionSpecifier : public ASTVisitable<UnionSpecifier, TypeSpecifier> {
 public:
     UnionSpecifier(
         Location loc, Optional<std::string> name, Optional<tokens::PrimType> type_rep,
-        Optional<Vec<Chunk<ClassDeclaration>>> declarations)
+        Optional<ds::ArenaVec<Chunk<ClassDeclaration>>> declarations)
         : ASTVisitable<UnionSpecifier, TypeSpecifier>(NodeKind::UNION_SPEC, loc),
           name(std::move(name)), type_rep(type_rep), declarations(std::move(declarations)) {}
 
@@ -615,7 +618,7 @@ public:
 
     Optional<tokens::PrimType> type_rep;
 
-    Optional<Vec<Chunk<ClassDeclaration>>> declarations;
+    Optional<ds::ArenaVec<Chunk<ClassDeclaration>>> declarations;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::UNION_SPEC; }
 };
@@ -641,18 +644,19 @@ A node denoting an enum and its contained variants.
 class EnumSpecifier : public ASTVisitable<EnumSpecifier, TypeSpecifier> {
 public:
     EnumSpecifier(
-        Location loc, Optional<std::string> name, Optional<Vec<Chunk<Enumerator>>> enumerators)
+        Location loc, Optional<std::string> name,
+        Optional<ds::ArenaVec<Chunk<Enumerator>>> enumerators)
         : ASTVisitable<EnumSpecifier, TypeSpecifier>(NodeKind::ENUM_SPEC, loc),
           name(std::move(name)), enumerators(std::move(enumerators)) {}
 
     EnumSpecifier(
-        Location loc, Optional<std::string> name, Optional<Vec<Chunk<Enumerator>>> enumerators,
-        tokens::PrimType underlying)
+        Location loc, Optional<std::string> name,
+        Optional<ds::ArenaVec<Chunk<Enumerator>>> enumerators, tokens::PrimType underlying)
         : ASTVisitable<EnumSpecifier, TypeSpecifier>(NodeKind::ENUM_SPEC, loc),
           name(std::move(name)), enumerators(std::move(enumerators)), underlying(underlying) {}
 
     Optional<std::string> name;
-    Optional<Vec<Chunk<Enumerator>>> enumerators;
+    Optional<ds::ArenaVec<Chunk<Enumerator>>> enumerators;
 
     /**
     The underlying type of the enum, if applicable.
@@ -716,11 +720,11 @@ public:
 // A block of mixed declarations and statements, surrounded by braces.
 class CompoundStatement : public ASTVisitable<CompoundStatement, Statement> {
 public:
-    CompoundStatement(Location loc, Vec<Chunk<ProgramItem>> items)
+    CompoundStatement(Location loc, ds::ArenaVec<Chunk<ProgramItem>> items)
         : ASTVisitable<CompoundStatement, Statement>(NodeKind::COMP_STMT, loc),
           items(std::move(items)) {}
 
-    Vec<Chunk<ProgramItem>> items;
+    ds::ArenaVec<Chunk<ProgramItem>> items;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::COMP_STMT; }
 };
@@ -789,12 +793,13 @@ public:
 
 class PrintStatement : public ASTVisitable<PrintStatement, Statement> {
 public:
-    PrintStatement(Location loc, std::string format_string, Vec<Chunk<Expression>> arguments)
+    PrintStatement(
+        Location loc, std::string format_string, ds::ArenaVec<Chunk<Expression>> arguments)
         : ASTVisitable<PrintStatement, Statement>(NodeKind::PRINT_STMT, loc),
           format_string(std::move(format_string)), arguments(std::move(arguments)) {}
 
     std::string format_string;
-    Vec<Chunk<Expression>> arguments;
+    ds::ArenaVec<Chunk<Expression>> arguments;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::PRINT_STMT; }
 };
@@ -927,12 +932,12 @@ public:
 class TypeName : public ASTVisitable<TypeName, ASTNode> {
 public:
     TypeName(
-        Location loc, Vec<Chunk<DeclarationSpecifier>> specifiers,
+        Location loc, ds::ArenaVec<Chunk<DeclarationSpecifier>> specifiers,
         Optional<Chunk<Declarator>> declarator)
         : ASTVisitable<TypeName, ASTNode>(NodeKind::TYPE_NAME, loc),
           specifiers(std::move(specifiers)), declarator(std::move(declarator)) {}
 
-    Vec<Chunk<DeclarationSpecifier>> specifiers;
+    ds::ArenaVec<Chunk<DeclarationSpecifier>> specifiers;
     Optional<Chunk<Declarator>> declarator;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::TYPE_NAME; }
@@ -1053,12 +1058,13 @@ public:
 
 class CallExpression : public ASTVisitable<CallExpression, Expression> {
 public:
-    CallExpression(Location loc, Chunk<Expression> callee, Vec<Chunk<Expression>> arguments)
+    CallExpression(
+        Location loc, Chunk<Expression> callee, ds::ArenaVec<Chunk<Expression>> arguments)
         : ASTVisitable<CallExpression, Expression>(NodeKind::CALL_EXPR, loc),
           callee(std::move(callee)), arguments(std::move(arguments)) {}
 
     Chunk<Expression> callee;
-    Vec<Chunk<Expression>> arguments;
+    ds::ArenaVec<Chunk<Expression>> arguments;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::CALL_EXPR; }
 };
@@ -1144,8 +1150,8 @@ public:
 class Function : public ASTVisitable<Function, ProgramItem> {
 public:
     Function(
-        Location loc, Vec<Chunk<DeclarationSpecifier>> decl_spec_list, Chunk<Declarator> declarator,
-        Chunk<CompoundStatement> body)
+        Location loc, ds::ArenaVec<Chunk<DeclarationSpecifier>> decl_spec_list,
+        Chunk<Declarator> declarator, Chunk<CompoundStatement> body)
         : ASTVisitable<Function, ProgramItem>(NodeKind::FUNC, loc),
           decl_spec_list(std::move(decl_spec_list)), declarator(std::move(declarator)),
           body(std::move(body)) {}
@@ -1157,7 +1163,7 @@ public:
     /*
     Any possible specifiers (e.g. public, int, etc.)
     */
-    Vec<Chunk<DeclarationSpecifier>> decl_spec_list;
+    ds::ArenaVec<Chunk<DeclarationSpecifier>> decl_spec_list;
     /*
     The function name and its parameters.
     Note: If the declarator contains a pointer, the pointer applies to its return type.
@@ -1177,7 +1183,7 @@ public:
         : ASTVisitable<Program, ASTNode>(NodeKind::PROG, Location(filename)) {}
 
     // Program items.
-    Vec<Chunk<ProgramItem>> items;
+    ds::ArenaVec<Chunk<ProgramItem>> items;
 
     // Add a new program item.
     void add_item(Chunk<ProgramItem> item);

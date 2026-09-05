@@ -14,6 +14,7 @@
 
 using namespace sema::mir;
 using namespace sema::sym;
+using namespace ds;
 using namespace tokens;
 
 DO_EVAL(BinaryExprMIR, eval::ExprEvaluator);
@@ -44,7 +45,7 @@ bool InitializerMIR::is_all_literals() {
             [&](Chunk<ExprMIR>& expr) { return expr->kind == MIRNode::NodeKind::LITEXPR_MIR; },
             [&](Chunk<InitializerMIR::Member>& mem) { return mem->initializer->is_all_literals(); },
             [&](Chunk<InitializerMIR::Index>& idx) { return idx->initializer->is_all_literals(); },
-            [&](Vec<Chunk<InitializerMIR>>& init) {
+            [&](ArenaVec<Chunk<InitializerMIR>>& init) {
                 return std::all_of(
                     init.cbegin(), init.cend(),
                     [](const Chunk<InitializerMIR>& init) { return init->is_all_literals(); });

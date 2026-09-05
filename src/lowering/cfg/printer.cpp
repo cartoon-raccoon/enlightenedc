@@ -191,7 +191,8 @@ void CFGPrinter::print_value(Value& value) {
 }
 
 void CFGPrinter::print_value_name(Value& value) {
-    if (isa<ScalarConst>(&value) || isa<PointerConst>(&value) || isa<ZeroConst>(&value) || isa<AggregateConst>(&value)) {
+    if (isa<ScalarConst>(&value) || isa<PointerConst>(&value) || isa<ZeroConst>(&value) ||
+        isa<AggregateConst>(&value)) {
         value.accept(*this);
     } else if (isa<FunctionCFG>(&value) || isa<String>(&value)) {
         std::cout << value.name;

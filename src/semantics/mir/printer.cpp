@@ -2,6 +2,7 @@
 
 #include <variant>
 
+#include "ds/arenavec.hpp"
 #include "semantics/mir/mir.hpp"
 #include "semantics/types.hpp"
 #include "tokens.hpp"
@@ -10,6 +11,7 @@
 using namespace ecc::sema::mir;
 using namespace ecc::sema::types;
 using namespace ecc::tokens;
+using namespace ecc::ds;
 
 void MIRPrinter::print_indent() const {
     for (size_t i = 0; i < indent; ++i)
@@ -85,7 +87,7 @@ void MIRPrinter::visit(InitializerMIR& node) {
                     std::cout << "[" << idx->idx.to_string() << "]: ";
                     idx->initializer->accept(*this);
                 },
-                [&](Vec<Chunk<InitializerMIR>>& inits) {
+                [&](ArenaVec<Chunk<InitializerMIR>>& inits) {
                     for (auto& init : inits) {
                         init->accept(*this);
                     }

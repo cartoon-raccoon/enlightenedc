@@ -45,12 +45,12 @@ class PostfixExprLIR;
 
 class LIRVisitor
     : public Visitor<
-          LIRVisitor, ProgramLIR, FunctionLIR, VarDeclLIR, ScalarInitLIR, PointerInitLIR, AggregateInitLIR,
-          StringInitLIR, FuncInitLIR, ZeroInitLIR, LabelDeclLIR, CaseLIR, DefaultLIR, ExprStmtLIR,
-          MemcpyLIR, GotoStmtLIR, SwitchStmtLIR, BreakStmtLIR, ContStmtLIR, IfStmtLIR, LoopStmtLIR,
-          PrintStmtLIR, ReturnStmtLIR, BinaryExprLIR, UnaryExprLIR, CastExprLIR, AssignExprLIR,
-          CondExprLIR, IdentExprLIR, LiteralExprLIR, ZeroExprLIR, CallExprLIR, MemberAccExprLIR,
-          ReintExprLIR, SubscrExprLIR, PostfixExprLIR> {};
+          LIRVisitor, ProgramLIR, FunctionLIR, VarDeclLIR, ScalarInitLIR, PointerInitLIR,
+          AggregateInitLIR, StringInitLIR, FuncInitLIR, ZeroInitLIR, LabelDeclLIR, CaseLIR,
+          DefaultLIR, ExprStmtLIR, MemcpyLIR, GotoStmtLIR, SwitchStmtLIR, BreakStmtLIR, ContStmtLIR,
+          IfStmtLIR, LoopStmtLIR, PrintStmtLIR, ReturnStmtLIR, BinaryExprLIR, UnaryExprLIR,
+          CastExprLIR, AssignExprLIR, CondExprLIR, IdentExprLIR, LiteralExprLIR, ZeroExprLIR,
+          CallExprLIR, MemberAccExprLIR, ReintExprLIR, SubscrExprLIR, PostfixExprLIR> {};
 
 } // namespace ecc::lower::lir
 

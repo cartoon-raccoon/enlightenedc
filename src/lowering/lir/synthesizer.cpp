@@ -4,6 +4,7 @@
 
 #include "allocator/alloc.hpp"
 #include "allocator/chunk.hpp"
+#include "ds/arenavec.hpp"
 #include "lowering/lir/constinit.hpp"
 #include "lowering/lir/lir.hpp"
 #include "lowering/lir/symbols.hpp"
@@ -18,6 +19,7 @@ using namespace eval;
 using namespace sema::mir;
 using namespace sema::sym;
 using namespace sema::types;
+using namespace ecc::ds;
 
 using NK = LIRNode::NodeKind;
 
@@ -99,7 +101,7 @@ void LIRSynthesizer::unfold_initializer_rec(Chunk<ExprLIR> lhs, Type *type, Init
             /*
             Recursive case. If there is a list of initializers, this has to be a class or array.
             */
-            [&](Vec<Chunk<InitializerMIR>>& inner) mutable {
+            [&](ArenaVec<Chunk<InitializerMIR>>& inner) mutable {
                 switch (type->kind) {
                 case Type::Kind::CLASS:
                     unfold_initializer_rec_cls(std::move(lhs), type->as_class(), inner);
@@ -156,7 +158,7 @@ void LIRSynthesizer::unfold_initializer_expr(
 }
 
 void LIRSynthesizer::unfold_initializer_rec_arr(
-    Chunk<ExprLIR> lhs, ArrayType *arr, Vec<Chunk<InitializerMIR>>& inits) {
+    Chunk<ExprLIR> lhs, ArrayType *arr, ArenaVec<Chunk<InitializerMIR>>& inits) {
 
     size_t next_idx = 0;
 
@@ -192,7 +194,7 @@ void LIRSynthesizer::unfold_initializer_rec_arr(
                     touched[curr_idx] = true;
                     next_idx          = curr_idx + 1;
                 },
-                [&](Vec<Chunk<InitializerMIR>>&) {
+                [&](ArenaVec<Chunk<InitializerMIR>>&) {
                     Chunk<ExprLIR> idx_expr = make_chunk<LiteralExprLIR>(
                         init->loc, Value(next_idx), types.get_size_type(false));
                     Chunk<ExprLIR> child = make_chunk<SubscrExprLIR>(
@@ -223,7 +225,7 @@ void LIRSynthesizer::unfold_initializer_rec_arr(
 }
 
 void LIRSynthesizer::unfold_initializer_rec_cls(
-    Chunk<ExprLIR> lhs, ClassType *cls, Vec<Chunk<InitializerMIR>>& inits) {
+    Chunk<ExprLIR> lhs, ClassType *cls, ArenaVec<Chunk<InitializerMIR>>& inits) {
 
     size_t next_idx = 0;
 
@@ -284,7 +286,7 @@ void LIRSynthesizer::unfold_initializer_rec_cls(
                     throw std::runtime_error(
                         "encountered index designator while unfolding class initializer");
                 },
-                [&](Vec<Chunk<InitializerMIR>>&) {
+                [&](ArenaVec<Chunk<InitializerMIR>>&) {
                     RecordType::TypeMember *member = cls->find(next_idx);
                     assert(member);
 

@@ -6,6 +6,7 @@
 #include <variant>
 
 #include "ast/ast.hpp"
+#include "ds/arenavec.hpp"
 #include "error.hpp"
 #include "eval/consteval.hpp"
 #include "eval/value.hpp"
@@ -16,6 +17,8 @@
 #include "semantics/typeerr.hpp"
 #include "semantics/types.hpp"
 #include "util.hpp"
+
+using namespace ecc::ds;
 
 #define dv_return(val)                \
     do {                              \
@@ -54,7 +57,7 @@ void MIRSynthesizer::generate_mir(Program& prog) {
 }
 
 MIRSynthesizer::SpecifierInfo
-MIRSynthesizer::parse_speclist(Vec<Chunk<ast::DeclarationSpecifier>>& speclist, Location loc) {
+MIRSynthesizer::parse_speclist(ArenaVec<Chunk<ast::DeclarationSpecifier>>& speclist, Location loc) {
     using NK = ASTNode::NodeKind;
 
     bsv_dbprint("parsing declaration specifier list for node at ", loc);
@@ -1162,10 +1165,10 @@ void MIRSynthesizer::do_visit(Initializer& node) { // NOLINT
                 dv_return(ret);
             },
             // Recursive case: sub-initializer
-            [&](Vec<Chunk<Initializer>>& inits) {
+            [&](ArenaVec<Chunk<Initializer>>& inits) {
                 bsv_dbprint("visiting compound initializer");
 
-                Vec<Chunk<InitializerMIR>> init_mirs{};
+                ArenaVec<Chunk<InitializerMIR>> init_mirs{};
                 InitializerRet ret{{}, nullptr};
 
                 switch (type->kind) {
@@ -1321,7 +1324,7 @@ void MIRSynthesizer::do_visit(CompoundStatement& node) {
         }
     }
 
-    Vec<Chunk<ProgItemMIR>> progitems{};
+    ArenaVec<Chunk<ProgItemMIR>> progitems{};
     for (auto& item : node.items) {
         dv_call_noparam(item);
         std::visit(
@@ -1395,7 +1398,7 @@ void MIRSynthesizer::do_visit(ExpressionStatement& node) {
                 if (idtype->no_params()) {
                     bsv_dbprint(
                         "found identexpr of type function with no params, emitting CallExprMIR");
-                    Vec<Chunk<ExprMIR>> empty_args{};
+                    ArenaVec<Chunk<ExprMIR>> empty_args{};
                     expr = make_chunk<CallExprMIR>(
                         node.loc, syms.current, std::move(expr), std::move(empty_args));
                 }
@@ -1472,7 +1475,7 @@ void MIRSynthesizer::do_visit(LabeledStatement& node) {
 void MIRSynthesizer::do_visit(PrintStatement& node) {
     bsv_dbprint("visiting PrintStatement node: ", node.loc);
 
-    Vec<Chunk<ExprMIR>> exprs{};
+    ArenaVec<Chunk<ExprMIR>> exprs{};
     exprs.reserve(node.arguments.size());
 
     for (auto& arg : node.arguments) {
@@ -1778,7 +1781,7 @@ void MIRSynthesizer::do_visit(CallExpression& node) {
     dv_call_noparam(node.callee);
     Chunk<ExprMIR> callee = take_last_result<Chunk<ExprMIR>>();
 
-    Vec<Chunk<ExprMIR>> args;
+    ArenaVec<Chunk<ExprMIR>> args;
     for (auto& arg : node.arguments) {
         dv_call_noparam(arg);
         Chunk<ExprMIR> argument = take_last_result<Chunk<ExprMIR>>();

@@ -3,6 +3,8 @@
 #ifndef ECC_UTIL_H
 #define ECC_UTIL_H
 
+#include <boost/unordered_map.hpp>
+#include <boost/unordered_set.hpp>
 #include <compare>
 #include <concepts>
 #include <cstddef>
@@ -15,12 +17,11 @@
 #include <string>
 #include <string_view>
 #include <type_traits>
-#include <unordered_map>
-#include <unordered_set>
 #include <utility>
 #include <variant>
 #include <vector>
 
+#include "allocator/alloc.hpp"
 #include "allocator/chunk.hpp"
 
 using namespace ecc::alloc;
@@ -131,6 +132,21 @@ auto make_rc(Args&&...args) -> decltype(std::make_shared<T>(std::forward<Args>(a
 }
 
 /**
+An arena-allocated string.
+*/
+using ArenaStr = std::basic_string<char, std::char_traits<char>, ArenaAllocator<char>>;
+
+/**
+A convenient type alias for `std::string`.
+*/
+using Str = std::string;
+
+/**
+A convenient type alias for `std::monostate`.
+*/
+using EmptyVar = std::monostate;
+
+/**
 A convenient type alias for `std::vector`.
 */
 template <typename T>
@@ -140,13 +156,13 @@ using Vec = std::vector<T>;
 A convenient type alias for `std::unordered_map`.
 */
 template <typename... Args>
-using HashMap = std::unordered_map<Args...>;
+using HashMap = boost::unordered_map<Args...>;
 
 /**
 A convenient type alias for `std::unordered_set`.
 */
 template <typename... Args>
-using HashSet = std::unordered_set<Args...>;
+using HashSet = boost::unordered_set<Args...>;
 
 /**
 A convenient type alias for `std::span`.
@@ -528,8 +544,8 @@ public:
 };
 
 /*
-* OWNER CONCEPT
-*/
+ * OWNER CONCEPT
+ */
 
 /**
 A concept expressing that a container owns its type.

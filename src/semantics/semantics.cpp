@@ -4,8 +4,11 @@
 
 #include "allocator/chunk.hpp"
 #include "ast/ast.hpp"
+#include "ds/arenavec.hpp"
 #include "semantics/mir/mir.hpp"
 #include "util.hpp"
+
+using namespace ecc::ds;
 
 #pragma clang diagnostic ignored "-Wunused-parameter"
 
@@ -343,7 +346,7 @@ void BaseASTSemaVisitor::do_visit(Initializer& node) {
                 idx->idx->accept(*this);
                 idx->initializer->accept(*this);
             },
-            [&](Vec<Chunk<Initializer>>& inits) {
+            [&](ArenaVec<Chunk<Initializer>>& inits) {
                 for (auto& init : inits) {
                     init->accept(*this);
                 }
@@ -591,7 +594,7 @@ void BaseMIRSemaVisitor::do_visit(mir::InitializerMIR& node) {
             [&](Chunk<ExprMIR>& expr) { expr->accept(*this); },
             [&](Chunk<InitializerMIR::Member>& mem) { mem->initializer->accept(*this); },
             [&](Chunk<InitializerMIR::Index>& idx) { idx->initializer->accept(*this); },
-            [&](Vec<Chunk<InitializerMIR>>& inits) {
+            [&](ArenaVec<Chunk<InitializerMIR>>& inits) {
                 for (auto& init : inits) {
                     init->accept(*this);
                 }

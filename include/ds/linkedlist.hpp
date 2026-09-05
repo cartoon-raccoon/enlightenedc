@@ -24,7 +24,7 @@ namespace ecc::ds {
 template <typename Node>
 class LinkedListNode {
     template <typename T, template <typename> class P>
-        requires (std::derived_from<T, LinkedListNode<T>> && Owner<P<T>, T>)
+        requires(std::derived_from<T, LinkedListNode<T>> && Owner<P<T>, T>)
     friend class LinkedList;
     template <typename T>
         requires std::derived_from<T, LinkedListNode<T>>
@@ -87,9 +87,9 @@ class LinkedListIter {
 public:
     using difference_type   = std::ptrdiff_t;
     using value_type        = T;
-    using pointer            = T *;
-    using reference          = T&;
-    using iterator_category  = std::bidirectional_iterator_tag;
+    using pointer           = T *;
+    using reference         = T&;
+    using iterator_category = std::bidirectional_iterator_tag;
 
     LinkedListIter() : curr(nullptr), tail(nullptr) {}
 
@@ -147,7 +147,7 @@ constexpr bool always_false_v = false;
  * neighbor - is O(1): no scan to find a position, no shifting of other elements.
  */
 template <typename N, template <typename> class PtrT = Box>
-    requires (std::derived_from<N, LinkedListNode<N>> && Owner<PtrT<N>, N>)
+    requires(std::derived_from<N, LinkedListNode<N>> && Owner<PtrT<N>, N>)
 class LinkedList {
 public:
     LinkedList() {};

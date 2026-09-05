@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <variant>
 
+#include "ds/arenavec.hpp"
 #include "eval/consteval.hpp"
 #include "lowering/lir/lir.hpp"
 #include "semantics/mir/mir.hpp"
@@ -11,6 +12,7 @@
 using namespace ecc::lower::lir;
 using namespace ecc::sema::mir;
 using namespace ecc::sema::types;
+using namespace ecc::ds;
 
 Optional<Chunk<ConstInitLIR>>
 ConstInitLIRBuilder::try_build_constinit(Type *type, InitializerMIR& init) {
@@ -19,7 +21,7 @@ ConstInitLIRBuilder::try_build_constinit(Type *type, InitializerMIR& init) {
             [&](Chunk<ExprMIR>& expr) -> Optional<Chunk<ConstInitLIR>> {
                 return try_build_constinit_expr(type, *expr);
             },
-            [&](Vec<Chunk<InitializerMIR>>& aggregate) -> Optional<Chunk<ConstInitLIR>> {
+            [&](ArenaVec<Chunk<InitializerMIR>>& aggregate) -> Optional<Chunk<ConstInitLIR>> {
                 if (type->is_class()) {
                     return try_build_constinit_agg_cls(type->as_class(), aggregate, init.loc);
                 } else if (type->is_array()) {
@@ -30,7 +32,7 @@ ConstInitLIRBuilder::try_build_constinit(Type *type, InitializerMIR& init) {
             },
             [&](auto&) -> Optional<Chunk<ConstInitLIR>> {
                 throw std::runtime_error(
-                    "encountered variant other than ExprMIR and Vec<Chunk<InitializerMIR>>");
+                    "encountered variant other than ExprMIR and ArenaVec<Chunk<InitializerMIR>>");
             }},
         init.initializer);
 }
@@ -51,7 +53,7 @@ ConstInitLIRBuilder::try_build_constinit_expr(Type *type, ExprMIR& expr) {
 }
 
 Optional<Chunk<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_cls(
-    ClassType *cls, Vec<Chunk<InitializerMIR>>& inits, Location loc) {
+    ClassType *cls, ArenaVec<Chunk<InitializerMIR>>& inits, Location loc) {
 
     size_t next_idx = 0;
     Vec<bool> touched(cls->num_members(), false);
@@ -125,7 +127,7 @@ Optional<Chunk<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_cls(
                     throw std::runtime_error(
                         "encountered index designator while constructing constinit class");
                 },
-                [&](Vec<Chunk<InitializerMIR>>&) -> Optional<Chunk<ConstInitLIR>> {
+                [&](ArenaVec<Chunk<InitializerMIR>>&) -> Optional<Chunk<ConstInitLIR>> {
                     RecordType::TypeMember *member = cls->find(next_idx);
                     assert(member);
 
@@ -161,7 +163,7 @@ Optional<Chunk<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_cls(
 }
 
 Optional<Chunk<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_arr(
-    ArrayType *arr, Vec<Chunk<InitializerMIR>>& inits, Location loc) {
+    ArrayType *arr, ArenaVec<Chunk<InitializerMIR>>& inits, Location loc) {
 
     size_t next_idx = 0;
     Vec<bool> touched(arr->get_arr_size().value(), false);
@@ -202,7 +204,7 @@ Optional<Chunk<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_arr(
 
                     return maybe_init;
                 },
-                [&](Vec<Chunk<InitializerMIR>>&) -> Optional<Chunk<ConstInitLIR>> {
+                [&](ArenaVec<Chunk<InitializerMIR>>&) -> Optional<Chunk<ConstInitLIR>> {
                     target_idx = next_idx;
 
                     tracking_path.push_back(LIRAccessor::index(arr->get_base(), target_idx));
@@ -269,7 +271,6 @@ ConstInitLIRBuilder::try_build_constinit_expr(Type *type, CastExprMIR& expr) {
 
     return try_build_constinit_expr(type, *leaf);
 }
-
 
 Optional<Chunk<ConstInitLIR>>
 ConstInitLIRBuilder::try_build_constinit_expr(Type *type, IdentExprMIR& expr) {

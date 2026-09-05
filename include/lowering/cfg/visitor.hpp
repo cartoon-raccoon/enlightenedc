@@ -39,8 +39,8 @@ class Return;
 class CFGVisitor : public Visitor<
                        CFGVisitor, Alloca, LoadInst, StoreInst, PhiInst, PrintInst, MemcpyInst,
                        BinaryInst, UnaryInst, IncrInst, DecrInst, CastInst, MemberAccInst,
-                       SubscrInst, CallInst, ScalarConst, PointerConst, AggregateConst, ZeroConst, FunctionCFG,
-                       Global, String, FuncArg, If, Goto, Switch, Return> {};
+                       SubscrInst, CallInst, ScalarConst, PointerConst, AggregateConst, ZeroConst,
+                       FunctionCFG, Global, String, FuncArg, If, Goto, Switch, Return> {};
 
 } // namespace ecc::lower::cfg
 

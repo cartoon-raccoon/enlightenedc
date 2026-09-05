@@ -6,11 +6,13 @@
 #include <variant>
 
 #include "ast/ast.hpp"
+#include "ds/arenavec.hpp"
 #include "tokens.hpp"
 #include "util.hpp"
 
 using namespace ecc::ast;
 using namespace ecc::tokens;
+using namespace ecc::ds;
 
 void ASTPrinter::print_indent() const {
     for (int i = 0; i < indent; ++i)
@@ -360,7 +362,7 @@ void ASTPrinter::visit(Initializer& node) {
                     idx->idx->accept(*this);
                     idx->initializer->accept(*this);
                 },
-                [&](Vec<Chunk<Initializer>>& inits) {
+                [&](ArenaVec<Chunk<Initializer>>& inits) {
                     for (auto& init : inits) {
                         init->accept(*this);
                     }

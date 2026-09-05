@@ -150,10 +150,10 @@ private:
         bool allow_size_infer = false);
 
     void eval_initializer_rec_cls(
-        types::AccessorPath& path, types::ClassType *cls, Vec<Chunk<mir::InitializerMIR>>& init);
+        types::AccessorPath& path, types::ClassType *cls, ds::ArenaVec<Chunk<mir::InitializerMIR>>& init);
 
     void eval_initializer_rec_arr(
-        types::AccessorPath& path, types::ArrayType *arr, Vec<Chunk<mir::InitializerMIR>>& init);
+        types::AccessorPath& path, types::ArrayType *arr, ds::ArenaVec<Chunk<mir::InitializerMIR>>& init);
 
     void validate_binexpr_nonprim(mir::BinaryExprMIR& node);
 

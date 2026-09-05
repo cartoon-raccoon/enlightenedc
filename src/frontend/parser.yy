@@ -23,11 +23,13 @@
 #include <memory>
 #include "ast/ast.hpp"
 #include "util.hpp"
+#include "ds/arenavec.hpp"
 #include "allocator/alloc.hpp"
 #include "allocator/chunk.hpp"
 
 using namespace ecc::ast;
 using namespace ecc::util;
+using namespace ecc::ds;
 
 // Quick forward declaration to satisfy function signatures, this is just for .hpp.
 // The full Lexer declaration is included in the .cpp (see %code below).
@@ -182,48 +184,48 @@ static ecc::frontend::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 %type <Chunk<ProgramItem>> program_item
 %type <Chunk<Attribute>> attribute
 %type <Chunk<AttributeArg>> attribute_arg
-%type <Vec<Chunk<AttributeArg>>> attribute_arg_list
-%type <Vec<Chunk<Attribute>>> attribute_list
+%type <ArenaVec<Chunk<AttributeArg>>> attribute_arg_list
+%type <ArenaVec<Chunk<Attribute>>> attribute_list
 %type <Chunk<Function>> function
 %type <Chunk<Declaration>> declaration
 %type <Chunk<Statement>> statement
 %type <Chunk<Declarator>> declarator abstract_declarator
 %type <Chunk<DirectDeclarator>> direct_abstract_declarator
-%type <Vec<Chunk<ProgramItem>>> stmt_or_decl_list
+%type <ArenaVec<Chunk<ProgramItem>>> stmt_or_decl_list
 
-%type <Vec<Chunk<DeclarationSpecifier>>> declaration_specifier_list specifier_qualifier_list
+%type <ArenaVec<Chunk<DeclarationSpecifier>>> declaration_specifier_list specifier_qualifier_list
 %type <Chunk<DeclarationSpecifier>> storage_class_specifier type_specifier
 %type <Chunk<PrimitiveSpecifier>> primitive_type
 %type <Chunk<ClassSpecifier>> class_specifier
 %type <Chunk<UnionSpecifier>> union_specifier
 %type <Chunk<TypeQualifier>> type_qualifier
-%type <Vec<Chunk<TypeQualifier>>> type_qualifier_list
+%type <ArenaVec<Chunk<TypeQualifier>>> type_qualifier_list
 %type <Chunk<TypeIdentifier>> type_identifier
 
 %type <Chunk<InitDeclarator>> init_declarator
-%type <Vec<Chunk<InitDeclarator>>> init_declarator_list
+%type <ArenaVec<Chunk<InitDeclarator>>> init_declarator_list
 %type <ecc::tokens::AssignOp> assignment_operator
 %type <ecc::tokens::UnaryOp> unary_operator
 
 %type <Chunk<Pointer>> pointer
 %type <Chunk<DirectDeclarator>> direct_declarator
-%type <Vec<Chunk<ParameterDeclaration>>> parameter_list
+%type <ArenaVec<Chunk<ParameterDeclaration>>> parameter_list
 %type <Chunk<ParameterDeclaration>> parameter_declaration
-%type <std::pair<Vec<Chunk<ParameterDeclaration>>, bool>> parameter_type_list
+%type <Pair<ArenaVec<Chunk<ParameterDeclaration>>, bool>> parameter_type_list
 
 %type <Chunk<EnumSpecifier>> enum_specifier
-%type <Vec<Chunk<ClassDeclaration>>> member_declaration_list
+%type <ArenaVec<Chunk<ClassDeclaration>>> member_declaration_list
 %type <Chunk<ClassDeclaration>> class_declaration
-%type <Vec<Chunk<ClassDeclarator>>> class_declarator_list
+%type <ArenaVec<Chunk<ClassDeclarator>>> class_declarator_list
 %type <Chunk<ClassDeclarator>> member_declarator
-%type <Vec<Chunk<Enumerator>>> enumerator_list
+%type <ArenaVec<Chunk<Enumerator>>> enumerator_list
 %type <Chunk<Enumerator>> enumerator
-%type <Vec<std::string>> class_parent_list
+%type <ArenaVec<std::string>> class_parent_list
 %type <std::string> class_parent
 
 %type <Chunk<TypeName>> type_name
 %type <Chunk<Initializer>> initializer designated_initializer
-%type <Vec<Chunk<Initializer>>> initializer_list
+%type <ArenaVec<Chunk<Initializer>>> initializer_list
 
 %type <Chunk<CompoundStatement>> compound_statement
 %type <Chunk<Statement>> labeled_statement expression_statement print_statement
@@ -239,7 +241,7 @@ static ecc::frontend::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 %type <Chunk<LiteralExpression>> constant
 %type <std::string> string_literal
 %type <Chunk<ConstExpression>> constant_expression
-%type <Vec<Chunk<Expression>>> argument_expression_list
+%type <ArenaVec<Chunk<Expression>>> argument_expression_list
 %type <Optional<ForStatement::ForInit>> for_init_opt
 %type <Optional<Chunk<Expression>>> expression_opt
 
@@ -270,7 +272,7 @@ attribute_arg:
 
 attribute_arg_list:
     attribute_arg {
-        Vec<Chunk<AttributeArg>> list;
+        ArenaVec<Chunk<AttributeArg>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
@@ -283,7 +285,7 @@ attribute_arg_list:
 // One or more stacked `#[...]` attributes, e.g. `#[foo] #[bar = "baz"]`.
 attribute_list:
     attribute {
-        Vec<Chunk<Attribute>> list;
+        ArenaVec<Chunk<Attribute>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
@@ -322,7 +324,7 @@ function:
 
 declaration_specifier_list:
     type_specifier { // ensure that the type specifier is the last node in the list
-        Vec<Chunk<DeclarationSpecifier>> list;
+        ArenaVec<Chunk<DeclarationSpecifier>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
@@ -464,7 +466,7 @@ type_qualifier:
 
 class_parent_list:
     class_parent {
-        Vec<std::string> list;
+        ArenaVec<std::string> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
@@ -489,7 +491,7 @@ class_parent:
 
 member_declaration_list:
     class_declaration {
-        Vec<Chunk<ClassDeclaration>> list;
+        ArenaVec<Chunk<ClassDeclaration>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
@@ -507,7 +509,7 @@ class_declaration:
 
 specifier_qualifier_list:
     type_specifier {
-        Vec<Chunk<DeclarationSpecifier>> list;
+        ArenaVec<Chunk<DeclarationSpecifier>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
@@ -519,7 +521,7 @@ specifier_qualifier_list:
 
 class_declarator_list:
     member_declarator {
-        Vec<Chunk<ClassDeclarator>> list;
+        ArenaVec<Chunk<ClassDeclarator>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
@@ -556,13 +558,13 @@ declarator:
 
 pointer:
     MUL {
-        $$ = make_chunk<Pointer>(@1, Vec<Chunk<TypeQualifier>>{}, std::nullopt);
+        $$ = make_chunk<Pointer>(@1, ArenaVec<Chunk<TypeQualifier>>{}, std::nullopt);
     }
     | MUL type_qualifier_list {
         $$ = make_chunk<Pointer>(@$, std::move($2), std::nullopt);
     }
     | MUL pointer {
-        $$ = make_chunk<Pointer>(@$, Vec<Chunk<TypeQualifier>>{}, std::move($2));
+        $$ = make_chunk<Pointer>(@$, ArenaVec<Chunk<TypeQualifier>>{}, std::move($2));
     }
     | MUL type_qualifier_list pointer {
         $$ = make_chunk<Pointer>(@$, std::move($2), std::move($3));
@@ -571,7 +573,7 @@ pointer:
 
 type_qualifier_list:
     type_qualifier {
-        Vec<Chunk<TypeQualifier>> list;
+        ArenaVec<Chunk<TypeQualifier>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
@@ -595,7 +597,7 @@ direct_declarator:
         $$ = make_chunk<ArrayDeclarator>(@$, std::move($1), std::move($3));
     }
     | direct_declarator LPAREN RPAREN {
-        $$ = make_chunk<FunctionDeclarator>(@$, std::move($1), Vec<Chunk<ParameterDeclaration>>{}, false);
+        $$ = make_chunk<FunctionDeclarator>(@$, std::move($1), ArenaVec<Chunk<ParameterDeclaration>>{}, false);
     }
     | direct_declarator LPAREN parameter_type_list RPAREN {
         $$ = make_chunk<FunctionDeclarator>(@$, std::move($1), std::move($3.first), $3.second);
@@ -771,7 +773,7 @@ postfix_expression:
         $$ = make_chunk<ArraySubscriptExpression>(@$, std::move($1), std::move($3));
     }
     | postfix_expression LPAREN RPAREN {
-        $$ = make_chunk<CallExpression>(@$, std::move($1), Vec<Chunk<Expression>>{});
+        $$ = make_chunk<CallExpression>(@$, std::move($1), ArenaVec<Chunk<Expression>>{});
     }
     | postfix_expression LPAREN argument_expression_list RPAREN {
         $$ = make_chunk<CallExpression>(@$, std::move($1), std::move($3));
@@ -882,7 +884,7 @@ unary_operator:
 
 argument_expression_list:
     assignment_expression {
-        Vec<Chunk<Expression>> list;
+        ArenaVec<Chunk<Expression>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
@@ -914,7 +916,7 @@ parameter_type_list:
 
 parameter_list:
     parameter_declaration {
-        Vec<Chunk<ParameterDeclaration>> list;
+        ArenaVec<Chunk<ParameterDeclaration>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
@@ -962,7 +964,7 @@ direct_abstract_declarator:
         $$ = make_chunk<ArrayDeclarator>(@$, std::move($1), std::move($3));
     }
     | direct_abstract_declarator LPAREN RPAREN {
-        $$ = make_chunk<FunctionDeclarator>(@$, std::move($1), Vec<Chunk<ParameterDeclaration>>{}, false);
+        $$ = make_chunk<FunctionDeclarator>(@$, std::move($1), ArenaVec<Chunk<ParameterDeclaration>>{}, false);
     }
     | direct_abstract_declarator LPAREN parameter_type_list RPAREN {
         $$ = make_chunk<FunctionDeclarator>(@$, std::move($1), std::move($3.first), $3.second);
@@ -974,7 +976,7 @@ direct_abstract_declarator:
         $$ = make_chunk<ArrayDeclarator>(@$, nullptr, std::move($2));
     }
     | LPAREN RPAREN {
-        $$ = make_chunk<FunctionDeclarator>(@$, nullptr, Vec<Chunk<ParameterDeclaration>>{}, false);
+        $$ = make_chunk<FunctionDeclarator>(@$, nullptr, ArenaVec<Chunk<ParameterDeclaration>>{}, false);
     }
     | LPAREN parameter_type_list RPAREN {
         $$ = make_chunk<FunctionDeclarator>(@$, nullptr, std::move($2.first), $2.second);
@@ -1021,7 +1023,7 @@ enum_specifier:
 
 enumerator_list:
     enumerator {
-        Vec<Chunk<Enumerator>> list;
+        ArenaVec<Chunk<Enumerator>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
@@ -1061,7 +1063,7 @@ declaration:
 // Init declarators
 init_declarator_list:
     init_declarator {
-        Vec<Chunk<InitDeclarator>> list;
+        ArenaVec<Chunk<InitDeclarator>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
@@ -1099,12 +1101,12 @@ designated_initializer:
 
 initializer_list:
     initializer {
-        Vec<Chunk<Initializer>> list;
+        ArenaVec<Chunk<Initializer>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
     | designated_initializer {
-        Vec<Chunk<Initializer>> list;
+        ArenaVec<Chunk<Initializer>> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
@@ -1123,7 +1125,7 @@ initializer_list:
 
 compound_statement:
     LBRACE RBRACE {
-        $$ = make_chunk<CompoundStatement>(@$, Vec<Chunk<ProgramItem>>{});
+        $$ = make_chunk<CompoundStatement>(@$, ArenaVec<Chunk<ProgramItem>>{});
     }
     | LBRACE stmt_or_decl_list RBRACE {
         $$ = make_chunk<CompoundStatement>(@$, std::move($2));
@@ -1143,7 +1145,7 @@ statement:
 
 print_statement:
     string_literal SEMI {
-        $$ = make_chunk<PrintStatement>(@$, std::move($1), Vec<Chunk<Expression>>{});
+        $$ = make_chunk<PrintStatement>(@$, std::move($1), ArenaVec<Chunk<Expression>>{});
     }
     | string_literal COMMA argument_expression_list SEMI {
         $$ = make_chunk<PrintStatement>(@$, std::move($1), std::move($3));
@@ -1176,19 +1178,19 @@ expression_statement:
 
 stmt_or_decl_list: // A mixed list of declarations and statements.
     declaration {
-        Vec<Chunk<ProgramItem>> list;
+        ArenaVec<Chunk<ProgramItem>> list;
         Chunk<ProgramItem> item = std::move($1);
         list.push_back(std::move(item));
         $$ = std::move(list);
     }
     | statement {
-        Vec<Chunk<ProgramItem>> list;
+        ArenaVec<Chunk<ProgramItem>> list;
         Chunk<ProgramItem> item = std::move($1);
         list.push_back(std::move(item));
         $$ = std::move(list);
     }
     | function {
-        Vec<Chunk<ProgramItem>> list;
+        ArenaVec<Chunk<ProgramItem>> list;
         Chunk<ProgramItem> item = std::move($1);
         list.push_back(std::move(item));
         $$ = std::move(list);

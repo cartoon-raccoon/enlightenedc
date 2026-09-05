@@ -7,14 +7,16 @@
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
+#include <iostream>
 #include <limits>
 #include <new>
 #include <type_traits>
 #include <utility>
+#include <vector>
 
 #include "allocator/alignment.hpp"
 #include "allocator/chunk.hpp"
-#include "util.hpp"
+// #include "util.hpp"
 
 namespace ecc::alloc {
 
@@ -117,12 +119,12 @@ class BumpAllocator {
     /**
     Slabs storing the data.
     */
-    Vec<Slab> slabs;
+    std::vector<Slab> slabs;
 
     /**
     Custom slabs for oversized objects.
     */
-    Vec<Slab> custom_slabs;
+    std::vector<Slab> custom_slabs;
 
     Cleanup *cleanup_head = nullptr;
 

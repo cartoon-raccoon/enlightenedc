@@ -3,6 +3,7 @@
 #include <cassert>
 #include <stdexcept>
 
+#include "ds/arenavec.hpp"
 #include "error.hpp"
 #include "eval/consteval.hpp"
 #include "eval/value.hpp"
@@ -20,6 +21,7 @@ using namespace types;
 using namespace mir;
 using namespace tokens;
 using namespace eval;
+using namespace ds;
 
 void Validator::validate(ProgramMIR& progmir) {
     progmir.accept(*this);
@@ -132,7 +134,7 @@ Optional<Type *> Validator::eval_initializer_rec(
             /*
             Recursive case. If there is a list of initializers, this has to be a class or array.
             */
-            [&](Vec<Chunk<InitializerMIR>>& inner) mutable -> Optional<Type *> {
+            [&](ArenaVec<Chunk<InitializerMIR>>& inner) mutable -> Optional<Type *> {
                 switch (type->kind) {
                 case Type::Kind::CLASS:
                     eval_initializer_rec_cls(path, type->as_class(), inner);
@@ -242,7 +244,7 @@ Optional<Type *> Validator::eval_initializer_expr(
 }
 
 void Validator::eval_initializer_rec_cls(
-    types::AccessorPath& path, ClassType *cls, Vec<Chunk<InitializerMIR>>& inits) {
+    types::AccessorPath& path, ClassType *cls, ArenaVec<Chunk<InitializerMIR>>& inits) {
     assert(cls && "cls was null while evaluating initializer");
 
     bsv_dbprint("Validator: eval_initializer_rec_cls");
@@ -292,7 +294,7 @@ void Validator::eval_initializer_rec_cls(
                         idx->initializer->loc);
                     throw UnableToContinue();
                 },
-                [&](Vec<Chunk<InitializerMIR>>&) {
+                [&](ArenaVec<Chunk<InitializerMIR>>&) {
                     path.push_back(non_desigd_idx);
                     non_desigd_idx++;
                     RecordType::TypeMember *mem = cls->find_by_path(path);
@@ -312,7 +314,7 @@ void Validator::eval_initializer_rec_cls(
 }
 
 void Validator::eval_initializer_rec_arr(
-    types::AccessorPath& path, ArrayType *arr, Vec<Chunk<InitializerMIR>>& inits) {
+    types::AccessorPath& path, ArrayType *arr, ArenaVec<Chunk<InitializerMIR>>& inits) {
     assert(arr && "arr was null while evaluating initializer");
 
     bsv_dbprint("Validator: eval_initializer_rec_arr");
@@ -342,7 +344,7 @@ void Validator::eval_initializer_rec_arr(
 
                     eval_initializer_rec(path, arr->get_base(), *idx->initializer);
                 },
-                [&](Vec<Chunk<InitializerMIR>>&) {
+                [&](ArenaVec<Chunk<InitializerMIR>>&) {
                     path.push_back(non_desigd_idx);
                     non_desigd_idx++;
 

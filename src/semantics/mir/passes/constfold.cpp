@@ -1,11 +1,13 @@
 #include "semantics/mir/passes/constfold.hpp"
 
+#include "ds/arenavec.hpp"
 #include "semantics/mir/mir.hpp"
 #include "semantics/types.hpp"
 
 using namespace ecc::opti;
 using namespace ecc::eval;
 using namespace ecc::sema::mir;
+using namespace ecc::ds;
 
 Chunk<ExprMIR> ConstantFolder::eval_and_expr(Chunk<ExprMIR>& expr, Location loc) {
 
@@ -60,7 +62,7 @@ void ConstantFolder::do_visit(InitializerMIR& node) {
             [&](Chunk<ExprMIR>& expr) { fold_operand(expr); },
             [&](Chunk<InitializerMIR::Member>& member) { member->initializer->accept(*this); },
             [&](Chunk<InitializerMIR::Index>& index) { index->initializer->accept(*this); },
-            [&](Vec<Chunk<InitializerMIR>>& inits) {
+            [&](ArenaVec<Chunk<InitializerMIR>>& inits) {
                 for (auto& init : inits) {
                     init->accept(*this);
                 }

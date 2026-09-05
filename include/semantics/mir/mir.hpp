@@ -6,6 +6,7 @@
 #include <variant>
 
 #include "abstract/visitor.hpp"
+#include "ds/arenavec.hpp"
 #include "eval/evaluator.hpp"
 #include "eval/value.hpp"
 #include "location.hpp"
@@ -251,8 +252,8 @@ public:
         Chunk<InitializerMIR> initializer;
     };
 
-    using InitMIRType =
-        std::variant<Chunk<ExprMIR>, Chunk<Member>, Chunk<Index>, Vec<Chunk<InitializerMIR>>>;
+    using InitMIRType = std::variant<
+        Chunk<ExprMIR>, Chunk<Member>, Chunk<Index>, ds::ArenaVec<Chunk<InitializerMIR>>>;
 
     InitializerMIR(Location loc, Chunk<ExprMIR> expr)
         : MIRVisitable<InitializerMIR, MIRNode>(loc, NodeKind::INIT_MIR),
@@ -266,7 +267,7 @@ public:
         : MIRVisitable<InitializerMIR, MIRNode>(loc, NodeKind::INIT_MIR),
           initializer(make_chunk<Index>(idx, std::move(init))) {}
 
-    InitializerMIR(Location loc, Vec<Chunk<InitializerMIR>> initializers)
+    InitializerMIR(Location loc, ds::ArenaVec<Chunk<InitializerMIR>> initializers)
         : MIRVisitable<InitializerMIR, MIRNode>(loc, NodeKind::INIT_MIR),
           initializer(std::move(initializers)) {}
 
@@ -302,7 +303,7 @@ public:
 
     VarDeclMIR(Location loc) : MIRVisitable<VarDeclMIR, DeclMIR>(loc, NodeKind::VARDEC_MIR) {}
 
-    Vec<VarDecl> decls;
+    ds::ArenaVec<VarDecl> decls;
 
     void add_decl(sema::sym::VarSymbol *sym);
 
@@ -316,11 +317,11 @@ public:
     CompoundStmtMIR(Location loc)
         : MIRVisitable<CompoundStmtMIR, StmtMIR>(loc, NodeKind::CMPDSTMT_MIR) {}
 
-    CompoundStmtMIR(Location loc, Vec<Chunk<ProgItemMIR>> items)
+    CompoundStmtMIR(Location loc, ds::ArenaVec<Chunk<ProgItemMIR>> items)
         : MIRVisitable<CompoundStmtMIR, StmtMIR>(loc, NodeKind::CMPDSTMT_MIR),
           items(std::move(items)) {}
 
-    Vec<Chunk<ProgItemMIR>> items;
+    ds::ArenaVec<Chunk<ProgItemMIR>> items;
 
     void add_item(Chunk<ProgItemMIR> item);
 
@@ -408,12 +409,12 @@ public:
         : MIRVisitable<PrintStmtMIR, StmtMIR>(loc, NodeKind::PRINTSTMT_MIR),
           format_string(std::move(format_string)) {}
 
-    PrintStmtMIR(Location loc, std::string format_string, Vec<Chunk<ExprMIR>> arguments)
+    PrintStmtMIR(Location loc, std::string format_string, ds::ArenaVec<Chunk<ExprMIR>> arguments)
         : MIRVisitable<PrintStmtMIR, StmtMIR>(loc, NodeKind::PRINTSTMT_MIR),
           format_string(std::move(format_string)), arguments(std::move(arguments)) {}
 
     std::string format_string;
-    Vec<Chunk<ExprMIR>> arguments;
+    ds::ArenaVec<Chunk<ExprMIR>> arguments;
 
     static bool classof(const MIRNode *node) { return node->kind == NodeKind::PRINTSTMT_MIR; }
 };
@@ -734,12 +735,13 @@ public:
           callee(std::move(callee)) {}
 
     CallExprMIR(
-        Location loc, sema::sym::Scope *scope, Chunk<ExprMIR> callee, Vec<Chunk<ExprMIR>> args)
+        Location loc, sema::sym::Scope *scope, Chunk<ExprMIR> callee,
+        ds::ArenaVec<Chunk<ExprMIR>> args)
         : MIRVisitable<CallExprMIR, ExprMIR>(loc, NodeKind::CALLEXPR_MIR, scope),
           callee(std::move(callee)), args(std::move(args)) {}
 
     Chunk<ExprMIR> callee;
-    Vec<Chunk<ExprMIR>> args;
+    ds::ArenaVec<Chunk<ExprMIR>> args;
 
     bool is_const_foldable() override { return false; }
 
@@ -903,10 +905,10 @@ class ProgramMIR : public MIRVisitable<ProgramMIR, MIRNode> {
 public:
     ProgramMIR() : MIRVisitable<ProgramMIR, MIRNode>(NodeKind::PROG_MIR) {}
 
-    ProgramMIR(Vec<Chunk<ProgItemMIR>> items)
+    ProgramMIR(ds::ArenaVec<Chunk<ProgItemMIR>> items)
         : MIRVisitable<ProgramMIR, MIRNode>(NodeKind::PROG_MIR), items(std::move(items)) {}
 
-    Vec<Chunk<ProgItemMIR>> items;
+    ds::ArenaVec<Chunk<ProgItemMIR>> items;
 
     void add_item(Chunk<ProgItemMIR> item);
 

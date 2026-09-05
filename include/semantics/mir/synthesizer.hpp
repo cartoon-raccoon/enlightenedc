@@ -10,6 +10,7 @@
 
 #include "allocator/chunk.hpp"
 #include "ast/ast.hpp"
+#include "ds/arenavec.hpp"
 #include "semantics/mir/mir.hpp"
 #include "semantics/semantics.hpp"
 #include "semantics/symbols.hpp"
@@ -270,7 +271,7 @@ private:
         sym::Linkage linkage = sym::Linkage::INTERNAL;
     };
 
-    SpecifierInfo parse_speclist(Vec<Chunk<ast::DeclarationSpecifier>>&, Location);
+    SpecifierInfo parse_speclist(ds::ArenaVec<Chunk<ast::DeclarationSpecifier>>&, Location);
 };
 
 } // namespace ecc::sema

@@ -78,10 +78,10 @@ private:
     try_build_constinit_expr(sema::types::Type *type, sema::mir::ExprMIR& expr);
 
     Optional<Chunk<ConstInitLIR>> try_build_constinit_agg_cls(
-        sema::types::ClassType *cls, Vec<Chunk<sema::mir::InitializerMIR>>& inits, Location loc);
+        sema::types::ClassType *cls, ds::ArenaVec<Chunk<sema::mir::InitializerMIR>>& inits, Location loc);
 
     Optional<Chunk<ConstInitLIR>> try_build_constinit_agg_arr(
-        sema::types::ArrayType *arr, Vec<Chunk<sema::mir::InitializerMIR>>& inits, Location loc);
+        sema::types::ArrayType *arr, ds::ArenaVec<Chunk<sema::mir::InitializerMIR>>& inits, Location loc);
 
     Optional<Chunk<ConstInitLIR>>
     try_build_constinit_expr(sema::types::Type *type, sema::mir::CastExprMIR& expr);
