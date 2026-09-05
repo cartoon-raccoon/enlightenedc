@@ -41,6 +41,7 @@ The project has the following dependencies:
 
 - Flex (>= v2.6)
 - Bison (>= v3.8)
+- Boost (>= 1.92)
 - LLVM (>= v21.1)
 - CMake (>= v3.20)
 - Googletest/RapidCheck for testing, but that is pulled in at build time.

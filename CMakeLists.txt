@@ -29,6 +29,10 @@ option(ENABLE_CLANG_TIDY "Enable clang-tidy during compilation" ON)
 find_package(BISON 3.8 REQUIRED)
 find_package(FLEX 2.6 REQUIRED)
 find_package(LLVM REQUIRED CONFIG)
+find_package(Boost 1.92 CONFIG
+    REQUIRED
+    COMPONENTS container
+)
 
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
@@ -149,7 +153,7 @@ llvm_map_components_to_libnames(llvm_libs
 
 message(STATUS "LLVM libraries: ${LLVM_LIBRARY_DIRS}")
 # Link LLVM to our library target
-target_link_libraries(libecc PRIVATE LLVM)
+target_link_libraries(libecc PRIVATE LLVM Boost::container)
 # Link our library target to our executable
 target_link_libraries(ecc PRIVATE libecc)
 
