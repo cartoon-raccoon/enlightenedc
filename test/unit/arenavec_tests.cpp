@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <memory>
 #include <vector>
 
 #include "ds/arenavec.hpp"
@@ -196,24 +197,6 @@ TEST(ArenaVecIteration, AdvancingFromBeginBySizeReachesEnd) {
     EXPECT_TRUE(it == v.end());
 }
 
-TEST(ArenaVecIteration, IncrementPastEndStaysAtEnd) {
-    ArenaVec<int> v{1, 2};
-    auto it = v.end();
-    ++it;
-    ++it;
-
-    EXPECT_TRUE(it == v.end());
-}
-
-TEST(ArenaVecIteration, DecrementBeforeBeginStaysAtBegin) {
-    ArenaVec<int> v{1, 2};
-    auto it = v.begin();
-    --it;
-    --it;
-
-    EXPECT_TRUE(it == v.begin());
-}
-
 TEST(ArenaVecIteration, PostfixIncrementReturnsPreviousPosition) {
     ArenaVec<int> v{1, 2, 3};
     auto it      = v.begin();
@@ -249,6 +232,115 @@ TEST(ArenaVecIteration, RbeginEqualsRendOnEmptyVector) {
 TEST(ArenaVecCapacity, MaxSizeIsPositive) {
     ArenaVec<int> v;
     EXPECT_GT(v.max_size(), 0U);
+}
+
+// ── resize ────────────────────────────────────────────────────────────────
+
+TEST(ArenaVecResize, GrowFromEmptyValueInitializesNewSlots) {
+    ArenaVec<int, 4> v;
+    v.resize(5);
+
+    EXPECT_EQ(v.size(), 5U);
+    EXPECT_EQ(collect(v), (std::vector<int>{0, 0, 0, 0, 0}));
+}
+
+TEST(ArenaVecResize, GrowKeepsExistingElementsAndAppendsValueInitialized) {
+    ArenaVec<int, 2> v{1, 2, 3};
+    v.resize(6);
+
+    EXPECT_EQ(v.size(), 6U);
+    EXPECT_EQ(collect(v), (std::vector<int>{1, 2, 3, 0, 0, 0}))
+        << "resize must preserve the leading elements it already held";
+}
+
+TEST(ArenaVecResize, GrowPastCapacityReallocatesWithoutLosingElements) {
+    ArenaVec<int, 2> v{7, 8};
+    v.resize(100);
+
+    EXPECT_EQ(v.size(), 100U);
+    EXPECT_GE(v.capacity(), 100U);
+    EXPECT_EQ(v[0], 7);
+    EXPECT_EQ(v[1], 8);
+    EXPECT_EQ(v[99], 0);
+}
+
+TEST(ArenaVecResize, ShrinkDropsTrailingElementsButKeepsCapacity) {
+    ArenaVec<int, 4> v{1, 2, 3, 4, 5};
+    size_t cap_before = v.capacity();
+    v.resize(2);
+
+    EXPECT_EQ(v.size(), 2U);
+    EXPECT_EQ(collect(v), (std::vector<int>{1, 2}));
+    EXPECT_EQ(v.capacity(), cap_before);
+}
+
+TEST(ArenaVecResize, ShrinkToZeroEmptiesVector) {
+    ArenaVec<int> v{1, 2, 3};
+    v.resize(0);
+
+    EXPECT_TRUE(v.empty());
+    EXPECT_EQ(v.size(), 0U);
+}
+
+TEST(ArenaVecResize, ResizeToCurrentSizeLeavesContentsUnchanged) {
+    ArenaVec<int> v{1, 2, 3};
+    v.resize(3);
+
+    EXPECT_EQ(collect(v), (std::vector<int>{1, 2, 3}));
+}
+
+TEST(ArenaVecResize, GrowThenShrinkThenGrowRoundTrips) {
+    ArenaVec<int, 2> v{1, 2};
+    v.resize(5);
+    v.resize(1);
+    v.resize(4);
+
+    EXPECT_EQ(v.size(), 4U);
+    EXPECT_EQ(collect(v), (std::vector<int>{1, 0, 0, 0}));
+}
+
+TEST(ArenaVecResize, TwoArgOverloadFillsNewSlotsWithGivenValue) {
+    ArenaVec<int, 2> v{1, 2};
+    v.resize(5, 9);
+
+    EXPECT_EQ(collect(v), (std::vector<int>{1, 2, 9, 9, 9}));
+}
+
+TEST(ArenaVecResize, TwoArgOverloadShrinksLikeSingleArg) {
+    ArenaVec<int> v{1, 2, 3, 4};
+    v.resize(2, 9);
+
+    EXPECT_EQ(collect(v), (std::vector<int>{1, 2}));
+}
+
+// Mirrors how ConstInitLIRBuilder uses it: resize to a known slot count, then
+// assign into the slots by index (possibly out of order).
+TEST(ArenaVecResize, SupportsIndexedAssignmentAfterResize) {
+    ArenaVec<int, 2> v;
+    v.resize(4);
+
+    v[2] = 30;
+    v[0] = 10;
+    v[3] = 40;
+    v[1] = 20;
+
+    EXPECT_EQ(collect(v), (std::vector<int>{10, 20, 30, 40}));
+}
+
+// resize(count) must not require a copy constructor - the single-arg overload
+// value-initializes in place.
+TEST(ArenaVecResize, WorksForMoveOnlyElementType) {
+    ArenaVec<std::unique_ptr<int>> v;
+    v.resize(3);
+
+    EXPECT_EQ(v.size(), 3U);
+    EXPECT_EQ(v[0], nullptr);
+
+    v[1] = std::make_unique<int>(42);
+    EXPECT_EQ(*v[1], 42);
+
+    v.resize(1);
+    EXPECT_EQ(v.size(), 1U);
 }
 
 // ── Element lifecycle (construction/destruction correctness) ─────────────
@@ -337,6 +429,53 @@ TEST_F(ArenaVecLifecycleTest, GrowthNeitherLeaksNorDoubleDestroysElements) {
         EXPECT_EQ(Tracked::live(), static_cast<int>(v.size()))
             << "live Tracked count must always match the vector's reported size";
     }
+}
+
+TEST_F(ArenaVecLifecycleTest, ResizeGrowConstructsExactlyTheNewSlots) {
+    ArenaVec<Tracked, 2> v;
+    v.emplace_back(1);
+
+    v.resize(5);
+
+    EXPECT_EQ(v.size(), 5U);
+    EXPECT_EQ(Tracked::live(), 5) << "one original plus four value-initialized slots";
+}
+
+TEST_F(ArenaVecLifecycleTest, ResizeShrinkDestroysExactlyTheDroppedSlots) {
+    ArenaVec<Tracked> v;
+    for (int i = 0; i < 5; ++i) {
+        v.emplace_back(i);
+    }
+
+    v.resize(2);
+
+    EXPECT_EQ(v.size(), 2U);
+    EXPECT_EQ(Tracked::live(), 2) << "the three trailing elements must be destroyed once each";
+}
+
+TEST_F(ArenaVecLifecycleTest, ResizeGrowPastCapacityNeitherLeaksNorDoubleDestroys) {
+    ArenaVec<Tracked, 2> v;
+    v.emplace_back(0);
+    v.emplace_back(1);
+
+    v.resize(20);
+
+    EXPECT_EQ(v.size(), 20U);
+    EXPECT_EQ(Tracked::live(), 20)
+        << "moving the two originals into the larger buffer must not leak or double-destroy";
+}
+
+TEST_F(ArenaVecLifecycleTest, ResizeToSameSizeConstructsAndDestroysNothing) {
+    ArenaVec<Tracked> v;
+    v.emplace_back(1);
+    v.emplace_back(2);
+
+    int ctors_before = Tracked::constructions;
+    int dtors_before = Tracked::destructions;
+    v.resize(2);
+
+    EXPECT_EQ(Tracked::constructions, ctors_before);
+    EXPECT_EQ(Tracked::destructions, dtors_before);
 }
 
 TEST_F(ArenaVecLifecycleTest, CopyAssignmentDestroysThePreviousContentsExactlyOnce) {

@@ -120,9 +120,9 @@ protected:
 
     FunctionCFG *lookup_function(lir::FunctionLIR *func);
 
-    Alloca *add_or_get_alloca(lir::LIRVarSym *sym);
+    Value *add_or_get_local(lir::LIRVarSym *sym, Value *init = nullptr);
 
-    Alloca *lookup_alloca(lir::LIRVarSym *sym);
+    Value *lookup_local(lir::LIRVarSym *sym);
 
     /**
     Attempt to materialize backing storage for an expression.
@@ -134,7 +134,7 @@ protected:
 
     Value *spill_to_temp(Value *val, sema::types::Type *type, Optional<Location> loc);
 
-    void clear_allocas() { allocas.clear(); };
+    void clear_allocas() { locals.clear(); };
 
     void visit(lir::ProgramLIR& node) override;
     void visit(lir::FunctionLIR& node) override;
@@ -196,7 +196,7 @@ private:
 
     HashMap<lir::LIRVarSym *, Global *> globals;
     HashMap<lir::FunctionLIR *, FunctionCFG *> functions;
-    HashMap<lir::LIRVarSym *, Alloca *> allocas;
+    HashMap<lir::LIRVarSym *, Value *> locals;
 
     HashMap<std::string, Vec<Goto *>> pending_gotos;
 

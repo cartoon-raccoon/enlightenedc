@@ -8,6 +8,7 @@
 #include <variant>
 
 #include "abstract/visitor.hpp"
+#include "ds/arenavec.hpp"
 #include "eval/value.hpp"
 #include "lowering/lir/symbols.hpp"
 #include "lowering/lir/visitor.hpp"
@@ -150,7 +151,7 @@ public:
     AggregateInitLIR(Location loc, sema::types::Type *type)
         : LIRVisitable<AggregateInitLIR, ConstInitLIR>(loc, NodeKind::AGGINIT_LIR, type) {}
 
-    Vec<Chunk<ConstInitLIR>> elements;
+    ds::ArenaVec<Chunk<ConstInitLIR>> elements;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::AGGINIT_LIR; }
 };
@@ -381,8 +382,8 @@ public:
     LIRFuncSym *funcsym;
     bool has_definition = false;
 
-    Vec<Chunk<VarDeclLIR>> locals;
-    Vec<Chunk<ProgItemLIR>> body;
+    ds::ArenaVec<Chunk<VarDeclLIR>> locals;
+    ds::ArenaVec<Chunk<ProgItemLIR>> body;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::FUNC_LIR; }
 };
@@ -433,7 +434,7 @@ public:
           condition(std::move(condition)) {}
 
     Chunk<ExprLIR> condition;
-    Vec<Chunk<ProgItemLIR>> body;
+    ds::ArenaVec<Chunk<ProgItemLIR>> body;
 
     bool is_terminal() override { return true; }
 
@@ -523,8 +524,8 @@ public:
           condition(std::move(condition)) {}
 
     Chunk<ExprLIR> condition;
-    Vec<Chunk<ProgItemLIR>> then_br;
-    Optional<Vec<Chunk<ProgItemLIR>>> else_br;
+    ds::ArenaVec<Chunk<ProgItemLIR>> then_br;
+    Optional<ds::ArenaVec<Chunk<ProgItemLIR>>> else_br;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::IFSTMT_LIR; }
 };
@@ -534,13 +535,13 @@ public:
     LoopStmtLIR(Location loc)
         : LIRVisitable<LoopStmtLIR, TerminalLIR>(loc, NodeKind::LOOPSTMT_LIR) {}
 
-    Optional<Vec<Chunk<ProgItemLIR>>> init;
+    Optional<ds::ArenaVec<Chunk<ProgItemLIR>>> init;
 
     Optional<Chunk<ExprLIR>> condition;
 
-    Optional<Vec<Chunk<ProgItemLIR>>> step;
+    Optional<ds::ArenaVec<Chunk<ProgItemLIR>>> step;
 
-    Vec<Chunk<ProgItemLIR>> body;
+    ds::ArenaVec<Chunk<ProgItemLIR>> body;
 
     bool is_dowhile = false;
 
@@ -549,12 +550,12 @@ public:
 
 class PrintStmtLIR : public LIRVisitable<PrintStmtLIR, NonTerminalLIR> {
 public:
-    PrintStmtLIR(Location loc, std::string format_string, Vec<Chunk<ExprLIR>> args)
+    PrintStmtLIR(Location loc, std::string format_string, ds::ArenaVec<Chunk<ExprLIR>> args)
         : LIRVisitable<PrintStmtLIR, NonTerminalLIR>(loc, NodeKind::PRINTSTMT_LIR),
           format_string(std::move(format_string)), args(std::move(args)) {}
 
     std::string format_string;
-    Vec<Chunk<ExprLIR>> args;
+    ds::ArenaVec<Chunk<ExprLIR>> args;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::PRINTSTMT_LIR; }
 };
@@ -717,12 +718,13 @@ public:
 class CallExprLIR : public LIRVisitable<CallExprLIR, ExprLIR> {
 public:
     CallExprLIR(
-        Location loc, Chunk<ExprLIR> callee, Vec<Chunk<ExprLIR>> args, sema::types::Type *type)
+        Location loc, Chunk<ExprLIR> callee, ds::ArenaVec<Chunk<ExprLIR>> args,
+        sema::types::Type *type)
         : LIRVisitable<CallExprLIR, ExprLIR>(loc, NodeKind::CALLEXPR_LIR, type),
           callee(std::move(callee)), args(std::move(args)) {}
 
     Chunk<ExprLIR> callee;
-    Vec<Chunk<ExprLIR>> args;
+    ds::ArenaVec<Chunk<ExprLIR>> args;
 
     Chunk<ExprLIR> clone_chunk() override;
 
@@ -816,7 +818,7 @@ class ProgramLIR : public LIRVisitable<ProgramLIR, LIRNode> {
 public:
     ProgramLIR() : LIRVisitable<ProgramLIR, LIRNode>(NodeKind::PROG_LIR) {}
 
-    Vec<Chunk<FunctionLIR>> functions;
+    ds::ArenaVec<Chunk<FunctionLIR>> functions;
     /*
     In HolyC, statements can be declared in the global scope, and they will be executed
     as if they were in something like main().
@@ -828,8 +830,8 @@ public:
     Additionally, since we will be inserting an implicit main() but all variables declared
     outside a function are global, we also need to separate out declarations.
     */
-    Vec<Chunk<VarDeclLIR>> globals;
-    Vec<Chunk<ProgItemLIR>> progitems;
+    ds::ArenaVec<Chunk<VarDeclLIR>> globals;
+    ds::ArenaVec<Chunk<ProgItemLIR>> progitems;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::PROG_LIR; }
 };

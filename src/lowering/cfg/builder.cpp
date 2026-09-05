@@ -6,11 +6,13 @@
 #include "lowering/cfg/cfg.hpp"
 #include "lowering/lir/lir.hpp"
 #include "lowering/lir/symbols.hpp"
+#include "semantics/symdata.hpp"
 #include "tokens.hpp"
 
 using namespace lower::lir;
 using namespace lower::cfg;
 using namespace sema::types;
+using namespace sema::sym;
 using namespace tokens;
 
 const char *const IMPLICIT_MAIN_NAME = "__ec_implicit_main";
@@ -41,7 +43,7 @@ Value *CFGBuilder::eval_lvalue(ExprLIR& node) {
 
         Value *ret = nullptr;
         if (ident->sym->is_var()) {
-            if (auto *alloc = lookup_alloca(ident->sym->as_varsym())) {
+            if (auto *alloc = lookup_local(ident->sym->as_varsym())) {
                 ret = alloc;
             } else {
                 ret = lookup_global(ident->sym->as_varsym());
@@ -132,19 +134,31 @@ FunctionCFG *CFGBuilder::lookup_function(lir::FunctionLIR *func) {
     return functions.contains(func) ? functions[func] : nullptr;
 }
 
-Alloca *CFGBuilder::add_or_get_alloca(lir::LIRVarSym *sym) {
-    if (allocas.contains(sym)) {
-        return allocas[sym];
+Value *CFGBuilder::add_or_get_local(lir::LIRVarSym *sym, Value *init) {
+    if (locals.contains(sym)) {
+        return locals[sym];
     }
 
-    Alloca *ret  = curr_func->add_alloca(sym->get_type(), sym->symdata->get_mangled_name());
-    allocas[sym] = ret;
+    assert(!sym->is_global());
+
+    Value *ret;
+    if (sym->get_symdata()->get_visibility() == Visibility::STATIC) {
+        Str name = sym->function->get_name() + "." + sym->get_name();
+        ret      = prog_cfg.add_global(sym->get_type(), std::move(name), init);
+    } else {
+        ret = curr_func->add_alloca(sym->get_type(), sym->symdata->get_mangled_name());
+        if (init) {
+            curr_blk->add_instruction<StoreInst>(types, ret, init);
+        }
+    }
+
+    locals[sym] = ret;
 
     return ret;
 }
 
-Alloca *CFGBuilder::lookup_alloca(lir::LIRVarSym *sym) {
-    return allocas.contains(sym) ? allocas[sym] : nullptr;
+Value *CFGBuilder::lookup_local(lir::LIRVarSym *sym) {
+    return locals.contains(sym) ? locals[sym] : nullptr;
 }
 
 void CFGBuilder::add_pending_goto(std::string& label, Goto *g) {
@@ -239,7 +253,7 @@ void CFGBuilder::visit(FunctionLIR& node) {
 
     // emit instructions for allocating and copying in the parameters
     for (auto [idx, param] : std::views::enumerate(node.funcsym->params)) {
-        auto *addr = add_or_get_alloca(param);
+        auto *addr = add_or_get_local(param);
 
         auto *value = curr_func->arg_idx(idx);
         assert(value && "got null arg");
@@ -666,11 +680,11 @@ void CFGBuilder::visit(VarDeclLIR& node) {
         return;
     }
 
-    Alloca *addr = add_or_get_alloca(node.lirsym);
+    Value *init = nullptr;
     if (node.init) {
-        Value *store_operand = build_constant(*node.init);
-        curr_blk->add_instruction<StoreInst>(types, addr, store_operand, node.loc);
+        init = build_constant(*node.init);
     }
+    add_or_get_local(node.lirsym, init);
 }
 
 #pragma clang diagnostic push
@@ -900,7 +914,7 @@ void CFGBuilder::visit(IdentExprLIR& node) {
 
     if (node.sym->is_var()) {
         Value *val;
-        if (auto *alloc = lookup_alloca(node.sym->as_varsym())) {
+        if (auto *alloc = lookup_local(node.sym->as_varsym())) {
             val = alloc;
         } else {
             val = lookup_global(node.sym->as_varsym());

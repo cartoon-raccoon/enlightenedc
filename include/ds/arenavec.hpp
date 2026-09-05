@@ -375,6 +375,43 @@ public:
         --this->len;
     }
 
+    /**
+    Resizes the container to `count` elements. New slots are value-initialized;
+    surplus elements are destroyed. `T` need not be copyable.
+    */
+    void resize(size_t count) {
+        if (count < this->len) {
+            std::destroy_n(this->ptr + count, this->len - count);
+            this->len = count;
+        } else {
+            if (count > this->cap) {
+                grow(count);
+            }
+            while (this->len < count) {
+                emplace_back();
+            }
+        }
+    }
+
+    /**
+    Resizes the container to `count` elements, copying `value` into any new slots.
+    Requires `T` to be copy-constructible.
+    */
+    void resize(size_t count, const T& value) {
+        if (count < this->len) {
+            std::destroy_n(this->ptr + count, this->len - count);
+            this->len = count;
+        } else {
+            if (count > this->cap) {
+                grow(count);
+            };
+
+            while (this->len < count) {
+                emplace_back(value);
+            }
+        }
+    }
+
     void swap(ArenaVec& other) {
         T *data_temp = other.ptr;
         other.ptr    = this->ptr;
@@ -396,14 +433,21 @@ public:
     // todo: rest of std::vector API, except shrink_to_fit
 
 private:
+    static constexpr size_t GROWTH_MULTIPLIER = 2;
+
     void grow() {
         size_t new_cap;
         if (this->cap == 0) {
             assert(this->len == 0);
             new_cap = N;
         } else {
-            new_cap = this->cap * 2;
+            new_cap = this->cap * GROWTH_MULTIPLIER;
         }
+        grow(new_cap);
+    }
+
+    void grow(size_t new_cap) {
+        assert(new_cap >= this->len);
         T *my_data = this->ptr;
         this->ptr  = allocate(new_cap);
         this->cap  = new_cap;

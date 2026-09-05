@@ -55,12 +55,26 @@ class LIRVarSym : public LIRSym {
 public:
     LIRVarSym(sema::sym::VarSymbol *sym)
         : LIRSym(LIRSymKind::VAR, sym->get_symdata_rc(), sym->loc), is_param(sym->is_funcparam) {}
+
+    LIRVarSym(sema::sym::VarSymbol *sym, LIRFuncSym *function)
+        : LIRSym(LIRSymKind::VAR, sym->get_symdata_rc(), sym->loc), is_param(sym->is_funcparam),
+          function(function) {}
+
     // Whether the variable is a function parameter.
     bool is_param;
+
+    /**
+    The function symbol associated with this VarSym.
+    */
+    LIRFuncSym *function = nullptr;
 
     sema::sym::VarSymData *get_symdata() { return dyncast<sema::sym::VarSymData>(symdata.get()); }
 
     sema::types::Type *get_type() { return get_symdata()->get_type(); }
+
+    void associate_to_funcsym(LIRFuncSym *funcsym) { function = funcsym; }
+
+    bool is_global() const { return function == nullptr; }
 
     LIRVarSym *as_varsym() override { return this; }
 };

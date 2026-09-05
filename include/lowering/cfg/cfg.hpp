@@ -983,13 +983,15 @@ public:
 
     bool is_terminated() const { return term != nullptr; }
 
+    bool is_empty() const { return instructions.empty(); }
+
     bool has_label() const { return label.has_value(); }
 
-    BasicBlock *next_block() { return next(); }
+    BasicBlock *next_block() const { return next(); }
 
-    BasicBlock *prev_block() { return prev(); }
+    BasicBlock *prev_block() const { return prev(); }
 
-    Terminator *terminator() { return term.get(); }
+    Terminator *terminator() const { return term.get(); }
 
     void set_label(std::string&& label) { this->label = name = std::move(label); }
 
@@ -1137,6 +1139,11 @@ public:
     bool is_defined() { return entry != nullptr && !blocks.empty(); }
 
     /**
+    Whether the function is a simple plain return.
+    */
+    bool is_plain_return() const;
+
+    /**
     Insert an anonymous block.
     */
     BasicBlock *create_block();
@@ -1164,7 +1171,7 @@ public:
 
     BasicBlock *lookup_labeled_block(std::string& label);
 
-    size_t num_blocks() { return blocks.size(); }
+    size_t num_blocks() const { return blocks.size(); }
 
     void remove_block(BasicBlock *blk);
 

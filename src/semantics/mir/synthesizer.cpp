@@ -482,6 +482,8 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
 
             if (specinfo.is_public) {
                 funcsym->get_symdata()->set_visibility(Visibility::PUBLIC);
+            } else if (specinfo.is_static) {
+                funcsym->get_symdata()->set_visibility(Visibility::STATIC);
             }
 
             funcsym->get_symdata()->set_linkage(specinfo.linkage);
@@ -521,6 +523,8 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
             // populate other specifiers, and then insert into symbol table
             if (specinfo.is_public) {
                 sym->get_symdata()->set_visibility(Visibility::PUBLIC);
+            } else if (specinfo.is_static) {
+                sym->get_symdata()->set_visibility(Visibility::STATIC);
             }
 
             sym->get_symdata()->set_linkage(specinfo.linkage);

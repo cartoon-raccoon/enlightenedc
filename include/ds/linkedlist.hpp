@@ -60,9 +60,9 @@ public:
         return i;
     }
 
-    Node *next() { return next_node; }
+    Node *next() const { return next_node; }
 
-    Node *prev() { return prev_node; }
+    Node *prev() const { return prev_node; }
 
     template <typename N>
         requires std::derived_from<N, LinkedListNode<N>>
@@ -515,7 +515,7 @@ public:
 
     size_t size() const { return nodes.size(); }
 
-    bool empty() { return nodes.empty(); }
+    bool empty() const { return nodes.empty(); }
 
     N& first() const { return *first_elem; }
 

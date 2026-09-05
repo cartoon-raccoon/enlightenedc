@@ -22,7 +22,14 @@ enum class Linkage : uint8_t {
 };
 
 enum class Visibility : uint8_t {
-    // The symbol is only visible within this translation unit.
+    /**
+    The symbol has static visibility, the semantics of which depend on scope
+    and symbol type.
+
+    If the symbol is a non-global variable, it is given static storage duration.
+    If the symbol is a global function or variable, it is not visible inside the generated
+    object's symbol table.
+    */
     STATIC,
     // The symbol is visible outside this translation unit.
     PUBLIC,

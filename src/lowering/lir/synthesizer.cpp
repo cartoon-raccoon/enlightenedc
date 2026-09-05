@@ -57,6 +57,8 @@ LIRVarSym *LIRSynthesizer::insert_varsym(VarSymbol *sym, Box<LIRVarSym> var) {
     if (func_stack.empty()) {
         return symbolmap.insert_global(sym, std::move(var));
     } else {
+        LIRFuncSym *func = func_stack.top();
+        var->associate_to_funcsym(func);
         return func_stack.top()->insert(sym, std::move(var));
     }
 }

@@ -178,6 +178,14 @@ FuncArg *FunctionCFG::add_arg(Type *type) {
     return ret;
 }
 
+bool FunctionCFG::is_plain_return() const {
+    if (!entry->terminator()) {
+        return false;
+    }
+
+    return num_blocks() == 1 && entry->is_empty() && isa<Return>(entry->terminator());
+}
+
 BasicBlock *FunctionCFG::create_block() {
     return &blocks.emplace_back(this);
 }
