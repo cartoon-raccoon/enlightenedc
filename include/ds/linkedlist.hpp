@@ -6,8 +6,10 @@
 #include <cassert>
 #include <concepts>
 #include <cstddef>
+#include <iterator>
 #include <stdexcept>
 
+#include "allocator/alloc.hpp"
 #include "util.hpp"
 
 using namespace ecc::util;
@@ -21,8 +23,8 @@ namespace ecc::ds {
  */
 template <typename Node>
 class LinkedListNode {
-    template <typename T>
-        requires std::derived_from<T, LinkedListNode<T>>
+    template <typename T, template <typename> class P>
+        requires (std::derived_from<T, LinkedListNode<T>> && Owner<P<T>, T>)
     friend class LinkedList;
     template <typename T>
         requires std::derived_from<T, LinkedListNode<T>>
@@ -77,15 +79,21 @@ template <typename T>
 class LinkedListIter {
     LinkedListNode<T> *curr;
 
+    // The list's last node. curr alone can't support --end(): once curr is
+    // null there's no next_node/prev_node left to walk back through, so the
+    // iterator carries the tail itself to land on when stepping back from end().
+    LinkedListNode<T> *tail;
+
 public:
-    using difference_type = std::ptrdiff_t;
-    using value_type      = T;
-    using pointer         = T *;
-    using reference       = T&;
+    using difference_type   = std::ptrdiff_t;
+    using value_type        = T;
+    using pointer            = T *;
+    using reference          = T&;
+    using iterator_category  = std::bidirectional_iterator_tag;
 
-    LinkedListIter() : curr(nullptr) {}
+    LinkedListIter() : curr(nullptr), tail(nullptr) {}
 
-    LinkedListIter(LinkedListNode<T> *elem) : curr(elem) {}
+    LinkedListIter(LinkedListNode<T> *elem, LinkedListNode<T> *tail) : curr(elem), tail(tail) {}
 
     T& operator*() const { return **curr; }
 
@@ -106,19 +114,29 @@ public:
     LinkedListIter& operator--() { // --x
         if (curr) {
             curr = curr->prev_node;
+        } else {
+            curr = tail;
         }
         return *this;
     }
 
     LinkedListIter operator--(int) { // x--
         LinkedListIter tmp = *this;
-        if (curr)
+        if (curr) {
             curr = curr->prev_node;
+        } else {
+            curr = tail;
+        }
         return tmp;
     }
 
     bool operator==(const LinkedListIter& other) const { return curr == other.curr; }
 };
+
+// A dependent false, so the static_assert in make_owned_node()'s unreachable branch
+// only fires if that branch is actually instantiated, not merely parsed.
+template <typename>
+constexpr bool always_false_v = false;
 
 /**
  * An intrusive doubly-linked list implementation.
@@ -128,8 +146,8 @@ public:
  * so that adding/removing a node anywhere in the list - given a reference to it or to its
  * neighbor - is O(1): no scan to find a position, no shifting of other elements.
  */
-template <typename N>
-    requires std::derived_from<N, LinkedListNode<N>>
+template <typename N, template <typename> class PtrT = Box>
+    requires (std::derived_from<N, LinkedListNode<N>> && Owner<PtrT<N>, N>)
 class LinkedList {
 public:
     LinkedList() {};
@@ -200,7 +218,7 @@ public:
     */
     template <typename... Args>
     N& emplace_back(Args&&...args) {
-        return link_back(make_box<N>(std::forward<Args>(args)...));
+        return link_back(make_owned_node(std::forward<Args>(args)...));
     }
 
     /**
@@ -208,7 +226,7 @@ public:
     */
     template <typename... Args>
     N& emplace_front(Args&&...args) {
-        return link_front(make_box<N>(std::forward<Args>(args)...));
+        return link_front(make_owned_node(std::forward<Args>(args)...));
     }
 
     /**
@@ -216,7 +234,7 @@ public:
     */
     template <typename... Args>
     N& emplace_before(N& pos, Args&&...args) {
-        return link_before(make_box<N>(std::forward<Args>(args)...), pos);
+        return link_before(make_owned_node(std::forward<Args>(args)...), pos);
     }
 
     /**
@@ -224,7 +242,7 @@ public:
     */
     template <typename... Args>
     N& emplace_after(N& pos, Args&&...args) {
-        return link_after(make_box<N>(std::forward<Args>(args)...), pos);
+        return link_after(make_owned_node(std::forward<Args>(args)...), pos);
     }
 
     /**
@@ -243,7 +261,7 @@ public:
     the difference that matters when N is a polymorphic base, where moving by value would
     slice a derived node down to N.
     */
-    N& push_back(Box<N> item) { return link_back(std::move(item)); }
+    N& push_back(PtrT<N> item) { return link_back(std::move(item)); }
 
     /**
      * Prepend an element to the beginning of the list.
@@ -256,7 +274,7 @@ public:
     Prepend an already-owned node to the beginning of the list. See push_back(Box<N>) for
     why this differs from the by-value overloads.
     */
-    N& push_front(Box<N> item) { return link_front(std::move(item)); }
+    N& push_front(PtrT<N> item) { return link_front(std::move(item)); }
 
     /**
     Insert an element immediately before `succ`. O(1).
@@ -275,9 +293,9 @@ public:
     /**
      * Insert an element at the specified index.
      */
-    void insert(const N& item, size_t idx) { insert(make_box<N>(item), idx); }
+    void insert(const N& item, size_t idx) { insert(make_owned_node(item), idx); }
 
-    void insert(N&& item, size_t idx) { insert(make_box<N>(std::move(item)), idx); }
+    void insert(N&& item, size_t idx) { insert(make_owned_node(std::move(item)), idx); }
 
     void pop_back() {
         if (!last_elem) {
@@ -479,7 +497,7 @@ public:
      *
      * Throws std::out_of_range if the index is out of bounds.
      */
-    N& at(size_t idx) {
+    N& at(size_t idx) const {
         N *curr_acc     = first_elem;
         size_t curr_idx = 0;
 
@@ -503,20 +521,45 @@ public:
 
     N& last() const { return *last_elem; }
 
-    LinkedListIter<N> begin() const { return LinkedListIter<N>(first_elem); }
+    LinkedListIter<N> begin() const { return LinkedListIter<N>(first_elem, last_elem); }
 
-    LinkedListIter<N> end() const { return LinkedListIter<N>(nullptr); }
+    LinkedListIter<N> end() const { return LinkedListIter<N>(nullptr, last_elem); }
+
+    using ReverseIterator = std::reverse_iterator<LinkedListIter<N>>;
+
+    ReverseIterator rbegin() const { return ReverseIterator(end()); }
+
+    ReverseIterator rend() const { return ReverseIterator(begin()); }
 
 private:
     /**
+    Construct a new N from `args`, wrapped in whichever PtrT this instantiation owns
+    nodes through. Needed because Box and Chunk are built via different factories
+    (make_box() vs. alloc::make_chunk()) - there's no single constructor call that
+    works for both.
+    */
+    template <typename... Args>
+    static PtrT<N> make_owned_node(Args&&...args) {
+        if constexpr (std::same_as<PtrT<N>, Box<N>>) {
+            return make_box<N>(std::forward<Args>(args)...);
+        } else if constexpr (std::same_as<PtrT<N>, alloc::Chunk<N>>) {
+            return alloc::make_chunk<N>(std::forward<Args>(args)...);
+        } else {
+            static_assert(
+                always_false_v<PtrT<N>>,
+                "LinkedList only supports Box or Chunk as its node-owning pointer");
+        }
+    }
+
+    /**
     Take ownership of `item`, keyed by its own address for O(1) release in remove().
     */
-    void adopt(Box<N> item) {
+    void adopt(PtrT<N> item) {
         N *raw = item.get();
         nodes.emplace(raw, std::move(item));
     }
 
-    N& link_back(Box<N> item) {
+    N& link_back(PtrT<N> item) {
         N *raw = item.get();
 
         item->prev_node = last_elem;
@@ -533,7 +576,7 @@ private:
         return *raw;
     }
 
-    N& link_front(Box<N> item) {
+    N& link_front(PtrT<N> item) {
         N *raw = item.get();
 
         item->next_node = first_elem;
@@ -550,14 +593,14 @@ private:
         return *raw;
     }
 
-    N& link_before(Box<N> item, N& pos) {
+    N& link_before(PtrT<N> item, N& pos) {
         N *raw = item.get();
         link_before_raw(*raw, pos);
         adopt(std::move(item));
         return *raw;
     }
 
-    N& link_after(Box<N> item, N& pos) {
+    N& link_after(PtrT<N> item, N& pos) {
         N *raw = item.get();
         link_after_raw(*raw, pos);
         adopt(std::move(item));
@@ -622,7 +665,7 @@ private:
         }
     }
 
-    void insert(Box<N> item, size_t idx) {
+    void insert(PtrT<N> item, size_t idx) {
         if (idx > size()) {
             throw std::out_of_range("specified index for LinkedList out of range");
         } else if (idx == size()) {
@@ -636,7 +679,7 @@ private:
 
     // Owning storage, keyed by node address rather than position - so remove() never
     // needs to scan for the Box matching a given node.
-    HashMap<N *, Box<N>> nodes;
+    HashMap<N *, PtrT<N>> nodes;
 
     N *first_elem = nullptr;
     N *last_elem  = nullptr;

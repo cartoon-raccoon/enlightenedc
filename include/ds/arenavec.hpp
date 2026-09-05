@@ -7,8 +7,10 @@
 #include <cassert>
 #include <compare>
 #include <initializer_list>
+#include <iterator>
 #include <memory>
 #include <limits>
+#include <stdexcept>
 #include <type_traits>
 #include <utility>
 
@@ -21,13 +23,13 @@ class ArenaVecBase {
 protected:
     using AllocTraits = std::allocator_traits<alloc::ArenaAllocator<T>>;
 
-    T *data     = nullptr;
+    T *ptr     = nullptr;
     size_t len = 0;
     size_t cap  = 0;
     ArenaAllocator<T> alloc;
 
     ArenaVecBase() = default;
-    ~ArenaVecBase() { std::destroy_n(data, len); }
+    ~ArenaVecBase() { std::destroy_n(ptr, len); }
 };
 
 template <typename T, size_t N>
@@ -35,7 +37,7 @@ class ArenaVecBase<T, N, true> {
 protected:
     using AllocTraits = std::allocator_traits<alloc::ArenaAllocator<T>>;
 
-    T *data    = nullptr;
+    T *ptr    = nullptr;
     size_t len = 0;
     size_t cap = 0;
     ArenaAllocator<T> alloc;
@@ -57,6 +59,13 @@ class ArenaVecIter {
         : data(data), idx(idx), len(len) {}
 
 public:
+
+    using difference_type   = std::ptrdiff_t;
+    using value_type        = std::remove_const_t<T>;
+    using pointer            = T *;
+    using reference          = T&;
+    using iterator_category  = std::bidirectional_iterator_tag;
+
     ArenaVecIter(const ArenaVecIter& iter) {
         data = iter.data;
         idx = iter.idx;
@@ -154,6 +163,8 @@ template <typename T, size_t N = 8>
 class ArenaVec : ArenaVecBase<T, N> {
 public:
     using Iterator = ArenaVecIter<T>;
+    using ConstIterator = ArenaVecIter<const T>;
+    using ReverseIter = std::reverse_iterator<Iterator>;
 
     ArenaVec() : ArenaVecBase<T, N>() {}
 
@@ -162,20 +173,20 @@ public:
     }
 
     ArenaVec(const ArenaVec& vec) : ArenaVecBase<T, N>() {
-        this->data = this->alloc.allocate(vec.cap);
-        std::uninitialized_copy_n(vec.data, vec.len, this->data);
+        this->ptr = allocate(vec.cap);
+        std::uninitialized_copy_n(vec.ptr, vec.len, this->ptr);
         this->len = vec.len;
         this->cap = vec.cap;
     }
 
     ArenaVec(ArenaVec&& vec) noexcept : ArenaVecBase<T, N>() {
-        this->data = vec.data;
+        this->ptr = vec.ptr;
         this->len = vec.len;
         this->cap = vec.cap;
         // allocator is stateless, so no need to copy it
         // (there is no state to copy)
 
-        vec.data = nullptr;
+        vec.ptr = nullptr;
         vec.len = 0;
         vec.cap = 0;
     }
@@ -195,44 +206,91 @@ public:
 
         // destroy old objects before this->data is potentially replaced below
         if constexpr (!std::is_trivially_destructible_v<T>) {
-            std::destroy_n(this->data, this->len);
+            std::destroy_n(this->ptr, this->len);
         }
 
         if (vec.len > this->cap) {
             // if we can hold fewer objects than the incoming has,
             // reallocate for enough space
-            this->data = this->alloc.allocate(vec.len);
+            this->ptr = allocate(vec.len);
             this->cap = vec.len;
         }
 
         // nothing to deallocate - just leave our old data dangling
 
-        std::uninitialized_copy_n(vec.data, vec.len, this->data);
+        std::uninitialized_copy_n(vec.ptr, vec.len, this->ptr);
         this->len = vec.len;
 
         return *this;
     }
 
     ArenaVec& operator=(ArenaVec&& vec) noexcept {
-        std::destroy_n(this->data, this->len);
-        this->data = vec.data;
+        std::destroy_n(this->ptr, this->len);
+        this->ptr = vec.ptr;
         this->len = vec.len;
         this->cap = vec.cap;
 
-        vec.data = nullptr;
+        vec.ptr = nullptr;
         vec.len = 0;
         vec.cap = 0;
 
         return *this;
     }
 
-    T& front() { return *(this->data); }
+    void assign(size_t n, const T& value) {
+        T value_copy = value; // guard: value may alias an element we're about to destroy
 
-    T& back() { return *(this->data + (this->len - 1)); }
+        if constexpr (!std::is_trivially_destructible_v<T>) {
+            std::destroy_n(this->ptr, this->len);
+        }
 
-    Iterator begin() { return Iterator(this->data, 0, this->len); }
+        if (n > this->cap) {
+            this->ptr = allocate(n);
+            this->cap = n;
+        }
 
-    Iterator end() { return Iterator(this->data, this->len, this->len); }
+        std::uninitialized_fill_n(this->ptr, n, value_copy);
+        this->len = n;
+    }
+
+    // todo: assign overloads
+
+    ArenaAllocator<T>& get_allocator() {
+        return this->alloc;
+    }
+
+    T& at(size_t idx) {
+        if (idx >= this->len) {
+            throw std::out_of_range("out of range");
+        }
+        return *(this->ptr + idx);
+    }
+
+    T& operator[](size_t idx) {
+        return *(this->ptr + idx);
+    }
+
+    T& front() { return *(this->ptr); }
+
+    T& back() { return *(this->ptr + (this->len - 1)); }
+
+    const T* data() { return this->ptr; }
+
+    Iterator begin() { return Iterator(this->ptr, 0, this->len); }
+
+    ConstIterator begin() const { return ConstIterator(this->ptr, 0, this->len); }
+
+    ConstIterator cbegin() { return ConstIterator(this->ptr, 0, this->len); }
+
+    Iterator end() { return Iterator(this->ptr, this->len, this->len); }
+
+    ConstIterator end() const { return ConstIterator(this->ptr, this->len, this->len); }
+
+    ConstIterator cend() { return ConstIterator(this->ptr, 0, this->len); }\
+
+    ReverseIter rbegin() { return std::reverse_iterator(end()); }
+
+    ReverseIter rend() { return std::reverse_iterator(begin()); }
 
     bool empty() const { return this->len == 0; }
 
@@ -241,13 +299,13 @@ public:
     size_t max_size() const { return (std::numeric_limits<size_t>::max() / sizeof(T)); }
 
     void reserve(size_t size = N) {
-        if (this->data != nullptr) return;
+        if (this->ptr != nullptr) return;
 
         if (size <= N) {
-            this->data = this->alloc.allocate(N);
+            this->ptr = allocate(N);
             this->cap = N;
         } else {
-            this->data = this->alloc.allocate(size);
+            this->ptr = allocate(size);
             this->cap = size;
         }
     }
@@ -258,7 +316,7 @@ public:
 
     void clear() {
         if constexpr (!std::is_trivially_destructible_v<T>) {
-            std::destroy_n(this->data, this->len);
+            std::destroy_n(this->ptr, this->len);
         }
         this->len = 0;
     }
@@ -276,7 +334,7 @@ public:
         if (this->len == this->cap) {
             grow();
         }
-        T *point = this->data + this->len;
+        T *point = this->ptr + this->len;
         T *obj = ::new (point) T(std::forward<Args>(args) ...);
         ++this->len;
 
@@ -284,14 +342,14 @@ public:
     }
 
     void pop_back() {
-        std::destroy_at(this->data + (this->len - 1));
+        std::destroy_at(this->ptr + (this->len - 1));
         --this->len;
     }
 
     void swap(ArenaVec& other) {
-        T *data_temp = other.data;
-        other.data = this->data;
-        this->data = data_temp;
+        T *data_temp = other.ptr;
+        other.ptr = this->ptr;
+        this->ptr = data_temp;
 
         if (this->len != other.len) {
             size_t len_temp = other.len;
@@ -306,6 +364,8 @@ public:
         }
     }
 
+    // todo: rest of std::vector API, except shrink_to_fit
+
 private:
 
     void grow() {
@@ -316,14 +376,18 @@ private:
         } else {
             new_cap = this->cap * 2;
         }
-        T *my_data = this->data;
-        this->data = this->alloc.allocate(new_cap);
+        T *my_data = this->ptr;
+        this->ptr = allocate(new_cap);
         this->cap = new_cap;
 
-        std::uninitialized_copy_n(my_data, this->len, this->data);
+        std::uninitialized_copy_n(my_data, this->len, this->ptr);
 
         // destroy old data *after* copying
         std::destroy_n(my_data, this->len);
+    }
+
+    T *allocate(size_t n) {
+        return ArenaVecBase<T, N>::AllocTraits::allocate(this->alloc, n);
     }
 };
 

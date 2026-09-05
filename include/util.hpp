@@ -528,6 +528,22 @@ public:
 };
 
 /*
+* OWNER CONCEPT
+*/
+
+/**
+A concept expressing that a container owns its type.
+
+Box and Chunk are both Owners.
+*/
+template <typename Container, typename T>
+concept Owner = std::movable<Container> && requires(Container o) {
+    { o.get() } -> std::convertible_to<T *>;
+    { o.operator->() } -> std::convertible_to<T *>;
+    { o.release() } -> std::convertible_to<T *>;
+};
+
+/*
  * NOCOPY, NOMOVE
  */
 
