@@ -7,7 +7,6 @@
 #include <cstddef>
 
 #include "semantics/mir/mir.hpp"
-#include "semantics/symdata.hpp"
 #include "util.hpp"
 
 using namespace ecc;
@@ -34,6 +33,10 @@ struct AttributeData {
     void (*action)(sema::mir::MIRNode&, Optional<std::string>&);
 };
 
+void process_attribute_packed(sema::mir::MIRNode&, Optional<std::string>&);
+void process_attribute_link_name(sema::mir::MIRNode&, Optional<std::string>&);
+void process_attribute_main(sema::mir::MIRNode&, Optional<std::string>&);
+
 // clang-format off
 inline constexpr
 std::array ATTR_REGISTRY = std::to_array<Pair<const char *, AttributeData>>({
@@ -42,11 +45,7 @@ std::array ATTR_REGISTRY = std::to_array<Pair<const char *, AttributeData>>({
         AttributeData { 
             AttributeTarget::TYPE,
             false,
-            [](sema::mir::MIRNode& node, Optional<std::string>&) {
-                auto *type = cast<sema::mir::TypeDeclMIR>(&node);
-
-                // todo: add packed option
-            },
+            process_attribute_packed,
         }
     },
     Pair {
@@ -54,13 +53,7 @@ std::array ATTR_REGISTRY = std::to_array<Pair<const char *, AttributeData>>({
         AttributeData {
             AttributeTarget::FUNCTION,
             true,
-            [](sema::mir::MIRNode& node, Optional<std::string>& value) {
-                auto *func = cast<sema::mir::FunctionMIR>(&node);
-                assert(value.has_value());
-
-                sema::sym::FuncSymData *symdata = func->sym->get_symdata();
-                symdata->set_link_name(*value);
-            },
+            process_attribute_link_name,
         }
     },
     Pair {
@@ -68,12 +61,7 @@ std::array ATTR_REGISTRY = std::to_array<Pair<const char *, AttributeData>>({
         AttributeData {
             AttributeTarget::FUNCTION,
             false,
-            [](sema::mir::MIRNode& node, Optional<std::string>&) {
-                auto *func = cast<sema::mir::FunctionMIR>(&node);
-
-                sema::sym::FuncSymData *symdata = func->sym->get_symdata();
-                symdata->set_main(true);
-            },
+            process_attribute_main,
         }
     }
 });

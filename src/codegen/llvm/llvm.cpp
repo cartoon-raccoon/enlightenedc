@@ -175,9 +175,9 @@ void LLVMUnit::finalize(ClassType *type) {
     }
 
     if (!type->is_anonymous()) {
-        typemap[type] = llvm::StructType::create(ctx(), args, type->name());
+        typemap[type] = llvm::StructType::create(ctx(), args, type->name(), type->is_packed());
     } else {
-        typemap[type] = llvm::StructType::get(ctx(), args);
+        typemap[type] = llvm::StructType::get(ctx(), args, type->is_packed());
     }
 }
 

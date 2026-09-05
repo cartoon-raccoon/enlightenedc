@@ -22,15 +22,13 @@ public:
         InvalidValue,
         NoSuchAttribute,
         InvalidTarget,
+        InvalidType,
     };
 
     enum class Target : uint8_t {
         Function,
         Type,
     };
-
-    InvalidAttributeError(Location err_loc, Kind kind)
-        : EccSemError(err_str_from_kind(kind), err_loc), kind(kind) {}
 
     InvalidAttributeError(Location err_loc, std::string name)
         : EccSemError("no such attribute", err_loc), kind(Kind::NoSuchAttribute),
@@ -42,6 +40,9 @@ public:
 
     InvalidAttributeError(Location err_loc, Kind kind, std::string name)
         : EccSemError(err_str_from_kind(kind), err_loc), kind(kind), name(std::move(name)) {}
+
+    InvalidAttributeError(Location err_loc, std::string err_str, Kind kind, std::string name)
+        : EccSemError(std::move(err_str), err_loc), kind(kind), name(std::move(name)) {}
 
     InvalidAttributeError(Location err_loc, Kind kind, std::string name, std::string value)
         : EccSemError(err_str_from_kind(kind), err_loc), kind(kind), name(std::move(name)),
@@ -63,6 +64,8 @@ public:
             return "invalid attribute";
         case Kind::InvalidTarget:
             return "invalid target for attribute";
+        case Kind::InvalidType:
+            return "invalid target type for attribute";
         }
     }
 
@@ -85,6 +88,8 @@ public:
         case Kind::InvalidTarget:
             ss << "attribute '" << name << "' cannot take "
                << (target == Target::Function ? "functions" : "types") << " as targets";
+        case Kind::InvalidType:
+            ss << "attribute '" << name << "' cannot be used on this type";
         }
 
         return ss.str();

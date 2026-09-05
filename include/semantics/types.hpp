@@ -1048,6 +1048,16 @@ public:
 
     bool is_fully_defined() override;
 
+    /**
+    Set the type to be packed.
+    */
+    void set_packed(bool val) { packed = val; }
+
+    /**
+    Whether the type is packed.
+    */
+    bool is_packed() const { return packed; }
+
     TypeMember *add_member(std::string name, Type *type, Location loc) override;
 
     TypeMember *add_member(Type *type, Location loc) override;
@@ -1106,6 +1116,8 @@ public:
 
 protected:
     Optional<ClassType *> parent;
+
+    bool packed = false;
 
     friend class TypeContext;
 
