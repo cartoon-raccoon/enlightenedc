@@ -1,3 +1,4 @@
 # EnlightenedC Language Specification
 
-Under construction!
+This is the specification for the EnlightenedC language. It lays out the translation and execution
+of the language.
