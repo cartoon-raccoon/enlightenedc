@@ -108,6 +108,22 @@ Box<BasicBlock> BasicBlock::entry(std::string& func_name, FunctionCFG *func) {
     return ret;
 }
 
+Value *BasicBlock::insert_value(Box<Value> val) {
+    Value *ret = val.get();
+    push_value(std::move(val));
+
+    return ret;
+}
+
+Instruction *BasicBlock::first_non_phi_inst() const {
+    Instruction *curr = &instructions.first();
+    while (!isa<PhiInst>(curr)) {
+        curr = curr->next();
+    }
+
+    return curr;
+}
+
 void BasicBlock::push_value(Box<Value> val) {
     parent->values.push_back(std::move(val));
 }

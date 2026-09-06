@@ -1026,21 +1026,12 @@ public:
         return ret;
     }
 
-    Value *insert_value(Box<Value> val) {
-        Value *ret = val.get();
-        push_value(std::move(val));
+    Value *insert_value(Box<Value> val);
 
-        return ret;
-    }
-
-    Instruction *first_non_phi_inst() const {
-        Instruction *curr = &instructions.first();
-        while (!isa<PhiInst>(curr)) {
-            curr = curr->next();
-        }
-
-        return curr;
-    }
+    /**
+    Retrieve the first non-Phi instruction in this block.
+    */
+    Instruction *first_non_phi_inst() const;
 
     /**
     Retrieve the function containing this block.

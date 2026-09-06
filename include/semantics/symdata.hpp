@@ -131,6 +131,11 @@ class FuncSymData : public SymData {
     */
     bool main_function = false;
 
+    /**
+    Whether this function symbol is the print function for this object file.
+    */
+    bool print_function = false;
+
 public:
     FuncSymData(std::string name, types::FunctionType *signature)
         : SymData(Kind::FUNC, std::move(name)), signature(signature) {}
@@ -146,6 +151,10 @@ public:
     bool is_main() const { return main_function; }
 
     void set_main(bool is_main) { main_function = is_main; }
+
+    bool is_print() const { return print_function; }
+    
+    void set_print(bool is_print) { print_function = is_print; }
 
     static bool classof(const SymData *data) { return data->kind == Kind::FUNC; }
 };

@@ -420,11 +420,26 @@ bool Validator::always_returns(StmtMIR& node) {
 void Validator::do_visit(FunctionMIR& node) {
     FuncSymbol *sym = node.sym;
     if (sym->get_symdata()->is_main()) {
+        if (main_loc.has_value()) {
+            add_error<DuplicateMainError>(node.declarator_loc, *main_loc);
+            throw UnableToContinue();
+        }
         FunctionType *signature = sym->get_signature();
         if (!types.is_valid_main_signature(signature)) {
             add_error<InvalidMainSignature>(node.declarator_loc, sym->get_signature());
         }
-        // todo: check for duplicate mains
+        main_loc = node.declarator_loc;
+    }
+    if (sym->get_symdata()->is_print()) {
+        if (print_loc.has_value()) {
+            add_error<DuplicatePrintError>(node.declarator_loc, *main_loc);
+            throw UnableToContinue();
+        }
+        FunctionType *signature = sym->get_signature();
+        if (!types.is_valid_print_signature(signature)) {
+            add_error<InvalidPrintSignature>(node.declarator_loc, sym->get_signature());
+        }
+        print_loc = node.declarator_loc;
     }
 
     // Visit the body first so every expression node has its types resolved.

@@ -484,6 +484,51 @@ public:
     }
 };
 
+class DuplicateMainError : public EccSemError {
+public:
+    DuplicateMainError(Location err_loc, Location prev_loc)
+        : EccSemError("duplicate main function", err_loc), prev_loc(prev_loc) {}
+
+    Location prev_loc;
+
+    std::string elab() override {
+        std::stringstream ss;
+        ss << "main function previously marked at " << prev_loc;
+
+        return ss.str();
+    }
+};
+
+class InvalidPrintSignature : public EccSemError {
+public:
+    InvalidPrintSignature(Location err_loc, types::FunctionType *bad_sig)
+        : EccSemError("invalid signature for main function", err_loc), bad_sig(bad_sig->to_string()) {}
+
+    std::string bad_sig;
+
+    std::string elab() override {
+        std::stringstream ss;
+        ss << "function marked as print cannot have signature " << bad_sig;
+
+        return ss.str();
+    }
+};
+
+class DuplicatePrintError : public EccSemError {
+public:
+    DuplicatePrintError(Location err_loc, Location prev_loc)
+        : EccSemError("duplicate print function", err_loc), prev_loc(prev_loc) {}
+
+    Location prev_loc;
+
+    std::string elab() override {
+        std::stringstream ss;
+        ss << "print function previously marked at " << prev_loc;
+
+        return ss.str();
+    }
+};
+
 class InvalidTypeError : public EccSemError {
 public:
     InvalidTypeError(std::string err, types::Type *type, Location err_loc)

@@ -139,6 +139,16 @@ protected:
 private:
     using Accessor = std::variant<std::string, size_t>;
 
+    /**
+    The location of the main function, if found.
+    */
+    Optional<Location> main_loc;
+
+    /**
+    The location of the print function, if found.
+    */
+    Optional<Location> print_loc;
+
     void visit_single_vardecl(sym::VarSymbol *varsym, mir::InitializerMIR& init);
 
     Optional<types::Type *> eval_initializer_rec(

@@ -36,6 +36,7 @@ struct AttributeData {
 void process_attribute_packed(sema::mir::MIRNode&, Optional<std::string>&);
 void process_attribute_link_name(sema::mir::MIRNode&, Optional<std::string>&);
 void process_attribute_main(sema::mir::MIRNode&, Optional<std::string>&);
+void process_attribute_print(sema::mir::MIRNode&, Optional<std::string>&);
 
 // clang-format off
 inline constexpr
@@ -63,7 +64,15 @@ std::array ATTR_REGISTRY = std::to_array<Pair<const char *, AttributeData>>({
             false,
             process_attribute_main,
         }
-    }
+    },
+    Pair {
+        "print",
+        AttributeData {
+            AttributeTarget::FUNCTION,
+            false,
+            process_attribute_print,
+        }
+    },
 });
 // clang-format on
 

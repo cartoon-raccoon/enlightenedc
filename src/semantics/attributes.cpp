@@ -13,7 +13,6 @@ using namespace sema::types;
 void process_attribute_packed(MIRNode& node, Optional<std::string>&) {
     auto *typedecl = cast<sema::mir::TypeDeclMIR>(&node);
 
-    assert(typedecl);
     ClassType *cltype = typedecl->sym->type->as_class();
     if (!cltype) {
         throw InvalidAttributeError(node.loc, InvalidAttributeError::Kind::InvalidType, "packed");
@@ -35,6 +34,13 @@ void process_attribute_main(MIRNode& node, Optional<std::string>&) {
 
     sema::sym::FuncSymData *symdata = func->sym->get_symdata();
     symdata->set_main(true);
+}
+
+void process_attribute_print(MIRNode& node, Optional<std::string>&) {
+    auto *func = cast<sema::mir::FunctionMIR>(&node);
+
+    sema::sym::FuncSymData *symdata = func->sym->get_symdata();
+    symdata->set_print(true);
 }
 
 } // namespace ecc::sema::attr
