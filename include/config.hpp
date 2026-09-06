@@ -58,6 +58,16 @@ public:
     bool verbose = false;
 
     /**
+    The standard to support in this compilation pass.
+    */
+    enum class Standard : uint8_t {
+        HOLYC,
+        ENLIGHTENEDC,
+    };
+
+    Standard standard = Standard::ENLIGHTENEDC;
+
+    /**
     The phase of compilation at which to stop.
     */
     enum class StopAt : uint8_t {
