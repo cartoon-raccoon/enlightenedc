@@ -96,3 +96,65 @@ z %= 3;
 // Nested/chained ternary.
 I32 t = 1 ? 2 ? 3 : 4 : 5;
 "%d\n", t;   // 3
+
+// --- constexpr: a named compile-time constant, used in place of #define ---
+
+constexpr I32 CE_A = 5;
+constexpr I32 CE_B = CE_A * 2 + 1;   // an initializer may use another constexpr
+constexpr I32 CE_NEG = -12;          // negative values are allowed
+constexpr U8  CE_BYTE = 255;         // value at the top of the type's range
+constexpr Bool CE_FLAG = 1;
+constexpr I8  CE_LOW = -128;         // value at the bottom of the type's range
+
+"%d\n", CE_A;       // 5
+"%d\n", CE_B;       // 11
+"%d\n", CE_NEG;     // -12
+"%d\n", CE_BYTE;    // 255
+"%d\n", CE_FLAG;    // 1
+"%d\n", CE_LOW;     // -128
+
+// A constexpr folds to its value at each use site.
+I32 ce_x = CE_B;
+"%d\n", ce_x;       // 11
+
+// A constexpr works in a constant context: an array bound.
+I32 ce_arr[CE_A];
+ce_arr[0] = CE_NEG;
+"%d\n", ce_arr[0];  // -12
+
+// A constexpr works as an enumerator initializer.
+enum CeEnum { CE_E0 = CE_A, CE_E1 };
+I32 ce_e = CE_E1;
+"%d\n", ce_e;       // 6
+
+// A constexpr is an ordinary rvalue in a run-time expression.
+I32 ce_sum  = CE_A + CE_B;          // 16
+I32 ce_diff = CE_B - CE_A;          // 6
+I32 ce_prod = CE_A * CE_B;          // 55
+I32 ce_mix  = CE_B + CE_NEG;        // -1
+I32 ce_all  = CE_A + CE_B - CE_NEG; // 28
+
+"%d\n", ce_sum;    // 16
+"%d\n", ce_diff;   // 6
+"%d\n", ce_prod;   // 55
+"%d\n", ce_mix;    // -1
+"%d\n", ce_all;    // 28
+
+// A constexpr mixes with run-time values and with literals.
+I32 ce_rt = ce_x + CE_A;           // 11 + 5 = 16
+"%d\n", ce_rt;     // 16
+"%d\n", CE_A + 2;  // 7
+
+// A constexpr in relational and ternary operators.
+"%d\n", CE_A > CE_NEG;             // 1
+"%d\n", CE_B == 11;                // 1
+I32 ce_pick = (CE_A > CE_B) ? CE_A : CE_B;
+"%d\n", ce_pick;   // 11
+
+// Floating-point constexpr.
+constexpr F64 CE_PI = 3.14;
+constexpr F64 CE_TWO_PI = CE_PI * 2.0;   // initializer uses another float constexpr
+F64 ce_area = CE_PI * 10.0;
+"%f\n", CE_PI;      // 3.140000
+"%f\n", CE_TWO_PI;  // 6.280000
+"%f\n", ce_area;    // 31.400000

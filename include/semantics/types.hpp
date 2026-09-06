@@ -958,12 +958,16 @@ public:
     */
     Optional<uint64_t> int_max() const;
 
+    Optional<int64_t> int_min() const;
+
     /**
     The floating point maximum of the primitive type.
 
     Returns an empty optional if the primitive is an integer.
     */
     Optional<double> flt_max() const;
+
+    Optional<double> flt_min() const;
 
     PrimitiveType *as_primitive() override { return this; }
 

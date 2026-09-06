@@ -1,6 +1,7 @@
 #include "semantics/mir/synthesizer.hpp"
 
 #include <cassert>
+#include <cmath>
 #include <memory>
 #include <stdexcept>
 #include <variant>
@@ -70,6 +71,10 @@ MIRSynthesizer::parse_speclist(ArenaVec<Chunk<ast::DeclarationSpecifier>>& specl
             auto qualtype = take_last_result<TypeQualifier::QualType>();
             switch (qualtype) {
             case TypeQualifier::QualType::CONST:
+                if (specinfo.is_constexpr) {
+                    add_error<EccSemError>("constexpr implies const, redundant extra const", decl_spec->loc);
+                    break;
+                }
                 if (specinfo.is_const) {
                     add_error<EccSemError>("duplicate const qualifier", decl_spec->loc);
                 } else {
@@ -90,6 +95,7 @@ MIRSynthesizer::parse_speclist(ArenaVec<Chunk<ast::DeclarationSpecifier>>& specl
                 break;
 
             case StorageClassSpecifier::STATIC:
+                // we allow constexpr to exist alongside static, for futureproofing
                 if (specinfo.is_static) {
                     add_error<EccSemError>("duplicate static specifier", decl_spec->loc);
                 } else {
@@ -97,7 +103,26 @@ MIRSynthesizer::parse_speclist(ArenaVec<Chunk<ast::DeclarationSpecifier>>& specl
                 }
                 break;
 
+            case StorageClassSpecifier::CONSTEXPR:
+                if (specinfo.is_const) {
+                    add_error<EccSemError>("constexpr implies const", decl_spec->loc);
+                    break;
+                }
+
+                if (specinfo.linkage_is_external()) {
+                    add_error<EccSemError>("constexpr cannot be marked extern", decl_spec->loc);
+                    break;
+                }
+
+                specinfo.is_constexpr = true;
+                specinfo.is_const = true;
+                break;
+
             case StorageClassSpecifier::EXTERN:
+                if (specinfo.is_constexpr) {
+                    add_error<EccSemError>("constexpr cannot be marked extern", decl_spec->loc);
+                    break;
+                }
                 if (specinfo.linkage != Linkage::INTERNAL) {
                     add_error<EccSemError>("multiple storage class specifiers", decl_spec->loc);
                 } else {
@@ -106,6 +131,10 @@ MIRSynthesizer::parse_speclist(ArenaVec<Chunk<ast::DeclarationSpecifier>>& specl
                 break;
 
             case StorageClassSpecifier::EXTERNC:
+                if (specinfo.is_constexpr) {
+                    add_error<EccSemError>("constexpr cannot be marked extern", decl_spec->loc);
+                    break;
+                }
                 if (specinfo.linkage != Linkage::INTERNAL) {
                     add_error<EccSemError>("multiple storage class specifiers", decl_spec->loc);
                 } else {
@@ -277,7 +306,12 @@ void MIRSynthesizer::do_visit(Function& node) {
     dovisit_param          = std::move(param);
 
     if (specinfo.linkage == Linkage::EXTERNAL) {
-        add_error<EccSemError>("externally linked functions cannot have a body", node.loc);
+        add_error<EccSemError>("externally linked functions cannot have a body", node.declarator->loc);
+        throw UnableToContinue();
+    }
+
+    if (specinfo.is_constexpr) {
+        add_error<EccSemError>("function cannot be marked constexpr", node.declarator->loc);
         throw UnableToContinue();
     }
 
@@ -407,6 +441,10 @@ void MIRSynthesizer::do_visit(TypeDeclaration& node) {
             dv_call(decl.get(), attr);
         }
 
+        if (specinfo.is_const || specinfo.is_constexpr) {
+            add_error<EccSemError>("type declaration cannot be marked const or constexpr", node.loc);
+        }
+
         dv_return(decl);
     } else {
         dv_return_void();
@@ -418,7 +456,10 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
 
     auto specinfo = parse_speclist(node.specifiers, node.loc);
 
-    Chunk<VarDeclMIR> var_decl = make_chunk<VarDeclMIR>(node.loc);
+    Chunk<VarDeclMIR> var_decl = nullptr;
+    if (!specinfo.is_constexpr) {
+        var_decl = make_chunk<VarDeclMIR>(node.loc);
+    }
 
     for (auto& declarator : node.declarators) {
         // call accept on our declarator
@@ -456,10 +497,21 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
                 throw UnableToContinue();
             }
 
+            if (specinfo.is_constexpr) {
+                add_error<EccSemError>("function declaration cannot be constexpr", declarator->loc);
+                throw UnableToContinue();
+            }
+
             if (node.declarators.size() > 1) {
                 add_error<EccSemError>(
                     "function declaration cannot be combined with other declarators",
                     declarator->loc);
+                throw UnableToContinue();
+            }
+
+            if (specinfo.linkage_is_external() && syms.current != syms.global()) {
+                add_error<EccSemError>(
+                    "extern function declaration must be at global scope", declarator->loc);
                 throw UnableToContinue();
             }
 
@@ -477,39 +529,7 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
 
             FunctionType *functype = symtype->as_function();
 
-            Box<FuncSymbol> funcsym =
-                FuncSymbol::empty(node.loc, *ret.name, syms.current, functype);
-
-            if (specinfo.is_public) {
-                funcsym->get_symdata()->set_visibility(Visibility::PUBLIC);
-            } else if (specinfo.is_static) {
-                funcsym->get_symdata()->set_visibility(Visibility::STATIC);
-            }
-
-            funcsym->get_symdata()->set_linkage(specinfo.linkage);
-            if (specinfo.linkage == Linkage::EXTERNC) {
-                funcsym->get_symdata()->set_visibility(Visibility::EXTERNC);
-            }
-
-            if (funcsym->is_external() && syms.current != syms.global()) {
-                add_error<EccSemError>(
-                    "extern function declaration must be at global scope", declarator->loc);
-                throw UnableToContinue();
-            }
-
-            Location def_loc    = funcsym->loc;
-            FuncSymbol *funcptr = nullptr;
-            try {
-                funcptr = syms.insert(*ret.name, std::move(funcsym));
-            } catch (Symbol *existing) {
-                add_error<SymbolAlrDecldError>(
-                    std::format("symbol {} already previously declared", existing->name), def_loc,
-                    existing->loc);
-                throw UnableToContinue();
-            }
-
-            Chunk<FunctionMIR> funcmir =
-                make_chunk<FunctionMIR>(node.loc, node.loc, funcptr, syms.current, nullptr);
+            auto funcmir = parse_vardecl_func(node, std::move(ret), specinfo, functype);
 
             dv_return(funcmir);
         } else {
@@ -554,20 +574,128 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
             // extract the initializer mir
             if (ret.init_mir) {
                 Chunk<InitializerMIR> init_mir = std::move(*ret.init_mir);
-                var_decl->add_decl(symptr, std::move(init_mir));
+
+                if (specinfo.is_constexpr) {
+                    PrimitiveType *primtype = symtype->as_primitive();
+                    if (!primtype) {
+                        add_error<InvalidConstexprError>(
+                            InvalidConstexprError::Kind::NotPrimitive, declarator->loc);
+                        throw UnableToContinue();
+                    }
+                    Value val = parse_constexpr_init(*init_mir, primtype);
+
+                    symptr->set_value(val);
+                } else {
+                    var_decl->add_decl(symptr, std::move(init_mir));
+                }
             } else {
+                if (specinfo.is_constexpr) {
+                    add_error<EccSemError>("constexpr symbol requires an initializer", node.loc);
+                    throw UnableToContinue();
+                }
                 var_decl->add_decl(symptr);
             }
         }
-    }
+    } // end for
 
     Chunk<DeclMIR> decl = std::move(var_decl);
-
-    for (auto& attr : node.attributes) {
-        dv_call(decl.get(), attr);
+    
+    if (!specinfo.is_constexpr) {
+        for (auto& attr : node.attributes) {
+            dv_call(decl.get(), attr);
+        }
+    } else if (!node.attributes.empty()) {
+        // todo: warn that attributes on constexpr will be ignored
     }
 
-    dv_return(decl);
+    if (specinfo.is_constexpr) {
+        dv_return_void();
+    } else {
+        dv_return(decl);
+    }
+}
+
+Chunk<mir::FunctionMIR>
+MIRSynthesizer::parse_vardecl_func(
+    VariableDeclaration& node, InitDecltrRet ret, SpecifierInfo specinfo, FunctionType *type)
+{
+    Box<FuncSymbol> funcsym =
+        FuncSymbol::empty(node.loc, *ret.name, syms.current, type);
+
+    if (specinfo.is_public) {
+        funcsym->get_symdata()->set_visibility(Visibility::PUBLIC);
+    } else if (specinfo.is_static) {
+        funcsym->get_symdata()->set_visibility(Visibility::STATIC);
+    }
+
+    funcsym->get_symdata()->set_linkage(specinfo.linkage);
+    if (specinfo.linkage == Linkage::EXTERNC) {
+        funcsym->get_symdata()->set_visibility(Visibility::EXTERNC);
+    }
+
+    Location def_loc    = funcsym->loc;
+    FuncSymbol *funcptr = nullptr;
+    try {
+        funcptr = syms.insert(*ret.name, std::move(funcsym));
+    } catch (Symbol *existing) {
+        add_error<SymbolAlrDecldError>(
+            std::format("symbol {} already previously declared", existing->name), def_loc,
+            existing->loc);
+        throw UnableToContinue();
+    }
+
+    Chunk<FunctionMIR> funcmir =
+        make_chunk<FunctionMIR>(node.loc, node.loc, funcptr, syms.current, nullptr);
+
+    return funcmir;
+}
+
+Value MIRSynthesizer::parse_constexpr_init(InitializerMIR& init, PrimitiveType *type) {
+    ExprMIR *init_expr = init.as_expr();
+    if (!init_expr) {
+        add_error<InvalidInitializerError>(
+            "initializer to a constexpr must be an expression", init.loc);
+        throw UnableToContinue();
+    }
+
+    if (!init_expr->is_const_foldable()) {
+        add_error<InvalidCompileTimeEval>(
+            "constexpr initializers must be compile-time evaluable", init_expr->loc);
+        throw UnableToContinue();
+    }
+
+    eval::ConstEvaluator evalr(syms, types);
+
+    eval::Value val;
+    try {
+        val = init_expr->eval(evalr);
+    } catch (InvalidCompileTimeEval& err) {
+        add_error<InvalidCompileTimeEval>(err);
+        throw UnableToContinue();
+    }
+
+    bool exceeds_limits = false;
+    if (type->is_bool()) {
+        exceeds_limits = val.cast<uint64_t>() > 1;
+    } else if (type->is_integer() && type->is_signed()) {
+        // fixme: if val is a float exceeding i64::MAX, this cast is UB
+        int64_t v = val.cast<int64_t>();
+        // Comparing to an unsigned here is safe, as i64 is guaranteed to fit within u64.
+        exceeds_limits = v > static_cast<int64_t>(*type->int_max()) || v < *type->int_min();
+    } else if (type->is_integer()) {
+        exceeds_limits = val.cast<uint64_t>() > *type->int_max();
+    } else { // float
+        exceeds_limits = std::abs(val.cast<double>()) > *type->flt_max();
+    }
+
+    // todo: warn on float-to-int truncation
+
+    if (exceeds_limits) {
+        add_error<InvalidConstexprError>(InvalidConstexprError::Kind::ExceedsLimits, init_expr->loc);
+        throw UnableToContinue();
+    }
+
+    return val.pr_cast(type->get_primkind());
 }
 
 void MIRSynthesizer::do_visit(InitDeclarator& node) {
@@ -896,6 +1024,8 @@ void MIRSynthesizer::do_visit(Enumerator& node) {
     } else {
         value = enm->add_enumerator(node.name, node.loc);
     }
+    
+    value = value.pr_cast(enm->get_underlying()->get_primkind());
 
     syms.insert(
         node.name, std::make_unique<VarSymbol>(node.loc, node.name, syms.current, enm, value));
@@ -1049,6 +1179,16 @@ void MIRSynthesizer::do_visit(ClassDeclaration& node) {
     // save our current param, as it may get clobbered while parsing specifiers
     RecordType *recordty   = take_dovisit_param<RecordType *>();
     SpecifierInfo specinfo = parse_speclist(node.specifiers, node.loc);
+
+    if (specinfo.is_constexpr) {
+        add_error<EccSemError>("member declarations cannot be marked constexpr", node.loc);
+        throw UnableToContinue();
+    }
+
+    if (specinfo.is_static) {
+        add_error<EccSemError>("member declarations cannot be marked static", node.loc);
+        throw UnableToContinue();
+    }
 
     if (recordty->is_class()) {
         bsv_dbprint("parsing ClassDeclaration for ClassType ", recordty->id());

@@ -164,12 +164,14 @@ static std::string decode_string_literal(char* text, size_t len) {
 "union" { return ecc::frontend::Parser::make_UNION(loc); }
 "enum" { return ecc::frontend::Parser::make_ENUM(loc); }
 "const" { return ecc::frontend::Parser::make_CONST(loc); }
-"Bool" { return ecc::frontend::Parser::make_BOOL(loc); }
 "sizeof" { return ecc::frontend::Parser::make_SIZEOF(loc); }
+"constexpr" { return ecc::frontend::Parser::make_CONSTEXPR(loc); }
 "..." { return ecc::frontend::Parser::make_ELLIPSIS(loc); }
 
 
 "Void" { return ecc::frontend::Parser::make_VOID(loc); } /* Type specifiers */
+"Bool" { return ecc::frontend::Parser::make_BOOL(loc); }
+"Char" { return ecc::frontend::Parser::make_I8(loc); }
 "U0" { return ecc::frontend::Parser::make_VOID(loc); }
 "U8" { return ecc::frontend::Parser::make_U8(loc); }
 "U16" { return ecc::frontend::Parser::make_U16(loc); }

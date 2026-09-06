@@ -173,17 +173,11 @@ Value ConstEvaluator::eval(IdentExprMIR& expr) {
         throw InvalidCompileTimeEval("provided identifier is not a valid symbol", expr.loc);
     }
 
-    // the only identifiers allowed in compile time evaluation are enumerators
-    if (varsym->get_type()->is_enum()) {
-        EnumType *enmty = varsym->get_type()->as_enum();
-        auto *mem       = enmty->find(varsym->name);
-        if (!mem) {
-            throw InvalidCompileTimeEval("could not resolve symbol", expr.loc);
-        } else {
-            return mem->value;
-        }
+    // if an identifier has a value and is not a funcparam, use it, otherwise throw
+    if (varsym->is_const_foldable()) {
+        return *varsym->value;
     } else {
-        throw InvalidCompileTimeEval("non-enumerators cannot be compile-time evaluated", expr.loc);
+        throw InvalidCompileTimeEval("identifier could not be compile-time evaluated", expr.loc);
     }
 }
 

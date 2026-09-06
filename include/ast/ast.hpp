@@ -283,7 +283,7 @@ public:
 // Storage class specifiers (public, static, extern).
 class StorageClassSpecifier : public ASTVisitable<StorageClassSpecifier, DeclarationSpecifier> {
 public:
-    enum SpecType : uint8_t { PUBLIC, STATIC, EXTERN, EXTERNC };
+    enum SpecType : uint8_t { PUBLIC, STATIC, CONSTEXPR, EXTERN, EXTERNC };
 
     StorageClassSpecifier(Location loc, SpecType type)
         : ASTVisitable<StorageClassSpecifier, DeclarationSpecifier>(NodeKind::STORAGE_SPEC, loc),

@@ -469,6 +469,35 @@ public:
     std::string elab() override { return err; }
 };
 
+class InvalidConstexprError : public EccSemError {
+public:
+    enum class Kind : uint8_t {
+        NotPrimitive,
+        ExceedsLimits
+    };
+
+    InvalidConstexprError(Kind kind, Location err_loc)
+        : EccSemError("invalid constexpr declaration", err_loc), kind(kind) {}
+
+    Kind kind;
+
+    std::string elab() override {
+        std::stringstream ss;
+
+        switch (kind) {
+        case Kind::NotPrimitive:
+            ss << "constexpr type must be a primitive";
+            break;
+        case Kind::ExceedsLimits:
+            ss << "constexpr value exceeds limits of the specified primitive type";
+            break;
+        }
+
+        return ss.str();
+    }
+
+};
+
 class InvalidMainSignature : public EccSemError {
 public:
     InvalidMainSignature(Location err_loc, types::FunctionType *bad_sig)

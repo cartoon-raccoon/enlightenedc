@@ -171,7 +171,7 @@ public:
 
     void set_type(sema::types::Type *type) {
         act_type = type;
-        eff_type = act_type->effective_type();
+        eff_type = act_type->effective_type()->unqual();
     }
 
     virtual eval::Value eval(eval::ExprEvaluator& ev) = 0;
@@ -272,6 +272,23 @@ public:
           initializer(std::move(initializers)) {}
 
     InitMIRType initializer;
+
+    bool is_expr() const { return std::holds_alternative<Chunk<ExprMIR>>(initializer); }
+
+    bool is_member() const { return std::holds_alternative<Chunk<Member>>(initializer); }
+
+    bool is_index() const { return std::holds_alternative<Chunk<Index>>(initializer); }
+
+    bool is_recursive() const { 
+        return std::holds_alternative<ds::ArenaVec<Chunk<InitializerMIR>>>(initializer);
+    }
+
+    /**
+    Get the initializer as an expression. Returns null if the initializer does not hold an expression.
+    */
+    ExprMIR *as_expr();
+
+    const ExprMIR *as_expr() const;
 
     /**
     Check if an initializer is entirely literal expressions.
@@ -684,12 +701,12 @@ public:
     bool is_subscriptable() override { return eff_type->is_subscriptable(); }
 
     bool is_const_foldable() override {
-        if (!eff_type->is_enum())
+        sym::VarSymbol *var = ident->as_varsym();
+        if (!var) {
             return false;
+        }
 
-        types::EnumType *type = eff_type->as_enum();
-
-        return type->find(ident->name) != nullptr;
+        return var->is_const_foldable();
     }
 
     eval::Value eval(eval::ExprEvaluator& ev) override;

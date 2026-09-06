@@ -13,6 +13,8 @@ std::string ecc::ast::storage_to_string(StorageClassSpecifier::SpecType ty) {
         return "public";
     case S::STATIC:
         return "static";
+    case S::CONSTEXPR:
+        return "constexpr";
     case S::EXTERN:
         return "extern";
     case S::EXTERNC:

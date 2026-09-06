@@ -191,7 +191,13 @@ public:
 
     VarSymData *get_symdata() const { return dyncast<VarSymData>(symdata.get()); }
 
+    void set_value(eval::Value& val) { value = val; }
+
     bool has_value() const { return value.has_value(); }
+
+    bool is_const_foldable() const { return value.has_value() && !is_funcparam; }
+
+    Optional<eval::Value> get_value() const { return value; }
 
     VarSymbol *as_varsym() override { return this; }
 

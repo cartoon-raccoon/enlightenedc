@@ -13,6 +13,7 @@
 #include "ds/arenavec.hpp"
 #include "semantics/mir/mir.hpp"
 #include "semantics/semantics.hpp"
+#include "semantics/symdata.hpp"
 #include "semantics/symbols.hpp"
 #include "semantics/types.hpp"
 #include "util.hpp"
@@ -120,6 +121,19 @@ using VisitParam = std::variant<
 The class that lowers the AST to MIR, populating the TypeContext and SymbolTable.
 */
 class MIRSynthesizer : public BaseASTSemaVisitor, public NoMove {
+    struct SpecifierInfo {
+        types::BaseType *type = nullptr;
+        Optional<sym::TypeSymbol *> symbol;
+        bool is_public       = false;
+        bool is_static       = false;
+        bool is_const        = false;
+        bool is_constexpr    = false;
+        sym::Linkage linkage = sym::Linkage::INTERNAL;
+
+        bool linkage_is_external() const {
+            return linkage == sym::Linkage::EXTERNAL || linkage == sym::Linkage::EXTERNC;
+        }
+    };
 public:
     MIRSynthesizer(sym::SymbolTable& syms, types::TypeContext& types, mir::ProgramMIR& mir)
         : BaseASTSemaVisitor(BaseSemanticVisitor::State::WRITE), types(types), syms(syms),
@@ -258,18 +272,15 @@ protected:
     void do_visit(ast::PostfixExpression& node) override;
     void do_visit(ast::SizeofExpression& node) override;
 
+    Chunk<mir::FunctionMIR>
+    parse_vardecl_func(ast::VariableDeclaration&, InitDecltrRet ret, SpecifierInfo specinfo, types::FunctionType *type);
+
+    eval::Value parse_constexpr_init(mir::InitializerMIR& init, types::PrimitiveType *type);
+
     void check_attribute(mir::FunctionMIR *function, ast::AttributeArg& node);
     void check_attribute(mir::TypeDeclMIR *typedecl, ast::AttributeArg& node);
 
 private:
-    struct SpecifierInfo {
-        types::BaseType *type = nullptr;
-        Optional<sym::TypeSymbol *> symbol;
-        bool is_public       = false;
-        bool is_static       = false;
-        bool is_const        = false;
-        sym::Linkage linkage = sym::Linkage::INTERNAL;
-    };
 
     SpecifierInfo parse_speclist(ds::ArenaVec<Chunk<ast::DeclarationSpecifier>>&, Location);
 };

@@ -1,9 +1,10 @@
 #include "semantics/types.hpp"
 
 #include <algorithm>
-#include <cfloat>
+#include <limits>
 #include <memory>
 #include <stdexcept>
+#include <stdfloat>
 #include <utility>
 #include <variant>
 
@@ -152,26 +153,57 @@ bool PrimitiveType::castable_to(Type *dst) {
     }
 }
 
+static_assert(std::numeric_limits<float>::is_iec559);
+static_assert(sizeof(float) == 4);
+static_assert(std::numeric_limits<double>::is_iec559);
+static_assert(sizeof(double) == 8);
+
 Optional<uint64_t> PrimitiveType::int_max() const {
     switch (primkind) {
     case PrimType::U8:
-        return UINT8_MAX;
+        return std::numeric_limits<uint8_t>::max();
     case PrimType::U16:
-        return UINT16_MAX;
+        return std::numeric_limits<uint16_t>::max();
     case PrimType::U32:
-        return UINT32_MAX;
+        return std::numeric_limits<uint32_t>::max();
     case PrimType::U64:
-        return UINT64_MAX;
+        return std::numeric_limits<uint64_t>::max();
     case PrimType::BOOL:
-        return 1;
+        return std::numeric_limits<bool>::max();
     case PrimType::I8:
-        return INT8_MAX;
+        return std::numeric_limits<int8_t>::max();
     case PrimType::I16:
-        return INT16_MAX;
+        return std::numeric_limits<int16_t>::max();
     case PrimType::I32:
-        return INT32_MAX;
+        return std::numeric_limits<int32_t>::max();
     case PrimType::I64:
-        return INT64_MAX;
+        return std::numeric_limits<int64_t>::max();
+    case PrimType::F32:
+    case PrimType::F64:
+        return {};
+    }
+}
+
+Optional<int64_t> PrimitiveType::int_min() const {
+    switch (primkind) {
+    case PrimType::U8:
+        return std::numeric_limits<uint8_t>::lowest();
+    case PrimType::U16:
+        return std::numeric_limits<uint16_t>::lowest();
+    case PrimType::U32:
+        return std::numeric_limits<uint32_t>::lowest();
+    case PrimType::U64:
+        return std::numeric_limits<uint64_t>::lowest();
+    case PrimType::BOOL:
+        return std::numeric_limits<bool>::lowest();
+    case PrimType::I8:
+        return std::numeric_limits<int8_t>::lowest();
+    case PrimType::I16:
+        return std::numeric_limits<int16_t>::lowest();
+    case PrimType::I32:
+        return std::numeric_limits<int32_t>::lowest();
+    case PrimType::I64:
+        return std::numeric_limits<int64_t>::lowest();
     case PrimType::F32:
     case PrimType::F64:
         return {};
@@ -181,9 +213,36 @@ Optional<uint64_t> PrimitiveType::int_max() const {
 Optional<double> PrimitiveType::flt_max() const {
     switch (primkind) {
     case PrimType::F32:
-        return FLT_MAX;
+#ifdef __STDCPP_FLOAT32_T__
+        return std::numeric_limits<std::float32_t>::max();
+#else
+        return std::numeric_limits<float>::max();
+#endif
     case PrimType::F64:
-        return DBL_MAX;
+#ifdef __STDCPP_FLOAT64_T__
+        return std::numeric_limits<std::float64_t>::max();
+#else
+        return std::numeric_limits<double>::max();
+#endif
+    default:
+        return {};
+    }
+}
+
+Optional<double> PrimitiveType::flt_min() const {
+    switch (primkind) {
+    case PrimType::F32:
+#ifdef __STDCPP_FLOAT32_T__
+        return std::numeric_limits<std::float32_t>::min();
+#else
+        return std::numeric_limits<float>::min();
+#endif
+    case PrimType::F64:
+#ifdef __STDCPP_FLOAT64_T__
+        return std::numeric_limits<std::float64_t>::min();
+#else
+        return std::numeric_limits<double>::min();
+#endif
     default:
         return {};
     }
