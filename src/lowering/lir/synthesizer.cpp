@@ -1008,8 +1008,8 @@ void LIRSynthesizer::do_visit(IdentExprMIR& node) {
     // CFGBuilder's param-alloca handling like any other parameter - so every reference to
     // one must still resolve to that storage, not to the default literal.
     if (VarSymbol *varsym = node.ident->as_varsym();
-        varsym && varsym->value && !varsym->is_funcparam) {
-        last_expr = make_chunk<LiteralExprLIR>(node.loc, *varsym->value, node.act_type);
+        varsym && varsym->has_value() && !varsym->is_funcparam()) {
+        last_expr = make_chunk<LiteralExprLIR>(node.loc, *varsym->get_value(), node.act_type);
         return;
     }
 

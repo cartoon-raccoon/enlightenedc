@@ -7,7 +7,6 @@
 #include <memory>
 #include <stack>
 
-#include "ast/ast.hpp"
 #include "eval/value.hpp"
 #include "location.hpp"
 #include "semantics/symdata.hpp"
@@ -44,7 +43,7 @@ The abstract symbol class.
 class Symbol {
 public:
     // The kind of symbol.
-    enum Kind : uint8_t {
+    enum class Kind : uint8_t {
         VAR,   // This symbol references a variable.
         FUNC,  // This symbol references a function definition.
         TYPE,  // This symbol references a declared type.
@@ -91,8 +90,13 @@ public:
     virtual LabelSymbol *as_labsym() { return nullptr; }
 };
 
-// A symbol that has a phyiscal location in memory that can be referenced
-// (e.g. a variable or function).
+/**
+A symbol that names a runtime entity, usually a variable or a function.
+
+In most cases, a PhysicalSymbol gets translated to a real address. However,
+the one exception is constexpr symbols, which fold to literals at the LIR level,
+and thus never get storage or linkage.
+*/
 class PhysicalSymbol : public Symbol {
 protected:
     Rc<SymData> symdata = nullptr;
@@ -178,13 +182,6 @@ public:
         symdata = make_rc<VarSymData>(std::move(name), type);
     }
 
-    // The value of the Symbol, if defined.
-    Optional<eval::Value> value;
-
-    // Storage class information.
-
-    bool is_funcparam = false;
-
     std::string to_string() const override;
 
     std::string mangle() const override;
@@ -195,7 +192,11 @@ public:
 
     bool has_value() const { return value.has_value(); }
 
-    bool is_const_foldable() const { return value.has_value() && !is_funcparam; }
+    bool is_const_foldable() const { return value.has_value() && !funcparam; }
+
+    void set_funcparam(bool funcparam) { this->funcparam = funcparam; } 
+
+    bool is_funcparam() const { return funcparam; }
 
     Optional<eval::Value> get_value() const { return value; }
 
@@ -206,6 +207,12 @@ public:
     void set_type(types::Type *type) const { get_symdata()->set_type(type); }
 
     static bool classof(const Symbol *sym) { return sym->kind == Kind::VAR; }
+
+private:
+    // The value of the Symbol, if defined.
+    Optional<eval::Value> value;
+
+    bool funcparam = false;
 };
 
 /*
@@ -317,6 +324,20 @@ public:
 
     Scope(FuncSymbol *assoc, Scope *outer, uint64_t id) : outer(outer), assoc(assoc), id(id) {}
 
+    bool is_global() const { return idx_in_nested < 0; }
+
+    bool has_assoc() const { return assoc != nullptr; }
+
+    FuncSymbol *get_assoc() const { return assoc; }
+
+    uint64_t get_id() const { return id; }
+
+    void print(std::stringstream& ss, int depth);
+
+private:
+    friend class SymbolTable;
+    friend class SymbolTableWalker;
+
     // the outer scope enclosing the inner scope.
     Scope *outer;
 
@@ -324,8 +345,7 @@ public:
     // if null, this is an anonymous scope.
     FuncSymbol *assoc;
 
-    // an ASTNode associated with this scope, if any.
-    ast::ASTNode *node = nullptr;
+    uint64_t id;
 
     // the symbol tables.
     HashMap<std::string, Box<PhysicalSymbol>> phys_symbols;
@@ -333,16 +353,6 @@ public:
     HashMap<std::string, Box<LabelSymbol>> label_symbols;
     // inner scopes contained within this scope.
     Vec<Box<Scope>> nested;
-
-    uint64_t id;
-
-    bool is_global() const { return idx_in_nested < 0; }
-
-    std::string to_string() const;
-
-private:
-    friend class SymbolTable;
-    friend class SymbolTableWalker;
 
     // The index of the next nested scope to enter.
     int idx_in_nested = -1;

@@ -312,7 +312,7 @@ std::string UserType::name() const {
 std::string UserType::mangled_name() const {
     std::stringstream ss;
 
-    ss << base() << "_" << name() << "_" << scope->id;
+    ss << base() << "_" << name() << "_" << scope->get_id();
 
     return ss.str();
 }
@@ -1301,8 +1301,8 @@ PrimitiveType *TypeContext::single_promote(PrimType pr) {
 }
 
 ClassType *TypeContext::get_class(Location decl_loc, std::string& name, sym::Scope *scope) {
-    dbprint("TypeContext: class type '", name, "' on scope ", scope->id);
-    std::string mangled = mangle<ClassType>(name, scope->id);
+    dbprint("TypeContext: class type '", name, "' on scope ", scope->get_id());
+    std::string mangled = mangle<ClassType>(name, scope->get_id());
 
     if (user_types.contains(mangled)) {
         dbprint("TypeContext: existing class found");
@@ -1324,9 +1324,9 @@ ClassType *TypeContext::get_class(Location decl_loc, sym::Scope *scope) {
     An anonymous struct that has the exact same members as a named struct
     is not the same type as the named struct.
     */
-    dbprint("TypeContext: anonymous class type on scope ", scope->id);
+    dbprint("TypeContext: anonymous class type on scope ", scope->get_id());
     auto name    = ANON_USERTYPE_PREFIX + std::to_string(*anonymous_ctr);
-    auto mangled = mangle<ClassType>(name, scope->id);
+    auto mangled = mangle<ClassType>(name, scope->get_id());
 
     Box<ClassType> clsty = std::make_unique<ClassType>(decl_loc, *anonymous_ctr, scope, *this);
     anonymous_ctr++;
@@ -1335,8 +1335,8 @@ ClassType *TypeContext::get_class(Location decl_loc, sym::Scope *scope) {
 }
 
 UnionType *TypeContext::get_union(Location decl_loc, std::string& name, sym::Scope *scope) {
-    dbprint("TypeContext: union type '", name, "' on scope ", scope->id);
-    std::string mangled = mangle<UnionType>(name, scope->id);
+    dbprint("TypeContext: union type '", name, "' on scope ", scope->get_id());
+    std::string mangled = mangle<UnionType>(name, scope->get_id());
 
     if (user_types.contains(mangled)) {
         dbprint("TypeContext: existing union found");
@@ -1350,9 +1350,9 @@ UnionType *TypeContext::get_union(Location decl_loc, std::string& name, sym::Sco
 }
 
 UnionType *TypeContext::get_union(Location decl_loc, sym::Scope *scope) {
-    dbprint("TypeContext: anonymous union type on scope ", scope->id);
+    dbprint("TypeContext: anonymous union type on scope ", scope->get_id());
     auto name    = ANON_USERTYPE_PREFIX + std::to_string(*anonymous_ctr);
-    auto mangled = mangle<UnionType>(name, scope->id);
+    auto mangled = mangle<UnionType>(name, scope->get_id());
 
     Box<UnionType> unnty = std::make_unique<UnionType>(decl_loc, *anonymous_ctr, scope, *this);
     anonymous_ctr++;
@@ -1361,8 +1361,8 @@ UnionType *TypeContext::get_union(Location decl_loc, sym::Scope *scope) {
 }
 
 EnumType *TypeContext::get_enum(Location decl_loc, std::string& name, sym::Scope *scope) {
-    dbprint("TypeContext: enum type '", name, "' on scope ", scope->id);
-    std::string mangled = mangle<EnumType>(name, scope->id);
+    dbprint("TypeContext: enum type '", name, "' on scope ", scope->get_id());
+    std::string mangled = mangle<EnumType>(name, scope->get_id());
 
     if (user_types.contains(mangled)) {
         dbprint("TypeContext: existing enum found");
@@ -1376,9 +1376,9 @@ EnumType *TypeContext::get_enum(Location decl_loc, std::string& name, sym::Scope
 }
 
 EnumType *TypeContext::get_enum(Location decl_loc, sym::Scope *scope) {
-    dbprint("TypeContext: anonymous enum type on scope ", scope->id);
+    dbprint("TypeContext: anonymous enum type on scope ", scope->get_id());
     auto name    = ANON_USERTYPE_PREFIX + std::to_string(*anonymous_ctr);
-    auto mangled = mangle<EnumType>(name, scope->id);
+    auto mangled = mangle<EnumType>(name, scope->get_id());
 
     Box<EnumType> enmty = std::make_unique<EnumType>(decl_loc, *anonymous_ctr, scope, *this);
     anonymous_ctr++;

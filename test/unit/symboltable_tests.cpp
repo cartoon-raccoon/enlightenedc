@@ -47,7 +47,7 @@ TEST_F(TypeSysAndSymTabTestFixture, Scope_PushPopRoundTrip) {
 TEST_F(TypeSysAndSymTabTestFixture, Scope_PushedScopeIdGreaterThanGlobal) {
     SymbolTableWalker walker(symtab);
     walker.push_scope();
-    EXPECT_GT(walker.current->id, symtab.global->id);
+    EXPECT_GT(walker.current->get_id(), symtab.global->get_id());
 }
 
 // Each successive push_scope assigns a strictly increasing ID.
@@ -55,11 +55,11 @@ TEST_F(TypeSysAndSymTabTestFixture, Scope_IdsAreMonotonicallyIncreasing) {
     SymbolTableWalker walker(symtab);
 
     walker.push_scope();
-    uint64_t id1 = walker.current->id;
+    uint64_t id1 = walker.current->get_id();
     walker.pop_scope();
 
     walker.push_scope();
-    uint64_t id2 = walker.current->id;
+    uint64_t id2 = walker.current->get_id();
     walker.pop_scope();
 
     EXPECT_LT(id1, id2);
@@ -70,11 +70,11 @@ TEST_F(TypeSysAndSymTabTestFixture, Scope_SiblingsScopesHaveDistinctIds) {
     SymbolTableWalker walker(symtab);
 
     walker.push_scope();
-    uint64_t id_a = walker.current->id;
+    uint64_t id_a = walker.current->get_id();
     walker.pop_scope();
 
     walker.push_scope();
-    uint64_t id_b = walker.current->id;
+    uint64_t id_b = walker.current->get_id();
     walker.pop_scope();
 
     EXPECT_NE(id_a, id_b);
@@ -85,13 +85,13 @@ TEST_F(TypeSysAndSymTabTestFixture, Scope_FreshWalkerCanReplayWithEnterScope) {
     // First walker builds the scope tree.
     SymbolTableWalker builder(symtab);
     builder.push_scope();
-    uint64_t pushed_id = builder.current->id;
+    uint64_t pushed_id = builder.current->get_id();
     builder.pop_scope();
 
     // Fresh walker replays: enter_scope re-enters the scope created above.
     SymbolTableWalker replayer(symtab);
     replayer.enter_scope();
-    EXPECT_EQ(replayer.current->id, pushed_id);
+    EXPECT_EQ(replayer.current->get_id(), pushed_id);
 }
 
 // ─── VarSymbol insertion and lookup ─────────────────────────────────────────
@@ -581,10 +581,10 @@ TEST_F(TypeSysAndSymTabTestFixture, TieTo_AssociatesScope) {
     FuncSymbol *fn = insert_func(walker, tctxt, LOC, "tiedFn");
 
     walker.push_scope();
-    EXPECT_EQ(walker.current->assoc, nullptr);
+    EXPECT_EQ(walker.current->get_assoc(), nullptr);
 
     walker.tie_current_to(fn);
-    EXPECT_EQ(walker.current->assoc, fn);
+    EXPECT_EQ(walker.current->get_assoc(), fn);
 }
 
 // Without override, tie_current_to does not replace an existing association.
@@ -596,7 +596,7 @@ TEST_F(TypeSysAndSymTabTestFixture, TieTo_NoOverrideKeepsOriginal) {
     walker.push_scope(fn1);
     walker.tie_current_to(fn2, /*override=*/false);
 
-    EXPECT_EQ(walker.current->assoc, fn1)
+    EXPECT_EQ(walker.current->get_assoc(), fn1)
         << "Without override, the original assoc should be preserved";
 }
 
@@ -609,7 +609,7 @@ TEST_F(TypeSysAndSymTabTestFixture, TieTo_OverrideReplacesExisting) {
     walker.push_scope(fn1);
     walker.tie_current_to(fn2, /*override=*/true);
 
-    EXPECT_EQ(walker.current->assoc, fn2)
+    EXPECT_EQ(walker.current->get_assoc(), fn2)
         << "With override=true, the assoc should be replaced";
 }
 

@@ -14,7 +14,7 @@ std::string VarSymbol::mangle() const {
     if (is_global) {
         ss << name;
     } else {
-        ss << name << "_" << "s" << scope->id;
+        ss << name << "_" << "s" << scope->get_id();
     }
     return ss.str();
 }
@@ -24,7 +24,7 @@ std::string FuncSymbol::mangle() const {
     if (is_global) {
         ss << name;
     } else {
-        ss << name << "_" << "s" << scope->id;
+        ss << name << "_" << "s" << scope->get_id();
     }
     return ss.str();
 }
@@ -34,7 +34,7 @@ std::string TypeSymbol::mangle() const {
     if (is_global) {
         ss << name;
     } else {
-        ss << name << "_" << "s" << scope->id;
+        ss << name << "_" << "s" << scope->get_id();
     }
     return ss.str();
 }
@@ -44,10 +44,10 @@ std::string LabelSymbol::mangle() const {
     if (is_global) {
         ss << "global_" << name;
     } else {
-        if (scope->assoc) {
-            ss << scope->assoc->mangle() << "_" << name;
+        if (scope->has_assoc()) {
+            ss << scope->get_assoc()->mangle() << "_" << name;
         } else {
-            ss << name << "_" << scope->id;
+            ss << name << "_" << scope->get_id();
         }
     }
     return ss.str();

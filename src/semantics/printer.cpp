@@ -353,42 +353,42 @@ std::string TypeContext::to_string() const {
     return ss.str();
 }
 
-static void print_scope(std::stringstream& ss, Scope *scope, int depth) {
+void Scope::print(std::stringstream& ss, int depth) {
     std::string indent(depth * 2, ' ');
 
-    ss << indent << "Scope " << scope->id;
-    if (scope->assoc) {
-        ss << ": " << scope->assoc->to_string();
+    ss << indent << "Scope " << id;
+    if (assoc) {
+        ss << ": " << assoc->to_string();
     } else {
         ss << ": Compound Statement";
     }
     ss << "\n";
 
-    if (!scope->phys_symbols.empty()) {
+    if (!phys_symbols.empty()) {
         ss << indent << "Physical Symbols:\n";
-        for (auto const& [name, sym] : scope->phys_symbols) {
+        for (auto const& [name, sym] : phys_symbols) {
             ss << indent << "  " << name << " <" << sym.get() << "> : " << sym->to_string() << "\n";
         }
     }
 
-    if (!scope->type_symbols.empty()) {
+    if (!type_symbols.empty()) {
         ss << "\n" << indent << "Type Symbols:\n";
-        for (auto const& [name, sym] : scope->type_symbols) {
+        for (auto const& [name, sym] : type_symbols) {
             ss << indent << "  " << name << " <" << sym.get() << "> : " << sym->to_string() << "\n";
         }
     }
 
-    if (!scope->label_symbols.empty()) {
+    if (!label_symbols.empty()) {
         ss << "\n" << indent << "Label Symbols:\n";
-        for (auto const& [name, sym] : scope->label_symbols) {
+        for (auto const& [name, sym] : label_symbols) {
             ss << indent << "  " << name << " <" << sym.get() << "> : " << sym->to_string() << "\n";
         }
     }
 
     ss << "-----------------------------------------------------------\n";
 
-    for (auto const& child : scope->nested) {
-        print_scope(ss, child.get(), depth + 1);
+    for (auto const& child : nested) {
+        child->print(ss, depth + 1);
     }
 }
 
@@ -397,7 +397,7 @@ std::string SymbolTable::to_string() const {
 
     ss << "--------- SYMBOL TABLE ---------\n\n";
 
-    print_scope(ss, global.get(), 0);
+    global->print(ss, 0);
 
     return ss.str();
 }

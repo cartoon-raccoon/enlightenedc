@@ -375,7 +375,7 @@ void MIRSynthesizer::do_visit(Function& node) {
             paramsym = std::make_unique<VarSymbol>(param.loc, *param.name, syms.current, sym_type);
         }
 
-        paramsym->is_funcparam = true;
+        paramsym->set_funcparam(true);
         params.push_back(std::move(paramsym));
     }
 

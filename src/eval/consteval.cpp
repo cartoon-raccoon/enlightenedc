@@ -175,7 +175,7 @@ Value ConstEvaluator::eval(IdentExprMIR& expr) {
 
     // if an identifier has a value and is not a funcparam, use it, otherwise throw
     if (varsym->is_const_foldable()) {
-        return *varsym->value;
+        return *varsym->get_value();
     } else {
         throw InvalidCompileTimeEval("identifier could not be compile-time evaluated", expr.loc);
     }
