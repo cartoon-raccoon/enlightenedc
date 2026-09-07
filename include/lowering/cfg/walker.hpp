@@ -36,6 +36,8 @@ public:
 protected:
     void visit_block(BasicBlock *blk);
 
+    virtual void reset_order() {};
+
     virtual void pre_visit(BasicBlock *) {};
 
     virtual void post_visit(BasicBlock *) {};
@@ -113,6 +115,9 @@ public:
     CFGBlocksIter end() { return CFGBlocksIter(); }
 };
 
+/**
+A CFGWalker that visits the blocks of a function in preorder.
+*/
 class PreorderCFGWalker : public CFGWalker {
 public:
     CFGWalkerBlocks blocks() override {
@@ -120,19 +125,38 @@ public:
     }
 
 protected:
+    void reset_order() override { preorder.clear(); }
+
     void pre_visit(BasicBlock *blk) override { preorder.push_back(blk); }
 
     Vec<BasicBlock *> preorder;
 };
 
+/**
+A CFGWalker that visits the blocks of a function in postorder.
+*/
 class PostorderCFGWalker : public CFGWalker {
 public:
+    CFGWalkerBlocks blocks() override {
+        return CFGWalkerBlocks::make<VecCFGWalkerBlocksInner>(postorder, false);
+    }
+
 protected:
+    void reset_order() override { postorder.clear(); }
+
+    void post_visit(BasicBlock *blk) override { postorder.push_back(blk); }
+
     Vec<BasicBlock *> postorder;
 };
 
+/**
+A CFGWalker that visits the blocks of a function in reverse postorder.
+*/
 class RevPostorderCFGWalker : public PostorderCFGWalker {
 public:
+    CFGWalkerBlocks blocks() override {
+        return CFGWalkerBlocks::make<VecCFGWalkerBlocksInner>(postorder, true);
+    }
 };
 
 } // namespace ecc::lower::cfg

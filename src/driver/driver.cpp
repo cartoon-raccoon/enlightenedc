@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "codegen/codegen.hpp"
+#include "config.hpp"
 #include "lowering/lir/lir.hpp"
 #include "lowering/lir/symbols.hpp"
 #include "semantics/symbols.hpp"
@@ -29,8 +30,9 @@ TranslationUnitLIR::TranslationUnitLIR()
 TranslationUnitCFG::TranslationUnitCFG() : cfg(make_box<ProgramCFG>()) {
 }
 
-TranslationUnit::TranslationUnit(std::string *filename, CodeGenCore& cgcore) : filename(filename) {
-    cgu      = cgcore.make_unit(*filename);
+TranslationUnit::TranslationUnit(std::string *filename, CodeGenCore& cgcore, RuntimeConfig& rtcfg) 
+: filename(filename) {
+    cgu      = cgcore.make_unit(*filename, rtcfg);
     types    = make_box<TypeContext>(*cgu);
     ast_root = make_chunk<Program>(filename);
     prog_mir = make_box<TranslationUnitMIR>();

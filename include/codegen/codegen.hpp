@@ -5,6 +5,7 @@
 
 #include <stdexcept>
 
+#include "config.hpp"
 #include "util.hpp"
 
 namespace ecc::sema::types {
@@ -42,7 +43,7 @@ class CodeGenCore {
 public:
     virtual ~CodeGenCore() = default;
 
-    virtual Box<CodeGenUnit> make_unit(const std::string& unit_name) = 0;
+    virtual Box<CodeGenUnit> make_unit(const std::string&, RuntimeConfig&) = 0;
 };
 
 /**

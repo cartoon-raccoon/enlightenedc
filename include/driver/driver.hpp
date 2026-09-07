@@ -7,6 +7,7 @@
 
 #include "ast/ast.hpp"
 #include "codegen/codegen.hpp"
+#include "config.hpp"
 #include "driver/backend.hpp"
 #include "ecc.hpp"
 #include "frontend/frontend.hpp"
@@ -61,7 +62,7 @@ level since both MIR and LIR depend on it.
 */
 class TranslationUnit {
 public:
-    TranslationUnit(std::string *filename, codegen::CodeGenCore& cgcore);
+    TranslationUnit(std::string *filename, codegen::CodeGenCore& cgcore, RuntimeConfig& rtcfg);
 
     std::string *filename;
     Box<codegen::CodeGenUnit> cgu;

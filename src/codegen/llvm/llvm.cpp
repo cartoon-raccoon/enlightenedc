@@ -1,5 +1,7 @@
 #include "codegen/llvm/llvm.hpp"
 
+#include "codegen/llvm/compiler.hpp"
+#include "config.hpp"
 #include "error.hpp"
 #include "lowering/cfg/cfg.hpp"
 #include "semantics/typeerr.hpp"
@@ -45,15 +47,15 @@ LLVMCore::~LLVMCore() {
     llvm::llvm_shutdown();
 }
 
-Box<CodeGenUnit> LLVMCore::make_unit(const std::string& unit_name) {
-    return std::make_unique<LLVMUnit>(unit_name, *this);
+Box<CodeGenUnit> LLVMCore::make_unit(const std::string& unit_name, RuntimeConfig& rtcfg) {
+    return make_box<LLVMUnit>(unit_name, *this, rtcfg);
 }
 
-LLVMUnit::LLVMUnit(const std::string& module_name, LLVMCore& llvmcore) {
+LLVMUnit::LLVMUnit(const std::string& module_name, LLVMCore& llvmcore, RuntimeConfig& rtcfg) : rtcfg(rtcfg) {
     dbprint("LLVM: Creating LLVMUnit with module name '", module_name, "'");
-    context   = std::make_unique<llvm::LLVMContext>();
-    llvmmod   = std::make_unique<llvm::Module>(module_name, *context);
-    irbuilder = std::make_unique<llvm::IRBuilder<>>(*context);
+    context   = make_box<llvm::LLVMContext>();
+    llvmmod   = make_box<llvm::Module>(module_name, *context);
+    irbuilder = make_box<llvm::IRBuilder<>>(*context);
 
     llvmmod->setTargetTriple(llvmcore.target_triple);
 
@@ -340,4 +342,6 @@ size_t LLVMUnit::alloc_size(Type *type) {
 }
 
 void LLVMUnit::compile(lower::cfg::ProgramCFG& prog) {
+    LLVMGenerator generator(*this, rtcfg);
+    generator.compile(prog);
 }

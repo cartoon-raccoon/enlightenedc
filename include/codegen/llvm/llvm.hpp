@@ -26,6 +26,7 @@
 #include <llvm/TargetParser/Host.h>
 
 #include "codegen/codegen.hpp"
+#include "config.hpp"
 #include "semantics/types.hpp"
 #include "util.hpp"
 
@@ -50,7 +51,7 @@ public:
 
     friend class LLVMUnit;
 
-    Box<CodeGenUnit> make_unit(const std::string& unit_name) override;
+    Box<CodeGenUnit> make_unit(const std::string&, RuntimeConfig&) override;
 };
 
 /**
@@ -60,11 +61,12 @@ class LLVMUnit : public CodeGenUnit {
     Box<llvm::LLVMContext> context;
     Box<llvm::Module> llvmmod;
     Box<llvm::IRBuilder<>> irbuilder;
+    Ref<RuntimeConfig> rtcfg;
 
     HashMap<sema::types::Type *, LLVMType *> typemap;
 
 public:
-    LLVMUnit(const std::string& module_name, LLVMCore& llvmcore);
+    LLVMUnit(const std::string& module_name, LLVMCore& llvmcore, RuntimeConfig& rtcfg);
 
     friend class LLVMCore;
 

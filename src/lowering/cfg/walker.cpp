@@ -3,9 +3,13 @@
 using namespace ecc::lower::cfg;
 
 void CFGWalker::walk_function(FunctionCFG& function) {
+    if (!function.is_defined()) return;
+
     if (!visited.empty()) {
         visited.clear();
     }
+    reset_order();
+    
     BasicBlock *starting = function.entry_block();
     visit_block(starting);
 }

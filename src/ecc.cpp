@@ -42,7 +42,7 @@ void Ecc::print_error(EccError& err) {
 void Ecc::run_pipeline(std::string *filename) {
     dbprint("running pipeline on file ", *filename);
 
-    driver::TranslationUnit unit(filename, *cgcore);
+    driver::TranslationUnit unit(filename, *cgcore, config->get_runtime_cfg());
     driver::Driver driver(unit);
 
     driver.run(*this);

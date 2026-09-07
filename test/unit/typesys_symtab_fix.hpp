@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "codegen/llvm/llvm.hpp"
+#include "config.hpp"
 #include "semantics/types.hpp"
 #include "semantics/symbols.hpp"
 #include "location.hpp"
@@ -19,6 +20,7 @@ protected:
     const std::string TEST_FILENAME = "test_file.HC";
     const Location LOC = Location(&TEST_FILENAME);
 
+    RuntimeConfig rtcfg;
     LLVMCore llvm_core;
     LLVMUnit llvm_unit;
 
@@ -40,7 +42,7 @@ protected:
         *anoncls = nullptr
         ;
 
-    TypeSysAndSymTabTestFixture() : llvm_unit(TEST_NAME, llvm_core), tctxt(llvm_unit)  {
+    TypeSysAndSymTabTestFixture() : llvm_unit(TEST_NAME, llvm_core, rtcfg), tctxt(llvm_unit)  {
         prim1 = tctxt.get_primitive(PrimType::F32);
         prim2 = tctxt.get_primitive(PrimType::F32);
         prim3 = tctxt.get_primitive(PrimType::I64);
