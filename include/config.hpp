@@ -53,19 +53,6 @@ public:
 
     Optional<std::string> output_file;
 
-    // Whether to enable verbose messages.
-    bool verbose = false;
-
-    /**
-    The standard to support in this compilation pass.
-    */
-    enum class Std : uint8_t {
-        HOLYC,
-        ENLIGHTENEDC,
-    };
-
-    Std std = Std::ENLIGHTENEDC;
-
     /**
     The phase of compilation at which to stop.
     */
@@ -117,7 +104,30 @@ public:
 
     CompilationOutput comp_output = CompilationOutput::ASM;
 
+    /**
+    The standard to support in this compilation pass.
+    */
+    enum class Std : uint8_t {
+        HOLYC,
+        ENLIGHTENEDC,
+    };
+
+    /**
+    Runtime variables and knobs that deeply-nested parts of the compiler need, not
+    just the driver.
+    */
+    class RuntimeConfig {
+    public:
+        /** Whether to enable verbose messages. */
+        bool verbose = false;
+
+        /** The standard to use. */
+        Std std = Std::ENLIGHTENEDC;
+    } runtime;
+
     void parse_args(int argc, char *argv[]);
+
+    RuntimeConfig& get_runtime_cfg() { return runtime; }
 
 private:
     class ArgVIterator;
@@ -148,6 +158,8 @@ private:
 
     void add_args();
 };
+
+using RuntimeConfig = Config::RuntimeConfig;
 
 } // namespace ecc
 

@@ -8,6 +8,7 @@
 #include <variant>
 
 #include "allocator/chunk.hpp"
+#include "config.hpp"
 #include "lowering/lir/lir.hpp"
 #include "lowering/lir/symbols.hpp"
 #include "semantics/mir/mir.hpp"
@@ -23,9 +24,9 @@ namespace ecc::lower::lir {
 
 class LIRSynthesizer : public sema::BaseMIRSemaVisitor, public NoMove {
 public:
-    LIRSynthesizer(LIRSymbolMap& symbolmap, sema::types::TypeContext& tyctxt, ProgramLIR& prog_lir)
+    LIRSynthesizer(LIRSymbolMap& symbolmap, sema::types::TypeContext& tyctxt, ProgramLIR& prog_lir, RuntimeConfig& rtcfg)
         : sema::BaseMIRSemaVisitor(State::READ), symbolmap(symbolmap), types(tyctxt),
-          prog_lir(prog_lir) {}
+          prog_lir(prog_lir), rtcfg(rtcfg) {}
 
     using LIRSynthItem = std::variant<Chunk<FunctionLIR>, Chunk<VarDeclLIR>, Chunk<ProgItemLIR>>;
 
@@ -33,6 +34,8 @@ public:
     sema::types::TypeContext& types;
 
     ProgramLIR& prog_lir;
+
+    RuntimeConfig& rtcfg;
 
     void generate_lir(sema::mir::ProgramMIR& prog);
 

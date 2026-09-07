@@ -6,6 +6,7 @@
 #include <concepts>
 #include <utility>
 
+#include "config.hpp"
 #include "lowering/cfg/cfg.hpp"
 #include "lowering/lir/lir.hpp"
 #include "lowering/lir/symbols.hpp"
@@ -70,8 +71,8 @@ Class that builds the Control Flow Graph.
 */
 class CFGBuilder : public lir::LIRVisitor {
 public:
-    CFGBuilder(sema::types::TypeContext& types, ProgramCFG& prog_cfg)
-        : types(types), prog_cfg(prog_cfg) {}
+    CFGBuilder(sema::types::TypeContext& types, ProgramCFG& prog_cfg, RuntimeConfig& rtcfg)
+        : types(types), prog_cfg(prog_cfg), rtcfg(rtcfg) {}
 
     void build_cfg(lir::ProgramLIR& prog);
 
@@ -192,6 +193,8 @@ private:
 
     sema::types::TypeContext& types;
     ProgramCFG& prog_cfg;
+    RuntimeConfig& rtcfg;
+
     Vec<Box<NestedStmtInfo>> infostack;
 
     HashMap<lir::LIRVarSym *, Global *> globals;

@@ -10,6 +10,7 @@
 
 #include "allocator/chunk.hpp"
 #include "ast/ast.hpp"
+#include "config.hpp"
 #include "ds/arenavec.hpp"
 #include "semantics/mir/mir.hpp"
 #include "semantics/semantics.hpp"
@@ -135,15 +136,17 @@ class MIRSynthesizer : public BaseASTSemaVisitor, public NoMove {
         }
     };
 public:
-    MIRSynthesizer(sym::SymbolTable& syms, types::TypeContext& types, mir::ProgramMIR& mir)
+    MIRSynthesizer(sym::SymbolTable& syms, types::TypeContext& types, mir::ProgramMIR& mir, RuntimeConfig& rtcfg)
         : BaseASTSemaVisitor(BaseSemanticVisitor::State::WRITE), types(types), syms(syms),
-          prog_mir(mir) {}
+          prog_mir(mir), rtcfg(rtcfg) {}
 
     types::TypeContext& types;
 
     sym::SymbolTableWalker syms;
 
     mir::ProgramMIR& prog_mir;
+
+    RuntimeConfig& rtcfg;
 
     Vec<Box<EccSemError>> errors;
 

@@ -7,6 +7,7 @@
 
 #include <variant>
 
+#include "config.hpp"
 #include "semantics/mir/mir.hpp"
 #include "semantics/semantics.hpp"
 #include "semantics/symbols.hpp"
@@ -48,12 +49,13 @@ The class that performs type-checking and semantic validation.
 class Validator : public BaseMIRSemaVisitor, public NoMove {
     types::TypeContext& types;
     sym::SymbolTableWalker syms;
+    RuntimeConfig& rtcfg;
 
     Vec<SwitchTracker> switches;
 
 public:
-    Validator(sym::SymbolTable& syms, types::TypeContext& types)
-        : BaseMIRSemaVisitor(State::READ), types(types), syms(syms) {}
+    Validator(sym::SymbolTable& syms, types::TypeContext& types, RuntimeConfig& rtcfg)
+        : BaseMIRSemaVisitor(State::READ), types(types), syms(syms), rtcfg(rtcfg) {}
 
     Vec<Box<EccSemError>> errors;
 

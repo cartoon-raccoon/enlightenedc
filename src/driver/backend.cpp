@@ -45,7 +45,7 @@ void Backend::run(Ecc& ecc, driver::TranslationUnit& unit) {
 
     dbprint("\n---------- Generating MIR ----------\n");
 
-    MIRSynthesizer mirsynthesizer(mirsyms, types, mir);
+    MIRSynthesizer mirsynthesizer(mirsyms, types, mir, ecc.config->get_runtime_cfg());
 
     try {
         dbprint("Synthesizing MIR for ", unit.ast_root->loc);
@@ -78,7 +78,7 @@ void Backend::run(Ecc& ecc, driver::TranslationUnit& unit) {
         return;
     }
 
-    Validator validator(mirsyms, types);
+    Validator validator(mirsyms, types, ecc.config->get_runtime_cfg());
 
     try {
         validator.validate(mir);
@@ -114,7 +114,7 @@ void Backend::run(Ecc& ecc, driver::TranslationUnit& unit) {
 
     dbprint("\n---------- Generating LIR ----------\n");
 
-    LIRSynthesizer lirsynthesizer(lirsyms, types, lir);
+    LIRSynthesizer lirsynthesizer(lirsyms, types, lir, ecc.config->get_runtime_cfg());
 
     lirsynthesizer.generate_lir(mir);
 
@@ -124,7 +124,7 @@ void Backend::run(Ecc& ecc, driver::TranslationUnit& unit) {
         lir.accept(printer);
     }
 
-    CFGBuilder cfgbuilder(types, cfg);
+    CFGBuilder cfgbuilder(types, cfg, ecc.config->get_runtime_cfg());
     cfgbuilder.build_cfg(lir);
 
     dbprint("--------- CFG ---------\n");
