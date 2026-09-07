@@ -194,7 +194,7 @@ public:
 
     bool is_const_foldable() const { return value.has_value() && !funcparam; }
 
-    void set_funcparam(bool funcparam) { this->funcparam = funcparam; } 
+    void set_funcparam(bool funcparam) { this->funcparam = funcparam; }
 
     bool is_funcparam() const { return funcparam; }
 

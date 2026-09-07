@@ -167,12 +167,12 @@ public:
         return obj;
     }
 
-    void register_cleanup(void *obj, void (*destroy) (void *)) {
-        auto *cleanuprec = static_cast<Cleanup *>(alloc(sizeof(Cleanup), alignof(Cleanup)));
-        cleanuprec->obj = obj;
+    void register_cleanup(void *obj, void (*destroy)(void *)) {
+        auto *cleanuprec    = static_cast<Cleanup *>(alloc(sizeof(Cleanup), alignof(Cleanup)));
+        cleanuprec->obj     = obj;
         cleanuprec->destroy = destroy;
-        cleanuprec->next = cleanup_head;
-        cleanup_head = cleanuprec;
+        cleanuprec->next    = cleanup_head;
+        cleanup_head        = cleanuprec;
     }
 
     void *alloc(size_t size, size_t align) {
@@ -309,7 +309,7 @@ inline void *alloc(size_t size, size_t align) {
 Create a new instance of `T`, owned by the arena. Returns a pointer to the created instance.
 */
 template <typename T, typename... Args>
-inline T *create(Args&& ... args) {
+inline T *create(Args&&...args) {
     return detail::instance().create<T>(std::forward<Args>(args)...);
 }
 
@@ -330,7 +330,7 @@ Registers a cleanup function for `obj`. Usually this will be a function that cal
 Note: You should not need to call this yourself. If you find yourself reaching for this, step
 back and strongly consider if you really need to use it.
 */
-inline void register_cleanup(void *obj, void (*destroy) (void *)) {
+inline void register_cleanup(void *obj, void (*destroy)(void *)) {
     detail::instance().register_cleanup(obj, destroy);
 }
 

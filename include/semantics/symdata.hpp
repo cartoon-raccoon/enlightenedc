@@ -153,7 +153,7 @@ public:
     void set_main(bool is_main) { main_function = is_main; }
 
     bool is_print() const { return print_function; }
-    
+
     void set_print(bool is_print) { print_function = is_print; }
 
     static bool classof(const SymData *data) { return data->kind == Kind::FUNC; }

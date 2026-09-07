@@ -279,12 +279,13 @@ public:
 
     bool is_index() const { return std::holds_alternative<Chunk<Index>>(initializer); }
 
-    bool is_recursive() const { 
+    bool is_recursive() const {
         return std::holds_alternative<ds::ArenaVec<Chunk<InitializerMIR>>>(initializer);
     }
 
     /**
-    Get the initializer as an expression. Returns null if the initializer does not hold an expression.
+    Get the initializer as an expression. Returns null if the initializer does not hold an
+    expression.
     */
     ExprMIR *as_expr();
 
@@ -902,8 +903,8 @@ public:
     FunctionMIR(
         Location loc, Location declarator_loc, sema::sym::FuncSymbol *sym, sema::sym::Scope *scope,
         Chunk<CompoundStmtMIR> body)
-        : MIRVisitable<FunctionMIR, ProgItemMIR>(loc, NodeKind::FUNC_MIR), 
-        sym(sym), scope(scope), declarator_loc(declarator_loc), body(std::move(body)) {}
+        : MIRVisitable<FunctionMIR, ProgItemMIR>(loc, NodeKind::FUNC_MIR), sym(sym), scope(scope),
+          declarator_loc(declarator_loc), body(std::move(body)) {}
 
     // The symbol associated with the function.
     // This contains the name and signature.

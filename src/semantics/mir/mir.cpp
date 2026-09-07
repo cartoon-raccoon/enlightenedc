@@ -39,14 +39,16 @@ void ProgramMIR::add_item(Chunk<ProgItemMIR> item) {
     items.push_back(std::move(item));
 }
 
-ExprMIR *InitializerMIR::as_expr() { 
-    if (!is_expr()) return nullptr;
+ExprMIR *InitializerMIR::as_expr() {
+    if (!is_expr())
+        return nullptr;
 
     return std::get<Chunk<ExprMIR>>(initializer).get();
 }
 
 const ExprMIR *InitializerMIR::as_expr() const {
-    if (!is_expr()) return nullptr;
+    if (!is_expr())
+        return nullptr;
 
     return std::get<Chunk<ExprMIR>>(initializer).get();
 }

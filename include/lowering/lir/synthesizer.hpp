@@ -24,7 +24,9 @@ namespace ecc::lower::lir {
 
 class LIRSynthesizer : public sema::BaseMIRSemaVisitor, public NoMove {
 public:
-    LIRSynthesizer(LIRSymbolMap& symbolmap, sema::types::TypeContext& tyctxt, ProgramLIR& prog_lir, RuntimeConfig& rtcfg)
+    LIRSynthesizer(
+        LIRSymbolMap& symbolmap, sema::types::TypeContext& tyctxt, ProgramLIR& prog_lir,
+        RuntimeConfig& rtcfg)
         : sema::BaseMIRSemaVisitor(State::READ), symbolmap(symbolmap), types(tyctxt),
           prog_lir(prog_lir), rtcfg(rtcfg) {}
 

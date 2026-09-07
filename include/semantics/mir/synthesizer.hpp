@@ -14,8 +14,8 @@
 #include "ds/arenavec.hpp"
 #include "semantics/mir/mir.hpp"
 #include "semantics/semantics.hpp"
-#include "semantics/symdata.hpp"
 #include "semantics/symbols.hpp"
+#include "semantics/symdata.hpp"
 #include "semantics/types.hpp"
 #include "util.hpp"
 
@@ -135,8 +135,11 @@ class MIRSynthesizer : public BaseASTSemaVisitor, public NoMove {
             return linkage == sym::Linkage::EXTERNAL || linkage == sym::Linkage::EXTERNC;
         }
     };
+
 public:
-    MIRSynthesizer(sym::SymbolTable& syms, types::TypeContext& types, mir::ProgramMIR& mir, RuntimeConfig& rtcfg)
+    MIRSynthesizer(
+        sym::SymbolTable& syms, types::TypeContext& types, mir::ProgramMIR& mir,
+        RuntimeConfig& rtcfg)
         : BaseASTSemaVisitor(BaseSemanticVisitor::State::WRITE), types(types), syms(syms),
           prog_mir(mir), rtcfg(rtcfg) {}
 
@@ -275,8 +278,9 @@ protected:
     void do_visit(ast::PostfixExpression& node) override;
     void do_visit(ast::SizeofExpression& node) override;
 
-    Chunk<mir::FunctionMIR>
-    parse_vardecl_func(ast::VariableDeclaration&, InitDecltrRet ret, SpecifierInfo specinfo, types::FunctionType *type);
+    Chunk<mir::FunctionMIR> parse_vardecl_func(
+        ast::VariableDeclaration&, InitDecltrRet ret, SpecifierInfo specinfo,
+        types::FunctionType *type);
 
     eval::Value parse_constexpr_init(mir::InitializerMIR& init, types::PrimitiveType *type);
 
@@ -284,7 +288,6 @@ protected:
     void check_attribute(mir::TypeDeclMIR *typedecl, ast::AttributeArg& node);
 
 private:
-
     SpecifierInfo parse_speclist(ds::ArenaVec<Chunk<ast::DeclarationSpecifier>>&, Location);
 };
 

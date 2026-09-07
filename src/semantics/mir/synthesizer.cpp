@@ -72,7 +72,8 @@ MIRSynthesizer::parse_speclist(ArenaVec<Chunk<ast::DeclarationSpecifier>>& specl
             switch (qualtype) {
             case TypeQualifier::QualType::CONST:
                 if (specinfo.is_constexpr) {
-                    add_error<EccSemError>("constexpr implies const, redundant extra const", decl_spec->loc);
+                    add_error<EccSemError>(
+                        "constexpr implies const, redundant extra const", decl_spec->loc);
                     break;
                 }
                 if (specinfo.is_const) {
@@ -115,7 +116,7 @@ MIRSynthesizer::parse_speclist(ArenaVec<Chunk<ast::DeclarationSpecifier>>& specl
                 }
 
                 specinfo.is_constexpr = true;
-                specinfo.is_const = true;
+                specinfo.is_const     = true;
                 break;
 
             case StorageClassSpecifier::EXTERN:
@@ -306,7 +307,8 @@ void MIRSynthesizer::do_visit(Function& node) {
     dovisit_param          = std::move(param);
 
     if (specinfo.linkage == Linkage::EXTERNAL) {
-        add_error<EccSemError>("externally linked functions cannot have a body", node.declarator->loc);
+        add_error<EccSemError>(
+            "externally linked functions cannot have a body", node.declarator->loc);
         throw UnableToContinue();
     }
 
@@ -418,8 +420,8 @@ void MIRSynthesizer::do_visit(Function& node) {
         }
     }
 
-    Chunk<FunctionMIR> func =
-        make_chunk<FunctionMIR>(node.loc, node.declarator->loc, sym_ptr, res.second, std::move(res.first));
+    Chunk<FunctionMIR> func = make_chunk<FunctionMIR>(
+        node.loc, node.declarator->loc, sym_ptr, res.second, std::move(res.first));
 
     for (auto& attr : node.attributes) {
         dv_call(func.get(), attr);
@@ -442,7 +444,8 @@ void MIRSynthesizer::do_visit(TypeDeclaration& node) {
         }
 
         if (specinfo.is_const || specinfo.is_constexpr) {
-            add_error<EccSemError>("type declaration cannot be marked const or constexpr", node.loc);
+            add_error<EccSemError>(
+                "type declaration cannot be marked const or constexpr", node.loc);
         }
 
         dv_return(decl);
@@ -599,7 +602,7 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
     } // end for
 
     Chunk<DeclMIR> decl = std::move(var_decl);
-    
+
     if (!specinfo.is_constexpr) {
         for (auto& attr : node.attributes) {
             dv_call(decl.get(), attr);
@@ -615,12 +618,9 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
     }
 }
 
-Chunk<mir::FunctionMIR>
-MIRSynthesizer::parse_vardecl_func(
-    VariableDeclaration& node, InitDecltrRet ret, SpecifierInfo specinfo, FunctionType *type)
-{
-    Box<FuncSymbol> funcsym =
-        FuncSymbol::empty(node.loc, *ret.name, syms.current, type);
+Chunk<mir::FunctionMIR> MIRSynthesizer::parse_vardecl_func(
+    VariableDeclaration& node, InitDecltrRet ret, SpecifierInfo specinfo, FunctionType *type) {
+    Box<FuncSymbol> funcsym = FuncSymbol::empty(node.loc, *ret.name, syms.current, type);
 
     if (specinfo.is_public) {
         funcsym->get_symdata()->set_visibility(Visibility::PUBLIC);
@@ -691,7 +691,8 @@ Value MIRSynthesizer::parse_constexpr_init(InitializerMIR& init, PrimitiveType *
     // todo: warn on float-to-int truncation
 
     if (exceeds_limits) {
-        add_error<InvalidConstexprError>(InvalidConstexprError::Kind::ExceedsLimits, init_expr->loc);
+        add_error<InvalidConstexprError>(
+            InvalidConstexprError::Kind::ExceedsLimits, init_expr->loc);
         throw UnableToContinue();
     }
 
@@ -1024,7 +1025,7 @@ void MIRSynthesizer::do_visit(Enumerator& node) {
     } else {
         value = enm->add_enumerator(node.name, node.loc);
     }
-    
+
     value = value.pr_cast(enm->get_underlying()->get_primkind());
 
     syms.insert(

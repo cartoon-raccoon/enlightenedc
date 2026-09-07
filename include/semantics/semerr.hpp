@@ -471,10 +471,7 @@ public:
 
 class InvalidConstexprError : public EccSemError {
 public:
-    enum class Kind : uint8_t {
-        NotPrimitive,
-        ExceedsLimits
-    };
+    enum class Kind : uint8_t { NotPrimitive, ExceedsLimits };
 
     InvalidConstexprError(Kind kind, Location err_loc)
         : EccSemError("invalid constexpr declaration", err_loc), kind(kind) {}
@@ -495,13 +492,13 @@ public:
 
         return ss.str();
     }
-
 };
 
 class InvalidMainSignature : public EccSemError {
 public:
     InvalidMainSignature(Location err_loc, types::FunctionType *bad_sig)
-        : EccSemError("invalid signature for main function", err_loc), bad_sig(bad_sig->to_string()) {}
+        : EccSemError("invalid signature for main function", err_loc),
+          bad_sig(bad_sig->to_string()) {}
 
     std::string bad_sig;
 
@@ -531,7 +528,8 @@ public:
 class InvalidPrintSignature : public EccSemError {
 public:
     InvalidPrintSignature(Location err_loc, types::FunctionType *bad_sig)
-        : EccSemError("invalid signature for main function", err_loc), bad_sig(bad_sig->to_string()) {}
+        : EccSemError("invalid signature for main function", err_loc),
+          bad_sig(bad_sig->to_string()) {}
 
     std::string bad_sig;
 

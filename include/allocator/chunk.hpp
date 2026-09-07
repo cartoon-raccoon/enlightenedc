@@ -43,10 +43,10 @@ public:
     a new `U` into it, which might additionally involve a slab allocation.
     */
     template <typename U>
-        requires std::convertible_to<U *, T*>
+        requires std::convertible_to<U *, T *>
     explicit Chunk(std::unique_ptr<U> box) {
         void *mem = alloc(sizeof(U), alignof(U));
-        U *obj = ::new (mem) U(std::move(*box));
+        U *obj    = ::new (mem) U(std::move(*box));
         if constexpr (!std::is_trivially_destructible_v<U>) {
             register_cleanup(obj, +[](void *p) { static_cast<U *>(p)->~U(); });
         }
@@ -70,7 +70,7 @@ public:
     Assign from a `Box<U>`. Same cost and ownership rules as the converting constructor.
     */
     template <typename U>
-        requires std::convertible_to<U *, T*>
+        requires std::convertible_to<U *, T *>
     Chunk& operator=(std::unique_ptr<U> box) {
         ptr = Chunk(std::move(box)).release();
         return *this;
