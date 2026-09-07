@@ -5,7 +5,7 @@
 #include "lowering/cfg/visitor.hpp"
 #include "semantics/types.hpp"
 #include "tokens.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
 
 using namespace lower::cfg;
 using namespace sema::types;
@@ -101,16 +101,9 @@ DO_ACCEPT(Goto, CFGVisitor);
 DO_ACCEPT(Switch, CFGVisitor);
 DO_ACCEPT(Return, CFGVisitor);
 
-Box<BasicBlock> BasicBlock::entry(std::string& func_name, FunctionCFG *func) {
+Box<BasicBlock> BasicBlock::entry(std::string& func_name, Function *func) {
     auto ret      = std::make_unique<BasicBlock>(func_name, func);
     ret->is_entry = true;
-
-    return ret;
-}
-
-Value *BasicBlock::insert_value(Box<Value> val) {
-    Value *ret = val.get();
-    push_value(std::move(val));
 
     return ret;
 }
@@ -122,10 +115,6 @@ Instruction *BasicBlock::first_non_phi_inst() const {
     }
 
     return curr;
-}
-
-void BasicBlock::push_value(Box<Value> val) {
-    parent->values.push_back(std::move(val));
 }
 
 void BasicBlock::link_to(BasicBlock *target) {
@@ -168,7 +157,7 @@ BasicBlock *BasicBlockSwitchSuccIter::next() {
     return sw->cases[idx++].blk;
 }
 
-BasicBlock *FunctionCFG::initialize() {
+BasicBlock *Function::initialize() {
     if (is_initialized())
         return entry;
 
@@ -184,7 +173,7 @@ BasicBlock *FunctionCFG::initialize() {
     return entry;
 }
 
-FuncArg *FunctionCFG::add_arg(Type *type) {
+FuncArg *Function::add_arg(Type *type) {
     auto arg = std::make_unique<FuncArg>(type);
 
     FuncArg *ret = arg.get();
@@ -194,7 +183,7 @@ FuncArg *FunctionCFG::add_arg(Type *type) {
     return ret;
 }
 
-bool FunctionCFG::is_plain_return() const {
+bool Function::is_plain_return() const {
     if (!entry->terminator()) {
         return false;
     }
@@ -202,11 +191,11 @@ bool FunctionCFG::is_plain_return() const {
     return num_blocks() == 1 && entry->is_empty() && isa<Return>(entry->terminator());
 }
 
-BasicBlock *FunctionCFG::create_block() {
+BasicBlock *Function::create_block() {
     return &blocks.emplace_back(this);
 }
 
-BasicBlock *FunctionCFG::create_block(std::string& name, bool make_labeled) {
+BasicBlock *Function::create_block(std::string& name, bool make_labeled) {
     auto& block = blocks.emplace_back(name, this);
 
     if (make_labeled) {
@@ -216,14 +205,14 @@ BasicBlock *FunctionCFG::create_block(std::string& name, bool make_labeled) {
     return &block;
 }
 
-BasicBlock *FunctionCFG::create_block_before(BasicBlock *succ) {
+BasicBlock *Function::create_block_before(BasicBlock *succ) {
     auto& block = blocks.emplace_before(*succ, this);
 
     return &block;
 }
 
 BasicBlock *
-FunctionCFG::create_block_before(BasicBlock *succ, std::string& name, bool make_labeled) {
+Function::create_block_before(BasicBlock *succ, std::string& name, bool make_labeled) {
     auto& block = blocks.emplace_before(*succ, name, this);
 
     if (make_labeled) {
@@ -233,14 +222,14 @@ FunctionCFG::create_block_before(BasicBlock *succ, std::string& name, bool make_
     return &block;
 }
 
-BasicBlock *FunctionCFG::create_block_after(BasicBlock *prec) {
+BasicBlock *Function::create_block_after(BasicBlock *prec) {
     auto& block = blocks.emplace_after(*prec, this);
 
     return &block;
 }
 
 BasicBlock *
-FunctionCFG::create_block_after(BasicBlock *prec, std::string& name, bool make_labeled) {
+Function::create_block_after(BasicBlock *prec, std::string& name, bool make_labeled) {
     auto& block = blocks.emplace_after(*prec, name, this);
 
     if (make_labeled) {
@@ -250,11 +239,11 @@ FunctionCFG::create_block_after(BasicBlock *prec, std::string& name, bool make_l
     return &block;
 }
 
-void FunctionCFG::swap_blocks(BasicBlock *first, BasicBlock *second) {
+void Function::swap_blocks(BasicBlock *first, BasicBlock *second) {
     blocks.swap(*first, *second);
 }
 
-BasicBlock *FunctionCFG::lookup_labeled_block(std::string& label) {
+BasicBlock *Function::lookup_labeled_block(std::string& label) {
     if (labeled_blocks.contains(label)) {
         return labeled_blocks[label];
     } else {
@@ -262,11 +251,11 @@ BasicBlock *FunctionCFG::lookup_labeled_block(std::string& label) {
     }
 }
 
-Span<Box<Alloca>> FunctionCFG::get_allocas() {
+Span<Box<Alloca>> Function::get_allocas() {
     return allocas;
 }
 
-Alloca *FunctionCFG::add_alloca(Type *type, std::string name) {
+Alloca *Function::add_alloca(Type *type, std::string name) {
     auto alloc = std::make_unique<Alloca>(type, std::move(name));
     auto *ret  = alloc.get();
 
@@ -275,7 +264,7 @@ Alloca *FunctionCFG::add_alloca(Type *type, std::string name) {
     return ret;
 }
 
-Alloca *FunctionCFG::add_alloca(Type *type) {
+Alloca *Function::add_alloca(Type *type) {
     auto alloc = std::make_unique<Alloca>(type);
     auto *ret  = alloc.get();
 
@@ -284,7 +273,7 @@ Alloca *FunctionCFG::add_alloca(Type *type) {
     return ret;
 }
 
-Global *ProgramCFG::add_global(Type *type, std::string name, Value *init) {
+Global *Program::add_global(Type *type, std::string name, Value *init) {
 
     Box<Global> new_global;
     if (init) {
@@ -299,11 +288,69 @@ Global *ProgramCFG::add_global(Type *type, std::string name, Value *init) {
     return ret;
 }
 
-Span<Box<Global>> ProgramCFG::get_globals() {
+Span<Box<Global>> Program::get_globals() {
     return globals;
 }
 
-String *ProgramCFG::add_or_get_string(ArrayType *type, const std::string& str) {
+ScalarConst *Program::get_scalar(PrimitiveType *type, eval::Value& val) {
+    if (scalars.contains(val)) {
+        return scalars.find(val)->second.get();
+    }
+
+    auto scl = make_box<ScalarConst>(type, val);
+    auto *ret = scl.get();
+
+    scalars[val] = std::move(scl);
+
+    return ret;
+}
+
+ZeroConst *Program::get_zero(Type *type) {
+    if (zeroes.contains(type)) {
+        return zeroes.find(type)->second.get();
+    }
+
+    auto zero = make_box<ZeroConst>(type);
+    auto *ret = zero.get();
+
+    zeroes[type] = std::move(zero);
+
+    return ret;
+}
+
+PointerConst *Program::get_pointer(PointerType *ptr, eval::Value& val) {
+    PointerKey key(ptr, val);
+
+    if (pointers.contains(key)) {
+        return pointers.find(key)->second.get();
+    }
+
+    auto pointer = make_box<PointerConst>(ptr, val);
+    auto *ret = pointer.get();
+
+    pointers[key] = std::move(pointer);
+
+    return ret;
+}
+
+AggregateConst *Program::get_aggregate(Type *type, const Vec<Constant *>& structure) {
+    AggregateKeyView key(type, structure);
+
+    if (auto it = aggregates.find(key); it != aggregates.end()) {
+        return it->second.get();
+    }
+
+    auto agg      = make_box<AggregateConst>(type);
+    agg->elements = structure;
+    auto *ret     = agg.get();
+
+    aggregates.emplace(AggregateKey{type, structure}, std::move(agg));
+
+    return ret;
+}
+
+
+String *Program::get_string(ArrayType *type, const std::string& str) {
     if (strings.contains(str)) {
         return strings[str].get();
     }
@@ -317,17 +364,17 @@ String *ProgramCFG::add_or_get_string(ArrayType *type, const std::string& str) {
     return ret;
 }
 
-FunctionCFG *ProgramCFG::add_function(sema::types::FunctionType *sig, std::string name) {
+Function *Program::add_function(sema::types::FunctionType *sig, std::string name) {
 
-    auto funcfg = std::make_unique<FunctionCFG>(sig, std::move(name));
+    auto funcfg = std::make_unique<Function>(sig, std::move(name));
 
-    FunctionCFG *ret = funcfg.get();
+    Function *ret = funcfg.get();
 
     functions.push_back(std::move(funcfg));
 
     return ret;
 }
 
-Span<Box<FunctionCFG>> ProgramCFG::get_functions() {
+Span<Box<Function>> Program::get_functions() {
     return functions;
 }

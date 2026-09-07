@@ -10,7 +10,7 @@
 #include <stdexcept>
 
 #include "allocator/alloc.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
 
 using namespace ecc::util;
 

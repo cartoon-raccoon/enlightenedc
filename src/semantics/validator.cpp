@@ -14,7 +14,7 @@
 #include "semantics/typeerr.hpp"
 #include "semantics/types.hpp"
 #include "tokens.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
 
 using namespace sema;
 using namespace sym;

@@ -8,7 +8,7 @@
 #include "semantics/mir/mir.hpp"
 #include "semantics/mir/visitor.hpp"
 #include "semantics/symbols.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
 
 namespace ecc::sema {
 /*

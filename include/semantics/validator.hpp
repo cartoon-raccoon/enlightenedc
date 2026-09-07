@@ -1,7 +1,7 @@
 #pragma once
 
 #include "eval/value.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
 #ifndef ECC_TYPECHECK_H
 #define ECC_TYPECHECK_H
 

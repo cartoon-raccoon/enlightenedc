@@ -22,12 +22,12 @@ class CFGPrinter : public CFGVisitor {
     Assigns names to the unlabeled blocks, unnamed instructions, and unnamed allocas of
     a single function.
     */
-    void name_function(FunctionCFG& func);
+    void name_function(Function& func);
 
 public:
-    void print(ProgramCFG& cfg);
+    void print(Program& cfg);
 
-    void print_function(FunctionCFG& func);
+    void print_function(Function& func);
 
     void print_block(BasicBlock& blk);
 
@@ -50,7 +50,7 @@ public:
     void visit(SubscrInst& inst) override;
     void visit(CallInst& inst) override;
 
-    void visit(FunctionCFG& val) override;
+    void visit(Function& val) override;
     void visit(ScalarConst& val) override;
     void visit(PointerConst& val) override;
     void visit(AggregateConst& val) override;

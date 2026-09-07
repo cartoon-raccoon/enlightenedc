@@ -3,7 +3,7 @@
 #include <iostream>
 
 #include "lowering/cfg/cfg.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
 
 using namespace ecc::lower::cfg;
 using namespace ecc::sema::types;
@@ -60,73 +60,73 @@ static std::string unop_to_string(UnaryInst::Operator op) {
     }
 }
 
-void CFGPrinter::name_function(FunctionCFG& func) {
-    // for each function, name unlabeled blocks
-    MonotonicCtr<size_t> blk_ctr;
-    MonotonicCtr<size_t> inst_ctr;
+void CFGPrinter::name_function(Function& func) {
+    // // for each function, name unlabeled blocks
+    // MonotonicCtr<size_t> blk_ctr;
+    // MonotonicCtr<size_t> inst_ctr;
 
-    for (auto& alloc : func.get_allocas()) {
-        if (!alloc->named()) {
-            alloc->set_name(std::format("{}", *inst_ctr));
-            inst_ctr++;
-        }
-    }
-    for (auto& arg : func.get_args()) {
-        if (!arg->named()) {
-            arg->set_name(std::format("{}", *inst_ctr));
-            inst_ctr++;
-        }
-    }
-    for (auto& block : func) {
-        // for each block, name unlabeled
-        if (!block.has_label()) {
-            block.name = std::format("{}", *blk_ctr);
-            blk_ctr++;
-        }
-        for (auto& inst : block) {
-            // for each instruction, name unnamed
-            if (!inst.named()) {
-                inst.set_name(std::format("{}", *inst_ctr));
-                inst_ctr++;
-            }
-        }
-    }
+    // for (auto& alloc : func.get_allocas()) {
+    //     if (!alloc->named()) {
+    //         alloc->set_name(std::format("{}", *inst_ctr));
+    //         inst_ctr++;
+    //     }
+    // }
+    // for (auto& arg : func.get_args()) {
+    //     if (!arg->named()) {
+    //         arg->set_name(std::format("{}", *inst_ctr));
+    //         inst_ctr++;
+    //     }
+    // }
+    // for (auto& block : func) {
+    //     // for each block, name unlabeled
+    //     if (!block.has_label()) {
+    //         block.name = std::format("{}", *blk_ctr);
+    //         blk_ctr++;
+    //     }
+    //     for (auto& inst : block) {
+    //         // for each instruction, name unnamed
+    //         if (!inst.named()) {
+    //             inst.set_name(std::format("{}", *inst_ctr));
+    //             inst_ctr++;
+    //         }
+    //     }
+    // }
 }
 
-void CFGPrinter::print(ProgramCFG& cfg) {
+void CFGPrinter::print(Program& cfg) {
     // first pass - assign names to values
-    MonotonicCtr<size_t> global_ctr;
-    for (auto& strpair : cfg.strings) {
-        strpair.second->set_name(std::format("@str.{}", *global_ctr));
-        global_ctr++;
-    }
-    for (auto& global : cfg.get_globals()) {
-        if (!global->named()) {
-            global->set_name(std::format("{}", *global_ctr));
-        }
-        global_ctr++;
-    }
+    // MonotonicCtr<size_t> global_ctr;
+    // for (auto& strpair : cfg.strings) {
+    //     strpair.second->set_name(std::format("@str.{}", *global_ctr));
+    //     global_ctr++;
+    // }
+    // for (auto& global : cfg.get_globals()) {
+    //     if (!global->named()) {
+    //         global->set_name(std::format("{}", *global_ctr));
+    //     }
+    //     global_ctr++;
+    // }
 
-    for (auto& func : cfg.get_functions()) {
-        name_function(*func);
-    }
+    // for (auto& func : cfg.get_functions()) {
+    //     name_function(*func);
+    // }
 
-    // second pass - print
-    for (auto& global : cfg.get_globals()) {
-        global->accept(*this);
-        std::cout << "\n";
-    }
-    for (auto& [str, string] : cfg.strings) {
-        string->accept(*this);
-        std::cout << " = \"" << encode_string_literal(string->data) << "\"\n";
-    }
-    for (auto& func : cfg.get_functions()) {
-        print_function(*func);
-        std::cout << "\n";
-    }
+    // // second pass - print
+    // for (auto& global : cfg.get_globals()) {
+    //     global->accept(*this);
+    //     std::cout << "\n";
+    // }
+    // for (auto& [str, string] : cfg.strings) {
+    //     string->accept(*this);
+    //     std::cout << " = \"" << encode_string_literal(string->data) << "\"\n";
+    // }
+    // for (auto& func : cfg.get_functions()) {
+    //     print_function(*func);
+    //     std::cout << "\n";
+    // }
 }
 
-void CFGPrinter::print_function(FunctionCFG& func) {
+void CFGPrinter::print_function(Function& func) {
     if (!func.is_defined()) {
         std::cout << "declare function ";
     } else {
@@ -179,28 +179,28 @@ void CFGPrinter::print_block(BasicBlock& blk) {
 }
 
 void CFGPrinter::print_value(Value& value) {
-    if (!isa<StoreInst>(&value) && !isa<PrintInst>(&value) && !isa<MemcpyInst>(&value)) {
-        if (auto *call = dyncast<CallInst>(&value); call && call->type->is_void()) {
-            std::cout << "  ";
-        } else {
-            std::cout << "  %" << value.name << " = ";
-        }
-    } else {
-        std::cout << "  ";
-    }
+    // if (!isa<StoreInst>(&value) && !isa<PrintInst>(&value) && !isa<MemcpyInst>(&value)) {
+    //     if (auto *call = dyncast<CallInst>(&value); call && call->type->is_void()) {
+    //         std::cout << "  ";
+    //     } else {
+    //         std::cout << "  %" << value.name << " = ";
+    //     }
+    // } else {
+    //     std::cout << "  ";
+    // }
 }
 
 void CFGPrinter::print_value_name(Value& value) {
-    if (isa<ScalarConst>(&value) || isa<PointerConst>(&value) || isa<ZeroConst>(&value) ||
-        isa<AggregateConst>(&value)) {
-        value.accept(*this);
-    } else if (isa<FunctionCFG>(&value) || isa<String>(&value)) {
-        std::cout << value.name;
-    } else if (isa<Global>(&value)) {
-        std::cout << "@" << value.name;
-    } else {
-        std::cout << "%" << value.name;
-    }
+    // if (isa<ScalarConst>(&value) || isa<PointerConst>(&value) || isa<ZeroConst>(&value) ||
+    //     isa<AggregateConst>(&value)) {
+    //     value.accept(*this);
+    // } else if (isa<Function>(&value) || isa<String>(&value)) {
+    //     std::cout << value.name;
+    // } else if (isa<Global>(&value)) {
+    //     std::cout << "@" << value.name;
+    // } else {
+    //     std::cout << "%" << value.name;
+    // }
 }
 
 void CFGPrinter::visit(ScalarConst& val) {
@@ -225,14 +225,14 @@ void CFGPrinter::visit(AggregateConst& val) {
 }
 
 void CFGPrinter::visit(String& val) {
-    std::cout << val.name;
+    // std::cout << val.name;
 }
 
 void CFGPrinter::visit(ZeroConst& val) {
     std::cout << "zero: [" << val.type->formal() << "]";
 }
 
-void CFGPrinter::visit(FunctionCFG& val) {
+void CFGPrinter::visit(Function& val) {
     std::cout << "func " << val.get_name();
 }
 
@@ -245,7 +245,7 @@ void CFGPrinter::visit(Global& val) {
 }
 
 void CFGPrinter::visit(FuncArg& val) {
-    std::cout << "%" << val.name << ": " << val.type->formal();
+    // std::cout << "%" << val.name << ": " << val.type->formal();
 }
 
 void CFGPrinter::visit(Alloca& inst) {
@@ -277,12 +277,12 @@ void CFGPrinter::visit(PhiInst& inst) {
 }
 
 void CFGPrinter::visit(PrintInst& inst) {
-    std::cout << "print " << inst.format_string->name << ": ";
-    for (auto *arg : inst.args) {
-        print_value_name(*arg);
-        std::cout << " ";
-    }
-    std::cout << "\n";
+    // std::cout << "print " << inst.format_string->name << ": ";
+    // for (auto *arg : inst.args) {
+    //     print_value_name(*arg);
+    //     std::cout << " ";
+    // }
+    // std::cout << "\n";
 }
 
 void CFGPrinter::visit(MemcpyInst& inst) {

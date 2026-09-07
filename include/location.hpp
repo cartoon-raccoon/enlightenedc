@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-#include "util.hpp"
+#include "util/hash.hpp"
 
 namespace ecc::location {
 

@@ -6,7 +6,7 @@
 #include "lowering/cfg/cfg.hpp"
 #include "semantics/typeerr.hpp"
 #include "semantics/types.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
 
 using namespace ecc::codegen;
 using namespace ecc::sema::types;
@@ -341,7 +341,7 @@ size_t LLVMUnit::alloc_size(Type *type) {
     return dl.getTypeAllocSize(size_type);
 }
 
-void LLVMUnit::compile(lower::cfg::ProgramCFG& prog) {
+void LLVMUnit::compile(lower::cfg::Program& prog) {
     LLVMGenerator generator(*this, rtcfg);
     generator.compile(prog);
 }

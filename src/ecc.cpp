@@ -6,7 +6,7 @@
 #include "config.hpp"
 #include "driver/driver.hpp"
 #include "error.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
 
 using namespace ecc;
 

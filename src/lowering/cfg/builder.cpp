@@ -82,7 +82,7 @@ Value *CFGBuilder::eval_lvalue(ExprLIR& node) {
     if (auto *literal = dyncast<LiteralExprLIR>(&node); literal && literal->is_str()) {
         auto& str = std::get<std::string>(literal->value);
         assert(node.act_type->is_array());
-        String *ret = prog_cfg.add_or_get_string(node.act_type->as_array(), str);
+        String *ret = prog_cfg.get_string(node.act_type->as_array(), str);
         ret->set_type(literal->act_type);
 
         return ret;
@@ -119,18 +119,18 @@ Global *CFGBuilder::lookup_global(LIRVarSym *sym) {
     return globals.contains(sym) ? globals[sym] : nullptr;
 }
 
-FunctionCFG *CFGBuilder::add_or_get_function(lir::FunctionLIR *func) {
+Function *CFGBuilder::add_or_get_function(lir::FunctionLIR *func) {
     if (functions.contains(func))
         return functions[func];
 
-    FunctionCFG *ret = prog_cfg.add_function(
+    Function *ret = prog_cfg.add_function(
         func->funcsym->get_symdata()->get_signature(), func->funcsym->symdata->get_mangled_name());
     functions[func] = ret;
 
     return ret;
 }
 
-FunctionCFG *CFGBuilder::lookup_function(lir::FunctionLIR *func) {
+Function *CFGBuilder::lookup_function(lir::FunctionLIR *func) {
     return functions.contains(func) ? functions[func] : nullptr;
 }
 
@@ -359,7 +359,7 @@ void CFGBuilder::visit(PrintStmtLIR& node) {
     }
 
     ArrayType *str_type = types.get_array(types.get_i8(), node.format_string.size() + 1);
-    String *format      = prog_cfg.add_or_get_string(str_type, node.format_string);
+    String *format      = prog_cfg.get_string(str_type, node.format_string);
 
     Vec<Value *> args;
     for (auto& arg : node.args) {
@@ -759,9 +759,10 @@ void CFGBuilder::visit(BinaryExprLIR& node) {
         curr_blk     = merge_block;
         PhiInst *phi = curr_blk->add_instruction<PhiInst>(node.act_type, node.loc);
 
+        eval::Value is_and_val(!is_and);
         // create the short circuit value
         Value *short_circuit_val =
-            curr_blk->add_value<ScalarConst>(node.act_type->as_primitive(), eval::Value(!is_and));
+            prog_cfg.get_scalar(node.act_type->as_primitive(), is_and_val);
 
         phi->add_incoming(short_circuit_val, lhs_exit);
         phi->add_incoming(rhs, rhs_exit);
@@ -934,13 +935,13 @@ void CFGBuilder::visit(LiteralExprLIR& node) {
         match{
             [&](eval::Value& val) {
                 dbprint("    Literal is Value, creating Literal value");
-                last_value = curr_blk->add_value<ScalarConst>(node.act_type->as_primitive(), val);
+                last_value = prog_cfg.get_scalar(node.act_type->as_primitive(), val);
             },
             [&](std::string& str) {
                 dbprint("    Literal is string, creating String value");
                 // string dedup happens here.
                 assert(node.act_type->is_array());
-                last_value = prog_cfg.add_or_get_string(node.act_type->as_array(), str);
+                last_value = prog_cfg.get_string(node.act_type->as_array(), str);
                 last_value->set_type(node.act_type);
             }},
         node.value);
@@ -951,7 +952,7 @@ void CFGBuilder::visit(LiteralExprLIR& node) {
 void CFGBuilder::visit(ZeroExprLIR& node) {
     dbprint("visiting ZeroExprLIR node ", node.loc ? *node.loc : Location{});
 
-    last_value = curr_blk->add_value<ZeroConst>(node.act_type);
+    last_value = prog_cfg.get_zero(node.act_type);
 
     assert(last_value && "last_value is nullptr at end of expr visit");
 }
@@ -1036,41 +1037,28 @@ Constant *CFGBuilder::build_constant(ConstInitLIR& init) {
 }
 
 Constant *CFGBuilder::build_constant(ScalarInitLIR& init) {
-    if (curr_func->get_name() == IMPLICIT_MAIN_NAME) {
-        return prog_cfg.add_constant<ScalarConst>(init.type->as_primitive(), init.val);
-    } else {
-        return curr_blk->add_value<ScalarConst>(init.type->as_primitive(), init.val);
-    }
+    return prog_cfg.get_scalar(init.type->as_primitive(), init.val);
 }
 
 Constant *CFGBuilder::build_constant(PointerInitLIR& init) {
-    if (curr_func->get_name() == IMPLICIT_MAIN_NAME) {
-        return prog_cfg.add_constant<PointerConst>(init.type->as_pointer(), init.val);
-    } else {
-        return curr_blk->add_value<PointerConst>(init.type->as_pointer(), init.val);
-    }
+    return prog_cfg.get_pointer(init.type->as_pointer(), init.val);
 }
 
 Constant *CFGBuilder::build_constant(AggregateInitLIR& init) {
-    AggregateConst *aggreg;
-    if (curr_func->get_name() == IMPLICIT_MAIN_NAME) {
-        aggreg = prog_cfg.add_constant<AggregateConst>(init.type);
-    } else {
-        aggreg = curr_blk->add_value<AggregateConst>(init.type);
+    Vec<Constant *> elems(init.elements.size());
+
+    for (auto& lir : init.elements) {
+        elems.push_back(build_constant(*lir));
     }
 
-    for (auto& elem : init.elements) {
-        aggreg->elements.push_back(build_constant(*elem));
-    }
-
-    return aggreg;
+    return prog_cfg.get_aggregate(init.type, elems);
 }
 
 Constant *CFGBuilder::build_constant(StringInitLIR& init) {
 
     ArrayType *str_type = types.get_array(types.get_i8(), init.str.size() + 1);
 
-    return prog_cfg.add_or_get_string(str_type, init.str);
+    return prog_cfg.get_string(str_type, init.str);
 }
 
 Constant *CFGBuilder::build_constant(FuncInitLIR& init) {
@@ -1079,9 +1067,5 @@ Constant *CFGBuilder::build_constant(FuncInitLIR& init) {
 }
 
 Constant *CFGBuilder::build_constant(ZeroInitLIR& init) {
-    if (curr_func->get_name() == IMPLICIT_MAIN_NAME) {
-        return prog_cfg.add_constant<ZeroConst>(init.type);
-    } else {
-        return curr_blk->add_value<ZeroConst>(init.type);
-    }
+    return prog_cfg.get_zero(init.type);
 }

@@ -17,7 +17,7 @@
 #include "semantics/mir/mir.hpp"
 #include "semantics/symbols.hpp"
 #include "semantics/types.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
 
 using namespace ecc;
 using namespace util;
@@ -50,7 +50,7 @@ struct TranslationUnitLIR {
 struct TranslationUnitCFG {
     TranslationUnitCFG();
 
-    Box<lower::cfg::ProgramCFG> cfg;
+    Box<lower::cfg::Program> cfg;
 };
 
 /**

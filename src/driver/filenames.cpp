@@ -3,7 +3,7 @@
 #include <array>
 #include <string>
 
-#include "util.hpp"
+#include "prelude.hpp"
 
 using namespace ecc::driver;
 using namespace ecc::util;

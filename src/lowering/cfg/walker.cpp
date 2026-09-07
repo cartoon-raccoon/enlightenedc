@@ -2,7 +2,7 @@
 
 using namespace ecc::lower::cfg;
 
-void CFGWalker::walk_function(FunctionCFG& function) {
+void CFGWalker::walk_function(Function& function) {
     if (!function.is_defined()) return;
 
     if (!visited.empty()) {

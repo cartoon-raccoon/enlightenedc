@@ -12,7 +12,7 @@
 #include "semantics/symbols.hpp"
 #include "semantics/typeerr.hpp"
 #include "tokens.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
 
 using namespace ecc::sema::types;
 using namespace ecc::sema::prim;

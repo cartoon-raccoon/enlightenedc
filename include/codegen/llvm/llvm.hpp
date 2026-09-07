@@ -28,7 +28,7 @@
 #include "codegen/codegen.hpp"
 #include "config.hpp"
 #include "semantics/types.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
 
 using namespace ecc;
 using namespace util;
@@ -107,7 +107,7 @@ public:
 
     size_t alloc_size(sema::types::Type *type) override;
 
-    void compile(lower::cfg::ProgramCFG& prog) override;
+    void compile(lower::cfg::Program& prog) override;
 
 protected:
     bool is_finalized(sema::types::Type *type);

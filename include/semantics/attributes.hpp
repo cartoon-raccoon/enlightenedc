@@ -7,7 +7,7 @@
 #include <cstddef>
 
 #include "semantics/mir/mir.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
 
 using namespace ecc;
 using namespace ecc::util;

@@ -4,7 +4,7 @@
 #define ECC_PROGITEM_LIR_ITER_H
 
 #include "lowering/lir/lir.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
 
 namespace ecc::lower::lir {
 

@@ -16,7 +16,7 @@
 #include "semantics/semantics.hpp"
 #include "semantics/typeerr.hpp"
 #include "semantics/validator.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
 
 using namespace ecc::driver;
 using namespace ecc::sema;
@@ -41,7 +41,7 @@ void Backend::run(Ecc& ecc, driver::TranslationUnit& unit) {
 
     LIRSymbolMap& lirsyms = *unit.prog_lir->symbols;
     ProgramLIR& lir       = *unit.prog_lir->lir;
-    ProgramCFG& cfg       = *unit.prog_cfg->cfg;
+    Program& cfg       = *unit.prog_cfg->cfg;
 
     dbprint("\n---------- Generating MIR ----------\n");
 

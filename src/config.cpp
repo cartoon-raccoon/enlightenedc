@@ -1,6 +1,6 @@
 #include "config.hpp"
 
-#include "util.hpp"
+#include "prelude.hpp"
 
 using namespace ecc;
 

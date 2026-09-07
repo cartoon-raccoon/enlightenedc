@@ -7,7 +7,7 @@
 #include <utility>
 
 #include "lowering/cfg/cfg.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
 
 using namespace ecc::util;
 
@@ -22,7 +22,7 @@ class CFGWalker {
 public:
     virtual ~CFGWalker() = default;
 
-    void walk_function(FunctionCFG& function);
+    void walk_function(Function& function);
 
     /**
     The actual block visit in the order specified by the subclass.

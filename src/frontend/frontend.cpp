@@ -7,7 +7,7 @@
 #include "frontend/lexer.hpp"
 #include "frontend/preproc.hpp"
 #include "parser.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
 
 using namespace ecc::frontend;
 

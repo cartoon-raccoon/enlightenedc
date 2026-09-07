@@ -6,7 +6,7 @@
 #include "ast/ast.hpp"
 #include "ds/arenavec.hpp"
 #include "semantics/mir/mir.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
 
 using namespace ecc::ds;
 

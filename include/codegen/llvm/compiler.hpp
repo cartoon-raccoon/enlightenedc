@@ -11,7 +11,7 @@
 #include "config.hpp"
 #include "lowering/cfg/cfg.hpp"
 #include "lowering/cfg/walker.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
 
 using namespace ecc;
 using namespace util;
@@ -34,7 +34,7 @@ protected:
 public:
     LLVMGenerator(LLVMUnit& llvm, RuntimeConfig& rtcfg);
 
-    void compile(lower::cfg::ProgramCFG& prog);
+    void compile(lower::cfg::Program& prog);
 
     // Visitor method overrides
     void visit(lower::cfg::Alloca& inst) override;
@@ -52,7 +52,7 @@ public:
     void visit(lower::cfg::SubscrInst& inst) override;
     void visit(lower::cfg::CallInst& inst) override;
 
-    void visit(lower::cfg::FunctionCFG& val) override;
+    void visit(lower::cfg::Function& val) override;
     void visit(lower::cfg::ScalarConst& val) override;
     void visit(lower::cfg::PointerConst& val) override;
     void visit(lower::cfg::AggregateConst& val) override;

@@ -8,7 +8,8 @@
 #include "ast/ast.hpp"
 #include "ds/arenavec.hpp"
 #include "tokens.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
+#include "util/string.hpp"
 
 using namespace ecc::ast;
 using namespace ecc::tokens;

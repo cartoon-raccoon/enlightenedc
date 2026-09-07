@@ -9,7 +9,8 @@
 #include "error.hpp"
 #include "semantics/primitives.hpp"
 #include "tokens.hpp"
-#include "util.hpp"
+#include "util/hash.hpp"
+#include "prelude.hpp"
 
 using namespace ecc;
 using namespace ecc::util;

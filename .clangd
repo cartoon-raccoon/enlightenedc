@@ -2,7 +2,7 @@ If:
   PathMatch: [.*.\hpp, .*.\cpp]
   PathExclude: build/gen/.*
 CompileFlags:
-  Add: [-Wall, -Wextra, -Wpedantic]
+  Add: [-Wall, -Wextra, -Wpedantic, -std=c++23]
 Completion:
   ArgumentLists: Delimiters
 InlayHints:
@@ -15,4 +15,12 @@ Documentation:
 If:
   PathMatch: .*/backend.cpp
 Diagnostics:
+  UnusedIncludes: None
+
+---
+
+If:
+  PathMatch: .*/prelude.hpp
+Diagnostics:
+  Suppress: [unused-includes]
   UnusedIncludes: None

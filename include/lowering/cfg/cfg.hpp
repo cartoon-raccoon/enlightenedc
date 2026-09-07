@@ -3,6 +3,7 @@
 #ifndef ECC_CFG_H
 #define ECC_CFG_H
 
+#include <boost/container_hash/hash.hpp>
 #include <concepts>
 #include <stdexcept>
 #include <utility>
@@ -12,7 +13,9 @@
 #include "lowering/cfg/visitor.hpp"
 #include "semantics/types.hpp"
 #include "tokens.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
+#include "util/hash.hpp"
+#include "util/iterator.hpp"
 
 namespace ecc::lower::cfg {
 
@@ -29,7 +32,7 @@ class Goto;
 class Return;
 class Switch;
 
-class FunctionCFG;
+class Function;
 
 template <typename DerivedT, typename BaseT>
 using CFGVisitable = Visitable<DerivedT, BaseT, CFGVisitor>;
@@ -58,48 +61,27 @@ public:
     Value(ValueKind kind, sema::types::Type *type, Optional<Location> loc)
         : valkind(kind), type(type), eff_type(type->effective_type()), loc(loc) {}
 
-    Value(ValueKind kind, sema::types::Type *type, std::string name, Location loc)
-        : valkind(kind), name(std::move(name)), type(type), eff_type(type->effective_type()),
-          loc(loc) {}
-
-    Value(ValueKind kind, sema::types::Type *type, std::string name)
-        : valkind(kind), name(std::move(name)), type(type), eff_type(type->effective_type()) {}
-
-    Value(ValueKind kind, sema::types::Type *type, std::string name, Optional<Location> loc)
-        : valkind(kind), name(std::move(name)), type(type), eff_type(type->effective_type()),
-          loc(loc) {}
-
-    Value(ValueKind kind, Location loc) : valkind(kind), loc(loc) {}
-
     Value(ValueKind kind, sema::types::Type *type)
         : valkind(kind), type(type), eff_type(type->effective_type()) {}
+
+    Value(ValueKind kind, Location loc) : valkind(kind), loc(loc) {}
 
     Value(ValueKind kind) : valkind(kind) {}
 
     ValueKind valkind;
 
-    /**
-    The name of the value.
-
-    An empty string means that the Value has no name.
-    */
-    std::string name;
     sema::types::Type *type     = nullptr;
     sema::types::Type *eff_type = nullptr;
     Optional<Location> loc;
 
     virtual ~Value() = default;
 
-    bool named() const { return !this->name.empty(); }
-
-    void set_name(std::string&& name) { this->name = std::move(name); }
-
-    void set_name(const std::string& name) { this->name = name; }
-
     void set_type(sema::types::Type *type) {
         this->type     = type;
         this->eff_type = type->effective_type();
     }
+
+    virtual bool nameable() { return false; }
 
     virtual Instruction *as_instruction() { return nullptr; }
     virtual ScalarConst *as_scalar() { return nullptr; }
@@ -114,20 +96,72 @@ public:
     virtual void accept(CFGVisitor& visitor) = 0;
 };
 
+/**
+A mixin class to add a name property to values and constants.
+*/
+class Named {
+public:
+    Named() = default;
+    explicit Named(std::string name) : name(std::move(name)) {}
+
+    std::string name;
+
+    bool named() const { return !name.empty(); }
+
+    void set_name(std::string&& name) { this->name = std::move(name); }
+
+    void set_name(const std::string& name) { this->name = name; }
+};
+
+/**
+A CFG Value that can take an optional name.
+*/
+class NamedValue : public Value, public Named {
+public:
+    NamedValue(ValueKind kind, sema::types::Type *type, Location loc)
+        : Value(kind, type, loc) {}
+
+    NamedValue(ValueKind kind, sema::types::Type *type, Optional<Location> loc)
+        : Value(kind, type, loc) {}
+
+    NamedValue(ValueKind kind, sema::types::Type *type)
+        : Value(kind, type) {}
+
+    NamedValue(ValueKind kind, sema::types::Type *type, Location loc, std::string name)
+        : Value(kind, type, loc), Named(std::move(name)) {}
+
+    NamedValue(ValueKind kind, sema::types::Type *type, Optional<Location> loc, std::string name)
+        : Value(kind, type, loc), Named(std::move(name)) {}
+
+    NamedValue(ValueKind kind, sema::types::Type *type, std::string name)
+        : Value(kind, type), Named(std::move(name)) {}
+
+    bool nameable() override { return true; }
+
+    static bool classof(const Value *node) {
+        switch (node->valkind) {
+        case ValueKind::INST:
+        case ValueKind::GLOBAL:
+        case ValueKind::ALLOCA:
+            return true;
+        default:
+            return false;
+        }
+    }
+};
+
 class Constant : public Value {
 public:
     Constant(ValueKind kind, sema::types::Type *type) : Value(kind, type) {}
 
     Constant(ValueKind kind, sema::types::Type *type, Location loc) : Value(kind, type, loc) {}
 
-    Constant(ValueKind kind, sema::types::Type *type, std::string name)
-        : Value(kind, type, std::move(name)) {}
-
     static bool classof(const Value *node) {
         switch (node->valkind) {
         case ValueKind::SCALAR:
         case ValueKind::AGGREG:
         case ValueKind::ZERO:
+        case ValueKind::POINTER:
         case ValueKind::FUNC:
         case ValueKind::STR:
             return true;
@@ -137,10 +171,32 @@ public:
     }
 };
 
-class ScalarConst : public CFGVisitable<ScalarConst, Constant> {
+/**
+An immediate value that cannot be addressed.
+*/
+class Immediate : public Constant {
+public:
+    Immediate(ValueKind kind, sema::types::Type *type) : Constant(kind, type) {}
+
+    Immediate(ValueKind kind, sema::types::Type *type, Location loc) : Constant(kind, type, loc) {}
+
+    static bool classof(const Value *node) {
+        switch (node->valkind) {
+        case ValueKind::SCALAR:
+        case ValueKind::AGGREG:
+        case ValueKind::ZERO:
+        case ValueKind::POINTER:
+            return true;
+        default:
+            return false;
+        }
+    }
+};
+
+class ScalarConst : public CFGVisitable<ScalarConst, Immediate> {
 public:
     ScalarConst(sema::types::PrimitiveType *type, eval::Value& value)
-        : CFGVisitable<ScalarConst, Constant>(ValueKind::SCALAR, type), value(value) {}
+        : CFGVisitable<ScalarConst, Immediate>(ValueKind::SCALAR, type), value(value) {}
 
     eval::Value value;
 
@@ -149,11 +205,13 @@ public:
     static bool classof(const Value *node) { return node->valkind == ValueKind::SCALAR; }
 };
 
-class PointerConst : public CFGVisitable<PointerConst, Constant> {
+class PointerConst : public CFGVisitable<PointerConst, Immediate> {
 public:
     PointerConst(sema::types::PointerType *type, eval::Value& value)
-        : CFGVisitable<PointerConst, Constant>(ValueKind::POINTER, type), value(value) {}
+        : CFGVisitable<PointerConst, Immediate>(ValueKind::POINTER, type), 
+        target(type), value(value) {}
 
+    sema::types::PointerType *target;
     eval::Value value;
 
     PointerConst *as_pointer() override { return this; }
@@ -161,10 +219,29 @@ public:
     static bool classof(const Value *node) { return node->valkind == ValueKind::POINTER; }
 };
 
-class AggregateConst : public CFGVisitable<AggregateConst, Constant> {
+struct PointerKey {
+    sema::types::PointerType *type;
+    eval::Value value;
+};
+
+struct PointerKeyHash {
+    size_t operator()(const PointerKey& k) const noexcept {
+        size_t seed = boost::hash<sema::types::PointerType *>{}(k.type);
+        boost::hash_combine(seed, eval::ValueHash{}(k.value));
+        return seed;
+    }
+};
+
+struct PointerKeyEq {
+    bool operator()(const PointerKey& a, const PointerKey& b) const noexcept {
+        return a.type == b.type && eval::ValueStructEq{}(a.value, b.value);
+    }
+};
+
+class AggregateConst : public CFGVisitable<AggregateConst, Immediate> {
 public:
     AggregateConst(sema::types::Type *type)
-        : CFGVisitable<AggregateConst, Constant>(ValueKind::AGGREG, type) {}
+        : CFGVisitable<AggregateConst, Immediate>(ValueKind::AGGREG, type) {}
 
     Vec<Constant *> elements;
 
@@ -173,9 +250,39 @@ public:
     static bool classof(const Value *node) { return node->valkind == ValueKind::AGGREG; }
 };
 
-class ZeroConst : public CFGVisitable<ZeroConst, Constant> {
+struct AggregateKey {
+    sema::types::Type *type;
+    Vec<Constant *> elems;  
+};
+
+struct AggregateKeyView {
+    sema::types::Type *type;
+    Span<Constant *const> elems;
+
+    AggregateKeyView(const AggregateKey& k) : type(k.type), elems(k.elems) {}
+    AggregateKeyView(sema::types::Type *t, Span<Constant *const> e) : type(t), elems(e) {}
+};
+
+struct AggregateKeyHash {
+    using is_transparent = void;
+    size_t operator()(AggregateKeyView k) const {
+        size_t seed = boost::hash<sema::types::Type *>{}(k.type);
+        boost::hash_combine(seed, SeqHash<Constant>{}(k.elems));
+        return seed;
+    }
+};
+
+struct AggregateKeyEq {
+    using is_transparent = void;
+
+    bool operator()(AggregateKeyView a, AggregateKeyView b) const {
+        return a.type == b.type && std::ranges::equal(a.elems, b.elems);
+    }
+};
+
+class ZeroConst : public CFGVisitable<ZeroConst, Immediate> {
 public:
-    ZeroConst(sema::types::Type *type) : CFGVisitable<ZeroConst, Constant>(ValueKind::ZERO, type) {}
+    ZeroConst(sema::types::Type *type) : CFGVisitable<ZeroConst, Immediate>(ValueKind::ZERO, type) {}
 
     ZeroConst *as_zero() override { return this; }
 
@@ -194,13 +301,13 @@ public:
     static bool classof(const Value *node) { return node->valkind == ValueKind::STR; }
 };
 
-class Global : public CFGVisitable<Global, Value> {
+class Global : public CFGVisitable<Global, NamedValue> {
 public:
     Global(sema::types::Type *type, std::string name)
-        : CFGVisitable<Global, Value>(ValueKind::GLOBAL, type, std::move(name)) {}
+        : CFGVisitable<Global, NamedValue>(ValueKind::GLOBAL, type, std::move(name)) {}
 
     Global(sema::types::Type *type, std::string name, Value *initializer)
-        : CFGVisitable<Global, Value>(ValueKind::GLOBAL, type, std::move(name)),
+        : CFGVisitable<Global, NamedValue>(ValueKind::GLOBAL, type, std::move(name)),
           initializer(initializer) {}
 
     /**
@@ -213,13 +320,15 @@ public:
     static bool classof(const Value *node) { return node->valkind == ValueKind::GLOBAL; }
 };
 
-class Alloca : public CFGVisitable<Alloca, Value> {
+class Alloca : public CFGVisitable<Alloca, NamedValue> {
 public:
     Alloca(sema::types::Type *type, std::string name)
-        : CFGVisitable<Alloca, Value>(ValueKind::ALLOCA, type, std::move(name)), type(type) {}
+        : CFGVisitable<Alloca, NamedValue>(ValueKind::ALLOCA, type, std::move(name)), type(type) {}
 
     Alloca(sema::types::Type *type)
-        : CFGVisitable<Alloca, Value>(ValueKind::ALLOCA, type), type(type) {}
+        : CFGVisitable<Alloca, NamedValue>(ValueKind::ALLOCA, type), type(type) {}
+
+    
 
     sema::types::Type *type;
 
@@ -245,7 +354,7 @@ public:
 /**
 A unit of execution in the CFG IR.
 */
-class Instruction : public Value, public ds::LinkedListNode<Instruction> {
+class Instruction : public NamedValue, public ds::LinkedListNode<Instruction> {
 public:
     enum class InstKind : uint8_t {
         LOAD,
@@ -264,32 +373,25 @@ public:
     };
 
     Instruction(BasicBlock *containing, InstKind kind, sema::types::Type *type, Location loc)
-        : Value(ValueKind::INST, type, loc), containing(containing), instkind(kind) {}
+        : NamedValue(ValueKind::INST, type, loc), containing(containing), instkind(kind) {}
 
     Instruction(
         BasicBlock *containing, InstKind kind, sema::types::Type *type, Optional<Location> loc)
-        : Value(ValueKind::INST, type, loc), containing(containing), instkind(kind) {}
+        : NamedValue(ValueKind::INST, type, loc), containing(containing), instkind(kind) {}
 
     Instruction(BasicBlock *containing, InstKind kind, sema::types::Type *type)
-        : Value(ValueKind::INST, type), containing(containing), instkind(kind) {}
+        : NamedValue(ValueKind::INST, type), containing(containing), instkind(kind) {}
 
     Instruction(
-        BasicBlock *containing, InstKind kind, sema::types::Type *type, std::string name,
-        Location loc)
-        : Value(ValueKind::INST, type, std::move(name), loc), containing(containing),
+        BasicBlock *containing, InstKind kind, sema::types::Type *type, Location loc, std::string name)
+        : NamedValue(ValueKind::INST, type, loc, std::move(name)), containing(containing),
           instkind(kind) {}
 
     Instruction(
         BasicBlock *containing, InstKind kind, sema::types::Type *type, std::string name,
         Optional<Location> loc)
-        : Value(ValueKind::INST, type, std::move(name), loc), containing(containing),
+        : NamedValue(ValueKind::INST, type, loc, std::move(name)), containing(containing),
           instkind(kind) {}
-
-    Instruction(BasicBlock *containing, InstKind kind, Location loc)
-        : Value(ValueKind::INST, loc), containing(containing), instkind(kind) {}
-
-    Instruction(BasicBlock *containing, InstKind kind)
-        : Value(ValueKind::INST), containing(containing), instkind(kind) {}
 
     Instruction *as_instruction() override { return this; }
 
@@ -959,16 +1061,16 @@ class BasicBlock : public ds::LinkedListNode<BasicBlock> {
     /**
     The function containing this block.
     */
-    FunctionCFG *parent;
+    Function *parent;
 
 public:
-    friend class FunctionCFG;
+    friend class Function;
 
-    BasicBlock(FunctionCFG *func) : parent(func) {}
+    BasicBlock(Function *func) : parent(func) {}
 
-    BasicBlock(std::string& label, FunctionCFG *func) : parent(func), label(label), name(label) {}
+    BasicBlock(std::string& label, Function *func) : parent(func), label(label), name(label) {}
 
-    static Box<BasicBlock> entry(std::string& func_name, FunctionCFG *func);
+    static Box<BasicBlock> entry(std::string& func_name, Function *func);
 
     template <typename Term, typename... Args>
         requires std::derived_from<Term, Terminator>
@@ -1015,19 +1117,6 @@ public:
         return ret;
     }
 
-    template <typename Val, typename... Args>
-        requires(std::derived_from<Val, Value> && !std::derived_from<Val, Instruction>)
-    Val *add_value(Args... args) {
-        Box<Val> val = std::make_unique<Val>(args...);
-        Val *ret     = val.get();
-
-        push_value(std::move(val));
-
-        return ret;
-    }
-
-    Value *insert_value(Box<Value> val);
-
     /**
     Retrieve the first non-Phi instruction in this block.
     */
@@ -1036,7 +1125,7 @@ public:
     /**
     Retrieve the function containing this block.
     */
-    FunctionCFG *get_parent() { return parent; }
+    Function *get_parent() { return parent; }
 
     /**
     Links `target` as a successor block to `this`.
@@ -1089,20 +1178,20 @@ private:
     Vec<BasicBlock *> succs;
     Box<Terminator> term = nullptr;
     void push_instruction(Box<Instruction> inst) { instructions.push_back(std::move(inst)); }
-
-    void push_value(Box<Value> val);
 };
 
 /**
 A single function, composed of linked blocks.
 */
-class FunctionCFG : public CFGVisitable<FunctionCFG, Constant> {
+class Function : public CFGVisitable<Function, Constant>, public Named {
 public:
     friend class BasicBlock;
 
-    FunctionCFG(sema::types::FunctionType *sig, std::string name)
-        : CFGVisitable<FunctionCFG, Constant>(ValueKind::FUNC, sig, std::move(name)),
+    Function(sema::types::FunctionType *sig, std::string name)
+        : CFGVisitable<Function, Constant>(ValueKind::FUNC, sig), Named(std::move(name)),
           signature(sig) {}
+
+    bool nameable() override { return true; }
 
     sema::types::FunctionType *get_signature() { return signature; }
 
@@ -1198,14 +1287,11 @@ private:
 
     // The allocations in the function.
     Vec<Box<Alloca>> allocas;
-
-    // Bag of non-instruction values.
-    Vec<Box<Value>> values;
 };
 
-class ProgramCFG {
+class Program {
 public:
-    ProgramCFG() {}
+    Program() {}
 
     /**
     Adds a new global to the ProgramCFG corresponding to the passed LIRVarSym,
@@ -1213,47 +1299,44 @@ public:
     */
     Global *add_global(sema::types::Type *type, std::string name, Value *init = nullptr);
 
-    FunctionCFG *add_function(sema::types::FunctionType *sig, std::string name);
+    Function *add_function(sema::types::FunctionType *sig, std::string name);
 
     /**
     An iterator over the globals in the program, in the order they were added.
     */
     Span<Box<Global>> get_globals();
 
-    Span<Box<FunctionCFG>> get_functions();
+    Span<Box<Function>> get_functions();
+
+    ScalarConst *get_scalar(sema::types::PrimitiveType *type, eval::Value& val);
+
+    ZeroConst *get_zero(sema::types::Type *type);
+
+    PointerConst *get_pointer(sema::types::PointerType *ptr, eval::Value& val);
+
+    AggregateConst *get_aggregate(sema::types::Type *type, const Vec<Constant *>& structure);
 
     /**
     Adds a new string to the ProgramCFG corresponding to the passed string,
     or returns the corresponding String if it already exists.
     */
-    String *add_or_get_string(sema::types::ArrayType *type, const std::string& str);
-
-    /**
-    Constructs a new Constant of type T, owned by the ProgramCFG. Used for constant values that
-    aren't tied to any particular function -- e.g. nodes in the constant initializer tree of a
-    global variable.
-    */
-    template <typename T, typename... Args>
-        requires std::derived_from<T, Constant>
-    T *add_constant(Args... args) {
-        auto c = std::make_unique<T>(args...);
-        T *ret = c.get();
-
-        constants.push_back(std::move(c));
-
-        return ret;
-    }
+    String *get_string(sema::types::ArrayType *type, const std::string& str);
 
     HashMap<std::string, Box<String>> strings;
 
 private:
-    Vec<Box<FunctionCFG>> functions;
+
+    Vec<Box<Function>> functions;
 
     Vec<Box<Global>> globals;
 
-    // Bag of constant values not owned by any function (i.e. those appearing in globals'
-    // initializer trees).
-    Vec<Box<Constant>> constants;
+    HashMap<eval::Value, Box<ScalarConst>, eval::ValueHash, eval::ValueStructEq> scalars;
+
+    HashMap<sema::types::Type *, Box<ZeroConst>> zeroes;
+
+    HashMap<PointerKey, Box<PointerConst>, PointerKeyHash, PointerKeyEq> pointers;
+
+    HashMap<AggregateKey, Box<AggregateConst>, AggregateKeyHash, AggregateKeyEq> aggregates;
 };
 
 } // end namespace ecc::lower::cfg

@@ -6,7 +6,8 @@
 #include "lowering/lir/lir.hpp"
 #include "semantics/types.hpp"
 #include "tokens.hpp"
-#include "util.hpp"
+#include "util/string.hpp"
+#include "prelude.hpp"
 
 using namespace ecc::lower::lir;
 using namespace ecc::sema::types;

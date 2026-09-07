@@ -8,7 +8,7 @@
 #include <string>
 
 #include "location.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
 
 using namespace ecc::util;
 using namespace ecc::location;

@@ -6,7 +6,7 @@
 #include <stdexcept>
 
 #include "config.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
 
 namespace ecc::sema::types {
 
@@ -25,7 +25,7 @@ class ConstType;
 
 namespace ecc::lower::cfg {
 
-class ProgramCFG;
+class Program;
 
 }
 
@@ -92,7 +92,7 @@ public:
 
     virtual size_t alloc_size(sema::types::Type *type) = 0;
 
-    virtual void compile(lower::cfg::ProgramCFG& prog) = 0;
+    virtual void compile(lower::cfg::Program& prog) = 0;
 };
 
 } // namespace ecc::codegen

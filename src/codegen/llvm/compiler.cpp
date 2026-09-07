@@ -8,7 +8,7 @@ LLVMGenerator::LLVMGenerator(LLVMUnit& llvm, RuntimeConfig& rtcfg)
     : ctxtref(llvm.ctx()), modref(llvm.mod()), irbref(llvm.irb()), rtcfg(rtcfg) {
 }
 
-void LLVMGenerator::compile(ProgramCFG& prog) {
+void LLVMGenerator::compile(Program& prog) {
     for (auto& glob : prog.get_globals()) {
         glob->accept(*this);
     }
@@ -51,7 +51,7 @@ void LLVMGenerator::visit(lower::cfg::SubscrInst& inst) {}
 
 void LLVMGenerator::visit(lower::cfg::CallInst& inst) {}
 
-void LLVMGenerator::visit(lower::cfg::FunctionCFG& val) {}
+void LLVMGenerator::visit(lower::cfg::Function& val) {}
 
 void LLVMGenerator::visit(lower::cfg::ScalarConst& val) {}
 

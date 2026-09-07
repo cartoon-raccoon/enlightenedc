@@ -20,7 +20,8 @@
 #include "eval/value.hpp"
 #include "location.hpp"
 #include "tokens.hpp"
-#include "util.hpp"
+#include "util/hash.hpp"
+#include "prelude.hpp"
 
 /*
 Forward declaration of Scope from symbols
@@ -1883,17 +1884,7 @@ private:
     Box<VoidType> voidt;
     Box<PrimitiveType> u8, u16, u32, u64, i8, i16, i32, i64, f32, f64, boolt;
 
-    template <typename T>
-    struct pair_hash {
-        std::size_t operator()(const std::pair<Type *, T> pair) const {
-            auto h1 = std::hash<Type *>{}(pair.first);
-            auto h2 = std::hash<T>{}(pair.second);
-
-            return h1 ^ (h2 + BOOST_GOLDEN_RATIO + (h1 << HASH_SHL) + (h1 >> HASH_SHR));
-        }
-    };
-
-    using ArrayKey = std::pair<Type *, Optional<uint64_t>>;
+    using ArrayKey = Pair<Type *, Optional<uint64_t>>;
 
     // The map of record types (i.e. structs, unions, enums).
     HashMap<std::string, Box<UserType>> user_types;
@@ -1905,7 +1896,7 @@ private:
     HashMap<Type *, Box<PointerType>> pointers;
 
     // The map of array types, mapped by their base type.
-    HashMap<ArrayKey, Box<ArrayType>, pair_hash<Optional<uint64_t>>> arrays;
+    HashMap<ArrayKey, Box<ArrayType>, PairHash<Type *, Optional<uint64_t>>> arrays;
 
     // The map of const types mapped by their base type.
     HashMap<Type *, Box<ConstType>> const_types;

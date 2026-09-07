@@ -10,7 +10,7 @@
 #include "config.hpp"
 #include "driver/filenames.hpp"
 #include "error.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
 
 using namespace ecc::util;
 

@@ -6,7 +6,8 @@
 #include "semantics/mir/mir.hpp"
 #include "semantics/types.hpp"
 #include "tokens.hpp"
-#include "util.hpp"
+#include "util/string.hpp"
+#include "prelude.hpp"
 
 using namespace ecc::sema::mir;
 using namespace ecc::sema::types;

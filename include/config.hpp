@@ -9,7 +9,7 @@
 #include <string>
 
 #include "error.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
 
 namespace ecc {
 

@@ -7,7 +7,7 @@
 #include <string>
 
 #include "semantics/types.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
 
 namespace ecc::sema::sym {
 

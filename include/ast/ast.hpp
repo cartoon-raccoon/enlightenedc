@@ -13,7 +13,7 @@
 #include "ds/arenavec.hpp"
 #include "location.hpp"
 #include "tokens.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
 
 using namespace ecc;
 using namespace ecc::util;

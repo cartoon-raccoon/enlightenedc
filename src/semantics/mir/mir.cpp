@@ -5,7 +5,7 @@
 
 #include "eval/consteval.hpp"
 #include "semantics/mir/visitor.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
 
 #define DO_EVAL(mirty, evalr)            \
     eval::Value mirty::eval(evalr& ev) { \

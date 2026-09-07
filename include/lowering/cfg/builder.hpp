@@ -11,7 +11,7 @@
 #include "lowering/lir/lir.hpp"
 #include "lowering/lir/symbols.hpp"
 #include "lowering/lir/visitor.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
 
 using namespace ecc;
 using namespace util;
@@ -71,13 +71,13 @@ Class that builds the Control Flow Graph.
 */
 class CFGBuilder : public lir::LIRVisitor {
 public:
-    CFGBuilder(sema::types::TypeContext& types, ProgramCFG& prog_cfg, RuntimeConfig& rtcfg)
+    CFGBuilder(sema::types::TypeContext& types, Program& prog_cfg, RuntimeConfig& rtcfg)
         : types(types), prog_cfg(prog_cfg), rtcfg(rtcfg) {}
 
     void build_cfg(lir::ProgramLIR& prog);
 
 protected:
-    FunctionCFG *curr_func = nullptr;
+    Function *curr_func = nullptr;
     BasicBlock *curr_blk   = nullptr;
     Value *last_value      = nullptr;
 
@@ -117,9 +117,9 @@ protected:
 
     Global *lookup_global(lir::LIRVarSym *sym);
 
-    FunctionCFG *add_or_get_function(lir::FunctionLIR *func);
+    Function *add_or_get_function(lir::FunctionLIR *func);
 
-    FunctionCFG *lookup_function(lir::FunctionLIR *func);
+    Function *lookup_function(lir::FunctionLIR *func);
 
     Value *add_or_get_local(lir::LIRVarSym *sym, Value *init = nullptr);
 
@@ -192,13 +192,13 @@ private:
     size_t num_pending_gotos() { return pending_gotos.size(); }
 
     sema::types::TypeContext& types;
-    ProgramCFG& prog_cfg;
+    Program& prog_cfg;
     RuntimeConfig& rtcfg;
 
     Vec<Box<NestedStmtInfo>> infostack;
 
     HashMap<lir::LIRVarSym *, Global *> globals;
-    HashMap<lir::FunctionLIR *, FunctionCFG *> functions;
+    HashMap<lir::FunctionLIR *, Function *> functions;
     HashMap<lir::LIRVarSym *, Value *> locals;
 
     HashMap<std::string, Vec<Goto *>> pending_gotos;

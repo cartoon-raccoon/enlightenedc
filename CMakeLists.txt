@@ -179,20 +179,26 @@ else()
 endif()
 
 # Add precompiled headers
-target_precompile_headers(ecc PRIVATE
+target_precompile_headers(libecc PRIVATE
     <algorithm>
     <cassert>
     <concepts>
     <cstdint>
+    <cstddef>
+    <functional>
     <memory>
-    <stack>
     <string>
     <sstream>
+    <stack>
+    <stdexcept>
     <type_traits>
     <unordered_map>
     <utility>
     <variant>
-    <vector> 
+    <vector>
+    <boost/container_hash/hash.hpp>
+    <boost/unordered_map.hpp>
+    <boost/unordered_set.hpp>
     <llvm/ADT/APFloat.h>
     <llvm/ADT/STLExtras.h>
     <llvm/IR/BasicBlock.h>
@@ -214,6 +220,8 @@ target_precompile_headers(ecc PRIVATE
     <llvm/Target/TargetOptions.h>
     <llvm/TargetParser/Host.h>
 )
+
+target_precompile_headers(ecc REUSE_FROM libecc)
 
 enable_testing()
 add_subdirectory(test)

@@ -13,7 +13,7 @@
 #include <set>
 
 #include "parser.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
 
 namespace ecc::frontend {
 

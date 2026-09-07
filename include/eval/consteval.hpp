@@ -9,7 +9,7 @@
 #include "eval/value.hpp"
 #include "semantics/symbols.hpp"
 #include "semantics/types.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
 
 namespace ecc::sema::mir {
 class BinaryExprMIR;

@@ -2,13 +2,14 @@
 
 #include <memory>
 
+#include "allocator/alloc.hpp"
 #include "codegen/codegen.hpp"
 #include "config.hpp"
 #include "lowering/lir/lir.hpp"
 #include "lowering/lir/symbols.hpp"
 #include "semantics/symbols.hpp"
 #include "semantics/types.hpp"
-#include "util.hpp"
+#include "util/aliases.hpp"
 
 using namespace ecc::ast;
 using namespace ecc::driver;
@@ -27,14 +28,14 @@ TranslationUnitLIR::TranslationUnitLIR()
     : symbols(make_box<LIRSymbolMap>()), lir(make_box<ProgramLIR>()) {
 }
 
-TranslationUnitCFG::TranslationUnitCFG() : cfg(make_box<ProgramCFG>()) {
+TranslationUnitCFG::TranslationUnitCFG() : cfg(make_box<lower::cfg::Program>()) {
 }
 
 TranslationUnit::TranslationUnit(std::string *filename, CodeGenCore& cgcore, RuntimeConfig& rtcfg) 
 : filename(filename) {
     cgu      = cgcore.make_unit(*filename, rtcfg);
     types    = make_box<TypeContext>(*cgu);
-    ast_root = make_chunk<Program>(filename);
+    ast_root = make_chunk<ast::Program>(filename);
     prog_mir = make_box<TranslationUnitMIR>();
     prog_lir = make_box<TranslationUnitLIR>();
     prog_cfg = make_box<TranslationUnitCFG>();

@@ -22,7 +22,7 @@
 #include <set>
 #include <memory>
 #include "ast/ast.hpp"
-#include "util.hpp"
+#include "prelude.hpp"
 #include "ds/arenavec.hpp"
 #include "allocator/alloc.hpp"
 #include "allocator/chunk.hpp"
