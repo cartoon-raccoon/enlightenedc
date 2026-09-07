@@ -36,9 +36,9 @@ public:
 protected:
     void visit_block(BasicBlock *blk);
 
-    virtual void pre_visit(BasicBlock *blk) {}; // NOLINT
+    virtual void pre_visit(BasicBlock *) {};
 
-    virtual void post_visit(BasicBlock *blk) {}; // NOLINT
+    virtual void post_visit(BasicBlock *) {};
 
     HashSet<BasicBlock *> visited;
 };

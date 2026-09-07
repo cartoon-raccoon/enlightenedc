@@ -534,6 +534,9 @@ void LIRSynthesizer::do_visit(ExprStmtMIR& node) {
 void LIRSynthesizer::do_visit(SwitchStmtMIR& node) {
     bsv_dbprint("LIRSynthesizer: visiting SwitchStmtMIR node");
 
+    // todo: if switch stmt contains a caserange node that is too large,
+    // lower instead to a chain of if statements
+
     push_queue();
 
     node.control_val->accept(*this);

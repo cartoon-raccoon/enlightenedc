@@ -153,13 +153,13 @@ template <typename T>
 using Vec = std::vector<T>;
 
 /**
-A convenient type alias for `std::unordered_map`.
+A convenient type alias for `boost::unordered_map`.
 */
 template <typename... Args>
 using HashMap = boost::unordered_map<Args...>;
 
 /**
-A convenient type alias for `std::unordered_set`.
+A convenient type alias for `boost::unordered_set`.
 */
 template <typename... Args>
 using HashSet = boost::unordered_set<Args...>;

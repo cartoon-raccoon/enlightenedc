@@ -6,7 +6,8 @@
 #include <cstdint>
 #include <filesystem>
 #include <string>
-#include <unordered_set>
+
+#include "util.hpp"
 
 namespace fs = std::filesystem;
 
@@ -20,7 +21,7 @@ public:
     const std::string *intern(const char *str);
 
 private:
-    std::unordered_set<std::string> pool;
+    HashSet<std::string> pool;
 };
 
 enum class FileType : uint8_t {

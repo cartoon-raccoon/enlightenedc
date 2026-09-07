@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #ifndef ECC_ALLOC_H
 #define ECC_ALLOC_H
 
@@ -166,6 +167,14 @@ public:
         return obj;
     }
 
+    void register_cleanup(void *obj, void (*destroy) (void *)) {
+        auto *cleanuprec = static_cast<Cleanup *>(alloc(sizeof(Cleanup), alignof(Cleanup)));
+        cleanuprec->obj = obj;
+        cleanuprec->destroy = destroy;
+        cleanuprec->next = cleanup_head;
+        cleanup_head = cleanuprec;
+    }
+
     void *alloc(size_t size, size_t align) {
         if (size > SizeThreshold) {
             return alloc_custom(size);
@@ -296,15 +305,43 @@ inline void *alloc(size_t size, size_t align) {
     return detail::instance().alloc(size, align);
 }
 
+/**
+Create a new instance of `T`, owned by the arena. Returns a pointer to the created instance.
+*/
+template <typename T, typename... Args>
+inline T *create(Args&& ... args) {
+    return detail::instance().create<T>(std::forward<Args>(args)...);
+}
+
+/**
+Resets the global arena.
+
+SAFETY: after this is run, any existing pointers and chunks into the arena will be left dangling.
+It is extremely important to ensure that any object holding a reference into the arena does not
+outlive the arena itself, and if it does, it must not dereference that reference.
+*/
 inline void reset() {
     detail::instance().reset();
 }
 
-#ifndef NDEBUG
-inline void print_allocator_stats() {
-    detail::instance().print_stats();
+/**
+Registers a cleanup function for `obj`. Usually this will be a function that calls `obj`'s dtor.
+
+Note: You should not need to call this yourself. If you find yourself reaching for this, step
+back and strongly consider if you really need to use it.
+*/
+inline void register_cleanup(void *obj, void (*destroy) (void *)) {
+    detail::instance().register_cleanup(obj, destroy);
 }
+
+/**
+Prints global allocator stats. Is a no-op if NDEBUG is defined.
+*/
+inline void print_allocator_stats() {
+#ifndef NDEBUG
+    detail::instance().print_stats();
 #endif
+}
 
 /**
 Create a `Chunk<T>` using the global allocator.
@@ -313,6 +350,18 @@ template <typename T, typename... Args>
 Chunk<T> make_chunk(Args&&...args) {
     T *obj = detail::instance().create<T>(std::forward<Args>(args)...);
     return Chunk<T>(obj);
+}
+
+/**
+Create a `Chunk<T>` from a `unique_ptr<T>`.
+
+Note: THIS IS AN EXPENSIVE OPERATION. Constructing a Chunk from a Box involves allocating memory
+in the arena, and then move constructing the object into that memory. This might also involve
+a new slab allocation, if the arena needs to grow.
+*/
+template <typename T>
+Chunk<T> make_chunk(std::unique_ptr<T> box) {
+    return make_chunk<T>(std::move(*box));
 }
 
 /**

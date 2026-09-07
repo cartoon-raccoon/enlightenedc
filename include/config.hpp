@@ -5,7 +5,6 @@
 
 #include <functional>
 #include <map>
-#include <set>
 #include <sstream>
 #include <string>
 
@@ -60,12 +59,12 @@ public:
     /**
     The standard to support in this compilation pass.
     */
-    enum class Standard : uint8_t {
+    enum class Std : uint8_t {
         HOLYC,
         ENLIGHTENEDC,
     };
 
-    Standard standard = Standard::ENLIGHTENEDC;
+    Std std = Std::ENLIGHTENEDC;
 
     /**
     The phase of compilation at which to stop.
@@ -104,7 +103,7 @@ public:
         LIR = 2,
     };
 
-    std::set<ToPrint> to_print;
+    HashSet<ToPrint> to_print;
 
     /*
     The format to use for compilation output.
