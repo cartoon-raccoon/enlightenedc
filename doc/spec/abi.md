@@ -30,7 +30,7 @@ Under the EnlightenedC standard, the standard platform-specific ABI for variadic
 ## Reserved Symbols
 
 Any symbol prefixed with two underscores (`__`) shall be reserved for compiler and standard use. If a
-user defines such a symbol that overrides or conflicts with a reserved symbol, that behaviour is undefined.
+user defines such a symbol that overrides or conflicts with a reserved symbol, that behaviour is undefined, and a diagnostic should be issued.
 
 ### `__ec_implicit_main`
 
@@ -47,5 +47,9 @@ This symbol represents the function to which all print statements lower to. That
 eventually resolve to a call to this symbol. It shall have the following signature:
 
 ```holyc
-Void __ec_print(I8*, ...);
+extern "C" Void __ec_print(I8*, ...);
 ```
+
+Note that `extern "C"` forces the use of the platform's variadic function ABI. This is to allow
+`__ec_print` to be portable; It can then be defined in other languages, using the standard platform-
+dependent C ABI.
