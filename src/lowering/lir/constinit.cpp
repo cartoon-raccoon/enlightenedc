@@ -274,15 +274,14 @@ ConstInitLIRBuilder::try_build_constinit_expr(Type *type, CastExprMIR& expr) {
 
 Optional<Chunk<ConstInitLIR>>
 ConstInitLIRBuilder::try_build_constinit_expr(Type *type, IdentExprMIR& expr) {
-    if (!type->is_enum() && !type->is_function()) {
+    if (!type->is_enum() && !type->is_primitive() && !type->is_function()) {
         return {};
     }
 
-    if (type->is_enum()) {
-        EnumType *enumtype = type->as_enum();
-        if (auto *enumerator = enumtype->find(expr.ident->name)) {
-            eval::Value val(enumerator->value);
-            auto init = make_chunk<ScalarInitLIR>(expr.loc, enumtype->as_primitive(), val);
+    if (auto *var = expr.ident->as_varsym(); var) {
+        if (var->has_value()) {
+            eval::Value val = *var->get_value();
+            auto init = make_chunk<ScalarInitLIR>(expr.loc, type->as_primitive(), val);
 
             return init;
         } else {
