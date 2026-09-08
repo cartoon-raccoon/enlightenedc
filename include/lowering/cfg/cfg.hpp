@@ -103,13 +103,13 @@ public:
     Named() = default;
     explicit Named(std::string name) : name(std::move(name)) {}
 
+    explicit Named(StringRef name) : name(name.str()) {}
+
     std::string name;
 
     bool named() const { return !name.empty(); }
 
-    void set_name(std::string&& name) { this->name = std::move(name); }
-
-    void set_name(const std::string& name) { this->name = name; }
+    void set_name(StringRef name) { this->name = name.str(); }
 };
 
 /**
@@ -126,14 +126,14 @@ public:
     NamedValue(ValueKind kind, sema::types::Type *type)
         : Value(kind, type) {}
 
-    NamedValue(ValueKind kind, sema::types::Type *type, Location loc, std::string name)
-        : Value(kind, type, loc), Named(std::move(name)) {}
+    NamedValue(ValueKind kind, sema::types::Type *type, Location loc, StringRef name)
+        : Value(kind, type, loc), Named(name) {}
 
-    NamedValue(ValueKind kind, sema::types::Type *type, Optional<Location> loc, std::string name)
-        : Value(kind, type, loc), Named(std::move(name)) {}
+    NamedValue(ValueKind kind, sema::types::Type *type, Optional<Location> loc, StringRef name)
+        : Value(kind, type, loc), Named(name) {}
 
-    NamedValue(ValueKind kind, sema::types::Type *type, std::string name)
-        : Value(kind, type), Named(std::move(name)) {}
+    NamedValue(ValueKind kind, sema::types::Type *type, StringRef name)
+        : Value(kind, type), Named(name) {}
 
     bool nameable() override { return true; }
 
@@ -288,10 +288,10 @@ public:
     static bool classof(const Value *node) { return node->valkind == ValueKind::ZERO; }
 };
 
-class String : public CFGVisitable<String, Constant> {
+class String : public CFGVisitable<String, Constant>, public Named {
 public:
-    String(sema::types::Type *type, std::string data)
-        : CFGVisitable<String, Constant>(ValueKind::STR, type), data(std::move(data)) {}
+    String(sema::types::Type *type, StringRef data)
+        : CFGVisitable<String, Constant>(ValueKind::STR, type), data(data.str()) {}
 
     std::string data;
 
@@ -302,11 +302,11 @@ public:
 
 class Global : public CFGVisitable<Global, NamedValue> {
 public:
-    Global(sema::types::Type *type, std::string name)
-        : CFGVisitable<Global, NamedValue>(ValueKind::GLOBAL, type, std::move(name)) {}
+    Global(sema::types::Type *type, StringRef name)
+        : CFGVisitable<Global, NamedValue>(ValueKind::GLOBAL, type, name) {}
 
-    Global(sema::types::Type *type, std::string name, Value *initializer)
-        : CFGVisitable<Global, NamedValue>(ValueKind::GLOBAL, type, std::move(name)),
+    Global(sema::types::Type *type, StringRef name, Value *initializer)
+        : CFGVisitable<Global, NamedValue>(ValueKind::GLOBAL, type, name),
           initializer(initializer) {}
 
     /**
@@ -321,8 +321,8 @@ public:
 
 class Alloca : public CFGVisitable<Alloca, NamedValue> {
 public:
-    Alloca(sema::types::Type *type, std::string name)
-        : CFGVisitable<Alloca, NamedValue>(ValueKind::ALLOCA, type, std::move(name)), type(type) {}
+    Alloca(sema::types::Type *type, StringRef name)
+        : CFGVisitable<Alloca, NamedValue>(ValueKind::ALLOCA, type, name), type(type) {}
 
     Alloca(sema::types::Type *type)
         : CFGVisitable<Alloca, NamedValue>(ValueKind::ALLOCA, type), type(type) {}
@@ -341,9 +341,9 @@ An argument to a function.
 
 FunctionCFG stores these as the values to be stored into the allocations.
 */
-class FuncArg : public CFGVisitable<FuncArg, Value> {
+class FuncArg : public CFGVisitable<FuncArg, NamedValue> {
 public:
-    FuncArg(sema::types::Type *type) : CFGVisitable<FuncArg, Value>(ValueKind::ARG, type) {}
+    FuncArg(sema::types::Type *type) : CFGVisitable<FuncArg, NamedValue>(ValueKind::ARG, type) {}
 
     FuncArg *as_funcarg() override { return this; }
 
@@ -382,14 +382,14 @@ public:
         : NamedValue(ValueKind::INST, type), containing(containing), instkind(kind) {}
 
     Instruction(
-        BasicBlock *containing, InstKind kind, sema::types::Type *type, Location loc, std::string name)
-        : NamedValue(ValueKind::INST, type, loc, std::move(name)), containing(containing),
+        BasicBlock *containing, InstKind kind, sema::types::Type *type, Location loc, StringRef name)
+        : NamedValue(ValueKind::INST, type, loc, name), containing(containing),
           instkind(kind) {}
 
     Instruction(
-        BasicBlock *containing, InstKind kind, sema::types::Type *type, std::string name,
+        BasicBlock *containing, InstKind kind, sema::types::Type *type, StringRef name,
         Optional<Location> loc)
-        : NamedValue(ValueKind::INST, type, loc, std::move(name)), containing(containing),
+        : NamedValue(ValueKind::INST, type, loc, name), containing(containing),
           instkind(kind) {}
 
     Instruction *as_instruction() override { return this; }
@@ -1067,9 +1067,9 @@ public:
 
     BasicBlock(Function *func) : parent(func) {}
 
-    BasicBlock(std::string& label, Function *func) : parent(func), label(label), name(label) {}
+    BasicBlock(StringRef label, Function *func) : parent(func), label(label), name(label) {}
 
-    static Box<BasicBlock> entry(std::string& func_name, Function *func);
+    static Box<BasicBlock> entry(StringRef func_name, Function *func);
 
     template <typename Term, typename... Args>
         requires std::derived_from<Term, Terminator>
@@ -1094,9 +1094,7 @@ public:
 
     Terminator *terminator() const { return term.get(); }
 
-    void set_label(std::string&& label) { this->label = name = std::move(label); }
-
-    void set_label(const std::string& label) { this->label = name = label; }
+    void set_label(StringRef label) { this->label = name = label.str(); }
 
     template <typename Inst, typename... Args>
         requires std::derived_from<Inst, Instruction>
@@ -1186,8 +1184,8 @@ class Function : public CFGVisitable<Function, Constant>, public Named {
 public:
     friend class BasicBlock;
 
-    Function(sema::types::FunctionType *sig, std::string name)
-        : CFGVisitable<Function, Constant>(ValueKind::FUNC, sig), Named(std::move(name)),
+    Function(sema::types::FunctionType *sig, StringRef name)
+        : CFGVisitable<Function, Constant>(ValueKind::FUNC, sig), Named(name),
           signature(sig) {}
 
     bool nameable() override { return true; }
@@ -1199,7 +1197,7 @@ public:
     */
     BasicBlock *initialize();
 
-    const std::string& get_name() { return name; }
+    StringRef get_name() { return name; }
 
     FuncArg *add_arg(sema::types::Type *type);
 
@@ -1230,7 +1228,7 @@ public:
     /**
     Insert a named block, optionally making it a labeled block.
     */
-    BasicBlock *create_block(std::string& name, bool make_labeled = false);
+    BasicBlock *create_block(StringRef name, bool make_labeled = false);
 
     /**
     Insert an anonymous block before `succ`.
@@ -1240,21 +1238,21 @@ public:
     /**
     Insert a named block before `succ`, optionally making it a labeled block.
     */
-    BasicBlock *create_block_before(BasicBlock *succ, std::string& name, bool make_labeled = false);
+    BasicBlock *create_block_before(BasicBlock *succ, StringRef name, bool make_labeled = false);
 
     BasicBlock *create_block_after(BasicBlock *prec);
 
-    BasicBlock *create_block_after(BasicBlock *prec, std::string& name, bool make_labeled = false);
+    BasicBlock *create_block_after(BasicBlock *prec, StringRef name, bool make_labeled = false);
 
     void swap_blocks(BasicBlock *first, BasicBlock *second);
 
-    BasicBlock *lookup_labeled_block(std::string& label);
+    BasicBlock *lookup_labeled_block(StringRef label);
 
     size_t num_blocks() const { return blocks.size(); }
 
     void remove_block(BasicBlock *blk);
 
-    Alloca *add_alloca(sema::types::Type *type, std::string name);
+    Alloca *add_alloca(sema::types::Type *type, StringRef name);
 
     /**
     Add an anonymous Alloca, typically as a temporary spill variable.
@@ -1282,7 +1280,7 @@ private:
     BasicBlock *entry = nullptr;
     ds::LinkedList<BasicBlock> blocks;
 
-    HashMap<std::string, BasicBlock *> labeled_blocks;
+    HashMap<std::string, BasicBlock *, StringRefHash, StringRefEq> labeled_blocks;
 
     // The allocations in the function.
     Vec<Box<Alloca>> allocas;
@@ -1296,7 +1294,7 @@ public:
     Adds a new global to the ProgramCFG corresponding to the passed LIRVarSym,
     or returns the corresponding FunctionCFG if it already exists.
     */
-    Global *add_global(sema::types::Type *type, std::string name, Value *init = nullptr);
+    Global *add_global(sema::types::Type *type, StringRef name, Value *init = nullptr);
 
     Function *add_function(sema::types::FunctionType *sig, StringRef name);
 

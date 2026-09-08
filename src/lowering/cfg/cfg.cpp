@@ -99,7 +99,7 @@ DO_ACCEPT(Goto, CFGVisitor);
 DO_ACCEPT(Switch, CFGVisitor);
 DO_ACCEPT(Return, CFGVisitor);
 
-Box<BasicBlock> BasicBlock::entry(std::string& func_name, Function *func) {
+Box<BasicBlock> BasicBlock::entry(StringRef func_name, Function *func) {
     auto ret      = std::make_unique<BasicBlock>(func_name, func);
     ret->is_entry = true;
 
@@ -193,11 +193,11 @@ BasicBlock *Function::create_block() {
     return &blocks.emplace_back(this);
 }
 
-BasicBlock *Function::create_block(std::string& name, bool make_labeled) {
+BasicBlock *Function::create_block(StringRef name, bool make_labeled) {
     auto& block = blocks.emplace_back(name, this);
 
     if (make_labeled) {
-        labeled_blocks[name] = &block;
+        labeled_blocks[name.str()] = &block;
     }
 
     return &block;
@@ -210,11 +210,11 @@ BasicBlock *Function::create_block_before(BasicBlock *succ) {
 }
 
 BasicBlock *
-Function::create_block_before(BasicBlock *succ, std::string& name, bool make_labeled) {
+Function::create_block_before(BasicBlock *succ, StringRef name, bool make_labeled) {
     auto& block = blocks.emplace_before(*succ, name, this);
 
     if (make_labeled) {
-        labeled_blocks[name] = &block;
+        labeled_blocks[name.str()] = &block;
     }
 
     return &block;
@@ -227,11 +227,11 @@ BasicBlock *Function::create_block_after(BasicBlock *prec) {
 }
 
 BasicBlock *
-Function::create_block_after(BasicBlock *prec, std::string& name, bool make_labeled) {
+Function::create_block_after(BasicBlock *prec, StringRef name, bool make_labeled) {
     auto& block = blocks.emplace_after(*prec, name, this);
 
     if (make_labeled) {
-        labeled_blocks[name] = &block;
+        labeled_blocks[name.str()] = &block;
     }
 
     return &block;
@@ -241,20 +241,17 @@ void Function::swap_blocks(BasicBlock *first, BasicBlock *second) {
     blocks.swap(*first, *second);
 }
 
-BasicBlock *Function::lookup_labeled_block(std::string& label) {
-    if (labeled_blocks.contains(label)) {
-        return labeled_blocks[label];
-    } else {
-        return nullptr;
-    }
+BasicBlock *Function::lookup_labeled_block(StringRef label) {
+    auto it = labeled_blocks.find(label);
+    return it == labeled_blocks.end() ? nullptr : it->second;
 }
 
 Span<Box<Alloca>> Function::get_allocas() {
     return allocas;
 }
 
-Alloca *Function::add_alloca(Type *type, std::string name) {
-    auto alloc = std::make_unique<Alloca>(type, std::move(name));
+Alloca *Function::add_alloca(Type *type, StringRef name) {
+    auto alloc = std::make_unique<Alloca>(type, name);
     auto *ret  = alloc.get();
 
     allocas.push_back(std::move(alloc));
@@ -271,13 +268,13 @@ Alloca *Function::add_alloca(Type *type) {
     return ret;
 }
 
-Global *Program::add_global(Type *type, std::string name, Value *init) {
+Global *Program::add_global(Type *type, StringRef name, Value *init) {
 
     Box<Global> new_global;
     if (init) {
-        new_global = std::make_unique<Global>(type, std::move(name), init);
+        new_global = std::make_unique<Global>(type, name, init);
     } else {
-        new_global = std::make_unique<Global>(type, std::move(name));
+        new_global = std::make_unique<Global>(type, name);
     }
 
     Global *ret = new_global.get();
@@ -349,9 +346,9 @@ AggregateConst *Program::get_aggregate(Type *type, const Vec<Constant *>& struct
 
 
 String *Program::get_string(ArrayType *type, StringRef str) {
-    if (strings.contains(str)) {
-        return strings[str].get();
-    }
+    if (auto it = strings.find(str); it != strings.end())
+        return it->second.get();
+
 
     auto new_str = std::make_unique<String>(type, str.str());
 

@@ -81,7 +81,7 @@ Value *CFGBuilder::eval_lvalue(ExprLIR& node) {
     if (auto *literal = dyncast<LiteralExprLIR>(&node); literal && literal->is_str()) {
         auto str = std::get<StringRef>(literal->value);
         ECC_ASSERT_N(node.act_type->is_array());
-        String *ret = prog_cfg.get_string(node.act_type->as_array(), std::string(str));
+        String *ret = prog_cfg.get_string(node.act_type->as_array(), str);
         ret->set_type(literal->act_type);
 
         return ret;
@@ -142,8 +142,8 @@ Value *CFGBuilder::add_or_get_local(lir::LIRVarSym *sym, Value *init) {
 
     Value *ret;
     if (sym->get_symdata()->get_visibility() == Visibility::STATIC) {
-        Str name = sym->function->get_name() + "." + sym->get_name();
-        ret      = prog_cfg.add_global(sym->get_type(), std::move(name), init);
+        std::string name = sym->function->get_name() + "." + sym->get_name();
+        ret      = prog_cfg.add_global(sym->get_type(), name, init);
     } else {
         ret = curr_func->add_alloca(sym->get_type(), sym->symdata->get_mangled_name());
         if (init) {
@@ -161,7 +161,7 @@ Value *CFGBuilder::lookup_local(lir::LIRVarSym *sym) {
 }
 
 void CFGBuilder::add_pending_goto(StringRef label, Goto *g) {
-    pending_gotos[std::string(label)].push_back(g);
+    pending_gotos[label].push_back(g);
 }
 
 size_t CFGBuilder::resolve_pending_gotos(StringRef label, BasicBlock *target) {
@@ -267,8 +267,7 @@ void CFGBuilder::visit(FunctionLIR& node) {
 void CFGBuilder::visit(LabelDeclLIR& node) {
     dbprint("visiting LabelDeclLIR node ", node.loc ? *node.loc : Location{});
 
-    std::string mangled_label(node.mangled_label);
-    BasicBlock *newblock = curr_func->create_block(mangled_label, true);
+    BasicBlock *newblock = curr_func->create_block(node.mangled_label, true);
 
     if (!curr_blk->is_terminated()) {
         curr_blk->terminate<Goto>()->set_target(newblock);
@@ -351,7 +350,7 @@ void CFGBuilder::visit(PrintStmtLIR& node) {
     }
 
     ArrayType *str_type = types.get_array(types.get_i8(), node.format_string.size() + 1);
-    String *format      = prog_cfg.get_string(str_type, std::string(node.format_string));
+    String *format      = prog_cfg.get_string(str_type, node.format_string);
 
     Vec<Value *> args;
     for (auto& arg : node.args) {
@@ -369,9 +368,8 @@ void CFGBuilder::visit(GotoStmtLIR& node) {
     }
 
     Goto *g = curr_blk->terminate<Goto>();
-
-    std::string mangled_target(node.mangled_target);
-    if (auto *targ = curr_func->lookup_labeled_block(mangled_target)) {
+    
+    if (auto *targ = curr_func->lookup_labeled_block(node.mangled_target)) {
         g->set_target(targ);
     } else {
         add_pending_goto(node.mangled_target, g);
@@ -928,7 +926,7 @@ void CFGBuilder::visit(LiteralExprLIR& node) {
                 dbprint("    Literal is string, creating String value");
                 // string dedup happens here.
                 ECC_ASSERT_N(node.act_type->is_array());
-                last_value = prog_cfg.get_string(node.act_type->as_array(), std::string(str));
+                last_value = prog_cfg.get_string(node.act_type->as_array(), str);
                 last_value->set_type(node.act_type);
             }},
         node.value);
@@ -1045,7 +1043,7 @@ Constant *CFGBuilder::build_constant(StringInitLIR& init) {
 
     ArrayType *str_type = types.get_array(types.get_i8(), init.str.size() + 1);
 
-    return prog_cfg.get_string(str_type, std::string(init.str));
+    return prog_cfg.get_string(str_type, init.str);
 }
 
 Constant *CFGBuilder::build_constant(FuncInitLIR& init) {

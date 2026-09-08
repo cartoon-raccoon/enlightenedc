@@ -201,7 +201,8 @@ private:
     HashMap<lir::FunctionLIR *, Function *> functions;
     HashMap<lir::LIRVarSym *, Value *> locals;
 
-    HashMap<std::string, Vec<Goto *>, StringRefHash, StringRefEq> pending_gotos;
+    // Holding StringRef is safe here because the underlying strings are arena-interned.
+    HashMap<StringRef, Vec<Goto *>, StringRefHash, StringRefEq> pending_gotos;
 
     MonotonicCtr<uint64_t> ctr = 1;
 };
