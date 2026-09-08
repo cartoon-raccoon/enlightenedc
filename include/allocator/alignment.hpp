@@ -26,10 +26,6 @@ constexpr uintptr_t align_addr(const void *addr, size_t alignment) {
     return align_to(arith_addr, alignment);
 }
 
-constexpr bool is_power_of_2(size_t val) {
-    return (val & (val - 1)) == 0;
-}
-
 } // namespace ecc::util
 
 #endif
