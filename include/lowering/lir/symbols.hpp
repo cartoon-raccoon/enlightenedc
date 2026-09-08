@@ -107,7 +107,7 @@ public:
 
     LIRVarSym *insert(sema::sym::VarSymbol *sym, Box<LIRVarSym> var);
 
-    LIRVarSym *lookup(std::string& mangled_name);
+    LIRVarSym *lookup(StringRef mangled_name);
 
     LIRVarSym *lookup(sema::sym::VarSymbol *sym);
 

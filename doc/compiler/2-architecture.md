@@ -40,8 +40,10 @@ The compiler is organized into a classic frontend/backend split, driven through 
 `Frontend::run()` chains:
 
 1. `Preprocessor` — shells out to `cpp` for macro expansion/includes
-2. `Lexer` (Flex, `src/frontend/lexer.l`) — tokenizes the preprocessed output; uses a typedef set for the
-lexer hack (distinguishing type names from identifiers)
+2. `Lexer` (Flex, `src/frontend/lexer.l`) — tokenizes the preprocessed output. Identifier and
+string-literal text is interned as it is scanned (see [Strings](#strings)), so tokens carry
+`StringRef`. A `StringHashSet` of type names drives the lexer hack (distinguishing type names from
+identifiers).
 3. `Parser` (Bison, `src/frontend/parser.yy`) — builds the AST into `ast::Program`
 
 The Bison grammar file is `src/frontend/parser.yy`; the BNF/EBNF specs live in `grammars/`. They are kept as a reference but may not be fully current — `src/frontend/parser.yy` is the source of truth.
@@ -145,6 +147,7 @@ Code generation is split into a backend-agnostic interface and an LLVM implement
 - `Type::finalize()` must be called before `alloc_size()` can be used; it materializes the backend type through `CodeGenUnit` (an `llvm::Type *` for the LLVM backend). `TypeContext` is constructed with a `CodeGenUnit&`.
 - Primitive types: U8/U16/U32/U64 (unsigned), I8/I16/I32/I64 (signed), F32/F64 (float), Bool.
 - `ConstType` is a transparent wrapper that marks a type as const. `const T` and `T` are distinct interned types; `unqual()` strips the wrapper. Const is not deeply embedded — `get_const(T)` composes with any other type.
+- Type names and member names are owned `std::string`. `get_class()` / `get_union()` / `get_enum()` and the member-lookup methods take `StringRef` and hash it directly against the owning tables (see [Strings](#strings)).
 
 `sema::prim` (`include/semantics/primitives.hpp`, `src/semantics/primitives.cpp`) is the source of truth for primitive-type algebra — ranks, implicit conversions, and operator result types. The type system, `eval::Value`, and the validator all defer to it.
 
@@ -152,6 +155,8 @@ Code generation is split into a backend-agnostic interface and an LLVM implement
 
 `SymbolTable` (`include/semantics/symbols.hpp`) is scope-based. `SymbolTableWalker` traverses scopes.
 `ScopeGuard` and `NodeGuard` (RAII wrappers in `include/semantics/semantics.hpp`) handle automatic scope push/pop during AST walking.
+
+Symbols own their names as `std::string`; each scope's maps are keyed for `StringRef` lookup, so resolving a name allocates nothing (see [Strings](#strings)).
 
 `Symbol` lives in `include/semantics/symbol.hpp`, and its plain-data enums (`Linkage`, `Visibility`, …) live in `include/semantics/symdata.hpp`.
 
@@ -197,7 +202,7 @@ The compiler separates errors by audience.
 `InternalError` type they raise (see [Error Handling](#error-handling)).
 - `hash.hpp` — hash/equality helpers for composite keys: `VarHash`, `PairHash`, `SeqHash` / `SeqEq`.
 - `iterator.hpp` — iterator utilities, including the `NextIterator<T>` pull-style base used by the CFG.
-- `string.hpp` — string helpers such as `encode_string_literal` (implemented in `src/util.cpp`).
+- `string.hpp` — `StringRef`, the string interner (`intern_string`, `intern_concat`, `intern_reset`), the transparent `StringRefHash` / `StringRefEq` functors and the `StringHashSet` alias, and helpers such as `encode_string_literal`. See [Strings](#strings); implementations in `src/util.cpp`.
 
 ### Memory & Arena Allocation
 
@@ -206,9 +211,21 @@ Most IR nodes (AST, MIR, and LIR) are allocated from a single process-wide arena
 - `BumpAllocator<...>` (`allocator/alloc.hpp`) — a bump-pointer allocator backed by a growing list of `Slab`s. Slab size scales up as more slabs are allocated. Oversized objects get their own slabs. Objects with a non-trivial destructor are linked into a cleanup chain and destroyed at `reset()`. Debug builds track `AllocatorStats`.
 - Global arena — `alloc::alloc(size, align)`, `alloc::reset()`, and (debug only) `alloc::print_allocator_stats()` operate on one shared `BumpAllocator<>` singleton. `Ecc::run()` prints the stats and resets the arena after each translation unit.
 - `Chunk<T>` (`allocator/chunk.hpp`) — a move-only, `unique_ptr`-like handle to one arena-allocated object. Its destructor does **not** run `~T()` or free memory; the arena does that at `reset()`. It is created with `alloc::make_chunk<T>(args...)`, or from move-converting an existing `Box<T>` into the arena with `alloc::make_chunk<T>(std::move(box))`.
-- `ArenaAllocator<T>` (`allocator/alloc.hpp`) — an STL-compatible allocator drawing from the global arena; `deallocate` is a no-op. `ecc::ds::ArenaVec` (`include/ds/arenavec.hpp`) is the `vector`-like container built on it; the AST, MIR, and LIR node trees now hold their child lists in `ArenaVec`.
+- `ArenaAllocator<T>` (`allocator/alloc.hpp`) — an STL-compatible allocator drawing from the global arena; `deallocate` is a no-op. `ecc::ds::ArenaVec` (`include/ds/arenavec.hpp`) is the `vector`-like container built on it; the AST, MIR, and LIR node trees hold their child lists in `ArenaVec`.
 
 Resetting the arena invalidates every allocation — pointers and `Chunk`s into it dangle afterward.
+
+### Strings
+
+`ecc::StringRef` (`include/util/string.hpp`) is the type the compiler uses to pass and query text. It is a non-owning `{const char *, size_t}` view modelled on `llvm::StringRef`, interconvertible with `std::string`, `std::string_view`, `ArenaStr`, and `llvm::StringRef`, with an `ostream` inserter and a `std::formatter` specialization. `.str()` is the one explicit way to obtain an owning `std::string`.
+
+Source text enters the compiler once, at the lexer, and is **interned**. `ecc::intern_string(StringRef)` copies the bytes into a process-wide pool and returns a `StringRef` to the stored copy; equal strings are stored once. `intern_concat(a, b)` interns a concatenation — the only sanctioned way to build a new string, since `StringRef` cannot grow. The pool shares the arena's lifetime: `intern_reset()` empties it, and `Ecc::reset()` calls it alongside `alloc::reset()` after each translation unit.
+
+- **Tree-IR nodes borrow.** Every AST, MIR, and LIR node holds its names — identifiers, labels, member names, string-literal payloads — as `StringRef` into the pool. The synthesizers carry a name from one IR to the next by copying the `StringRef`, never the bytes. Names the compiler generates (mangled goto/label targets) are interned as they are produced.
+- **Model layers own.** The `SymbolTable` and `SymData`, `TypeContext`'s type and member tables, the CFG, and the `EccError` classes keep their own `std::string` copies. Their constructors and setters take `StringRef` and copy once on store.
+- **Lookups never allocate.** `StringRefHash` / `StringRefEq` (`include/util/string.hpp`) are transparent, content-based functors (xxh3), so a `StringRef` probes a `std::string`-keyed owning map directly. `StringHashSet` (`boost::unordered_set<StringRef, …>`) is the set form, used where the keys are already interned (the lexer-hack typedef set).
+
+A `StringRef` is valid only for the translation unit it was interned in; nothing outliving a TU may store one. `driver::FilenamePool` is a separate interner for filenames, handing out stable `const std::string *` for `Location`.
 
 ### Data Structures
 

@@ -185,9 +185,9 @@ protected:
     Constant *build_constant(lir::ZeroInitLIR& init);
 
 private:
-    void add_pending_goto(std::string& label, Goto *g);
+    void add_pending_goto(StringRef label, Goto *g);
 
-    size_t resolve_pending_gotos(std::string& label, BasicBlock *target);
+    size_t resolve_pending_gotos(StringRef label, BasicBlock *target);
 
     size_t num_pending_gotos() { return pending_gotos.size(); }
 
@@ -201,7 +201,7 @@ private:
     HashMap<lir::FunctionLIR *, Function *> functions;
     HashMap<lir::LIRVarSym *, Value *> locals;
 
-    HashMap<std::string, Vec<Goto *>> pending_gotos;
+    HashMap<std::string, Vec<Goto *>, StringRefHash, StringRefEq> pending_gotos;
 
     MonotonicCtr<uint64_t> ctr = 1;
 };

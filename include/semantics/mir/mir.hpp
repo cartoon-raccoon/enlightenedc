@@ -243,7 +243,7 @@ public:
 class InitializerMIR : public MIRVisitable<InitializerMIR, MIRNode> {
 public:
     struct Member {
-        std::string member;
+        StringRef member;
         Chunk<InitializerMIR> initializer;
     };
 
@@ -259,9 +259,9 @@ public:
         : MIRVisitable<InitializerMIR, MIRNode>(loc, NodeKind::INIT_MIR),
           initializer(std::move(expr)) {}
 
-    InitializerMIR(Location loc, std::string mem, Chunk<InitializerMIR> init)
+    InitializerMIR(Location loc, StringRef mem, Chunk<InitializerMIR> init)
         : MIRVisitable<InitializerMIR, MIRNode>(loc, NodeKind::INIT_MIR),
-          initializer(make_chunk<Member>(std::move(mem), std::move(init))) {}
+          initializer(make_chunk<Member>(mem, std::move(init))) {}
 
     InitializerMIR(Location loc, eval::Value& idx, Chunk<InitializerMIR> init)
         : MIRVisitable<InitializerMIR, MIRNode>(loc, NodeKind::INIT_MIR),
@@ -423,15 +423,15 @@ public:
 
 class PrintStmtMIR : public MIRVisitable<PrintStmtMIR, StmtMIR> {
 public:
-    PrintStmtMIR(Location loc, std::string format_string)
+    PrintStmtMIR(Location loc, StringRef format_string)
         : MIRVisitable<PrintStmtMIR, StmtMIR>(loc, NodeKind::PRINTSTMT_MIR),
-          format_string(std::move(format_string)) {}
+          format_string(format_string) {}
 
-    PrintStmtMIR(Location loc, std::string format_string, ds::ArenaVec<Chunk<ExprMIR>> arguments)
+    PrintStmtMIR(Location loc, StringRef format_string, ds::ArenaVec<Chunk<ExprMIR>> arguments)
         : MIRVisitable<PrintStmtMIR, StmtMIR>(loc, NodeKind::PRINTSTMT_MIR),
-          format_string(std::move(format_string)), arguments(std::move(arguments)) {}
+          format_string(format_string), arguments(std::move(arguments)) {}
 
-    std::string format_string;
+    StringRef format_string;
     ds::ArenaVec<Chunk<ExprMIR>> arguments;
 
     static bool classof(const MIRNode *node) { return node->kind == NodeKind::PRINTSTMT_MIR; }
@@ -510,9 +510,8 @@ public:
 
 class GotoStmtMIR : public MIRVisitable<GotoStmtMIR, StmtMIR> {
 public:
-    GotoStmtMIR(Location loc, std::string target)
-        : MIRVisitable<GotoStmtMIR, StmtMIR>(loc, NodeKind::GOTOSTMT_MIR),
-          target(std::move(target)) {}
+    GotoStmtMIR(Location loc, StringRef target)
+        : MIRVisitable<GotoStmtMIR, StmtMIR>(loc, NodeKind::GOTOSTMT_MIR), target(target) {}
 
     /*
     Since goto's can occur before their label is declared, do not resolve the
@@ -520,7 +519,7 @@ public:
     */
 
     // The plain target to resolve to.
-    std::string target;
+    StringRef target;
 
     // The resolved target symbol.
     sym::LabelSymbol *target_sym = nullptr;
@@ -720,10 +719,10 @@ public:
     LiteralExprMIR(Location loc, sema::sym::Scope *scope, eval::Value value)
         : MIRVisitable<LiteralExprMIR, ExprMIR>(loc, NodeKind::LITEXPR_MIR, scope), value(value) {}
 
-    LiteralExprMIR(Location loc, sema::sym::Scope *scope, std::string value)
+    LiteralExprMIR(Location loc, sema::sym::Scope *scope, StringRef value)
         : MIRVisitable<LiteralExprMIR, ExprMIR>(loc, NodeKind::LITEXPR_MIR, scope), value(value) {}
 
-    using LitValueMIR = std::variant<eval::Value, std::string>;
+    using LitValueMIR = std::variant<eval::Value, StringRef>;
 
     LitValueMIR value;
 
@@ -739,7 +738,7 @@ public:
 
     bool is_primitive() const { return std::holds_alternative<eval::Value>(value); }
 
-    bool is_string() const { return std::holds_alternative<std::string>(value); }
+    bool is_string() const { return std::holds_alternative<StringRef>(value); }
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
 
@@ -771,13 +770,13 @@ public:
 class MemberAccExprMIR : public MIRVisitable<MemberAccExprMIR, ExprMIR> {
 public:
     MemberAccExprMIR(
-        Location loc, sema::sym::Scope *scope, Chunk<ExprMIR> object, std::string member,
+        Location loc, sema::sym::Scope *scope, Chunk<ExprMIR> object, StringRef member,
         bool is_arrow)
         : MIRVisitable<MemberAccExprMIR, ExprMIR>(loc, NodeKind::MEMACCEXPR_MIR, scope),
-          object(std::move(object)), member(std::move(member)), is_arrow(is_arrow) {}
+          object(std::move(object)), member(member), is_arrow(is_arrow) {}
 
     Chunk<ExprMIR> object;
-    std::string member;
+    StringRef member;
     bool is_arrow;
 
     bool is_lvalue() override {

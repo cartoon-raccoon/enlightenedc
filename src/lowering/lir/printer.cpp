@@ -118,7 +118,7 @@ void LIRPrinter::visit(ZeroInitLIR& node) {
 }
 
 void LIRPrinter::visit(LabelDeclLIR& node) {
-    print_node("Label: " + node.label + " (" + node.mangled_label + ")", node);
+    print_node("Label: " + node.label.str() + " (" + node.mangled_label.str() + ")", node);
 }
 
 void LIRPrinter::visit(CaseLIR& node) {
@@ -140,8 +140,9 @@ void LIRPrinter::visit(MemcpyLIR& node) {
 }
 
 void LIRPrinter::visit(GotoStmtLIR& node) {
-    std::string label =
-        node.target ? *node.target + " (" + node.mangled_target + ")" : node.mangled_target;
+    std::string label = node.target
+                            ? node.target->str() + " (" + node.mangled_target.str() + ")"
+                            : node.mangled_target.str();
     print_node("Goto: " + label, node);
 }
 
@@ -258,7 +259,7 @@ void LIRPrinter::visit(LiteralExprLIR& node) {
     std::string valstr = std::visit(
         match{
             [](eval::Value& val) { return val.to_string(); },
-            [](std::string& s) { return encode_string_literal(s); }},
+            [](StringRef s) { return encode_string_literal(s); }},
         node.value);
     print_node("Literal: " + valstr + " :: " + node.act_type->formal(), node);
 }

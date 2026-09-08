@@ -1,13 +1,12 @@
 #include "frontend/frontend.hpp"
 
-#include <set>
-
 #include "ast/printer.hpp"
 #include "driver/driver.hpp"
 #include "frontend/lexer.hpp"
 #include "frontend/preproc.hpp"
 #include "parser.hpp"
 #include "prelude.hpp"
+#include "util/string.hpp"
 
 using namespace ecc::frontend;
 
@@ -16,7 +15,7 @@ void Frontend::run(Ecc& ecc, driver::TranslationUnit& unit) {
     Preprocessor preproc(unit.filename);
 
     // bodge for lexer hack
-    std::set<std::string> typedefs{};
+    StringHashSet typedefs{};
 
     Lexer lexer(&preproc, unit.filename, typedefs, ecc.filenames);
     Parser parser(lexer, *unit.ast_root, typedefs);

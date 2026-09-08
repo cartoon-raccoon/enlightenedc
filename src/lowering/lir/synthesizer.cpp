@@ -617,8 +617,8 @@ void LIRSynthesizer::do_visit(LabeledStmtMIR& node) {
 
     push_queue();
 
-    std::string mangled = node.label->mangle();
-    std::string name    = node.label->name;
+    StringRef mangled = ecc::intern_string(node.label->mangle());
+    StringRef name    = ecc::intern_string(node.label->name);
 
     Chunk<LabelDeclLIR> this_stmt = make_chunk<LabelDeclLIR>(node.loc, mangled, name);
 
@@ -868,8 +868,8 @@ void LIRSynthesizer::do_visit(GotoStmtMIR& node) {
         // todo: throw exception: unresolved target
     }
 
-    std::string mangled = node.target_sym->mangle();
-    std::string name    = node.target_sym->name;
+    StringRef mangled = ecc::intern_string(node.target_sym->mangle());
+    StringRef name    = ecc::intern_string(node.target_sym->name);
 
     Chunk<ProgItemLIR> gotostmt = make_chunk<GotoStmtLIR>(node.loc, mangled, name);
     emit(std::move(gotostmt));

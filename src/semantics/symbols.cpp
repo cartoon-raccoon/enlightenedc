@@ -119,7 +119,7 @@ void SymbolTableWalker::reset() {
     current = global();
 }
 
-Symbol *SymbolTableWalker::lookup(std::string& sym, bool current_only) const {
+Symbol *SymbolTableWalker::lookup(StringRef sym, bool current_only) const {
     VarSymbol *maybe_var = lookup_var(sym, current_only);
     if (maybe_var)
         return maybe_var;
@@ -139,7 +139,7 @@ Symbol *SymbolTableWalker::lookup(std::string& sym, bool current_only) const {
     return nullptr;
 }
 
-VarSymbol *SymbolTableWalker::lookup_var(std::string& sym, bool current_only) const {
+VarSymbol *SymbolTableWalker::lookup_var(StringRef sym, bool current_only) const {
     Scope *my_current = current;
     if (current_only) {
         dbprint("SymbolTable: looking up varsymbol ", sym, " in current scope");
@@ -168,7 +168,7 @@ VarSymbol *SymbolTableWalker::lookup_var(std::string& sym, bool current_only) co
     return my_current->phys_symbols.find(sym)->second->as_varsym();
 }
 
-FuncSymbol *SymbolTableWalker::lookup_func(std::string& sym, bool current_only) const {
+FuncSymbol *SymbolTableWalker::lookup_func(StringRef sym, bool current_only) const {
     Scope *my_current = current;
     if (current_only) {
         dbprint("SymbolTable: looking up funcsymbol ", sym, " in current scope");
@@ -196,7 +196,7 @@ FuncSymbol *SymbolTableWalker::lookup_func(std::string& sym, bool current_only) 
     return my_current->phys_symbols.find(sym)->second->as_funcsym();
 }
 
-TypeSymbol *SymbolTableWalker::lookup_type(std::string& sym, bool current_only) const {
+TypeSymbol *SymbolTableWalker::lookup_type(StringRef sym, bool current_only) const {
     Scope *my_current = current;
     if (current_only) {
         dbprint("SymbolTable: looking up typesymbol ", sym, " in current scope");
@@ -224,7 +224,7 @@ TypeSymbol *SymbolTableWalker::lookup_type(std::string& sym, bool current_only) 
     return my_current->type_symbols.find(sym)->second.get();
 }
 
-LabelSymbol *SymbolTableWalker::lookup_label(std::string& sym, bool current_only) const {
+LabelSymbol *SymbolTableWalker::lookup_label(StringRef sym, bool current_only) const {
     Scope *my_current = current;
 
     if (current == global()) {
@@ -276,7 +276,7 @@ void SymbolTableWalker::tie_current_to(FuncSymbol *sym, bool override) const {
     }
 }
 
-VarSymbol *SymbolTableWalker::insert(std::string& name, Box<VarSymbol> sym) const {
+VarSymbol *SymbolTableWalker::insert(StringRef name, Box<VarSymbol> sym) const {
     dbprint("SymbolTable: inserting varsymbol with name \"", name, "\"");
     if (current->phys_symbols.contains(name)) {
         dbprint("SymbolTable: varsymbol with name ", name, " already exists");
@@ -287,12 +287,12 @@ VarSymbol *SymbolTableWalker::insert(std::string& name, Box<VarSymbol> sym) cons
         sym->is_global = true;
     }
     VarSymbol *ret = sym.get();
-    current->phys_symbols.insert_or_assign(name, std::move(sym));
+    current->phys_symbols.insert_or_assign(std::string(name), std::move(sym));
 
     return ret;
 }
 
-FuncSymbol *SymbolTableWalker::insert(std::string& name, Box<FuncSymbol> sym) const {
+FuncSymbol *SymbolTableWalker::insert(StringRef name, Box<FuncSymbol> sym) const {
     dbprint("SymbolTable: inserting funcsymbol with name \"", name, "\"");
     if (current->phys_symbols.contains(name)) {
         dbprint("SymbolTable: symbol with name ", name, " already exists");
@@ -345,12 +345,12 @@ FuncSymbol *SymbolTableWalker::insert(std::string& name, Box<FuncSymbol> sym) co
         sym->is_global = true;
     }
     FuncSymbol *ret = sym.get();
-    current->phys_symbols.insert_or_assign(name, std::move(sym));
+    current->phys_symbols.insert_or_assign(std::string(name), std::move(sym));
 
     return ret;
 }
 
-TypeSymbol *SymbolTableWalker::insert(std::string& name, Box<TypeSymbol> sym) const {
+TypeSymbol *SymbolTableWalker::insert(StringRef name, Box<TypeSymbol> sym) const {
     dbprint("SymbolTable: inserting typesymbol with name \"", name, "\"");
     if (current->type_symbols.contains(name)) {
         dbprint("SymbolTable: typesymbol with name ", name, " already exists");
@@ -362,12 +362,12 @@ TypeSymbol *SymbolTableWalker::insert(std::string& name, Box<TypeSymbol> sym) co
         sym->is_global = true;
     }
     TypeSymbol *ret = sym.get();
-    current->type_symbols.insert_or_assign(name, std::move(sym));
+    current->type_symbols.insert_or_assign(std::string(name), std::move(sym));
 
     return ret;
 }
 
-LabelSymbol *SymbolTableWalker::insert(std::string& name, Box<LabelSymbol> sym) const {
+LabelSymbol *SymbolTableWalker::insert(StringRef name, Box<LabelSymbol> sym) const {
     dbprint("SymbolTable: inserting labelsymbol with name \"", name, "\"");
     if (current->label_symbols.contains(name)) {
         dbprint("SymbolTable: labelsymbol with name ", name, " already exists");
@@ -379,7 +379,7 @@ LabelSymbol *SymbolTableWalker::insert(std::string& name, Box<LabelSymbol> sym) 
         sym->is_global = true;
     }
     LabelSymbol *ret = sym.get();
-    current->label_symbols.insert_or_assign(name, std::move(sym));
+    current->label_symbols.insert_or_assign(std::string(name), std::move(sym));
 
     return ret;
 }

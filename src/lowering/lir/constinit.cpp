@@ -313,7 +313,7 @@ ConstInitLIRBuilder::try_build_constinit_expr(Type *type, LiteralExprMIR& expr) 
 
                 init = make_chunk<ScalarInitLIR>(expr.loc, type->as_primitive(), insert_val);
             },
-            [&](std::string& str) {
+            [&](StringRef str) {
                 if (type->is_pointer() || static_storage) {
                     init = make_chunk<StringInitLIR>(expr.loc, type, str);
                 } else if (type->is_array()) {

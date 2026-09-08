@@ -25,7 +25,7 @@ using namespace util;
 
 // Helper struct for building declarators.
 struct DeclaratorBuilder {
-    Optional<std::string> name;
+    Optional<StringRef> name;
     types::TypeBuilder ty_bldr;
 };
 
@@ -39,7 +39,7 @@ struct TypeSpecRet {
 
 // The result of visiting an InitDeclarator node.
 struct InitDecltrRet {
-    Optional<std::string> name;
+    Optional<StringRef> name;
     types::Type *type;
     Optional<Chunk<sema::mir::InitializerMIR>> init_mir;
 };
@@ -64,7 +64,7 @@ using VisitResult = std::variant<
     // The base variant, when visit() does not return anything.
     std::monostate,
     // A simple string, for string literals, identifiers, etc.
-    std::string,
+    StringRef,
     // The result of evaluating a ConstExpression.
     eval::Value,
     // For building up declarators.
@@ -107,7 +107,7 @@ using VisitParam = std::variant<
     // The base variant, when the do_visit call does not take parameters.
     std::monostate,
     // A simple string, for anything.
-    std::string, DeclaratorBuilder *,
+    StringRef, DeclaratorBuilder *,
     // For passing a function's information into the compound statement.
     CmpdStmtDoVisitParam,
     // For passing types for population.

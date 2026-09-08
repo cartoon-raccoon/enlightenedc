@@ -290,7 +290,7 @@ Span<Box<Global>> Program::get_globals() {
     return globals;
 }
 
-ScalarConst *Program::get_scalar(PrimitiveType *type, eval::Value& val) {
+ScalarConst *Program::get_scalar(PrimitiveType *type, const eval::Value& val) {
     if (scalars.contains(val)) {
         return scalars.find(val)->second.get();
     }
@@ -316,7 +316,7 @@ ZeroConst *Program::get_zero(Type *type) {
     return ret;
 }
 
-PointerConst *Program::get_pointer(PointerType *ptr, eval::Value& val) {
+PointerConst *Program::get_pointer(PointerType *ptr, const eval::Value& val) {
     PointerKey key(ptr, val);
 
     if (pointers.contains(key)) {
@@ -348,12 +348,12 @@ AggregateConst *Program::get_aggregate(Type *type, const Vec<Constant *>& struct
 }
 
 
-String *Program::get_string(ArrayType *type, const std::string& str) {
+String *Program::get_string(ArrayType *type, StringRef str) {
     if (strings.contains(str)) {
         return strings[str].get();
     }
 
-    auto new_str = std::make_unique<String>(type, str);
+    auto new_str = std::make_unique<String>(type, str.str());
 
     String *ret = new_str.get();
 
@@ -362,9 +362,9 @@ String *Program::get_string(ArrayType *type, const std::string& str) {
     return ret;
 }
 
-Function *Program::add_function(sema::types::FunctionType *sig, std::string name) {
+Function *Program::add_function(sema::types::FunctionType *sig, StringRef name) {
 
-    auto funcfg = std::make_unique<Function>(sig, std::move(name));
+    auto funcfg = std::make_unique<Function>(sig, name.str());
 
     Function *ret = funcfg.get();
 

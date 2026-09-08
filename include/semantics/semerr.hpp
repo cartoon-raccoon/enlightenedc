@@ -31,23 +31,21 @@ public:
         Type,
     };
 
-    InvalidAttributeError(Location err_loc, std::string name)
-        : EccSemError("no such attribute", err_loc), kind(Kind::NoSuchAttribute),
-          name(std::move(name)) {}
+    InvalidAttributeError(Location err_loc, StringRef name)
+        : EccSemError("no such attribute", err_loc), kind(Kind::NoSuchAttribute), name(name) {}
 
-    InvalidAttributeError(Location err_loc, std::string name, Target target)
+    InvalidAttributeError(Location err_loc, StringRef name, Target target)
         : EccSemError("invalid target for attribute", err_loc), kind(Kind::InvalidTarget),
-          name(std::move(name)), target(target) {}
+          name(name), target(target) {}
 
-    InvalidAttributeError(Location err_loc, Kind kind, std::string name)
-        : EccSemError(err_str_from_kind(kind), err_loc), kind(kind), name(std::move(name)) {}
+    InvalidAttributeError(Location err_loc, Kind kind, StringRef name)
+        : EccSemError(err_str_from_kind(kind), err_loc), kind(kind), name(name) {}
 
-    InvalidAttributeError(Location err_loc, std::string err_str, Kind kind, std::string name)
-        : EccSemError(std::move(err_str), err_loc), kind(kind), name(std::move(name)) {}
+    InvalidAttributeError(Location err_loc, std::string err_str, Kind kind, StringRef name)
+        : EccSemError(std::move(err_str), err_loc), kind(kind), name(name) {}
 
-    InvalidAttributeError(Location err_loc, Kind kind, std::string name, std::string value)
-        : EccSemError(err_str_from_kind(kind), err_loc), kind(kind), name(std::move(name)),
-          value(std::move(value)) {}
+    InvalidAttributeError(Location err_loc, Kind kind, StringRef name, StringRef value)
+        : EccSemError(err_str_from_kind(kind), err_loc), kind(kind), name(name), value(value) {}
 
     Kind kind;
     std::string name, value;
@@ -167,8 +165,8 @@ public:
 
 class UnknownAttrError : public EccSemError {
 public:
-    UnknownAttrError(Location err_loc, std::string attr_name)
-        : EccSemError("unknown attribute", err_loc), attr_name(std::move(attr_name)) {}
+    UnknownAttrError(Location err_loc, StringRef attr_name)
+        : EccSemError("unknown attribute", err_loc), attr_name(attr_name) {}
 
     std::string attr_name;
 
@@ -450,7 +448,7 @@ public:
 
 class NoSuchMemberError : public EccSemError {
 public:
-    NoSuchMemberError(std::string& member, types::Type *obj, Location err_loc)
+    NoSuchMemberError(StringRef member, types::Type *obj, Location err_loc)
         : EccSemError("invalid member access", err_loc), member(member), obj_type(obj->formal()) {}
 
     std::string member, obj_type;
@@ -569,8 +567,8 @@ public:
 
 class TypeNotDefinedError : public EccSemError {
 public:
-    TypeNotDefinedError(std::string name, Location err_loc)
-        : EccSemError("use of undefined type", err_loc), name(std::move(name)) {}
+    TypeNotDefinedError(StringRef name, Location err_loc)
+        : EccSemError("use of undefined type", err_loc), name(name) {}
 
     std::string name;
 
@@ -584,8 +582,8 @@ public:
 
 class IdentNotDefinedError : public EccSemError {
 public:
-    IdentNotDefinedError(std::string name, Location err_loc)
-        : EccSemError("identifier not defined", err_loc), name(std::move(name)) {}
+    IdentNotDefinedError(StringRef name, Location err_loc)
+        : EccSemError("identifier not defined", err_loc), name(name) {}
 
     std::string name;
 
@@ -599,8 +597,8 @@ public:
 
 class InvalidIdentifierError : public EccSemError {
 public:
-    InvalidIdentifierError(std::string name, Location err_loc)
-        : EccSemError("invalid identifier", err_loc), name(std::move(name)) {}
+    InvalidIdentifierError(StringRef name, Location err_loc)
+        : EccSemError("invalid identifier", err_loc), name(name) {}
 
     std::string name;
 
@@ -624,8 +622,8 @@ public:
 
 class LabelNotDefinedError : public EccSemError {
 public:
-    LabelNotDefinedError(std::string name, Location err_loc)
-        : EccSemError("use of undefined label", err_loc), name(std::move(name)) {}
+    LabelNotDefinedError(StringRef name, Location err_loc)
+        : EccSemError("use of undefined label", err_loc), name(name) {}
 
     std::string name;
 

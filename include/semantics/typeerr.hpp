@@ -22,7 +22,7 @@ public:
 
 class RecursiveTypeError : public TypeSemError {
 public:
-    RecursiveTypeError(std::string name, Location err_loc)
+    RecursiveTypeError(StringRef name, Location err_loc)
         : TypeSemError(std::format("recursive class member: {}", name), err_loc) {}
 
     std::string elab() override {
@@ -32,8 +32,8 @@ public:
 
 class IncompleteTypeUseError : public TypeSemError {
 public:
-    IncompleteTypeUseError(std::string name, Location err_loc)
-        : TypeSemError("use of incomplete type", err_loc), name(std::move(name)) {}
+    IncompleteTypeUseError(StringRef name, Location err_loc)
+        : TypeSemError("use of incomplete type", err_loc), name(name) {}
 
     std::string name;
 
@@ -70,9 +70,8 @@ public:
 
 class InvalidMemberError : public TypeSemError {
 public:
-    InvalidMemberError(types::ClassType *cls, std::string member, Location err_loc)
-        : TypeSemError("invalid class member", err_loc), type(cls->formal()),
-          member(std::move(member)) {}
+    InvalidMemberError(types::ClassType *cls, StringRef member, Location err_loc)
+        : TypeSemError("invalid class member", err_loc), type(cls->formal()), member(member) {}
 
     std::string type, member;
 
@@ -86,9 +85,9 @@ public:
 
 class MemberNameCollision : public TypeSemError {
 public:
-    MemberNameCollision(Location err_loc, std::string member_name, Location def_loc)
+    MemberNameCollision(Location err_loc, StringRef member_name, Location def_loc)
         : TypeSemError(std::format("member already exists: {}", member_name), err_loc),
-          member_name(std::move(member_name)), def_loc(def_loc) {}
+          member_name(member_name), def_loc(def_loc) {}
 
     std::string member_name;
     Location def_loc;
@@ -185,9 +184,8 @@ public:
 
 class EnumeratorAlrDecldError : public TypeSemError {
 public:
-    EnumeratorAlrDecldError(std::string name, Location err_loc, Location def_loc)
-        : TypeSemError("enumerator name conflict", err_loc), name(std::move(name)),
-          def_loc(def_loc) {}
+    EnumeratorAlrDecldError(StringRef name, Location err_loc, Location def_loc)
+        : TypeSemError("enumerator name conflict", err_loc), name(name), def_loc(def_loc) {}
 
     std::string name;
     Location def_loc;

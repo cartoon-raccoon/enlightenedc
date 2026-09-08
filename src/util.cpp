@@ -12,7 +12,7 @@ namespace {
 constexpr std::size_t HEX_ESCAPE_BUF_SIZE = 5;
 } // namespace
 
-std::string encode_string_literal(std::string_view raw) {
+std::string encode_string_literal(StringRef raw) {
     std::string out;
     out.reserve(raw.size());
 
@@ -74,4 +74,45 @@ std::string encode_string_literal(std::string_view raw) {
 }
 
 } // namespace ecc::util
+
+namespace ecc {
+
+namespace {
+
+/**
+The global string pool. Node-based, so an `ArenaStr`'s address (and its SSO
+buffer) stays fixed for as long as it is in the set, which is what lets a
+`StringRef` point into it.
+*/
+using InternPool = boost::unordered_set<util::ArenaStr, StringRefHash, StringRefEq>;
+
+InternPool& intern_pool() {
+    static InternPool pool;
+    return pool;
+}
+
+} // namespace
+
+StringRef intern_string(StringRef s) {
+    InternPool& pool = intern_pool();
+
+    if (auto it = pool.find(s); it != pool.end()) {
+        return StringRef(*it);
+    }
+
+    auto [it, _] = pool.emplace(s.begin(), s.end());
+    return StringRef(*it);
+}
+
+StringRef intern_concat(StringRef a, StringRef b) {
+    util::ArenaStr joined;
+    joined.reserve(a.size() + b.size());
+    joined.append(a.begin(), a.end());
+    joined.append(b.begin(), b.end());
+    return intern_string(joined);
+}
+
+void intern_reset() { intern_pool().clear(); }
+
+} // namespace ecc
 

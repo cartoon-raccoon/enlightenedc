@@ -30,13 +30,13 @@ enum class AttributeTarget : uint8_t {
 struct AttributeData {
     AttributeTarget target = AttributeTarget::TYPE;
     bool takes_value       = false;
-    void (*action)(sema::mir::MIRNode&, Optional<std::string>&);
+    void (*action)(sema::mir::MIRNode&, Optional<StringRef>);
 };
 
-void process_attribute_packed(sema::mir::MIRNode&, Optional<std::string>&);
-void process_attribute_link_name(sema::mir::MIRNode&, Optional<std::string>&);
-void process_attribute_main(sema::mir::MIRNode&, Optional<std::string>&);
-void process_attribute_print(sema::mir::MIRNode&, Optional<std::string>&);
+void process_attribute_packed(sema::mir::MIRNode&, Optional<StringRef>);
+void process_attribute_link_name(sema::mir::MIRNode&, Optional<StringRef>);
+void process_attribute_main(sema::mir::MIRNode&, Optional<StringRef>);
+void process_attribute_print(sema::mir::MIRNode&, Optional<StringRef>);
 
 // clang-format off
 inline constexpr
@@ -76,7 +76,7 @@ std::array ATTR_REGISTRY = std::to_array<Pair<const char *, AttributeData>>({
 });
 // clang-format on
 
-inline const AttributeData *find_attr(std::string& name) {
+inline const AttributeData *find_attr(StringRef name) {
     for (const auto& [attrname, attrdata] : ATTR_REGISTRY) {
         if (name == attrname) {
             return &attrdata;

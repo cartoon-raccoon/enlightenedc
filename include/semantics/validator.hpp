@@ -173,7 +173,7 @@ private:
 
     void validate_binexpr_prim(mir::BinaryExprMIR& node);
 
-    void validate_print(std::string& format_str, Span<Chunk<mir::ExprMIR>> args);
+    void validate_print(StringRef format_str, Span<Chunk<mir::ExprMIR>> args);
 };
 
 } // namespace ecc::sema

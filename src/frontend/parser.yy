@@ -19,7 +19,6 @@
 // Use `code requires` to ensure it gets injected into the header file as well.
 %code requires {
 
-#include <set>
 #include <memory>
 #include "ast/ast.hpp"
 #include "prelude.hpp"
@@ -43,7 +42,7 @@ class Lexer;
 %parse-param { ecc::frontend::Lexer &lexer }
 %parse-param { ecc::ast::Program &ast_root }
 // lexer hack bodge
-%parse-param { std::set<std::string>& type_idents }
+%parse-param { StringHashSet& type_idents }
 
 %lex-param { ecc::frontend::Lexer &lexer }
 
@@ -60,8 +59,8 @@ static ecc::frontend::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 }
 
 // Tokens
-%token 
-    <std::string> 
+%token
+    <ecc::StringRef>
     IDENTIFIER "identifier"
     STRING_LITERAL "string literal"
     TYPE_IDENTIFIER "type"
@@ -221,8 +220,8 @@ static ecc::frontend::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 %type <Chunk<ClassDeclarator>> member_declarator
 %type <ArenaVec<Chunk<Enumerator>>> enumerator_list
 %type <Chunk<Enumerator>> enumerator
-%type <ArenaVec<std::string>> class_parent_list
-%type <std::string> class_parent
+%type <ArenaVec<ecc::StringRef>> class_parent_list
+%type <ecc::StringRef> class_parent
 
 %type <Chunk<TypeName>> type_name
 %type <Chunk<Initializer>> initializer designated_initializer
@@ -240,7 +239,7 @@ static ecc::frontend::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 %type <Chunk<Expression>> relational_expression shift_expression additive_expression
 %type <Chunk<Expression>> multiplicative_expression
 %type <Chunk<LiteralExpression>> constant
-%type <std::string> string_literal
+%type <ecc::StringRef> string_literal
 %type <Chunk<ConstExpression>> constant_expression
 %type <ArenaVec<Chunk<Expression>>> argument_expression_list
 %type <Optional<ForStatement::ForInit>> for_init_opt
@@ -468,7 +467,7 @@ type_qualifier:
 
 class_parent_list:
     class_parent {
-        ArenaVec<std::string> list;
+        ArenaVec<ecc::StringRef> list;
         list.push_back(std::move($1));
         $$ = std::move(list);
     }
@@ -839,7 +838,7 @@ string_literal:
         $$ = std::move($1);
     }
     | string_literal STRING_LITERAL {
-        $$ = std::move($1) + std::move($2);
+        $$ = ecc::intern_concat($1, $2);
     }
 ;
 

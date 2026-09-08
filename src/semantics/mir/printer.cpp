@@ -172,7 +172,7 @@ void MIRPrinter::visit(LoopStmtMIR& node) {
 }
 
 void MIRPrinter::visit(GotoStmtMIR& node) {
-    print_node("Goto: " + node.target, node);
+    print_node("Goto: " + node.target.str(), node);
 }
 
 void MIRPrinter::visit(BreakStmtMIR& node) {
@@ -229,7 +229,7 @@ void MIRPrinter::visit(LiteralExprMIR& node) {
     std::string valstr = std::visit(
         match{
             [](eval::Value& val) { return val.to_string(); },
-            [](std::string& s) { return encode_string_literal(s); }},
+            [](StringRef s) { return encode_string_literal(s); }},
         node.value);
     print_node("Literal: " + valstr + " :: " + node.act_type->formal(), node);
 }
@@ -244,7 +244,7 @@ void MIRPrinter::visit(CallExprMIR& node) {
 }
 
 void MIRPrinter::visit(MemberAccExprMIR& node) {
-    print_node("Member: ." + node.member + " :: " + node.act_type->formal(), node, [&] {
+    print_node("Member: ." + node.member.str() + " :: " + node.act_type->formal(), node, [&] {
         node.object->accept(*this);
     });
 }

@@ -12,9 +12,9 @@ LIRVarSym *LIRFuncSym::insert(VarSymbol *sym, Box<LIRVarSym> var) {
     return ret;
 }
 
-LIRVarSym *LIRFuncSym::lookup(std::string& mangled_name) {
+LIRVarSym *LIRFuncSym::lookup(StringRef mangled_name) {
     for (auto& [sym, var] : map) {
-        if (var->get_mangled_name() == mangled_name) {
+        if (StringRef(var->get_mangled_name()) == mangled_name) {
             return var.get();
         }
     }

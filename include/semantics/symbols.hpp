@@ -50,11 +50,11 @@ public:
         LABEL, // This symbol references a label.
     };
 
-    Symbol(Kind kind, std::string name, Scope *scope)
-        : kind(kind), name(std::move(name)), scope(scope) {}
+    Symbol(Kind kind, StringRef name, Scope *scope)
+        : kind(kind), name(name), scope(scope) {}
 
-    Symbol(Kind kind, Location loc, std::string name, Scope *scope)
-        : kind(kind), name(std::move(name)), loc(loc), scope(scope) {}
+    Symbol(Kind kind, Location loc, StringRef name, Scope *scope)
+        : kind(kind), name(name), loc(loc), scope(scope) {}
 
     Kind kind;
 
@@ -102,11 +102,10 @@ protected:
     Rc<SymData> symdata = nullptr;
 
 public:
-    PhysicalSymbol(Kind kind, std::string name, Scope *scope)
-        : Symbol(kind, std::move(name), scope) {}
+    PhysicalSymbol(Kind kind, StringRef name, Scope *scope) : Symbol(kind, name, scope) {}
 
-    PhysicalSymbol(Kind kind, Location loc, std::string name, Scope *scope)
-        : Symbol(kind, loc, std::move(name), scope) {}
+    PhysicalSymbol(Kind kind, Location loc, StringRef name, Scope *scope)
+        : Symbol(kind, loc, name, scope) {}
 
     bool is_external() const { return symdata->get_linkage() != Linkage::INTERNAL; }
 
@@ -144,11 +143,10 @@ public:
 // (e.g. a label or type declaration).
 class AbstractSymbol : public Symbol {
 public:
-    AbstractSymbol(Kind kind, std::string name, Scope *scope)
-        : Symbol(kind, std::move(name), scope) {}
+    AbstractSymbol(Kind kind, StringRef name, Scope *scope) : Symbol(kind, name, scope) {}
 
-    AbstractSymbol(Kind kind, Location loc, std::string name, Scope *scope)
-        : Symbol(kind, loc, std::move(name), scope) {}
+    AbstractSymbol(Kind kind, Location loc, StringRef name, Scope *scope)
+        : Symbol(kind, loc, name, scope) {}
 
     AbstractSymbol *as_abstract() override { return this; }
 
@@ -170,16 +168,17 @@ A symbol representing a variable declaration.
 */
 class VarSymbol : public PhysicalSymbol {
 public:
-    VarSymbol(Location loc, std::string name, Scope *scope, types::Type *type)
+    VarSymbol(Location loc, StringRef name, Scope *scope, types::Type *type)
         : PhysicalSymbol(Symbol::Kind::VAR, loc, name, scope) {
 
-        symdata = make_rc<VarSymData>(std::move(name), type);
+        symdata = make_rc<VarSymData>(name, type);
     }
 
-    VarSymbol(Location loc, std::string name, Scope *scope, types::Type *type, eval::Value value)
+    VarSymbol(
+        Location loc, StringRef name, Scope *scope, types::Type *type, eval::Value value)
         : PhysicalSymbol(Symbol::Kind::VAR, loc, name, scope), value(value) {
 
-        symdata = make_rc<VarSymData>(std::move(name), type);
+        symdata = make_rc<VarSymData>(name, type);
     }
 
     std::string to_string() const override;
@@ -222,21 +221,21 @@ A symbol representing a function declaration
 class FuncSymbol : public PhysicalSymbol {
 public:
     FuncSymbol(
-        Location loc, std::string name, Scope *scope, types::FunctionType *signature,
+        Location loc, StringRef name, Scope *scope, types::FunctionType *signature,
         Vec<VarSymbol *> parameters)
         : PhysicalSymbol(Symbol::Kind::FUNC, loc, name, scope), parameters(std::move(parameters)) {
-        symdata = make_rc<FuncSymData>(std::move(name), signature);
+        symdata = make_rc<FuncSymData>(name, signature);
     }
 
-    FuncSymbol(Location loc, std::string name, Scope *scope, types::FunctionType *signature)
+    FuncSymbol(Location loc, StringRef name, Scope *scope, types::FunctionType *signature)
         : PhysicalSymbol(Symbol::Kind::FUNC, loc, name, scope) {
-        symdata = make_rc<FuncSymData>(std::move(name), signature);
+        symdata = make_rc<FuncSymData>(name, signature);
     }
 
     static Box<FuncSymbol>
-    empty(Location loc, std::string name, Scope *scope, types::FunctionType *signature) {
+    empty(Location loc, StringRef name, Scope *scope, types::FunctionType *signature) {
 
-        auto ret = std::make_unique<FuncSymbol>(loc, std::move(name), scope, signature);
+        auto ret = std::make_unique<FuncSymbol>(loc, name, scope, signature);
 
         ret->has_body = false;
 
@@ -281,8 +280,8 @@ A symbol representing a type declaration (class, union, enum).
 */
 class TypeSymbol : public AbstractSymbol {
 public:
-    TypeSymbol(Location loc, std::string name, Scope *scope, types::BaseType *type)
-        : AbstractSymbol(Symbol::Kind::TYPE, loc, std::move(name), scope), type(type) {}
+    TypeSymbol(Location loc, StringRef name, Scope *scope, types::BaseType *type)
+        : AbstractSymbol(Symbol::Kind::TYPE, loc, name, scope), type(type) {}
 
     types::BaseType *type;
 
@@ -300,8 +299,8 @@ A symbol representing a label (for use by goto).
 */
 class LabelSymbol : public AbstractSymbol {
 public:
-    LabelSymbol(Location loc, std::string name, Scope *scope)
-        : AbstractSymbol(Symbol::Kind::LABEL, loc, std::move(name), scope) {}
+    LabelSymbol(Location loc, StringRef name, Scope *scope)
+        : AbstractSymbol(Symbol::Kind::LABEL, loc, name, scope) {}
 
     std::string to_string() const override;
 
@@ -347,10 +346,11 @@ private:
 
     uint64_t id;
 
-    // the symbol tables.
-    HashMap<std::string, Box<PhysicalSymbol>> phys_symbols;
-    HashMap<std::string, Box<TypeSymbol>> type_symbols;
-    HashMap<std::string, Box<LabelSymbol>> label_symbols;
+    // the symbol tables. Keys are owned; StringRefHash/StringRefEq are transparent, so a
+    // StringRef or string_view can be used as a lookup key without allocating.
+    HashMap<std::string, Box<PhysicalSymbol>, StringRefHash, StringRefEq> phys_symbols;
+    HashMap<std::string, Box<TypeSymbol>, StringRefHash, StringRefEq> type_symbols;
+    HashMap<std::string, Box<LabelSymbol>, StringRefHash, StringRefEq> label_symbols;
     // inner scopes contained within this scope.
     Vec<Box<Scope>> nested;
 
@@ -412,13 +412,13 @@ public:
     /**
     Lookup a symbol by name. Returns null of no symbol exists.
     */
-    Symbol *lookup(std::string& sym, bool current = false) const;
+    Symbol *lookup(StringRef sym, bool current = false) const;
 
-    VarSymbol *lookup_var(std::string& sym, bool current = false) const;
+    VarSymbol *lookup_var(StringRef sym, bool current = false) const;
 
-    FuncSymbol *lookup_func(std::string& sym, bool current = false) const;
+    FuncSymbol *lookup_func(StringRef sym, bool current = false) const;
 
-    TypeSymbol *lookup_type(std::string& sym, bool current = false) const;
+    TypeSymbol *lookup_type(StringRef sym, bool current = false) const;
 
     /**
     Look up a label from Scope `from`, up to the first function scope.
@@ -427,7 +427,7 @@ public:
     `lookup_label` only recurses outwards until a function boundary.
     This is because labels are scoped to function scope specifically.
     */
-    LabelSymbol *lookup_label(std::string& sym, bool current = false) const;
+    LabelSymbol *lookup_label(StringRef sym, bool current = false) const;
 
     // Associate the current scope with the given FuncSymbol `sym`.
     // If current scope is already tied to a symbol, replaces it
@@ -438,13 +438,13 @@ public:
     // Returns a pointer to the inserted symbol for further use.
     // If a symbol with the same name already exists in the current scope,
     // It throws a Location where the symbol was previously defined.
-    VarSymbol *insert(std::string& name, Box<VarSymbol> sym) const;
+    VarSymbol *insert(StringRef name, Box<VarSymbol> sym) const;
 
-    FuncSymbol *insert(std::string& name, Box<FuncSymbol> sym) const;
+    FuncSymbol *insert(StringRef name, Box<FuncSymbol> sym) const;
 
-    TypeSymbol *insert(std::string& name, Box<TypeSymbol> sym) const;
+    TypeSymbol *insert(StringRef name, Box<TypeSymbol> sym) const;
 
-    LabelSymbol *insert(std::string& name, Box<LabelSymbol> sym) const;
+    LabelSymbol *insert(StringRef name, Box<LabelSymbol> sym) const;
 
 private:
     // The ID to assign to the next scope.

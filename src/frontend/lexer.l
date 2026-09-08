@@ -245,11 +245,11 @@ static std::string decode_string_literal(char* text, size_t len) {
 
 
 [_a-zA-Z][_a-zA-Z0-9]* { /* Identifiers */
-    std::string identifier(yytext);
-    if (typedefs.get().contains(identifier)) {
-        return ecc::frontend::Parser::make_TYPE_IDENTIFIER(yytext, loc);
+    ecc::StringRef ident = ecc::intern_string({yytext, static_cast<size_t>(yyleng)});
+    if (typedefs.get().contains(ident)) {
+        return ecc::frontend::Parser::make_TYPE_IDENTIFIER(ident, loc);
     } else {
-        return ecc::frontend::Parser::make_IDENTIFIER(yytext, loc);
+        return ecc::frontend::Parser::make_IDENTIFIER(ident, loc);
     }
 }
 
@@ -281,7 +281,7 @@ static std::string decode_string_literal(char* text, size_t len) {
 
 \"([^\\\"]|\\.)*\" { /* String constants */
     std::string decoded = decode_string_literal(yytext, yyleng);
-    return ecc::frontend::Parser::make_STRING_LITERAL(decoded, loc);
+    return ecc::frontend::Parser::make_STRING_LITERAL(ecc::intern_string(decoded), loc);
 }
 
 

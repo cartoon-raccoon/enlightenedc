@@ -4,7 +4,6 @@
 #define ECC_LIR_H
 
 #include <cstddef>
-#include <string>
 #include <variant>
 
 #include "abstract/visitor.hpp"
@@ -158,11 +157,10 @@ public:
 
 class StringInitLIR : public LIRVisitable<StringInitLIR, ConstInitLIR> {
 public:
-    StringInitLIR(Location loc, sema::types::Type *type, std::string str)
-        : LIRVisitable<StringInitLIR, ConstInitLIR>(loc, NodeKind::STRINIT_LIR, type),
-          str(std::move(str)) {}
+    StringInitLIR(Location loc, sema::types::Type *type, StringRef str)
+        : LIRVisitable<StringInitLIR, ConstInitLIR>(loc, NodeKind::STRINIT_LIR, type), str(str) {}
 
-    std::string str;
+    StringRef str;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::STRINIT_LIR; }
 };
@@ -390,19 +388,19 @@ public:
 
 class GotoStmtLIR : public LIRVisitable<GotoStmtLIR, TerminalLIR> {
 public:
-    GotoStmtLIR(std::string mangled_target)
+    GotoStmtLIR(StringRef mangled_target)
         : LIRVisitable<GotoStmtLIR, TerminalLIR>(NodeKind::GOTOSTMT_LIR),
-          mangled_target(std::move(mangled_target)) {}
+          mangled_target(mangled_target) {}
 
-    GotoStmtLIR(Location loc, std::string mangled_target, std::string target)
+    GotoStmtLIR(Location loc, StringRef mangled_target, StringRef target)
         : LIRVisitable<GotoStmtLIR, TerminalLIR>(loc, NodeKind::GOTOSTMT_LIR),
-          mangled_target(std::move(mangled_target)), target(target) {}
+          mangled_target(mangled_target), target(target) {}
 
     // The mangled target name.
-    std::string mangled_target;
+    StringRef mangled_target;
     // The original target name as defined in the source code.
     // Does not exist for compiler-generated targets.
-    Optional<std::string> target;
+    Optional<StringRef> target;
 
     bool is_terminal() override { return true; }
 
@@ -460,12 +458,12 @@ public:
 
 class LabelDeclLIR : public LIRVisitable<LabelDeclLIR, LabelLIR> {
 public:
-    LabelDeclLIR(Location loc, std::string mangled_label, std::string label)
+    LabelDeclLIR(Location loc, StringRef mangled_label, StringRef label)
         : LIRVisitable<LabelDeclLIR, LabelLIR>(loc, NodeKind::LABDECL_LIR),
-          mangled_label(std::move(mangled_label)), label(std::move(label)) {}
+          mangled_label(mangled_label), label(label) {}
 
-    std::string mangled_label;
-    std::string label;
+    StringRef mangled_label;
+    StringRef label;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::LABDECL_LIR; }
 };
@@ -550,11 +548,11 @@ public:
 
 class PrintStmtLIR : public LIRVisitable<PrintStmtLIR, NonTerminalLIR> {
 public:
-    PrintStmtLIR(Location loc, std::string format_string, ds::ArenaVec<Chunk<ExprLIR>> args)
+    PrintStmtLIR(Location loc, StringRef format_string, ds::ArenaVec<Chunk<ExprLIR>> args)
         : LIRVisitable<PrintStmtLIR, NonTerminalLIR>(loc, NodeKind::PRINTSTMT_LIR),
-          format_string(std::move(format_string)), args(std::move(args)) {}
+          format_string(format_string), args(std::move(args)) {}
 
-    std::string format_string;
+    StringRef format_string;
     ds::ArenaVec<Chunk<ExprLIR>> args;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::PRINTSTMT_LIR; }
@@ -670,17 +668,13 @@ public:
 
 class LiteralExprLIR : public LIRVisitable<LiteralExprLIR, ExprLIR> {
 public:
-    using LitValueLIR = std::variant<eval::Value, std::string>;
+    using LitValueLIR = std::variant<eval::Value, StringRef>;
 
     LiteralExprLIR(Location loc, eval::Value value, sema::types::Type *type)
         : LIRVisitable<LiteralExprLIR, ExprLIR>(loc, NodeKind::LITEXPR_LIR, type), value(value) {}
 
     LiteralExprLIR(eval::Value value, sema::types::Type *type)
         : LIRVisitable<LiteralExprLIR, ExprLIR>(NodeKind::LITEXPR_LIR, type), value(value) {}
-
-    LiteralExprLIR(Location loc, std::string value, sema::types::Type *type)
-        : LIRVisitable<LiteralExprLIR, ExprLIR>(loc, NodeKind::LITEXPR_LIR, type),
-          value(std::move(value)) {}
 
     LiteralExprLIR(Location loc, LitValueLIR value, sema::types::Type *type)
         : LIRVisitable<LiteralExprLIR, ExprLIR>(loc, NodeKind::LITEXPR_LIR, type),
@@ -694,7 +688,7 @@ public:
 
     Chunk<ExprLIR> clone_chunk() override;
 
-    bool is_str() const { return std::holds_alternative<std::string>(value); }
+    bool is_str() const { return std::holds_alternative<StringRef>(value); }
     bool is_val() const { return std::holds_alternative<eval::Value>(value); }
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::LITEXPR_LIR; }

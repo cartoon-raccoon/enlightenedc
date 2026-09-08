@@ -110,12 +110,12 @@ A single `name` or `name = "value"` entry inside an attribute (e.g. the `packed`
 */
 class AttributeArg : public ASTVisitable<AttributeArg, ASTNode> {
 public:
-    AttributeArg(Location loc, std::string name, Optional<std::string> value)
-        : ASTVisitable<AttributeArg, ASTNode>(NodeKind::ATTR_ARG, loc), name(std::move(name)),
-          value(std::move(value)) {}
+    AttributeArg(Location loc, StringRef name, Optional<StringRef> value)
+        : ASTVisitable<AttributeArg, ASTNode>(NodeKind::ATTR_ARG, loc), name(name),
+          value(value) {}
 
-    std::string name;
-    Optional<std::string> value;
+    StringRef name;
+    Optional<StringRef> value;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::ATTR_ARG; }
 };
@@ -337,7 +337,7 @@ whereas primitive type variables use the Chunk<Expression> variant.
 class Initializer : public ASTVisitable<Initializer, ASTNode> {
 public:
     struct Member {
-        std::string member;
+        StringRef member;
         Chunk<Initializer> initializer;
     };
 
@@ -353,9 +353,9 @@ public:
         : ASTVisitable<Initializer, ASTNode>(NodeKind::INITIALIZER, loc),
           initializer(std::move(expr)) {}
 
-    Initializer(Location loc, std::string mem, Chunk<Initializer> init)
+    Initializer(Location loc, StringRef mem, Chunk<Initializer> init)
         : ASTVisitable<Initializer, ASTNode>(NodeKind::INITIALIZER, loc),
-          initializer(make_chunk<Member>(std::move(mem), std::move(init))) {}
+          initializer(make_chunk<Member>(mem, std::move(init))) {}
 
     Initializer(Location loc, Chunk<ConstExpression> idx, Chunk<Initializer> init)
         : ASTVisitable<Initializer, ASTNode>(NodeKind::INITIALIZER, loc),
@@ -454,11 +454,11 @@ public:
 
 class IdentifierDeclarator : public ASTVisitable<IdentifierDeclarator, DirectDeclarator> {
 public:
-    std::string name;
+    StringRef name;
 
-    IdentifierDeclarator(Location loc, std::string n)
+    IdentifierDeclarator(Location loc, StringRef n)
         : ASTVisitable<IdentifierDeclarator, DirectDeclarator>(NodeKind::IDENT_DECLTR, loc),
-          name(std::move(n)) {}
+          name(n) {}
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::IDENT_DECLTR; }
 };
@@ -591,15 +591,15 @@ public:
 class ClassSpecifier : public ASTVisitable<ClassSpecifier, TypeSpecifier> {
 public:
     ClassSpecifier(
-        Location loc, Optional<std::string> name, Optional<ds::ArenaVec<std::string>> parents,
+        Location loc, Optional<StringRef> name, Optional<ds::ArenaVec<StringRef>> parents,
         Optional<ds::ArenaVec<Chunk<ClassDeclaration>>> declarations)
         : ASTVisitable<ClassSpecifier, TypeSpecifier>(NodeKind::CLASS_SPEC, loc),
-          name(std::move(name)), parents(std::move(parents)),
+          name(name), parents(std::move(parents)),
           declarations(std::move(declarations)) {}
 
-    Optional<std::string> name;
+    Optional<StringRef> name;
     // Identifiers of parent classes.
-    Optional<ds::ArenaVec<std::string>> parents;
+    Optional<ds::ArenaVec<StringRef>> parents;
     // Declarations of members.
     Optional<ds::ArenaVec<Chunk<ClassDeclaration>>> declarations;
 
@@ -609,12 +609,12 @@ public:
 class UnionSpecifier : public ASTVisitable<UnionSpecifier, TypeSpecifier> {
 public:
     UnionSpecifier(
-        Location loc, Optional<std::string> name, Optional<tokens::PrimType> type_rep,
+        Location loc, Optional<StringRef> name, Optional<tokens::PrimType> type_rep,
         Optional<ds::ArenaVec<Chunk<ClassDeclaration>>> declarations)
         : ASTVisitable<UnionSpecifier, TypeSpecifier>(NodeKind::UNION_SPEC, loc),
-          name(std::move(name)), type_rep(type_rep), declarations(std::move(declarations)) {}
+          name(name), type_rep(type_rep), declarations(std::move(declarations)) {}
 
-    Optional<std::string> name;
+    Optional<StringRef> name;
 
     Optional<tokens::PrimType> type_rep;
 
@@ -628,11 +628,11 @@ A declaration of an enumerator within an enum.
 */
 class Enumerator : public ASTVisitable<Enumerator, ASTNode> {
 public:
-    Enumerator(Location loc, std::string name, Optional<Chunk<ConstExpression>> value)
-        : ASTVisitable<Enumerator, ASTNode>(NodeKind::ENUMERATOR, loc), name(std::move(name)),
+    Enumerator(Location loc, StringRef name, Optional<Chunk<ConstExpression>> value)
+        : ASTVisitable<Enumerator, ASTNode>(NodeKind::ENUMERATOR, loc), name(name),
           value(std::move(value)) {}
 
-    std::string name;
+    StringRef name;
     Optional<Chunk<ConstExpression>> value;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::ENUMERATOR; }
@@ -644,18 +644,18 @@ A node denoting an enum and its contained variants.
 class EnumSpecifier : public ASTVisitable<EnumSpecifier, TypeSpecifier> {
 public:
     EnumSpecifier(
-        Location loc, Optional<std::string> name,
+        Location loc, Optional<StringRef> name,
         Optional<ds::ArenaVec<Chunk<Enumerator>>> enumerators)
         : ASTVisitable<EnumSpecifier, TypeSpecifier>(NodeKind::ENUM_SPEC, loc),
-          name(std::move(name)), enumerators(std::move(enumerators)) {}
+          name(name), enumerators(std::move(enumerators)) {}
 
     EnumSpecifier(
-        Location loc, Optional<std::string> name,
+        Location loc, Optional<StringRef> name,
         Optional<ds::ArenaVec<Chunk<Enumerator>>> enumerators, tokens::PrimType underlying)
         : ASTVisitable<EnumSpecifier, TypeSpecifier>(NodeKind::ENUM_SPEC, loc),
-          name(std::move(name)), enumerators(std::move(enumerators)), underlying(underlying) {}
+          name(name), enumerators(std::move(enumerators)), underlying(underlying) {}
 
-    Optional<std::string> name;
+    Optional<StringRef> name;
     Optional<ds::ArenaVec<Chunk<Enumerator>>> enumerators;
 
     /**
@@ -668,11 +668,11 @@ public:
 
 class TypeIdentifier : public ASTVisitable<TypeIdentifier, TypeSpecifier> {
 public:
-    TypeIdentifier(Location loc, std::string ident)
+    TypeIdentifier(Location loc, StringRef ident)
         : ASTVisitable<TypeIdentifier, TypeSpecifier>(NodeKind::TYPE_IDENT, loc),
-          identifier(std::move(ident)) {}
+          identifier(ident) {}
 
-    std::string identifier;
+    StringRef identifier;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::TYPE_IDENT; }
 };
@@ -781,11 +781,11 @@ public:
 
 class LabeledStatement : public ASTVisitable<LabeledStatement, Statement> {
 public:
-    LabeledStatement(Location loc, std::string label, Chunk<Statement> statement)
+    LabeledStatement(Location loc, StringRef label, Chunk<Statement> statement)
         : ASTVisitable<LabeledStatement, Statement>(NodeKind::LABEL_STMT, loc),
-          label(std::move(label)), statement(std::move(statement)) {}
+          label(label), statement(std::move(statement)) {}
 
-    std::string label;
+    StringRef label;
     Chunk<Statement> statement;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::LABEL_STMT; }
@@ -794,11 +794,11 @@ public:
 class PrintStatement : public ASTVisitable<PrintStatement, Statement> {
 public:
     PrintStatement(
-        Location loc, std::string format_string, ds::ArenaVec<Chunk<Expression>> arguments)
+        Location loc, StringRef format_string, ds::ArenaVec<Chunk<Expression>> arguments)
         : ASTVisitable<PrintStatement, Statement>(NodeKind::PRINT_STMT, loc),
-          format_string(std::move(format_string)), arguments(std::move(arguments)) {}
+          format_string(format_string), arguments(std::move(arguments)) {}
 
-    std::string format_string;
+    StringRef format_string;
     ds::ArenaVec<Chunk<Expression>> arguments;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::PRINT_STMT; }
@@ -893,11 +893,11 @@ public:
 
 class GotoStatement : public ASTVisitable<GotoStatement, JumpStatement> {
 public:
-    GotoStatement(Location loc, std::string target_label)
+    GotoStatement(Location loc, StringRef target_label)
         : ASTVisitable<GotoStatement, JumpStatement>(NodeKind::GOTO_STMT, loc),
-          target_label(std::move(target_label)) {}
+          target_label(target_label) {}
 
-    std::string target_label;
+    StringRef target_label;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::GOTO_STMT; }
 };
@@ -1015,11 +1015,11 @@ public:
 
 class IdentifierExpression : public ASTVisitable<IdentifierExpression, Expression> {
 public:
-    IdentifierExpression(Location loc, std::string name)
+    IdentifierExpression(Location loc, StringRef name)
         : ASTVisitable<IdentifierExpression, Expression>(NodeKind::IDENT_EXPR, loc),
-          name(std::move(name)) {}
+          name(name) {}
 
-    std::string name;
+    StringRef name;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::IDENT_EXPR; }
 };
@@ -1047,11 +1047,11 @@ public:
 
 class StringExpression : public ASTVisitable<StringExpression, Expression> {
 public:
-    StringExpression(Location loc, std::string value)
+    StringExpression(Location loc, StringRef value)
         : ASTVisitable<StringExpression, Expression>(NodeKind::STR_EXPR, loc),
-          value(std::move(value)) {}
+          value(value) {}
 
-    std::string value;
+    StringRef value;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::STR_EXPR; }
 };
@@ -1072,12 +1072,12 @@ public:
 class MemberAccessExpression : public ASTVisitable<MemberAccessExpression, Expression> {
 public:
     MemberAccessExpression(
-        Location loc, Chunk<Expression> object, std::string member, bool is_arrow)
+        Location loc, Chunk<Expression> object, StringRef member, bool is_arrow)
         : ASTVisitable<MemberAccessExpression, Expression>(NodeKind::ACCESS_EXPR, loc),
-          object(std::move(object)), member(std::move(member)), is_arrow(is_arrow) {}
+          object(std::move(object)), member(member), is_arrow(is_arrow) {}
 
     Chunk<Expression> object;
-    std::string member;
+    StringRef member;
     bool is_arrow;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::ACCESS_EXPR; }

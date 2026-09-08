@@ -717,10 +717,10 @@ void MIRSynthesizer::do_visit(InitDeclarator& node) {
         } else {
             ret_type = complete;
         }
-        InitDecltrRet ret = {std::move(builder->name), ret_type, std::move(init_ret.init_mir)};
+        InitDecltrRet ret = {builder->name, ret_type, std::move(init_ret.init_mir)};
         dv_return(ret);
     } else {
-        InitDecltrRet ret = {std::move(builder->name), complete, {}};
+        InitDecltrRet ret = {builder->name, complete, {}};
         dv_return(ret);
     }
 }
@@ -802,7 +802,7 @@ void MIRSynthesizer::do_visit(FunctionDeclarator& node) {
     Vec<FuncParam> parameters;
 
     // name pool to check for duplicate parameter names
-    HashSet<std::string> name_pool;
+    StringHashSet name_pool;
 
     for (auto& param : node.parameters) {
         dv_call_noparam(param);
@@ -1530,11 +1530,10 @@ void MIRSynthesizer::do_visit(ExpressionStatement& node) {
             auto *litexpr = dyncast<LiteralExprMIR>(expr.get());
             ECC_ASSERT(litexpr, "could not cast LITEXPR_MIR to LiteralExprMIR");
 
-            if (auto *str = std::get_if<std::string>(&litexpr->value)) {
+            if (auto *str = std::get_if<StringRef>(&litexpr->value)) {
                 bsv_dbprint(
                     "found string literal inside ExpressionStatement, emitting PrintStmtMIR");
-                std::string format_string = std::move(*str);
-                Chunk<StmtMIR> stmt = make_chunk<PrintStmtMIR>(node.loc, std::move(format_string));
+                Chunk<StmtMIR> stmt = make_chunk<PrintStmtMIR>(node.loc, *str);
                 dv_return(stmt);
             }
             break;

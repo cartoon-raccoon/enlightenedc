@@ -43,6 +43,11 @@ public:
     void print_error(EccError& err);
 
     int run();
+
+    /**
+    Reset the global memory pool.
+    */
+    void reset();
 };
 
 } // namespace ecc

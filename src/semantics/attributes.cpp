@@ -10,7 +10,7 @@ namespace ecc::sema::attr {
 using namespace sema::mir;
 using namespace sema::types;
 
-void process_attribute_packed(MIRNode& node, Optional<std::string>&) {
+void process_attribute_packed(MIRNode& node, Optional<StringRef>) {
     auto *typedecl = cast<sema::mir::TypeDeclMIR>(&node);
 
     ClassType *cltype = typedecl->sym->type->as_class();
@@ -21,7 +21,7 @@ void process_attribute_packed(MIRNode& node, Optional<std::string>&) {
     cltype->set_packed(true);
 }
 
-void process_attribute_link_name(MIRNode& node, Optional<std::string>& value) {
+void process_attribute_link_name(MIRNode& node, Optional<StringRef> value) {
     auto *func = cast<sema::mir::FunctionMIR>(&node);
     ECC_ASSERT_N(value.has_value());
 
@@ -29,14 +29,14 @@ void process_attribute_link_name(MIRNode& node, Optional<std::string>& value) {
     symdata->set_link_name(*value);
 }
 
-void process_attribute_main(MIRNode& node, Optional<std::string>&) {
+void process_attribute_main(MIRNode& node, Optional<StringRef>) {
     auto *func = cast<sema::mir::FunctionMIR>(&node);
 
     sema::sym::FuncSymData *symdata = func->sym->get_symdata();
     symdata->set_main(true);
 }
 
-void process_attribute_print(MIRNode& node, Optional<std::string>&) {
+void process_attribute_print(MIRNode& node, Optional<StringRef>) {
     auto *func = cast<sema::mir::FunctionMIR>(&node);
 
     sema::sym::FuncSymData *symdata = func->sym->get_symdata();

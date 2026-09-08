@@ -68,10 +68,10 @@ public:
     };
     const Kind kind;
 
-    SymData(Kind kind, std::string name) : name(std::move(name)), kind(kind) {}
+    SymData(Kind kind, StringRef name) : name(name), kind(kind) {}
 
-    SymData(Kind kind, std::string name, Linkage linkage, Visibility visibility)
-        : name(std::move(name)), linkage(linkage), visibility(visibility), kind(kind) {}
+    SymData(Kind kind, StringRef name, Linkage linkage, Visibility visibility)
+        : name(name), linkage(linkage), visibility(visibility), kind(kind) {}
 
     SymData(const SymData& sd) = default;
 
@@ -85,17 +85,15 @@ public:
 
     void set_visibility(Visibility visibility) { this->visibility = visibility; }
 
-    const std::string& get_name() { return name; }
+    const std::string& get_name() const { return name; }
 
-    const std::string& get_mangled_name() { return mangled_name; }
+    const std::string& get_mangled_name() const { return mangled_name; }
 
-    void set_mangled_name(std::string mangled_name) {
-        this->mangled_name = std::move(mangled_name);
-    }
+    void set_mangled_name(StringRef mangled_name) { this->mangled_name = mangled_name; }
 
     bool has_link_name() { return link_name.has_value(); }
 
-    void set_link_name(std::string name) { link_name = std::move(name); }
+    void set_link_name(StringRef name) { link_name = std::string(name); }
 
 protected:
 };
@@ -107,11 +105,10 @@ class VarSymData : public SymData {
     types::Type *type;
 
 public:
-    VarSymData(std::string name, types::Type *type)
-        : SymData(Kind::VAR, std::move(name)), type(type) {}
+    VarSymData(StringRef name, types::Type *type) : SymData(Kind::VAR, name), type(type) {}
 
-    VarSymData(std::string name, Linkage linkage, Visibility visibility, types::Type *type)
-        : SymData(Kind::VAR, std::move(name), linkage, visibility), type(type) {}
+    VarSymData(StringRef name, Linkage linkage, Visibility visibility, types::Type *type)
+        : SymData(Kind::VAR, name, linkage, visibility), type(type) {}
 
     types::Type *get_type() { return type; }
 
@@ -137,13 +134,13 @@ class FuncSymData : public SymData {
     bool print_function = false;
 
 public:
-    FuncSymData(std::string name, types::FunctionType *signature)
-        : SymData(Kind::FUNC, std::move(name)), signature(signature) {}
+    FuncSymData(StringRef name, types::FunctionType *signature)
+        : SymData(Kind::FUNC, name), signature(signature) {}
 
     FuncSymData(
-        std::string name, Linkage linkage, Visibility visibility, types::FunctionType *signature,
-        bool is_main = false)
-        : SymData(Kind::FUNC, std::move(name), linkage, visibility), signature(signature),
+        StringRef name, Linkage linkage, Visibility visibility,
+        types::FunctionType *signature, bool is_main = false)
+        : SymData(Kind::FUNC, name, linkage, visibility), signature(signature),
           main_function(is_main) {}
 
     types::FunctionType *get_signature() { return signature; }

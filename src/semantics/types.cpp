@@ -332,7 +332,7 @@ TypeID UserType::generate_id() const {
  * RECORD TYPE METHODS
  */
 
-void RecordType::validate_new_member(Type *type, Optional<std::string> name, Location loc) {
+void RecordType::validate_new_member(Type *type, Optional<StringRef> name, Location loc) {
     if (type == this) {
         // check for recursion without indirection.
 
@@ -376,12 +376,12 @@ void RecordType::validate_new_member(Type *type, Optional<std::string> name, Loc
     }
 }
 
-RecordType::TypeMember *RecordType::add_member(std::string name, Type *type, Location loc) {
+RecordType::TypeMember *RecordType::add_member(StringRef name, Type *type, Location loc) {
     dbprint("ClassType: adding member with name ", name, " type ", type->id());
 
-    validate_new_member(type, name, loc);
+    validate_new_member(type, StringRef(name), loc);
 
-    Box<TypeMember> member = std::make_unique<TypeMember>(name, type, loc, members.size());
+    Box<TypeMember> member = std::make_unique<TypeMember>(std::string(name), type, loc, members.size());
     auto *ret              = member.get();
     members.push_back(std::move(member));
 
@@ -400,7 +400,7 @@ RecordType::TypeMember *RecordType::add_member(Type *type, Location loc) {
     return ret;
 }
 
-AccessorPath RecordType::index(std::string& name) {
+AccessorPath RecordType::index(StringRef name) {
     AccessorPath path;
 
     if (!find(name))
@@ -433,14 +433,14 @@ AccessorPath RecordType::index(std::string& name) {
     return path;
 }
 
-RecordType::TypeMember *RecordType::find(std::string& name) {
+RecordType::TypeMember *RecordType::find(StringRef name) {
     dbprint("RecordType: Looking for member with name ", name);
 
     for (auto& mem : members) {
         if (mem->name) {
             // if the member has a name, check if match
             // if match, return; else short circuit and continue
-            if (*mem->name == name) {
+            if (StringRef(*mem->name) == name) {
                 return mem.get();
             } else {
                 continue;
@@ -460,9 +460,9 @@ RecordType::TypeMember *RecordType::find(std::string& name) {
     return nullptr;
 }
 
-RecordType::TypeMember *RecordType::find_imm(std::string& name) {
+RecordType::TypeMember *RecordType::find_imm(StringRef name) {
     for (auto& mem : named_members()) {
-        if (*mem->name == name) {
+        if (StringRef(*mem->name) == name) {
             return mem.get();
         }
     }
@@ -654,7 +654,7 @@ bool ClassType::is_fully_defined() {
     }
 }
 
-RecordType::TypeMember *ClassType::add_member(std::string name, Type *type, Location loc) {
+RecordType::TypeMember *ClassType::add_member(StringRef name, Type *type, Location loc) {
     auto *mem = RecordType::add_member(name, type, loc);
 
     if (parent) {
@@ -674,7 +674,7 @@ RecordType::TypeMember *ClassType::add_member(Type *type, Location loc) {
     return mem;
 }
 
-AccessorPath ClassType::index(std::string& name) {
+AccessorPath ClassType::index(StringRef name) {
     // Attempt to index self first
     AccessorPath path = RecordType::index(name);
 
@@ -695,7 +695,7 @@ AccessorPath ClassType::index(std::string& name) {
     return path;
 }
 
-RecordType::TypeMember *ClassType::find(std::string& name) {
+RecordType::TypeMember *ClassType::find(StringRef name) {
     dbprint("ClassType: Looking for member with name ", name);
 
     TypeMember *mem = RecordType::find(name);
@@ -709,7 +709,7 @@ RecordType::TypeMember *ClassType::find(std::string& name) {
     return (*parent)->find(name);
 }
 
-RecordType::TypeMember *ClassType::find_imm(std::string& name) {
+RecordType::TypeMember *ClassType::find_imm(StringRef name) {
     TypeMember *mem = RecordType::find_imm(name);
 
     if (mem || !parent) {
@@ -881,7 +881,7 @@ EnumType::EnumType(
       underlying(ctxt().get_i32()) {
 }
 
-int64_t EnumType::add_enumerator(std::string enumerator, Location loc) {
+int64_t EnumType::add_enumerator(StringRef enumerator, Location loc) {
     EnumTypeMember *prev_mem = find(enumerator);
     if (prev_mem) {
         throw EnumeratorAlrDecldError(enumerator, loc, prev_mem->loc);
@@ -899,22 +899,22 @@ int64_t EnumType::add_enumerator(std::string enumerator, Location loc) {
     return add_enumerator(enumerator, value, loc);
 }
 
-int64_t EnumType::add_enumerator(std::string enumerator, int64_t value, Location loc) {
+int64_t EnumType::add_enumerator(StringRef enumerator, int64_t value, Location loc) {
     EnumTypeMember *prev_mem = find(enumerator);
     if (prev_mem) {
         throw EnumeratorAlrDecldError(enumerator, loc, prev_mem->loc);
     }
 
-    Box<EnumTypeMember> member = std::make_unique<EnumTypeMember>(enumerator, value, loc);
+    Box<EnumTypeMember> member = std::make_unique<EnumTypeMember>(std::string(enumerator), value, loc);
 
     enumerators.push_back(std::move(member));
 
     return value;
 }
 
-EnumType::EnumTypeMember *EnumType::find(std::string& name) {
+EnumType::EnumTypeMember *EnumType::find(StringRef name) {
     for (auto& member : enumerators) {
-        if (name == member->name)
+        if (name == StringRef(member->name))
             return member.get();
     }
 
@@ -1302,7 +1302,7 @@ PrimitiveType *TypeContext::single_promote(PrimType pr) {
     return get_primitive(pr_single_promote(pr));
 }
 
-ClassType *TypeContext::get_class(Location decl_loc, std::string& name, sym::Scope *scope) {
+ClassType *TypeContext::get_class(Location decl_loc, StringRef name, sym::Scope *scope) {
     dbprint("TypeContext: class type '", name, "' on scope ", scope->get_id());
     std::string mangled = mangle<ClassType>(name, scope->get_id());
 
@@ -1311,7 +1311,8 @@ ClassType *TypeContext::get_class(Location decl_loc, std::string& name, sym::Sco
         return user_types.find(mangled)->second->as_class();
     }
 
-    Box<ClassType> clsty = std::make_unique<ClassType>(decl_loc, name, scope, *this);
+    std::string namestr(name);
+    Box<ClassType> clsty = std::make_unique<ClassType>(decl_loc, namestr, scope, *this);
 
     // If no struct matching the name, make a new struct
     return insert_named_type<ClassType>(mangled, scope, std::move(clsty));
@@ -1336,7 +1337,7 @@ ClassType *TypeContext::get_class(Location decl_loc, sym::Scope *scope) {
     return insert_named_type<ClassType>(mangled, scope, std::move(clsty));
 }
 
-UnionType *TypeContext::get_union(Location decl_loc, std::string& name, sym::Scope *scope) {
+UnionType *TypeContext::get_union(Location decl_loc, StringRef name, sym::Scope *scope) {
     dbprint("TypeContext: union type '", name, "' on scope ", scope->get_id());
     std::string mangled = mangle<UnionType>(name, scope->get_id());
 
@@ -1345,7 +1346,8 @@ UnionType *TypeContext::get_union(Location decl_loc, std::string& name, sym::Sco
         return user_types.find(mangled)->second->as_union();
     }
 
-    Box<UnionType> unnty = std::make_unique<UnionType>(decl_loc, name, scope, *this);
+    std::string namestr(name);
+    Box<UnionType> unnty = std::make_unique<UnionType>(decl_loc, namestr, scope, *this);
 
     // If no struct matching the name, make a new struct
     return insert_named_type<UnionType>(mangled, scope, std::move(unnty));
@@ -1362,7 +1364,7 @@ UnionType *TypeContext::get_union(Location decl_loc, sym::Scope *scope) {
     return insert_named_type<UnionType>(mangled, scope, std::move(unnty));
 }
 
-EnumType *TypeContext::get_enum(Location decl_loc, std::string& name, sym::Scope *scope) {
+EnumType *TypeContext::get_enum(Location decl_loc, StringRef name, sym::Scope *scope) {
     dbprint("TypeContext: enum type '", name, "' on scope ", scope->get_id());
     std::string mangled = mangle<EnumType>(name, scope->get_id());
 
@@ -1371,7 +1373,8 @@ EnumType *TypeContext::get_enum(Location decl_loc, std::string& name, sym::Scope
         return user_types.find(mangled)->second->as_enum();
     }
 
-    Box<EnumType> enmty = std::make_unique<EnumType>(decl_loc, name, scope, *this);
+    std::string namestr(name);
+    Box<EnumType> enmty = std::make_unique<EnumType>(decl_loc, namestr, scope, *this);
 
     // If no struct matching the name, make a new struct
     return insert_named_type<EnumType>(mangled, scope, std::move(enmty));

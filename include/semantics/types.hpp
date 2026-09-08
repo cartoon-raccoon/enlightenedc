@@ -628,9 +628,9 @@ public:
     5. If the type is an array, checks again for recursive definitions without indirection,
     and ensures the array is sized.
     */
-    virtual void validate_new_member(Type *type, Optional<std::string> name, Location loc);
+    virtual void validate_new_member(Type *type, Optional<StringRef> name, Location loc);
 
-    virtual TypeMember *add_member(std::string name, Type *type, Location loc);
+    virtual TypeMember *add_member(StringRef name, Type *type, Location loc);
 
     virtual TypeMember *add_member(Type *type, Location loc);
 
@@ -651,17 +651,17 @@ public:
 
     The return accessor path will always be entirely indexes.
     */
-    virtual AccessorPath index(std::string& name);
+    virtual AccessorPath index(StringRef name);
 
     /**
     Find a TypeMember by name, searching recursively in anonymous members if needed.
     */
-    virtual TypeMember *find(std::string& name);
+    virtual TypeMember *find(StringRef name);
 
     /**
     Find a TypeMember by name, searching only in the immediate members.
     */
-    virtual TypeMember *find_imm(std::string& name);
+    virtual TypeMember *find_imm(StringRef name);
 
     virtual TypeMember *find(size_t idx);
 
@@ -1064,18 +1064,18 @@ public:
     */
     bool is_packed() const { return packed; }
 
-    TypeMember *add_member(std::string name, Type *type, Location loc) override;
+    TypeMember *add_member(StringRef name, Type *type, Location loc) override;
 
     TypeMember *add_member(Type *type, Location loc) override;
 
-    AccessorPath index(std::string& name) override;
+    AccessorPath index(StringRef name) override;
 
-    TypeMember *find(std::string& name) override;
+    TypeMember *find(StringRef name) override;
 
     /**
     Find a TypeMember by name, searching only in the immediate members.
     */
-    TypeMember *find_imm(std::string& name) override;
+    TypeMember *find_imm(StringRef name) override;
 
     /**
     Find a member by absolute index.
@@ -1296,13 +1296,13 @@ public:
     bool is_fully_defined() override { return is_complete(); }
 
     /** Create an enumerator with an automatically chosen value. */
-    int64_t add_enumerator(std::string enumerator, Location loc);
+    int64_t add_enumerator(StringRef enumerator, Location loc);
 
     /** Create an enumerator with a provided value. */
-    int64_t add_enumerator(std::string enumerator, int64_t value, Location loc);
+    int64_t add_enumerator(StringRef enumerator, int64_t value, Location loc);
 
     // Check if an enum already contains an enumerator.
-    EnumTypeMember *find(std::string& name);
+    EnumTypeMember *find(StringRef name);
 
     // Find enumerator at the specified index.
     EnumTypeMember *find(size_t idx);
@@ -1517,7 +1517,7 @@ protected:
 // A function parameter containing an optional name and optional default value.
 struct FuncParam {
     Type *type = nullptr;
-    Optional<std::string> name;
+    Optional<StringRef> name;
     Location loc;
     bool is_const = false;
     Optional<eval::Value> value;
@@ -1792,7 +1792,7 @@ public:
 
     Returns `nullptr` if a type with `name` is already declared, but is not a class.
     */
-    ClassType *get_class(Location decl_loc, std::string& name, sema::sym::Scope *scope);
+    ClassType *get_class(Location decl_loc, StringRef name, sema::sym::Scope *scope);
 
     /**
     Create an anonymous class.
@@ -1804,7 +1804,7 @@ public:
 
     Returns `nullptr` if a type with `name` is already declared, but is not a union.
     */
-    UnionType *get_union(Location decl_loc, std::string& name, sema::sym::Scope *scope);
+    UnionType *get_union(Location decl_loc, StringRef name, sema::sym::Scope *scope);
 
     /**
     Create an anonymous union.
@@ -1816,7 +1816,7 @@ public:
 
     Returns `nullptr` if a type with `name` is already declared, but is not an enum.
     */
-    EnumType *get_enum(Location decl_loc, std::string& name, sema::sym::Scope *scope);
+    EnumType *get_enum(Location decl_loc, StringRef name, sema::sym::Scope *scope);
 
     // Create an anonymous enum.
     EnumType *get_enum(Location decl_loc, sema::sym::Scope *scope);
@@ -1905,7 +1905,7 @@ private:
     // Generate a mangled, unique name for a type incorporating its associated scope.
     template <typename T>
         requires std::derived_from<T, UserType>
-    std::string mangle(std::string name, uint64_t scopeid) {
+    std::string mangle(StringRef name, uint64_t scopeid) {
         std::stringstream ss;
 
         ss << T::static_base() << "_" << name << "_" << scopeid;

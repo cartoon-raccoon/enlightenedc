@@ -44,7 +44,7 @@ Chunk<CastExprMIR> Validator::decay(Type *target, Chunk<mir::ExprMIR> expr, bool
     return newexpr;
 }
 
-void Validator::validate_print(std::string& format_str, Span<Chunk<mir::ExprMIR>> args) {
+void Validator::validate_print(StringRef format_str, Span<Chunk<mir::ExprMIR>> args) {
     // todo
     size_t arg_index = 0;
     for (auto i = format_str.begin(); i != format_str.end(); ++i) {
@@ -272,7 +272,7 @@ void Validator::eval_initializer_rec_cls(
                     path.pop_back();
                 },
                 [&](Chunk<InitializerMIR::Member>& mem) {
-                    path.push_back(mem->member);
+                    path.push_back(mem->member.str());
                     RecordType::TypeMember *member = cls->find_by_path(path);
                     if (!member) {
                         bsv_dbprint("error: no such member in class");
@@ -1232,10 +1232,10 @@ void Validator::do_visit(LiteralExprMIR& node) { // done
     bsv_dbprint("Validator: visiting LiteralExprMIR node");
     if (auto *val = std::get_if<eval::Value>(&node.value)) {
         node.set_type(types.get_primitive(val->primtype()));
-    } else if (auto *s = std::get_if<std::string>(&node.value)) {
+    } else if (auto *s = std::get_if<StringRef>(&node.value)) {
         node.set_type(types.get_array(types.get_i8(), s->size() + 1));
     } else {
-        ECC_UNREACHABLE("LiteralExprMIR value held neither eval::Value nor std::string");
+        ECC_UNREACHABLE("LiteralExprMIR value held neither eval::Value nor StringRef");
     }
 
     ECC_ASSERT((node.act_type && node.eff_type), "node type not set");

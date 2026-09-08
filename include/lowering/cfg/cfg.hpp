@@ -194,7 +194,7 @@ public:
 
 class ScalarConst : public CFGVisitable<ScalarConst, Immediate> {
 public:
-    ScalarConst(sema::types::PrimitiveType *type, eval::Value& value)
+    ScalarConst(sema::types::PrimitiveType *type, const eval::Value& value)
         : CFGVisitable<ScalarConst, Immediate>(ValueKind::SCALAR, type), value(value) {}
 
     eval::Value value;
@@ -206,7 +206,7 @@ public:
 
 class PointerConst : public CFGVisitable<PointerConst, Immediate> {
 public:
-    PointerConst(sema::types::PointerType *type, eval::Value& value)
+    PointerConst(sema::types::PointerType *type, const eval::Value& value)
         : CFGVisitable<PointerConst, Immediate>(ValueKind::POINTER, type), 
         target(type), value(value) {}
 
@@ -882,7 +882,7 @@ A class marking a possible case for the switch jump table.
 */
 class SwitchCase {
 public:
-    SwitchCase(BasicBlock *blk, eval::Value val) : case_val(val), blk(blk) {}
+    SwitchCase(BasicBlock *blk, const eval::Value& val) : case_val(val), blk(blk) {}
 
     SwitchCase(BasicBlock *blk) : blk(blk) {}
 
@@ -1298,7 +1298,7 @@ public:
     */
     Global *add_global(sema::types::Type *type, std::string name, Value *init = nullptr);
 
-    Function *add_function(sema::types::FunctionType *sig, std::string name);
+    Function *add_function(sema::types::FunctionType *sig, StringRef name);
 
     /**
     An iterator over the globals in the program, in the order they were added.
@@ -1307,11 +1307,11 @@ public:
 
     Span<Box<Function>> get_functions();
 
-    ScalarConst *get_scalar(sema::types::PrimitiveType *type, eval::Value& val);
+    ScalarConst *get_scalar(sema::types::PrimitiveType *type, const eval::Value& val);
 
     ZeroConst *get_zero(sema::types::Type *type);
 
-    PointerConst *get_pointer(sema::types::PointerType *ptr, eval::Value& val);
+    PointerConst *get_pointer(sema::types::PointerType *ptr, const eval::Value& val);
 
     AggregateConst *get_aggregate(sema::types::Type *type, const Vec<Constant *>& structure);
 
@@ -1319,9 +1319,9 @@ public:
     Adds a new string to the ProgramCFG corresponding to the passed string,
     or returns the corresponding String if it already exists.
     */
-    String *get_string(sema::types::ArrayType *type, const std::string& str);
+    String *get_string(sema::types::ArrayType *type, StringRef str);
 
-    HashMap<std::string, Box<String>> strings;
+    HashMap<std::string, Box<String>, StringRefHash, StringRefEq> strings;
 
 private:
 

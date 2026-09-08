@@ -1,5 +1,6 @@
 #pragma once
 
+#include "util/string.hpp"
 #ifndef ECC_LEXER_H
 #define ECC_LEXER_H
 
@@ -10,8 +11,6 @@
 #include <FlexLexer.h>
 #endif
 
-#include <set>
-
 #include "parser.hpp"
 #include "prelude.hpp"
 
@@ -20,13 +19,13 @@ namespace ecc::frontend {
 class Lexer : public yyFlexLexer {
     Location loc;
 
-    Ref<std::set<std::string>> typedefs;
+    Ref<StringHashSet> typedefs;
     Ref<driver::FilenamePool> filenames;
 
 public:
     // Use the standard yyFlexLexer constructor.
     Lexer(
-        std::istream *in, std::string *filename, std::set<std::string>& typedefs,
+        std::istream *in, std::string *filename, StringHashSet& typedefs,
         driver::FilenamePool& filenames);
 
     // Override the yyFlexLexer constructor.

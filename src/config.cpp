@@ -7,7 +7,7 @@ using namespace ecc;
 class Config::Arg {
     friend class Config::ArgVIterator;
     Arg() {}
-    Arg(std::string_view arg) : arg(arg) {
+    Arg(StringRef arg) : arg(arg) {
         if (arg.size() < 2) {
             // todo: throw InvalidArgError
         }
@@ -49,7 +49,7 @@ public:
         if (idx >= argc) {
             return {};
         } else {
-            std::string_view ret(argv[idx]);
+            StringRef ret(argv[idx]);
             idx++;
             return ret;
         }

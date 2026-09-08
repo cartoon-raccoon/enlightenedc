@@ -7,6 +7,7 @@
 #include "driver/driver.hpp"
 #include "error.hpp"
 #include "prelude.hpp"
+#include "util/string.hpp"
 
 using namespace ecc;
 
@@ -24,14 +25,14 @@ int Ecc::run() {
             } catch (UnableToContinue _) {
                 errors_found = true;
                 // clear the allocator and continue
-                alloc::reset();
+                reset();
                 continue;
             }
 #ifndef NDEBUG
             alloc::print_allocator_stats();
 #endif
             // clear the allocator
-            alloc::reset();
+            reset();
         }
 
         if (errors_found) {
@@ -43,12 +44,18 @@ int Ecc::run() {
         return 1;
     } catch (std::exception& e) {
         // reset the allocator before we return
-        alloc::reset();
+        reset();
+
         std::cerr << e.what() << "\n";
         return 69;
     }
 
     return 0;
+}
+
+void Ecc::reset() {
+    intern_reset();
+    alloc::reset();
 }
 
 void Ecc::print_error(EccError& err) {

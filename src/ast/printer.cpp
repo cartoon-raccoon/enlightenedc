@@ -29,7 +29,8 @@ void ASTPrinter::visit(Program& node) {
 
 void ASTPrinter::visit(AttributeArg& node) {
     print_node(
-        "AttributeArg: " + node.name + (node.value ? " = \"" + *node.value + "\"" : ""), node);
+        "AttributeArg: " + node.name.str() + (node.value ? " = \"" + node.value->str() + "\"" : ""),
+        node);
 }
 
 void ASTPrinter::visit(Attribute& node) {
@@ -88,7 +89,7 @@ void ASTPrinter::visit(ContinueStatement& node) {
 }
 
 void ASTPrinter::visit(LabeledStatement& node) {
-    print_node("LabeledStatement: " + node.label, node, [&] {
+    print_node("LabeledStatement: " + node.label.str(), node, [&] {
         if (node.statement)
             node.statement->accept(*this);
     });
@@ -153,7 +154,7 @@ void ASTPrinter::visit(ForStatement& node) {
 }
 
 void ASTPrinter::visit(GotoStatement& node) {
-    print_node("GotoStatement: " + node.target_label, node);
+    print_node("GotoStatement: " + node.target_label.str(), node);
 }
 
 void ASTPrinter::visit(BreakStatement& node) {
@@ -198,7 +199,7 @@ void ASTPrinter::visit(InitDeclarator& node) {
 }
 
 void ASTPrinter::visit(IdentifierDeclarator& node) {
-    print_node("IdentifierDeclarator: " + node.name, node);
+    print_node("IdentifierDeclarator: " + node.name.str(), node);
 }
 
 void ASTPrinter::visit(ParameterDeclaration& node) {
@@ -284,7 +285,7 @@ void ASTPrinter::visit(ClassDeclaration& node) {
 }
 
 void ASTPrinter::visit(Enumerator& node) {
-    print_node("Enumerator: " + node.name, node, [&] {
+    print_node("Enumerator: " + node.name.str(), node, [&] {
         if (node.value)
             node.value.value()->accept(*this);
     });
@@ -295,7 +296,7 @@ void ASTPrinter::visit(StorageClassSpecifier& node) {
 }
 
 void ASTPrinter::visit(TypeIdentifier& node) {
-    print_node("TypeIdentifier: " + node.identifier, node);
+    print_node("TypeIdentifier: " + node.identifier.str(), node);
 }
 
 void ASTPrinter::visit(VoidSpecifier& node) {
@@ -312,7 +313,7 @@ void ASTPrinter::visit(TypeQualifier& node) {
 
 void ASTPrinter::visit(EnumSpecifier& node) {
     print_node(
-        std::string("EnumSpecifier") + (node.name ? ": " + node.name.value() : "") +
+        std::string("EnumSpecifier") + (node.name ? ": " + node.name.value().str() : "") +
             (node.underlying ? " " + primitive_to_string(*node.underlying) : ""),
         node, [&] {
             if (node.enumerators) {
@@ -332,7 +333,8 @@ void ASTPrinter::visit(ClassSpecifier& node) {
     }
 
     print_node(
-        "ClassSpecifier: " + (node.name ? " " + node.name.value() : "") + ":" + parents, node, [&] {
+        "ClassSpecifier: " + (node.name ? " " + node.name.value().str() : "") + ":" + parents, node,
+        [&] {
             if (node.declarations) {
                 for (auto& decl : node.declarations.value())
                     decl->accept(*this);
@@ -342,7 +344,7 @@ void ASTPrinter::visit(ClassSpecifier& node) {
 
 void ASTPrinter::visit(UnionSpecifier& node) {
 
-    print_node("UnionSpecifier: " + (node.name ? " " + node.name.value() : ""), node, [&] {
+    print_node("UnionSpecifier: " + (node.name ? " " + node.name.value().str() : ""), node, [&] {
         if (node.declarations) {
             for (auto& decl : node.declarations.value())
                 decl->accept(*this);
@@ -403,7 +405,7 @@ void ASTPrinter::visit(StringExpression& node) {
 }
 
 void ASTPrinter::visit(IdentifierExpression& node) {
-    print_node("IdentifierExpression: " + node.name, node);
+    print_node("IdentifierExpression: " + node.name.str(), node);
 }
 
 void ASTPrinter::visit(ConstExpression& node) {
@@ -450,7 +452,7 @@ void ASTPrinter::visit(CallExpression& node) {
 
 void ASTPrinter::visit(MemberAccessExpression& node) {
     print_node(
-        std::string("MemberAccess: ") + (node.is_arrow ? "->" : ".") + node.member, node,
+        std::string("MemberAccess: ") + (node.is_arrow ? "->" : ".") + node.member.str(), node,
         [&] { node.object->accept(*this); });
 }
 
