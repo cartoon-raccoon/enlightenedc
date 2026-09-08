@@ -4,14 +4,12 @@
 #define ECC_ARENAVEC_H
 
 #include <algorithm>
-#include <cassert>
 #include <compare>
 #include <initializer_list>
 #include <iterator>
 #include <limits>
 #include <memory>
 #include <span>
-#include <stdexcept>
 #include <type_traits>
 #include <utility>
 
@@ -86,7 +84,7 @@ public:
     bool operator==(const ArenaVecIter& other) const { return idx == other.idx; }
 
     std::strong_ordering operator<=>(const ArenaVecIter& other) const {
-        assert(data == other.data);
+        ECC_ASSERT(data == other.data, "ArenaVec data does not match");
         return idx <=> other.idx;
     }
 
@@ -289,7 +287,7 @@ public:
 
     T& at(size_t idx) {
         if (idx >= this->len) {
-            throw std::out_of_range("out of range");
+            throw std::out_of_range("specified index exceeds vec size");
         }
         return *(this->ptr + idx);
     }
@@ -438,7 +436,7 @@ private:
     void grow() {
         size_t new_cap;
         if (this->cap == 0) {
-            assert(this->len == 0);
+            ECC_ASSERT_N(this->len == 0);
             new_cap = N;
         } else {
             new_cap = this->cap * GROWTH_MULTIPLIER;
@@ -447,7 +445,7 @@ private:
     }
 
     void grow(size_t new_cap) {
-        assert(new_cap >= this->len);
+        ECC_ASSERT_N(new_cap >= this->len);
         T *my_data = this->ptr;
         this->ptr  = allocate(new_cap);
         this->cap  = new_cap;

@@ -1,7 +1,5 @@
 #include "semantics/semantics.hpp"
 
-#include <cassert>
-
 #include "allocator/chunk.hpp"
 #include "ast/ast.hpp"
 #include "ds/arenavec.hpp"

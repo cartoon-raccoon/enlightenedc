@@ -58,7 +58,7 @@ LIRSym *LIRSymbolMap::lookup(sema::sym::PhysicalSymbol *sym) {
 
         auto *varsym = sym->as_varsym();
 
-        assert(varsym);
+        ECC_ASSERT_N(varsym);
 
         // first search globals
         auto it = globals.find(varsym);

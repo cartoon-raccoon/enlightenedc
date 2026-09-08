@@ -5,7 +5,6 @@
 
 #include <boost/container_hash/hash.hpp>
 #include <concepts>
-#include <stdexcept>
 #include <utility>
 
 #include "ds/linkedlist.hpp"
@@ -573,7 +572,7 @@ public:
     /**
     Get the Operator corresponding to `op`.
 
-    Throws std::runtime_error if an invalid BinaryOp is provided (logical operator / BINCOMMA).
+    Throws InternalError if an invalid BinaryOp is provided (logical operator / BINCOMMA).
     */
     static Operator op_from_token(tokens::BinaryOp op);
 
@@ -619,7 +618,7 @@ public:
     /**
     Get the Operator corresponding to `op`.
 
-    Throws std::runtime_error if an invalid UnaryOp is provided (REF, DEREF, INC or DEC).
+    Throws InternalError if an invalid UnaryOp is provided (REF, DEREF, INC or DEC).
     */
     static Operator op_from_token(tokens::UnaryOp op);
 
@@ -1105,7 +1104,7 @@ public:
         if constexpr (std::is_same_v<Inst, PhiInst>) {
             if (!instructions.empty() &&
                 instructions.last().instkind != Instruction::InstKind::PHI) {
-                throw std::runtime_error("PhiInst must be the first instruction in a block");
+                ECC_UNREACHABLE("PhiInst must be the first instruction in a block");
             }
         }
 

@@ -4,7 +4,6 @@
 #define ECC_TYPES_H
 
 #include <algorithm>
-#include <cassert>
 #include <concepts>
 #include <cstddef>
 #include <memory>
@@ -85,7 +84,7 @@ class TypeHandle {
     Ref<TypeContext> tyctxt;
 
     TypeHandle(Ty *ptr, TypeContext& tyctxt) : ptr(ptr), tyctxt(tyctxt) {
-        assert(ptr != nullptr && "tried to create TypeHandle from null Type pointer");
+        ECC_ASSERT(ptr != nullptr, "tried to create TypeHandle from null Type pointer");
     }
     friend class TypeContext;
 
@@ -1030,6 +1029,8 @@ public:
     ClassType *as_class() override { return this; }
 
     Optional<ClassType *> get_parent() const { return parent; }
+
+    bool has_parent() { return parent.has_value(); }
 
     void add_parent(ClassType *cls);
 

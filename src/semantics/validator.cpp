@@ -1,8 +1,5 @@
 #include "semantics/validator.hpp"
 
-#include <cassert>
-#include <stdexcept>
-
 #include "ds/arenavec.hpp"
 #include "error.hpp"
 #include "eval/consteval.hpp"
@@ -161,7 +158,7 @@ Optional<Type *> Validator::eval_initializer_rec(
             initializers, and is enforced syntactically.
             */
             [&](auto&) -> Optional<Type *> {
-                throw std::runtime_error(
+                ECC_UNREACHABLE(
                     "encountered variant other than ExprMIR and Vec<Chunk<InitializerMIR>>");
             }},
         init.initializer);
@@ -207,7 +204,7 @@ Optional<Type *> Validator::eval_initializer_expr(
         return {};
     }
 
-    assert(litexpr && litexpr->is_string() && "expected string literal for array initializer");
+    ECC_ASSERT(litexpr && litexpr->is_string(), "expected string literal for array initializer");
 
     ArrayType *decl_arr = type->unqual()->as_array();
     Type *arr_base      = decl_arr->get_base()->unqual();
@@ -246,7 +243,7 @@ Optional<Type *> Validator::eval_initializer_expr(
 
 void Validator::eval_initializer_rec_cls(
     types::AccessorPath& path, ClassType *cls, ArenaVec<Chunk<InitializerMIR>>& inits) {
-    assert(cls && "cls was null while evaluating initializer");
+    ECC_ASSERT(cls, "cls was null while evaluating initializer");
 
     bsv_dbprint("Validator: eval_initializer_rec_cls");
 
@@ -267,7 +264,7 @@ void Validator::eval_initializer_rec_cls(
                                 "excess elements in class initializer", init->loc);
                             throw UnableToContinue();
                         } else {
-                            throw std::runtime_error(
+                            ECC_UNREACHABLE(
                                 "could not find member with valid non-desigd index");
                         }
                     }
@@ -316,7 +313,7 @@ void Validator::eval_initializer_rec_cls(
 
 void Validator::eval_initializer_rec_arr(
     types::AccessorPath& path, ArrayType *arr, ArenaVec<Chunk<InitializerMIR>>& inits) {
-    assert(arr && "arr was null while evaluating initializer");
+    ECC_ASSERT(arr, "arr was null while evaluating initializer");
 
     bsv_dbprint("Validator: eval_initializer_rec_arr");
 
@@ -462,7 +459,7 @@ void Validator::do_visit(InitializerMIR& node) {
     /*
     We provide our own bespoke member function for evaluating initializers.
     */
-    throw std::runtime_error("do_visit for InitializerMIR called");
+    ECC_UNREACHABLE("do_visit for InitializerMIR called");
 }
 
 #pragma clang diagnostic pop
@@ -709,7 +706,7 @@ void Validator::do_visit(ReturnStmtMIR& node) {
     }
 
     FunctionMIR *func = dyncast<FunctionMIR>(get_context(MIRNode::NodeKind::FUNC_MIR));
-    assert(func && "unable to get FunctionMIR");
+    ECC_ASSERT(func, "unable to get FunctionMIR");
 
     FunctionType *sig = func->sym->get_signature();
     Type *returntype  = sig->returntype()->unqual();
@@ -760,8 +757,8 @@ void Validator::do_visit(BinaryExprMIR& node) {
     bsv_dbprint("Validator: visiting BinaryExprMIR node");
     node.left->accept(*this);
     node.right->accept(*this);
-    assert(node.left->eff_type);
-    assert(node.right->eff_type);
+    ECC_ASSERT_N(node.left->eff_type);
+    ECC_ASSERT_N(node.right->eff_type);
 
     // decay array types
     if (node.left->act_type->is_array()) {
@@ -785,7 +782,7 @@ void Validator::do_visit(BinaryExprMIR& node) {
         validate_binexpr_prim(node);
     }
 
-    assert((node.act_type && node.eff_type) && "node type not set");
+    ECC_ASSERT((node.act_type && node.eff_type), "node type not set");
 }
 
 void Validator::validate_binexpr_nonprim(BinaryExprMIR& node) {
@@ -802,7 +799,7 @@ void Validator::validate_binexpr_nonprim(BinaryExprMIR& node) {
         } else if (!node.left->eff_type->is_pointer() && node.right->eff_type->is_pointer()) {
             side = RIGHT;
         } else {
-            assert(node.left->eff_type->is_pointer() && node.right->eff_type->is_pointer());
+            ECC_ASSERT_N(node.left->eff_type->is_pointer() && node.right->eff_type->is_pointer());
             side = BOTH;
         }
 
@@ -875,9 +872,9 @@ void Validator::validate_binexpr_nonprim(BinaryExprMIR& node) {
 void Validator::validate_binexpr_prim(mir::BinaryExprMIR& node) {
 
     PrimitiveType *left_type = node.left->eff_type->as_primitive();
-    assert(left_type);
+    ECC_ASSERT_N(left_type);
     PrimitiveType *right_type = node.right->eff_type->as_primitive();
-    assert(right_type);
+    ECC_ASSERT_N(right_type);
 
     // todo: add warning about narrowing
 
@@ -914,8 +911,8 @@ void Validator::validate_binexpr_prim(mir::BinaryExprMIR& node) {
         }
     }
 
-    assert(node.left->eff_type == p1);
-    assert(node.right->eff_type == p2);
+    ECC_ASSERT_N(node.left->eff_type == p1);
+    ECC_ASSERT_N(node.right->eff_type == p2);
 
     PrimitiveType *exprtype = types.get_primitive(finaltype->expr_type);
 
@@ -937,7 +934,7 @@ void Validator::do_visit(UnaryExprMIR& node) {
             throw UnableToContinue();
         }
 
-        assert(node.act_type == nullptr && node.eff_type == nullptr);
+        ECC_ASSERT_N(node.act_type == nullptr && node.eff_type == nullptr);
         if (!node.operand->is_assignable()) {
             bsv_dbprint("error: inc/dec operand is not assignable");
             add_error<InvalidUnaryOpError>(
@@ -1023,13 +1020,13 @@ void Validator::do_visit(UnaryExprMIR& node) {
     } break;
     }
 
-    assert((node.act_type && node.eff_type) && "node type not set");
+    ECC_ASSERT((node.act_type && node.eff_type), "node type not set");
 }
 
 void Validator::do_visit(CastExprMIR& node) {
     bsv_dbprint("Validator: visiting CastExprMIR node");
     node.inner->accept(*this);
-    assert(node.target);
+    ECC_ASSERT_N(node.target);
 
     // castable_to/coercible_to are pure predicates over a single (src, dst) pair -- they can't
     // express "yes, but only via an intermediate type". A primitive integer that isn't already
@@ -1057,7 +1054,7 @@ void Validator::do_visit(CastExprMIR& node) {
 
     node.set_type(node.target);
 
-    assert((node.act_type && node.eff_type) && "node type not set");
+    ECC_ASSERT((node.act_type && node.eff_type), "node type not set");
 }
 
 void Validator::do_visit(AssignExprMIR& node) {
@@ -1189,7 +1186,7 @@ void Validator::do_visit(AssignExprMIR& node) {
 done:
     node.set_type(node.left->act_type->unqual());
 
-    assert((node.act_type && node.eff_type) && "node type not set");
+    ECC_ASSERT((node.act_type && node.eff_type), "node type not set");
 }
 
 void Validator::do_visit(CondExprMIR& node) { // done
@@ -1217,10 +1214,10 @@ void Validator::do_visit(CondExprMIR& node) { // done
         }
     }
 
-    assert(node.true_expr->act_type == node.false_expr->act_type);
+    ECC_ASSERT_N(node.true_expr->act_type == node.false_expr->act_type);
     node.set_type(node.true_expr->act_type->unqual());
 
-    assert((node.act_type && node.eff_type) && "node type not set");
+    ECC_ASSERT((node.act_type && node.eff_type), "node type not set");
 }
 
 void Validator::do_visit(IdentExprMIR& node) { // done
@@ -1238,10 +1235,10 @@ void Validator::do_visit(LiteralExprMIR& node) { // done
     } else if (auto *s = std::get_if<std::string>(&node.value)) {
         node.set_type(types.get_array(types.get_i8(), s->size() + 1));
     } else {
-        // unreachable
+        ECC_UNREACHABLE("LiteralExprMIR value held neither eval::Value nor std::string");
     }
 
-    assert((node.act_type && node.eff_type) && "node type not set");
+    ECC_ASSERT((node.act_type && node.eff_type), "node type not set");
 }
 
 #pragma clang diagnostic pop
@@ -1262,12 +1259,12 @@ void Validator::do_visit(CallExprMIR& node) {
     FunctionType *sig;
     if (auto *ptr = node.callee->act_type->as_pointer()) {
         auto *base = ptr->get_base();
-        assert(base->is_function());
+        ECC_ASSERT_N(base->is_function());
         sig = base->as_function();
     } else if (node.callee->act_type->is_function()) {
         sig = node.callee->act_type->as_function();
     } else {
-        throw std::runtime_error("CallExprMIR callee returned callable but is not func or funcptr");
+        ECC_UNREACHABLE("CallExprMIR callee returned callable but is not func or funcptr");
     }
 
     if (node.args.size() > sig->num_params() && !sig->get_signature().variadic) {
@@ -1344,7 +1341,7 @@ void Validator::do_visit(CallExprMIR& node) {
 
     node.set_type(sig->returntype()->unqual());
 
-    assert((node.act_type && node.eff_type) && "node type not set");
+    ECC_ASSERT((node.act_type && node.eff_type), "node type not set");
 }
 
 void Validator::do_visit(MemberAccExprMIR& node) {
@@ -1382,10 +1379,10 @@ void Validator::do_visit(MemberAccExprMIR& node) {
         rec = node.object->act_type->as_recordtype();
     }
 
-    assert(rec && "class was null while validating member access expression");
+    ECC_ASSERT(rec, "class was null while validating member access expression");
 
     if (!rec->is_complete()) {
-        assert(!rec->is_anonymous());
+        ECC_ASSERT_N(!rec->is_anonymous());
         add_error<IncompleteTypeUseError>(*rec->get_name(), node.loc);
         throw UnableToContinue();
     }
@@ -1419,7 +1416,7 @@ void Validator::do_visit(MemberAccExprMIR& node) {
         }
     }
 
-    assert((node.act_type && node.eff_type) && "node type not set");
+    ECC_ASSERT((node.act_type && node.eff_type), "node type not set");
 }
 
 void Validator::do_visit(ReintExprMIR& node) {
@@ -1452,7 +1449,7 @@ void Validator::do_visit(ReintExprMIR& node) {
         objtype = node.object->eff_type->as_primitive();
     }
 
-    assert(objtype && "ReintExprMIR: object was null while validating expression");
+    ECC_ASSERT(objtype, "ReintExprMIR: object was null while validating expression");
 
     if (objtype->is_float()) {
         // todo: warn that reinterpreting floats as bytearrays is risky
@@ -1488,7 +1485,7 @@ void Validator::do_visit(ReintExprMIR& node) {
         }
     }
 
-    assert((node.act_type && node.eff_type) && "node type not set");
+    ECC_ASSERT((node.act_type && node.eff_type), "node type not set");
 }
 
 void Validator::do_visit(SubscrExprMIR& node) { // done
@@ -1549,7 +1546,7 @@ void Validator::do_visit(SubscrExprMIR& node) { // done
 
     node.set_type(exprty);
 
-    assert((node.act_type && node.eff_type) && "node type not set");
+    ECC_ASSERT((node.act_type && node.eff_type), "node type not set");
 }
 
 void Validator::do_visit(PostfixExprMIR& node) {
@@ -1576,7 +1573,7 @@ void Validator::do_visit(PostfixExprMIR& node) {
 
     node.set_type(node.operand->act_type->unqual());
 
-    assert((node.act_type && node.eff_type) && "node type not set");
+    ECC_ASSERT((node.act_type && node.eff_type), "node type not set");
 }
 
 void Validator::do_visit(SizeofExprMIR& node) { // done
@@ -1605,5 +1602,5 @@ void Validator::do_visit(SizeofExprMIR& node) { // done
 
     node.set_type(types.get_size_type(false));
 
-    assert((node.act_type && node.eff_type) && "node type not set");
+    ECC_ASSERT((node.act_type && node.eff_type), "node type not set");
 }

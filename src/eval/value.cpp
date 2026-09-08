@@ -2,7 +2,6 @@
 
 #include <bit>
 #include <limits>
-#include <stdexcept>
 #include <type_traits>
 
 #include "tokens.hpp"
@@ -135,7 +134,7 @@ Value Value::operator|(const Value& rhs) const {
                 [](uint32_t a, uint32_t b) -> Value { return Value(a | b); },
                 [](uint64_t a, uint64_t b) -> Value { return Value(a | b); },
                 [](auto&&, auto&&) -> Value {
-                    throw std::runtime_error("unexpected operand types for bitwise OR");
+                    ECC_UNREACHABLE("unexpected operand types for bitwise OR");
                 },
             },
             *l, *r);
@@ -151,7 +150,7 @@ Value Value::operator^(const Value& rhs) const {
                 [](uint32_t a, uint32_t b) -> Value { return Value(a ^ b); },
                 [](uint64_t a, uint64_t b) -> Value { return Value(a ^ b); },
                 [](auto&&, auto&&) -> Value {
-                    throw std::runtime_error("unexpected operand types for bitwise XOR");
+                    ECC_UNREACHABLE("unexpected operand types for bitwise XOR");
                 },
             },
             *l, *r);
@@ -167,7 +166,7 @@ Value Value::operator&(const Value& rhs) const {
                 [](uint32_t a, uint32_t b) -> Value { return Value(a & b); },
                 [](uint64_t a, uint64_t b) -> Value { return Value(a & b); },
                 [](auto&&, auto&&) -> Value {
-                    throw std::runtime_error("unexpected operand types for bitwise AND");
+                    ECC_UNREACHABLE("unexpected operand types for bitwise AND");
                 },
             },
             *l, *r);
@@ -189,7 +188,7 @@ Value Value::operator<<(const Value& rhs) const {
                 [cnt](uint32_t a) -> Value { return Value(static_cast<uint32_t>(a << cnt)); },
                 [cnt](uint64_t a) -> Value { return Value(static_cast<uint64_t>(a << cnt)); },
                 [](auto&&) -> Value {
-                    throw std::runtime_error("unexpected operand type for bitshift left");
+                    ECC_UNREACHABLE("unexpected operand type for bitshift left");
                 },
             },
             *l);
@@ -209,7 +208,7 @@ Value Value::operator>>(const Value& rhs) const {
                 [cnt](uint32_t a) -> Value { return Value(static_cast<uint32_t>(a >> cnt)); },
                 [cnt](uint64_t a) -> Value { return Value(static_cast<uint64_t>(a >> cnt)); },
                 [](auto&&) -> Value {
-                    throw std::runtime_error("unexpected operand type for bitshift right");
+                    ECC_UNREACHABLE("unexpected operand type for bitshift right");
                 },
             },
             *l);
@@ -234,7 +233,7 @@ Value Value::operator%(const Value& rhs) const {
                 [](uint32_t a, uint32_t b) -> Value { return Value(a % b); },
                 [](uint64_t a, uint64_t b) -> Value { return Value(a % b); },
                 [](auto&&, auto&&) -> Value {
-                    throw std::runtime_error("unexpected operand types for modulo");
+                    ECC_UNREACHABLE("unexpected operand types for modulo");
                 },
             },
             *l, *r);
@@ -252,7 +251,7 @@ Value Value::operator==(const Value& rhs) const {
                 [](float a, float b) -> Value { return Value(a == b); },
                 [](double a, double b) -> Value { return Value(a == b); },
                 [](auto&&, auto&&) -> Value {
-                    throw std::runtime_error("unexpected operand types for equality");
+                    ECC_UNREACHABLE("unexpected operand types for equality");
                 },
             },
             *l, *r);
@@ -270,7 +269,7 @@ Value Value::operator!=(const Value& rhs) const {
                 [](float a, float b) -> Value { return Value(a != b); },
                 [](double a, double b) -> Value { return Value(a != b); },
                 [](auto&&, auto&&) -> Value {
-                    throw std::runtime_error("unexpected operand types for inequality");
+                    ECC_UNREACHABLE("unexpected operand types for inequality");
                 },
             },
             *l, *r);
@@ -288,7 +287,7 @@ Value Value::operator<(const Value& rhs) const {
                 [](float a, float b) -> Value { return Value(a < b); },
                 [](double a, double b) -> Value { return Value(a < b); },
                 [](auto&&, auto&&) -> Value {
-                    throw std::runtime_error("unexpected operand types for less-than");
+                    ECC_UNREACHABLE("unexpected operand types for less-than");
                 },
             },
             *l, *r);
@@ -306,7 +305,7 @@ Value Value::operator>(const Value& rhs) const {
                 [](float a, float b) -> Value { return Value(a > b); },
                 [](double a, double b) -> Value { return Value(a > b); },
                 [](auto&&, auto&&) -> Value {
-                    throw std::runtime_error("unexpected operand types for greater-than");
+                    ECC_UNREACHABLE("unexpected operand types for greater-than");
                 },
             },
             *l, *r);
@@ -324,7 +323,7 @@ Value Value::operator<=(const Value& rhs) const {
                 [](float a, float b) -> Value { return Value(a <= b); },
                 [](double a, double b) -> Value { return Value(a <= b); },
                 [](auto&&, auto&&) -> Value {
-                    throw std::runtime_error("unexpected operand types for less-or-equal");
+                    ECC_UNREACHABLE("unexpected operand types for less-or-equal");
                 },
             },
             *l, *r);
@@ -342,7 +341,7 @@ Value Value::operator>=(const Value& rhs) const {
                 [](float a, float b) -> Value { return Value(a >= b); },
                 [](double a, double b) -> Value { return Value(a >= b); },
                 [](auto&&, auto&&) -> Value {
-                    throw std::runtime_error("unexpected operand types for greater-or-equal");
+                    ECC_UNREACHABLE("unexpected operand types for greater-or-equal");
                 },
             },
             *l, *r);
@@ -360,7 +359,7 @@ Value Value::operator+(const Value& rhs) const {
                 [](float a, float b) -> Value { return Value(a + b); },
                 [](double a, double b) -> Value { return Value(a + b); },
                 [](auto&&, auto&&) -> Value {
-                    throw std::runtime_error("unexpected operand types for addition");
+                    ECC_UNREACHABLE("unexpected operand types for addition");
                 },
             },
             *l, *r);
@@ -378,7 +377,7 @@ Value Value::operator-(const Value& rhs) const {
                 [](float a, float b) -> Value { return Value(a - b); },
                 [](double a, double b) -> Value { return Value(a - b); },
                 [](auto&&, auto&&) -> Value {
-                    throw std::runtime_error("unexpected operand types for subtraction");
+                    ECC_UNREACHABLE("unexpected operand types for subtraction");
                 },
             },
             *l, *r);
@@ -396,7 +395,7 @@ Value Value::operator*(const Value& rhs) const {
                 [](float a, float b) -> Value { return Value(a * b); },
                 [](double a, double b) -> Value { return Value(a * b); },
                 [](auto&&, auto&&) -> Value {
-                    throw std::runtime_error("unexpected operand types for multiplication");
+                    ECC_UNREACHABLE("unexpected operand types for multiplication");
                 },
             },
             *l, *r);
@@ -425,7 +424,7 @@ Value Value::operator/(const Value& rhs) const {
                 [](float a, float b) -> Value { return Value(a / b); },
                 [](double a, double b) -> Value { return Value(a / b); },
                 [](auto&&, auto&&) -> Value {
-                    throw std::runtime_error("unexpected operand types for division");
+                    ECC_UNREACHABLE("unexpected operand types for division");
                 },
             },
             *l, *r);

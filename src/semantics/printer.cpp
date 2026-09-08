@@ -262,7 +262,7 @@ std::string ArrayType::formal() {
 std::string FunctionType::to_string() const {
     std::stringstream ss;
 
-    assert(signature.returntype);
+    ECC_ASSERT_N(signature.returntype);
     ss << signature.returntype->to_string();
 
     ss << " (";
@@ -274,7 +274,7 @@ std::string FunctionType::to_string() const {
             ss << ", ";
         first = false;
 
-        assert(p);
+        ECC_ASSERT_N(p);
         ss << p->to_string();
     }
 
@@ -292,7 +292,7 @@ std::string FunctionType::to_string() const {
 std::string FunctionType::formal() {
     std::stringstream ss;
 
-    assert(signature.returntype);
+    ECC_ASSERT_N(signature.returntype);
     ss << signature.returntype->formal();
 
     ss << " (";
@@ -304,7 +304,7 @@ std::string FunctionType::formal() {
             ss << ", ";
         first = false;
 
-        assert(p);
+        ECC_ASSERT_N(p);
         ss << p->formal();
     }
 

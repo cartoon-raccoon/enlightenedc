@@ -10,6 +10,7 @@
 #include "location.hpp"
 #include "semantics/types.hpp"
 #include "tokens.hpp"
+#include "prelude.hpp"
 
 namespace ecc::sema {
 using namespace ecc;
@@ -118,7 +119,7 @@ public:
         case Kind::NotInSwitch:
             return "";
         case Kind::DuplicateCase:
-            assert(decl_loc.has_value());
+            ECC_ASSERT_N(decl_loc.has_value());
             std::stringstream ss;
             ss << "case previously declared at " << *decl_loc;
 

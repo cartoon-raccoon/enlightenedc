@@ -1,13 +1,13 @@
 #pragma once
 
-#include "eval/value.hpp"
-#include "prelude.hpp"
 #ifndef ECC_TYPECHECK_H
 #define ECC_TYPECHECK_H
 
 #include <variant>
 
 #include "config.hpp"
+#include "eval/value.hpp"
+#include "prelude.hpp"
 #include "semantics/mir/mir.hpp"
 #include "semantics/semantics.hpp"
 #include "semantics/symbols.hpp"
@@ -30,7 +30,7 @@ public:
 
     Location get_loc(eval::Value& val) {
         auto it = cases.find(val);
-        assert(it != cases.end() && "get_loc() called for a case that was never inserted");
+        ECC_ASSERT(it != cases.end(), "get_loc() called for a case that was never inserted");
         return it->second;
     }
 

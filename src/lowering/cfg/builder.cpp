@@ -1,7 +1,6 @@
 #include "lowering/cfg/builder.hpp"
 
 #include <ranges>
-#include <stdexcept>
 
 #include "lowering/cfg/cfg.hpp"
 #include "lowering/lir/lir.hpp"
@@ -52,7 +51,7 @@ Value *CFGBuilder::eval_lvalue(ExprLIR& node) {
             ret = add_or_get_function(ident->sym->as_funcsym()->lir);
         }
 
-        assert(ret);
+        ECC_ASSERT_N(ret);
 
         return ret;
     }
@@ -81,7 +80,7 @@ Value *CFGBuilder::eval_lvalue(ExprLIR& node) {
     }
     if (auto *literal = dyncast<LiteralExprLIR>(&node); literal && literal->is_str()) {
         auto& str = std::get<std::string>(literal->value);
-        assert(node.act_type->is_array());
+        ECC_ASSERT_N(node.act_type->is_array());
         String *ret = prog_cfg.get_string(node.act_type->as_array(), str);
         ret->set_type(literal->act_type);
 
@@ -139,7 +138,7 @@ Value *CFGBuilder::add_or_get_local(lir::LIRVarSym *sym, Value *init) {
         return locals[sym];
     }
 
-    assert(!sym->is_global());
+    ECC_ASSERT_N(!sym->is_global());
 
     Value *ret;
     if (sym->get_symdata()->get_visibility() == Visibility::STATIC) {
@@ -209,7 +208,7 @@ static tokens::BinaryOp assign_op_to_binop(tokens::AssignOp op) {
     case AssignOp::OREQ:
         return BinaryOp::OR;
     default:
-        throw std::runtime_error("got assign when mapping assignop to binop");
+        ECC_UNREACHABLE("got assign when mapping assignop to binop");
     }
 }
 
@@ -256,7 +255,7 @@ void CFGBuilder::visit(FunctionLIR& node) {
         auto *addr = add_or_get_local(param);
 
         auto *value = curr_func->arg_idx(idx);
-        assert(value && "got null arg");
+        ECC_ASSERT(value, "got null arg");
 
         curr_blk->add_instruction<StoreInst>(types, addr, value);
     }
@@ -280,7 +279,7 @@ void CFGBuilder::visit(LabelDeclLIR& node) {
     }
 
     resolve_pending_gotos(node.mangled_label, newblock);
-    assert(num_pending_gotos() == 0);
+    ECC_ASSERT_N(num_pending_gotos() == 0);
     curr_blk = newblock;
 }
 
@@ -293,11 +292,9 @@ void CFGBuilder::visit(CaseLIR& node) {
     }
 
     auto *info = find_info([&](NestedStmtInfo *info) { return info->is_switch(); });
-    if (!info) {
-        throw std::runtime_error("unable to find switch NestedStmtInfo while visiting CaseLIR");
-    }
+    ECC_ASSERT(info && info->is_switch(),
+        "unable to find switch NestedStmtInfo while visiting CaseLIR");
 
-    assert(info->is_switch());
     SwitchStmtInfo *swinfo = info->as_switch();
 
     swinfo->swtch->add_case(node.case_value, caseblk);
@@ -316,10 +313,9 @@ void CFGBuilder::visit(DefaultLIR& node) {
     }
 
     auto *info = find_info([&](NestedStmtInfo *info) { return info->is_switch(); });
-    if (!info) {
-        throw std::runtime_error("unable to find switch NestedStmtInfo while visiting DefaultLIR");
-    }
-    assert(info->is_switch());
+    ECC_ASSERT(info, "unable to find switch NestedStmtInfo while visiting DefaultLIR");
+    ECC_ASSERT(info->is_switch(), "switchinfo found but was not switch");
+
     SwitchStmtInfo *swinfo = info->as_switch();
 
     swinfo->swtch->add_default(caseblk);
@@ -346,7 +342,7 @@ void CFGBuilder::visit(MemcpyLIR& node) {
     Value *to   = eval_lvalue(*node.to);
     Value *from = eval_lvalue(*node.from);
 
-    assert(to && from);
+    ECC_ASSERT_N(to && from);
 
     curr_blk->add_instruction<MemcpyInst>(types, to, from, node.n);
 }
@@ -393,7 +389,7 @@ void CFGBuilder::visit(SwitchStmtLIR& node) {
     }
     Value *control = eval(*node.condition);
 
-    assert(!curr_blk->is_terminated());
+    ECC_ASSERT_N(!curr_blk->is_terminated());
     Switch *swtch        = curr_blk->terminate<Switch>(control);
     SwitchStmtInfo *info = push_info<SwitchStmtInfo>(swtch)->as_switch();
 
@@ -425,10 +421,7 @@ void CFGBuilder::visit(BreakStmtLIR& node) {
     auto *info =
         find_info([&](NestedStmtInfo *info) { return info->is_loop() || info->is_switch(); });
 
-    if (!info) {
-        throw std::runtime_error(
-            "unable to find loop or switch NestedStmtInfo while visiting BreakStmtLIR");
-    }
+    ECC_ASSERT(info, "unable to find loop or switch NestedStmtInfo while visiting BreakStmtLIR");
 
     Goto *g = curr_blk->terminate<Goto>();
     info->pending_merges.push_back(g);
@@ -442,12 +435,9 @@ void CFGBuilder::visit(ContStmtLIR& node) {
     }
 
     auto *info = find_info([&](NestedStmtInfo *info) { return info->is_loop(); });
+    ECC_ASSERT(info, "unable to find loop NestedStmtInfo while visiting ContStmtLIR");
 
-    if (!info) {
-        throw std::runtime_error("unable to find loop NestedStmtInfo while visiting ContStmtLIR");
-    }
-
-    assert(info->is_loop());
+    ECC_ASSERT_N(info->is_loop());
     auto *loopinfo = info->as_loop();
 
     // Try, in order, step, cond, and then body to link to
@@ -458,7 +448,7 @@ void CFGBuilder::visit(ContStmtLIR& node) {
     } else if (loopinfo->body) {
         curr_blk->terminate<Goto>()->set_target(loopinfo->body);
     } else {
-        throw std::runtime_error("no loop construct to link to when visiting contstmt");
+        ECC_UNREACHABLE("no loop construct to link to when visiting contstmt");
     }
 }
 
@@ -515,7 +505,7 @@ void CFGBuilder::visit(IfStmtLIR& node) {
             else_exit->terminate<Goto>()->set_target(merge_blk);
         }
     } else {
-        assert(term->else_br == nullptr);
+        ECC_ASSERT_N(term->else_br == nullptr);
         term->set_else_target(merge_blk);
     }
 
@@ -567,7 +557,7 @@ void CFGBuilder::visit(LoopStmtLIR& node) {
     }
 
     if (condition) {
-        assert(cond_blk && cond_exit && "no cond blk with non-null condition");
+        ECC_ASSERT(cond_blk && cond_exit, "no cond blk with non-null condition");
     }
 
     if (node.step) {
@@ -691,27 +681,27 @@ void CFGBuilder::visit(VarDeclLIR& node) {
 #pragma clang diagnostic ignored "-Wunused-parameter"
 
 void CFGBuilder::visit(ScalarInitLIR& node) {
-    throw std::runtime_error("visit ScalarInitLIR called");
+    ECC_UNREACHABLE("visit ScalarInitLIR called");
 }
 
 void CFGBuilder::visit(PointerInitLIR& node) {
-    throw std::runtime_error("visit PointerInitLIR called");
+    ECC_UNREACHABLE("visit PointerInitLIR called");
 }
 
 void CFGBuilder::visit(AggregateInitLIR& node) {
-    throw std::runtime_error("visit AggregateInitLIR called");
+    ECC_UNREACHABLE("visit AggregateInitLIR called");
 }
 
 void CFGBuilder::visit(StringInitLIR& node) {
-    throw std::runtime_error("visit StringInitLIR called");
+    ECC_UNREACHABLE("visit StringInitLIR called");
 }
 
 void CFGBuilder::visit(FuncInitLIR& node) {
-    throw std::runtime_error("visit FuncInitLIR called");
+    ECC_UNREACHABLE("visit FuncInitLIR called");
 }
 
 void CFGBuilder::visit(ZeroInitLIR& node) {
-    throw std::runtime_error("visit ZeroInitLIR called");
+    ECC_UNREACHABLE("visit ZeroInitLIR called");
 }
 
 #pragma clang diagnostic pop
@@ -788,7 +778,7 @@ void CFGBuilder::visit(BinaryExprLIR& node) {
     }
     }
 
-    assert(last_value && "last_value is nullptr at end of expr visit");
+    ECC_ASSERT(last_value, "last_value is nullptr at end of expr visit");
 }
 
 void CFGBuilder::visit(UnaryExprLIR& node) {
@@ -825,7 +815,7 @@ void CFGBuilder::visit(UnaryExprLIR& node) {
         last_value = curr_blk->add_instruction<UnaryInst>(node.act_type, op, operand, node.loc);
     }
     }
-    assert(last_value && "last_value is nullptr at end of expr visit");
+    ECC_ASSERT(last_value, "last_value is nullptr at end of expr visit");
 }
 
 void CFGBuilder::visit(CastExprLIR& node) {
@@ -851,7 +841,7 @@ void CFGBuilder::visit(CastExprLIR& node) {
     } break;
     }
 
-    assert(last_value && "last_value is nullptr at end of expr visit");
+    ECC_ASSERT(last_value, "last_value is nullptr at end of expr visit");
 }
 
 void CFGBuilder::visit(AssignExprLIR& node) {
@@ -907,7 +897,7 @@ void CFGBuilder::visit(CondExprLIR& node) {
 
     last_value = phi;
 
-    assert(last_value && "last_value is nullptr at end of expr visit");
+    ECC_ASSERT(last_value, "last_value is nullptr at end of expr visit");
 }
 
 void CFGBuilder::visit(IdentExprLIR& node) {
@@ -925,7 +915,7 @@ void CFGBuilder::visit(IdentExprLIR& node) {
         last_value = add_or_get_function(node.sym->as_funcsym()->lir);
     }
 
-    assert(last_value && "last_value is nullptr at end of expr visit");
+    ECC_ASSERT(last_value, "last_value is nullptr at end of expr visit");
 }
 
 void CFGBuilder::visit(LiteralExprLIR& node) {
@@ -940,13 +930,13 @@ void CFGBuilder::visit(LiteralExprLIR& node) {
             [&](std::string& str) {
                 dbprint("    Literal is string, creating String value");
                 // string dedup happens here.
-                assert(node.act_type->is_array());
+                ECC_ASSERT_N(node.act_type->is_array());
                 last_value = prog_cfg.get_string(node.act_type->as_array(), str);
                 last_value->set_type(node.act_type);
             }},
         node.value);
 
-    assert(last_value && "last_value is nullptr at end of expr visit");
+    ECC_ASSERT(last_value, "last_value is nullptr at end of expr visit");
 }
 
 void CFGBuilder::visit(ZeroExprLIR& node) {
@@ -954,7 +944,7 @@ void CFGBuilder::visit(ZeroExprLIR& node) {
 
     last_value = prog_cfg.get_zero(node.act_type);
 
-    assert(last_value && "last_value is nullptr at end of expr visit");
+    ECC_ASSERT(last_value, "last_value is nullptr at end of expr visit");
 }
 
 void CFGBuilder::visit(CallExprLIR& node) {
@@ -967,7 +957,7 @@ void CFGBuilder::visit(CallExprLIR& node) {
     last_value = curr_blk->add_instruction<CallInst>(
         node.act_type, eval(*node.callee), std::move(args), node.loc);
 
-    assert(last_value && "last_value is nullptr at end of expr visit");
+    ECC_ASSERT(last_value, "last_value is nullptr at end of expr visit");
 }
 
 void CFGBuilder::visit(MemberAccExprLIR& node) {
@@ -977,7 +967,7 @@ void CFGBuilder::visit(MemberAccExprLIR& node) {
 
     last_value = curr_blk->add_instruction<LoadInst>(node.act_type, addr, node.loc);
 
-    assert(last_value && "last_value is nullptr at end of expr visit");
+    ECC_ASSERT(last_value, "last_value is nullptr at end of expr visit");
 }
 
 void CFGBuilder::visit(ReintExprLIR& node) {
@@ -987,7 +977,7 @@ void CFGBuilder::visit(ReintExprLIR& node) {
 
     last_value = curr_blk->add_instruction<LoadInst>(node.act_type, operand, node.loc);
 
-    assert(last_value && "last_value is nullptr at end of expr visit");
+    ECC_ASSERT(last_value, "last_value is nullptr at end of expr visit");
 }
 
 void CFGBuilder::visit(SubscrExprLIR& node) {
@@ -997,14 +987,14 @@ void CFGBuilder::visit(SubscrExprLIR& node) {
 
     last_value = curr_blk->add_instruction<LoadInst>(node.act_type, addr, node.loc);
 
-    assert(last_value && "last_value is nullptr at end of expr visit");
+    ECC_ASSERT(last_value, "last_value is nullptr at end of expr visit");
 }
 
 void CFGBuilder::visit(PostfixExprLIR& node) {
     dbprint("visiting PostfixExprLIR node ", node.loc ? *node.loc : Location{});
 
     Value *address = eval_lvalue(*node.operand);
-    assert(address && "non-lvalue operand for PostfixExprLIR");
+    ECC_ASSERT(address, "non-lvalue operand for PostfixExprLIR");
     Value *old_val = curr_blk->add_instruction<LoadInst>(node.act_type, address, node.loc);
 
     Value *new_val;
@@ -1032,7 +1022,7 @@ Constant *CFGBuilder::build_constant(ConstInitLIR& init) {
     } else if (isa<ZeroInitLIR>(&init)) {
         return build_constant(*dyncast<ZeroInitLIR>(&init));
     } else {
-        throw std::runtime_error("build constant got invalid LIRNode");
+        ECC_UNREACHABLE("build constant got invalid LIRNode");
     }
 }
 

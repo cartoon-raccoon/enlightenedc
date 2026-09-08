@@ -1,7 +1,5 @@
 #include "lowering/cfg/cfg.hpp"
 
-#include <stdexcept>
-
 #include "lowering/cfg/visitor.hpp"
 #include "semantics/types.hpp"
 #include "tokens.hpp"
@@ -49,7 +47,7 @@ BinaryInst::Operator BinaryInst::op_from_token(tokens::BinaryOp op) {
     case BinOp::MOD:
         return Op::MOD;
     default:
-        throw std::runtime_error("BinaryInst::op_from_token: invalid operator");
+        ECC_UNREACHABLE("BinaryInst::op_from_token: invalid operator");
     }
 }
 
@@ -67,7 +65,7 @@ UnaryInst::Operator UnaryInst::op_from_token(tokens::UnaryOp op) {
     case UnOp::NOT:
         return Op::NOT;
     default:
-        throw std::runtime_error("UnaryInst::op_from_token: invalid operator");
+        ECC_UNREACHABLE("UnaryInst::op_from_token: invalid operator");
     }
 }
 

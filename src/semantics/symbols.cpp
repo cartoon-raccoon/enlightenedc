@@ -1,9 +1,7 @@
 #include "semantics/symbols.hpp"
 
 #include <algorithm>
-#include <cassert>
 #include <sstream>
-#include <stdexcept>
 #include <utility>
 
 using namespace ecc::sema::sym;
@@ -89,13 +87,9 @@ void SymbolTableWalker::push_scope(FuncSymbol *assoc) {
 
 void SymbolTableWalker::enter_scope() {
     // If there are no scopes left to enter
-    if (current->nested.empty()) {
-        throw std::runtime_error("tried to enter nonexistent nested scope");
-    }
-
-    if (next_scope_idx >= current->nested.size()) {
-        throw std::runtime_error("no more nested scopes left to enter in current scope");
-    }
+    ECC_ASSERT(!current->nested.empty(), "tried to enter nonexistent nested scope");
+    ECC_ASSERT(next_scope_idx < current->nested.size(),
+        "no more nested scopes left to enter in current scope");
 
     Scope *new_current = current->nested[next_scope_idx].get();
     next_scope_idx++;
@@ -116,7 +110,7 @@ void SymbolTableWalker::pop_scope() {
             next_scope_idx = prev_scope_idxs.top();
             prev_scope_idxs.pop();
         } else {
-            throw std::runtime_error("tried to exit global scope");
+            ECC_UNREACHABLE("tried to exit global scope");
         }
     }
 }
@@ -162,7 +156,7 @@ VarSymbol *SymbolTableWalker::lookup_var(std::string& sym, bool current_only) co
     while (!(my_current->phys_symbols.contains(sym))) {
         // if already global, return null
         if (my_current->outer == nullptr) {
-            assert(my_current == global());
+            ECC_ASSERT_N(my_current == global());
             dbprint("SymbolTable: symbol \'", sym, "\' not found");
             return nullptr;
         }
@@ -190,7 +184,7 @@ FuncSymbol *SymbolTableWalker::lookup_func(std::string& sym, bool current_only) 
     while (!(my_current->phys_symbols.contains(sym))) {
         // if already global, return null
         if (my_current->outer == nullptr) {
-            assert(my_current == global());
+            ECC_ASSERT_N(my_current == global());
             dbprint("SymbolTable: symbol \'", sym, "\' not found");
             return nullptr;
         }
@@ -218,7 +212,7 @@ TypeSymbol *SymbolTableWalker::lookup_type(std::string& sym, bool current_only) 
     while (!(my_current->type_symbols.contains(sym))) {
         // if already global, return null
         if (my_current->outer == nullptr) {
-            assert(my_current == global());
+            ECC_ASSERT_N(my_current == global());
             dbprint("SymbolTable: symbol \'", sym, "\' not found");
             return nullptr;
         }
@@ -257,7 +251,7 @@ LabelSymbol *SymbolTableWalker::lookup_label(std::string& sym, bool current_only
 
         // if already at global scope (outer is null), label does not exist
         if (my_current->outer == nullptr) {
-            assert(my_current == global());
+            ECC_ASSERT_N(my_current == global());
             dbprint("SymbolTable: label \'", sym, "\' not found");
             return nullptr;
         }
@@ -318,7 +312,7 @@ FuncSymbol *SymbolTableWalker::insert(std::string& name, Box<FuncSymbol> sym) co
                     "SymbolTable: existing symbol matches function signature, evaluating "
                     "reconciliation");
                 FuncSymbol *existfunc = existing->as_funcsym();
-                assert(existfunc);
+                ECC_ASSERT_N(existfunc);
                 if (!existfunc->has_body && sym->has_body) {
                     // existing is decl, new sym is def
 

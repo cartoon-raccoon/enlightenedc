@@ -1,7 +1,5 @@
 #include "lowering/lir/synthesizer.hpp"
 
-#include <stdexcept>
-
 #include "allocator/alloc.hpp"
 #include "allocator/chunk.hpp"
 #include "ds/arenavec.hpp"
@@ -114,7 +112,7 @@ void LIRSynthesizer::unfold_initializer_rec(Chunk<ExprLIR> lhs, Type *type, Init
                     break;
 
                 default:
-                    throw std::runtime_error(
+                    ECC_UNREACHABLE(
                         "found compound initializer with non-class or array at LIR");
                 }
             },
@@ -126,7 +124,7 @@ void LIRSynthesizer::unfold_initializer_rec(Chunk<ExprLIR> lhs, Type *type, Init
             initializers, and is enforced syntactically.
             */
             [&](auto&) {
-                throw std::runtime_error(
+                ECC_UNREACHABLE(
                     "encountered variant other than ExprMIR and Vec<Chunk<InitializerMIR>>");
             }},
         init.initializer);
@@ -144,7 +142,7 @@ void LIRSynthesizer::unfold_initializer_expr(
         ArrayType *literal_size = maybe_literal->act_type->as_array();
         ArrayType *lhs_size     = lhs->act_type->as_array();
 
-        assert(literal_size && lhs_size);
+        ECC_ASSERT_N(literal_size && lhs_size);
 
         Chunk<StmtLIR> memcp =
             make_chunk<MemcpyLIR>(lhs->clone_chunk(), std::move(rhs), *lhs_size->get_arr_size());
@@ -182,7 +180,7 @@ void LIRSynthesizer::unfold_initializer_rec_arr(
                     next_idx++;
                 },
                 [&](Chunk<InitializerMIR::Member>&) {
-                    throw std::runtime_error(
+                    ECC_UNREACHABLE(
                         "encountered member designator while unfolding array initializer");
                 },
                 [&](Chunk<InitializerMIR::Index>& idx) {
@@ -238,7 +236,7 @@ void LIRSynthesizer::unfold_initializer_rec_cls(
             match{
                 [&](Chunk<ExprMIR>&) {
                     RecordType::TypeMember *member = cls->find(next_idx);
-                    assert(member);
+                    ECC_ASSERT_N(member);
 
                     Chunk<ExprLIR> child = make_chunk<MemberAccExprLIR>(
                         init->loc, clone_lvalue(lhs.get()), next_idx, member->ty);
@@ -252,7 +250,7 @@ void LIRSynthesizer::unfold_initializer_rec_cls(
                     // anonymous struct/union members; index() returns the full chain of
                     // per-level indices needed to reach it.
                     AccessorPath path = cls->index(mem->member);
-                    assert(!path.empty());
+                    ECC_ASSERT_N(!path.empty());
 
                     Chunk<ExprLIR> current  = clone_lvalue(lhs.get());
                     RecordType *current_rec = cls;
@@ -260,11 +258,11 @@ void LIRSynthesizer::unfold_initializer_rec_cls(
                     RecordType::TypeMember *member = nullptr;
                     bool first                     = true;
                     for (auto& acc : path) {
-                        assert(acc.is_index());
+                        ECC_ASSERT_N(acc.is_index());
                         size_t idx = std::get<IndexAcc>(acc.accessor);
 
                         member = current_rec->find(idx);
-                        assert(member);
+                        ECC_ASSERT_N(member);
 
                         current = make_chunk<MemberAccExprLIR>(
                             init->loc, std::move(current), idx, member->ty);
@@ -278,19 +276,19 @@ void LIRSynthesizer::unfold_initializer_rec_cls(
 
                         if (acc.next()) {
                             current_rec = member->ty->as_recordtype();
-                            assert(current_rec);
+                            ECC_ASSERT_N(current_rec);
                         }
                     }
 
                     unfold_initializer_rec(std::move(current), member->ty, *mem->initializer);
                 },
                 [&](Chunk<InitializerMIR::Index>&) {
-                    throw std::runtime_error(
+                    ECC_UNREACHABLE(
                         "encountered index designator while unfolding class initializer");
                 },
                 [&](ArenaVec<Chunk<InitializerMIR>>&) {
                     RecordType::TypeMember *member = cls->find(next_idx);
-                    assert(member);
+                    ECC_ASSERT_N(member);
 
                     Chunk<ExprLIR> child = make_chunk<MemberAccExprLIR>(
                         init->loc, clone_lvalue(lhs.get()), next_idx, member->ty);
@@ -305,7 +303,7 @@ void LIRSynthesizer::unfold_initializer_rec_cls(
     for (size_t i = 0; i < cls->num_members(); i++) {
         if (!touched[i]) {
             auto *member = cls->find(i);
-            assert(member);
+            ECC_ASSERT_N(member);
             Chunk<ExprLIR> child =
                 make_chunk<MemberAccExprLIR>(Location{}, clone_lvalue(lhs.get()), i, member->ty);
             Chunk<ExprLIR> zero   = make_chunk<ZeroExprLIR>(Location{}, member->ty);
@@ -373,7 +371,7 @@ Chunk<ExprLIR> LIRSynthesizer::clone_lvalue(ExprLIR *expr) {
         return make_chunk<LiteralExprLIR>(lit->loc, lit->value, lit->act_type);
     }
     default:
-        throw std::runtime_error("clone_lvalue: unexpected expression kind in lvalue chain");
+        ECC_UNREACHABLE("clone_lvalue: unexpected expression kind in lvalue chain");
     }
 }
 
@@ -460,7 +458,7 @@ void LIRSynthesizer::do_visit(InitializerMIR& node) {
     bsv_dbprint("LIRSynthesizer: visiting InitializerMIR node");
 
     // we provide our own initializer unfolder
-    throw std::runtime_error("called LIRSynthesizer::do_visit on InitializerMIR");
+    ECC_UNREACHABLE("called LIRSynthesizer::do_visit on InitializerMIR");
 }
 
 void LIRSynthesizer::do_visit(TypeDeclMIR& node) {
@@ -1017,7 +1015,7 @@ void LIRSynthesizer::do_visit(IdentExprMIR& node) {
     }
 
     LIRSym *sym = symbolmap.lookup(node.ident);
-    assert(sym);
+    ECC_ASSERT_N(sym);
 
     Chunk<ExprLIR> identexpr = make_chunk<IdentExprLIR>(node.loc, sym, node.act_type);
 
@@ -1063,30 +1061,30 @@ void LIRSynthesizer::do_visit(MemberAccExprMIR& node) {
     RecordType *record;
     if (node.is_arrow) {
         PointerType *objtype = node.object->act_type->as_pointer();
-        assert(objtype);
+        ECC_ASSERT_N(objtype);
         object = make_chunk<UnaryExprLIR>(
             node.loc, objtype->get_base(), std::move(object), tokens::UnaryOp::DEREF);
         record = objtype->get_base()->as_recordtype();
     } else {
-        assert(object->act_type->is_recordtype());
+        ECC_ASSERT_N(object->act_type->is_recordtype());
         record = object->act_type->as_recordtype();
     }
 
     AccessorPath path = record->index(node.member);
-    assert(!path.empty());
+    ECC_ASSERT_N(!path.empty());
 
     auto current      = std::move(object);
     auto *current_rec = record;
 
     // for each accessor (ensuring it is an index)
     for (auto& acc : path) {
-        assert(acc.is_index());
+        ECC_ASSERT_N(acc.is_index());
         // extract the index
         size_t idx = std::get<IndexAcc>(acc.accessor);
 
         // find the member of the current record type, ensuring it exists
         RecordType::TypeMember *member = current_rec->find(idx);
-        assert(member);
+        ECC_ASSERT_N(member);
 
         // resolve the type to use; if not last, use member type, else use node type
         Type *step_type = acc.next() ? member->ty : node.act_type;
@@ -1097,7 +1095,7 @@ void LIRSynthesizer::do_visit(MemberAccExprMIR& node) {
         // if there are accessors remaining, update the current recordtype
         if (acc.next()) {
             current_rec = member->ty->as_recordtype();
-            assert(current_rec);
+            ECC_ASSERT_N(current_rec);
         }
     }
 
@@ -1112,7 +1110,7 @@ void LIRSynthesizer::do_visit(ReintExprMIR& node) {
 
     if (node.is_arrow) {
         PointerType *objtype = node.object->act_type->as_pointer();
-        assert(objtype);
+        ECC_ASSERT_N(objtype);
         object = make_chunk<UnaryExprLIR>(
             node.loc, objtype->get_base(), std::move(object), tokens::UnaryOp::DEREF);
     }

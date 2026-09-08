@@ -17,6 +17,7 @@
 // IWYU pragma: begin_exports
 #include "util/aliases.hpp"
 #include "util/rtti.hpp"
+#include "util/assert.hpp"
 // IWYU pragma: end_exports
 
 using namespace ecc::alloc;
@@ -43,9 +44,9 @@ void dbprint(T msg, Args&&...args) {
         visitor.visit(*this);                            \
     }
 
-#define VISIT_NO_IMPL(_node)           /* NOLINT */                                             \
-    void visit(_node& node) override { /*NOLINT */                                              \
-        throw std::runtime_error("visit() was not implemented for the current visitable node"); \
+#define VISIT_NO_IMPL(_node)           /* NOLINT */                                    \
+    void visit(_node& node) override { /*NOLINT */                                     \
+        ECC_UNREACHABLE("visit() was not implemented for the current visitable node"); \
     }
 
 #define todo() throw Todo(std::source_location::current()) // NOLINT
@@ -55,7 +56,7 @@ namespace ecc::util {
 /**
 An exception class to indicate that a region of code is currently unimplemented.
 */
-class Todo : std::exception {
+class Todo : public std::exception {
 public:
     std::string location;
 

@@ -1,23 +1,22 @@
 #pragma once
 
-#include <memory>
 #ifndef ECC_ALLOC_H
 #define ECC_ALLOC_H
 
 #include <algorithm>
-#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
 #include <limits>
 #include <new>
+#include <memory>
 #include <type_traits>
 #include <utility>
 #include <vector>
 
 #include "allocator/alignment.hpp"
 #include "allocator/chunk.hpp"
-// #include "prelude.hpp"
+#include "util/assert.hpp"
 
 namespace ecc::alloc {
 
@@ -202,7 +201,7 @@ public:
     Allocate a custom sized slab.
     */
     void *alloc_custom(size_t size) {
-        assert(size > SizeThreshold && "custom slab for size under threshold");
+        ECC_ASSERT(size > SizeThreshold, "custom slab for size under threshold");
 
         Slab slab(size);
 

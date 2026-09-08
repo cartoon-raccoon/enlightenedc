@@ -7,6 +7,7 @@
 #include "semantics/typeerr.hpp"
 #include "semantics/types.hpp"
 #include "prelude.hpp"
+#include "util/assert.hpp"
 
 using namespace ecc::codegen;
 using namespace ecc::sema::types;
@@ -74,7 +75,7 @@ LLVMType *LLVMUnit::get_storage_type(Type *type) {
     }
 
     auto it = typemap.find(type);
-    assert(it != typemap.end() && "finalize() did not populate typemap for this type");
+    ECC_ASSERT(it != typemap.end(), "finalize() did not populate typemap for this type");
     return it->second;
 }
 
@@ -163,7 +164,7 @@ void LLVMUnit::finalize(ClassType *type) {
         llvm::StructType *parent_llvm =
             llvm::dyn_cast<llvm::StructType>(get_storage_type(*type->get_parent()));
 
-        assert(parent_llvm && "");
+        ECC_ASSERT_N(parent_llvm);
 
         for (auto *elem : parent_llvm->elements()) {
             args.push_back(elem);
@@ -205,7 +206,7 @@ void LLVMUnit::finalize(UnionType *type) {
     for (auto& member : type->get_members()) {
         dbprint("UnionType: finalizing member declared at ", member->loc);
         finalize(member->ty);
-        assert(typemap.contains(member->ty) && "member type not finalized");
+        ECC_ASSERT(typemap.contains(member->ty), "member type not finalized");
     }
 
     if (type->get_type_rep()) {
@@ -228,7 +229,7 @@ void LLVMUnit::finalize(UnionType *type) {
         // find the strictest alignment
         for (auto& member : type->get_members()) {
             auto mem_it = typemap.find(member->ty);
-            assert(mem_it != typemap.end() && "member type not finalized");
+            ECC_ASSERT(mem_it != typemap.end(), "member type not finalized");
             llvm::Align mem_align = dl.getABITypeAlign(mem_it->second);
             if (mem_align > align) {
                 align = mem_align;
@@ -284,7 +285,7 @@ void LLVMUnit::finalize(ArrayType *type) {
             llvm::ArrayType::get(get_storage_type(type->get_base()), *type->get_arr_size());
     } else {
         //? would this be a problem?
-        throw std::runtime_error("attempted to finalize unsized array");
+        ECC_UNREACHABLE("attempted to finalize unsized array");
     }
 }
 
@@ -335,7 +336,7 @@ size_t LLVMUnit::alloc_size(Type *type) {
     Type *type_key      = type->is_const() ? type->as_const()->get_base() : type;
     LLVMType *size_type = get_storage_type(type_key);
 
-    assert(size_type);
+    ECC_ASSERT_N(size_type);
 
     const llvm::DataLayout& dl = mod().getDataLayout();
     return dl.getTypeAllocSize(size_type);

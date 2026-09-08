@@ -29,7 +29,7 @@ class Preprocessor : public std::istream {
     __gnu_cxx::stdio_filebuf<char> buffer;
 
 public:
-    // Throws std::runtime_error on failure
+    // Throws InternalError on failure
     Preprocessor(const std::string *filename);
 
     // Calls pclose on the PreProcessor's internal file descriptor.

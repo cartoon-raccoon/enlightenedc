@@ -1,7 +1,9 @@
 #include "prelude.hpp"
 
 #include <cctype>
-#include <cstdio>
+#include <cstdlib>
+#include <iostream>
+#include <string_view>
 
 namespace ecc::util {
 
@@ -60,4 +62,16 @@ std::string encode_string_literal(std::string_view raw) {
     return out;
 }
 
+[[noreturn]] void ice_fail(std::string_view msg, std::source_location at) {
+
+#ifndef NDEBUG
+    if (std::getenv("ECC_ABORT_ON_ICE") != nullptr) {
+        std::cerr << InternalError(msg, at).what() << "\n";
+        std::abort();
+    }
+#endif
+    throw InternalError(msg, at);
+}
+
 } // namespace ecc::util
+

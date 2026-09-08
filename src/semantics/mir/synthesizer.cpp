@@ -1,9 +1,7 @@
 #include "semantics/mir/synthesizer.hpp"
 
-#include <cassert>
 #include <cmath>
 #include <memory>
-#include <stdexcept>
 #include <variant>
 
 #include "ast/ast.hpp"
@@ -183,11 +181,11 @@ MIRSynthesizer::parse_speclist(ArenaVec<Chunk<ast::DeclarationSpecifier>>& specl
             break;
 
         default:
-            throw std::runtime_error(
+            ECC_UNREACHABLE(
                 "encountered a non-declaration specifier while parsing specifiers");
         }
     }
-    assert(specinfo.type);
+    ECC_ASSERT_N(specinfo.type);
     bsv_dbprint("finished parsing specifiers for node ", loc);
 
     return specinfo;
@@ -207,7 +205,7 @@ void MIRSynthesizer::do_visit(Program& node) {
                     // ignore and continue
                 },
                 [&](auto&) {
-                    throw std::runtime_error("unexpected item while parsing programitems");
+                    ECC_UNREACHABLE("unexpected item while parsing programitems");
                 }},
             last_result);
         last_result = std::monostate{};
@@ -225,7 +223,7 @@ void MIRSynthesizer::do_visit(AttributeArg& node) {
     } else if (auto *typedecl = dyncast<TypeDeclMIR>(progitem); typedecl) {
         check_attribute(typedecl, node);
     } else {
-        throw std::runtime_error("invalid ProgItem for visiting AttributeArg");
+        ECC_UNREACHABLE("invalid ProgItem for visiting AttributeArg");
     }
 }
 
@@ -569,10 +567,7 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
             }
 
             // sym should be valid, since to get here builder's name had to exist
-            if (!symptr) {
-                throw std::runtime_error(
-                    "unexpected null pointer when parsing variable declarator");
-            }
+            ECC_ASSERT(symptr, "unexpected null pointer when parsing variable declarator");
 
             // extract the initializer mir
             if (ret.init_mir) {
@@ -1074,7 +1069,7 @@ void MIRSynthesizer::do_visit(ClassSpecifier& node) {
         }
 
         if (node.parents) {
-            assert(!(*node.parents).empty());
+            ECC_ASSERT_N(!(*node.parents).empty());
             if ((*node.parents).size() > 1) {
                 add_error<EccSemError>("multiple inheritance is not allowed", node.loc);
             }
@@ -1094,6 +1089,11 @@ void MIRSynthesizer::do_visit(ClassSpecifier& node) {
                 // We can unwrap the name without worrying about an empty option,
                 // since it was looked up by name.
                 add_error<IncompleteTypeUseError>(*parent->type->get_name(), node.loc);
+                throw UnableToContinue();
+            }
+
+            if (cls->has_parent()) {
+                add_error<EccSemError>("class parents already specified", node.loc);
                 throw UnableToContinue();
             }
 
@@ -1227,7 +1227,7 @@ void MIRSynthesizer::do_visit(ClassDeclaration& node) {
                         recordty->add_member(to_add, decltr->loc);
                     },
                     [&](auto&) {
-                        throw std::runtime_error(
+                        ECC_UNREACHABLE(
                             "unexpected last_result when parsing ClassDeclaration");
                     }},
                 last_result);
@@ -1471,9 +1471,8 @@ void MIRSynthesizer::do_visit(CompoundStatement& node) {
     if (add_symbols) {
         bsv_dbprint("CmpdStmtDoVisitParams found to have value, checking for function");
         // check the immediate outer node is a function
-        if (in_node(ASTNode::NodeKind::FUNC) != 1) {
-            throw std::runtime_error("received symbols to add when not in function");
-        }
+        ECC_ASSERT(in_node(ASTNode::NodeKind::FUNC) == 1,
+                   "received symbols to add when not in function");
 
         // Tie the function symbol to our current scope
         syms.tie_current_to(add_symbols.value().first);
@@ -1496,7 +1495,7 @@ void MIRSynthesizer::do_visit(CompoundStatement& node) {
                     // ignore and continue
                 },
                 [](auto&) {
-                    throw std::runtime_error("unexpected type while parsing program items");
+                    ECC_UNREACHABLE("unexpected type while parsing program items");
                 }},
             last_result);
         last_result = std::monostate{};
@@ -1529,9 +1528,8 @@ void MIRSynthesizer::do_visit(ExpressionStatement& node) {
         // If the internal expression is a string literal expression, emit a PrintStatement
         case MNK::LITEXPR_MIR: {
             auto *litexpr = dyncast<LiteralExprMIR>(expr.get());
-            if (!litexpr) {
-                throw std::runtime_error("could not cast LITEXPR_MIR to LiteralExprMIR");
-            }
+            ECC_ASSERT(litexpr, "could not cast LITEXPR_MIR to LiteralExprMIR");
+
             if (auto *str = std::get_if<std::string>(&litexpr->value)) {
                 bsv_dbprint(
                     "found string literal inside ExpressionStatement, emitting PrintStmtMIR");
@@ -1546,15 +1544,10 @@ void MIRSynthesizer::do_visit(ExpressionStatement& node) {
         // params, emit a call to that function instead
         case MNK::IDENTEXPR_MIR: {
             auto *idexpr = dyncast<IdentExprMIR>(expr.get());
-            if (!idexpr) {
-                throw std::runtime_error("could not cast IDENTEXPR_MIR to IdentExprMIR");
-            }
+            ECC_ASSERT(idexpr, "could not cast IDENTEXPR_MIR to IdentExprMIR");
             if (idexpr->ident->get_type()->is_function()) {
                 auto *idtype = idexpr->ident->get_type()->as_function();
-                if (!idtype) {
-                    throw std::runtime_error(
-                        "type with kind TypeKind::Function is not FunctionType");
-                }
+                ECC_ASSERT(idtype, "type with kind TypeKind::Function is not FunctionType");
                 if (idtype->no_params()) {
                     bsv_dbprint(
                         "found identexpr of type function with no params, emitting CallExprMIR");
@@ -1873,7 +1866,7 @@ void MIRSynthesizer::do_visit(IdentifierExpression& node) {
     }
 
     PhysicalSymbol *physsym = sym->as_physical();
-    assert(physsym);
+    ECC_ASSERT_N(physsym);
 
     Chunk<ExprMIR> expr = make_chunk<IdentExprMIR>(node.loc, syms.current, physsym);
 

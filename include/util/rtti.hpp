@@ -4,6 +4,7 @@
 #define ECC_UTIL_RTTI_H
 
 #include "util/aliases.hpp"
+#include "util/assert.hpp"
 #include "allocator/chunk.hpp"
 
 namespace ecc::util {
@@ -48,13 +49,13 @@ bool isa(const alloc::Chunk<From>& val) {
 
 template <typename To, typename From>
 To *cast(From *val) {
-    assert(val && isa<To>(val) && "dyncast<>: incompatible types of To and From");
+    ECC_ASSERT(val && isa<To>(val), "dyncast<>: incompatible types of To and From");
     return static_cast<To *>(val);
 }
 
 template <typename To, typename From>
 const To *cast(const From *val) {
-    assert(val && isa<To>(val) && "dyncast<>: incompatible types of To and From");
+    ECC_ASSERT(val && isa<To>(val), "dyncast<>: incompatible types of To and From");
     return static_cast<const To *>(val);
 }
 

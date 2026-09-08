@@ -4,7 +4,6 @@
 #define ECC_MIR_SYNTH_H
 
 #include <concepts>
-#include <stdexcept>
 #include <utility>
 #include <variant>
 
@@ -182,7 +181,7 @@ protected:
             last_result = std::monostate();
 
         } catch (std::bad_variant_access e) {
-            throw std::runtime_error(
+            ECC_UNREACHABLE(
                 "got wrong type for take_last_result: " + std::string(e.what()));
         }
 
@@ -198,7 +197,7 @@ protected:
             dovisit_param = std::monostate();
 
         } catch (std::bad_variant_access e) {
-            throw std::runtime_error(
+            ECC_UNREACHABLE(
                 "got wrong type for take_dovisit_param: " + std::string(e.what()));
         }
 

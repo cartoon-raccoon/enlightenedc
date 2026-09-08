@@ -417,6 +417,6 @@ TEST_F(ClassInheritanceFixture, AddParent_SecondCallThrows) {
     ClassType  *cls  = tctxt.get_class(LOC, name, symtab.global.get());
     cls->add_parent(grandparent);
 
-    EXPECT_THROW(cls->add_parent(grandparent), ClassType *)
-        << "Setting a parent on a class that already has one should throw";
+    EXPECT_THROW(cls->add_parent(grandparent), util::InternalError)
+        << "Adding a parent to a class that already has one breaks an internal invariant";
 }

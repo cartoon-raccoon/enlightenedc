@@ -15,20 +15,37 @@ int Ecc::run() {
         if (config->input_files.empty()) {
             throw EccError("no input files provided");
         }
+
+        bool errors_found = false;
         for (auto& file : config->input_files) {
-            // run the pipeline
-            run_pipeline(&file);
+            try {
+                // run the pipeline
+                run_pipeline(&file);
+            } catch (UnableToContinue _) {
+                errors_found = true;
+                // clear the allocator and continue
+                alloc::reset();
+                continue;
+            }
 #ifndef NDEBUG
             alloc::print_allocator_stats();
 #endif
             // clear the allocator
             alloc::reset();
         }
-    } catch (UnableToContinue _) {
-        return 1;
+
+        if (errors_found) {
+            std::cerr << "errors found, compilation terminated.\n";
+            return 1;
+        }
     } catch (EccError& e) {
         std::cerr << e.to_string() << "\n";
         return 1;
+    } catch (std::exception& e) {
+        // reset the allocator before we return
+        alloc::reset();
+        std::cerr << e.what() << "\n";
+        return 69;
     }
 
     return 0;

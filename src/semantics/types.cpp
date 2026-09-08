@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <limits>
 #include <memory>
-#include <stdexcept>
 #include <stdfloat>
 #include <utility>
 #include <variant>
@@ -13,6 +12,7 @@
 #include "semantics/typeerr.hpp"
 #include "tokens.hpp"
 #include "prelude.hpp"
+#include "util/assert.hpp"
 
 using namespace ecc::sema::types;
 using namespace ecc::sema::prim;
@@ -148,7 +148,7 @@ bool PrimitiveType::castable_to(Type *dst) {
         return this == ctxt().get_size_type(false);
     } else {
         // dst must be primitive here, all non-primitives were filtered out earlier
-        assert(dst->is_primitive());
+        ECC_ASSERT_N(dst->is_primitive());
         return true;
     }
 }
@@ -181,6 +181,8 @@ Optional<uint64_t> PrimitiveType::int_max() const {
     case PrimType::F32:
     case PrimType::F64:
         return {};
+    default:
+        ECC_UNREACHABLE("unknown primitive type");
     }
 }
 
@@ -207,6 +209,8 @@ Optional<int64_t> PrimitiveType::int_min() const {
     case PrimType::F32:
     case PrimType::F64:
         return {};
+    default:
+        ECC_UNREACHABLE("unknown primitive type");
     }
 }
 
@@ -282,6 +286,8 @@ std::string PrimitiveType::formal() {
         return "F32";
     case PrimType::F64:
         return "F64";
+    default:
+        ECC_UNREACHABLE("unknown primitive type");
     }
 }
 
@@ -443,7 +449,7 @@ RecordType::TypeMember *RecordType::find(std::string& name) {
             // if anonymous member is a class, recursively search in it
             // if we find something, return it
             auto *clsty = mem->ty->as_recordtype();
-            assert(clsty);
+            ECC_ASSERT_N(clsty);
             auto *maybe_mem = clsty->find(name);
             if (maybe_mem) {
                 return maybe_mem;
@@ -495,7 +501,7 @@ RecordType::TypeMember *RecordType::find_by_path(AccessorPath& path) {
             } else {
                 // otherwise, set curr_ty to
                 curr_ty = curr->ty->as_recordtype();
-                assert(curr_ty);
+                ECC_ASSERT_N(curr_ty);
             }
         }
     }
@@ -525,7 +531,7 @@ AccessorPath RecordType::indexify(AccessorPath& path) {
                 return {};
             } else {
                 curr_ty = curr->ty->as_recordtype();
-                assert(curr_ty);
+                ECC_ASSERT_N(curr_ty);
             }
         }
     }
@@ -559,19 +565,19 @@ bool RecordType::is_fully_defined() {
         switch (member->ty->kind) {
         case Kind::CLASS: {
             ClassType *cls = member->ty->as_class();
-            assert(cls);
+            ECC_ASSERT_N(cls);
             ret = ret && cls->is_fully_defined();
         } break;
 
         case Kind::UNION: {
             UnionType *unn = member->ty->as_union();
-            assert(unn);
+            ECC_ASSERT_N(unn);
             ret = ret && unn->is_fully_defined();
         } break;
 
         case Kind::ENUM: {
             EnumType *enm = member->ty->as_enum();
-            assert(enm);
+            ECC_ASSERT_N(enm);
             ret = ret && enm->is_fully_defined();
         } break;
 
@@ -579,7 +585,7 @@ bool RecordType::is_fully_defined() {
         // when adding a member anyway.
         case Kind::ARRAY: {
             ArrayType *arr = member->ty->as_array();
-            assert(arr);
+            ECC_ASSERT_N(arr);
             ret = ret && arr->get_arr_size().has_value();
         } break;
 
@@ -597,9 +603,7 @@ bool RecordType::is_fully_defined() {
  */
 
 void ClassType::add_parent(ClassType *cls) {
-    if (this->parent) {
-        throw cls; // fixme: better error handling
-    }
+    ECC_ASSERT(!has_parent(), "tried to add parent to class with existing parent");
 
     this->parent = cls;
 
@@ -676,16 +680,16 @@ AccessorPath ClassType::index(std::string& name) {
 
     // If path is not empty or we have no parent, return it
     if (!path.empty() || !parent) {
-        assert(path.is_all_indices());
+        ECC_ASSERT_N(path.is_all_indices());
         return path;
     }
 
-    assert(parent.has_value());
+    ECC_ASSERT_N(parent.has_value());
 
     path = (*parent)->index(name);
 
     if (!path.empty()) {
-        assert(path.is_all_indices());
+        ECC_ASSERT_N(path.is_all_indices());
     }
 
     return path;
@@ -700,7 +704,7 @@ RecordType::TypeMember *ClassType::find(std::string& name) {
         return mem;
     }
 
-    assert(parent.has_value());
+    ECC_ASSERT_N(parent.has_value());
 
     return (*parent)->find(name);
 }
@@ -712,7 +716,7 @@ RecordType::TypeMember *ClassType::find_imm(std::string& name) {
         return mem;
     }
 
-    assert(parent.has_value());
+    ECC_ASSERT_N(parent.has_value());
 
     return (*parent)->find_imm(name);
 }
@@ -753,7 +757,7 @@ RecordType::TypeMember *ClassType::find_by_path(AccessorPath& path) {
     //     return mem;
     // }
 
-    // assert(parent.has_value());
+    // ECC_ASSERT_N(parent.has_value());
 
     // return (*parent)->find_by_path(path);
 }
@@ -1103,7 +1107,7 @@ TypeID ArrayType::generate_id() const {
  */
 
 size_t FunctionType::alloc_size() {
-    throw std::runtime_error("cannot call size() on FunctionType");
+    ECC_UNREACHABLE("cannot call size() on FunctionType");
 }
 
 std::size_t FunctionType::hash_sig() const {
@@ -1157,9 +1161,7 @@ void TypeBuilder::set_base(BaseType *base) {
 }
 
 Type *TypeBuilder::finalize(Optional<Ref<Vec<FuncParam>>> last_params) {
-    if (!base) {
-        throw std::runtime_error("TypeBuilder::finalize: cannot construct type from null base");
-    }
+    ECC_ASSERT(base, "TypeBuilder::finalize: cannot construct type from null base");
 
     dbprint("TypeBuilder: finalizing type");
 
@@ -1261,7 +1263,7 @@ PrimitiveType *TypeContext::get_primitive(PrimType pkind) {
         return boolt.get();
     }
 
-    std::unreachable();
+    ECC_UNREACHABLE("unhandled PrimType in get_primitive");
 }
 
 constexpr size_t BITS8  = 8;
@@ -1421,7 +1423,7 @@ PointerType *TypeContext::decay_array_ref(ArrayType *arr) {
     ArrayKey key = {arr->base, arr->arr_size};
 
     auto it = arrays.find(key);
-    assert(it != arrays.end());
+    ECC_ASSERT_N(it != arrays.end());
 
     // Create and return the pointer type
     return get_pointer(arr->base);
@@ -1528,8 +1530,8 @@ ConstType *TypeContext::get_const(Type *base) {
     // Guard to prevent double-wrapping of const
     if (base->is_const()) {
         ConstType *cnst = base->as_const();
-        assert(cnst && "type base returned is_const() = true but cannot be cast");
-        assert(const_types.contains(cnst->base));
+        ECC_ASSERT(cnst, "type base returned is_const() = true but cannot be cast");
+        ECC_ASSERT_N(const_types.contains(cnst->base));
         return cnst;
     }
 
@@ -1575,8 +1577,7 @@ bool TypeContext::is_valid_main_signature(FunctionType *signature) {
             break;
         }
         default:
-            std::unreachable();
-            break;
+            ECC_UNREACHABLE("loop bound guarantees i is 0, 1 or 2 in is_valid_main_signature");
         }
     }
 

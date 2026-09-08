@@ -3,10 +3,9 @@
 #ifndef ECC_CODEGEN_H
 #define ECC_CODEGEN_H
 
-#include <stdexcept>
-
 #include "config.hpp"
 #include "prelude.hpp"
+#include "util/assert.hpp"
 
 namespace ecc::sema::types {
 
@@ -73,7 +72,7 @@ public:
         } else if (auto *ty = dyncast<sema::types::ConstType>(type)) {
             finalize(ty);
         } else {
-            throw std::runtime_error("unknown type to finalize");
+            ECC_UNREACHABLE("unknown type to finalize");
         }
     }
 

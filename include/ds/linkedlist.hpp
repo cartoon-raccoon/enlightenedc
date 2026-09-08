@@ -3,11 +3,9 @@
 #ifndef ECC_DS_LINKEDLIST_H
 #define ECC_DS_LINKEDLIST_H
 
-#include <cassert>
 #include <concepts>
 #include <cstddef>
 #include <iterator>
-#include <stdexcept>
 
 #include "allocator/alloc.hpp"
 #include "prelude.hpp"

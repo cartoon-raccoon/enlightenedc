@@ -1,7 +1,5 @@
 #include "eval/consteval.hpp"
 
-#include <stdexcept>
-
 #include "allocator/chunk.hpp"
 #include "eval/value.hpp"
 #include "semantics/mir/mir.hpp"
@@ -223,9 +221,8 @@ Value ConstEvaluator::eval(SizeofExprMIR& expr) {
                 }
 
                 IdentExprMIR *identexpr = dyncast<IdentExprMIR>(e.get());
-                if (!identexpr) {
-                    throw std::runtime_error("could not cast ExprMIR to IdentExprMIR");
-                }
+                ECC_ASSERT(identexpr, "could not cast ExprMIR to IdentExprMIR");
+
                 target_type = identexpr->ident->get_type();
                 if (target_type->is_function()) {
                     target_type = typectxt.get().get_pointer(target_type);
