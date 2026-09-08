@@ -147,10 +147,10 @@ public:
         cur = end = nullptr;
     }
 
-    size_t num_slabs() { return slabs.size(); }
+    [[nodiscard]] size_t num_slabs() { return slabs.size(); }
 
     template <class T, typename... Args>
-    T *create(Args&&...args) {
+    [[nodiscard]] T *create(Args&&...args) {
         void *mem = alloc(sizeof(T), alignof(T));
         T *obj    = ::new (mem) T(std::forward<Args>(args)...);
 
@@ -174,6 +174,7 @@ public:
         cleanup_head        = cleanuprec;
     }
 
+    [[nodiscard]]
     void *alloc(size_t size, size_t align) {
         if (size > SizeThreshold) {
             return alloc_custom(size);
@@ -200,6 +201,7 @@ public:
     /**
     Allocate a custom sized slab.
     */
+    [[nodiscard]]
     void *alloc_custom(size_t size) {
         ECC_ASSERT(size > SizeThreshold, "custom slab for size under threshold");
 
@@ -300,7 +302,7 @@ inline BumpAllocator<>& instance() {
 }
 } // namespace detail
 
-inline void *alloc(size_t size, size_t align) {
+[[nodiscard]] inline void *alloc(size_t size, size_t align) {
     return detail::instance().alloc(size, align);
 }
 
@@ -308,7 +310,7 @@ inline void *alloc(size_t size, size_t align) {
 Create a new instance of `T`, owned by the arena. Returns a pointer to the created instance.
 */
 template <typename T, typename... Args>
-inline T *create(Args&&...args) {
+[[nodiscard]] inline T *create(Args&&...args) {
     return detail::instance().create<T>(std::forward<Args>(args)...);
 }
 
@@ -346,7 +348,7 @@ inline void print_allocator_stats() {
 Create a `Chunk<T>` using the global allocator.
 */
 template <typename T, typename... Args>
-Chunk<T> make_chunk(Args&&...args) {
+[[nodiscard]] Chunk<T> make_chunk(Args&&...args) {
     T *obj = detail::instance().create<T>(std::forward<Args>(args)...);
     return Chunk<T>(obj);
 }
@@ -359,7 +361,7 @@ in the arena, and then move constructing the object into that memory. This might
 a new slab allocation, if the arena needs to grow.
 */
 template <typename T>
-Chunk<T> make_chunk(std::unique_ptr<T> box) {
+[[nodiscard]] Chunk<T> make_chunk(std::unique_ptr<T> box) {
     return make_chunk<T>(std::move(*box));
 }
 
@@ -367,7 +369,7 @@ Chunk<T> make_chunk(std::unique_ptr<T> box) {
 Create a `Chunk<T>`, where the memory is owned by the provided `allocator`.
 */
 template <typename T, typename... Args>
-Chunk<T> make_chunk(BumpAllocator<>& allocator, Args&&...args) {
+[[nodiscard]] Chunk<T> make_chunk(BumpAllocator<>& allocator, Args&&...args) {
     T *obj = allocator.create<T>(std::forward<Args>(args)...);
     return Chunk<T>(obj);
 }

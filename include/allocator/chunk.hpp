@@ -107,7 +107,7 @@ public:
     /**
     Releases the chunk's ownership of the object.
     */
-    T *release() {
+    [[nodiscard]] T *release() {
         T *tmp = ptr;
         ptr    = nullptr;
 

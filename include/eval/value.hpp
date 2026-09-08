@@ -42,7 +42,7 @@ new value.
 This is also why certain operators are not overloaded - they operate on memory, at runtime.
 They are meaningless on Values.
 */
-class Value {
+class [[nodiscard]] Value {
 
     /**
     The inner
