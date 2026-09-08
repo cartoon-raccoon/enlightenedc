@@ -46,7 +46,7 @@ Note that `ByteAllocators` are not STL-compatible.
 template <typename A>
 concept ByteAllocator = requires(A& a, size_t n, size_t align, void *ptr) {
     { a.allocate(n, align) } -> std::same_as<void *>;
-    { a.deallocate(ptr, align) } noexcept;
+    { a.deallocate(ptr, n, align) } noexcept;
 };
 
 class Slab {
@@ -232,64 +232,11 @@ public:
     }
 
     /**
-    Allocate a custom sized slab.
-    */
-    [[nodiscard]]
-    void *allocate_custom(size_t size) {
-        ECC_ASSERT(size > SizeThreshold, "custom slab for size under threshold");
-
-        Slab slab(size);
-
-#ifndef NDEBUG
-        stats.num_custom_slabs += 1;
-        stats.total_used_bytes += size;
-        stats.total_allocated_bytes += size;
-#endif
-
-        void *ret = slab.start();
-
-        custom_slabs.push_back(std::move(slab));
-
-        return ret;
-    }
-
-    /**
-    On a bump allocator, deallocation is a no-op.
+    On a bump-pointer allocator, deallocation is a no-op.
     */
     void deallocate(
-        [[maybe_unused]] void *ptr, [[maybe_unused]] size_t align) noexcept {}
-
-    /**
-    Allocate a new slab.
-    */
-    void *grow(size_t size, size_t align) {
-        size_t slab_size = compute_slab_size();
-
-        Slab slab(slab_size);
-
-#ifndef NDEBUG
-        stats.num_slabs += 1;
-        stats.total_allocated_bytes += slab_size;
-        stats.current_slab_size = slab_size;
-#endif
-
-        cur = slab.start();
-        end = slab.end();
-
-        slabs.push_back(std::move(slab));
-
-        size_t align_to_use = std::max(align, MinAlign);
-        auto raw            = align_addr(cur, align_to_use);
-        uint8_t *result     = reinterpret_cast<uint8_t *>(raw);
-
-#ifndef NDEBUG
-        stats.total_used_bytes += size;
-#endif
-
-        cur = result + size;
-
-        return result;
-    }
+        [[maybe_unused]] void *ptr, 
+        [[maybe_unused]] size_t n, [[maybe_unused]] size_t align) noexcept {}
 
     /**
     Deallocate all but the first slab, and clear all custom-sized slabs.
@@ -325,6 +272,60 @@ public:
 #endif
 
 private:
+    /**
+    Allocate a custom sized slab.
+    */
+    [[nodiscard]]
+    void *allocate_custom(size_t size) {
+        ECC_ASSERT(size > SizeThreshold, "custom slab for size under threshold");
+
+        Slab slab(size);
+
+#ifndef NDEBUG
+        stats.num_custom_slabs += 1;
+        stats.total_used_bytes += size;
+        stats.total_allocated_bytes += size;
+#endif
+
+        void *ret = slab.start();
+
+        custom_slabs.push_back(std::move(slab));
+
+        return ret;
+    }
+
+    /**
+    Allocate a new slab.
+    */
+    void *grow(size_t size, size_t align) {
+        size_t slab_size = compute_slab_size();
+
+        Slab slab(slab_size);
+
+#ifndef NDEBUG
+        stats.num_slabs += 1;
+        stats.total_allocated_bytes += slab_size;
+        stats.current_slab_size = slab_size;
+#endif
+
+        cur = slab.start();
+        end = slab.end();
+
+        slabs.push_back(std::move(slab));
+
+        size_t align_to_use = std::max(align, MinAlign);
+        auto raw            = align_addr(cur, align_to_use);
+        uint8_t *result     = reinterpret_cast<uint8_t *>(raw);
+
+#ifndef NDEBUG
+        stats.total_used_bytes += size;
+#endif
+
+        cur = result + size;
+
+        return result;
+    }
+
     size_t compute_slab_size() {
         // Scale the actual allocated slab size based on the number of slabs
         // allocated. Every GrowthDelay slabs allocated, we double
@@ -524,8 +525,8 @@ public:
         return ::operator new(n, std::align_val_t(align));
     }
 
-    void deallocate(void *ptr, size_t align) noexcept {
-        ::operator delete(ptr, std::align_val_t(align));
+    void deallocate(void *ptr, size_t n, size_t align) noexcept {
+        ::operator delete(ptr, n, std::align_val_t(align));
     }
 };
 
