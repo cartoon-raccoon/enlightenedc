@@ -342,7 +342,7 @@ size_t LLVMUnit::alloc_size(Type *type) {
     return dl.getTypeAllocSize(size_type);
 }
 
-void LLVMUnit::compile(lower::cfg::Program& prog) {
+void LLVMUnit::compile(const lower::cfg::Program& prog) {
     LLVMGenerator generator(*this, rtcfg);
     generator.compile(prog);
 }

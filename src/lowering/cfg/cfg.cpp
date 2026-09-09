@@ -283,7 +283,7 @@ Global *Program::add_global(Type *type, StringRef name, Value *init) {
     return ret;
 }
 
-Span<Box<Global>> Program::get_globals() {
+Span<const Box<Global>> Program::get_globals() const {
     return globals;
 }
 
@@ -370,6 +370,6 @@ Function *Program::add_function(sema::types::FunctionType *sig, StringRef name) 
     return ret;
 }
 
-Span<Box<Function>> Program::get_functions() {
+Span<const Box<Function>> Program::get_functions() const {
     return functions;
 }

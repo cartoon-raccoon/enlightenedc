@@ -1,4 +1,5 @@
 #include "semantics/validator.hpp"
+#include <variant>
 
 #include "ds/arenavec.hpp"
 #include "error.hpp"
@@ -47,7 +48,7 @@ Chunk<CastExprMIR> Validator::decay(Type *target, Chunk<mir::ExprMIR> expr, bool
 void Validator::validate_print(StringRef format_str, Span<Chunk<mir::ExprMIR>> args) {
     // todo
     size_t arg_index = 0;
-    for (auto i = format_str.begin(); i != format_str.end(); ++i) {
+    for (const auto *i = format_str.begin(); i != format_str.end(); ++i) {
         // once we encounter a print specifier
         if (*i == '%') {
             // advance the iterator
@@ -355,7 +356,7 @@ void Validator::eval_initializer_rec_arr(
 }
 
 void Validator::visit_single_vardecl(sym::VarSymbol *varsym, InitializerMIR& init) {
-    bsv_dbprint("Validator: visiting single VarDecl for ", varsym->name);
+    bsv_dbprint("Validator: visiting single VarDecl for ", varsym->get_name());
     if (Optional<Type *> inferred =
             eval_initializer(varsym->get_type(), init, /*allow_size_infer=*/true)) {
         varsym->set_type(*inferred);
@@ -476,7 +477,7 @@ void Validator::do_visit(VarDeclMIR& node) {
     for (auto& decl : node.decls) {
         if (decl.sym->get_type()->is_usertype() &&
             !decl.sym->get_type()->as_usertype()->is_complete()) {
-            add_error<IncompleteTypeUseError>(*decl.sym->get_type()->get_name(), decl.sym->loc);
+            add_error<IncompleteTypeUseError>(*decl.sym->get_type()->get_name(), decl.sym->get_loc());
             throw UnableToContinue();
         }
         if (decl.initializer) {
@@ -1234,6 +1235,8 @@ void Validator::do_visit(LiteralExprMIR& node) { // done
         node.set_type(types.get_primitive(val->primtype()));
     } else if (auto *s = std::get_if<StringRef>(&node.value)) {
         node.set_type(types.get_array(types.get_i8(), s->size() + 1));
+    } else if (auto *p = std::get_if<std::monostate>(&node.value)) {
+        node.set_type(types.get_voidptr());
     } else {
         ECC_UNREACHABLE("LiteralExprMIR value held neither eval::Value nor StringRef");
     }
@@ -1245,7 +1248,10 @@ void Validator::do_visit(LiteralExprMIR& node) { // done
 
 void Validator::do_visit(CallExprMIR& node) {
     bsv_dbprint("Validator: visiting CallExprMIR node");
+
     node.callee->accept(*this);
+
+    // If node is not callable, bail immediately.
     if (!node.callee->is_callable()) {
         bsv_dbprint("error: callee is not callable");
         add_error<InvalidCallExprError>(node.callee->eff_type, node.callee->loc);
@@ -1258,84 +1264,88 @@ void Validator::do_visit(CallExprMIR& node) {
 
     FunctionType *sig;
     if (auto *ptr = node.callee->act_type->as_pointer()) {
-        auto *base = ptr->get_base();
-        ECC_ASSERT_N(base->is_function());
-        sig = base->as_function();
+        ECC_ASSERT_N(ptr->is_funcptr());
+        sig = ptr->as_function();
     } else if (node.callee->act_type->is_function()) {
         sig = node.callee->act_type->as_function();
     } else {
         ECC_UNREACHABLE("CallExprMIR callee returned callable but is not func or funcptr");
     }
 
-    if (node.args.size() > sig->num_params() && !sig->get_signature().variadic) {
+    // set call signature.
+    node.call_sig = sig;
 
+    // Reject argument-count errors before coercing anything.
+    if (node.args.size() > sig->num_params() && !sig->get_signature().variadic) {
         bsv_dbprint("error: too many arguments in function call");
         add_error<TooManyArgsError>(node.loc, sig->num_params(), node.args.size());
         throw UnableToContinue();
+    }
 
-    } else if (node.args.size() < sig->num_params()) {
-        if (auto *callee = dyncast<IdentExprMIR>(node.callee)) {
-            if (auto *function = dyncast<sym::FuncSymbol>(callee->ident)) {
-                // direct function call through a function symbol, check default
-                if (node.args.size() + function->num_default_params() < sig->num_params()) {
-                    bsv_dbprint("error: underspecified direct function call");
-                    add_error<UnderspecifiedCallError>(
-                        node.loc, function->num_non_default_params(), node.args.size());
-                    throw UnableToContinue();
-                }
-            } else {
-                // indirect function call through a function pointer identifier
-                bsv_dbprint("error: underspecified indirect function call (identifier)");
-                add_error<UnderspecifiedCallError>(node.loc, sig->num_params(), node.args.size());
-                throw UnableToContinue();
-            }
-        } else {
-            // indirect function call through a function pointer (not identifier)
-            bsv_dbprint("error: underspecified direct function call (not identifier)");
+    if (node.args.size() < sig->num_params()) {
+        // A short call is only allowed when it names a function directly and every omitted
+        // trailing parameter carries a default value. Default arguments cannot be filled in
+        // through a function pointer, so an indirect callee is always an error here.
+        auto *callee   = dyncast<IdentExprMIR>(node.callee);
+        auto *function = callee ? dyncast<sym::FuncSymbol>(callee->ident) : nullptr;
+
+        if (!function) {
+            bsv_dbprint("error: underspecified call through a function pointer");
             add_error<UnderspecifiedCallError>(node.loc, sig->num_params(), node.args.size());
             throw UnableToContinue();
         }
-    } else {
-        // node.args.size() == sig->num_params(), or node.args.size() > sig->num_params() with a
-        // variadic signature. Either way, the leading args line up with declared params.
-        for (auto&& [i, param] : std::views::enumerate(sig->params())) {
-            auto& arg = node.args[i];
-            // The param here is in an rvalue position, take unqualified
-            auto *arg_type = arg->act_type->unqual();
-            // Get the type of the param as declared
-            auto *param_type = param;
-            if (arg_type != param_type) {
-                if (arg_type->is_array()) {
-                    arg      = decay(arg_type->as_array()->decay(), std::move(arg));
-                    arg_type = arg->act_type->unqual();
-                } else if (arg_type->is_function()) {
-                    arg      = decay(arg_type->as_function()->decay(), std::move(arg), true);
-                    arg_type = arg->act_type->unqual();
-                }
 
-                // re-check after decay to prevent spurious cast nodes
-                if (arg_type != param_type) {
-                    if (arg_type->coercible_to(param_type)) {
-                        arg = cast(param_type, std::move(arg));
-                    } else {
-                        bsv_dbprint("error: cannot coerce argument to parameter type");
-                        add_error<InvalidCoerceError>(arg->act_type->unqual(), param, arg->loc);
-                    }
+        if (node.args.size() + function->num_default_params() < sig->num_params()) {
+            bsv_dbprint("error: underspecified direct function call");
+            add_error<UnderspecifiedCallError>(
+                node.loc, function->num_non_default_params(), node.args.size());
+            throw UnableToContinue();
+        }
+    }
+
+    // Coerce every argument that lines up with a declared parameter. A call that relies on
+    // default arguments has fewer of these than declared parameters; a variadic call may
+    // have more arguments past them. Only the overlapping prefix is checked against the
+    // declared parameter types.
+    size_t num_fixed =
+        node.args.size() < sig->num_params() ? node.args.size() : sig->num_params();
+    for (size_t i = 0; i < num_fixed; i++) {
+        auto& arg        = node.args[i];
+        auto *param_type = sig->params()[i];
+        // The param here is in an rvalue position, take unqualified.
+        auto *arg_type = arg->act_type->unqual();
+
+        if (arg_type != param_type) {
+            if (arg_type->is_array()) {
+                arg      = decay(arg_type->as_array()->decay(), std::move(arg));
+                arg_type = arg->act_type->unqual();
+            } else if (arg_type->is_function()) {
+                arg      = decay(arg_type->as_function()->decay(), std::move(arg), true);
+                arg_type = arg->act_type->unqual();
+            }
+
+            // re-check after decay to prevent spurious cast nodes
+            if (arg_type != param_type) {
+                if (arg_type->coercible_to(param_type)) {
+                    arg = cast(param_type, std::move(arg));
+                } else {
+                    bsv_dbprint("error: cannot coerce argument to parameter type");
+                    add_error<InvalidCoerceError>(arg->act_type->unqual(), param_type, arg->loc);
                 }
             }
         }
+    }
 
-        // Trailing variadic arguments have no declared parameter type to check against, but
-        // array/function arguments (e.g. string literals, bare function names) still need to
-        // decay to a pointer.
-        for (size_t i = sig->num_params(); i < node.args.size(); i++) {
-            auto& arg      = node.args[i];
-            auto *arg_type = arg->act_type->unqual();
-            if (arg_type->is_array()) {
-                arg = decay(arg_type->as_array()->decay(), std::move(arg));
-            } else if (arg_type->is_function()) {
-                arg = decay(arg_type->as_function()->decay(), std::move(arg), true);
-            }
+    // Trailing variadic arguments have no declared parameter type to check against, but
+    // array/function arguments (e.g. string literals, bare function names) still need to
+    // decay to a pointer.
+    for (size_t i = sig->num_params(); i < node.args.size(); i++) {
+        auto& arg      = node.args[i];
+        auto *arg_type = arg->act_type->unqual();
+        if (arg_type->is_array()) {
+            arg = decay(arg_type->as_array()->decay(), std::move(arg));
+        } else if (arg_type->is_function()) {
+            arg = decay(arg_type->as_function()->decay(), std::move(arg), true);
         }
     }
 

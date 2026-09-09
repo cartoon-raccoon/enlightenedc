@@ -59,6 +59,7 @@ class IdentifierExpression;
 class ConstExpression;
 class LiteralExpression;
 class StringExpression;
+class NullptrExpression;
 class CallExpression;
 class MemberAccessExpression;
 class ReinterpretExpression;
@@ -78,7 +79,7 @@ class ASTVisitor
           SwitchStatement, WhileStatement, DoWhileStatement, ForStatement, GotoStatement,
           BreakStatement, ContinueStatement, ReturnStatement, BinaryExpression, CastExpression,
           UnaryExpression, AssignmentExpression, ConditionalExpression, IdentifierExpression,
-          ConstExpression, LiteralExpression, StringExpression, CallExpression,
+          ConstExpression, LiteralExpression, StringExpression, NullptrExpression, CallExpression,
           MemberAccessExpression, ReinterpretExpression, ArraySubscriptExpression,
           PostfixExpression, SizeofExpression> {};
 

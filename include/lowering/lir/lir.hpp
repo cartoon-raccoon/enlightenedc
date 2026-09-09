@@ -180,6 +180,9 @@ public:
     ZeroInitLIR(sema::types::Type *type)
         : LIRVisitable<ZeroInitLIR, ConstInitLIR>(NodeKind::ZEROINIT_LIR, type) {}
 
+    ZeroInitLIR(Location loc, sema::types::Type *type)
+        : LIRVisitable<ZeroInitLIR, ConstInitLIR>(loc, NodeKind::ZEROINIT_LIR, type) {}
+
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::ZEROINIT_LIR; }
 };
 
@@ -668,7 +671,7 @@ public:
 
 class LiteralExprLIR : public LIRVisitable<LiteralExprLIR, ExprLIR> {
 public:
-    using LitValueLIR = std::variant<eval::Value, StringRef>;
+    using LitValueLIR = std::variant<eval::Value, StringRef, std::monostate>;
 
     LiteralExprLIR(Location loc, eval::Value value, sema::types::Type *type)
         : LIRVisitable<LiteralExprLIR, ExprLIR>(loc, NodeKind::LITEXPR_LIR, type), value(value) {}
@@ -690,6 +693,7 @@ public:
 
     bool is_str() const { return std::holds_alternative<StringRef>(value); }
     bool is_val() const { return std::holds_alternative<eval::Value>(value); }
+    bool is_ptr() const { return std::holds_alternative<std::monostate>(value); }
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::LITEXPR_LIR; }
 };

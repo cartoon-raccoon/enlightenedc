@@ -85,6 +85,7 @@ public:
         IDENT_EXPR,
         LIT_EXPR,
         STR_EXPR,
+        NULL_EXPR,
         CALL_EXPR,
         ACCESS_EXPR,
         REINT_EXPR,
@@ -192,6 +193,7 @@ public:
         case NodeKind::IDENT_EXPR:
         case NodeKind::LIT_EXPR:
         case NodeKind::STR_EXPR:
+        case NodeKind::NULL_EXPR:
         case NodeKind::CALL_EXPR:
         case NodeKind::ACCESS_EXPR:
         case NodeKind::REINT_EXPR:
@@ -1054,6 +1056,14 @@ public:
     StringRef value;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::STR_EXPR; }
+};
+
+class NullptrExpression : public ASTVisitable<NullptrExpression, Expression> {
+public:
+    NullptrExpression(Location loc)
+        : ASTVisitable<NullptrExpression, Expression>(NodeKind::NULL_EXPR, loc) {}
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::NULL_EXPR; }
 };
 
 class CallExpression : public ASTVisitable<CallExpression, Expression> {

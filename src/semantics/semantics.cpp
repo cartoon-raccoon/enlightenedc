@@ -146,6 +146,7 @@ DO_VISIT(BaseASTSemaVisitor, IdentifierExpression);
 DO_VISIT(BaseASTSemaVisitor, ConstExpression);
 DO_VISIT(BaseASTSemaVisitor, LiteralExpression);
 DO_VISIT(BaseASTSemaVisitor, StringExpression);
+DO_VISIT(BaseASTSemaVisitor, NullptrExpression);
 DO_VISIT(BaseASTSemaVisitor, CallExpression);
 DO_VISIT(BaseASTSemaVisitor, MemberAccessExpression);
 DO_VISIT(BaseASTSemaVisitor, ReinterpretExpression);
@@ -497,6 +498,9 @@ void BaseASTSemaVisitor::do_visit(LiteralExpression& node) { /* terminal node */
 }
 
 void BaseASTSemaVisitor::do_visit(StringExpression& node) { /* terminal node */
+}
+
+void BaseASTSemaVisitor::do_visit(NullptrExpression& node) { /* terminal node */
 }
 
 void BaseASTSemaVisitor::do_visit(CallExpression& node) {

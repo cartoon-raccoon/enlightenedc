@@ -34,7 +34,7 @@ protected:
 public:
     LLVMGenerator(LLVMUnit& llvm, RuntimeConfig& rtcfg);
 
-    void compile(lower::cfg::Program& prog);
+    void compile(const lower::cfg::Program& prog);
 
     // Visitor method overrides
     void visit(lower::cfg::Alloca& inst) override;

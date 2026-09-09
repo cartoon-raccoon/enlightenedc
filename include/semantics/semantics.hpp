@@ -275,6 +275,7 @@ public:
     virtual void do_visit(ast::ConstExpression& node);
     virtual void do_visit(ast::LiteralExpression& node);
     virtual void do_visit(ast::StringExpression& node);
+    virtual void do_visit(ast::NullptrExpression& node);
     virtual void do_visit(ast::CallExpression& node);
     virtual void do_visit(ast::MemberAccessExpression& node);
     virtual void do_visit(ast::ReinterpretExpression& node);
@@ -338,6 +339,7 @@ protected:
     void visit(ast::ConstExpression& node) override;
     void visit(ast::LiteralExpression& node) override;
     void visit(ast::StringExpression& node) override;
+    void visit(ast::NullptrExpression& node) override;
     void visit(ast::CallExpression& node) override;
     void visit(ast::MemberAccessExpression& node) override;
     void visit(ast::ReinterpretExpression& node) override;

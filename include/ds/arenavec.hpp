@@ -183,12 +183,22 @@ public:
         }
     }
 
+    /**
+    Construct an ArenaVec from a `Vec<T>`.
+    */
     ArenaVec(const Vec<T>& vec) : ArenaVecBase<T, N>() {
         reserve(vec.size());
         std::uninitialized_copy_n(vec.data(), vec.size(), this->ptr);
         this->len = vec.size();
     }
 
+    /**
+    Moves a Vec<T> into a new ArenaVec.
+
+    Note: THIS IS AN EXPENSIVE OPERATION. It is not a pointer steal. Moving a `Vec<T>` into
+    an ArenaVec involves allocating new space on the arena, and then moving the contents
+    of the `Vec<T>` onto the arena. This might also involve a new slab allocation.
+    */
     ArenaVec(Vec<T>&& vec) : ArenaVecBase<T, N>() {
         reserve(vec.size());
         std::uninitialized_move_n(vec.data(), vec.size(), this->ptr);

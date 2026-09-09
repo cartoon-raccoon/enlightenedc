@@ -259,7 +259,8 @@ void LIRPrinter::visit(LiteralExprLIR& node) {
     std::string valstr = std::visit(
         match{
             [](eval::Value& val) { return val.to_string(); },
-            [](StringRef s) { return encode_string_literal(s); }},
+            [](StringRef s) { return encode_string_literal(s); },
+            [](std::monostate) -> std::string { return "nullptr"; }},
         node.value);
     print_node("Literal: " + valstr + " :: " + node.act_type->formal(), node);
 }

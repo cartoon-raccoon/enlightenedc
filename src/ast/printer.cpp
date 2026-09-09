@@ -404,6 +404,10 @@ void ASTPrinter::visit(StringExpression& node) {
     print_node("String: " + encode_string_literal(node.value), node);
 }
 
+void ASTPrinter::visit(NullptrExpression& node) {
+    print_node("Nullptr: ", node);
+}
+
 void ASTPrinter::visit(IdentifierExpression& node) {
     print_node("IdentifierExpression: " + node.name.str(), node);
 }

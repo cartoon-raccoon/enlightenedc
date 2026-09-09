@@ -52,6 +52,9 @@ class CodeGenUnit {
 public:
     virtual ~CodeGenUnit() = default;
 
+    /**
+    Materialize a type into a data representation understood by the backend.
+    */
     void finalize(sema::types::Type *type) {
         if (auto *ty = dyncast<sema::types::VoidType>(type)) {
             finalize(ty);
@@ -91,7 +94,15 @@ public:
 
     virtual size_t alloc_size(sema::types::Type *type) = 0;
 
-    virtual void compile(lower::cfg::Program& prog) = 0;
+    /**
+    The call to compile the code, handing off the CFG to the code generator.
+
+    This marks the end of the frontend's responsibility for the translation unit.
+    The CFG, as handed over here, is the finalized, set-in-stone shape of the program
+    that will be compiled into the target representation. Any changes made by the
+    frontend to the CFG after this call should not be reflected in the final program.
+    */
+    virtual void compile(const lower::cfg::Program& prog) = 0;
 };
 
 } // namespace ecc::codegen

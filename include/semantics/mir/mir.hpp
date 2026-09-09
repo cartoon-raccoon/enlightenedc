@@ -73,9 +73,7 @@ public:
         ASSGNEXPR_MIR,
         CONDEXPR_MIR,
         IDENTEXPR_MIR,
-        CONSTEXPR_MIR,
         LITEXPR_MIR,
-        STREXPR_MIR,
         CALLEXPR_MIR,
         MEMACCEXPR_MIR,
         REINTEXPR_MIR,
@@ -166,6 +164,11 @@ public:
 
     /**
     Whether this expression is constant-foldable.
+
+    Note: this does not necessarily mean that the full expression is constant foldable,
+    it simply means at least some part of the expression can be. For example, a \p CondExprMIR
+    is foldable if just its condition is foldable, because it means one branch can be
+    eliminated. It does not necessarily mean the surviving branch is foldable.
     */
     virtual bool is_const_foldable() = 0;
 
@@ -311,16 +314,24 @@ public:
     static bool classof(const MIRNode *node) { return node->kind == NodeKind::TYPEDEC_MIR; }
 };
 
-// A MIR node containing a single variable declaration and optional initializer.
+/**
+A MIR node carrying a set of declarations, each with an optional initializer.
+*/
 class VarDeclMIR : public MIRVisitable<VarDeclMIR, DeclMIR> {
 public:
+    /**
+    A single variable declaration.
+    */
     struct VarDecl {
         sema::sym::VarSymbol *sym;
         Optional<Chunk<InitializerMIR>> initializer;
     };
 
     VarDeclMIR(Location loc) : MIRVisitable<VarDeclMIR, DeclMIR>(loc, NodeKind::VARDEC_MIR) {}
-
+    
+    /**
+    The declarations.
+    */
     ds::ArenaVec<VarDecl> decls;
 
     void add_decl(sema::sym::VarSymbol *sym);
@@ -717,12 +728,18 @@ public:
 class LiteralExprMIR : public MIRVisitable<LiteralExprMIR, ExprMIR> {
 public:
     LiteralExprMIR(Location loc, sema::sym::Scope *scope, eval::Value value)
-        : MIRVisitable<LiteralExprMIR, ExprMIR>(loc, NodeKind::LITEXPR_MIR, scope), value(value) {}
+        : MIRVisitable<LiteralExprMIR, ExprMIR>(loc, NodeKind::LITEXPR_MIR, scope),
+        value(value) {}
 
     LiteralExprMIR(Location loc, sema::sym::Scope *scope, StringRef value)
-        : MIRVisitable<LiteralExprMIR, ExprMIR>(loc, NodeKind::LITEXPR_MIR, scope), value(value) {}
+        : MIRVisitable<LiteralExprMIR, ExprMIR>(loc, NodeKind::LITEXPR_MIR, scope),
+        value(value) {}
 
-    using LitValueMIR = std::variant<eval::Value, StringRef>;
+    LiteralExprMIR(Location loc, sema::sym::Scope *scope)
+        : MIRVisitable<LiteralExprMIR, ExprMIR>(loc, NodeKind::LITEXPR_MIR, scope),
+        value(std::monostate{}) {}
+
+    using LitValueMIR = std::variant<eval::Value, StringRef, std::monostate>;
 
     LitValueMIR value;
 
@@ -739,6 +756,8 @@ public:
     bool is_primitive() const { return std::holds_alternative<eval::Value>(value); }
 
     bool is_string() const { return std::holds_alternative<StringRef>(value); }
+
+    bool is_nullptr() const { return std::holds_alternative<std::monostate>(value); }
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
 
@@ -759,6 +778,11 @@ public:
 
     Chunk<ExprMIR> callee;
     ds::ArenaVec<Chunk<ExprMIR>> args;
+
+    /**
+    Hold a pointer to the call signature for default argument desugaring at LIR.
+    */
+    types::FunctionType *call_sig = nullptr;
 
     bool is_const_foldable() override { return false; }
 

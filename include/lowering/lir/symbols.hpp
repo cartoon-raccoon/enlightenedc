@@ -54,10 +54,10 @@ The representation of a physical variable (memory location) in the LIR.
 class LIRVarSym : public LIRSym {
 public:
     LIRVarSym(sema::sym::VarSymbol *sym)
-        : LIRSym(LIRSymKind::VAR, sym->get_symdata_rc(), sym->loc), is_param(sym->is_funcparam()) {}
+        : LIRSym(LIRSymKind::VAR, sym->get_symdata_rc(), sym->get_loc()), is_param(sym->is_funcparam()) {}
 
     LIRVarSym(sema::sym::VarSymbol *sym, LIRFuncSym *function)
-        : LIRSym(LIRSymKind::VAR, sym->get_symdata_rc(), sym->loc), is_param(sym->is_funcparam()),
+        : LIRSym(LIRSymKind::VAR, sym->get_symdata_rc(), sym->get_loc()), is_param(sym->is_funcparam()),
           function(function) {}
 
     // Whether the variable is a function parameter.
@@ -93,7 +93,7 @@ LIRFuncSym (and thus the same FunctionLIR) is returned on subsequent insertion a
 class LIRFuncSym : public LIRSym {
 public:
     LIRFuncSym(sema::sym::FuncSymbol *sym)
-        : LIRSym(LIRSymKind::FUNC, sym->get_symdata_rc(), sym->loc) {}
+        : LIRSym(LIRSymKind::FUNC, sym->get_symdata_rc(), sym->get_loc()) {}
 
     Vec<LIRVarSym *> params;
 

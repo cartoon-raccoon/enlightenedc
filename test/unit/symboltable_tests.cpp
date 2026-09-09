@@ -2,7 +2,7 @@
 
 // Helper: build a FuncSymbol in the walker's current scope.
 static FuncSymbol *insert_func(
-    SymbolTableWalker& walker, TypeContext& tctxt, const Location& LOC, std::string name) {
+    SymbolTableWalker& walker, TypeContext& tctxt, const Location& LOC, const std::string& name) {
     FunctionType *fn_type = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
     auto sym = std::make_unique<FuncSymbol>(LOC, name, walker.current, fn_type, Vec<VarSymbol *>{});
     return walker.insert(name, std::move(sym));
@@ -104,7 +104,7 @@ TEST_F(TypeSysAndSymTabTestFixture, VarInsert_FoundByLookup) {
 
     VarSymbol *found = walker.lookup_var(name);
     ASSERT_NE(found, nullptr);
-    EXPECT_EQ(found->name, name);
+    EXPECT_EQ(found->get_name(), name);
 }
 
 // VarSymbol inserted at global scope has is_global == true.
@@ -114,7 +114,7 @@ TEST_F(TypeSysAndSymTabTestFixture, VarInsert_GlobalScopeSetsIsGlobal) {
     VarSymbol *sym =
         walker.insert(name, std::make_unique<VarSymbol>(LOC, name, walker.current, tctxt.get_u32()));
 
-    EXPECT_TRUE(sym->is_global);
+    EXPECT_TRUE(sym->is_global());
 }
 
 // VarSymbol inserted in a nested scope does not have is_global set.
@@ -125,7 +125,7 @@ TEST_F(TypeSysAndSymTabTestFixture, VarInsert_NestedScopeIsNotGlobal) {
     VarSymbol *sym =
         walker.insert(name, std::make_unique<VarSymbol>(LOC, name, walker.current, tctxt.get_u32()));
 
-    EXPECT_FALSE(sym->is_global);
+    EXPECT_FALSE(sym->is_global());
 }
 
 // Inserting the same VarSymbol name twice in the same scope throws a Symbol*.
@@ -160,7 +160,7 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_FoundByLookup) {
 
     FuncSymbol *found = walker.lookup_func(name);
     ASSERT_NE(found, nullptr);
-    EXPECT_EQ(found->name, name);
+    EXPECT_EQ(found->get_name(), name);
 }
 
 // FuncSymbol with same name but different signature throws.
@@ -190,7 +190,7 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_DeclThenDefUpgradesInPlace) {
 
     FuncSymbol *decl_ptr =
         walker.insert(name, FuncSymbol::empty(LOC, name, walker.current, fn_type));
-    ASSERT_FALSE(decl_ptr->has_body);
+    ASSERT_FALSE(decl_ptr->has_body());
 
     auto def = std::make_unique<FuncSymbol>(LOC, name, walker.current, fn_type, Vec<VarSymbol *>{});
     FuncSymbol *def_ptr = nullptr;
@@ -198,7 +198,7 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_DeclThenDefUpgradesInPlace) {
 
     EXPECT_EQ(def_ptr, decl_ptr)
         << "Reconciliation should mutate the existing symbol in place, not replace it";
-    EXPECT_TRUE(decl_ptr->has_body) << "has_body should be promoted to true on the existing symbol";
+    EXPECT_TRUE(decl_ptr->has_body()) << "has_body should be promoted to true on the existing symbol";
 }
 
 // A declaration followed by another declaration of the same signature is a harmless no-op.
@@ -214,7 +214,7 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_DeclThenDeclIsNoOp) {
         second = walker.insert(name, FuncSymbol::empty(LOC, name, walker.current, fn_type)));
 
     EXPECT_EQ(second, first);
-    EXPECT_FALSE(first->has_body);
+    EXPECT_FALSE(first->has_body());
 }
 
 // A definition followed by a declaration of the same signature is also a harmless no-op —
@@ -226,14 +226,14 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_DefThenDeclIsNoOp) {
 
     auto def = std::make_unique<FuncSymbol>(LOC, name, walker.current, fn_type, Vec<VarSymbol *>{});
     FuncSymbol *def_ptr = walker.insert(name, std::move(def));
-    ASSERT_TRUE(def_ptr->has_body);
+    ASSERT_TRUE(def_ptr->has_body());
 
     FuncSymbol *second = nullptr;
     EXPECT_NO_THROW(
         second = walker.insert(name, FuncSymbol::empty(LOC, name, walker.current, fn_type)));
 
     EXPECT_EQ(second, def_ptr);
-    EXPECT_TRUE(def_ptr->has_body) << "the existing definition's body flag must not be clobbered";
+    EXPECT_TRUE(def_ptr->has_body()) << "the existing definition's body flag must not be clobbered";
 }
 
 // Two definitions of the same signature is a genuine redefinition and must throw.
@@ -296,7 +296,7 @@ TEST_F(TypeSysAndSymTabTestFixture, TypeInsert_FoundByLookup) {
 
     TypeSymbol *found = walker.lookup_type(name);
     ASSERT_NE(found, nullptr);
-    EXPECT_EQ(found->name, name);
+    EXPECT_EQ(found->get_name(), name);
 }
 
 // Inserting the same TypeSymbol name twice throws.
@@ -321,7 +321,7 @@ TEST_F(TypeSysAndSymTabTestFixture, LabelInsert_FoundByLookup) {
 
     LabelSymbol *found = walker.lookup_label(name);
     ASSERT_NE(found, nullptr);
-    EXPECT_EQ(found->name, name);
+    EXPECT_EQ(found->get_name(), name);
 }
 
 // Inserting the same label name twice throws.
@@ -727,13 +727,13 @@ TEST_F(TypeSysAndSymTabTestFixture, VarSymbol_HasValueTrueWithValue) {
 
 // Helper: build a VarSymbol parameter, optionally with a default value.
 static Box<VarSymbol>
-make_param(const Location& LOC, Scope *scope, std::string name, Type *type) {
-    return std::make_unique<VarSymbol>(LOC, std::move(name), scope, type);
+make_param(const Location& LOC, Scope *scope, const std::string& name, Type *type) {
+    return std::make_unique<VarSymbol>(LOC, name, scope, type);
 }
 
 static Box<VarSymbol> make_default_param(
-    const Location& LOC, Scope *scope, std::string name, Type *type, eval::Value value) {
-    return std::make_unique<VarSymbol>(LOC, std::move(name), scope, type, value);
+    const Location& LOC, Scope *scope, const std::string& name, Type *type, const eval::Value& value) {
+    return std::make_unique<VarSymbol>(LOC, name, scope, type, value);
 }
 
 // num_params() reflects the number of parameters passed to the FuncSymbol.
@@ -823,8 +823,8 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncSymbol_DefaultParamsViewFiltersToDefault
     FuncSymbol fn(LOC, "viewParams", walker.current, fn_type, params);
 
     Vec<VarSymbol *> defaulted;
-    for (VarSymbol *sym : fn.default_params()) {
-        defaulted.push_back(sym);
+    for (VarSymbol& sym : fn.default_params()) {
+        defaulted.push_back(&sym);
     }
 
     ASSERT_EQ(defaulted.size(), 2U);
@@ -839,5 +839,4 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncSymbol_DefaultParamsEmptyWithNoParams) {
 
     EXPECT_EQ(fn->num_params(), 0U);
     EXPECT_EQ(fn->num_default_params(), 0U);
-    EXPECT_TRUE(fn->default_params().empty());
 }

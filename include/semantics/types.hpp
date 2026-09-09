@@ -1311,6 +1311,9 @@ public:
 
     EnumType *as_enum() override { return this; }
 
+    /**
+    Get the underlying type of the enum. never returns null.
+    */
     PrimitiveType *as_primitive() override { return underlying; }
 
     bool is_boolable() override { return underlying->is_boolable(); } // should always return true
@@ -1383,6 +1386,16 @@ public:
     Type *true_base();
 
     PointerType *as_pointer() override { return this; }
+
+    /**
+    Pointer override for `as_function()`: returns non-null if direct base is a function type,
+    else null.
+    */
+    FunctionType *as_function() override { 
+        return is_funcptr() ? base->as_function() : nullptr;
+    }
+
+    bool is_funcptr() { return base->is_function(); }
 
     bool is_subscriptable() override { return true; }
 
@@ -1825,6 +1838,11 @@ public:
     Create a pointer with the given `base` type.
     */
     PointerType *get_pointer(Type *base);
+
+    /**
+    Convenience method to quickly get a void pointer.
+    */
+    PointerType *get_voidptr() { return get_pointer(get_void()); }
 
     /**
     Decay the provided array type to a corresponding pointer type.

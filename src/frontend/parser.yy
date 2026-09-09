@@ -103,6 +103,8 @@ static ecc::frontend::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
     F64       "F64"
     BOOL      "Bool"
     SIZEOF    "sizeof"
+    ALIGNOF   "alignof"
+    NULLPTR   "nullptr"
     PUBLIC    "public"
     STATIC    "static"
     EXTERN    "extern"
@@ -238,7 +240,7 @@ static ecc::frontend::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 %type <Chunk<Expression>> exclusive_or_expression and_expression equality_expression
 %type <Chunk<Expression>> relational_expression shift_expression additive_expression
 %type <Chunk<Expression>> multiplicative_expression
-%type <Chunk<LiteralExpression>> constant
+%type <Chunk<Expression>> constant
 %type <ecc::StringRef> string_literal
 %type <Chunk<ConstExpression>> constant_expression
 %type <ArenaVec<Chunk<Expression>>> argument_expression_list
@@ -763,6 +765,14 @@ unary_expression:
     }
     | SIZEOF LPAREN type_name RPAREN {
         $$ = make_chunk<SizeofExpression>(@$, std::move($3));
+    } 
+    | ALIGNOF unary_expression { // todo
+        error(@$, "alignof expressions not yet supported");
+        return 1;
+    }
+    | ALIGNOF LPAREN type_name RPAREN {
+        error(@$, "alignof expressions not yet supported");
+        return 1;
     }
 ;
 
@@ -830,6 +840,9 @@ constant:
     }
     | FALSE {
         $$ = make_chunk<LiteralExpression>(@1, LiteralExpression::BOOL, LiteralExpression::Value(false));
+    }
+    | NULLPTR {
+        $$ = make_chunk<NullptrExpression>(@1);
     }
 ;
 
@@ -906,12 +919,23 @@ type_name:
 
 // Parameter types
 parameter_type_list:
-    parameter_list {
+    ELLIPSIS {
+        $$ = { {}, true};
+    }
+    | parameter_list {
         $$ = { std::move($1), false };
     }
     | parameter_list COMMA ELLIPSIS { // variadic function.
         // todo: add location tracking to account for the comma and ellipsis
         $$ = { std::move($1), true };
+    }
+    | ELLIPSIS parameter_list {
+        error(@2, "parameters cannot be named after a variadic marker");
+        return 1;
+    }
+    | ELLIPSIS COMMA parameter_list {
+        error(@2, "parameters cannot be named after a variadic marker");
+        return 1;
     }
 ;
 

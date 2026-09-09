@@ -270,6 +270,7 @@ protected:
     void do_visit(ast::ConstExpression& node) override;
     void do_visit(ast::LiteralExpression& node) override;
     void do_visit(ast::StringExpression& node) override;
+    void do_visit(ast::NullptrExpression& node) override;
     void do_visit(ast::CallExpression& node) override;
     void do_visit(ast::MemberAccessExpression& node) override;
     void do_visit(ast::ReinterpretExpression& node) override;

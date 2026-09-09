@@ -205,5 +205,25 @@ I64 x = { 1, 2;
 // Default without expression
 I64 f(I64 x =) { }
 
-// Ellipsis not last
+// Ellipsis not last, with a separating comma
 I64 f(..., I64 x) { }
+
+// Ellipsis not last, without a separating comma
+I64 f(... I64 x) { }
+
+// Named parameters both before and after the ellipsis
+I64 f(I32 a, ..., I64 x) { }
+
+// Two ellipses in one parameter list
+I64 f(..., ...) { }
+
+
+
+// Semantic errors
+
+// Default argument used in a call through a function pointer.
+// A short call is only allowed when it names the function directly, so the
+// missing argument for `b` cannot be filled from its default here.
+I64 with_default(I64 a, I64 b = 5) { return a + b; }
+I64 (*with_default_fp)(I64, I64) = with_default;
+with_default_fp(1);

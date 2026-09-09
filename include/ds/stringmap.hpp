@@ -1,5 +1,6 @@
 #pragma once
 
+#include "util/string.hpp"
 #ifndef ECC_STRINGMAP_H
 #define ECC_STRINGMAP_H
 
@@ -133,6 +134,9 @@ public:
 class StringMapImpl {
 
 };
+
+template<typename T>
+using StringMap = HashMap<std::string, T, StringRefHash, StringRefEq>;
 
 } // end namespace ds
 

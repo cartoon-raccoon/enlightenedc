@@ -165,6 +165,7 @@ static std::string decode_string_literal(char* text, size_t len) {
 "enum" { return ecc::frontend::Parser::make_ENUM(loc); }
 "const" { return ecc::frontend::Parser::make_CONST(loc); }
 "sizeof" { return ecc::frontend::Parser::make_SIZEOF(loc); }
+"alignof" { return ecc::frontend::Parser::make_ALIGNOF(loc); }
 "constexpr" { return ecc::frontend::Parser::make_CONSTEXPR(loc); }
 "..." { return ecc::frontend::Parser::make_ELLIPSIS(loc); }
 
@@ -186,6 +187,7 @@ static std::string decode_string_literal(char* text, size_t len) {
 
 "true" { return ecc::frontend::Parser::make_TRUE(loc); }
 "false" { return ecc::frontend::Parser::make_FALSE(loc); }
+"nullptr" { return ecc::frontend::Parser::make_NULLPTR(loc); }
 
 
 "public" { return ecc::frontend::Parser::make_PUBLIC(loc); } /* Storage class specifiers */

@@ -70,6 +70,7 @@ public:
     void visit(ConstExpression& node) override;
     void visit(LiteralExpression& node) override;
     void visit(StringExpression& node) override;
+    void visit(NullptrExpression& node) override;
     void visit(CallExpression& node) override;
     void visit(MemberAccessExpression& node) override;
     void visit(ReinterpretExpression& node) override;

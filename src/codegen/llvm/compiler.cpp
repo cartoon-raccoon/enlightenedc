@@ -8,11 +8,11 @@ LLVMGenerator::LLVMGenerator(LLVMUnit& llvm, RuntimeConfig& rtcfg)
     : ctxtref(llvm.ctx()), modref(llvm.mod()), irbref(llvm.irb()), rtcfg(rtcfg) {
 }
 
-void LLVMGenerator::compile(Program& prog) {
-    for (auto& glob : prog.get_globals()) {
+void LLVMGenerator::compile(const Program& prog) {
+    for (const auto& glob : prog.get_globals()) {
         glob->accept(*this);
     }
-    for (auto& func : prog.get_functions()) {
+    for (const auto& func : prog.get_functions()) {
         func->accept(*this);
     }
 

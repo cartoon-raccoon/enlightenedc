@@ -368,7 +368,7 @@ void CFGBuilder::visit(GotoStmtLIR& node) {
     }
 
     Goto *g = curr_blk->terminate<Goto>();
-    
+
     if (auto *targ = curr_func->lookup_labeled_block(node.mangled_target)) {
         g->set_target(targ);
     } else {
@@ -928,7 +928,11 @@ void CFGBuilder::visit(LiteralExprLIR& node) {
                 ECC_ASSERT_N(node.act_type->is_array());
                 last_value = prog_cfg.get_string(node.act_type->as_array(), str);
                 last_value->set_type(node.act_type);
-            }},
+            },
+            [&](std::monostate) {
+                last_value = prog_cfg.get_zero(node.act_type);
+            }
+        },
         node.value);
 
     ECC_ASSERT(last_value, "last_value is nullptr at end of expr visit");

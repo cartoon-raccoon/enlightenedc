@@ -183,7 +183,7 @@ Value ConstEvaluator::eval(LiteralExprMIR& expr) {
     if (auto *val = std::get_if<Value>(&expr.value)) {
         return *val;
     } else {
-        throw InvalidCompileTimeEval("could not evaluate string literal at compile time", expr.loc);
+        throw InvalidCompileTimeEval("could not evaluate literal at compile time", expr.loc);
     }
 }
 

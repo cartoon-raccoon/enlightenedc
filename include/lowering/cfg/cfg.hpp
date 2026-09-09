@@ -1197,7 +1197,7 @@ public:
     */
     BasicBlock *initialize();
 
-    StringRef get_name() { return name; }
+    StringRef get_name() const { return name; }
 
     FuncArg *add_arg(sema::types::Type *type);
 
@@ -1208,12 +1208,12 @@ public:
     /**
     Whether the FunctionCFG has been initialized.
     */
-    bool is_initialized() { return !blocks.empty(); }
+    bool is_initialized() const { return !blocks.empty(); }
 
     /**
     Whether the FunctionCFG is defined in this TU.
     */
-    bool is_defined() { return entry != nullptr && !blocks.empty(); }
+    bool is_defined() const { return entry != nullptr && !blocks.empty(); }
 
     /**
     Whether the function is a simple plain return.
@@ -1301,9 +1301,9 @@ public:
     /**
     An iterator over the globals in the program, in the order they were added.
     */
-    Span<Box<Global>> get_globals();
+    Span<const Box<Global>> get_globals() const;
 
-    Span<Box<Function>> get_functions();
+    Span<const Box<Function>> get_functions() const;
 
     ScalarConst *get_scalar(sema::types::PrimitiveType *type, const eval::Value& val);
 

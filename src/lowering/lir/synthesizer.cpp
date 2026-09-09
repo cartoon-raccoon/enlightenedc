@@ -125,7 +125,7 @@ void LIRSynthesizer::unfold_initializer_rec(Chunk<ExprLIR> lhs, Type *type, Init
             */
             [&](auto&) {
                 ECC_UNREACHABLE(
-                    "encountered variant other than ExprMIR and Vec<Chunk<InitializerMIR>>");
+                    "encountered variant other than ExprMIR and ArenaVec<Chunk<InitializerMIR>>");
             }},
         init.initializer);
 }
@@ -411,23 +411,25 @@ void LIRSynthesizer::do_visit(FunctionMIR& node) {
     func_stack.push(funcptr);
 
     // register the function's parameters as locals
-    for (VarSymbol *param : sym->parameters) {
-        param->get_symdata()->set_mangled_name(param->mangle());
+    for (auto& param : sym->params()) {
+        param.get_symdata()->set_mangled_name(param.mangle());
 
-        Box<LIRVarSym> boxed_param = make_box<LIRVarSym>(param);
+        Box<LIRVarSym> boxed_param = make_box<LIRVarSym>(&param);
 
-        LIRVarSym *lirparam = insert_varsym(param, std::move(boxed_param));
+        LIRVarSym *lirparam = insert_varsym(&param, std::move(boxed_param));
 
         // insert the parameter into the funcsym's params store
         funcptr->params.push_back(lirparam);
 
-        Chunk<VarDeclLIR> paramdecl = make_chunk<VarDeclLIR>(param->loc, lirparam);
+        Chunk<VarDeclLIR> paramdecl = make_chunk<VarDeclLIR>(param.get_loc(), lirparam);
         emit(std::move(paramdecl));
     }
 
     node.body->accept(*this);
 
-    Vec<Chunk<FunctionLIR>> functions;
+    // use a preallocated size larger than the default, because there are generally a lot of
+    // functions in an EnlightenedC file, usually more than 8.
+    ArenaVec<Chunk<FunctionLIR>, 32> functions;
 
     while (!current_q.empty()) {
         LIRSynthItem item = consume();
@@ -540,8 +542,8 @@ void LIRSynthesizer::do_visit(SwitchStmtMIR& node) {
     node.control_val->accept(*this);
     Chunk<ExprLIR> condition = std::move(last_expr);
 
-    Vec<Chunk<FunctionLIR>> functions;
-    Vec<Chunk<VarDeclLIR>> decls;
+    ArenaVec<Chunk<FunctionLIR>> functions;
+    ArenaVec<Chunk<VarDeclLIR>> decls;
 
     Chunk<SwitchStmtLIR> this_stmt = make_chunk<SwitchStmtLIR>(node.loc, std::move(condition));
 
@@ -618,13 +620,12 @@ void LIRSynthesizer::do_visit(LabeledStmtMIR& node) {
     push_queue();
 
     StringRef mangled = ecc::intern_string(node.label->mangle());
-    StringRef name    = ecc::intern_string(node.label->name);
 
-    Chunk<LabelDeclLIR> this_stmt = make_chunk<LabelDeclLIR>(node.loc, mangled, name);
+    Chunk<LabelDeclLIR> this_stmt = make_chunk<LabelDeclLIR>(node.loc, mangled, node.label->get_name());
 
-    Vec<Chunk<FunctionLIR>> functions{};
-    Vec<Chunk<VarDeclLIR>> decls{};
-    Vec<Chunk<ProgItemLIR>> body{};
+    ArenaVec<Chunk<FunctionLIR>> functions{};
+    ArenaVec<Chunk<VarDeclLIR>> decls{};
+    ArenaVec<Chunk<ProgItemLIR>> body{};
 
     node.stmt->accept(*this);
     while (!current_q.empty()) {
@@ -672,7 +673,7 @@ void LIRSynthesizer::do_visit(LabeledStmtMIR& node) {
 void LIRSynthesizer::do_visit(PrintStmtMIR& node) {
     bsv_dbprint("LIRSynthesizer: visiting PrintStmtMIR node");
 
-    Vec<Chunk<ExprLIR>> args{};
+    ArenaVec<Chunk<ExprLIR>> args{};
 
     for (auto& arg : node.arguments) {
         arg->accept(*this);
@@ -694,8 +695,8 @@ void LIRSynthesizer::do_visit(IfStmtMIR& node) {
 
     Chunk<IfStmtLIR> ifstmt = make_chunk<IfStmtLIR>(node.loc, std::move(condition));
 
-    Vec<Chunk<FunctionLIR>> functions{};
-    Vec<Chunk<VarDeclLIR>> decls{};
+    ArenaVec<Chunk<FunctionLIR>> functions{};
+    ArenaVec<Chunk<VarDeclLIR>> decls{};
 
     node.then_branch->accept(*this);
     while (!current_q.empty()) {
@@ -719,7 +720,7 @@ void LIRSynthesizer::do_visit(IfStmtMIR& node) {
     }
 
     if (node.else_branch) {
-        Vec<Chunk<ProgItemLIR>> else_stmts{};
+        ArenaVec<Chunk<ProgItemLIR>> else_stmts{};
 
         (*node.else_branch)->accept(*this);
         while (!current_q.empty()) {
@@ -767,11 +768,11 @@ void LIRSynthesizer::do_visit(LoopStmtMIR& node) {
     Chunk<LoopStmtLIR> loop = make_chunk<LoopStmtLIR>(node.loc);
 
     // items to be hoisted to the outer scope.
-    Vec<Chunk<FunctionLIR>> functions;
-    Vec<Chunk<VarDeclLIR>> decls;
+    ArenaVec<Chunk<FunctionLIR>> functions;
+    ArenaVec<Chunk<VarDeclLIR>> decls;
 
     if (node.init) {
-        Vec<Chunk<ProgItemLIR>> init_items;
+        ArenaVec<Chunk<ProgItemLIR>> init_items;
         (*node.init)->accept(*this);
 
         while (!current_q.empty()) {
@@ -803,7 +804,7 @@ void LIRSynthesizer::do_visit(LoopStmtMIR& node) {
     }
 
     if (node.step) {
-        Vec<Chunk<ProgItemLIR>> step_items;
+        ArenaVec<Chunk<ProgItemLIR>> step_items;
         (*node.step)->accept(*this);
 
         while (!current_q.empty()) {
@@ -827,7 +828,7 @@ void LIRSynthesizer::do_visit(LoopStmtMIR& node) {
         loop->step = std::move(step_items);
     }
 
-    Vec<Chunk<ProgItemLIR>> body;
+    ArenaVec<Chunk<ProgItemLIR>> body;
     node.body->accept(*this);
     while (!current_q.empty()) {
         LIRSynthItem item = consume();
@@ -869,9 +870,8 @@ void LIRSynthesizer::do_visit(GotoStmtMIR& node) {
     }
 
     StringRef mangled = ecc::intern_string(node.target_sym->mangle());
-    StringRef name    = ecc::intern_string(node.target_sym->name);
 
-    Chunk<ProgItemLIR> gotostmt = make_chunk<GotoStmtLIR>(node.loc, mangled, name);
+    Chunk<ProgItemLIR> gotostmt = make_chunk<GotoStmtLIR>(node.loc, mangled, node.target_sym->get_name());
     emit(std::move(gotostmt));
 }
 
@@ -939,21 +939,35 @@ void LIRSynthesizer::do_visit(CastExprMIR& node) {
     node.inner->accept(*this);
 
     Chunk<ExprLIR> inner = std::move(last_expr);
-    if (auto *literal = dyncast<LiteralExprLIR>(inner.get());
-        literal && literal->is_val() && node.target->is_primitive()) {
+    if (auto *literal = dyncast<LiteralExprLIR>(inner.get())) {
+        if (literal->is_val() && node.target->is_primitive()) {
+            // if inner is a literal value and target is primitive, directly perform the cast now
+            PrimitiveType *prim_target = node.target->as_primitive();
+            eval::Value cast_val =
+                std::get<eval::Value>(literal->value).pr_cast(prim_target->get_primkind());
+        
+            literal->value = cast_val;
+        
+            // use the folded node's type, to preserve const
+            literal->set_type(node.act_type);
+            literal->loc = node.loc;
+        
+            last_expr = std::move(inner);
 
-        // if inner is a literal value and target is primitive, directly perform the cast now
-        PrimitiveType *prim_target = node.target->as_primitive();
-        eval::Value cast_val =
-            std::get<eval::Value>(literal->value).pr_cast(prim_target->get_primkind());
+        } else if (literal->is_ptr() && node.target->is_pointer()) {
+            // if inner is a nullptr and target is also a pointer, directly perform the cast now
+            ECC_ASSERT_N(node.target->as_pointer());
 
-        literal->value = cast_val;
+            // same as above, use act_type to preserve const
+            literal->set_type(node.act_type);
+            literal->loc = node.loc;
+            last_expr = std::move(inner);
+        } else {
+            Chunk<ExprLIR> expr = make_chunk<CastExprLIR>(
+            node.loc, node.act_type, std::move(inner), node.target, mirck_to_lirck(node.castkind));
 
-        // use the folded node's type, to preserve const
-        literal->set_type(node.act_type);
-        literal->loc = node.loc;
-
-        last_expr = std::move(inner);
+            last_expr = std::move(expr);
+        }
     } else {
         Chunk<ExprLIR> expr = make_chunk<CastExprLIR>(
             node.loc, node.act_type, std::move(inner), node.target, mirck_to_lirck(node.castkind));
@@ -1036,11 +1050,34 @@ void LIRSynthesizer::do_visit(CallExprMIR& node) {
     node.callee->accept(*this);
     Chunk<ExprLIR> callee = std::move(last_expr);
 
-    Vec<Chunk<ExprLIR>> args;
+    // non-null if the callee is a direct call, null otherwise.
+    FuncSymbol *func = nullptr;
+    if (auto *ident = dyncast<IdentExprMIR>(node.callee); ident && ident->ident->is_func()) {
+        func = ident->ident->as_funcsym();
+        ECC_ASSERT_N(func);
+    }
 
+    ArenaVec<Chunk<ExprLIR>> args;
+
+    ECC_ASSERT(node.call_sig, "call_sig on callexpr not set");
+    const size_t fixed = node.call_sig->num_params();
     for (auto& arg : node.args) {
         arg->accept(*this);
         args.push_back(std::move(last_expr));
+    }
+
+    // if we processed less than the number of fixed args, check for default args
+    if (args.size() < fixed) {
+        /* assert that func is non null, because default arguments can only be used
+        in a direct call */
+        ECC_ASSERT(func, "processed < fixed, but func is null");
+        for (auto& param : func->default_params_after(args.size())) {
+            ECC_ASSERT(param.has_value(), "default argument with no value");
+            eval::Value val = *param.get_value();
+            auto arg = make_chunk<LiteralExprLIR>(
+                param.get_loc(), val, types.get_primitive(val.primtype()));
+            args.push_back(std::move(arg));
+        }
     }
 
     Chunk<ExprLIR> callexpr =

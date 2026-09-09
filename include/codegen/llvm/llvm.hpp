@@ -107,7 +107,7 @@ public:
 
     size_t alloc_size(sema::types::Type *type) override;
 
-    void compile(lower::cfg::Program& prog) override;
+    void compile(const lower::cfg::Program& prog) override;
 
 protected:
     bool is_finalized(sema::types::Type *type);

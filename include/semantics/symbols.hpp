@@ -37,10 +37,10 @@ class LabelSymbol;
 class Scope;
 class SymbolTableWalker;
 
-/*
+/**
 The abstract symbol class.
 */
-class Symbol {
+class Symbol : public NoCopy {
 public:
     // The kind of symbol.
     enum class Kind : uint8_t {
@@ -50,25 +50,21 @@ public:
         LABEL, // This symbol references a label.
     };
 
-    Symbol(Kind kind, StringRef name, Scope *scope)
-        : kind(kind), name(name), scope(scope) {}
+    Symbol(Kind kind, StringRef name, Scope *scope);
 
-    Symbol(Kind kind, Location loc, StringRef name, Scope *scope)
-        : kind(kind), name(name), loc(loc), scope(scope) {}
-
-    Kind kind;
-
-    std::string name;
-
-    // The location of the symbol.
-    Location loc;
-
-    Scope *scope;
-
-    /// If the symbol is global.
-    bool is_global = false;
+    Symbol(Kind kind, Location loc, StringRef name, Scope *scope);
 
     virtual ~Symbol() = default;
+
+    const Kind kind;
+
+    StringRef get_name() { return name; }
+
+    Location get_loc() { return loc; }
+
+    Scope *get_scope() { return scope; }
+
+    bool is_global() const { return global; }
 
     virtual bool is_physical() { return false; };
     virtual bool is_abstract() { return false; };
@@ -88,6 +84,17 @@ public:
     virtual FuncSymbol *as_funcsym() { return nullptr; }
     virtual TypeSymbol *as_typesym() { return nullptr; }
     virtual LabelSymbol *as_labsym() { return nullptr; }
+protected:
+
+    std::string name;
+
+    // The location of the symbol.
+    Location loc;
+
+    Scope *scope;
+
+        /// If the symbol is global.
+    bool global = false;
 };
 
 /**
@@ -163,7 +170,7 @@ public:
     }
 };
 
-/*
+/**
 A symbol representing a variable declaration.
 */
 class VarSymbol : public PhysicalSymbol {
@@ -187,8 +194,14 @@ public:
 
     VarSymData *get_symdata() const { return dyncast<VarSymData>(symdata.get()); }
 
-    void set_value(eval::Value& val) { value = val; }
+    /**
+    Set the value of the VarSymbol.
+    */
+    void set_value(const eval::Value& val) { value = val; }
 
+    /**
+    Check if the VarSymbol has a value.
+    */
     bool has_value() const { return value.has_value(); }
 
     bool is_const_foldable() const { return value.has_value() && !funcparam; }
@@ -214,12 +227,51 @@ private:
     bool funcparam = false;
 };
 
-/*
+/**
+An iterator over the arguments to a FuncSymbol.
+*/
+class FuncSymParams {
+    VarSymbol *const *first;
+    VarSymbol *const *last;
+
+    friend class FuncSymbol;
+    FuncSymParams(VarSymbol *const *first, VarSymbol *const *last)
+        : first(first), last(last) {}
+
+public:
+    class iterator {
+        VarSymbol *const *slot;
+
+    public:
+        explicit iterator(VarSymbol *const *slot) : slot(slot) {}
+
+        VarSymbol& operator*() const { return **slot; }
+
+        VarSymbol *operator->() const { return *slot; }
+
+        iterator& operator++() { ++slot; return *this; }
+
+        bool operator==(const iterator& o) const { return slot == o.slot; }
+    };
+
+    iterator begin() const { return iterator(first); }
+
+    iterator end() const { return iterator(last); }
+
+    size_t size() const { return static_cast<size_t>(last - first); }
+
+    bool empty() const { return first == last; }
+};
+
+
+/**
 A symbol representing a function declaration
 (function pointers and externally linked functions are handled by VarSymbol).
 */
 class FuncSymbol : public PhysicalSymbol {
 public:
+    friend class SymbolTableWalker;
+
     FuncSymbol(
         Location loc, StringRef name, Scope *scope, types::FunctionType *signature,
         Vec<VarSymbol *> parameters)
@@ -237,15 +289,18 @@ public:
 
         auto ret = std::make_unique<FuncSymbol>(loc, name, scope, signature);
 
-        ret->has_body = false;
+        ret->has_body_ = false;
 
         return ret;
     }
 
-    bool has_body = true;
+    bool has_body() const { return has_body_; }
 
-    // The list of parameters to the function.
-    Vec<VarSymbol *> parameters;
+    void set_body() { has_body_ = true; }
+
+    void add_parameter(VarSymbol *param);
+
+    void add_default_param(VarSymbol *param, const eval::Value& val);
 
     std::string to_string() const override;
 
@@ -261,21 +316,54 @@ public:
 
     size_t num_non_default_params() const { return num_params() - num_default_params(); }
 
-    auto default_params() {
-        return std::views::filter(parameters, [](VarSymbol *sym) { return sym->has_value(); });
-    }
+    /**
+    Get an iterator over the parameters of the FuncSymbol.
+    */
+    FuncSymParams params();
+
+    /**
+    Get an iterator over the parameters of the FuncSymbol.
+    */
+    FuncSymParams params() const;
+
+    /**
+    Get an iterator over the default parameters of the FuncSymbol.
+    */
+    FuncSymParams default_params();
+
+    /**
+    Get an iterator over the default parameters of the FuncSymbol, after `idx`.
+
+    If `idx` corresponds to a non-default parameters, an iterator starting at the
+    first default parameter is returned.
+    */
+    FuncSymParams default_params_after(size_t idx);
 
     /// Create a function pointer VarSymbol from this FuncSymbol.
-    Box<VarSymbol> as_funcptr(sema::types::TypeContext& tctxt, bool is_const = false);
+    Box<VarSymbol> as_funcptr(types::TypeContext& tctxt, bool is_const = false);
 
     FuncSymbol *as_funcsym() override { return this; }
 
     types::Type *get_type() const override { return get_symdata()->get_signature(); }
 
     static bool classof(const Symbol *sym) { return sym->kind == Kind::FUNC; }
+private:
+    /**
+    Check that the parameter invariant is upheld.
+    */
+    bool params_well_ordered() const;
+
+    bool has_body_ = true;
+
+    /**
+    The list of parameters to the function.
+
+    INVARIANT: all non-default parameters must be at the front, all defaults at the back.
+    */
+    Vec<VarSymbol *> parameters;
 };
 
-/*
+/**
 A symbol representing a type declaration (class, union, enum).
 */
 class TypeSymbol : public AbstractSymbol {

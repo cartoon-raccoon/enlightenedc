@@ -28,7 +28,7 @@ void MIRPrinter::visit(ProgramMIR& node) {
 
 void MIRPrinter::visit(FunctionMIR& node) {
     print_node(
-        "FunctionMIR: " + node.sym->name, node,
+        "FunctionMIR: " + node.sym->get_name().str(), node,
         [&] {
             std::cout << std::string(indent * 2, ' ')
                       << "type: " << node.sym->get_signature()->to_string()
@@ -44,7 +44,7 @@ void MIRPrinter::visit(FunctionMIR& node) {
 }
 
 void MIRPrinter::visit(TypeDeclMIR& node) {
-    print_node("TypeDecl: " + node.sym->name, node);
+    print_node("TypeDecl: " + node.sym->get_name().str(), node);
 }
 
 void MIRPrinter::visit(VarDeclMIR& node) {
@@ -133,7 +133,7 @@ void MIRPrinter::visit(DefaultStmtMIR& node) {
 }
 
 void MIRPrinter::visit(LabeledStmtMIR& node) {
-    print_node("Label: " + node.label->name, node, [&] { node.stmt->accept(*this); });
+    print_node("Label: " + node.label->get_name().str(), node, [&] { node.stmt->accept(*this); });
 }
 
 void MIRPrinter::visit(PrintStmtMIR& node) {
@@ -222,14 +222,15 @@ void MIRPrinter::visit(CondExprMIR& node) {
 }
 
 void MIRPrinter::visit(IdentExprMIR& node) {
-    print_node("Ident: " + node.ident->name + " :: " + node.act_type->formal(), node);
+    print_node("Ident: " + node.ident->get_name().str() + " :: " + node.act_type->formal(), node);
 }
 
 void MIRPrinter::visit(LiteralExprMIR& node) {
     std::string valstr = std::visit(
         match{
             [](eval::Value& val) { return val.to_string(); },
-            [](StringRef s) { return encode_string_literal(s); }},
+            [](StringRef s) { return encode_string_literal(s); },
+            [](std::monostate) -> std::string { return "nullptr"; }},
         node.value);
     print_node("Literal: " + valstr + " :: " + node.act_type->formal(), node);
 }

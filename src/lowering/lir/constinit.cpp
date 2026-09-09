@@ -349,7 +349,13 @@ ConstInitLIRBuilder::try_build_constinit_expr(Type *type, LiteralExprMIR& expr) 
                 } else {
                     ECC_UNREACHABLE("invalid type for building constinit LiteralExprMIR");
                 }
-            }},
+            },
+            [&](std::monostate) {
+                ECC_ASSERT_N(type->is_pointer());
+
+                init = make_chunk<ZeroInitLIR>(expr.loc, type);
+            }
+        },
         expr.value);
 
     if (init == nullptr) {

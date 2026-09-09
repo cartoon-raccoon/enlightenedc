@@ -7,9 +7,15 @@
 using namespace ecc::sema::sym;
 using namespace ecc::sema::types;
 
+Symbol::Symbol(Kind kind, StringRef name, Scope *scope)
+    : kind(kind), name(name), scope(scope), global(scope->is_global()) {}
+
+Symbol::Symbol(Kind kind, Location loc, StringRef name, Scope *scope)
+    : kind(kind), name(name), loc(loc), scope(scope), global(scope->is_global()) {}
+
 std::string VarSymbol::mangle() const {
     std::stringstream ss;
-    if (is_global) {
+    if (global) {
         ss << name;
     } else {
         ss << name << "_" << "s" << scope->get_id();
@@ -19,7 +25,7 @@ std::string VarSymbol::mangle() const {
 
 std::string FuncSymbol::mangle() const {
     std::stringstream ss;
-    if (is_global) {
+    if (global) {
         ss << name;
     } else {
         ss << name << "_" << "s" << scope->get_id();
@@ -29,7 +35,7 @@ std::string FuncSymbol::mangle() const {
 
 std::string TypeSymbol::mangle() const {
     std::stringstream ss;
-    if (is_global) {
+    if (global) {
         ss << name;
     } else {
         ss << name << "_" << "s" << scope->get_id();
@@ -39,7 +45,7 @@ std::string TypeSymbol::mangle() const {
 
 std::string LabelSymbol::mangle() const {
     std::stringstream ss;
-    if (is_global) {
+    if (global) {
         ss << "global_" << name;
     } else {
         if (scope->has_assoc()) {
@@ -49,6 +55,24 @@ std::string LabelSymbol::mangle() const {
         }
     }
     return ss.str();
+}
+
+void FuncSymbol::add_parameter(VarSymbol *param) {
+    ECC_ASSERT(parameters.empty() || !parameters.back()->has_value(),
+        "attempted to insert non-default parameter after defaults");
+
+    parameters.push_back(param);
+}
+
+void FuncSymbol::add_default_param(VarSymbol *param, const eval::Value& val) {
+    if (param->has_value()) {
+        ECC_ASSERT(param->get_value() == val, "passed value does not match param's value");
+
+        parameters.push_back(param);
+    } else {
+        param->set_value(val);
+        parameters.push_back(param);
+    }
 }
 
 Box<VarSymbol> FuncSymbol::as_funcptr(TypeContext& tctxt, bool is_const) {
@@ -64,6 +88,44 @@ Box<VarSymbol> FuncSymbol::as_funcptr(TypeContext& tctxt, bool is_const) {
 size_t FuncSymbol::num_default_params() const {
     return std::count_if(
         parameters.begin(), parameters.end(), [](VarSymbol *sym) { return sym->has_value(); });
+}
+
+FuncSymParams FuncSymbol::params() {
+#ifndef NDEBUG
+    ECC_ASSERT(params_well_ordered(), "parameters in FuncSymbol not partitioned correctly");
+#endif
+    return FuncSymParams(parameters.data(), parameters.data() + parameters.size());
+}
+
+FuncSymParams FuncSymbol::params() const {
+#ifndef NDEBUG
+    ECC_ASSERT(params_well_ordered(), "parameters in FuncSymbol not partitioned correctly");
+#endif
+    return FuncSymParams(parameters.data(), parameters.data() + parameters.size());
+}
+
+FuncSymParams FuncSymbol::default_params() {
+#ifndef NDEBUG
+    ECC_ASSERT(params_well_ordered(), "parameters in FuncSymbol not partitioned correctly");
+#endif
+    return FuncSymParams(
+        parameters.data() + num_non_default_params(), parameters.data() + parameters.size());
+}
+
+FuncSymParams FuncSymbol::default_params_after(size_t idx) {
+#ifndef NDEBUG
+    ECC_ASSERT(params_well_ordered(), "parameters in FuncSymbol not partitioned correctly");
+#endif
+    if (idx < num_non_default_params()) {
+        return default_params();
+    }
+
+    return FuncSymParams(parameters.data() + idx, parameters.data() + parameters.size());
+}
+
+bool FuncSymbol::params_well_ordered() const {
+    return std::ranges::is_partitioned(
+        parameters, [](const VarSymbol *p) { return !p->has_value(); });
 }
 
 void SymbolTable::clear() {
@@ -265,7 +327,7 @@ LabelSymbol *SymbolTableWalker::lookup_label(StringRef sym, bool current_only) c
 
 void SymbolTableWalker::tie_current_to(FuncSymbol *sym, bool override) const {
     dbprint(
-        "SymbolTable: associating current scope ", current->id, " with symbol name \"", sym->name,
+        "SymbolTable: associating current scope ", current->id, " with symbol name \"", sym->get_name(),
         "\"");
     if (current->assoc != nullptr) {
         if (override) {
@@ -282,9 +344,6 @@ VarSymbol *SymbolTableWalker::insert(StringRef name, Box<VarSymbol> sym) const {
         dbprint("SymbolTable: varsymbol with name ", name, " already exists");
         Symbol *existing = current->phys_symbols.find(name)->second.get();
         throw existing;
-    }
-    if (current == global()) {
-        sym->is_global = true;
     }
     VarSymbol *ret = sym.get();
     current->phys_symbols.insert_or_assign(std::string(name), std::move(sym));
@@ -313,18 +372,18 @@ FuncSymbol *SymbolTableWalker::insert(StringRef name, Box<FuncSymbol> sym) const
                     "reconciliation");
                 FuncSymbol *existfunc = existing->as_funcsym();
                 ECC_ASSERT_N(existfunc);
-                if (!existfunc->has_body && sym->has_body) {
+                if (!existfunc->has_body() && sym->has_body()) {
                     // existing is decl, new sym is def
 
                     if (existfunc->is_external()) {
                         goto exists;
                     }
 
-                    existfunc->has_body   = true;
+                    existfunc->set_body();
                     existfunc->parameters = std::move(sym->parameters);
 
                     return existfunc;
-                } else if (existfunc->has_body && sym->has_body) {
+                } else if (existfunc->has_body() && sym->has_body()) {
                     // existing is def, new sym is def
 
                     goto exists;
@@ -341,9 +400,6 @@ FuncSymbol *SymbolTableWalker::insert(StringRef name, Box<FuncSymbol> sym) const
     exists:
         throw (Symbol *)existing;
     }
-    if (current == global()) {
-        sym->is_global = true;
-    }
     FuncSymbol *ret = sym.get();
     current->phys_symbols.insert_or_assign(std::string(name), std::move(sym));
 
@@ -357,10 +413,6 @@ TypeSymbol *SymbolTableWalker::insert(StringRef name, Box<TypeSymbol> sym) const
         Symbol *existing = current->type_symbols.find(name)->second.get();
         throw existing;
     }
-
-    if (current == global()) {
-        sym->is_global = true;
-    }
     TypeSymbol *ret = sym.get();
     current->type_symbols.insert_or_assign(std::string(name), std::move(sym));
 
@@ -373,10 +425,6 @@ LabelSymbol *SymbolTableWalker::insert(StringRef name, Box<LabelSymbol> sym) con
         dbprint("SymbolTable: labelsymbol with name ", name, " already exists");
         Symbol *existing = current->label_symbols.find(name)->second.get();
         throw existing;
-    }
-
-    if (current == global()) {
-        sym->is_global = true;
     }
     LabelSymbol *ret = sym.get();
     current->label_symbols.insert_or_assign(std::string(name), std::move(sym));

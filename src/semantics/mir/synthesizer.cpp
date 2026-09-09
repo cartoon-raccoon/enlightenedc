@@ -370,6 +370,7 @@ void MIRSynthesizer::do_visit(Function& node) {
             if (found_default) {
                 add_error<EccSemError>(
                     "parameters without default values must be before all default ones", param.loc);
+                throw UnableToContinue();
             }
             // just add without value and continue for now
             paramsym = std::make_unique<VarSymbol>(param.loc, *param.name, syms.current, sym_type);
@@ -394,13 +395,13 @@ void MIRSynthesizer::do_visit(Function& node) {
         symbol->get_symdata()->set_visibility(Visibility::EXTERNC);
     }
 
-    Location def_loc = symbol->loc;
+    Location def_loc = symbol->get_loc();
     try {
         sym_ptr = syms.insert(*builder->name, std::move(symbol));
     } catch (Symbol *previous) {
         add_error<SymbolAlrDecldError>(
-            std::format("function \"{}\" was previously declared", previous->name), def_loc,
-            previous->loc);
+            std::format("function \"{}\" was previously declared", previous->get_name()), def_loc,
+            previous->get_loc());
         throw UnableToContinue();
     }
 
@@ -556,13 +557,13 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
                 throw UnableToContinue();
             }
 
-            Location def_loc = sym->loc;
+            Location def_loc = sym->get_loc();
             try {
                 syms.insert(*ret.name, std::move(sym));
             } catch (Symbol *existing) {
                 add_error<SymbolAlrDecldError>(
-                    std::format("symbol {} already previously declared", existing->name), def_loc,
-                    existing->loc);
+                    std::format("symbol {} already previously declared", existing->get_name()), def_loc,
+                    existing->get_loc());
                 throw UnableToContinue();
             }
 
@@ -628,14 +629,14 @@ Chunk<mir::FunctionMIR> MIRSynthesizer::parse_vardecl_func(
         funcsym->get_symdata()->set_visibility(Visibility::EXTERNC);
     }
 
-    Location def_loc    = funcsym->loc;
+    Location def_loc    = funcsym->get_loc();
     FuncSymbol *funcptr = nullptr;
     try {
         funcptr = syms.insert(*ret.name, std::move(funcsym));
     } catch (Symbol *existing) {
         add_error<SymbolAlrDecldError>(
-            std::format("symbol {} already previously declared", existing->name), def_loc,
-            existing->loc);
+            std::format("symbol {} already previously declared", existing->get_name()), def_loc,
+            existing->get_loc());
         throw UnableToContinue();
     }
 
@@ -1479,7 +1480,7 @@ void MIRSynthesizer::do_visit(CompoundStatement& node) {
 
         // Add function argument symbols to our current scope
         for (auto& sym : add_symbols.value().second) {
-            syms.insert(sym->name, std::move(sym));
+            syms.insert(sym->get_name(), std::move(sym));
         }
     }
 
@@ -1924,6 +1925,14 @@ void MIRSynthesizer::do_visit(StringExpression& node) {
     bsv_dbprint("visiting StringExpression node: ", node.loc);
 
     Chunk<ExprMIR> expr = make_chunk<LiteralExprMIR>(node.loc, syms.current, node.value);
+
+    dv_return(expr);
+}
+
+void MIRSynthesizer::do_visit(NullptrExpression& node) {
+    bsv_dbprint("visiting NullptrExpression node: ", node.loc);
+
+    Chunk<ExprMIR> expr = make_chunk<LiteralExprMIR>(node.loc, syms.current);
 
     dv_return(expr);
 }
