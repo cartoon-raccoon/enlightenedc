@@ -52,6 +52,10 @@ The Bison grammar file is `src/frontend/parser.yy`; the BNF/EBNF specs live in `
 
 All AST nodes inherit from `ast::ASTNode` (`include/ast/ast.hpp`). The visitor pattern is used pervasively — `ast::ASTVisitor` (`include/ast/visitor.hpp`) declares pure virtual `visit()` methods for every node type. See [Visitor Infrastructure](#visitor-infrastructure) for how the visitor classes are built.
 
+### Tokens
+
+`include/tokens.hpp` defines the shared vocabulary of the entire compiler. It defines the `TokenKind` namespace, and uses a disjoint-recursive partitioning scheme on it to simplify predicate checks during semantic analysis, reducing checking for membership in a particular token namespace to a single function call.
+
 ### Visitor Infrastructure
 
 Every tree IR (AST, MIR, LIR) and the CFG use the same visitor scaffolding, defined once in `include/abstract/visitor.hpp` (namespace `ecc`):
@@ -89,7 +93,7 @@ public:
 };
 ```
 
-- `SingleVisitor<NodeT>` — one pure virtual `visit(NodeT&)`.
+- `SingleVisitor<NodeT>` provides one pure virtual `visit(NodeT&)` for a single Node.
 - `Visitor<DerivedT, Nodes...>` — multiply inherits `SingleVisitor<Nodes>...` and pulls every `visit` overload into scope. A concrete visitor derives from this with the full node list, so it must implement `visit()` for every node type.
 - `Visitable<DerivedT, BaseT, VisitorT>` — a CRTP interposer inserted between a node's parent class and the node itself. It forwards the parent's constructors (`using BaseT::BaseT`) and supplies the single `accept()` override, static-casting `*this` to the concrete node and dispatching to `visitor.visit(...)`. Nodes therefore never hand-write `accept()`.
 - `VisitResult<DerivedT>` / `VisitArg<DerivedT>` — empty CRTP marker templates reserved for visitors that carry a return value or an argument; not yet used by the concrete visitors.
