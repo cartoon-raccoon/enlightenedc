@@ -227,3 +227,22 @@ I64 f(..., ...) { }
 I64 with_default(I64 a, I64 b = 5) { return a + b; }
 I64 (*with_default_fp)(I64, I64) = with_default;
 with_default_fp(1);
+
+
+
+// nullptr semantic errors
+
+// nullptr never takes part in a binary operation.
+I64 np_add = nullptr + 1;
+
+// nullptr cannot be compared with an integer.
+Bool np_cmp = nullptr == 0;
+
+// nullptr cannot be dereferenced in a constant expression.
+U8 np_deref = *nullptr;
+
+// nullptr is only a valid default for a pointer parameter, not I64.
+I64 np_default(I64 x = nullptr) { return x; }
+
+// A pointer is not constant-foldable, so nullptr cannot initialise a constexpr.
+constexpr U8 *NP_CE = nullptr;

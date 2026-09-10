@@ -666,6 +666,7 @@ Value MIRSynthesizer::parse_constexpr_init(InitializerMIR& init, PrimitiveType *
     try {
         val = init_expr->eval(evalr);
     } catch (InvalidCompileTimeEval& err) {
+        err.add_loc(init.loc);
         add_error<InvalidCompileTimeEval>(err);
         throw UnableToContinue();
     }
@@ -858,9 +859,35 @@ void MIRSynthesizer::do_visit(ParameterDeclaration& node) {
     }
 
     if (node.default_value) {
+        if (!ret.type->is_primitive() && !ret.type->is_pointer()) {
+            add_error<InvalidDefaultParamError>(node.loc, ret.type);
+            throw UnableToContinue();
+        }
+
         dv_call_noparam(*node.default_value);
-        Value def_val = take_last_result<Value>();
-        ret.value     = def_val;
+        Value val = take_last_result<Value>();
+        if (ret.type->is_primitive()) {
+            PrimitiveType *prim = ret.type->as_primitive();
+            try {
+                val = val.pr_cast(prim->get_primkind());
+            } catch (InvalidCompileTimeEval& err) {
+                err.add_loc((*node.default_value)->loc);
+                add_error<InvalidCompileTimeEval>(err);
+                throw UnableToContinue();
+            }
+        } else if (ret.type->is_pointer()) {
+            if (!val.is_pointer()) {
+                add_error<InvalidDefaultParamError>(node.loc, val);
+                throw UnableToContinue();
+            }
+            auto *ptr = ret.type->as_pointer();
+            if (ptr->get_base()->is_complete()) {
+                val = val.cast_to_pointer(ptr->get_base()->alloc_size());
+            } else {
+                val = val.cast_to_pointer();
+            }
+        }
+        ret.value = val;
     }
 
     dv_return(ret);
@@ -1883,6 +1910,7 @@ void MIRSynthesizer::do_visit(ConstExpression& node) {
     try {
         res = inner->eval(evalr);
     } catch (InvalidCompileTimeEval& e) {
+        e.add_loc(node.loc);
         add_error<InvalidCompileTimeEval>(e);
         throw UnableToContinue();
     }

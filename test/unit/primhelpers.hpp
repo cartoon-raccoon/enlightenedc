@@ -30,13 +30,21 @@ static size_t expected_variant_idx(PrimType pt) {
     case PrimType::F32:  return 8; // NOLINT
     case PrimType::F64:  return 9; // NOLINT
     case PrimType::BOOL: return 10; // NOLINT
+    default:             return SIZE_MAX;
     }
+}
+
+// The primitive type of a Value, unwrapped. Only valid for non-pointer Values --
+// every generator in this file produces primitives, so callers can rely on it.
+static PrimType prim_of(const Value& v) {
+    RC_ASSERT(v.primtype().has_value());
+    return *v.primtype();
 }
 
 // Asserts that v.primtype is consistent with the C++ type stored in v.inner.
 // Call this after any operation to verify the structural invariant holds.
 void assert_structural_valid(const Value& v) {
-    RC_ASSERT(v.value().index() == expected_variant_idx(v.primtype()));
+    RC_ASSERT(v.value().index() == expected_variant_idx(prim_of(v)));
 }
 
 // ── Generators ────────────────────────────────────────────────────────────────
@@ -83,6 +91,7 @@ static rc::Gen<Value> gen_value_of(PrimType pt) {
     case PrimType::F32:  return rc::gen::map(rc::gen::arbitrary<float>(),    [](float v)    { return Value(v); });
     case PrimType::F64:  return rc::gen::map(rc::gen::arbitrary<double>(),   [](double v)   { return Value(v); });
     case PrimType::BOOL: return rc::gen::map(rc::gen::arbitrary<bool>(),     [](bool v)     { return Value(v); });
+    default:             return rc::gen::just(Value());
     }
 }
 

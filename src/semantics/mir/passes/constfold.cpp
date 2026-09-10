@@ -1,6 +1,7 @@
 #include "semantics/mir/passes/constfold.hpp"
 
 #include "ds/arenavec.hpp"
+#include "eval/value.hpp"
 #include "semantics/mir/mir.hpp"
 #include "semantics/types.hpp"
 
@@ -32,6 +33,10 @@ Chunk<ExprMIR> ConstantFolder::eval_and_expr(Chunk<ExprMIR>& expr, Location loc)
         return std::move(taken);
     }
 
+    if (isa<LiteralExprMIR>(expr)) {
+        return std::move(expr);
+    }
+
     Value val = expr->eval(evalr);
 
     // The folded literal must keep the type of the expression it replaces
@@ -39,7 +44,13 @@ Chunk<ExprMIR> ConstantFolder::eval_and_expr(Chunk<ExprMIR>& expr, Location loc)
     if (result_type != nullptr && result_type->is_primitive()) {
         val = val.pr_cast(result_type->as_primitive()->get_primkind());
     } else {
-        result_type = types.get().get_primitive(val.primtype());
+        ECC_ASSERT_N(result_type != nullptr && result_type->is_pointer());
+        auto *ptr = result_type->as_pointer();
+        if (!ptr->get_base()->is_complete()) {
+            val = val.cast_to_pointer();
+        } else {
+            val = val.cast_to_pointer(result_type->as_pointer()->stride());
+        }
     }
 
     auto new_expr = make_chunk<LiteralExprMIR>(loc, syms.current, std::move(val));
@@ -50,7 +61,11 @@ Chunk<ExprMIR> ConstantFolder::eval_and_expr(Chunk<ExprMIR>& expr, Location loc)
 
 void ConstantFolder::fold_operand(Chunk<ExprMIR>& operand) {
     if (operand->is_const_foldable()) {
-        operand = eval_and_expr(operand, operand->loc);
+        try {
+            operand = eval_and_expr(operand, operand->loc);
+        } catch (InvalidCompileTimeEval&) {
+            operand->accept(*this);
+        }
     } else {
         operand->accept(*this);
     }

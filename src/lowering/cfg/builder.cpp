@@ -919,8 +919,20 @@ void CFGBuilder::visit(LiteralExprLIR& node) {
     std::visit(
         match{
             [&](eval::Value& val) {
-                dbprint("    Literal is Value, creating Literal value");
-                last_value = prog_cfg.get_scalar(node.act_type->as_primitive(), val);
+                if (val.is_primitive()) {
+                    dbprint("    Literal is Value, creating Literal value");
+                    ECC_ASSERT_N(node.act_type->is_primitive());
+                    last_value = prog_cfg.get_scalar(node.act_type->as_primitive(), val);
+                } else if (val.is_pointer()) {
+                    ECC_ASSERT_N(node.act_type->is_pointer());
+                    if (val.is_nullptr()) {
+                        last_value = prog_cfg.get_zero(node.act_type->as_pointer());
+                    } else {
+                        last_value = prog_cfg.get_pointer(node.act_type->as_pointer(), val.bits());
+                    }
+                } else {
+                    ECC_UNREACHABLE("unexpected type encountered in literal");
+                }
             },
             [&](StringRef str) {
                 dbprint("    Literal is string, creating String value");
@@ -929,9 +941,6 @@ void CFGBuilder::visit(LiteralExprLIR& node) {
                 last_value = prog_cfg.get_string(node.act_type->as_array(), str);
                 last_value->set_type(node.act_type);
             },
-            [&](std::monostate) {
-                last_value = prog_cfg.get_zero(node.act_type);
-            }
         },
         node.value);
 

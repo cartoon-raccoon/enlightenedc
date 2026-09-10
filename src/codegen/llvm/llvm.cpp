@@ -135,6 +135,8 @@ void LLVMUnit::finalize(PrimitiveType *type) {
     case PrimType::F64:
         typemap[type] = llvm::Type::getDoubleTy(ctx());
         break;
+    default:
+        ECC_UNREACHABLE("subtoken control value used");
     }
 }
 

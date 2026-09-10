@@ -164,11 +164,11 @@ public:
     };
 
     // The kind of the type.
-    Kind kind;
+    const Kind kind;
 
     TypeID id() const {
         if (!type_id.has_value()) {
-            type_id = generate_id();
+           type_id = generate_id();
         }
 
         return *type_id;
@@ -185,13 +185,13 @@ public:
     bool is_array() const;
     bool is_function() const;
 
-    virtual bool is_basetype() { return false; }
+    virtual bool is_basetype() const { return false; }
 
-    virtual bool is_usertype() { return false; }
+    virtual bool is_usertype() const { return false; }
 
-    virtual bool is_recordtype() { return false; }
+    virtual bool is_recordtype() const { return false; }
 
-    virtual bool is_derivedtype() { return false; }
+    virtual bool is_derivedtype() const { return false; }
 
     /**
     `kind` is deliberately not a sufficient discriminant for RTTI purposes: `ConstType`
@@ -315,36 +315,44 @@ public:
     ConstType *make_const();
 
     /**
+    Whether the type is complete.
+
+    A complete type has a known size and can be used in computations such as pointer
+    arithmetic.
+    */
+    virtual bool is_complete() const = 0;
+
+    /**
     Whether the type is callable.
     Only functions and function pointers should be callable.
     */
-    virtual bool is_callable() { return false; }
+    virtual bool is_callable() const { return false; }
 
     /**
     Whether the type is assignable.
     The void type, const types, function types and array types are not assignable.
     */
-    virtual bool is_assignable() { return true; }
+    virtual bool is_assignable() const { return true; }
 
     /**
     Whether the type is subscriptable/indexable.
     Only arrays and pointers should be subscriptable.
     */
-    virtual bool is_subscriptable() { return false; }
+    virtual bool is_subscriptable() const { return false; }
 
     /**
     Whether the type can be used as a condition (e.g. in a loop or if statement).
     */
-    virtual bool is_boolable() { return false; }
+    virtual bool is_boolable() const { return false; }
 
     /**
     Whether the type is a scalar type
     (e.g. U8, F64, pointers, bools, enums).
     */
-    virtual bool is_scalar() { return false; }
+    virtual bool is_scalar() const { return false; }
 
     /** Whether the type is strictly an integer type. */
-    virtual bool is_integral() { return false; }
+    virtual bool is_integral() const { return false; }
 
     /** Get the bare type without any const qualifiers. */
     virtual Type *unqual() { return this; }
@@ -399,7 +407,7 @@ classes, unions, and enums.
 */
 class BaseType : public Type {
 public:
-    bool is_basetype() override { return true; }
+    bool is_basetype() const override { return true; }
 
     static bool classof(const Type *node) {
         if (node->is_const()) {
@@ -429,9 +437,9 @@ class UserType : public BaseType {
 public:
     UserType *as_usertype() override { return this; }
 
-    bool is_complete() const { return complete; }
+    bool is_complete() const override { return complete; }
 
-    bool is_usertype() override { return true; }
+    bool is_usertype() const override { return true; }
 
     // Returns the kind of type: class, union, enum.
     virtual std::string base() const = 0;
@@ -698,7 +706,7 @@ public:
 
     RecordType *as_recordtype() override { return this; }
 
-    bool is_recordtype() override { return true; }
+    bool is_recordtype() const override { return true; }
 
     static bool classof(const Type *node) {
         if (node->is_const()) {
@@ -743,7 +751,7 @@ public:
 
     DerivedType *as_derivedtype() override { return this; }
 
-    bool is_derivedtype() override { return true; }
+    bool is_derivedtype() const override { return true; }
 
     // virtual std::string construct_str(std::string& base);
 
@@ -793,13 +801,13 @@ public:
     /**
     Delegates to `base`.
     */
-    bool is_basetype() override { return base->is_basetype(); }
+    bool is_basetype() const override { return base->is_basetype(); }
 
-    bool is_usertype() override { return base->is_usertype(); }
+    bool is_usertype() const override { return base->is_usertype(); }
 
-    bool is_recordtype() override { return base->is_recordtype(); }
+    bool is_recordtype() const override { return base->is_recordtype(); }
 
-    bool is_derivedtype() override { return base->is_derivedtype(); }
+    bool is_derivedtype() const override { return base->is_derivedtype(); }
 
     bool is_const() const override { return true; }
 
@@ -838,17 +846,19 @@ public:
 
     ConstType *as_const() override { return this; }
 
-    bool is_callable() override { return base->is_callable(); };
+    bool is_complete() const override { return base->is_complete(); }
 
-    bool is_assignable() override { return false; }
+    bool is_callable() const override { return base->is_callable(); };
 
-    bool is_subscriptable() override { return base->is_subscriptable(); };
+    bool is_assignable() const override { return false; }
 
-    bool is_boolable() override { return base->is_boolable(); }
+    bool is_subscriptable() const override { return base->is_subscriptable(); };
 
-    bool is_scalar() override { return base->is_scalar(); }
+    bool is_boolable() const override { return base->is_boolable(); }
 
-    bool is_integral() override { return base->is_integral(); }
+    bool is_scalar() const override { return base->is_scalar(); }
+
+    bool is_integral() const override { return base->is_integral(); }
 
     void finalize() override;
 
@@ -885,7 +895,9 @@ class VoidType : public BaseType {
 public:
     VoidType *as_void() override { return this; }
 
-    bool is_assignable() override { return false; }
+    bool is_complete() const override { return false; }
+
+    bool is_assignable() const override { return false; }
 
     void finalize() override;
 
@@ -971,11 +983,13 @@ public:
 
     PrimitiveType *as_primitive() override { return this; }
 
-    bool is_boolable() override { return true; }
+    bool is_complete() const override { return true; }
 
-    bool is_scalar() override { return true; }
+    bool is_boolable() const override { return true; }
 
-    bool is_integral() override { return is_integer(); }
+    bool is_scalar() const override { return true; }
+
+    bool is_integral() const override { return is_integer(); }
 
     void finalize() override;
 
@@ -1204,7 +1218,7 @@ public:
 
     PrimitiveType *as_primitive() override { return type_rep ? *type_rep : nullptr; }
 
-    bool is_boolable() override {
+    bool is_boolable() const override {
         // this if-statement is basically equivalent to
         // type_rep.has_value(), but we do this for more expressiveness.
         if (type_rep) {
@@ -1316,7 +1330,7 @@ public:
     */
     PrimitiveType *as_primitive() override { return underlying; }
 
-    bool is_boolable() override { return underlying->is_boolable(); } // should always return true
+    bool is_boolable() const override { return underlying->is_boolable(); } // should always return true
 
     void finish(Location loc) override;
 
@@ -1379,7 +1393,7 @@ single (src, dst) pair, not "yes, via an intermediate step".
 class PointerType : public DerivedType {
 public:
     // Returns the level of nesting the pointer has (i.e. how many *'s there are).
-    int nesting_lvl();
+    size_t nesting_lvl() const;
 
     // Get the true base type of the pointer.
     // A base type can also be an array, hence the Type * return type.
@@ -1395,21 +1409,32 @@ public:
         return is_funcptr() ? base->as_function() : nullptr;
     }
 
+    /**
+    Returns the stride of the PointerType.
+
+    If base is not a complete type, returns 0.
+    */
+    size_t stride() const { return base->is_complete()? base->alloc_size() : 0; }
+
     bool is_funcptr() { return base->is_function(); }
 
-    bool is_subscriptable() override { return true; }
+    bool is_voidptr() { return base->is_void(); }
 
-    bool is_callable() override;
+    bool is_complete() const override { return true; }
+
+    bool is_subscriptable() const override { return true; }
+
+    bool is_callable() const override;
 
     bool coercible_to(Type *dst) override;
 
     bool castable_to(Type *dst) override;
 
-    bool is_scalar() override { return true; };
+    bool is_scalar() const override { return true; };
 
-    bool is_integral() override { return false; };
+    bool is_integral() const override { return false; };
 
-    bool is_boolable() override { return true; }
+    bool is_boolable() const override { return true; }
 
     void finalize() override;
 
@@ -1465,13 +1490,15 @@ class ArrayType : public DerivedType {
 public:
     Optional<uint64_t> get_arr_size() { return arr_size; }
 
-    bool is_fully_sized();
+    bool is_fully_sized() const;
 
     ArrayType *as_array() override { return this; }
 
-    bool is_assignable() override { return false; }
+    bool is_complete() const override { return is_fully_sized(); }
 
-    bool is_subscriptable() override { return true; }
+    bool is_assignable() const override { return false; }
+
+    bool is_subscriptable() const override { return true; }
 
     bool coercible_to(Type *dst) override;
 
@@ -1612,9 +1639,11 @@ public:
 
     bool is_variadic() const { return signature.variadic; }
 
-    bool is_callable() override { return true; }
+    bool is_complete() const override { return false; }
 
-    bool is_assignable() override { return false; }
+    bool is_callable() const override { return true; }
+
+    bool is_assignable() const override { return false; }
 
     FunctionType *as_function() override { return this; }
 
@@ -1876,6 +1905,11 @@ public:
     ConstType *get_const(Type *base);
 
     /**
+    Lookup a type by its ID.
+    */
+    Type *lookup_by_id(TypeID id);
+
+    /**
     Whether `signature` is a valid signature for a main function.
     */
     bool is_valid_main_signature(FunctionType *signature);
@@ -1920,6 +1954,9 @@ private:
     // The map of const types mapped by their base type.
     HashMap<Type *, Box<ConstType>> const_types;
 
+    // The map of type ids to their corresponding Types.
+    HashMap<TypeID, Type *> id_map;
+
     // Generate a mangled, unique name for a type incorporating its associated scope.
     template <typename T>
         requires std::derived_from<T, UserType>
@@ -1954,6 +1991,10 @@ private:
 
         return ret;
     }
+
+    void register_type_id(Type *type);
+
+    void deregister_type_id(Type *type);
 
     /**
     Remove an unsized array of base type `base`.

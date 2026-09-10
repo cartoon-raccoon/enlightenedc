@@ -13,6 +13,7 @@
 #include "semantics/types.hpp"
 #include "tokens.hpp"
 #include "prelude.hpp"
+#include "util/assert.hpp"
 
 using namespace sema;
 using namespace sym;
@@ -787,6 +788,7 @@ void Validator::do_visit(BinaryExprMIR& node) {
 }
 
 void Validator::validate_binexpr_nonprim(BinaryExprMIR& node) {
+    bsv_dbprint("Validator: visiting BinaryExprMIR node, nonprimitive");
     if (node.left->eff_type->is_pointer() || node.right->eff_type->is_pointer()) {
 
         enum PointerSide : uint8_t {
@@ -805,67 +807,185 @@ void Validator::validate_binexpr_nonprim(BinaryExprMIR& node) {
         }
 
         switch (side) {
-        case LEFT: {
-            // PointerType *left    = node.left->eff_type->as_pointer();
-            PrimitiveType *right = node.right->eff_type->as_primitive();
-
-            if (!right->is_integer()) {
-                add_error<InvalidPointerArithmetic>(
-                    InvalidPointerArithmetic::Kind::InvalidPrimOperand, node.right->loc);
-                throw UnableToContinue();
-            }
-
-            node.set_type(node.left->act_type);
+        case LEFT: // Pointer is on the left
+            validate_binexpr_ptr_left(node);
             break;
-        }
-        case RIGHT: {
-            PrimitiveType *left = node.left->eff_type->as_primitive();
-            // PointerType *right  = node.right->eff_type->as_pointer();
-
-            if (!left->is_integer()) {
-                add_error<InvalidPointerArithmetic>(
-                    InvalidPointerArithmetic::Kind::InvalidPrimOperand, node.left->loc);
-                throw UnableToContinue();
-            }
-
-            node.set_type(node.right->act_type);
+        case RIGHT: // Pointer is on the right
+            validate_binexpr_ptr_right(node);
             break;
-        }
-        case BOTH: {
-            switch (node.op) {
-            case BinaryOp::MINUS:
-                node.set_type(types.get_size_type(false));
-                break;
-            case BinaryOp::EQ:
-            case BinaryOp::NE:
-            case BinaryOp::LT:
-            case BinaryOp::GT:
-            case BinaryOp::LE:
-            case BinaryOp::GE:
-                node.set_type(types.get_bool());
-                break;
-            default:
-                add_error<InvalidPointerArithmetic>(
-                    InvalidPointerArithmetic::Kind::InvalidOperator, node.loc);
-                throw UnableToContinue();
-            }
-
-            Type *left_base  = node.left->act_type->as_pointer()->get_base();
-            Type *right_base = node.right->act_type->as_pointer()->get_base();
-
-            // handle pointer type compatibility (both sides must have same base or void)
-            if (left_base != right_base && !(left_base->is_void() || right_base->is_void())) {
-                add_error<InvalidPointerArithmetic>(
-                    InvalidPointerArithmetic::Kind::IncompatiblePtrOperands, node.loc);
-                throw UnableToContinue();
-            }
-        }
+        case BOTH: 
+            validate_binexpr_ptr_both(node);
+            break;
         }
     } else {
         bsv_dbprint("error: operator not applicable to non-primitive non-pointer types");
         add_error<InvalidBinaryOpError>(
             "operator not applicable to these types", node.op, node.left->act_type,
             node.right->act_type, node.loc);
+        throw UnableToContinue();
+    }
+}
+
+void Validator::validate_binexpr_ptr_left(BinaryExprMIR& node) {
+    bsv_dbprint("Validator: visiting BinaryExprMIR node, nonprimitive ptr left");
+    PointerType *left    = node.left->eff_type->as_pointer();
+    PrimitiveType *right = node.right->eff_type->as_primitive();
+    if (!right) {
+        add_error<InvalidPointerOpError>(
+            InvalidPointerOpError::Kind::InvalidRightOperand, node.right->loc);
+        throw UnableToContinue();
+    }
+
+    if (!right->is_integer()) {
+        add_error<InvalidPointerOpError>(
+            InvalidPointerOpError::Kind::InvalidPrimOperand, node.right->loc);
+        throw UnableToContinue();
+    }
+
+    if (is_tok<RelationalOp>(node.op)) {
+        if (node.op != BinaryOp::EQ && node.op != BinaryOp::NE) {
+            add_error<InvalidPointerOpError>(
+                InvalidPointerOpError::Kind::InvalidLHSOperator, node.loc);
+            // we can still set node type, so don't bail - relational ops always return bool
+        }
+
+        if (auto *lit = dyncast<LiteralExprMIR>(node.right); lit && lit->is_value()) {
+            eval::Value val = *lit->as_value();
+            ECC_ASSERT_N(val.is_integer());
+            if (val.bits() != 0) {
+                add_error<InvalidPointerOpError>(
+                    InvalidPointerOpError::Kind::InvalidCompConstant, node.loc);
+            }
+        }
+        node.set_type(types.get_bool());
+        return;
+    } else if (is_tok<AddBinOp>(node.op)) {
+        if (!left->get_base()->is_complete()) {
+            // check for base completeness
+            add_error<InvalidPointerOpError>(
+                InvalidPointerOpError::Kind::IncompletePtrBase, node.loc);
+            // we can still set the type of the expr node, so no need to bail-
+            // we just don't know the stride, but that's a problem for codegen
+        }
+        // happy path: pointer arithmetic must only be plus and minus
+        node.set_type(node.left->act_type);
+        return;
+    } else {
+        add_error<InvalidPointerOpError>(
+                InvalidPointerOpError::Kind::InvalidLHSOperator, node.loc);
+        throw UnableToContinue();
+        // throw here, since we don't know what the operator will return
+    }
+    ECC_UNREACHABLE("unaccounted-for lhs pointer case");
+}
+
+void Validator::validate_binexpr_ptr_right(BinaryExprMIR& node) {
+    bsv_dbprint("Validator: visiting BinaryExprMIR node, nonprimitive ptr right");
+    PrimitiveType *left = node.left->eff_type->as_primitive();
+    PointerType *right  = node.right->eff_type->as_pointer();
+    if (!left) {
+        add_error<InvalidPointerOpError>(
+            InvalidPointerOpError::Kind::InvalidLeftOperand, node.right->loc);
+        throw UnableToContinue();
+    }
+
+    if (!left->is_integer()) {
+        add_error<InvalidPointerOpError>(
+            InvalidPointerOpError::Kind::InvalidPrimOperand, node.left->loc);
+        throw UnableToContinue();
+    }
+
+    if (is_tok<RelationalOp>(node.op)) {
+        if (node.op != BinaryOp::EQ && node.op != BinaryOp::NE) {
+            add_error<InvalidPointerOpError>(
+                InvalidPointerOpError::Kind::InvalidRHSOperator, node.loc);
+            // we can still set node type, so don't bail - relational ops always return bool
+        }
+        
+        // fixme: this is a perfect candidate for a tree matcher
+        if (auto *lit = dyncast<LiteralExprMIR>(node.left); lit && lit->is_value()) {
+            eval::Value val = *lit->as_value();
+            ECC_ASSERT_N(val.is_integer());
+            if (val.bits() != 0) {
+                add_error<InvalidPointerOpError>(
+                    InvalidPointerOpError::Kind::InvalidCompConstant, node.loc);
+                // we can still set node type, so don't bail, we're still comparing against smth
+            }
+        }
+        // happy path
+        node.set_type(types.get_bool());
+        return;
+    } else if (is_tok<AddBinOp>(node.op)) {
+        if (node.op != BinaryOp::PLUS) {
+            // add error: in a right-pointer binexpr, operator MUST be plus
+            add_error<InvalidPointerOpError>(
+                InvalidPointerOpError::Kind::InvalidRHSOperator, node.loc);
+            // no need to bail, pointer arithmetic still just yields the pointer node type
+        }
+        if (!right->get_base()->is_complete()) {
+            // check for base completeness
+            add_error<InvalidPointerOpError>(
+                InvalidPointerOpError::Kind::IncompletePtrBase, node.loc);
+            // we can still set the type of the expr node, so no need to bail-
+            // we just don't know the stride, but that's a problem for codegen
+        }
+        // happy path - set node type and return
+        node.set_type(node.right->act_type);
+        return;
+    } else {
+        add_error<InvalidPointerOpError>(
+                InvalidPointerOpError::Kind::InvalidRHSOperator, node.loc);
+        throw UnableToContinue();
+        // throw here, since we don't know what the operator will return
+    }
+    ECC_UNREACHABLE("unaccounted-for rhs pointer case");
+}
+
+void Validator::validate_binexpr_ptr_both(BinaryExprMIR& node) {
+    bsv_dbprint("Validator: visiting BinaryExprMIR node, nonprimitive ptr both");
+    auto *left_ptr = node.left->act_type->as_pointer();
+    auto *right_ptr = node.right->act_type->as_pointer();
+
+    if (node.op == BinaryOp::MINUS) {
+
+        auto *left_base = node.left->act_type->as_pointer()->get_base();
+        auto *right_base = node.right->act_type->as_pointer()->get_base();
+
+        if (!left_base->is_complete() || !right_base->is_complete()) {
+            add_error<InvalidPointerOpError>(
+                InvalidPointerOpError::Kind::IncompletePtrBase, node.loc);
+        } else if (left_ptr->get_base()->unqual() != right_ptr->get_base()->unqual()) {
+            // compare on unqualified base, since C allows pointer arithmetic through qualifiers
+            add_error<InvalidPointerOpError>(
+                InvalidPointerOpError::Kind::IncompatPtrOperands, node.loc);
+        }
+        // we can still set the type of the expr node, so no need to bail-
+        // we just don't know the stride, but that's a problem for codegen
+        node.set_type(types.get_size_type(false));
+    } else if (is_tok<RelationalOp>(node.op)) {
+        if (!left_ptr->coercible_to(right_ptr) && !right_ptr->coercible_to(left_ptr)) {
+            // cannot coerce either way, types are incompatible
+            // todo: warn "comparison of distinct pointer types lacks a cast"
+
+            // drop to a simple address comparison
+        } else if (right_ptr != left_ptr) {
+            // can coerce, just not same type
+            if (right_ptr->coercible_to(left_ptr)) {
+                // if right is coercible to left, do that first
+                node.right = cast(left_ptr, std::move(node.right));
+            } else if (left_ptr->coercible_to(right_ptr)) {
+                // failing which, coerce the left to right
+                node.left = cast(right_ptr, std::move(node.left));
+            } else {
+                ECC_UNREACHABLE("coercible pointers failed in both directions");
+            }
+        } else {
+            ECC_ASSERT_N(left_ptr == right_ptr);
+        }
+        node.set_type(types.get_bool());
+    } else {
+        add_error<InvalidPointerOpError>(
+            InvalidPointerOpError::Kind::InvalidArithOperator, node.loc);
         throw UnableToContinue();
     }
 }
@@ -1019,6 +1139,9 @@ void Validator::do_visit(UnaryExprMIR& node) {
         }
         node.set_type(node.operand->act_type->unqual());
     } break;
+
+    default:
+        ECC_UNREACHABLE("subtoken control value used");
     }
 
     ECC_ASSERT((node.act_type && node.eff_type), "node type not set");
@@ -1097,8 +1220,8 @@ void Validator::do_visit(AssignExprMIR& node) {
         node.left->eff_type->unqual()->is_pointer()) {
         PrimitiveType *right = node.right->eff_type->unqual()->as_primitive();
         if (!right || !right->is_integer()) {
-            add_error<InvalidPointerArithmetic>(
-                InvalidPointerArithmetic::Kind::InvalidPrimOperand, node.right->loc);
+            add_error<InvalidPointerOpError>(
+                InvalidPointerOpError::Kind::InvalidPrimOperand, node.right->loc);
             throw UnableToContinue();
         }
         goto done;
@@ -1182,6 +1305,8 @@ void Validator::do_visit(AssignExprMIR& node) {
                 InvalidAssignError::Kind::NotPrimitive, node.left->act_type, node.loc);
         }
     } break;
+    default:
+        ECC_UNREACHABLE("subtoken control value used");
     }
 
 done:
@@ -1232,11 +1357,14 @@ void Validator::do_visit(IdentExprMIR& node) { // done
 void Validator::do_visit(LiteralExprMIR& node) { // done
     bsv_dbprint("Validator: visiting LiteralExprMIR node");
     if (auto *val = std::get_if<eval::Value>(&node.value)) {
-        node.set_type(types.get_primitive(val->primtype()));
+        if (val->is_pointer()) {
+            node.set_type(types.get_voidptr());
+        } else {
+            ECC_ASSERT_N(val->primtype().has_value());
+            node.set_type(types.get_primitive(*val->primtype()));
+        }
     } else if (auto *s = std::get_if<StringRef>(&node.value)) {
         node.set_type(types.get_array(types.get_i8(), s->size() + 1));
-    } else if (auto *p = std::get_if<std::monostate>(&node.value)) {
-        node.set_type(types.get_voidptr());
     } else {
         ECC_UNREACHABLE("LiteralExprMIR value held neither eval::Value nor StringRef");
     }

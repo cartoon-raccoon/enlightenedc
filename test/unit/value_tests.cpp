@@ -40,7 +40,7 @@ RC_GTEST_PROP(ValueStructural, ShiftPreservesStructure, ()) {
 RC_GTEST_PROP(ValueTypePromotion, RankFloorIsI32, ()) {
     Value result = *gen_value() + *gen_value();
     assert_structural_valid(result);
-    RC_ASSERT(pr_rank(result.primtype()) >= PrimTypeRank::INT32);
+    RC_ASSERT(pr_rank(prim_of(result)) >= PrimTypeRank::INT32);
 }
 
 RC_GTEST_PROP(ValueTypePromotion, ResultRankAtLeastBothInputs, ()) {
@@ -48,8 +48,8 @@ RC_GTEST_PROP(ValueTypePromotion, ResultRankAtLeastBothInputs, ()) {
     Value b      = *gen_value();
     Value result = a + b;
     assert_structural_valid(result);
-    RC_ASSERT(pr_rank(result.primtype()) >= pr_rank(a.primtype()));
-    RC_ASSERT(pr_rank(result.primtype()) >= pr_rank(b.primtype()));
+    RC_ASSERT(pr_rank(prim_of(result)) >= pr_rank(prim_of(a)));
+    RC_ASSERT(pr_rank(prim_of(result)) >= pr_rank(prim_of(b)));
 }
 
 // ── Type promotion — signedness ───────────────────────────────────────────────
@@ -60,7 +60,7 @@ RC_GTEST_PROP(ValueTypePromotion, UnsignedWins, ()) {
     Value b      = *gen_unsigned_value();
     Value result = a + b;
     assert_structural_valid(result);
-    RC_ASSERT(!pr_is_signed(result.primtype()));
+    RC_ASSERT(!pr_is_signed(prim_of(result)));
 }
 
 RC_GTEST_PROP(ValueTypePromotion, TwoSignedIntegersProduceSignedResult, ()) {
@@ -72,7 +72,7 @@ RC_GTEST_PROP(ValueTypePromotion, TwoSignedIntegersProduceSignedResult, ()) {
         gen_value_of);
     Value result = a + b;
     assert_structural_valid(result);
-    RC_ASSERT(pr_is_signed(result.primtype()));
+    RC_ASSERT(pr_is_signed(prim_of(result)));
 }
 
 // ── Type promotion — float dominance ─────────────────────────────────────────
@@ -82,7 +82,7 @@ RC_GTEST_PROP(ValueTypePromotion, FloatDominatesNonFloat, ()) {
     Value i      = *gen_non_float_value();
     Value result = f + i;
     assert_structural_valid(result);
-    RC_ASSERT(pr_is_float(result.primtype()));
+    RC_ASSERT(pr_is_float(prim_of(result)));
 }
 
 RC_GTEST_PROP(ValueTypePromotion, F64DominatesF32, ()) {
@@ -102,9 +102,9 @@ RC_GTEST_PROP(ValueTypePromotion, TypeIndependentOfValue, ()) {
     // Same pair of primtypes, different raw values → same result type.
     PrimType pt1 = *gen_primtype();
     PrimType pt2 = *gen_primtype();
-    PrimType type1 = (*gen_value_of(pt1) + *gen_value_of(pt2)).primtype();
-    PrimType type2 = (*gen_value_of(pt1) + *gen_value_of(pt2)).primtype();
-    RC_ASSERT(type1 == type2);
+    Value type1 = *gen_value_of(pt1) + *gen_value_of(pt2);
+    Value type2 = *gen_value_of(pt1) + *gen_value_of(pt2);
+    RC_ASSERT(type1.primtype() == type2.primtype());
 }
 
 RC_GTEST_PROP(ValueTypePromotion, CommutativeOpsHaveSameResultType, ()) {
@@ -132,7 +132,7 @@ RC_GTEST_PROP(ValueTypePromotion, PromotePairTypeMatchesPrPromote, ()) {
     Value a       = *gen_value();
     Value b       = *gen_value();
     auto [pa, pb] = Value::promote(a, b);
-    RC_ASSERT(pa.primtype() == pr_promote(a.primtype(), b.primtype()));
+    RC_ASSERT(pa.primtype() == pr_promote(prim_of(a), prim_of(b)));
 }
 
 // ── Comparison operators always produce Bool ──────────────────────────────────
@@ -209,9 +209,9 @@ RC_GTEST_PROP(ValueTypePromotion, ShiftResultTypeIsPromotedLeft, ()) {
     Value b(*rc::gen::inRange<uint32_t>(0, 32)); // NOLINT
 
     // Expected: independently promote left to at least I32, ignore right.
-    PrimType expected_type = pr_rank(a.primtype()) >= PrimTypeRank::INT32
-        ? a.primtype()
-        : pr_from_rank(PrimTypeRank::INT32, pr_is_signed(a.primtype()));
+    PrimType expected_type = pr_rank(prim_of(a)) >= PrimTypeRank::INT32
+        ? prim_of(a)
+        : pr_from_rank(PrimTypeRank::INT32, pr_is_signed(prim_of(a)));
 
     Value result = a << b;
     assert_structural_valid(result);
@@ -343,6 +343,153 @@ RC_GTEST_PROP(ValueHashProp, ConsistentWithStructEq, ()) {
     ValueHash hash;
     RC_PRE(eq(a, b));
     RC_ASSERT(hash(a) == hash(b));
+}
+
+// ── pointer values ───────────────────────────────────────────────────────────
+//
+// A pointer Value carries an opaque address and an optional stride. nullptr is
+// just the address 0. Pointers stand outside the primitive type algebra: they
+// never promote and never take part in arithmetic. They *do* support relational
+// comparison (address ordering), logical NOT, the contextual conversion to bool,
+// and casts to/from an integer (the address is the payload).
+
+TEST(ValuePointer, IsPointerNotPrimitive) {
+    Value n = Value::null();
+    EXPECT_TRUE(n.is_pointer());
+    EXPECT_TRUE(n.is<PtrValue>());
+    EXPECT_FALSE(n.primtype().has_value());
+    EXPECT_EQ(n.valuetype(), ValueEnum::PTR);
+}
+
+// The primitive-category predicates describe a primitive type. A pointer is not
+// one, so each must answer false -- not raise an internal compiler error.
+TEST(ValuePointer, PrimitivePredicatesAreFalse) {
+    Value n = Value::null();
+    EXPECT_FALSE(n.is_integer());
+    EXPECT_FALSE(n.is_float());
+    EXPECT_FALSE(n.is_bool());
+    EXPECT_FALSE(n.is_signed());
+    EXPECT_FALSE(n.pr_rank().has_value());
+}
+
+TEST(ValuePointer, BitsAreTheAddress) {
+    EXPECT_EQ(Value::null().bits(), 0U);
+    EXPECT_EQ(Value::pointer(0x4000, 1).bits(), 0x4000U);
+}
+
+TEST(ValuePointer, ConvertsToBoolByAddress) {
+    EXPECT_FALSE(static_cast<bool>(Value::null()));
+    EXPECT_TRUE(static_cast<bool>(Value::pointer(0x1000, 1)));
+}
+
+// !ptr is the bool `ptr == nullptr`.
+TEST(ValuePointer, LogicalNot) {
+    Value t = !Value::null();
+    EXPECT_EQ(t.primtype(), PrimType::BOOL);
+    EXPECT_TRUE(static_cast<bool>(t));
+
+    EXPECT_FALSE(static_cast<bool>(!Value::pointer(0x10, 1)));
+}
+
+TEST(ValuePointer, ArithmeticUnaryOpsThrow) {
+    EXPECT_THROW((void)(-Value::null()), EvalSemanticError);
+    EXPECT_THROW((void)(+Value::null()), EvalSemanticError);
+    EXPECT_THROW((void)(~Value::null()), EvalSemanticError);
+}
+
+// Arithmetic and bitwise binary operators reject a pointer operand.
+TEST(ValuePointer, ArithmeticBinaryOpsThrow) {
+    Value n = Value::null();
+    Value i{static_cast<int32_t>(1)};
+    EXPECT_THROW((void)(n + i), EvalSemanticError);
+    EXPECT_THROW((void)(i + n), EvalSemanticError);
+    EXPECT_THROW((void)(n - i), EvalSemanticError);
+    EXPECT_THROW((void)(n * i), EvalSemanticError);
+    EXPECT_THROW((void)(n / i), EvalSemanticError);
+    EXPECT_THROW((void)(n & i), EvalSemanticError);
+    EXPECT_THROW((void)(n << i), EvalSemanticError);
+}
+
+// Relational operators compare addresses and yield a Bool.
+TEST(ValuePointer, RelationalComparesAddresses) {
+    Value lo = Value::pointer(0x1000, 1);
+    Value hi = Value::pointer(0x2000, 1);
+
+    EXPECT_TRUE(static_cast<bool>(lo < hi));
+    EXPECT_TRUE(static_cast<bool>(hi > lo));
+    EXPECT_TRUE(static_cast<bool>(lo <= Value::pointer(0x1000, 1)));
+    EXPECT_TRUE(static_cast<bool>(lo == Value::pointer(0x1000, 1)));
+    EXPECT_TRUE(static_cast<bool>(lo != hi));
+    EXPECT_EQ((lo == hi).primtype(), PrimType::BOOL);
+
+    // nullptr == nullptr
+    EXPECT_TRUE(static_cast<bool>(Value::null() == Value::null()));
+}
+
+// A pointer's stride does not affect address comparison.
+TEST(ValuePointer, RelationalIgnoresStride) {
+    EXPECT_TRUE(static_cast<bool>(Value::pointer(0x10, 4) == Value::pointer(0x10, 8)));
+}
+
+// A pointer cannot be implicitly compared against a primitive -- the validator
+// is expected to have inserted a cast first.
+TEST(ValuePointer, MixedRelationalThrows) {
+    EXPECT_THROW((void)(Value::null() == Value(static_cast<int32_t>(0))),
+                 EvalSemanticError);
+    EXPECT_THROW((void)(Value(static_cast<int32_t>(0)) < Value::null()),
+                 EvalSemanticError);
+}
+
+TEST(ValuePointer, PromoteThrows) {
+    Value n = Value::null();
+    Value z{static_cast<int32_t>(0)};
+    EXPECT_THROW((void)Value::promote(n, z), EvalSemanticError);
+    EXPECT_THROW((void)Value::promote(z, n), EvalSemanticError);
+    EXPECT_THROW((void)Value::promote(n, n), EvalSemanticError);
+}
+
+// Casting a pointer to an integer yields its address.
+TEST(ValuePointer, CastToIntegerYieldsAddress) {
+    EXPECT_EQ(Value::pointer(0x4000, 1).cast<uint64_t>(), 0x4000U);
+    EXPECT_EQ(Value::pointer(0x4000, 1).pr_cast(PrimType::U64).bits(), 0x4000U);
+    EXPECT_EQ(Value::null().pr_cast(PrimType::I32).bits(), 0U);
+}
+
+// An integer casts to a pointer holding that address (stride unknown).
+TEST(ValuePointer, IntegerCastsToPointer) {
+    Value p = Value(static_cast<int32_t>(0x4000)).pr_cast(ValueEnum::PTR);
+    EXPECT_TRUE(p.is_pointer());
+    EXPECT_EQ(p.bits(), 0x4000U);
+    EXPECT_FALSE(p.is_pointer_with_stride());
+}
+
+TEST(ValuePointer, CastPointerToPointerKeepsAddress) {
+    Value n = Value::null().pr_cast(ValueEnum::PTR);
+    EXPECT_TRUE(n.is_pointer());
+    EXPECT_EQ(n.bits(), 0U);
+}
+
+TEST(ValuePointer, AssignmentReplacesTypeAndValue) {
+    Value v{static_cast<int32_t>(7)};
+    v = Value::null();
+    EXPECT_TRUE(v.is_pointer());
+
+    v = Value(static_cast<int32_t>(3));
+    EXPECT_FALSE(v.is_pointer());
+}
+
+// ValueStructEq / ValueHash: two pointers to the same address are identical
+// (stride is not part of identity), and a pointer is distinct from an integer
+// zero even though both have bits() == 0.
+TEST(ValuePointer, StructuralEqualityAndHash) {
+    Value a = Value::pointer(0x10, 4);
+    Value b = Value::pointer(0x10, 8);
+    ValueStructEq eq;
+    ValueHash hash;
+
+    EXPECT_TRUE(eq(a, b));
+    EXPECT_EQ(hash(a), hash(b));
+    EXPECT_FALSE(eq(Value::null(), Value(static_cast<int32_t>(0))));
 }
 
 // Value can be used as a key in an unordered_map keyed by ValueHash/ValueStructEq

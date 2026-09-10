@@ -74,3 +74,15 @@ void VarDeclMIR::add_decl(VarSymbol *sym) {
 void VarDeclMIR::add_decl(VarSymbol *sym, Chunk<InitializerMIR> init) {
     decls.emplace_back(VarDecl{sym, std::move(init)});
 }
+
+Optional<eval::Value> LiteralExprMIR::as_value() const {
+    if (!is_value()) { return {}; }
+
+    return std::get<eval::Value>(value);
+}
+
+Optional<StringRef> LiteralExprMIR::as_string() const {
+    if (!is_string()) { return {}; }
+
+    return std::get<StringRef>(value);
+}

@@ -171,6 +171,12 @@ private:
 
     void validate_binexpr_nonprim(mir::BinaryExprMIR& node);
 
+    void validate_binexpr_ptr_left(mir::BinaryExprMIR& node);
+
+    void validate_binexpr_ptr_right(mir::BinaryExprMIR& node);
+
+    void validate_binexpr_ptr_both(mir::BinaryExprMIR& node);
+
     void validate_binexpr_prim(mir::BinaryExprMIR& node);
 
     void validate_print(StringRef format_str, Span<Chunk<mir::ExprMIR>> args);

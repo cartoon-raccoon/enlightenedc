@@ -954,13 +954,15 @@ void LIRSynthesizer::do_visit(CastExprMIR& node) {
         
             last_expr = std::move(inner);
 
-        } else if (literal->is_ptr() && node.target->is_pointer()) {
-            // if inner is a nullptr and target is also a pointer, directly perform the cast now
-            ECC_ASSERT_N(node.target->as_pointer());
+        } else if (literal->is_val() && node.target->is_pointer()) {
+            // if inner is a pointer value and target is also a pointer, directly perform the cast now
+            eval::Value val = *literal->as_val();
+            val = val.cast_to_pointer(node.target->as_pointer()->stride());
 
             // same as above, use act_type to preserve const
             literal->set_type(node.act_type);
             literal->loc = node.loc;
+            literal->value = val;
             last_expr = std::move(inner);
         } else {
             Chunk<ExprLIR> expr = make_chunk<CastExprLIR>(
@@ -1074,8 +1076,7 @@ void LIRSynthesizer::do_visit(CallExprMIR& node) {
         for (auto& param : func->default_params_after(args.size())) {
             ECC_ASSERT(param.has_value(), "default argument with no value");
             eval::Value val = *param.get_value();
-            auto arg = make_chunk<LiteralExprLIR>(
-                param.get_loc(), val, types.get_primitive(val.primtype()));
+            auto arg = make_chunk<LiteralExprLIR>(param.get_loc(), val, param.get_type());
             args.push_back(std::move(arg));
         }
     }

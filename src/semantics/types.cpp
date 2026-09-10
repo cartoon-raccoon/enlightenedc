@@ -81,7 +81,9 @@ Type *ConstType::effective_type() {
 
 TypeID ConstType::generate_id() const {
     VarHash<TypeID, TypeID> h;
-    return h(base->id(), CONST_SALT);
+    TypeID id = h(base->id(), CONST_SALT);
+    type_id = id;
+    return id;
 }
 
 /*
@@ -373,6 +375,13 @@ void RecordType::validate_new_member(Type *type, Optional<StringRef> name, Locat
             // check that array is sized
             throw UnsizedArrInUserTypeError(loc);
         }
+    }
+
+    /**
+    Catch-all for incomplete types
+    */
+    if (!type->is_complete()) {
+        throw IncompleteTypeUseError(type, loc);
     }
 }
 
@@ -970,8 +979,8 @@ std::string EnumType::formal() {
  * POINTER TYPE METHODS
  */
 
-int PointerType::nesting_lvl() {
-    int lvl = 1;
+size_t PointerType::nesting_lvl() const {
+    size_t lvl = 1;
 
     Type *current = base;
     while (current->is_pointer()) {
@@ -991,7 +1000,7 @@ Type *PointerType::true_base() {
     return curr;
 }
 
-bool PointerType::is_callable() {
+bool PointerType::is_callable() const {
     /*
     A pointer is callable if it is a singly-nested pointer to a function.
     */
@@ -1007,8 +1016,8 @@ bool PointerType::coercible_to(Type *dst) {
     if (!ptr)
         return false;
 
-    int my_nesting = nesting_lvl();
-    int ds_nesting = ptr->nesting_lvl();
+    size_t my_nesting = nesting_lvl();
+    size_t ds_nesting = ptr->nesting_lvl();
     Type *dst_base = ptr->true_base();
 
     if (my_nesting != 1 || ds_nesting != 1)
@@ -1054,7 +1063,7 @@ TypeID PointerType::generate_id() const {
  * ARRAY TYPE METHODS
  */
 
-bool ArrayType::is_fully_sized() {
+bool ArrayType::is_fully_sized() const {
     // fixme: does not work if there is a break in the type hierarchy of arrays
     return base->is_array() ? arr_size.has_value() && base->as_array()->is_fully_sized()
                             : arr_size.has_value();
@@ -1093,13 +1102,16 @@ Type *ArrayType::effective_type() {
 }
 
 TypeID ArrayType::generate_id() const {
+    TypeID id;
     if (arr_size) {
         VarHash<TypeID, uint64_t, TypeID> h;
-        return h(base->id(), *arr_size, ARRAY_SALT);
+        id = h(base->id(), *arr_size, ARRAY_SALT);
     } else {
         VarHash<TypeID, TypeID> h;
-        return h(base->id(), UARRAY_SALT);
+        id = h(base->id(), UARRAY_SALT);
     }
+    type_id = id;
+    return id;
 }
 
 /*
@@ -1226,6 +1238,19 @@ TypeContext::TypeContext(codegen::CodeGenUnit& cgu)
       f32(std::make_unique<PrimitiveType>(PrimType::F32, *this)),
       f64(std::make_unique<PrimitiveType>(PrimType::F64, *this)),
       boolt(std::make_unique<PrimitiveType>(PrimType::BOOL, *this)) {
+    
+    register_type_id(voidt.get());
+    register_type_id(u8.get());
+    register_type_id(u16.get());
+    register_type_id(u32.get());
+    register_type_id(u64.get());
+    register_type_id(i8.get());
+    register_type_id(i16.get());
+    register_type_id(i32.get());
+    register_type_id(i64.get());
+    register_type_id(f32.get());
+    register_type_id(f64.get());
+    register_type_id(boolt.get());
 }
 
 TypeBuilder TypeContext::builder() {
@@ -1261,6 +1286,8 @@ PrimitiveType *TypeContext::get_primitive(PrimType pkind) {
         return f64.get();
     case PrimType::BOOL:
         return boolt.get();
+    default:
+        ECC_UNREACHABLE("subtoken control value used");
     }
 
     ECC_UNREACHABLE("unhandled PrimType in get_primitive");
@@ -1315,7 +1342,9 @@ ClassType *TypeContext::get_class(Location decl_loc, StringRef name, sym::Scope 
     Box<ClassType> clsty = std::make_unique<ClassType>(decl_loc, namestr, scope, *this);
 
     // If no struct matching the name, make a new struct
-    return insert_named_type<ClassType>(mangled, scope, std::move(clsty));
+    ClassType *ret = insert_named_type<ClassType>(mangled, scope, std::move(clsty));
+    register_type_id(ret);
+    return ret;
 }
 
 ClassType *TypeContext::get_class(Location decl_loc, sym::Scope *scope) {
@@ -1334,7 +1363,9 @@ ClassType *TypeContext::get_class(Location decl_loc, sym::Scope *scope) {
     Box<ClassType> clsty = std::make_unique<ClassType>(decl_loc, *anonymous_ctr, scope, *this);
     anonymous_ctr++;
 
-    return insert_named_type<ClassType>(mangled, scope, std::move(clsty));
+    ClassType *ret = insert_named_type<ClassType>(mangled, scope, std::move(clsty));
+    register_type_id(ret);
+    return ret;
 }
 
 UnionType *TypeContext::get_union(Location decl_loc, StringRef name, sym::Scope *scope) {
@@ -1350,7 +1381,9 @@ UnionType *TypeContext::get_union(Location decl_loc, StringRef name, sym::Scope 
     Box<UnionType> unnty = std::make_unique<UnionType>(decl_loc, namestr, scope, *this);
 
     // If no struct matching the name, make a new struct
-    return insert_named_type<UnionType>(mangled, scope, std::move(unnty));
+    UnionType *ret = insert_named_type<UnionType>(mangled, scope, std::move(unnty));
+    register_type_id(ret);
+    return ret;
 }
 
 UnionType *TypeContext::get_union(Location decl_loc, sym::Scope *scope) {
@@ -1361,7 +1394,9 @@ UnionType *TypeContext::get_union(Location decl_loc, sym::Scope *scope) {
     Box<UnionType> unnty = std::make_unique<UnionType>(decl_loc, *anonymous_ctr, scope, *this);
     anonymous_ctr++;
 
-    return insert_named_type<UnionType>(mangled, scope, std::move(unnty));
+    UnionType *ret = insert_named_type<UnionType>(mangled, scope, std::move(unnty));
+    register_type_id(ret);
+    return ret;
 }
 
 EnumType *TypeContext::get_enum(Location decl_loc, StringRef name, sym::Scope *scope) {
@@ -1377,7 +1412,9 @@ EnumType *TypeContext::get_enum(Location decl_loc, StringRef name, sym::Scope *s
     Box<EnumType> enmty = std::make_unique<EnumType>(decl_loc, namestr, scope, *this);
 
     // If no struct matching the name, make a new struct
-    return insert_named_type<EnumType>(mangled, scope, std::move(enmty));
+    EnumType *ret = insert_named_type<EnumType>(mangled, scope, std::move(enmty));
+    register_type_id(ret);
+    return ret;
 }
 
 EnumType *TypeContext::get_enum(Location decl_loc, sym::Scope *scope) {
@@ -1388,7 +1425,9 @@ EnumType *TypeContext::get_enum(Location decl_loc, sym::Scope *scope) {
     Box<EnumType> enmty = std::make_unique<EnumType>(decl_loc, *anonymous_ctr, scope, *this);
     anonymous_ctr++;
 
-    return insert_named_type<EnumType>(mangled, scope, std::move(enmty));
+    EnumType *ret = insert_named_type<EnumType>(mangled, scope, std::move(enmty));
+    register_type_id(ret);
+    return ret;
 }
 
 PointerType *TypeContext::get_pointer(Type *base) {
@@ -1407,7 +1446,7 @@ PointerType *TypeContext::get_pointer(Type *base) {
     auto *ret            = ptr.get();
 
     pointers[base] = std::move(ptr);
-
+    register_type_id(ret);
     return ret;
 }
 
@@ -1418,7 +1457,7 @@ PointerType *TypeContext::decay_array(ArrayType *arr) {
     if (!arr->arr_size) {
         deallocate_unsized_array(arr->base);
     }
-
+    register_type_id(ret);
     return ret;
 }
 
@@ -1429,7 +1468,9 @@ PointerType *TypeContext::decay_array_ref(ArrayType *arr) {
     ECC_ASSERT_N(it != arrays.end());
 
     // Create and return the pointer type
-    return get_pointer(arr->base);
+    PointerType *ret = get_pointer(arr->base);
+    register_type_id(ret);
+    return ret;
 }
 
 ArrayType *TypeContext::get_array(Type *base, uint64_t size) {
@@ -1445,6 +1486,7 @@ ArrayType *TypeContext::get_array(Type *base, uint64_t size) {
     auto *ret          = arr.get();
     arrays[key]        = std::move(arr);
 
+    register_type_id(ret);
     return ret;
 }
 
@@ -1462,6 +1504,7 @@ ArrayType *TypeContext::get_array(Type *base) {
     auto *ret          = arr.get();
     arrays[key]        = std::move(arr);
 
+    register_type_id(ret);
     return ret;
 }
 
@@ -1482,7 +1525,9 @@ ArrayType *TypeContext::set_array_size(Type *base, uint64_t size) {
     // First, deallocate the previous unsized base
     deallocate_unsized_array(base);
 
-    return get_array(base, size);
+    ArrayType *ret = get_array(base, size);
+    register_type_id(ret);
+    return ret;
 }
 
 FunctionType *
@@ -1526,6 +1571,7 @@ TypeContext::get_function(Location loc, Type *returntype, Vec<Type *> params, bo
 
     function_types[name] = std::move(func);
 
+    register_type_id(ret);
     return ret;
 }
 
@@ -1548,7 +1594,16 @@ ConstType *TypeContext::get_const(Type *base) {
 
     const_types.insert_or_assign(base, std::move(to_insert));
 
+    register_type_id(ret);
     return ret;
+}
+
+Type *TypeContext::lookup_by_id(TypeID id) {
+    if (id_map.contains(id)) {
+        return id_map.find(id)->second;
+    } else {
+        return nullptr;
+    }
 }
 
 bool TypeContext::is_valid_main_signature(FunctionType *signature) {
@@ -1616,6 +1671,16 @@ bool TypeContext::is_valid_implicitmain_signature(FunctionType *signature) {
     return true;
 }
 
+void TypeContext::register_type_id(Type *type) {
+    id_map.emplace(type->id(), type);
+}
+
+void TypeContext::deregister_type_id(Type *type) {
+    if (!id_map.contains(type->id())) return;
+
+    id_map.erase(type->id());
+}
+
 void TypeContext::deallocate_unsized_array(Type *base) {
     ArrayKey key = {base, {}};
 
@@ -1638,6 +1703,10 @@ void TypeContext::deallocate_unsized_array(Type *base) {
             }
 
             dbprint("TypeContext: deleting array of base ", base);
+
+            // deregister the array id before we deallocate the array itself
+            ArrayType *arr = it->second.get();
+            deregister_type_id(arr);
             arrays.erase(key);
         }
     }

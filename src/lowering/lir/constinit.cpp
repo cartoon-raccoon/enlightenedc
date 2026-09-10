@@ -306,12 +306,23 @@ ConstInitLIRBuilder::try_build_constinit_expr(Type *type, LiteralExprMIR& expr) 
     std::visit(
         match{
             [&](eval::Value& val) {
-                ECC_ASSERT_N(type->is_primitive());
+                eval::Value insert_val;
+                if (type->is_primitive()) {
+                    PrimitiveType *ptype   = type->as_primitive();
+                    insert_val = val.pr_cast(ptype->get_primkind());
+    
+                    init = make_chunk<ScalarInitLIR>(expr.loc, type->as_primitive(), insert_val);
+                } else if (type->is_pointer()) {
+                    PointerType *ptr = type->as_pointer();
+                    insert_val = val.cast_to_pointer(ptr->stride());
 
-                PrimitiveType *ptype   = type->as_primitive();
-                eval::Value insert_val = val.pr_cast(ptype->get_primkind());
-
-                init = make_chunk<ScalarInitLIR>(expr.loc, type->as_primitive(), insert_val);
+                    if (insert_val.is_nullptr()) {
+                        init = make_chunk<ZeroInitLIR>(expr.loc, ptr);
+                    } else {
+                        init = make_chunk<PointerInitLIR>(expr.loc, ptr, insert_val.bits());
+                    }
+                    
+                }
             },
             [&](StringRef str) {
                 if (type->is_pointer() || static_storage) {
@@ -327,8 +338,9 @@ ConstInitLIRBuilder::try_build_constinit_expr(Type *type, LiteralExprMIR& expr) 
                             break;
                         case LIRAccessor::Kind::INDEX: {
                             eval::Value index_val = eval::Value::from_literal(acc.idx);
+                            ECC_ASSERT_N(!index_val.is_pointer());
                             PrimitiveType *index_type =
-                                types.get().get_primitive(index_val.primtype());
+                                types.get().get_primitive(*index_val.primtype());
 
                             Chunk<ExprLIR> index =
                                 make_chunk<LiteralExprLIR>(index_val, index_type);
@@ -350,11 +362,6 @@ ConstInitLIRBuilder::try_build_constinit_expr(Type *type, LiteralExprMIR& expr) 
                     ECC_UNREACHABLE("invalid type for building constinit LiteralExprMIR");
                 }
             },
-            [&](std::monostate) {
-                ECC_ASSERT_N(type->is_pointer());
-
-                init = make_chunk<ZeroInitLIR>(expr.loc, type);
-            }
         },
         expr.value);
 

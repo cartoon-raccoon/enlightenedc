@@ -1,4 +1,5 @@
 #include "eval/consteval.hpp"
+#include <variant>
 
 #include "allocator/chunk.hpp"
 #include "eval/value.hpp"
@@ -88,29 +89,12 @@ Value ConstEvaluator::eval(CastExprMIR& expr) {
     using namespace ecc::sema::types;
     using namespace ecc::tokens;
     if (auto *prim = target->as_primitive()) {
-        switch (prim->get_primkind()) {
-        case PrimType::U8:
-            return val.cast<uint8_t>();
-        case PrimType::U16:
-            return val.cast<uint16_t>();
-        case PrimType::U32:
-            return val.cast<uint32_t>();
-        case PrimType::U64:
-            return val.cast<uint64_t>();
-        case PrimType::I8:
-            return val.cast<int8_t>();
-        case PrimType::I16:
-            return val.cast<int16_t>();
-        case PrimType::I32:
-            return val.cast<int32_t>();
-        case PrimType::I64:
-            return val.cast<int64_t>();
-        case PrimType::F32:
-            return val.cast<float>();
-        case PrimType::F64:
-            return val.cast<double>();
-        case PrimType::BOOL:
-            return val.cast<bool>();
+        return val.pr_cast(prim->get_primkind());
+    } else if (auto *ptr = target->as_pointer()) {
+        if (ptr->get_base()->is_complete()) {
+            return val.cast_to_pointer(ptr->stride());
+        } else {
+            return val.cast_to_pointer();
         }
     }
 

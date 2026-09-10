@@ -158,3 +158,20 @@ F64 ce_area = CE_PI * 10.0;
 "%f\n", CE_PI;      // 3.140000
 "%f\n", CE_TWO_PI;  // 6.280000
 "%f\n", ce_area;    // 31.400000
+
+// --- nullptr: the null pointer constant ---
+
+// nullptr initialises a pointer.
+U8 *np = nullptr;
+"%d\n", np == nullptr;      // 1
+
+// nullptr is the null element of a pointer array.
+U8 *np_arr[2];
+np_arr[0] = nullptr;
+"%d\n", np_arr[0] == nullptr;   // 1
+
+// nullptr fills a pointer-typed default parameter, and a direct call may omit it.
+U8 np_byte = 7;
+U8 *np_default(U8 *p = nullptr) { return p; }
+"%d\n", np_default() == nullptr;          // 1
+"%d\n", np_default(&np_byte) == nullptr;  // 0

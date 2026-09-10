@@ -1,5 +1,6 @@
 #pragma once
 
+#include "util/assert.hpp"
 #ifndef ECC_PRIMITIVES_H
 #define ECC_PRIMITIVES_H
 
@@ -24,7 +25,7 @@ Each primitive type is assigned a rank, that affects how it is
 */
 namespace ecc::sema::prim {
 
-using namespace ecc::tokens;
+using namespace tokens;
 
 /**
 \brief The rank of a primitive type.
@@ -54,19 +55,7 @@ in expressions that need to be constant folded.
 \return Whether the operator can be constant-folded.
 */
 [[nodiscard]] constexpr bool unaryop_is_const_foldable(UnaryOp op) {
-    switch (op) {
-    case UnaryOp::INC:
-    case UnaryOp::DEC:
-    case UnaryOp::REF:
-    case UnaryOp::DEREF:
-        return false;
-
-    case UnaryOp::POS:
-    case UnaryOp::NEG:
-    case UnaryOp::TILDE:
-    case UnaryOp::NOT:
-        return true;
-    }
+    return tokens::is_tok<PureUnaryOp>(op);
 }
 
 [[nodiscard]] constexpr PrimTypeRank pr_rank(PrimType pr) {
@@ -92,55 +81,25 @@ in expressions that need to be constant folded.
         return PR::FLT32;
     case P::F64:
         return PR::FLT64;
+    default:
+        ECC_UNREACHABLE("subtoken control value used");
     }
 }
 
 [[nodiscard]] constexpr bool pr_is_integer(PrimType pr) {
-    // We maintain strict integral definitions for determining whether
-    // this type is an integer: it cannot be Bool or Float, and it has to be sized.
-    switch (pr) {
-    case PrimType::U8:
-    case PrimType::U16:
-    case PrimType::U32:
-    case PrimType::U64:
-    case PrimType::I8:
-    case PrimType::I16:
-    case PrimType::I32:
-    case PrimType::I64:
-        return true;
-
-    case PrimType::F32:
-    case PrimType::F64:
-    case PrimType::BOOL:
-        return false;
-    }
+    return tokens::is_tok<Integer>(pr);
 }
 
 [[nodiscard]] constexpr bool pr_is_float(PrimType pr) {
-    return pr == PrimType::F64 || pr == PrimType::F32;
+    return tokens::is_tok<Floating>(pr);
 }
 
 [[nodiscard]] constexpr bool pr_is_bool(PrimType pr) {
-    return pr == PrimType::BOOL;
+    return tokens::is_tok<Boolean>(pr);
 }
 
 [[nodiscard]] constexpr bool pr_is_signed(PrimType pr) {
-    switch (pr) {
-    case PrimType::U8:
-    case PrimType::U16:
-    case PrimType::U32:
-    case PrimType::U64:
-    case PrimType::BOOL:
-        return false;
-
-    case PrimType::I8:
-    case PrimType::I16:
-    case PrimType::I32:
-    case PrimType::I64:
-    case PrimType::F32:
-    case PrimType::F64:
-        return true;
-    }
+    return tokens::is_tok<Signed>(pr);
 }
 
 constexpr size_t ONE_BYTE    = 1;
@@ -170,6 +129,8 @@ Gets the size of the primitive type in bytes.
     case PrimType::I64:
     case PrimType::F64:
         return EIGHT_BYTES;
+    default:
+        ECC_UNREACHABLE("subtoken control value used");
     }
 }
 
@@ -199,6 +160,8 @@ Gets the size of the primitive type in bits.
         return P::F32;
     case PR::FLT64:
         return P::F64;
+    default:
+        ECC_UNREACHABLE("subtoken control value used");
     }
 }
 
@@ -230,6 +193,8 @@ namely Bool, F32, and F64.
         return P::F32;
     case P::F64:
         return P::F64;
+    default:
+        ECC_UNREACHABLE("subtoken control value used");
     }
 }
 
@@ -283,7 +248,7 @@ is identity over any PrimitiveType of where rank >= INT32.
 */
 [[nodiscard]] constexpr PrimType pr_single_promote(PrimType pr) {
     if (pr_rank(pr) < PrimTypeRank::INT32) {
-        return pr_from_rank(PrimTypeRank::INT32, pr_is_signed((pr)));
+        return pr_from_rank(PrimTypeRank::INT32, pr_is_signed(pr));
     } else {
         return pr;
     }
@@ -425,6 +390,8 @@ Returns the corresponding BinaryOp for `op`.
         return BinaryOp::XOR;
     case AssignOp::OREQ:
         return BinaryOp::OR;
+    default:
+        ECC_UNREACHABLE("subtoken control value used");
     }
 }
 

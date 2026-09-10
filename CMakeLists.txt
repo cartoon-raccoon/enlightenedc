@@ -185,6 +185,7 @@ target_precompile_headers(libecc PRIVATE
     <concepts>
     <cstdint>
     <cstddef>
+    <filesystem>
     <functional>
     <memory>
     <string>

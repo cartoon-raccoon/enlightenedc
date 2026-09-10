@@ -134,10 +134,10 @@ pointer (e.g. `(I32 *) 0x4000`).
 */
 class PointerInitLIR : public LIRVisitable<PointerInitLIR, ConstInitLIR> {
 public:
-    PointerInitLIR(Location loc, sema::types::PointerType *type, eval::Value& val)
+    PointerInitLIR(Location loc, sema::types::PointerType *type, size_t val)
         : LIRVisitable<PointerInitLIR, ConstInitLIR>(loc, NodeKind::PTRINIT_LIR, type), val(val) {}
 
-    eval::Value val;
+    size_t val;
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::PTRINIT_LIR; }
 };
@@ -671,7 +671,7 @@ public:
 
 class LiteralExprLIR : public LIRVisitable<LiteralExprLIR, ExprLIR> {
 public:
-    using LitValueLIR = std::variant<eval::Value, StringRef, std::monostate>;
+    using LitValueLIR = std::variant<eval::Value, StringRef>;
 
     LiteralExprLIR(Location loc, eval::Value value, sema::types::Type *type)
         : LIRVisitable<LiteralExprLIR, ExprLIR>(loc, NodeKind::LITEXPR_LIR, type), value(value) {}
@@ -693,7 +693,18 @@ public:
 
     bool is_str() const { return std::holds_alternative<StringRef>(value); }
     bool is_val() const { return std::holds_alternative<eval::Value>(value); }
-    bool is_ptr() const { return std::holds_alternative<std::monostate>(value); }
+
+    Optional<StringRef> as_str() const {
+        if (!is_str()) return {};
+
+        return std::get<StringRef>(value);
+    }
+
+    Optional<eval::Value> as_val() const {
+        if (!is_val()) return {};
+
+        return std::get<eval::Value>(value);
+    }
 
     static bool classof(const LIRNode *node) { return node->kind == NodeKind::LITEXPR_LIR; }
 };

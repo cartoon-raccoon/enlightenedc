@@ -94,7 +94,7 @@ void LIRPrinter::visit(ScalarInitLIR& node) {
 }
 
 void LIRPrinter::visit(PointerInitLIR& node) {
-    print_node("PointerInit: " + node.val.to_string() + " :: " + node.type->formal(), node);
+    print_node("PointerInit: " + std::to_string(node.val) + " :: " + node.type->formal(), node);
 }
 
 void LIRPrinter::visit(AggregateInitLIR& node) {
@@ -259,8 +259,7 @@ void LIRPrinter::visit(LiteralExprLIR& node) {
     std::string valstr = std::visit(
         match{
             [](eval::Value& val) { return val.to_string(); },
-            [](StringRef s) { return encode_string_literal(s); },
-            [](std::monostate) -> std::string { return "nullptr"; }},
+            [](StringRef s) { return encode_string_literal(s); }},
         node.value);
     print_node("Literal: " + valstr + " :: " + node.act_type->formal(), node);
 }

@@ -208,6 +208,40 @@ public:
     }
 };
 
+class InvalidDefaultParamError : public EccSemError {
+public:
+    enum class Kind : uint8_t {
+        InvalidType,
+        TypeMismatch,
+    };
+
+    InvalidDefaultParamError(Location err_loc, types::Type *type)
+        : EccSemError("invalid default parameter type", err_loc), 
+        kind(Kind::InvalidType), elabstr(type->formal()) {}
+
+    InvalidDefaultParamError(Location err_loc, const eval::Value& value)
+        : EccSemError("default parameter type mismatch", err_loc),
+        kind(Kind::TypeMismatch), elabstr(value.to_string()) {}
+
+    Kind kind;
+    std::string elabstr;
+
+    std::string elab() override {
+        std::stringstream ss;
+
+        switch (kind) {
+        case Kind::InvalidType:
+            ss << "default parameters must be a primitive or a pointer, got `" << elabstr << "`";
+            break;
+        case Kind::TypeMismatch:
+            ss << "got value " << elabstr;
+            break;
+        }
+
+        return ss.str();
+    }
+};
+
 class InvalidSwitchCtrlError : public EccSemError {
 public:
     InvalidSwitchCtrlError(types::Type *ctrl_type, Location err_loc)
@@ -306,27 +340,82 @@ public:
     }
 };
 
-class InvalidPointerArithmetic : public EccSemError {
+class InvalidPointerOpError : public EccSemError {
 public:
     enum class Kind : uint8_t {
-        InvalidOperator,
+        /**
+        With the pointer on the left side of a binary operation, the operator is
+        invalid (only `+/-` allowed)
+        */
+        InvalidLHSOperator,
+        /**
+        With the pointer on the right side of a binary operation, the operator is
+        invalid (only `+` allowed)
+        */
+        InvalidRHSOperator,
+        /**
+        With the pointer on the *right* side of a binary operation, the operand on the
+        LHS is invalid
+        */
+        InvalidLeftOperand,
+        /**
+        With the pointer on the *left* side of a binary operation, the operand on the RHS
+        is invalid
+        */
+        InvalidRightOperand,
+        /**
+        With the pointer on one side of a binary operation, the other operator is an
+        invalid constant (only 0 allowed)
+        */
+        InvalidCompConstant,
+        /**
+        With pointers on both sides of a binary operation, the operator is invalid
+        (only - allowed)
+        */
+        InvalidArithOperator,
+        /**
+        With the pointer on one side of a binary operation, the other operand is invalid
+        (only integers allowed)
+        */
         InvalidPrimOperand,
-        IncompatiblePtrOperands,
+        /**
+        With pointers on both sides of a binary operation, they are incompatible
+        (cannot be coerced)
+        */
+        IncompatPtrOperands,
+        /**
+        With pointers on both sides of a binary operation, one or both is to an incomplete type
+        */
+        IncompletePtrBase,
     };
 
-    InvalidPointerArithmetic(Kind kind, Location err_loc)
+    InvalidPointerOpError(Kind kind, Location err_loc)
         : EccSemError("invalid pointer arithmetic", err_loc), kind(kind) {}
 
     Kind kind;
 
+    // fixme: better error text
+
     std::string elab() override {
         switch (kind) {
-        case Kind::InvalidOperator:
+        case Kind::InvalidLHSOperator:
+            return "invalid operator on pointer-integer operation - only";
+        case Kind::InvalidRHSOperator:
+            return "invalid operator on integer-pointer operation";
+        case Kind::InvalidLeftOperand:
+            return "invalid operand on left side of pointer operation";
+        case Kind::InvalidRightOperand:
+            return "invalid operand on right side of pointer operation";
+        case Kind::InvalidCompConstant:
+            return "invalid constant in pointer comparison";
+        case Kind::InvalidArithOperator:
             return "pointer-to-pointer operations can only be subtraction";
         case Kind::InvalidPrimOperand:
             return "invalid primitive operand, operand must be an integer";
-        case Kind::IncompatiblePtrOperands:
+        case Kind::IncompatPtrOperands:
             return "pointer operands are incompatible";
+        case Kind::IncompletePtrBase:
+            return "cannot perform pointer arithmetic on incomplete type";
         }
     }
 };

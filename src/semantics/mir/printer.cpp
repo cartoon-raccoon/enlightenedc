@@ -229,8 +229,7 @@ void MIRPrinter::visit(LiteralExprMIR& node) {
     std::string valstr = std::visit(
         match{
             [](eval::Value& val) { return val.to_string(); },
-            [](StringRef s) { return encode_string_literal(s); },
-            [](std::monostate) -> std::string { return "nullptr"; }},
+            [](StringRef s) { return encode_string_literal(s); }},
         node.value);
     print_node("Literal: " + valstr + " :: " + node.act_type->formal(), node);
 }

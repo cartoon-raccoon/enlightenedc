@@ -35,6 +35,9 @@ public:
     IncompleteTypeUseError(StringRef name, Location err_loc)
         : TypeSemError("use of incomplete type", err_loc), name(name) {}
 
+    IncompleteTypeUseError(types::Type *type, Location err_loc)
+        : TypeSemError("use of incomplete type", err_loc), name(type->formal()) {}
+
     std::string name;
 
     std::string elab() override {

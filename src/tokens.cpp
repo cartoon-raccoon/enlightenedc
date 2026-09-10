@@ -1,4 +1,5 @@
 #include "tokens.hpp"
+#include "util/assert.hpp"
 
 using namespace ecc;
 
@@ -44,6 +45,8 @@ std::string binop_to_string(BinaryOp op) {
         return ">>";
     case BinaryOp::BINCOMMA:
         return ",";
+    default:
+        ECC_UNREACHABLE("subtoken control value used");
     }
     return "";
 }
@@ -66,6 +69,8 @@ std::string unop_to_string(UnaryOp op) {
         return "~";
     case UnaryOp::NOT:
         return "!";
+    default:
+        ECC_UNREACHABLE("subtoken control value used");
     }
     return "";
 }
@@ -94,6 +99,8 @@ std::string assignop_to_string(AssignOp op) {
         return "|=";
     case AssignOp::XOREQ:
         return "^=";
+    default:
+        ECC_UNREACHABLE("subtoken control value used");
     }
     return "";
 }
@@ -104,21 +111,10 @@ std::string postfixop_to_string(PostfixOp op) {
         return "++";
     case PostfixOp::POSTDEC:
         return "--";
+    default:
+        ECC_UNREACHABLE("subtoken control value used");
     }
     return "";
-}
-
-std::string infixop_to_string(InfixOp op) {
-    switch (op) {
-    case InfixOp::DOT:
-        return ".";
-    case InfixOp::ARROW:
-        return "->";
-    case InfixOp::COMMA:
-        return ",";
-    case InfixOp::SEMI:
-        return ";";
-    }
 }
 
 std::string primitive_to_string(PrimType prim) {
@@ -147,6 +143,8 @@ std::string primitive_to_string(PrimType prim) {
         return "f64";
     case P::BOOL:
         return "bool";
+    default:
+        ECC_UNREACHABLE("subtoken control value used");
     }
     return "";
 }

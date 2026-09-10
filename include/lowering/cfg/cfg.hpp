@@ -206,12 +206,12 @@ public:
 
 class PointerConst : public CFGVisitable<PointerConst, Immediate> {
 public:
-    PointerConst(sema::types::PointerType *type, const eval::Value& value)
+    PointerConst(sema::types::PointerType *type, size_t value)
         : CFGVisitable<PointerConst, Immediate>(ValueKind::POINTER, type), 
         target(type), value(value) {}
 
     sema::types::PointerType *target;
-    eval::Value value;
+    size_t value;
 
     PointerConst *as_pointer() override { return this; }
 

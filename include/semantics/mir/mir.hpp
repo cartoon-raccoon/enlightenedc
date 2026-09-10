@@ -737,9 +737,9 @@ public:
 
     LiteralExprMIR(Location loc, sema::sym::Scope *scope)
         : MIRVisitable<LiteralExprMIR, ExprMIR>(loc, NodeKind::LITEXPR_MIR, scope),
-        value(std::monostate{}) {}
+        value(eval::Value::null()) {}
 
-    using LitValueMIR = std::variant<eval::Value, StringRef, std::monostate>;
+    using LitValueMIR = std::variant<eval::Value, StringRef>;
 
     LitValueMIR value;
 
@@ -751,13 +751,15 @@ public:
 
     bool is_subscriptable() override { return false; }
 
-    bool is_const_foldable() override { return is_primitive(); }
+    bool is_const_foldable() override { return is_value(); }
 
-    bool is_primitive() const { return std::holds_alternative<eval::Value>(value); }
+    bool is_value() const { return std::holds_alternative<eval::Value>(value); }
 
     bool is_string() const { return std::holds_alternative<StringRef>(value); }
 
-    bool is_nullptr() const { return std::holds_alternative<std::monostate>(value); }
+    Optional<eval::Value> as_value() const;
+
+    Optional<StringRef> as_string() const;
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
 
