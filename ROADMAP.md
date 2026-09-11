@@ -6,12 +6,14 @@ This document lays out the planned improvements and updates for the EnlightenedC
 
 These are to-dos that are important, but do not constitute a milestone.
 
+- Create a symbol table for CFG (`CFGSymbolTable`)
+- Turn the std::string on `cfg::Named` into a `CFGSymbol`
+- Make the lexer hack scoped; add (scoped) typedef as its own AST node
+- Factor out constexpr parsing into its own node
 - Implement insertion of memmove, memset
-- Centralize ownership of CFG constants and values, add interning
 - Implement AST/MIR matchers
 - More granular location tracking (per operator, individual class parents, etc)
-- Add options to integration tests to control what phase to
-  stop compilation at, or dump mir, dump AST, etc.
+- Add options to integration tests to control what phase to stop compilation at, or dump mir, dump AST, etc.
 
 ## Short-Term
 
@@ -36,11 +38,14 @@ These are to-dos that are important, but do not constitute a milestone.
 - Add relational operator evaluation chaining (a < b < c instead of (a < b) < c)
 - Add designator-chain initializers (`{ .foo[idx].bar = 6 }`)
 - Add inline assembly
+- Finalize the ABI/runtime interface
 
 ## Long-Term
 
+- Add freestanding mode to support OSDev
 - Transition off Flex/Bison to a handwritten lexer/parser
 - Transition off calling `cpp` to a handwritten preprocessor
 - Invoke linker using `lld` instead of calling Clang
 - Flesh out stdlib
 - Implement an LSP server
+- Translate the implementation into a concrete spec

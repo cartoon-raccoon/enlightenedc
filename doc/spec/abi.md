@@ -41,6 +41,10 @@ signature:
 Void __ec_implicit_main();
 ```
 
+### `__ec_entry`
+
+This symbol represents the entry point to the program. It is marked in the translation environment as a function with the `@[main]` attribute, and executes after `__ec_implicit_main`.
+
 ### `__ec_print`
 
 This symbol represents the function to which all print statements lower to. That is, all print statements
