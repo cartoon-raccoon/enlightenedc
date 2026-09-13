@@ -6,6 +6,11 @@ This document provides a high-level overview of the compiler design and architec
 
 The compiler is organized into a classic frontend/backend split, driven through `TranslationUnit`.
 
+### Dual Track Design
+
+This compiler is not just intended to be production-ready compiler for EnlightenedC, but also a learning/research project (just like what LLVM started out as). This means that data structures and infrastructure are hand-rolled wherever possible, and often might appear overengineered.
+A good example of this is in `cfg/walkers.hpp`, where CFG walkers are implemented for every possible way a graph can be DFS-walked, even though the `LLVMGenerator` only consumes the reverse postorder walker. This is to support later inclusions of hand-rolled optimization passes for the learning track, while the production-ready track relies on mature, battle-tested LLVM optimizations.
+
 ### Entry Point & Driver
 
 `src/main.cpp` → `Ecc::run()` (`src/ecc.cpp`) iterates over input files, calling `run_pipeline()` for each. Each file is one translation unit. Filenames are interned through `driver::FilenamePool` and classified by `driver::FileType` (`include/driver/filenames.hpp`, `src/driver/filenames.cpp`).
@@ -33,7 +38,7 @@ The compiler is organized into a classic frontend/backend split, driven through 
 - `CompilationOutput` — `ASM` (default) or `LLVM`.
 - `Std` — `HOLYC` or `ENLIGHTENEDC`.
 
-`Config::RuntimeConfig` (aliased `RuntimeConfig`) is the subset that deep stages need — the `verbose` flag and the language `Std`. It is passed by reference into `MIRSynthesizer`, `Validator`, `LIRSynthesizer`, `CFGBuilder`, and `CodeGenCore::make_unit()`.
+`Config::RuntimeConfig` (aliased `RuntimeConfig`) is the subset that deep stages need — the `verbose` flag and the language `Std`. It is passed by reference into `MIRSynthesizer`, `Validator`, `LIRSynthesizer`, `CFGBuilder`, and `CodeGenCore::make_unit()`. This will also be where future `-W` or `-f` flags will live.
 
 ### Frontend
 
@@ -153,7 +158,7 @@ Code generation is split into a backend-agnostic interface and an LLVM implement
 - `ConstType` is a transparent wrapper that marks a type as const. `const T` and `T` are distinct interned types; `unqual()` strips the wrapper. Const is not deeply embedded — `get_const(T)` composes with any other type.
 - Type names and member names are owned `std::string`. `get_class()` / `get_union()` / `get_enum()` and the member-lookup methods take `StringRef` and hash it directly against the owning tables (see [Strings](#strings)).
 
-`sema::prim` (`include/semantics/primitives.hpp`, `src/semantics/primitives.cpp`) is the source of truth for primitive-type algebra — ranks, implicit conversions, and operator result types. The type system, `eval::Value`, and the validator all defer to it.
+`sema::prim` (`include/semantics/primitives.hpp`) is the source of truth for primitive-type algebra — ranks, implicit conversions, and operator result types. The type system, `eval::Value`, and the validator all defer to it.
 
 ### Symbol Table
 

@@ -4,11 +4,13 @@ This document lays out the planned improvements and updates for the EnlightenedC
 
 ## Important To-dos
 
-These are to-dos that are important, but do not constitute a milestone.
+These are to-dos that are important, but do not constitute a milestone. They are simply internal or small to-dos that need to be noted down somewhere, and do not correspond to any particular goal timeframe as laid out below. Generally, something noted here means "implement whenever it is needed".
 
 - Create a symbol table for CFG (`CFGSymbolTable`)
 - Turn the std::string on `cfg::Named` into a `CFGSymbol`
 - Make the lexer hack scoped; add (scoped) typedef as its own AST node
+- Make `@[main]` or `@[print]` alongside `@[link_name]` a hard error
+- Add `EnlightenedC` standard and `HolyC` standard differentiation
 - Factor out constexpr parsing into its own node
 - Implement insertion of memmove, memset
 - Implement AST/MIR matchers
@@ -31,8 +33,7 @@ These are to-dos that are important, but do not constitute a milestone.
 ## Medium-Term
 
 - Implement and properly integrate the JIT REPL
-- Implement various optimizations using CFG, etc.
-  - Use CFG to report optimizations to the LIRSynthesizer
+- Implement various optimizations using CFG walkers
 - Implement a basic stdlib
 - Add try-catch (LLVM unwinding)
 - Add relational operator evaluation chaining (a < b < c instead of (a < b) < c)
@@ -43,6 +44,7 @@ These are to-dos that are important, but do not constitute a milestone.
 ## Long-Term
 
 - Add freestanding mode to support OSDev
+- Add a handwritten codegen backend (learning track) alongside LLVM
 - Transition off Flex/Bison to a handwritten lexer/parser
 - Transition off calling `cpp` to a handwritten preprocessor
 - Invoke linker using `lld` instead of calling Clang
