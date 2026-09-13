@@ -2,6 +2,7 @@
 
 #include <ranges>
 
+#include "builtins.hpp"
 #include "lowering/cfg/cfg.hpp"
 #include "lowering/lir/lir.hpp"
 #include "lowering/lir/symbols.hpp"
@@ -13,8 +14,6 @@ using namespace lower::cfg;
 using namespace sema::types;
 using namespace sema::sym;
 using namespace tokens;
-
-const char *const IMPLICIT_MAIN_NAME = "__ec_implicit_main";
 
 void CFGBuilder::build_cfg(lir::ProgramLIR& prog) {
     prog.accept(*this);
@@ -211,7 +210,7 @@ void CFGBuilder::visit(ProgramLIR& node) {
     dbprint("visiting ProgramLIR node ", node.loc ? *node.loc : Location{});
 
     FunctionType *implicit_main_sig = types.get_function({}, types.get_void(), {}, false);
-    curr_func                       = prog_cfg.add_function(implicit_main_sig, IMPLICIT_MAIN_NAME);
+    curr_func                       = prog_cfg.add_function(implicit_main_sig, EC_IMPLICIT_MAIN);
     curr_func->initialize();
 
     for (auto& item : node.globals) {

@@ -54,6 +54,8 @@ ConstInitLIRBuilder::try_build_constinit_expr(Type *type, ExprMIR& expr) {
 Optional<Chunk<ConstInitLIR>> ConstInitLIRBuilder::try_build_constinit_agg_cls(
     ClassType *cls, ArenaVec<Chunk<InitializerMIR>>& inits, Location loc) {
 
+    // todo: still construct the initializer constant for fields that can be, and add
+    // the runtime construction statements to deferred_inits
     size_t next_idx = 0;
     Vec<bool> touched(cls->num_members(), false);
     auto cinit = make_chunk<AggregateInitLIR>(loc, cls);
