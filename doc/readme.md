@@ -4,29 +4,20 @@ Welcome to the documentation for EnlightenedC. This language is a dialect of Hol
 HolyC and make it a production-capable language. In other words, it aims to put HolyC among the
 ranks of languages such as C and C++.
 
-## What is EnligntenedC?
+## What is EnlightenedC?
 
 In order to understand what EnlightenedC is, it is important to understand the origins of HolyC.
 
-HolyC was created by [Terry A. Davis](https://en.wikipedia.org/wiki/Terry_A._Davis) as the implementation
-and scripting language for his operating system, [TempleOS](https://en.wikipedia.org/wiki/TempleOS).
-The story of Davis and TempleOS is too long and difficult to retell here, but there are many videos
-and articles detailing the story. Suffice it to say, TempleOS was a remarkable project, and HolyC is a
-genuinely well-designed language that provides a good middle ground between C and C++.
+HolyC was created by [Terry A. Davis](https://en.wikipedia.org/wiki/Terry_A._Davis) as the implementation and scripting language for his operating system, [TempleOS](https://en.wikipedia.org/wiki/TempleOS).
+The story of Davis and TempleOS is too long and difficult to retell here, but there are many videos and articles detailing the story. Suffice it to say, TempleOS was a remarkable project, and HolyC is a genuinely well-designed language that provides a good middle ground between C and C++.
 
-The issue with HolyC itself is that it was built specifically for TempleOS. As such, many of its features
-are specific to the TempleOS operating environment. TempleOS used a completely different calling convention,
-system call API, and even ABI from any standard programming language, and Davis' HolyC compiler was tailored
-to those features. Over the years, other HolyC compilers have been built, but they only implement a subset
-of the language.
+The issue with HolyC itself is that it was built specifically for TempleOS. As such, many of its features are specific to the TempleOS operating environment. TempleOS used a completely different calling convention, system call API, and even ABI from any standard programming language, and Davis' HolyC compiler was tailored to those features.
+Over the years, other HolyC compilers have been built, but they only implement a subset of the language, often precisely because of the bespoke environment that HolyC was built for.
 
 EnlightenedC's goal is to fully adapt HolyC to modern standard environments such as Linux and MacOS,
 utilising battle-tested and proven technologies such as LLVM.
 
-It is important to state upfront that **EnlightenedC is incompatible with HolyC**. It implements many
-features that a HolyC compiler would outright reject. This is because it is an adaptation, not a wholesale
-copy, of HolyC. In adapting HolyC to modern environments, some things had to be changed. However, it
-still preserves the spirit of HolyC, and the influence of HolyC is still certainly recognizable.
+It is important to state upfront that **EnlightenedC is incompatible with HolyC**. It implements many features that a HolyC compiler would outright reject. This is because it is an adaptation, not a wholesale copy, of HolyC. In adapting HolyC to modern environments, some things had to be changed. However, it still preserves the spirit of HolyC, and the influence of HolyC is still certainly recognizable.
 
 ### Features imported from HolyC
 
@@ -38,24 +29,21 @@ HolyC introduced many unique features that EnlightenedC imports. Some of these i
 - Reinterpreting primitive types as arrays of bytes
 - Parentheses-less function calls
 - Default arguments in function calls
-- Built in printf
+- Built in print statements
 - ...and many more.
 
 ### Basics of EnlightenedC
 
-The hello world program in EnlightenedC is simply:
+The hello world program in HolyC (and EnlightenedC) is simply:
 
 ```holyc
-"Hello, World!";
+"Hello, World!\n";
 ```
 
-That's it. Any bare string literal gets implicitly sent to printf. Similarly, any function that takes
-no parameters can be called without parameters:
+That's it. Any bare string literal gets implicitly printed. Similarly, any function that takes no parameters can be called without parameters:
 
 ```holyc
-U8 NoParamsFunction() {
-
-}
+U8 NoParamsFunction() {}
 
 NoParamsFunction;
 ```
@@ -80,6 +68,7 @@ The project has the following dependencies:
 
 - Flex (>= v2.6)
 - Bison (>= v3.8)
+- Boost (>= v1.92)
 - LLVM (>= v21.1)
 - CMake (>= v3.20)
 - Googletest/RapidCheck for testing, but that is pulled in at build time.
@@ -122,7 +111,7 @@ $ ./build.py nuke
 You can also format the code using the command:
 
 ```bash
-$ ./build.sh format
+$ ./build.py format
 # runs the format target.
 ```
 
@@ -134,8 +123,8 @@ on the command-line arguments passed to it.
 To compile a source file into an executable, run:
 
 ```bash
-$ ./ecc source.ec
-# compiles the file source.ec.
+$ ./ecc source.HC
+# compiles the file source.HC. Also accepts `.ec` file extensions.
 ```
 
 To run the EnlightenedC environment in REPL mode, simply run the `ecc` executable without any arguments.

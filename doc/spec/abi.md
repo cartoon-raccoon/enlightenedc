@@ -9,18 +9,16 @@ for which they are compiled. For example, EnlightenedC compiled for Linux shall 
 
 ### Variadic Functions
 
-This changes for variadic functions marked `extern "C"`, as the convention then becomes standard-dependent.
+This changes for variadic functions marked `extern "C"`, as its effect is standard-dependent.
 See [Standard](standard.md) for more information on the specifications.
 
 #### `HolyC` Standard
 
-Under the HolyC standard, the first parameter passed to a variadic function shall be the number of arguments
-in the call, followed by all non-variadic parameters. This is then used to populate the `argc` implicit symbol.
+Under the HolyC standard, the first parameter passed to a variadic function shall be the number of variadic arguments in the call, followed by all non-variadic parameters. This is then used to populate the `argc` implicit symbol.
 A function prologue shall also be inserted to populate `argv`.
 
 Functions marked `extern "C"` shall follow the platform-specific ABI for variadic functions. If a
-non-`extern "C"` variadic function is called using the platform-specific ABI calling convention, that behaviour
-is undefined.
+non-`extern "C"` variadic function is called using the platform-specific ABI calling convention, that behaviour is undefined.
 
 #### `EnlightenedC` Standard
 
@@ -34,8 +32,7 @@ user defines such a symbol that overrides or conflicts with a reserved symbol, t
 
 ### `__ec_implicit_main`
 
-This symbol represents the function in which all top-level program items execute. It shall have the following
-signature:
+This symbol represents the function in which all top-level program items execute. It shall have the following signature:
 
 ```holyc
 Void __ec_implicit_main();
@@ -47,13 +44,10 @@ This symbol represents the entry point to the program. It is marked in the trans
 
 ### `__ec_print`
 
-This symbol represents the function to which all print statements lower to. That is, all print statements
-eventually resolve to a call to this symbol. It shall have the following signature:
+This symbol represents the function to which all print statements lower to. That is, all print statements eventually resolve to a call to this symbol. It shall have the following signature:
 
 ```holyc
 extern "C" Void __ec_print(I8*, ...);
 ```
 
-Note that `extern "C"` forces the use of the platform's variadic function ABI. This is to allow
-`__ec_print` to be portable; It can then be defined in other languages, using the standard platform-
-dependent C ABI.
+Note that `extern "C"` forces the use of the platform's variadic function ABI. This is to allow `__ec_print` to be portable; It can then be defined in other languages, using the standard platform- dependent C ABI.
