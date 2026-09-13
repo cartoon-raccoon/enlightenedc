@@ -52,11 +52,11 @@ NoParamsFunction;
 
 ### Language Features
 
-Please see the [`lang/`](lang/1-contents.md) directory.
+Please see the [`lang/`](lang/0-contents.md) directory.
 
 ### Compiler Architecture
 
-Please see the [`compiler/`](compiler/1-contents.md) directory.
+Please see the [`compiler/`](compiler/0-contents.md) directory.
 
 ### Language Specification
 
