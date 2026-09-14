@@ -57,7 +57,7 @@ void MIRSynthesizer::generate_mir(Program& prog) {
 }
 
 MIRSynthesizer::SpecifierInfo
-MIRSynthesizer::parse_speclist(ArenaVec<Chunk<ast::DeclarationSpecifier>>& speclist, Scope *) {
+MIRSynthesizer::parse_speclist(ArenaVec<Chunk<ast::DeclarationSpecifier>>& speclist, Scope *scope) {
     using NK = ASTNode::NodeKind;
 
     SpecifierInfo specinfo;
@@ -71,11 +71,6 @@ MIRSynthesizer::parse_speclist(ArenaVec<Chunk<ast::DeclarationSpecifier>>& specl
             auto qualtype = take_last_result<TypeQualifier::QualType>();
             switch (qualtype) {
             case TypeQualifier::QualType::CONST:
-                if (specinfo.is_constexpr) {
-                    add_error<EccSemError>(
-                        "constexpr implies const, redundant extra const", decl_spec->loc);
-                    break;
-                }
                 if (specinfo.is_const) {
                     add_error<EccSemError>("duplicate const qualifier", decl_spec->loc);
                 } else {
@@ -95,19 +90,25 @@ MIRSynthesizer::parse_speclist(ArenaVec<Chunk<ast::DeclarationSpecifier>>& specl
                 if (specinfo.is_constexpr) {
                     add_error<EccSemError>("constexpr cannot have external linkage");
                 }
-                if (specinfo.linkage != sym::Linkage::NONE) {
+                if (specinfo.linkage != Linkage::NONE) {
                     add_error<EccSemError>("multiple storage class specifiers");
                 } else {
-                    specinfo.linkage = sym::Linkage::EXTERNAL;
+                    specinfo.linkage = Linkage::EXTERNAL;
                 }
                 break;
 
             case StorageClassSpecifier::STATIC:
                 // we allow constexpr to exist alongside static, for futureproofing
-                if (specinfo.linkage != sym::Linkage::NONE) {
+                if (specinfo.linkage != Linkage::NONE) {
                     add_error<EccSemError>("multiple storage class specifiers");
                 } else {
-                    specinfo.linkage = sym::Linkage::INTERNAL;
+                    if (scope->is_global()) {
+                        // file scope static is internal linkage
+                        specinfo.linkage = Linkage::INTERNAL;
+                    } else {
+                        // block scope static is static duration, no linkage
+                        specinfo.duration = StorageDuration::STATIC;
+                    }
                 }
                 break;
 
@@ -115,17 +116,15 @@ MIRSynthesizer::parse_speclist(ArenaVec<Chunk<ast::DeclarationSpecifier>>& specl
                 // set constexpr to true unconditionally, so subsequent checks can catch it
                 specinfo.is_constexpr = true;
 
-                if (specinfo.is_const) {
-                    add_error<EccSemError>("constexpr implies const", decl_spec->loc);
-                    break;
-                }
-
-                if (specinfo.linkage == sym::Linkage::EXTERNAL) {
+                if (specinfo.linkage == Linkage::EXTERNAL) {
                     add_error<EccSemError>("constexpr cannot have external linkage", decl_spec->loc);
                     break;
                 }
-
-                specinfo.is_const = true;
+                if (scope->is_global()) {
+                    // file scope constexpr is internal linkage
+                    specinfo.linkage = Linkage::INTERNAL;
+                    // block scope constexpr is no linkage
+                }
                 break;
 
             case StorageClassSpecifier::EXTERN:
@@ -196,6 +195,11 @@ MIRSynthesizer::parse_speclist(ArenaVec<Chunk<ast::DeclarationSpecifier>>& specl
             ECC_UNREACHABLE(
                 "encountered a non-declaration specifier while parsing specifiers");
         }
+    }
+
+    if (scope->is_global() && specinfo.linkage == Linkage::NONE) {
+        // file-scope unspecifieds get external linkage implicitly
+        specinfo.linkage = Linkage::EXTERNAL;
     }
     ECC_ASSERT_N(specinfo.type);
 
@@ -315,12 +319,6 @@ void MIRSynthesizer::do_visit(Function& node) {
     SpecifierInfo specinfo = parse_speclist(node.decl_spec_list, syms.current);
     dovisit_param          = param;
 
-    if (specinfo.linkage == Linkage::EXTERNAL) {
-        add_error<EccSemError>(
-            "externally linked functions cannot have a body", node.declarator->loc);
-        throw UnableToContinue();
-    }
-
     if (specinfo.is_constexpr) {
         add_error<EccSemError>("function cannot be marked constexpr", node.declarator->loc);
         throw UnableToContinue();
@@ -342,7 +340,7 @@ void MIRSynthesizer::do_visit(Function& node) {
     // Visit the Declarator to construct the type builder.
     dv_call_noparam(node.declarator);
     auto builder = take_last_result<Box<DeclaratorBuilder>>();
-    builder->ty_bldr.set_base(return_base);
+    builder->ty_bldr.set_base(return_base, specinfo.is_const);
 
     // The latest function parameters.
     Vec<FuncParam> last_func_params;
@@ -370,7 +368,7 @@ void MIRSynthesizer::do_visit(Function& node) {
             throw UnableToContinue();
         }
 
-        Type *sym_type = param.is_const ? types.get_const(param.type) : param.type;
+        Type *sym_type = param.type;
 
         if (param.value) {
             found_default = true;
@@ -506,7 +504,8 @@ void MIRSynthesizer::do_visit(ConstexprDeclaration& node) {
     }
 
     for (auto& declarator : node.declarators) {
-        dv_call(specinfo.type, declarator);
+        auto param = Pair(specinfo.type, specinfo.is_const);
+        dv_call(param, declarator);
 
         auto ret = take_last_result<InitDecltrRet>();
 
@@ -618,7 +617,8 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
 
     for (auto& declarator : node.declarators) {
         // call accept on our declarator
-        dv_call(specinfo.type, declarator);
+        auto initdeclparam = Pair(specinfo.type, specinfo.is_const);
+        dv_call(initdeclparam, declarator);
 
         // take the last result; should be InitDecltrRet
         auto ret = take_last_result<InitDecltrRet>();
@@ -632,18 +632,10 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
         // it has to be checked in the validator.
 
         Type *symtype = ret.type;
-        if (specinfo.is_const) {
-            symtype = types.get_const(symtype);
-        }
 
         if (symtype->is_function()) {
             // variable declaration with function type means this is a forward declaration of a
             // function
-
-            if (symtype->is_const()) {
-                add_error<EccSemError>("function declaration cannot be const", declarator->loc);
-                throw UnableToContinue();
-            }
 
             if (node.declarators.size() > 1) {
                 add_error<EccSemError>(
@@ -653,6 +645,7 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
             }
 
             if (specinfo.linkage == sym::Linkage::EXTERNAL && syms.current != syms.global()) {
+                // reject
                 add_error<EccSemError>(
                     "extern function declaration must be at global scope", declarator->loc);
                 throw UnableToContinue();
@@ -671,6 +664,10 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
             }
 
             FunctionType *functype = symtype->as_function();
+
+            if (functype->returntype()->is_const()) {
+                //todo: return type is const, warn that it is ignored (call expressions are rvalues)
+            }
 
             auto funcmir = parse_vardecl_func(node, std::move(ret), specinfo, functype);
 
@@ -739,13 +736,13 @@ Chunk<mir::FunctionMIR> MIRSynthesizer::parse_vardecl_func(
 void MIRSynthesizer::do_visit(InitDeclarator& node) {
     bsv_dbprint("visiting InitDeclarator node: ", node.loc);
 
-    BaseType *base = take_dovisit_param<BaseType *>();
+    auto param = take_dovisit_param<Pair<types::BaseType *, bool>>();
 
     dv_call_noparam(node.declarator);
     // pull builder before we visit the initializer
     Box<DeclaratorBuilder> builder = take_last_result<Box<DeclaratorBuilder>>();
 
-    builder->ty_bldr.set_base(base);
+    builder->ty_bldr.set_base(param.first, param.second);
     Type *complete = builder->ty_bldr.finalize();
 
     // todo: construct the variable here instead of at the variable decl node
@@ -879,7 +876,7 @@ void MIRSynthesizer::do_visit(ParameterDeclaration& node) {
     if (node.declarator) {
         dv_call_noparam(*node.declarator);
         auto builder = take_last_result<Box<DeclaratorBuilder>>();
-        builder->ty_bldr.set_base(specinfo.type);
+        builder->ty_bldr.set_base(specinfo.type, specinfo.is_const);
 
         Type *final_type = builder->ty_bldr.finalize();
         // If the parameter type is an array, decay it to a pointer (as in C). Route through
@@ -890,12 +887,16 @@ void MIRSynthesizer::do_visit(ParameterDeclaration& node) {
         }
 
         if (builder->name) {
-            ret = {final_type, builder->name, node.loc, specinfo.is_const, {}};
+            ret = {final_type, builder->name, node.loc, {}};
         } else {
-            ret = {final_type, {}, node.loc, specinfo.is_const, {}};
+            ret = {final_type, {}, node.loc, {}};
         }
     } else {
-        ret = {specinfo.type, {}, node.loc, specinfo.is_const, {}};
+        Type *ret_type = specinfo.type;
+        if (specinfo.is_const) {
+            ret_type = types.get_const(ret_type);
+        }
+        ret = {ret_type, {}, node.loc, {}};
     }
 
     if (node.default_value) {
@@ -1277,12 +1278,8 @@ void MIRSynthesizer::do_visit(ClassDeclaration& node) {
             std::visit(
                 match{
                     [&](Box<DeclaratorBuilder>& builder) {
-                        builder->ty_bldr.set_base(specinfo.type);
+                        builder->ty_bldr.set_base(specinfo.type, specinfo.is_const);
                         Type *finaltype = builder->ty_bldr.finalize();
-
-                        if (specinfo.is_const) {
-                            finaltype = types.get_const(finaltype);
-                        }
 
                         if (builder->name) {
                             recordty->add_member(*builder->name, finaltype, decltr->loc);
@@ -1497,13 +1494,9 @@ void MIRSynthesizer::do_visit(TypeName& node) {
     if (node.declarator) {
         dv_call_noparam(*node.declarator);
         auto builder = take_last_result<Box<DeclaratorBuilder>>();
-        builder->ty_bldr.set_base(specinfo.type);
+        builder->ty_bldr.set_base(specinfo.type, specinfo.is_const);
 
         Type *finaltype = builder->ty_bldr.finalize();
-
-        if (specinfo.is_const) {
-            finaltype = types.get_const(finaltype);
-        }
 
         dv_return(finaltype);
     } else {

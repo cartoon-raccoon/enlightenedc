@@ -867,7 +867,13 @@ public:
     */
     Type *effective_type() override;
 
-    std::string to_string() const override { return "const " + base->to_string(); }
+    std::string to_string() const override {
+        if (base->is_pointer()) {
+            return base->to_string() + "const";
+        } else {
+            return "const " + base->to_string();
+        }
+    }
 
     Optional<std::string> get_name() override { return base->get_name(); };
 
@@ -1559,7 +1565,6 @@ struct FuncParam {
     Type *type = nullptr;
     Optional<StringRef> name;
     Location loc;
-    bool is_const = false;
     Optional<eval::Value> value;
 };
 
@@ -1698,7 +1703,10 @@ public:
 
     void add_function(Location loc, Vec<FuncParam> params, bool variadic);
 
-    void set_base(BaseType *base);
+    /**
+    Set the base type, optionally wrapping it in a const.
+    */
+    void set_base(BaseType *base, bool is_const);
 
     TypeContext& ctxt() { return tyctxt; }
 
@@ -1716,6 +1724,7 @@ public:
     };
 
     BaseType *base = nullptr;
+    bool const_base = false;
 
     std::stack<std::variant<Ptr, Arr, FnParams>> type_stack;
 

@@ -26,6 +26,11 @@ enum class LangLinkage : uint8_t {
     C, // The symbol has "C" language linkage.
 };
 
+enum class StorageDuration : uint8_t {
+    AUTO,
+    STATIC,
+};
+
 class VarSymData;
 class FuncSymData;
 

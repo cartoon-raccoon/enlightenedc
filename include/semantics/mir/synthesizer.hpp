@@ -117,7 +117,7 @@ using VisitParam = std::variant<
     StringRef, DeclaratorBuilder *,
     // For passing types for population.
     types::RecordType *, types::EnumType *, types::PrimitiveType *, types::BaseType *,
-    types::Type *,
+    types::Type *, Pair<types::BaseType *, bool>,
     // The ProgItemMIR that an Attribute/AttributeArg is attached to, so do_visit can
     // downcast it (via its NodeKind) and validate/apply the attribute per item kind.
     mir::ProgItemMIR *>;
@@ -133,6 +133,7 @@ class MIRSynthesizer : public BaseASTSemaVisitor, public NoMove {
         bool is_constexpr    = false;
         sym::Linkage linkage = sym::Linkage::NONE;
         sym::LangLinkage langlink = sym::LangLinkage::NONE;
+        sym::StorageDuration duration = sym::StorageDuration::AUTO;
     };
 
 public:

@@ -1168,8 +1168,9 @@ void TypeBuilder::add_function(Location loc, Vec<FuncParam> params, bool variadi
     type_stack.push(FnParams{loc, std::move(params), variadic});
 }
 
-void TypeBuilder::set_base(BaseType *base) {
+void TypeBuilder::set_base(BaseType *base, bool is_const) {
     this->base = base;
+    this->const_base = is_const;
 }
 
 Type *TypeBuilder::finalize(Optional<Ref<Vec<FuncParam>>> last_params) {
@@ -1177,7 +1178,12 @@ Type *TypeBuilder::finalize(Optional<Ref<Vec<FuncParam>>> last_params) {
 
     dbprint("TypeBuilder: finalizing type");
 
-    Type *curr = base;
+    Type *curr;
+    if (const_base) {
+        curr = tyctxt.get().get_const(base);
+    } else {
+        curr = base;
+    }
     while (!type_stack.empty()) {
         auto next_cstrctr = type_stack.top();
         std::visit(
