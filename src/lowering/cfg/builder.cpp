@@ -920,10 +920,10 @@ void CFGBuilder::visit(LiteralExprLIR& node) {
             [&](eval::Value& val) {
                 if (val.is_primitive()) {
                     dbprint("    Literal is Value, creating Literal value");
-                    ECC_ASSERT_N(node.act_type->is_primitive());
+                    ECC_ASSERT_N(node.eff_type->is_primitive());
                     last_value = prog_cfg.get_scalar(node.act_type->as_primitive(), val);
                 } else if (val.is_pointer()) {
-                    ECC_ASSERT_N(node.act_type->is_pointer());
+                    ECC_ASSERT_N(node.eff_type->is_pointer());
                     if (val.is_nullptr()) {
                         last_value = prog_cfg.get_zero(node.act_type->as_pointer());
                     } else {
