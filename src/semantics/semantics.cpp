@@ -5,6 +5,7 @@
 #include "ds/arenavec.hpp"
 #include "semantics/mir/mir.hpp"
 #include "prelude.hpp"
+#include "semantics/symbols.hpp"
 
 using namespace ecc::ds;
 
@@ -48,6 +49,28 @@ using namespace mir;
         }                                                \
     }
 
+#define DO_MIR_STMT_SCOPED_VISIT(visitor, nodety) /* NOLINT */ \
+    void visitor::visit(nodety& node) { /* NOLINT */ \
+        auto guard = enter_node(&node); \
+        if (auto *walker = symwalker()) { \
+            walker->current = node.scope; \
+        } \
+        try { \
+            do_visit(node); \
+        } catch (UnableToContinue&) { \
+            found_errors = true; \
+        } \
+    }
+
+#define DO_MIR_SCOPED_VISIT(visitor, nodety) /* NOLINT */ \
+    void visitor::visit(nodety& node) { /* NOLINT */ \
+        auto guard = enter_node(&node); \
+        if (auto *walker = symwalker()) { \
+            walker->current = node.scope; \
+        } \
+        do_visit(node); \
+    }
+
 int BaseASTSemaVisitor::in_node(ASTNode::NodeKind kind) {
     int ret = 0;
     for (auto i = ctxt_stack.rbegin(); i != ctxt_stack.rend(); i++) {
@@ -79,6 +102,10 @@ MIRNode *BaseMIRSemaVisitor::get_context(MIRNode::NodeKind kind) {
     return nullptr;
 }
 
+ASTScopeGuard BaseASTSemaVisitor::enter_scope(sym::FuncSymbol *assoc) {
+    return ASTScopeGuard(state, syms, assoc);
+}
+
 /*
  * VISIT METHODS
  */
@@ -86,18 +113,16 @@ MIRNode *BaseMIRSemaVisitor::get_context(MIRNode::NodeKind kind) {
 DO_VISIT(BaseASTSemaVisitor, Program);
 DO_VISIT(BaseASTSemaVisitor, AttributeArg);
 DO_VISIT(BaseASTSemaVisitor, Attribute);
-DO_VISIT(BaseASTSemaVisitor, Function);
+DO_STMT_VISIT(BaseASTSemaVisitor, Function);
 
 /*
-Use DO_STMT_VISIT for these because if they throw in a non-global scope,
-they will ICE. DO_STMT_VISIT catches them properly.
-
-fixme: this is a bodge, add a more robust fix.
+These four might ICE if they throw in a non-global scope. Currently doesn't happen, but leaving
+this here just in case. If it starts ICE-ing again, use DO_STMT_VISIT.
 */
-DO_STMT_VISIT(BaseASTSemaVisitor, TypeDeclaration);
-DO_STMT_VISIT(BaseASTSemaVisitor, ConstexprDeclaration);
-DO_STMT_VISIT(BaseASTSemaVisitor, VariableDeclaration);
-DO_STMT_VISIT(BaseASTSemaVisitor, ClassDeclaration);
+DO_VISIT(BaseASTSemaVisitor, TypeDeclaration);
+DO_VISIT(BaseASTSemaVisitor, ConstexprDeclaration);
+DO_VISIT(BaseASTSemaVisitor, VariableDeclaration);
+DO_VISIT(BaseASTSemaVisitor, ClassDeclaration);
 
 DO_VISIT(BaseASTSemaVisitor, ParameterDeclaration);
 DO_VISIT(BaseASTSemaVisitor, Declarator);
@@ -125,22 +150,22 @@ DO_VISIT(BaseASTSemaVisitor, IdentifierDeclarator);
 
 // compound statements should introduce a new scope.
 DO_STMT_SCOPED_VISIT(BaseASTSemaVisitor, CompoundStatement);
-DO_STMT_VISIT(BaseASTSemaVisitor, ExpressionStatement);
-DO_STMT_VISIT(BaseASTSemaVisitor, CaseStatement);
-DO_STMT_VISIT(BaseASTSemaVisitor, CaseRangeStatement);
-DO_STMT_VISIT(BaseASTSemaVisitor, DefaultStatement);
-DO_STMT_VISIT(BaseASTSemaVisitor, LabeledStatement);
-DO_STMT_VISIT(BaseASTSemaVisitor, PrintStatement);
-DO_STMT_VISIT(BaseASTSemaVisitor, IfStatement);
-DO_STMT_VISIT(BaseASTSemaVisitor, SwitchStatement);
+DO_VISIT(BaseASTSemaVisitor, ExpressionStatement);
+DO_VISIT(BaseASTSemaVisitor, CaseStatement);
+DO_VISIT(BaseASTSemaVisitor, CaseRangeStatement);
+DO_VISIT(BaseASTSemaVisitor, DefaultStatement);
+DO_VISIT(BaseASTSemaVisitor, LabeledStatement);
+DO_VISIT(BaseASTSemaVisitor, PrintStatement);
+DO_VISIT(BaseASTSemaVisitor, IfStatement);
+DO_VISIT(BaseASTSemaVisitor, SwitchStatement);
 
-DO_STMT_VISIT(BaseASTSemaVisitor, WhileStatement);
-DO_STMT_VISIT(BaseASTSemaVisitor, DoWhileStatement);
-DO_STMT_VISIT(BaseASTSemaVisitor, ForStatement);
-DO_STMT_VISIT(BaseASTSemaVisitor, GotoStatement);
-DO_STMT_VISIT(BaseASTSemaVisitor, BreakStatement);
-DO_STMT_VISIT(BaseASTSemaVisitor, ContinueStatement);
-DO_STMT_VISIT(BaseASTSemaVisitor, ReturnStatement);
+DO_VISIT(BaseASTSemaVisitor, WhileStatement);
+DO_VISIT(BaseASTSemaVisitor, DoWhileStatement);
+DO_VISIT(BaseASTSemaVisitor, ForStatement);
+DO_VISIT(BaseASTSemaVisitor, GotoStatement);
+DO_VISIT(BaseASTSemaVisitor, BreakStatement);
+DO_VISIT(BaseASTSemaVisitor, ContinueStatement);
+DO_VISIT(BaseASTSemaVisitor, ReturnStatement);
 
 DO_VISIT(BaseASTSemaVisitor, BinaryExpression);
 DO_VISIT(BaseASTSemaVisitor, CastExpression);
@@ -569,23 +594,23 @@ DO_VISIT(BaseMIRSemaVisitor, mir::InitializerMIR);
 /*
 Same bodge as above.
 */
-DO_STMT_VISIT(BaseMIRSemaVisitor, mir::TypeDeclMIR);
-DO_STMT_VISIT(BaseMIRSemaVisitor, mir::VarDeclMIR);
+DO_MIR_STMT_SCOPED_VISIT(BaseMIRSemaVisitor, mir::TypeDeclMIR);
+DO_MIR_STMT_SCOPED_VISIT(BaseMIRSemaVisitor, mir::VarDeclMIR);
 
-DO_STMT_SCOPED_VISIT(BaseMIRSemaVisitor, mir::CompoundStmtMIR);
-DO_STMT_VISIT(BaseMIRSemaVisitor, mir::ExprStmtMIR);
-DO_STMT_VISIT(BaseMIRSemaVisitor, mir::SwitchStmtMIR);
-DO_STMT_VISIT(BaseMIRSemaVisitor, mir::CaseStmtMIR);
-DO_STMT_VISIT(BaseMIRSemaVisitor, mir::CaseRangeStmtMIR);
-DO_STMT_VISIT(BaseMIRSemaVisitor, mir::DefaultStmtMIR);
-DO_STMT_VISIT(BaseMIRSemaVisitor, mir::LabeledStmtMIR);
-DO_STMT_VISIT(BaseMIRSemaVisitor, mir::PrintStmtMIR);
-DO_STMT_VISIT(BaseMIRSemaVisitor, mir::IfStmtMIR);
-DO_STMT_SCOPED_VISIT(BaseMIRSemaVisitor, mir::LoopStmtMIR);
-DO_STMT_VISIT(BaseMIRSemaVisitor, mir::GotoStmtMIR);
-DO_STMT_VISIT(BaseMIRSemaVisitor, mir::BreakStmtMIR);
-DO_STMT_VISIT(BaseMIRSemaVisitor, mir::ContStmtMIR);
-DO_STMT_VISIT(BaseMIRSemaVisitor, mir::ReturnStmtMIR);
+DO_MIR_STMT_SCOPED_VISIT(BaseMIRSemaVisitor, mir::CompoundStmtMIR);
+DO_MIR_STMT_SCOPED_VISIT(BaseMIRSemaVisitor, mir::ExprStmtMIR);
+DO_MIR_STMT_SCOPED_VISIT(BaseMIRSemaVisitor, mir::SwitchStmtMIR);
+DO_MIR_STMT_SCOPED_VISIT(BaseMIRSemaVisitor, mir::CaseStmtMIR);
+DO_MIR_STMT_SCOPED_VISIT(BaseMIRSemaVisitor, mir::CaseRangeStmtMIR);
+DO_MIR_STMT_SCOPED_VISIT(BaseMIRSemaVisitor, mir::DefaultStmtMIR);
+DO_MIR_STMT_SCOPED_VISIT(BaseMIRSemaVisitor, mir::LabeledStmtMIR);
+DO_MIR_STMT_SCOPED_VISIT(BaseMIRSemaVisitor, mir::PrintStmtMIR);
+DO_MIR_STMT_SCOPED_VISIT(BaseMIRSemaVisitor, mir::IfStmtMIR);
+DO_MIR_STMT_SCOPED_VISIT(BaseMIRSemaVisitor, mir::LoopStmtMIR);
+DO_MIR_STMT_SCOPED_VISIT(BaseMIRSemaVisitor, mir::GotoStmtMIR);
+DO_MIR_STMT_SCOPED_VISIT(BaseMIRSemaVisitor, mir::BreakStmtMIR);
+DO_MIR_STMT_SCOPED_VISIT(BaseMIRSemaVisitor, mir::ContStmtMIR);
+DO_MIR_STMT_SCOPED_VISIT(BaseMIRSemaVisitor, mir::ReturnStmtMIR);
 
 DO_VISIT(BaseMIRSemaVisitor, mir::BinaryExprMIR);
 DO_VISIT(BaseMIRSemaVisitor, mir::UnaryExprMIR);

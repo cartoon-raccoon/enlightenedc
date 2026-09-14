@@ -25,11 +25,9 @@ private:
     Ref<sema::types::TypeContext> types;
     eval::ConstEvaluator evalr;
 
+    sema::sym::SymbolTableWalker *symwalker() override { return &syms; }
+
 protected:
-    sema::ScopeGuard<sema::mir::MIRNode>
-    enter_scope(sema::sym::FuncSymbol *assoc = nullptr) override {
-        return sema::ScopeGuard<sema::mir::MIRNode>(State::READ, syms, assoc);
-    }
 
     Chunk<sema::mir::ExprMIR> eval_and_expr(Chunk<sema::mir::ExprMIR>&, Location);
 

@@ -651,6 +651,23 @@ public:
     }
 };
 
+class EnumeratorSymCollision : public EccSemError {
+public:
+    EnumeratorSymCollision(Location err_loc, Location prev_loc, StringRef name)
+        : EccSemError("enumerator already declared as another symbol", err_loc),
+        prev_loc(prev_loc), name(name.str()) {}
+
+    Location prev_loc;
+    std::string name;
+
+    std::string elab() override {
+        std::stringstream ss;
+        ss << "symbol \'" << name << "\' previously declared at " << prev_loc;
+
+        return ss.str();
+    }
+};
+
 class InvalidTypeError : public EccSemError {
 public:
     InvalidTypeError(std::string err, types::Type *type, Location err_loc)
@@ -726,6 +743,23 @@ public:
     std::string elab() override {
         std::stringstream ss;
         ss << "label \'" << name << "\' is not defined";
+        return ss.str();
+    }
+};
+
+class LabelAlrDefinedError : public EccSemError {
+public:
+    LabelAlrDefinedError(StringRef name, Location err_loc, Location prev_loc)
+        : EccSemError("duplicate label " + name.str(), err_loc), 
+        name(name.str()), prev_loc(prev_loc) {}
+    
+    std::string name;
+    Location prev_loc;
+
+    std::string elab() override {
+        std::stringstream ss;
+        ss << "label \'" << name << "\' previously defined at " << prev_loc;
+
         return ss.str();
     }
 };

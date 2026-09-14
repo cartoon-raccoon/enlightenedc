@@ -362,6 +362,10 @@ void Validator::visit_single_vardecl(sym::VarSymbol *varsym, InitializerMIR& ini
             eval_initializer(varsym->get_type(), init, /*allow_size_infer=*/true)) {
         varsym->set_type(*inferred);
     }
+    if (!varsym->get_type()->is_complete()) {
+        add_error<EccSemError>("variable cannot have incomplete type", varsym->get_loc());
+        throw UnableToContinue();
+    }
 }
 
 bool Validator::expr_is_tautological(ExprMIR& expr) {

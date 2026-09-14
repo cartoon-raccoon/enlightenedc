@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <sstream>
 #include <utility>
+#include "semantics/types.hpp"
 
 using namespace ecc::sema::sym;
 using namespace ecc::sema::types;
@@ -48,8 +49,8 @@ std::string LabelSymbol::mangle() const {
     if (global) {
         ss << "global_" << name;
     } else {
-        if (scope->has_assoc()) {
-            ss << scope->get_assoc()->mangle() << "_" << name;
+        if (scope->has_assoc() && scope->is_func_assocd()) {
+            ss << scope->get_func_assoc()->mangle() << "_" << name;
         } else {
             ss << name << "_" << scope->get_id();
         }
@@ -130,12 +131,39 @@ bool FuncSymbol::params_well_ordered() const {
 
 void Scope::set_assoc(FuncSymbol *sym, bool override) {
     dbprint("Scope: ", id, " associating with symbol name \"", sym->get_name(), "\"");
-    if (assoc != nullptr) {
+    if (assoc) {
         if (override) {
             assoc = sym;
         }
     } else {
         assoc = sym;
+    }
+}
+
+void Scope::set_assoc(types::RecordType *type, bool override) {
+    dbprint("Scope: ", id, " associating with type \"", type->formal(), "\"");
+    if (assoc) {
+        if (override) {
+            assoc = type;
+        }
+    } else {
+        assoc = type;
+    }
+}
+
+FuncSymbol *Scope::get_func_assoc() const {
+    if (assoc && (*assoc).is_func_assocd()) {
+        return (*assoc).as_func_assoc();
+    } else {
+        return nullptr;
+    }
+}
+
+RecordType *Scope::get_type_assoc() const {
+    if (assoc && (*assoc).is_type_assocd()) {
+        return (*assoc).as_type_assoc();
+    } else {
+        return nullptr;
     }
 }
 
@@ -378,6 +406,10 @@ LabelSymbol *SymbolTableWalker::lookup_label_from(Scope *from, StringRef sym, bo
 
 void SymbolTableWalker::tie_current_to(FuncSymbol *sym, bool override) const {
     current->set_assoc(sym, override);
+}
+
+void SymbolTableWalker::tie_current_to(RecordType *type, bool override) const {
+    current->set_assoc(type, override);
 }
 
 VarSymbol *SymbolTableWalker::insert_var(InsertVarArgs args) const {

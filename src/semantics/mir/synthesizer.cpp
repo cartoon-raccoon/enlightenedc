@@ -628,11 +628,8 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
             throw UnableToContinue();
         }
 
-        // initialize our symbol and its pointer
-        if (!ret.type->is_complete() && !ret.type->is_function()) {
-            add_error<EccSemError>("variable cannot have incomplete type", declarator->loc);
-            throw UnableToContinue();
-        }
+        // we cannot check for completeness here, because type inference is not yet done
+        // it has to be checked in the validator.
 
         Type *symtype = ret.type;
         if (specinfo.is_const) {
@@ -1094,7 +1091,12 @@ void MIRSynthesizer::do_visit(Enumerator& node) {
 
     InsertVarArgs args = {node.loc, node.name, enm, value};
 
-    syms.insert_var(std::move(args));
+    try {
+        syms.insert_var(std::move(args));
+    } catch (Symbol *existing) {
+        add_error<EnumeratorSymCollision>(node.loc, existing->get_loc(), node.name);
+        throw UnableToContinue();
+    }
 
     dv_return_void();
 }
@@ -1640,7 +1642,13 @@ void MIRSynthesizer::do_visit(LabeledStatement& node) {
     bsv_dbprint("visiting LabeledStatement node: ", node.loc);
 
     InsertLabelArgs args = {node.loc, node.label};
-    LabelSymbol *labelptr = syms.insert_label(args);
+    LabelSymbol *labelptr; 
+    try {
+        labelptr = syms.insert_label(args);
+    } catch (Symbol *existing) {
+        add_error<LabelAlrDefinedError>(node.label, node.loc, existing->get_loc());
+        throw UnableToContinue();
+    }
     dv_call_noparam(node.statement);
 
     auto stmt = take_last_result<Chunk<StmtMIR>>();

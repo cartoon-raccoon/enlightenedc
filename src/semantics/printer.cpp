@@ -353,8 +353,14 @@ void Scope::print(std::stringstream& ss, int depth) {
     std::string indent(depth * 2, ' ');
 
     ss << indent << "Scope " << id;
-    if (assoc) {
-        ss << ": " << assoc->to_string();
+    if (has_assoc()) {
+        if (is_func_assocd()) {
+            ss << ": " << get_func_assoc()->to_string();
+        } else if (is_type_assocd()) {
+            ss << ": " << get_type_assoc()->formal();
+        } else {
+            ECC_UNREACHABLE("Scope is either func-associated or type-associated");
+        }
     } else {
         ss << ": Compound Statement";
     }

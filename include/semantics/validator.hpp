@@ -59,6 +59,8 @@ public:
 
     Vec<Box<EccSemError>> errors;
 
+    sym::SymbolTableWalker *symwalker() override { return &syms; }
+
     template <typename E, typename... Args>
         requires std::derived_from<E, EccSemError>
     void add_error(Args... args) {
@@ -69,9 +71,6 @@ public:
     void validate(mir::ProgramMIR& progmir);
 
 protected:
-    ScopeGuard<mir::MIRNode> enter_scope(sym::FuncSymbol *assoc = nullptr) override {
-        return ScopeGuard<mir::MIRNode>(State::READ, syms, assoc);
-    }
 
     /**
     Implicitly cast expr into target.

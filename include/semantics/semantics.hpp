@@ -12,14 +12,15 @@
 
 namespace ecc::sema {
 /*
-Semantic validation functionality.
+Semantic Visitor Functionality.
 
-Semantic Checking in Ecc occurs in two passes: Elaboration and Validation.
+Semantic visitors are a specialization of visitor that automatically handles bookkeeping tasks that
+are routinely needed while walking a syntax tree. These include: pushing and popping a context stack,
+pushing/entering and popping scopes, etc.
 
-The elaboration pass walks the AST, populating the TypeContext and SymbolTable.
-
-The validation pass then walks the AST, performing type checking and semantic
-validation (e.g. no invalid struct member accesses).
+There are two subclasses of BaseSemanticVisitor, each specialized for an IR type:
+BaseASTSemaVisitor, which is specialized for semantic visitation of AST nodes; and BaseMIRSemaVisitor,
+which is specialized for semantic visitation of MIR nodes.
 */
 
 using namespace ecc;
@@ -30,11 +31,17 @@ class NodeGuard;
 class BaseASTSemaVisitor;
 class BaseMIRSemaVisitor;
 
-template <typename Node>
-class ScopeGuard;
+class ASTScopeGuard;
 template <typename Node>
 class NodeGuard;
 
+/**
+The base semantic visitor class, parametrized over the type of node it walks.
+
+The base bookkeeping provided by the BaseSemanticVisitor is context tracking: It maintains a stack of nodes
+that get pushed and popped as the tree is walked. It does so using a NodeGuard, which is also parametrized
+over the type of node being walked.
+*/
 template <typename Node>
 class BaseSemanticVisitor {
 public:
@@ -42,10 +49,10 @@ public:
     The state of the BaseSemanticVisitor.
     */
     enum State : uint8_t {
-        // The visitor should populate the symbol table and type context.
-        READ,
         // The symbol table and type context have already been populated,
         // and should be read from instead.
+        READ,
+        // The visitor should populate the symbol table and type context.
         WRITE,
     } state;
 
@@ -55,8 +62,6 @@ public:
     Node *imm_ctxt() { return ctxt_stack.back(); }
 
     bool found_errors = false;
-
-    virtual ScopeGuard<Node> enter_scope(sym::FuncSymbol *assoc = nullptr) = 0;
 
     virtual NodeGuard<Node> enter_node(Node *node) { return NodeGuard(*this, node); }
 
@@ -84,14 +89,10 @@ public:
     void bsv_dbprint(Args... args) {}
 #endif
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
-
-    BaseSemanticVisitor(State state) {}
-
-#pragma clang diagnostic pop
+    BaseSemanticVisitor(State state) : state(state) {}
 
     virtual ~BaseSemanticVisitor() = default;
+
 }; // class BaseSemanticVisitor
 
 /*
@@ -103,38 +104,36 @@ The ScopeGuard pushes a new scope into the symbol table.
 When the destructor is called, the ScopeGuard automatically pops the scope from its
 stored symbol table reference.
 */
-template <typename Node>
-class ScopeGuard : public NoCopy {
+class ASTScopeGuard : public NoCopy {
 public:
     friend class BaseASTSemaVisitor;
-    friend class BaseMIRSemaVisitor;
-    friend class NodeGuard<Node>;
+    friend class NodeGuard<ast::ASTNode>;
 
-    ScopeGuard(
-        BaseSemanticVisitor<Node>::State state, sym::SymbolTableWalker& syms,
+    ASTScopeGuard(
+        BaseSemanticVisitor<ast::ASTNode>::State state, sym::SymbolTableWalker& syms,
         sym::FuncSymbol *assoc)
         : st(syms) {
-        if (state == BaseSemanticVisitor<Node>::State::READ) {
+        if (state == BaseSemanticVisitor<ast::ASTNode>::State::READ) {
             (*st).get().enter_scope();
         } else {
             (*st).get().push_scope(assoc);
         }
     }
 
-    ScopeGuard() {}
+    ASTScopeGuard() {}
 
     // Allow the ScopeGuard to be moved.
-    ScopeGuard(ScopeGuard&& other) noexcept : st(other.st) {}
+    ASTScopeGuard(ASTScopeGuard&& other) noexcept : st(other.st) {}
 
-    ~ScopeGuard() {
+    ~ASTScopeGuard() {
         if (st) {
             (*st).get().pop_scope();
         }
     }
 
     // Prevent deep copies of the ScopeGuard.
-    ScopeGuard(const ScopeGuard&)            = delete;
-    ScopeGuard& operator=(const ScopeGuard&) = delete;
+    ASTScopeGuard(const ASTScopeGuard&)            = delete;
+    ASTScopeGuard& operator=(const ASTScopeGuard&) = delete;
 
 private:
     Optional<Ref<sym::SymbolTableWalker>> st;
@@ -151,7 +150,7 @@ class NodeGuard : public NoCopy {
 public:
     friend class BaseASTSemaVisitor;
     friend class BaseMIRSemaVisitor;
-    friend class ScopeGuard<Node>;
+    friend class ASTScopeGuard;
 
     NodeGuard(const NodeGuard&)            = delete;
     NodeGuard& operator=(const NodeGuard&) = delete;
@@ -188,16 +187,20 @@ public:
 
 private:
     Ref<Vec<Node *>> context;
-    Optional<ScopeGuard<Node>> scope_guard;
 }; // class NodeGuard
 
 /*
 The base semantic walker class that handles scoping and AST walking.
 
-The BaseSemanticVisitor class handles scoping within a SymbolTable and the basic
+The BaseASTSemanticVisitor class handles scoping within a SymbolTable and the basic
 AST walking operations, overriding all `visit(ast::)` member functions in the abstract
 `ast::ASTVisitor` base class. As such, a BaseSemanticVisitor simply walks the AST
 without doing anything on the nodes, pushing and popping scopes as necessary.
+
+Since the AST is walked before scopes are resolved, BaseASTSemaVisitor provides scope tracking
+using the `ASTScopeGuard` and an `enter_scope()` method. Creating an ASTScopeGuard either
+pushes a new scope or enters the next scope, depending on the mode the visitor is in, and
+destroying an ASTScopeGuard pops the current scope.
 
 # do_visit methods
 
@@ -209,11 +212,16 @@ of BaseSemanticVisitor, after all scope management has been handled.
 */
 class BaseASTSemaVisitor : public ast::ASTVisitor, public BaseSemanticVisitor<ast::ASTNode> {
 public:
-    BaseASTSemaVisitor(State state) : BaseSemanticVisitor(state) {}
+    BaseASTSemaVisitor(State state, const sym::SymbolTableWalker& syms)
+        : BaseSemanticVisitor(state), syms(syms) {}
+
+    sym::SymbolTableWalker syms;
 
     /// \brief Checks if there is `kind` in the context, and if so, how many layers up.
     /// Returns -1 if there is no `kind` in the context.
     int in_node(ast::ASTNode::NodeKind kind);
+
+    ASTScopeGuard enter_scope(sym::FuncSymbol *assoc = nullptr);
 
     // Visitor method overrides
     //? Should these be marked final?
@@ -350,9 +358,24 @@ protected:
     void visit(ast::SizeofExpression& node) override;
 }; // class BaseASTSemaVisitor
 
+/**
+The BaseMIRSemaVisitor handles semantic visitation of MIR nodes.
+
+Since MIR nodes are walked when scopes are already resolved, each relevant MIR node holds a pointer to
+its enclosing scope. This scope can then directly be set as the current scope on a `SymbolTableWalker`.
+
+The `SymbolTableWalker` is exposed through a pure virtual function `symwalker()`, which returns a pointer
+to the `SymbolTableWalker`. If the derived visitor does not maintain a `SymbolTableWalker` it is free to
+return `nullptr`, to opt out of the automatic scope tracking.
+*/
 class BaseMIRSemaVisitor : public mir::MIRVisitor, public BaseSemanticVisitor<mir::MIRNode> {
 public:
     BaseMIRSemaVisitor(State state) : BaseSemanticVisitor(state) {}
+
+    /**
+    Return a SymbolTableWalker, if any.
+    */
+    virtual sym::SymbolTableWalker *symwalker() = 0;
 
     /// \brief Checks if there is `kind` in the context, and if so, how many layers up.
     /// Returns -1 if there is no `kind` in the context.

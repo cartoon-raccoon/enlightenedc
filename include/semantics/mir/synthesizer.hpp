@@ -139,12 +139,10 @@ public:
     MIRSynthesizer(
         sym::SymbolTable& syms, types::TypeContext& types, mir::ProgramMIR& mir,
         RuntimeConfig& rtcfg)
-        : BaseASTSemaVisitor(BaseSemanticVisitor::State::WRITE), types(types), syms(syms),
-          prog_mir(mir), rtcfg(rtcfg) {}
+        : BaseASTSemaVisitor(BaseSemanticVisitor::State::WRITE, sym::SymbolTableWalker(syms)), 
+        types(types), prog_mir(mir), rtcfg(rtcfg) {}
 
     types::TypeContext& types;
-
-    sym::SymbolTableWalker syms;
 
     mir::ProgramMIR& prog_mir;
 
@@ -165,10 +163,6 @@ protected:
     VisitResult last_result = std::monostate{};
 
     VisitParam dovisit_param = std::monostate{};
-
-    ScopeGuard<ast::ASTNode> enter_scope(sym::FuncSymbol *assoc = nullptr) override {
-        return ScopeGuard<ast::ASTNode>(BaseSemanticVisitor::State::WRITE, syms, assoc);
-    }
     /*
     Takes the result of the last visit call, replacing it with `std::monostate`.
     */
