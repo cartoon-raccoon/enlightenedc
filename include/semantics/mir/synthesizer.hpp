@@ -53,7 +53,14 @@ struct InitializerRet {
 };
 
 // The result of visiting a compound statement from a function.
-using CmpdStmtFromFuncRes = std::pair<Chunk<sema::mir::CompoundStmtMIR>, sema::sym::Scope *>;
+struct CmpdStmtFromFuncRes {
+    // The processed function body.
+    Chunk<sema::mir::CompoundStmtMIR> body;
+    // The scope of the body.
+    sema::sym::Scope *funcscope;
+    // The inserted params.
+    Vec<sym::VarSymbol *> inserted_params;
+};
 
 /*
 The result of visiting an AST node.
@@ -95,10 +102,10 @@ using VisitResult = std::variant<
     // The return type of visiting an Initializer.
     InitializerRet>;
 
-using CmpdStmtDoVisitParam = Optional<std::pair<
-    sym::FuncSymbol *,       // The function symbol to tie this compound statement to.
-    Vec<Box<sym::VarSymbol>> // The new symbols to add to the new scope.
-    >>;
+struct FuncBodyVisitParam {
+    ast::FunctionBody *body;
+    Vec<sym::InsertVarArgs> params;
+};
 
 /*
 Any parameters to be passed to a do_visit call (through accept).
@@ -108,8 +115,6 @@ using VisitParam = std::variant<
     std::monostate,
     // A simple string, for anything.
     StringRef, DeclaratorBuilder *,
-    // For passing a function's information into the compound statement.
-    CmpdStmtDoVisitParam,
     // For passing types for population.
     types::RecordType *, types::EnumType *, types::PrimitiveType *, types::BaseType *,
     types::Type *,
@@ -124,15 +129,10 @@ class MIRSynthesizer : public BaseASTSemaVisitor, public NoMove {
     struct SpecifierInfo {
         types::BaseType *type = nullptr;
         Optional<sym::TypeSymbol *> symbol;
-        bool is_public       = false;
-        bool is_static       = false;
         bool is_const        = false;
         bool is_constexpr    = false;
-        sym::Linkage linkage = sym::Linkage::INTERNAL;
-
-        bool linkage_is_external() const {
-            return linkage == sym::Linkage::EXTERNAL || linkage == sym::Linkage::EXTERNC;
-        }
+        sym::Linkage linkage = sym::Linkage::NONE;
+        sym::LangLinkage langlink = sym::LangLinkage::NONE;
     };
 
 public:
@@ -279,6 +279,8 @@ protected:
     void do_visit(ast::PostfixExpression& node) override;
     void do_visit(ast::SizeofExpression& node) override;
 
+    CmpdStmtFromFuncRes parse_function_body(FuncBodyVisitParam params);
+
     Chunk<mir::FunctionMIR> parse_vardecl_func(
         ast::VariableDeclaration&, InitDecltrRet ret, SpecifierInfo specinfo,
         types::FunctionType *type);
@@ -289,7 +291,7 @@ protected:
     void check_attribute(mir::TypeDeclMIR *typedecl, ast::AttributeArg& node);
 
 private:
-    SpecifierInfo parse_speclist(ds::ArenaVec<Chunk<ast::DeclarationSpecifier>>&, Location);
+    SpecifierInfo parse_speclist(ds::ArenaVec<Chunk<ast::DeclarationSpecifier>>&, sym::Scope *);
 };
 
 } // namespace ecc::sema

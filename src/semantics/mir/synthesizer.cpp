@@ -13,6 +13,7 @@
 #include "semantics/mir/mir.hpp"
 #include "semantics/semerr.hpp"
 #include "semantics/symbols.hpp"
+#include "semantics/symdata.hpp"
 #include "semantics/typeerr.hpp"
 #include "semantics/types.hpp"
 #include "prelude.hpp"
@@ -56,10 +57,9 @@ void MIRSynthesizer::generate_mir(Program& prog) {
 }
 
 MIRSynthesizer::SpecifierInfo
-MIRSynthesizer::parse_speclist(ArenaVec<Chunk<ast::DeclarationSpecifier>>& speclist, Location loc) {
+MIRSynthesizer::parse_speclist(ArenaVec<Chunk<ast::DeclarationSpecifier>>& speclist, Scope *) {
     using NK = ASTNode::NodeKind;
 
-    bsv_dbprint("parsing declaration specifier list for node at ", loc);
     SpecifierInfo specinfo;
 
     // fixme: accumulate everything, then check at the end
@@ -88,22 +88,26 @@ MIRSynthesizer::parse_speclist(ArenaVec<Chunk<ast::DeclarationSpecifier>>& specl
             auto spectype = take_last_result<StorageClassSpecifier::SpecType>();
             switch (spectype) {
             case StorageClassSpecifier::PUBLIC:
-                if (specinfo.is_public) {
-                    add_error<EccSemError>("duplicate public specifier", decl_spec->loc);
+                if (rtcfg.std == Config::Std::ENLIGHTENEDC) {
+                    add_error<EccSemError>(
+                        "usage of `public` is only allowed under the HolyC standard", decl_spec->loc);
+                }
+                if (specinfo.is_constexpr) {
+                    add_error<EccSemError>("constexpr cannot have external linkage");
+                }
+                if (specinfo.linkage != sym::Linkage::NONE) {
+                    add_error<EccSemError>("multiple storage class specifiers");
                 } else {
-                    specinfo.is_public = true;
+                    specinfo.linkage = sym::Linkage::EXTERNAL;
                 }
                 break;
 
             case StorageClassSpecifier::STATIC:
                 // we allow constexpr to exist alongside static, for futureproofing
-                if (specinfo.is_static) {
-                    add_error<EccSemError>("duplicate static specifier", decl_spec->loc);
+                if (specinfo.linkage != sym::Linkage::NONE) {
+                    add_error<EccSemError>("multiple storage class specifiers");
                 } else {
-                    specinfo.is_static = true;
-                }
-                if (specinfo.linkage_is_external()) {
-                    add_error<EccSemError>("extern specifier cannot also be static", decl_spec->loc);
+                    specinfo.linkage = sym::Linkage::INTERNAL;
                 }
                 break;
 
@@ -116,12 +120,12 @@ MIRSynthesizer::parse_speclist(ArenaVec<Chunk<ast::DeclarationSpecifier>>& specl
                     break;
                 }
 
-                if (specinfo.linkage_is_external()) {
-                    add_error<EccSemError>("constexpr cannot be marked extern", decl_spec->loc);
+                if (specinfo.linkage == sym::Linkage::EXTERNAL) {
+                    add_error<EccSemError>("constexpr cannot have external linkage", decl_spec->loc);
                     break;
                 }
 
-                specinfo.is_const     = true;
+                specinfo.is_const = true;
                 break;
 
             case StorageClassSpecifier::EXTERN:
@@ -129,11 +133,7 @@ MIRSynthesizer::parse_speclist(ArenaVec<Chunk<ast::DeclarationSpecifier>>& specl
                     add_error<EccSemError>("constexpr cannot be marked extern", decl_spec->loc);
                     break;
                 }
-                if (specinfo.is_static) {
-                    add_error<EccSemError>("extern specifier cannot also be static", decl_spec->loc);
-                    break;
-                }
-                if (specinfo.linkage != Linkage::INTERNAL) {
+                if (specinfo.linkage != Linkage::NONE) {
                     add_error<EccSemError>("multiple storage class specifiers", decl_spec->loc);
                 } else {
                     specinfo.linkage = Linkage::EXTERNAL;
@@ -145,14 +145,11 @@ MIRSynthesizer::parse_speclist(ArenaVec<Chunk<ast::DeclarationSpecifier>>& specl
                     add_error<EccSemError>("constexpr cannot be marked extern", decl_spec->loc);
                     break;
                 }
-                if (specinfo.is_static) {
-                    add_error<EccSemError>("extern specifier cannot also be static", decl_spec->loc);
-                    break;
-                }
-                if (specinfo.linkage != Linkage::INTERNAL) {
+                if (specinfo.linkage != Linkage::NONE) {
                     add_error<EccSemError>("multiple storage class specifiers", decl_spec->loc);
                 } else {
-                    specinfo.linkage = Linkage::EXTERNC;
+                    specinfo.linkage = Linkage::EXTERNAL;
+                    specinfo.langlink = LangLinkage::C;
                 }
                 break;
             }
@@ -201,7 +198,6 @@ MIRSynthesizer::parse_speclist(ArenaVec<Chunk<ast::DeclarationSpecifier>>& specl
         }
     }
     ECC_ASSERT_N(specinfo.type);
-    bsv_dbprint("finished parsing specifiers for node ", loc);
 
     return specinfo;
 }
@@ -315,9 +311,9 @@ void MIRSynthesizer::do_visit(Function& node) {
     bsv_dbprint("visiting Function node: ", node.loc);
 
     // Parse and construct specifier info
-    VisitParam param       = std::move(dovisit_param);
-    SpecifierInfo specinfo = parse_speclist(node.decl_spec_list, node.loc);
-    dovisit_param          = std::move(param);
+    VisitParam param       = dovisit_param;
+    SpecifierInfo specinfo = parse_speclist(node.decl_spec_list, syms.current);
+    dovisit_param          = param;
 
     if (specinfo.linkage == Linkage::EXTERNAL) {
         add_error<EccSemError>(
@@ -366,7 +362,7 @@ void MIRSynthesizer::do_visit(Function& node) {
 
     bsv_dbprint("MIRSynthesizer: parsing Function params");
     bool found_default = false;
-    Vec<Box<VarSymbol>> params;
+    Vec<InsertVarArgs> params;
     for (FuncParam& param : last_func_params) {
 
         if (!param.name) {
@@ -375,12 +371,11 @@ void MIRSynthesizer::do_visit(Function& node) {
         }
 
         Type *sym_type = param.is_const ? types.get_const(param.type) : param.type;
-        Box<VarSymbol> paramsym;
 
         if (param.value) {
             found_default = true;
-            paramsym      = std::make_unique<VarSymbol>(
-                param.loc, *param.name, syms.current, sym_type, *param.value);
+            InsertVarArgs paramsym = {param.loc, *param.name, sym_type, *param.value};
+            params.push_back(std::move(paramsym));
         } else {
             if (found_default) {
                 add_error<EccSemError>(
@@ -388,54 +383,50 @@ void MIRSynthesizer::do_visit(Function& node) {
                 throw UnableToContinue();
             }
             // just add without value and continue for now
-            paramsym = std::make_unique<VarSymbol>(param.loc, *param.name, syms.current, sym_type);
+            InsertVarArgs paramsym = {param.loc, *param.name, sym_type};
+            params.push_back(std::move(paramsym));
         }
-
-        paramsym->set_funcparam(true);
-        params.push_back(std::move(paramsym));
     }
 
-    Vec<VarSymbol *> paramsym_ptrs{};
-    for (Box<VarSymbol>& sym : params) {
-        paramsym_ptrs.push_back(sym.get());
-    }
+    // Insert func before visiting the body, so the function can call itself.
+    InsertFuncArgs funcargs = {node.loc, *builder->name, functype};
+    funcargs.has_body = true;
+    funcargs.linkage = specinfo.linkage;
+    funcargs.langlink = specinfo.langlink;
 
-    Box<FuncSymbol> symbol = std::make_unique<FuncSymbol>(
-        node.loc, *builder->name, syms.current, functype, std::move(paramsym_ptrs));
-    FuncSymbol *sym_ptr = symbol.get();
-
-    symbol->get_symdata()->set_linkage(specinfo.linkage);
-    // extern "C" function with body, default to Visibility::ExternC
-    if (specinfo.linkage == Linkage::EXTERNC) {
-        symbol->get_symdata()->set_visibility(Visibility::EXTERNC);
-    }
-
-    Location def_loc = symbol->get_loc();
+    FuncSymbol *funcsym;
     try {
-        sym_ptr = syms.insert(*builder->name, std::move(symbol));
+        funcsym = syms.insert_func(std::move(funcargs));
     } catch (Symbol *previous) {
         add_error<SymbolAlrDecldError>(
-            std::format("function \"{}\" was previously declared", previous->get_name()), def_loc,
+            std::format("function \"{}\" was previously declared", previous->get_name()), node.declarator->loc,
             previous->get_loc());
         throw UnableToContinue();
     }
 
-    CmpdStmtDoVisitParam cmpdstmtp({sym_ptr, std::move(params)});
+    FuncBodyVisitParam cmpdstmtp({node.body.get(), std::move(params)});
 
-    // Then make call
-    dv_call(cmpdstmtp, node.body);
+    auto res = parse_function_body(std::move(cmpdstmtp));
 
-    auto res = take_last_result<CmpdStmtFromFuncRes>();
+    ECC_ASSERT_N(funcsym);
+    for (auto *insd_param : res.inserted_params) {
+        if (insd_param->has_value()) {
+            funcsym->add_default_param(insd_param, *insd_param->get_value());
+        } else {
+            funcsym->add_parameter(insd_param);
+        }
+    }
 
-    // If void function and no explicit return, insert one
+    res.funcscope->set_assoc(funcsym, true);
+
     if (functype->returntype()->is_void()) {
-        if (res.first->items.empty() || !isa<ReturnStmtMIR>(res.first->items.back())) {
-            res.first->add_item(make_chunk<ReturnStmtMIR>(Location()));
+        if (res.body->items.empty() || !isa<ReturnStmtMIR>(res.body->items.back())) {
+            res.body->add_item(make_chunk<ReturnStmtMIR>(Location(), res.funcscope));
         }
     }
 
     Chunk<FunctionMIR> func = make_chunk<FunctionMIR>(
-        node.loc, node.declarator->loc, sym_ptr, res.second, std::move(res.first));
+        node.loc, node.declarator->loc, funcsym, syms.current, res.funcscope, std::move(res.body));
 
     for (auto& attr : node.attributes) {
         dv_call(func.get(), attr);
@@ -444,10 +435,45 @@ void MIRSynthesizer::do_visit(Function& node) {
     dv_return(func);
 }
 
+CmpdStmtFromFuncRes MIRSynthesizer::parse_function_body(FuncBodyVisitParam params) {
+    syms.push_scope();
+
+    Vec<VarSymbol *> inserted_params;
+    for (auto& sym : params.params) {
+        inserted_params.push_back(syms.insert_var(std::move(sym)));
+    }
+
+    ArenaVec<Chunk<ProgItemMIR>> progitems;
+    for (auto& item : params.body->items) {
+        dv_call_noparam(item);
+        std::visit(
+            match{
+                [&](Chunk<DeclMIR>& decl) mutable { progitems.push_back(std::move(decl)); },
+                [&](Chunk<StmtMIR>& stmt) mutable { progitems.push_back(std::move(stmt)); },
+                [&](Chunk<FunctionMIR>& func) mutable { progitems.push_back(std::move(func)); },
+                [](std::monostate&) {
+                    // ignore and continue
+                },
+                [](auto&) {
+                    ECC_UNREACHABLE("unexpected type while parsing program items");
+                }},
+            last_result);
+        last_result = std::monostate{};
+    }
+
+    Scope *assoc_scope = syms.current;
+
+    syms.pop_scope();
+
+    Chunk<CompoundStmtMIR> cmpdmir =
+        make_chunk<CompoundStmtMIR>(params.body->loc, std::move(progitems), syms.current);
+    return { std::move(cmpdmir), assoc_scope, std::move(inserted_params)};
+}
+
 void MIRSynthesizer::do_visit(TypeDeclaration& node) {
     bsv_dbprint("visiting TypeDeclaration node: ", node.loc);
 
-    auto specinfo = parse_speclist(node.specifiers, node.loc);
+    auto specinfo = parse_speclist(node.specifiers, syms.current);
 
     if (specinfo.symbol) {
         TypeSymbol *symptr  = (*specinfo.symbol);
@@ -471,7 +497,7 @@ void MIRSynthesizer::do_visit(TypeDeclaration& node) {
 void MIRSynthesizer::do_visit(ConstexprDeclaration& node) {
     bsv_dbprint("visiting ConstexprDeclaration node: ", node.loc);
 
-    auto specinfo = parse_speclist(node.specifiers, node.loc);
+    auto specinfo = parse_speclist(node.specifiers, syms.current);
 
     ECC_ASSERT(specinfo.is_constexpr, "visiting ConstexprDeclaration but specinfo is not constexpr");
 
@@ -497,10 +523,6 @@ void MIRSynthesizer::do_visit(ConstexprDeclaration& node) {
 
         Type *symtype = types.get_const(ret.type);
 
-        if (specinfo.is_public && specinfo.is_static) {
-            add_error<EccSemError>("conflicting visibility specifiers", declarator->loc);
-        }
-
         eval::Value val;
         if (ret.init_mir) {
             val = parse_constexpr_init(**ret.init_mir, ret.type);
@@ -509,20 +531,13 @@ void MIRSynthesizer::do_visit(ConstexprDeclaration& node) {
             throw UnableToContinue();
         }
 
-        Box<VarSymbol> sym = make_box<VarSymbol>(declarator->loc, *ret.name, syms.current, symtype, val);
+        InsertVarArgs args {declarator->loc, *ret.name, symtype, val};
 
-        if (specinfo.is_public) {
-            sym->get_symdata()->set_visibility(Visibility::PUBLIC);
-        } else if (specinfo.is_static) {
-            sym->get_symdata()->set_visibility(Visibility::STATIC);
-        }
-
-        Location def_loc = sym->get_loc();
         try {
-            syms.insert(*ret.name, std::move(sym));
+            syms.insert_var(std::move(args));
         } catch (Symbol *existing) {
             add_error<SymbolAlrDecldError>(
-                std::format("symbol {} already previously declared", existing->get_name()), def_loc,
+                std::format("symbol {} already previously declared", existing->get_name()), declarator->loc,
                 existing->get_loc());
             throw UnableToContinue();
         }
@@ -595,11 +610,11 @@ Value MIRSynthesizer::parse_constexpr_init(InitializerMIR& init, Type *type) {
 void MIRSynthesizer::do_visit(VariableDeclaration& node) {
     bsv_dbprint("visiting VariableDeclaration node: ", node.loc);
 
-    auto specinfo = parse_speclist(node.specifiers, node.loc);
+    auto specinfo = parse_speclist(node.specifiers, syms.current);
 
     ECC_ASSERT(!specinfo.is_constexpr, "visiting VariableDeclaration but specinfo is constexpr");
 
-    Chunk<VarDeclMIR> var_decl = make_chunk<VarDeclMIR>(node.loc);
+    Chunk<VarDeclMIR> var_decl = make_chunk<VarDeclMIR>(node.loc, syms.current);
 
     for (auto& declarator : node.declarators) {
         // call accept on our declarator
@@ -624,10 +639,6 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
             symtype = types.get_const(symtype);
         }
 
-        if (specinfo.is_public && specinfo.is_static) {
-            add_error<EccSemError>("conflicting visibility specifiers", declarator->loc);
-        }
-
         if (symtype->is_function()) {
             // variable declaration with function type means this is a forward declaration of a
             // function
@@ -644,7 +655,7 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
                 throw UnableToContinue();
             }
 
-            if (specinfo.linkage_is_external() && syms.current != syms.global()) {
+            if (specinfo.linkage == sym::Linkage::EXTERNAL && syms.current != syms.global()) {
                 add_error<EccSemError>(
                     "extern function declaration must be at global scope", declarator->loc);
                 throw UnableToContinue();
@@ -668,34 +679,15 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
 
             dv_return(funcmir);
         } else {
-            // declare symbol and corresponding pointer
-            Box<VarSymbol> sym = nullptr;
-            VarSymbol *symptr  = nullptr;
 
-            sym    = make_box<VarSymbol>(declarator->loc, *ret.name, syms.current, symtype);
-            symptr = sym.get();
+            InsertVarArgs args = {declarator->loc, *ret.name, symtype, specinfo.linkage};
 
-            // populate other specifiers, and then insert into symbol table
-            if (specinfo.is_public) {
-                sym->get_symdata()->set_visibility(Visibility::PUBLIC);
-            } else if (specinfo.is_static) {
-                sym->get_symdata()->set_visibility(Visibility::STATIC);
-            }
-
-            sym->get_symdata()->set_linkage(specinfo.linkage);
-
-            if (sym->is_external() && syms.current != syms.global()) {
-                add_error<EccSemError>(
-                    "extern variable declaration must be at global scope", declarator->loc);
-                throw UnableToContinue();
-            }
-
-            Location def_loc = sym->get_loc();
+            VarSymbol *symptr = nullptr;
             try {
-                syms.insert(*ret.name, std::move(sym));
+                symptr = syms.insert_var(std::move(args));
             } catch (Symbol *existing) {
                 add_error<SymbolAlrDecldError>(
-                    std::format("symbol {} already previously declared", existing->get_name()), def_loc,
+                    std::format("symbol {} already previously declared", existing->get_name()), declarator->loc,
                     existing->get_loc());
                 throw UnableToContinue();
             }
@@ -725,32 +717,24 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
 
 Chunk<mir::FunctionMIR> MIRSynthesizer::parse_vardecl_func(
     VariableDeclaration& node, InitDecltrRet ret, SpecifierInfo specinfo, FunctionType *type) {
-    Box<FuncSymbol> funcsym = FuncSymbol::empty(node.loc, *ret.name, syms.current, type);
 
-    if (specinfo.is_public) {
-        funcsym->get_symdata()->set_visibility(Visibility::PUBLIC);
-    } else if (specinfo.is_static) {
-        funcsym->get_symdata()->set_visibility(Visibility::STATIC);
-    }
+    InsertFuncArgs args = {node.loc, *ret.name, type};
+    args.has_body = false;
+    args.linkage = specinfo.linkage;
+    args.langlink = specinfo.langlink;
 
-    funcsym->get_symdata()->set_linkage(specinfo.linkage);
-    if (specinfo.linkage == Linkage::EXTERNC) {
-        funcsym->get_symdata()->set_visibility(Visibility::EXTERNC);
-    }
-
-    Location def_loc    = funcsym->get_loc();
     FuncSymbol *funcptr = nullptr;
     try {
-        funcptr = syms.insert(*ret.name, std::move(funcsym));
+        funcptr = syms.insert_func(std::move(args));
     } catch (Symbol *existing) {
         add_error<SymbolAlrDecldError>(
-            std::format("symbol {} already previously declared", existing->get_name()), def_loc,
+            std::format("symbol {} already previously declared", existing->get_name()), node.loc,
             existing->get_loc());
         throw UnableToContinue();
     }
 
     Chunk<FunctionMIR> funcmir =
-        make_chunk<FunctionMIR>(node.loc, node.loc, funcptr, syms.current, nullptr);
+        make_chunk<FunctionMIR>(node.loc, node.loc, funcptr, syms.current, nullptr, nullptr);
 
     return funcmir;
 }
@@ -892,7 +876,7 @@ void MIRSynthesizer::do_visit(ParameterDeclaration& node) {
     last_result: FuncParam
     */
     bsv_dbprint("visiting ParameterDeclarator node: ", node.loc);
-    SpecifierInfo specinfo = parse_speclist(node.specifiers, node.loc);
+    SpecifierInfo specinfo = parse_speclist(node.specifiers, syms.current);
 
     FuncParam ret;
     if (node.declarator) {
@@ -1047,10 +1031,8 @@ void MIRSynthesizer::do_visit(EnumSpecifier& node) {
         bsv_dbprint("enum has name, inserting typesymbol if needed");
         TypeSymbol *enmsym = syms.lookup_type(*node.name, true);
         if (!enmsym) {
-            Box<TypeSymbol> sym =
-                std::make_unique<sym::TypeSymbol>(node.loc, *node.name, syms.current, enm);
-            retsym = sym.get();
-            syms.insert(*node.name, std::move(sym));
+            InsertTypeArgs args = {node.loc, *node.name, enm};
+            retsym = syms.insert_type(args);
         } else {
             retsym = enmsym;
         }
@@ -1110,14 +1092,17 @@ void MIRSynthesizer::do_visit(Enumerator& node) {
 
     value = value.pr_cast(enm->get_underlying()->get_primkind());
 
-    syms.insert(
-        node.name, std::make_unique<VarSymbol>(node.loc, node.name, syms.current, enm, value));
+    InsertVarArgs args = {node.loc, node.name, enm, value};
+
+    syms.insert_var(std::move(args));
 
     dv_return_void();
 }
 
 void MIRSynthesizer::do_visit(ClassSpecifier& node) {
     bsv_dbprint("visiting ClassSpecifier node: ", node.loc);
+
+    Scope *declared_scope = syms.current->get_outer();
     ClassType *cls = nullptr;
     try {
         if (node.name) {
@@ -1135,12 +1120,10 @@ void MIRSynthesizer::do_visit(ClassSpecifier& node) {
     // If class has name, compute symbol to add
     if (node.name) {
         bsv_dbprint("class has name, inserting typesymbol if needed");
-        TypeSymbol *clssym = syms.lookup_type(*node.name, true);
+        TypeSymbol *clssym = syms.lookup_type_from(declared_scope, *node.name, true);
         if (!clssym) {
-            Box<TypeSymbol> sym =
-                std::make_unique<sym::TypeSymbol>(node.loc, *node.name, syms.current, cls);
-            retsym = sym.get();
-            syms.insert(*node.name, std::move(sym));
+            InsertTypeArgs args = {node.loc, *node.name, cls};
+            retsym = syms.insert_type_at(declared_scope, args);
         } else {
             retsym = clssym;
         }
@@ -1200,6 +1183,8 @@ void MIRSynthesizer::do_visit(ClassSpecifier& node) {
 
 void MIRSynthesizer::do_visit(UnionSpecifier& node) {
     bsv_dbprint("visiting UnionSpecifier node ", node.loc);
+
+    Scope *declared_scope = syms.current->get_outer();
     UnionType *unn = nullptr;
     try {
         if (node.name) {
@@ -1217,12 +1202,12 @@ void MIRSynthesizer::do_visit(UnionSpecifier& node) {
     // If class has name, compute symbol to add
     if (node.name) {
         bsv_dbprint("union has name, inserting typesymbol if needed");
-        TypeSymbol *unnsym = syms.lookup_type(*node.name, true);
+        TypeSymbol *unnsym = syms.lookup_type_from(declared_scope, *node.name, true);
         if (!unnsym) {
-            Box<TypeSymbol> sym =
-                std::make_unique<sym::TypeSymbol>(node.loc, *node.name, syms.current, unn);
-            retsym = sym.get();
-            syms.insert(*node.name, std::move(sym));
+            InsertTypeArgs args = {node.loc, *node.name, unn};
+            // Use syms.current->get_outer(), because UnionSpecifier introduces a new scope,
+            // but we need the TypeSymbol to be bound to the outer scope.
+            retsym = syms.insert_type_at(declared_scope, args);
         } else {
             retsym = unnsym;
         }
@@ -1266,15 +1251,15 @@ void MIRSynthesizer::do_visit(ClassDeclaration& node) {
 
     // save our current param, as it may get clobbered while parsing specifiers
     RecordType *recordty   = take_dovisit_param<RecordType *>();
-    SpecifierInfo specinfo = parse_speclist(node.specifiers, node.loc);
+    SpecifierInfo specinfo = parse_speclist(node.specifiers, syms.current);
 
     if (specinfo.is_constexpr) {
         add_error<EccSemError>("member declarations cannot be marked constexpr", node.loc);
         throw UnableToContinue();
     }
 
-    if (specinfo.is_static) {
-        add_error<EccSemError>("member declarations cannot be marked static", node.loc);
+    if (specinfo.linkage != sym::Linkage::NONE) {
+        add_error<EccSemError>("member declarations cannot have linkage", node.loc);
         throw UnableToContinue();
     }
 
@@ -1505,7 +1490,7 @@ void MIRSynthesizer::do_visit(Initializer& node) { // NOLINT
 void MIRSynthesizer::do_visit(TypeName& node) {
     // dovisit_param: monostate
     // last_result: Type *
-    SpecifierInfo specinfo = parse_speclist(node.specifiers, node.loc);
+    SpecifierInfo specinfo = parse_speclist(node.specifiers, syms.current);
 
     if (node.declarator) {
         dv_call_noparam(*node.declarator);
@@ -1531,44 +1516,6 @@ void MIRSynthesizer::do_visit(TypeName& node) {
 
 void MIRSynthesizer::do_visit(CompoundStatement& node) {
     bsv_dbprint("visiting CompoundStatement node: ", node.loc);
-    CmpdStmtDoVisitParam add_symbols;
-
-    // There are three possible states for the params for CmpdStmt:
-    // the param is CmpdStmtDoVisitParam and has a value
-    // the param is CmpdStmtDoVisitParam and has no value
-    // the param is some other type
-    // Since do_visit on this node can be called outside of functions,
-    // having the param not be of the expected type is valid,
-    // we just don't use it.
-    std::visit(
-        match{
-            [&](CmpdStmtDoVisitParam& param) mutable {
-                // dbprint("CmpdStmtDoVisitParams found");
-                add_symbols = std::move(param);
-            },
-            [&](auto&) mutable {
-                // dbprint("No params found");
-                add_symbols = {};
-            }},
-        dovisit_param);
-
-    // Reset dovisit_param to monostate
-    dovisit_param = std::monostate{};
-
-    if (add_symbols) {
-        bsv_dbprint("CmpdStmtDoVisitParams found to have value, checking for function");
-        // check the immediate outer node is a function
-        ECC_ASSERT(in_node(ASTNode::NodeKind::FUNC) == 1,
-                   "received symbols to add when not in function");
-
-        // Tie the function symbol to our current scope
-        syms.tie_current_to(add_symbols.value().first);
-
-        // Add function argument symbols to our current scope
-        for (auto& sym : add_symbols.value().second) {
-            syms.insert(sym->get_name(), std::move(sym));
-        }
-    }
 
     ArenaVec<Chunk<ProgItemMIR>> progitems{};
     for (auto& item : node.items) {
@@ -1588,20 +1535,11 @@ void MIRSynthesizer::do_visit(CompoundStatement& node) {
         last_result = std::monostate{};
     }
 
-    // resolve our return value
-    if (add_symbols) {
-        // we had add_symbols, so we were called from function
-        Chunk<CompoundStmtMIR> cmpdmir =
-            make_chunk<CompoundStmtMIR>(node.loc, std::move(progitems));
-        VisitResult ret = std::pair(std::move(cmpdmir), syms.current);
+    Chunk<StmtMIR> cmpdmir = 
+        make_chunk<CompoundStmtMIR>(
+            node.loc, std::move(progitems), syms.current->get_outer());
 
-        dv_return(ret);
-    } else {
-
-        Chunk<StmtMIR> cmpdmir = make_chunk<CompoundStmtMIR>(node.loc, std::move(progitems));
-
-        dv_return(cmpdmir);
-    }
+    dv_return(cmpdmir);
 }
 
 void MIRSynthesizer::do_visit(ExpressionStatement& node) {
@@ -1620,7 +1558,7 @@ void MIRSynthesizer::do_visit(ExpressionStatement& node) {
             if (auto *str = std::get_if<StringRef>(&litexpr->value)) {
                 bsv_dbprint(
                     "found string literal inside ExpressionStatement, emitting PrintStmtMIR");
-                Chunk<StmtMIR> stmt = make_chunk<PrintStmtMIR>(node.loc, *str);
+                Chunk<StmtMIR> stmt = make_chunk<PrintStmtMIR>(node.loc, *str, syms.current);
                 dv_return(stmt);
             }
             break;
@@ -1652,7 +1590,7 @@ void MIRSynthesizer::do_visit(ExpressionStatement& node) {
         dv_return(stmt);
 
     } else {
-        Chunk<StmtMIR> stmt = make_chunk<ExprStmtMIR>(node.loc);
+        Chunk<StmtMIR> stmt = make_chunk<ExprStmtMIR>(node.loc, syms.current);
         dv_return(stmt);
     }
 }
@@ -1700,9 +1638,9 @@ void MIRSynthesizer::do_visit(DefaultStatement& node) {
 
 void MIRSynthesizer::do_visit(LabeledStatement& node) {
     bsv_dbprint("visiting LabeledStatement node: ", node.loc);
-    Box<LabelSymbol> label = std::make_unique<sym::LabelSymbol>(node.loc, node.label, syms.current);
-    LabelSymbol *labelptr  = label.get();
-    syms.insert(node.label, std::move(label));
+
+    InsertLabelArgs args = {node.loc, node.label};
+    LabelSymbol *labelptr = syms.insert_label(args);
     dv_call_noparam(node.statement);
 
     auto stmt = take_last_result<Chunk<StmtMIR>>();
@@ -1724,7 +1662,7 @@ void MIRSynthesizer::do_visit(PrintStatement& node) {
     }
 
     Chunk<StmtMIR> printstmt =
-        make_chunk<PrintStmtMIR>(node.loc, node.format_string, std::move(exprs));
+        make_chunk<PrintStmtMIR>(node.loc, node.format_string, syms.current, std::move(exprs));
 
     dv_return(printstmt);
 }
@@ -1793,9 +1731,11 @@ void MIRSynthesizer::do_visit(DoWhileStatement& node) {
 void MIRSynthesizer::do_visit(ForStatement& node) {
     bsv_dbprint("visiting ForStatement node: ", node.loc);
 
-    Chunk<LoopStmtMIR> loop = make_chunk<LoopStmtMIR>(node.loc, nullptr);
+    Chunk<LoopStmtMIR> loop = make_chunk<LoopStmtMIR>(node.loc, syms.current);
 
-    if (node.init.has_value()) {
+    syms.push_scope(); // introduce an implicit scope for the init variable
+
+    if (node.init) {
         std::visit(
             match{
                 [&](Chunk<Expression>& expr) {
@@ -1814,7 +1754,7 @@ void MIRSynthesizer::do_visit(ForStatement& node) {
             *node.init);
     }
 
-    if (node.condition.has_value()) {
+    if (node.condition) {
         dv_call_noparam(node.condition.value());
         Chunk<ExprMIR> cond = take_last_result<Chunk<ExprMIR>>();
         loop->condition     = std::move(cond);
@@ -1825,13 +1765,15 @@ void MIRSynthesizer::do_visit(ForStatement& node) {
 
     loop->body = std::move(body);
 
-    if (node.increment.has_value()) {
+    if (node.increment) {
         dv_call_noparam(node.increment.value());
         Chunk<ExprMIR> step_expr = take_last_result<Chunk<ExprMIR>>();
         Chunk<StmtMIR> step_stmt = make_chunk<ExprStmtMIR>(step_expr->loc, std::move(step_expr));
 
         loop->step = std::move(step_stmt);
     }
+
+    syms.pop_scope();
 
     Chunk<StmtMIR> stmt = std::move(loop);
     dv_return(stmt);
@@ -1840,28 +1782,28 @@ void MIRSynthesizer::do_visit(ForStatement& node) {
 void MIRSynthesizer::do_visit(GotoStatement& node) {
     bsv_dbprint("visiting GotoStatement node: ", node.loc);
 
-    Chunk<StmtMIR> stmt = make_chunk<GotoStmtMIR>(node.loc, node.target_label);
+    Chunk<StmtMIR> stmt = make_chunk<GotoStmtMIR>(node.loc, node.target_label, syms.current);
     dv_return(stmt);
 }
 
 void MIRSynthesizer::do_visit(BreakStatement& node) {
     bsv_dbprint("visiting BreakStatement node: ", node.loc);
 
-    Chunk<StmtMIR> stmt = make_chunk<BreakStmtMIR>(node.loc);
+    Chunk<StmtMIR> stmt = make_chunk<BreakStmtMIR>(node.loc, syms.current);
     dv_return(stmt);
 }
 
 void MIRSynthesizer::do_visit(ContinueStatement& node) {
     bsv_dbprint("visiting ContinueStatement node: ", node.loc);
 
-    Chunk<StmtMIR> stmt = make_chunk<ContStmtMIR>(node.loc);
+    Chunk<StmtMIR> stmt = make_chunk<ContStmtMIR>(node.loc, syms.current);
     dv_return(stmt);
 }
 
 void MIRSynthesizer::do_visit(ReturnStatement& node) {
     bsv_dbprint("visiting ReturnStatement node: ", node.loc);
 
-    Chunk<ReturnStmtMIR> retstmt = make_chunk<ReturnStmtMIR>(node.loc);
+    Chunk<ReturnStmtMIR> retstmt = make_chunk<ReturnStmtMIR>(node.loc, syms.current);
 
     if (node.return_value) {
         dv_call_noparam(*node.return_value);

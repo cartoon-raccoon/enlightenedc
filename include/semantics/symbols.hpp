@@ -64,6 +64,8 @@ public:
 
     Scope *get_scope() { return scope; }
 
+    void set_scope(Scope *sc) { scope = sc; }
+
     bool is_global() const { return global; }
 
     virtual bool is_physical() { return false; };
@@ -114,7 +116,9 @@ public:
     PhysicalSymbol(Kind kind, Location loc, StringRef name, Scope *scope)
         : Symbol(kind, loc, name, scope) {}
 
-    bool is_external() const { return symdata->get_linkage() != Linkage::INTERNAL; }
+    bool is_external() const { 
+        return symdata->get_linkage() != Linkage::INTERNAL && symdata->get_linkage() != Linkage::NONE;
+    }
 
     SymData *get_symdata() { return symdata.get(); }
 
@@ -126,8 +130,6 @@ public:
     const Rc<SymData>& get_symdata_rc() const { return symdata; }
 
     Linkage get_linkage() const { return symdata->get_linkage(); }
-
-    Visibility get_visibility() const { return symdata->get_visibility(); }
 
     PhysicalSymbol *as_physical() override { return this; }
 
@@ -308,6 +310,8 @@ public:
 
     FuncSymData *get_symdata() const { return dyncast<FuncSymData>(symdata.get()); }
 
+    LangLinkage get_lang_linkage() const { return get_symdata()->get_lang_linkage(); }
+
     types::FunctionType *get_signature() const { return get_symdata()->get_signature(); }
 
     size_t num_params() const { return parameters.size(); }
@@ -399,10 +403,8 @@ public:
     static bool classof(const Symbol *sym) { return sym->kind == Kind::LABEL; }
 };
 
-/*
-A scope within which symbols are defined.
-
-A scope stores symbols inside a translation unit.
+/**
+A class representing a lexical scoping level.
 */
 class Scope {
 public:
@@ -414,6 +416,12 @@ public:
     bool is_global() const { return idx_in_nested < 0; }
 
     bool has_assoc() const { return assoc != nullptr; }
+
+    void set_assoc(FuncSymbol *sym, bool override = false);
+
+    Scope *get_outer() { return outer; }
+
+    const Scope *get_outer() const { return outer; }
 
     FuncSymbol *get_assoc() const { return assoc; }
 
@@ -462,6 +470,64 @@ public:
     std::string to_string() const;
 };
 
+struct InsertVarArgs {
+    Location loc;
+    StringRef name;
+    types::Type *type;
+    Optional<eval::Value> val;
+    Linkage linkage = Linkage::NONE;
+
+    InsertVarArgs(Location loc, StringRef name, types::Type *type)
+        : loc(loc), name(name), type(type) {}
+
+    InsertVarArgs(Location loc, StringRef name, types::Type *type, const eval::Value& val)
+        : loc(loc), name(name), type(type), val(val) {}
+
+    InsertVarArgs(Location loc, StringRef name, types::Type *type, Linkage linkage)
+        : loc(loc), name(name), type(type), linkage(linkage) {}
+
+    InsertVarArgs(Location loc, StringRef name, types::Type *type, const eval::Value& val, Linkage linkage)
+        : loc(loc), name(name), type(type), val(val), linkage(linkage) {}
+};
+
+struct InsertFuncArgs {
+    Location loc;
+    StringRef name;
+    types::FunctionType *signature;
+    bool has_body = false;
+    Vec<VarSymbol *> parameters;
+    Linkage linkage = Linkage::NONE;
+    LangLinkage langlink = LangLinkage::NONE;
+
+    InsertFuncArgs(Location loc, StringRef name, types::FunctionType *signature)
+        : loc(loc), name(name), signature(signature) {}
+
+    InsertFuncArgs(Location loc, StringRef name, types::FunctionType *signature,
+                   Linkage linkage)
+        : loc(loc), name(name), signature(signature), linkage(linkage) {}
+
+    InsertFuncArgs(Location loc, StringRef name, types::FunctionType *signature,
+                   LangLinkage langlink)
+        : loc(loc), name(name), signature(signature), linkage(Linkage::EXTERNAL), langlink(langlink) {}
+};
+
+struct InsertTypeArgs {
+    Location loc;
+    StringRef name;
+    types::BaseType *type;
+
+    InsertTypeArgs(Location loc, StringRef name, types::BaseType *type)
+        : loc(loc), name(name), type(type) {}
+};
+
+struct InsertLabelArgs {
+    Location loc;
+    StringRef name;
+
+    InsertLabelArgs(Location loc, StringRef name)
+        : loc(loc), name(name) {}
+};
+
 /**
 A Walker for the Symbol Table.
 */
@@ -477,7 +543,7 @@ public:
 
     SymbolTableWalker(const SymbolTable&& stw) = delete; // fixme: implement
 
-    Scope *current;
+    mutable Scope *current;
 
     Scope *global() const { return st.get().global.get(); }
 
@@ -504,9 +570,15 @@ public:
 
     VarSymbol *lookup_var(StringRef sym, bool current = false) const;
 
+    VarSymbol *lookup_var_from(Scope *from, StringRef sym, bool current = false) const;
+
     FuncSymbol *lookup_func(StringRef sym, bool current = false) const;
 
+    FuncSymbol *lookup_func_from(Scope *from, StringRef sym, bool current = false) const;
+
     TypeSymbol *lookup_type(StringRef sym, bool current = false) const;
+
+    TypeSymbol *lookup_type_from(Scope *from, StringRef sym, bool current = false) const;
 
     /**
     Look up a label from Scope `from`, up to the first function scope.
@@ -517,22 +589,49 @@ public:
     */
     LabelSymbol *lookup_label(StringRef sym, bool current = false) const;
 
+    LabelSymbol *lookup_label_from(Scope *from, StringRef sym, bool current = false) const;
+
     // Associate the current scope with the given FuncSymbol `sym`.
     // If current scope is already tied to a symbol, replaces it
     // with the new one depending on value of `override`.
     void tie_current_to(FuncSymbol *sym, bool override = false) const;
 
-    // Add a new symbol to the current scope.
-    // Returns a pointer to the inserted symbol for further use.
-    // If a symbol with the same name already exists in the current scope,
-    // It throws a Location where the symbol was previously defined.
-    VarSymbol *insert(StringRef name, Box<VarSymbol> sym) const;
+    /** 
+    Add a new symbol to the current scope.
 
-    FuncSymbol *insert(StringRef name, Box<FuncSymbol> sym) const;
+    Returns a pointer to the inserted symbol for further use.
+    If a symbol with the same name already exists in the current scope,
+    It throws a Location where the symbol was previously defined.
+    */
+    VarSymbol *insert_var(InsertVarArgs args) const;
 
-    TypeSymbol *insert(StringRef name, Box<TypeSymbol> sym) const;
+    /** 
+    Add a new symbol at the specified scope.
+    
+    Returns a pointer to the inserted symbol for further use.
+    If a symbol with the same name already exists in the current scope,
+    It throws a Location where the symbol was previously defined.
+    */
+    VarSymbol *insert_var_at(Scope *at, InsertVarArgs args) const;
 
-    LabelSymbol *insert(StringRef name, Box<LabelSymbol> sym) const;
+    /** 
+    Add a new symbol at the current scope.
+    
+    Returns a pointer to the inserted symbol for further use.
+    If a symbol with the same name already exists in the current scope,
+    It throws a Location where the symbol was previously defined.
+    */
+    FuncSymbol *insert_func(InsertFuncArgs args) const;
+
+    FuncSymbol *insert_func_at(Scope *at, InsertFuncArgs args) const;
+
+    TypeSymbol *insert_type(InsertTypeArgs args) const;
+
+    TypeSymbol *insert_type_at(Scope *at, InsertTypeArgs args) const;
+
+    LabelSymbol *insert_label(InsertLabelArgs args) const;
+
+    LabelSymbol *insert_label_at(Scope *at, InsertLabelArgs args) const;
 
 private:
     // The ID to assign to the next scope.

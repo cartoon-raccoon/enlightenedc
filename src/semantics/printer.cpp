@@ -2,6 +2,7 @@
 #include <sstream>
 
 #include "semantics/symbols.hpp"
+#include "semantics/symdata.hpp"
 #include "semantics/types.hpp"
 #include "tokens.hpp"
 #include "prelude.hpp"
@@ -25,12 +26,6 @@ std::string VarSymbol::to_string() const {
     if (get_symdata()->get_linkage() == Linkage::EXTERNAL)
         ss << " extern";
 
-    if (get_symdata()->get_linkage() == Linkage::EXTERNC)
-        ss << " extern C";
-
-    if (get_symdata()->get_visibility() == Visibility::PUBLIC)
-        ss << " public";
-
     return ss.str();
 }
 
@@ -45,11 +40,12 @@ std::string FuncSymbol::to_string() const {
         ss << " :: <nullsig>";
     }
 
-    if (get_linkage() == Linkage::EXTERNC)
-        ss << " extern C";
+    if (get_linkage() == Linkage::EXTERNAL)
+        ss << " extern";
 
-    if (get_visibility() == Visibility::PUBLIC)
-        ss << " public";
+    if (get_lang_linkage() == LangLinkage::C) {
+        ss << " C";
+    }
 
     return ss.str();
 }

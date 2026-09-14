@@ -51,7 +51,12 @@ void ASTPrinter::visit(Function& node) {
             for (auto& spec : node.decl_spec_list)
                 spec->accept(*this);
         },
-        [&] { node.declarator->accept(*this); }, [&] { node.body->accept(*this); });
+        [&] { node.declarator->accept(*this); }, 
+        [&] {
+            for (auto& item : node.body->items) {
+                item->accept(*this);
+            }
+        });
 }
 
 void ASTPrinter::visit(CompoundStatement& node) {

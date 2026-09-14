@@ -140,7 +140,7 @@ Value *CFGBuilder::add_or_get_local(lir::LIRVarSym *sym, Value *init) {
     ECC_ASSERT_N(!sym->is_global());
 
     Value *ret;
-    if (sym->get_symdata()->get_visibility() == Visibility::STATIC) {
+    if (sym->get_symdata()->get_linkage() == Linkage::INTERNAL) {
         std::string name = sym->function->get_name() + "." + sym->get_name();
         ret      = prog_cfg.add_global(sym->get_type(), name, init);
     } else {

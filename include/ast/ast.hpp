@@ -1086,6 +1086,9 @@ public:
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::LIT_EXPR; }
 };
 
+/**
+A string literal expression.
+*/
 class StringExpression : public ASTVisitable<StringExpression, Expression> {
 public:
     StringExpression(Location loc, StringRef value)
@@ -1196,6 +1199,15 @@ public:
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::SIZEOF_EXPR; }
 };
 
+class FunctionBody {
+public:
+    FunctionBody(Chunk<CompoundStatement> stmt)
+        : loc(stmt->loc), items(std::move(stmt->items)) {}
+
+    Location loc;
+    ds::ArenaVec<Chunk<ProgramItem>> items;
+};
+
 class Function : public ASTVisitable<Function, ProgramItem> {
 public:
     Function(
@@ -1203,11 +1215,11 @@ public:
         Chunk<Declarator> declarator, Chunk<CompoundStatement> body)
         : ASTVisitable<Function, ProgramItem>(NodeKind::FUNC, loc),
           decl_spec_list(std::move(decl_spec_list)), declarator(std::move(declarator)),
-          body(std::move(body)) {}
+          body(make_chunk<FunctionBody>(std::move(body))) {}
 
     Function(Location loc, Chunk<Declarator> declarator, Chunk<CompoundStatement> body)
         : ASTVisitable<Function, ProgramItem>(NodeKind::FUNC, loc),
-          declarator(std::move(declarator)), body(std::move(body)) {}
+          declarator(std::move(declarator)), body(make_chunk<FunctionBody>(std::move(body))) {}
 
     /*
     Any possible specifiers (e.g. public, int, etc.)
@@ -1218,7 +1230,7 @@ public:
     Note: If the declarator contains a pointer, the pointer applies to its return type.
     */
     Chunk<Declarator> declarator;
-    Chunk<CompoundStatement> body;
+    Chunk<FunctionBody> body;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::FUNC; }
 };

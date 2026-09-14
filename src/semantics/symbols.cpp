@@ -128,6 +128,17 @@ bool FuncSymbol::params_well_ordered() const {
         parameters, [](const VarSymbol *p) { return !p->has_value(); });
 }
 
+void Scope::set_assoc(FuncSymbol *sym, bool override) {
+    dbprint("Scope: ", id, " associating with symbol name \"", sym->get_name(), "\"");
+    if (assoc != nullptr) {
+        if (override) {
+            assoc = sym;
+        }
+    } else {
+        assoc = sym;
+    }
+}
+
 void SymbolTable::clear() {
     // todo
 }
@@ -230,6 +241,16 @@ VarSymbol *SymbolTableWalker::lookup_var(StringRef sym, bool current_only) const
     return my_current->phys_symbols.find(sym)->second->as_varsym();
 }
 
+VarSymbol *SymbolTableWalker::lookup_var_from(Scope *from, StringRef sym, bool current_only) const {
+    Scope *saved = current;
+    current = from;
+
+    VarSymbol *ret = lookup_var(sym, current_only);
+
+    current = saved;
+    return ret;
+}
+
 FuncSymbol *SymbolTableWalker::lookup_func(StringRef sym, bool current_only) const {
     Scope *my_current = current;
     if (current_only) {
@@ -258,6 +279,16 @@ FuncSymbol *SymbolTableWalker::lookup_func(StringRef sym, bool current_only) con
     return my_current->phys_symbols.find(sym)->second->as_funcsym();
 }
 
+FuncSymbol *SymbolTableWalker::lookup_func_from(Scope *from, StringRef sym, bool current_only) const {
+    Scope *saved = current;
+    current = from;
+
+    FuncSymbol *ret = lookup_func(sym, current_only);
+
+    current = saved;
+    return ret;
+}
+
 TypeSymbol *SymbolTableWalker::lookup_type(StringRef sym, bool current_only) const {
     Scope *my_current = current;
     if (current_only) {
@@ -284,6 +315,16 @@ TypeSymbol *SymbolTableWalker::lookup_type(StringRef sym, bool current_only) con
     }
 
     return my_current->type_symbols.find(sym)->second.get();
+}
+
+TypeSymbol *SymbolTableWalker::lookup_type_from(Scope *from, StringRef sym, bool current_only) const {
+    Scope *saved = current;
+    current = from;
+
+    TypeSymbol *ret = lookup_type(sym, current_only);
+
+    current = saved;
+    return ret;
 }
 
 LabelSymbol *SymbolTableWalker::lookup_label(StringRef sym, bool current_only) const {
@@ -325,43 +366,66 @@ LabelSymbol *SymbolTableWalker::lookup_label(StringRef sym, bool current_only) c
     return my_current->label_symbols.find(sym)->second.get();
 }
 
-void SymbolTableWalker::tie_current_to(FuncSymbol *sym, bool override) const {
-    dbprint(
-        "SymbolTable: associating current scope ", current->id, " with symbol name \"", sym->get_name(),
-        "\"");
-    if (current->assoc != nullptr) {
-        if (override) {
-            current->assoc = sym;
-        }
-    } else {
-        current->assoc = sym;
-    }
+LabelSymbol *SymbolTableWalker::lookup_label_from(Scope *from, StringRef sym, bool current_only) const {
+    Scope *saved = current;
+    current = from;
+
+    LabelSymbol *ret = lookup_label(sym, current_only);
+
+    current = saved;
+    return ret;
 }
 
-VarSymbol *SymbolTableWalker::insert(StringRef name, Box<VarSymbol> sym) const {
-    dbprint("SymbolTable: inserting varsymbol with name \"", name, "\"");
-    if (current->phys_symbols.contains(name)) {
-        dbprint("SymbolTable: varsymbol with name ", name, " already exists");
-        Symbol *existing = current->phys_symbols.find(name)->second.get();
+void SymbolTableWalker::tie_current_to(FuncSymbol *sym, bool override) const {
+    current->set_assoc(sym, override);
+}
+
+VarSymbol *SymbolTableWalker::insert_var(InsertVarArgs args) const {
+    dbprint("SymbolTable: inserting varsymbol with name \"", args.name, "\"");
+    if (current->phys_symbols.contains(args.name)) {
+        dbprint("SymbolTable: varsymbol with name ", args.name, " already exists");
+        Symbol *existing = current->phys_symbols.find(args.name)->second.get();
         throw existing;
     }
+    // override
+    auto sym = make_box<VarSymbol>(args.loc, args.name, current, args.type);
+    if (args.val) {
+        sym->set_value(*args.val);
+    }
+    sym->get_symdata()->set_linkage(args.linkage);
     VarSymbol *ret = sym.get();
-    current->phys_symbols.insert_or_assign(std::string(name), std::move(sym));
+    current->phys_symbols.insert_or_assign(args.name.str(), std::move(sym));
 
     return ret;
 }
 
-FuncSymbol *SymbolTableWalker::insert(StringRef name, Box<FuncSymbol> sym) const {
-    dbprint("SymbolTable: inserting funcsymbol with name \"", name, "\"");
-    if (current->phys_symbols.contains(name)) {
-        dbprint("SymbolTable: symbol with name ", name, " already exists");
+VarSymbol *SymbolTableWalker::insert_var_at(Scope *at, InsertVarArgs args) const {
+    Scope *saved = current;
+    current = at;
+    VarSymbol *ret;
+    try {
+        ret = insert_var(std::move(args));
+    } catch (Symbol *existing) {
+        current = saved;
+        throw existing;
+    }
 
-        PhysicalSymbol *existing = current->phys_symbols.find(name)->second.get();
+    current = saved;
+    return ret;
+}
 
+FuncSymbol *SymbolTableWalker::insert_func(InsertFuncArgs args) const {
+    dbprint("SymbolTable: inserting funcsymbol with name \"", args.name, "\"");
+    if (current->phys_symbols.contains(args.name)) {
+        dbprint("SymbolTable: symbol with name ", args.name, " already exists");
+
+        PhysicalSymbol *existing = current->phys_symbols.find(args.name)->second.get();
+
+        // If the existing symbol is a function, attempt reconciliation
         if (existing->get_type()->is_function()) {
             dbprint("SymbolTable: existing symbol has function type, checking for replaceability");
             FunctionType *othertype = existing->get_type()->as_function();
-            FunctionType *mytype    = sym->get_type()->as_function();
+            FunctionType *mytype    = args.signature;
             if (!othertype || !mytype) {
                 dbprint("SymbolTable: could not cast othertype or mytype to FunctionType");
                 goto exists;
@@ -372,18 +436,17 @@ FuncSymbol *SymbolTableWalker::insert(StringRef name, Box<FuncSymbol> sym) const
                     "reconciliation");
                 FuncSymbol *existfunc = existing->as_funcsym();
                 ECC_ASSERT_N(existfunc);
-                if (!existfunc->has_body() && sym->has_body()) {
+                if (!existfunc->has_body() && args.has_body) {
                     // existing is decl, new sym is def
 
-                    if (existfunc->is_external()) {
-                        goto exists;
+                    existfunc->set_body();
+                    existfunc->parameters = std::move(args.parameters);
+                    for (auto *param : existfunc->parameters) {
+                        param->set_funcparam(true);
                     }
 
-                    existfunc->set_body();
-                    existfunc->parameters = std::move(sym->parameters);
-
                     return existfunc;
-                } else if (existfunc->has_body() && sym->has_body()) {
+                } else if (existfunc->has_body() && args.has_body) {
                     // existing is def, new sym is def
 
                     goto exists;
@@ -400,34 +463,86 @@ FuncSymbol *SymbolTableWalker::insert(StringRef name, Box<FuncSymbol> sym) const
     exists:
         throw (Symbol *)existing;
     }
+    auto sym = make_box<FuncSymbol>(args.loc, args.name, current, args.signature, std::move(args.parameters));
+    sym->has_body_ = args.has_body;
+    sym->get_symdata()->set_linkage(args.linkage);
+    sym->get_symdata()->set_lang_linkage(args.langlink);
     FuncSymbol *ret = sym.get();
-    current->phys_symbols.insert_or_assign(std::string(name), std::move(sym));
+    current->phys_symbols.insert_or_assign(args.name.str(), std::move(sym));
 
     return ret;
 }
 
-TypeSymbol *SymbolTableWalker::insert(StringRef name, Box<TypeSymbol> sym) const {
-    dbprint("SymbolTable: inserting typesymbol with name \"", name, "\"");
-    if (current->type_symbols.contains(name)) {
-        dbprint("SymbolTable: typesymbol with name ", name, " already exists");
-        Symbol *existing = current->type_symbols.find(name)->second.get();
+FuncSymbol *SymbolTableWalker::insert_func_at(Scope *at, InsertFuncArgs args) const {
+    Scope *saved = current;
+    current = at;
+    FuncSymbol *ret;
+    try {
+        ret = insert_func(std::move(args));
+    } catch (Symbol *existing) {
+        current = saved;
         throw existing;
     }
+
+    current = saved;
+    return ret;
+}
+
+TypeSymbol *SymbolTableWalker::insert_type(InsertTypeArgs args) const {
+    dbprint("SymbolTable: inserting typesymbol with name \"", args.name, "\"");
+    if (current->type_symbols.contains(args.name)) {
+        dbprint("SymbolTable: typesymbol with name ", args.name, " already exists");
+        Symbol *existing = current->type_symbols.find(args.name)->second.get();
+        throw existing;
+    }
+
+    auto sym = make_box<TypeSymbol>(args.loc, args.name, current, args.type);
     TypeSymbol *ret = sym.get();
-    current->type_symbols.insert_or_assign(std::string(name), std::move(sym));
+    current->type_symbols.insert_or_assign(args.name.str(), std::move(sym));
 
     return ret;
 }
 
-LabelSymbol *SymbolTableWalker::insert(StringRef name, Box<LabelSymbol> sym) const {
-    dbprint("SymbolTable: inserting labelsymbol with name \"", name, "\"");
-    if (current->label_symbols.contains(name)) {
-        dbprint("SymbolTable: labelsymbol with name ", name, " already exists");
-        Symbol *existing = current->label_symbols.find(name)->second.get();
+TypeSymbol *SymbolTableWalker::insert_type_at(Scope *at, InsertTypeArgs args) const {
+    Scope *saved = current;
+    current = at;
+    TypeSymbol *ret;
+    try {
+        ret = insert_type(args);
+    } catch (Symbol *existing) {
+        current = saved;
         throw existing;
     }
-    LabelSymbol *ret = sym.get();
-    current->label_symbols.insert_or_assign(std::string(name), std::move(sym));
 
+    current = saved;
+    return ret;
+}
+
+LabelSymbol *SymbolTableWalker::insert_label(InsertLabelArgs args) const {
+    dbprint("SymbolTable: inserting labelsymbol with name \"", args.name, "\"");
+    if (current->label_symbols.contains(args.name)) {
+        dbprint("SymbolTable: labelsymbol with name ", args.name, " already exists");
+        Symbol *existing = current->label_symbols.find(args.name)->second.get();
+        throw existing;
+    }
+    auto sym = make_box<LabelSymbol>(args.loc, args.name, current);
+    LabelSymbol *ret = sym.get();
+    current->label_symbols.insert_or_assign(args.name.str(), std::move(sym));
+
+    return ret;
+}
+
+LabelSymbol *SymbolTableWalker::insert_label_at(Scope *at, InsertLabelArgs args) const {
+    Scope *saved = current;
+    current = at;
+    LabelSymbol *ret;
+    try {
+        ret = insert_label(args);
+    } catch (Symbol *existing) {
+        current = saved;
+        throw existing;
+    }
+
+    current = saved;
     return ret;
 }

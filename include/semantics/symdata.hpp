@@ -13,28 +13,17 @@ namespace ecc::sema::sym {
 
 // The linkage of the symbol.
 enum class Linkage : uint8_t {
-    // The symbol is defined within this translation unit.
+    // The symbol has no linkage.
+    NONE,
+    // The symbol has internal linkage.
     INTERNAL,
-    // The symbol is defined from another EnlightenedC object file.
+    // The symbol has external linkage.
     EXTERNAL,
-    // The symbol is defined from another C object file, and so must follow cdecl.
-    EXTERNC,
 };
 
-enum class Visibility : uint8_t {
-    /**
-    The symbol has static visibility, the semantics of which depend on scope
-    and symbol type.
-
-    If the symbol is a non-global variable, it is given static storage duration.
-    If the symbol is a global function or variable, it is not visible inside the generated
-    object's symbol table.
-    */
-    STATIC,
-    // The symbol is visible outside this translation unit.
-    PUBLIC,
-    // The symbol is visible outside this translation unit, with C linkage.
-    EXTERNC,
+enum class LangLinkage : uint8_t {
+    NONE, // The symbol has no language linkage.
+    C, // The symbol has "C" language linkage.
 };
 
 class VarSymData;
@@ -52,12 +41,7 @@ class SymData {
     /**
     The linkage of the symbol.
     */
-    Linkage linkage = Linkage::INTERNAL;
-
-    /**
-    The visibility of the symbol.
-    */
-    Visibility visibility = Visibility::PUBLIC;
+    Linkage linkage = Linkage::NONE;
 
     Optional<std::string> link_name;
 
@@ -70,8 +54,8 @@ public:
 
     SymData(Kind kind, StringRef name) : name(name), kind(kind) {}
 
-    SymData(Kind kind, StringRef name, Linkage linkage, Visibility visibility)
-        : name(name), linkage(linkage), visibility(visibility), kind(kind) {}
+    SymData(Kind kind, StringRef name, Linkage linkage)
+        : name(name), linkage(linkage), kind(kind) {}
 
     SymData(const SymData& sd) = default;
 
@@ -80,10 +64,6 @@ public:
     Linkage get_linkage() { return linkage; }
 
     void set_linkage(Linkage linkage) { this->linkage = linkage; }
-
-    Visibility get_visibility() { return visibility; }
-
-    void set_visibility(Visibility visibility) { this->visibility = visibility; }
 
     const std::string& get_name() const { return name; }
 
@@ -107,8 +87,8 @@ class VarSymData : public SymData {
 public:
     VarSymData(StringRef name, types::Type *type) : SymData(Kind::VAR, name), type(type) {}
 
-    VarSymData(StringRef name, Linkage linkage, Visibility visibility, types::Type *type)
-        : SymData(Kind::VAR, name, linkage, visibility), type(type) {}
+    VarSymData(StringRef name, Linkage linkage, types::Type *type)
+        : SymData(Kind::VAR, name, linkage), type(type) {}
 
     types::Type *get_type() { return type; }
 
@@ -122,6 +102,8 @@ class FuncSymData : public SymData {
     The signature of the function symbol.
     */
     types::FunctionType *signature;
+
+    LangLinkage langlink = LangLinkage::NONE;
 
     /**
     Whether this function symbol is the entry point for this object file.
@@ -138,12 +120,16 @@ public:
         : SymData(Kind::FUNC, name), signature(signature) {}
 
     FuncSymData(
-        StringRef name, Linkage linkage, Visibility visibility,
+        StringRef name, Linkage linkage,
         types::FunctionType *signature, bool is_main = false)
-        : SymData(Kind::FUNC, name, linkage, visibility), signature(signature),
+        : SymData(Kind::FUNC, name, linkage), signature(signature),
           main_function(is_main) {}
 
     types::FunctionType *get_signature() { return signature; }
+
+    void set_lang_linkage(LangLinkage langlink) { this->langlink = langlink; }
+
+    LangLinkage get_lang_linkage() { return langlink; }
 
     bool is_main() const { return main_function; }
 

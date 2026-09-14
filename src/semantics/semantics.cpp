@@ -117,8 +117,8 @@ DO_VISIT(BaseASTSemaVisitor, TypeQualifier);
 // no enter scope here, enumerators are scoped to the scope in which
 // their corresponding enum is declared.
 DO_VISIT(BaseASTSemaVisitor, EnumSpecifier);
-DO_VISIT(BaseASTSemaVisitor, ClassSpecifier);
-DO_VISIT(BaseASTSemaVisitor, UnionSpecifier);
+DO_SCOPED_VISIT(BaseASTSemaVisitor, ClassSpecifier);
+DO_SCOPED_VISIT(BaseASTSemaVisitor, UnionSpecifier);
 DO_VISIT(BaseASTSemaVisitor, Initializer);
 DO_VISIT(BaseASTSemaVisitor, TypeName);
 DO_VISIT(BaseASTSemaVisitor, IdentifierDeclarator);
@@ -133,14 +133,10 @@ DO_STMT_VISIT(BaseASTSemaVisitor, LabeledStatement);
 DO_STMT_VISIT(BaseASTSemaVisitor, PrintStatement);
 DO_STMT_VISIT(BaseASTSemaVisitor, IfStatement);
 DO_STMT_VISIT(BaseASTSemaVisitor, SwitchStatement);
-// loops are scoped because they canonicalize into a single LoopStmtMIR,
-// and for loop introduces a new scope, so they must all be scoped
-// to ensure correct replay of the scope tree when walking the symbol table.
-DO_STMT_SCOPED_VISIT(BaseASTSemaVisitor, WhileStatement);
-DO_STMT_SCOPED_VISIT(BaseASTSemaVisitor, DoWhileStatement);
-// for loops introduce a new scope since the init portion
-// of the loop might declare a new variable.
-DO_STMT_SCOPED_VISIT(BaseASTSemaVisitor, ForStatement);
+
+DO_STMT_VISIT(BaseASTSemaVisitor, WhileStatement);
+DO_STMT_VISIT(BaseASTSemaVisitor, DoWhileStatement);
+DO_STMT_VISIT(BaseASTSemaVisitor, ForStatement);
 DO_STMT_VISIT(BaseASTSemaVisitor, GotoStatement);
 DO_STMT_VISIT(BaseASTSemaVisitor, BreakStatement);
 DO_STMT_VISIT(BaseASTSemaVisitor, ContinueStatement);
@@ -191,7 +187,10 @@ void BaseASTSemaVisitor::do_visit(Function& node) {
     }
 
     node.declarator->accept(*this);
-    node.body->accept(*this);
+
+    for (auto& item : node.body->items) {
+        item->accept(*this);
+    }
 }
 
 void BaseASTSemaVisitor::do_visit(TypeDeclaration& node) {

@@ -1,11 +1,12 @@
 #include "typesys_symtab_fix.hpp"
 
-// Helper: build a FuncSymbol in the walker's current scope.
+// Helper: build a defined (has_body == true) FuncSymbol in the walker's current scope.
 static FuncSymbol *insert_func(
     SymbolTableWalker& walker, TypeContext& tctxt, const Location& LOC, const std::string& name) {
     FunctionType *fn_type = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
-    auto sym = std::make_unique<FuncSymbol>(LOC, name, walker.current, fn_type, Vec<VarSymbol *>{});
-    return walker.insert(name, std::move(sym));
+    InsertFuncArgs args = {LOC, name, fn_type};
+    args.has_body = true;
+    return walker.insert_func(std::move(args));
 }
 
 // ─── Scope navigation ────────────────────────────────────────────────────────
@@ -100,7 +101,7 @@ TEST_F(TypeSysAndSymTabTestFixture, Scope_FreshWalkerCanReplayWithEnterScope) {
 TEST_F(TypeSysAndSymTabTestFixture, VarInsert_FoundByLookup) {
     SymbolTableWalker walker(symtab);
     std::string name = "myVar";
-    walker.insert(name, std::make_unique<VarSymbol>(LOC, name, walker.current, tctxt.get_u32()));
+    walker.insert_var({LOC, name, tctxt.get_u32()});
 
     VarSymbol *found = walker.lookup_var(name);
     ASSERT_NE(found, nullptr);
@@ -111,8 +112,7 @@ TEST_F(TypeSysAndSymTabTestFixture, VarInsert_FoundByLookup) {
 TEST_F(TypeSysAndSymTabTestFixture, VarInsert_GlobalScopeSetsIsGlobal) {
     SymbolTableWalker walker(symtab);
     std::string name = "globalVar";
-    VarSymbol *sym =
-        walker.insert(name, std::make_unique<VarSymbol>(LOC, name, walker.current, tctxt.get_u32()));
+    VarSymbol *sym = walker.insert_var({LOC, name, tctxt.get_u32()});
 
     EXPECT_TRUE(sym->is_global());
 }
@@ -122,8 +122,7 @@ TEST_F(TypeSysAndSymTabTestFixture, VarInsert_NestedScopeIsNotGlobal) {
     SymbolTableWalker walker(symtab);
     walker.push_scope();
     std::string name = "localVar";
-    VarSymbol *sym =
-        walker.insert(name, std::make_unique<VarSymbol>(LOC, name, walker.current, tctxt.get_u32()));
+    VarSymbol *sym = walker.insert_var({LOC, name, tctxt.get_u32()});
 
     EXPECT_FALSE(sym->is_global());
 }
@@ -132,22 +131,19 @@ TEST_F(TypeSysAndSymTabTestFixture, VarInsert_NestedScopeIsNotGlobal) {
 TEST_F(TypeSysAndSymTabTestFixture, VarInsert_DuplicateNameThrows) {
     SymbolTableWalker walker(symtab);
     std::string name = "dupVar";
-    walker.insert(name, std::make_unique<VarSymbol>(LOC, name, walker.current, tctxt.get_u32()));
+    walker.insert_var({LOC, name, tctxt.get_u32()});
 
-    EXPECT_THROW(
-        walker.insert(name, std::make_unique<VarSymbol>(LOC, name, walker.current, tctxt.get_u32())),
-        Symbol *);
+    EXPECT_THROW(walker.insert_var({LOC, name, tctxt.get_u32()}), Symbol *);
 }
 
 // Inserting the same name in two different scopes does not throw.
 TEST_F(TypeSysAndSymTabTestFixture, VarInsert_SameNameDifferentScopesIsOk) {
     SymbolTableWalker walker(symtab);
     std::string name = "x";
-    walker.insert(name, std::make_unique<VarSymbol>(LOC, name, walker.current, tctxt.get_u32()));
+    walker.insert_var({LOC, name, tctxt.get_u32()});
 
     walker.push_scope();
-    EXPECT_NO_THROW(
-        walker.insert(name, std::make_unique<VarSymbol>(LOC, name, walker.current, tctxt.get_u32())));
+    EXPECT_NO_THROW(walker.insert_var({LOC, name, tctxt.get_u32()}));
 }
 
 // ─── FuncSymbol insertion and lookup ────────────────────────────────────────
@@ -170,11 +166,13 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_DifferentSignatureThrows) {
     FunctionType *fn_u32 = tctxt.get_function(LOC, tctxt.get_u32(), {}, false);
     std::string name = "g";
 
-    auto sym1 = std::make_unique<FuncSymbol>(LOC, name, walker.current, fn_void, Vec<VarSymbol *>{});
-    walker.insert(name, std::move(sym1));
+    InsertFuncArgs args1 = {LOC, name, fn_void};
+    args1.has_body = true;
+    walker.insert_func(std::move(args1));
 
-    auto sym2 = std::make_unique<FuncSymbol>(LOC, name, walker.current, fn_u32, Vec<VarSymbol *>{});
-    EXPECT_THROW(walker.insert(name, std::move(sym2)), Symbol *)
+    InsertFuncArgs args2 = {LOC, name, fn_u32};
+    args2.has_body = true;
+    EXPECT_THROW(walker.insert_func(std::move(args2)), Symbol *)
         << "FuncSymbol with a different signature should throw on duplicate name";
 }
 
@@ -188,13 +186,13 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_DeclThenDefUpgradesInPlace) {
     FunctionType *fn_type = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
     std::string name = "f";
 
-    FuncSymbol *decl_ptr =
-        walker.insert(name, FuncSymbol::empty(LOC, name, walker.current, fn_type));
+    FuncSymbol *decl_ptr = walker.insert_func({LOC, name, fn_type}); // has_body defaults to false
     ASSERT_FALSE(decl_ptr->has_body());
 
-    auto def = std::make_unique<FuncSymbol>(LOC, name, walker.current, fn_type, Vec<VarSymbol *>{});
+    InsertFuncArgs def_args = {LOC, name, fn_type};
+    def_args.has_body = true;
     FuncSymbol *def_ptr = nullptr;
-    EXPECT_NO_THROW(def_ptr = walker.insert(name, std::move(def)));
+    EXPECT_NO_THROW(def_ptr = walker.insert_func(std::move(def_args)));
 
     EXPECT_EQ(def_ptr, decl_ptr)
         << "Reconciliation should mutate the existing symbol in place, not replace it";
@@ -207,11 +205,10 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_DeclThenDeclIsNoOp) {
     FunctionType *fn_type = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
     std::string name = "f";
 
-    FuncSymbol *first = walker.insert(name, FuncSymbol::empty(LOC, name, walker.current, fn_type));
+    FuncSymbol *first = walker.insert_func({LOC, name, fn_type});
 
     FuncSymbol *second = nullptr;
-    EXPECT_NO_THROW(
-        second = walker.insert(name, FuncSymbol::empty(LOC, name, walker.current, fn_type)));
+    EXPECT_NO_THROW(second = walker.insert_func({LOC, name, fn_type}));
 
     EXPECT_EQ(second, first);
     EXPECT_FALSE(first->has_body());
@@ -224,13 +221,13 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_DefThenDeclIsNoOp) {
     FunctionType *fn_type = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
     std::string name = "f";
 
-    auto def = std::make_unique<FuncSymbol>(LOC, name, walker.current, fn_type, Vec<VarSymbol *>{});
-    FuncSymbol *def_ptr = walker.insert(name, std::move(def));
+    InsertFuncArgs def_args = {LOC, name, fn_type};
+    def_args.has_body = true;
+    FuncSymbol *def_ptr = walker.insert_func(std::move(def_args));
     ASSERT_TRUE(def_ptr->has_body());
 
     FuncSymbol *second = nullptr;
-    EXPECT_NO_THROW(
-        second = walker.insert(name, FuncSymbol::empty(LOC, name, walker.current, fn_type)));
+    EXPECT_NO_THROW(second = walker.insert_func({LOC, name, fn_type}));
 
     EXPECT_EQ(second, def_ptr);
     EXPECT_TRUE(def_ptr->has_body()) << "the existing definition's body flag must not be clobbered";
@@ -242,47 +239,55 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_DefThenDefThrows) {
     FunctionType *fn_type = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
     std::string name = "f";
 
-    auto def1 = std::make_unique<FuncSymbol>(LOC, name, walker.current, fn_type, Vec<VarSymbol *>{});
-    walker.insert(name, std::move(def1));
+    InsertFuncArgs def1 = {LOC, name, fn_type};
+    def1.has_body = true;
+    walker.insert_func(std::move(def1));
 
-    auto def2 = std::make_unique<FuncSymbol>(LOC, name, walker.current, fn_type, Vec<VarSymbol *>{});
-    EXPECT_THROW(walker.insert(name, std::move(def2)), Symbol *)
+    InsertFuncArgs def2 = {LOC, name, fn_type};
+    def2.has_body = true;
+    EXPECT_THROW(walker.insert_func(std::move(def2)), Symbol *)
         << "Two definitions of the same function should be a redefinition error";
 }
 
-// An extern-linked declaration can be redundantly re-declared without throwing.
+// An extern-linked declaration can be redundantly re-declared without throwing, and the
+// linkage passed through InsertFuncArgs should actually land on the inserted symbol.
 TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_ExternDeclThenExternDeclIsNoOp) {
     SymbolTableWalker walker(symtab);
     FunctionType *fn_type = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
     std::string name = "f";
 
-    auto decl1 = FuncSymbol::empty(LOC, name, walker.current, fn_type);
-    decl1->get_symdata()->set_linkage(Linkage::EXTERNAL);
-    FuncSymbol *first = walker.insert(name, std::move(decl1));
+    FuncSymbol *first = walker.insert_func({LOC, name, fn_type, Linkage::EXTERNAL});
+    EXPECT_TRUE(first->is_external())
+        << "the Linkage passed via InsertFuncArgs should be applied to the inserted FuncSymbol";
 
-    auto decl2 = FuncSymbol::empty(LOC, name, walker.current, fn_type);
-    decl2->get_symdata()->set_linkage(Linkage::EXTERNAL);
     FuncSymbol *second = nullptr;
-    EXPECT_NO_THROW(second = walker.insert(name, std::move(decl2)))
+    EXPECT_NO_THROW(second = walker.insert_func({LOC, name, fn_type, Linkage::EXTERNAL}))
         << "Re-declaring the same extern prototype twice should succeed";
 
     EXPECT_EQ(second, first);
 }
 
-// But attaching a body to an extern-linked declaration contradicts what EXTERNAL means
-// (the symbol is defined in another object file) and must throw.
-TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_ExternDeclThenBodyThrows) {
+// extern just means "external linkage", not "defined in another translation unit" — so
+// attaching a body to an extern-linked declaration is fine, and upgrades it in place
+// exactly like an ordinary (non-extern) decl-then-def does, while staying external.
+TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_ExternDeclThenBodyUpgradesInPlace) {
     SymbolTableWalker walker(symtab);
     FunctionType *fn_type = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
     std::string name = "f";
 
-    auto decl = FuncSymbol::empty(LOC, name, walker.current, fn_type);
-    decl->get_symdata()->set_linkage(Linkage::EXTERNAL);
-    walker.insert(name, std::move(decl));
+    FuncSymbol *decl_ptr = walker.insert_func({LOC, name, fn_type, Linkage::EXTERNAL});
+    ASSERT_FALSE(decl_ptr->has_body());
 
-    auto def = std::make_unique<FuncSymbol>(LOC, name, walker.current, fn_type, Vec<VarSymbol *>{});
-    EXPECT_THROW(walker.insert(name, std::move(def)), Symbol *)
-        << "Defining a function previously declared extern should be rejected";
+    InsertFuncArgs def = {LOC, name, fn_type};
+    def.has_body = true;
+    FuncSymbol *def_ptr = nullptr;
+    EXPECT_NO_THROW(def_ptr = walker.insert_func(std::move(def)))
+        << "Defining a function previously declared extern should be allowed — extern only "
+           "means external linkage, not that the definition lives elsewhere";
+
+    EXPECT_EQ(def_ptr, decl_ptr) << "Reconciliation should mutate the existing symbol in place";
+    EXPECT_TRUE(decl_ptr->has_body());
+    EXPECT_TRUE(decl_ptr->is_external()) << "the definition should keep the extern linkage";
 }
 
 // ─── TypeSymbol insertion and lookup ────────────────────────────────────────
@@ -291,8 +296,7 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_ExternDeclThenBodyThrows) {
 TEST_F(TypeSysAndSymTabTestFixture, TypeInsert_FoundByLookup) {
     SymbolTableWalker walker(symtab);
     std::string name = "MyClass";
-    auto sym = std::make_unique<TypeSymbol>(LOC, name, walker.current, tctxt.get_i32());
-    walker.insert(name, std::move(sym));
+    walker.insert_type({LOC, name, tctxt.get_i32()});
 
     TypeSymbol *found = walker.lookup_type(name);
     ASSERT_NE(found, nullptr);
@@ -303,11 +307,9 @@ TEST_F(TypeSysAndSymTabTestFixture, TypeInsert_FoundByLookup) {
 TEST_F(TypeSysAndSymTabTestFixture, TypeInsert_DuplicateNameThrows) {
     SymbolTableWalker walker(symtab);
     std::string name = "DupType";
-    walker.insert(name, std::make_unique<TypeSymbol>(LOC, name, walker.current, tctxt.get_i32()));
+    walker.insert_type({LOC, name, tctxt.get_i32()});
 
-    EXPECT_THROW(
-        walker.insert(name, std::make_unique<TypeSymbol>(LOC, name, walker.current, tctxt.get_u8())),
-        Symbol *);
+    EXPECT_THROW(walker.insert_type({LOC, name, tctxt.get_u8()}), Symbol *);
 }
 
 // ─── LabelSymbol insertion and lookup ────────────────────────────────────────
@@ -317,7 +319,7 @@ TEST_F(TypeSysAndSymTabTestFixture, LabelInsert_FoundByLookup) {
     SymbolTableWalker walker(symtab);
     walker.push_scope(); // enter a non-global scope so label lookup isn't forced current_only
     std::string name = "lbl";
-    walker.insert(name, std::make_unique<LabelSymbol>(LOC, name, walker.current));
+    walker.insert_label({LOC, name});
 
     LabelSymbol *found = walker.lookup_label(name);
     ASSERT_NE(found, nullptr);
@@ -329,11 +331,9 @@ TEST_F(TypeSysAndSymTabTestFixture, LabelInsert_DuplicateNameThrows) {
     SymbolTableWalker walker(symtab);
     walker.push_scope();
     std::string name = "dupLabel";
-    walker.insert(name, std::make_unique<LabelSymbol>(LOC, name, walker.current));
+    walker.insert_label({LOC, name});
 
-    EXPECT_THROW(
-        walker.insert(name, std::make_unique<LabelSymbol>(LOC, name, walker.current)),
-        Symbol *);
+    EXPECT_THROW(walker.insert_label({LOC, name}), Symbol *);
 }
 
 // ─── Lookup returns null for missing symbols ─────────────────────────────────
@@ -379,7 +379,7 @@ TEST_F(TypeSysAndSymTabTestFixture, Lookup_VarOnFuncNameReturnsNull) {
 TEST_F(TypeSysAndSymTabTestFixture, Lookup_FuncOnVarNameReturnsNull) {
     SymbolTableWalker walker(symtab);
     std::string name = "ambig";
-    walker.insert(name, std::make_unique<VarSymbol>(LOC, name, walker.current, tctxt.get_u32()));
+    walker.insert_var({LOC, name, tctxt.get_u32()});
 
     EXPECT_EQ(walker.lookup_func(name), nullptr)
         << "lookup_func should return null for a name that is a VarSymbol, not a FuncSymbol";
@@ -393,11 +393,11 @@ TEST_F(TypeSysAndSymTabTestFixture, Lookup_InnerShadowsOuter) {
     std::string name = "x";
 
     // Insert U32 "x" in outer scope.
-    walker.insert(name, std::make_unique<VarSymbol>(LOC, name, walker.current, tctxt.get_u32()));
+    walker.insert_var({LOC, name, tctxt.get_u32()});
 
     // Push inner scope and insert U8 "x".
     walker.push_scope();
-    walker.insert(name, std::make_unique<VarSymbol>(LOC, name, walker.current, tctxt.get_u8()));
+    walker.insert_var({LOC, name, tctxt.get_u8()});
 
     VarSymbol *found = walker.lookup_var(name);
     ASSERT_NE(found, nullptr);
@@ -410,10 +410,10 @@ TEST_F(TypeSysAndSymTabTestFixture, Lookup_OuterVisibleAfterPop) {
     SymbolTableWalker walker(symtab);
     std::string name = "x";
 
-    walker.insert(name, std::make_unique<VarSymbol>(LOC, name, walker.current, tctxt.get_u32()));
+    walker.insert_var({LOC, name, tctxt.get_u32()});
 
     walker.push_scope();
-    walker.insert(name, std::make_unique<VarSymbol>(LOC, name, walker.current, tctxt.get_u8()));
+    walker.insert_var({LOC, name, tctxt.get_u8()});
     walker.pop_scope();
 
     VarSymbol *found = walker.lookup_var(name);
@@ -428,7 +428,7 @@ TEST_F(TypeSysAndSymTabTestFixture, Lookup_OuterVisibleAfterPop) {
 TEST_F(TypeSysAndSymTabTestFixture, Lookup_FindsSymbolInOuterScopeFromDeepNesting) {
     SymbolTableWalker walker(symtab);
     std::string name = "deep";
-    walker.insert(name, std::make_unique<VarSymbol>(LOC, name, walker.current, tctxt.get_u64()));
+    walker.insert_var({LOC, name, tctxt.get_u64()});
 
     walker.push_scope();
     walker.push_scope();
@@ -442,7 +442,7 @@ TEST_F(TypeSysAndSymTabTestFixture, Lookup_FindsSymbolInOuterScopeFromDeepNestin
 TEST_F(TypeSysAndSymTabTestFixture, Lookup_CurrentOnlyDoesNotWalkUp) {
     SymbolTableWalker walker(symtab);
     std::string name = "outer";
-    walker.insert(name, std::make_unique<VarSymbol>(LOC, name, walker.current, tctxt.get_u32()));
+    walker.insert_var({LOC, name, tctxt.get_u32()});
 
     walker.push_scope(); // inner scope has no "outer"
 
@@ -459,7 +459,7 @@ TEST_F(TypeSysAndSymTabTestFixture, LabelLookup_FindsLabelInOuterAnonScope) {
     // Enter an anonymous scope and put a label there.
     walker.push_scope(); // anon scope, no assoc
     std::string lbl = "loop_start";
-    walker.insert(lbl, std::make_unique<LabelSymbol>(LOC, lbl, walker.current));
+    walker.insert_label({LOC, lbl});
 
     // Go one level deeper (still anonymous).
     walker.push_scope();
@@ -479,7 +479,7 @@ TEST_F(TypeSysAndSymTabTestFixture, LabelLookup_FindsLabelInFunctionScopeFromInn
 
     // Insert the label inside the function scope.
     std::string lbl = "fn_label";
-    walker.insert(lbl, std::make_unique<LabelSymbol>(LOC, lbl, walker.current));
+    walker.insert_label({LOC, lbl});
 
     // Push an anonymous scope inside the function.
     walker.push_scope(); // inner_scope, no assoc
@@ -496,7 +496,7 @@ TEST_F(TypeSysAndSymTabTestFixture, LabelLookup_NotVisibleFromGlobal) {
     FuncSymbol *fn = insert_func(walker, tctxt, LOC, "fnForLabel");
     walker.push_scope(fn);
     std::string lbl = "inner_label";
-    walker.insert(lbl, std::make_unique<LabelSymbol>(LOC, lbl, walker.current));
+    walker.insert_label({LOC, lbl});
     walker.pop_scope(); // back to global
 
     // From global scope, lookup_label forces current_only.
@@ -512,7 +512,7 @@ TEST_F(TypeSysAndSymTabTestFixture, LabelLookup_StopsAtFunctionBoundary) {
     // Push an outer anonymous scope and put a label there.
     walker.push_scope(); // outer_anon, no assoc
     std::string outer_lbl = "outer_label";
-    walker.insert(outer_lbl, std::make_unique<LabelSymbol>(LOC, outer_lbl, walker.current));
+    walker.insert_label({LOC, outer_lbl});
 
     // Push a function scope inside the anonymous scope.
     FuncSymbol *fn = insert_func(walker, tctxt, LOC, "boundaryFn");
@@ -531,25 +531,23 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncPtr_TypeIsPointerToSignature) {
     SymbolTableWalker walker(symtab);
     FunctionType *fn_type = tctxt.get_function(LOC, tctxt.get_u32(), {}, false);
     std::string name = "ptrFn";
-    auto fn_sym = std::make_unique<FuncSymbol>(LOC, name, walker.current, fn_type, Vec<VarSymbol *>{});
-    FuncSymbol *fn = walker.insert(name, std::move(fn_sym));
+    FuncSymbol *fn = insert_func(walker, tctxt, LOC, name);
+    (void)fn_type; // signature above is only used to keep this test's intent readable
 
     Box<VarSymbol> ptr_sym = fn->as_funcptr(tctxt);
 
     ASSERT_NE(ptr_sym, nullptr);
     EXPECT_TRUE(ptr_sym->get_type()->is_pointer())
         << "as_funcptr should produce a VarSymbol with a pointer type";
-    EXPECT_EQ(ptr_sym->get_type()->as_pointer()->get_base(), fn_type)
+    EXPECT_EQ(ptr_sym->get_type()->as_pointer()->get_base(), fn->get_signature())
         << "The pointer base should be the original FunctionType";
 }
 
 // With is_const=true the type is wrapped in a ConstType.
 TEST_F(TypeSysAndSymTabTestFixture, FuncPtr_ConstProducesConstType) {
     SymbolTableWalker walker(symtab);
-    FunctionType *fn_type = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
     std::string name = "constPtrFn";
-    auto fn_sym = std::make_unique<FuncSymbol>(LOC, name, walker.current, fn_type, Vec<VarSymbol *>{});
-    FuncSymbol *fn = walker.insert(name, std::move(fn_sym));
+    FuncSymbol *fn = insert_func(walker, tctxt, LOC, name);
 
     Box<VarSymbol> ptr_sym = fn->as_funcptr(tctxt, /*is_const=*/true);
 
@@ -561,10 +559,8 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncPtr_ConstProducesConstType) {
 // With is_const=false the type is a plain pointer, not const.
 TEST_F(TypeSysAndSymTabTestFixture, FuncPtr_NonConstProducesPlainPointer) {
     SymbolTableWalker walker(symtab);
-    FunctionType *fn_type = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
     std::string name = "plainPtrFn";
-    auto fn_sym = std::make_unique<FuncSymbol>(LOC, name, walker.current, fn_type, Vec<VarSymbol *>{});
-    FuncSymbol *fn = walker.insert(name, std::move(fn_sym));
+    FuncSymbol *fn = insert_func(walker, tctxt, LOC, name);
 
     Box<VarSymbol> ptr_sym = fn->as_funcptr(tctxt, /*is_const=*/false);
 
@@ -619,8 +615,7 @@ TEST_F(TypeSysAndSymTabTestFixture, TieTo_OverrideReplacesExisting) {
 TEST_F(TypeSysAndSymTabTestFixture, Classof_VarSymbolIsPhysical) {
     SymbolTableWalker walker(symtab);
     std::string name = "physVar";
-    VarSymbol *var =
-        walker.insert(name, std::make_unique<VarSymbol>(LOC, name, walker.current, tctxt.get_u32()));
+    VarSymbol *var = walker.insert_var({LOC, name, tctxt.get_u32()});
     Symbol *sym = var;
 
     EXPECT_TRUE(isa<PhysicalSymbol>(sym));
@@ -641,8 +636,7 @@ TEST_F(TypeSysAndSymTabTestFixture, Classof_FuncSymbolIsPhysical) {
 TEST_F(TypeSysAndSymTabTestFixture, Classof_TypeSymbolIsAbstract) {
     SymbolTableWalker walker(symtab);
     std::string name = "AbstractType";
-    TypeSymbol *tysym = walker.insert(
-        name, std::make_unique<TypeSymbol>(LOC, name, walker.current, class1));
+    TypeSymbol *tysym = walker.insert_type({LOC, name, class1});
     Symbol *sym = tysym;
 
     EXPECT_TRUE(isa<AbstractSymbol>(sym));
@@ -653,8 +647,7 @@ TEST_F(TypeSysAndSymTabTestFixture, Classof_TypeSymbolIsAbstract) {
 TEST_F(TypeSysAndSymTabTestFixture, Classof_LabelSymbolIsAbstract) {
     SymbolTableWalker walker(symtab);
     std::string name  = "abstractLabel";
-    LabelSymbol *labsym =
-        walker.insert(name, std::make_unique<LabelSymbol>(LOC, name, walker.current));
+    LabelSymbol *labsym = walker.insert_label({LOC, name});
     Symbol *sym = labsym;
 
     EXPECT_TRUE(isa<AbstractSymbol>(sym));
@@ -666,8 +659,7 @@ TEST_F(TypeSysAndSymTabTestFixture, Classof_LabelSymbolIsAbstract) {
 TEST_F(TypeSysAndSymTabTestFixture, Classof_DyncastVarSymbolFromSymbolPtr) {
     SymbolTableWalker walker(symtab);
     std::string name = "dcVar";
-    Symbol *sym =
-        walker.insert(name, std::make_unique<VarSymbol>(LOC, name, walker.current, tctxt.get_u32()));
+    Symbol *sym = walker.insert_var({LOC, name, tctxt.get_u32()});
 
     EXPECT_NE(dyncast<VarSymbol>(sym), nullptr);
     EXPECT_EQ(dyncast<FuncSymbol>(sym), nullptr);
@@ -689,8 +681,7 @@ TEST_F(TypeSysAndSymTabTestFixture, Classof_DyncastFuncSymbolFromSymbolPtr) {
 TEST_F(TypeSysAndSymTabTestFixture, Classof_DyncastTypeSymbolFromSymbolPtr) {
     SymbolTableWalker walker(symtab);
     std::string name = "dcType";
-    Symbol *sym       = walker.insert(
-        name, std::make_unique<TypeSymbol>(LOC, name, walker.current, class1));
+    Symbol *sym = walker.insert_type({LOC, name, class1});
 
     EXPECT_NE(dyncast<TypeSymbol>(sym), nullptr);
     EXPECT_EQ(dyncast<LabelSymbol>(sym), nullptr);
@@ -701,7 +692,7 @@ TEST_F(TypeSysAndSymTabTestFixture, Classof_DyncastTypeSymbolFromSymbolPtr) {
 TEST_F(TypeSysAndSymTabTestFixture, Classof_DyncastLabelSymbolFromSymbolPtr) {
     SymbolTableWalker walker(symtab);
     std::string name = "dcLabel";
-    Symbol *sym = walker.insert(name, std::make_unique<LabelSymbol>(LOC, name, walker.current));
+    Symbol *sym = walker.insert_label({LOC, name});
 
     EXPECT_NE(dyncast<LabelSymbol>(sym), nullptr);
     EXPECT_EQ(dyncast<TypeSymbol>(sym), nullptr);
@@ -839,4 +830,291 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncSymbol_DefaultParamsEmptyWithNoParams) {
 
     EXPECT_EQ(fn->num_params(), 0U);
     EXPECT_EQ(fn->num_default_params(), 0U);
+}
+
+// ─── insert_*_at (explicit-scope insertion) ──────────────────────────────────
+
+// insert_var_at inserts into the given scope, not the walker's current one.
+TEST_F(TypeSysAndSymTabTestFixture, VarInsertAt_TargetsGivenScopeNotCurrent) {
+    SymbolTableWalker walker(symtab);
+    walker.push_scope();
+    Scope *inner = walker.current;
+    walker.pop_scope(); // current is now global, well away from `inner`
+
+    std::string name = "atVar";
+    VarSymbol *sym = walker.insert_var_at(inner, {LOC, name, tctxt.get_u32()});
+
+    EXPECT_EQ(walker.current, symtab.global.get())
+        << "insert_var_at should leave the walker's current scope untouched";
+    EXPECT_EQ(walker.lookup_var_from(inner, name, /*current=*/true), sym)
+        << "the symbol should actually live in `inner`, not wherever current happened to be";
+}
+
+// insert_var_at restores the walker's current scope even when the insert throws.
+TEST_F(TypeSysAndSymTabTestFixture, VarInsertAt_RestoresCurrentOnThrow) {
+    SymbolTableWalker walker(symtab);
+    walker.push_scope();
+    Scope *inner = walker.current;
+    walker.insert_var({LOC, "dup", tctxt.get_u32()}); // pre-existing name in `inner`
+    walker.pop_scope();
+
+    EXPECT_THROW(walker.insert_var_at(inner, {LOC, "dup", tctxt.get_u8()}), Symbol *);
+    EXPECT_EQ(walker.current, symtab.global.get())
+        << "current scope must be restored even when insert_var_at throws";
+}
+
+// insert_func_at inserts into the given scope, not the walker's current one.
+TEST_F(TypeSysAndSymTabTestFixture, FuncInsertAt_TargetsGivenScopeNotCurrent) {
+    SymbolTableWalker walker(symtab);
+    walker.push_scope();
+    Scope *inner = walker.current;
+    walker.pop_scope();
+
+    FunctionType *fn_type = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
+    std::string name = "atFunc";
+    InsertFuncArgs args = {LOC, name, fn_type};
+    args.has_body = true;
+    FuncSymbol *sym = walker.insert_func_at(inner, std::move(args));
+
+    EXPECT_EQ(walker.current, symtab.global.get());
+    EXPECT_EQ(walker.lookup_func_from(inner, name, /*current=*/true), sym);
+}
+
+// insert_func_at restores the walker's current scope even when the insert throws.
+TEST_F(TypeSysAndSymTabTestFixture, FuncInsertAt_RestoresCurrentOnThrow) {
+    SymbolTableWalker walker(symtab);
+    walker.push_scope();
+    Scope *inner = walker.current;
+    FunctionType *fn_void = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
+    FunctionType *fn_u32 = tctxt.get_function(LOC, tctxt.get_u32(), {}, false);
+
+    InsertFuncArgs first = {LOC, "dupFn", fn_void};
+    first.has_body = true;
+    walker.insert_func(std::move(first));
+    walker.pop_scope();
+
+    InsertFuncArgs second = {LOC, "dupFn", fn_u32};
+    second.has_body = true;
+    EXPECT_THROW(walker.insert_func_at(inner, std::move(second)), Symbol *)
+        << "a different signature under the same name is still a redefinition error";
+    EXPECT_EQ(walker.current, symtab.global.get());
+}
+
+// insert_type_at inserts into the given scope, not the walker's current one.
+TEST_F(TypeSysAndSymTabTestFixture, TypeInsertAt_TargetsGivenScopeNotCurrent) {
+    SymbolTableWalker walker(symtab);
+    walker.push_scope();
+    Scope *inner = walker.current;
+    walker.pop_scope();
+
+    std::string name = "AtType";
+    TypeSymbol *sym = walker.insert_type_at(inner, {LOC, name, tctxt.get_i32()});
+
+    EXPECT_EQ(walker.current, symtab.global.get());
+    EXPECT_EQ(walker.lookup_type_from(inner, name, /*current=*/true), sym);
+}
+
+// insert_type_at restores the walker's current scope even when the insert throws.
+TEST_F(TypeSysAndSymTabTestFixture, TypeInsertAt_RestoresCurrentOnThrow) {
+    SymbolTableWalker walker(symtab);
+    walker.push_scope();
+    Scope *inner = walker.current;
+    walker.insert_type({LOC, "DupType", tctxt.get_i32()});
+    walker.pop_scope();
+
+    EXPECT_THROW(walker.insert_type_at(inner, {LOC, "DupType", tctxt.get_u8()}), Symbol *);
+    EXPECT_EQ(walker.current, symtab.global.get());
+}
+
+// insert_label_at inserts into the given scope, not the walker's current one.
+TEST_F(TypeSysAndSymTabTestFixture, LabelInsertAt_TargetsGivenScopeNotCurrent) {
+    SymbolTableWalker walker(symtab);
+    walker.push_scope();
+    Scope *inner = walker.current;
+    walker.pop_scope();
+
+    std::string name = "atLabel";
+    LabelSymbol *sym = walker.insert_label_at(inner, {LOC, name});
+
+    EXPECT_EQ(walker.current, symtab.global.get());
+    EXPECT_EQ(walker.lookup_label_from(inner, name, /*current=*/true), sym);
+}
+
+// insert_label_at restores the walker's current scope even when the insert throws.
+TEST_F(TypeSysAndSymTabTestFixture, LabelInsertAt_RestoresCurrentOnThrow) {
+    SymbolTableWalker walker(symtab);
+    walker.push_scope();
+    Scope *inner = walker.current;
+    walker.insert_label({LOC, "dupLabel"});
+    walker.pop_scope();
+
+    EXPECT_THROW(walker.insert_label_at(inner, {LOC, "dupLabel"}), Symbol *);
+    EXPECT_EQ(walker.current, symtab.global.get());
+}
+
+// ─── lookup_*_from (explicit-scope lookup) ───────────────────────────────────
+
+// lookup_var_from finds a symbol at the given scope, independent of walker.current.
+TEST_F(TypeSysAndSymTabTestFixture, VarLookupFrom_FindsSymbolAtGivenScopeRegardlessOfCurrent) {
+    SymbolTableWalker walker(symtab);
+    walker.push_scope();
+    Scope *inner = walker.current;
+    std::string name = "fromVar";
+    VarSymbol *sym = walker.insert_var({LOC, name, tctxt.get_u32()});
+    walker.pop_scope(); // walker.current is now global, far from `inner`
+
+    EXPECT_EQ(walker.lookup_var_from(inner, name), sym)
+        << "lookup_var_from should search starting at `inner`, not at walker.current";
+}
+
+// lookup_var_from restores walker.current after the lookup.
+TEST_F(TypeSysAndSymTabTestFixture, VarLookupFrom_RestoresCurrentScope) {
+    SymbolTableWalker walker(symtab);
+    walker.push_scope();
+    Scope *inner = walker.current;
+    walker.pop_scope();
+    Scope *before = walker.current;
+
+    walker.lookup_var_from(inner, "whatever");
+
+    EXPECT_EQ(walker.current, before);
+}
+
+// lookup_var_from's current_only is relative to `from`, not to walker.current.
+TEST_F(TypeSysAndSymTabTestFixture, VarLookupFrom_CurrentOnlyIsRelativeToFromNotCurrent) {
+    SymbolTableWalker walker(symtab);
+    std::string name = "outerFromVar";
+    walker.insert_var({LOC, name, tctxt.get_u32()});
+
+    walker.push_scope();
+    Scope *inner = walker.current; // has no "outerFromVar" of its own
+    walker.pop_scope(); // walker.current is global, which DOES have the symbol
+
+    EXPECT_EQ(walker.lookup_var_from(inner, name, /*current=*/true), nullptr)
+        << "current_only should restrict the search to `inner`, even though walker.current "
+           "(global) does have the symbol";
+    EXPECT_NE(walker.lookup_var_from(inner, name, /*current=*/false), nullptr)
+        << "without current_only, the search should still walk up from `inner` to global";
+}
+
+// lookup_func_from finds a symbol at the given scope, independent of walker.current.
+TEST_F(TypeSysAndSymTabTestFixture, FuncLookupFrom_FindsSymbolAtGivenScopeRegardlessOfCurrent) {
+    SymbolTableWalker walker(symtab);
+    walker.push_scope();
+    Scope *inner = walker.current;
+    std::string name = "fromFunc";
+    FuncSymbol *fn = insert_func(walker, tctxt, LOC, name);
+    walker.pop_scope();
+
+    EXPECT_EQ(walker.lookup_func_from(inner, name), fn);
+}
+
+// lookup_func_from restores walker.current after the lookup.
+TEST_F(TypeSysAndSymTabTestFixture, FuncLookupFrom_RestoresCurrentScope) {
+    SymbolTableWalker walker(symtab);
+    walker.push_scope();
+    Scope *inner = walker.current;
+    walker.pop_scope();
+    Scope *before = walker.current;
+
+    walker.lookup_func_from(inner, "whatever");
+
+    EXPECT_EQ(walker.current, before);
+}
+
+// lookup_func_from's current_only is relative to `from`, not to walker.current.
+TEST_F(TypeSysAndSymTabTestFixture, FuncLookupFrom_CurrentOnlyIsRelativeToFromNotCurrent) {
+    SymbolTableWalker walker(symtab);
+    std::string name = "outerFromFunc";
+    insert_func(walker, tctxt, LOC, name);
+
+    walker.push_scope();
+    Scope *inner = walker.current;
+    walker.pop_scope();
+
+    EXPECT_EQ(walker.lookup_func_from(inner, name, /*current=*/true), nullptr);
+    EXPECT_NE(walker.lookup_func_from(inner, name, /*current=*/false), nullptr);
+}
+
+// lookup_type_from finds a symbol at the given scope, independent of walker.current.
+TEST_F(TypeSysAndSymTabTestFixture, TypeLookupFrom_FindsSymbolAtGivenScopeRegardlessOfCurrent) {
+    SymbolTableWalker walker(symtab);
+    walker.push_scope();
+    Scope *inner = walker.current;
+    std::string name = "FromType";
+    TypeSymbol *sym = walker.insert_type({LOC, name, tctxt.get_i32()});
+    walker.pop_scope();
+
+    EXPECT_EQ(walker.lookup_type_from(inner, name), sym);
+}
+
+// lookup_type_from restores walker.current after the lookup.
+TEST_F(TypeSysAndSymTabTestFixture, TypeLookupFrom_RestoresCurrentScope) {
+    SymbolTableWalker walker(symtab);
+    walker.push_scope();
+    Scope *inner = walker.current;
+    walker.pop_scope();
+    Scope *before = walker.current;
+
+    walker.lookup_type_from(inner, "Whatever");
+
+    EXPECT_EQ(walker.current, before);
+}
+
+// lookup_type_from's current_only is relative to `from`, not to walker.current.
+TEST_F(TypeSysAndSymTabTestFixture, TypeLookupFrom_CurrentOnlyIsRelativeToFromNotCurrent) {
+    SymbolTableWalker walker(symtab);
+    std::string name = "OuterFromType";
+    walker.insert_type({LOC, name, tctxt.get_i32()});
+
+    walker.push_scope();
+    Scope *inner = walker.current;
+    walker.pop_scope();
+
+    EXPECT_EQ(walker.lookup_type_from(inner, name, /*current=*/true), nullptr);
+    EXPECT_NE(walker.lookup_type_from(inner, name, /*current=*/false), nullptr);
+}
+
+// lookup_label_from finds a label at the given scope, independent of walker.current.
+TEST_F(TypeSysAndSymTabTestFixture, LabelLookupFrom_FindsLabelAtGivenScope) {
+    SymbolTableWalker walker(symtab);
+    walker.push_scope(); // anonymous scope
+    Scope *inner = walker.current;
+    std::string lbl = "fromLabel";
+    LabelSymbol *sym = walker.insert_label({LOC, lbl});
+    walker.pop_scope();
+
+    EXPECT_EQ(walker.lookup_label_from(inner, lbl), sym);
+}
+
+// lookup_label_from still stops at a function-scope boundary, evaluated relative to `from`.
+TEST_F(TypeSysAndSymTabTestFixture, LabelLookupFrom_StopsAtFunctionBoundaryFromGivenScope) {
+    SymbolTableWalker walker(symtab);
+
+    walker.push_scope(); // outer anonymous scope
+    std::string outer_lbl = "outerFromLabel";
+    walker.insert_label({LOC, outer_lbl});
+
+    FuncSymbol *fn = insert_func(walker, tctxt, LOC, "boundaryFromFn");
+    walker.push_scope(fn); // function scope, nested inside the anonymous one
+    Scope *fn_scope = walker.current;
+    walker.pop_scope();
+    walker.pop_scope(); // back to global
+
+    EXPECT_EQ(walker.lookup_label_from(fn_scope, outer_lbl), nullptr)
+        << "lookup_label_from must not cross the function boundary, same as lookup_label";
+}
+
+// lookup_label_from forces current_only when `from` is the global scope, same as lookup_label.
+TEST_F(TypeSysAndSymTabTestFixture, LabelLookupFrom_ForcesCurrentOnlyWhenFromIsGlobal) {
+    SymbolTableWalker walker(symtab);
+
+    FuncSymbol *fn = insert_func(walker, tctxt, LOC, "globalFromFn");
+    walker.push_scope(fn);
+    std::string lbl = "globalFromLabel";
+    walker.insert_label({LOC, lbl});
+    walker.pop_scope();
+
+    EXPECT_EQ(walker.lookup_label_from(symtab.global.get(), lbl), nullptr)
+        << "a label inside a function scope should not be visible when looking up from global";
 }
