@@ -94,8 +94,11 @@ static ecc::frontend::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
     UNION     "union"
     ENUM      "enum"
     CONST     "const"
+    ATOMIC    "atomic"
+    VOLATILE  "volatile"
     VOID      "void"
     CONSTEXPR "constexpr"
+    AUTO      "auto"
     U8        "U8"
     U16       "U16"
     U32       "U32"
@@ -361,6 +364,7 @@ storage_class_specifier:
 
 type_specifier:
     VOID { $$ = make_chunk<VoidSpecifier>(@1); }
+    | AUTO { error(@$, "auto type specifier not yet supported"); return 1; }
     | type_identifier { $$ = std::move($1); }
     | primitive_type { $$ = std::move($1); }
     | class_specifier { $$ = std::move($1); }
@@ -470,6 +474,8 @@ primitive_type:
 
 type_qualifier:
     CONST { $$ = make_chunk<TypeQualifier>(@1, TypeQualifier::CONST); }
+    | ATOMIC { error(@$, "atomic type qualifiers not yet supported"); return 1; }
+    | VOLATILE { error(@$, "volatile type qualifiers not yet supported"); return 1; }
 ;
 
 class_parent_list:
