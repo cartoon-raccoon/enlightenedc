@@ -87,8 +87,18 @@ DO_VISIT(BaseASTSemaVisitor, Program);
 DO_VISIT(BaseASTSemaVisitor, AttributeArg);
 DO_VISIT(BaseASTSemaVisitor, Attribute);
 DO_VISIT(BaseASTSemaVisitor, Function);
-DO_VISIT(BaseASTSemaVisitor, TypeDeclaration);
-DO_VISIT(BaseASTSemaVisitor, VariableDeclaration);
+
+/*
+Use DO_STMT_VISIT for these because if they throw in a non-global scope,
+they will ICE. DO_STMT_VISIT catches them properly.
+
+fixme: this is a bodge, add a more robust fix.
+*/
+DO_STMT_VISIT(BaseASTSemaVisitor, TypeDeclaration);
+DO_STMT_VISIT(BaseASTSemaVisitor, ConstexprDeclaration);
+DO_STMT_VISIT(BaseASTSemaVisitor, VariableDeclaration);
+DO_STMT_VISIT(BaseASTSemaVisitor, ClassDeclaration);
+
 DO_VISIT(BaseASTSemaVisitor, ParameterDeclaration);
 DO_VISIT(BaseASTSemaVisitor, Declarator);
 DO_VISIT(BaseASTSemaVisitor, ParenDeclarator);
@@ -97,7 +107,6 @@ DO_VISIT(BaseASTSemaVisitor, FunctionDeclarator);
 DO_VISIT(BaseASTSemaVisitor, InitDeclarator);
 DO_VISIT(BaseASTSemaVisitor, Pointer);
 DO_VISIT(BaseASTSemaVisitor, ClassDeclarator);
-DO_VISIT(BaseASTSemaVisitor, ClassDeclaration);
 DO_VISIT(BaseASTSemaVisitor, Enumerator);
 DO_VISIT(BaseASTSemaVisitor, StorageClassSpecifier);
 DO_VISIT(BaseASTSemaVisitor, TypeIdentifier);
@@ -194,6 +203,20 @@ void BaseASTSemaVisitor::do_visit(TypeDeclaration& node) {
     // and there should only be ony type specifier.
     for (auto& specifier : node.specifiers) {
         specifier->accept(*this);
+    }
+}
+
+void BaseASTSemaVisitor::do_visit(ConstexprDeclaration& node) {
+    for (auto& attr : node.attributes) {
+        attr->accept(*this);
+    }
+
+    for (auto& specifier : node.specifiers) {
+        specifier->accept(*this);
+    }
+
+    for (auto& declarator : node.declarators) {
+        declarator->accept(*this);
     }
 }
 
@@ -543,8 +566,12 @@ void BaseASTSemaVisitor::do_visit(SizeofExpression& node) {
 DO_VISIT(BaseMIRSemaVisitor, mir::ProgramMIR);
 DO_VISIT(BaseMIRSemaVisitor, mir::FunctionMIR);
 DO_VISIT(BaseMIRSemaVisitor, mir::InitializerMIR);
-DO_VISIT(BaseMIRSemaVisitor, mir::TypeDeclMIR);
-DO_VISIT(BaseMIRSemaVisitor, mir::VarDeclMIR);
+
+/*
+Same bodge as above.
+*/
+DO_STMT_VISIT(BaseMIRSemaVisitor, mir::TypeDeclMIR);
+DO_STMT_VISIT(BaseMIRSemaVisitor, mir::VarDeclMIR);
 
 DO_STMT_SCOPED_VISIT(BaseMIRSemaVisitor, mir::CompoundStmtMIR);
 DO_STMT_VISIT(BaseMIRSemaVisitor, mir::ExprStmtMIR);

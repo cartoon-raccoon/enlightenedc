@@ -45,6 +45,7 @@ public:
         INIT_DECLTR,
         PARAM_DECL,
         TYPE_DECL,
+        CEXPR_DECL,
         VAR_DECL,
         IDENT_DECLTR,
         PAREN_DECLTR,
@@ -151,6 +152,7 @@ public:
         switch (node->kind) {
         case NodeKind::PARAM_DECL:
         case NodeKind::TYPE_DECL:
+        case NodeKind::CEXPR_DECL:
         case NodeKind::VAR_DECL:
         case NodeKind::CLASS_DECL:
         case NodeKind::COMP_STMT:
@@ -237,6 +239,7 @@ public:
         switch (node->kind) {
         case NodeKind::PARAM_DECL:
         case NodeKind::TYPE_DECL:
+        case NodeKind::CEXPR_DECL:
         case NodeKind::VAR_DECL:
         case NodeKind::CLASS_DECL:
             return true;
@@ -435,6 +438,19 @@ public:
     ds::ArenaVec<Chunk<DeclarationSpecifier>> specifiers;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::TYPE_DECL; }
+};
+
+class ConstexprDeclaration : public ASTVisitable<ConstexprDeclaration, Declaration> {
+public:
+    ConstexprDeclaration(Location loc, ds::ArenaVec<Chunk<DeclarationSpecifier>> specifiers,
+        ds::ArenaVec<Chunk<InitDeclarator>> declarators)
+        : ASTVisitable<ConstexprDeclaration, Declaration>(NodeKind::CEXPR_DECL, loc),
+          specifiers(std::move(specifiers)), declarators(std::move(declarators)) {}
+
+    ds::ArenaVec<Chunk<DeclarationSpecifier>> specifiers;
+    ds::ArenaVec<Chunk<InitDeclarator>> declarators;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::CEXPR_DECL; }
 };
 
 /*
@@ -1030,12 +1046,7 @@ class LiteralExpression : public ASTVisitable<LiteralExpression, Expression> {
 public:
     enum LiteralKind : uint8_t { INT, FLOAT, CHAR, BOOL };
 
-    union Value {
-        uint64_t i_val;
-        double f_val;
-        char c_val;
-        bool b_val;
-    };
+    using Value = std::variant<uint64_t, double, char, bool>;
 
     LiteralExpression(Location loc, LiteralKind kind, Value value)
         : ASTVisitable<LiteralExpression, Expression>(NodeKind::LIT_EXPR, loc), kind(kind),
@@ -1043,6 +1054,34 @@ public:
 
     LiteralKind kind;
     Value value;
+
+    /**
+    Get the inner literal as an integer.
+
+    Note: this throws if the inner value is not `uint64_t`, so check `kind` first!
+    */
+    uint64_t as_int() { return std::get<uint64_t>(value); }
+
+    /**
+    Get the inner literal as a float.
+
+    Note: this throws if the inner value is not `double`, so check `kind` first!
+    */
+    double as_flt() { return std::get<double>(value); }
+
+    /**
+    Get the inner literal as a char.
+
+    Note: this throws if the inner value is not `char`, so check `kind` first!
+    */
+    char as_char() { return std::get<char>(value); }
+
+    /**
+    Get the inner literal as a bool.
+
+    Note: this throws if the inner value is not `bool`, so check `kind` first!
+    */
+    bool as_bool() { return std::get<bool>(value); }
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::LIT_EXPR; }
 };

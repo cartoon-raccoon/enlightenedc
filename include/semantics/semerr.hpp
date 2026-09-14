@@ -559,7 +559,11 @@ public:
 
 class InvalidConstexprError : public EccSemError {
 public:
-    enum class Kind : uint8_t { NotPrimitive, ExceedsLimits };
+    enum class Kind : uint8_t { 
+        InvalidType, 
+        ExceedsLimits,
+        NoInitializer,
+    };
 
     InvalidConstexprError(Kind kind, Location err_loc)
         : EccSemError("invalid constexpr declaration", err_loc), kind(kind) {}
@@ -570,11 +574,14 @@ public:
         std::stringstream ss;
 
         switch (kind) {
-        case Kind::NotPrimitive:
-            ss << "constexpr type must be a primitive";
+        case Kind::InvalidType:
+            ss << "constexpr type must be a primitive or a pointer";
             break;
         case Kind::ExceedsLimits:
             ss << "constexpr value exceeds limits of the specified primitive type";
+            break;
+        case Kind::NoInitializer:
+            ss << "constexpr declarations must have an initializer";
             break;
         }
 

@@ -151,6 +151,8 @@ I32 ce_rt = ce_x + CE_A;           // 11 + 5 = 16
 I32 ce_pick = (CE_A > CE_B) ? CE_A : CE_B;
 "%d\n", ce_pick;   // 11
 
+constexpr I8 *HARDCODED_PTR = (I8 *) 0x4000;
+
 // Floating-point constexpr.
 constexpr F64 CE_PI = 3.14;
 constexpr F64 CE_TWO_PI = CE_PI * 2.0;   // initializer uses another float constexpr

@@ -34,6 +34,11 @@ using namespace ecc::ds;
 // The full Lexer declaration is included in the .cpp (see %code below).
 namespace ecc::frontend {
 class Lexer;
+
+// Defined in the grammar epilogue below; forward-declared here so it is visible
+// to the actions in Parser::parse(), which are emitted before the epilogue.
+bool speclist_contains(
+    ds::ArenaVec<Chunk<DeclarationSpecifier>>& specs, StorageClassSpecifier::SpecType spectype);
 }
 
 }
@@ -1081,7 +1086,11 @@ declaration:
         $$ = make_chunk<TypeDeclaration>(@$, std::move($1));
     }
     | declaration_specifier_list init_declarator_list SEMI {
-        $$ = make_chunk<VariableDeclaration>(@$, std::move($1), std::move($2));
+        if (speclist_contains($1, StorageClassSpecifier::CONSTEXPR)) {
+            $$ = make_chunk<ConstexprDeclaration>(@$, std::move($1), std::move($2));
+        } else {
+            $$ = make_chunk<VariableDeclaration>(@$, std::move($1), std::move($2));
+        }
     }
 ;
 
@@ -1302,9 +1311,20 @@ jump_statement:
 
 %%
 
-// FIXME: do better than this
 namespace ecc::frontend {
+    // FIXME: do better than this
     void Parser::error(const Location& loc, const std::string& msg) {
         throw ecc::frontend::ParseError(msg, loc);
+    }
+
+    bool speclist_contains(ds::ArenaVec<Chunk<DeclarationSpecifier>>& specs,
+        StorageClassSpecifier::SpecType spectype) {
+        for (auto& spec : specs) {
+            if (auto *stcspec = dyncast<StorageClassSpecifier>(spec); stcspec && stcspec->type == spectype) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

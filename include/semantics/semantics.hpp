@@ -226,6 +226,7 @@ public:
     virtual void do_visit(ast::Function& node);
 
     virtual void do_visit(ast::TypeDeclaration& node);
+    virtual void do_visit(ast::ConstexprDeclaration& node);
     virtual void do_visit(ast::VariableDeclaration& node);
     virtual void do_visit(ast::ParameterDeclaration& node);
     virtual void do_visit(ast::Declarator& node);
@@ -290,6 +291,7 @@ protected:
     void visit(ast::Function& node) override;
 
     void visit(ast::TypeDeclaration& node) override;
+    void visit(ast::ConstexprDeclaration& node) override;
     void visit(ast::VariableDeclaration& node) override;
     void visit(ast::ParameterDeclaration& node) override;
     void visit(ast::Declarator& node) override;

@@ -178,6 +178,17 @@ void ASTPrinter::visit(TypeDeclaration& node) {
     });
 }
 
+void ASTPrinter::visit(ConstexprDeclaration& node) {
+    print_node("ConstexprDeclaration", node, [&] {
+        for (auto& attr : node.attributes)
+            attr->accept(*this);
+        for (auto& spec : node.specifiers)
+            spec->accept(*this);
+        for (auto& decl : node.declarators)
+            decl->accept(*this);
+    });
+}
+
 void ASTPrinter::visit(VariableDeclaration& node) {
     print_node("VariableDeclaration", node, [&] {
         for (auto& attr : node.attributes)
@@ -386,16 +397,16 @@ void ASTPrinter::visit(TypeName& node) {
 void ASTPrinter::visit(LiteralExpression& node) {
     switch (node.kind) {
     case LiteralExpression::LiteralKind::INT:
-        print_node(std::format("{}", node.value.i_val), node);
+        print_node(std::format("{}", node.as_int()), node);
         break;
     case LiteralExpression::LiteralKind::FLOAT:
-        print_node(std::format("{}", node.value.f_val), node);
+        print_node(std::format("{}", node.as_flt()), node);
         break;
     case LiteralExpression::LiteralKind::CHAR:
-        print_node(std::format("{}", node.value.c_val), node);
+        print_node(std::format("{}", node.as_char()), node);
         break;
     case LiteralExpression::LiteralKind::BOOL:
-        print_node(std::format("{}", node.value.b_val), node);
+        print_node(std::format("{}", node.as_bool()), node);
         break;
     }
 }

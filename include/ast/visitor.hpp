@@ -12,6 +12,7 @@ class AttributeArg;
 class Attribute;
 class Function;
 class TypeDeclaration;
+class ConstexprDeclaration;
 class VariableDeclaration;
 class ParameterDeclaration;
 class Declarator;
@@ -69,7 +70,7 @@ class SizeofExpression;
 
 class ASTVisitor
     : public Visitor<
-          ASTVisitor, Program, AttributeArg, Attribute, Function, TypeDeclaration,
+          ASTVisitor, Program, AttributeArg, Attribute, Function, TypeDeclaration, ConstexprDeclaration,
           VariableDeclaration, ParameterDeclaration, Declarator, ParenDeclarator, ArrayDeclarator,
           FunctionDeclarator, InitDeclarator, Pointer, ClassDeclarator, ClassDeclaration,
           Enumerator, StorageClassSpecifier, TypeQualifier, EnumSpecifier, ClassSpecifier,

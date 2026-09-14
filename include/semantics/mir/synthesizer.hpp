@@ -221,6 +221,7 @@ protected:
     void do_visit(ast::Function& node) override;
 
     void do_visit(ast::TypeDeclaration& node) override;
+    void do_visit(ast::ConstexprDeclaration& node) override;
     void do_visit(ast::VariableDeclaration& node) override;
     void do_visit(ast::ParameterDeclaration& node) override;
     void do_visit(ast::Declarator& node) override;
@@ -282,7 +283,7 @@ protected:
         ast::VariableDeclaration&, InitDecltrRet ret, SpecifierInfo specinfo,
         types::FunctionType *type);
 
-    eval::Value parse_constexpr_init(mir::InitializerMIR& init, types::PrimitiveType *type);
+    eval::Value parse_constexpr_init(mir::InitializerMIR& init, types::Type *type);
 
     void check_attribute(mir::FunctionMIR *function, ast::AttributeArg& node);
     void check_attribute(mir::TypeDeclMIR *typedecl, ast::AttributeArg& node);
