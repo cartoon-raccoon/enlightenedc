@@ -16,7 +16,7 @@ If both macros are simultaneously defined, that behaviour is undefined.
 Variadic functions have different specifications depending on the standard in use. This also affects the
 calling convention used.
 
-### Variadic Argument Macros
+### Variadic Argument Manipulation
 
 Regardless of standard, the following symbols shall be defined:
 
@@ -62,3 +62,7 @@ argv = Void ** // pointer to varArg1 *
 
 Under the `EnlightenedC` standard, the standard C method of accessing variadic arguments shall be used.
 (Todo)
+
+## Storage Class Specifiers
+
+The `public` storage-class specifier shall only be accepted under the `HolyC` standard. Under this standard, `public` and `extern` shall have equivalent semantics.

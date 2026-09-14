@@ -6,10 +6,10 @@ This document lays out the planned improvements and updates for the EnlightenedC
 
 These are to-dos that are important, but do not constitute a milestone. They are simply internal or small to-dos that need to be noted down somewhere, and do not correspond to any particular goal timeframe as laid out below. Generally, something noted here means "implement whenever it is needed".
 
-- Make `constexpr` accept string literals; string literals are currently non-compile-time evaluable
+- Make string literals compile-time evaluable, so constexpr and default arguments can accept it
 - Make `eval` consistent with Validator; throws where Validator throws, does not throw where Validator doesn't
   - Properly catch EvalSemanticError
-- Nail down storage class specifier semantics, merge with visibility specifiers
+- Nail down semantics for extern and static, merge with visibility specifiers
 - Create a symbol table for CFG (`CFGSymbolTable`)
 - Turn the std::string on `cfg::Named` into a `CFGSymbol`
 - Make the lexer hack scoped; add (scoped) typedef as its own AST node
@@ -25,7 +25,6 @@ These are to-dos that are important, but do not constitute a milestone. They are
 - Fully implement compilation pipeline
   - Validator, codegen, MVP test on Brainfuck
 - Implement missing features
-  - default arguments
   - bitfields
 - Implement Range expressions
   - For use in for-range loops (`for (U32 i : 0...5) {}`)
@@ -47,6 +46,7 @@ These are to-dos that are important, but do not constitute a milestone. They are
 ## Long-Term
 
 - Add freestanding mode to support OSDev
+  - Add additional type qualifiers like `atomic` and `volatile`
 - Add a handwritten codegen backend (learning track) alongside LLVM
 - Transition off Flex/Bison to a handwritten lexer/parser
 - Transition off calling `cpp` to a handwritten preprocessor
