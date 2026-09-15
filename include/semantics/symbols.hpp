@@ -11,6 +11,7 @@
 #include "location.hpp"
 #include "semantics/symdata.hpp"
 #include "semantics/types.hpp"
+#include "ds/stringmap.hpp"
 #include "prelude.hpp"
 
 namespace ecc::sema::sym {
@@ -46,6 +47,7 @@ public:
     enum class Kind : uint8_t {
         VAR,   // This symbol references a variable.
         FUNC,  // This symbol references a function definition.
+        ALIAS, // This symbol is an alias to a physical symbol.
         TYPE,  // This symbol references a declared type.
         LABEL, // This symbol references a label.
     };
@@ -73,6 +75,7 @@ public:
 
     bool is_var() const { return kind == Kind::VAR; }
     bool is_func() const { return kind == Kind::FUNC; }
+    bool is_alias() const { return kind == Kind::ALIAS; }
     bool is_type() const { return kind == Kind::TYPE; }
     bool is_label() const { return kind == Kind::LABEL; }
 
@@ -368,6 +371,30 @@ private:
 };
 
 /**
+A symbol that aliases another PhysicalSymbol.
+
+This is used with the `global <var>` construct.
+*/
+class AliasSymbol : public Symbol {
+public:
+    AliasSymbol(Location loc, PhysicalSymbol *aliasee, Scope *scope)
+        : Symbol(Kind::ALIAS, loc, aliasee->get_name(), scope), aliasee(aliasee) {}
+
+    PhysicalSymbol *get_aliasee() { return aliasee; }
+
+    VarSymbol *as_var() { return aliasee->as_varsym(); }
+
+    FuncSymbol *as_func() { return aliasee->as_funcsym(); }
+    
+    bool aliases_var() const { return aliasee->is_var(); }
+
+    bool aliases_func() const { return aliasee->is_func(); }
+
+private:
+    PhysicalSymbol *aliasee;
+};
+
+/**
 A symbol representing a type declaration (class, union, enum).
 */
 class TypeSymbol : public AbstractSymbol {
@@ -406,7 +433,22 @@ public:
 /**
 A class representing a lexical scoping level.
 
-Scopes can be associated with either a type, or a FuncSymbol.
+Scopes are the main container for Symbols. They represent one level of the nested SymbolTable,
+and act as an associative container, mapping names to Symbols.
+
+## Namespaces
+
+Scopes maintain three namespaces: physical symbols, types, and labels. Each namespace is non-overlapping,
+so a type and label can share a name within the same scope. A separate container for implicit variables
+is also maintained, but it is semantically part of the physical symbol namespace, and any names within it
+are shadowed by symbols in the main physical symbol container.
+
+## Association
+
+Scopes can be associated with a particular FuncSymbol or Type. When a function is defined, it implicitly
+declares a new scope, and so it can be associated with that Scope object. Similarly, when a RecordType
+(a class or union) is defined, it implicitly declares a new scope, and so can be associated with that
+Scope object as well.
 */
 class Scope {
 public:
@@ -501,9 +543,12 @@ private:
 
     // the symbol tables. Keys are owned; StringRefHash/StringRefEq are transparent, so a
     // StringRef or string_view can be used as a lookup key without allocating.
-    HashMap<std::string, Box<PhysicalSymbol>, StringRefHash, StringRefEq> phys_symbols;
-    HashMap<std::string, Box<TypeSymbol>, StringRefHash, StringRefEq> type_symbols;
-    HashMap<std::string, Box<LabelSymbol>, StringRefHash, StringRefEq> label_symbols;
+    ds::StringMap<Box<PhysicalSymbol>> phys_symbols;
+    ds::StringMap<Box<VarSymbol>> implicits;
+
+    ds::StringMap<Box<TypeSymbol>> type_symbols;
+    ds::StringMap<Box<LabelSymbol>> label_symbols;
+
     // inner scopes contained within this scope.
     Vec<Box<Scope>> nested;
 
@@ -516,7 +561,7 @@ The symbol table, storing all symbols in a given translation unit.
 */
 class SymbolTable {
 public:
-    SymbolTable() : global(std::make_unique<Scope>(nullptr, nullptr, 0)) {}
+    SymbolTable() : global(make_box<Scope>(nullptr, nullptr, 0)) {}
 
     // The global scope.
     Box<Scope> global;
@@ -527,6 +572,9 @@ public:
     std::string to_string() const;
 };
 
+/**
+Arguments for inserting a new VarSymbol.
+*/
 struct InsertVarArgs {
     Location loc;
     StringRef name;
@@ -547,6 +595,9 @@ struct InsertVarArgs {
         : loc(loc), name(name), type(type), val(val), linkage(linkage) {}
 };
 
+/**
+Arguments for inserting a new FuncSymbol.
+*/
 struct InsertFuncArgs {
     Location loc;
     StringRef name;
@@ -587,6 +638,10 @@ struct InsertLabelArgs {
 
 /**
 A Walker for the Symbol Table.
+
+The SymbolTable itself is just POD. It holds a global scope, which itself holds pointers to
+all nested scopes. The SymbolTableWalker is the stateful object that can walk, query, and modify
+the symbol table.
 */
 class SymbolTableWalker {
     Ref<SymbolTable> st;
@@ -622,11 +677,26 @@ public:
 
     /**
     Lookup a symbol by name. Returns null of no symbol exists.
+
+    Looks up the symbol in the following order: Var, Func, Type, Label. If a variable and
+    label of the same name exist, the variable will be returned, and `lookup` will never
+    work as intended if the label is what is needed. For a more reliable lookup, use
+    the specific namespace lookup functions.
     */
     Symbol *lookup(StringRef sym, bool current = false) const;
 
+    /**
+    Lookup a VarSymbol by name; `current=true` searches only in the current scope.
+    Returns `null` if no VarSymbol with that name is found.
+
+    The search order is as follows: searches the main varsymbol namespace, then
+    the implicit varsymbol namespace, then recurses to outer scopes.
+    */
     VarSymbol *lookup_var(StringRef sym, bool current = false) const;
 
+    /**
+    Lookup a VarSymbol by name from a specific scope.
+    */
     VarSymbol *lookup_var_from(Scope *from, StringRef sym, bool current = false) const;
 
     FuncSymbol *lookup_func(StringRef sym, bool current = false) const;
@@ -648,42 +718,60 @@ public:
 
     LabelSymbol *lookup_label_from(Scope *from, StringRef sym, bool current = false) const;
 
-    // Associate the current scope with the given FuncSymbol `sym`.
-    // If current scope is already tied to a symbol, replaces it
-    // with the new one depending on value of `override`.
+    /**
+    Associate the current scope with the given FuncSymbol `sym`.
+
+    If current scope is already tied to something, replaces it with the new one depending on the
+    value of `override`.
+    */
     void tie_current_to(FuncSymbol *sym, bool override = false) const;
 
+    /**
+    Associate the current scope with the given RecordType `type`.
+
+    If current scope is already tied to something, replaces it with the new one depending on the
+    value of `override`.
+    */
     void tie_current_to(types::RecordType *type, bool override = false) const;
 
     /** 
-    Add a new symbol to the current scope.
+    Add a new VarSymbol to the current scope.
 
-    Returns a pointer to the inserted symbol for further use.
-    If a symbol with the same name already exists in the current scope,
-    It throws a Location where the symbol was previously defined.
+    Returns a pointer to the inserted symbol for further use. If a symbol with the same name
+    already exists in the current scope, a `Symbol *` pointer to the existing VarSymbol is thrown.
     */
     VarSymbol *insert_var(InsertVarArgs args) const;
 
     /** 
-    Add a new symbol at the specified scope.
+    Add a new VarSymbol at the specified scope.
     
-    Returns a pointer to the inserted symbol for further use.
-    If a symbol with the same name already exists in the current scope,
-    It throws a Location where the symbol was previously defined.
+    Returns a pointer to the inserted symbol for further use. If a symbol with the same name
+    already exists in the current scope, a `Symbol *` pointer to the existing VarSymbol is thrown.
     */
     VarSymbol *insert_var_at(Scope *at, InsertVarArgs args) const;
 
     /** 
-    Add a new symbol at the current scope.
+    Add a new FuncSymbol at the current scope.
     
-    Returns a pointer to the inserted symbol for further use.
-    If a symbol with the same name already exists in the current scope,
-    It throws a Location where the symbol was previously defined.
+    Returns a pointer to the inserted symbol for further use. If a symbol with the same name
+    already exists in the current scope, a `Symbol *` pointer to the existing VarSymbol is thrown.
     */
     FuncSymbol *insert_func(InsertFuncArgs args) const;
 
+    /** 
+    Add a new FuncSymbol at the specified scope.
+    
+    Returns a pointer to the inserted symbol for further use. If a symbol with the same name
+    already exists in the current scope, a `Symbol *` pointer to the existing VarSymbol is thrown.
+    */
     FuncSymbol *insert_func_at(Scope *at, InsertFuncArgs args) const;
 
+    /** 
+    Add a new TypeSymbol at the current scope.
+    
+    Returns a pointer to the inserted symbol for further use. If a symbol with the same name
+    already exists in the current scope, a `Symbol *` pointer to the existing VarSymbol is thrown.
+    */
     TypeSymbol *insert_type(InsertTypeArgs args) const;
 
     TypeSymbol *insert_type_at(Scope *at, InsertTypeArgs args) const;
