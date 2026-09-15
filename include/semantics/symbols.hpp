@@ -33,6 +33,7 @@ class PhysicalSymbol;
 class AbstractSymbol;
 class VarSymbol;
 class FuncSymbol;
+class AliasSymbol;
 class TypeSymbol;
 class LabelSymbol;
 class Scope;
@@ -85,8 +86,10 @@ public:
 
     virtual PhysicalSymbol *as_physical() { return nullptr; }
     virtual AbstractSymbol *as_abstract() { return nullptr; }
+
     virtual VarSymbol *as_varsym() { return nullptr; }
     virtual FuncSymbol *as_funcsym() { return nullptr; }
+    virtual AliasSymbol *as_alias() { return nullptr; }
     virtual TypeSymbol *as_typesym() { return nullptr; }
     virtual LabelSymbol *as_labsym() { return nullptr; }
 protected:
@@ -113,7 +116,11 @@ class PhysicalSymbol : public Symbol {
 protected:
     Rc<SymData> symdata = nullptr;
 
+    bool implicit = false;
+
 public:
+    friend class SymbolTableWalker;
+
     PhysicalSymbol(Kind kind, StringRef name, Scope *scope) : Symbol(kind, name, scope) {}
 
     PhysicalSymbol(Kind kind, Location loc, StringRef name, Scope *scope)
@@ -134,11 +141,13 @@ public:
 
     Linkage get_linkage() const { return symdata->get_linkage(); }
 
-    PhysicalSymbol *as_physical() override { return this; }
+    bool is_implicit() const { return implicit; }
 
     virtual types::Type *get_type() const = 0;
 
     bool is_physical() override { return true; }
+
+    PhysicalSymbol *as_physical() override { return this; }
 
     static bool classof(const Symbol *sym) {
         switch (sym->kind) {
@@ -155,6 +164,8 @@ public:
 // (e.g. a label or type declaration).
 class AbstractSymbol : public Symbol {
 public:
+    friend class SymbolTableWalker;
+
     AbstractSymbol(Kind kind, StringRef name, Scope *scope) : Symbol(kind, name, scope) {}
 
     AbstractSymbol(Kind kind, Location loc, StringRef name, Scope *scope)
@@ -375,10 +386,14 @@ A symbol that aliases another PhysicalSymbol.
 
 This is used with the `global <var>` construct.
 */
-class AliasSymbol : public Symbol {
+class AliasSymbol : public PhysicalSymbol {
 public:
+    friend class SymbolTableWalker;
+    
     AliasSymbol(Location loc, PhysicalSymbol *aliasee, Scope *scope)
-        : Symbol(Kind::ALIAS, loc, aliasee->get_name(), scope), aliasee(aliasee) {}
+        : PhysicalSymbol(Kind::ALIAS, loc, aliasee->get_name(), scope), aliasee(aliasee) {
+        symdata = aliasee->get_symdata_rc();
+    }
 
     PhysicalSymbol *get_aliasee() { return aliasee; }
 
@@ -389,6 +404,16 @@ public:
     bool aliases_var() const { return aliasee->is_var(); }
 
     bool aliases_func() const { return aliasee->is_func(); }
+
+    types::Type *get_type() const override { return aliasee->get_type(); }
+
+    std::string to_string() const override { return aliasee->to_string(); }
+
+    std::string mangle() const override { return "ALIAS" + aliasee->mangle(); }
+
+    AliasSymbol *as_alias() override { return this; }
+
+    static bool classof(const Symbol *sym) { return sym->kind == Kind::ALIAS; }
 
 private:
     PhysicalSymbol *aliasee;
@@ -524,6 +549,10 @@ public:
 
     types::RecordType *get_type_assoc() const;
 
+    bool locally_contains(StringRef sym) const;
+
+    PhysicalSymbol *get(StringRef sym) const;
+
     uint64_t get_id() const { return id; }
 
     void print(std::stringstream& ss, int depth);
@@ -545,9 +574,16 @@ private:
     // StringRef or string_view can be used as a lookup key without allocating.
     ds::StringMap<Box<PhysicalSymbol>> phys_symbols;
     ds::StringMap<Box<VarSymbol>> implicits;
-
+    
     ds::StringMap<Box<TypeSymbol>> type_symbols;
     ds::StringMap<Box<LabelSymbol>> label_symbols;
+
+    /**
+    Bag for any shadowed symbols. No need to be a map, since they can no longer be looked up,
+    but we still need to hold on to them because they are still referenced by code before
+    the shadowing symbol was introduced.
+    */
+    HashSet<Box<PhysicalSymbol>> shadowed;
 
     // inner scopes contained within this scope.
     Vec<Box<Scope>> nested;
@@ -617,6 +653,13 @@ struct InsertFuncArgs {
     InsertFuncArgs(Location loc, StringRef name, types::FunctionType *signature,
                    LangLinkage langlink)
         : loc(loc), name(name), signature(signature), linkage(Linkage::EXTERNAL), langlink(langlink) {}
+};
+
+struct InsertAliasArgs {
+    Location loc;
+    PhysicalSymbol *aliasee;
+
+    InsertAliasArgs(Location loc, PhysicalSymbol *aliasee) : loc(loc), aliasee(aliasee) {}
 };
 
 struct InsertTypeArgs {
@@ -735,10 +778,10 @@ public:
     void tie_current_to(types::RecordType *type, bool override = false) const;
 
     /** 
-    Add a new VarSymbol to the current scope.
+    Add a new (explicit) VarSymbol to the current scope.
 
-    Returns a pointer to the inserted symbol for further use. If a symbol with the same name
-    already exists in the current scope, a `Symbol *` pointer to the existing VarSymbol is thrown.
+    Returns a pointer to the inserted symbol for further use. If a non-implicit symbol with the same name
+    already exists in the current scope, a `Symbol *` pointer to the existing PhysicalSymbol is thrown.
     */
     VarSymbol *insert_var(InsertVarArgs args) const;
 
@@ -746,9 +789,25 @@ public:
     Add a new VarSymbol at the specified scope.
     
     Returns a pointer to the inserted symbol for further use. If a symbol with the same name
-    already exists in the current scope, a `Symbol *` pointer to the existing VarSymbol is thrown.
+    already exists in the current scope, a `Symbol *` pointer to the existing PhysicalSymbol is thrown.
     */
     VarSymbol *insert_var_at(Scope *at, InsertVarArgs args) const;
+
+    /** 
+    Add a new implicit VarSymbol to the current scope.
+    
+    Returns a pointer to the inserted symbol for further use. If a symbol with the same name
+    already exists in the current scope, a `Symbol *` pointer to the existing VarSymbol is thrown.
+    */
+    VarSymbol *insert_implicit(InsertVarArgs args) const;
+
+    /**
+    Add a new alias to an existing PhysicalSymbol to the current scope.
+
+    Returns a pointer to the inserted alias (not the aliasee). Insertion always succeeds, because
+    it shadows any symbol in the current scope with the same name.
+    */
+    AliasSymbol *insert_alias(InsertAliasArgs args) const;
 
     /** 
     Add a new FuncSymbol at the current scope.

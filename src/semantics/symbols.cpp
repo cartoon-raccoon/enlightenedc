@@ -167,6 +167,24 @@ RecordType *Scope::get_type_assoc() const {
     }
 }
 
+bool Scope::locally_contains(StringRef sym) const {
+    return phys_symbols.contains(sym) || implicits.contains(sym);
+}
+
+PhysicalSymbol *Scope::get(StringRef sym) const {
+    // get from explicit physical symbols first
+    if (phys_symbols.contains(sym)) {
+        return phys_symbols.find(sym)->second.get();
+    }
+
+    // failing which, get the implicit one
+    if (implicits.contains(sym)) {
+        return implicits.find(sym)->second.get();
+    }
+
+    return nullptr;
+}
+
 void SymbolTable::clear() {
     // todo
 }
@@ -244,9 +262,9 @@ VarSymbol *SymbolTableWalker::lookup_var(StringRef sym, bool current_only) const
     Scope *my_current = current;
     if (current_only) {
         dbprint("SymbolTable: looking up varsymbol ", sym, " in current scope");
-        if (my_current->phys_symbols.contains(sym)) {
+        if (my_current->locally_contains(sym)) {
             // this returns null if we pull a funcsymbol
-            return my_current->phys_symbols.find(sym)->second->as_varsym();
+            return my_current->get(sym)->as_varsym();
         } else {
             return nullptr;
         }
@@ -254,7 +272,7 @@ VarSymbol *SymbolTableWalker::lookup_var(StringRef sym, bool current_only) const
     dbprint("SymbolTable: looking up varsymbol ", sym);
 
     // look for symbol in current scope
-    while (!(my_current->phys_symbols.contains(sym))) {
+    while (!(my_current->locally_contains(sym))) {
         // if already global, return null
         if (my_current->outer == nullptr) {
             ECC_ASSERT_N(my_current == global());
@@ -266,7 +284,7 @@ VarSymbol *SymbolTableWalker::lookup_var(StringRef sym, bool current_only) const
         my_current = my_current->outer;
     }
 
-    return my_current->phys_symbols.find(sym)->second->as_varsym();
+    return my_current->get(sym)->as_varsym();
 }
 
 VarSymbol *SymbolTableWalker::lookup_var_from(Scope *from, StringRef sym, bool current_only) const {
@@ -443,6 +461,48 @@ VarSymbol *SymbolTableWalker::insert_var_at(Scope *at, InsertVarArgs args) const
     }
 
     current = saved;
+    return ret;
+}
+
+VarSymbol *SymbolTableWalker::insert_implicit(InsertVarArgs args) const {
+    dbprint("SymbolTable: inserting implicit varsymbol with name \"", args.name, "\"");
+    if (current->locally_contains(args.name)) {
+        Symbol *existing = current->get(args.name);
+        throw existing;
+    }
+
+    auto sym = make_box<VarSymbol>(args.loc, args.name, current, args.type);
+    if (args.val) {
+        sym->set_value(*args.val);
+    }
+    sym->get_symdata()->set_linkage(args.linkage);
+    sym->implicit = true;
+    VarSymbol *ret = sym.get();
+    current->implicits.insert_or_assign(args.name.str(), std::move(sym));
+
+    return ret;
+}
+
+AliasSymbol *SymbolTableWalker::insert_alias(InsertAliasArgs args) const {
+    dbprint("SymbolTable: inserting alias for \"", args.aliasee->get_name(), "\"");
+
+    auto sym = make_box<AliasSymbol>(args.loc, args.aliasee, current);
+
+    AliasSymbol *ret = sym.get();
+
+    if (current->phys_symbols.contains(args.aliasee->get_name())) {
+        // if the current physical symbols table contains the name, extract it
+        // and banish it to the shadow zone
+        Box<PhysicalSymbol> existing
+            = std::move(current->phys_symbols.find(args.aliasee->get_name())->second);
+
+        current->phys_symbols.erase(args.aliasee->get_name());
+
+        current->shadowed.insert(std::move(existing));
+    }
+
+    current->phys_symbols.insert_or_assign(args.aliasee->get_name().str(), std::move(sym));
+
     return ret;
 }
 
