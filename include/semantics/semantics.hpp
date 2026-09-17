@@ -126,7 +126,34 @@ public:
 
     bool has_errors() { return !errors.empty(); }
 
-    Span<EccDiagnostic *const> diagnostics() {
+    /**
+    Drains the diagnostics from other into `this`.
+    */
+    void drain(Fallible& other) {
+        for (auto& warning : other.warnings) {
+            warnings.push_back(std::move(warning));
+        }
+
+        other.warnings.clear();
+
+        for (auto& error : other.errors) {
+            errors.push_back(std::move(error));
+        }
+
+        other.errors.clear();
+
+        for (auto *diag : other.diagnostic_order) {
+            diagnostic_order.push_back(diag);
+        }
+
+        other.diagnostic_order.clear();
+    }
+
+    Span<EccDiagnostic *const> diagnostics() const {
+        return diagnostic_order;
+    }
+
+    Span<EccDiagnostic *> diagnostics() {
         return diagnostic_order;
     }
 };

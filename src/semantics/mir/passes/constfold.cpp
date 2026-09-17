@@ -24,7 +24,7 @@ Chunk<ExprMIR> ConstantFolder::eval_and_expr(Chunk<ExprMIR>& expr, Location loc)
         Chunk<ExprMIR>& taken =
             static_cast<bool>(cond) ? condexpr->true_expr : condexpr->false_expr;
 
-        if (taken->is_const_foldable()) {
+        if (taken->is_const_foldable(false)) {
             return eval_and_expr(taken, taken->loc);
         }
 
@@ -60,7 +60,7 @@ Chunk<ExprMIR> ConstantFolder::eval_and_expr(Chunk<ExprMIR>& expr, Location loc)
 }
 
 void ConstantFolder::fold_operand(Chunk<ExprMIR>& operand) {
-    if (operand->is_const_foldable()) {
+    if (operand->is_const_foldable(false)) {
         try {
             operand = eval_and_expr(operand, operand->loc);
         } catch (InvalidCompileTimeEval&) {

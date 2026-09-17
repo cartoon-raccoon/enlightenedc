@@ -449,6 +449,7 @@ VarSymbol *SymbolTableWalker::insert_var(InsertVarArgs args) const {
         sym->set_value(*args.val);
     }
     sym->get_symdata()->set_linkage(args.linkage);
+    sym->get_symdata()->set_duration(args.duration);
     VarSymbol *ret = sym.get();
     current->phys_symbols.insert_or_assign(args.name.str(), std::move(sym));
 
@@ -477,11 +478,16 @@ VarSymbol *SymbolTableWalker::insert_implicit(InsertVarArgs args) const {
         throw existing;
     }
 
+    ECC_ASSERT(current != global(), "tried to insert implicit at global scope");
+
     auto sym = make_box<VarSymbol>(args.loc, args.name, current, args.type);
     if (args.val) {
         sym->set_value(*args.val);
     }
-    sym->get_symdata()->set_linkage(args.linkage);
+
+    // ignore any non-default linkage or duration
+    sym->get_symdata()->set_linkage(Linkage::NONE);
+    sym->get_symdata()->set_duration(StorageDuration::AUTO);
     sym->implicit = true;
     VarSymbol *ret = sym.get();
     current->implicits.insert_or_assign(args.name.str(), std::move(sym));

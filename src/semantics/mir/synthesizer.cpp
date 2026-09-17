@@ -17,6 +17,7 @@
 #include "semantics/symdata.hpp"
 #include "semantics/typeerr.hpp"
 #include "semantics/types.hpp"
+#include "semantics/validator.hpp"
 #include "prelude.hpp"
 
 using namespace ecc::ds;
@@ -576,11 +577,27 @@ Value MIRSynthesizer::parse_constexpr_init(InitializerMIR& init, Type *type) {
         throw UnableToContinue();
     }
 
-    if (!init_expr->is_const_foldable()) {
+    if (!init_expr->is_const_foldable(true)) {
         add_error<InvalidCompileTimeEval>(
             "constexpr initializers must be compile-time evaluable", init_expr->loc);
         throw UnableToContinue();
     }
+
+    sema::ExprValidator exprv(types, syms);
+    try {
+        init_expr->accept(exprv);
+    } catch (UnableToContinue& e) {
+        drain(exprv);
+        throw e;
+    }
+
+    if (exprv.has_diagnostics()) {
+        bool has_errors = exprv.has_errors();
+        drain(exprv);
+        if (has_errors)
+            throw UnableToContinue();
+    }
+
 
     eval::ConstEvaluator evalr(syms, types);
 
@@ -698,6 +715,7 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
         } else {
 
             InsertVarArgs args = {declarator->loc, *ret.name, symtype, specinfo.linkage};
+            args.duration = specinfo.duration;
 
             VarSymbol *symptr = nullptr;
             try {
@@ -1929,6 +1947,21 @@ void MIRSynthesizer::do_visit(ConstExpression& node) {
     bsv_dbprint("visiting ConstExpression node: ", node.loc);
     dv_call_noparam(node.inner);
     Chunk<ExprMIR> inner = take_last_result<Chunk<ExprMIR>>();
+
+    ExprValidator exprv(types, syms);
+    try {
+        inner->accept(exprv);
+    } catch (UnableToContinue& e) {
+        drain(exprv);
+        throw e;
+    }
+
+    if (exprv.has_diagnostics()) {
+        bool has_errors = exprv.has_errors();
+        drain(exprv);
+        if (has_errors)
+            throw UnableToContinue();
+    }
 
     ConstEvaluator evalr(syms, types);
     Value res;

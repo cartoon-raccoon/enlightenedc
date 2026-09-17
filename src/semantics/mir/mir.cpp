@@ -67,6 +67,20 @@ bool InitializerMIR::is_all_literals() {
         initializer);
 }
 
+bool InitializerMIR::is_constant() {
+    return std::visit(match{    // fixme: make all literals constant foldable so this isn't needed
+        [&](Chunk<ExprMIR>& expr) { return expr->is_const_foldable(true) || isa<LiteralExprMIR>(expr); },
+        [&](Chunk<InitializerMIR::Member>& mem) { return mem->initializer->is_constant(); },
+        [&](Chunk<InitializerMIR::Index>& idx) { return idx->initializer->is_constant(); },
+        [&](ArenaVec<Chunk<InitializerMIR>>& init) {
+            return std::all_of(
+                init.cbegin(), init.cend(),
+                [](const Chunk<InitializerMIR>& init) { return init->is_constant(); }
+            );
+        }
+    }, initializer);
+}
+
 void VarDeclMIR::add_decl(VarSymbol *sym) {
     decls.emplace_back(VarDecl{sym, {}});
 }

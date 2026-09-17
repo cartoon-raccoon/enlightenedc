@@ -138,6 +138,8 @@ class VarSymData : public SymData {
     */
     types::Type *type;
 
+    StorageDuration duration = StorageDuration::AUTO;
+
 public:
     VarSymData(StringRef name, types::Type *type) : SymData(Kind::VAR, name), type(type) {}
 
@@ -147,6 +149,10 @@ public:
     types::Type *get_type() { return type; }
 
     void set_type(types::Type *type) { this->type = type; }
+
+    StorageDuration get_duration() { return duration; }
+
+    void set_duration(StorageDuration duration) { this->duration = duration; }
 
     bool mergeable_from(const VarSymData& other) const {
         if (!SymData::mergeable_from(other)) { return false; }

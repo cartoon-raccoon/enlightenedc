@@ -3,8 +3,6 @@
 #ifndef ECC_TYPECHECK_H
 #define ECC_TYPECHECK_H
 
-#include <variant>
-
 #include "config.hpp"
 #include "eval/value.hpp"
 #include "prelude.hpp"
@@ -17,6 +15,81 @@ using namespace ecc;
 using namespace util;
 
 namespace ecc::sema {
+
+class ExprValidator : public BaseMIRSemaVisitor, public Fallible, public NoMove {
+    types::TypeContext& types;
+    sym::SymbolTableWalker& syms;
+public:
+    ExprValidator(types::TypeContext& types, sym::SymbolTableWalker& syms)
+        : BaseMIRSemaVisitor(State::READ), types(types), syms(syms) {}
+
+    sym::SymbolTableWalker *symwalker() override { return &syms; }
+
+    /**
+    Implicitly cast expr into target.
+
+    Concretely, this creates a new CastExprMIR node, with node.castkind set to Implicit.
+    */
+    Chunk<mir::CastExprMIR> cast(types::Type *target, Chunk<mir::ExprMIR> expr);
+
+    /**
+    Decays expr into target.
+
+    Concretely, this does the same thing as cast: it creates a new CastExprMIR,
+    and returns it, but the difference is that the castkind is set to
+    either ArrPtrDecay, or FuncPtrDecay.
+    */
+    Chunk<mir::CastExprMIR>
+    decay(types::Type *target, Chunk<mir::ExprMIR> expr, bool is_funcdecay = false);
+
+    /**
+    Check if an expression is tautological.
+    */
+    bool expr_is_tautological(mir::ExprMIR& expr);
+
+    VISIT_NO_IMPL(mir::FunctionMIR);
+    VISIT_NO_IMPL(mir::InitializerMIR);
+    VISIT_NO_IMPL(mir::VarDeclMIR);
+    VISIT_NO_IMPL(mir::TypeDeclMIR);
+
+    VISIT_NO_IMPL(mir::ExprStmtMIR);
+    VISIT_NO_IMPL(mir::CompoundStmtMIR);
+    VISIT_NO_IMPL(mir::SwitchStmtMIR);
+    VISIT_NO_IMPL(mir::CaseStmtMIR);
+    VISIT_NO_IMPL(mir::CaseRangeStmtMIR);
+    VISIT_NO_IMPL(mir::DefaultStmtMIR);
+    VISIT_NO_IMPL(mir::PrintStmtMIR);
+    VISIT_NO_IMPL(mir::IfStmtMIR);
+    VISIT_NO_IMPL(mir::GotoStmtMIR);
+    VISIT_NO_IMPL(mir::BreakStmtMIR);
+    VISIT_NO_IMPL(mir::ContStmtMIR);
+    VISIT_NO_IMPL(mir::ReturnStmtMIR);
+
+    void do_visit(mir::BinaryExprMIR& node) final;
+    void do_visit(mir::UnaryExprMIR& node) final;
+    void do_visit(mir::CastExprMIR& node) final;
+    void do_visit(mir::AssignExprMIR& node) final;
+    void do_visit(mir::CondExprMIR& node) final;
+    void do_visit(mir::IdentExprMIR& node) final;
+    void do_visit(mir::LiteralExprMIR& node) final;
+    void do_visit(mir::CallExprMIR& node) final;
+    void do_visit(mir::MemberAccExprMIR& node) final;
+    void do_visit(mir::ReintExprMIR& node) final;
+    void do_visit(mir::SubscrExprMIR& node) final;
+    void do_visit(mir::PostfixExprMIR& node) final;
+    void do_visit(mir::SizeofExprMIR& node) final;
+
+private:
+    void validate_binexpr_nonprim(mir::BinaryExprMIR& node);
+
+    void validate_binexpr_ptr_left(mir::BinaryExprMIR& node);
+
+    void validate_binexpr_ptr_right(mir::BinaryExprMIR& node);
+
+    void validate_binexpr_ptr_both(mir::BinaryExprMIR& node);
+
+    void validate_binexpr_prim(mir::BinaryExprMIR& node);
+};
 
 /**
 A helper struct for tracking cases in a switch statement.
@@ -48,14 +121,18 @@ The class that performs type-checking and semantic validation.
 */
 class Validator : public BaseMIRSemaVisitor, public Fallible, public NoMove {
     types::TypeContext& types;
+
     sym::SymbolTableWalker syms;
     RuntimeConfig& rtcfg;
+
+    // keep the ExprValidator here, because it holds a reference to syms.
+    ExprValidator exprv;
 
     Vec<SwitchTracker> switches;
 
 public:
-    Validator(sym::SymbolTable& syms, types::TypeContext& types, RuntimeConfig& rtcfg)
-        : BaseMIRSemaVisitor(State::READ), types(types), syms(syms), rtcfg(rtcfg) {}
+    Validator(sym::SymbolTable& symtab, types::TypeContext& types, RuntimeConfig& rtcfg)
+        : BaseMIRSemaVisitor(State::READ), types(types), syms(symtab), rtcfg(rtcfg), exprv(types, syms) {}
 
     sym::SymbolTableWalker *symwalker() override { return &syms; }
 
@@ -63,30 +140,8 @@ public:
 
 protected:
 
-    /**
-    Implicitly cast expr into target.
-
-    Concretely, this creates a new CastExprMIR node, with node.castkind set to Implicit.
-    */
-    Chunk<mir::CastExprMIR> cast(types::Type *target, Chunk<mir::ExprMIR> expr);
-
-    /**
-    Decays expr into target.
-
-    Concretely, this does the same thing as cast: it creates a new CastExprMIR,
-    and returns it, but the difference is that the castkind is set to
-    either ArrPtrDecay, or FuncPtrDecay.
-    */
-    Chunk<mir::CastExprMIR>
-    decay(types::Type *target, Chunk<mir::ExprMIR> expr, bool is_funcdecay = false);
-
     Optional<types::Type *>
     eval_initializer(types::Type *type, mir::InitializerMIR& init, bool allow_size_infer = false);
-
-    /**
-    Check if an expression is tautological.
-    */
-    bool expr_is_tautological(mir::ExprMIR& expr);
 
     /**
     Checks if a given statement always returns.
@@ -114,22 +169,20 @@ protected:
     void do_visit(mir::ContStmtMIR& node) final;
     void do_visit(mir::ReturnStmtMIR& node) final;
 
-    void do_visit(mir::BinaryExprMIR& node) final;
-    void do_visit(mir::UnaryExprMIR& node) final;
-    void do_visit(mir::CastExprMIR& node) final;
-    void do_visit(mir::AssignExprMIR& node) final;
-    void do_visit(mir::CondExprMIR& node) final;
-    void do_visit(mir::IdentExprMIR& node) final;
-    void do_visit(mir::LiteralExprMIR& node) final;
-    void do_visit(mir::CallExprMIR& node) final;
-    void do_visit(mir::MemberAccExprMIR& node) final;
-    void do_visit(mir::ReintExprMIR& node) final;
-    void do_visit(mir::SubscrExprMIR& node) final;
-    void do_visit(mir::PostfixExprMIR& node) final;
-    void do_visit(mir::SizeofExprMIR& node) final;
+    VISIT_NO_IMPL(mir::BinaryExprMIR);
+    VISIT_NO_IMPL(mir::UnaryExprMIR);
+    VISIT_NO_IMPL(mir::CastExprMIR);
+    VISIT_NO_IMPL(mir::AssignExprMIR);
+    VISIT_NO_IMPL(mir::CondExprMIR);
+    VISIT_NO_IMPL(mir::IdentExprMIR);
+    VISIT_NO_IMPL(mir::LiteralExprMIR);
+    VISIT_NO_IMPL(mir::CallExprMIR);
+    VISIT_NO_IMPL(mir::MemberAccExprMIR);
+    VISIT_NO_IMPL(mir::SubscrExprMIR);
+    VISIT_NO_IMPL(mir::PostfixExprMIR);
+    VISIT_NO_IMPL(mir::SizeofExprMIR);
 
 private:
-    using Accessor = std::variant<std::string, size_t>;
 
     /**
     The location of the main function, if found.
@@ -158,16 +211,6 @@ private:
     void eval_initializer_rec_arr(
         types::AccessorPath& path, types::ArrayType *arr,
         ds::ArenaVec<Chunk<mir::InitializerMIR>>& init);
-
-    void validate_binexpr_nonprim(mir::BinaryExprMIR& node);
-
-    void validate_binexpr_ptr_left(mir::BinaryExprMIR& node);
-
-    void validate_binexpr_ptr_right(mir::BinaryExprMIR& node);
-
-    void validate_binexpr_ptr_both(mir::BinaryExprMIR& node);
-
-    void validate_binexpr_prim(mir::BinaryExprMIR& node);
 
     void validate_print(StringRef format_str, Span<Chunk<mir::ExprMIR>> args);
 };

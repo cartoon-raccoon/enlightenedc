@@ -172,14 +172,15 @@ public:
     virtual bool is_subscriptable() { return eff_type->is_subscriptable(); }
 
     /**
-    Whether this expression is constant-foldable.
+    Whether this expression is constant-foldable. Whether or not the expression is strictly foldable
+    is controlled by the `strict` argument.
 
-    Note: this does not necessarily mean that the full expression is constant foldable,
+    This does not necessarily mean that the full expression is constant foldable,
     it simply means at least some part of the expression can be. For example, a \p CondExprMIR
     is foldable if just its condition is foldable, because it means one branch can be
     eliminated. It does not necessarily mean the surviving branch is foldable.
     */
-    virtual bool is_const_foldable() = 0;
+    virtual bool is_const_foldable(bool strict) = 0;
 
     void set_type(sema::types::Type *type) {
         act_type = type;
@@ -310,6 +311,11 @@ public:
     An array initializer that is all literals can be optimized.
     */
     bool is_all_literals();
+
+    /**
+    Check if an initializer is constant (can be evaluated and baked into an executable's data section).
+    */
+    bool is_constant();
 
     static bool classof(const MIRNode *node) { return node->kind == NodeKind::INIT_MIR; }
 };
@@ -603,8 +609,8 @@ public:
 
     bool is_lvalue() override { return false; }
 
-    bool is_const_foldable() override {
-        return left->is_const_foldable() && right->is_const_foldable();
+    bool is_const_foldable(bool strict) override {
+        return left->is_const_foldable(strict) && right->is_const_foldable(strict);
     }
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
@@ -625,8 +631,8 @@ public:
 
     bool is_lvalue() override { return op == tokens::UnaryOp::DEREF; };
 
-    bool is_const_foldable() override {
-        return operand->is_const_foldable() && sema::prim::unaryop_is_const_foldable(op);
+    bool is_const_foldable(bool strict) override {
+        return operand->is_const_foldable(strict) && sema::prim::unaryop_is_const_foldable(op);
     }
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
@@ -656,7 +662,7 @@ public:
 
     bool is_lvalue() override { return false; }
 
-    bool is_const_foldable() override { return inner->is_const_foldable(); }
+    bool is_const_foldable(bool strict) override { return inner->is_const_foldable(strict); }
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
 
@@ -677,7 +683,7 @@ public:
 
     bool is_lvalue() override { return false; }
 
-    bool is_const_foldable() override { return false; }
+    bool is_const_foldable(bool) override { return false; }
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
 
@@ -699,10 +705,16 @@ public:
 
     bool is_lvalue() override { return false; }
 
-    bool is_const_foldable() override {
+    bool is_const_foldable(bool strict) override {
         // if condition is const_foldable, we can eliminate one branch
         // so even if both branches are not const foldable, we can still optimize
-        return condition->is_const_foldable();
+        if (strict) {
+            return condition->is_const_foldable(true) &&
+            true_expr->is_const_foldable(true) &&
+            false_expr->is_const_foldable(true);
+        } else {
+            return condition->is_const_foldable(false);
+        }
     }
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
@@ -731,7 +743,7 @@ public:
 
     bool is_subscriptable() override { return eff_type->is_subscriptable(); }
 
-    bool is_const_foldable() override {
+    bool is_const_foldable(bool) override {
         sym::VarSymbol *var = ident->as_varsym();
         if (!var) {
             return false;
@@ -771,7 +783,7 @@ public:
 
     bool is_subscriptable() override { return false; }
 
-    bool is_const_foldable() override { return is_value(); }
+    bool is_const_foldable(bool) override { return is_value(); } // fixme: make string literals foldable
 
     bool is_value() const { return std::holds_alternative<eval::Value>(value); }
 
@@ -806,7 +818,7 @@ public:
     */
     types::FunctionType *call_sig = nullptr;
 
-    bool is_const_foldable() override { return false; }
+    bool is_const_foldable(bool) override { return false; }
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
 
@@ -838,7 +850,7 @@ public:
         return is_lvalue() && !(object->act_type->is_const() || act_type->is_const());
     }
 
-    bool is_const_foldable() override { return false; }
+    bool is_const_foldable(bool) override { return false; }
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
 
@@ -870,7 +882,7 @@ public:
         return is_lvalue() && !(object->act_type->is_const() || act_type->is_const());
     }
 
-    bool is_const_foldable() override { return false; }
+    bool is_const_foldable(bool) override { return false; }
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
 
@@ -895,7 +907,7 @@ public:
 
     bool is_assignable() override { return is_lvalue() && !act_type->is_const(); }
 
-    bool is_const_foldable() override { return false; }
+    bool is_const_foldable(bool) override { return false; }
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
 
@@ -912,7 +924,7 @@ public:
     Chunk<ExprMIR> operand;
     tokens::PostfixOp op;
 
-    bool is_const_foldable() override { return false; }
+    bool is_const_foldable(bool) override { return false; }
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
 
@@ -936,7 +948,7 @@ public:
 
     SizeofOperand operand;
 
-    bool is_const_foldable() override { return true; }
+    bool is_const_foldable(bool) override { return true; }
 
     eval::Value eval(eval::ExprEvaluator& ev) override;
 

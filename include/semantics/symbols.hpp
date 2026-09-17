@@ -617,6 +617,7 @@ struct InsertVarArgs {
     types::Type *type;
     Optional<eval::Value> val;
     Linkage linkage = Linkage::NONE;
+    StorageDuration duration = StorageDuration::AUTO;
 
     InsertVarArgs(Location loc, StringRef name, types::Type *type)
         : loc(loc), name(name), type(type) {}
