@@ -103,6 +103,7 @@ using VisitResult = std::variant<
     InitializerRet>;
 
 struct FuncBodyVisitParam {
+    sym::FuncSymbol *sym;
     ast::FunctionBody *body;
     Vec<sym::InsertVarArgs> params;
 };

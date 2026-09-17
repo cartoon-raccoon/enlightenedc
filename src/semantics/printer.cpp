@@ -15,7 +15,11 @@ using namespace ecc::tokens;
 std::string VarSymbol::to_string() const {
     std::stringstream ss;
 
-    ss << "VarSymbol: " << name;
+    ss << "VarSymbol: ";
+    if (is_implicit()) {
+        ss << "(implicit) ";
+    }
+    ss << name;
 
     if (get_type()) {
         ss << " :: " << get_symdata()->get_type()->formal();
@@ -368,9 +372,14 @@ void Scope::print(std::stringstream& ss, int depth) {
 
     if (!phys_symbols.empty()) {
         ss << indent << "Physical Symbols:\n";
+        for (auto const& [name, sym] : implicits) {
+            ss << indent << "  " << name << " <" << sym.get() << "> : " << sym->to_string() << "\n";
+        }
         for (auto const& [name, sym] : phys_symbols) {
             ss << indent << "  " << name << " <" << sym.get() << "> : " << sym->to_string() << "\n";
         }
+
+        // todo: print shadowed
     }
 
     if (!type_symbols.empty()) {

@@ -6,13 +6,15 @@ This document lays out the planned improvements and updates for the EnlightenedC
 
 These are to-dos that are important, but do not constitute a milestone. They are simply internal or small to-dos that need to be noted down somewhere, and do not correspond to any particular goal timeframe as laid out below. Generally, something noted here means "implement whenever it is needed".
 
-- Nail down semantics for extern and static, implement in CFG
+- Implement linkage semantics in LIR and CFG
 - Create a symbol table for CFG (`CFGSymbolTable`)
 - Turn the std::string on `cfg::Named` into a `CFGSymbol`
 - Make the lexer hack scoped; add (scoped) typedef as its own AST node
+- Implement `global` and `typedef`
+- Factor out expression validation logic from Validator into a separate ExprValidator class
+  - Allows us to walk and validate ConstExpr trees at MIR synthesis, and make sure compile-time evaluation
+  and validation share the same semantic rules
 - Make string literals compile-time evaluable, so constexpr and default arguments can accept it
-- Make `eval` consistent with Validator; throws where Validator throws, does not throw where Validator doesn't
-  - Properly catch EvalSemanticError
 - Implement ArrayRef (modeled after `llvm::ArrayRef<T>`)
   - Implement edit distance algorithm (Levenshtein distance, see `llvm::ComputeEditDistance`)
 - Implement remaining `llvm::StringRef` API

@@ -402,7 +402,7 @@ void MIRSynthesizer::do_visit(Function& node) {
         throw UnableToContinue();
     }
 
-    FuncBodyVisitParam cmpdstmtp({node.body.get(), std::move(params)});
+    FuncBodyVisitParam cmpdstmtp({funcsym, node.body.get(), std::move(params)});
 
     auto res = parse_function_body(std::move(cmpdstmtp));
 
@@ -442,6 +442,28 @@ CmpdStmtFromFuncRes MIRSynthesizer::parse_function_body(FuncBodyVisitParam param
     }
 
     ArenaVec<Chunk<ProgItemMIR>> progitems;
+
+    // Variadic function and HolyC standard: insert implicit argc, argv
+    if (params.sym->get_signature()->is_variadic() && rtcfg.std == Config::Std::HOLYC) {
+        Type *argc_type = types.get_size_type(false);
+        auto argc_insertargs = InsertVarArgs(Location {}, "argc", argc_type);
+
+        Type *argv_type = types.get_pointer(types.get_pointer(types.get_void()));
+        auto argv_insertargs = InsertVarArgs(Location {}, "argv", argv_type);
+
+        VarSymbol *argc_sym = syms.insert_implicit(argc_insertargs);
+        VarSymbol *argv_sym = syms.insert_implicit(argv_insertargs);
+
+        auto argc_vardecl = make_chunk<VarDeclMIR>(Location {}, syms.current);
+        argc_vardecl->add_decl(argc_sym);
+
+        auto argv_vardecl = make_chunk<VarDeclMIR>(Location {}, syms.current);
+        argv_vardecl->add_decl(argv_sym);
+
+        progitems.push_back(std::move(argc_vardecl));
+        progitems.push_back(std::move(argv_vardecl));
+    }
+
     for (auto& item : params.body->items) {
         dv_call_noparam(item);
         std::visit(
@@ -1109,9 +1131,9 @@ void MIRSynthesizer::do_visit(ClassSpecifier& node) {
     ClassType *cls = nullptr;
     try {
         if (node.name) {
-            cls = types.get_class(node.loc, *(node.name), syms.current);
+            cls = types.get_class(node.loc, *(node.name), declared_scope);
         } else {
-            cls = types.get_class(node.loc, syms.current);
+            cls = types.get_class(node.loc, declared_scope);
         }
     } catch (UserType *prev_def) {
         add_error<TypeDecldAsOtherError>(
@@ -1191,9 +1213,9 @@ void MIRSynthesizer::do_visit(UnionSpecifier& node) {
     UnionType *unn = nullptr;
     try {
         if (node.name) {
-            unn = types.get_union(node.loc, *(node.name), syms.current);
+            unn = types.get_union(node.loc, *(node.name), declared_scope);
         } else {
-            unn = types.get_union(node.loc, syms.current);
+            unn = types.get_union(node.loc, declared_scope);
         }
     } catch (UserType *prev_def) {
         add_error<TypeDecldAsOtherError>(
