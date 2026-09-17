@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <sstream>
 #include <utility>
+#include "builtins.hpp"
 #include "semantics/symdata.hpp"
 #include "semantics/types.hpp"
 
@@ -19,6 +20,10 @@ std::string VarSymbol::mangle() const {
     std::stringstream ss;
     if (global) {
         ss << name;
+    } else if (is_implicit() && name == EC_IMPLICIT_ARGC) {
+        ss << ECC_MANGLED_ARGC;
+    } else if (is_implicit() && name == EC_IMPLICIT_ARGV) {
+        ss << ECC_MANGLED_ARGV;
     } else {
         ss << name << "_" << "s" << scope->get_id();
     }

@@ -5,6 +5,7 @@
 #include <variant>
 
 #include "ast/ast.hpp"
+#include "builtins.hpp"
 #include "ds/arenavec.hpp"
 #include "error.hpp"
 #include "eval/consteval.hpp"
@@ -446,10 +447,10 @@ CmpdStmtFromFuncRes MIRSynthesizer::parse_function_body(FuncBodyVisitParam param
     // Variadic function and HolyC standard: insert implicit argc, argv
     if (params.sym->get_signature()->is_variadic() && rtcfg.std == Config::Std::HOLYC) {
         Type *argc_type = types.get_size_type(false);
-        auto argc_insertargs = InsertVarArgs(Location {}, "argc", argc_type);
+        auto argc_insertargs = InsertVarArgs(Location {}, EC_IMPLICIT_ARGC, argc_type);
 
         Type *argv_type = types.get_pointer(types.get_pointer(types.get_void()));
-        auto argv_insertargs = InsertVarArgs(Location {}, "argv", argv_type);
+        auto argv_insertargs = InsertVarArgs(Location {}, EC_IMPLICIT_ARGV, argv_type);
 
         VarSymbol *argc_sym = syms.insert_implicit(argc_insertargs);
         VarSymbol *argv_sym = syms.insert_implicit(argv_insertargs);
