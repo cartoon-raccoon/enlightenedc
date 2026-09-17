@@ -1,5 +1,8 @@
 #include "config.hpp"
 
+#include <functional>
+
+#include "ds/stringmap.hpp"
 #include "prelude.hpp"
 
 using namespace ecc;
@@ -56,79 +59,142 @@ public:
     }
 };
 
+/**
+A parser for command line arguments.
+*/
+class Config::ConfigParser {
+public:
+    ConfigParser() { add_args(); }
+
+    void parse_args(Config& cfg, int argc, char *argv[]);
+
+    void parse_single_arg(Config& cfg, Arg& arg, ArgVIterator& iter);
+
+    void parse_short_arg(Config& cfg, StringRef arg, ArgVIterator& iter);
+
+    void parse_long_arg(Config& cfg, StringRef arg, ArgVIterator& iter);
+
+    /**
+    A callback to run when an associated command line argument is detected.
+    */
+    using ArgAction = std::function<void(Config&, ArgVIterator&)>;
+
+    /**
+    A function to parse a valued argument where the value is baked into the argument, e.g. `-std=<value>`.
+
+    Arguments where the argument is a separate CLI argument use ArgAction.
+    */
+    using ValuedArgAction = std::function<void(Config&, StringRef, ArgVIterator&)>;
+
+    ds::StringMap<ArgAction> short_args;
+
+    ds::StringMap<ValuedArgAction> short_valued_args;
+
+    ds::StringMap<ArgAction> long_args;
+
+    ds::StringMap<ValuedArgAction> long_valued_args;
+
+    template <typename F>
+    void add_short_arg(StringRef arg, F&& f) {
+        ECC_ASSERT(!short_args.contains(arg), "duplicate short argument");
+        short_args[arg.str()] = std::forward<F>(f);
+    }
+
+    template <typename F>
+    void add_short_valued_arg(StringRef arg, F&& f) {
+        ECC_ASSERT(!short_valued_args.contains(arg), "duplicate short valued argument");
+        short_valued_args[arg.str()] = std::forward<F>(f);
+    }
+
+    template <typename F>
+    void add_long_arg(StringRef arg, F&& f) {
+        ECC_ASSERT(!long_args.contains(arg), "duplicate long argument");
+        long_args[arg.str()] = std::forward<F>(f);
+    }
+
+    template <typename F>
+    void add_long_valued_arg(StringRef arg, F&& f) {
+        ECC_ASSERT(!long_valued_args.contains(arg), "duplicate long valued argument");
+        long_valued_args[arg.str()] = std::forward<F>(f);
+    }
+
+private:
+    void add_args();
+};
+
 Config::Config(int argc, char *argv[]) {
-    add_args();
-    parse_args(argc, argv);
+    ConfigParser parser;
+    parser.parse_args(*this, argc, argv);
 }
 
-void Config::parse_args(int argc, char *argv[]) {
+void Config::ConfigParser::parse_args(Config& cfg, int argc, char *argv[]) {
     ArgVIterator args(argc, argv);
 
     Arg curr_arg = args.next();
     while (curr_arg) {
-        parse_single_arg(curr_arg, args);
+        parse_single_arg(cfg, curr_arg, args);
         curr_arg = args.next();
     }
 }
 
-void Config::parse_single_arg(Arg& arg, ArgVIterator& iter) {
+void Config::ConfigParser::parse_single_arg(Config& cfg, Arg& arg, ArgVIterator& iter) {
     if (arg.is_arg()) {
         // Any non-option argument is treated as an input file
-        input_files.emplace_back(*arg);
+        cfg.input_files.emplace_back(*arg);
     } else if (arg.is_short_opt()) {
         // parse args that are passed to the preprocessor or linker as is.
 
         // otherwise, parse arg internally
         StringRef sarg = (*arg).substr(1);
-        parse_short_arg(sarg, iter);
+        parse_short_arg(cfg, sarg, iter);
     } else if (arg.is_long_opt()) {
         // parse args that are passed to the preprocessor or linker as is.
 
         // otherwise, parse arg internally
         StringRef larg = (*arg).substr(2);
-        parse_long_arg(larg, iter);
+        parse_long_arg(cfg, larg, iter);
     }
 }
 
-void Config::parse_short_arg(StringRef arg, ArgVIterator& iter) {
+void Config::ConfigParser::parse_short_arg(Config& cfg, StringRef arg, ArgVIterator& iter) {
     if (arg.contains('=')) {
         auto [argument, value] = arg.split('=');
         auto it = short_valued_args.find(argument);
         if (it != short_valued_args.end()) {
-            it->second(*this, value, iter);
+            it->second(cfg, value, iter);
         } else {
             throw InvalidArgError(arg.str());
         }
     } else {
         auto it = short_args.find(arg);
         if (it != short_args.end()) {
-            it->second(*this, iter);
+            it->second(cfg, iter);
         } else {
             throw InvalidArgError(arg.str());
         }
     }
 }
 
-void Config::parse_long_arg(StringRef arg, ArgVIterator& iter) {
+void Config::ConfigParser::parse_long_arg(Config& cfg, StringRef arg, ArgVIterator& iter) {
     if (arg.contains('=')) {
         auto [argument, value] = arg.split('=');
         auto it = long_valued_args.find(argument);
         if (it != long_valued_args.end()) {
-            it->second(*this, value, iter);
+            it->second(cfg, value, iter);
         } else {
             throw InvalidArgError(arg.str());
         }
     } else {
         auto it = long_args.find(arg);
         if (it != long_args.end()) {
-            it->second(*this, iter);
+            it->second(cfg, iter);
         } else {
             throw InvalidArgError(arg.str());
         }
     }
 }
 
-void Config::add_args() {
+void Config::ConfigParser::add_args() {
     add_short_arg("E", [](Config& cfg, ArgVIterator&) {
         // todo: add check that stop_at was not previously set
         cfg.stop_at = StopAt::PREPROCESS;

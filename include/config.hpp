@@ -3,12 +3,10 @@
 #ifndef ECC_CONFIG_H
 #define ECC_CONFIG_H
 
-#include <functional>
 #include <sstream>
 #include <string>
 
 #include "util/aliases.hpp"
-#include "ds/stringmap.hpp"
 #include "error.hpp"
 #include "prelude.hpp"
 #include "options/features.hpp"
@@ -133,8 +131,6 @@ public:
 
     } runtime;
 
-    void parse_args(int argc, char *argv[]);
-
     RuntimeConfig& get_runtime_cfg() { return runtime; }
 
 private:
@@ -142,57 +138,7 @@ private:
 
     class Arg;
 
-    void parse_single_arg(Arg& arg, ArgVIterator& iter);
-
-    void parse_short_arg(StringRef arg, ArgVIterator& iter);
-
-    void parse_long_arg(StringRef arg, ArgVIterator& iter);
-
-    /**
-    A callback to run when an associated command line argument is detected.
-    */
-    using ArgAction = std::function<void(Config&, ArgVIterator&)>;
-
-    /**
-    A function to parse a valued argument where the value is baked into the argument, e.g. `-std=<value>`.
-
-    Arguments where the argument is a separate CLI argument use ArgAction.
-    */
-    using ValuedArgAction = std::function<void(Config&, StringRef, ArgVIterator&)>;
-
-    ds::StringMap<ArgAction> short_args;
-
-    ds::StringMap<ValuedArgAction> short_valued_args;
-
-    ds::StringMap<ArgAction> long_args;
-
-    ds::StringMap<ValuedArgAction> long_valued_args;
-
-    template <typename F>
-    void add_short_arg(StringRef arg, F&& f) {
-        ECC_ASSERT(!short_args.contains(arg), "duplicate short argument");
-        short_args[arg.str()] = std::forward<F>(f);
-    }
-
-    template <typename F>
-    void add_short_valued_arg(StringRef arg, F&& f) {
-        ECC_ASSERT(!short_valued_args.contains(arg), "duplicate short valued argument");
-        short_valued_args[arg.str()] = std::forward<F>(f);
-    }
-
-    template <typename F>
-    void add_long_arg(StringRef arg, F&& f) {
-        ECC_ASSERT(!long_args.contains(arg), "duplicate long argument");
-        long_args[arg.str()] = std::forward<F>(f);
-    }
-
-    template <typename F>
-    void add_long_valued_arg(StringRef arg, F&& f) {
-        ECC_ASSERT(!long_valued_args.contains(arg), "duplicate long valued argument");
-        long_valued_args[arg.str()] = std::forward<F>(f);
-    }
-
-    void add_args();
+    class ConfigParser;
 };
 
 using RuntimeConfig = Config::RuntimeConfig;
