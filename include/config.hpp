@@ -4,10 +4,11 @@
 #define ECC_CONFIG_H
 
 #include <functional>
-#include <map>
 #include <sstream>
 #include <string>
 
+#include "util/aliases.hpp"
+#include "ds/stringmap.hpp"
 #include "error.hpp"
 #include "prelude.hpp"
 #include "options/features.hpp"
@@ -143,24 +144,52 @@ private:
 
     void parse_single_arg(Arg& arg, ArgVIterator& iter);
 
-    void parse_short_arg(std::string& arg, ArgVIterator& iter);
+    void parse_short_arg(StringRef arg, ArgVIterator& iter);
 
-    void parse_long_arg(std::string& arg, ArgVIterator& iter);
+    void parse_long_arg(StringRef arg, ArgVIterator& iter);
 
+    /**
+    A callback to run when an associated command line argument is detected.
+    */
     using ArgAction = std::function<void(Config&, ArgVIterator&)>;
 
-    std::map<std::string, ArgAction> short_args;
+    /**
+    A function to parse a valued argument where the value is baked into the argument, e.g. `-std=<value>`.
 
-    std::map<std::string, ArgAction> long_args;
+    Arguments where the argument is a separate CLI argument use ArgAction.
+    */
+    using ValuedArgAction = std::function<void(Config&, StringRef, ArgVIterator&)>;
+
+    ds::StringMap<ArgAction> short_args;
+
+    ds::StringMap<ValuedArgAction> short_valued_args;
+
+    ds::StringMap<ArgAction> long_args;
+
+    ds::StringMap<ValuedArgAction> long_valued_args;
 
     template <typename F>
-    void add_short_arg(std::string arg, F&& f) { // NOLINT
-        short_args[arg] = std::forward<F>(f);
+    void add_short_arg(StringRef arg, F&& f) {
+        ECC_ASSERT(!short_args.contains(arg), "duplicate short argument");
+        short_args[arg.str()] = std::forward<F>(f);
     }
 
     template <typename F>
-    void add_long_arg(std::string arg, F&& f) { // NOLINT
-        long_args[arg] = std::forward<F>(f);
+    void add_short_valued_arg(StringRef arg, F&& f) {
+        ECC_ASSERT(!short_valued_args.contains(arg), "duplicate short valued argument");
+        short_valued_args[arg.str()] = std::forward<F>(f);
+    }
+
+    template <typename F>
+    void add_long_arg(StringRef arg, F&& f) {
+        ECC_ASSERT(!long_args.contains(arg), "duplicate long argument");
+        long_args[arg.str()] = std::forward<F>(f);
+    }
+
+    template <typename F>
+    void add_long_valued_arg(StringRef arg, F&& f) {
+        ECC_ASSERT(!long_valued_args.contains(arg), "duplicate long valued argument");
+        long_valued_args[arg.str()] = std::forward<F>(f);
     }
 
     void add_args();

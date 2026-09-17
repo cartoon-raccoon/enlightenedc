@@ -13,14 +13,14 @@ class Config::Arg {
         }
     };
 
-    Optional<std::string> arg;
+    Optional<StringRef> arg;
 
 public:
     operator bool() const { return arg.has_value(); }
 
-    std::string& operator*() { return *arg; }
+    StringRef operator*() { return *arg; }
 
-    std::string& operator->() { return *arg; }
+    StringRef operator->() { return *arg; }
 
     bool is_short_opt() {
         if (!arg)
@@ -79,33 +79,52 @@ void Config::parse_single_arg(Arg& arg, ArgVIterator& iter) {
         // parse args that are passed to the preprocessor or linker as is.
 
         // otherwise, parse arg internally
-        std::string sarg = (*arg).substr(1);
+        StringRef sarg = (*arg).substr(1);
         parse_short_arg(sarg, iter);
     } else if (arg.is_long_opt()) {
         // parse args that are passed to the preprocessor or linker as is.
 
         // otherwise, parse arg internally
-        std::string larg = (*arg).substr(2);
+        StringRef larg = (*arg).substr(2);
         parse_long_arg(larg, iter);
     }
 }
 
-void Config::parse_short_arg(std::string& arg, ArgVIterator& iter) {
-    auto it = short_args.find(arg);
-    if (it != short_args.end()) {
-        it->second(*this, iter);
+void Config::parse_short_arg(StringRef arg, ArgVIterator& iter) {
+    if (arg.contains('=')) {
+        auto [argument, value] = arg.split('=');
+        auto it = short_valued_args.find(argument);
+        if (it != short_valued_args.end()) {
+            it->second(*this, value, iter);
+        } else {
+            throw InvalidArgError(arg.str());
+        }
     } else {
-        // fixme: doesn't dispatch virtual function properly
-        throw InvalidArgError(arg);
+        auto it = short_args.find(arg);
+        if (it != short_args.end()) {
+            it->second(*this, iter);
+        } else {
+            throw InvalidArgError(arg.str());
+        }
     }
 }
 
-void Config::parse_long_arg(std::string& arg, ArgVIterator& iter) {
-    auto it = long_args.find(arg);
-    if (it != long_args.end()) {
-        it->second(*this, iter);
+void Config::parse_long_arg(StringRef arg, ArgVIterator& iter) {
+    if (arg.contains('=')) {
+        auto [argument, value] = arg.split('=');
+        auto it = long_valued_args.find(argument);
+        if (it != long_valued_args.end()) {
+            it->second(*this, value, iter);
+        } else {
+            throw InvalidArgError(arg.str());
+        }
     } else {
-        throw InvalidArgError(arg);
+        auto it = long_args.find(arg);
+        if (it != long_args.end()) {
+            it->second(*this, iter);
+        } else {
+            throw InvalidArgError(arg.str());
+        }
     }
 }
 
@@ -150,5 +169,15 @@ void Config::add_args() {
         }
         cfg.to_print.insert(ToPrint::LIR);
         cfg.stop_at = StopAt::GEN_LIR;
+    });
+    add_short_valued_arg("std", [](Config& cfg, StringRef val, ArgVIterator&) {
+        if (val == "holyc") {
+            cfg.runtime.std = Std::HOLYC;
+        } else if (val == "enlightenedc") {
+            cfg.runtime.std = Std::ENLIGHTENEDC;
+        } else {
+            std::string msg = "unknown standard: " + val.str();
+            throw ArgParseError(std::move(msg));
+        }
     });
 }

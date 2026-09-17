@@ -17,6 +17,7 @@
 #include <llvm/Support/xxhash.h>
 #include <boost/unordered/unordered_set.hpp>
 
+#include "util/aliases.hpp"
 #include "util/assert.hpp"
 
 namespace ecc {
@@ -43,6 +44,8 @@ std::string encode_string_literal(StringRef raw);
 
 namespace ecc {
 
+using namespace ecc::util;
+
 /**
 Represents a constant reference to a string, i.e. a character array and size,
 which may or may not be null-terminated.
@@ -63,6 +66,9 @@ Credit: shamelessly stolen from LLVM.
 */
 class StringRef {
 public:
+    /**
+    A constant representing the end of the string.
+    */
     static constexpr size_t npos = ~size_t(0);
     using iterator = const char *;
     using const_iterator = const char *;
@@ -101,6 +107,11 @@ public:
     constexpr operator std::string_view() const { return std::string_view(data_, size_); }
 
     constexpr operator llvm::StringRef() const { return llvm::StringRef(data_, size_); }
+
+    constexpr char operator[](size_t n) const {
+        ECC_ASSERT(n < size(), "invalid index passed to StringRef");
+        return data()[n];
+    }
 
     iterator begin() const { return data(); }
  
@@ -158,6 +169,54 @@ public:
         return size() < rhs.size() ? -1 : 1;
     }
 
+/* String Predicates */
+
+    [[nodiscard]] bool starts_with(StringRef prefix) const {
+        return size() >= prefix.size() && compare_memory(data(), prefix.data(), prefix.size()) == 0;
+    }
+
+    [[nodiscard]] bool starts_with(char c) const {
+        return !empty() && front() == c;
+    }
+
+/* String Searching */
+
+    [[nodiscard]] size_t find(char c, size_t from = 0) const {
+        return std::string_view(*this).find(c, from);
+    }
+
+    [[nodiscard]] bool contains(char c, size_t from = 0) const {
+        return find(c, from) != npos;
+    }
+
+/* Substring Operations */
+
+    /**
+    Return a reference to the substring from [start, start + n).
+    */
+    [[nodiscard]] constexpr StringRef substr(size_t start, size_t n=npos) const {
+        start = std::min(start, size());
+        return StringRef(data() + start,  std::min(n, size() - start));
+    }
+
+    [[nodiscard]] StringRef slice(size_t start, size_t end) const {
+        start = std::min(start, size());
+        end = std::clamp(end, start, size());
+        return StringRef(data() + start, end - start);
+    }
+
+    /**
+    Split a StringRef around the first occurrence of a character separator `sep`.
+
+    If `sep` is 
+    */
+    [[nodiscard]] Pair<StringRef, StringRef> split(char sep) const {
+        size_t pos = find(sep);
+        if (pos == npos) {
+            return {*this, StringRef("", 0)};
+        }
+        return {slice(0, pos), substr(pos + 1)};
+    }
 
     // todo: full llvm::StringRef API
 
@@ -194,6 +253,8 @@ inline std::ostream& operator<<(std::ostream& os, StringRef s) {
     }
     return os;
 }
+
+static_assert(StringRef::npos == std::string_view::npos);
 
 /*
 Hash and equality functors for keying a hash container on string content.
