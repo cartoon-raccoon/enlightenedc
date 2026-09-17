@@ -38,9 +38,9 @@ public:
     void run_pipeline(std::string *filename);
 
     /**
-    Pretty-print an error.
+    Pretty-print a diagnostic.
     */
-    void print_error(EccError& err);
+    void print_diagnostic(EccDiagnostic& diag);
 
     int run();
 

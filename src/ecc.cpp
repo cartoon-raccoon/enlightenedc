@@ -58,9 +58,9 @@ void Ecc::reset() {
     alloc::reset();
 }
 
-void Ecc::print_error(EccError& err) {
+void Ecc::print_diagnostic(EccDiagnostic& diag) {
     // fixme: better error printing
-    std::cerr << err.to_string() << "\n";
+    std::cerr << diag.to_string() << "\n";
 }
 
 void Ecc::run_pipeline(std::string *filename) {

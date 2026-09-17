@@ -125,7 +125,7 @@ using VisitParam = std::variant<
 /**
 The class that lowers the AST to MIR, populating the TypeContext and SymbolTable.
 */
-class MIRSynthesizer : public BaseASTSemaVisitor, public NoMove {
+class MIRSynthesizer : public BaseASTSemaVisitor, public Fallible, public NoMove {
     struct SpecifierInfo {
         types::BaseType *type = nullptr;
         Optional<sym::TypeSymbol *> symbol;
@@ -148,8 +148,6 @@ public:
     mir::ProgramMIR& prog_mir;
 
     RuntimeConfig& rtcfg;
-
-    Vec<Box<EccSemError>> errors;
 
     /**
     Run the MIRSynthesizer on the provided AST.
@@ -197,13 +195,6 @@ protected:
         }
 
         return ret;
-    }
-
-    template <typename E, typename... Args>
-        requires std::derived_from<E, EccSemError>
-    void add_error(Args... args) {
-        Box<EccSemError> err = std::make_unique<E>(args...);
-        errors.push_back(std::move(err));
     }
 
     /* DO_VISIT OVERRIDES */

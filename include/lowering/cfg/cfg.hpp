@@ -1074,7 +1074,9 @@ public:
     template <typename Term, typename... Args>
         requires std::derived_from<Term, Terminator>
     Term *terminate(Args&&...args) {
-        Box<Term> terminator = std::make_unique<Term>(this, std::forward<Args>(args)...);
+        ECC_ASSERT(!is_terminated(), "block already has terminator");
+        
+        Box<Term> terminator = make_box<Term>(this, std::forward<Args>(args)...);
         Term *ret            = terminator.get();
 
         term = std::move(terminator);
@@ -1106,7 +1108,9 @@ public:
             }
         }
 
-        Box<Inst> inst = std::make_unique<Inst>(this, std::forward<Args>(args)...);
+        ECC_ASSERT(!is_terminated(), "cannot append instructions to a terminated block");
+
+        Box<Inst> inst = make_box<Inst>(this, std::forward<Args>(args)...);
         Inst *ret      = inst.get();
 
         push_instruction(std::move(inst));

@@ -26,6 +26,22 @@ enum class LangLinkage : uint8_t {
     C, // The symbol has "C" language linkage.
 };
 
+template <typename Link>
+concept IsLinkage = requires {
+    Link::NONE;
+};
+
+/**
+Check if `mine` Linkage is compatible with `other` linkage.
+
+The two linkages are compatible if `other` is `Link::NONE` or they match.
+*/
+template <typename Link>
+    requires IsLinkage<Link>
+bool linkages_are_compatible(Link mine, Link other) {
+    return other == Link::NONE || mine == other;
+}
+
 enum class StorageDuration : uint8_t {
     AUTO,
     STATIC,
@@ -66,6 +82,10 @@ public:
 
     SymData(SymData&& sd) noexcept = default;
 
+    bool operator==(const SymData& other) const {
+        return name == other.name && linkage == other.linkage && link_name == other.link_name;
+    }
+
     Linkage get_linkage() { return linkage; }
 
     void set_linkage(Linkage linkage) { this->linkage = linkage; }
@@ -79,6 +99,35 @@ public:
     bool has_link_name() { return link_name.has_value(); }
 
     void set_link_name(StringRef name) { link_name = std::string(name); }
+
+    /**
+    Check if `other` can be merged into `this`.
+
+    Two SymData are mergeable iff:
+    - their names (mangled and otherwise) match,
+    - their linkages are compatible, and
+    - their link names are compatible.
+    */
+    bool mergeable_from(const SymData& other) const {
+        return name == other.name && mangled_name == other.mangled_name 
+                                  && linkages_are_compatible(linkage, other.linkage)
+                                  && linkname_compatible_from(other);
+    }
+
+    /**
+    Check if this symdata has a compatible linkname with `other`.
+
+    The truth table is essentially:
+    - If either SymData doesn't have a link name, their linknames are compatible.
+    - If both SymData have link names, they must match.
+    */
+    bool linkname_compatible_from(const SymData& other) const {
+        if (!link_name.has_value() || !other.link_name.has_value()) {
+            return true;
+        } else {
+            return *link_name == *other.link_name;
+        }
+    }
 
 protected:
 };
@@ -98,6 +147,12 @@ public:
     types::Type *get_type() { return type; }
 
     void set_type(types::Type *type) { this->type = type; }
+
+    bool mergeable_from(const VarSymData& other) const {
+        if (!SymData::mergeable_from(other)) { return false; }
+
+        return type == other.type;
+    }
 
     static bool classof(const SymData *data) { return data->kind == Kind::VAR; }
 };
@@ -143,6 +198,17 @@ public:
     bool is_print() const { return print_function; }
 
     void set_print(bool is_print) { print_function = is_print; }
+
+    bool mergeable_from(const FuncSymData& other) {
+        if (!SymData::mergeable_from(other)) { return false; }
+
+        return signature == other.signature && linkages_are_compatible(langlink, other.langlink);
+    }
+
+    bool compatible_from(types::FunctionType *sig, Linkage link, LangLinkage langlink) {
+        return sig == signature && linkages_are_compatible(get_linkage(), link)
+                                && linkages_are_compatible(get_lang_linkage(), langlink);
+    }
 
     static bool classof(const SymData *data) { return data->kind == Kind::FUNC; }
 };

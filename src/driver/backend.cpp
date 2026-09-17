@@ -51,25 +51,31 @@ void Backend::run(Ecc& ecc, driver::TranslationUnit& unit) {
         dbprint("Synthesizing MIR for ", unit.ast_root->loc);
         mirsynthesizer.generate_mir(*unit.ast_root);
     } catch (UnableToContinue& e) {
-        for (auto& err : mirsynthesizer.errors) {
-            ecc.print_error(*err);
+        for (auto *diag : mirsynthesizer.diagnostics()) {
+            ecc.print_diagnostic(*diag);
         }
         throw e;
     } catch (TypeSemError& e) {
         // fixme: handle errors at call site
         // we already have infrastructure to catch TypeSemErrors at call site, but
         // this is just to catch any that might escape.
-        for (auto& err : mirsynthesizer.errors) {
-            ecc.print_error(*err);
+        for (auto *diag: mirsynthesizer.diagnostics()) {
+            ecc.print_diagnostic(*diag);
         }
+
+        ecc.print_diagnostic(e);
+
         throw UnableToContinue();
     }
 
-    if (!mirsynthesizer.errors.empty() || mirsynthesizer.found_errors) {
-        for (auto& err : mirsynthesizer.errors) {
-            ecc.print_error(*err);
+    if (mirsynthesizer.has_diagnostics()) {
+        for (auto *diag : mirsynthesizer.diagnostics()) {
+            ecc.print_diagnostic(*diag);
         }
-        throw UnableToContinue();
+
+        if (mirsynthesizer.has_errors() || mirsynthesizer.found_errors) {
+            throw UnableToContinue();
+        }
     }
 
     dbprint("\n---------- Validating ----------\n");
@@ -83,17 +89,20 @@ void Backend::run(Ecc& ecc, driver::TranslationUnit& unit) {
     try {
         validator.validate(mir);
     } catch (UnableToContinue& e) {
-        for (auto& err : validator.errors) {
-            ecc.print_error(*err);
+        for (auto *diag : validator.diagnostics()) {
+            ecc.print_diagnostic(*diag);
         }
         throw e;
     }
 
-    if (!validator.errors.empty() || validator.found_errors) {
-        for (auto& err : validator.errors) {
-            ecc.print_error(*err);
+    if (validator.has_diagnostics()) {
+        for (auto *diag : validator.diagnostics()) {
+            ecc.print_diagnostic(*diag);
         }
-        throw UnableToContinue();
+
+        if (validator.has_errors() || validator.found_errors) {
+            throw UnableToContinue();
+        }
     }
 
     //* any MIR past this point can be counted as correct and validated.

@@ -95,6 +95,42 @@ public:
 
 }; // class BaseSemanticVisitor
 
+/**
+A mixin class that Semantic Visitors can multiply inherit from, to add error reporting functionality.
+*/
+class Fallible : public NoCopy {
+    Vec<Box<EccWarning>> warnings;
+
+    Vec<Box<EccSemError>> errors;
+
+    Vec<EccDiagnostic *> diagnostic_order;
+
+public:
+    template <typename E, typename... Args>
+        requires std::derived_from<E, EccSemError>
+    void add_error(Args... args) {
+        Box<EccSemError> err = make_box<E>(args...);
+        EccDiagnostic *diag = err.get();
+        errors.push_back(std::move(err));
+        diagnostic_order.push_back(diag);
+    }
+
+    void add_warning(std::string msg, Location loc) {
+        Box<EccWarning> warn = make_box<EccWarning>(std::move(msg), loc);
+        EccDiagnostic *diag = warn.get();
+        warnings.push_back(std::move(warn));
+        diagnostic_order.push_back(diag);
+    }
+
+    bool has_diagnostics() { return !warnings.empty() || !errors.empty(); }
+
+    bool has_errors() { return !errors.empty(); }
+
+    Span<EccDiagnostic *const> diagnostics() {
+        return diagnostic_order;
+    }
+};
+
 /*
 An RAII wrapper for automatically pushing and popping scopes on a symbol table.
 

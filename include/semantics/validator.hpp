@@ -46,7 +46,7 @@ public:
 /*
 The class that performs type-checking and semantic validation.
 */
-class Validator : public BaseMIRSemaVisitor, public NoMove {
+class Validator : public BaseMIRSemaVisitor, public Fallible, public NoMove {
     types::TypeContext& types;
     sym::SymbolTableWalker syms;
     RuntimeConfig& rtcfg;
@@ -57,16 +57,7 @@ public:
     Validator(sym::SymbolTable& syms, types::TypeContext& types, RuntimeConfig& rtcfg)
         : BaseMIRSemaVisitor(State::READ), types(types), syms(syms), rtcfg(rtcfg) {}
 
-    Vec<Box<EccSemError>> errors;
-
     sym::SymbolTableWalker *symwalker() override { return &syms; }
-
-    template <typename E, typename... Args>
-        requires std::derived_from<E, EccSemError>
-    void add_error(Args... args) {
-        Box<EccSemError> err = make_box<E>(args...);
-        errors.push_back(std::move(err));
-    }
 
     void validate(mir::ProgramMIR& progmir);
 

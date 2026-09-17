@@ -488,6 +488,16 @@ void CFGBuilder::visit(IfStmtLIR& node) {
         else_exit = curr_blk;
     }
 
+    if (then_exit->is_terminated() && else_exit && else_exit->is_terminated()) {
+        /*
+        Both branches are terminated. Do not create a new merge block, just set curr_blk
+        to one of them and return; let the curr_blk->is_terminated() check catch it on the
+        next node we visit.
+        */
+        curr_blk = then_exit;
+        return;
+    }
+
     // create the merge block and link it to the then branch exit point
     BasicBlock *merge_blk = curr_func->create_block();
     if (!then_exit->is_terminated()) {

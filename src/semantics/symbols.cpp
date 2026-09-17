@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <sstream>
 #include <utility>
+#include "semantics/symdata.hpp"
 #include "semantics/types.hpp"
 
 using namespace ecc::sema::sym;
@@ -513,11 +514,12 @@ FuncSymbol *SymbolTableWalker::insert_func(InsertFuncArgs args) const {
 
         PhysicalSymbol *existing = current->phys_symbols.find(args.name)->second.get();
 
-        // If the existing symbol is a function, attempt reconciliation
-        if (existing->get_type()->is_function()) {
+        // If the existing symbol is a function, attempt decl-def reconciliation
+        if (existing->is_func()) {
             dbprint("SymbolTable: existing symbol has function type, checking for replaceability");
-            FunctionType *othertype = existing->get_type()->as_function();
+            FunctionType *othertype = existing->as_funcsym()->get_signature();
             FunctionType *mytype    = args.signature;
+            FuncSymData *existdata = existing->as_funcsym()->get_symdata();
             if (!othertype || !mytype) {
                 dbprint("SymbolTable: could not cast othertype or mytype to FunctionType");
                 goto exists;
@@ -529,7 +531,10 @@ FuncSymbol *SymbolTableWalker::insert_func(InsertFuncArgs args) const {
                 FuncSymbol *existfunc = existing->as_funcsym();
                 ECC_ASSERT_N(existfunc);
                 if (!existfunc->has_body() && args.has_body) {
-                    // existing is decl, new sym is def
+                    // existing is decl, new sym is def, check linkage and language linkage
+                    if (!existdata->compatible_from(args.signature, args.linkage, args.langlink)) {
+                        goto exists;
+                    }
 
                     existfunc->set_body();
                     existfunc->parameters = std::move(args.parameters);
@@ -543,7 +548,10 @@ FuncSymbol *SymbolTableWalker::insert_func(InsertFuncArgs args) const {
 
                     goto exists;
                 } else {
-                    // existing is decl or def, new sym is decl
+                    // existing is decl or def, new sym is decl, check compatibility
+                    if (!existdata->compatible_from(args.signature, args.linkage, args.langlink)) {
+                        goto exists;
+                    }
 
                     return existfunc;
                 }

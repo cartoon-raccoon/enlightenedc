@@ -10,6 +10,8 @@
 
 #include "error.hpp"
 #include "prelude.hpp"
+#include "options/features.hpp"
+#include "options/warnings.hpp"
 
 namespace ecc {
 
@@ -123,6 +125,11 @@ public:
 
         /** The standard to use. */
         Std std = Std::ENLIGHTENEDC;
+
+        FeatureFlags featureflags;
+
+        WarningFlags warningflags;
+
     } runtime;
 
     void parse_args(int argc, char *argv[]);
