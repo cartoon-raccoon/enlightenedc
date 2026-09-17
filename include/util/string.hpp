@@ -179,6 +179,15 @@ public:
         return !empty() && front() == c;
     }
 
+    [[nodiscard]] bool ends_with(StringRef suffix) const {
+        return size() >= suffix.size() &&
+            compare_memory(end() - suffix.size(), suffix.data(), suffix.size()) == 0;
+    }
+
+    [[nodiscard]] bool ends_with(char c) const {
+        return !empty() && back() == c;
+    }
+
 /* String Searching */
 
     [[nodiscard]] size_t find(char c, size_t from = 0) const {
@@ -255,6 +264,28 @@ inline std::ostream& operator<<(std::ostream& os, StringRef s) {
 }
 
 static_assert(StringRef::npos == std::string_view::npos);
+
+/**
+A wrapper around a string literal, for computing string length at compile time.
+It is only constructible from string literals, providing a type-safe compile-time
+wrapper around a StringRef.
+*/
+class StringLiteral : public StringRef {
+    // Make the standard constructor private.
+    constexpr StringLiteral(const char *ptr, size_t n) : StringRef(ptr, n) {}
+
+public:
+    template <size_t N>
+    constexpr StringLiteral(const char (&str)[N])
+#if defined(__clang__) && __has_attribute(enable_if)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wgcc-compat"
+      __attribute((enable_if(__builtin_strlen(str) == N - 1,
+                             "invalid string literal")))
+#pragma clang diagnostic pop
+#endif
+    : StringRef(str, N - 1) {}
+};
 
 /*
 Hash and equality functors for keying a hash container on string content.
