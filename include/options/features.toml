@@ -1,0 +1,6 @@
+[general]
+prefix = "FeatureFlag"
+
+[flags.holyc-varargs]
+docstring = "Enable HolyC-style variadic implicit arguments even if in EnlightenedC mode."
+enabled = false

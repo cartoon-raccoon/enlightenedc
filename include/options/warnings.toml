@@ -1,0 +1,47 @@
+[general]
+prefix = "WarningFlag"
+
+[flags.oversized-jump-table]
+docstring = "an oversized jump table."
+text = "this case range might produce an oversized jump table; consider using an if statement"
+enabled = true
+
+[flags.implicit-incompat-ptr-cast]
+docstring = "implicit cast of two pointers with incompatible bases."
+text = "comparison of distinct pointer types lacks a cast"
+enabled = true
+
+[flags.implicit-narrowing]
+docstring = "implicit narrowing without an explicit cast."
+text = "integer is narrowed to a smaller representation, which might cause issues"
+enabled = false
+
+[flags.reinterpret-float]
+docstring = "a reinterpret expression was used on a float type."
+text = "reinterpreting floats as a bytearray is risky"
+enabled = true
+
+[flags.unary-pos-neg-on-unsigned]
+docstring = "an unary pos/neg operation was used on an unsigned type"
+text = "unary +/- on an unsigned type might cause unintended behaviour"
+enabled = true
+
+[flags.attributed-constexpr]
+docstring = "attributes were found on a constexpr expression."
+text = "attributes on constexpr declarations are ignored"
+enabled = false
+
+[flags.constexpr-flt-to-int]
+docstring = "constexpr declared as integer, defined as float."
+text = "defining an integer constexpr as a float might cause truncation"
+enabled = true
+
+[flags.non-int-union-typerep]
+docstring = "type-repped union representative is not an integer."
+text = "using a non-integer as a union's type representative might cause undefined behaviour"
+enabled = true
+
+[flags.qualified-type-rvalue]
+docstring = "rvalues are stripped of all type qualifications."
+text = "type qualifications are ignored on r-values"
+enabled = true

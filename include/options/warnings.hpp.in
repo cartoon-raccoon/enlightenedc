@@ -1,0 +1,43 @@
+#pragma once
+
+#ifndef ECC_WARNINGFLAGS_H
+#define ECC_WARNINGFLAGS_H
+
+#include <array>
+
+#include "util/aliases.hpp"
+#include "util/string.hpp"
+
+namespace ecc {
+
+enum class WarningFlag : uint8_t {
+    @@VARIANTS@@
+};
+
+struct WarningFlagData {
+    WarningFlag flag;
+    StringRef name;
+    StringRef warning_text;
+    bool default_enabled;
+
+    constexpr WarningFlagData(WarningFlag flag, StringRef name, StringRef text, bool default_enabled)
+        : flag(flag), name(name), warning_text(text), default_enabled(default_enabled) {}
+};
+
+inline constexpr
+std::array WARNING_FLAGS = std::to_array<WarningFlagData>({
+    @@DATALIST@@
+});
+
+class WarningFlags {
+    util::HashSet<WarningFlag> flags;
+
+public:
+    void set(WarningFlag flag) { flags.insert(flag); }
+
+    bool is_set(WarningFlag flag) { return flags.contains(flag); }
+};
+
+}
+
+#endif

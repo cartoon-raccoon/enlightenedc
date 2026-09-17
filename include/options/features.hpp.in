@@ -11,7 +11,7 @@
 namespace ecc {
 
 enum class FeatureFlag : uint8_t {
-    HOLYC_VARARGS, // Enable HolyC-style variadic implicit arguments even if in EnlightenedC mode.
+    @@VARIANTS@@
 };
 
 struct FeatureFlagData {
@@ -25,11 +25,7 @@ struct FeatureFlagData {
 
 inline constexpr
 std::array FEATURE_FLAGS = std::to_array<FeatureFlagData>({
-    {
-        FeatureFlag::HOLYC_VARARGS,
-        "holyc-varargs",
-        false,
-    },
+    @@DATALIST@@
 });
 
 class FeatureFlags {
