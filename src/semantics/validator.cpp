@@ -152,7 +152,7 @@ Optional<Type *> Validator::eval_initializer_expr(
     Type *type, Chunk<ExprMIR>& expr, InitializerMIR& init, bool allow_size_infer) {
     bsv_dbprint("Validator: eval_initializer_expr");
 
-    expr->accept(exprv);
+    expr->accept(*this);
 
     // A bare function identifier decays to a pointer to itself, and an array decays to a pointer
     // to its first element (e.g. `Void (*funcptr)() = somefunc;`, `U32 *p = arr;`). The array
@@ -495,13 +495,13 @@ void Validator::do_visit(TypeDeclMIR& node) { // done
 void Validator::do_visit(ExprStmtMIR& node) { // done
     bsv_dbprint("Validator: visiting ExprStmtMIR node");
     if (node.expr) {
-        (*node.expr)->accept(exprv);
+        (*node.expr)->accept(*this);
     }
 }
 
 void Validator::do_visit(SwitchStmtMIR& node) {
     bsv_dbprint("Validator: visiting SwitchStmtMIR node");
-    node.control_val->accept(exprv);
+    node.control_val->accept(*this);
 
     if (!node.control_val->eff_type->is_primitive()) {
         add_error<InvalidSwitchCtrlError>(node.control_val->eff_type, node.control_val->loc);
@@ -610,7 +610,7 @@ void Validator::do_visit(PrintStmtMIR& node) {
     bsv_dbprint("Validator: visiting PrintStmtMIR node");
 
     for (auto& arg : node.arguments) {
-        arg->accept(exprv);
+        arg->accept(*this);
     }
 
     validate_print(node.format_string, node.arguments);
@@ -618,7 +618,7 @@ void Validator::do_visit(PrintStmtMIR& node) {
 
 void Validator::do_visit(IfStmtMIR& node) { // done
     bsv_dbprint("Validator: visiting IfStmtMIR node");
-    node.condition->accept(exprv);
+    node.condition->accept(*this);
     if (!node.condition->eff_type->is_boolable()) {
         bsv_dbprint("error: if condition is not boolable");
         add_error<InvalidConditionError>(node.condition->eff_type, node.condition->loc);
@@ -634,7 +634,7 @@ void Validator::do_visit(IfStmtMIR& node) { // done
 void Validator::do_visit(LoopStmtMIR& node) { // done
     bsv_dbprint("Validator: visiting LoopStmtMIR node");
     if (node.condition) {
-        (*node.condition)->accept(exprv);
+        (*node.condition)->accept(*this);
         if (!(*node.condition)->eff_type->is_boolable()) {
             bsv_dbprint("error: loop condition is not boolable");
             add_error<InvalidConditionError>((*node.condition)->eff_type, (*node.condition)->loc);
@@ -705,7 +705,7 @@ void Validator::do_visit(ReturnStmtMIR& node) {
             throw UnableToContinue();
         }
 
-        (*node.ret_expr)->accept(exprv);
+        (*node.ret_expr)->accept(*this);
 
         if ((*node.ret_expr)->act_type->is_array()) {
             node.ret_expr =
@@ -731,6 +731,34 @@ void Validator::do_visit(ReturnStmtMIR& node) {
         }
     }
 }
+
+// visit the expression using exprv, catch any UnableToContinue to drain exprv,
+// then rethrow. If visit completed without throwing, drain any accumulated diagnostics.
+#define VALIDATOR_VISIT_EXPR(nodety) \
+    void Validator::do_visit(nodety& node) /*NOLINT */{ \
+        try { \
+            node.accept(exprv);\
+        } catch (UnableToContinue& e) { \
+            drain(exprv); \
+            throw e; \
+        } \
+        if (exprv.has_diagnostics()) { \
+            drain(exprv); \
+        } \
+    }
+
+VALIDATOR_VISIT_EXPR(mir::BinaryExprMIR);
+VALIDATOR_VISIT_EXPR(mir::UnaryExprMIR);
+VALIDATOR_VISIT_EXPR(mir::CastExprMIR);
+VALIDATOR_VISIT_EXPR(mir::AssignExprMIR);
+VALIDATOR_VISIT_EXPR(mir::CondExprMIR);
+VALIDATOR_VISIT_EXPR(mir::IdentExprMIR);
+VALIDATOR_VISIT_EXPR(mir::LiteralExprMIR);
+VALIDATOR_VISIT_EXPR(mir::CallExprMIR);
+VALIDATOR_VISIT_EXPR(mir::MemberAccExprMIR);
+VALIDATOR_VISIT_EXPR(mir::SubscrExprMIR);
+VALIDATOR_VISIT_EXPR(mir::PostfixExprMIR);
+VALIDATOR_VISIT_EXPR(mir::SizeofExprMIR);
 
 /*
 * EXPRESSIONS

@@ -47,6 +47,7 @@ public:
     */
     bool expr_is_tautological(mir::ExprMIR& expr);
 
+    VISIT_NO_IMPL(mir::ProgramMIR);
     VISIT_NO_IMPL(mir::FunctionMIR);
     VISIT_NO_IMPL(mir::InitializerMIR);
     VISIT_NO_IMPL(mir::VarDeclMIR);
@@ -169,18 +170,18 @@ protected:
     void do_visit(mir::ContStmtMIR& node) final;
     void do_visit(mir::ReturnStmtMIR& node) final;
 
-    VISIT_NO_IMPL(mir::BinaryExprMIR);
-    VISIT_NO_IMPL(mir::UnaryExprMIR);
-    VISIT_NO_IMPL(mir::CastExprMIR);
-    VISIT_NO_IMPL(mir::AssignExprMIR);
-    VISIT_NO_IMPL(mir::CondExprMIR);
-    VISIT_NO_IMPL(mir::IdentExprMIR);
-    VISIT_NO_IMPL(mir::LiteralExprMIR);
-    VISIT_NO_IMPL(mir::CallExprMIR);
-    VISIT_NO_IMPL(mir::MemberAccExprMIR);
-    VISIT_NO_IMPL(mir::SubscrExprMIR);
-    VISIT_NO_IMPL(mir::PostfixExprMIR);
-    VISIT_NO_IMPL(mir::SizeofExprMIR);
+    void do_visit(mir::BinaryExprMIR& node) final;
+    void do_visit(mir::UnaryExprMIR& node) final;
+    void do_visit(mir::CastExprMIR& node) final;
+    void do_visit(mir::AssignExprMIR& node) final;
+    void do_visit(mir::CondExprMIR& node) final;
+    void do_visit(mir::IdentExprMIR& node) final;
+    void do_visit(mir::LiteralExprMIR& node) final;
+    void do_visit(mir::CallExprMIR& node) final;
+    void do_visit(mir::MemberAccExprMIR& node) final;
+    void do_visit(mir::SubscrExprMIR& node) final;
+    void do_visit(mir::PostfixExprMIR& node) final;
+    void do_visit(mir::SizeofExprMIR& node) final;
 
 private:
 

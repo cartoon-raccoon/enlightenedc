@@ -46,7 +46,7 @@ void dbprint(T msg, Args&&...args) {
     }
 
 #define VISIT_NO_IMPL(_node)           /* NOLINT */                                    \
-    void visit(_node& node) override { /*NOLINT */                                     \
+    void visit(_node&) override { /*NOLINT */                                     \
         ECC_UNREACHABLE("visit() was not implemented for the current visitable node"); \
     }
 
