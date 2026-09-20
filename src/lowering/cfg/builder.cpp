@@ -107,7 +107,11 @@ Global *CFGBuilder::add_or_get_global(LIRVarSym *sym, Value *init) {
     if (globals.contains(sym))
         return globals[sym];
 
-    Global *ret  = prog_cfg.add_global(sym->get_type(), sym->symdata->get_mangled_name(), init);
+    VarSymData *symdata = sym->get_symdata();
+    ECC_ASSERT(symdata, "LIRVarSym does not have VarSymData");
+
+    Global *ret = prog_cfg.add_global(
+        sym->get_type(), symdata->get_mangled_name(), symdata->get_linkage(), init);
     globals[sym] = ret;
 
     return ret;
@@ -121,8 +125,11 @@ Function *CFGBuilder::add_or_get_function(lir::FunctionLIR *func) {
     if (functions.contains(func))
         return functions[func];
 
+    FuncSymData *symdata = func->funcsym->get_symdata();
+    ECC_ASSERT(symdata, "LirFuncSym with no FuncSymData");
+
     Function *ret = prog_cfg.add_function(
-        func->funcsym->get_symdata()->get_signature(), func->funcsym->symdata->get_mangled_name());
+        symdata->get_signature(), symdata->get_mangled_name(), symdata->get_linkage());
     functions[func] = ret;
 
     return ret;
@@ -139,10 +146,11 @@ Value *CFGBuilder::add_or_get_local(lir::LIRVarSym *sym, Value *init) {
 
     ECC_ASSERT_N(!sym->is_global());
 
+    VarSymData *symdata = sym->get_symdata();
     Value *ret;
-    if (sym->get_symdata()->get_linkage() == Linkage::INTERNAL) {
-        std::string name = sym->function->get_name() + "." + sym->get_name();
-        ret      = prog_cfg.add_global(sym->get_type(), name, init);
+    if (symdata->get_duration() == StorageDuration::STATIC) {
+        std::string name = sym->function->get_name() + "." + sym->get_mangled_name();
+        ret      = prog_cfg.add_global(sym->get_type(), name, symdata->get_linkage(), init);
     } else {
         ret = curr_func->add_alloca(sym->get_type(), sym->symdata->get_mangled_name());
         if (init) {
@@ -210,7 +218,8 @@ void CFGBuilder::visit(ProgramLIR& node) {
     dbprint("visiting ProgramLIR node ", node.loc ? *node.loc : Location{});
 
     FunctionType *implicit_main_sig = types.get_function({}, types.get_void(), {}, false);
-    curr_func                       = prog_cfg.add_function(implicit_main_sig, EC_IMPLICIT_MAIN);
+
+    curr_func = prog_cfg.add_function(implicit_main_sig, EC_IMPLICIT_MAIN, Linkage::EXTERNAL);
     curr_func->initialize();
 
     for (auto& item : node.globals) {
@@ -1052,7 +1061,8 @@ Constant *CFGBuilder::build_constant(PointerInitLIR& init) {
 }
 
 Constant *CFGBuilder::build_constant(AggregateInitLIR& init) {
-    Vec<Constant *> elems(init.elements.size());
+    Vec<Constant *> elems;
+    elems.reserve(init.elements.size());
 
     for (auto& lir : init.elements) {
         elems.push_back(build_constant(*lir));

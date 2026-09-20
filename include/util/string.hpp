@@ -108,6 +108,10 @@ public:
 
     constexpr operator llvm::StringRef() const { return llvm::StringRef(data_, size_); }
 
+    constexpr operator bool() const { return data_ != nullptr; }
+
+    static constexpr StringRef null() { return StringRef(nullptr, 0); }
+
     constexpr char operator[](size_t n) const {
         ECC_ASSERT(n < size(), "invalid index passed to StringRef");
         return data()[n];

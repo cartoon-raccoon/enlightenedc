@@ -9,8 +9,10 @@
 
 #include "ds/linkedlist.hpp"
 #include "eval/value.hpp"
+#include "lowering/cfg/symbols.hpp"
 #include "lowering/cfg/visitor.hpp"
 #include "semantics/types.hpp"
+#include "semantics/symdata.hpp"
 #include "tokens.hpp"
 #include "prelude.hpp"
 #include "util/hash.hpp"
@@ -19,6 +21,9 @@
 namespace ecc::lower::cfg {
 
 using EvalValue = eval::Value;
+using Linkage = sema::sym::Linkage;
+using Type = sema::types::Type;
+using FunctionType = sema::types::FunctionType;
 
 using namespace ecc;
 using namespace util;
@@ -35,6 +40,9 @@ class Function;
 
 template <typename DerivedT, typename BaseT>
 using CFGVisitable = Visitable<DerivedT, BaseT, CFGVisitor>;
+
+template <typename Derived>
+class Named;
 
 /**
 A CFG value.
@@ -82,6 +90,8 @@ public:
 
     virtual bool nameable() { return false; }
 
+    virtual StringRef get_name() { return StringRef::null(); }
+
     virtual Instruction *as_instruction() { return nullptr; }
     virtual ScalarConst *as_scalar() { return nullptr; }
     virtual PointerConst *as_pointer() { return nullptr; }
@@ -98,55 +108,14 @@ public:
 /**
 A mixin class to add a name property to values and constants.
 */
+template <typename Derived>
 class Named {
 public:
     Named() = default;
-    explicit Named(std::string name) : name(std::move(name)) {}
 
-    explicit Named(StringRef name) : name(name.str()) {}
+    CFGSymbol<Derived> *name = nullptr;
 
-    std::string name;
-
-    bool named() const { return !name.empty(); }
-
-    void set_name(StringRef name) { this->name = name.str(); }
-};
-
-/**
-A CFG Value that can take an optional name.
-*/
-class NamedValue : public Value, public Named {
-public:
-    NamedValue(ValueKind kind, sema::types::Type *type, Location loc)
-        : Value(kind, type, loc) {}
-
-    NamedValue(ValueKind kind, sema::types::Type *type, Optional<Location> loc)
-        : Value(kind, type, loc) {}
-
-    NamedValue(ValueKind kind, sema::types::Type *type)
-        : Value(kind, type) {}
-
-    NamedValue(ValueKind kind, sema::types::Type *type, Location loc, StringRef name)
-        : Value(kind, type, loc), Named(name) {}
-
-    NamedValue(ValueKind kind, sema::types::Type *type, Optional<Location> loc, StringRef name)
-        : Value(kind, type, loc), Named(name) {}
-
-    NamedValue(ValueKind kind, sema::types::Type *type, StringRef name)
-        : Value(kind, type), Named(name) {}
-
-    bool nameable() override { return true; }
-
-    static bool classof(const Value *node) {
-        switch (node->valkind) {
-        case ValueKind::INST:
-        case ValueKind::GLOBAL:
-        case ValueKind::ALLOCA:
-            return true;
-        default:
-            return false;
-        }
-    }
+    bool named() const { return name != nullptr; }
 };
 
 class Constant : public Value {
@@ -288,7 +257,7 @@ public:
     static bool classof(const Value *node) { return node->valkind == ValueKind::ZERO; }
 };
 
-class String : public CFGVisitable<String, Constant>, public Named {
+class String : public CFGVisitable<String, Constant>, public Named<String> {
 public:
     String(sema::types::Type *type, StringRef data)
         : CFGVisitable<String, Constant>(ValueKind::STR, type), data(data.str()) {}
@@ -300,36 +269,43 @@ public:
     static bool classof(const Value *node) { return node->valkind == ValueKind::STR; }
 };
 
-class Global : public CFGVisitable<Global, NamedValue> {
+class Global : public CFGVisitable<Global, Value>, public Named<Global> {
 public:
-    Global(sema::types::Type *type, StringRef name)
-        : CFGVisitable<Global, NamedValue>(ValueKind::GLOBAL, type, name) {}
+    Global(Type *type, Linkage linkage)
+        : CFGVisitable<Global, Value>(ValueKind::GLOBAL, type),
+          linkage(linkage) {}
 
-    Global(sema::types::Type *type, StringRef name, Value *initializer)
-        : CFGVisitable<Global, NamedValue>(ValueKind::GLOBAL, type, name),
-          initializer(initializer) {}
+    Global(Type *type, Value *initializer, Linkage linkage)
+        : CFGVisitable<Global, Value>(ValueKind::GLOBAL, type),
+          linkage(linkage), initializer(initializer) {}
+
+    Linkage linkage;
 
     /**
     The initial value of the global, if it has one.
     */
     Value *initializer = nullptr;
 
+    bool nameable() override { return true; }
+
+    StringRef get_name() override { return name ? name->name : StringRef::null(); }
+
     Global *as_global() override { return this; }
 
     static bool classof(const Value *node) { return node->valkind == ValueKind::GLOBAL; }
 };
 
-class Alloca : public CFGVisitable<Alloca, NamedValue> {
+class Alloca : public CFGVisitable<Alloca, Value>, public Named<Alloca> {
 public:
-    Alloca(sema::types::Type *type, StringRef name)
-        : CFGVisitable<Alloca, NamedValue>(ValueKind::ALLOCA, type, name), type(type) {}
 
     Alloca(sema::types::Type *type)
-        : CFGVisitable<Alloca, NamedValue>(ValueKind::ALLOCA, type), type(type) {}
-
-    
+        : CFGVisitable<Alloca, Value>(ValueKind::ALLOCA, type), type(type) {}
 
     sema::types::Type *type;
+
+    bool nameable() override { return true; }
+
+    StringRef get_name() override { return name ? name->name : StringRef::null(); }
 
     Alloca *as_alloca() override { return this; }
 
@@ -341,9 +317,13 @@ An argument to a function.
 
 FunctionCFG stores these as the values to be stored into the allocations.
 */
-class FuncArg : public CFGVisitable<FuncArg, NamedValue> {
+class FuncArg : public CFGVisitable<FuncArg, Value>, public Named<FuncArg> {
 public:
-    FuncArg(sema::types::Type *type) : CFGVisitable<FuncArg, NamedValue>(ValueKind::ARG, type) {}
+    FuncArg(sema::types::Type *type) : CFGVisitable<FuncArg, Value>(ValueKind::ARG, type) {}
+
+    bool nameable() override { return true; }
+
+    StringRef get_name() override { return name ? name->name : StringRef::null(); }
 
     FuncArg *as_funcarg() override { return this; }
 
@@ -353,7 +333,7 @@ public:
 /**
 A unit of execution in the CFG IR.
 */
-class Instruction : public NamedValue, public ds::LinkedListNode<Instruction> {
+class Instruction : public Value, public ds::LinkedListNode<Instruction>, public Named<Instruction> {
 public:
     enum class InstKind : uint8_t {
         LOAD,
@@ -372,25 +352,18 @@ public:
     };
 
     Instruction(BasicBlock *containing, InstKind kind, sema::types::Type *type, Location loc)
-        : NamedValue(ValueKind::INST, type, loc), containing(containing), instkind(kind) {}
+        : Value(ValueKind::INST, type, loc), containing(containing), instkind(kind) {}
 
     Instruction(
         BasicBlock *containing, InstKind kind, sema::types::Type *type, Optional<Location> loc)
-        : NamedValue(ValueKind::INST, type, loc), containing(containing), instkind(kind) {}
+        : Value(ValueKind::INST, type, loc), containing(containing), instkind(kind) {}
 
     Instruction(BasicBlock *containing, InstKind kind, sema::types::Type *type)
-        : NamedValue(ValueKind::INST, type), containing(containing), instkind(kind) {}
+        : Value(ValueKind::INST, type), containing(containing), instkind(kind) {}
 
-    Instruction(
-        BasicBlock *containing, InstKind kind, sema::types::Type *type, Location loc, StringRef name)
-        : NamedValue(ValueKind::INST, type, loc, name), containing(containing),
-          instkind(kind) {}
+    bool nameable() override { return true; }
 
-    Instruction(
-        BasicBlock *containing, InstKind kind, sema::types::Type *type, StringRef name,
-        Optional<Location> loc)
-        : NamedValue(ValueKind::INST, type, loc, name), containing(containing),
-          instkind(kind) {}
+    StringRef get_name() override { return name ? name->name : StringRef::null(); }
 
     Instruction *as_instruction() override { return this; }
 
@@ -1184,15 +1157,17 @@ private:
 /**
 A single function, composed of linked blocks.
 */
-class Function : public CFGVisitable<Function, Constant>, public Named {
+class Function : public CFGVisitable<Function, Constant>, public Named<Function> {
 public:
     friend class BasicBlock;
 
-    Function(sema::types::FunctionType *sig, StringRef name)
-        : CFGVisitable<Function, Constant>(ValueKind::FUNC, sig), Named(name),
-          signature(sig) {}
+    Function(sema::types::FunctionType *sig, Linkage linkage)
+        : CFGVisitable<Function, Constant>(ValueKind::FUNC, sig),
+          signature(sig), linkage(linkage) {}
 
     bool nameable() override { return true; }
+
+    StringRef get_name() override { return name ? name->name : StringRef::null(); }
 
     sema::types::FunctionType *get_signature() { return signature; }
 
@@ -1201,7 +1176,7 @@ public:
     */
     BasicBlock *initialize();
 
-    StringRef get_name() const { return name; }
+    //StringRef get_name() const { return name; }
 
     FuncArg *add_arg(sema::types::Type *type);
 
@@ -1279,6 +1254,8 @@ public:
 private:
     sema::types::FunctionType *signature;
 
+    Linkage linkage;
+
     Vec<Box<FuncArg>> args;
 
     BasicBlock *entry = nullptr;
@@ -1288,6 +1265,9 @@ private:
 
     // The allocations in the function.
     Vec<Box<Alloca>> allocas;
+    CFGSymbolMap<Alloca> allocamap;
+
+    CFGSymbolMap<FuncArg> argmap;
 };
 
 class Program {
@@ -1298,9 +1278,9 @@ public:
     Adds a new global to the ProgramCFG corresponding to the passed LIRVarSym,
     or returns the corresponding FunctionCFG if it already exists.
     */
-    Global *add_global(sema::types::Type *type, StringRef name, Value *init = nullptr);
+    Global *add_global(Type *type, StringRef name, Linkage linkage, Value *init = nullptr);
 
-    Function *add_function(sema::types::FunctionType *sig, StringRef name);
+    Function *add_function(FunctionType *sig, StringRef name, Linkage linkage);
 
     /**
     An iterator over the globals in the program, in the order they were added.
@@ -1328,8 +1308,10 @@ public:
 private:
 
     Vec<Box<Function>> functions;
+    CFGSymbolMap<Function> functionmap;
 
     Vec<Box<Global>> globals;
+    CFGSymbolMap<Global> globalmap;
 
     HashMap<eval::Value, Box<ScalarConst>, eval::ValueHash, eval::ValueStructEq> scalars;
 

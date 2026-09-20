@@ -7,8 +7,7 @@ This document lays out the planned improvements and updates for the EnlightenedC
 These are to-dos that are important, but do not constitute a milestone. They are simply internal or small to-dos that need to be noted down somewhere, and do not correspond to any particular goal timeframe as laid out below. Generally, something noted here means "implement whenever it is needed".
 
 - Implement linkage semantics in LIR and CFG
-- Create a symbol table for CFG (`CFGSymbolTable`)
-- Turn the std::string on `cfg::Named` into a `CFGSymbol`
+- Complete CFG printer
 - Implement `global` and `typedef` (as its own AST node)
 - Add general I/O framework (modelled after `llvm::RawOStream`) for file and stdio I/O
 - Refactor ConstEvaluator and Value to focus on InvalidCompileTimeEval (& properly catch EvalSemanticErrors)

@@ -713,6 +713,9 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
 
             dv_return(funcmir);
         } else {
+            if (!syms.current->is_global() && specinfo.linkage == Linkage::EXTERNAL) {
+                // non-global external declaration
+            }
 
             InsertVarArgs args = {declarator->loc, *ret.name, symtype, specinfo.linkage};
             args.duration = specinfo.duration;

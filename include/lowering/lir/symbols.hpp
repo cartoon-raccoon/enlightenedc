@@ -1,10 +1,10 @@
 #pragma once
 
-#include "semantics/symdata.hpp"
 #ifndef ECC_LIR_SYMBOLS_H
 #define ECC_LIR_SYMBOLS_H
 
 #include "semantics/symbols.hpp"
+#include "semantics/symdata.hpp"
 #include "semantics/types.hpp"
 #include "prelude.hpp"
 
@@ -54,14 +54,17 @@ The representation of a physical variable (memory location) in the LIR.
 class LIRVarSym : public LIRSym {
 public:
     LIRVarSym(sema::sym::VarSymbol *sym)
-        : LIRSym(LIRSymKind::VAR, sym->get_symdata_rc(), sym->get_loc()), is_param(sym->is_funcparam()) {}
+        : LIRSym(LIRSymKind::VAR, sym->get_symdata_rc(), sym->get_loc()), is_param(sym->is_funcparam()),
+          is_implicit(sym->is_implicit()) {}
 
     LIRVarSym(sema::sym::VarSymbol *sym, LIRFuncSym *function)
         : LIRSym(LIRSymKind::VAR, sym->get_symdata_rc(), sym->get_loc()), is_param(sym->is_funcparam()),
-          function(function) {}
+          is_implicit(sym->is_implicit()), function(function) {}
 
     // Whether the variable is a function parameter.
     bool is_param;
+
+    bool is_implicit;
 
     /**
     The function symbol associated with this VarSym.

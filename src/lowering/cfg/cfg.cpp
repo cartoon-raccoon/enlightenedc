@@ -164,7 +164,7 @@ BasicBlock *Function::initialize() {
         add_arg(paramtype);
     }
 
-    auto& entry_blk    = blocks.emplace_back(name, this);
+    auto& entry_blk    = blocks.emplace_back(this);
     entry_blk.is_entry = true;
     entry              = &entry_blk;
 
@@ -251,10 +251,11 @@ Span<Box<Alloca>> Function::get_allocas() {
 }
 
 Alloca *Function::add_alloca(Type *type, StringRef name) {
-    auto alloc = std::make_unique<Alloca>(type, name);
+    auto alloc = std::make_unique<Alloca>(type);
     auto *ret  = alloc.get();
 
     allocas.push_back(std::move(alloc));
+    allocamap.insert(name, ret);
 
     return ret;
 }
@@ -268,17 +269,18 @@ Alloca *Function::add_alloca(Type *type) {
     return ret;
 }
 
-Global *Program::add_global(Type *type, StringRef name, Value *init) {
+Global *Program::add_global(Type *type, StringRef name, Linkage linkage, Value *init) {
 
     Box<Global> new_global;
     if (init) {
-        new_global = std::make_unique<Global>(type, name, init);
+        new_global = std::make_unique<Global>(type, init, linkage);
     } else {
-        new_global = std::make_unique<Global>(type, name);
+        new_global = std::make_unique<Global>(type, linkage);
     }
 
     Global *ret = new_global.get();
     globals.push_back(std::move(new_global));
+    globalmap.insert(name, ret);
 
     return ret;
 }
@@ -359,13 +361,14 @@ String *Program::get_string(ArrayType *type, StringRef str) {
     return ret;
 }
 
-Function *Program::add_function(sema::types::FunctionType *sig, StringRef name) {
+Function *Program::add_function(sema::types::FunctionType *sig, StringRef name, Linkage linkage) {
 
-    auto funcfg = std::make_unique<Function>(sig, name.str());
+    auto funcfg = std::make_unique<Function>(sig, linkage);
 
     Function *ret = funcfg.get();
 
     functions.push_back(std::move(funcfg));
+    functionmap.insert(name, ret);
 
     return ret;
 }
