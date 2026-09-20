@@ -199,6 +199,10 @@ public:
         }
     }
 
+    RawOStream& operator<<(Colors c) {
+        return write(c);
+    }
+
     template <typename T>
         requires std::formattable<T, char>
     RawOStream& operator<<(const T& value) {
@@ -220,6 +224,8 @@ public:
         return write(str.data(), str.size());
     }
 
+    RawOStream& write(Colors color);
+
     template <typename T>
         requires std::formattable<T, char>
     RawOStream& write(const T& value) {
@@ -233,6 +239,14 @@ public:
         std::format_to(UnitWriter(this), formatstr, args ...);
         return *this;
     }
+
+    RawOStream& change_colors(Colors color, bool bold, bool bg);
+
+    RawOStream& reset_colors();
+
+    void enable_colors(bool enable) { color_enabled = enable; }
+
+    virtual bool has_colors() { return is_displayed(); }
 
     /**
 
@@ -259,6 +273,8 @@ protected:
     virtual size_t preferred_bufsize() { return BUFSIZE; }
 
 private:
+
+    bool prepare_colors();
 
     void copy_to_buffer(const char *ptr, size_t n);
 

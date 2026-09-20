@@ -1,7 +1,9 @@
 #include "util/io/ostream.hpp"
+
 #include <cstring>
 #include "prelude.hpp"
 #include "util/assert.hpp"
+#include "util/process.hpp"
 
 using namespace ecc::io;
 
@@ -187,12 +189,53 @@ RawOStream& RawOStream::write(const char *str, size_t size) {
     return *this;
 }
 
+RawOStream& RawOStream::write(Colors color) {
+    if (color == Colors::RESET) {
+        return reset_colors();
+    } else {
+        return change_colors(color, false, false);
+    }
+}
+
+RawOStream& RawOStream::change_colors(Colors color, bool bold, bool bg) {
+    if (!prepare_colors()) {
+        return *this;
+    }
+
+    const char *colorcode =
+        (color == Colors::SAVEDCOLOR)
+            ? Process::output_bold(bg)
+            : Process::output_colors(static_cast<char>(color), bold, bg);
+
+    if (colorcode) {
+        write(colorcode, strlen(colorcode));
+    }
+
+    return *this;
+}
+
+RawOStream& RawOStream::reset_colors() {
+    if (!prepare_colors()) {
+        return *this;
+    }
+
+    if (const char *resetcode = Process::reset_color()) {
+        write(resetcode, strlen(resetcode));
+    }
+    
+    return *this;
+}
+
 void RawOStream::set_buffered() {
     if (size_t size = preferred_bufsize()) {
         set_buffer_size(size);
     } else {
         set_unbuffered();
     }
+}
+
+bool RawOStream::prepare_colors() {
+    return color_enabled && has_colors();
 }
 
 void RawOStream::copy_to_buffer(const char *ptr, size_t n) {
