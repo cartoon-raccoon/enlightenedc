@@ -28,14 +28,16 @@ IN TECHNICAL SPEAK: See [this](https://en.wikipedia.org/wiki/Lexer_hack) for an 
 class LexerHack {
 public:
     struct Scope {
-        StringHashSet typedefs;
-        StringHashSet identifiers;
+        StringRefSet typedefs;
+        StringRefSet identifiers;
     };
 
 private:
     Vec<Scope> stack;
 
 public:
+    LexerHack();
+
     /**
     Push a new scope to the stack.
     */
@@ -47,27 +49,34 @@ public:
     Pop the current scope off the stack.
     */
     void pop_scope() {
-        stack.pop_back();
+        if (!stack.empty()) {
+            stack.pop_back();
+        }
     }
 
     /**
+    Insert an identifier as a type in the current scope.
     */
-    bool contains() {
-        // todo
-        return false;
-    }
+    void insert_type(StringRef ident) {
+        stack.back().typedefs.insert(ident);
+    } 
+
+    /**
+    Check if the current scope contains this identifier as a type.
+    */
+    bool contains_type(StringRef ident);
 };
 
 class Lexer : public yyFlexLexer {
     Location loc;
 
-    Ref<StringHashSet> typedefs;
+    Ref<LexerHack> typedefs;
     Ref<driver::FilenamePool> filenames;
 
 public:
     // Use the standard yyFlexLexer constructor.
     Lexer(
-        std::istream *in, std::string *filename, StringHashSet& typedefs,
+        std::istream *in, std::string *filename, LexerHack& typedefs,
         driver::FilenamePool& filenames);
 
     // Override the yyFlexLexer constructor.

@@ -80,6 +80,9 @@ flex_target(
 
 add_flex_bison_dependency(scanner parser)
 
+add_custom_target(parser
+    DEPENDS ${BISON_parser_OUTPUTS} ${FLEX_scanner_OUTPUTS})
+
 # 4. Collect source files
 file(GLOB_RECURSE AST_SRC "${SRC_DIR}/ast/*.cpp")
 file(GLOB_RECURSE PREPROC_SRC "${SRC_DIR}/preproc/*.cpp")

@@ -34,6 +34,7 @@ using namespace ecc::ds;
 // The full Lexer declaration is included in the .cpp (see %code below).
 namespace ecc::frontend {
 class Lexer;
+class LexerHack;
 
 // Defined in the grammar epilogue below; forward-declared here so it is visible
 // to the actions in Parser::parse(), which are emitted before the epilogue.
@@ -47,7 +48,7 @@ bool speclist_contains(
 %parse-param { ecc::frontend::Lexer &lexer }
 %parse-param { ecc::ast::Program &ast_root }
 // lexer hack bodge
-%parse-param { StringHashSet& type_idents }
+%parse-param { ecc::frontend::LexerHack& lhack }
 
 %lex-param { ecc::frontend::Lexer &lexer }
 
@@ -375,7 +376,7 @@ type_specifier:
 class_specifier:
     // Class specifier with definition and parent classes.
     CLASS IDENTIFIER COLON class_parent_list LBRACE member_declaration_list RBRACE {
-        type_idents.insert($2);
+        lhack.insert_type($2);
         $$ = make_chunk<ClassSpecifier>(@$, std::move($2), std::move($4), std::move($6));
     }
     | CLASS TYPE_IDENTIFIER COLON class_parent_list LBRACE member_declaration_list RBRACE {
@@ -393,7 +394,7 @@ class_specifier:
     }
     // Class specifier with definition.
     | CLASS IDENTIFIER LBRACE member_declaration_list RBRACE {
-        type_idents.insert($2);
+        lhack.insert_type($2);
         $$ = make_chunk<ClassSpecifier>(@$, std::move($2), std::nullopt, std::move($4));
     }
     | CLASS TYPE_IDENTIFIER LBRACE member_declaration_list RBRACE {
@@ -405,7 +406,7 @@ class_specifier:
     }
     // Class specifier with no definition.
     | CLASS IDENTIFIER {
-        type_idents.insert($2);
+        lhack.insert_type($2);
         $$ = make_chunk<ClassSpecifier>(@$, std::move($2), std::nullopt, std::nullopt);
     }
     | CLASS TYPE_IDENTIFIER {
@@ -416,7 +417,7 @@ class_specifier:
 union_specifier:
     // Union specifier with a type representative and definition.
     primitive_type UNION IDENTIFIER LBRACE member_declaration_list RBRACE {
-        type_idents.insert($3);
+        lhack.insert_type($3);
         $$ = make_chunk<UnionSpecifier>(@$, std::move($3), $1->pkind, std::move($5));
     }
     | primitive_type UNION TYPE_IDENTIFIER LBRACE member_declaration_list RBRACE {
@@ -424,7 +425,7 @@ union_specifier:
     }
     // Regular union specifier with definition.
     | UNION IDENTIFIER LBRACE member_declaration_list RBRACE {
-        type_idents.insert($2);
+        lhack.insert_type($2);
         $$ = make_chunk<UnionSpecifier>(@$, std::move($2), std::nullopt, std::move($4));
     }
     | UNION TYPE_IDENTIFIER LBRACE member_declaration_list RBRACE {
@@ -450,7 +451,7 @@ union_specifier:
     }
     // Union specifier with no definition.
     | UNION IDENTIFIER {
-        type_idents.insert($2);
+        lhack.insert_type($2);
         $$ = make_chunk<UnionSpecifier>(@$, std::move($2), std::nullopt, std::nullopt);
     }
     | UNION TYPE_IDENTIFIER {
@@ -1027,11 +1028,11 @@ enum_specifier:
         $$ = make_chunk<EnumSpecifier>(@$, std::nullopt, std::move($4), $1->pkind);
     }
     | ENUM IDENTIFIER LBRACE enumerator_list RBRACE {
-        type_idents.insert($2);
+        lhack.insert_type($2);
         $$ = make_chunk<EnumSpecifier>(@$, $2, std::move($4));
     }
     | primitive_type ENUM IDENTIFIER LBRACE enumerator_list RBRACE {
-        type_idents.insert($3);
+        lhack.insert_type($3);
         $$ = make_chunk<EnumSpecifier>(@$, $3, std::move($5), $1->pkind);
     }
     | ENUM TYPE_IDENTIFIER LBRACE enumerator_list RBRACE {
@@ -1041,7 +1042,7 @@ enum_specifier:
         $$ = make_chunk<EnumSpecifier>(@$, $3, std::move($5), $1->pkind);
     }
     | ENUM IDENTIFIER {
-        type_idents.insert($2);
+        lhack.insert_type($2);
         $$ = make_chunk<EnumSpecifier>(@$, $2, std::nullopt);
     }
     | primitive_type ENUM IDENTIFIER {
@@ -1167,8 +1168,8 @@ compound_statement:
     LBRACE RBRACE {
         $$ = make_chunk<CompoundStatement>(@$, ArenaVec<Chunk<ProgramItem>>{});
     }
-    | LBRACE stmt_or_decl_list RBRACE {
-        $$ = make_chunk<CompoundStatement>(@$, std::move($2));
+    | LBRACE { lhack.push_scope(); } stmt_or_decl_list { lhack.pop_scope(); } RBRACE {
+        $$ = make_chunk<CompoundStatement>(@$, std::move($3));
     }
 ;
 

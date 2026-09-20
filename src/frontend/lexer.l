@@ -251,7 +251,7 @@ static std::string decode_string_literal(char* text, size_t len) {
 
 [_a-zA-Z][_a-zA-Z0-9]* { /* Identifiers */
     ecc::StringRef ident = ecc::intern_string({yytext, static_cast<size_t>(yyleng)});
-    if (typedefs.get().contains(ident)) {
+    if (typedefs.get().contains_type(ident)) {
         return ecc::frontend::Parser::make_TYPE_IDENTIFIER(ident, loc);
     } else {
         return ecc::frontend::Parser::make_IDENTIFIER(ident, loc);

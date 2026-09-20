@@ -309,7 +309,7 @@ struct StringRefEq {
     bool operator()(StringRef a, StringRef b) const { return a == b; }
 };
 
-using StringHashSet = boost::unordered_set<StringRef, StringRefHash, StringRefEq>;
+using StringRefSet = boost::unordered_set<StringRef, StringRefHash, StringRefEq>;
 
 /**
 Intern `s`: copy it once into an `ArenaStr` owned by a global pool and return a

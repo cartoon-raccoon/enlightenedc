@@ -882,7 +882,7 @@ void MIRSynthesizer::do_visit(FunctionDeclarator& node) {
     Vec<FuncParam> parameters;
 
     // name pool to check for duplicate parameter names
-    StringHashSet name_pool;
+    StringRefSet name_pool;
 
     for (auto& param : node.parameters) {
         dv_call_noparam(param);
