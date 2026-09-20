@@ -1,6 +1,6 @@
 #include "semantics/mir/mir.hpp"
 
-#include <algorithm>
+//#include <algorithm>
 #include <variant>
 
 #include "eval/consteval.hpp"
@@ -60,9 +60,14 @@ bool InitializerMIR::is_all_literals() {
             [&](Chunk<InitializerMIR::Member>& mem) { return mem->initializer->is_all_literals(); },
             [&](Chunk<InitializerMIR::Index>& idx) { return idx->initializer->is_all_literals(); },
             [&](ArenaVec<Chunk<InitializerMIR>>& init) {
-                return std::all_of(
-                    init.cbegin(), init.cend(),
-                    [](const Chunk<InitializerMIR>& init) { return init->is_all_literals(); });
+                for (auto& i : init) {
+                    if (!i->is_all_literals()) return false;
+                }
+
+                return true;
+                // return std::all_of(
+                //     init.cbegin(), init.cend(),
+                //     [](const Chunk<InitializerMIR>& init) { return init->is_all_literals(); });
             }},
         initializer);
 }
@@ -73,10 +78,15 @@ bool InitializerMIR::is_constant() {
         [&](Chunk<InitializerMIR::Member>& mem) { return mem->initializer->is_constant(); },
         [&](Chunk<InitializerMIR::Index>& idx) { return idx->initializer->is_constant(); },
         [&](ArenaVec<Chunk<InitializerMIR>>& init) {
-            return std::all_of(
-                init.cbegin(), init.cend(),
-                [](const Chunk<InitializerMIR>& init) { return init->is_constant(); }
-            );
+            for (auto& i : init) {
+                if (!i->is_constant()) return false;
+            }
+
+            return true;
+            // return std::all_of(
+            //     init.cbegin(), init.cend(),
+            //     [](const Chunk<InitializerMIR>& init) { return init->is_constant(); }
+            // );
         }
     }, initializer);
 }
