@@ -132,6 +132,11 @@ private:
     };
 
 public:
+    /**
+    To prevent unbounded buffer growth in Atomic::Always writes, we set a hard limit
+    of 64 MiB to catch any write that really, really loves to vomit bytes.
+    */
+    static constexpr uint64_t ATOMIC_HARD_LIMIT = 6.710886e7;
 
     static constexpr Colors BLACK = Colors::BLACK;
     static constexpr Colors RED = Colors::RED;

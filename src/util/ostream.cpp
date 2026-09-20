@@ -76,6 +76,8 @@ RawOStream::UnitWriter& RawOStream::UnitWriter::write(char c) {
                     size_t growth = os->preferred_bufsize();
                     ECC_ASSERT(growth, "preferred_bufsize() returned 0");
                     os->reserve_extra_space(growth);
+                    ECC_ASSERT(os->get_buf_size() <= ATOMIC_HARD_LIMIT,
+                        "Atomicity::Always hard limit reached!");
                     unit_mark = os->buf_start;
                     resized_buffer = true;
                 } else {
