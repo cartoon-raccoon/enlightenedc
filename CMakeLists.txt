@@ -18,7 +18,7 @@ project(enlightenedc
 )
 add_compile_options("-O2")
 
-set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
+set(SRC_DIR "${CMAKE_SOURCE_DIR}/lib")
 set(INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include")
 
 # option to toggle clang-tidy during compilation, on by default
@@ -136,7 +136,7 @@ set_target_properties(libecc PROPERTIES
 )
 
 # Create an executable from our main.cpp driver
-add_executable(ecc "${SRC_DIR}/main.cpp")
+add_executable(ecc "${CMAKE_SOURCE_DIR}/ecc/main.cpp")
 
 # Setup include paths
 target_include_directories(libecc PRIVATE ${SRC_DIR} ${BISON_OUTPUT_DIR})
