@@ -246,8 +246,12 @@ BasicBlock *Function::lookup_labeled_block(StringRef label) {
     return it == labeled_blocks.end() ? nullptr : it->second;
 }
 
-Span<Box<Alloca>> Function::get_allocas() {
-    return allocas;
+ds::LinkedListIter<Alloca> Function::allocas_begin() {
+    return allocas.begin();
+}
+
+ds::LinkedListIter<Alloca> Function::allocas_end() {
+    return allocas.end();
 }
 
 Alloca *Function::add_alloca(Type *type, StringRef name) {

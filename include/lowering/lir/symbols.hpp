@@ -39,7 +39,7 @@ public:
 
     const std::string& get_mangled_name() const { return symdata->get_mangled_name(); }
 
-    sema::sym::Linkage get_linkage() { return symdata->get_linkage(); }
+    sema::Linkage get_linkage() { return symdata->get_linkage(); }
 
     bool is_var() const { return kind == LIRSymKind::VAR; }
     bool is_func() const { return kind == LIRSymKind::FUNC; }

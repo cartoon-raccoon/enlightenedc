@@ -684,7 +684,7 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
                 throw UnableToContinue();
             }
 
-            if (specinfo.linkage == sym::Linkage::EXTERNAL && syms.current != syms.global()) {
+            if (specinfo.linkage == Linkage::EXTERNAL && syms.current != syms.global()) {
                 // reject
                 add_error<EccSemError>(
                     "extern function declaration must be at global scope", declarator->loc);
@@ -1305,7 +1305,7 @@ void MIRSynthesizer::do_visit(ClassDeclaration& node) {
         throw UnableToContinue();
     }
 
-    if (specinfo.linkage != sym::Linkage::NONE) {
+    if (specinfo.linkage != Linkage::NONE) {
         add_error<EccSemError>("member declarations cannot have linkage", node.loc);
         throw UnableToContinue();
     }

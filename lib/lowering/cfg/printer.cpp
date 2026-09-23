@@ -156,9 +156,9 @@ void CFGPrinter::print_function(Function& func) {
         }
         std::cout << ")";
         std::cout << " {\n";
-        for (auto& alloc : func.get_allocas()) {
+        for (auto alloc = func.allocas_begin(); alloc != func.allocas_end(); alloc++) {
             print_value(*alloc);
-            alloc->accept(*this);
+            (*alloc).accept(*this);
         }
         for (auto& block : func) {
             print_block(block);

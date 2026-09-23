@@ -132,8 +132,8 @@ class MIRSynthesizer : public BaseASTSemaVisitor, public Fallible, public NoMove
         Optional<sym::TypeSymbol *> symbol;
         bool is_const        = false;
         bool is_constexpr    = false;
-        sym::Linkage linkage = sym::Linkage::NONE;
-        sym::LangLinkage langlink = sym::LangLinkage::NONE;
+        sema::Linkage linkage = sema::Linkage::NONE;
+        sema::LangLinkage langlink = sema::LangLinkage::NONE;
         sym::StorageDuration duration = sym::StorageDuration::AUTO;
     };
 

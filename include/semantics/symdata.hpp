@@ -6,41 +6,11 @@
 #include <cstdint>
 #include <string>
 
+#include "semantics/linkage.hpp"
 #include "semantics/types.hpp"
 #include "prelude.hpp"
 
 namespace ecc::sema::sym {
-
-// The linkage of the symbol.
-enum class Linkage : uint8_t {
-    // The symbol has no linkage.
-    NONE,
-    // The symbol has internal linkage.
-    INTERNAL,
-    // The symbol has external linkage.
-    EXTERNAL,
-};
-
-enum class LangLinkage : uint8_t {
-    NONE, // The symbol has no language linkage.
-    C, // The symbol has "C" language linkage.
-};
-
-template <typename Link>
-concept IsLinkage = requires {
-    Link::NONE;
-};
-
-/**
-Check if `mine` Linkage is compatible with `other` linkage.
-
-The two linkages are compatible if `other` is `Link::NONE` or they match.
-*/
-template <typename Link>
-    requires IsLinkage<Link>
-bool linkages_are_compatible(Link mine, Link other) {
-    return other == Link::NONE || mine == other;
-}
 
 enum class StorageDuration : uint8_t {
     AUTO,

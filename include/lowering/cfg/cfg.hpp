@@ -11,8 +11,8 @@
 #include "eval/value.hpp"
 #include "lowering/cfg/symbols.hpp"
 #include "lowering/cfg/visitor.hpp"
+#include "semantics/linkage.hpp"
 #include "semantics/types.hpp"
-#include "semantics/symdata.hpp"
 #include "tokens.hpp"
 #include "prelude.hpp"
 #include "util/hash.hpp"
@@ -21,7 +21,7 @@
 namespace ecc::lower::cfg {
 
 using EvalValue = eval::Value;
-using Linkage = sema::sym::Linkage;
+using Linkage = sema::Linkage;
 using Type = sema::types::Type;
 using FunctionType = sema::types::FunctionType;
 
@@ -295,7 +295,7 @@ public:
     static bool classof(const Value *node) { return node->valkind == ValueKind::GLOBAL; }
 };
 
-class Alloca : public CFGVisitable<Alloca, Value>, public Named<Alloca> {
+class Alloca : public CFGVisitable<Alloca, Value>, public ds::LinkedListNode<Alloca>, public Named<Alloca> {
 public:
 
     Alloca(sema::types::Type *type)
@@ -1176,8 +1176,6 @@ public:
     */
     BasicBlock *initialize();
 
-    //StringRef get_name() const { return name; }
-
     FuncArg *add_arg(sema::types::Type *type);
 
     FuncArg *arg_idx(size_t idx) { return idx < args.size() ? args[idx].get() : nullptr; }
@@ -1241,7 +1239,9 @@ public:
     /**
     An iterator over the allocations in the function, in allocation order.
     */
-    Span<Box<Alloca>> get_allocas();
+    ds::LinkedListIter<Alloca> allocas_begin();
+
+    ds::LinkedListIter<Alloca> allocas_end();
 
     Span<Box<FuncArg>> get_args() { return args; }
 
@@ -1264,7 +1264,7 @@ private:
     HashMap<std::string, BasicBlock *, StringRefHash, StringRefEq> labeled_blocks;
 
     // The allocations in the function.
-    Vec<Box<Alloca>> allocas;
+    ds::LinkedList<Alloca> allocas;
     CFGSymbolMap<Alloca> allocamap;
 
     CFGSymbolMap<FuncArg> argmap;
