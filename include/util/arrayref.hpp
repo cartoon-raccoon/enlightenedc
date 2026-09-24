@@ -45,6 +45,8 @@ public:
 
     ArrayRef(const T& elem) : elems(&elem), len(1) {}
 
+    ArrayRef(const T *ptr, size_type n) : elems(ptr), len(n) {}
+
     template <ArrayRefConvertible<T> C>
     constexpr ArrayRef(const C& c) : elems(c.data()), len(c.size()) {}
 
@@ -61,11 +63,11 @@ public:
             len(vec.size()) {}
 // #pragma GCC diagnostic pop
 
-    bool empty() { return len == 0; }
+    bool empty() const { return len == 0; }
 
-    const T *data() { return elems; }
+    const T *data() const { return elems; }
 
-    size_type size() { return len; }
+    size_type size() const { return len; }
 
     const T& front() const {
         ECC_ASSERT_N(!empty());
@@ -114,5 +116,11 @@ public:
 };
 
 }
+
+template <typename T>
+inline constexpr bool std::ranges::enable_view<ecc::util::ArrayRef<T>> = true;
+
+template <typename T>
+inline constexpr bool std::ranges::enable_borrowed_range<ecc::util::ArrayRef<T>> = true;
 
 #endif
