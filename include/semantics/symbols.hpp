@@ -470,84 +470,28 @@ are shadowed by symbols in the main physical symbol container.
 
 ## Association
 
-Scopes can be associated with a particular FuncSymbol or Type. When a function is defined, it implicitly
-declares a new scope, and so it can be associated with that Scope object. Similarly, when a RecordType
-(a class or union) is defined, it implicitly declares a new scope, and so can be associated with that
-Scope object as well.
+Scopes can be associated with a particular FuncSymbol. When a function is defined, it implicitly
+declares a new scope, and so it can be associated with that Scope object.
 */
 class Scope {
 public:
-    class ScopeAssoc {
-        enum Type : uint8_t { NONE, TYPE, FUNC, } type;
-
-        union {
-            FuncSymbol *func_assoc;
-            types::RecordType *type_assoc;
-        };
-    public:
-        ScopeAssoc() : type(NONE), func_assoc(nullptr) {}
-
-        ScopeAssoc(FuncSymbol *func) : type(FUNC), func_assoc(func) {}
-
-        ScopeAssoc(types::RecordType *type) : type(TYPE), type_assoc(type) {}
-
-        ScopeAssoc& operator=(FuncSymbol *func) { 
-            type = FUNC; func_assoc = func; return *this;
-        }
-
-        ScopeAssoc& operator=(types::RecordType *type) {
-            this->type = TYPE; type_assoc = type; return *this;
-        }
-
-        bool is_func_assocd() const { return type == FUNC; }
-
-        bool is_type_assocd() const { return type == TYPE; }
-
-        FuncSymbol *as_func_assoc() const {
-            if (is_type_assocd()) {
-                return nullptr;
-            } else {
-                return func_assoc;
-            }
-        }
-
-        types::RecordType *as_type_assoc() const {
-            if (is_func_assocd()) {
-                return nullptr;
-            } else {
-                return type_assoc;
-            }
-        }
-    };
-    
     Scope(FuncSymbol *assoc, Scope *outer, uint64_t id, int idx_in_nested)
-        : outer(outer), id(id), idx_in_nested(idx_in_nested) {
-        if (assoc) { this->assoc = assoc; }
-    }
+        : outer(outer), assoc(assoc), id(id), idx_in_nested(idx_in_nested) {}
 
-    Scope(FuncSymbol *assoc, Scope *outer, uint64_t id) : outer(outer), id(id) {
-        if (assoc) { this->assoc = assoc; }
-    }
+    Scope(FuncSymbol *assoc, Scope *outer, uint64_t id)
+        : outer(outer), assoc(assoc), id(id) {}
 
     bool is_global() const { return idx_in_nested < 0; }
 
-    bool has_assoc() const { return assoc.has_value(); }
+    bool has_assoc() const { return assoc != nullptr; }
 
     void set_assoc(FuncSymbol *sym, bool override = false);
-
-    void set_assoc(types::RecordType *type, bool override = false);
 
     Scope *get_outer() { return outer; }
 
     const Scope *get_outer() const { return outer; }
 
-    bool is_func_assocd() const { return assoc ? (*assoc).is_func_assocd() : false; }
-
-    bool is_type_assocd() const { return assoc ? (*assoc).is_type_assocd() : false; }
-
-    FuncSymbol *get_func_assoc() const;
-
-    types::RecordType *get_type_assoc() const;
+    FuncSymbol *get_assoc() const { return assoc; }
 
     bool locally_contains(StringRef sym) const;
 
@@ -566,7 +510,7 @@ private:
 
     // A function associated with this scope.
     // if null, this is an anonymous scope.
-    Optional<ScopeAssoc> assoc;
+    FuncSymbol *assoc = nullptr;
 
     uint64_t id;
 
@@ -764,14 +708,6 @@ public:
     value of `override`.
     */
     void tie_current_to(FuncSymbol *sym, bool override = false) const;
-
-    /**
-    Associate the current scope with the given RecordType `type`.
-
-    If current scope is already tied to something, replaces it with the new one depending on the
-    value of `override`.
-    */
-    void tie_current_to(types::RecordType *type, bool override = false) const;
 
     /** 
     Add a new (explicit) VarSymbol to the current scope.

@@ -159,8 +159,10 @@ Optional<Type *> Validator::eval_initializer_expr(
     // case is skipped when the declared type is itself an array (e.g. `U8 buf[] = "hi";`, sized
     // array copy-initialization), since decaying there would fight the array-initializer logic
     // below.
-    if (expr->act_type->is_decayable()) {
-        expr = exprv.decay(expr->act_type->as_decayable(), std::move(expr));
+    if (expr->act_type->is_function()) {
+        expr = exprv.decay(expr->act_type->as_function(), std::move(expr));
+    } else if (expr->act_type->is_array() && !type->unqual()->is_array()) {
+        expr = exprv.decay(expr->act_type->as_array(), std::move(expr));
     }
 
     if (type == expr->eff_type) {
@@ -168,16 +170,16 @@ Optional<Type *> Validator::eval_initializer_expr(
     }
 
     bsv_dbprint("types are not equal, checking compatibility");
-    if (expr->eff_type->unqual()->coercible_to(type)) {
-        init.initializer = exprv.cast(type, std::move(expr));
-        return {};
-    }
-
-    if (!type->is_array()) {
+    if (!type->unqual()->is_array()) {
+        if (expr->eff_type->unqual()->coercible_to(type)) {
+            init.initializer = exprv.cast(type, std::move(expr));
+            return {};
+        }
         bsv_dbprint("error: cannot coerce expression to initializer type");
         add_error<InvalidCoerceError>(expr->eff_type, type, expr->loc);
         return {};
     }
+
 
     auto *litexpr = dyncast<LiteralExprMIR>(expr.get());
     if (!litexpr || !litexpr->is_string()) {
@@ -1480,6 +1482,8 @@ void ExprValidator::do_visit(CallExprMIR& node) {
         if (arg_type != param_type) {
             if (arg_type->is_decayable()) {
                 arg = decay(arg_type->as_decayable(), std::move(arg));
+                // re-read arg type after the decay
+                arg_type = arg->act_type->unqual();
             }
 
             // re-check after decay to prevent spurious cast nodes

@@ -54,12 +54,10 @@ std::string LabelSymbol::mangle() const {
     std::stringstream ss;
     if (global) {
         ss << "global_" << name;
+    } else if (scope->has_assoc()) {
+        ss << scope->get_assoc()->mangle() << "_" << name;
     } else {
-        if (scope->has_assoc() && scope->is_func_assocd()) {
-            ss << scope->get_func_assoc()->mangle() << "_" << name;
-        } else {
-            ss << name << "_" << scope->get_id();
-        }
+        ss << name << "_" << scope->get_id();
     }
     return ss.str();
 }
@@ -143,33 +141,6 @@ void Scope::set_assoc(FuncSymbol *sym, bool override) {
         }
     } else {
         assoc = sym;
-    }
-}
-
-void Scope::set_assoc(types::RecordType *type, bool override) {
-    dbprint("Scope: ", id, " associating with type \"", type->formal(), "\"");
-    if (assoc) {
-        if (override) {
-            assoc = type;
-        }
-    } else {
-        assoc = type;
-    }
-}
-
-FuncSymbol *Scope::get_func_assoc() const {
-    if (assoc && (*assoc).is_func_assocd()) {
-        return (*assoc).as_func_assoc();
-    } else {
-        return nullptr;
-    }
-}
-
-RecordType *Scope::get_type_assoc() const {
-    if (assoc && (*assoc).is_type_assocd()) {
-        return (*assoc).as_type_assoc();
-    } else {
-        return nullptr;
     }
 }
 
@@ -430,10 +401,6 @@ LabelSymbol *SymbolTableWalker::lookup_label_from(Scope *from, StringRef sym, bo
 
 void SymbolTableWalker::tie_current_to(FuncSymbol *sym, bool override) const {
     current->set_assoc(sym, override);
-}
-
-void SymbolTableWalker::tie_current_to(RecordType *type, bool override) const {
-    current->set_assoc(type, override);
 }
 
 VarSymbol *SymbolTableWalker::insert_var(InsertVarArgs args) const {

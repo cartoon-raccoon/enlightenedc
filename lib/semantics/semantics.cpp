@@ -134,6 +134,7 @@ DO_VISIT(BaseASTSemaVisitor, Pointer);
 DO_VISIT(BaseASTSemaVisitor, ClassDeclarator);
 DO_VISIT(BaseASTSemaVisitor, Enumerator);
 DO_VISIT(BaseASTSemaVisitor, StorageClassSpecifier);
+DO_VISIT(BaseASTSemaVisitor, LangLinkageSpecifier);
 DO_VISIT(BaseASTSemaVisitor, TypeIdentifier);
 DO_VISIT(BaseASTSemaVisitor, VoidSpecifier);
 DO_VISIT(BaseASTSemaVisitor, PrimitiveSpecifier);
@@ -142,8 +143,10 @@ DO_VISIT(BaseASTSemaVisitor, TypeQualifier);
 // no enter scope here, enumerators are scoped to the scope in which
 // their corresponding enum is declared.
 DO_VISIT(BaseASTSemaVisitor, EnumSpecifier);
-DO_SCOPED_VISIT(BaseASTSemaVisitor, ClassSpecifier);
-DO_SCOPED_VISIT(BaseASTSemaVisitor, UnionSpecifier);
+
+DO_VISIT(BaseASTSemaVisitor, ClassSpecifier);
+DO_VISIT(BaseASTSemaVisitor, UnionSpecifier);
+
 DO_VISIT(BaseASTSemaVisitor, Initializer);
 DO_VISIT(BaseASTSemaVisitor, TypeName);
 DO_VISIT(BaseASTSemaVisitor, IdentifierDeclarator);
@@ -345,6 +348,9 @@ void BaseASTSemaVisitor::do_visit(Enumerator& node) {
 }
 
 void BaseASTSemaVisitor::do_visit(StorageClassSpecifier& node) { /* terminal node */
+}
+
+void BaseASTSemaVisitor::do_visit(LangLinkageSpecifier& node) { /* terminal node */
 }
 
 void BaseASTSemaVisitor::do_visit(TypeQualifier& node) { /* terminal node */

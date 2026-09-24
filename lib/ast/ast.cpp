@@ -17,8 +17,6 @@ std::string ecc::ast::storage_to_string(StorageClassSpecifier::SpecType ty) {
         return "constexpr";
     case S::EXTERN:
         return "extern";
-    case S::EXTERNC:
-        return "extern \"C\"";
     }
     return "";
 }

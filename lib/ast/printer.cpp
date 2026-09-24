@@ -311,6 +311,10 @@ void ASTPrinter::visit(StorageClassSpecifier& node) {
     print_node("StorageClassSpecifier: " + storage_to_string(node.type), node);
 }
 
+void ASTPrinter::visit(LangLinkageSpecifier& node) {
+    print_node("LangLinkSpecifier: C", node);
+}
+
 void ASTPrinter::visit(TypeIdentifier& node) {
     print_node("TypeIdentifier: " + node.identifier.str(), node);
 }

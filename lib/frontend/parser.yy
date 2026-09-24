@@ -205,7 +205,7 @@ static ecc::frontend::Parser::symbol_type yylex(ecc::frontend::Lexer& lexer) {
 %type <ArenaVec<Chunk<ProgramItem>>> stmt_or_decl_list
 
 %type <ArenaVec<Chunk<DeclarationSpecifier>>> declaration_specifier_list specifier_qualifier_list
-%type <Chunk<DeclarationSpecifier>> storage_class_specifier type_specifier
+%type <Chunk<DeclarationSpecifier>> storage_class_specifier type_specifier lang_linkage_specifier
 %type <Chunk<PrimitiveSpecifier>> primitive_type
 %type <Chunk<ClassSpecifier>> class_specifier
 %type <Chunk<UnionSpecifier>> union_specifier
@@ -279,6 +279,12 @@ attribute_arg:
     | IDENTIFIER ASSIGN STRING_LITERAL {
         $$ = make_chunk<AttributeArg>(@$, std::move($1), std::move($3));
     }
+    | TYPE_IDENTIFIER {
+        $$ = make_chunk<AttributeArg>(@1, std::move($1), std::nullopt);
+    }
+    | TYPE_IDENTIFIER ASSIGN STRING_LITERAL {
+        $$ = make_chunk<AttributeArg>(@$, std::move($1), std::move($3));
+    }
 ;
 
 attribute_arg_list:
@@ -347,6 +353,10 @@ declaration_specifier_list:
         $2.push_back(std::move($1));
         $$ = std::move($2);
     }
+    | lang_linkage_specifier declaration_specifier_list {
+        $2.push_back(std::move($1));
+        $$ = std::move($2);
+    }
 ;
 
 storage_class_specifier:
@@ -354,12 +364,15 @@ storage_class_specifier:
     | STATIC { $$ = make_chunk<StorageClassSpecifier>(@1, StorageClassSpecifier::STATIC); }
     | CONSTEXPR { $$ = make_chunk<StorageClassSpecifier>(@1, StorageClassSpecifier::CONSTEXPR); }
     | EXTERN { $$ = make_chunk<StorageClassSpecifier>(@1, StorageClassSpecifier::EXTERN); }
-    | EXTERN STRING_LITERAL {
+;
+
+lang_linkage_specifier :
+    EXTERN STRING_LITERAL {
         if ($2 != "C") { // fixme: this is a bodge
             error(@$, "only \"C\" linkage is supported");
             return 1;
         }
-        $$ = make_chunk<StorageClassSpecifier>(@1, StorageClassSpecifier::EXTERNC);
+        $$ = make_chunk<LangLinkageSpecifier>(@1, LangLinkageSpecifier::C);
     }
 ;
 

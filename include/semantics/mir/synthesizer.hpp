@@ -15,6 +15,7 @@
 #include "semantics/semantics.hpp"
 #include "semantics/symbols.hpp"
 #include "semantics/symdata.hpp"
+#include "semantics/linkage.hpp"
 #include "semantics/types.hpp"
 #include "prelude.hpp"
 
@@ -86,6 +87,8 @@ using VisitResult = std::variant<
     ast::TypeQualifier::QualType,
     // The result of visiting a StorageClassSpecifier node.
     ast::StorageClassSpecifier::SpecType,
+    // The result of visiting a LangLinkageSpecifier node.
+    ast::LangLinkageSpecifier::Lang,
 
     Chunk<sema::mir::ProgItemMIR>, Chunk<sema::mir::FunctionMIR>,
     // The return type of visiting a CompoundStatement node from a Function node.
@@ -136,6 +139,10 @@ class MIRSynthesizer : public BaseASTSemaVisitor, public Fallible, public NoMove
         sema::LangLinkage langlink = sema::LangLinkage::NONE;
         sym::StorageDuration duration = sym::StorageDuration::AUTO;
     };
+
+    enum class DeclSpecCtxt : uint8_t { FILE, BLOCK, MEMBER, };
+
+    enum class SpecMode : uint8_t { ANON, DEFINE, FORWARD, REF, };
 
 public:
     MIRSynthesizer(
@@ -221,6 +228,7 @@ protected:
     void do_visit(ast::ClassDeclaration& node) override;
     void do_visit(ast::Enumerator& node) override;
     void do_visit(ast::StorageClassSpecifier& node) override;
+    void do_visit(ast::LangLinkageSpecifier& node) override;
     void do_visit(ast::TypeQualifier& node) override;
     void do_visit(ast::EnumSpecifier& node) override;
     void do_visit(ast::ClassSpecifier& node) override;
@@ -278,7 +286,15 @@ protected:
     void check_attribute(mir::TypeDeclMIR *typedecl, ast::AttributeArg& node);
 
 private:
-    SpecifierInfo parse_speclist(ds::ArenaVec<Chunk<ast::DeclarationSpecifier>>&, sym::Scope *);
+    SpecifierInfo parse_speclist(ds::ArenaVec<Chunk<ast::DeclarationSpecifier>>&, DeclSpecCtxt);
+
+    /**
+    Check if a type specifier is a standalone declaration (i.e. part of a TypeDeclaration).
+    */
+    bool is_standalone_decl() {
+        if (ctxt_stack.size() < 2) return false;
+        return isa<ast::TypeDeclaration>(ctxt_stack[ctxt_stack.size() - 2]);
+    }
 };
 
 } // namespace ecc::sema

@@ -916,6 +916,8 @@ bool UnionType::coercible_to(Type *dst) {
 }
 
 void UnionType::finish(Location loc) {
+    ECC_ASSERT_N(def_in_progress);
+    
     def_loc = loc;
 
     if (type_rep) {
@@ -930,6 +932,7 @@ void UnionType::finish(Location loc) {
         }
     }
 
+    def_in_progress = false;
     complete = true;
 }
 
@@ -1011,6 +1014,8 @@ bool EnumType::coercible_to(Type *dst) {
 }
 
 void EnumType::finish(Location loc) {
+    ECC_ASSERT_N(def_in_progress);
+    
     def_loc = loc;
     if (!underlying->is_integral()) {
         throw InvalidEnumUnderlyingError(def_loc);
@@ -1033,6 +1038,7 @@ void EnumType::finish(Location loc) {
         }
     }
 
+    def_in_progress = false;
     complete = true;
 }
 

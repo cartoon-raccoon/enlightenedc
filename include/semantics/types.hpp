@@ -501,11 +501,19 @@ public:
 
     bool is_anonymous() const { return std::holds_alternative<uint64_t>(identifier); }
 
+    bool is_being_defined() const { return def_in_progress; }
+
+    void start() {
+        def_in_progress = true;
+    }
+
     /**
     Set the location where the type was defined and mark it as complete.
     */
     virtual void finish(Location loc) {
+        ECC_ASSERT_N(def_in_progress);
         def_loc  = loc;
+        def_in_progress = false;
         complete = true;
     }
 
@@ -541,6 +549,8 @@ protected:
         Location decl_loc, Kind kind, std::string name, TypeContext& tyctxt,
         sema::sym::Scope *scope)
         : BaseType(kind, tyctxt), scope(scope), decl_loc(decl_loc), identifier(name) {}
+
+    bool def_in_progress = false;
 
     TypeID generate_id() const override;
 

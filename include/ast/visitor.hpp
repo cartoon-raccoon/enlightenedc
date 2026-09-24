@@ -25,6 +25,7 @@ class ClassDeclarator;
 class ClassDeclaration;
 class Enumerator;
 class StorageClassSpecifier;
+class LangLinkageSpecifier;
 class TypeQualifier;
 class EnumSpecifier;
 class ClassSpecifier;
@@ -73,7 +74,7 @@ class ASTVisitor
           ASTVisitor, Program, AttributeArg, Attribute, Function, TypeDeclaration, ConstexprDeclaration,
           VariableDeclaration, ParameterDeclaration, Declarator, ParenDeclarator, ArrayDeclarator,
           FunctionDeclarator, InitDeclarator, Pointer, ClassDeclarator, ClassDeclaration,
-          Enumerator, StorageClassSpecifier, TypeQualifier, EnumSpecifier, ClassSpecifier,
+          Enumerator, StorageClassSpecifier, LangLinkageSpecifier, TypeQualifier, EnumSpecifier, ClassSpecifier,
           UnionSpecifier, TypeIdentifier, VoidSpecifier, PrimitiveSpecifier, Initializer, TypeName,
           IdentifierDeclarator, CompoundStatement, ExpressionStatement, CaseStatement,
           CaseRangeStatement, DefaultStatement, LabeledStatement, PrintStatement, IfStatement,

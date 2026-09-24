@@ -60,7 +60,7 @@ void MIRSynthesizer::generate_mir(Program& prog) {
 }
 
 MIRSynthesizer::SpecifierInfo
-MIRSynthesizer::parse_speclist(ArenaVec<Chunk<ast::DeclarationSpecifier>>& speclist, Scope *scope) {
+MIRSynthesizer::parse_speclist(ArenaVec<Chunk<ast::DeclarationSpecifier>>& speclist, DeclSpecCtxt ctxt) {
     using NK = ASTNode::NodeKind;
 
     SpecifierInfo specinfo;
@@ -105,7 +105,7 @@ MIRSynthesizer::parse_speclist(ArenaVec<Chunk<ast::DeclarationSpecifier>>& specl
                 if (specinfo.linkage != Linkage::NONE) {
                     add_error<EccSemError>("multiple storage class specifiers");
                 } else {
-                    if (scope->is_global()) {
+                    if (ctxt == DeclSpecCtxt::FILE) {
                         // file scope static is internal linkage
                         specinfo.linkage = Linkage::INTERNAL;
                     } else {
@@ -123,7 +123,7 @@ MIRSynthesizer::parse_speclist(ArenaVec<Chunk<ast::DeclarationSpecifier>>& specl
                     add_error<EccSemError>("constexpr cannot have external linkage", decl_spec->loc);
                     break;
                 }
-                if (scope->is_global()) {
+                if (ctxt == DeclSpecCtxt::FILE) {
                     // file scope constexpr is internal linkage
                     specinfo.linkage = Linkage::INTERNAL;
                     // block scope constexpr is no linkage
@@ -141,19 +141,28 @@ MIRSynthesizer::parse_speclist(ArenaVec<Chunk<ast::DeclarationSpecifier>>& specl
                     specinfo.linkage = Linkage::EXTERNAL;
                 }
                 break;
+            }
+        } break;
 
-            case StorageClassSpecifier::EXTERNC:
-                if (specinfo.is_constexpr) {
-                    add_error<EccSemError>("constexpr cannot be marked extern", decl_spec->loc);
+        case NK::LANGLINK_SPEC: {
+            auto lang = take_last_result<LangLinkageSpecifier::Lang>();
+            if (specinfo.is_constexpr) {
+                add_error<EccSemError>("constexpr cannot be marked extern", decl_spec->loc);
+                break;
+            }
+            if (specinfo.linkage != Linkage::NONE) {
+                add_error<EccSemError>(
+                    "storage class specifiers conflicting with language linkage", decl_spec->loc);
+            } else {
+                specinfo.linkage = Linkage::EXTERNAL;
+                switch (lang) {
+                case LangLinkageSpecifier::C:
+                    specinfo.langlink = LangLinkage::C;
+                    break;
+                default:
+                    specinfo.langlink = LangLinkage::NONE;
                     break;
                 }
-                if (specinfo.linkage != Linkage::NONE) {
-                    add_error<EccSemError>("multiple storage class specifiers", decl_spec->loc);
-                } else {
-                    specinfo.linkage = Linkage::EXTERNAL;
-                    specinfo.langlink = LangLinkage::C;
-                }
-                break;
             }
         } break;
 
@@ -200,7 +209,7 @@ MIRSynthesizer::parse_speclist(ArenaVec<Chunk<ast::DeclarationSpecifier>>& specl
         }
     }
 
-    if (scope->is_global() && specinfo.linkage == Linkage::NONE) {
+    if (ctxt == DeclSpecCtxt::FILE && specinfo.linkage == Linkage::NONE) {
         // file-scope unspecifieds get external linkage implicitly
         specinfo.linkage = Linkage::EXTERNAL;
     }
@@ -319,7 +328,7 @@ void MIRSynthesizer::do_visit(Function& node) {
 
     // Parse and construct specifier info
     VisitParam param       = dovisit_param;
-    SpecifierInfo specinfo = parse_speclist(node.decl_spec_list, syms.current);
+    SpecifierInfo specinfo = parse_speclist(node.decl_spec_list, DeclSpecCtxt::FILE);
     dovisit_param          = param;
 
     if (specinfo.is_constexpr) {
@@ -497,7 +506,9 @@ CmpdStmtFromFuncRes MIRSynthesizer::parse_function_body(FuncBodyVisitParam param
 void MIRSynthesizer::do_visit(TypeDeclaration& node) {
     bsv_dbprint("visiting TypeDeclaration node: ", node.loc);
 
-    auto specinfo = parse_speclist(node.specifiers, syms.current);
+    DeclSpecCtxt ctxt = syms.current->is_global() ? DeclSpecCtxt::FILE : DeclSpecCtxt::BLOCK;
+
+    auto specinfo = parse_speclist(node.specifiers, ctxt);
 
     if (specinfo.symbol) {
         TypeSymbol *symptr  = (*specinfo.symbol);
@@ -521,7 +532,9 @@ void MIRSynthesizer::do_visit(TypeDeclaration& node) {
 void MIRSynthesizer::do_visit(ConstexprDeclaration& node) {
     bsv_dbprint("visiting ConstexprDeclaration node: ", node.loc);
 
-    auto specinfo = parse_speclist(node.specifiers, syms.current);
+    DeclSpecCtxt ctxt = syms.current->is_global() ? DeclSpecCtxt::FILE : DeclSpecCtxt::BLOCK;
+
+    auto specinfo = parse_speclist(node.specifiers, ctxt);
 
     ECC_ASSERT(specinfo.is_constexpr, "visiting ConstexprDeclaration but specinfo is not constexpr");
 
@@ -651,7 +664,9 @@ Value MIRSynthesizer::parse_constexpr_init(InitializerMIR& init, Type *type) {
 void MIRSynthesizer::do_visit(VariableDeclaration& node) {
     bsv_dbprint("visiting VariableDeclaration node: ", node.loc);
 
-    auto specinfo = parse_speclist(node.specifiers, syms.current);
+    DeclSpecCtxt ctxt = syms.current->is_global() ? DeclSpecCtxt::FILE : DeclSpecCtxt::BLOCK;
+
+    auto specinfo = parse_speclist(node.specifiers, ctxt);
 
     ECC_ASSERT(!specinfo.is_constexpr, "visiting VariableDeclaration but specinfo is constexpr");
 
@@ -917,7 +932,8 @@ void MIRSynthesizer::do_visit(ParameterDeclaration& node) {
     last_result: FuncParam
     */
     bsv_dbprint("visiting ParameterDeclarator node: ", node.loc);
-    SpecifierInfo specinfo = parse_speclist(node.specifiers, syms.current);
+
+    SpecifierInfo specinfo = parse_speclist(node.specifiers, DeclSpecCtxt::BLOCK);
 
     FuncParam ret;
     if (node.declarator) {
@@ -1028,6 +1044,12 @@ void MIRSynthesizer::do_visit(StorageClassSpecifier& node) {
     dv_return(node.type);
 }
 
+void MIRSynthesizer::do_visit(LangLinkageSpecifier& node) {
+    bsv_dbprint("visiting LangLinkageSpecifier node: ", node.loc);
+    /* terminal node */
+    dv_return(node.lang);
+}
+
 void MIRSynthesizer::do_visit(VoidSpecifier& node) {
     bsv_dbprint("visiting VoidSpecifier node: ", node.loc);
     dv_return(types.get_void());
@@ -1057,38 +1079,86 @@ void MIRSynthesizer::do_visit(TypeQualifier& node) {
 
 void MIRSynthesizer::do_visit(EnumSpecifier& node) {
     bsv_dbprint("visiting EnumSpecifier node: ", node.loc);
-    EnumType *enm = nullptr;
-    try {
-        if (node.name) {
-            enm = types.get_enum(node.loc, *(node.name), syms.current);
-        } else {
-            enm = types.get_enum(node.loc, syms.current);
-        }
-    } catch (UserType *prev_def) {
-        add_error<TypeDecldAsOtherError>(
-            "enum already declared as another type", node.loc, prev_def->decl_loc);
-        throw UnableToContinue();
+
+    bool standalone = !node.enumerators && is_standalone_decl();
+
+    SpecMode mode;
+
+    if (!node.name) {
+        // we are guaranteed a body by the grammar here.
+        mode = SpecMode::ANON;
+    } else if (node.enumerators) {
+        mode = SpecMode::DEFINE;
+    } else if (standalone) {
+        mode = SpecMode::FORWARD;
+    } else {
+        mode = SpecMode::REF;
     }
+
+    EnumType *enm = nullptr;
+    TypeSymbol *sym = nullptr;
+
+    // FIXME: get_enum can throw, add try-catches around calls to it
+    // FIXME: decide the constraints for enum declarations (e.g. are incomplete enums allowed?)
+
+    switch (mode) {
+    case SpecMode::ANON:
+        enm = types.get_enum(node.loc, syms.current);
+        break;
+    case SpecMode::DEFINE:
+    case SpecMode::FORWARD:
+        sym = syms.lookup_type(*node.name, true);
+        if (sym) {
+            if (!sym->type->is_enum()) {
+                add_error<TypeDecldAsOtherError>(
+                    "enum already declared as another type in this scope", node.loc, sym->get_loc());
+                throw UnableToContinue();
+            } else {
+                enm = sym->type->as_enum();
+            }
+        } else {
+            enm = types.get_enum(node.loc, *node.name, syms.current);
+            InsertTypeArgs args = {node.loc, *node.name, enm};
+            sym = syms.insert_type(args);
+        }
+        break;
+    case SpecMode::REF:
+        sym = syms.lookup_type(*node.name);
+        if (sym) {
+            if (!sym->type->is_enum()) {
+                add_error<TypeDecldAsOtherError>(
+                    "enum already declared as another type in this scope", node.loc, sym->get_loc());
+                throw UnableToContinue();
+            } else {
+                enm = sym->type->as_enum();
+            }
+        } else {
+            enm = types.get_enum(node.loc, *node.name, syms.current);
+            InsertTypeArgs args = {node.loc, *node.name, enm};
+            sym = syms.insert_type(args);
+        }
+    }
+
+    ECC_ASSERT(enm, "enum type not resolved");
+    ECC_ASSERT(sym || mode == SpecMode::ANON, "enum TypeSymbol not resolved");
 
     Optional<TypeSymbol *> retsym = {};
-    // If class has name, compute symbol to add
-    if (node.name) {
-        bsv_dbprint("enum has name, inserting typesymbol if needed");
-        TypeSymbol *enmsym = syms.lookup_type(*node.name, true);
-        if (!enmsym) {
-            InsertTypeArgs args = {node.loc, *node.name, enm};
-            retsym = syms.insert_type(args);
-        } else {
-            retsym = enmsym;
-        }
-    }
+    if (sym) retsym = sym;
 
-    TypeSpecRet<EnumType> ret({}, enm);
+    TypeSpecRet<EnumType> ret(retsym, enm);
 
-    if (node.enumerators) {
+    if (node.enumerators && (mode == SpecMode::ANON || mode == SpecMode::DEFINE)) {
         if (enm->is_complete()) {
-            throw TypeAlrDefinedError("enum was previously defined", node.loc, enm->def_loc);
+            add_error<TypeAlrDefinedError>("enum was previously defined", node.loc, enm->def_loc);
+            throw UnableToContinue();
         }
+        
+        if (enm->is_being_defined()) {
+            add_error<EccSemError>("nested definition of enum", node.loc);
+            throw UnableToContinue();
+        }
+        enm->start();
+
         if (node.underlying) {
             PrimitiveType *underlying = types.get_primitive(*node.underlying);
             if (!underlying->is_integral()) {
@@ -1154,41 +1224,85 @@ void MIRSynthesizer::do_visit(Enumerator& node) {
 void MIRSynthesizer::do_visit(ClassSpecifier& node) {
     bsv_dbprint("visiting ClassSpecifier node: ", node.loc);
 
-    Scope *declared_scope = syms.current->get_outer();
-    ClassType *cls = nullptr;
-    try {
-        if (node.name) {
-            cls = types.get_class(node.loc, *(node.name), declared_scope);
-        } else {
-            cls = types.get_class(node.loc, declared_scope);
-        }
-    } catch (UserType *prev_def) {
-        add_error<TypeDecldAsOtherError>(
-            "class already declared as another type", node.loc, prev_def->decl_loc);
-        throw UnableToContinue();
+    bool standalone = !node.declarations && is_standalone_decl();
+
+    SpecMode mode;
+
+    if (!node.name) {
+        // we are guaranteed a body by the grammar here.
+        mode = SpecMode::ANON;
+    } else if (node.declarations) {
+        mode = SpecMode::DEFINE;
+    } else if (standalone) {
+        mode = SpecMode::FORWARD;
+    } else {
+        mode = SpecMode::REF;
     }
 
-    Optional<TypeSymbol *> retsym = {};
-    // If class has name, compute symbol to add
-    if (node.name) {
-        bsv_dbprint("class has name, inserting typesymbol if needed");
-        TypeSymbol *clssym = syms.lookup_type_from(declared_scope, *node.name, true);
-        if (!clssym) {
-            InsertTypeArgs args = {node.loc, *node.name, cls};
-            retsym = syms.insert_type_at(declared_scope, args);
+    ClassType *cls = nullptr;
+    TypeSymbol *sym = nullptr;
+
+    // FIXME: get_class can throw, add try-catches around calls to it
+
+    switch (mode) {
+    case SpecMode::ANON:
+        cls = types.get_class(node.loc, syms.current);
+        break;
+    case SpecMode::DEFINE:
+    case SpecMode::FORWARD:
+        sym = syms.lookup_type(*node.name, true);
+        if (sym) {
+            if (!sym->type->is_class()) {
+                add_error<TypeDecldAsOtherError>(
+                    "class already declared as another type in this scope", node.loc, sym->get_loc());
+                throw UnableToContinue();
+            } else {
+                cls = sym->type->as_class();
+            }
         } else {
-            retsym = clssym;
+            cls = types.get_class(node.loc, *node.name, syms.current);
+            InsertTypeArgs args = {node.loc, *node.name, cls};
+            sym = syms.insert_type(args);
+        }
+        break;
+    case SpecMode::REF:
+        sym = syms.lookup_type(*node.name);
+        if (sym) {
+            if (!sym->type->is_class()) {
+                add_error<TypeDecldAsOtherError>(
+                    "class already declared as another type in this scope", node.loc, sym->get_loc());
+                throw UnableToContinue();
+            } else {
+                cls = sym->type->as_class();
+            }
+        } else {
+            cls = types.get_class(node.loc, *node.name, syms.current);
+            InsertTypeArgs args = {node.loc, *node.name, cls};
+            sym = syms.insert_type(args);
         }
     }
+
+    ECC_ASSERT(cls, "class type not resolved");
+    ECC_ASSERT(sym || mode == SpecMode::ANON, "class TypeSymbol not resolved");
+
+    Optional<TypeSymbol *> retsym = {};
+    if (sym) retsym = sym;
 
     TypeSpecRet<ClassType> ret(retsym, cls);
 
-    if (node.declarations) {
+    if (node.declarations && (mode == SpecMode::ANON || mode == SpecMode::DEFINE)) {
         if (cls->is_complete()) {
             // error: class was previously defined
             add_error<TypeAlrDefinedError>("class was previously defined", node.loc, cls->def_loc);
             throw UnableToContinue();
         }
+
+        if (cls->is_being_defined()) {
+            add_error<EccSemError>("nested redefinition of class", node.loc);
+            throw UnableToContinue();
+        }
+
+        cls->start();
 
         if (node.parents) {
             ECC_ASSERT_N(!(*node.parents).empty());
@@ -1236,44 +1350,85 @@ void MIRSynthesizer::do_visit(ClassSpecifier& node) {
 void MIRSynthesizer::do_visit(UnionSpecifier& node) {
     bsv_dbprint("visiting UnionSpecifier node ", node.loc);
 
-    Scope *declared_scope = syms.current->get_outer();
-    UnionType *unn = nullptr;
-    try {
-        if (node.name) {
-            unn = types.get_union(node.loc, *(node.name), declared_scope);
-        } else {
-            unn = types.get_union(node.loc, declared_scope);
-        }
-    } catch (UserType *prev_def) {
-        add_error<TypeDecldAsOtherError>(
-            "union already declared as another type", node.loc, prev_def->decl_loc);
-        throw UnableToContinue();
+    bool standalone = !node.declarations && is_standalone_decl();
+
+    SpecMode mode;
+
+    if (!node.name) {
+        // we are guaranteed a body by the grammar here.
+        mode = SpecMode::ANON;
+    } else if (node.declarations) {
+        mode = SpecMode::DEFINE;
+    } else if (standalone) {
+        mode = SpecMode::FORWARD;
+    } else {
+        mode = SpecMode::REF;
     }
 
-    Optional<TypeSymbol *> retsym = {};
-    // If class has name, compute symbol to add
-    if (node.name) {
-        bsv_dbprint("union has name, inserting typesymbol if needed");
-        TypeSymbol *unnsym = syms.lookup_type_from(declared_scope, *node.name, true);
-        if (!unnsym) {
-            InsertTypeArgs args = {node.loc, *node.name, unn};
-            // Use syms.current->get_outer(), because UnionSpecifier introduces a new scope,
-            // but we need the TypeSymbol to be bound to the outer scope.
-            retsym = syms.insert_type_at(declared_scope, args);
+    UnionType *unn = nullptr;
+    TypeSymbol *sym = nullptr;
+
+    // FIXME: get_union can throw, add try-catches around calls to it
+
+    switch (mode) {
+    case SpecMode::ANON:
+        unn = types.get_union(node.loc, syms.current);
+        break;
+    case SpecMode::DEFINE:
+    case SpecMode::FORWARD:
+        sym = syms.lookup_type(*node.name, true);
+        if (sym) {
+            if (!sym->type->is_union()) {
+                add_error<TypeDecldAsOtherError>(
+                    "union already declared as another type in this scope", node.loc, sym->get_loc());
+                throw UnableToContinue();
+            } else {
+                unn = sym->type->as_union();
+            }
         } else {
-            retsym = unnsym;
+            unn = types.get_union(node.loc, *node.name, syms.current);
+            InsertTypeArgs args = {node.loc, *node.name, unn};
+            sym = syms.insert_type(args);
+        }
+        break;
+    case SpecMode::REF:
+        sym = syms.lookup_type(*node.name);
+        if (sym) {
+            if (!sym->type->is_union()) {
+                add_error<TypeDecldAsOtherError>(
+                    "union already declared as another type in this scope", node.loc, sym->get_loc());
+                throw UnableToContinue();
+            } else {
+                unn = sym->type->as_union();
+            }
+        } else {
+            unn = types.get_union(node.loc, *node.name, syms.current);
+            InsertTypeArgs args = {node.loc, *node.name, unn};
+            sym = syms.insert_type(args);
         }
     }
+
+    ECC_ASSERT(unn, "union type not resolved");
+    ECC_ASSERT(sym || mode == SpecMode::ANON, "union TypeSymbol not resolved");
+
+    Optional<TypeSymbol *> retsym = {};
+    if (sym) retsym = sym;
 
     TypeSpecRet<UnionType> ret(retsym, unn);
 
     // declarations are present, start definition
-    if (node.declarations) {
+    if (node.declarations && (mode == SpecMode::ANON || mode == SpecMode::DEFINE)) {
         if (unn->is_complete()) {
             // error: union was previously defined
             add_error<TypeAlrDefinedError>("union was previously defined", node.loc, unn->def_loc);
             throw UnableToContinue();
         }
+        if (unn->is_being_defined()) {
+            add_error<EccSemError>("nested redefinition of union", node.loc);
+            throw UnableToContinue();
+        }
+        unn->start();
+
         if (node.type_rep) {
             PrimitiveType *typerep = types.get_primitive(*node.type_rep);
             if (!typerep->is_integer()) {
@@ -1305,7 +1460,7 @@ void MIRSynthesizer::do_visit(ClassDeclaration& node) {
 
     // save our current param, as it may get clobbered while parsing specifiers
     RecordType *recordty   = take_dovisit_param<RecordType *>();
-    SpecifierInfo specinfo = parse_speclist(node.specifiers, syms.current);
+    SpecifierInfo specinfo = parse_speclist(node.specifiers, DeclSpecCtxt::MEMBER);
 
     if (specinfo.is_constexpr) {
         add_error<EccSemError>("member declarations cannot be marked constexpr", node.loc);
@@ -1543,7 +1698,8 @@ void MIRSynthesizer::do_visit(Initializer& node) { // NOLINT
 void MIRSynthesizer::do_visit(TypeName& node) {
     // dovisit_param: monostate
     // last_result: Type *
-    SpecifierInfo specinfo = parse_speclist(node.specifiers, syms.current);
+    DeclSpecCtxt ctxt = syms.current->is_global() ? DeclSpecCtxt::FILE : DeclSpecCtxt::BLOCK;
+    SpecifierInfo specinfo = parse_speclist(node.specifiers, ctxt);
 
     if (node.declarator) {
         dv_call_noparam(*node.declarator);

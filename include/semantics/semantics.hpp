@@ -193,7 +193,9 @@ public:
     ASTScopeGuard() {}
 
     // Allow the ScopeGuard to be moved.
-    ASTScopeGuard(ASTScopeGuard&& other) noexcept : st(other.st) {}
+    ASTScopeGuard(ASTScopeGuard&& other) noexcept : st(other.st) {
+        other.st = std::nullopt;
+    }
 
     ~ASTScopeGuard() {
         if (st) {
@@ -317,6 +319,7 @@ public:
     virtual void do_visit(ast::ClassDeclaration& node);
     virtual void do_visit(ast::Enumerator& node);
     virtual void do_visit(ast::StorageClassSpecifier& node);
+    virtual void do_visit(ast::LangLinkageSpecifier& node);
     virtual void do_visit(ast::TypeQualifier& node);
     virtual void do_visit(ast::EnumSpecifier& node);
     virtual void do_visit(ast::ClassSpecifier& node);
@@ -382,6 +385,7 @@ protected:
     void visit(ast::ClassDeclaration& node) override;
     void visit(ast::Enumerator& node) override;
     void visit(ast::StorageClassSpecifier& node) override;
+    void visit(ast::LangLinkageSpecifier& node) override;
     void visit(ast::TypeQualifier& node) override;
     void visit(ast::EnumSpecifier& node) override;
     void visit(ast::ClassSpecifier& node) override;

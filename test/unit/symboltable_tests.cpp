@@ -577,10 +577,10 @@ TEST_F(TypeSysAndSymTabTestFixture, TieTo_AssociatesScope) {
     FuncSymbol *fn = insert_func(walker, tctxt, LOC, "tiedFn");
 
     walker.push_scope();
-    EXPECT_EQ(walker.current->get_func_assoc(), nullptr);
+    EXPECT_EQ(walker.current->get_assoc(), nullptr);
 
     walker.tie_current_to(fn);
-    EXPECT_EQ(walker.current->get_func_assoc(), fn);
+    EXPECT_EQ(walker.current->get_assoc(), fn);
 }
 
 // Without override, tie_current_to does not replace an existing association.
@@ -592,7 +592,7 @@ TEST_F(TypeSysAndSymTabTestFixture, TieTo_NoOverrideKeepsOriginal) {
     walker.push_scope(fn1);
     walker.tie_current_to(fn2, /*override=*/false);
 
-    EXPECT_EQ(walker.current->get_func_assoc(), fn1)
+    EXPECT_EQ(walker.current->get_assoc(), fn1)
         << "Without override, the original assoc should be preserved";
 }
 
@@ -605,7 +605,7 @@ TEST_F(TypeSysAndSymTabTestFixture, TieTo_OverrideReplacesExisting) {
     walker.push_scope(fn1);
     walker.tie_current_to(fn2, /*override=*/true);
 
-    EXPECT_EQ(walker.current->get_func_assoc(), fn2)
+    EXPECT_EQ(walker.current->get_assoc(), fn2)
         << "With override=true, the assoc should be replaced";
 }
 

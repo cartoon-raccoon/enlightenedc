@@ -38,6 +38,7 @@ public:
         ATTR_ARG,
         TYPE_QUAL,
         STORAGE_SPEC,
+        LANGLINK_SPEC,
         POINTER,
         DIRECT_DECLTR,
         INITIALIZER,
@@ -260,6 +261,7 @@ public:
         switch (node->kind) {
         case NodeKind::TYPE_QUAL:
         case NodeKind::STORAGE_SPEC:
+        case NodeKind::LANGLINK_SPEC:
         case NodeKind::CLASS_SPEC:
         case NodeKind::UNION_SPEC:
         case NodeKind::ENUM_SPEC:
@@ -288,7 +290,7 @@ public:
 // Storage class specifiers (public, static, extern).
 class StorageClassSpecifier : public ASTVisitable<StorageClassSpecifier, DeclarationSpecifier> {
 public:
-    enum SpecType : uint8_t { PUBLIC, STATIC, CONSTEXPR, EXTERN, EXTERNC };
+    enum SpecType : uint8_t { PUBLIC, STATIC, CONSTEXPR, EXTERN, };
 
     StorageClassSpecifier(Location loc, SpecType type)
         : ASTVisitable<StorageClassSpecifier, DeclarationSpecifier>(NodeKind::STORAGE_SPEC, loc),
@@ -297,6 +299,19 @@ public:
     SpecType type;
 
     static bool classof(const ASTNode *node) { return node->kind == NodeKind::STORAGE_SPEC; }
+};
+
+class LangLinkageSpecifier : public ASTVisitable<LangLinkageSpecifier, DeclarationSpecifier> {
+public:
+    enum Lang : uint8_t { C, };
+
+    LangLinkageSpecifier(Location loc, Lang lang)
+        : ASTVisitable<LangLinkageSpecifier, DeclarationSpecifier>(NodeKind::LANGLINK_SPEC, loc),
+        lang(lang) {}
+
+    Lang lang;
+
+    static bool classof(const ASTNode *node) { return node->kind == NodeKind::LANGLINK_SPEC; }
 };
 
 class Pointer : public ASTVisitable<Pointer, ASTNode> {
