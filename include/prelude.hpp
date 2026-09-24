@@ -18,6 +18,7 @@
 #include "util/aliases.hpp"
 #include "util/rtti.hpp"
 #include "util/assert.hpp"
+#include "util/arrayref.hpp"
 #include "util/string.hpp"
 // IWYU pragma: end_exports
 
