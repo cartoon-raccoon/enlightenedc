@@ -62,8 +62,68 @@ bool Type::is_function() const {
     return kind == Kind::FUNCTION;
 }
 
-ConstType *Type::make_const() {
+QualifiedType *Type::make_const() {
     return ctxt().get_const(this);
+}
+
+Type *QualifiedType::unqual(Flags& flags) {
+    flags = Flags::UNQUAL | qualflag();
+
+    Type *curr = base;
+    while (curr->is_qualified()) {
+        QualifiedType *qualcurr = curr->as_qualified();
+        flags |= qualcurr->qualflag();
+        curr = qualcurr->get_base();
+    }
+
+    return curr;
+}
+
+Type *QualifiedType::unqual() {
+    Type *curr = base;
+    while (curr->is_qualified()) {
+        curr = curr->as_qualified()->get_base();
+    }
+
+    return curr;
+}
+
+QualifiedType::Flags QualifiedType::all_qualflags() {
+    Type *curr = base;
+    Flags start = Flags::UNQUAL | qualflag();
+    while (curr->is_qualified()) {
+        start |= curr->as_qualified()->qualflag();
+        curr = curr->as_qualified()->get_base();
+    }
+
+    return start;
+}
+
+Type *QualifiedType::effective_type() {
+    Flags flags = Flags::UNQUAL;
+    Type *unqualed = unqual(flags);
+
+    ECC_ASSERT_N(!unqualed->is_qualified());
+
+    Type *start = unqualed->effective_type();
+
+    if (flags & Flags::CONST) {
+        start = ctxt().get_const(start);
+    }
+
+    if (flags & Flags::ATOMIC) {
+        start = ctxt().get_atomic(start);
+    }
+
+    if (flags & Flags::VOLATILE) {
+        start = ctxt().get_volatile(start);
+    }
+
+    return start;
+}
+
+void QualifiedType::finalize() {
+    ctxt().backend().finalize(unqual());
 }
 
 bool ConstType::coercible_to(Type *dst) {
@@ -74,17 +134,23 @@ bool ConstType::coercible_to(Type *dst) {
     }
 }
 
-void ConstType::finalize() {
-    ctxt().backend().finalize(this);
-}
-
-Type *ConstType::effective_type() {
-    return ctxt().get_const(base->effective_type());
-}
-
 TypeID ConstType::generate_id() const {
     VarHash<TypeID, TypeID> h;
     TypeID id = h(base->id(), CONST_SALT);
+    type_id = id;
+    return id;
+}
+
+TypeID AtomicType::generate_id() const {
+    VarHash<TypeID, TypeID> h;
+    TypeID id = h(base->id(), ATOMIC_SALT);
+    type_id = id;
+    return id;
+}
+
+TypeID VolatileType::generate_id() const {
+    VarHash<TypeID, TypeID> h;
+    TypeID id = h(base->id(), VOLATILE_SALT);
     type_id = id;
     return id;
 }
@@ -1012,8 +1078,6 @@ bool PointerType::is_callable() const {
 }
 
 bool PointerType::coercible_to(Type *dst) {
-    if (Type::coercible_to(dst))
-        return true;
 
     PointerType *ptr = dst->as_pointer();
     if (!ptr)
@@ -1070,8 +1134,26 @@ TypeID PointerType::generate_id() const {
  * ARRAY TYPE METHODS
  */
 
-bool ArrayType::is_fully_sized() const {
-    return is_complete();
+bool ArrayType::is_sized() const {
+    return arr_size.has_value();
+}
+
+bool ArrayType::size_compatible_with(ArrayType *rhs) {
+    enum SizedSide : uint8_t {
+        BOTH = 0,
+        EITHER,
+        NEITHER,
+    } sizedside;
+
+    if (rhs->is_sized() && is_sized()) {
+        sizedside = BOTH;
+    } else if (rhs->is_sized() || is_sized()) {
+        sizedside = EITHER;
+    } else {
+        sizedside = NEITHER;
+    }
+
+    return sizedside >= EITHER || *rhs->get_arr_size() == *get_arr_size();
 }
 
 bool ArrayType::is_complete() const {
@@ -1088,15 +1170,22 @@ bool ArrayType::is_complete() const {
 bool ArrayType::coercible_to(Type *dst) {
     switch (dst->kind) {
 
-    // if the other is an array, enforce strict equality
     case Kind::ARRAY: {
-        return dst == this;
+        ArrayType *dst_arr = dst->as_array();
+
+        Type *dst_base = dst_arr->base;
+        if (dst_base->is_array() && base->is_array()) {
+            // if both bases are arrays, recursively check dst_base coercible_to base and size_compatibility
+            return base->coercible_to(dst_base) && size_compatible_with(dst_arr);
+        } else {
+            return dst_base == base && size_compatible_with(dst_arr);
+        }
     }
 
-    // if pointer, make sure bases match
+    // if pointer, delegate to us as a pointer
     case Kind::POINTER: {
         PointerType *dst_ptr = dst->as_pointer();
-        return base->coercible_to(dst_ptr);
+        return decay()->coercible_to(dst_ptr);
     }
 
     default:
@@ -1132,7 +1221,7 @@ TypeID ArrayType::generate_id() const {
 
 static auto process_params(ArrayRef<Type *> params) {
     return params | std::views::transform([](Type *type) {
-                        return (type->is_decayabletype() ? type->as_decayabletype()->decay() : type);
+                        return (type->is_decayable() ? type->as_decayable()->decay() : type);
                     });
 } 
 
@@ -1696,15 +1785,95 @@ FunctionType *TypeContext::get_function(FunctionType *functype, LangLinkage lang
     return ret;
 }
 
-ConstType *TypeContext::get_const(Type *base) {
+QualifiedType *TypeContext::get_const(Type *base) {
     // Guard to prevent double-wrapping of const
     if (base->is_const()) {
         ConstType *cnst = base->as_const();
         ECC_ASSERT(cnst, "type base returned is_const() = true but cannot be cast");
-        ECC_ASSERT_N(const_types.contains(cnst->base));
         return cnst;
     }
+    Type *act_base;
+    QualFlags flags = QualFlags::UNQUAL;
+    if (base->is_qualified()) {
+        act_base = base->as_qualified()->unqual(flags);
+    } else {
+        act_base = base;
+    }
+    Type *cnst = get_const_unordered(act_base);
+    if (flags & QualFlags::ATOMIC) {
+        cnst = get_atomic(cnst);
+    }
+    if (flags & QualFlags::VOLATILE) {
+        cnst = get_volatile(cnst);
+    }
 
+    ECC_ASSERT_N(cnst->is_qualified());
+
+    return cnst->as_qualified();
+}
+
+QualifiedType *TypeContext::get_atomic(Type *base) {
+    if (base->is_atomic()) {
+        AtomicType *atomic = base->as_atomic();
+        ECC_ASSERT(atomic, "type base returned is_atomic() = true but cannot be cast");
+        return atomic;
+    }
+
+    Type *act_base;
+    QualFlags flags = QualFlags::UNQUAL;
+    if (base->is_qualified()) {
+        act_base = base->as_qualified()->unqual(flags);
+    } else {
+        act_base = base;
+    }
+    Type *atomic = act_base;
+    if (flags & QualFlags::CONST) {
+        atomic = get_const(atomic);
+    }
+
+    atomic = get_atomic_unordered(atomic);
+
+    if (flags & QualFlags::VOLATILE) {
+        atomic = get_volatile(atomic);
+    }
+
+    ECC_ASSERT_N(atomic->is_qualified());
+
+    return atomic->as_qualified();
+}
+
+QualifiedType *TypeContext::get_volatile(Type *base) {
+    if (base->is_volatile()) {
+        VolatileType *vol = base->as_volatile();
+        ECC_ASSERT(vol, "type base returned is_volatile() = true but cannot be cast");
+        return vol;
+    }
+
+    Type *act_base;
+    QualFlags flags = QualFlags::UNQUAL;
+    if (base->is_qualified()) {
+        act_base = base->as_qualified()->unqual(flags);
+    } else {
+        act_base = base;
+    }
+
+    Type *vol = act_base;
+    if (flags & QualFlags::CONST) {
+        vol = get_const(vol);
+    }
+
+    if (flags & QualFlags::ATOMIC) {
+        vol = get_atomic(vol);
+    }
+
+    vol = get_volatile_unordered(vol);
+
+    ECC_ASSERT_N(vol->is_qualified());
+
+    return vol->as_qualified();
+}
+
+ConstType *TypeContext::get_const_unordered(Type *base) {
     if (const_types.contains(base)) {
         return const_types.find(base)->second.get();
     }
@@ -1714,6 +1883,36 @@ ConstType *TypeContext::get_const(Type *base) {
     ConstType *ret = to_insert.get();
 
     const_types.insert_or_assign(base, std::move(to_insert));
+
+    register_type_id(ret);
+    return ret;
+}
+
+AtomicType *TypeContext::get_atomic_unordered(Type *base) {
+    if (atomic_types.contains(base)) {
+        return atomic_types.find(base)->second.get();
+    }
+
+    auto to_insert = std::make_unique<AtomicType>(base, *this);
+
+    AtomicType *ret = to_insert.get();
+
+    atomic_types.insert_or_assign(base, std::move(to_insert));
+
+    register_type_id(ret);
+    return ret;
+}
+
+VolatileType *TypeContext::get_volatile_unordered(Type *base) {
+    if (volatile_types.contains(base)) {
+        return volatile_types.find(base)->second.get();
+    }
+
+    auto to_insert = std::make_unique<VolatileType>(base, *this);
+
+    VolatileType *ret = to_insert.get();
+
+    volatile_types.insert_or_assign(base, std::move(to_insert));
 
     register_type_id(ret);
     return ret;

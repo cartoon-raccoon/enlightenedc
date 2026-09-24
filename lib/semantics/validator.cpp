@@ -159,8 +159,8 @@ Optional<Type *> Validator::eval_initializer_expr(
     // case is skipped when the declared type is itself an array (e.g. `U8 buf[] = "hi";`, sized
     // array copy-initialization), since decaying there would fight the array-initializer logic
     // below.
-    if (expr->act_type->is_decayabletype()) {
-        expr = exprv.decay(expr->act_type->as_decayabletype(), std::move(expr));
+    if (expr->act_type->is_decayable()) {
+        expr = exprv.decay(expr->act_type->as_decayable(), std::move(expr));
     }
 
     if (type == expr->eff_type) {
@@ -343,7 +343,7 @@ void Validator::visit_single_vardecl(sym::VarSymbol *varsym, InitializerMIR& ini
         varsym->set_type(*inferred);
     }
     if (!varsym->get_type()->is_complete()) {
-        add_error<EccSemError>("variable cannot have incomplete type", varsym->get_loc());
+        add_error<IncompleteVarTypeError>(varsym->get_loc(), varsym->get_name().str(), varsym->get_type());
         throw UnableToContinue();
     }
 }
@@ -705,9 +705,9 @@ void Validator::do_visit(ReturnStmtMIR& node) {
 
         (*node.ret_expr)->accept(*this);
 
-        if ((*node.ret_expr)->act_type->is_decayabletype()) {
+        if ((*node.ret_expr)->act_type->is_decayable()) {
             node.ret_expr =
-                exprv.decay((*node.ret_expr)->act_type->as_decayabletype(), std::move(*node.ret_expr));
+                exprv.decay((*node.ret_expr)->act_type->as_decayable(), std::move(*node.ret_expr));
         }
 
         if ((*node.ret_expr)->act_type != returntype) {
@@ -802,12 +802,12 @@ void ExprValidator::do_visit(BinaryExprMIR& node) {
     ECC_ASSERT_N(node.right->eff_type);
 
     // decay array types
-    if (node.left->act_type->is_decayabletype()) {
-        node.left = decay(node.left->act_type->as_decayabletype(), std::move(node.left));
+    if (node.left->act_type->is_decayable()) {
+        node.left = decay(node.left->act_type->as_decayable(), std::move(node.left));
     }
 
-    if (node.right->act_type->is_decayabletype()) {
-        node.right = decay(node.right->act_type->as_decayabletype(), std::move(node.right));
+    if (node.right->act_type->is_decayable()) {
+        node.right = decay(node.right->act_type->as_decayable(), std::move(node.right));
     }
 
     if (!(node.left->eff_type->is_primitive() && node.right->eff_type->is_primitive())) {
@@ -1111,9 +1111,9 @@ void ExprValidator::do_visit(UnaryExprMIR& node) {
     } break;
 
     case UnaryOp::DEREF: { // *x
-        if (node.operand->act_type->is_decayabletype()) {
+        if (node.operand->act_type->is_decayable()) {
             node.operand =
-                decay(node.operand->act_type->as_decayabletype(), std::move(node.operand));
+                decay(node.operand->act_type->as_decayable(), std::move(node.operand));
         }
         
         if (!node.operand->act_type->is_pointer()) {
@@ -1121,10 +1121,15 @@ void ExprValidator::do_visit(UnaryExprMIR& node) {
             add_error<InvalidUnaryOpError>(
                 "operand is not a pointer", node.op, node.operand->eff_type, node.loc);
             throw UnableToContinue();
-        } else {
-            node.set_type(node.operand->act_type->as_pointer()->get_base());
         }
 
+        if (!node.operand->act_type->is_complete()) {
+            bsv_dbprint("error: cannot dereference pointer to incomplete type");
+            add_error<IncompleteBaseDeref>(node.loc, node.operand->act_type);
+            throw UnableToContinue();
+        }
+
+        node.set_type(node.operand->act_type->as_pointer()->get_base());
     } break;
 
     case UnaryOp::POS:
@@ -1237,8 +1242,8 @@ void ExprValidator::do_visit(AssignExprMIR& node) {
     LiteralExprMIR *rhs_lit = dyncast<LiteralExprMIR>(node.right.get());
     bool rhs_is_string_lit  = rhs_lit != nullptr && rhs_lit->is_string();
 
-    if (node.right->act_type->is_decayabletype()) {
-        node.right = decay(node.right->act_type->as_decayabletype(), std::move(node.right));
+    if (node.right->act_type->is_decayable()) {
+        node.right = decay(node.right->act_type->as_decayable(), std::move(node.right));
     }
 
     // Pointer arithmetic through compound assignment (`ptr += n` / `ptr -= n`) is legal even
@@ -1473,8 +1478,8 @@ void ExprValidator::do_visit(CallExprMIR& node) {
         auto *arg_type = arg->act_type->unqual();
 
         if (arg_type != param_type) {
-            if (arg_type->is_decayabletype()) {
-                arg = decay(arg_type->as_decayabletype(), std::move(arg));
+            if (arg_type->is_decayable()) {
+                arg = decay(arg_type->as_decayable(), std::move(arg));
             }
 
             // re-check after decay to prevent spurious cast nodes
@@ -1496,8 +1501,8 @@ void ExprValidator::do_visit(CallExprMIR& node) {
         auto& arg      = node.args[i];
         auto *arg_type = arg->act_type->unqual();
 
-        if (arg_type->is_decayabletype()) {
-            arg = decay(arg_type->as_decayabletype(), std::move(arg));
+        if (arg_type->is_decayable()) {
+            arg = decay(arg_type->as_decayable(), std::move(arg));
         }
     }
 
@@ -1751,13 +1756,13 @@ void ExprValidator::do_visit(SizeofExprMIR& node) { // done
                 }
             },
             [&](Type *type) {
-                if (auto *ty = type->as_usertype(); ty && !ty->is_complete()) {
-                    add_error<EccSemError>("use of incomplete type", node.loc);
-                }
                 if (type->is_function()) {
                     bsv_dbprint("error: sizeof operand cannot be a function type");
                     add_error<InvalidTypeError>(
                         "sizeof operand cannot be a function", type, node.loc);
+                }
+                if (!type->is_complete()) {
+                    add_error<EccSemError>("use of incomplete type", node.loc);
                 }
             }},
         node.operand);

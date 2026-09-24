@@ -63,13 +63,18 @@ class EnumType;
 class PointerType;
 class ArrayType;
 class FunctionType;
+class QualifiedType;
 class ConstType;
+class AtomicType;
+class VolatileType;
 class TypeContext;
 
-constexpr TypeID POINTER_SALT  = 0x70D2B928EDF37769;
+constexpr TypeID POINTER_SALT  = 0x70D2B928EDF37741;
 constexpr TypeID ARRAY_SALT    = 0x1F8C55351FD3B031;
 constexpr TypeID UARRAY_SALT   = 0xB448B9BA4AC5C797;
-constexpr TypeID CONST_SALT    = 0x7376AE5BE64CB9D7;
+constexpr TypeID CONST_SALT    = 0x7376AE5BE64CB9CF;
+constexpr TypeID ATOMIC_SALT   = 0x20305978FB328235;
+constexpr TypeID VOLATILE_SALT = 0x81B3DC962BD5B5F9;
 constexpr TypeID FUNCTION_SALT = 0x67766060685026C9;
 
 constexpr std::string ANON_USERTYPE_PREFIX = "__ecc_anon_";
@@ -154,7 +159,7 @@ Type size and member alignment is calculated at compile time, using the TypeCont
 */
 class Type : public NoCopy, public NoMove {
 public:
-    enum Kind : uint8_t {
+    enum class Kind : uint8_t {
         VOID,
         PRIMITIVE,
         CLASS,
@@ -195,7 +200,9 @@ public:
 
     virtual bool is_derivedtype() const { return false; }
 
-    virtual bool is_decayabletype() const { return false; }
+    virtual bool is_decayable() const { return false; }
+
+    virtual bool is_qualified() const { return false; }
 
     /**
     `kind` is deliberately not a sufficient discriminant for RTTI purposes: `ConstType`
@@ -207,12 +214,21 @@ public:
     */
     virtual bool is_const() const { return false; }
 
+    virtual bool is_atomic() const { return false; }
+
+    virtual bool is_volatile() const { return false; }
+
     /**
     Get the size of the type as reported by the backend.
 
     Before `finalize()` is called, calling this will throw an error.
     */
     virtual size_t alloc_size();
+
+    /**
+    Compatibility between this type and `dst`. Two types are compatible if they are the same.
+    */
+    virtual bool compatible_with(Type *dst) { return this == dst; }
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -285,13 +301,13 @@ public:
     Cast this type to a DerivedType *.
     Returns null if the underlying type is not a DerivedType.
     */
-    virtual DerivedType *as_derivedtype() { return nullptr; }
+    virtual DerivedType *as_derived() { return nullptr; }
 
     /**
     Cast this type to a DecayableType *.
     Returns null if the underlying type is not a DecayableType.
     */
-    virtual DecayableType *as_decayabletype() { return nullptr; }
+    virtual DecayableType *as_decayable() { return nullptr; }
 
     /**
     Cast this type to a PointerType *.
@@ -312,17 +328,35 @@ public:
     virtual FunctionType *as_function() { return nullptr; }
 
     /**
+    Cast this type to a QualifiedType *.
+    Returns null if the underrlying type is not a QualifiedType.
+    */
+    virtual QualifiedType *as_qualified() { return nullptr; }
+
+    /**
     Cast this type to a ConstType *.
     Returns null if the underlying type is not a ConstType.
     */
     virtual ConstType *as_const() { return nullptr; }
 
     /**
+    Cast this type to an AtomicType *.
+    Returns null if the underlying type is not an AtomicType.
+    */
+    virtual AtomicType *as_atomic() { return nullptr; }
+
+    /**
+    Cast this type to a VolatileType *.
+    Returns null if the underlying type is not a VolatileType.
+    */
+    virtual VolatileType *as_volatile() { return nullptr; }
+
+    /**
     Converts this type into its corresponding ConstType.
 
     Is identity if the underlying type is already const.
     */
-    ConstType *make_const();
+    QualifiedType *make_const();
 
     /**
     Whether the type is complete.
@@ -420,7 +454,7 @@ public:
     bool is_basetype() const override { return true; }
 
     static bool classof(const Type *node) {
-        if (node->is_const()) {
+        if (node->is_qualified()) {
             return false;
         }
         switch (node->kind) {
@@ -484,7 +518,7 @@ public:
     Location def_loc;
 
     static bool classof(const Type *node) {
-        if (node->is_const()) {
+        if (node->is_qualified()) {
             return false;
         }
         switch (node->kind) {
@@ -719,7 +753,7 @@ public:
     bool is_recordtype() const override { return true; }
 
     static bool classof(const Type *node) {
-        if (node->is_const()) {
+        if (node->is_qualified()) {
             return false;
         }
         switch (node->kind) {
@@ -759,7 +793,7 @@ class DerivedType : public Type {
 public:
     Type *get_base() const { return base; }
 
-    DerivedType *as_derivedtype() override { return this; }
+    DerivedType *as_derived() override { return this; }
 
     bool is_derivedtype() const override { return true; }
 
@@ -790,9 +824,9 @@ when in an rvalue position (on the right side of `=`, or as a function parameter
 */
 class DecayableType : public DerivedType {
 public:
-    DecayableType *as_decayabletype() override { return this; }
+    DecayableType *as_decayable() override { return this; }
 
-    bool is_decayabletype() const override { return true; }
+    bool is_decayable() const override { return true; }
 
     /**
     Decay `this` into its decayed type.
@@ -802,7 +836,7 @@ public:
     virtual PointerType *decay() = 0;
 
     static bool classof(const Type *node) {
-        if (node->is_const()) {
+        if (node->is_qualified()) {
             return false;
         }
 
@@ -820,24 +854,67 @@ protected:
 };
 
 /**
-A transparent wrapper over a Type, marking it as const.
+A recursive wrapper around a type, adding a qualifier.
 
-This type is purely compositional, composing onto existing types. As such, most of
-Type's interface on `ConstType` is just delegations to the underlying `base` type.
-There are compositions on `coercible_to` and `effective_type`, to block const-to-nonconst
-casting, and to wrap `base->effective_type()` in a ConstType wrapper, respectively.
+Qualified types are transparent around their unqualified base types, forwarding the entire Type API
+to their base, and only overriding the methods that they need. For example, ConstType overrides
+`assignable_to`, since constant data cannot be written to.
+
+### Qualifier Order
+
+The order in which qualifiers are applied is very important to keep consistent, as a const atomic U32
+will be stored differently from an atomic const U32, due to the interned pointers. Therefore,
+it is important to maintain the qualifier order when wrapping an already-qualified type in another
+qualifier. This is transparent to the user, so a qualified type with the same base should always match,
+regardless of the order in which they were qualified.
+
+The order of qualifiers is as follows: const, atomic, volatile. If we are to wrap a qualified type
+with a qualifier that comes before it in the order, we must fully dequalify the type, and then rewrap
+it in the correct order.
 */
-class ConstType : public Type {
+class QualifiedType : public Type {
+protected:
     Type *base;
 
+    QualifiedType(TypeContext& tyctxt, Type *base) : Type(base->kind, tyctxt), base(base) {}
 public:
+    enum Flags : uint8_t {
+        UNQUAL   = 0,
+        CONST    = 1 << 0,
+        ATOMIC   = 1 << 1,
+        VOLATILE = 1 << 2,
+    };
+
+    friend constexpr Flags operator|(Flags a, Flags b) {
+        return Flags(uint8_t(a) | uint8_t(b));
+    }
+
+    friend constexpr Flags operator&(Flags a, Flags b) {
+        return Flags(uint8_t(a) & uint8_t(b));
+    }
+
+    friend constexpr Flags operator~(Flags a) {
+        return Flags(~uint8_t(a));
+    }
+
+    friend constexpr Flags& operator|=(Flags& a, Flags b) {
+        return a = a | b;
+    }
+
+    friend constexpr Flags& operator&=(Flags& a, Flags b) {
+        return a = a & b;
+    }
+
     Type *get_base() { return base; }
 
-    Type *unqual() override { return base; }
+    Type *unqual(Flags& flags);
 
-    /**
-    Delegates to `base`.
-    */
+    Type *unqual() override;
+
+    Flags all_qualflags();
+
+    virtual Flags qualflag() = 0;
+
     bool is_basetype() const override { return base->is_basetype(); }
 
     bool is_usertype() const override { return base->is_usertype(); }
@@ -846,52 +923,58 @@ public:
 
     bool is_derivedtype() const override { return base->is_derivedtype(); }
 
-    bool is_decayabletype() const override { return base->is_decayabletype(); }
+    bool is_decayable() const override { return base->is_decayable(); }
 
-    bool is_const() const override { return true; }
+    bool is_qualified() const override { return true; }
 
-    /**
-    Checks if dst is const, delegating to `base->coercible_to()` if true,
-    returning false otherwise.
-    */
-    bool coercible_to(Type *dst) override;
+    bool is_const() const override { return base->is_const(); }
+
+    bool is_atomic() const override { return base->is_atomic(); }
+
+    bool is_volatile() const override { return base->is_volatile(); }
+
+    size_t alloc_size() override { return unqual()->alloc_size(); }
+
+    bool coercible_to(Type *dst) override { return base->coercible_to(dst); }
 
     /**
     Delegates immediately to `base->castable_to(dst)`, since explicit casting removes const.
     */
     bool castable_to(Type *dst) override { return base->castable_to(dst->unqual()); }
 
-    VoidType *as_void() override { return base->as_void(); }
+    VoidType *as_void() override{ return unqual()->as_void(); }
 
-    PrimitiveType *as_primitive() override { return base->as_primitive(); }
+    PrimitiveType *as_primitive() override { return unqual()->as_primitive(); }
 
-    UserType *as_usertype() override { return base->as_usertype(); }
+    UserType *as_usertype() override { return unqual()->as_usertype(); }
 
-    RecordType *as_recordtype() override { return base->as_recordtype(); }
+    RecordType *as_recordtype() override { return unqual()->as_recordtype(); }
 
-    ClassType *as_class() override { return base->as_class(); }
+    ClassType *as_class() override { return unqual()->as_class(); }
 
-    UnionType *as_union() override { return base->as_union(); }
+    UnionType *as_union() override { return unqual()->as_union(); }
 
-    EnumType *as_enum() override { return base->as_enum(); }
+    EnumType *as_enum() override { return unqual()->as_enum(); }
 
-    DerivedType *as_derivedtype() override { return base->as_derivedtype(); }
+    DerivedType *as_derived() override { return unqual()->as_derived(); }
 
-    DecayableType *as_decayabletype() override { return base->as_decayabletype(); }
+    DecayableType *as_decayable() override { return unqual()->as_decayable(); }
 
-    PointerType *as_pointer() override { return base->as_pointer(); }
+    PointerType *as_pointer() override { return unqual()->as_pointer(); }
 
-    ArrayType *as_array() override { return base->as_array(); }
+    ArrayType *as_array() override { return unqual()->as_array(); }
 
-    FunctionType *as_function() override { return base->as_function(); }
+    FunctionType *as_function() override { return unqual()->as_function(); }
 
-    ConstType *as_const() override { return this; }
+    QualifiedType *as_qualified() override { return this; }
+
+    ConstType *as_const() override { return base->as_const(); }
 
     bool is_complete() const override { return base->is_complete(); }
 
     bool is_callable() const override { return base->is_callable(); };
 
-    bool is_assignable() const override { return false; }
+    bool is_assignable() const override { return base->is_assignable(); }
 
     bool is_subscriptable() const override { return base->is_subscriptable(); };
 
@@ -901,25 +984,60 @@ public:
 
     bool is_integral() const override { return base->is_integral(); }
 
+    Type *effective_type() override;
+
     void finalize() override;
 
-    /**
-    Wraps base->effective_type() in a ConstType.
-    */
-    Type *effective_type() override;
+    Optional<std::string> get_name() override { return base->unqual()->get_name(); };
 
     std::string to_string() const override {
         if (base->is_pointer()) {
-            return base->to_string() + "const";
+            return base->to_string() + qualstr().str();
         } else {
-            return "const " + base->to_string();
+            return qualstr().str() + " " + base->to_string();
         }
     }
 
-    Optional<std::string> get_name() override { return base->get_name(); };
+    std::string formal() override {
+        if (base->is_pointer()) {
+            return base->formal() + qualstr().str();
+        } else {
+            return qualstr().str() + " " + base->formal();
+        }
+    }
 
-    /** Returns the formal name of the type. */
-    std::string formal() override { return "const " + base->formal(); }
+    virtual StringRef qualstr() const = 0;
+
+    static bool classof(const Type *node) { return node->is_qualified(); }
+};
+
+using QualFlags = QualifiedType::Flags;
+
+/**
+A transparent wrapper over a Type, marking it as const.
+
+This type is purely compositional, composing onto existing types. As such, most of
+Type's interface on `ConstType` is just delegations to the underlying `base` type.
+There are compositions on `coercible_to` and `effective_type`, to block const-to-nonconst
+casting, and to wrap `base->effective_type()` in a ConstType wrapper, respectively.
+*/
+class ConstType : public QualifiedType {
+public:
+    Flags qualflag() override { return Flags::CONST; }
+
+    bool is_const() const override { return true; }
+
+    /**
+    Checks if dst is const, delegating to `base->coercible_to()` if true,
+    returning false otherwise.
+    */
+    bool coercible_to(Type *dst) override;
+
+    ConstType *as_const() override { return this; }
+
+    bool is_assignable() const override { return false; }
+
+    StringRef qualstr() const override { return "const"; }
 
     static bool classof(const Type *node) { return node->is_const(); }
 
@@ -928,7 +1046,58 @@ protected:
 
     friend constexpr Box<ConstType> std::make_unique<ConstType>(Type *&, TypeContext&);
 
-    ConstType(Type *base, TypeContext& tyctxt) : Type(base->kind, tyctxt), base(base) {}
+    ConstType(Type *base, TypeContext& tyctxt) : QualifiedType(tyctxt, base) {}
+
+    TypeID generate_id() const override;
+};
+
+/**
+A transparent wrapper over a Type, marking it as atomic.
+*/
+class AtomicType : public QualifiedType {
+public:
+    Flags qualflag() override { return Flags::ATOMIC; }
+
+    bool is_atomic() const override { return true; }
+
+    AtomicType *as_atomic() override { return this; }
+
+    StringRef qualstr() const override { return "atomic"; }
+
+    static bool classof(const Type *node) { return node->is_atomic(); }
+
+protected:
+    friend class TypeContext;
+
+    friend constexpr Box<AtomicType> std::make_unique<AtomicType>(Type *&, TypeContext&);
+
+    AtomicType(Type *base, TypeContext& tyctxt) : QualifiedType(tyctxt, base) {}
+
+    TypeID generate_id() const override;
+};
+
+
+/**
+A transparent wrapper over a Type, marking it as volatile.
+*/
+class VolatileType : public QualifiedType {
+public:
+    Flags qualflag() override { return Flags::VOLATILE; }
+
+    bool is_volatile() const override { return true; }
+
+    VolatileType *as_volatile() override { return this; }
+
+    StringRef qualstr() const override { return "volatile"; }
+
+    static bool classof(const Type *node) { return node->is_volatile(); }
+
+protected:
+    friend class TypeContext;
+
+    friend constexpr Box<VolatileType> std::make_unique<VolatileType>(Type *&, TypeContext&);
+
+    VolatileType(Type *base, TypeContext& tyctxt) : QualifiedType(tyctxt, base) {}
 
     TypeID generate_id() const override;
 };
@@ -952,7 +1121,7 @@ public:
 
     std::string to_string() const override { return "Void"; }
 
-    static bool classof(const Type *node) { return !node->is_const() && node->kind == Kind::VOID; }
+    static bool classof(const Type *node) { return !node->is_qualified() && node->kind == Kind::VOID; }
 
 protected:
     friend class TypeContext;
@@ -1045,7 +1214,7 @@ public:
     std::string formal() override;
 
     static bool classof(const Type *node) {
-        return !node->is_const() && node->kind == Kind::PRIMITIVE;
+        return !node->is_qualified() && node->kind == Kind::PRIMITIVE;
     }
 
 protected:
@@ -1179,7 +1348,7 @@ public:
 
     static std::string static_base() { return "class"; }
 
-    static bool classof(const Type *node) { return !node->is_const() && node->kind == Kind::CLASS; }
+    static bool classof(const Type *node) { return !node->is_qualified() && node->kind == Kind::CLASS; }
 
 protected:
     Optional<ClassType *> parent;
@@ -1298,7 +1467,7 @@ public:
 
     static std::string static_base() { return "union"; }
 
-    static bool classof(const Type *node) { return !node->is_const() && node->kind == Kind::UNION; }
+    static bool classof(const Type *node) { return !node->is_qualified() && node->kind == Kind::UNION; }
 
 protected:
     /**
@@ -1395,7 +1564,7 @@ public:
 
     static std::string static_base() { return "enum"; }
 
-    static bool classof(const Type *node) { return !node->is_const() && node->kind == Kind::ENUM; }
+    static bool classof(const Type *node) { return !node->is_qualified() && node->kind == Kind::ENUM; }
 
 protected:
     Vec<Box<EnumTypeMember>> enumerators;
@@ -1494,7 +1663,7 @@ public:
     std::string formal() override;
 
     static bool classof(const Type *node) {
-        return !node->is_const() && node->kind == Kind::POINTER;
+        return !node->is_qualified() && node->kind == Kind::POINTER;
     }
 
 protected:
@@ -1513,11 +1682,20 @@ A sized array type (`U8 [4]`, `U32 [6]`, etc.).
 
 ## Coercibility
 
-An array is coercible to a pointer of the same base through pointer decay.
-Similarly, pointers can be subscripted like an array, the compiler treats
-it as pointer arithmetic.
+An array is only coercible to either an array or pointer.
 
-A sized array is not coercible to any other array (i.e. base and size have to match).
+Two arrays are size-compatible if both have the same size or either one is unsized.
+
+An unsized array is always coercible to a sized array of the same base.
+
+If the target is an array:
+    - If both this array and the target array are arrays of arrays, this array and its target
+    are compatible if they are size-compatible and their base arrays are compatible.
+    - Otherwise, this array and the target array are compatible only if their bases match
+    and they are size-compatible.
+
+If the target is a pointer, this array, when decayed to a pointer, must be compatible with the
+target.
 
 ## Castability
 
@@ -1537,7 +1715,9 @@ class ArrayType : public DecayableType {
 public:
     Optional<uint64_t> get_arr_size() { return arr_size; }
 
-    bool is_fully_sized() const;
+    bool is_sized() const;
+
+    bool size_compatible_with(ArrayType *rhs);
 
     ArrayType *as_array() override { return this; }
 
@@ -1559,7 +1739,7 @@ public:
 
     std::string formal() override;
 
-    static bool classof(const Type *node) { return !node->is_const() && node->kind == Kind::ARRAY; }
+    static bool classof(const Type *node) { return !node->is_qualified() && node->kind == Kind::ARRAY; }
 
 protected:
     // The number of elements in the array, populated after elaboration.
@@ -1738,7 +1918,7 @@ public:
     static std::string base() { return "function_"; }
 
     static bool classof(const Type *node) {
-        return !node->is_const() && node->kind == Kind::FUNCTION;
+        return !node->is_qualified() && node->kind == Kind::FUNCTION;
     }
 
 protected:
@@ -1996,7 +2176,17 @@ public:
     /**
     Wrap a type in a ConstType wrapper.
     */
-    ConstType *get_const(Type *base);
+    QualifiedType *get_const(Type *base);
+
+    /**
+    Wrap a type in an AtomicType wrapper.
+    */
+    QualifiedType *get_atomic(Type *base);
+
+    /**
+    Wrap a type in a VolatileType wrapper.
+    */
+    QualifiedType *get_volatile(Type *base);
 
     /**
     Lookup a type by its ID.
@@ -2048,6 +2238,10 @@ private:
     // The map of const types mapped by their base type.
     HashMap<Type *, Box<ConstType>> const_types;
 
+    HashMap<Type *, Box<AtomicType>> atomic_types;
+
+    HashMap<Type *, Box<VolatileType>> volatile_types;
+
     // The map of type ids to their corresponding Types.
     HashMap<TypeID, Type *> id_map;
 
@@ -2090,6 +2284,12 @@ private:
 
         return ret;
     }
+
+    ConstType *get_const_unordered(Type *base);
+
+    AtomicType *get_atomic_unordered(Type *base);
+
+    VolatileType *get_volatile_unordered(Type *base);
 
     void register_type_id(Type *type);
 

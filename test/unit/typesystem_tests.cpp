@@ -4,46 +4,46 @@
 
 // get_const interns: same base → same pointer
 TEST_F(TypeSysAndSymTabTestFixture, TestGetConstInterning) {
-    ConstType *c1 = tctxt.get_const(prim1);
-    ConstType *c2 = tctxt.get_const(prim1);
+    QualifiedType *c1 = tctxt.get_const(prim1);
+    QualifiedType *c2 = tctxt.get_const(prim1);
     EXPECT_EQ(c1, c2)
         << "get_const called twice on the same base should return the same ConstType*";
 }
 
 // Idempotency: wrapping an already-const type returns the same ConstType*, not a double-wrap
 TEST_F(TypeSysAndSymTabTestFixture, TestGetConstIdempotent) {
-    ConstType *c1    = tctxt.get_const(prim1);
-    ConstType *c2    = tctxt.get_const(c1);
+    QualifiedType *c1    = tctxt.get_const(prim1);
+    QualifiedType *c2    = tctxt.get_const(c1);
     EXPECT_EQ(c1, c2)
         << "get_const(get_const(T)) should return the same ConstType* as get_const(T)";
 }
 
 // Triple call still produces no extra wrapping
 TEST_F(TypeSysAndSymTabTestFixture, TestGetConstTripleIdempotent) {
-    ConstType *c1 = tctxt.get_const(prim1);
-    ConstType *c2 = tctxt.get_const(tctxt.get_const(c1));
+    QualifiedType *c1 = tctxt.get_const(prim1);
+    QualifiedType *c2 = tctxt.get_const(tctxt.get_const(c1));
     EXPECT_EQ(c1, c2)
         << "Repeated get_const calls should never produce a ConstType wrapping another ConstType";
 }
 
 // get_const on different bases produces different ConstTypes
 TEST_F(TypeSysAndSymTabTestFixture, TestGetConstDistinctBases) {
-    ConstType *ci32 = tctxt.get_const(prim3); // I64
-    ConstType *cbool = tctxt.get_const(prim4); // BOOL
+    QualifiedType *ci32 = tctxt.get_const(prim3); // I64
+    QualifiedType *cbool = tctxt.get_const(prim4); // BOOL
     EXPECT_NE(ci32, cbool)
         << "get_const on different base types should produce different ConstType pointers";
 }
 
 // is_const() is true on the result, false on unqual'd type
 TEST_F(TypeSysAndSymTabTestFixture, TestConstIsConstFlag) {
-    ConstType *c = tctxt.get_const(prim1);
+    QualifiedType *c = tctxt.get_const(prim1);
     EXPECT_TRUE(c->is_const());
     EXPECT_FALSE(prim1->is_const());
 }
 
 // unqual() returns the original base, not another ConstType
 TEST_F(TypeSysAndSymTabTestFixture, TestConstUnqualReturnBase) {
-    ConstType *c = tctxt.get_const(prim3);
+    QualifiedType *c = tctxt.get_const(prim3);
     EXPECT_EQ(c->unqual(), prim3)
         << "unqual() on a ConstType should return the unwrapped base type";
     EXPECT_FALSE(c->unqual()->is_const())
@@ -52,8 +52,8 @@ TEST_F(TypeSysAndSymTabTestFixture, TestConstUnqualReturnBase) {
 
 // unqual() on an idempotency-returned ConstType still strips to the bare base
 TEST_F(TypeSysAndSymTabTestFixture, TestGetConstIdempotentUnqual) {
-    ConstType *c     = tctxt.get_const(prim1);
-    ConstType *again = tctxt.get_const(c);
+    QualifiedType *c     = tctxt.get_const(prim1);
+    QualifiedType *again = tctxt.get_const(c);
 
     // They're the same pointer, but unqual() must still reach the primitive
     EXPECT_EQ(again->unqual(), prim1)
@@ -69,7 +69,7 @@ TEST_F(TypeSysAndSymTabTestFixture, TestUnqualOnNonConstIsNoop) {
 
 // ConstType of a class delegates is_recordtype / as_class correctly
 TEST_F(TypeSysAndSymTabTestFixture, TestConstClassDelegation) {
-    ConstType *cc = tctxt.get_const(class1);
+    QualifiedType *cc = tctxt.get_const(class1);
     EXPECT_TRUE(cc->is_const());
     EXPECT_TRUE(cc->is_recordtype());
     EXPECT_TRUE(cc->is_class());
@@ -80,8 +80,8 @@ TEST_F(TypeSysAndSymTabTestFixture, TestConstClassDelegation) {
 
 // ConstType of a pointer keeps is_pointer delegation
 TEST_F(TypeSysAndSymTabTestFixture, TestConstPointerDelegation) {
-    PointerType *ptr   = tctxt.get_pointer(prim3);
-    ConstType   *cptr  = tctxt.get_const(ptr);
+    PointerType   *ptr   = tctxt.get_pointer(prim3);
+    QualifiedType *cptr  = tctxt.get_const(ptr);
     EXPECT_TRUE(cptr->is_const());
     EXPECT_TRUE(cptr->is_pointer());
     EXPECT_NE(cptr->as_pointer(), nullptr);
@@ -90,10 +90,41 @@ TEST_F(TypeSysAndSymTabTestFixture, TestConstPointerDelegation) {
 // get_const(const_pointer) is idempotent too, not just for primitives
 TEST_F(TypeSysAndSymTabTestFixture, TestGetConstIdempotentOnPointer) {
     PointerType *ptr  = tctxt.get_pointer(prim1);
-    ConstType   *c1   = tctxt.get_const(ptr);
-    ConstType   *c2   = tctxt.get_const(c1);
+    QualifiedType *c1 = tctxt.get_const(ptr);
+    QualifiedType *c2 = tctxt.get_const(c1);
     EXPECT_EQ(c1, c2)
         << "Idempotency should hold for ConstType wrapping a PointerType, not just primitives";
+}
+
+TEST_F(TypeSysAndSymTabTestFixture, TestQualFlagsFromQualType) {
+    PrimitiveType *base = tctxt.get_u32();
+    QualifiedType *qual = tctxt.get_const(tctxt.get_atomic(base));
+
+    QualFlags flags = qual->all_qualflags();
+    EXPECT_TRUE(flags & QualFlags::CONST);
+    EXPECT_TRUE(flags & QualFlags::ATOMIC);
+    EXPECT_FALSE(flags & QualFlags::VOLATILE);
+}
+
+TEST_F(TypeSysAndSymTabTestFixture, TestCorrectQualifierOrder) {
+    PrimitiveType *base = tctxt.get_u32();
+    QualifiedType *q1 = tctxt.get_const(tctxt.get_atomic(base));
+    QualifiedType *q2 = tctxt.get_atomic(tctxt.get_const(base));
+
+    EXPECT_EQ(q1, q2)
+        << "Should always be the same type regardless of qualification order";
+}
+
+TEST_F(TypeSysAndSymTabTestFixture, TestDiffQualsMeansUneqPtrs) {
+    PrimitiveType *base = tctxt.get_u32();
+    QualifiedType *q1 = tctxt.get_const(tctxt.get_volatile(base));
+    QualifiedType *q2 = tctxt.get_const(base);
+
+    EXPECT_NE(q1, q2);
+
+    q2 = tctxt.get_volatile(q2);
+
+    EXPECT_EQ(q1, q2);
 }
 
 // PrimitiveType equality (pre-existing)
@@ -443,21 +474,16 @@ TEST_F(TypeSysAndSymTabTestFixture, ArrCoerce_InternedIdenticalArrays) {
     EXPECT_TRUE(a1->coercible_to(a2));
 }
 
-// Array to pointer: NOTE — the current implementation calls base->coercible_to(dst_ptr)
-// where dst_ptr is the whole PointerType object. For a primitive base, PrimitiveType::coercible_to
-// rejects non-primitive dst, so this returns false. This is a discrepancy with the docstring.
-TEST_F(TypeSysAndSymTabTestFixture, ArrNoCoerce_U8ArrayToU8Ptr) {
+TEST_F(TypeSysAndSymTabTestFixture, ArrCoerce_U8ArrayToU8Ptr) {
     ArrayType   *arr = tctxt.get_array(tctxt.get_u8(), 4);
     PointerType *ptr = tctxt.get_pointer(tctxt.get_u8());
-    EXPECT_FALSE(arr->coercible_to(ptr))
-        << "U8[4]->coercible_to(U8*): base->coercible_to receives the PointerType itself, "
-           "not its base — PrimitiveType rejects it";
+    EXPECT_TRUE(arr->coercible_to(ptr));
 }
 
 TEST_F(TypeSysAndSymTabTestFixture, ArrNoCoerce_U8ArrayToVoidPtr) {
     ArrayType   *arr  = tctxt.get_array(tctxt.get_u8(), 4);
     PointerType *vptr = tctxt.get_pointer(tctxt.get_void());
-    EXPECT_FALSE(arr->coercible_to(vptr));
+    EXPECT_TRUE(arr->coercible_to(vptr));
 }
 
 // Different size, same base: different interned pointers, not coercible to each other
@@ -1091,22 +1117,22 @@ TEST_F(TypeSysAndSymTabTestFixture, TypeID_UnsizedArray_DiffersFromSized) {
 
 // Const wrapper has a different ID from its base
 TEST_F(TypeSysAndSymTabTestFixture, TypeID_Const_DiffersFromBase) {
-    ConstType *c = tctxt.get_const(prim1);
+    QualifiedType *c = tctxt.get_const(prim1);
     EXPECT_NE(c->id(), prim1->id());
 }
 
 // Const is idempotent: get_const(get_const(T)) returns the same pointer and same ID
 TEST_F(TypeSysAndSymTabTestFixture, TypeID_Const_IdempotentSameID) {
-    ConstType *c1 = tctxt.get_const(prim1);
-    ConstType *c2 = tctxt.get_const(c1);
+    QualifiedType *c1 = tctxt.get_const(prim1);
+    QualifiedType *c2 = tctxt.get_const(c1);
     ASSERT_EQ(c1, c2) << "const is idempotent at the pointer level";
     EXPECT_EQ(c1->id(), c2->id());
 }
 
 // Different bases → different const IDs
 TEST_F(TypeSysAndSymTabTestFixture, TypeID_Const_DifferentBasesDistinct) {
-    ConstType *cf32 = tctxt.get_const(prim1); // F32
-    ConstType *ci64 = tctxt.get_const(prim3); // I64
+    QualifiedType *cf32 = tctxt.get_const(prim1); // F32
+    QualifiedType *ci64 = tctxt.get_const(prim3); // I64
     EXPECT_NE(cf32->id(), ci64->id());
 }
 
@@ -1175,10 +1201,10 @@ TEST_F(TypeSysAndSymTabTestFixture, TypeID_Function_VariadicDistinct) {
 // Pointer, sized array, and const of the same base all have mutually distinct IDs,
 // and all differ from the base type's own ID
 TEST_F(TypeSysAndSymTabTestFixture, TypeID_CrossKind_PointerArrayConstDistinct) {
-    Type        *base = tctxt.get_u32();
-    PointerType *ptr  = tctxt.get_pointer(base);
-    ArrayType   *arr  = tctxt.get_array(base, 4);
-    ConstType   *cst  = tctxt.get_const(base);
+    Type          *base = tctxt.get_u32();
+    PointerType   *ptr  = tctxt.get_pointer(base);
+    ArrayType     *arr  = tctxt.get_array(base, 4);
+    QualifiedType *cst  = tctxt.get_const(base);
 
     EXPECT_NE(ptr->id(), arr->id());
     EXPECT_NE(ptr->id(), cst->id());

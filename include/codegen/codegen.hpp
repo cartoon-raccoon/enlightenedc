@@ -72,8 +72,6 @@ public:
             finalize(ty);
         } else if (auto *ty = dyncast<sema::types::FunctionType>(type)) {
             finalize(ty);
-        } else if (auto *ty = dyncast<sema::types::ConstType>(type)) {
-            finalize(ty);
         } else {
             ECC_UNREACHABLE("unknown type to finalize");
         }

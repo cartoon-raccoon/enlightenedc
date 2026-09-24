@@ -6,6 +6,7 @@ This document lays out the planned improvements and updates for the EnlightenedC
 
 These are to-dos that are important, but do not constitute a milestone. They are simply internal or small to-dos that need to be noted down somewhere, and do not correspond to any particular goal timeframe as laid out below. Generally, something noted here means "implement whenever it is needed".
 
+- Implement compatibility rules for derived types (C23 as reference)
 - Implement linkage and language-linkage semantics in LIR and CFG
 - Factor out language linkage into its own AST node, so function pointers can be marked `extern "C"`
   - A new specifier called `LangLinkageSpecifier`, rule `language-linkage-specifier`

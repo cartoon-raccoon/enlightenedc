@@ -178,6 +178,22 @@ public:
     }
 };
 
+class IncompleteVarTypeError : public EccSemError {
+public:
+    IncompleteVarTypeError(Location err_loc, std::string varname, types::Type *type)
+        : EccSemError(std::format("variable `{}` cannot have incomplete type", varname), err_loc),
+        varname(std::move(varname)), type(type->formal()) {}
+
+    std::string varname, type;
+
+    std::string elab() override {
+        std::stringstream ss;
+        ss << "variable `" << varname << "` declared with incomplete type " << type;
+
+        return ss.str();
+    }
+};
+
 class UnderspecifiedCallError : public EccSemError {
 public:
     UnderspecifiedCallError(Location err_loc, size_t at_least, size_t got)
@@ -438,6 +454,21 @@ public:
     }
 };
 
+class IncompleteBaseDeref : public EccSemError {
+public:
+    IncompleteBaseDeref(Location err_loc, types::Type *type)
+        : EccSemError("pointer dereference to incomplete type", err_loc), type(type->formal()) {}
+
+    std::string type;
+
+    std::string elab() override {
+        std::stringstream ss;
+        ss << "cannot dereference pointer to " << type << ", type is incomplete";
+
+        return ss.str();
+    }
+};
+
 class InvalidSubscrExprError : public EccSemError {
 public:
     InvalidSubscrExprError(std::string err, types::Type *type, Location err_loc)
@@ -649,6 +680,8 @@ public:
 
         return ss.str();
     }
+
+    Optional<Location> elab_loc() override { return prev_loc; }
 };
 
 class EnumeratorSymCollision : public EccSemError {
@@ -666,6 +699,8 @@ public:
 
         return ss.str();
     }
+
+    Optional<Location> elab_loc() override { return prev_loc; }
 };
 
 class InvalidTypeError : public EccSemError {
@@ -762,6 +797,8 @@ public:
 
         return ss.str();
     }
+
+    Optional<Location> elab_loc() override { return prev_loc; }
 };
 
 class InvalidCastError : public EccSemError {
