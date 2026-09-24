@@ -8,6 +8,7 @@
 
 #include "error.hpp"
 #include "location.hpp"
+#include "prelude.hpp"
 #include "semantics/types.hpp"
 
 namespace ecc::sema {
@@ -18,6 +19,17 @@ using namespace location;
 class TypeSemError : public EccSemError {
 public:
     TypeSemError(std::string msg, Location err_loc) : EccSemError(std::move(msg), err_loc) {}
+
+    TypeSemError(std::string msg) : EccSemError(std::move(msg)) {}
+
+    /**
+    Since Fallible::add_error() is parametrized on the type of error, passing in a bare TypeSemError
+    will result in the error object getting sliced when it is added to Fallible's error vector via
+    add_error. As such, Fallible provides an `add_typesem_error` method that directly accepts a
+    `Box<TypeSemError>`, and TypeSemError defines this `clone` method that each TypeSemError must
+    implement, to transparently clone themselves and present themselves behind a `Box<TypeSemError>`.
+    */
+    virtual Box<TypeSemError> clone() { return make_box<TypeSemError>(*this); };
 };
 
 class RecursiveTypeError : public TypeSemError {
@@ -27,6 +39,10 @@ public:
 
     std::string elab() override {
         return "self-referential class members must be behind a pointer";
+    }
+
+    Box<TypeSemError> clone() override {
+        return make_box<RecursiveTypeError>(*this);
     }
 };
 
@@ -45,6 +61,10 @@ public:
         ss << "type '" << name << "' has not been fully defined";
         return ss.str();
     }
+
+    Box<TypeSemError> clone() override {
+        return make_box<IncompleteTypeUseError>(*this);
+    }
 };
 
 class InvalidInheritanceError : public TypeSemError {
@@ -62,6 +82,10 @@ public:
 
         return ss.str();
     }
+
+    Box<TypeSemError> clone() override {
+        return make_box<InvalidInheritanceError>(*this);
+    }
 };
 
 class InvalidVoidError : public TypeSemError {
@@ -69,6 +93,10 @@ public:
     InvalidVoidError(Location err_loc) : TypeSemError("invalid void", err_loc) {}
 
     std::string elab() override { return "variables cannot be void"; }
+
+    Box<TypeSemError> clone() override {
+        return make_box<InvalidVoidError>(*this);
+    }
 };
 
 class InvalidMemberError : public TypeSemError {
@@ -83,6 +111,10 @@ public:
         ss << "no member named \'" << member << "\' in class " << type;
 
         return ss.str();
+    }
+
+    Box<TypeSemError> clone() override {
+        return make_box<InvalidMemberError>(*this);
     }
 };
 
@@ -103,6 +135,10 @@ public:
     }
 
     Optional<Location> elab_loc() override { return def_loc; }
+
+    Box<TypeSemError> clone() override {
+        return make_box<MemberNameCollision>(*this);
+    }
 };
 
 /**
@@ -130,6 +166,10 @@ public:
     }
 
     Optional<Location> elab_loc() override { return member_loc; }
+
+    Box<TypeSemError> clone() override {
+        return make_box<UnionTypeRepSizeOverflow>(*this);
+    }
 };
 
 class UnsizedArrInUserTypeError : public TypeSemError {
@@ -140,6 +180,10 @@ public:
     std::string elab() override {
         return "array members of classes or unions must have declared sizes";
     }
+
+    Box<TypeSemError> clone() override {
+        return make_box<UnsizedArrInUserTypeError>(*this);
+    }
 };
 
 class InvalidReturnTypeError : public TypeSemError {
@@ -147,7 +191,14 @@ public:
     InvalidReturnTypeError(Location err_loc)
         : TypeSemError("invalid return type for function", err_loc) {}
 
+    InvalidReturnTypeError()
+        : TypeSemError("invalid return type for function") {}
+
     std::string elab() override { return "functions cannot return arrays or other functions"; }
+
+    Box<TypeSemError> clone() override {
+        return make_box<InvalidReturnTypeError>(*this);
+    }
 };
 
 class EnumeratorCountOverflow : public TypeSemError {
@@ -164,6 +215,10 @@ public:
         ss << "enum can have maximum " << max_ct << " enumerators, but contains " << enumerator_ct;
 
         return ss.str();
+    }
+
+    Box<TypeSemError> clone() override {
+        return make_box<EnumeratorCountOverflow>(*this);
     }
 };
 
@@ -183,6 +238,10 @@ public:
 
         return ss.str();
     }
+
+    Box<TypeSemError> clone() override {
+        return make_box<EnumeratorValueOverflow>(*this);
+    }
 };
 
 class EnumeratorAlrDecldError : public TypeSemError {
@@ -201,6 +260,10 @@ public:
     }
 
     Optional<Location> elab_loc() override { return def_loc; }
+
+    Box<TypeSemError> clone() override {
+        return make_box<EnumeratorAlrDecldError>(*this);
+    }
 };
 
 class InvalidEnumUnderlyingError : public TypeSemError {
@@ -209,6 +272,10 @@ public:
         : TypeSemError("invalid enum underlying type", err_loc) {}
 
     std::string elab() override { return "underlying type of an enum must be an integer"; }
+
+    Box<TypeSemError> clone() override {
+        return make_box<InvalidEnumUnderlyingError>(*this);
+    }
 };
 
 class TypeDecldAsOtherError : public TypeSemError {
@@ -226,6 +293,10 @@ public:
     }
 
     Optional<Location> elab_loc() override { return def_loc; }
+
+    Box<TypeSemError> clone() override {
+        return make_box<TypeDecldAsOtherError>(*this);
+    }
 };
 
 } // namespace ecc::sema

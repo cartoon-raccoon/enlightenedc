@@ -27,6 +27,8 @@ public:
     std::string msg;
     Optional<Location> loc;
 
+    bool has_loc() const { return loc.has_value(); }
+
     void add_loc(Location loc) {
         if (!this->loc) {
             this->loc = loc;

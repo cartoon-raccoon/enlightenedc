@@ -148,7 +148,7 @@ void LLVMUnit::finalize(ClassType *type) {
     dbprint("ClassType: finalizing class defined at ", type->def_loc);
 
     if (!type->is_complete()) {
-        throw TypeSemError("class not fully defined", type->decl_loc);
+        throw IncompleteTypeUseError("class not fully defined", type->decl_loc);
     }
 
     // recursively finalize up the chain first.
@@ -198,7 +198,7 @@ void LLVMUnit::finalize(UnionType *type) {
     dbprint("UnionType: finalizing union defined at ", type->def_loc);
 
     if (!type->is_complete()) {
-        throw TypeSemError("union not fully defined", type->decl_loc);
+        throw IncompleteTypeUseError("union not fully defined", type->decl_loc);
     }
 
     if (type->get_type_rep()) {
@@ -259,7 +259,7 @@ void LLVMUnit::finalize(EnumType *type) {
     }
 
     if (!type->is_complete()) {
-        throw TypeSemError("enum not fully defined", type->decl_loc);
+        throw IncompleteTypeUseError("enum not fully defined", type->decl_loc);
     }
 
     typemap[type] = get_storage_type(type->get_underlying());

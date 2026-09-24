@@ -1,5 +1,6 @@
 #pragma once
 
+#include "semantics/typeerr.hpp"
 #ifndef ECC_SEMANTICS_H
 #define ECC_SEMANTICS_H
 
@@ -110,6 +111,12 @@ public:
         requires std::derived_from<E, EccSemError>
     void add_error(Args... args) {
         Box<EccSemError> err = make_box<E>(args...);
+        EccDiagnostic *diag = err.get();
+        errors.push_back(std::move(err));
+        diagnostic_order.push_back(diag);
+    }
+
+    void add_typesem_error(Box<TypeSemError> err) {
         EccDiagnostic *diag = err.get();
         errors.push_back(std::move(err));
         diagnostic_order.push_back(diag);
