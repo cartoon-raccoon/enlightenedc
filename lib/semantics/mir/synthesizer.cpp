@@ -11,6 +11,7 @@
 #include "eval/consteval.hpp"
 #include "eval/value.hpp"
 #include "semantics/attributes.hpp"
+#include "semantics/linkage.hpp"
 #include "semantics/mir/mir.hpp"
 #include "semantics/semerr.hpp"
 #include "semantics/symbols.hpp"
@@ -355,6 +356,8 @@ void MIRSynthesizer::do_visit(Function& node) {
         add_error<EccSemError>("unable to resolve declarator to function declarator", node.loc);
         throw UnableToContinue();
     }
+    functype = functype->with_lang_linkage(specinfo.langlink);
+
     if (!builder->name) {
         add_error<EccSemError>("unable to parse name from declarator", node.declarator->loc);
         throw UnableToContinue();
@@ -392,7 +395,6 @@ void MIRSynthesizer::do_visit(Function& node) {
     InsertFuncArgs funcargs = {node.loc, *builder->name, functype};
     funcargs.has_body = true;
     funcargs.linkage = specinfo.linkage;
-    funcargs.langlink = specinfo.langlink;
 
     FuncSymbol *funcsym;
     try {
@@ -709,6 +711,8 @@ void MIRSynthesizer::do_visit(VariableDeclaration& node) {
                 //todo: return type is const, warn that it is ignored (call expressions are rvalues)
             }
 
+            functype = functype->with_lang_linkage(specinfo.langlink);
+
             auto funcmir = parse_vardecl_func(node, std::move(ret), specinfo, functype);
 
             dv_return(funcmir);
@@ -759,7 +763,6 @@ Chunk<mir::FunctionMIR> MIRSynthesizer::parse_vardecl_func(
     InsertFuncArgs args = {node.loc, *ret.name, type};
     args.has_body = false;
     args.linkage = specinfo.linkage;
-    args.langlink = specinfo.langlink;
 
     FuncSymbol *funcptr = nullptr;
     try {
@@ -903,7 +906,7 @@ void MIRSynthesizer::do_visit(FunctionDeclarator& node) {
         parameters.push_back(std::move(parsed));
     }
 
-    builder->ty_bldr.add_function(node.base->loc, parameters, node.is_variadic);
+    builder->ty_bldr.add_function(node.loc, parameters, node.is_variadic);
 
     dv_return(builder);
 }
@@ -1101,8 +1104,10 @@ void MIRSynthesizer::do_visit(EnumSpecifier& node) {
         try {
             enm->finish(node.loc);
         } catch (TypeSemError& e) {
-            // fixme: this slices the error and produces a degraded error message
-            add_error<TypeSemError>(e);
+            if (!e.has_loc()) {
+                e.add_loc(enm->def_loc);
+            }
+            add_typesem_error(e.clone());
             throw UnableToContinue();
         }
     }
@@ -1284,8 +1289,10 @@ void MIRSynthesizer::do_visit(UnionSpecifier& node) {
         try {
             unn->finish(node.loc);
         } catch (TypeSemError& e) {
-            // fixme: this slices the error and produces a degraded error message
-            add_error<TypeSemError>(e);
+            if (!e.has_loc()) {
+                e.add_loc(unn->def_loc);
+            }
+            add_typesem_error(e.clone());
             throw UnableToContinue();
         }
     }
@@ -1349,7 +1356,10 @@ void MIRSynthesizer::do_visit(ClassDeclaration& node) {
 
             last_result = std::monostate{};
         } catch (TypeSemError& e) {
-            add_error<TypeSemError>(e);
+            if (!e.has_loc()) {
+                e.add_loc(decltr->loc);
+            }
+            add_typesem_error(e.clone());
             throw UnableToContinue();
         }
     }

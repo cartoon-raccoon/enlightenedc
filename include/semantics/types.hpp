@@ -18,6 +18,7 @@
 #include "ds/linkedlist.hpp"
 #include "eval/value.hpp"
 #include "location.hpp"
+#include "semantics/linkage.hpp"
 #include "tokens.hpp"
 #include "util/hash.hpp"
 #include "prelude.hpp"
@@ -54,6 +55,7 @@ class VoidType;
 class UserType;
 class RecordType;
 class DerivedType;
+class DecayableType;
 class PrimitiveType;
 class ClassType;
 class UnionType;
@@ -193,6 +195,8 @@ public:
 
     virtual bool is_derivedtype() const { return false; }
 
+    virtual bool is_decayabletype() const { return false; }
+
     /**
     `kind` is deliberately not a sufficient discriminant for RTTI purposes: `ConstType`
     mirrors its base's `kind` (see `ConstType`'s doc comment) so that the non-virtual
@@ -282,6 +286,12 @@ public:
     Returns null if the underlying type is not a DerivedType.
     */
     virtual DerivedType *as_derivedtype() { return nullptr; }
+
+    /**
+    Cast this type to a DecayableType *.
+    Returns null if the underlying type is not a DecayableType.
+    */
+    virtual DecayableType *as_decayabletype() { return nullptr; }
 
     /**
     Cast this type to a PointerType *.
@@ -753,15 +763,6 @@ public:
 
     bool is_derivedtype() const override { return true; }
 
-    // virtual std::string construct_str(std::string& base);
-
-    /**
-    Decay the derived type an underlying type corresponding to how it is handled in memory.
-
-    For example, pointers should decay to U64, arrays should decay to a pointer to the base.
-    */
-    virtual Type *decay() = 0;
-
     static bool classof(const Type *node) {
         if (node->is_const()) {
             return false;
@@ -780,6 +781,42 @@ protected:
     Type *base;
 
     DerivedType(Kind kind, TypeContext& tyctxt, Type *base) : Type(kind, tyctxt), base(base) {}
+};
+
+/**
+An abstract class representing a DerivedType that can decay into another type,
+usually when it is in an rvalue position. For example, arrays decay to pointers
+when in an rvalue position (on the right side of `=`, or as a function parameter).
+*/
+class DecayableType : public DerivedType {
+public:
+    DecayableType *as_decayabletype() override { return this; }
+
+    bool is_decayabletype() const override { return true; }
+
+    /**
+    Decay `this` into its decayed type.
+
+    Decayable types always decay into pointers.
+    */
+    virtual PointerType *decay() = 0;
+
+    static bool classof(const Type *node) {
+        if (node->is_const()) {
+            return false;
+        }
+
+        switch(node->kind) {
+        case Kind::ARRAY:
+        case Kind::FUNCTION:
+            return true;
+        default:
+            return false;
+        }
+    }
+
+protected:
+    DecayableType(Kind kind, TypeContext& tyctxt, Type *base) : DerivedType(kind, tyctxt, base) {}
 };
 
 /**
@@ -809,6 +846,8 @@ public:
 
     bool is_derivedtype() const override { return base->is_derivedtype(); }
 
+    bool is_decayabletype() const override { return base->is_decayabletype(); }
+
     bool is_const() const override { return true; }
 
     /**
@@ -837,6 +876,8 @@ public:
     EnumType *as_enum() override { return base->as_enum(); }
 
     DerivedType *as_derivedtype() override { return base->as_derivedtype(); }
+
+    DecayableType *as_decayabletype() override { return base->as_decayabletype(); }
 
     PointerType *as_pointer() override { return base->as_pointer(); }
 
@@ -1444,7 +1485,7 @@ public:
 
     void finalize() override;
 
-    Type *decay() override;
+    PrimitiveType *as_integer();
 
     Type *effective_type() override;
 
@@ -1492,7 +1533,7 @@ will throw an error.
 An unsized array declarator can be used as a function argument, where it will be
 decayed to a pointer.
 */
-class ArrayType : public DerivedType {
+class ArrayType : public DecayableType {
 public:
     Optional<uint64_t> get_arr_size() { return arr_size; }
 
@@ -1500,7 +1541,7 @@ public:
 
     ArrayType *as_array() override { return this; }
 
-    bool is_complete() const override { return is_fully_sized(); }
+    bool is_complete() const override;
 
     bool is_assignable() const override { return false; }
 
@@ -1510,7 +1551,7 @@ public:
 
     void finalize() override;
 
-    Type *decay() override;
+    PointerType *decay() override;
 
     Type *effective_type() override;
 
@@ -1531,9 +1572,9 @@ protected:
     friend constexpr Box<ArrayType> std::make_unique<ArrayType>(Type *&, TypeContext&);
 
     ArrayType(Type *base, uint64_t size, TypeContext& tyctxt)
-        : DerivedType(Kind::ARRAY, tyctxt, base), arr_size(size) {}
+        : DecayableType(Kind::ARRAY, tyctxt, base), arr_size(size) {}
 
-    ArrayType(Type *base, TypeContext& tyctxt) : DerivedType(Kind::ARRAY, tyctxt, base) {}
+    ArrayType(Type *base, TypeContext& tyctxt) : DecayableType(Kind::ARRAY, tyctxt, base) {}
 
     TypeID generate_id() const override;
 
@@ -1568,81 +1609,113 @@ struct FuncParam {
     Optional<eval::Value> value;
 };
 
+class FunctionSignature { // NOLINT
+    Type *returntype;
+    Vec<Type *> params;
+    bool variadic;
+
+    friend class FunctionType;
+    friend class TypeContext;
+
+public:
+    FunctionSignature() = default; // NOLINT
+
+    /**
+    Construct a FunctionSignature.
+
+    Each parameter in `params` undergoes rvalue conversion, i.e. decay. FunctionTypes are converted
+    to function pointers, ArrayTypes are converted to pointers.
+    */
+    FunctionSignature(Type *returntype, ArrayRef<Type *> params, bool variadic);
+
+    Type *get_returntype() const { return returntype; }
+
+    bool is_variadic() const { return variadic; }
+
+    ArrayRef<Type *> get_params() const { return params; }
+
+    Type *param(size_t index) {
+        if (index >= params.size()) {
+            return nullptr;
+        }
+
+        return params[index];
+    }
+
+    size_t hash_sig() const;
+
+    // Test if two function signatures are the same.
+    bool operator==(FunctionSignature& other) {
+        // Test return type
+        if (other.returntype != returntype) {
+            return false;
+        }
+
+        // Test param count
+        if (params.size() != other.params.size()) {
+            return false;
+        }
+
+        // Test the type of each param
+        for (size_t i = 0; i < params.size(); i++) {
+            if (params[i] != other.params[i]) {
+                return false;
+            }
+        }
+
+        return variadic == other.variadic;
+    }
+};
+
 /**
 A type representing a function signature in EnlightenedC.
 
 In EnlightenedC, a function's type is its signature, which is used for function pointers.
 
+Language linkage (`extern "C"`) is also carried on FunctionTypes.
+
 ## Coercibility
 
-Functions are not values like the other types, and so cannot be coerced or cast into anything.
-Function pointers follow the same rules as regular pointers.
+Functions can be coerced between language linkages as long as they have the same signature
+and are not variadic. `extern "C"` variadic functions have a different ABI signature
+then plain variadic functions.
 
 ## Castability
 
-See above.
+Follows coercibility rules.
 */
-class FunctionType : public DerivedType {
+class FunctionType : public DecayableType {
 public:
-    struct FunctionSignature { // NOLINT
-        Type *returntype;
-        Vec<Type *> params;
-        bool variadic;
 
-        FunctionSignature() = default; // NOLINT
+    static size_t signature_hash(Type *returntype, ArrayRef<Type *> params, bool variadic);
 
-        FunctionSignature(Type *returntype, Vec<Type *> params, bool variadic)
-            : returntype(returntype), params(std::move(params)), variadic(variadic) {}
+    static std::string type_name(
+        Type *returntype, ArrayRef<Type *> params, bool variadic, LangLinkage langlink);
 
-        Type *param(size_t index) {
-            if (index >= params.size()) {
-                return nullptr;
-            }
+    const FunctionSignature& get_signature() const { return *signature; }
 
-            return params[index];
-        }
+    LangLinkage get_lang_linkage() const { return langlinkage; }
 
-        // Test if two function signatures are the same.
-        bool operator==(FunctionSignature& other) {
-            // Test return type
-            if (other.returntype != returntype) {
-                return false;
-            }
+    FunctionType *with_lang_linkage(LangLinkage ll);
 
-            // Test param count
-            if (params.size() != other.params.size()) {
-                return false;
-            }
-
-            // Test the type of each param
-            for (size_t i = 0; i < params.size(); i++) {
-                if (params[i] != other.params[i]) {
-                    return false;
-                }
-            }
-
-            return variadic == other.variadic;
-        }
-    };
-
-    const FunctionSignature& get_signature() const { return signature; }
+    bool same_signature_as(FunctionType *rhs) const;
 
     size_t alloc_size() override; // override to immediately throw runtime error
 
     // Generate a hash based on the function signature.
     std::size_t hash_sig() const;
 
-    Type *returntype() const { return signature.returntype; }
+    Type *returntype() const { return signature->returntype; }
 
-    Span<Type *> params() { return signature.params; }
+    Span<Type *> params() { return signature->params; }
 
-    size_t num_params() const { return signature.params.size(); }
+    size_t num_params() const { return signature->params.size(); }
 
-    Type *param_at(size_t idx) { return signature.params.at(idx); }
+    Type *param_at(size_t idx) { return signature->params.at(idx); }
 
-    bool no_params() const { return signature.params.empty(); }
+    bool no_params() const { return signature->params.empty(); }
 
-    bool is_variadic() const { return signature.variadic; }
+    bool is_variadic() const { return signature->variadic; }
 
     bool is_complete() const override { return false; }
 
@@ -1650,11 +1723,13 @@ public:
 
     bool is_assignable() const override { return false; }
 
+    bool coercible_to(Type *dst) override;
+
     FunctionType *as_function() override { return this; }
 
     void finalize() override;
 
-    Type *decay() override;
+    PointerType *decay() override;
 
     std::string to_string() const override;
 
@@ -1670,12 +1745,14 @@ protected:
     friend class TypeContext;
     friend class TypeBuilder;
 
-    FunctionSignature signature;
+    FunctionSignature *signature = nullptr;
 
-    friend constexpr Box<FunctionType> std::make_unique<FunctionType>(Type *&, TypeContext&);
+    LangLinkage langlinkage;
 
-    FunctionType(Type *base, TypeContext& tyctxt)
-        : DerivedType(Type::Kind::FUNCTION, tyctxt, base) {}
+    friend constexpr Box<FunctionType> std::make_unique<FunctionType>(Type *&, TypeContext&, LangLinkage&);
+
+    FunctionType(Type *base, TypeContext& tyctxt, LangLinkage llinkage)
+        : DecayableType(Type::Kind::FUNCTION, tyctxt, base), langlinkage(llinkage) {}
 
     TypeID generate_id() const override;
 };
@@ -1905,8 +1982,16 @@ public:
     */
     ArrayType *set_array_size(Type *base, uint64_t size);
 
-    // Create a function type based on its signature.
-    FunctionType *get_function(Location loc, Type *ret, Vec<Type *> params, bool variadic);
+    /**
+    Create a function type based on its signature.
+    */
+    FunctionType *get_function(
+        Type *ret, ArrayRef<Type *> params, bool variadic, LangLinkage langlink = LangLinkage::NONE);
+
+    /**
+    Get an existing function, with the supplied language linkage.
+    */
+    FunctionType *get_function(FunctionType * functype, LangLinkage langlink);
 
     /**
     Wrap a type in a ConstType wrapper.
@@ -1965,6 +2050,11 @@ private:
 
     // The map of type ids to their corresponding Types.
     HashMap<TypeID, Type *> id_map;
+
+    // the map of signature hashes to their corresponding signature.
+    HashMap<size_t, Box<FunctionSignature>> signatures;
+
+    // fixme: be aware of 64-bit hash collisions
 
     // Generate a mangled, unique name for a type incorporating its associated scope.
     template <typename T>

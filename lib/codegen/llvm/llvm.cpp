@@ -307,15 +307,17 @@ void LLVMUnit::finalize(FunctionType *type) {
         return;
     }
 
+    // todo: branch on std and language linkage
+
     Vec<LLVMType *> params_llvms;
-    for (const auto& param : type->get_signature().params) {
+    for (const auto& param : type->get_signature().get_params()) {
         params_llvms.push_back(get_storage_type(param));
     }
 
-    LLVMType *return_llvm = get_storage_type(type->get_signature().returntype);
+    LLVMType *return_llvm = get_storage_type(type->get_signature().get_returntype());
 
     typemap[type] =
-        llvm::FunctionType::get(return_llvm, params_llvms, type->get_signature().variadic);
+        llvm::FunctionType::get(return_llvm, params_llvms, type->get_signature().is_variadic());
 }
 
 size_t LLVMUnit::get_pointer_size() {

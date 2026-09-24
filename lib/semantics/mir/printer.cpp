@@ -204,7 +204,8 @@ void MIRPrinter::visit(UnaryExprMIR& node) {
 
 void MIRPrinter::visit(CastExprMIR& node) {
     print_node(
-        "Cast -> " + node.target->to_string() + " (" + castkind_to_string(node.castkind) +
+        "Cast: " + node.inner->act_type->to_string() + " -> " + node.target->to_string()
+            + " (" + castkind_to_string(node.castkind) +
             ") :: " + node.act_type->formal(),
         node, [&] { node.inner->accept(*this); });
 }

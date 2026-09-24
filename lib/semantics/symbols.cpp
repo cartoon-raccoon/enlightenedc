@@ -528,22 +528,22 @@ FuncSymbol *SymbolTableWalker::insert_func(InsertFuncArgs args) const {
         // If the existing symbol is a function, attempt decl-def reconciliation
         if (existing->is_func()) {
             dbprint("SymbolTable: existing symbol has function type, checking for replaceability");
-            FunctionType *othertype = existing->as_funcsym()->get_signature();
-            FunctionType *mytype    = args.signature;
+            FunctionType *existtype = existing->as_funcsym()->get_signature();
+            FunctionType *newtype    = args.signature;
             FuncSymData *existdata = existing->as_funcsym()->get_symdata();
-            if (!othertype || !mytype) {
+            if (!existtype || !newtype) {
                 dbprint("SymbolTable: could not cast othertype or mytype to FunctionType");
                 goto exists;
             }
-            if (othertype == mytype) {
+            if (existtype->same_signature_as(newtype)) {
                 dbprint(
                     "SymbolTable: existing symbol matches function signature, evaluating "
                     "reconciliation");
                 FuncSymbol *existfunc = existing->as_funcsym();
-                ECC_ASSERT_N(existfunc);
                 if (!existfunc->has_body() && args.has_body) {
                     // existing is decl, new sym is def, check linkage and language linkage
-                    if (!existdata->compatible_from(args.signature, args.linkage, args.langlink)) {
+                    if (!existdata->compatible_from(args.signature, args.linkage)) {
+                        dbprint("SymbolTable: existing symbol is incompatible with new one");
                         goto exists;
                     }
 
@@ -556,11 +556,11 @@ FuncSymbol *SymbolTableWalker::insert_func(InsertFuncArgs args) const {
                     return existfunc;
                 } else if (existfunc->has_body() && args.has_body) {
                     // existing is def, new sym is def
-
+                    dbprint("SymbolTable: function redefinition of function");
                     goto exists;
                 } else {
                     // existing is decl or def, new sym is decl, check compatibility
-                    if (!existdata->compatible_from(args.signature, args.linkage, args.langlink)) {
+                    if (!existdata->compatible_from(args.signature, args.linkage)) {
                         goto exists;
                     }
 
@@ -577,7 +577,6 @@ FuncSymbol *SymbolTableWalker::insert_func(InsertFuncArgs args) const {
     auto sym = make_box<FuncSymbol>(args.loc, args.name, current, args.signature, std::move(args.parameters));
     sym->has_body_ = args.has_body;
     sym->get_symdata()->set_linkage(args.linkage);
-    sym->get_symdata()->set_lang_linkage(args.langlink);
     FuncSymbol *ret = sym.get();
     current->phys_symbols.insert_or_assign(args.name.str(), std::move(sym));
 

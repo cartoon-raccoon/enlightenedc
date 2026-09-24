@@ -159,10 +159,8 @@ Optional<Type *> Validator::eval_initializer_expr(
     // case is skipped when the declared type is itself an array (e.g. `U8 buf[] = "hi";`, sized
     // array copy-initialization), since decaying there would fight the array-initializer logic
     // below.
-    if (expr->act_type->is_function()) {
-        expr = exprv.decay(expr->act_type->as_function()->decay(), std::move(expr), true);
-    } else if (expr->act_type->is_array() && !type->unqual()->is_array()) {
-        expr = exprv.decay(expr->act_type->as_array()->decay(), std::move(expr));
+    if (expr->act_type->is_decayabletype()) {
+        expr = exprv.decay(expr->act_type->as_decayabletype(), std::move(expr));
     }
 
     if (type == expr->eff_type) {
@@ -484,7 +482,7 @@ void Validator::do_visit(TypeDeclMIR& node) { // done
         node.sym->type->finalize();
     } catch (TypeSemError& e) {
         bsv_dbprint("error: type semantic error during finalization");
-        add_error<TypeSemError>(e);
+        add_typesem_error(e.clone());
     }
 }
 
@@ -707,13 +705,9 @@ void Validator::do_visit(ReturnStmtMIR& node) {
 
         (*node.ret_expr)->accept(*this);
 
-        if ((*node.ret_expr)->act_type->is_array()) {
+        if ((*node.ret_expr)->act_type->is_decayabletype()) {
             node.ret_expr =
-                exprv.decay((*node.ret_expr)->act_type->as_array()->decay(), std::move(*node.ret_expr));
-        } else if ((*node.ret_expr)->act_type->is_function()) {
-            node.ret_expr = exprv.decay(
-                (*node.ret_expr)->act_type->as_function()->decay(), std::move(*node.ret_expr),
-                true);
+                exprv.decay((*node.ret_expr)->act_type->as_decayabletype(), std::move(*node.ret_expr));
         }
 
         if ((*node.ret_expr)->act_type != returntype) {
@@ -783,14 +777,19 @@ Chunk<CastExprMIR> ExprValidator::cast(Type *target, Chunk<mir::ExprMIR> expr) {
     return newexpr;
 }
 
-Chunk<CastExprMIR> ExprValidator::decay(Type *target, Chunk<mir::ExprMIR> expr, bool is_funcdecay) {
-    auto newexpr = make_chunk<CastExprMIR>(expr->loc, expr->scope, target, std::move(expr));
-    newexpr->set_type(target);
+Chunk<CastExprMIR>
+ExprValidator::decay(DecayableType *type, Chunk<mir::ExprMIR> expr) {
+    ECC_ASSERT(type == expr->act_type, "ExprValidator::decay type and expr type mismatch");
+    PointerType *decayed = type->decay();
+    auto newexpr = make_chunk<CastExprMIR>(expr->loc, expr->scope, decayed, std::move(expr));
+    newexpr->set_type(decayed);
 
-    if (is_funcdecay) {
+    if (type->is_function()) {
         newexpr->castkind = CastExprMIR::CastKind::FuncPtrDecay;
-    } else {
+    } else if (type->is_array()) {
         newexpr->castkind = CastExprMIR::CastKind::ArrPtrDecay;
+    } else {
+        ECC_UNREACHABLE("DecayableType is neither Function or Array");
     }
     return newexpr;
 }
@@ -803,17 +802,12 @@ void ExprValidator::do_visit(BinaryExprMIR& node) {
     ECC_ASSERT_N(node.right->eff_type);
 
     // decay array types
-    if (node.left->act_type->is_array()) {
-        node.left = decay(node.left->act_type->as_array()->decay(), std::move(node.left));
-    } else if (node.left->act_type->is_function()) {
-        node.left = decay(node.left->act_type->as_function()->decay(), std::move(node.left), true);
+    if (node.left->act_type->is_decayabletype()) {
+        node.left = decay(node.left->act_type->as_decayabletype(), std::move(node.left));
     }
 
-    if (node.right->act_type->is_array()) {
-        node.right = decay(node.right->act_type->as_array()->decay(), std::move(node.right));
-    } else if (node.right->act_type->is_function()) {
-        node.right =
-            decay(node.right->act_type->as_function()->decay(), std::move(node.right), true);
+    if (node.right->act_type->is_decayabletype()) {
+        node.right = decay(node.right->act_type->as_decayabletype(), std::move(node.right));
     }
 
     if (!(node.left->eff_type->is_primitive() && node.right->eff_type->is_primitive())) {
@@ -1117,13 +1111,11 @@ void ExprValidator::do_visit(UnaryExprMIR& node) {
     } break;
 
     case UnaryOp::DEREF: { // *x
-        if (node.operand->act_type->is_array()) {
+        if (node.operand->act_type->is_decayabletype()) {
             node.operand =
-                decay(node.operand->act_type->as_array()->decay(), std::move(node.operand));
-        } else if (node.operand->act_type->is_function()) {
-            node.operand = decay(
-                node.operand->act_type->as_function()->decay(), std::move(node.operand), true);
+                decay(node.operand->act_type->as_decayabletype(), std::move(node.operand));
         }
+        
         if (!node.operand->act_type->is_pointer()) {
             bsv_dbprint("error: dereference operand is not a pointer");
             add_error<InvalidUnaryOpError>(
@@ -1199,13 +1191,13 @@ void ExprValidator::do_visit(CastExprMIR& node) {
     // of trying to teach the predicate about it.
     if (node.target->is_pointer() && node.inner->eff_type->is_primitive() &&
         node.inner->eff_type->as_primitive()->is_integer()) {
-        Type *size_type = node.target->as_pointer()->decay();
+        Type *size_type = node.target->as_pointer()->as_integer();
         if (node.inner->eff_type != size_type) {
             node.inner = cast(size_type, std::move(node.inner));
         }
     } else if (node.inner->eff_type->is_pointer() && node.target->is_primitive() &&
                node.target->as_primitive()->is_integer()) {
-        Type *size_type = node.inner->eff_type->as_pointer()->decay();
+        Type *size_type = node.inner->eff_type->as_pointer()->as_integer();
         if (node.target != size_type) {
             node.inner = cast(size_type, std::move(node.inner));
         }
@@ -1245,11 +1237,8 @@ void ExprValidator::do_visit(AssignExprMIR& node) {
     LiteralExprMIR *rhs_lit = dyncast<LiteralExprMIR>(node.right.get());
     bool rhs_is_string_lit  = rhs_lit != nullptr && rhs_lit->is_string();
 
-    if (node.right->act_type->is_array()) {
-        node.right = decay(node.right->act_type->as_array()->decay(), std::move(node.right));
-    } else if (node.right->act_type->is_function()) {
-        node.right =
-            decay(node.right->act_type->as_function()->decay(), std::move(node.right), true);
+    if (node.right->act_type->is_decayabletype()) {
+        node.right = decay(node.right->act_type->as_decayabletype(), std::move(node.right));
     }
 
     // Pointer arithmetic through compound assignment (`ptr += n` / `ptr -= n`) is legal even
@@ -1444,7 +1433,7 @@ void ExprValidator::do_visit(CallExprMIR& node) {
     node.call_sig = sig;
 
     // Reject argument-count errors before coercing anything.
-    if (node.args.size() > sig->num_params() && !sig->get_signature().variadic) {
+    if (node.args.size() > sig->num_params() && !sig->get_signature().is_variadic()) {
         bsv_dbprint("error: too many arguments in function call");
         add_error<TooManyArgsError>(node.loc, sig->num_params(), node.args.size());
         throw UnableToContinue();
@@ -1484,12 +1473,8 @@ void ExprValidator::do_visit(CallExprMIR& node) {
         auto *arg_type = arg->act_type->unqual();
 
         if (arg_type != param_type) {
-            if (arg_type->is_array()) {
-                arg      = decay(arg_type->as_array()->decay(), std::move(arg));
-                arg_type = arg->act_type->unqual();
-            } else if (arg_type->is_function()) {
-                arg      = decay(arg_type->as_function()->decay(), std::move(arg), true);
-                arg_type = arg->act_type->unqual();
+            if (arg_type->is_decayabletype()) {
+                arg = decay(arg_type->as_decayabletype(), std::move(arg));
             }
 
             // re-check after decay to prevent spurious cast nodes
@@ -1510,10 +1495,9 @@ void ExprValidator::do_visit(CallExprMIR& node) {
     for (size_t i = sig->num_params(); i < node.args.size(); i++) {
         auto& arg      = node.args[i];
         auto *arg_type = arg->act_type->unqual();
-        if (arg_type->is_array()) {
-            arg = decay(arg_type->as_array()->decay(), std::move(arg));
-        } else if (arg_type->is_function()) {
-            arg = decay(arg_type->as_function()->decay(), std::move(arg), true);
+
+        if (arg_type->is_decayabletype()) {
+            arg = decay(arg_type->as_decayabletype(), std::move(arg));
         }
     }
 

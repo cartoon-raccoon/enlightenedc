@@ -348,7 +348,7 @@ TEST_F(TypeSysAndSymTabTestFixture, PtrCoerce_U8PtrToSelf) {
 
 // Function pointer coerces to void* (dst base is_void() fires)
 TEST_F(TypeSysAndSymTabTestFixture, PtrCoerce_FuncPtrToVoidPtr) {
-    FunctionType *fn    = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
+    FunctionType *fn    = tctxt.get_function(tctxt.get_void(), {}, false);
     PointerType  *fnptr = tctxt.get_pointer(fn);
     PointerType  *vptr  = tctxt.get_pointer(tctxt.get_void());
     EXPECT_TRUE(fnptr->coercible_to(vptr))
@@ -928,6 +928,64 @@ TEST_F(RecordTypeTestFixture, Indexify_NonRecordMidPathReturnsEmptyPath) {
     EXPECT_TRUE(result.empty());
 }
 
+// ─── FunctionType tests ───────────────────────────────────────────────────────
+
+TEST_F(TypeSysAndSymTabTestFixture, NonVariadicAcrossLangLinkage_BothDirCoercible) {
+    Vec<Type *> params = {tctxt.get_u32(), tctxt.get_i64()};
+    FunctionType *func1 = tctxt.get_function(tctxt.get_void(), params, false, LangLinkage::NONE);
+    FunctionType *func2 = tctxt.get_function(tctxt.get_void(), params, false, LangLinkage::C);
+
+    PointerType *func1ptr = func1->decay();
+    PointerType *func2ptr = func2->decay();
+    
+    EXPECT_TRUE(func1->coercible_to(func2));
+    EXPECT_TRUE(func2->coercible_to(func1));
+
+    EXPECT_TRUE(func1ptr->coercible_to(func2ptr));
+    EXPECT_TRUE(func2ptr->coercible_to(func1ptr));
+}
+
+TEST_F(TypeSysAndSymTabTestFixture, VariadicAcrossLangLinkage_NonCoercible) {
+    Vec<Type *> params = {tctxt.get_u32(), tctxt.get_i64()};
+    FunctionType *func1 = tctxt.get_function(tctxt.get_void(), params, true, LangLinkage::NONE);
+    FunctionType *func2 = tctxt.get_function(tctxt.get_void(), params, true, LangLinkage::C);
+
+    PointerType *func1ptr = func1->decay();
+    PointerType *func2ptr = func2->decay();
+    
+    EXPECT_FALSE(func1->coercible_to(func2));
+    EXPECT_FALSE(func2->coercible_to(func1));
+
+    EXPECT_FALSE(func1ptr->coercible_to(func2ptr));
+    EXPECT_FALSE(func2ptr->coercible_to(func1ptr));
+}
+
+TEST_F(TypeSysAndSymTabTestFixture, DiffSigSameLinkage_NonCoercible) {
+    Vec<Type *> params1 = {tctxt.get_u32(), tctxt.get_u64()};
+    Vec<Type *> params2 = {tctxt.get_u32(), tctxt.get_i64()};
+    FunctionType *func1 = tctxt.get_function(tctxt.get_void(), params1, false, LangLinkage::NONE);
+    FunctionType *func2 = tctxt.get_function(tctxt.get_void(), params2, false, LangLinkage::NONE);
+
+    FunctionType *func1c = tctxt.get_function(tctxt.get_void(), params1, false, LangLinkage::C);
+    FunctionType *func2c = tctxt.get_function(tctxt.get_void(), params2, false, LangLinkage::C);
+
+    EXPECT_FALSE(func1->coercible_to(func2));
+    EXPECT_FALSE(func1c->coercible_to(func2c));
+}
+
+TEST_F(TypeSysAndSymTabTestFixture, DiffSizedArrParams_SameFuncType) {
+    Type *base = tctxt.get_u64();
+    ArrayType *arr1 = tctxt.get_array(base, 1);
+    ArrayType *arr3 = tctxt.get_array(base, 3);
+    ArrayType *arr6 = tctxt.get_array(base, 6);
+
+    FunctionType *func1 = tctxt.get_function(tctxt.get_void(), {arr1}, false);
+    FunctionType *func3 = tctxt.get_function(tctxt.get_void(), {arr3}, false);
+    FunctionType *func6 = tctxt.get_function(tctxt.get_void(), {arr6}, false);
+
+    EXPECT_TRUE(func1 == func3 && func3 == func6);
+}
+
 // ─── TypeID tests ─────────────────────────────────────────────────────────────
 
 // VoidType produces a stable, non-zero ID
@@ -1085,30 +1143,30 @@ TEST_F(TypeSysAndSymTabTestFixture, TypeID_UserType_ClassVsUnionDistinct) {
 
 // Same signature → same function type pointer and ID (function types are interned)
 TEST_F(TypeSysAndSymTabTestFixture, TypeID_Function_SameSignatureSameID) {
-    FunctionType *f1 = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
-    FunctionType *f2 = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
+    FunctionType *f1 = tctxt.get_function(tctxt.get_void(), {}, false);
+    FunctionType *f2 = tctxt.get_function(tctxt.get_void(), {}, false);
     ASSERT_EQ(f1, f2);
     EXPECT_EQ(f1->id(), f2->id());
 }
 
 // Different return types → different function type IDs
 TEST_F(TypeSysAndSymTabTestFixture, TypeID_Function_DiffReturnTypeDistinct) {
-    FunctionType *fv = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
-    FunctionType *fu = tctxt.get_function(LOC, tctxt.get_u32(), {}, false);
+    FunctionType *fv = tctxt.get_function(tctxt.get_void(), {}, false);
+    FunctionType *fu = tctxt.get_function(tctxt.get_u32(), {}, false);
     EXPECT_NE(fv->id(), fu->id());
 }
 
 // Different param lists → different function type IDs
 TEST_F(TypeSysAndSymTabTestFixture, TypeID_Function_DiffParamsDistinct) {
-    FunctionType *f0 = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
-    FunctionType *f1 = tctxt.get_function(LOC, tctxt.get_void(), {tctxt.get_u32()}, false);
+    FunctionType *f0 = tctxt.get_function(tctxt.get_void(), {}, false);
+    FunctionType *f1 = tctxt.get_function(tctxt.get_void(), {tctxt.get_u32()}, false);
     EXPECT_NE(f0->id(), f1->id());
 }
 
 // Variadic vs non-variadic → different function type IDs
 TEST_F(TypeSysAndSymTabTestFixture, TypeID_Function_VariadicDistinct) {
-    FunctionType *fn  = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
-    FunctionType *fva = tctxt.get_function(LOC, tctxt.get_void(), {}, true);
+    FunctionType *fn  = tctxt.get_function(tctxt.get_void(), {}, false);
+    FunctionType *fva = tctxt.get_function(tctxt.get_void(), {}, true);
     EXPECT_NE(fn->id(), fva->id());
 }
 

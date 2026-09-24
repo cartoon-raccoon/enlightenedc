@@ -139,7 +139,7 @@ class FuncSymData : public SymData {
     */
     types::FunctionType *signature;
 
-    LangLinkage langlink = LangLinkage::NONE;
+    const LangLinkage langlink;
 
     /**
     Whether this function symbol is the entry point for this object file.
@@ -153,17 +153,15 @@ class FuncSymData : public SymData {
 
 public:
     FuncSymData(StringRef name, types::FunctionType *signature)
-        : SymData(Kind::FUNC, name), signature(signature) {}
+        : SymData(Kind::FUNC, name), signature(signature), langlink(signature->get_lang_linkage()) {}
 
     FuncSymData(
         StringRef name, Linkage linkage,
         types::FunctionType *signature, bool is_main = false)
-        : SymData(Kind::FUNC, name, linkage), signature(signature),
+        : SymData(Kind::FUNC, name, linkage), signature(signature), langlink(signature->get_lang_linkage()),
           main_function(is_main) {}
 
     types::FunctionType *get_signature() { return signature; }
-
-    void set_lang_linkage(LangLinkage langlink) { this->langlink = langlink; }
 
     LangLinkage get_lang_linkage() { return langlink; }
 
@@ -181,9 +179,9 @@ public:
         return signature == other.signature && linkages_are_compatible(langlink, other.langlink);
     }
 
-    bool compatible_from(types::FunctionType *sig, Linkage link, LangLinkage langlink) {
-        return sig == signature && linkages_are_compatible(get_linkage(), link)
-                                && linkages_are_compatible(get_lang_linkage(), langlink);
+    bool compatible_from(types::FunctionType *sig, Linkage link) {
+        return signature->same_signature_as(sig) && linkages_are_compatible(get_linkage(), link)
+                                && linkages_are_compatible(get_lang_linkage(), sig->get_lang_linkage());
     }
 
     static bool classof(const SymData *data) { return data->kind == Kind::FUNC; }

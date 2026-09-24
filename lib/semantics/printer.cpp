@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "semantics/linkage.hpp"
 #include "semantics/symbols.hpp"
 #include "semantics/symdata.hpp"
 #include "semantics/types.hpp"
@@ -36,19 +37,15 @@ std::string VarSymbol::to_string() const {
 std::string FuncSymbol::to_string() const {
     std::stringstream ss;
 
-    ss << "FuncSymbol: " << name;
-
-    if (get_signature()) {
-        ss << " :: " << get_signature()->to_string();
-    } else {
-        ss << " :: <nullsig>";
-    }
+    ss << "FuncSymbol: ::" << name;
 
     if (get_linkage() == Linkage::EXTERNAL)
         ss << " extern";
 
-    if (get_lang_linkage() == LangLinkage::C) {
-        ss << " C";
+    if (get_signature()) {
+        ss << " " << get_signature()->to_string();
+    } else {
+        ss << " <nullsig>";
     }
 
     return ss.str();
@@ -262,14 +259,17 @@ std::string ArrayType::formal() {
 std::string FunctionType::to_string() const {
     std::stringstream ss;
 
-    ECC_ASSERT_N(signature.returntype);
-    ss << signature.returntype->to_string();
+    ECC_ASSERT_N(signature->returntype);
+    if (langlinkage != LangLinkage::NONE) {
+        ss << "C ";
+    }
+    ss << signature->returntype->to_string();
 
     ss << " (";
 
     bool first = true;
 
-    for (auto *p : signature.params) {
+    for (auto *p : signature->params) {
         if (!first)
             ss << ", ";
         first = false;
@@ -278,7 +278,7 @@ std::string FunctionType::to_string() const {
         ss << p->to_string();
     }
 
-    if (signature.variadic) {
+    if (signature->variadic) {
         if (!first)
             ss << ", ";
         ss << "...";
@@ -292,14 +292,17 @@ std::string FunctionType::to_string() const {
 std::string FunctionType::formal() {
     std::stringstream ss;
 
-    ECC_ASSERT_N(signature.returntype);
-    ss << signature.returntype->formal();
+    ECC_ASSERT_N(signature->returntype);
+    if (langlinkage != LangLinkage::NONE) {
+        ss << "extern C ";
+    }
+    ss << signature->returntype->formal();
 
     ss << " (";
 
     bool first = true;
 
-    for (auto *p : signature.params) {
+    for (auto *p : signature->params) {
         if (!first)
             ss << ", ";
         first = false;
@@ -308,7 +311,7 @@ std::string FunctionType::formal() {
         ss << p->formal();
     }
 
-    if (signature.variadic) {
+    if (signature->variadic) {
         if (!first)
             ss << ", ";
         ss << "...";

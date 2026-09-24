@@ -642,7 +642,6 @@ struct InsertFuncArgs {
     bool has_body = false;
     Vec<VarSymbol *> parameters;
     Linkage linkage = Linkage::NONE;
-    LangLinkage langlink = LangLinkage::NONE;
 
     InsertFuncArgs(Location loc, StringRef name, types::FunctionType *signature)
         : loc(loc), name(name), signature(signature) {}
@@ -650,10 +649,6 @@ struct InsertFuncArgs {
     InsertFuncArgs(Location loc, StringRef name, types::FunctionType *signature,
                    Linkage linkage)
         : loc(loc), name(name), signature(signature), linkage(linkage) {}
-
-    InsertFuncArgs(Location loc, StringRef name, types::FunctionType *signature,
-                   LangLinkage langlink)
-        : loc(loc), name(name), signature(signature), linkage(Linkage::EXTERNAL), langlink(langlink) {}
 };
 
 struct InsertAliasArgs {

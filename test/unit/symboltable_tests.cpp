@@ -3,7 +3,7 @@
 // Helper: build a defined (has_body == true) FuncSymbol in the walker's current scope.
 static FuncSymbol *insert_func(
     SymbolTableWalker& walker, TypeContext& tctxt, const Location& LOC, const std::string& name) {
-    FunctionType *fn_type = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
+    FunctionType *fn_type = tctxt.get_function(tctxt.get_void(), {}, false);
     InsertFuncArgs args = {LOC, name, fn_type};
     args.has_body = true;
     return walker.insert_func(std::move(args));
@@ -162,8 +162,8 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_FoundByLookup) {
 // FuncSymbol with same name but different signature throws.
 TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_DifferentSignatureThrows) {
     SymbolTableWalker walker(symtab);
-    FunctionType *fn_void = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
-    FunctionType *fn_u32 = tctxt.get_function(LOC, tctxt.get_u32(), {}, false);
+    FunctionType *fn_void = tctxt.get_function(tctxt.get_void(), {}, false);
+    FunctionType *fn_u32 = tctxt.get_function(tctxt.get_u32(), {}, false);
     std::string name = "g";
 
     InsertFuncArgs args1 = {LOC, name, fn_void};
@@ -183,7 +183,7 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_DifferentSignatureThrows) {
 // identity is preserved so any earlier-synthesized MIR node holding it stays valid.
 TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_DeclThenDefUpgradesInPlace) {
     SymbolTableWalker walker(symtab);
-    FunctionType *fn_type = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
+    FunctionType *fn_type = tctxt.get_function(tctxt.get_void(), {}, false);
     std::string name = "f";
 
     FuncSymbol *decl_ptr = walker.insert_func({LOC, name, fn_type}); // has_body defaults to false
@@ -202,7 +202,7 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_DeclThenDefUpgradesInPlace) {
 // A declaration followed by another declaration of the same signature is a harmless no-op.
 TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_DeclThenDeclIsNoOp) {
     SymbolTableWalker walker(symtab);
-    FunctionType *fn_type = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
+    FunctionType *fn_type = tctxt.get_function(tctxt.get_void(), {}, false);
     std::string name = "f";
 
     FuncSymbol *first = walker.insert_func({LOC, name, fn_type});
@@ -218,7 +218,7 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_DeclThenDeclIsNoOp) {
 // re-declaring an already-defined function must not clobber its body.
 TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_DefThenDeclIsNoOp) {
     SymbolTableWalker walker(symtab);
-    FunctionType *fn_type = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
+    FunctionType *fn_type = tctxt.get_function(tctxt.get_void(), {}, false);
     std::string name = "f";
 
     InsertFuncArgs def_args = {LOC, name, fn_type};
@@ -236,7 +236,7 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_DefThenDeclIsNoOp) {
 // Two definitions of the same signature is a genuine redefinition and must throw.
 TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_DefThenDefThrows) {
     SymbolTableWalker walker(symtab);
-    FunctionType *fn_type = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
+    FunctionType *fn_type = tctxt.get_function(tctxt.get_void(), {}, false);
     std::string name = "f";
 
     InsertFuncArgs def1 = {LOC, name, fn_type};
@@ -253,7 +253,7 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_DefThenDefThrows) {
 // linkage passed through InsertFuncArgs should actually land on the inserted symbol.
 TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_ExternDeclThenExternDeclIsNoOp) {
     SymbolTableWalker walker(symtab);
-    FunctionType *fn_type = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
+    FunctionType *fn_type = tctxt.get_function(tctxt.get_void(), {}, false);
     std::string name = "f";
 
     FuncSymbol *first = walker.insert_func({LOC, name, fn_type, Linkage::EXTERNAL});
@@ -272,7 +272,7 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_ExternDeclThenExternDeclIsNoOp) {
 // exactly like an ordinary (non-extern) decl-then-def does, while staying external.
 TEST_F(TypeSysAndSymTabTestFixture, FuncInsert_ExternDeclThenBodyUpgradesInPlace) {
     SymbolTableWalker walker(symtab);
-    FunctionType *fn_type = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
+    FunctionType *fn_type = tctxt.get_function(tctxt.get_void(), {}, false);
     std::string name = "f";
 
     FuncSymbol *decl_ptr = walker.insert_func({LOC, name, fn_type, Linkage::EXTERNAL});
@@ -529,7 +529,7 @@ TEST_F(TypeSysAndSymTabTestFixture, LabelLookup_StopsAtFunctionBoundary) {
 // as_funcptr() produces a VarSymbol whose type is a pointer to the function's signature.
 TEST_F(TypeSysAndSymTabTestFixture, FuncPtr_TypeIsPointerToSignature) {
     SymbolTableWalker walker(symtab);
-    FunctionType *fn_type = tctxt.get_function(LOC, tctxt.get_u32(), {}, false);
+    FunctionType *fn_type = tctxt.get_function(tctxt.get_u32(), {}, false);
     std::string name = "ptrFn";
     FuncSymbol *fn = insert_func(walker, tctxt, LOC, name);
     (void)fn_type; // signature above is only used to keep this test's intent readable
@@ -736,7 +736,7 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncSymbol_NumParamsMatchesParameterCount) {
 
     Vec<VarSymbol *> params{p1.get(), p2.get()};
     FunctionType *fn_type =
-        tctxt.get_function(LOC, tctxt.get_void(), {tctxt.get_i32(), tctxt.get_i32()}, false);
+        tctxt.get_function(tctxt.get_void(), {tctxt.get_i32(), tctxt.get_i32()}, false);
 
     FuncSymbol fn(LOC, "twoParams", walker.current, fn_type, params);
 
@@ -755,7 +755,7 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncSymbol_NumDefaultParamsCountsOnlyDefault
 
     Vec<VarSymbol *> params{p1.get(), p2.get(), p3.get()};
     FunctionType *fn_type = tctxt.get_function(
-        LOC, tctxt.get_void(), {tctxt.get_i32(), tctxt.get_i32(), tctxt.get_i32()}, false);
+        tctxt.get_void(), {tctxt.get_i32(), tctxt.get_i32(), tctxt.get_i32()}, false);
 
     FuncSymbol fn(LOC, "mixedParams", walker.current, fn_type, params);
 
@@ -771,7 +771,7 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncSymbol_NumDefaultParamsZeroWhenNoneDefau
 
     Vec<VarSymbol *> params{p1.get(), p2.get()};
     FunctionType *fn_type =
-        tctxt.get_function(LOC, tctxt.get_void(), {tctxt.get_i32(), tctxt.get_i32()}, false);
+        tctxt.get_function(tctxt.get_void(), {tctxt.get_i32(), tctxt.get_i32()}, false);
 
     FuncSymbol fn(LOC, "noDefaults", walker.current, fn_type, params);
 
@@ -789,7 +789,7 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncSymbol_NumNonDefaultParamsIsComplement) 
 
     Vec<VarSymbol *> params{p1.get(), p2.get(), p3.get()};
     FunctionType *fn_type = tctxt.get_function(
-        LOC, tctxt.get_void(), {tctxt.get_i32(), tctxt.get_i32(), tctxt.get_i32()}, false);
+        tctxt.get_void(), {tctxt.get_i32(), tctxt.get_i32(), tctxt.get_i32()}, false);
 
     FuncSymbol fn(LOC, "complementParams", walker.current, fn_type, params);
 
@@ -809,7 +809,7 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncSymbol_DefaultParamsViewFiltersToDefault
 
     Vec<VarSymbol *> params{p1.get(), p2.get(), p3.get()};
     FunctionType *fn_type = tctxt.get_function(
-        LOC, tctxt.get_void(), {tctxt.get_i32(), tctxt.get_i32(), tctxt.get_i32()}, false);
+        tctxt.get_void(), {tctxt.get_i32(), tctxt.get_i32(), tctxt.get_i32()}, false);
 
     FuncSymbol fn(LOC, "viewParams", walker.current, fn_type, params);
 
@@ -870,7 +870,7 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncInsertAt_TargetsGivenScopeNotCurrent) {
     Scope *inner = walker.current;
     walker.pop_scope();
 
-    FunctionType *fn_type = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
+    FunctionType *fn_type = tctxt.get_function(tctxt.get_void(), {}, false);
     std::string name = "atFunc";
     InsertFuncArgs args = {LOC, name, fn_type};
     args.has_body = true;
@@ -885,8 +885,8 @@ TEST_F(TypeSysAndSymTabTestFixture, FuncInsertAt_RestoresCurrentOnThrow) {
     SymbolTableWalker walker(symtab);
     walker.push_scope();
     Scope *inner = walker.current;
-    FunctionType *fn_void = tctxt.get_function(LOC, tctxt.get_void(), {}, false);
-    FunctionType *fn_u32 = tctxt.get_function(LOC, tctxt.get_u32(), {}, false);
+    FunctionType *fn_void = tctxt.get_function(tctxt.get_void(), {}, false);
+    FunctionType *fn_u32 = tctxt.get_function(tctxt.get_u32(), {}, false);
 
     InsertFuncArgs first = {LOC, "dupFn", fn_void};
     first.has_body = true;

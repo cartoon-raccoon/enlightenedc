@@ -40,7 +40,7 @@ public:
     either ArrPtrDecay, or FuncPtrDecay.
     */
     Chunk<mir::CastExprMIR>
-    decay(types::Type *target, Chunk<mir::ExprMIR> expr, bool is_funcdecay = false);
+    decay(types::DecayableType *type, Chunk<mir::ExprMIR> expr);
 
     /**
     Check if an expression is tautological.

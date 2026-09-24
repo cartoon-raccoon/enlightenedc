@@ -3,16 +3,19 @@
 #include <algorithm>
 #include <limits>
 #include <memory>
+#include <sstream>
 #include <stdfloat>
 #include <utility>
 #include <variant>
 
+#include "semantics/linkage.hpp"
 #include "semantics/primitives.hpp"
 #include "semantics/symbols.hpp"
 #include "semantics/typeerr.hpp"
 #include "tokens.hpp"
 #include "prelude.hpp"
 #include "util/assert.hpp"
+#include "util/hash.hpp"
 
 using namespace ecc::sema::types;
 using namespace ecc::sema::prim;
@@ -1023,6 +1026,10 @@ bool PointerType::coercible_to(Type *dst) {
     if (my_nesting != 1 || ds_nesting != 1)
         return false;
 
+    if (is_funcptr() && dst_base->is_function()) {
+        return base->as_function()->coercible_to(dst_base->as_function());
+    }
+
     if (base == dst_base || dst_base->is_void() || base->is_void())
         return true;
 
@@ -1038,14 +1045,14 @@ bool PointerType::castable_to(Type *dst) {
     if (coercible_to(dst))
         return true;
 
-    return dst == decay();
+    return dst == as_integer();
 }
 
 void PointerType::finalize() {
     ctxt().backend().finalize(this);
 }
 
-Type *PointerType::decay() {
+PrimitiveType *PointerType::as_integer() {
     return ctxt().get_size_type(false);
 }
 
@@ -1064,9 +1071,18 @@ TypeID PointerType::generate_id() const {
  */
 
 bool ArrayType::is_fully_sized() const {
-    // fixme: does not work if there is a break in the type hierarchy of arrays
-    return base->is_array() ? arr_size.has_value() && base->as_array()->is_fully_sized()
-                            : arr_size.has_value();
+    return is_complete();
+}
+
+bool ArrayType::is_complete() const {
+    if (arr_size.has_value()) {
+        // if we have a size, then we are complete at our level;
+        // recurse to the base.
+        return base->is_complete();
+    } else {
+        // if we are unsized, then we are immediately incomplete.
+        return false;
+    }
 }
 
 bool ArrayType::coercible_to(Type *dst) {
@@ -1092,7 +1108,7 @@ void ArrayType::finalize() {
     ctxt().backend().finalize(this);
 }
 
-Type *ArrayType::decay() {
+PointerType *ArrayType::decay() {
     return ctxt().get_pointer(base);
 }
 
@@ -1114,6 +1130,27 @@ TypeID ArrayType::generate_id() const {
     return id;
 }
 
+static auto process_params(ArrayRef<Type *> params) {
+    return params | std::views::transform([](Type *type) {
+                        return (type->is_decayabletype() ? type->as_decayabletype()->decay() : type);
+                    });
+} 
+
+FunctionSignature::FunctionSignature(Type *returntype, ArrayRef<Type *> params, bool variadic) {
+    this->returntype = returntype;
+    this->variadic = variadic;
+
+    this->params.reserve(params.size());
+
+    for (auto *type : process_params(params)) {
+        this->params.push_back(type);
+    }
+}
+
+size_t FunctionSignature::hash_sig() const {
+    return FunctionType::signature_hash(returntype, params, variadic);
+}
+
 /*
  * FUNCTION TYPE METHODS
  */
@@ -1122,30 +1159,70 @@ size_t FunctionType::alloc_size() {
     ECC_UNREACHABLE("cannot call size() on FunctionType");
 }
 
-std::size_t FunctionType::hash_sig() const {
-    std::size_t hash = std::hash<TypeID>{}(signature.returntype->id());
+size_t FunctionType::signature_hash(Type *returntype, ArrayRef<Type *> params, bool variadic) {
+    size_t hash = std::hash<TypeID>{}(returntype->id());
 
-    for (auto *param : signature.params) {
+    for (auto *param : process_params(params)) {
         hash ^= std::hash<TypeID>{}(param->id()) + BOOST_GOLDEN_RATIO + (hash << HASH_SHL) +
                 (hash >> HASH_SHR);
     }
 
+    hash ^= std::hash<bool>{}(variadic) + BOOST_GOLDEN_RATIO + (hash << HASH_SHL) + (hash >> HASH_SHR);
+
     return hash;
+}
+
+std::string FunctionType::type_name(
+    Type *returntype, ArrayRef<Type *> params, bool variadic, LangLinkage langlink) {
+
+    size_t hash = signature_hash(returntype, params, variadic);
+
+    std::stringstream ss;
+    ss << "function_";
+    if (variadic) ss << "v_";
+    if (langlink == LangLinkage::C) ss << "extc_";
+
+    ss << hash;
+
+    return ss.str();
+}
+
+bool FunctionType::coercible_to(Type *dst) {
+    if (!dst->is_function()) return false;
+
+    FunctionType *dst_func = dst->as_function();
+
+    // todo: language linkage coercibility should be dependent on standard
+
+    return same_signature_as(dst_func)
+        && (!is_variadic() || get_lang_linkage() == dst_func->get_lang_linkage());
+}
+
+FunctionType *FunctionType::with_lang_linkage(LangLinkage ll) {
+    return ctxt().get_function(this, ll);
+}
+
+bool FunctionType::same_signature_as(FunctionType *rhs) const {
+    return signature == rhs->signature;
+}
+
+size_t FunctionType::hash_sig() const {
+    return signature->hash_sig();
 }
 
 void FunctionType::finalize() {
     ctxt().backend().finalize(this);
 }
 
-Type *FunctionType::decay() {
+PointerType *FunctionType::decay() {
     return ctxt().get_pointer(this);
 }
 
 TypeID FunctionType::generate_id() const {
     size_t sig_hash = hash_sig();
 
-    VarHash<size_t, bool, TypeID> h;
-    return h(sig_hash, signature.variadic, FUNCTION_SALT);
+    VarHash<size_t, LangLinkage, TypeID> h;
+    return h(sig_hash, langlinkage, FUNCTION_SALT);
 }
 
 /*
@@ -1216,7 +1293,14 @@ Type *TypeBuilder::finalize(Optional<Ref<Vec<FuncParam>>> last_params) {
                     }
 
                     // Wrap the base as the return type in a function type.
-                    curr = this->ctxt().get_function(fn.loc, curr, std::move(params), fn.variadic);
+                    try {
+                        curr = this->ctxt().get_function(curr, params, fn.variadic);
+                    } catch (TypeSemError& e) {
+                        if (!e.has_loc()) {
+                            e.add_loc(fn.loc);
+                        }
+                        throw;
+                    }
                 }},
             next_cstrctr);
 
@@ -1537,7 +1621,7 @@ ArrayType *TypeContext::set_array_size(Type *base, uint64_t size) {
 }
 
 FunctionType *
-TypeContext::get_function(Location loc, Type *returntype, Vec<Type *> params, bool variadic) {
+TypeContext::get_function(Type *returntype, ArrayRef<Type *> params, bool variadic, LangLinkage langlink) {
     /*
     Function types do not need to be scope-aware, since their names are purely symbolic, and
     have no bearing on type equality. If a pointer to a function that was declared in a non-global
@@ -1550,30 +1634,61 @@ TypeContext::get_function(Location loc, Type *returntype, Vec<Type *> params, bo
     dbprint("TypeContext: getting function type");
 
     if (returntype->is_array() || returntype->is_function()) {
-        // fixme: use proper location
-        throw InvalidReturnTypeError(loc);
+        // throw without location, let catcher add the location
+        throw InvalidReturnTypeError();
     }
 
-    Box<FunctionType> func = std::make_unique<FunctionType>(returntype, *this);
-    FunctionType *ret      = func.get();
+    std::string name = FunctionType::type_name(returntype, params, variadic, langlink);
 
-    FunctionType::FunctionSignature sig = {returntype, std::move(params), variadic};
-    func->signature                     = std::move(sig);
-
-    /*
-    function type naming convention:
-
-    "function_v_<sig hash>" if variadic,
-    "function_<sig hash>" if not.
-    */
-    size_t hash = func->hash_sig();
-    std::string name =
-        variadic ? "function_v" + std::to_string(hash) : "function_" + std::to_string(hash);
+    size_t sighash = FunctionType::signature_hash(returntype, params, variadic);
 
     if (function_types.contains(name)) {
         dbprint("TypeContext: existing function type found");
         return function_types.find(name)->second.get();
     }
+
+    FunctionSignature *sigptr;
+    Box<FunctionType> func = std::make_unique<FunctionType>(returntype, *this, langlink);
+    
+    if (!signatures.contains(sighash)) {
+        Box<FunctionSignature> sig = std::make_unique<FunctionSignature>(returntype, params, variadic);
+        sigptr = sig.get();
+        signatures[sighash] = std::move(sig);
+    } else {
+        sigptr = signatures.find(sighash)->second.get();
+    }
+
+    func->signature = sigptr;
+    FunctionType *ret      = func.get();
+
+    function_types[name] = std::move(func);
+
+    register_type_id(ret);
+    return ret;
+}
+
+FunctionType *TypeContext::get_function(FunctionType *functype, LangLinkage langlink) {
+    if (functype->langlinkage == langlink) {
+        return functype;
+    }
+
+    Type *returntype = functype->get_signature().returntype;
+    ArrayRef<Type *> params = functype->params();
+    bool variadic = functype->is_variadic();
+
+    std::string name = FunctionType::type_name(returntype, params, variadic, langlink);
+    if (function_types.contains(name)) {
+        return function_types.find(name)->second.get();
+    }
+
+    size_t sighash = functype->get_signature().hash_sig();
+    ECC_ASSERT(signatures.contains(sighash), "TypeContext signatures not found, should exist");
+    auto *funcsig = signatures.find(sighash)->second.get();
+
+    Box<FunctionType> func = std::make_unique<FunctionType>(returntype, *this, langlink);
+    func->signature = funcsig;
+
+    FunctionType *ret = func.get();
 
     function_types[name] = std::move(func);
 
@@ -1662,7 +1777,7 @@ bool TypeContext::is_valid_print_signature(FunctionType *signature) {
         return false;
     }
 
-    return signature->is_variadic();
+    return signature->is_variadic() && signature->get_lang_linkage() == LangLinkage::C;
 }
 
 bool TypeContext::is_valid_implicitmain_signature(FunctionType *signature) {

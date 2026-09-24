@@ -217,7 +217,7 @@ static tokens::BinaryOp assign_op_to_binop(tokens::AssignOp op) {
 void CFGBuilder::visit(ProgramLIR& node) {
     dbprint("visiting ProgramLIR node ", node.loc ? *node.loc : Location{});
 
-    FunctionType *implicit_main_sig = types.get_function({}, types.get_void(), {}, false);
+    FunctionType *implicit_main_sig = types.get_function(types.get_void(), {}, false);
 
     curr_func = prog_cfg.add_function(implicit_main_sig, EC_IMPLICIT_MAIN, Linkage::EXTERNAL);
     curr_func->initialize();
@@ -839,6 +839,12 @@ void CFGBuilder::visit(CastExprLIR& node) {
     case CK::Explicit:
     case CK::Implicit: {
         dbprint("    rvalue cast, evaluating on rvalue eval");
+        /*
+        note: we let implicit extern "C" to plain language linkage casts turn
+        into an actual cast instruction here, because we need codegen to see it.
+        extern "C" to non-extern "C" casts are not pure semantics, they might have actual
+        differences at the ABI level, so we need to propagate the cast all the way to codegen.
+        */
         Value *operand = eval(*node.inner);
         last_value =
             curr_blk->add_instruction<CastInst>(node.act_type, node.target, operand, node.loc);

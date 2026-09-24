@@ -6,8 +6,12 @@ This document lays out the planned improvements and updates for the EnlightenedC
 
 These are to-dos that are important, but do not constitute a milestone. They are simply internal or small to-dos that need to be noted down somewhere, and do not correspond to any particular goal timeframe as laid out below. Generally, something noted here means "implement whenever it is needed".
 
-- Implement linkage semantics in LIR and CFG
+- Implement linkage and language-linkage semantics in LIR and CFG
+- Factor out language linkage into its own AST node, so function pointers can be marked `extern "C"`
+  - A new specifier called `LangLinkageSpecifier`, rule `language-linkage-specifier`
 - Complete CFG printer
+- Refactor LIR Constinit to make addresses of global symbols const-foldable
+  - e.g. `U0 (*fp)() = cb;` and `U32 *globaladdr = &someglobalu32` should be const-initable
 - Implement `global` and `typedef` (as its own AST node)
 - Add general I/O framework (modelled after `llvm::RawOStream`) for file and stdio I/O
 - Refactor ConstEvaluator and Value to focus on InvalidCompileTimeEval (& properly catch EvalSemanticErrors)
@@ -32,12 +36,14 @@ These are to-dos that are important, but do not constitute a milestone. They are
   - For use in for-range loops (`for (U32 i : 0...5) {}`)
 - Add proper unit testing, aim for >90% codecov
 - Add nice error reporting, showing error location and context
+- Add `#pragma ecc link` for in-source dynamic library linking
 - Add concrete config control and CLI args
 
 ## Medium-Term
 
 - Transition off `cpp` and `flex` into a handwritten preprocessor/lexer
   - This is necessary for the JIT to work properly, we can hold on to the bison parser for now
+  - Turn `#pragma ecc link` into `#link`
 - Implement and properly integrate the JIT REPL
 - Implement various optimizations using CFG walkers
 - Implement a basic stdlib
