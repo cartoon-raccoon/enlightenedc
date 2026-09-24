@@ -47,11 +47,7 @@ void Lexer::handle_linemarker(const char *yytext) {
 
         // 3. Update your tracking location
         // Both start and end of the NEXT token will be in this file
-        loc.begin.filename = new_file_ptr;
-        loc.end.filename   = new_file_ptr;
-
-        // Update line number (subtract 1 because the NEXT line is line_num)
-        loc.begin.line = line_num;
-        loc.end.line   = line_num;
+        loc.end = Point(new_file_ptr, 1, line_num);
+        loc.step();
     }
 }
