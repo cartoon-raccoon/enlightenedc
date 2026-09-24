@@ -152,6 +152,15 @@ public:
     using ConstIterator = ArenaVecIter<const T>;
     using ReverseIter   = std::reverse_iterator<Iterator>;
 
+    using value_type = T;
+    using pointer = value_type *;
+    using const_pointer = const value_type *;
+    using const_reference = const value_type &;
+    using reference = value_type &;
+    using iterator = Iterator;
+    using const_iterator = ConstIterator;
+    using reverse_iterator = ReverseIter;
+
     ArenaVec() : ArenaVecBase<T, N>() {}
 
     explicit ArenaVec(size_t size) : ArenaVecBase<T, N>() { reserve(size); }
@@ -337,6 +346,12 @@ public:
     size_t size() const { return this->len; }
 
     size_t max_size() const { return (std::numeric_limits<size_t>::max() / sizeof(T)); }
+
+    bool operator==(const ArenaVec& other) const { return equals(other); }
+
+    bool equals(const ArenaVec& other) const {
+        return std::ranges::equal(*this, other);
+    }
 
     void reserve(size_t size = N) {
         if (this->ptr != nullptr)
