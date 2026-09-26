@@ -93,6 +93,8 @@ public:
 
     bool operator==(const ArrayRef other) { return equals(other); }
 
+    const T& operator[](size_type idx) { return elems + idx; }
+
     bool equals(const ArrayRef other) {
         return std::ranges::equal(*this, other);
     }

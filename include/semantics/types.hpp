@@ -474,8 +474,9 @@ protected:
 };
 
 /**
-An abstract class representing a type that is constructed from BaseTypes,
-or is user-defined. These are the unions, classes, and enums.
+An abstract class representing a type that is defined by the programmer. These are the unions, classes, and enums.
+
+## The `UserType` lifecycle
 */
 class UserType : public BaseType {
 public:
@@ -503,12 +504,16 @@ public:
 
     bool is_being_defined() const { return def_in_progress; }
 
+    /**
+    Start the definition of a UserType.
+    */
     void start() {
+        ECC_ASSERT(!def_in_progress, "start() called on a UserType already being defined");
         def_in_progress = true;
     }
 
     /**
-    Set the location where the type was defined and mark it as complete.
+    Mark a UserType as complete, and set the location where it was defined.
     */
     virtual void finish(Location loc) {
         ECC_ASSERT_N(def_in_progress);
@@ -888,6 +893,13 @@ protected:
 
     QualifiedType(TypeContext& tyctxt, Type *base) : Type(base->kind, tyctxt), base(base) {}
 public:
+    /**
+    A scheme for identifying the qualifiers on a given type.
+
+    This is a simple bit flag system, where each bit corresponding to the presence of a particular flag.
+    Setting the presence of a qualifier or checking for the presence of a qualifier uses the standard `|` and `&`
+    operations.
+    */
     enum Flags : uint8_t {
         UNQUAL   = 0,
         CONST    = 1 << 0,
@@ -915,12 +927,27 @@ public:
         return a = a & b;
     }
 
+    /**
+    Get the immediate base of a QualifiedType.
+
+    This might be another QualifiedType.
+    */
     Type *get_base() { return base; }
 
+    /**
+    Get the completely unqualified base type, setting `flags` as a side-effect to indicate which
+    qualifiers are present.
+    */
     Type *unqual(Flags& flags);
 
+    /**
+    Get the completely unqualified base type.
+    */
     Type *unqual() override;
 
+    /**
+    Get a `Flags` with all present qualifiers having their respective bits set.
+    */
     Flags all_qualflags();
 
     virtual Flags qualflag() = 0;
@@ -979,6 +1006,10 @@ public:
     QualifiedType *as_qualified() override { return this; }
 
     ConstType *as_const() override { return base->as_const(); }
+
+    AtomicType *as_atomic() override { return base->as_atomic(); }
+
+    VolatileType *as_volatile() override { return base->as_volatile(); }
 
     bool is_complete() const override { return base->is_complete(); }
 
@@ -1176,8 +1207,10 @@ public:
 
     bool castable_to(Type *dst) override;
 
-    // Whether this Primitive type can be represented as an integer.
-    // Returns true for all primitive types except F64 and Bool.
+    /**
+    Whether this Primitive type can be represented as an integer.
+    Returns true for all primitive types except F64 and Bool.
+    */
     bool is_integer() const;
 
     bool is_float() const;
@@ -1618,11 +1651,14 @@ single (src, dst) pair, not "yes, via an intermediate step".
 */
 class PointerType : public DerivedType {
 public:
-    // Returns the level of nesting the pointer has (i.e. how many *'s there are).
+    /**
+    Returns the level of nesting the pointer has (i.e. how many *'s there are).
+    */
     size_t nesting_lvl() const;
 
-    // Get the true base type of the pointer.
-    // A base type can also be an array, hence the Type * return type.
+    /** Get the true base type of the pointer.
+    A base type can also be an array, hence the Type * return type.
+    */
     Type *true_base();
 
     PointerType *as_pointer() override { return this; }
@@ -1688,7 +1724,7 @@ protected:
 };
 
 /**
-A sized array type (`U8 [4]`, `U32 [6]`, etc.).
+An array type (`U8 [4]`, `U32 []`, etc.), that can be unsized.
 
 ## Coercibility
 
@@ -1752,7 +1788,9 @@ public:
     static bool classof(const Type *node) { return !node->is_qualified() && node->kind == Kind::ARRAY; }
 
 protected:
-    // The number of elements in the array, populated after elaboration.
+    /**
+    The number of elements in the array, populated after elaboration.
+    */
     Optional<uint64_t> arr_size;
 
     friend class TypeContext;
@@ -1834,7 +1872,7 @@ public:
 
     size_t hash_sig() const;
 
-    // Test if two function signatures are the same.
+    /** Test if two function signatures are the same. */
     bool operator==(FunctionSignature& other) {
         // Test return type
         if (other.returntype != returntype) {
@@ -1892,7 +1930,9 @@ public:
 
     size_t alloc_size() override; // override to immediately throw runtime error
 
-    // Generate a hash based on the function signature.
+    /**
+    Generate a hash based on the function signature.
+    */
     std::size_t hash_sig() const;
 
     Type *returntype() const { return signature->returntype; }
@@ -1960,10 +2000,14 @@ the type and returns a pointer to the created concrete type.
 */
 class TypeBuilder {
 public:
-    // Add an array to the type.
+    /**
+    Add an array to the type.
+    */
     void add_array(uint64_t size);
 
-    /** Add an unsized array to the type. */
+    /**
+    Add an unsized array to the type.
+    */
     void add_array();
 
     void add_pointer(bool is_const);
@@ -2129,14 +2173,16 @@ public:
     */
     UnionType *get_union(Location decl_loc, sema::sym::Scope *scope);
 
-    /*
+    /**
     Create or retrieve an enum with the name `name`.
 
     Returns `nullptr` if a type with `name` is already declared, but is not an enum.
     */
     EnumType *get_enum(Location decl_loc, StringRef name, sema::sym::Scope *scope);
 
-    // Create an anonymous enum.
+    /**
+    Create an anonymous enum.
+    */
     EnumType *get_enum(Location decl_loc, sema::sym::Scope *scope);
 
     /**
@@ -2161,10 +2207,14 @@ public:
     */
     PointerType *decay_array_ref(ArrayType *arr);
 
-    // Create or get an array with the given `base` type and specified size.
+    /**
+    Create or get an array with the given `base` type and specified size.
+    */
     ArrayType *get_array(Type *base, uint64_t size);
 
-    // Create or get an array with the given `base` type and no specified size.
+    /**
+    Create or get an array with the given `base` type and no specified size.
+    */
     ArrayType *get_array(Type *base);
 
     /**
@@ -2290,7 +2340,7 @@ private:
                 }
             }
         }
-        user_types.insert({mangled, std::move(type)});
+        user_types.insert_or_assign(mangled, std::move(type));
 
         return ret;
     }
